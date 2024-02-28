@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2024-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,63 +20,43 @@
 
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
+#include "RiaLogging.h"
+#include "RiaOsduConnector.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesOsdu.h"
+
+#include "RigWellPath.h"
 
 #include "RimFileWellPath.h"
+#include "RimOilField.h"
+#include "RimOsduWellPath.h"
 #include "RimProject.h"
 #include "RimTools.h"
+#include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
 
 #include "RiuMainWindow.h"
 #include "RiuWellImportWizard.h"
 
+#include "cvfObject.h"
+
 #include <QAction>
 #include <QDir>
-#include <QFile>
-#include <QMessageBox>
 
-CAF_CMD_SOURCE_INIT( RicWellPathsImportSsihubFeature, "RicWellPathsImportSsihubFeature" );
+CAF_CMD_SOURCE_INIT( RicWellPathsImportOsduFeature, "RicWellPathsImportOsduFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathsImportSsihubFeature::onActionTriggered( bool isChecked )
+void RicWellPathsImportOsduFeature::onActionTriggered( bool isChecked )
 {
     RiaApplication* app = RiaApplication::instance();
     if ( !app->project() ) return;
 
-    if ( !app->isProjectSavedToDisc() )
-    {
-        RiaGuiApplication* guiApp = RiaGuiApplication::instance();
-        if ( guiApp )
-        {
-            QMessageBox msgBox( guiApp->mainWindow() );
-            msgBox.setIcon( QMessageBox::Question );
-
-            QString questionText = QString( "Import of well paths will be stored as a part of a ResInsight project file. Please "
-                                            "save the project to file before importing well paths." );
-
-            msgBox.setText( questionText );
-            msgBox.setInformativeText( "Do you want to save the project?" );
-            msgBox.setStandardButtons( QMessageBox::Yes | QMessageBox::No );
-
-            int ret = msgBox.exec();
-            if ( ret == QMessageBox::Yes )
-            {
-                guiApp->saveProject();
-            }
-        }
-
-        if ( !app->isProjectSavedToDisc() )
-        {
-            return;
-        }
-    }
-
     // Update the UTM bounding box from the reservoir
     app->project()->computeUtmAreaOfInterest();
 
-    QString wellPathsFolderPath = RimFileWellPath::getCacheDirectoryPath();
+    QString wellPathsFolderPath = QStandardPaths::writableLocation( QStandardPaths::CacheLocation ) + QString( "/wellpaths/" );
     QDir::root().mkpath( wellPathsFolderPath );
 
     if ( !app->project()->wellPathImport() ) return;
@@ -86,35 +65,56 @@ void RicWellPathsImportSsihubFeature::onActionTriggered( bool isChecked )
     QString copyOfOriginalObject = app->project()->wellPathImport()->writeObjectToXmlString();
 
     if ( !app->preferences() ) return;
-    RiuWellImportWizard wellImportwizard( app->preferences()->ssihubAddress,
-                                          wellPathsFolderPath,
-                                          app->project()->wellPathImport(),
-                                          RiuMainWindow::instance() );
 
-    // Get password/username from application cache
-    {
-#ifdef _DEBUG
-        // Valid credentials for ssihubfake received in mail from Håkon
-        QString ssihubUsername = "admin";
-        QString ssihubPassword = "resinsight";
-#else
-        QString ssihubUsername = app->cacheDataObject( "ssihub_username" ).toString();
-        QString ssihubPassword;
-#endif
-        wellImportwizard.setCredentials( ssihubUsername, ssihubPassword );
-    }
+    RimProject* project = RimProject::current();
+    if ( !project ) return;
+
+    if ( project->oilFields.empty() ) return;
+
+    RimOilField* oilField = project->activeOilField();
+    if ( !oilField ) return;
+
+    RiaPreferencesOsdu* osduPreferences = app->preferences()->osduPreferences();
+
+    const QString server         = osduPreferences->server();
+    const QString dataParitionId = osduPreferences->dataPartitionId();
+    const QString authority      = osduPreferences->authority();
+    const QString scopes         = osduPreferences->scopes();
+    const QString clientId       = osduPreferences->clientId();
+
+    RiaOsduConnector osduConnector( RiuMainWindow::instance(), server, dataParitionId, authority, scopes, clientId );
+
+    RiuWellImportWizard wellImportwizard( wellPathsFolderPath, &osduConnector, app->project()->wellPathImport(), RiuMainWindow::instance() );
 
     if ( QDialog::Accepted == wellImportwizard.exec() )
     {
-        QStringList wellPaths = wellImportwizard.absoluteFilePathsToWellPaths();
-        if ( !wellPaths.empty() )
+        std::vector<RiuWellImportWizard::WellInfo> importedWells = wellImportwizard.importedWells();
+        for ( auto w : importedWells )
         {
-            QStringList errorMessages;
-            app->addWellPathsToModel( wellPaths, &errorMessages );
-            app->project()->scheduleCreateDisplayModelAndRedrawAllViews();
+            auto wellPath = new RimOsduWellPath;
+            wellPath->setName( w.name );
+            wellPath->setWellId( w.wellId );
+            wellPath->setWellboreId( w.wellboreId );
+            wellPath->setWellboreTrajectoryId( w.wellboreTrajectoryId );
+            wellPath->setFileId( w.fileId );
+
+            oilField->wellPathCollection->addWellPath( wellPath );
+
+            auto [wellPathGeometry, errorMessage] = RimWellPathCollection::loadWellPathGeometryFromOsdu( &osduConnector, w.fileId );
+            if ( wellPathGeometry.notNull() )
+            {
+                wellPath->setWellPathGeometry( wellPathGeometry.p() );
+            }
+            else
+            {
+                RiaLogging::error( "Importing OSDU well failed: " + errorMessage );
+            }
+
+            oilField->wellPathCollection->updateConnectedEditors();
         }
 
-        app->setCacheDataObject( "ssihub_username", wellImportwizard.field( "username" ) );
+        project->updateConnectedEditors();
+        app->project()->scheduleCreateDisplayModelAndRedrawAllViews();
     }
     else
     {
@@ -125,8 +125,8 @@ void RicWellPathsImportSsihubFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathsImportSsihubFeature::setupActionLook( QAction* actionToSetup )
+void RicWellPathsImportOsduFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Import Well Paths from &SSI-hub" );
+    actionToSetup->setText( "Import Well Paths from &OSDU" );
     actionToSetup->setIcon( QIcon( ":/WellCollection.png" ) );
 }

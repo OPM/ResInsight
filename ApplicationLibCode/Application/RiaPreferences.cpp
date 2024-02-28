@@ -279,6 +279,9 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitFieldNoDefault( &m_systemPreferences, "systemPreferences", "systemPreferences" );
     m_systemPreferences = new RiaPreferencesSystem;
+
+    CAF_PDM_InitFieldNoDefault( &m_osduPreferences, "osduPreferences", "osduPreferences" );
+    m_osduPreferences = new RiaPreferencesOsdu;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -487,6 +490,10 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         m_loggerTrapSignalAndFlush.uiCapability()->setUiReadOnly( !m_loggerFilename().first );
         m_loggerFlushInterval.uiCapability()->setUiReadOnly( !m_loggerFilename().first );
     }
+    else if ( uiConfigName == RiaPreferences::tabNameOsdu() )
+    {
+        m_osduPreferences()->uiOrdering( uiConfigName, uiOrdering );
+    }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {
         m_systemPreferences()->uiOrdering( uiConfigName, uiOrdering );
@@ -617,6 +624,14 @@ QString RiaPreferences::tabNameSystem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameOsdu()
+{
+    return "Osdu";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaPreferences::tabNameImportExport()
 {
     return "Import/Export";
@@ -654,6 +669,7 @@ QStringList RiaPreferences::tabNames()
     names << tabNameGeomech();
 #endif
     names << tabNameImportExport();
+    names << tabNameOsdu();
 
     if ( RiaApplication::enableDevelopmentFeatures() )
     {
@@ -1016,6 +1032,14 @@ RiaPreferencesSystem* RiaPreferences::systemPreferences() const
 RiaPreferencesGeoMech* RiaPreferences::geoMechPreferences() const
 {
     return m_geoMechPreferences();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaPreferencesOsdu* RiaPreferences::osduPreferences() const
+{
+    return m_osduPreferences();
 }
 
 //--------------------------------------------------------------------------------------------------

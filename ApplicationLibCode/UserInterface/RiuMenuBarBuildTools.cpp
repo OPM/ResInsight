@@ -138,7 +138,7 @@ void RiuMenuBarBuildTools::addImportMenuWithActions( QObject* parent, QMenu* men
     importMenu->addSeparator();
     QMenu* importWellMenu = importMenu->addMenu( QIcon( ":/Well.svg" ), "Well Data" );
     importWellMenu->addAction( cmdFeatureMgr->action( "RicWellPathsImportFileFeature" ) );
-    importWellMenu->addAction( cmdFeatureMgr->action( "RicWellPathsImportSsihubFeature" ) );
+    importWellMenu->addAction( cmdFeatureMgr->action( "RicWellPathsImportOsduFeature" ) );
     importWellMenu->addAction( cmdFeatureMgr->action( "RicWellLogsImportFileFeature" ) );
     importWellMenu->addAction( cmdFeatureMgr->action( "RicWellPathFormationsImportFileFeature" ) );
     importWellMenu->addAction( cmdFeatureMgr->action( "RicImportWellMeasurementsFeature" ) );

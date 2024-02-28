@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2024-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,16 +18,21 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include <QOAuthHttpServerReplyHandler>
+#include <QObject>
+#include <QString>
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicWellPathsImportOsduFeature : public caf::CmdFeature
+class RiaOsduOAuthHttpServerReplyHandler : public QOAuthHttpServerReplyHandler
 {
-    CAF_CMD_HEADER_INIT;
+    Q_OBJECT
+public:
+    RiaOsduOAuthHttpServerReplyHandler( quint16 port, QObject* parent );
 
-protected:
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
+    QString callback() const override;
+
+private:
+    quint16 m_port;
 };

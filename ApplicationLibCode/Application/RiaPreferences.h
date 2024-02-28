@@ -24,6 +24,7 @@
 #include "RiaDateTimeDefines.h"
 #include "RiaDefines.h"
 #include "RiaFontCache.h"
+#include "RiaPreferencesOsdu.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -43,6 +44,7 @@ class RifReaderSettings;
 class RiaPreferencesSummary;
 class RiaPreferencesGeoMech;
 class RiaPreferencesSystem;
+class RiaPreferencesOsdu;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -125,6 +127,7 @@ public:
     RiaPreferencesGeoMech* geoMechPreferences() const;
     RiaPreferencesSummary* summaryPreferences() const;
     RiaPreferencesSystem*  systemPreferences() const;
+    RiaPreferencesOsdu*    osduPreferences() const;
 
 public:
     caf::PdmField<bool> enableGrpcServer;
@@ -170,6 +173,7 @@ private:
     static QString tabNamePlotting();
     static QString tabNameScripting();
     static QString tabNameSystem();
+    static QString tabNameOsdu();
     static QString tabNameImportExport();
 
     static double defaultMarginSize( QPageSize::PageSizeId pageSizeId );
@@ -229,6 +233,9 @@ private:
 
     // System settings
     caf::PdmChildField<RiaPreferencesSystem*> m_systemPreferences;
+
+    // Osdu settings
+    caf::PdmChildField<RiaPreferencesOsdu*> m_osduPreferences;
 
     // 3d view
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>       m_defaultMeshModeType;

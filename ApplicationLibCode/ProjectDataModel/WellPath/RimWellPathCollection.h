@@ -38,6 +38,7 @@
 
 #include <memory>
 
+class RiaOsduConnector;
 class RifWellPathImporter;
 class RigWellPath;
 class RimFileWellPath;
@@ -130,6 +131,8 @@ public:
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     void onChildAdded( caf::PdmFieldHandle* containerForNewObject ) override;
+
+    static std::pair<cvf::ref<RigWellPath>, QString> loadWellPathGeometryFromOsdu( RiaOsduConnector* osduConnector, const QString& fileId );
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
