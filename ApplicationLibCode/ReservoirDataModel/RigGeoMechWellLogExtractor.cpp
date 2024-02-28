@@ -195,7 +195,6 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
 
             auto [ppResultName, pp0ResultName] = mapSHMkToPP( QString::fromStdString( resAddr.fieldName ) );
             wellBoreSH_MatthewsKelly( timeStepIndex, frameIndex, ppResultName, pp0ResultName, values );
-            values->front() = wbsCurveValuesAtMsl();
         }
         else
         {
@@ -870,6 +869,10 @@ void RigGeoMechWellLogExtractor::wellBoreSH_MatthewsKelly( int                  
     calculateWbsParameterForAllSegments( RigWbsParameter::OBG0(), 0, 0, &OBG0, true );
     calculateWbsParameterForAllSegments( RigWbsParameter::DF(), timeStepIndex, frameIndex, &DF, true );
 
+    std::vector<double>             ppSandAllSegments( intersections().size(), std::numeric_limits<double>::infinity() );
+    std::vector<WbsParameterSource> ppSources =
+        calculateWbsParameterForAllSegments( RigWbsParameter::PP_Reservoir(), timeStepIndex, frameIndex, &ppSandAllSegments, false );
+
     values->resize( intersections().size(), std::numeric_limits<double>::infinity() );
     if ( PP.size() != intersections().size() || PP0.size() != intersections().size() ) return;
 
@@ -880,8 +883,8 @@ void RigGeoMechWellLogExtractor::wellBoreSH_MatthewsKelly( int                  
 #pragma omp parallel for
     for ( int64_t intersectionIdx = 0; intersectionIdx < static_cast<int64_t>( intersections().size() ); ++intersectionIdx )
     {
-        if ( isValid( PP[intersectionIdx] ) && isValid( PP0[intersectionIdx] ) && isValid( OBG0[intersectionIdx] ) &&
-             isValid( K0_SH[intersectionIdx] ) && isValid( DF[intersectionIdx] ) )
+        if ( ppSources[intersectionIdx] == RigWbsParameter::GRID && isValid( PP[intersectionIdx] ) && isValid( PP0[intersectionIdx] ) &&
+             isValid( OBG0[intersectionIdx] ) && isValid( K0_SH[intersectionIdx] ) && isValid( DF[intersectionIdx] ) )
         {
             ( *values )[intersectionIdx] = ( K0_SH[intersectionIdx] * ( OBG0[intersectionIdx] - PP0[intersectionIdx] ) +
                                              PP0[intersectionIdx] + DF[intersectionIdx] * ( PP[intersectionIdx] - PP0[intersectionIdx] ) );
