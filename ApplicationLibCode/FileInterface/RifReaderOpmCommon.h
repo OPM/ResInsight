@@ -28,6 +28,8 @@ class EInit;
 class ERst;
 } // namespace Opm::EclIO
 
+class RigMainGrid;
+
 //==================================================================================================
 //
 //
@@ -38,13 +40,14 @@ public:
     RifReaderOpmCommon();
     ~RifReaderOpmCommon() override;
 
-    bool open( const QString& fileName, RigEclipseCaseData* eclipseCase ) override;
+    bool open( const QString& fileName, RigEclipseCaseData* caseData ) override;
 
     bool staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values ) override;
     bool dynamicResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values ) override;
 
 private:
-    void buildMetaData( RigEclipseCaseData* eclipseCase );
+    void buildMetaData( RigEclipseCaseData* caseData );
+    bool importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* caseData );
 
     struct TimeDataFile
     {
