@@ -370,7 +370,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder.subMenuStart( "Import" );
             menuBuilder << "RicWellPathsImportFileFeature";
-            menuBuilder << "RicWellPathsImportSsihubFeature";
+            menuBuilder << "RicWellPathsImportOsduFeature";
             menuBuilder << "RicWellPathFormationsImportFileFeature";
             menuBuilder << "RicWellLogsImportFileFeature";
             menuBuilder << "RicReloadWellPathFormationNamesFeature";

@@ -270,8 +270,6 @@ void RimProject::close()
     casesObsolete.deleteChildren();
     caseGroupsObsolete.deleteChildren();
 
-    wellPathImport->regions().deleteChildren();
-
     commandObjects.deleteChildren();
 
     multiSnapshotDefinitions.deleteChildren();
@@ -512,7 +510,6 @@ void RimProject::setProjectFileNameAndUpdateDependencies( const QString& project
         filePath->setPath( newFilePath );
     }
 
-    wellPathImport->updateFilePaths();
     auto* wellPathColl = RimTools::wellPathCollection();
     if ( wellPathColl )
     {

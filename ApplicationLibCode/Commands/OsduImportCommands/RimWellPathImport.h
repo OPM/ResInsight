@@ -41,25 +41,17 @@ public:
     RimWellPathImport();
     ~RimWellPathImport() override;
 
-    caf::PdmField<bool> wellTypeSurvey;
-    caf::PdmField<bool> wellTypePlans;
-
     caf::PdmField<caf::AppEnum<UtmFilterEnum>> utmFilterMode;
     caf::PdmField<double>                      north;
     caf::PdmField<double>                      south;
     caf::PdmField<double>                      east;
     caf::PdmField<double>                      west;
 
-    caf::PdmChildArrayField<RimOilRegionEntry*> regions;
-
-    void updateRegions( const QStringList& regions, const QStringList& fields, const QStringList& edmIds );
-
+protected:
     void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     void updateFieldVisibility();
 
-    void updateFilePaths();
+    caf::PdmChildArrayField<RimOilRegionEntry*> regions_OBSOLETE;
 };

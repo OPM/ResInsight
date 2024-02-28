@@ -96,6 +96,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCalculationImporter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCalculationExporter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifPolygonReader.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifOsduWellPathReader.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -191,6 +192,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCalculationImporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCalculationExporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifPolygonReader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifOsduWellPathReader.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

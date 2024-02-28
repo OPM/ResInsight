@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2024- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,16 +18,18 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include <QString>
+
+#include "cvfObject.h"
+
+class RigWellPath;
 
 //==================================================================================================
-///
+//
+//
 //==================================================================================================
-class RicWellPathsImportOsduFeature : public caf::CmdFeature
+class RifOsduWellPathReader
 {
-    CAF_CMD_HEADER_INIT;
-
-protected:
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
+public:
+    static std::pair<cvf::ref<RigWellPath>, QString> parseCsv( const QString& content );
 };
