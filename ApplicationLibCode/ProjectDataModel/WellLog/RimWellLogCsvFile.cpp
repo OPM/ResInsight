@@ -117,22 +117,25 @@ std::vector<std::pair<double, double>> RimWellLogCsvFile::findMdAndChannelValues
     std::vector<RimWellLogCsvFile*> wellLogFiles = wellPath.descendantsIncludingThisOfType<RimWellLogCsvFile>();
     for ( RimWellLogCsvFile* wellLogFile : wellLogFiles )
     {
-        RigWellLogCsvFile*  fileData      = wellLogFile->wellLogFileData();
-        std::vector<double> channelValues = fileData->values( channelName );
-        if ( !channelValues.empty() )
+        RigWellLogCsvFile* fileData = wellLogFile->wellLogFileData();
+        if ( fileData )
         {
-            if ( unitString )
+            std::vector<double> channelValues = fileData->values( channelName );
+            if ( !channelValues.empty() )
             {
-                *unitString = fileData->wellLogChannelUnitString( channelName );
+                if ( unitString )
+                {
+                    *unitString = fileData->wellLogChannelUnitString( channelName );
+                }
+                std::vector<double> depthValues = fileData->depthValues();
+                CVF_ASSERT( depthValues.size() == channelValues.size() );
+                std::vector<std::pair<double, double>> depthValuePairs;
+                for ( size_t i = 0; i < depthValues.size(); ++i )
+                {
+                    depthValuePairs.push_back( std::make_pair( depthValues[i], channelValues[i] ) );
+                }
+                return depthValuePairs;
             }
-            std::vector<double> depthValues = fileData->depthValues();
-            CVF_ASSERT( depthValues.size() == channelValues.size() );
-            std::vector<std::pair<double, double>> depthValuePairs;
-            for ( size_t i = 0; i < depthValues.size(); ++i )
-            {
-                depthValuePairs.push_back( std::make_pair( depthValues[i], channelValues[i] ) );
-            }
-            return depthValuePairs;
         }
     }
     return std::vector<std::pair<double, double>>();
