@@ -31,11 +31,8 @@
 #include "RimEclipseView.h"
 #include "RimGeoMechView.h"
 #include "RimModeledWellPath.h"
-#include "RimWellPath.h"
 #include "RimWellPathGeometryDef.h"
 #include "RimWellPathTarget.h"
-
-#include "RiuViewerCommands.h"
 
 #include "RivFemPartGeometryGenerator.h"
 #include "RivFemPickSourceInfo.h"
@@ -43,7 +40,8 @@
 #include "RivWellPathSourceInfo.h"
 
 #include "cafDisplayCoordTransform.h"
-#include "cafSelectionManager.h"
+
+#include <QApplication>
 
 #include <vector>
 
