@@ -1952,10 +1952,7 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
     if ( seismicSectionCollection()->shouldBeVisibleInTree() ) uiTreeOrdering.add( seismicSectionCollection() );
 
-    if ( RiaApplication::enableDevelopmentFeatures() )
-    {
-        uiTreeOrdering.add( m_polygonInViewCollection );
-    }
+    uiTreeOrdering.add( m_polygonInViewCollection );
 
     uiTreeOrdering.skipRemainingChildren( true );
 }

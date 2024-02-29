@@ -30,7 +30,7 @@ CAF_PDM_SOURCE_INIT( RimPolygonCollection, "RimPolygonCollection" );
 //--------------------------------------------------------------------------------------------------
 RimPolygonCollection::RimPolygonCollection()
 {
-    CAF_PDM_InitObject( "Polygons  (Under construction)", ":/PolylinesFromFile16x16.png" );
+    CAF_PDM_InitObject( "Polygons", ":/PolylinesFromFile16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_polygons, "Polygons", "Polygons" );
     CAF_PDM_InitFieldNoDefault( &m_polygonFiles, "PolygonFiles", "Polygon Files" );

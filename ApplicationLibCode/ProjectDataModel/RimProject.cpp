@@ -1534,11 +1534,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( oilField->formationNamesCollection() ) uiTreeOrdering.add( oilField->formationNamesCollection() );
             if ( oilField->completionTemplateCollection() ) uiTreeOrdering.add( oilField->completionTemplateCollection() );
             if ( oilField->annotationCollection() ) uiTreeOrdering.add( oilField->annotationCollection() );
-
-            if ( RiaApplication::enableDevelopmentFeatures() )
-            {
-                if ( oilField->polygonCollection() ) uiTreeOrdering.add( oilField->polygonCollection() );
-            }
+            if ( oilField->polygonCollection() ) uiTreeOrdering.add( oilField->polygonCollection() );
         }
 
         uiTreeOrdering.add( colorLegendCollection() );
