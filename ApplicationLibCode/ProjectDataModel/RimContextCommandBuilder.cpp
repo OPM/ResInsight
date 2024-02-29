@@ -23,7 +23,6 @@
 
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
-#include "Polygons/RimPolygonCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "Rim3dWellLogCurveCollection.h"
 #include "Rim3dWellLogExtractionCurve.h"
@@ -1138,11 +1137,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimEclipseResultAddress*>( firstUiItem ) )
         {
             menuBuilder << "RicAddGridCalculationFeature";
-        }
-        else if ( dynamic_cast<RimPolygonCollection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicNewPolygonFeature";
-            menuBuilder << "RicNewPolygonFileFeature";
         }
 
         if ( dynamic_cast<Rim3dView*>( firstUiItem ) )

@@ -23,6 +23,8 @@
 #include "RimPolygonFile.h"
 #include "RimProject.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
+
 CAF_PDM_SOURCE_INIT( RimPolygonCollection, "RimPolygonCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -150,6 +152,15 @@ void RimPolygonCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childA
 void RimPolygonCollection::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
 {
     scheduleRedrawViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicNewPolygonFeature";
+    menuBuilder << "RicNewPolygonFileFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

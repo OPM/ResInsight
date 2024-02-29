@@ -189,7 +189,7 @@ void RimPolygonFile::updateName()
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFile::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
-    menuBuilder.addCmdFeature( "RicReloadPolygonFileFeature" );
+    menuBuilder << "RicReloadPolygonFileFeature";
 }
 
 //--------------------------------------------------------------------------------------------------
