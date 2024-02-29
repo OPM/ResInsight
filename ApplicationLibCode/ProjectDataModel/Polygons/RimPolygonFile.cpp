@@ -77,6 +77,15 @@ void RimPolygonFile::loadData()
         m_polygons.deleteChildren();
 
         m_polygons.setValue( polygonsFromFile );
+
+        if ( polygonsFromFile.empty() )
+        {
+            RiaLogging::warning( "No polygons found in file: " + m_fileName().path() );
+        }
+        else
+        {
+            RiaLogging::warning( QString( "Imported %1 polygons from file: " ).arg( polygonsFromFile.size() ) + m_fileName().path() );
+        }
     }
 }
 
