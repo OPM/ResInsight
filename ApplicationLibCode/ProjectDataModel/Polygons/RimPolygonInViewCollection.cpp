@@ -43,31 +43,6 @@ RimPolygonInViewCollection::RimPolygonInViewCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonInViewCollection::setPolygonFile( RimPolygonFile* polygonFile )
-{
-    m_polygonFile = polygonFile;
-
-    QString name = "Polygons";
-
-    if ( m_polygonFile )
-    {
-        name = m_polygonFile->name();
-    }
-
-    setName( name );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimPolygonFile* RimPolygonInViewCollection::polygonFile() const
-{
-    return m_polygonFile;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimPolygonInViewCollection::updateFromPolygonCollection()
 {
     updateAllViewItems();
@@ -112,6 +87,24 @@ std::vector<RimPolygonInView*> RimPolygonInViewCollection::allPolygonsInView() c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonInViewCollection::setPolygonFile( RimPolygonFile* polygonFile )
+{
+    m_polygonFile = polygonFile;
+
+    updateName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPolygonFile* RimPolygonInViewCollection::polygonFile() const
+{
+    return m_polygonFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimCheckableNamedObject::fieldChangedByUi( changedField, oldValue, newValue );
@@ -135,6 +128,8 @@ void RimPolygonInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInViewCollection::updateAllViewItems()
 {
+    // Based on the same concept as RimSurfaceInViewCollection
+
     syncCollectionsWithView();
     syncPolygonsWithView();
     updateConnectedEditors();
@@ -145,24 +140,24 @@ void RimPolygonInViewCollection::updateAllViewItems()
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInViewCollection::syncCollectionsWithView()
 {
-    // check that we have surface in view collections for all sub-collections
+    // Based on the same concept as RimSurfaceInViewCollection
+
     auto colls = m_collectionsInView.childrenByType();
 
-    for ( auto surfcoll : colls )
+    for ( auto coll : colls )
     {
-        if ( !surfcoll->polygonFile() )
+        if ( !coll->polygonFile() )
         {
-            m_collectionsInView.removeChild( surfcoll );
-            delete surfcoll;
+            m_collectionsInView.removeChild( coll );
+            delete coll;
         }
     }
 
-    // Create new collection entries and reorder
-    std::vector<RimPolygonInViewCollection*> orderedColls;
     if ( !m_polygonFile )
     {
-        auto polygonCollection = RimTools::polygonCollection();
-        if ( polygonCollection )
+        std::vector<RimPolygonInViewCollection*> orderedColls;
+
+        if ( auto polygonCollection = RimTools::polygonCollection() )
         {
             std::vector<RimPolygonInView*> newPolygonsInView;
 
@@ -177,13 +172,12 @@ void RimPolygonInViewCollection::syncCollectionsWithView()
                 }
                 else
                 {
-                    viewPolygonFile->setPolygonFile( polygonFile );
+                    viewPolygonFile->updateName();
                     orderedColls.push_back( viewPolygonFile );
                 }
             }
         }
 
-        // make sure our view surfaces have the same order as the source surface collection
         m_collectionsInView.clearWithoutDelete();
         for ( auto viewColl : orderedColls )
         {
@@ -191,6 +185,8 @@ void RimPolygonInViewCollection::syncCollectionsWithView()
             viewColl->updateAllViewItems();
         }
     }
+
+    updateName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -240,6 +236,21 @@ void RimPolygonInViewCollection::syncPolygonsWithView()
     {
         delete polyInView;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInViewCollection::updateName()
+{
+    QString name = "Polygons";
+
+    if ( m_polygonFile )
+    {
+        name = m_polygonFile->name();
+    }
+
+    setName( name );
 }
 
 //--------------------------------------------------------------------------------------------------

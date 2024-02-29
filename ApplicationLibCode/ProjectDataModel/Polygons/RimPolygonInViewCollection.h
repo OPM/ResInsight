@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmPointer.h"
 
@@ -51,6 +52,7 @@ private:
     void updateAllViewItems();
     void syncCollectionsWithView();
     void syncPolygonsWithView();
+    void updateName();
 
     RimPolygonInViewCollection* getCollectionInViewForPolygonFile( const RimPolygonFile* polygonFile ) const;
 

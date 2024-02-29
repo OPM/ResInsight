@@ -24,6 +24,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmFieldCvfVec3d.h"
 
+#include "cvfColor3.h"
 #include "cvfVector3.h"
 
 class RimPolygonAppearance;

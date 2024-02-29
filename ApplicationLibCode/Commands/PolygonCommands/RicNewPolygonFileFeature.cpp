@@ -65,6 +65,7 @@ void RicNewPolygonFileFeature::onActionTriggered( bool isChecked )
 
         if ( !newPolygonFile->polygons().empty() ) objectToSelect = newPolygonFile->polygons().front();
     }
+
     polygonCollection->uiCapability()->updateAllRequiredEditors();
 
     RiuPlotMainWindowTools::setExpanded( objectToSelect );
