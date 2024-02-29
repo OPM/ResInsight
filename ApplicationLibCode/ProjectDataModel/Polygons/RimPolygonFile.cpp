@@ -25,6 +25,7 @@
 #include "RimPolygon.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include <QFileInfo>
 
@@ -180,4 +181,18 @@ void RimPolygonFile::updateName()
 void RimPolygonFile::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder.addCmdFeature( "RicReloadPolygonFileFeature" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonFile::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+    {
+        if ( m_polygons.empty() )
+        {
+            caf::PdmUiTreeViewItemAttribute::createTagIfTreeViewItemAttribute( attribute, ":/warning.svg" );
+        }
+    }
 }
