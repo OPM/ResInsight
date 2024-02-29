@@ -163,6 +163,8 @@ void RimPolygonInViewCollection::syncCollectionsWithView()
 
             for ( auto polygonFile : polygonCollection->polygonFiles() )
             {
+                if ( polygonFile->polygons().empty() ) continue;
+
                 auto viewPolygonFile = getCollectionInViewForPolygonFile( polygonFile );
                 if ( viewPolygonFile == nullptr )
                 {
