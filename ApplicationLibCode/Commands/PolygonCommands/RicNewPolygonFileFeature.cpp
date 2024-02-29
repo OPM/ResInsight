@@ -54,16 +54,16 @@ void RicNewPolygonFileFeature::onActionTriggered( bool isChecked )
     auto proj              = RimProject::current();
     auto polygonCollection = proj->activeOilField()->polygonCollection();
 
-    RimPolygonFile* objectToSelect = nullptr;
+    RimPolygon* objectToSelect = nullptr;
 
     for ( const auto& filename : fileNames )
     {
         auto newPolygonFile = new RimPolygonFile();
         newPolygonFile->setFileName( filename );
-        newPolygonFile->setName( "File Polygon " + QString::number( polygonCollection->polygonFiles().size() + 1 ) );
         newPolygonFile->loadData();
         polygonCollection->addPolygonFile( newPolygonFile );
-        objectToSelect = newPolygonFile;
+
+        if ( !newPolygonFile->polygons().empty() ) objectToSelect = newPolygonFile->polygons().front();
     }
     polygonCollection->uiCapability()->updateAllRequiredEditors();
 

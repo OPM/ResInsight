@@ -18,29 +18,45 @@
 
 #pragma once
 
-#include "RimCheckableObject.h"
+#include "RimCheckableNamedObject.h"
 #include "cafPdmChildArrayField.h"
+#include "cafPdmPointer.h"
 
 class RimPolygonInView;
+class RimPolygonFile;
+class RimPolygon;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimPolygonInViewCollection : public RimCheckableObject
+class RimPolygonInViewCollection : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     RimPolygonInViewCollection();
 
-    void syncPolygonsInView();
+    void updateFromPolygonCollection();
 
-    std::vector<RimPolygonInView*> polygonsInView() const;
+    std::vector<RimPolygonInView*> visiblePolygonsInView() const;
+    std::vector<RimPolygonInView*> allPolygonsInView() const;
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
+    void            setPolygonFile( RimPolygonFile* polygonFile );
+    RimPolygonFile* polygonFile() const;
+
+    void updateAllViewItems();
+    void syncCollectionsWithView();
+    void syncPolygonsWithView();
+
+    RimPolygonInViewCollection* getCollectionInViewForPolygonFile( const RimPolygonFile* polygonFile ) const;
+
 private:
-    caf::PdmChildArrayField<RimPolygonInView*> m_polygons;
+    caf::PdmChildArrayField<RimPolygonInView*>           m_polygonsInView;
+    caf::PdmChildArrayField<RimPolygonInViewCollection*> m_collectionsInView;
+
+    caf::PdmPointer<RimPolygonFile> m_polygonFile;
 };

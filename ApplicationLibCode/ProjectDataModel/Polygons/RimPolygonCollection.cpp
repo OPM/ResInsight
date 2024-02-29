@@ -66,7 +66,7 @@ void RimPolygonCollection::addUserDefinedPolygon( RimPolygon* polygon )
 {
     m_polygons().push_back( polygon );
 
-    connectSignals( polygon );
+    connectPolygonSignals( polygon );
 
     updateViewTreeItems();
     scheduleRedrawViews();
@@ -89,6 +89,8 @@ void RimPolygonCollection::deleteUserDefinedPolygons()
 void RimPolygonCollection::addPolygonFile( RimPolygonFile* polygonFile )
 {
     m_polygonFiles().push_back( polygonFile );
+
+    connectPolygonFileSignals( polygonFile );
 
     updateViewTreeItems();
     scheduleRedrawViews();
@@ -178,19 +180,39 @@ void RimPolygonCollection::scheduleRedrawViews()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonCollection::connectSignals( RimPolygon* polygon )
+void RimPolygonCollection::connectPolygonSignals( RimPolygon* polygon )
 {
     if ( polygon )
     {
-        polygon->objectChanged.connect( this, &RimPolygonCollection::onObjectChanged );
+        polygon->objectChanged.connect( this, &RimPolygonCollection::onPolygonChanged );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonCollection::onObjectChanged( const caf::SignalEmitter* emitter )
+void RimPolygonCollection::connectPolygonFileSignals( RimPolygonFile* polygonFile )
 {
+    if ( polygonFile )
+    {
+        polygonFile->objectChanged.connect( this, &RimPolygonCollection::onPolygonFileChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::onPolygonChanged( const caf::SignalEmitter* emitter )
+{
+    scheduleRedrawViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::onPolygonFileChanged( const caf::SignalEmitter* emitter )
+{
+    updateViewTreeItems();
     scheduleRedrawViews();
 }
 
@@ -201,6 +223,11 @@ void RimPolygonCollection::initAfterRead()
 {
     for ( auto& p : m_polygons() )
     {
-        connectSignals( p );
+        connectPolygonSignals( p );
+    }
+
+    for ( auto& pf : m_polygonFiles() )
+    {
+        connectPolygonFileSignals( pf );
     }
 }

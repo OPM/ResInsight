@@ -29,6 +29,9 @@ class RimPolygonFile : public RimNamedObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<> objectChanged;
+
+public:
     RimPolygonFile();
 
     void setFileName( const QString& fileName );
@@ -37,12 +40,15 @@ public:
 
     std::vector<RimPolygon*> polygons() const;
 
+    QString name() const override;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
     static std::vector<RimPolygon*> importDataFromFile( const QString& fileName );
+    void                            updateName();
 
 private:
     caf::PdmField<caf::FilePath> m_fileName;

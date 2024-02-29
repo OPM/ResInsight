@@ -53,8 +53,11 @@ public:
 private:
     void updateViewTreeItems();
     void scheduleRedrawViews();
-    void connectSignals( RimPolygon* polygon );
-    void onObjectChanged( const caf::SignalEmitter* emitter );
+
+    void connectPolygonSignals( RimPolygon* polygon );
+    void connectPolygonFileSignals( RimPolygonFile* polygonFile );
+    void onPolygonChanged( const caf::SignalEmitter* emitter );
+    void onPolygonFileChanged( const caf::SignalEmitter* emitter );
 
 private:
     caf::PdmChildArrayField<RimPolygon*>     m_polygons;
