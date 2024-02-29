@@ -80,3 +80,20 @@ X_UTME,Y_UTMN,Z_TVDSS,POLY_ID
     EXPECT_TRUE( firstPolygon.second.size() == 9 );
     EXPECT_DOUBLE_EQ( firstPolygon.second.back().z(), -1656.641845703125 );
 }
+
+TEST( RifPolygonReader, CsvImportNoHeader )
+{
+    std::string fileContent = R"(
+460536.5500488281,5934613.072753906,1652.97265625,0
+460535.4345703125,5934678.220581055,1652.8203125,0
+)";
+
+    QString fileContentAsQString = QString::fromStdString( fileContent );
+    QString errorMessage;
+
+    auto polygons = RifPolygonReader::parseTextCsv( fileContentAsQString, &errorMessage );
+    EXPECT_TRUE( polygons.size() == 1 );
+
+    auto firstPolygon = polygons.front();
+    EXPECT_TRUE( firstPolygon.second.size() == 2 );
+}

@@ -144,8 +144,16 @@ std::vector<std::pair<int, std::vector<cvf::Vec3d>>> RifPolygonReader::parseText
         for ( auto s : parser.tableData().columnInfos() )
         {
             if ( s.dataType != Column::NUMERIC ) continue;
-            QString columnName = QString::fromStdString( s.columnName() );
-            readValues.push_back( { columnName, s.values } );
+
+            QString             columnName = QString::fromStdString( s.columnName() );
+            bool                isNumber   = false;
+            auto                value      = columnName.toDouble( &isNumber );
+            std::vector<double> values     = s.values;
+            if ( isNumber )
+            {
+                values.insert( values.begin(), value );
+            }
+            readValues.push_back( { columnName, values } );
         }
     }
 
