@@ -24,6 +24,8 @@
 
 #include "RimPolygon.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
+
 #include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RimPolygonFile, "RimPolygonFileFile" );
@@ -170,4 +172,12 @@ void RimPolygonFile::updateName()
 {
     QFileInfo fileInfo( m_fileName().path() );
     setName( fileInfo.fileName() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonFile::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder.addCmdFeature( "RicReloadPolygonFileFeature" );
 }
