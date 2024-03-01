@@ -393,6 +393,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                 }
 
                 menuBuilder << "RicNewPolygonFilter3dviewFeature";
+                menuBuilder.addCmdFeature( "RicNewPolygonFeature", "Polygon" );
 
                 menuBuilder << "RicEclipsePropertyFilterNewInViewFeature";
                 menuBuilder << "RicGeoMechPropertyFilterNewInViewFeature";
