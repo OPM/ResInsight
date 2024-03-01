@@ -79,6 +79,6 @@ void RicNewPolygonFileFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewPolygonFileFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "New File Polygon" );
+    actionToSetup->setText( "Import Polygon" );
     actionToSetup->setIcon( QIcon( ":/PolylinesFromFile16x16.png" ) );
 }
