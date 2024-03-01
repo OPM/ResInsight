@@ -286,6 +286,7 @@
         <file>decline-curve.svg</file>
         <file>regression-curve.svg</file>
         <file>padlock.svg</file>
+        <file>warning.svg</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>

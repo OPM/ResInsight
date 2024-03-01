@@ -405,16 +405,9 @@ void RimGridView::appendPolygonPartsToModel( caf::DisplayCoordTransform* scaleTr
     m_polygonVizModel->removeAllParts();
 
     std::vector<RimPolygonInView*> polygonsInView;
-    if ( m_polygonInViewCollection && m_polygonInViewCollection->isChecked() )
+    if ( m_polygonInViewCollection )
     {
-        auto candidates = m_polygonInViewCollection->polygonsInView();
-        for ( auto polygonInView : candidates )
-        {
-            if ( polygonInView->isChecked() )
-            {
-                polygonsInView.push_back( polygonInView );
-            }
-        }
+        polygonsInView = m_polygonInViewCollection->visiblePolygonsInView();
     }
 
     if ( cellFilterCollection() && cellFilterCollection()->isActive() )
@@ -534,7 +527,7 @@ void RimGridView::updateViewTreeItems( RiaDefines::ItemIn3dView itemType )
 
     if ( bitmaskEnum.AnyOf( RiaDefines::ItemIn3dView::POLYGON ) )
     {
-        m_polygonInViewCollection->syncPolygonsInView();
+        m_polygonInViewCollection->updateFromPolygonCollection();
     }
 
     updateConnectedEditors();

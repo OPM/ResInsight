@@ -85,8 +85,8 @@ RimPolygonAppearance::RimPolygonAppearance()
     CAF_PDM_InitField( &m_lineThickness, "LineThickness", 3, "Line Thickness" );
     CAF_PDM_InitField( &m_sphereRadiusFactor, "SphereRadiusFactor", 0.15, "Sphere Radius Factor" );
 
-    CAF_PDM_InitField( &m_lineColor, "LineColor", cvf::Color3f( cvf::Color3f::WHITE ), "Line Color" );
-    CAF_PDM_InitField( &m_sphereColor, "SphereColor", cvf::Color3f( cvf::Color3f::WHITE ), "Sphere Color" );
+    CAF_PDM_InitField( &m_lineColor, "LineColor", cvf::Color3f( cvf::Color3f::ORANGE ), "Line Color" );
+    CAF_PDM_InitField( &m_sphereColor, "SphereColor", cvf::Color3f( cvf::Color3f::ORANGE ), "Sphere Color" );
 
     CAF_PDM_InitField( &m_polygonPlaneDepth, "PolygonPlaneDepth", 0.0, "Polygon Plane Depth" );
     CAF_PDM_InitField( &m_lockPolygonToPlane, "LockPolygon", false, "Lock Polygon to Plane" );
@@ -121,6 +121,22 @@ void RimPolygonAppearance::setIsClosed( bool isClosed )
 bool RimPolygonAppearance::isClosed() const
 {
     return m_isClosed();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimPolygonAppearance::lineColor() const
+{
+    return m_lineColor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonAppearance::setLineColor( const cvf::Color3f& color )
+{
+    m_lineColor = color;
 }
 
 //--------------------------------------------------------------------------------------------------

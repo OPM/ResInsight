@@ -55,7 +55,7 @@ RimPolygonInView* RimPolygonTools::findPolygonInView( RimPolygon* polygon, caf::
     {
         auto polyCollection = gridView->polygonInViewCollection();
 
-        for ( auto polygonInView : polyCollection->polygonsInView() )
+        for ( auto polygonInView : polyCollection->allPolygonsInView() )
         {
             if ( polygonInView && polygonInView->polygon() == polygon )
             {

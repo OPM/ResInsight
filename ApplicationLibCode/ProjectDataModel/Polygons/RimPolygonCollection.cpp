@@ -23,6 +23,8 @@
 #include "RimPolygonFile.h"
 #include "RimProject.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
+
 CAF_PDM_SOURCE_INIT( RimPolygonCollection, "RimPolygonCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -30,7 +32,7 @@ CAF_PDM_SOURCE_INIT( RimPolygonCollection, "RimPolygonCollection" );
 //--------------------------------------------------------------------------------------------------
 RimPolygonCollection::RimPolygonCollection()
 {
-    CAF_PDM_InitObject( "Polygons  (Under construction)", ":/PolylinesFromFile16x16.png" );
+    CAF_PDM_InitObject( "Polygons", ":/PolylinesFromFile16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_polygons, "Polygons", "Polygons" );
     CAF_PDM_InitFieldNoDefault( &m_polygonFiles, "PolygonFiles", "Polygon Files" );
@@ -66,7 +68,7 @@ void RimPolygonCollection::addUserDefinedPolygon( RimPolygon* polygon )
 {
     m_polygons().push_back( polygon );
 
-    connectSignals( polygon );
+    connectPolygonSignals( polygon );
 
     updateViewTreeItems();
     scheduleRedrawViews();
@@ -89,6 +91,8 @@ void RimPolygonCollection::deleteUserDefinedPolygons()
 void RimPolygonCollection::addPolygonFile( RimPolygonFile* polygonFile )
 {
     m_polygonFiles().push_back( polygonFile );
+
+    connectPolygonFileSignals( polygonFile );
 
     updateViewTreeItems();
     scheduleRedrawViews();
@@ -153,6 +157,15 @@ void RimPolygonCollection::childFieldChangedByUi( const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicCreatePolygonFeature";
+    menuBuilder << "RicImportPolygonFileFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonCollection::updateViewTreeItems()
 {
     RimProject* proj = RimProject::current();
@@ -178,19 +191,39 @@ void RimPolygonCollection::scheduleRedrawViews()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonCollection::connectSignals( RimPolygon* polygon )
+void RimPolygonCollection::connectPolygonSignals( RimPolygon* polygon )
 {
     if ( polygon )
     {
-        polygon->objectChanged.connect( this, &RimPolygonCollection::onObjectChanged );
+        polygon->objectChanged.connect( this, &RimPolygonCollection::onPolygonChanged );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonCollection::onObjectChanged( const caf::SignalEmitter* emitter )
+void RimPolygonCollection::connectPolygonFileSignals( RimPolygonFile* polygonFile )
 {
+    if ( polygonFile )
+    {
+        polygonFile->objectChanged.connect( this, &RimPolygonCollection::onPolygonFileChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::onPolygonChanged( const caf::SignalEmitter* emitter )
+{
+    scheduleRedrawViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::onPolygonFileChanged( const caf::SignalEmitter* emitter )
+{
+    updateViewTreeItems();
     scheduleRedrawViews();
 }
 
@@ -201,6 +234,11 @@ void RimPolygonCollection::initAfterRead()
 {
     for ( auto& p : m_polygons() )
     {
-        connectSignals( p );
+        connectPolygonSignals( p );
+    }
+
+    for ( auto& pf : m_polygonFiles() )
+    {
+        connectPolygonFileSignals( pf );
     }
 }

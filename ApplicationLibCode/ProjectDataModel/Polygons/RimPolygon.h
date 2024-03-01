@@ -24,6 +24,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmFieldCvfVec3d.h"
 
+#include "cvfColor3.h"
 #include "cvfVector3.h"
 
 class RimPolygonAppearance;
@@ -51,13 +52,19 @@ public:
     void setReadOnly( bool isReadOnly );
     bool isReadOnly() const;
 
+    void disableStorageOfPolygonPoints();
+
+    cvf::Color3f color() const;
+    void         setColor( const cvf::Color3f& color );
+
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
     void uiOrderingForLocalPolygon( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void onColorTagClicked( const SignalEmitter* emitter, size_t index );
 
-protected:
+private:
+    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;

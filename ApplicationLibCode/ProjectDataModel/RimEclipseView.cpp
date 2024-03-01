@@ -1946,16 +1946,13 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     if ( faultReactivationModelCollection()->shouldBeVisibleInTree() ) uiTreeOrdering.add( faultReactivationModelCollection() );
 
-    uiTreeOrdering.add( annotationCollection() );
     uiTreeOrdering.add( intersectionCollection() );
+    uiTreeOrdering.add( m_polygonInViewCollection );
 
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
     if ( seismicSectionCollection()->shouldBeVisibleInTree() ) uiTreeOrdering.add( seismicSectionCollection() );
 
-    if ( RiaApplication::enableDevelopmentFeatures() )
-    {
-        uiTreeOrdering.add( m_polygonInViewCollection );
-    }
+    uiTreeOrdering.add( annotationCollection() );
 
     uiTreeOrdering.skipRemainingChildren( true );
 }

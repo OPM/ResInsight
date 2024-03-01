@@ -47,12 +47,36 @@ std::unique_ptr<caf::PdmUiTreeViewItemAttribute::Tag> caf::PdmUiTreeViewItemAttr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiTreeViewItemAttribute::createTagIfTreeViewItemAttribute( caf::PdmUiEditorAttribute* attribute,
+std::unique_ptr<caf::PdmUiTreeViewItemAttribute::Tag>
+    caf::PdmUiTreeViewItemAttribute::createTag( const QColor& color, const QColor& backgroundColor, const QString& text )
+{
+    auto tag = createTag();
+
+    auto   weight1      = 100;
+    double transparency = 0.3;
+    int    weight2      = std::max( 1, static_cast<int>( weight1 * 10 * transparency ) );
+
+    int weightsum = weight1 + weight2;
+
+    auto blendedColor = QColor( ( color.red() * weight1 + backgroundColor.red() * weight2 ) / weightsum,
+                                ( color.green() * weight1 + backgroundColor.green() * weight2 ) / weightsum,
+                                ( color.blue() * weight1 + backgroundColor.blue() * weight2 ) / weightsum );
+
+    tag->bgColor = blendedColor;
+    tag->fgColor = color;
+    tag->text    = text;
+
+    return tag;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void caf::PdmUiTreeViewItemAttribute::appendTagToTreeViewItemAttribute( caf::PdmUiEditorAttribute* attribute,
                                                                         const QString&             iconResourceString )
 {
     if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
     {
-        treeItemAttribute->tags.clear();
         auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
         tag->icon = caf::IconProvider( iconResourceString );
 

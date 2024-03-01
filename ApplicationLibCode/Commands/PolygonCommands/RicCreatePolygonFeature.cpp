@@ -16,42 +16,45 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewPolygonFileFeature.h"
+#include "RicCreatePolygonFeature.h"
+
+#include "RiaApplication.h"
 
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonCollection.h"
-#include "Polygons/RimPolygonFile.h"
+#include "Polygons/RimPolygonTools.h"
+#include "Rim3dView.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 
-#include "RiuPlotMainWindowTools.h"
+#include "Riu3DMainWindowTools.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicNewPolygonFileFeature, "RicNewPolygonFileFeature" );
+CAF_CMD_SOURCE_INIT( RicCreatePolygonFeature, "RicCreatePolygonFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewPolygonFileFeature::onActionTriggered( bool isChecked )
+void RicCreatePolygonFeature::onActionTriggered( bool isChecked )
 {
     auto proj              = RimProject::current();
     auto polygonCollection = proj->activeOilField()->polygonCollection();
 
-    auto newPolygonFile = new RimPolygonFile();
-    newPolygonFile->setName( "File Polygon " + QString::number( polygonCollection->polygonFiles().size() + 1 ) );
-    polygonCollection->addPolygonFile( newPolygonFile );
+    auto newPolygon = polygonCollection->appendUserDefinedPolygon();
     polygonCollection->uiCapability()->updateAllRequiredEditors();
 
-    RiuPlotMainWindowTools::setExpanded( newPolygonFile );
-    RiuPlotMainWindowTools::selectAsCurrentItem( newPolygonFile );
+    Riu3DMainWindowTools::setExpanded( newPolygon );
+
+    auto activeView = RiaApplication::instance()->activeReservoirView();
+    RimPolygonTools::selectAndActivatePolygonInView( newPolygon, activeView );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewPolygonFileFeature::setupActionLook( QAction* actionToSetup )
+void RicCreatePolygonFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "New File Polygon" );
+    actionToSetup->setText( "Create Polygon" );
     actionToSetup->setIcon( QIcon( ":/PolylinesFromFile16x16.png" ) );
 }

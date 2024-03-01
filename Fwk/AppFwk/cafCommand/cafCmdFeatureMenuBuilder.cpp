@@ -204,7 +204,7 @@ void CmdFeatureMenuBuilder::appendToMenu( QMenu* menu )
                 }
                 else
                 {
-                    act = commandManager->action( m_items[i].itemName );
+                    act = commandManager->action( m_items[i].itemName, m_items[i].uiText );
                 }
 
                 CAF_ASSERT( act );

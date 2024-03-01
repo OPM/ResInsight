@@ -79,6 +79,8 @@ protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget ) override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+    void onObjectChanged( const caf::SignalEmitter* emitter );
+    void initAfterRead() override;
 
 private:
     void updateNameField();

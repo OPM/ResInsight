@@ -16,39 +16,36 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewPolygonFeature.h"
+#include "RicReloadPolygonFileFeature.h"
 
-#include "Polygons/RimPolygon.h"
-#include "Polygons/RimPolygonCollection.h"
-#include "RimOilField.h"
-#include "RimProject.h"
+#include "Polygons/RimPolygonFile.h"
 
-#include "RiuPlotMainWindowTools.h"
+#include "cafSelectionManager.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicNewPolygonFeature, "RicNewPolygonFeature" );
+CAF_CMD_SOURCE_INIT( RicReloadPolygonFileFeature, "RicReloadPolygonFileFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewPolygonFeature::onActionTriggered( bool isChecked )
+void RicReloadPolygonFileFeature::onActionTriggered( bool isChecked )
 {
-    auto proj              = RimProject::current();
-    auto polygonCollection = proj->activeOilField()->polygonCollection();
+    auto polygonFile = caf::SelectionManager::instance()->selectedItemOfType<RimPolygonFile>();
+    if ( polygonFile )
+    {
+        polygonFile->loadData();
+        polygonFile->objectChanged.send();
 
-    auto newPolygon = polygonCollection->appendUserDefinedPolygon();
-    polygonCollection->uiCapability()->updateAllRequiredEditors();
-
-    RiuPlotMainWindowTools::setExpanded( newPolygon );
-    RiuPlotMainWindowTools::selectAsCurrentItem( newPolygon );
+        polygonFile->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewPolygonFeature::setupActionLook( QAction* actionToSetup )
+void RicReloadPolygonFileFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "New Polygon" );
-    actionToSetup->setIcon( QIcon( ":/PolylinesFromFile16x16.png" ) );
+    actionToSetup->setText( "Reload" );
+    actionToSetup->setIcon( QIcon( ":/Refresh.svg" ) );
 }

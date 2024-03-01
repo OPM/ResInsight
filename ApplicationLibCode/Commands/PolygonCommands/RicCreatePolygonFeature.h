@@ -23,7 +23,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewPolygonFeature : public caf::CmdFeature
+class RicCreatePolygonFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
