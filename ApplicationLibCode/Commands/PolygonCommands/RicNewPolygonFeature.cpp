@@ -18,6 +18,8 @@
 
 #include "RicNewPolygonFeature.h"
 
+#include "RiaApplication.h"
+
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonCollection.h"
 #include "Polygons/RimPolygonTools.h"
