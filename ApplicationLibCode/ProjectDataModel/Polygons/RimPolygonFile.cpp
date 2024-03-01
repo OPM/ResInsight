@@ -77,15 +77,15 @@ void RimPolygonFile::loadData()
         m_polygons.deleteChildren();
 
         m_polygons.setValue( polygonsFromFile );
+    }
 
-        if ( polygonsFromFile.empty() )
-        {
-            RiaLogging::warning( "No polygons found in file: " + m_fileName().path() );
-        }
-        else
-        {
-            RiaLogging::warning( QString( "Imported %1 polygons from file: " ).arg( polygonsFromFile.size() ) + m_fileName().path() );
-        }
+    if ( polygonsFromFile.empty() )
+    {
+        RiaLogging::warning( "No polygons found in file: " + m_fileName().path() );
+    }
+    else
+    {
+        RiaLogging::info( QString( "Imported %1 polygons from file: " ).arg( polygonsFromFile.size() ) + m_fileName().path() );
     }
 }
 
@@ -197,11 +197,8 @@ void RimPolygonFile::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) 
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFile::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+    if ( m_polygons.empty() )
     {
-        if ( m_polygons.empty() )
-        {
-            caf::PdmUiTreeViewItemAttribute::createTagIfTreeViewItemAttribute( attribute, ":/warning.svg" );
-        }
+        caf::PdmUiTreeViewItemAttribute::appendTagToTreeViewItemAttribute( attribute, ":/warning.svg" );
     }
 }

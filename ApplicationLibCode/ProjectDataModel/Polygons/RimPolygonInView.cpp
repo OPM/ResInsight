@@ -350,7 +350,7 @@ void RimPolygonInView::defineObjectEditorAttribute( QString uiConfigName, caf::P
 
         if ( m_polygon->isReadOnly() )
         {
-            caf::PdmUiTreeViewItemAttribute::createTagIfTreeViewItemAttribute( attribute, ":/padlock.svg" );
+            caf::PdmUiTreeViewItemAttribute::appendTagToTreeViewItemAttribute( attribute, ":/padlock.svg" );
         }
     }
 }

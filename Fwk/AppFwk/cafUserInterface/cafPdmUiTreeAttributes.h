@@ -77,7 +77,7 @@ public:
 
     static std::unique_ptr<Tag> createTag();
     static std::unique_ptr<Tag> createTag( const QColor& color, const QColor& backgroundColor, const QString& text );
-    static void createTagIfTreeViewItemAttribute( caf::PdmUiEditorAttribute* attribute, const QString& iconString );
+    static void appendTagToTreeViewItemAttribute( caf::PdmUiEditorAttribute* attribute, const QString& iconString );
 
     std::vector<std::unique_ptr<Tag>> tags;
 };
