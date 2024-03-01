@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewPolygonFileFeature.h"
+#include "RicImportPolygonFileFeature.h"
 
 #include "RiaApplication.h"
 
@@ -32,12 +32,12 @@
 #include <QAction>
 #include <QFileInfo>
 
-CAF_CMD_SOURCE_INIT( RicNewPolygonFileFeature, "RicNewPolygonFileFeature" );
+CAF_CMD_SOURCE_INIT( RicImportPolygonFileFeature, "RicImportPolygonFileFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewPolygonFileFeature::onActionTriggered( bool isChecked )
+void RicImportPolygonFileFeature::onActionTriggered( bool isChecked )
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "BINARY_GRID" );
@@ -76,7 +76,7 @@ void RicNewPolygonFileFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewPolygonFileFeature::setupActionLook( QAction* actionToSetup )
+void RicImportPolygonFileFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Import Polygon" );
     actionToSetup->setIcon( QIcon( ":/PolylinesFromFile16x16.png" ) );
