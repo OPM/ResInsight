@@ -28,7 +28,6 @@
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
-#include "RiuPlotMainWindowTools.h"
 
 #include <QAction>
 #include <QFileInfo>
@@ -70,8 +69,8 @@ void RicNewPolygonFileFeature::onActionTriggered( bool isChecked )
 
     polygonCollection->uiCapability()->updateAllRequiredEditors();
 
-    RiuPlotMainWindowTools::setExpanded( objectToSelect );
-    RiuPlotMainWindowTools::selectAsCurrentItem( objectToSelect );
+    Riu3DMainWindowTools::setExpanded( objectToSelect );
+    Riu3DMainWindowTools::selectAsCurrentItem( objectToSelect );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -27,7 +27,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 
-#include "RiuPlotMainWindowTools.h"
+#include "Riu3DMainWindowTools.h"
 
 #include <QAction>
 
@@ -44,7 +44,7 @@ void RicNewPolygonFeature::onActionTriggered( bool isChecked )
     auto newPolygon = polygonCollection->appendUserDefinedPolygon();
     polygonCollection->uiCapability()->updateAllRequiredEditors();
 
-    RiuPlotMainWindowTools::setExpanded( newPolygon );
+    Riu3DMainWindowTools::setExpanded( newPolygon );
 
     auto activeView = RiaApplication::instance()->activeReservoirView();
     RimPolygonTools::selectAndActivatePolygonInView( newPolygon, activeView );
