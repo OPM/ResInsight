@@ -20,6 +20,8 @@
 
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonCollection.h"
+#include "Polygons/RimPolygonTools.h"
+#include "Rim3dView.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 
@@ -41,7 +43,9 @@ void RicNewPolygonFeature::onActionTriggered( bool isChecked )
     polygonCollection->uiCapability()->updateAllRequiredEditors();
 
     RiuPlotMainWindowTools::setExpanded( newPolygon );
-    RiuPlotMainWindowTools::selectAsCurrentItem( newPolygon );
+
+    auto activeView = RiaApplication::instance()->activeReservoirView();
+    RimPolygonTools::selectAndActivatePolygonInView( newPolygon, activeView );
 }
 
 //--------------------------------------------------------------------------------------------------

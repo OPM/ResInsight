@@ -241,6 +241,7 @@ void RimPolygon::onColorTagClicked( const SignalEmitter* emitter, size_t index )
     if ( newColor.isValid() && newColor != sourceColor )
     {
         setColor( RiaColorTools::fromQColorTo3f( newColor ) );
+        objectChanged.send();
     }
 }
 
