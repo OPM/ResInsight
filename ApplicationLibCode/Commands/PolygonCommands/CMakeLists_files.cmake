@@ -1,11 +1,11 @@
 set(SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewPolygonFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreatePolygonFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewPolygonFileFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicReloadPolygonFileFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewPolygonFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreatePolygonFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewPolygonFileFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicReloadPolygonFileFeature.cpp
 )

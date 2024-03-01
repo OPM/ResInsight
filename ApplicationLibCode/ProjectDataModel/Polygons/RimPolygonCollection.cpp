@@ -159,7 +159,7 @@ void RimPolygonCollection::childFieldChangedByUi( const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
-    menuBuilder << "RicNewPolygonFeature";
+    menuBuilder << "RicCreatePolygonFeature";
     menuBuilder << "RicNewPolygonFileFeature";
 }
 

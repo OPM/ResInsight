@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewPolygonFeature.h"
+#include "RicCreatePolygonFeature.h"
 
 #include "RiaApplication.h"
 
@@ -31,12 +31,12 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicNewPolygonFeature, "RicNewPolygonFeature" );
+CAF_CMD_SOURCE_INIT( RicCreatePolygonFeature, "RicCreatePolygonFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewPolygonFeature::onActionTriggered( bool isChecked )
+void RicCreatePolygonFeature::onActionTriggered( bool isChecked )
 {
     auto proj              = RimProject::current();
     auto polygonCollection = proj->activeOilField()->polygonCollection();
@@ -53,7 +53,7 @@ void RicNewPolygonFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewPolygonFeature::setupActionLook( QAction* actionToSetup )
+void RicCreatePolygonFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Create Polygon" );
     actionToSetup->setIcon( QIcon( ":/PolylinesFromFile16x16.png" ) );
