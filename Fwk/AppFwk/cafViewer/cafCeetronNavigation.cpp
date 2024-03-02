@@ -200,7 +200,7 @@ void caf::CeetronNavigation::wheelEvent( QWheelEvent* event )
     if ( vpHeight <= 0 ) return;
 
     int navDelta = vpHeight / 5;
-    if ( event->delta() < 0 ) navDelta *= -1;
+    if ( event->angleDelta().y() < 0 ) navDelta *= -1;
 
     int posY = m_viewer->height() - event->y();
 
