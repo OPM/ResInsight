@@ -59,7 +59,7 @@ std::vector<RimPolygonInView*> RimPolygonInViewCollection::visiblePolygonsInView
 
     for ( auto coll : m_collectionsInView )
     {
-        if ( coll->isChecked() == false ) continue;
+        if ( !coll->isChecked() ) continue;
 
         auto other = coll->visiblePolygonsInView();
         polys.insert( polys.end(), other.begin(), other.end() );
