@@ -24,7 +24,7 @@ public:
 
     QVariant toQVariant() const override
     {
-        auto enumValue = static_cast<std::underlying_type_t<DataType>>( m_fieldValue );
+        auto enumValue = static_cast<std::underlying_type_t<DataType>>( m_fieldValue.value() );
         return enumValue;
     }
 

@@ -18,6 +18,7 @@
 #include "cafCmdSelectionHelper.h"
 #endif
 
+#include "cafAppEnumField.h"
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafFilePath.h"
 #include "cafPdmDocument.h"
@@ -714,6 +715,8 @@ public:
                            "",
                            "",
                            "" );
+
+        CAF_PDM_InitFieldNoDefault( &m_testAppEnumField, "TestAppEnumValue", "AppEnum Field" );
         CAF_PDM_InitFieldNoDefault( &m_ptrField, "m_ptrField", "PtrField", "", "", "" );
 
         CAF_PDM_InitFieldNoDefault( &m_proxyEnumField, "ProxyEnumValue", "ProxyEnum", "", "", "" );
@@ -732,6 +735,7 @@ public:
     caf::PdmField<int>                        m_intField;
     caf::PdmField<QString>                    m_textField;
     caf::PdmField<caf::AppEnum<TestEnumType>> m_testEnumField;
+    caf::AppEnumField<TestEnumType>           m_testAppEnumField;
     caf::PdmPtrField<SmallDemoPdmObjectA*>    m_ptrField;
 
     caf::PdmProxyValueField<caf::AppEnum<TestEnumType>> m_proxyEnumField;
