@@ -144,7 +144,11 @@ bool caf::CadNavigation::handleInputEvent( QInputEvent* inputEvent )
             {
                 QWheelEvent* we = static_cast<QWheelEvent*>( inputEvent );
 
+#if ( QT_VERSION < QT_VERSION_CHECK( 5, 15, 0 ) )
                 QPoint cursorPosition = we->pos();
+#else
+                QPoint cursorPosition = we->position().toPoint();
+#endif
 
                 updatePointOfInterestDuringZoomIfNecessary( cursorPosition.x(), cursorPosition.y() );
 
