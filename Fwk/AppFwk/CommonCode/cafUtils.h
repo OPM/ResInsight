@@ -38,9 +38,10 @@
 
 #include <vector>
 
+#include <QStringList>
+
 class QLineEdit;
 class QString;
-class QStringList;
 
 namespace caf
 {
