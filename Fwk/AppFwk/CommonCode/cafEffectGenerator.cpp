@@ -58,8 +58,6 @@
 #include "cvfTextureImage.h"
 #include "cvfUniform.h"
 
-#include <QtOpenGL/QGLFormat>
-
 namespace caf
 {
 //#############################################################################################################################

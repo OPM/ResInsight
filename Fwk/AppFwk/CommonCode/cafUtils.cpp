@@ -42,8 +42,6 @@
 #include <QLineEdit>
 #include <QRegularExpression>
 
-#include <QtOpenGL/QGLContext>
-
 #include <QFileDialog>
 #include <QMessageBox>
 
