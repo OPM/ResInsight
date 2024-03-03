@@ -68,6 +68,7 @@ set(PROJECT_FILES
     cafAsyncObjectDeleter.inl
     cafAsyncWorkerManager.h
     cafAsyncWorkerManager.cpp
+    cafAppEnumField.h
 )
 
 add_library(${PROJECT_NAME} ${PROJECT_FILES})
