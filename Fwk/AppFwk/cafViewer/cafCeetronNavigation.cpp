@@ -202,11 +202,12 @@ void caf::CeetronNavigation::wheelEvent( QWheelEvent* event )
     int navDelta = vpHeight / 5;
     if ( event->angleDelta().y() < 0 ) navDelta *= -1;
 
-    int posY = m_viewer->height() - event->y();
+    QPoint cursorPosition = event->pos();
+    int posY = m_viewer->height() - cursorPosition.y();
 
-    m_trackball->startNavigation( ManipulatorTrackball::WALK, event->x(), posY );
+    m_trackball->startNavigation( ManipulatorTrackball::WALK, cursorPosition.x(), posY );
 
-    m_trackball->updateNavigation( event->x(), posY + navDelta );
+    m_trackball->updateNavigation( cursorPosition.x(), posY + navDelta );
     m_trackball->endNavigation();
 
     m_viewer->updateParallelProjectionHeightFromMoveZoom( m_pointOfInterest );

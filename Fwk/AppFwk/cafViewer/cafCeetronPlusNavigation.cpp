@@ -185,12 +185,14 @@ bool caf::CeetronPlusNavigation::handleInputEvent( QInputEvent* inputEvent )
             {
                 QWheelEvent* we = static_cast<QWheelEvent*>( inputEvent );
 
-                updatePointOfInterestDuringZoomIfNecessary( we->x(), we->y() );
+                QPoint cursorPosition = we->pos();
+
+                updatePointOfInterestDuringZoomIfNecessary( cursorPosition.x(), cursorPosition.y() );
 
                 if ( m_isRotCenterInitialized )
                 {
                     int translatedMousePosX, translatedMousePosY;
-                    cvfEventPos( we->x(), we->y(), &translatedMousePosX, &translatedMousePosY );
+                    cvfEventPos( cursorPosition.x(), cursorPosition.y(), &translatedMousePosX, &translatedMousePosY );
 
                     cvf::ref<cvf::Ray> ray = createZoomRay( translatedMousePosX, translatedMousePosY );
 
