@@ -40,6 +40,7 @@ class RimPolygon : public RimNamedObject, public RimPolylinesDataInterface
 
 public:
     caf::Signal<> objectChanged;
+    caf::Signal<> coordinatesChanged;
 
 public:
     RimPolygon();

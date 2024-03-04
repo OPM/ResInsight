@@ -41,6 +41,7 @@ CAF_PDM_SOURCE_INIT( RimPolygon, "RimPolygon" );
 //--------------------------------------------------------------------------------------------------
 RimPolygon::RimPolygon()
     : objectChanged( this )
+    , coordinatesChanged( this )
 {
     CAF_PDM_InitObject( "Polygon", ":/PolylinesFromFile16x16.png" );
 
@@ -83,8 +84,14 @@ void RimPolygon::uiOrderingForLocalPolygon( QString uiConfigName, caf::PdmUiOrde
 //--------------------------------------------------------------------------------------------------
 void RimPolygon::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
+    menuBuilder << "RicDuplicatePolygonFeature";
     menuBuilder << "RicNewPolygonIntersectionFeature";
     menuBuilder << "RicNewPolygonFilterFeature";
+    menuBuilder << "Separator";
+    menuBuilder << "RicExportPolygonCsvFeature";
+    menuBuilder << "RicExportPolygonPolFeature";
+    menuBuilder << "Separator";
+    menuBuilder << "RicSimplifyPolygonFeature";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,8 +100,6 @@ void RimPolygon::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) cons
 void RimPolygon::setPointsInDomainCoords( const std::vector<cvf::Vec3d>& points )
 {
     m_pointsInDomainCoords = points;
-
-    objectChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -187,13 +192,14 @@ void RimPolygon::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
 {
     if ( changedField == &m_pointsInDomainCoords )
     {
+        coordinatesChanged.send();
         objectChanged.send();
     }
 
     if ( changedField == &m_editPolygonButton )
     {
         auto activeView = RiaApplication::instance()->activeReservoirView();
-        RimPolygonTools::selectAndActivatePolygonInView( this, activeView );
+        RimPolygonTools::activate3dEditOfPolygonInView( this, activeView );
 
         m_editPolygonButton = false;
 

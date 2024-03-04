@@ -223,6 +223,7 @@ void RimPolygonInViewCollection::syncPolygonsWithView()
         {
             newPolygonsInView.push_back( *it );
             existingPolygonsInView.erase( it );
+            ( *it )->updateTargetsFromPolygon();
         }
         else
         {
