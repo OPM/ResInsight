@@ -21,6 +21,8 @@
 class RimPolygon;
 class RimPolygonInView;
 
+class QString;
+
 namespace caf
 {
 class PdmObject;
@@ -29,7 +31,12 @@ class PdmObject;
 class RimPolygonTools
 {
 public:
-    static void selectAndActivatePolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject );
+    static void activate3dEditOfPolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject );
+    static void selectPolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject );
+    static bool exportPolygonCsv( const RimPolygon* polygon, const QString& filePath );
+    static bool exportPolygonPol( const RimPolygon* polygon, const QString& filePath );
+
+    static QString polygonCacheName();
 
 private:
     static RimPolygonInView* findPolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject );
