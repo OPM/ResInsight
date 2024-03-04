@@ -131,7 +131,7 @@ private:
                                    const QString&       wbsPP0ResultName,
                                    std::vector<double>* values );
 
-    void wellBoreFGDerivedFromK0FG( const QString& ppResult, int timeStepIndex, int frameIndex, std::vector<double>* values );
+    void wellBoreFGDerivedFromK0FG( const QString& ppResult, int timeStepIndex, int frameIndex, std::vector<double>* values, bool onlyForPPReservoir );
 
     void wellBoreFG_MatthewsKelly( const RigWbsParameter& parameter, int timeStepIndex, int frameIndex, std::vector<double>* values );
 
