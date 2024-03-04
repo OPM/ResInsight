@@ -36,6 +36,7 @@ public:
     RimPolygonCollection();
 
     void        loadData();
+    RimPolygon* createUserDefinedPolygon();
     RimPolygon* appendUserDefinedPolygon();
     void        addUserDefinedPolygon( RimPolygon* polygon );
     void        deleteUserDefinedPolygons();

@@ -90,17 +90,9 @@ RimPolygon* RimPolygonInView::polygon() const
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInView::setPolygon( RimPolygon* polygon )
 {
-    if ( m_polygon )
-    {
-        m_polygon->objectChanged.disconnect( this );
-    }
-
-    if ( polygon )
-    {
-        polygon->objectChanged.connect( this, &RimPolygonInView::onObjectChanged );
-    }
-
     m_polygon = polygon;
+
+    connectSignals();
 
     updateTargetsFromPolygon();
 }
@@ -247,6 +239,18 @@ void RimPolygonInView::updatePolygonFromTargets()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonInView::connectSignals()
+{
+    if ( m_polygon )
+    {
+        m_polygon->objectChanged.connect( this, &RimPolygonInView::onObjectChanged );
+        m_polygon->coordinatesChanged.connect( this, &RimPolygonInView::onCoordinatesChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonInView::updateTargetsFromPolygon()
 {
     if ( m_polygon )
@@ -384,12 +388,20 @@ void RimPolygonInView::onObjectChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonInView::onCoordinatesChanged( const caf::SignalEmitter* emitter )
+{
+    updateTargetsFromPolygon();
+
+    updateConnectedEditors();
+    updateVisualization();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonInView::initAfterRead()
 {
-    if ( m_polygon )
-    {
-        m_polygon->objectChanged.connect( this, &RimPolygonInView::onObjectChanged );
-    }
+    connectSignals();
 }
 
 //--------------------------------------------------------------------------------------------------
