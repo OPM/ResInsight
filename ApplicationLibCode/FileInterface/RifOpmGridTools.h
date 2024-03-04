@@ -49,7 +49,7 @@ public:
 
     static std::vector<std::vector<int>> activeCellsFromActnumKeyword( Opm::EclIO::EGrid& grid );
 
-    static void transferCoordinates( Opm::EclIO::EGrid& opmMainGrid, Opm::EclIO::EGrid& opmGrid, RigMainGrid* riMainGrid, RigGridBase* riGrid );
+    static void transferCoordinatesRadial( Opm::EclIO::EGrid& opmMainGrid, Opm::EclIO::EGrid& opmGrid, RigMainGrid* riMainGrid, RigGridBase* riGrid );
     static void transferCoordinatesCartesian( Opm::EclIO::EGrid&  opmMainGrid,
                                               Opm::EclIO::EGrid&  opmGrid,
                                               RigMainGrid*        riMainGrid,
