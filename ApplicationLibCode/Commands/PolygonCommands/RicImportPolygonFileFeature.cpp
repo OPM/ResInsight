@@ -23,6 +23,7 @@
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonCollection.h"
 #include "Polygons/RimPolygonFile.h"
+#include "Polygons/RimPolygonTools.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 
@@ -39,18 +40,21 @@ CAF_CMD_SOURCE_INIT( RicImportPolygonFileFeature, "RicImportPolygonFileFeature" 
 //--------------------------------------------------------------------------------------------------
 void RicImportPolygonFileFeature::onActionTriggered( bool isChecked )
 {
-    RiaApplication* app        = RiaApplication::instance();
-    QString         defaultDir = app->lastUsedDialogDirectory( "BINARY_GRID" );
-    QStringList     fileNames  = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+    RiaApplication* app = RiaApplication::instance();
+
+    auto fallbackPath = app->lastUsedDialogDirectory( "BINARY_GRID" );
+    auto polygonPath  = app->lastUsedDialogDirectoryWithFallback( RimPolygonTools::polygonCacheName(), fallbackPath );
+
+    QStringList fileNames = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
                                                                   "Import Polygons",
-                                                                  defaultDir,
+                                                                  polygonPath,
                                                                   "Polylines (*.csv *.dat *.pol);;Text Files (*.txt);;Polylines "
-                                                                       "(*.dat);;Polylines (*.pol);;Polylines (*.csv);;All Files (*.*)" );
+                                                                  "(*.dat);;Polylines (*.pol);;Polylines (*.csv);;All Files (*.*)" );
 
     if ( fileNames.isEmpty() ) return;
 
     // Remember the path to next time
-    app->setLastUsedDialogDirectory( "BINARY_GRID", QFileInfo( fileNames.last() ).absolutePath() );
+    app->setLastUsedDialogDirectory( RimPolygonTools::polygonCacheName(), QFileInfo( fileNames.last() ).absolutePath() );
 
     auto proj              = RimProject::current();
     auto polygonCollection = proj->activeOilField()->polygonCollection();

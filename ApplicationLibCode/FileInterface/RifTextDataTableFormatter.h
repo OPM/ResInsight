@@ -92,7 +92,7 @@ struct RifTextDataTableColumn
         , alignment( alignment )
         , width( width )
     {
-        titles.push_back( title );
+        titles.emplace_back( title );
     }
 
     RifTextDataTableColumn( const QString&                   title,
@@ -104,8 +104,8 @@ struct RifTextDataTableColumn
         , alignment( alignment )
         , width( width )
     {
-        titles.push_back( title );
-        titles.push_back( subTitle );
+        titles.emplace_back( title );
+        titles.emplace_back( subTitle );
     }
 
     RifTextDataTableColumn( const QString&                   title,
@@ -118,9 +118,9 @@ struct RifTextDataTableColumn
         , alignment( alignment )
         , width( width )
     {
-        titles.push_back( title );
-        titles.push_back( subTitle1 );
-        titles.push_back( subTitle2 );
+        titles.emplace_back( title );
+        titles.emplace_back( subTitle1 );
+        titles.emplace_back( subTitle2 );
     }
 
     QString title() const

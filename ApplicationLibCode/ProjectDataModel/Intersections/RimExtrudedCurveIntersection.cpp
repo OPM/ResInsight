@@ -522,7 +522,7 @@ void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* 
 
     if ( changedField == &m_editPolygonButton )
     {
-        RimPolygonTools::selectAndActivatePolygonInView( m_projectPolygon(), this );
+        RimPolygonTools::activate3dEditOfPolygonInView( m_projectPolygon(), this );
 
         m_editPolygonButton = false;
 

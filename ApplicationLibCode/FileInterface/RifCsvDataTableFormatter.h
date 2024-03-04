@@ -42,6 +42,7 @@ public:
 
 private:
     void outputBuffer();
+    bool isAnyTextInHeader() const;
 
 private:
     QTextStream&                        m_out;

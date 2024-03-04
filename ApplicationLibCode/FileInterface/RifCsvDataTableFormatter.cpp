@@ -118,7 +118,7 @@ void RifCsvDataTableFormatter::tableCompleted()
 //--------------------------------------------------------------------------------------------------
 void RifCsvDataTableFormatter::outputBuffer()
 {
-    if ( !m_columnHeaders.empty() )
+    if ( isAnyTextInHeader() )
     {
         for ( size_t i = 0; i < m_columnHeaders.size(); i++ )
         {
@@ -151,4 +151,22 @@ void RifCsvDataTableFormatter::outputBuffer()
     }
     m_columnHeaders.clear();
     m_buffer.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifCsvDataTableFormatter::isAnyTextInHeader() const
+{
+    for ( auto& header : m_columnHeaders )
+    {
+        for ( const auto& titleRow : header.titles )
+        {
+            if ( !titleRow.trimmed().isEmpty() )
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }
