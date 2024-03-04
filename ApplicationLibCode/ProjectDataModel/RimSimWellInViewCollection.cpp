@@ -31,7 +31,6 @@
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
-#include "RimIntersectionCollection.h"
 #include "RimProject.h"
 #include "RimSimWellFractureCollection.h"
 #include "RimSimWellInView.h"
@@ -483,10 +482,7 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
     if ( &wellPipeCoordType == changedField || &isAutoDetectingBranches == changedField )
     {
-        if ( m_reservoirView )
-        {
-            m_reservoirView->intersectionCollection()->recomputeSimWellBranchData();
-        }
+        if ( m_reservoirView ) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
 
         for ( RimSimWellInView* w : wells )
         {

@@ -457,7 +457,7 @@ void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* 
 
     if ( changedField == &m_simulationWell || changedField == &m_isActive || changedField == &m_type )
     {
-        recomputeSimulationWellBranchData();
+        rebuildGeometryAndScheduleCreateDisplayModel();
     }
 
     if ( changedField == &m_simulationWell || changedField == &m_wellPath || changedField == &m_branchIndex ||
@@ -546,10 +546,14 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
     else if ( type() == CrossSectionEnum::CS_SIMULATION_WELL )
     {
         geometryGroup->add( &m_simulationWell );
-        updateSimulationWellCenterline();
-        if ( m_simulationWell() && m_simulationWellBranchCenterlines.size() > 1 )
+
+        if ( m_simulationWell() )
         {
-            geometryGroup->add( &m_branchIndex );
+            auto branchCenterLines = simulationWellBranchCenterlines();
+            if ( branchCenterLines.size() > 1 )
+            {
+                geometryGroup->add( &m_branchIndex );
+            }
         }
     }
     else if ( type() == CrossSectionEnum::CS_POLYLINE )
@@ -705,9 +709,8 @@ QList<caf::PdmOptionItemInfo> RimExtrudedCurveIntersection::calculateValueOption
     }
     else if ( fieldNeedingOptions == &m_branchIndex )
     {
-        updateSimulationWellCenterline();
-
-        size_t branchCount = m_simulationWellBranchCenterlines.size();
+        auto   branchCenterLines = simulationWellBranchCenterlines();
+        size_t branchCount       = branchCenterLines.size();
 
         options.push_back( caf::PdmOptionItemInfo( "All", -1 ) );
 
@@ -812,14 +815,16 @@ std::vector<std::vector<cvf::Vec3d>> RimExtrudedCurveIntersection::polyLines( cv
         {
             int branchIndexToUse = branchIndex();
 
-            if ( 0 <= branchIndexToUse && branchIndexToUse < static_cast<int>( m_simulationWellBranchCenterlines.size() ) )
+            auto branchCenterLines = simulationWellBranchCenterlines();
+
+            if ( 0 <= branchIndexToUse && branchIndexToUse < static_cast<int>( branchCenterLines.size() ) )
             {
-                lines.push_back( m_simulationWellBranchCenterlines[branchIndexToUse] );
+                lines.push_back( branchCenterLines[branchIndexToUse] );
             }
 
             if ( branchIndexToUse == -1 )
             {
-                lines = m_simulationWellBranchCenterlines;
+                lines = branchCenterLines;
             }
         }
     }
@@ -898,27 +903,6 @@ void RimExtrudedCurveIntersection::clearGeometry()
 std::vector<cvf::Vec3d> RimExtrudedCurveIntersection::polyLinesForExtrusionDirection() const
 {
     return m_customExtrusionPoints;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimExtrudedCurveIntersection::updateSimulationWellCenterline()
-{
-    if ( m_isActive() && type() == CrossSectionEnum::CS_SIMULATION_WELL && m_simulationWell() )
-    {
-        if ( m_simulationWellBranchCenterlines.empty() )
-        {
-            auto simWells                   = m_simulationWell()->wellBranchesForVisualization();
-            const auto& [coords, wellCells] = RigSimulationWellCenterLineCalculator::extractBranchData( simWells );
-
-            m_simulationWellBranchCenterlines = coords;
-        }
-    }
-    else
-    {
-        m_simulationWellBranchCenterlines.clear();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1019,7 +1003,8 @@ int RimExtrudedCurveIntersection::branchIndex() const
         return -1;
     }
 
-    if ( m_branchIndex >= static_cast<int>( m_simulationWellBranchCenterlines.size() ) )
+    auto branchCenterLines = simulationWellBranchCenterlines();
+    if ( m_branchIndex >= static_cast<int>( branchCenterLines.size() ) )
     {
         return -1;
     }
@@ -1282,20 +1267,6 @@ double RimExtrudedCurveIntersection::extentLength()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimExtrudedCurveIntersection::recomputeSimulationWellBranchData()
-{
-    if ( m_type() == CrossSectionEnum::CS_SIMULATION_WELL )
-    {
-        m_simulationWellBranchCenterlines.clear();
-        updateSimulationWellCenterline();
-
-        m_crossSectionPartMgr = nullptr;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimExtrudedCurveIntersection::hasDefiningPoints() const
 {
     return m_type() == CrossSectionEnum::CS_POLYLINE || m_type() == CrossSectionEnum::CS_AZIMUTHLINE;
@@ -1425,4 +1396,17 @@ void RimExtrudedCurveIntersection::setPointsFromXYD( const std::vector<cvf::Vec3
 RimEclipseView* RimExtrudedCurveIntersection::eclipseView() const
 {
     return firstAncestorOrThisOfType<RimEclipseView>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<cvf::Vec3d>> RimExtrudedCurveIntersection::simulationWellBranchCenterlines() const
+{
+    if ( !m_simulationWell() ) return {};
+
+    const auto simWells                        = m_simulationWell()->wellBranchesForVisualization();
+    const auto& [branchCenterLines, wellCells] = RigSimulationWellCenterLineCalculator::extractBranchData( simWells );
+
+    return branchCenterLines;
 }

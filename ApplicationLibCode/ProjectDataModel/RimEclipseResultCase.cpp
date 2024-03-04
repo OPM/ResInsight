@@ -49,7 +49,6 @@
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
-#include "RimIntersectionCollection.h"
 #include "RimMockModelSettings.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
@@ -660,7 +659,6 @@ void RimEclipseResultCase::fieldChangedByUi( const caf::PdmFieldHandle* changedF
         {
             resView->scheduleSimWellGeometryRegen();
             resView->scheduleCreateDisplayModelAndRedraw();
-            resView->intersectionCollection()->recomputeSimWellBranchData();
         }
     }
 
