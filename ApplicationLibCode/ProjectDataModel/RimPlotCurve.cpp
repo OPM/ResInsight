@@ -1162,7 +1162,7 @@ void RimPlotCurve::setParentPlotNoReplot( RiuPlotWidget* plotWidget )
     }
 
     auto color  = RiaColorTools::toQColor( m_curveAppearance->color() );
-    m_plotCurve = m_parentPlot->createPlotCurve( this, "" );
+    m_plotCurve = m_parentPlot->createPlotCurve( this, m_curveName );
     m_plotCurve->updateErrorBarsAppearance( m_showErrorBars, color );
 
     // PERFORMANCE NOTE
