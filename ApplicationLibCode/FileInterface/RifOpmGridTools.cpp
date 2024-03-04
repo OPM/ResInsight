@@ -72,7 +72,7 @@ void RifOpmGridTools::importCoordinatesForRadialGrid( const std::string& gridFil
 
         if ( opmMainGrid.is_radial() )
         {
-            transferCoordinates( opmMainGrid, opmMainGrid, riMainGrid, riMainGrid );
+            transferCoordinatesRadial( opmMainGrid, opmMainGrid, riMainGrid, riMainGrid );
         }
 
         auto lgrNames = opmMainGrid.list_of_lgrs();
@@ -87,7 +87,7 @@ void RifOpmGridTools::importCoordinatesForRadialGrid( const std::string& gridFil
                     auto riLgrGrid = riMainGrid->gridByIndex( i );
                     if ( riLgrGrid->gridName() == lgrName )
                     {
-                        transferCoordinates( opmMainGrid, opmLgrGrid, riMainGrid, riLgrGrid );
+                        transferCoordinatesRadial( opmMainGrid, opmLgrGrid, riMainGrid, riLgrGrid );
                     }
                 }
             }
@@ -202,7 +202,10 @@ std::vector<std::vector<int>> RifOpmGridTools::activeCellsFromActnumKeyword( Opm
 // 3. Find the closest point on this pillar, and use this point as the adjusted coordinate for the node
 //
 //--------------------------------------------------------------------------------------------------
-void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid, Opm::EclIO::EGrid& opmGrid, RigMainGrid* riMainGrid, RigGridBase* riGrid )
+void RifOpmGridTools::transferCoordinatesRadial( Opm::EclIO::EGrid& opmMainGrid,
+                                                 Opm::EclIO::EGrid& opmGrid,
+                                                 RigMainGrid*       riMainGrid,
+                                                 RigGridBase*       riGrid )
 {
     size_t cellCount = opmGrid.totalNumberOfCells();
     if ( cellCount != riGrid->cellCount() ) return;
