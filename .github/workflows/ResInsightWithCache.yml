@@ -175,6 +175,7 @@ jobs:
           version: 5.12.12
           dir: "${{ github.workspace }}/Qt/"
           cache: true
+          modules: "qtnetworkauth"
 
       - name: Restore from cache and install vcpkg
         uses: lukka/run-vcpkg@v7
