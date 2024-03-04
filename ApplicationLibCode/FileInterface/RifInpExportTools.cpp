@@ -61,7 +61,7 @@ bool RifInpExportTools::printNodes( std::ostream& stream, const std::vector<cvf:
 
     for ( size_t i = 0; i < nodes.size(); i++ )
     {
-        stream << i + 1 << ", " << std::setprecision( 10 ) << nodes[i].x() << ", " << nodes[i].y() << ", " << nodes[i].z() << std::endl;
+        stream << i + 1 << ", " << nodes[i].x() << ", " << std::setprecision( 15 ) << nodes[i].y() << ", " << nodes[i].z() << std::endl;
     }
 
     return stream.good();
