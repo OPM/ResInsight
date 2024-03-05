@@ -24,8 +24,7 @@ cut_along_polyline_response: GridGeometryExtraction__pb2.CutAlongPolylineRespons
     grid_geometry_extraction_stub.CutAlongPolyline(cut_along_polyline_request)
 )
 
-cut_along_polyline_response.gridDimensions
-vertex_array = cut_along_polyline_response.vertexArray
+vertex_array = cut_along_polyline_response.triangleVertexArray
 
 num_vertex_coords = 3  # [x, y, z]
 num_vertices_per_triangle = 3  # [v1, v2, v3]
@@ -50,10 +49,7 @@ for i in range(0, len(x_array), num_vertices_per_triangle):
     j_array.extend([i + 1])
     k_array.extend([i + 2])
 
-
-fig = go.Figure(
-    data=[
-        go.Mesh3d(
+mesh_3d = go.Mesh3d(
             x=x_array,
             y=y_array,
             z=z_array,
@@ -64,6 +60,30 @@ fig = go.Figure(
             showscale=True,
             colorscale=[[0, "gold"], [0.5, "mediumturquoise"], [1.0, "magenta"]],
         )
+
+# Create edges between points in triangles
+Xe = []
+Ye = []
+Ze = []
+step_per_triangle = num_vertex_coords * num_vertices_per_triangle
+for i in range(0, len(vertex_array), step_per_triangle):
+    Xe.extend([vertex_array[i + 0], vertex_array[i + 3], vertex_array[i + 6], None])  # x-coordinates of start and end points of the edge
+    Ye.extend([vertex_array[i + 1], vertex_array[i + 4], vertex_array[i + 7], None])  # y-coordinates of start and end points of the edge
+    Ze.extend([vertex_array[i + 2], vertex_array[i + 5], vertex_array[i + 8], None])  # z-coordinates of start and end points of the edge
+
+edges_3d = go.Scatter3d(
+    x=Xe,
+    y=Ye,
+    z=Ze,
+    mode='lines',
+    name='',
+    line=dict(color= 'rgb(70,70,70)', width=1)
+)
+
+fig = go.Figure(
+    data=[
+        mesh_3d,
+        edges_3d
     ]
 )
 

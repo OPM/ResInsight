@@ -18,12 +18,15 @@
 
 #include "RivPolylineIntersectionGeometryGenerator.h"
 
+#include "RivEnclosingPolygonGenerator.h"
 #include "RivIntersectionHexGridInterface.h"
 #include "RivSectionFlattener.h"
 
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
+#include "cafLine.h"
 
 #include "cvfPlane.h"
+#include "cvfVertexWelder.h"
 
 #pragma optimize( "", off )
 
@@ -35,7 +38,8 @@ RivPolylineIntersectionGeometryGenerator::RivPolylineIntersectionGeometryGenerat
     : m_polyline( polyline )
     , m_hexGrid( grid )
 {
-    m_triangleVxes = new cvf::Vec3fArray;
+    m_triangleVxes    = new cvf::Vec3fArray;
+    m_polygonVertices = new cvf::Vec3fArray;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,7 +54,8 @@ RivPolylineIntersectionGeometryGenerator::~RivPolylineIntersectionGeometryGenera
 //--------------------------------------------------------------------------------------------------
 bool RivPolylineIntersectionGeometryGenerator::isAnyGeometryPresent() const
 {
-    return m_triangleVxes->size() > 0;
+    return m_polygonVertices->size() > 0;
+    // return m_triangleVxes->size() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,10 +81,37 @@ const cvf::Vec3fArray* RivPolylineIntersectionGeometryGenerator::triangleVxes() 
 //--------------------------------------------------------------------------------------------------
 const std::vector<RivIntersectionVertexWeights>& RivPolylineIntersectionGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
 {
-    CVF_ASSERT( m_triangleVxes->size() > 0 );
+    CVF_ASSERT( false );
 
     // Not implemented error
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const cvf::Vec3fArray* RivPolylineIntersectionGeometryGenerator::polygonVxes() const
+{
+    CVF_ASSERT( m_polygonVertices->size() > 0 );
+    return m_polygonVertices.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<size_t>& RivPolylineIntersectionGeometryGenerator::vertiesPerPolygon() const
+{
+    CVF_ASSERT( m_verticesPerPolygon.size() > 0 );
+    return m_verticesPerPolygon;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<size_t>& RivPolylineIntersectionGeometryGenerator::polygonToCellIndex() const
+{
+    CVF_ASSERT( m_polygonToCellIdxMap.size() > 0 );
+    return m_polygonToCellIdxMap;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,11 +127,10 @@ void RivPolylineIntersectionGeometryGenerator::generateIntersectionGeometry( cvf
 //--------------------------------------------------------------------------------------------------
 void RivPolylineIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray* visibleCells )
 {
-    if ( m_triangleVxes->size() != 0 || m_hexGrid.isNull() ) return;
+    if ( m_triangleVxes->size() != 0 || m_polygonVertices->size() != 0 || m_hexGrid.isNull() ) return;
 
     std::vector<cvf::Vec3f> calculatedTriangleVertices;
-
-    // MeshLinesAccumulator meshAcc( m_hexGrid.p() );
+    std::vector<cvf::Vec3f> calculatedPolygonVertices;
 
     cvf::BoundingBox gridBBox = m_hexGrid->boundingBox();
 
@@ -142,6 +173,7 @@ void RivPolylineIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray*
             const cvf::Vec3d p1 = m_polyline[pointIdx];
             const cvf::Vec3d p2 = m_polyline[nextPointIdx];
 
+            // Get cell candidates for the polyline segment (subset of global cells)
             std::vector<size_t> columnCellCandidates =
                 createPolylineSegmentCellCandidates( *m_hexGrid, p1, p2, maxHeightVec, topDepth, bottomDepth );
 
@@ -154,16 +186,21 @@ void RivPolylineIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray*
             cvf::Plane p2Plane;
             p2Plane.setFromPoints( p2, p2 + maxHeightVec, p2 - plane.normal() );
 
+            // Placeholder for triangle vertices per cell
             std::vector<caf::HexGridIntersectionTools::ClipVx> hexPlaneCutTriangleVxes;
             hexPlaneCutTriangleVxes.reserve( 5 * 3 );
             std::vector<int> cellFaceForEachTriangleEdge;
             cellFaceForEachTriangleEdge.reserve( 5 * 3 );
             cvf::Vec3d cellCorners[8];
             size_t     cornerIndices[8];
+
+            // Handle triangles per cell
             for ( const auto globalCellIdx : columnCellCandidates )
             {
                 if ( ( visibleCells != nullptr ) && ( ( *visibleCells )[globalCellIdx] == 0 ) ) continue;
                 if ( !m_hexGrid->useCell( globalCellIdx ) ) continue;
+
+                // if ( globalCellIdx != 93996 ) continue;
 
                 hexPlaneCutTriangleVxes.clear();
                 m_hexGrid->cellCornerVertices( globalCellIdx, cellCorners );
@@ -176,7 +213,19 @@ void RivPolylineIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray*
                                                                        &hexPlaneCutTriangleVxes,
                                                                        &cellFaceForEachTriangleEdge );
 
-                // Clip triangles outside the polyline segment using p1 and p2 planes
+                // DEBUG CODE
+                bool tmp = false;
+                if ( hexPlaneCutTriangleVxes.size() < 3 )
+                {
+                    tmp = true;
+                }
+                if ( globalCellIdx == 93996 )
+                {
+                    tmp = true;
+                }
+                // END DEBUG CODE
+
+                // Clip triangles outside the polyline segment using the planes for point p1 and p2
                 std::vector<caf::HexGridIntersectionTools::ClipVx> clippedTriangleVxes;
                 std::vector<int>                                   cellFaceForEachClippedTriangleEdge;
 
@@ -192,6 +241,9 @@ void RivPolylineIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray*
                     if ( !clvx.isVxIdsNative ) clvx.derivedVxLevel = 0;
                 }
 
+                // Object to for adding triangle vertices, well vertices and generate polygon vertices
+                RivEnclosingPolygonGenerator enclosingPolygonGenerator;
+
                 // Fill triangle vertices vector with clipped triangle vertices
                 size_t clippedTriangleCount = clippedTriangleVxes.size() / 3;
                 for ( size_t triangleIdx = 0; triangleIdx < clippedTriangleCount; ++triangleIdx )
@@ -200,26 +252,46 @@ void RivPolylineIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray*
                     const size_t vxIdx1 = vxIdx0 + 1;
                     const size_t vxIdx2 = vxIdx0 + 2;
 
-                    // Accumulate triangle vertices
-                    cvf::Vec3f point0( clippedTriangleVxes[vxIdx0].vx );
-                    cvf::Vec3f point1( clippedTriangleVxes[vxIdx1].vx );
-                    cvf::Vec3f point2( clippedTriangleVxes[vxIdx2].vx );
+                    const cvf::Vec3f point0( clippedTriangleVxes[vxIdx0].vx );
+                    const cvf::Vec3f point1( clippedTriangleVxes[vxIdx1].vx );
+                    const cvf::Vec3f point2( clippedTriangleVxes[vxIdx2].vx );
 
                     calculatedTriangleVertices.emplace_back( point0 );
                     calculatedTriangleVertices.emplace_back( point1 );
                     calculatedTriangleVertices.emplace_back( point2 );
 
-                    // TODO: Accumulate mesh lines?
-                    // meshAcc.accumulateMeshLines( cellFaceForEachTriangleEdge, ...
-
-                    m_triangleToCellIdxMap.push_back( globalCellIdx );
+                    // Add triangle to enclosing polygon line handler
+                    enclosingPolygonGenerator.addTriangleVertices( point0, point1, point2 );
                 }
+
+                // Must be a triangle
+                if ( enclosingPolygonGenerator.numEdges() < size_t( 3 ) )
+                {
+                    continue;
+                }
+
+                // Construct enclosing polygon after adding each triangle
+                enclosingPolygonGenerator.constructEnclosingPolygon();
+                const auto& vertices = enclosingPolygonGenerator.getPolygonVertices();
+                for ( const auto& vertex : enclosingPolygonGenerator.getPolygonVertices() )
+                {
+                    calculatedPolygonVertices.push_back( vertex );
+                }
+
+                m_verticesPerPolygon.push_back( vertices.size() );
+                m_polygonToCellIdxMap.push_back( globalCellIdx );
+
+                // TODO:
+                // - Create polygon
+                // - Get polygon indices
+                // - Convert to "local" coordinates for each polyline segment
             }
             pointIdx = nextPointIdx;
         }
     }
 
     m_triangleVxes->assign( calculatedTriangleVertices );
+    m_polygonVertices->assign( calculatedPolygonVertices );
 }
 
 //--------------------------------------------------------------------------------------------------

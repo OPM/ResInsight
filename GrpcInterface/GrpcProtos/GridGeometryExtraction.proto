@@ -1,6 +1,5 @@
 syntax = "proto3";
 
-import "Grid.proto";
 import "VectorDefines.proto";
 
 // Will this work if we import only part of the protos?
@@ -48,7 +47,7 @@ message GetGridSurfaceResponse
     repeated float vertexArray = 1;
     repeated fixed32 quadIndicesArr = 2;        // 4*NumQuads long
     repeated fixed32 sourceCellIndicesArr = 3;  // The originating cell index per quad, longnumQuads long
-    GridDimensions gridDimensions = 5;
+    Vec3i gridDimensions = 5;
     Vec3d originUtm = 6;
 }
 
@@ -72,11 +71,12 @@ message FenceMeshSection
 //message CutAlongPolylineResponse
 //{
   //  repeated FenceMeshSection feceMeshSections = 1;
-    //GridDimensions gridDimensions = 2;
+    //Vec3i gridDimensions = 2;
 //}
 
 message CutAlongPolylineResponse
 {
-    repeated float vertexArray = 1;
-    GridDimensions gridDimensions = 2;
+    repeated float polygonVertexArray = 1;
+    repeated fixed32 verticesPerPolygonArr  = 2; // Number of vertices per polygon, numPolygons long
+    repeated fixed32 sourceCellIndicesArr = 3;  // The originating cell index per polygon, numPolygons long
 }

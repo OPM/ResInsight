@@ -137,16 +137,14 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
     }
 
     // Set grid dimensions
-    const auto            countI         = m_eclipseView->mainGrid()->cellCountI();
-    const auto            countJ         = m_eclipseView->mainGrid()->cellCountJ();
-    const auto            countK         = m_eclipseView->mainGrid()->cellCountK();
-    rips::Vec3i*          dimensions     = new rips::Vec3i;
-    rips::GridDimensions* gridDimensions = new rips::GridDimensions;
+    const auto   countI     = m_eclipseView->mainGrid()->cellCountI();
+    const auto   countJ     = m_eclipseView->mainGrid()->cellCountJ();
+    const auto   countK     = m_eclipseView->mainGrid()->cellCountK();
+    rips::Vec3i* dimensions = new rips::Vec3i;
     dimensions->set_i( countI );
     dimensions->set_j( countJ );
     dimensions->set_k( countK );
-    gridDimensions->set_allocated_dimensions( dimensions );
-    response->set_allocated_griddimensions( gridDimensions );
+    response->set_allocated_griddimensions( dimensions );
 
     // Close project and return
     if ( m_application != nullptr )
@@ -217,25 +215,55 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
         }
     }
 
+    // Generate intersection
     polylineIntersectionGenerator->generateIntersectionGeometry( visibleCells );
     if ( !polylineIntersectionGenerator->isAnyGeometryPresent() )
     {
         return grpc::Status( grpc::StatusCode::INVALID_ARGUMENT, "No intersection geometry present" );
     }
 
-    const auto& triangleVertices = polylineIntersectionGenerator->triangleVxes();
-    if ( triangleVertices->size() == 0 )
+    // Get results
+    // const auto& triangleVertices = polylineIntersectionGenerator->triangleVxes();
+    // if ( triangleVertices->size() == 0 )
+    //{
+    //    return grpc::Status( grpc::StatusCode::NOT_FOUND, "No triangle vertices found for polyline" );
+    //}
+
+    //// Set vertex_array and quadindicesarr response
+    // for ( int i = 0; i < triangleVertices->size(); ++i )
+    //{
+    //     const auto& vertex = triangleVertices->get( i );
+    //     response->add_trianglevertexarray( vertex.x() );
+    //     response->add_trianglevertexarray( vertex.y() );
+    //     response->add_trianglevertexarray( vertex.z() );
+    // }
+
+    // Polygon vertices
+    const auto& polygonVertices = polylineIntersectionGenerator->polygonVxes();
+    if ( polygonVertices->size() == 0 )
     {
-        return grpc::Status( grpc::StatusCode::NOT_FOUND, "No triangle vertices found for polyline" );
+        return grpc::Status( grpc::StatusCode::NOT_FOUND, "No polygon vertices found for polyline" );
+    }
+    for ( int i = 0; i < polygonVertices->size(); ++i )
+    {
+        const auto& vertex = polygonVertices->get( i );
+        response->add_polygonvertexarray( vertex.x() );
+        response->add_polygonvertexarray( vertex.y() );
+        response->add_polygonvertexarray( vertex.z() );
     }
 
-    // Set vertex_array and quadindicesarr response
-    for ( int i = 0; i < triangleVertices->size(); ++i )
+    // Vertices per polygon
+    const auto& verticesPerPolygon = polylineIntersectionGenerator->vertiesPerPolygon();
+    for ( const auto& elm : verticesPerPolygon )
     {
-        const auto& vertex = triangleVertices->get( i );
-        response->add_vertexarray( vertex.x() );
-        response->add_vertexarray( vertex.y() );
-        response->add_vertexarray( vertex.z() );
+        response->add_verticesperpolygonarr( static_cast<google::protobuf::uint32>( elm ) );
+    }
+
+    // Polygon to cell indices
+    const auto& polygonCellIndices = polylineIntersectionGenerator->polygonToCellIndex();
+    for ( const auto& elm : polygonCellIndices )
+    {
+        response->add_sourcecellindicesarr( static_cast<google::protobuf::uint32>( elm ) );
     }
 
     return grpc::Status::OK;

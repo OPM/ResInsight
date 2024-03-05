@@ -25,7 +25,6 @@ get_grid_surface_response: GridGeometryExtraction__pb2.GetGridSurfaceResponse = 
     grid_geometry_extraction_stub.GetGridSurface(get_grid_surface_request)
 )
 
-get_grid_surface_response.gridDimensions
 vertex_array = get_grid_surface_response.vertexArray
 quad_indices_array = get_grid_surface_response.quadIndicesArr
 origin_utm = get_grid_surface_response.originUtm
@@ -78,7 +77,7 @@ print(
     f"Origin UTM coordinates [x, y, z]: [{origin_utm.x}, {origin_utm.y}, {origin_utm.z}]"
 )
 print(
-    f"Grid dimensions [I, J, K]: [{grid_dimensions.dimensions.i}, {grid_dimensions.dimensions.j}, {grid_dimensions.dimensions.k}]"
+    f"Grid dimensions [I, J, K]: [{grid_dimensions.i}, {grid_dimensions.j}, {grid_dimensions.k}]"
 )
 print(fig.data)
 

@@ -51,7 +51,10 @@ public:
     RivPolylineIntersectionGeometryGenerator( std::vector<cvf::Vec3d>& polyline, RivIntersectionHexGridInterface* grid );
     ~RivPolylineIntersectionGeometryGenerator() override;
 
-    void generateIntersectionGeometry( cvf::UByteArray* visibleCells );
+    void                       generateIntersectionGeometry( cvf::UByteArray* visibleCells );
+    const cvf::Vec3fArray*     polygonVxes() const;
+    const std::vector<size_t>& vertiesPerPolygon() const;
+    const std::vector<size_t>& polygonToCellIndex() const;
 
     // GeomGen Interface
     bool                                             isAnyGeometryPresent() const override;
@@ -75,4 +78,8 @@ private:
     // Output arrays
     cvf::ref<cvf::Vec3fArray> m_triangleVxes;
     std::vector<size_t>       m_triangleToCellIdxMap;
+
+    std::vector<size_t>       m_polygonToCellIdxMap;
+    cvf::ref<cvf::Vec3fArray> m_polygonVertices;
+    std::vector<size_t>       m_verticesPerPolygon;
 };
