@@ -155,4 +155,6 @@ private:
     caf::PdmField<bool>                          m_editNonVisibleResultAddress;
 
     caf::PdmField<bool> m_applyToAllCases_OBSOLETE;
+
+    bool m_releaseMemoryAfterDataIsExtracted = false;
 };
