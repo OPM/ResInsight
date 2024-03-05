@@ -113,7 +113,7 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_minReservoirCellWidth, "MinReservoirCellWidth", 5.0, "Reservoir Cell Width" );
     CAF_PDM_InitField( &m_cellWidthGrowFactor, "CellWidthGrowFactor", 1.15, "Cell Width Grow Factor" );
 
-    CAF_PDM_InitField( &m_useLocalCoordinates, "UseLocalCoordinates", false, "Use Local Coordinates" );
+    CAF_PDM_InitField( &m_useLocalCoordinates, "UseLocalCoordinates", true, "Use Local Coordinates" );
 
     // Time Step Selection
     CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps" );
