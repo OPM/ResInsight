@@ -26,9 +26,11 @@ namespace Opm::EclIO
 {
 class EInit;
 class ERst;
+class EGrid;
 } // namespace Opm::EclIO
 
 class RigMainGrid;
+class RigGridBase;
 
 //==================================================================================================
 //
@@ -48,6 +50,11 @@ public:
 private:
     void buildMetaData( RigEclipseCaseData* caseData );
     bool importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* caseData );
+    void transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
+                           Opm::EclIO::EGrid&  opmGrid,
+                           RigMainGrid*        riMainGrid,
+                           RigGridBase*        riGrid,
+                           RigEclipseCaseData* caseData );
 
     struct TimeDataFile
     {
