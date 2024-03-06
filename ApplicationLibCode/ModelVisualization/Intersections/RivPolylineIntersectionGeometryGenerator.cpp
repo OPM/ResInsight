@@ -28,8 +28,6 @@
 #include "cvfPlane.h"
 #include "cvfVertexWelder.h"
 
-#pragma optimize( "", off )
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -81,10 +79,10 @@ const cvf::Vec3fArray* RivPolylineIntersectionGeometryGenerator::triangleVxes() 
 //--------------------------------------------------------------------------------------------------
 const std::vector<RivIntersectionVertexWeights>& RivPolylineIntersectionGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
 {
+    // Not implemented - not in use
     CVF_ASSERT( false );
 
-    // Not implemented error
-    return {};
+    return m_emptyTriVxToCellCornerWeights;
 }
 
 //--------------------------------------------------------------------------------------------------

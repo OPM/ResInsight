@@ -82,4 +82,7 @@ private:
     std::vector<size_t>       m_polygonToCellIdxMap;
     cvf::ref<cvf::Vec3fArray> m_polygonVertices;
     std::vector<size_t>       m_verticesPerPolygon;
+
+    // Dummy vectors for GeomGen Interface
+    const std::vector<RivIntersectionVertexWeights> m_emptyTriVxToCellCornerWeights = {};
 };
