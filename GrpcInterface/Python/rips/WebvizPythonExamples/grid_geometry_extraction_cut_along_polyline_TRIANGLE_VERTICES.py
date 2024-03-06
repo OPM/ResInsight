@@ -35,9 +35,9 @@ x_array = []
 y_array = []
 z_array = []
 for i in range(0, len(vertex_array), num_vertex_coords):
-    x_array.append(vertex_array[i + 0] )
-    y_array.append(vertex_array[i + 1] )
-    z_array.append(vertex_array[i + 2] )
+    x_array.append(vertex_array[i + 0])
+    y_array.append(vertex_array[i + 1])
+    z_array.append(vertex_array[i + 2])
 
 # Create triangular mesh
 i_array = []
@@ -50,16 +50,16 @@ for i in range(0, len(x_array), num_vertices_per_triangle):
     k_array.extend([i + 2])
 
 mesh_3d = go.Mesh3d(
-            x=x_array,
-            y=y_array,
-            z=z_array,
-            i=i_array,
-            j=j_array,
-            k=k_array,
-            intensity=np.linspace(-5, 5, 1000, endpoint=True),
-            showscale=True,
-            colorscale=[[0, "gold"], [0.5, "mediumturquoise"], [1.0, "magenta"]],
-        )
+    x=x_array,
+    y=y_array,
+    z=z_array,
+    i=i_array,
+    j=j_array,
+    k=k_array,
+    intensity=np.linspace(-5, 5, 1000, endpoint=True),
+    showscale=True,
+    colorscale=[[0, "gold"], [0.5, "mediumturquoise"], [1.0, "magenta"]],
+)
 
 # Create edges between points in triangles
 Xe = []
@@ -67,25 +67,21 @@ Ye = []
 Ze = []
 step_per_triangle = num_vertex_coords * num_vertices_per_triangle
 for i in range(0, len(vertex_array), step_per_triangle):
-    Xe.extend([vertex_array[i + 0], vertex_array[i + 3], vertex_array[i + 6], None])  # x-coordinates of start and end points of the edge
-    Ye.extend([vertex_array[i + 1], vertex_array[i + 4], vertex_array[i + 7], None])  # y-coordinates of start and end points of the edge
-    Ze.extend([vertex_array[i + 2], vertex_array[i + 5], vertex_array[i + 8], None])  # z-coordinates of start and end points of the edge
+    Xe.extend(
+        [vertex_array[i + 0], vertex_array[i + 3], vertex_array[i + 6], None]
+    )  # x-coordinates of start and end points of the edge
+    Ye.extend(
+        [vertex_array[i + 1], vertex_array[i + 4], vertex_array[i + 7], None]
+    )  # y-coordinates of start and end points of the edge
+    Ze.extend(
+        [vertex_array[i + 2], vertex_array[i + 5], vertex_array[i + 8], None]
+    )  # z-coordinates of start and end points of the edge
 
 edges_3d = go.Scatter3d(
-    x=Xe,
-    y=Ye,
-    z=Ze,
-    mode='lines',
-    name='',
-    line=dict(color= 'rgb(70,70,70)', width=1)
+    x=Xe, y=Ye, z=Ze, mode="lines", name="", line=dict(color="rgb(70,70,70)", width=1)
 )
 
-fig = go.Figure(
-    data=[
-        mesh_3d,
-        edges_3d
-    ]
-)
+fig = go.Figure(data=[mesh_3d, edges_3d])
 
 print(f"j array: {j_array}")
 print(f"Number of vertices: {len(vertex_array) / 3}")
