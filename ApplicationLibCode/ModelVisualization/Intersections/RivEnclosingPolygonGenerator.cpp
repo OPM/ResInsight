@@ -25,7 +25,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 PolygonVertexWelder::PolygonVertexWelder( double weldEpsilon )
-    : m_epsilon( weldEpsilon )
+    : m_epsilonSquared( weldEpsilon * weldEpsilon )
     , m_first( cvf::UNDEFINED_UINT )
 {
 }
@@ -52,14 +52,6 @@ std::vector<cvf::uint> PolygonVertexWelder::weldVerticesAndGetIndices( const std
 //--------------------------------------------------------------------------------------------------
 cvf::uint PolygonVertexWelder::weldVertexAndGetIndex( const cvf::Vec3f& vertex )
 {
-    // Compute cell coordinates of bounding box of vertex epsilon neighborhood
-    int left   = static_cast<int>( ( vertex.x() - m_epsilon ) );
-    int right  = static_cast<int>( ( vertex.x() + m_epsilon ) );
-    int front  = static_cast<int>( ( vertex.y() - m_epsilon ) );
-    int back   = static_cast<int>( ( vertex.y() + m_epsilon ) );
-    int bottom = static_cast<int>( ( vertex.z() - m_epsilon ) );
-    int top    = static_cast<int>( ( vertex.z() + m_epsilon ) );
-
     // Call function to step through linked list of bucket, testing
     // if vertex is within the epsilon of one of the vertices in the bucket
     cvf::uint indexOfLocatedVertex = locateVertexInPolygon( vertex );
@@ -96,14 +88,12 @@ cvf::ref<cvf::Vec3fArray> PolygonVertexWelder::createVertexArray() const
 //--------------------------------------------------------------------------------------------------
 cvf::uint PolygonVertexWelder::locateVertexInPolygon( const cvf::Vec3f& vertex ) const
 {
-    const auto epsilonSquared = m_epsilon * m_epsilon;
-
     cvf::uint currentIndex = m_first;
     while ( currentIndex != cvf::UNDEFINED_UINT )
     {
         // Weld point within tolerance
         float distanceSquared = ( m_vertex[currentIndex] - vertex ).lengthSquared();
-        if ( distanceSquared < epsilonSquared )
+        if ( distanceSquared < m_epsilonSquared )
         {
             return currentIndex;
         }
@@ -170,7 +160,7 @@ void RivEnclosingPolygonGenerator::constructEnclosingPolygon()
     //
 
     // Must have at least 3 edges to construct a polygon
-    CVF_ASSERT( m_allEdgeKeys.size() >= 3 );
+    CVF_ASSERT( isValidPolygon() );
 
     // Map of edge key and number of occurrences
     std::map<cvf::uint64, cvf::uint> edgeKeysAndCount;
@@ -190,13 +180,13 @@ void RivEnclosingPolygonGenerator::constructEnclosingPolygon()
     }
 
     // At least a triangle is needed to construct a polygon
-    CVF_ASSERT( edgeKeysAndCount.size() >= 3 ); // This occurs to often?
+    CVF_ASSERT( edgeKeysAndCount.size() >= 3 );
 
     // Extract boundary edge keys from all edge keys and count
     std::set<cvf::EdgeKey> boundaryEdges;
-    for ( const auto& [key, value] : edgeKeysAndCount )
+    for ( const auto& [key, count] : edgeKeysAndCount )
     {
-        if ( value == 1 )
+        if ( count == 1 )
         {
             boundaryEdges.insert( cvf::EdgeKey::fromkeyVal( key ) );
         }
@@ -220,6 +210,7 @@ void RivEnclosingPolygonGenerator::constructEnclosingPolygon()
         const int end   = currentEdge.index2();
         if ( start == cvf::UNDEFINED_UINT || end == cvf::UNDEFINED_UINT )
         {
+            // Throw error?
             break;
         }
 
@@ -267,6 +258,14 @@ cvf::EdgeKey RivEnclosingPolygonGenerator::findNextEdge( int vertexIndex, const 
 std::vector<cvf::Vec3f> RivEnclosingPolygonGenerator::getPolygonVertices() const
 {
     return m_polygonVertices;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RivEnclosingPolygonGenerator::isValidPolygon() const
+{
+    return m_allEdgeKeys.size() >= size_t( 3 );
 }
 
 //--------------------------------------------------------------------------------------------------

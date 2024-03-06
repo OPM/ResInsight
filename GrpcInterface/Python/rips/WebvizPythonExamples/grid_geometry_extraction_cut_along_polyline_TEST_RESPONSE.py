@@ -53,47 +53,6 @@ cut_along_polyline_response: GridGeometryExtraction__pb2.CutAlongPolylineRespons
     grid_geometry_extraction_stub.CutAlongPolyline(cut_along_polyline_request)
 )
 
-fence_mesh_sections = cut_along_polyline_response.feceMeshSections
-print(f"Number of fence mesh sections: {len(fence_mesh_sections)}")
-# for section in fence_mesh_sections:
-for section in fence_mesh_sections:
-    polygon_vertex_array_uz = section.vertexArrayUZ
-    vertices_per_polygon = section.verticesPerPolygonArr
-
-    start = section.startUtmXY
-    end = section.endUtmXY
-
-    # Create directional vector from start to end
-    direction_vector = [end[0] - start[0], end[1] - start[1]]
-
-    # Decompose the polygon vertex array into x, y, z arrays
-    x_array = []
-    y_array = []
-    z_array = []
-
-    # 2 coordinates per vertex (u, v)
-    for i in range(0, len(polygon_vertex_array_uz), 2):
-        u = polygon_vertex_array_uz[i]
-        z = polygon_vertex_array_uz[i + 1]
-
-        # Calculate x, y from u and directional vector,
-        # where u is the length along the direction vector
-        x = start[0] + u * direction_vector[0]
-        y = start[1] + u * direction_vector[1]
-
-        x_array.append(x)
-        y_array.append(y)
-        z_array.append(z)
-
-# ******************************************
-# ******************************************
-#
-# TODO: CONTINUE FROM HERE
-#
-# ******************************************
-# ******************************************
-
-
 polygon_vertex_array_org = (
     cut_along_polyline_response.polylineTestResponse.polygonVertexArray
 )

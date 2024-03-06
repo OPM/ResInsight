@@ -50,7 +50,7 @@ private:
     cvf::uint addVertexToPolygon( const cvf::Vec3f& vertex );
 
 private:
-    const double m_epsilon; // Tolerance for vertex welding, radius around vertex defining welding neighborhood
+    const double m_epsilonSquared; // Tolerance for vertex welding, radius around vertex defining welding neighborhood
 
     cvf::uint               m_first; // Start of linked list
     std::vector<cvf::uint>  m_next; // Links each vertex to next in linked list. Always numVertices long, will grow as vertices are added
@@ -72,8 +72,7 @@ public:
 
     std::vector<cvf::Vec3f> getPolygonVertices() const;
 
-    bool   isValidPolygon() const { return m_allEdgeKeys.size() >= size_t( 3 ); }
-    size_t numEdges() const { return m_allEdgeKeys.size(); }
+    bool isValidPolygon() const;
 
     void addTriangleVertices( const cvf::Vec3f& p0, const cvf::Vec3f& p1, const cvf::Vec3f& p2 );
     void constructEnclosingPolygon();

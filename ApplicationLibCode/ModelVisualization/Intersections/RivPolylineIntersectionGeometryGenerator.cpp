@@ -31,12 +31,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivPolylineIntersectionGeometryGenerator::RivPolylineIntersectionGeometryGenerator( std::vector<cvf::Vec3d>&         polyline,
+RivPolylineIntersectionGeometryGenerator::RivPolylineIntersectionGeometryGenerator( std::vector<cvf::Vec3d>&         polylineUtm,
                                                                                     RivIntersectionHexGridInterface* grid )
-    : m_polyline( polyline )
+    : m_polylineUtm( polylineUtm )
     , m_hexGrid( grid )
 {
-    m_triangleVxes    = new cvf::Vec3fArray;
     m_polygonVertices = new cvf::Vec3fArray;
 }
 
@@ -53,7 +52,6 @@ RivPolylineIntersectionGeometryGenerator::~RivPolylineIntersectionGeometryGenera
 bool RivPolylineIntersectionGeometryGenerator::isAnyGeometryPresent() const
 {
     return m_polygonVertices->size() > 0;
-    // return m_triangleVxes->size() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,8 +59,10 @@ bool RivPolylineIntersectionGeometryGenerator::isAnyGeometryPresent() const
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RivPolylineIntersectionGeometryGenerator::triangleToCellIndex() const
 {
-    CVF_ASSERT( m_triangleVxes->size() > 0 );
-    return m_triangleToCellIdxMap;
+    // Not implemented - not in use
+    CVF_ASSERT( false );
+
+    return m_emptyTriangleToCellIdxMap;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,8 +70,10 @@ const std::vector<size_t>& RivPolylineIntersectionGeometryGenerator::triangleToC
 //--------------------------------------------------------------------------------------------------
 const cvf::Vec3fArray* RivPolylineIntersectionGeometryGenerator::triangleVxes() const
 {
-    CVF_ASSERT( m_triangleVxes->size() > 0 );
-    return m_triangleVxes.p();
+    // Not implemented - not in use
+    CVF_ASSERT( false );
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -115,6 +117,15 @@ const std::vector<size_t>& RivPolylineIntersectionGeometryGenerator::polygonToCe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const std::vector<PolylineSegmentMeshData>& RivPolylineIntersectionGeometryGenerator::polylineSegmentsMeshData() const
+{
+    CVF_ASSERT( m_polylineSegmentsMeshData.size() > 0 );
+    return m_polylineSegmentsMeshData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RivPolylineIntersectionGeometryGenerator::generateIntersectionGeometry( cvf::UByteArray* visibleCells )
 {
     calculateArrays( visibleCells );
@@ -125,10 +136,10 @@ void RivPolylineIntersectionGeometryGenerator::generateIntersectionGeometry( cvf
 //--------------------------------------------------------------------------------------------------
 void RivPolylineIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray* visibleCells )
 {
-    if ( m_triangleVxes->size() != 0 || m_polygonVertices->size() != 0 || m_hexGrid.isNull() ) return;
+    if ( m_polygonVertices->size() != 0 || m_hexGrid.isNull() ) return;
 
-    std::vector<cvf::Vec3f> calculatedTriangleVertices;
-    std::vector<cvf::Vec3f> calculatedPolygonVertices;
+    std::vector<cvf::Vec3f>              calculatedPolygonVertices;
+    std::vector<PolylineSegmentMeshData> polylineSegmentMeshData = {}; // Mesh data per polyline segment
 
     cvf::BoundingBox gridBBox = m_hexGrid->boundingBox();
 
@@ -155,26 +166,43 @@ void RivPolylineIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray*
 
     const auto       zAxisDirection = -cvf::Vec3d::Z_AXIS; // NOTE: Negative or positive direction?
     const cvf::Vec3d maxHeightVec   = zAxisDirection * gridBBox.radius();
-    if ( m_polyline.size() > 1 )
+    if ( m_polylineUtm.size() > 1 )
     {
-        const size_t numPoints = m_polyline.size();
+        const size_t numPoints = m_polylineUtm.size();
         size_t       pointIdx  = 0;
+
+        // Loop over polyline segments
+        //
+        // Create intersection geometry for each polyline segment and clip triangles outside the
+        // polyline segment, using UTM-coordinates.
+        //
+        // Afterwards convert to "local" coordinates (p1 as origin), where the local uz-coordinates
+        // for each vertex is calculated using Pythagoras theorem.
+        //
+        // As the plane is parallel to the z-axis, the local uz-coordinates per polyline segment
+        // can be calculated using Pythagoras theorem. Where a segment is defined between p1 and p2,
+        // which implies p1 is origin of the local coordinate system uz.
+        //
+        // For a segment a UTM coordinate (x_utm,y_utm,z_utm) converts to u = sqrt(x^2 + y^2) and z = z.
+        // Where x, y and z are local vertex coordinates, after subtracting the (x_utm, y_utm, z_utm)-values
+        // for p1 from the vertex UTM-coordinates.
         while ( pointIdx < numPoints - 1 )
         {
-            size_t nextPointIdx = RivSectionFlattener::indexToNextValidPoint( m_polyline, zAxisDirection, pointIdx );
-            if ( nextPointIdx == size_t( -1 ) || nextPointIdx >= m_polyline.size() )
+            size_t nextPointIdx = RivSectionFlattener::indexToNextValidPoint( m_polylineUtm, zAxisDirection, pointIdx );
+            if ( nextPointIdx == size_t( -1 ) || nextPointIdx >= m_polylineUtm.size() )
             {
                 break;
             }
 
-            // Start and end point of polyline segment
-            const cvf::Vec3d p1 = m_polyline[pointIdx];
-            const cvf::Vec3d p2 = m_polyline[nextPointIdx];
+            // Start and end point of polyline segment in UTM-coordinates
+            const cvf::Vec3d p1 = m_polylineUtm[pointIdx];
+            const cvf::Vec3d p2 = m_polylineUtm[nextPointIdx];
 
             // Get cell candidates for the polyline segment (subset of global cells)
             std::vector<size_t> columnCellCandidates =
                 createPolylineSegmentCellCandidates( *m_hexGrid, p1, p2, maxHeightVec, topDepth, bottomDepth );
 
+            // Plane for the polyline segment
             cvf::Plane plane;
             plane.setFromPoints( p1, p2, p2 + maxHeightVec );
 
@@ -192,14 +220,19 @@ void RivPolylineIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray*
             cvf::Vec3d cellCorners[8];
             size_t     cornerIndices[8];
 
+            // Mesh data for polyline segment
+
+            std::vector<cvf::Vec2f> polygonVerticesUz  = {};
+            std::vector<cvf::uint>  verticesPerPolygon = {};
+            const cvf::Vec3f        p1_f( p1 );
+
             // Handle triangles per cell
             for ( const auto globalCellIdx : columnCellCandidates )
             {
                 if ( ( visibleCells != nullptr ) && ( ( *visibleCells )[globalCellIdx] == 0 ) ) continue;
                 if ( !m_hexGrid->useCell( globalCellIdx ) ) continue;
 
-                // if ( globalCellIdx != 93996 ) continue;
-
+                // Perform intersection and clipping of triangles using UTM-coordinates
                 hexPlaneCutTriangleVxes.clear();
                 m_hexGrid->cellCornerVertices( globalCellIdx, cellCorners );
                 m_hexGrid->cellCornerIndices( globalCellIdx, cornerIndices );
@@ -210,18 +243,6 @@ void RivPolylineIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray*
                                                                        cornerIndices,
                                                                        &hexPlaneCutTriangleVxes,
                                                                        &cellFaceForEachTriangleEdge );
-
-                // DEBUG CODE
-                bool tmp = false;
-                if ( hexPlaneCutTriangleVxes.size() < 3 )
-                {
-                    tmp = true;
-                }
-                if ( globalCellIdx == 93996 )
-                {
-                    tmp = true;
-                }
-                // END DEBUG CODE
 
                 // Clip triangles outside the polyline segment using the planes for point p1 and p2
                 std::vector<caf::HexGridIntersectionTools::ClipVx> clippedTriangleVxes;
@@ -242,7 +263,7 @@ void RivPolylineIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray*
                 // Object to for adding triangle vertices, well vertices and generate polygon vertices
                 RivEnclosingPolygonGenerator enclosingPolygonGenerator;
 
-                // Fill triangle vertices vector with clipped triangle vertices
+                // Add clipped triangle vertices to the polygon generator using local coordinates
                 size_t clippedTriangleCount = clippedTriangleVxes.size() / 3;
                 for ( size_t triangleIdx = 0; triangleIdx < clippedTriangleCount; ++triangleIdx )
                 {
@@ -250,20 +271,19 @@ void RivPolylineIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray*
                     const size_t vxIdx1 = vxIdx0 + 1;
                     const size_t vxIdx2 = vxIdx0 + 2;
 
-                    const cvf::Vec3f point0( clippedTriangleVxes[vxIdx0].vx );
-                    const cvf::Vec3f point1( clippedTriangleVxes[vxIdx1].vx );
-                    const cvf::Vec3f point2( clippedTriangleVxes[vxIdx2].vx );
-
-                    calculatedTriangleVertices.emplace_back( point0 );
-                    calculatedTriangleVertices.emplace_back( point1 );
-                    calculatedTriangleVertices.emplace_back( point2 );
+                    // Convert points from UTM to "local" coordinates
+                    // NOTE: Do not subtract z-values. The z-values are used for the uz-coordinates
+                    // and not provided as additional UTM info with response
+                    const cvf::Vec3f point0( clippedTriangleVxes[vxIdx0].vx - p1 );
+                    const cvf::Vec3f point1( clippedTriangleVxes[vxIdx1].vx - p1 );
+                    const cvf::Vec3f point2( clippedTriangleVxes[vxIdx2].vx - p1 );
 
                     // Add triangle to enclosing polygon line handler
                     enclosingPolygonGenerator.addTriangleVertices( point0, point1, point2 );
                 }
 
-                // Must be a triangle
-                if ( enclosingPolygonGenerator.numEdges() < size_t( 3 ) )
+                // Must be a valid polygon to continue
+                if ( !enclosingPolygonGenerator.isValidPolygon() )
                 {
                     continue;
                 }
@@ -271,24 +291,42 @@ void RivPolylineIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray*
                 // Construct enclosing polygon after adding each triangle
                 enclosingPolygonGenerator.constructEnclosingPolygon();
                 const auto& vertices = enclosingPolygonGenerator.getPolygonVertices();
-                for ( const auto& vertex : enclosingPolygonGenerator.getPolygonVertices() )
-                {
-                    calculatedPolygonVertices.push_back( vertex );
-                }
 
+                // Construct local uz-coordinates using Pythagoras theorem
+
+                for ( const auto& vertex : vertices )
+                {
+                    // Convert to local uz-coordinates
+                    const auto u = std::sqrt( vertex.x() * vertex.x() + vertex.y() * vertex.y() );
+                    const auto z = vertex.z();
+                    polygonVerticesUz.push_back( cvf::Vec2f( u, z ) ); // u = x, z = y
+
+                    // Keep old code for debugging purposes
+                    calculatedPolygonVertices.push_back( vertex + p1_f );
+                }
+                verticesPerPolygon.push_back( static_cast<cvf::uint>( vertices.size() ) );
+
+                // Keep old code for debugging purposes
                 m_verticesPerPolygon.push_back( vertices.size() );
                 m_polygonToCellIdxMap.push_back( globalCellIdx );
-
-                // TODO:
-                // - Create polygon
-                // - Get polygon indices
-                // - Convert to "local" coordinates for each polyline segment
             }
+
+            // Construct polyline segment mesh data
+            PolylineSegmentMeshData polylineSegmentData;
+            polylineSegmentData.startUtmXY = cvf::Vec2d( p1.x(), p1.y() );
+            polylineSegmentData.endUtmXY   = cvf::Vec2d( p2.x(), p2.y() );
+            polylineSegmentData.vertexArrayUZ.assign( polygonVerticesUz );
+            polylineSegmentData.verticesPerPolygon = verticesPerPolygon;
+            polylineSegmentData.polygonIndices     = {}; // TODO: Add indices or remove from struct?
+
+            // Add polyline segment mesh data to list
+            m_polylineSegmentsMeshData.push_back( polylineSegmentData );
+
+            // Set next polyline segment start index
             pointIdx = nextPointIdx;
         }
     }
 
-    m_triangleVxes->assign( calculatedTriangleVertices );
     m_polygonVertices->assign( calculatedPolygonVertices );
 }
 

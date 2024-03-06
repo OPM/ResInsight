@@ -45,16 +45,30 @@ class ScalarMapper;
 class DrawableGeo;
 } // namespace cvf
 
+struct PolylineSegmentMeshData
+{
+    // Naming things? FenceMeshSection/PolylineMeshSection?
+    cvf::Vec2fArray        vertexArrayUZ; // Consider std::vector<cvf::uint> instead, as access methods of Vec2f is .x() and .y()
+    std::vector<cvf::uint> polygonIndices; // Not needed when vertices/nodes are not shared between polygons?
+    std::vector<cvf::uint> verticesPerPolygon;
+    std::vector<cvf::uint> polygonToCellIndexMap;
+    cvf::Vec2d             startUtmXY;
+    cvf::Vec2d             endUtmXY;
+};
+
+// TODO: Remove inheritance from RivIntersectionGeometryGeneratorInterface? As we do not use triangles
 class RivPolylineIntersectionGeometryGenerator : public cvf::Object, public RivIntersectionGeometryGeneratorInterface
 {
 public:
-    RivPolylineIntersectionGeometryGenerator( std::vector<cvf::Vec3d>& polyline, RivIntersectionHexGridInterface* grid );
+    RivPolylineIntersectionGeometryGenerator( std::vector<cvf::Vec3d>& polylineUtm, RivIntersectionHexGridInterface* grid );
     ~RivPolylineIntersectionGeometryGenerator() override;
 
     void                       generateIntersectionGeometry( cvf::UByteArray* visibleCells );
     const cvf::Vec3fArray*     polygonVxes() const;
     const std::vector<size_t>& vertiesPerPolygon() const;
     const std::vector<size_t>& polygonToCellIndex() const;
+
+    const std::vector<PolylineSegmentMeshData>& polylineSegmentsMeshData() const;
 
     // GeomGen Interface
     bool                                             isAnyGeometryPresent() const override;
@@ -73,16 +87,16 @@ private:
 
 private:
     cvf::ref<RivIntersectionHexGridInterface> m_hexGrid;
-    const std::vector<cvf::Vec3d>             m_polyline;
+    const std::vector<cvf::Vec3d>             m_polylineUtm;
 
     // Output arrays
-    cvf::ref<cvf::Vec3fArray> m_triangleVxes;
-    std::vector<size_t>       m_triangleToCellIdxMap;
-
     std::vector<size_t>       m_polygonToCellIdxMap;
     cvf::ref<cvf::Vec3fArray> m_polygonVertices;
     std::vector<size_t>       m_verticesPerPolygon;
 
+    std::vector<PolylineSegmentMeshData> m_polylineSegmentsMeshData;
+
     // Dummy vectors for GeomGen Interface
+    const std::vector<size_t>                       m_emptyTriangleToCellIdxMap     = {};
     const std::vector<RivIntersectionVertexWeights> m_emptyTriVxToCellCornerWeights = {};
 };

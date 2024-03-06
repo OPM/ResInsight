@@ -24,7 +24,8 @@ cut_along_polyline_response: GridGeometryExtraction__pb2.CutAlongPolylineRespons
     grid_geometry_extraction_stub.CutAlongPolyline(cut_along_polyline_request)
 )
 
-vertex_array = cut_along_polyline_response.triangleVertexArray
+vertex_array = cut_along_polyline_response.polylineTestResponse.triangleVertexArray
+cut_along_polyline_response.polylineTestResponse
 
 num_vertex_coords = 3  # [x, y, z]
 num_vertices_per_triangle = 3  # [v1, v2, v3]

@@ -61,22 +61,25 @@ message FenceMeshSection
 {
     // U-axis defined by vector from start to end, Z is global Z
     repeated float vertexArrayUZ = 1;
-    repeated fixed32 polyIndicesArr = 2;
+    repeated fixed32 polyIndicesArr = 2; // Note: Redundant if no shared nodes?
     repeated fixed32 verticesPerPolygonArr = 3;     // Number of vertices per polygon, numPolygons long
     repeated fixed32 sourceCellIndicesArr = 4;      // The originating cell index per polygon, numPolygons long
     Vec2d startUtmXY = 6;
     Vec2d endUtmXY = 7;
 }
 
-//message CutAlongPolylineResponse
-//{
-  //  repeated FenceMeshSection feceMeshSections = 1;
-    //Vec3i gridDimensions = 2;
-//}
-
-message CutAlongPolylineResponse
+message PolylineTestResponse
 {
+    // Test response returning all vertices without "local" section coordinates
     repeated float polygonVertexArray = 1;
     repeated fixed32 verticesPerPolygonArr  = 2; // Number of vertices per polygon, numPolygons long
     repeated fixed32 sourceCellIndicesArr = 3;  // The originating cell index per polygon, numPolygons long
 }
+
+message CutAlongPolylineResponse
+{
+    repeated FenceMeshSection feceMeshSections = 1;
+    PolylineTestResponse polylineTestResponse = 2;
+    Vec3i gridDimensions = 3;
+}
+

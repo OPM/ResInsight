@@ -220,21 +220,40 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
         return grpc::Status( grpc::StatusCode::INVALID_ARGUMENT, "No intersection geometry present" );
     }
 
-    // Get results
-    // const auto& triangleVertices = polylineIntersectionGenerator->triangleVxes();
-    // if ( triangleVertices->size() == 0 )
-    //{
-    //    return grpc::Status( grpc::StatusCode::NOT_FOUND, "No triangle vertices found for polyline" );
-    //}
+    // Add fence mesh sections
+    const auto& polylineSegmentsMeshData = polylineIntersectionGenerator->polylineSegmentsMeshData();
+    for ( const auto& segment : polylineSegmentsMeshData )
+    {
+        auto* fenceMeshSection = response->add_fecemeshsections();
 
-    //// Set vertex_array and quadindicesarr response
-    // for ( int i = 0; i < triangleVertices->size(); ++i )
-    //{
-    //     const auto& vertex = triangleVertices->get( i );
-    //     response->add_trianglevertexarray( vertex.x() );
-    //     response->add_trianglevertexarray( vertex.y() );
-    //     response->add_trianglevertexarray( vertex.z() );
-    // }
+        // Set start UTM (x,y)
+        rips::Vec2d* startUtmXY = new rips::Vec2d;
+        startUtmXY->set_x( segment.startUtmXY.x() );
+        startUtmXY->set_y( segment.startUtmXY.y() );
+        fenceMeshSection->set_allocated_startutmxy( startUtmXY );
+
+        // Set end UTM (x,y)
+        rips::Vec2d* endUtmXY = new rips::Vec2d;
+        endUtmXY->set_x( segment.endUtmXY.x() );
+        endUtmXY->set_y( segment.endUtmXY.y() );
+        fenceMeshSection->set_allocated_endutmxy( endUtmXY );
+
+        // Fill the vertext array
+        for ( const auto& vertex : segment.vertexArrayUZ )
+        {
+            fenceMeshSection->add_vertexarrayuz( vertex.x() );
+            fenceMeshSection->add_vertexarrayuz( vertex.y() );
+        }
+
+        // Fill the source cell indices array
+        for ( const auto& sourceCellIndex : segment.polygonToCellIndexMap )
+        {
+            fenceMeshSection->add_sourcecellindicesarr( static_cast<google::protobuf::uint32>( sourceCellIndex ) );
+        }
+    }
+
+    // Add test response
+    rips::PolylineTestResponse* polylineTestResponse = new rips::PolylineTestResponse;
 
     // Polygon vertices
     const auto& polygonVertices = polylineIntersectionGenerator->polygonVxes();
@@ -245,24 +264,26 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
     for ( int i = 0; i < polygonVertices->size(); ++i )
     {
         const auto& vertex = polygonVertices->get( i );
-        response->add_polygonvertexarray( vertex.x() );
-        response->add_polygonvertexarray( vertex.y() );
-        response->add_polygonvertexarray( vertex.z() );
+        polylineTestResponse->add_polygonvertexarray( vertex.x() );
+        polylineTestResponse->add_polygonvertexarray( vertex.y() );
+        polylineTestResponse->add_polygonvertexarray( vertex.z() );
     }
 
     // Vertices per polygon
     const auto& verticesPerPolygon = polylineIntersectionGenerator->vertiesPerPolygon();
     for ( const auto& elm : verticesPerPolygon )
     {
-        response->add_verticesperpolygonarr( static_cast<google::protobuf::uint32>( elm ) );
+        polylineTestResponse->add_verticesperpolygonarr( static_cast<google::protobuf::uint32>( elm ) );
     }
 
     // Polygon to cell indices
     const auto& polygonCellIndices = polylineIntersectionGenerator->polygonToCellIndex();
     for ( const auto& elm : polygonCellIndices )
     {
-        response->add_sourcecellindicesarr( static_cast<google::protobuf::uint32>( elm ) );
+        polylineTestResponse->add_sourcecellindicesarr( static_cast<google::protobuf::uint32>( elm ) );
     }
+
+    response->set_allocated_polylinetestresponse( polylineTestResponse );
 
     return grpc::Status::OK;
 }
