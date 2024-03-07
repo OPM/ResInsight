@@ -37,9 +37,7 @@
 
 #include "cafAssert.h"
 #include "cafPdmObject.h"
-#include "cafPdmObjectFactory.h"
 #include "cafPdmPointer.h"
-#include "cafPdmScriptResponse.h"
 
 /// CAF_PDM_OBJECT_METHOD_SOURCE_INIT associates the self class keyword and the method keyword with the method factory
 /// Place this in the cpp file, preferably above the constructor

@@ -19,8 +19,6 @@
 #include "RicMeasurementPickEventHandler.h"
 
 #include "RiaApplication.h"
-#include "RiuViewer.h"
-#include "RiuViewerCommands.h"
 
 #include "Rim3dView.h"
 #include "RimExtrudedCurveIntersection.h"
@@ -28,12 +26,17 @@
 #include "RimMeasurement.h"
 #include "RimProject.h"
 
-#include "cafDisplayCoordTransform.h"
-#include "cafSelectionManager.h"
+#include "RiuViewer.h"
+#include "RiuViewerCommands.h"
 
 #include "RivPartPriority.h"
 
+#include "cafDisplayCoordTransform.h"
+#include "cafSelectionManager.h"
+
 #include "cvfPart.h"
+
+#include <QApplication>
 
 #include <vector>
 

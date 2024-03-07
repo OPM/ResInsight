@@ -18,7 +18,7 @@
 
 #include "RicCopyGridStatisticsToClipboardFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "RicWellLogTools.h"
 

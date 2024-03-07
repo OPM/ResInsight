@@ -20,7 +20,6 @@
 
 #include "fast_float/include/fast_float/fast_float.h"
 
-#include <cctype>
 #include <charconv>
 #include <regex>
 #include <sstream>

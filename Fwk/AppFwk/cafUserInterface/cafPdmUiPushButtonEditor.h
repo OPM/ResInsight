@@ -35,12 +35,14 @@
 //##################################################################################################
 
 #pragma once
+
 #include "cafPdmUiFieldEditorHandle.h"
 
 #include <QLabel>
 #include <QPointer>
 #include <QPushButton>
 #include <QWidget>
+
 class QHBoxLayout;
 
 namespace caf

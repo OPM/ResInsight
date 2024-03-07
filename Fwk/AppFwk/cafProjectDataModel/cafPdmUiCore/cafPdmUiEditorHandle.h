@@ -43,7 +43,6 @@
 
 namespace caf
 {
-class PdmUiItem;
 
 //==================================================================================================
 /// Abstract class to handle editors. Inherits QObject to be able to use signals and slots

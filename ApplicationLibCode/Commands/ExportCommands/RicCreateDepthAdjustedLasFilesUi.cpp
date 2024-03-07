@@ -31,7 +31,6 @@
 
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
-#include "cafPdmUiOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 CAF_PDM_SOURCE_INIT( RicCreateDepthAdjustedLasFilesUi, "RicCreateDepthAdjustedLasFilesUi" );

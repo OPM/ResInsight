@@ -33,7 +33,6 @@
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiGroup.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QDir>

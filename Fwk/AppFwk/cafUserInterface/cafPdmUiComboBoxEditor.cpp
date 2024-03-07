@@ -40,7 +40,6 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiFieldEditorHandle.h"
-#include "cafQShortenedLabel.h"
 #include "cafUiAppearanceSettings.h"
 #include "cafUiIconFactory.h"
 

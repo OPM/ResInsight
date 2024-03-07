@@ -42,7 +42,6 @@
 #include "cafPdmUiFieldEditorHandle.h"
 
 #include "cafFactory.h"
-#include "cafQShortenedLabel.h"
 
 #include <QHBoxLayout>
 #include <QIntValidator>

@@ -38,7 +38,6 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
-#include <QLabel>
 #include <QPointer>
 #include <QString>
 #include <QTimeEdit>

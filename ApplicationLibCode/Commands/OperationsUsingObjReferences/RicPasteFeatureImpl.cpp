@@ -33,6 +33,7 @@
 #include "cafPdmObjectHandle.h"
 
 #include <QAction>
+#include <QApplication>
 #include <QClipboard>
 #include <QString>
 

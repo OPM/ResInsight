@@ -45,11 +45,6 @@
 #include "cafPdmScriptIOMessages.h"
 
 #include <QIODevice>
-#include <QString>
-#include <QStringList>
-#include <QTextStream>
-
-#include <type_traits>
 
 #define CAF_PDM_InitScriptableField( field, keyword, default, uiName, ... )                          \
     {                                                                                                \

@@ -37,18 +37,13 @@
 #include "cafPdmUiTableViewQModel.h"
 
 #include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiFieldEditorHelper.h"
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiObjectHandle.h"
+#include "cafPdmUiOrdering.h"
 #include "cafPdmUiTableRowEditor.h"
-#include "cafPdmUiTableView.h"
-#include "cafSelectionManager.h"
-
-#include <QTableView>
 
 namespace caf
 {

@@ -41,6 +41,7 @@
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiLineEditor.h"
 
+#include <QCoreApplication>
 #include <QDate>
 #include <QDir>
 #include <QLocale>

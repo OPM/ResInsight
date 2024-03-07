@@ -36,7 +36,6 @@
 #pragma once
 
 #include "cafPdmObject.h"
-#include "cafPdmPointer.h"
 
 #include <QString>
 #include <QStringList>

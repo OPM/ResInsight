@@ -27,7 +27,6 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiOrdering.h"
 #include "cafPdmUiTreeOrdering.h"
 
 namespace caf

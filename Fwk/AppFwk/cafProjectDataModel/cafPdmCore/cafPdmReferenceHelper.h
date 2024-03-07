@@ -37,9 +37,6 @@
 #pragma once
 
 #include "cafPdmObjectHandle.h"
-#include "cafPdmPointer.h"
-
-#include <QStringList>
 
 namespace caf
 {

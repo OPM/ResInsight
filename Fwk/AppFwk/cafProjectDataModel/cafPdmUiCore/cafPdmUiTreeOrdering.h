@@ -41,8 +41,6 @@
 #include <QList>
 #include <QString>
 
-#include <vector>
-
 namespace caf
 {
 class PdmFieldHandle;

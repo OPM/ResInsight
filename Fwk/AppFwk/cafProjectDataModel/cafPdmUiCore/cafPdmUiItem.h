@@ -39,10 +39,6 @@
 #include "cafIconProvider.h"
 #include "cafPdmUiFieldSpecialization.h"
 
-#include <QApplication>
-#include <QColor>
-#include <QString>
-#include <QVariant>
 #include <set>
 #include <type_traits>
 

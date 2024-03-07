@@ -37,7 +37,6 @@
 
 #pragma once
 
-#include "cafPdmPointer.h"
 #include "cafPdmUiEditorHandle.h"
 
 #include <QPointer>

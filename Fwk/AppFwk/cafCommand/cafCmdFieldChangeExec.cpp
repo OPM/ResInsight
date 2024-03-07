@@ -38,6 +38,7 @@
 
 #include "cafNotificationCenter.h"
 #include "cafPdmReferenceHelper.h"
+#include "cafPdmUiOrdering.h"
 
 namespace caf
 {

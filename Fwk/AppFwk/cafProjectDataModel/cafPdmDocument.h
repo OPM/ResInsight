@@ -35,9 +35,9 @@
 //##################################################################################################
 
 #pragma once
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmPointer.h"
 
 namespace caf
 {

@@ -21,6 +21,7 @@
 
 #include "cvfProgramOptions.h"
 
+#include <QCoreApplication>
 #include <QProcessEnvironment>
 
 //--------------------------------------------------------------------------------------------------
