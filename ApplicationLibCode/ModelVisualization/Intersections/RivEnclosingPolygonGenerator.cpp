@@ -206,8 +206,8 @@ void RivEnclosingPolygonGenerator::constructEnclosingPolygon()
         // Find next edge in the boundary, i.e. edge containing the next vertex index to look for
         currentEdge = findNextEdge( nextVertexIndex, boundaryEdges );
         boundaryEdges.erase( currentEdge );
-        const int start = currentEdge.index1();
-        const int end   = currentEdge.index2();
+        const auto start = currentEdge.index1();
+        const auto end   = currentEdge.index2();
         if ( start == cvf::UNDEFINED_UINT || end == cvf::UNDEFINED_UINT )
         {
             // Throw error?
@@ -238,7 +238,7 @@ void RivEnclosingPolygonGenerator::constructEnclosingPolygon()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::EdgeKey RivEnclosingPolygonGenerator::findNextEdge( int vertexIndex, const std::set<cvf::EdgeKey>& boundaryEdges )
+cvf::EdgeKey RivEnclosingPolygonGenerator::findNextEdge( cvf::uint vertexIndex, const std::set<cvf::EdgeKey>& boundaryEdges )
 {
     for ( auto& elm : boundaryEdges )
     {

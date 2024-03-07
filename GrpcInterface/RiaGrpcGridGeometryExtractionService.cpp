@@ -427,7 +427,11 @@ grpc::Status RiaGrpcGridGeometryExtractionService::initializeApplicationAndEclip
 
     if ( filePath.empty() )
     {
-        // For empty grid file name, use mock model
+        return grpc::Status( grpc::StatusCode::INVALID_ARGUMENT, "Empty file path" );
+    }
+    if ( filePath == "MOCKED_TEST_GRID" )
+    {
+        // For testing, use mock model
         m_application->createMockModel();
     }
     else

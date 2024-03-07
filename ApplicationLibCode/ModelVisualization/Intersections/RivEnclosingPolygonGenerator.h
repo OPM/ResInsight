@@ -78,7 +78,7 @@ public:
     void constructEnclosingPolygon();
 
 private:
-    static cvf::EdgeKey findNextEdge( int vertextIndex, const std::set<cvf::EdgeKey>& boundaryEdges );
+    static cvf::EdgeKey findNextEdge( cvf::uint vertextIndex, const std::set<cvf::EdgeKey>& boundaryEdges );
 
 private:
     PolygonVertexWelder     m_polygonVertexWelder; // Add and weld vertices for a polygon, provides vertex index
