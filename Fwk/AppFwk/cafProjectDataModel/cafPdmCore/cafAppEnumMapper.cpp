@@ -144,6 +144,24 @@ QString AppEnumMapper::uiText( const std::string& enumKey, int enumValue ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QStringList AppEnumMapper::uiTexts( const std::string& enumKey ) const
+{
+    QStringList uiTextList;
+
+    auto it = m_enumMap.find( enumKey );
+    if ( it != m_enumMap.end() )
+    {
+        for ( const auto& enumData : it->second )
+        {
+            uiTextList.append( enumData.m_uiText );
+        }
+    }
+    return uiTextList;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int AppEnumMapper::fromText( const std::string& enumKey, const QString& text ) const
 {
     auto it = m_enumMap.find( enumKey );

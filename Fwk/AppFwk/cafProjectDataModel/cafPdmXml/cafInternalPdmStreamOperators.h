@@ -34,6 +34,15 @@ QTextStream& operator<<( QTextStream& str, const QDate& value );
 QTextStream& operator>>( QTextStream& str, QTime& value );
 QTextStream& operator<<( QTextStream& str, const QTime& value );
 
+// AppEnum
+namespace caf
+{
+class AppEnumInterface;
+}
+
+QTextStream& operator>>( QTextStream& str, caf::AppEnumInterface& value );
+QTextStream& operator<<( QTextStream& str, const caf::AppEnumInterface& value );
+
 //==================================================================================================
 /// QTextStream Stream operator overloading for std::vector of things.
 /// Makes automated IO of PdmField< std::vector< Whatever > possible as long as

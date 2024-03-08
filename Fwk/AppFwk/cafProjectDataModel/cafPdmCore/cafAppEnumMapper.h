@@ -4,7 +4,6 @@
 #include <QStringList>
 
 #include <map>
-#include <optional>
 #include <string>
 
 namespace caf
@@ -41,10 +40,11 @@ public:
 
     void setDefault( const std::string& enumKey, int enumValue );
 
-    size_t  size( const std::string& enumKey ) const;
-    size_t  index( const std::string& enumKey, int enumValue ) const;
-    QString text( const std::string& enumKey, int enumValue ) const;
-    QString uiText( const std::string& enumKey, int enumValue ) const;
+    size_t      size( const std::string& enumKey ) const;
+    size_t      index( const std::string& enumKey, int enumValue ) const;
+    QString     text( const std::string& enumKey, int enumValue ) const;
+    QString     uiText( const std::string& enumKey, int enumValue ) const;
+    QStringList uiTexts( const std::string& enumKey ) const;
 
     int defaultEnumValue( const std::string& enumKey ) const;
     int fromText( const std::string& enumKey, const QString& text ) const;
