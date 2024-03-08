@@ -13,7 +13,7 @@ from rips.generated.GridGeometryExtraction_pb2 import *
 rips_instance = Instance.find()
 grid_geometry_extraction_stub = GridGeometryExtractionStub(rips_instance.channel)
 
-grid_file_name = None
+grid_file_name = "MOCKED_TEST_GRID"
 grid_file_name = (
     "D:\\Git\\resinsight-tutorials\\model-data\\norne\\NORNE_ATW2013_RFTPLT_V2.EGRID"
 )
@@ -43,7 +43,7 @@ norne_case_single_segment_poly_line_utm_xy = [457150, 7.32106e06, 456885, 7.3217
 norne_case_single_segment_poly_line_gap_utm_xy = [460877, 7.3236e06, 459279, 7.32477e06]
 
 
-fence_poly_line_utm_xy = norne_case_single_segment_poly_line_utm_xy
+fence_poly_line_utm_xy = norne_case_fence_poly_line_utm_xy
 
 cut_along_polyline_request = GridGeometryExtraction__pb2.CutAlongPolylineRequest(
     gridFilename=grid_file_name,

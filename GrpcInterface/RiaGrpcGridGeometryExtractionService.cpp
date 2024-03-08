@@ -181,14 +181,12 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
     }
 
     // Convert polyline to vector of cvf::Vec3d
-    std::vector<cvf::Vec3d> polyline;
-    const double            zValue = 0.0;
+    std::vector<cvf::Vec2d> polylineUtmXy;
     for ( int i = 0; i < fencePolyline.size(); i += 2 )
     {
         const double xValue = fencePolyline.Get( i );
         const double yValue = fencePolyline.Get( i + 1 );
-        cvf::Vec3d   point  = cvf::Vec3d( xValue, yValue, zValue );
-        polyline.push_back( point );
+        polylineUtmXy.push_back( cvf::Vec2d( xValue, yValue ) );
     }
 
     RigActiveCellInfo*          activeCellInfo    = nullptr; // No active cell info for grid
@@ -196,7 +194,8 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
     RivEclipseIntersectionGrid* eclipseIntersectionGrid =
         new RivEclipseIntersectionGrid( m_eclipseView->mainGrid(), activeCellInfo, showInactiveCells );
 
-    auto* polylineIntersectionGenerator = new RivPolylineIntersectionGeometryGenerator( polyline, eclipseIntersectionGrid );
+    auto* polylineIntersectionGenerator =
+        new RivPolylineIntersectionGeometryGenerator( polylineUtmXy, eclipseIntersectionGrid );
 
     // Handle cell visibilities
     const int        firstTimeStep = 0;
@@ -238,11 +237,22 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
         endUtmXY->set_y( segment.endUtmXY.y() );
         fenceMeshSection->set_allocated_endutmxy( endUtmXY );
 
-        // Fill the vertext array
-        for ( const auto& vertex : segment.vertexArrayUZ )
+        // Fill the vertext array with coordinates
+        for ( const auto& coord : segment.vertexArrayUZ )
         {
-            fenceMeshSection->add_vertexarrayuz( vertex.x() );
-            fenceMeshSection->add_vertexarrayuz( vertex.y() );
+            fenceMeshSection->add_vertexarrayuz( coord );
+        }
+
+        // Fill vertices per polygon array
+        for ( const auto& verticesPerPolygon : segment.verticesPerPolygon )
+        {
+            fenceMeshSection->add_verticesperpolygonarr( static_cast<google::protobuf::uint32>( verticesPerPolygon ) );
+        }
+
+        // Fill polygon indices array
+        for ( const auto& polygonIndex : segment.polygonIndices )
+        {
+            fenceMeshSection->add_polyindicesarr( static_cast<google::protobuf::uint32>( polygonIndex ) );
         }
 
         // Fill the source cell indices array
@@ -252,38 +262,40 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
         }
     }
 
-    // Add test response
-    rips::PolylineTestResponse* polylineTestResponse = new rips::PolylineTestResponse;
-
-    // Polygon vertices
-    const auto& polygonVertices = polylineIntersectionGenerator->polygonVxes();
-    if ( polygonVertices->size() == 0 )
+    // Add temporary test response
     {
-        return grpc::Status( grpc::StatusCode::NOT_FOUND, "No polygon vertices found for polyline" );
-    }
-    for ( int i = 0; i < polygonVertices->size(); ++i )
-    {
-        const auto& vertex = polygonVertices->get( i );
-        polylineTestResponse->add_polygonvertexarray( vertex.x() );
-        polylineTestResponse->add_polygonvertexarray( vertex.y() );
-        polylineTestResponse->add_polygonvertexarray( vertex.z() );
-    }
+        rips::PolylineTestResponse* polylineTestResponse = new rips::PolylineTestResponse;
 
-    // Vertices per polygon
-    const auto& verticesPerPolygon = polylineIntersectionGenerator->vertiesPerPolygon();
-    for ( const auto& elm : verticesPerPolygon )
-    {
-        polylineTestResponse->add_verticesperpolygonarr( static_cast<google::protobuf::uint32>( elm ) );
-    }
+        // Polygon vertices
+        const auto& polygonVertices = polylineIntersectionGenerator->polygonVxes();
+        if ( polygonVertices->size() == 0 )
+        {
+            return grpc::Status( grpc::StatusCode::NOT_FOUND, "No polygon vertices found for polyline" );
+        }
+        for ( int i = 0; i < polygonVertices->size(); ++i )
+        {
+            const auto& vertex = polygonVertices->get( i );
+            polylineTestResponse->add_polygonvertexarray( vertex.x() );
+            polylineTestResponse->add_polygonvertexarray( vertex.y() );
+            polylineTestResponse->add_polygonvertexarray( vertex.z() );
+        }
 
-    // Polygon to cell indices
-    const auto& polygonCellIndices = polylineIntersectionGenerator->polygonToCellIndex();
-    for ( const auto& elm : polygonCellIndices )
-    {
-        polylineTestResponse->add_sourcecellindicesarr( static_cast<google::protobuf::uint32>( elm ) );
-    }
+        // Vertices per polygon
+        const auto& verticesPerPolygon = polylineIntersectionGenerator->vertiesPerPolygon();
+        for ( const auto& elm : verticesPerPolygon )
+        {
+            polylineTestResponse->add_verticesperpolygonarr( static_cast<google::protobuf::uint32>( elm ) );
+        }
 
-    response->set_allocated_polylinetestresponse( polylineTestResponse );
+        // Polygon to cell indices
+        const auto& polygonCellIndices = polylineIntersectionGenerator->polygonToCellIndex();
+        for ( const auto& elm : polygonCellIndices )
+        {
+            polylineTestResponse->add_sourcecellindicesarr( static_cast<google::protobuf::uint32>( elm ) );
+        }
+
+        response->set_allocated_polylinetestresponse( polylineTestResponse );
+    }
 
     return grpc::Status::OK;
 }

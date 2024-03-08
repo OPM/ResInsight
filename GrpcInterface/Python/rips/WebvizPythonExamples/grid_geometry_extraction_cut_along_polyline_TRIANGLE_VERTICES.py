@@ -13,7 +13,7 @@ from rips.generated.GridGeometryExtraction_pb2 import *
 rips_instance = Instance.find()
 grid_geometry_extraction_stub = GridGeometryExtractionStub(rips_instance.channel)
 
-grid_file_name = None
+grid_file_name = "MOCKED_TEST_GRID"
 fence_poly_line_utm_xy = [11.2631, 11.9276, 14.1083, 18.2929, 18.3523, 10.9173]
 
 cut_along_polyline_request = GridGeometryExtraction__pb2.CutAlongPolylineRequest(

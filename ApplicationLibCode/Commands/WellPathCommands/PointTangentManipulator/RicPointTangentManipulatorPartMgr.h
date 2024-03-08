@@ -102,7 +102,7 @@ private:
     double     m_handleSize;
     bool       m_isGeometryUpdateNeeded;
 
-    std::vector<cvf::Vec3d> m_polylineUtm;
+    std::vector<cvf::Vec3d> m_polyline;
 
     HandleType m_activeHandle;
     cvf::Vec3d m_initialPickPoint;

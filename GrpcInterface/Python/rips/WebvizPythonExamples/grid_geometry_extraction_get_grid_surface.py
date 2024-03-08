@@ -9,9 +9,13 @@ from rips.generated.GridGeometryExtraction_pb2 import *
 rips_instance = Instance.find()
 grid_geometry_extraction_stub = GridGeometryExtractionStub(rips_instance.channel)
 
-grid_file_name = None
+grid_file_name = "MOCKED_TEST_GRID"
+# grid_file_name = (
+#     "D:\\Git\\resinsight-tutorials\\model-data\\norne\\NORNE_ATW2013_RFTPLT_V2.EGRID"
+# )
+
 ijk_index_filter = GridGeometryExtraction__pb2.IJKIndexFilter(
-    iMin=0, iMax=1, jMin=1, jMax=3, kMin=0, kMax=3
+    iMin=0, iMax=1, jMin=1, jMax=3, kMin=3, kMax=3
 )
 # ijk_index_filter = None
 

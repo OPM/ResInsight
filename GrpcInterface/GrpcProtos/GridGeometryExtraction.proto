@@ -59,8 +59,8 @@ message CutAlongPolylineRequest
 
 message FenceMeshSection
 {
-    // U-axis defined by vector from start to end, Z is global Z
-    repeated float vertexArrayUZ = 1;
+    // U-axis defined by the unit length vector from start to end, Z is global Z
+    repeated float vertexArrayUZ = 1; // U coordinate is length along U-axis
     repeated fixed32 polyIndicesArr = 2; // Note: Redundant if no shared nodes?
     repeated fixed32 verticesPerPolygonArr = 3;     // Number of vertices per polygon, numPolygons long
     repeated fixed32 sourceCellIndicesArr = 4;      // The originating cell index per polygon, numPolygons long
