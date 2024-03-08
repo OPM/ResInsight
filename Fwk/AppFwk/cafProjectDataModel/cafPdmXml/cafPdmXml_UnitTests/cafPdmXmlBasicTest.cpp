@@ -49,7 +49,6 @@ public:
     // Fields
 
     caf::PdmProxyValueField<double>                     m_proxyDoubleField;
-    caf::PdmProxyValueField<caf::AppEnum<TestEnumType>> m_proxyEnumField;
     caf::PdmDataValueField<caf::AppEnum<TestEnumType>>  m_appEnumField;
 
 private:
