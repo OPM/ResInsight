@@ -491,6 +491,20 @@ std::pair<size_t, size_t> RigFaultReactivationModelGenerator::findCellWithInters
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::array<cvf::Vec3d, 12> RigFaultReactivationModelGenerator::shiftOrigin( const std::array<cvf::Vec3d, 12>& points,
+                                                                            const cvf::Vec3d&                 newOrigin )
+{
+    std::array<cvf::Vec3d, 12> retPoints;
+    for ( int i = 0; i < (int)points.size(); i++ )
+    {
+        retPoints[i] = points[i] - newOrigin;
+    }
+    return retPoints;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigFaultReactivationModelGenerator::generateGeometry( size_t            startCellIndex,
                                                            FaceType          startFace,
                                                            RigGriddedPart3d* frontPart,
@@ -574,6 +588,10 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t            sta
 
     generatePointsFrontBack();
 
+    // use temp origin in start position, at zero depth
+    cvf::Vec3d origin( m_startPosition );
+    origin.z() = 0.0;
+
     cvf::Vec3d                     tVec = m_modelThickness * m_modelNormal;
     std::vector<cvf::Vec3d>        thicknessVectors;
     std::vector<caf::Line<double>> faultLines;
@@ -581,12 +599,19 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t            sta
 
     for ( int i = 0; i < 3; i++ )
     {
-        faultLines.push_back( caf::Line<double>( m_topFault + thicknessFactors[i] * tVec, m_bottomFault + thicknessFactors[i] * tVec ) );
+        faultLines.push_back(
+            caf::Line<double>( m_topFault - origin + thicknessFactors[i] * tVec, m_bottomFault - origin + thicknessFactors[i] * tVec ) );
         thicknessVectors.push_back( thicknessFactors[i] * tVec );
     }
 
-    frontPart->generateGeometry( m_frontPoints,
-                                 frontReservoirLayers,
+    std::array<cvf::Vec3d, 12> shiftedFrontPoints = shiftOrigin( m_frontPoints, origin );
+    std::array<cvf::Vec3d, 12> shiftedBackPoints  = shiftOrigin( m_backPoints, origin );
+
+    std::vector<double> frontResZ = extractZValues( frontReservoirLayers );
+    std::vector<double> backResZ  = extractZValues( backReservoirLayers );
+
+    frontPart->generateGeometry( shiftedFrontPoints,
+                                 frontResZ,
                                  m_maxCellHeight,
                                  m_cellSizeHeightFactor,
                                  m_horizontalPartition,
@@ -598,8 +623,8 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t            sta
     std::reverse( faultLines.begin(), faultLines.end() );
     std::reverse( thicknessVectors.begin(), thicknessVectors.end() );
 
-    backPart->generateGeometry( m_backPoints,
-                                backReservoirLayers,
+    backPart->generateGeometry( shiftedBackPoints,
+                                backResZ,
                                 m_maxCellHeight,
                                 m_cellSizeHeightFactor,
                                 m_horizontalPartition,
@@ -607,6 +632,9 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t            sta
                                 thicknessVectors,
                                 m_topReservoirBack.z(),
                                 m_faultZoneCells );
+
+    frontPart->shiftNodes( origin );
+    backPart->shiftNodes( origin );
 
     frontPart->generateLocalNodes( m_localCoordTransform );
     backPart->generateLocalNodes( m_localCoordTransform );
@@ -791,4 +819,19 @@ const std::pair<cvf::Vec3d, cvf::Vec3d> RigFaultReactivationModelGenerator::faul
 std::pair<double, double> RigFaultReactivationModelGenerator::depthTopBottom() const
 {
     return { -m_startDepth, m_bottomDepth };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigFaultReactivationModelGenerator::extractZValues( const std::vector<cvf::Vec3d>& points )
+{
+    std::vector<double> layers;
+
+    for ( auto& p : points )
+    {
+        layers.push_back( p.z() );
+    }
+
+    return layers;
 }
