@@ -109,7 +109,7 @@ void RicPointTangentManipulatorPartMgr::originAndTangent( cvf::Vec3d* origin, cv
 //--------------------------------------------------------------------------------------------------
 void RicPointTangentManipulatorPartMgr::setPolyline( const std::vector<cvf::Vec3d>& polyline )
 {
-    m_polylineUtm = polyline;
+    m_polyline = polyline;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -192,10 +192,10 @@ void RicPointTangentManipulatorPartMgr::updateManipulatorFromRay( const cvf::Ray
         double     closestDistance = std::numeric_limits<double>::max();
         cvf::Vec3d closestPoint;
 
-        for ( size_t i = 1; i < m_polylineUtm.size(); i++ )
+        for ( size_t i = 1; i < m_polyline.size(); i++ )
         {
-            const auto& p1 = m_polylineUtm[i];
-            const auto& p2 = m_polylineUtm[i - 1];
+            const auto& p1 = m_polyline[i];
+            const auto& p2 = m_polyline[i - 1];
 
             double     normalizedIntersection;
             const auto pointOnLine = cvf::GeometryTools::projectPointOnLine( p1, p2, newOrigin, &normalizedIntersection );
@@ -256,7 +256,7 @@ void RicPointTangentManipulatorPartMgr::endManipulator()
 //--------------------------------------------------------------------------------------------------
 void RicPointTangentManipulatorPartMgr::recreateAllGeometryAndParts()
 {
-    if ( m_polylineUtm.empty() )
+    if ( m_polyline.empty() )
     {
         createHorizontalPlaneHandle();
         createVerticalAxisHandle();
@@ -272,7 +272,7 @@ void RicPointTangentManipulatorPartMgr::recreateAllGeometryAndParts()
 //--------------------------------------------------------------------------------------------------
 void RicPointTangentManipulatorPartMgr::createGeometryOnly()
 {
-    if ( m_polylineUtm.empty() )
+    if ( m_polyline.empty() )
     {
         m_handleParts[HandleType::HORIZONTAL_PLANE]->setDrawable( createHorizontalPlaneGeo().p() );
         m_handleParts[HandleType::VERTICAL_AXIS]->setDrawable( createVerticalAxisGeo().p() );

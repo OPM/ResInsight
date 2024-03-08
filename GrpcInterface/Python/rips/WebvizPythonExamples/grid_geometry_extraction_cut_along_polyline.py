@@ -13,7 +13,7 @@ from rips.generated.GridGeometryExtraction_pb2 import *
 rips_instance = Instance.find()
 grid_geometry_extraction_stub = GridGeometryExtractionStub(rips_instance.channel)
 
-grid_file_name = None
+grid_file_name = "MOCKED_TEST_GRID"
 grid_file_name = (
     "D:\\Git\\resinsight-tutorials\\model-data\\norne\\NORNE_ATW2013_RFTPLT_V2.EGRID"
 )
@@ -43,7 +43,7 @@ norne_case_single_segment_poly_line_utm_xy = [457150, 7.32106e06, 456885, 7.3217
 norne_case_single_segment_poly_line_gap_utm_xy = [460877, 7.3236e06, 459279, 7.32477e06]
 
 
-fence_poly_line_utm_xy = norne_case_single_segment_poly_line_utm_xy
+fence_poly_line_utm_xy = norne_case_fence_poly_line_utm_xy
 
 cut_along_polyline_request = GridGeometryExtraction__pb2.CutAlongPolylineRequest(
     gridFilename=grid_file_name,
@@ -55,8 +55,18 @@ cut_along_polyline_response: GridGeometryExtraction__pb2.CutAlongPolylineRespons
 
 fence_mesh_sections = cut_along_polyline_response.feceMeshSections
 print(f"Number of fence mesh sections: {len(fence_mesh_sections)}")
-# for section in fence_mesh_sections:
+
+section_mesh_3d = []
+section_polygon_edges_3d = []
+section_idx = 0
 for section in fence_mesh_sections:
+    # Continue to next section
+    if section_idx == 0 and section_idx == 3:
+        section_idx += 1
+        continue
+
+    section_idx += 1
+
     polygon_vertex_array_uz = section.vertexArrayUZ
     vertices_per_polygon = section.verticesPerPolygonArr
 
@@ -64,214 +74,121 @@ for section in fence_mesh_sections:
     end = section.endUtmXY
 
     # Create directional vector from start to end
-    direction_vector = [end[0] - start[0], end[1] - start[1]]
+    direction_vector = [end.x - start.x, end.y - start.y]
+
+    # Normalize the directional vector
+    length = np.sqrt(direction_vector[0] ** 2 + direction_vector[1] ** 2)
+    direction_vector_norm = [direction_vector[0] / length, direction_vector[1] / length]
 
     # Decompose the polygon vertex array into x, y, z arrays
+    # 2 coordinates per vertex (u, v)
+    vertex_step = 2
+
+    # Create x-, y-, and z-arrays
     x_array = []
     y_array = []
     z_array = []
-
-    # 2 coordinates per vertex (u, v)
-    for i in range(0, len(polygon_vertex_array_uz), 2):
+    for i in range(0, len(polygon_vertex_array_uz), vertex_step):
         u = polygon_vertex_array_uz[i]
         z = polygon_vertex_array_uz[i + 1]
 
         # Calculate x, y from u and directional vector,
         # where u is the length along the direction vector
-        x = start[0] + u * direction_vector[0]
-        y = start[1] + u * direction_vector[1]
+        x = start.x + u * direction_vector_norm[0]
+        y = start.y + u * direction_vector_norm[1]
 
         x_array.append(x)
         y_array.append(y)
         z_array.append(z)
 
-# ******************************************
-# ******************************************
-#
-# TODO: CONTINUE FROM HERE
-#
-# ******************************************
-# ******************************************
+    i = []
+    j = []
+    k = []
+    # Populate i, j, k based on vertices_per_polygon
+    # Create triangles from each polygon
+    # A quad with vertex [0,1,2,3] will be split into two triangles [0,1,2] and [0,2,3]
+    # A hexagon with vertex [0,1,2,3,4,5] will be split into four triangles [0,1,2], [0,2,3], [0,3,4], [0,4,5]
+    polygon_v0_idx = 0  # Index of vertex 0 in the polygon
+    for vertex_count in vertices_per_polygon:
+        # Must have at least one triangle
+        if vertex_count < 3:
+            polygon_v0_idx += vertex_count
+            continue
 
+        indices = list(range(polygon_v0_idx, polygon_v0_idx + vertex_count))
 
-polygon_vertex_array_org = (
-    cut_along_polyline_response.polylineTestResponse.polygonVertexArray
-)
-vertices_per_polygon = (
-    cut_along_polyline_response.polylineTestResponse.verticesPerPolygonArr
-)
-source_cell_indices = (
-    cut_along_polyline_response.polylineTestResponse.sourceCellIndicesArr
-)
+        # Build triangles from polygon
+        num_triangles = vertex_count - 2
+        for triangle_index in range(0, num_triangles):
+            triangle_v0_idx = polygon_v0_idx
+            triangle_v1_idx = indices[triangle_index + 1]
+            triangle_v2_idx = indices[triangle_index + 2]
 
-x_start = polygon_vertex_array_org[0]
-y_start = polygon_vertex_array_org[1]
-z_start = polygon_vertex_array_org[2]
+            # Vertex indices for the triangle
+            i.append(triangle_v0_idx)
+            j.append(triangle_v1_idx)
+            k.append(triangle_v2_idx)
 
-# Subtract x_start, y_start, z_start from all x, y, z coordinates
-polygon_vertex_array = []
-for i in range(0, len(polygon_vertex_array_org), 3):
-    polygon_vertex_array.extend(
-        [
-            polygon_vertex_array_org[i] - x_start,
-            polygon_vertex_array_org[i + 1] - y_start,
-            polygon_vertex_array_org[i + 2] - z_start,
-        ]
+        # Move to next polygon
+        polygon_v0_idx += vertex_count
+
+    # Create edges between points in polygons
+    polygon_edges_x = []
+    polygon_edges_y = []
+    polygon_edges_z = []
+    polygon_start_index = 0
+    for vertex_count in vertices_per_polygon:
+        # Must have at least a triangle
+        if vertex_count < 3:
+            polygon_start_index += vertex_count
+            continue
+
+        for vertex_idx in range(0, vertex_count):
+            vertex_global_idx = polygon_start_index + vertex_idx
+            polygon_edges_x.append(x_array[vertex_global_idx])
+            polygon_edges_y.append(y_array[vertex_global_idx])
+            polygon_edges_z.append(z_array[vertex_global_idx])
+
+        # Close the polygon
+        polygon_edges_x.append(x_array[polygon_start_index])
+        polygon_edges_y.append(y_array[polygon_start_index])
+        polygon_edges_z.append(z_array[polygon_start_index])
+
+        polygon_edges_x.append(None)
+        polygon_edges_y.append(None)
+        polygon_edges_z.append(None)
+
+        polygon_start_index += vertex_count
+
+    # Add section mesh
+    section_mesh_3d.append(
+        go.Mesh3d(
+            x=x_array,
+            y=y_array,
+            z=z_array,
+            i=i,
+            j=j,
+            k=k,
+            opacity=0.8,
+            color="rgba(244,22,100,0.6)",
+        )
     )
 
-num_vertex_coords = 3  # [x, y, z]
-
-# Create x-, y-, and z-arrays
-x_array = []
-y_array = []
-z_array = []
-for i in range(0, len(polygon_vertex_array), num_vertex_coords):
-    # vertex array is provided as a single array of x, y, z coordinates
-    # i.e. [x1, y1, z1, x2, y2, z2, x3, y3, z3, ... , xn, yn, zn]
-    x_array.append(polygon_vertex_array[i + 0])
-    y_array.append(polygon_vertex_array[i + 1])
-    z_array.append(polygon_vertex_array[i + 2])
-
-# Create triangular mesh
-vertices = np.array(polygon_vertex_array).reshape(-1, 3)
-
-# Create mesh data
-x, y, z = vertices.T
-i = []
-j = []
-k = []
-
-# Create edges between points in triangles
-triangle_edges_x = []
-triangle_edges_y = []
-triangle_edges_z = []
-
-# Populate i, j, k based on vertices_per_polygon
-# Create triangles from each polygon
-# A quad with vertex [0,1,2,3] will be split into two triangles [0,1,2] and [0,2,3]
-# A hexagon with vertex [0,1,2,3,4,5] will be split into four triangles [0,1,2], [0,2,3], [0,3,4], [0,4,5]
-
-polygon_v0_idx = 0  # Index of vertex 0 in the polygon
-for vertex_count in vertices_per_polygon:
-    # Must have at least one triangle
-    if vertex_count < 3:
-        polygon_v0_idx += vertex_count
-        continue
-
-    indices = list(range(polygon_v0_idx, polygon_v0_idx + vertex_count))
-
-    # Build triangles from polygon
-    num_triangles = vertex_count - 2
-    for triangle_index in range(0, num_triangles):
-        triangle_v0_idx = polygon_v0_idx
-        triangle_v1_idx = indices[triangle_index + 1]
-        triangle_v2_idx = indices[triangle_index + 2]
-
-        # Vertex indices for the triangle
-        i.append(triangle_v0_idx)
-        j.append(triangle_v1_idx)
-        k.append(triangle_v2_idx)
-
-        # Create edge between vertices in triangle with x,y,z coordinates, coordinates per vertex is 3
-        coordinate_step = 3  # step per vertex
-        triangle_v0_global_idx = triangle_v0_idx * coordinate_step
-        triangle_v1_global_idx = triangle_v1_idx * coordinate_step
-        triangle_v2_global_idx = triangle_v2_idx * coordinate_step
-
-        # Add x,y,z coordinates for the triangle vertices (closing triangle with 'None')
-        triangle_edges_x.extend(
-            [
-                polygon_vertex_array[triangle_v0_global_idx + 0],
-                polygon_vertex_array[triangle_v1_global_idx + 0],
-                polygon_vertex_array[triangle_v2_global_idx + 0],
-                polygon_vertex_array[triangle_v0_global_idx + 0],
-                None,
-            ]
+    # Add section polygon edges
+    section_polygon_edges_3d.append(
+        go.Scatter3d(
+            x=polygon_edges_x,
+            y=polygon_edges_y,
+            z=polygon_edges_z,
+            mode="lines",
+            name="",
+            line=dict(color="rgb(0,0,0)", width=1),
         )
-        triangle_edges_y.extend(
-            [
-                polygon_vertex_array[triangle_v0_global_idx + 1],
-                polygon_vertex_array[triangle_v1_global_idx + 1],
-                polygon_vertex_array[triangle_v2_global_idx + 1],
-                polygon_vertex_array[triangle_v0_global_idx + 1],
-                None,
-            ]
-        )
-        triangle_edges_z.extend(
-            [
-                polygon_vertex_array[triangle_v0_global_idx + 2],
-                polygon_vertex_array[triangle_v1_global_idx + 2],
-                polygon_vertex_array[triangle_v2_global_idx + 2],
-                polygon_vertex_array[triangle_v0_global_idx + 2],
-                None,
-            ]
-        )
+    )
 
-    # Move to next polygon
-    polygon_v0_idx += vertex_count
+figure_data = section_mesh_3d + section_polygon_edges_3d
 
-# Create edges between points in polygons
-polygon_edges_x = []
-polygon_edges_y = []
-polygon_edges_z = []
-polygon_global_start_index = 0
-coordinate_step = 3  # step per vertex
-for vertex_count in vertices_per_polygon:
-    # Must have at least a triangle
-    if vertex_count < 3:
-        polygon_global_start_index += vertex_count * coordinate_step
-        continue
-
-    for vertex_idx in range(0, vertex_count):
-        vertex_global_idx = polygon_global_start_index + vertex_idx * coordinate_step
-        polygon_edges_x.append(polygon_vertex_array[vertex_global_idx + 0])
-        polygon_edges_y.append(polygon_vertex_array[vertex_global_idx + 1])
-        polygon_edges_z.append(polygon_vertex_array[vertex_global_idx + 2])
-
-    # Close the polygon
-    polygon_edges_x.append(polygon_vertex_array[polygon_global_start_index + 0])
-    polygon_edges_y.append(polygon_vertex_array[polygon_global_start_index + 1])
-    polygon_edges_z.append(polygon_vertex_array[polygon_global_start_index + 2])
-
-    polygon_edges_x.append(None)
-    polygon_edges_y.append(None)
-    polygon_edges_z.append(None)
-
-    polygon_global_start_index += vertex_count * coordinate_step
-
-
-# Create mesh
-mesh_3D = go.Mesh3d(
-    x=x, y=y, z=z, i=i, j=j, k=k, opacity=0.8, color="rgba(244,22,100,0.6)"
-)
-
-# Create edge lines for triangles
-triangle_edges_3d = go.Scatter3d(
-    x=triangle_edges_x,
-    y=triangle_edges_y,
-    z=triangle_edges_z,
-    mode="lines",
-    name="",
-    line=dict(color="rgb(0,0,0)", width=1),
-)
-
-# Create outer edge lines for polygon
-polygon_edges_3d = go.Scatter3d(
-    x=polygon_edges_x,
-    y=polygon_edges_y,
-    z=polygon_edges_z,
-    mode="lines",
-    name="",
-    line=dict(color="rgb(0,0,0)", width=1),
-)
-
-fig = go.Figure(
-    data=[
-        mesh_3D,
-        # triangle_edges_3d,
-        polygon_edges_3d,
-    ]
-)
+fig = go.Figure(data=figure_data)
 
 # print(f"j array: {j_array}")
 # print(f"Number of vertices: {len(vertex_array) / 3}")

@@ -37,24 +37,21 @@ public:
 
     void reserveVertices( cvf::uint vertexCount );
 
-    // Add a vertex to the welder. If the vertex is within the tolerance of an existing vertex, the existing vertex index is returned
-    // Size of returned index array is equal size of input array
-    std::vector<cvf::uint> weldVerticesAndGetIndices( const std::vector<cvf::Vec3f>& vertices ); // TODO: Remove?
-    cvf::uint              weldVertexAndGetIndex( const cvf::Vec3f& vertex );
+    cvf::uint weldVertexAndGetIndex( const cvf::Vec3d& vertex );
 
-    const cvf::Vec3f&         vertex( cvf::uint index ) const;
-    cvf::ref<cvf::Vec3fArray> createVertexArray() const;
+    const cvf::Vec3d&         vertex( cvf::uint index ) const;
+    cvf::ref<cvf::Vec3dArray> createVertexArray() const;
 
 private:
-    cvf::uint locateVertexInPolygon( const cvf::Vec3f& vertex ) const;
-    cvf::uint addVertexToPolygon( const cvf::Vec3f& vertex );
+    cvf::uint locateVertexInPolygon( const cvf::Vec3d& vertex ) const;
+    cvf::uint addVertexToPolygon( const cvf::Vec3d& vertex );
 
 private:
     const double m_epsilonSquared; // Tolerance for vertex welding, radius around vertex defining welding neighborhood
 
     cvf::uint               m_first; // Start of linked list
     std::vector<cvf::uint>  m_next; // Links each vertex to next in linked list. Always numVertices long, will grow as vertices are added
-    std::vector<cvf::Vec3f> m_vertex; // Unique vertices within tolerance
+    std::vector<cvf::Vec3d> m_vertex; // Unique vertices within tolerance
 };
 
 /*
@@ -70,11 +67,11 @@ class RivEnclosingPolygonGenerator
 public:
     RivEnclosingPolygonGenerator();
 
-    std::vector<cvf::Vec3f> getPolygonVertices() const;
+    std::vector<cvf::Vec3d> getPolygonVertices() const;
 
     bool isValidPolygon() const;
 
-    void addTriangleVertices( const cvf::Vec3f& p0, const cvf::Vec3f& p1, const cvf::Vec3f& p2 );
+    void addTriangleVertices( const cvf::Vec3d& p0, const cvf::Vec3d& p1, const cvf::Vec3d& p2 );
     void constructEnclosingPolygon();
 
 private:
@@ -83,5 +80,5 @@ private:
 private:
     PolygonVertexWelder     m_polygonVertexWelder; // Add and weld vertices for a polygon, provides vertex index
     std::vector<cvf::int64> m_allEdgeKeys; // Create edge defined by vertex indices when adding triangle. Using cvf::EdgeKey::toKeyVal()
-    std::vector<cvf::Vec3f> m_polygonVertices; // List polygon vertices counter clock-wise
+    std::vector<cvf::Vec3d> m_polygonVertices; // List polygon vertices counter clock-wise
 };

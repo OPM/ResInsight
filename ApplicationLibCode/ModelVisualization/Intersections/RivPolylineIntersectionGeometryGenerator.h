@@ -19,14 +19,9 @@
 
 #pragma once
 
-#include "cafPdmPointer.h"
-
-#include "RivIntersectionGeometryGeneratorInterface.h"
-
 #include "cvfArray.h"
 
 #include "cvfBoundingBox.h"
-#include "cvfObject.h"
 #include "cvfVector3.h"
 
 #include <vector>
@@ -47,8 +42,8 @@ class DrawableGeo;
 
 struct PolylineSegmentMeshData
 {
-    // Naming things? FenceMeshSection/PolylineMeshSection?
-    cvf::Vec2fArray        vertexArrayUZ; // Consider std::vector<cvf::uint> instead, as access methods of Vec2f is .x() and .y()
+    // U-axis defined by the unit length vector from start (x,y) to end (x,y), Z is global Z
+    std::vector<float>     vertexArrayUZ; // U coordinate is length along U-axis. Array [u0,z0,u1,z1,...,ui,zi]
     std::vector<cvf::uint> polygonIndices; // Not needed when vertices/nodes are not shared between polygons?
     std::vector<cvf::uint> verticesPerPolygon;
     std::vector<cvf::uint> polygonToCellIndexMap;
@@ -56,25 +51,21 @@ struct PolylineSegmentMeshData
     cvf::Vec2d             endUtmXY;
 };
 
-// TODO: Remove inheritance from RivIntersectionGeometryGeneratorInterface? As we do not use triangles
-class RivPolylineIntersectionGeometryGenerator : public cvf::Object, public RivIntersectionGeometryGeneratorInterface
+class RivPolylineIntersectionGeometryGenerator
 {
 public:
-    RivPolylineIntersectionGeometryGenerator( std::vector<cvf::Vec3d>& polylineUtm, RivIntersectionHexGridInterface* grid );
-    ~RivPolylineIntersectionGeometryGenerator() override;
+    RivPolylineIntersectionGeometryGenerator( const std::vector<cvf::Vec2d>& polylineUtmXy, RivIntersectionHexGridInterface* grid );
+    ~RivPolylineIntersectionGeometryGenerator();
 
-    void                       generateIntersectionGeometry( cvf::UByteArray* visibleCells );
+    void generateIntersectionGeometry( cvf::UByteArray* visibleCells );
+    bool isAnyGeometryPresent() const;
+
+    // TODO: Remove after testing?
     const cvf::Vec3fArray*     polygonVxes() const;
     const std::vector<size_t>& vertiesPerPolygon() const;
     const std::vector<size_t>& polygonToCellIndex() const;
 
     const std::vector<PolylineSegmentMeshData>& polylineSegmentsMeshData() const;
-
-    // GeomGen Interface
-    bool                                             isAnyGeometryPresent() const override;
-    const std::vector<size_t>&                       triangleToCellIndex() const override;
-    const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const override;
-    const cvf::Vec3fArray*                           triangleVxes() const override;
 
 private:
     void                       calculateArrays( cvf::UByteArray* visibleCells );
@@ -83,20 +74,19 @@ private:
                                                                     const cvf::Vec3d&                      endPoint,
                                                                     const cvf::Vec3d&                      heightVector,
                                                                     const double                           topDepth,
-                                                                    const double                           bottomDepth );
+                                                                  const double                           bottomDepth );
+
+    static std::vector<cvf::Vec3d> initializePolylineUtmFromPolylineUtmXy( const std::vector<cvf::Vec2d>& polylineUtmXy );
 
 private:
     cvf::ref<RivIntersectionHexGridInterface> m_hexGrid;
     const std::vector<cvf::Vec3d>             m_polylineUtm;
 
-    // Output arrays
+    // Output
+    std::vector<PolylineSegmentMeshData> m_polylineSegmentsMeshData;
+
+    // TMP Output arrays for debug
     std::vector<size_t>       m_polygonToCellIdxMap;
     cvf::ref<cvf::Vec3fArray> m_polygonVertices;
     std::vector<size_t>       m_verticesPerPolygon;
-
-    std::vector<PolylineSegmentMeshData> m_polylineSegmentsMeshData;
-
-    // Dummy vectors for GeomGen Interface
-    const std::vector<size_t>                       m_emptyTriangleToCellIdxMap     = {};
-    const std::vector<RivIntersectionVertexWeights> m_emptyTriVxToCellCornerWeights = {};
 };
