@@ -491,6 +491,20 @@ std::pair<size_t, size_t> RigFaultReactivationModelGenerator::findCellWithInters
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::array<cvf::Vec3d, 12> RigFaultReactivationModelGenerator::shiftOrigin( const std::array<cvf::Vec3d, 12>& points,
+                                                                            const cvf::Vec3d&                 newOrigin )
+{
+    std::array<cvf::Vec3d, 12> retPoints;
+    for ( int i = 0; i < (int)points.size(); i++ )
+    {
+        retPoints[i] = points[i] - newOrigin;
+    }
+    return retPoints;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigFaultReactivationModelGenerator::generateGeometry( size_t            startCellIndex,
                                                            FaceType          startFace,
                                                            RigGriddedPart3d* frontPart,
@@ -590,17 +604,8 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t            sta
         thicknessVectors.push_back( thicknessFactors[i] * tVec );
     }
 
-    std::array<cvf::Vec3d, 12> shiftedFrontPoints;
-    for ( int i = 0; i < shiftedFrontPoints.size(); i++ )
-    {
-        shiftedFrontPoints[i] = m_frontPoints[i] - origin;
-    }
-
-    std::array<cvf::Vec3d, 12> shiftedBackPoints;
-    for ( int i = 0; i < shiftedBackPoints.size(); i++ )
-    {
-        shiftedBackPoints[i] = m_backPoints[i] - origin;
-    }
+    std::array<cvf::Vec3d, 12> shiftedFrontPoints = shiftOrigin( m_frontPoints, origin );
+    std::array<cvf::Vec3d, 12> shiftedBackPoints  = shiftOrigin( m_backPoints, origin );
 
     std::vector<double> frontResZ = extractZValues( frontReservoirLayers );
     std::vector<double> backResZ  = extractZValues( backReservoirLayers );
