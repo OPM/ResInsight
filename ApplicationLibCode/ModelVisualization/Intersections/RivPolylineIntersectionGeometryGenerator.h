@@ -74,7 +74,7 @@ private:
                                                                     const cvf::Vec3d&                      endPoint,
                                                                     const cvf::Vec3d&                      heightVector,
                                                                     const double                           topDepth,
-                                                                  const double                           bottomDepth );
+                                                                    const double                           bottomDepth );
 
     static std::vector<cvf::Vec3d> initializePolylineUtmFromPolylineUtmXy( const std::vector<cvf::Vec2d>& polylineUtmXy );
 
