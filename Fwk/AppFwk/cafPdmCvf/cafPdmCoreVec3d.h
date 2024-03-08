@@ -42,6 +42,7 @@
 #include "cafInternalPdmValueFieldSpecializations.h"
 
 #include "cafPdmXmlVec3d.h"
+#include <QTextStream>
 
 Q_DECLARE_METATYPE( cvf::Vec3d );
 
