@@ -716,13 +716,8 @@ public:
                            "",
                            "" );
 
-        CAF_PDM_InitFieldNoDefault( &m_testAppEnumField, "TestAppEnumValue", "AppEnum Field" );
+      //  CAF_PDM_InitFieldNoDefault( &m_testAppEnumField, "TestAppEnumValue", "AppEnum Field" );
         CAF_PDM_InitFieldNoDefault( &m_ptrField, "m_ptrField", "PtrField", "", "", "" );
-
-        CAF_PDM_InitFieldNoDefault( &m_proxyEnumField, "ProxyEnumValue", "ProxyEnum", "", "", "" );
-        m_proxyEnumField.registerSetMethod( this, &SmallDemoPdmObjectA::setEnumMember );
-        m_proxyEnumField.registerGetMethod( this, &SmallDemoPdmObjectA::enumMember );
-        m_proxyEnumMember = TestEnumType::T2;
 
         CAF_PDM_InitFieldNoDefault( &m_multipleAppEnum, "MultipleAppEnumValue", "MultipleAppEnumValue", "", "", "" );
         m_multipleAppEnum.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(
@@ -735,10 +730,9 @@ public:
     caf::PdmField<int>                        m_intField;
     caf::PdmField<QString>                    m_textField;
     caf::PdmField<caf::AppEnum<TestEnumType>> m_testEnumField;
-    caf::AppEnumField<TestEnumType>           m_testAppEnumField;
+    //caf::AppEnumField<TestEnumType>           m_testAppEnumField;
     caf::PdmPtrField<SmallDemoPdmObjectA*>    m_ptrField;
 
-    caf::PdmProxyValueField<caf::AppEnum<TestEnumType>> m_proxyEnumField;
     void                       setEnumMember( const caf::AppEnum<TestEnumType>& val ) { m_proxyEnumMember = val; }
     caf::AppEnum<TestEnumType> enumMember() const { return m_proxyEnumMember; }
     TestEnumType               m_proxyEnumMember;
@@ -860,14 +854,6 @@ protected:
             if ( attr )
             {
                 attr->currentIndexFieldHandle = &m_highlightedEnum;
-            }
-        }
-        else if ( field == &m_proxyEnumField )
-        {
-            caf::PdmUiComboBoxEditorAttribute* attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
-            if ( attr )
-            {
-                attr->showPreviousAndNextButtons = true;
             }
         }
         else if ( field == &m_toggleField )
