@@ -673,14 +673,14 @@ void RigGriddedPart3d::generateLocalNodes( const cvf::Mat4d transform )
 //--------------------------------------------------------------------------------------------------
 void RigGriddedPart3d::shiftNodes( const cvf::Vec3d offset )
 {
-    for ( int i = 0; i < m_nodes.size(); i++ )
+    for ( int i = 0; i < (int)m_nodes.size(); i++ )
     {
         m_nodes[i] += offset;
     }
 
-    for ( int i = 0; i < m_meshLines.size(); i++ )
+    for ( int i = 0; i < (int)m_meshLines.size(); i++ )
     {
-        for ( int j = 0; j < m_meshLines[i].size(); j++ )
+        for ( int j = 0; j < (int)m_meshLines[i].size(); j++ )
         {
             m_meshLines[i][j] += offset;
         }
