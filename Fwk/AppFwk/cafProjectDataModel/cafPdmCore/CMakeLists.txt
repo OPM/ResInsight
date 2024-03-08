@@ -69,6 +69,8 @@ set(PROJECT_FILES
     cafAsyncWorkerManager.h
     cafAsyncWorkerManager.cpp
     cafAppEnumField.h
+    cafAppEnumMapper.h
+    cafAppEnumMapper.cpp
 )
 
 add_library(${PROJECT_NAME} ${PROJECT_FILES})
