@@ -48,8 +48,8 @@ public:
 
     // Fields
 
-    caf::PdmProxyValueField<double>                     m_proxyDoubleField;
-    caf::PdmDataValueField<caf::AppEnum<TestEnumType>>  m_appEnumField;
+    caf::PdmProxyValueField<double>                    m_proxyDoubleField;
+    caf::PdmDataValueField<caf::AppEnum<TestEnumType>> m_appEnumField;
 
 private:
     void setDoubleMember( const double& d )

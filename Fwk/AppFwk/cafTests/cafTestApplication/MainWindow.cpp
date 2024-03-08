@@ -716,7 +716,7 @@ public:
                            "",
                            "" );
 
-      //  CAF_PDM_InitFieldNoDefault( &m_testAppEnumField, "TestAppEnumValue", "AppEnum Field" );
+        //  CAF_PDM_InitFieldNoDefault( &m_testAppEnumField, "TestAppEnumValue", "AppEnum Field" );
         CAF_PDM_InitFieldNoDefault( &m_ptrField, "m_ptrField", "PtrField", "", "", "" );
 
         CAF_PDM_InitFieldNoDefault( &m_multipleAppEnum, "MultipleAppEnumValue", "MultipleAppEnumValue", "", "", "" );
@@ -731,7 +731,7 @@ public:
     caf::PdmField<QString>                    m_textField;
     caf::PdmField<caf::AppEnum<TestEnumType>> m_testEnumField;
     //caf::AppEnumField<TestEnumType>           m_testAppEnumField;
-    caf::PdmPtrField<SmallDemoPdmObjectA*>    m_ptrField;
+    caf::PdmPtrField<SmallDemoPdmObjectA*> m_ptrField;
 
     void                       setEnumMember( const caf::AppEnum<TestEnumType>& val ) { m_proxyEnumMember = val; }
     caf::AppEnum<TestEnumType> enumMember() const { return m_proxyEnumMember; }
