@@ -41,6 +41,7 @@ set(PROJECT_FILES
     Parent.h
     TestObj.cpp
     TestObj.h
+    cafPdmEnumMapperTest.cpp
 )
 
 if(CEE_USE_QT6)
