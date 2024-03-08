@@ -39,11 +39,7 @@ public:
                   const QString&     uiText,
                   const QStringList& aliases = {} );
 
-    void addDefaultItem( const std::string& enumKey,
-                         int                enumValue,
-                         const QString&     text,
-                         const QString&     uiText,
-                         const QStringList& aliases = {} );
+    void setDefault( const std::string& enumKey, int enumValue );
 
     size_t  size( const std::string& enumKey ) const;
     size_t  index( const std::string& enumKey, int enumValue ) const;
@@ -51,8 +47,8 @@ public:
     QString uiText( const std::string& enumKey, int enumValue ) const;
 
     int defaultEnumValue( const std::string& enumKey ) const;
-    int enumValue( const std::string& enumKey, const QString& text ) const;
-    int enumValue( const std::string& enumKey, int enumIndex ) const;
+    int fromText( const std::string& enumKey, const QString& text ) const;
+    int fromIndex( const std::string& enumKey, size_t enumIndex ) const;
 
 private:
     std::map<std::string, std::vector<EnumData>> m_enumMap;

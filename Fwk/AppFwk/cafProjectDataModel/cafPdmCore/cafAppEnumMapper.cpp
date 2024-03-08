@@ -28,18 +28,23 @@ void AppEnumMapper::addItem( const std::string& enumKey,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void AppEnumMapper::addDefaultItem( const std::string& enumKey,
-                                    int                enumValue,
-                                    const QString&     text,
-                                    const QString&     uiText,
-                                    const QStringList& aliases /*= {} */ )
+void AppEnumMapper::setDefault( const std::string& enumKey, int enumValue )
 {
-    // Make sure the text is trimmed, as this text is streamed to XML and will be trimmed when read back
-    // from XML text https://github.com/OPM/ResInsight/issues/7829
-    auto enumData        = AppEnumMapper::EnumData( enumValue, text.trimmed(), uiText, aliases );
-    enumData.m_isDefault = true;
-
-    m_enumMap[enumKey].emplace_back( enumData );
+    auto it = m_enumMap.find( enumKey );
+    if ( it != m_enumMap.end() )
+    {
+        for ( auto& enumData : it->second )
+        {
+            if ( enumData.m_enumVal == enumValue )
+            {
+                enumData.m_isDefault = true;
+            }
+            else
+            {
+                enumData.m_isDefault = false;
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,8 +75,13 @@ int AppEnumMapper::defaultEnumValue( const std::string& enumKey ) const
                 return enumData.m_enumVal;
             }
         }
+
+        if ( !it->second.empty() )
+        {
+            return it->second.front().m_enumVal;
+        }
     }
-    return -1;
+    return 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,7 +144,7 @@ QString AppEnumMapper::uiText( const std::string& enumKey, int enumValue ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int AppEnumMapper::enumValue( const std::string& enumKey, const QString& text ) const
+int AppEnumMapper::fromText( const std::string& enumKey, const QString& text ) const
 {
     auto it = m_enumMap.find( enumKey );
     if ( it != m_enumMap.end() )
@@ -147,13 +157,13 @@ int AppEnumMapper::enumValue( const std::string& enumKey, const QString& text ) 
             }
         }
     }
-    return -1;
+    return defaultEnumValue( enumKey );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int AppEnumMapper::enumValue( const std::string& enumKey, int enumIndex ) const
+int AppEnumMapper::fromIndex( const std::string& enumKey, size_t enumIndex ) const
 {
     auto it = m_enumMap.find( enumKey );
     if ( it != m_enumMap.end() )
@@ -163,7 +173,7 @@ int AppEnumMapper::enumValue( const std::string& enumKey, int enumIndex ) const
             return it->second[enumIndex].m_enumVal;
         }
     }
-    return -1;
+    return defaultEnumValue( enumKey );
 }
 
 //--------------------------------------------------------------------------------------------------

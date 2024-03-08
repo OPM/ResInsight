@@ -20,6 +20,8 @@ enum class TestEnum2
     ValueC
 };
 
+//#define addItem( enumValue, text, uiText ) addItem( enumValue, #enumValue, text, uiText )
+
 namespace caf
 {
 template <>
@@ -30,6 +32,17 @@ void caf::AppEnum<TestEnum>::setUp()
     addItem( TestEnum::Value3, "VALUE_3", "Val 3" );
     addItem( TestEnum::Value4, "VALUE_4", "Val 4" );
     setDefault( TestEnum::Value2 );
+
+    auto instance = caf::AppEnumMapper::instance();
+    instance->addItem( caf::cafTypeName<TestEnum>(), caf::convertToInteger<TestEnum>( TestEnum::Value1 ), "VALUE_1", "Val 1" );
+    instance->addItem( caf::cafTypeName<TestEnum>(), caf::convertToInteger<TestEnum>( TestEnum::Value2 ), "VALUE_2", "Val 2" );
+    instance->addItem( caf::cafTypeName<TestEnum>(), caf::convertToInteger<TestEnum>( TestEnum::Value3 ), "VALUE_3", "Val 3" );
+    instance->addItem( caf::cafTypeName<TestEnum>(), caf::convertToInteger<TestEnum>( TestEnum::Value4 ), "VALUE_4", "Val 4" );
+    instance->setDefault( caf::cafTypeName<TestEnum>(), caf::convertToInteger<TestEnum>( TestEnum::Value2 ) );
+
+    /*
+     *
+     */
 }
 
 template <>
@@ -90,5 +103,20 @@ TEST( PdmEnumMapperTest, ConverEnumToInteger )
         auto intValue        = caf::convertToInteger( sourceEnumValue );
         auto enumValue       = caf::convertToEnum<TestEnum2>( intValue );
         EXPECT_EQ( enumValue, sourceEnumValue );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( PdmEnumMapperTest, GetUiText )
+{
+    caf::AppEnumMapper* instance = caf::AppEnumMapper::instance();
+
+    {
+        auto TestEnum_key = caf::cafTypeName<TestEnum>();
+        auto intValue     = caf::convertToInteger( TestEnum::Value1 );
+
+        instance->uiText( TestEnum_key, intValue );
     }
 }
