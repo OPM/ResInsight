@@ -21,6 +21,7 @@
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafFilePath.h"
 #include "cafPdmDocument.h"
+#include "cafPdmEnumField.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectGroup.h"
 #include "cafPdmProxyValueField.h"
@@ -707,13 +708,17 @@ public:
                            "Enter some small number here",
                            "This is a place you can enter a small integer value if you want" );
         CAF_PDM_InitField( &m_textField, "TextField", QString( "Small Demo Object A" ), "Name Text Field", "", "", "" );
-        CAF_PDM_InitField( &m_testEnumField,
+        CAF_PDM_InitField( &m_testAppEnumField,
                            "TestEnumValue",
                            caf::AppEnum<TestEnumType>( TestEnumType::T1 ),
                            "EnumField",
                            "",
                            "",
                            "" );
+
+        CAF_PDM_InitFieldNoDefault( &m_testEnumField, "TestAppEnumValue", "AppEnum Field" );
+        m_testEnumField = TestEnumType::T2;
+
         CAF_PDM_InitFieldNoDefault( &m_ptrField, "m_ptrField", "PtrField", "", "", "" );
 
         CAF_PDM_InitFieldNoDefault( &m_proxyEnumField, "ProxyEnumValue", "ProxyEnum", "", "", "" );
@@ -731,7 +736,8 @@ public:
     caf::PdmField<double>                     m_doubleField;
     caf::PdmField<int>                        m_intField;
     caf::PdmField<QString>                    m_textField;
-    caf::PdmField<caf::AppEnum<TestEnumType>> m_testEnumField;
+    caf::PdmField<caf::AppEnum<TestEnumType>> m_testAppEnumField;
+    caf::PdmEnumField<TestEnumType>           m_testEnumField;
     caf::PdmPtrField<SmallDemoPdmObjectA*>    m_ptrField;
 
     caf::PdmProxyValueField<caf::AppEnum<TestEnumType>> m_proxyEnumField;
@@ -817,7 +823,7 @@ public:
         // See PdmUiFieldSpecialization<caf::AppEnum<T>>
         auto enumValue = static_cast<std::underlying_type_t<TestEnumType>>( value );
 
-        m_testEnumField.uiCapability()->enableAndSetAutoValue( enumValue );
+        m_testAppEnumField.uiCapability()->enableAndSetAutoValue( enumValue );
     }
 
     void enableAutoValueForDouble( double value ) { m_doubleField.uiCapability()->enableAndSetAutoValue( value ); }
@@ -830,7 +836,7 @@ public:
         // See PdmUiFieldSpecialization<caf::AppEnum<T>>
         auto enumValue = static_cast<std::underlying_type_t<TestEnumType>>( value );
 
-        m_testEnumField.uiCapability()->setAutoValue( enumValue );
+        m_testAppEnumField.uiCapability()->setAutoValue( enumValue );
     }
 
     void setAutoValueForDouble( double value )
