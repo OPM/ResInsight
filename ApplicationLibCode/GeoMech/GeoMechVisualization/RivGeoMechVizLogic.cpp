@@ -251,7 +251,8 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr( RivGeoMechPartMgrCache
                                                                    cellRangeFilter,
                                                                    &indexIncludeVisibility,
                                                                    &indexExcludeVisibility,
-                                                                   m_geomechView->cellFilterCollection()->hasActiveIncludeIndexFilters() );
+                                                                   m_geomechView->cellFilterCollection()->hasActiveIncludeIndexFilters(),
+                                                                   m_geomechView->cellFilterCollection()->useAndOperation() );
         }
         else if ( pMgrKey.geometryType() == PROPERTY_FILTERED )
         {
