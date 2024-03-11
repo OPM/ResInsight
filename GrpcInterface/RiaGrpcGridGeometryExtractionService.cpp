@@ -223,7 +223,7 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
     const auto& polylineSegmentsMeshData = polylineIntersectionGenerator->polylineSegmentsMeshData();
     for ( const auto& segment : polylineSegmentsMeshData )
     {
-        auto* fenceMeshSection = response->add_fecemeshsections();
+        auto* fenceMeshSection = response->add_fencemeshsections();
 
         // Set start UTM (x,y)
         rips::Vec2d* startUtmXY = new rips::Vec2d;

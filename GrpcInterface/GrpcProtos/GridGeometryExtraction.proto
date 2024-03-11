@@ -78,7 +78,7 @@ message PolylineTestResponse
 
 message CutAlongPolylineResponse
 {
-    repeated FenceMeshSection feceMeshSections = 1;
+    repeated FenceMeshSection fenceMeshSections = 1;
     PolylineTestResponse polylineTestResponse = 2;
     Vec3i gridDimensions = 3;
 }
