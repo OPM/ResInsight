@@ -57,7 +57,8 @@ void RivFemElmVisibilityCalculator::computeRangeVisibility( cvf::UByteArray*    
                                                             const cvf::CellRangeFilter& rangeFilter,
                                                             const cvf::UByteArray*      indexIncludeVisibility,
                                                             const cvf::UByteArray*      indexExcludeVisibility,
-                                                            bool                        useIndexInclude )
+                                                            bool                        useIndexInclude,
+                                                            bool                        useAndOperation )
 {
     elmVisibilities->resize( femPart->elementCount() );
 
@@ -74,9 +75,19 @@ void RivFemElmVisibilityCalculator::computeRangeVisibility( cvf::UByteArray*    
             for ( int elmIdx = 0; elmIdx < femPart->elementCount(); ++elmIdx )
             {
                 grid->ijkFromCellIndex( elmIdx, &mainGridI, &mainGridJ, &mainGridK );
-                ( *elmVisibilities )[elmIdx] =
-                    ( ( *indexIncludeVisibility )[elmIdx] || rangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, false ) ) &&
-                    ( *indexExcludeVisibility )[elmIdx];
+
+                if ( useAndOperation )
+                {
+                    ( *elmVisibilities )[elmIdx] =
+                        ( ( *indexIncludeVisibility )[elmIdx] && rangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, false ) ) &&
+                        ( *indexExcludeVisibility )[elmIdx];
+                }
+                else
+                {
+                    ( *elmVisibilities )[elmIdx] =
+                        ( ( *indexIncludeVisibility )[elmIdx] || rangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, false ) ) &&
+                        ( *indexExcludeVisibility )[elmIdx];
+                }
             }
         }
         else

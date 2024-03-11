@@ -161,7 +161,8 @@ cvf::ref<cvf::UByteArray> RimGeoMechContourMapProjection::getCellVisibility() co
                                                                cellRangeFilter,
                                                                &indexIncludeVis,
                                                                &indexExcludeVis,
-                                                               view()->cellFilterCollection()->hasActiveIncludeIndexFilters() );
+                                                               view()->cellFilterCollection()->hasActiveIncludeIndexFilters(),
+                                                               view()->cellFilterCollection()->useAndOperation() );
     }
     if ( view()->propertyFilterCollection()->isActive() )
     {
