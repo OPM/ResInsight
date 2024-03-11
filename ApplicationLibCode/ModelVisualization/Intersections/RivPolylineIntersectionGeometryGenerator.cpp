@@ -187,8 +187,9 @@ void RivPolylineIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray*
             size_t     cornerIndices[8];
 
             // Mesh data for polyline segment
-            std::vector<float>     polygonVerticesUz  = {};
-            std::vector<cvf::uint> verticesPerPolygon = {};
+            std::vector<float>     polygonVerticesUz     = {};
+            std::vector<cvf::uint> verticesPerPolygon    = {};
+            std::vector<cvf::uint> polygonToCellIndexMap = {};
 
             // Handle triangles per cell
             for ( const auto globalCellIdx : columnCellCandidates )
@@ -276,6 +277,7 @@ void RivPolylineIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray*
                     calculatedPolygonVertices.push_back( cvf::Vec3f( vertex + p1 ) );
                 }
                 verticesPerPolygon.push_back( static_cast<cvf::uint>( vertices.size() ) );
+                polygonToCellIndexMap.push_back( static_cast<cvf::uint>( globalCellIdx ) );
 
                 // Keep old code for debugging purposes
                 m_verticesPerPolygon.push_back( vertices.size() ); // TODO: Remove when not needed for debug
@@ -283,16 +285,18 @@ void RivPolylineIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray*
             }
 
             // Create polygon indices array
-            std::vector<cvf::uint> polygonIndices( polygonVerticesUz.size() );
+            const auto             numVertices = static_cast<size_t>( polygonVerticesUz.size() / 2 );
+            std::vector<cvf::uint> polygonIndices( numVertices );
             std::iota( polygonIndices.begin(), polygonIndices.end(), 0 );
 
             // Construct polyline segment mesh data
             PolylineSegmentMeshData polylineSegmentData;
-            polylineSegmentData.startUtmXY         = cvf::Vec2d( p1.x(), p1.y() );
-            polylineSegmentData.endUtmXY           = cvf::Vec2d( p2.x(), p2.y() );
-            polylineSegmentData.vertexArrayUZ      = polygonVerticesUz;
-            polylineSegmentData.verticesPerPolygon = verticesPerPolygon;
-            polylineSegmentData.polygonIndices     = polygonIndices;
+            polylineSegmentData.startUtmXY            = cvf::Vec2d( p1.x(), p1.y() );
+            polylineSegmentData.endUtmXY              = cvf::Vec2d( p2.x(), p2.y() );
+            polylineSegmentData.vertexArrayUZ         = polygonVerticesUz;
+            polylineSegmentData.verticesPerPolygon    = verticesPerPolygon;
+            polylineSegmentData.polygonIndices        = polygonIndices;
+            polylineSegmentData.polygonToCellIndexMap = polygonToCellIndexMap;
 
             // Add polyline segment mesh data to list
             m_polylineSegmentsMeshData.push_back( polylineSegmentData );
