@@ -49,6 +49,12 @@ class RimCellFilterCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum CombineFilterModeType
+    {
+        OR,
+        AND
+    };
+
     RimCellFilterCollection();
     ~RimCellFilterCollection() override;
 
@@ -67,6 +73,8 @@ public:
     bool isEmpty() const;
     bool isActive() const;
     void setActive( bool bActive );
+
+    bool useAndOperation() const;
 
     void compoundCellRangeFilter( cvf::CellRangeFilter* cellRangeFilter, size_t gridIndex ) const;
     void updateCellVisibilityByIndex( cvf::UByteArray* cellsIncluded, cvf::UByteArray* cellsExcluded, size_t gridIndex ) const;
@@ -87,7 +95,10 @@ public:
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+
     caf::PdmFieldHandle* objectToggleField() override;
     void                 initAfterRead() override;
 
@@ -97,8 +108,10 @@ private:
     void setAutoName( RimCellFilter* pFilter );
     void addFilter( RimCellFilter* pFilter );
 
-    caf::PdmChildArrayField<RimCellFilter*> m_cellFilters;
-    caf::PdmField<bool>                     m_isActive;
+    caf::PdmChildArrayField<RimCellFilter*>            m_cellFilters;
+    caf::PdmField<bool>                                m_isActive;
+    caf::PdmField<QString>                             m_combineModeLabel;
+    caf::PdmField<caf::AppEnum<CombineFilterModeType>> m_combineFilterMode;
 
     caf::PdmChildArrayField<RimCellRangeFilter*> m_rangeFilters_OBSOLETE;
 };
