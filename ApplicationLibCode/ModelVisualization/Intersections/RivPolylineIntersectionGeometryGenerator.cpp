@@ -120,7 +120,7 @@ void RivPolylineIntersectionGeometryGenerator::generateIntersectionGeometry( cvf
 //--------------------------------------------------------------------------------------------------
 void RivPolylineIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray* visibleCells )
 {
-    if ( m_hexGrid.isNull() || m_polylineSegmentsMeshData.size() != 0 ) return;
+    if ( m_hexGrid == nullptr || m_polylineSegmentsMeshData.size() != 0 ) return;
 
     // Mesh data per polyline segment
     std::vector<PolylineSegmentMeshData> polylineSegmentMeshData   = {};

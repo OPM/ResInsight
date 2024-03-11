@@ -79,8 +79,8 @@ private:
     static std::vector<cvf::Vec3d> initializePolylineUtmFromPolylineUtmXy( const std::vector<cvf::Vec2d>& polylineUtmXy );
 
 private:
-    cvf::ref<RivIntersectionHexGridInterface> m_hexGrid;
-    const std::vector<cvf::Vec3d>             m_polylineUtm;
+    RivIntersectionHexGridInterface* m_hexGrid = nullptr;
+    const std::vector<cvf::Vec3d>    m_polylineUtm;
 
     // Output
     std::vector<PolylineSegmentMeshData> m_polylineSegmentsMeshData;

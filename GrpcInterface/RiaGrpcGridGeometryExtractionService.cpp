@@ -194,38 +194,38 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
         polylineUtmXy.push_back( cvf::Vec2d( xValue, yValue ) );
     }
 
-    RigActiveCellInfo*          activeCellInfo    = nullptr; // No active cell info for grid
-    const bool                  showInactiveCells = true;
-    RivEclipseIntersectionGrid* eclipseIntersectionGrid =
-        new RivEclipseIntersectionGrid( m_eclipseView->mainGrid(), activeCellInfo, showInactiveCells );
+    RigActiveCellInfo* activeCellInfo    = nullptr; // No active cell info for grid
+    const bool         showInactiveCells = true;
+    auto               eclipseIntersectionGrid =
+        RivEclipseIntersectionGrid( m_eclipseView->mainGrid(), activeCellInfo, showInactiveCells );
 
-    auto* polylineIntersectionGenerator =
-        new RivPolylineIntersectionGeometryGenerator( polylineUtmXy, eclipseIntersectionGrid );
+    auto polylineIntersectionGenerator =
+        RivPolylineIntersectionGeometryGenerator( polylineUtmXy, &eclipseIntersectionGrid );
 
     // Handle cell visibilities
-    const int        firstTimeStep = 0;
-    cvf::UByteArray* visibleCells  = new cvf::UByteArray( m_eclipseView->mainGrid()->cellCount() );
-    m_eclipseView->calculateCurrentTotalCellVisibility( visibleCells, firstTimeStep );
+    const int       firstTimeStep = 0;
+    cvf::UByteArray visibleCells  = cvf::UByteArray( m_eclipseView->mainGrid()->cellCount() );
+    m_eclipseView->calculateCurrentTotalCellVisibility( &visibleCells, firstTimeStep );
 
     // Loop to count number of visible cells
     int numVisibleCells = 0;
-    for ( size_t i = 0; i < visibleCells->size(); ++i )
+    for ( size_t i = 0; i < visibleCells.size(); ++i )
     {
-        if ( ( *visibleCells )[i] != 0 )
+        if ( ( visibleCells )[i] != 0 )
         {
             ++numVisibleCells;
         }
     }
 
     // Generate intersection
-    polylineIntersectionGenerator->generateIntersectionGeometry( visibleCells );
-    if ( !polylineIntersectionGenerator->isAnyGeometryPresent() )
+    polylineIntersectionGenerator.generateIntersectionGeometry( &visibleCells );
+    if ( !polylineIntersectionGenerator.isAnyGeometryPresent() )
     {
         return grpc::Status( grpc::StatusCode::INVALID_ARGUMENT, "No intersection geometry present" );
     }
 
     // Add fence mesh sections
-    const auto& polylineSegmentsMeshData = polylineIntersectionGenerator->polylineSegmentsMeshData();
+    const auto& polylineSegmentsMeshData = polylineIntersectionGenerator.polylineSegmentsMeshData();
     for ( const auto& segment : polylineSegmentsMeshData )
     {
         auto* fenceMeshSection = response->add_fencemeshsections();
@@ -272,7 +272,7 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
         rips::PolylineTestResponse* polylineTestResponse = new rips::PolylineTestResponse;
 
         // Polygon vertices
-        const auto& polygonVertices = polylineIntersectionGenerator->polygonVxes();
+        const auto& polygonVertices = polylineIntersectionGenerator.polygonVxes();
         if ( polygonVertices->size() == 0 )
         {
             return grpc::Status( grpc::StatusCode::NOT_FOUND, "No polygon vertices found for polyline" );
@@ -286,14 +286,14 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
         }
 
         // Vertices per polygon
-        const auto& verticesPerPolygon = polylineIntersectionGenerator->vertiesPerPolygon();
+        const auto& verticesPerPolygon = polylineIntersectionGenerator.vertiesPerPolygon();
         for ( const auto& elm : verticesPerPolygon )
         {
             polylineTestResponse->add_verticesperpolygonarr( static_cast<google::protobuf::uint32>( elm ) );
         }
 
         // Polygon to cell indices
-        const auto& polygonCellIndices = polylineIntersectionGenerator->polygonToCellIndex();
+        const auto& polygonCellIndices = polylineIntersectionGenerator.polygonToCellIndex();
         for ( const auto& elm : polygonCellIndices )
         {
             polylineTestResponse->add_sourcecellindicesarr( static_cast<google::protobuf::uint32>( elm ) );
