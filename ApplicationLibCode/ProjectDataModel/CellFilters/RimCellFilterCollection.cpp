@@ -153,7 +153,7 @@ void RimCellFilterCollection::initAfterRead()
     }
 
     // fallback to OR mode for older projects made without AND support
-    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.03.12" ) )
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.12.0" ) )
     {
         m_combineFilterMode = RimCellFilterCollection::OR;
     }
