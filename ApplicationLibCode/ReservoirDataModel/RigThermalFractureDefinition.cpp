@@ -21,6 +21,8 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 
+#include "cafAssert.h"
+
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------

@@ -1,6 +1,7 @@
 #include "cafInternalPdmFilePathStreamOperators.h"
 
 #include <QStringList>
+#include <QTextStream>
 
 //--------------------------------------------------------------------------------------------------
 ///

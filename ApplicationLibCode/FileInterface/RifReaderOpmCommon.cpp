@@ -46,6 +46,8 @@
 #include "opm/output/eclipse/VectorItems/intehead.hpp"
 #include "opm/output/eclipse/VectorItems/well.hpp"
 
+#include <iostream>
+
 using namespace Opm;
 
 //--------------------------------------------------------------------------------------------------

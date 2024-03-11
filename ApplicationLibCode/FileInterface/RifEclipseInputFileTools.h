@@ -35,6 +35,7 @@
 
 class RigEclipseCaseData;
 class QFile;
+class QTextStream;
 
 //--------------------------------------------------------------------------------------------------
 /// Structure used to cache file position of keywords
