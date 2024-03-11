@@ -20,6 +20,7 @@
 #include "GridGeometryExtraction.grpc.pb.h"
 #include "RiaApplication.h"
 #include "RiaGrpcServiceInterface.h"
+#include "RigGridBase.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RivGridPartMgr.h"
@@ -48,6 +49,8 @@ class RiaGrpcGridGeometryExtractionService final : public rips::GridGeometryExtr
                                                    public RiaGrpcServiceInterface
 {
 public:
+    RiaGrpcGridGeometryExtractionService();
+
     grpc::Status GetGridSurface( grpc::ServerContext*               context,
                                  const rips::GetGridSurfaceRequest* request,
                                  rips::GetGridSurfaceResponse*      response ) override;
@@ -66,9 +69,11 @@ private:
     grpc::Status applyIJKCellFilterToEclipseCase( const rips::IJKIndexFilter& filter );
     grpc::Status initializeApplicationAndEclipseCaseAndEclipseViewFromAbsoluteFilePath( const std::string filePath );
 
-    grpc::Status initializeGridGeometryGeneratorWithEclipseViewCellVisibility( cvf::StructGridGeometryGenerator* generator );
+    grpc::Status initializeGridGeometryGeneratorWithEclipseViewCellVisibility( cvf::StructGridGeometryGenerator& generator );
 
     RiaApplication* m_application = nullptr;
     RimEclipseCase* m_eclipseCase = nullptr;
     RimEclipseView* m_eclipseView = nullptr;
+
+    RigGridCellFaceVisibilityFilter m_faceVisibilityFilter;
 };

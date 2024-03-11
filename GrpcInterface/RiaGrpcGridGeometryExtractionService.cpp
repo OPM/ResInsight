@@ -55,6 +55,11 @@
 #include "qfileinfo.h"
 #include "qstring.h"
 
+RiaGrpcGridGeometryExtractionService::RiaGrpcGridGeometryExtractionService()
+    : m_faceVisibilityFilter( nullptr )
+{
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -86,15 +91,15 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
     m_eclipseView->createGridGeometryParts();
 
     // Initialize grid geometry generator
-    const bool useOpenMP             = false;
-    auto*      gridGeometryGenerator = new cvf::StructGridGeometryGenerator( m_eclipseView->mainGrid(), useOpenMP );
-    status = initializeGridGeometryGeneratorWithEclipseViewCellVisibility( gridGeometryGenerator );
+    const bool useOpenMP       = false;
+    auto gridGeometryGenerator = cvf::StructGridGeometryGenerator( m_eclipseView->mainGrid(), useOpenMP ); // cvf::ref?
+    status                     = initializeGridGeometryGeneratorWithEclipseViewCellVisibility( gridGeometryGenerator );
     if ( status.error_code() != grpc::StatusCode::OK )
     {
         return status;
     }
 
-    auto* gridSurfaceVertices = gridGeometryGenerator->getOrCreateVertices();
+    auto* gridSurfaceVertices = gridGeometryGenerator.getOrCreateVertices();
     if ( gridSurfaceVertices == nullptr )
     {
         return grpc::Status( grpc::StatusCode::NOT_FOUND, "No grid vertices found" );
@@ -121,9 +126,9 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
 
     // Source cell indices from main grid part manager
     std::vector<size_t> sourceCellIndicesArray = std::vector<size_t>();
-    if ( gridGeometryGenerator->quadToCellFaceMapper() != nullptr )
+    if ( gridGeometryGenerator.quadToCellFaceMapper() != nullptr )
     {
-        sourceCellIndicesArray = gridGeometryGenerator->quadToCellFaceMapper()->quadToCellIndicesArray();
+        sourceCellIndicesArray = gridGeometryGenerator.quadToCellFaceMapper()->quadToCellIndicesArray();
     }
     if ( sourceCellIndicesArray.empty() )
     {
@@ -366,7 +371,7 @@ grpc::Status RiaGrpcGridGeometryExtractionService::applyIJKCellFilterToEclipseCa
 ///
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcGridGeometryExtractionService::initializeGridGeometryGeneratorWithEclipseViewCellVisibility(
-    cvf::StructGridGeometryGenerator* generator )
+    cvf::StructGridGeometryGenerator& generator )
 {
     if ( m_eclipseView == nullptr )
     {
@@ -385,10 +390,10 @@ grpc::Status RiaGrpcGridGeometryExtractionService::initializeGridGeometryGenerat
     m_eclipseView->calculateCurrentTotalCellVisibility( cellVisibilities, firstTimeStep );
 
     // Face visibility filter
-    auto* faceVisibilityFilter = new RigGridCellFaceVisibilityFilter( mainGrid );
+    m_faceVisibilityFilter = RigGridCellFaceVisibilityFilter( mainGrid );
 
-    generator->setCellVisibility( cellVisibilities );
-    generator->addFaceVisibilityFilter( faceVisibilityFilter );
+    generator.setCellVisibility( cellVisibilities ); // Ownership transferred
+    generator.addFaceVisibilityFilter( &m_faceVisibilityFilter );
 
     return grpc::Status::OK;
 }
