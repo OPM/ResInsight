@@ -62,6 +62,7 @@ RimCellFilterCollection::RimCellFilterCollection()
     m_isActive.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_combineFilterMode, "CombineFilterMode", "" );
+    m_combineFilterMode.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitField( &m_combineModeLabel, "CombineModeLabel", QString( "" ), "Combine Polygon and Range Filters Using Operation" );
     m_combineModeLabel.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
