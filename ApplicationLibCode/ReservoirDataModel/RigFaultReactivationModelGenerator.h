@@ -58,6 +58,8 @@ public:
     void setUseLocalCoordinates( bool useLocalCoordinates );
     void setupLocalCoordinateTransform();
 
+    cvf::Vec3d transformPointIfNeeded( const cvf::Vec3d point ) const;
+
     std::pair<cvf::Vec3d, cvf::Vec3d> modelLocalNormalsXY();
 
     void generateGeometry( size_t startCellIndex, FaceType startFace, RigGriddedPart3d* frontPart, RigGriddedPart3d* backPart );
