@@ -168,6 +168,16 @@ void RigFaultReactivationModelGenerator::setupLocalCoordinateTransform()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RigFaultReactivationModelGenerator::transformPointIfNeeded( const cvf::Vec3d point ) const
+{
+    if ( !m_useLocalCoordinates ) return point;
+
+    return point.getTransformedPoint( m_localCoordTransform );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// change corner order to be consistent so that index (0,1) and (2,3) gives the lower and upper horz. lines no matter what I or J face we
 /// have
 //--------------------------------------------------------------------------------------------------

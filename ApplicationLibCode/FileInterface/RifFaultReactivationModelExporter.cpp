@@ -834,6 +834,10 @@ bool RifFaultReactivationModelExporter::exportModelSettings( const RimFaultReact
     auto [topPosition, bottomPosition] = model->faultTopBottom();
     auto faultNormal                   = model->modelNormal();
 
+    // make sure we export in local coordinates, if that is used
+    topPosition    = model->transformPointIfNeeded( topPosition );
+    bottomPosition = model->transformPointIfNeeded( bottomPosition );
+
     // make sure we move horizontally, and along the 2D model
     faultNormal.z() = 0.0;
     faultNormal.normalize();
