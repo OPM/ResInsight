@@ -144,6 +144,7 @@ std::pair<cvf::Vec3d, cvf::Vec3d> RigFaultReactivationModel::modelLocalNormalsXY
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RigFaultReactivationModel::transformPointIfNeeded( const cvf::Vec3d point ) const
 {
+    if ( m_generator.get() == nullptr ) return point;
     return m_generator->transformPointIfNeeded( point );
 }
 
