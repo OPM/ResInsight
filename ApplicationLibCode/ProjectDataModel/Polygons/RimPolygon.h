@@ -61,10 +61,12 @@ public:
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
     void uiOrderingForLocalPolygon( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
-    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     void onColorTagClicked( const SignalEmitter* emitter, size_t index );
 
+    static void appendPolygonMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder );
+
 private:
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

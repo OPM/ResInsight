@@ -150,6 +150,15 @@ std::vector<RimPolygon*> RimPolygonCollection::allPolygons() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::appendPolygonMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder )
+{
+    menuBuilder << "RicCreatePolygonFeature";
+    menuBuilder << "RicImportPolygonFileFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     updateViewTreeItems();
@@ -169,8 +178,7 @@ void RimPolygonCollection::childFieldChangedByUi( const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
-    menuBuilder << "RicCreatePolygonFeature";
-    menuBuilder << "RicImportPolygonFileFeature";
+    RimPolygonCollection::appendPolygonMenuItems( menuBuilder );
 }
 
 //--------------------------------------------------------------------------------------------------
