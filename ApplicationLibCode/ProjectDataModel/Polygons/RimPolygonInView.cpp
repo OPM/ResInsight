@@ -233,6 +233,7 @@ void RimPolygonInView::updatePolygonFromTargets()
             points.push_back( target->targetPointXYZ() );
         }
         m_polygon->setPointsInDomainCoords( points );
+        m_polygon->objectChanged.send();
     }
 }
 
