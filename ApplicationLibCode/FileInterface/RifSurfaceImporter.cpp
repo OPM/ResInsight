@@ -465,7 +465,7 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
         }
     }
 
-    if ( surfacePoints.size() == 0 ) return { {}, {} };
+    if ( surfacePoints.empty() ) return { {}, {} };
 
     // Determine axes vectors
     std::vector<std::pair<cvf::Vec2d, unsigned>> pairs;
