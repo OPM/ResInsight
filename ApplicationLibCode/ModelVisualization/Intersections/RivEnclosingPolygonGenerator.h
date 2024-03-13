@@ -28,7 +28,7 @@
 #include <vector>
 
 /*
- * Class for handling welding of vertices in a polygon to prevent duplicated vertex 3D points within a tolerance margin
+ * Class for handling welding of vertices internally in a polygon to prevent duplicated vertex 3D points within a tolerance margin
  */
 class PolygonVertexWelder
 {

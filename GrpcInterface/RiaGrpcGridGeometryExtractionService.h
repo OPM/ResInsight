@@ -75,5 +75,5 @@ private:
     RimEclipseCase* m_eclipseCase = nullptr;
     RimEclipseView* m_eclipseView = nullptr;
 
-    RigGridCellFaceVisibilityFilter m_faceVisibilityFilter;
+    std::unique_ptr<RigGridCellFaceVisibilityFilter> m_faceVisibilityFilter = nullptr;
 };

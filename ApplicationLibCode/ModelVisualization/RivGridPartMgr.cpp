@@ -73,7 +73,7 @@ RivGridPartMgr::RivGridPartMgr( RivCellSetEnum cellSetType, RimEclipseCase* ecli
     : m_surfaceGenerator( grid, RiaRegressionTestRunner::instance()->useOpenMPForGeometryCreation() )
     , m_gridIdx( gridIdx )
     , m_grid( grid )
-    , m_surfaceFaceFilter( grid )
+    , m_surfaceFaceFilter( grid, false )
     , m_opacityLevel( 1.0f )
     , m_defaultColor( cvf::Color3::WHITE )
     , m_eclipseCase( eclipseCase )

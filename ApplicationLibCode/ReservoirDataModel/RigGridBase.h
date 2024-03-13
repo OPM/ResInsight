@@ -128,13 +128,15 @@ private:
 class RigGridCellFaceVisibilityFilter : public cvf::CellFaceVisibilityFilter
 {
 public:
-    explicit RigGridCellFaceVisibilityFilter( const RigGridBase* grid )
+    explicit RigGridCellFaceVisibilityFilter( const RigGridBase* const grid, bool includeFaultFaces )
         : m_grid( grid )
+        , m_includeFaultFaces( includeFaultFaces )
     {
     }
 
     bool isFaceVisible( size_t i, size_t j, size_t k, cvf::StructGridInterface::FaceType face, const cvf::UByteArray* cellVisibility ) const override;
 
 private:
-    const RigGridBase* m_grid;
+    const RigGridBase* const m_grid;
+    const bool               m_includeFaultFaces;
 };

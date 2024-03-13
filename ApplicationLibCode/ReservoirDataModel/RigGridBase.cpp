@@ -572,7 +572,7 @@ bool RigGridCellFaceVisibilityFilter::isFaceVisible( size_t                     
     const RigFault* fault               = m_grid->mainGrid()->findFaultFromCellIndexAndCellFace( nativeResvCellIndex, face );
     if ( fault )
     {
-        return false;
+        return m_includeFaultFaces;
     }
 
     // If the neighbour cell is invisible, we need to draw the face

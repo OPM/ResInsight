@@ -56,7 +56,6 @@
 #include "qstring.h"
 
 RiaGrpcGridGeometryExtractionService::RiaGrpcGridGeometryExtractionService()
-    : m_faceVisibilityFilter( nullptr )
 {
 }
 
@@ -91,9 +90,9 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
     m_eclipseView->createGridGeometryParts();
 
     // Initialize grid geometry generator
-    const bool useOpenMP       = false;
-    auto gridGeometryGenerator = cvf::StructGridGeometryGenerator( m_eclipseView->mainGrid(), useOpenMP ); // cvf::ref?
-    status                     = initializeGridGeometryGeneratorWithEclipseViewCellVisibility( gridGeometryGenerator );
+    const bool useOpenMP             = false;
+    auto       gridGeometryGenerator = cvf::StructGridGeometryGenerator( m_eclipseView->mainGrid(), useOpenMP );
+    status = initializeGridGeometryGeneratorWithEclipseViewCellVisibility( gridGeometryGenerator );
     if ( status.error_code() != grpc::StatusCode::OK )
     {
         return status;
@@ -390,10 +389,12 @@ grpc::Status RiaGrpcGridGeometryExtractionService::initializeGridGeometryGenerat
     m_eclipseView->calculateCurrentTotalCellVisibility( cellVisibilities, firstTimeStep );
 
     // Face visibility filter
-    m_faceVisibilityFilter = RigGridCellFaceVisibilityFilter( mainGrid );
+    const bool includeFaultFaces = true;
+    m_faceVisibilityFilter       = std::make_unique<RigGridCellFaceVisibilityFilter>(
+        RigGridCellFaceVisibilityFilter( mainGrid, includeFaultFaces ) );
 
     generator.setCellVisibility( cellVisibilities ); // Ownership transferred
-    generator.addFaceVisibilityFilter( &m_faceVisibilityFilter );
+    generator.addFaceVisibilityFilter( m_faceVisibilityFilter.get() );
 
     return grpc::Status::OK;
 }
@@ -407,7 +408,8 @@ grpc::Status RiaGrpcGridGeometryExtractionService::loadGridGeometryFromAbsoluteF
     QFileInfo projectPathInfo( absolutePath );
 
     std::shared_ptr<RifReaderSettings> readerSettings;
-    readerSettings = RifReaderSettings::createGridOnlyReaderSettings();
+    readerSettings               = RifReaderSettings::createGridOnlyReaderSettings();
+    readerSettings->importFaults = true;
 
     // TODO: Set true or false?
     bool createPlot       = true;
