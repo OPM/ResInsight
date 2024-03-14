@@ -127,7 +127,6 @@ public:
     void       setLengthUp( double heightUp );
     void       setLengthDown( double heightDown );
     double     extentLength();
-    void       recomputeSimulationWellBranchData();
     bool       hasDefiningPoints() const;
 
     std::vector<RimSurfaceIntersectionCurve*> surfaceIntersectionCurves() const;
@@ -152,7 +151,6 @@ private:
 
     RimSimWellInViewCollection* simulationWellCollection() const;
     void                        updateAzimuthLine();
-    void                        updateSimulationWellCenterline();
     void                        addExtents( std::vector<cvf::Vec3d>& polyLine ) const;
     void                        updateName();
     static double               azimuthInRadians( cvf::Vec3d vec );
@@ -165,6 +163,8 @@ private:
     void                    setPointsFromXYD( const std::vector<cvf::Vec3d>& pointsXYD );
 
     RimEclipseView* eclipseView() const;
+
+    std::vector<std::vector<cvf::Vec3d>> simulationWellBranchCenterlines() const;
 
 private:
     caf::PdmField<QString> m_name;

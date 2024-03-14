@@ -35,15 +35,9 @@
 //##################################################################################################
 #pragma once
 
-#include "cafPdmChildArrayField.h"
 #include "cafPdmObjectCapability.h"
-#include "cafPdmObjectMethod.h"
 #include "cafPdmObjectScriptingCapabilityRegister.h"
 
-#include <QString>
-
-#include <map>
-#include <memory>
 #include <vector>
 
 class QTextStream;

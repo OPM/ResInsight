@@ -609,10 +609,13 @@ std::vector<double> RimGridCalculation::getDataForResult( const QString&        
         values[i] = resultAccessor->cellScalarGlobIdx( activeReservoirCells[i] );
     }
 
-    auto categoriesToExclude = { RiaDefines::ResultCatType::GENERATED };
+    if ( m_releaseMemoryAfterDataIsExtracted )
+    {
+        auto categoriesToExclude = { RiaDefines::ResultCatType::GENERATED };
 
-    sourceCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->freeAllocatedResultsData( categoriesToExclude, timeStepToUse );
-    sourceCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->freeAllocatedResultsData( categoriesToExclude, timeStepToUse );
+        sourceCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->freeAllocatedResultsData( categoriesToExclude, timeStepToUse );
+        sourceCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->freeAllocatedResultsData( categoriesToExclude, timeStepToUse );
+    }
 
     return values;
 }
@@ -781,6 +784,9 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
     const bool hasAggregationExpression = m_expression().contains( "sum" ) || m_expression().contains( "avg" ) ||
                                           m_expression().contains( "min" ) || m_expression().contains( "max" ) ||
                                           m_expression().contains( "count" );
+
+    // If multiple cases are present, release memory after data is extracted to avoid memory issues.
+    m_releaseMemoryAfterDataIsExtracted = isMultipleCasesPresent;
 
     if ( isMultipleCasesPresent )
     {

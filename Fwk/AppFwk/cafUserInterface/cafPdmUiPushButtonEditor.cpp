@@ -41,10 +41,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiFieldEditorHandle.h"
-#include "cafPdmUiOrdering.h"
 
 #include "cafFactory.h"
-#include "cafQShortenedLabel.h"
 
 #include <QBoxLayout>
 

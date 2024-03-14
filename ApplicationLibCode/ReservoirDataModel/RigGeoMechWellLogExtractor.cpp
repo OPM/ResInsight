@@ -49,6 +49,7 @@
 #include <QDebug>
 #include <QPolygonF>
 
+#include <limits>
 #include <type_traits>
 
 const double RigGeoMechWellLogExtractor::PURE_WATER_DENSITY_GCM3 = 1.0; // g / cm^3
@@ -195,7 +196,6 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
 
             auto [ppResultName, pp0ResultName] = mapSHMkToPP( QString::fromStdString( resAddr.fieldName ) );
             wellBoreSH_MatthewsKelly( timeStepIndex, frameIndex, ppResultName, pp0ResultName, values );
-            values->front() = wbsCurveValuesAtMsl();
         }
         else
         {
@@ -740,7 +740,7 @@ void RigGeoMechWellLogExtractor::wellBoreFGShale( const RigWbsParameter& paramet
     WbsParameterSource source = m_parameterSources.at( parameter );
     if ( source == RigWbsParameter::DERIVED_FROM_K0FG )
     {
-        wellBoreFGDerivedFromK0FG( RiaResultNames::wbsPPResult(), timeStepIndex, frameIndex, values );
+        wellBoreFGDerivedFromK0FG( RiaResultNames::wbsPPResult(), timeStepIndex, frameIndex, values, false );
     }
     else
     {
@@ -766,13 +766,34 @@ void RigGeoMechWellLogExtractor::wellBoreFGShale( const RigWbsParameter& paramet
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGeoMechWellLogExtractor::wellBoreFGDerivedFromK0FG( const QString& ppResult, int timeStepIndex, int frameIndex, std::vector<double>* values )
+void RigGeoMechWellLogExtractor::wellBoreFGDerivedFromK0FG( const QString&       ppResult,
+                                                            int                  timeStepIndex,
+                                                            int                  frameIndex,
+                                                            std::vector<double>* values,
+                                                            bool                 onlyForPPReservoir )
 {
     std::vector<double> PP0; // results
     std::vector<double> K0_FG, OBG0; // parameters
 
     RigFemResultAddress ppAddr( RIG_WELLPATH_DERIVED, ppResult.toStdString(), "" );
     wellPathScaledCurveData( ppAddr, 0, 0, &PP0, true );
+
+    if ( onlyForPPReservoir )
+    {
+        std::vector<double>             PP( intersections().size(), std::numeric_limits<double>::infinity() );
+        std::vector<WbsParameterSource> ppSources =
+            calculateWbsParameterForAllSegments( RigWbsParameter::PP_Reservoir(), timeStepIndex, frameIndex, &PP, false );
+
+        // Invalidate PP results from outside the reservoir zone.
+#pragma omp parallel for
+        for ( int64_t intersectionIdx = 0; intersectionIdx < static_cast<int64_t>( intersections().size() ); ++intersectionIdx )
+        {
+            if ( !isValid( PP[intersectionIdx] ) || ppSources[intersectionIdx] != RigWbsParameter::GRID )
+            {
+                PP0[intersectionIdx] = std::numeric_limits<double>::infinity();
+            }
+        }
+    }
 
     calculateWbsParameterForAllSegments( RigWbsParameter::K0_FG(), timeStepIndex, frameIndex, &K0_FG, true );
     calculateWbsParameterForAllSegments( RigWbsParameter::OBG0(), 0, 0, &OBG0, true );
@@ -801,7 +822,8 @@ void RigGeoMechWellLogExtractor::wellBoreFG_MatthewsKelly( const RigWbsParameter
 {
     values->resize( intersections().size(), std::numeric_limits<double>::infinity() );
 
-    WbsParameterSource source = m_parameterSources.at( parameter );
+    // Use FG_Shale source to avoid creating more options.
+    WbsParameterSource source = m_parameterSources.at( RigWbsParameter::FG_Shale() );
     if ( source == RigWbsParameter::DERIVED_FROM_K0FG )
     {
         auto mapParameterToPPResult = []( const RigWbsParameter& parameter )
@@ -811,8 +833,9 @@ void RigGeoMechWellLogExtractor::wellBoreFG_MatthewsKelly( const RigWbsParameter
             return RiaResultNames::wbsPPResult();
         };
 
-        QString ppResultName = mapParameterToPPResult( parameter );
-        wellBoreFGDerivedFromK0FG( ppResultName, timeStepIndex, frameIndex, values );
+        QString ppResultName       = mapParameterToPPResult( parameter );
+        bool    onlyForPPReservoir = true;
+        wellBoreFGDerivedFromK0FG( ppResultName, timeStepIndex, frameIndex, values, onlyForPPReservoir );
     }
     else
     {
@@ -830,22 +853,23 @@ void RigGeoMechWellLogExtractor::wellBoreFG_MatthewsKelly( const RigWbsParameter
         curveData( SHMkAddr, timeStepIndex, frameIndex, &SH );
 
         CVF_ASSERT( SH.size() == intersections().size() );
+
+        std::vector<double>             PP( intersections().size(), std::numeric_limits<double>::infinity() );
+        std::vector<WbsParameterSource> ppSources =
+            calculateWbsParameterForAllSegments( RigWbsParameter::PP_Reservoir(), timeStepIndex, frameIndex, &PP, false );
+
         double multiplier = m_userDefinedValues.at( parameter );
         CVF_ASSERT( multiplier != std::numeric_limits<double>::infinity() );
 #pragma omp parallel for
         for ( int64_t intersectionIdx = 0; intersectionIdx < static_cast<int64_t>( intersections().size() ); ++intersectionIdx )
         {
-            if ( !isValid( ( *values )[intersectionIdx] ) )
+            if ( !isValid( ( *values )[intersectionIdx] ) && ppSources[intersectionIdx] == RigWbsParameter::GRID &&
+                 isValid( PP[intersectionIdx] ) && isValid( SH[intersectionIdx] ) )
             {
-                if ( isValid( SH[intersectionIdx] ) )
-                {
-                    ( *values )[intersectionIdx] = SH[intersectionIdx] * multiplier;
-                }
+                ( *values )[intersectionIdx] = SH[intersectionIdx] * multiplier;
             }
         }
     }
-
-    values->front() = wbsCurveValuesAtMsl();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -870,6 +894,10 @@ void RigGeoMechWellLogExtractor::wellBoreSH_MatthewsKelly( int                  
     calculateWbsParameterForAllSegments( RigWbsParameter::OBG0(), 0, 0, &OBG0, true );
     calculateWbsParameterForAllSegments( RigWbsParameter::DF(), timeStepIndex, frameIndex, &DF, true );
 
+    std::vector<double>             ppSandAllSegments( intersections().size(), std::numeric_limits<double>::infinity() );
+    std::vector<WbsParameterSource> ppSources =
+        calculateWbsParameterForAllSegments( RigWbsParameter::PP_Reservoir(), timeStepIndex, frameIndex, &ppSandAllSegments, false );
+
     values->resize( intersections().size(), std::numeric_limits<double>::infinity() );
     if ( PP.size() != intersections().size() || PP0.size() != intersections().size() ) return;
 
@@ -880,8 +908,8 @@ void RigGeoMechWellLogExtractor::wellBoreSH_MatthewsKelly( int                  
 #pragma omp parallel for
     for ( int64_t intersectionIdx = 0; intersectionIdx < static_cast<int64_t>( intersections().size() ); ++intersectionIdx )
     {
-        if ( isValid( PP[intersectionIdx] ) && isValid( PP0[intersectionIdx] ) && isValid( OBG0[intersectionIdx] ) &&
-             isValid( K0_SH[intersectionIdx] ) && isValid( DF[intersectionIdx] ) )
+        if ( ppSources[intersectionIdx] == RigWbsParameter::GRID && isValid( PP[intersectionIdx] ) && isValid( PP0[intersectionIdx] ) &&
+             isValid( OBG0[intersectionIdx] ) && isValid( K0_SH[intersectionIdx] ) && isValid( DF[intersectionIdx] ) )
         {
             ( *values )[intersectionIdx] = ( K0_SH[intersectionIdx] * ( OBG0[intersectionIdx] - PP0[intersectionIdx] ) +
                                              PP0[intersectionIdx] + DF[intersectionIdx] * ( PP[intersectionIdx] - PP0[intersectionIdx] ) );

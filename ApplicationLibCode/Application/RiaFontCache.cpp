@@ -20,9 +20,11 @@
 
 #include "RiaGuiApplication.h"
 
+#include "cafAssert.h"
 #include "cafFixedAtlasFont.h"
 
 #include <QDesktopWidget>
+
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------

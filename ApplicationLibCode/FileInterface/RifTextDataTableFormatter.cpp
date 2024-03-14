@@ -320,7 +320,13 @@ bool RifTextDataTableFormatter::isAllHeadersEmpty( const std::vector<RifTextData
 {
     for ( auto& header : headers )
     {
-        if ( !header.titles.empty() ) return false;
+        for ( const auto& titleRow : header.titles )
+        {
+            if ( !titleRow.trimmed().isEmpty() )
+            {
+                return false;
+            }
+        }
     }
     return true;
 }

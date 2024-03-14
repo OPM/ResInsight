@@ -58,6 +58,8 @@ public:
     void setUseLocalCoordinates( bool useLocalCoordinates );
     void setupLocalCoordinateTransform();
 
+    cvf::Vec3d transformPointIfNeeded( const cvf::Vec3d point ) const;
+
     std::pair<cvf::Vec3d, cvf::Vec3d> modelLocalNormalsXY();
 
     void generateGeometry( size_t startCellIndex, FaceType startFace, RigGriddedPart3d* frontPart, RigGriddedPart3d* backPart );
@@ -74,9 +76,11 @@ protected:
     static const std::vector<double>     partition( double distance, double startSize, double sizeFactor );
     static std::pair<FaceType, FaceType> sideFacesIJ( FaceType face );
 
-    static cvf::Vec3d extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double stopDepth );
-    static void       splitLargeLayers( std::map<double, cvf::Vec3d>& layers, double maxHeight );
-    static void       mergeTinyLayers( std::map<double, cvf::Vec3d>& layers, double minHeight );
+    static cvf::Vec3d                 extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double stopDepth );
+    static void                       splitLargeLayers( std::map<double, cvf::Vec3d>& layers, double maxHeight );
+    static void                       mergeTinyLayers( std::map<double, cvf::Vec3d>& layers, double minHeight );
+    static std::vector<double>        extractZValues( const std::vector<cvf::Vec3d>& points );
+    static std::array<cvf::Vec3d, 12> shiftOrigin( const std::array<cvf::Vec3d, 12>& points, const cvf::Vec3d& newOrigin );
 
     std::vector<size_t> buildCellColumn( size_t startCell, FaceType startFace, std::map<double, cvf::Vec3d>& layers );
 

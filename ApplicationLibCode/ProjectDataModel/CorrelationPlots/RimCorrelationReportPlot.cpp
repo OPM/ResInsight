@@ -33,7 +33,6 @@
 #include "RiuQwtPlotWidget.h"
 
 #include "cafAssert.h"
-#include "cafPdmUiOrdering.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QDebug>

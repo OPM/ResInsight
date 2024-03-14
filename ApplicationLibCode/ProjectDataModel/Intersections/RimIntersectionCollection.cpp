@@ -298,17 +298,6 @@ std::vector<RimBoxIntersection*> RimIntersectionCollection::intersectionBoxes() 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::recomputeSimWellBranchData()
-{
-    for ( const auto& intersection : intersections() )
-    {
-        intersection->recomputeSimulationWellBranchData();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::appendIntersectionAndUpdate( RimExtrudedCurveIntersection* intersection, bool allowActiveViewChange )
 {
     m_intersections.push_back( intersection );

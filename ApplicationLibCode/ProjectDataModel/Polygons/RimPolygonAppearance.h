@@ -37,6 +37,9 @@ public:
     void setIsClosed( bool isClosed );
     bool isClosed() const;
 
+    cvf::Color3f lineColor() const;
+    void         setLineColor( const cvf::Color3f& color );
+
 public:
     RimPolygonAppearance();
 

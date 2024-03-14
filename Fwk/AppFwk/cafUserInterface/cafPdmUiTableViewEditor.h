@@ -36,11 +36,11 @@
 
 #pragma once
 
-#include "cafPdmDocument.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafSelectionChangedReceiver.h"
 
 #include <QAbstractItemModel>
+#include <QBoxLayout>
 #include <QPointer>
 #include <QTableView>
 #include <QWidget>

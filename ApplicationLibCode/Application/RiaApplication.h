@@ -21,12 +21,11 @@
 
 #include "RiaDefines.h"
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-
-#include "cvfFont.h"
+#include "cafPdmPointer.h"
 #include "cvfObject.h"
 
+#include <QEventLoop>
+#include <QMap>
 #include <QMutex>
 #include <QPointer>
 #include <QProcess>
@@ -35,7 +34,6 @@
 
 #include <gsl/gsl>
 
-#include <iostream>
 #include <memory>
 
 class QAction;
@@ -79,7 +77,8 @@ class UiProcess;
 namespace cvf
 {
 class ProgramOptions;
-}
+class Font;
+} // namespace cvf
 
 //==================================================================================================
 /// Base class for all ResInsight applications. I.e. console and GUI

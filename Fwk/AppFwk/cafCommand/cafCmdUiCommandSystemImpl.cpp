@@ -43,8 +43,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObjectHandle.h"
-#include "cafPdmUiObjectHandle.h"
-#include "cafPdmXmlFieldHandle.h"
+#include "cafPdmReferenceHelper.h"
 #include "cafSelectionManager.h"
 
 #include <QMenu>

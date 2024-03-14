@@ -34,7 +34,6 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
-#include "cafPdmUiOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 CAF_PDM_SOURCE_INIT( RicCreateEnsembleWellLogUi, "RicCreateEnsembleWellLogUi" );

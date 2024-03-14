@@ -49,6 +49,7 @@
 #include "cafPdmUiTreeViewQModel.h"
 #include "cafSelectionManager.h"
 
+#include <QApplication>
 #include <QDebug>
 #include <QDragMoveEvent>
 #include <QEvent>

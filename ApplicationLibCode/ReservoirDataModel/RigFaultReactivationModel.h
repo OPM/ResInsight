@@ -69,6 +69,7 @@ public:
     void setGenerator( std::shared_ptr<RigFaultReactivationModelGenerator> generator );
 
     std::pair<cvf::Vec3d, cvf::Vec3d> modelLocalNormalsXY() const;
+    cvf::Vec3d                        transformPointIfNeeded( const cvf::Vec3d point ) const;
 
     void updateGeometry( size_t startCell, cvf::StructGridInterface::FaceType startFace );
 

@@ -51,6 +51,7 @@ public:
 
     RimPolygon* polygon() const;
     void        setPolygon( RimPolygon* polygon );
+    void        updateTargetsFromPolygon();
 
     void appendPartsToModel( cvf::ModelBasicList* model, const caf::DisplayCoordTransform* scaleTransform, const cvf::BoundingBox& boundingBox );
     void enablePicking( bool enable );
@@ -79,12 +80,15 @@ protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget ) override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+    void onObjectChanged( const caf::SignalEmitter* emitter );
+    void onCoordinatesChanged( const caf::SignalEmitter* emitter );
+    void initAfterRead() override;
 
 private:
     void updateNameField();
 
     void updatePolygonFromTargets();
-    void updateTargetsFromPolygon();
+    void connectSignals();
 
 private:
     caf::PdmPtrField<RimPolygon*> m_polygon;

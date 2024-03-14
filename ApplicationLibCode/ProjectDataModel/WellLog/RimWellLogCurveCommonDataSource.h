@@ -24,7 +24,6 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
-#include "cafPdmUiOrdering.h"
 #include "cafTristate.h"
 
 #include <QDateTime>

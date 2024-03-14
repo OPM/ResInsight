@@ -42,9 +42,7 @@
 #include "cafPdmUiObjectHandle.h"
 
 #include <QAbstractScrollArea>
-#include <QLabel>
 #include <QMenu>
-#include <QVariant>
 
 namespace caf
 {
@@ -140,6 +138,30 @@ void PdmUiFieldEditorHandle::createWidgets( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QWidget* PdmUiFieldEditorHandle::combinedWidget()
+{
+    return m_combinedWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QWidget* PdmUiFieldEditorHandle::editorWidget()
+{
+    return m_editorWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QWidget* PdmUiFieldEditorHandle::labelWidget()
+{
+    return m_labelWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QMargins PdmUiFieldEditorHandle::labelContentMargins() const
 {
     return calculateLabelContentMargins();
@@ -151,6 +173,30 @@ QMargins PdmUiFieldEditorHandle::labelContentMargins() const
 int PdmUiFieldEditorHandle::rowStretchFactor() const
 {
     return isMultiRowEditor() ? 1 : 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QWidget* PdmUiFieldEditorHandle::createCombinedWidget( QWidget* parent )
+{
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QWidget* PdmUiFieldEditorHandle::createEditorWidget( QWidget* parent )
+{
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QWidget* PdmUiFieldEditorHandle::createLabelWidget( QWidget* parent )
+{
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

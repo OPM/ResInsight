@@ -17,7 +17,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimPolygonFile.h"
+
+#include "RiaLogging.h"
+
+#include "RifPolygonReader.h"
+
 #include "RimPolygon.h"
+
+#include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiTreeAttributes.h"
+
+#include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RimPolygonFile, "RimPolygonFileFile" );
 
@@ -25,6 +35,7 @@ CAF_PDM_SOURCE_INIT( RimPolygonFile, "RimPolygonFileFile" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimPolygonFile::RimPolygonFile()
+    : objectChanged( this )
 {
     CAF_PDM_InitObject( "PolygonFile", ":/PolylinesFromFile16x16.png" );
 
@@ -37,9 +48,45 @@ RimPolygonFile::RimPolygonFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonFile::setFileName( const QString& fileName )
+{
+    m_fileName = fileName;
+
+    updateName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonFile::loadData()
 {
-    loadPolygonsFromFile();
+    auto polygonsFromFile = importDataFromFile( m_fileName().path() );
+
+    if ( m_polygons.size() == polygonsFromFile.size() )
+    {
+        for ( size_t i = 0; i < m_polygons.size(); i++ )
+        {
+            auto projectPoly = m_polygons()[i];
+            auto filePoly    = polygonsFromFile[i];
+            projectPoly->setPointsInDomainCoords( filePoly->pointsInDomainCoords() );
+            delete filePoly;
+        }
+    }
+    else
+    {
+        m_polygons.deleteChildren();
+
+        m_polygons.setValue( polygonsFromFile );
+    }
+
+    if ( polygonsFromFile.empty() )
+    {
+        RiaLogging::warning( "No polygons found in file: " + m_fileName().path() );
+    }
+    else
+    {
+        RiaLogging::info( QString( "Imported %1 polygons from file: " ).arg( polygonsFromFile.size() ) + m_fileName().path() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,8 +100,33 @@ std::vector<RimPolygon*> RimPolygonFile::polygons() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimPolygonFile::name() const
+{
+    QString nameCandidate = RimNamedObject::name();
+
+    if ( !nameCandidate.isEmpty() )
+    {
+        return nameCandidate;
+    }
+
+    auto fileName = m_fileName().path();
+    if ( fileName.isEmpty() )
+    {
+        return "Polygon File";
+    }
+
+    QFileInfo fileInfo( fileName );
+    return fileInfo.fileName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonFile::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( nameField() );
+    uiOrdering.add( &m_fileName );
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,21 +134,71 @@ void RimPolygonFile::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFile::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    loadPolygonsFromFile();
+    if ( changedField == &m_fileName )
+    {
+        updateName();
+
+        m_polygons.deleteChildren();
+        loadData();
+    }
+
+    objectChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonFile::loadPolygonsFromFile()
+std::vector<RimPolygon*> RimPolygonFile::importDataFromFile( const QString& fileName )
 {
-    // m_polygons()->deletePolygons();
+    QString errorMessages;
+    auto    filePolygons = RifPolygonReader::parsePolygonFile( fileName, &errorMessages );
 
-    auto polygon = new RimPolygon();
-    polygon->setName( "Polygon 1" );
-    m_polygons.push_back( polygon );
+    std::vector<RimPolygon*> polygons;
 
-    polygon = new RimPolygon();
-    polygon->setName( "Polygon 2" );
-    m_polygons.push_back( polygon );
+    for ( const auto& [polygonId, filePolygon] : filePolygons )
+    {
+        auto polygon = new RimPolygon();
+        polygon->disableStorageOfPolygonPoints();
+        polygon->setReadOnly( true );
+
+        int id = ( polygonId != -1 ) ? polygonId : static_cast<int>( polygons.size() + 1 );
+        polygon->setName( QString( "Polygon %1" ).arg( id ) );
+        polygon->setPointsInDomainCoords( filePolygon );
+        polygons.push_back( polygon );
+    }
+
+    if ( !errorMessages.isEmpty() )
+    {
+        RiaLogging::error( errorMessages );
+    }
+
+    return polygons;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonFile::updateName()
+{
+    QFileInfo fileInfo( m_fileName().path() );
+    setName( fileInfo.fileName() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonFile::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicReloadPolygonFileFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonFile::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( m_polygons.empty() )
+    {
+        caf::PdmUiTreeViewItemAttribute::appendTagToTreeViewItemAttribute( attribute, ":/warning.svg" );
+    }
 }

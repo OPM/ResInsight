@@ -144,16 +144,22 @@ bool caf::CadNavigation::handleInputEvent( QInputEvent* inputEvent )
             {
                 QWheelEvent* we = static_cast<QWheelEvent*>( inputEvent );
 
-                updatePointOfInterestDuringZoomIfNecessary( we->x(), we->y() );
+#if ( QT_VERSION < QT_VERSION_CHECK( 5, 15, 0 ) )
+                QPoint cursorPosition = we->pos();
+#else
+                QPoint cursorPosition = we->position().toPoint();
+#endif
+
+                updatePointOfInterestDuringZoomIfNecessary( cursorPosition.x(), cursorPosition.y() );
 
                 if ( m_isRotCenterInitialized )
                 {
                     int translatedMousePosX, translatedMousePosY;
-                    cvfEventPos( we->x(), we->y(), &translatedMousePosX, &translatedMousePosY );
+                    cvfEventPos( cursorPosition.x(), cursorPosition.y(), &translatedMousePosX, &translatedMousePosY );
 
                     cvf::ref<cvf::Ray> ray = createZoomRay( translatedMousePosX, translatedMousePosY );
 
-                    zoomAlongRay( ray.p(), -we->delta() );
+                    zoomAlongRay( ray.p(), -we->angleDelta().y() );
                 }
                 isEventHandled = true;
             }

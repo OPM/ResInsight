@@ -24,6 +24,7 @@
 #include "RimCellIndexFilter.h"
 #include "RimCellRangeFilter.h"
 #include "RimPolygonFilter.h"
+#include "RimProject.h"
 #include "RimUserDefinedFilter.h"
 #include "RimUserDefinedIndexFilter.h"
 #include "RimViewController.h"
@@ -32,7 +33,20 @@
 #include "cafPdmFieldReorderCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiLabelEditor.h"
+
 #include "cvfStructGridGeometryGenerator.h"
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RimCellFilterCollection::CombineFilterModeType>::setUp()
+{
+    addItem( RimCellFilterCollection::AND, "AND", "AND" );
+    addItem( RimCellFilterCollection::OR, "OR", "OR" );
+    setDefault( RimCellFilterCollection::AND );
+}
+} // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimCellFilterCollection, "CellFilterCollection", "RimCellFilterCollection", "CellRangeFilterCollection" );
 
@@ -46,6 +60,12 @@ RimCellFilterCollection::RimCellFilterCollection()
 
     CAF_PDM_InitScriptableField( &m_isActive, "Active", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_combineFilterMode, "CombineFilterMode", "" );
+
+    CAF_PDM_InitField( &m_combineModeLabel, "CombineModeLabel", QString( "" ), "Combine Polygon and Range Filters Using Operation" );
+    m_combineModeLabel.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
+    m_combineModeLabel.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_cellFilters, "CellFilters", "Filters" );
     caf::PdmFieldReorderCapability::addToField( &m_cellFilters );
@@ -90,6 +110,14 @@ void RimCellFilterCollection::setActive( bool bActive )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimCellFilterCollection::useAndOperation() const
+{
+    return m_combineFilterMode() == RimCellFilterCollection::AND;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCellFilterCollection::setCase( RimCase* theCase )
 {
     for ( RimCellFilter* filter : m_cellFilters )
@@ -122,6 +150,12 @@ void RimCellFilterCollection::initAfterRead()
     {
         m_rangeFilters_OBSOLETE.removeChild( filter );
         m_cellFilters.push_back( filter );
+    }
+
+    // fallback to OR mode for older projects made without AND support
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.12.0" ) )
+    {
+        m_combineFilterMode = RimCellFilterCollection::OR;
     }
 
     // Copy by xml serialization does not give a RimCase parent the first time initAfterRead is called here when creating a new a contour
@@ -164,6 +198,17 @@ caf::PdmFieldHandle* RimCellFilterCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_combineModeLabel );
+    uiOrdering.add( &m_combineFilterMode );
+
+    uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCellFilterCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
     PdmObject::defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
@@ -180,6 +225,18 @@ void RimCellFilterCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTr
     }
 
     updateIconState();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    caf::PdmUiLabelEditorAttribute* myAttr = dynamic_cast<caf::PdmUiLabelEditorAttribute*>( attribute );
+    if ( myAttr )
+    {
+        myAttr->m_useSingleWidgetInsteadOfLabelAndEditorWidget = true;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

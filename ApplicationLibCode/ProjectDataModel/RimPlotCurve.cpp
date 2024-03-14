@@ -1162,7 +1162,7 @@ void RimPlotCurve::setParentPlotNoReplot( RiuPlotWidget* plotWidget )
     }
 
     auto color  = RiaColorTools::toQColor( m_curveAppearance->color() );
-    m_plotCurve = m_parentPlot->createPlotCurve( this, "" );
+    m_plotCurve = m_parentPlot->createPlotCurve( this, m_curveName );
     m_plotCurve->updateErrorBarsAppearance( m_showErrorBars, color );
 
     // PERFORMANCE NOTE
@@ -1262,19 +1262,10 @@ void RimPlotCurve::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUi
     if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
     {
         treeItemAttribute->tags.clear();
-        auto tag = caf::PdmUiTreeViewItemAttribute::createTag();
 
-        // Blend with background for a nice look
-        auto   backgroundColor  = RiuGuiTheme::getColorByVariableName( "backgroundColor1" );
-        auto   color            = RiaColorTools::toQColor( m_curveAppearance->color() );
-        auto   sourceWeight     = 100;
-        double transparency     = 0.3;
-        int    backgroundWeight = std::max( 1, static_cast<int>( sourceWeight * 10 * transparency ) );
-        auto   blendedColor     = RiaColorTools::blendQColors( backgroundColor, color, backgroundWeight, sourceWeight );
-
-        tag->bgColor = blendedColor;
-        tag->fgColor = RiaColorTools::toQColor( m_curveAppearance->color() );
-        tag->text    = "---";
+        auto tag = caf::PdmUiTreeViewItemAttribute::createTag( RiaColorTools::toQColor( m_curveAppearance->color() ),
+                                                               RiuGuiTheme::getColorByVariableName( "backgroundColor1" ),
+                                                               "---" );
 
         tag->clicked.connect( this, &RimPlotCurve::onColorTagClicked );
 

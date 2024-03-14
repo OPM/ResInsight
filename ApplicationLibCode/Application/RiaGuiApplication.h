@@ -21,11 +21,6 @@
 #include "RiaApplication.h"
 #include "RiaDefines.h"
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-
-#include "cvfObject.h"
-
 #include <QApplication>
 #include <QMutex>
 #include <QPointer>

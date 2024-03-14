@@ -46,7 +46,7 @@ RiaGrpcConsoleApplication::RiaGrpcConsoleApplication( int& argc, char** argv )
 {
     m_idleTimer = new QTimer( this );
     connect( m_idleTimer, SIGNAL( timeout() ), this, SLOT( doIdleProcessing() ) );
-    m_idleTimer->start( 0 );
+    m_idleTimer->start( 5 );
 }
 
 //--------------------------------------------------------------------------------------------------

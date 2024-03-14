@@ -142,6 +142,15 @@ std::pair<cvf::Vec3d, cvf::Vec3d> RigFaultReactivationModel::modelLocalNormalsXY
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Vec3d RigFaultReactivationModel::transformPointIfNeeded( const cvf::Vec3d point ) const
+{
+    if ( m_generator.get() == nullptr ) return point;
+    return m_generator->transformPointIfNeeded( point );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigFaultReactivationModel::updateGeometry( size_t startCell, cvf::StructGridInterface::FaceType startFace )
 {
     reset();
@@ -261,6 +270,7 @@ void RigFaultReactivationModel::postProcessElementSets( const RimEclipseCase* eC
 
     for ( auto part : allGridParts() )
     {
-        m_3dparts[part]->postProcessElementSets( eCase->mainGrid(), cellInfo );
+        auto gridPart = m_3dparts[part];
+        gridPart->postProcessElementSets( eCase->mainGrid(), cellInfo );
     }
 }

@@ -25,7 +25,10 @@
 #include "RimFaultReactivationEnums.h"
 
 #include "cvfBoundingBox.h"
+#include "cvfPlane.h"
 #include "cvfTextureImage.h"
+
+#include "cafLine.h"
 
 #include <cmath>
 #include <map>
@@ -163,21 +166,6 @@ std::vector<double> RigGriddedPart3d::generateGrowingLayers( double zFrom, doubl
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RigGriddedPart3d::extractZValues( std::vector<cvf::Vec3d> points )
-{
-    std::vector<double> layers;
-
-    for ( auto& p : points )
-    {
-        layers.push_back( p.z() );
-    }
-
-    return layers;
-}
-
-//--------------------------------------------------------------------------------------------------
 ///  Point index in input
 ///
 ///
@@ -199,15 +187,15 @@ std::vector<double> RigGriddedPart3d::extractZValues( std::vector<cvf::Vec3d> po
 /// Assumes horizontal lines are parallel
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& inputPoints,
-                                         const std::vector<cvf::Vec3d>&    reservoirLayers,
-                                         const double                      maxCellHeight,
-                                         double                            cellSizeFactor,
-                                         const std::vector<double>&        horizontalPartition,
-                                         double                            modelThickness,
-                                         double                            topHeight,
-                                         cvf::Vec3d                        thicknessDirection,
-                                         int                               nFaultZoneCells )
+void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>&    inputPoints,
+                                         const std::vector<double>&           reservoirZ,
+                                         double                               maxCellHeight,
+                                         double                               cellSizeFactor,
+                                         const std::vector<double>&           horizontalPartition,
+                                         const std::vector<caf::Line<double>> faultLines,
+                                         const std::vector<cvf::Vec3d>&       thicknessVectors,
+                                         double                               topHeight,
+                                         int                                  nFaultZoneCells )
 {
     reset();
 
@@ -217,16 +205,18 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
 
     layersPerRegion[Regions::LowerUnderburden] = generateGrowingLayers( inputPoints[1].z(), inputPoints[0].z(), maxCellHeight, cellSizeFactor );
     layersPerRegion[Regions::UpperUnderburden] = generateConstantLayers( inputPoints[1].z(), inputPoints[2].z(), maxCellHeight );
-    layersPerRegion[Regions::Reservoir]        = extractZValues( reservoirLayers );
-    layersPerRegion[Regions::LowerOverburden]  = generateConstantLayers( inputPoints[3].z(), inputPoints[4].z(), maxCellHeight );
+    layersPerRegion[Regions::Reservoir]        = reservoirZ;
+
+    layersPerRegion[Regions::LowerOverburden] = generateConstantLayers( inputPoints[3].z(), inputPoints[4].z(), maxCellHeight );
     layersPerRegion[Regions::UpperOverburden] = generateGrowingLayers( inputPoints[4].z(), inputPoints[5].z(), maxCellHeight, cellSizeFactor );
 
     layersPerRegion[Regions::LowerUnderburden].pop_back(); // to avoid overlap with bottom of next region
     layersPerRegion[Regions::Reservoir].pop_back(); // to avoid overlap with bottom of next region
 
-    m_boundaryNodes[Boundary::Bottom]  = {};
-    m_boundaryNodes[Boundary::FarSide] = {};
-    m_boundaryNodes[Boundary::Fault]   = {};
+    m_boundaryNodes[Boundary::Bottom]    = {};
+    m_boundaryNodes[Boundary::FarSide]   = {};
+    m_boundaryNodes[Boundary::Fault]     = {};
+    m_boundaryNodes[Boundary::Reservoir] = {};
 
     size_t       nVertCells = 0;
     const size_t nHorzCells = horizontalPartition.size() - 1;
@@ -236,9 +226,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
         nVertCells += layersPerRegion[region].size();
     }
 
-    const std::vector<double> thicknessFactors = { -1.0, 0.0, 1.0 };
-    const int                 nThicknessCells  = 2;
-    cvf::Vec3d                tVec             = modelThickness * thicknessDirection;
+    const int nThicknessCells = 2;
 
     size_t reserveSize = ( nVertCells + 1 ) * ( nHorzCells + 1 ) * ( nThicknessCells + 1 );
     m_nodes.reserve( reserveSize );
@@ -302,8 +290,10 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
             }
             else if ( region == Regions::Reservoir )
             {
-                toPos       = reservoirLayers[v];
-                fromPos.z() = toPos.z();
+                fromPos.z() = reservoirZ[v];
+                cvf::Plane zPlane;
+                zPlane.setFromPointAndNormal( fromPos, cvf::Vec3d::Z_AXIS );
+                zPlane.intersect( faultLines[1].start(), faultLines[1].end(), &toPos );
             }
 
             cvf::Vec3d stepHorz = toPos - fromPos;
@@ -320,8 +310,20 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
 
                 for ( int t = 0; t <= nThicknessCells; t++, nodeIndex++ )
                 {
-                    m_nodes.push_back( p + thicknessFactors[t] * tVec );
+                    auto nodePoint = p + thicknessVectors[t];
 
+                    // adjust points along the fault line inside the reservoir to make sure they end up at the fault
+                    if ( ( h == (int)nHorzCells ) &&
+                         ( ( region == Regions::Reservoir ) || region == Regions::LowerOverburden || region == Regions::UpperUnderburden ) )
+                    {
+                        cvf::Plane zPlane;
+                        zPlane.setFromPointAndNormal( p, cvf::Vec3d::Z_AXIS );
+                        zPlane.intersect( faultLines[t].start(), faultLines[t].end(), &nodePoint );
+                    }
+
+                    m_nodes.push_back( nodePoint );
+
+                    // move nodes at fault used for data extraction a bit away from the fault
                     if ( h == (int)nHorzCells )
                     {
                         m_dataNodes.push_back( p + safetyOffset );
@@ -342,6 +344,11 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
                     else if ( h == (int)nHorzCells )
                     {
                         m_boundaryNodes[Boundary::Fault].push_back( nodeIndex );
+
+                        if ( region == Regions::Reservoir )
+                        {
+                            m_boundaryNodes[Boundary::Reservoir].push_back( nodeIndex );
+                        }
                     }
                 }
             }
@@ -658,6 +665,25 @@ void RigGriddedPart3d::generateLocalNodes( const cvf::Mat4d transform )
     {
         auto tn = node.getTransformedPoint( transform );
         m_localNodes.push_back( tn.getTransformedPoint( flipY ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGriddedPart3d::shiftNodes( const cvf::Vec3d offset )
+{
+    for ( int i = 0; i < (int)m_nodes.size(); i++ )
+    {
+        m_nodes[i] += offset;
+    }
+
+    for ( int i = 0; i < (int)m_meshLines.size(); i++ )
+    {
+        for ( int j = 0; j < (int)m_meshLines[i].size(); j++ )
+        {
+            m_meshLines[i][j] += offset;
+        }
     }
 }
 

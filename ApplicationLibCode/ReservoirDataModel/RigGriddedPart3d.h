@@ -24,6 +24,8 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
+#include "cafLine.h"
+
 #include <array>
 #include <map>
 #include <set>
@@ -47,16 +49,17 @@ public:
 
     void reset();
 
-    void generateGeometry( const std::array<cvf::Vec3d, 12>& inputPoints,
-                           const std::vector<cvf::Vec3d>&    reservoirLayers,
-                           double                            maxCellHeight,
-                           double                            cellSizeFactor,
-                           const std::vector<double>&        horizontalPartition,
-                           double                            modelThickness,
-                           double                            topHeight,
-                           cvf::Vec3d                        thicknessDirection,
-                           int                               nFaultZoneCells );
+    void generateGeometry( const std::array<cvf::Vec3d, 12>&    inputPoints,
+                           const std::vector<double>&           reservoirZ,
+                           double                               maxCellHeight,
+                           double                               cellSizeFactor,
+                           const std::vector<double>&           horizontalPartition,
+                           const std::vector<caf::Line<double>> faultLines,
+                           const std::vector<cvf::Vec3d>&       thicknessVectors,
+                           double                               topHeight,
+                           int                                  nFaultZoneCells );
 
+    void shiftNodes( const cvf::Vec3d offset );
     void generateLocalNodes( const cvf::Mat4d transform );
     void setUseLocalCoordinates( bool useLocalCoordinates );
 
@@ -87,7 +90,6 @@ protected:
     static cvf::Vec3d          stepVector( cvf::Vec3d start, cvf::Vec3d stop, int nSteps );
     static std::vector<double> generateConstantLayers( double zFrom, double zTo, double maxSize );
     static std::vector<double> generateGrowingLayers( double zFrom, double zTo, double maxSize, double growfactor );
-    static std::vector<double> extractZValues( std::vector<cvf::Vec3d> );
 
     void generateVerticalMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, const std::vector<double>& horzPartition );
 

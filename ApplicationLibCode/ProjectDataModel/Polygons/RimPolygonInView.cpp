@@ -18,6 +18,8 @@
 
 #include "RimPolygonInView.h"
 
+#include "RiaColorTools.h"
+
 #include "RigPolyLinesData.h"
 
 #include "Rim3dView.h"
@@ -70,6 +72,7 @@ RimPolygonInView::RimPolygonInView()
     m_targets.uiCapability()->setUiTreeChildrenHidden( true );
     m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_targets.uiCapability()->setCustomContextMenuEnabled( true );
+    m_targets.xmlCapability()->disableIO();
 
     setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
 }
@@ -88,6 +91,8 @@ RimPolygon* RimPolygonInView::polygon() const
 void RimPolygonInView::setPolygon( RimPolygon* polygon )
 {
     m_polygon = polygon;
+
+    connectSignals();
 
     updateTargetsFromPolygon();
 }
@@ -234,6 +239,18 @@ void RimPolygonInView::updatePolygonFromTargets()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonInView::connectSignals()
+{
+    if ( m_polygon )
+    {
+        m_polygon->objectChanged.connect( this, &RimPolygonInView::onObjectChanged );
+        m_polygon->coordinatesChanged.connect( this, &RimPolygonInView::onCoordinatesChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonInView::updateTargetsFromPolygon()
 {
     if ( m_polygon )
@@ -322,9 +339,23 @@ void RimPolygonInView::defineObjectEditorAttribute( QString uiConfigName, caf::P
         attrib->enablePicking    = m_enablePicking;
     }
 
-    if ( m_polygon() && m_polygon->isReadOnly() )
+    if ( m_polygon() )
     {
-        caf::PdmUiTreeViewItemAttribute::createTagIfTreeViewItemAttribute( attribute, ":/padlock.svg" );
+        if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+        {
+            auto tag = caf::PdmUiTreeViewItemAttribute::createTag( RiaColorTools::toQColor( m_polygon->color() ),
+                                                                   RiuGuiTheme::getColorByVariableName( "backgroundColor1" ),
+                                                                   "---" );
+
+            tag->clicked.connect( m_polygon(), &RimPolygon::onColorTagClicked );
+
+            treeItemAttribute->tags.push_back( std::move( tag ) );
+        }
+
+        if ( m_polygon->isReadOnly() )
+        {
+            caf::PdmUiTreeViewItemAttribute::appendTagToTreeViewItemAttribute( attribute, ":/padlock.svg" );
+        }
     }
 }
 
@@ -344,6 +375,33 @@ void RimPolygonInView::uiOrderingForLocalPolygon( QString uiConfigName, caf::Pdm
 void RimPolygonInView::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     if ( m_polygon() ) m_polygon->appendMenuItems( menuBuilder );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInView::onObjectChanged( const caf::SignalEmitter* emitter )
+{
+    updateVisualization();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInView::onCoordinatesChanged( const caf::SignalEmitter* emitter )
+{
+    updateTargetsFromPolygon();
+
+    updateConnectedEditors();
+    updateVisualization();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInView::initAfterRead()
+{
+    connectSignals();
 }
 
 //--------------------------------------------------------------------------------------------------

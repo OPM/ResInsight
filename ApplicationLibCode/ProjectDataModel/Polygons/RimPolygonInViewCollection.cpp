@@ -21,6 +21,7 @@
 #include "Rim3dView.h"
 #include "RimPolygon.h"
 #include "RimPolygonCollection.h"
+#include "RimPolygonFile.h"
 #include "RimPolygonInView.h"
 #include "RimTools.h"
 
@@ -31,45 +32,208 @@ CAF_PDM_SOURCE_INIT( RimPolygonInViewCollection, "RimPolygonInViewCollection" );
 //--------------------------------------------------------------------------------------------------
 RimPolygonInViewCollection::RimPolygonInViewCollection()
 {
-    CAF_PDM_InitObject( "Polygons (Under construction)", ":/PolylinesFromFile16x16.png" );
+    CAF_PDM_InitObject( "Polygons", ":/PolylinesFromFile16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_polygons, "Polygons", "Polygons" );
+    CAF_PDM_InitFieldNoDefault( &m_polygonsInView, "Polygons", "Polygons" );
+    CAF_PDM_InitFieldNoDefault( &m_collectionsInView, "Collections", "Collections" );
+
+    nameField()->uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonInViewCollection::syncPolygonsInView()
+void RimPolygonInViewCollection::updateFromPolygonCollection()
 {
-    std::vector<RimPolygonInView*> existingPolygonsInView = m_polygons.childrenByType();
-    m_polygons.clearWithoutDelete();
+    updateAllViewItems();
+}
 
-    auto polygonCollection = RimTools::polygonCollection();
-    if ( polygonCollection )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolygonInView*> RimPolygonInViewCollection::visiblePolygonsInView() const
+{
+    if ( !m_isChecked ) return {};
+
+    std::vector<RimPolygonInView*> polys = m_polygonsInView.childrenByType();
+
+    for ( auto coll : m_collectionsInView )
     {
-        std::vector<RimPolygonInView*> newPolygonsInView;
+        if ( !coll->isChecked() ) continue;
 
-        for ( auto polygon : polygonCollection->allPolygons() )
+        auto other = coll->visiblePolygonsInView();
+        polys.insert( polys.end(), other.begin(), other.end() );
+    }
+
+    return polys;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolygonInView*> RimPolygonInViewCollection::allPolygonsInView() const
+{
+    std::vector<RimPolygonInView*> polys = m_polygonsInView.childrenByType();
+
+    for ( auto coll : m_collectionsInView )
+    {
+        auto other = coll->visiblePolygonsInView();
+        polys.insert( polys.end(), other.begin(), other.end() );
+    }
+
+    return polys;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInViewCollection::setPolygonFile( RimPolygonFile* polygonFile )
+{
+    m_polygonFile = polygonFile;
+
+    updateName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPolygonFile* RimPolygonInViewCollection::polygonFile() const
+{
+    return m_polygonFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    RimCheckableNamedObject::fieldChangedByUi( changedField, oldValue, newValue );
+
+    if ( changedField == &m_isChecked )
+    {
+        for ( auto poly : visiblePolygonsInView() )
         {
-            auto it = std::find_if( existingPolygonsInView.begin(),
-                                    existingPolygonsInView.end(),
-                                    [polygon]( auto* polygonInView ) { return polygonInView->polygon() == polygon; } );
+            poly->updateConnectedEditors();
+        }
 
-            if ( it != existingPolygonsInView.end() )
+        if ( auto view = firstAncestorOfType<Rim3dView>() )
+        {
+            view->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInViewCollection::updateAllViewItems()
+{
+    // Based on the same concept as RimSurfaceInViewCollection
+
+    syncCollectionsWithView();
+    syncPolygonsWithView();
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInViewCollection::syncCollectionsWithView()
+{
+    // Based on the same concept as RimSurfaceInViewCollection
+
+    auto colls = m_collectionsInView.childrenByType();
+
+    for ( auto coll : colls )
+    {
+        if ( !coll->polygonFile() )
+        {
+            m_collectionsInView.removeChild( coll );
+            delete coll;
+        }
+    }
+
+    if ( !m_polygonFile )
+    {
+        std::vector<RimPolygonInViewCollection*> orderedColls;
+
+        if ( auto polygonCollection = RimTools::polygonCollection() )
+        {
+            std::vector<RimPolygonInView*> newPolygonsInView;
+
+            for ( auto polygonFile : polygonCollection->polygonFiles() )
             {
-                newPolygonsInView.push_back( *it );
-                existingPolygonsInView.erase( it );
-            }
-            else
-            {
-                auto polygonInView = new RimPolygonInView();
-                polygonInView->setPolygon( polygon );
-                newPolygonsInView.push_back( polygonInView );
+                if ( polygonFile->polygons().empty() ) continue;
+
+                auto viewPolygonFile = getCollectionInViewForPolygonFile( polygonFile );
+                if ( viewPolygonFile == nullptr )
+                {
+                    auto newColl = new RimPolygonInViewCollection();
+                    newColl->setPolygonFile( polygonFile );
+                    orderedColls.push_back( newColl );
+                }
+                else
+                {
+                    viewPolygonFile->updateName();
+                    orderedColls.push_back( viewPolygonFile );
+                }
             }
         }
 
-        m_polygons.setValue( newPolygonsInView );
+        m_collectionsInView.clearWithoutDelete();
+        for ( auto viewColl : orderedColls )
+        {
+            m_collectionsInView.push_back( viewColl );
+            viewColl->updateAllViewItems();
+        }
     }
+
+    updateName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInViewCollection::syncPolygonsWithView()
+{
+    std::vector<RimPolygonInView*> existingPolygonsInView = m_polygonsInView.childrenByType();
+    m_polygonsInView.clearWithoutDelete();
+
+    std::vector<RimPolygon*> polygons;
+
+    if ( m_polygonFile )
+    {
+        polygons = m_polygonFile->polygons();
+    }
+    else
+    {
+        auto polygonCollection = RimTools::polygonCollection();
+        polygons               = polygonCollection->userDefinedPolygons();
+    }
+
+    std::vector<RimPolygonInView*> newPolygonsInView;
+
+    for ( auto polygon : polygons )
+    {
+        auto it = std::find_if( existingPolygonsInView.begin(),
+                                existingPolygonsInView.end(),
+                                [polygon]( auto* polygonInView ) { return polygonInView->polygon() == polygon; } );
+
+        if ( it != existingPolygonsInView.end() )
+        {
+            newPolygonsInView.push_back( *it );
+            existingPolygonsInView.erase( it );
+            ( *it )->updateTargetsFromPolygon();
+        }
+        else
+        {
+            auto polygonInView = new RimPolygonInView();
+            polygonInView->setPolygon( polygon );
+            newPolygonsInView.push_back( polygonInView );
+        }
+    }
+
+    m_polygonsInView.setValue( newPolygonsInView );
 
     for ( auto polyInView : existingPolygonsInView )
     {
@@ -80,28 +244,30 @@ void RimPolygonInViewCollection::syncPolygonsInView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPolygonInView*> RimPolygonInViewCollection::polygonsInView() const
+void RimPolygonInViewCollection::updateName()
 {
-    return m_polygons.childrenByType();
+    QString name = "Polygons";
+
+    if ( m_polygonFile )
+    {
+        name = m_polygonFile->name();
+    }
+
+    setName( name );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+RimPolygonInViewCollection* RimPolygonInViewCollection::getCollectionInViewForPolygonFile( const RimPolygonFile* polygonFile ) const
 {
-    RimCheckableObject::fieldChangedByUi( changedField, oldValue, newValue );
-
-    if ( changedField == &m_isChecked )
+    for ( auto collInView : m_collectionsInView )
     {
-        for ( auto poly : polygonsInView() )
+        if ( collInView->polygonFile() == polygonFile )
         {
-            poly->updateConnectedEditors();
-        }
-
-        if ( auto view = firstAncestorOfType<Rim3dView>() )
-        {
-            view->scheduleCreateDisplayModelAndRedraw();
+            return collInView;
         }
     }
+
+    return nullptr;
 }

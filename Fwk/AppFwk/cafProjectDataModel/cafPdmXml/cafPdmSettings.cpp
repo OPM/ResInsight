@@ -35,9 +35,11 @@
 //##################################################################################################
 
 #include "cafPdmSettings.h"
-
-#include "cafPdmField.h"
+#include "cafPdmObjectHandle.h"
+#include "cafPdmValueField.h"
 #include "cafPdmXmlObjectHandle.h"
+
+#include <QSettings>
 
 namespace caf
 {

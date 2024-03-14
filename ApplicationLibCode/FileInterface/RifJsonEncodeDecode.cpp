@@ -65,7 +65,7 @@ bool JsonWriter::encodeFile( QString filePath, QMap<QString, QVariant> map )
 {
     QFile file;
     file.setFileName( filePath );
-    if ( file.open( QIODevice::ReadWrite | QIODevice::Text ) )
+    if ( file.open( QIODevice::ReadWrite | QIODevice::Text | QIODevice::Truncate ) )
     {
         QString     content = Json::encode( map, true );
         QTextStream out( &file );

@@ -21,6 +21,8 @@
 #include "RiaGuiApplication.h"
 #include "RiuPlotMainWindow.h"
 
+#include "cafPdmObject.h"
+
 #include <QMouseEvent>
 
 //--------------------------------------------------------------------------------------------------

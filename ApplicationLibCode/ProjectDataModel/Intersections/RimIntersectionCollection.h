@@ -68,7 +68,6 @@ public:
 
     void syncronize2dIntersectionViews();
     void scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
-    void recomputeSimWellBranchData();
 
     bool shouldApplyCellFiltersToIntersections() const;
 
