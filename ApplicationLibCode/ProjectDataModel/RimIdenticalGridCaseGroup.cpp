@@ -429,6 +429,13 @@ RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createStatisticsCase( bool 
 
     if ( selectDefaultResults ) newStatisticsCase->populateResultSelectionAfterLoadingGrid();
 
+    auto reservoirs = caseCollection->reservoirs().childrenByType();
+    if ( !reservoirs.empty() )
+    {
+        auto caseDescription = reservoirs.front()->caseUserDescription();
+        newStatisticsCase->setWellDataSourceCase( caseDescription );
+    }
+
     newStatisticsCase->openEclipseGridFile();
     newStatisticsCase->computeActiveCellsBoundingBox();
     newStatisticsCase->selectAllTimeSteps();

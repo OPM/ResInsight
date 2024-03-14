@@ -132,8 +132,6 @@ private:
 
     bool isWellPathWithinBoundingBox( const cvf::BoundingBox& wellPathClipBoundingBox ) const;
 
-    static cvf::Color3f mapWellMeasurementToColor( const QString& measurementKind, double value );
-
     bool isWellPathEnabled( const cvf::BoundingBox& wellPathClipBoundingBox ) const;
 
 private:
