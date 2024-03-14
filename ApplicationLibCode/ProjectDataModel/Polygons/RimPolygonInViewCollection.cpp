@@ -222,8 +222,8 @@ void RimPolygonInViewCollection::syncPolygonsWithView()
         if ( it != existingPolygonsInView.end() )
         {
             newPolygonsInView.push_back( *it );
-            existingPolygonsInView.erase( it );
             ( *it )->updateTargetsFromPolygon();
+            existingPolygonsInView.erase( it );
         }
         else
         {
