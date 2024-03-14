@@ -174,6 +174,13 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
         return status;
     }
 
+    // Validate requested polyline
+    auto& fencePolyline = request->fencepolylineutmxy();
+    if ( fencePolyline.size() < 2 )
+    {
+        return grpc::Status( grpc::StatusCode::INVALID_ARGUMENT, "Invalid fence polyline - require two or more points" );
+    }
+
     // Get eclipse view, show inactive cells and ensure static geometry parts created for grid part manager in view
     auto* eclipseView = dynamic_cast<RimEclipseView*>( m_eclipseCase->views().front() );
     if ( eclipseView == nullptr )
@@ -182,12 +189,6 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
     }
     eclipseView->setShowInactiveCells( true );
     eclipseView->createGridGeometryParts();
-
-    auto& fencePolyline = request->fencepolylineutmxy();
-    if ( fencePolyline.size() < 2 )
-    {
-        return grpc::Status( grpc::StatusCode::INVALID_ARGUMENT, "Invalid fence polyline" );
-    }
 
     // Convert polyline to vector of cvf::Vec3d
     std::vector<cvf::Vec2d> polylineUtmXy;
@@ -210,16 +211,6 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
     const int       firstTimeStep = 0;
     cvf::UByteArray visibleCells  = cvf::UByteArray( m_eclipseCase->mainGrid()->cellCount() );
     eclipseView->calculateCurrentTotalCellVisibility( &visibleCells, firstTimeStep );
-
-    // Loop to count number of visible cells
-    int numVisibleCells = 0;
-    for ( size_t i = 0; i < visibleCells.size(); ++i )
-    {
-        if ( ( visibleCells )[i] != 0 )
-        {
-            ++numVisibleCells;
-        }
-    }
 
     // Generate intersection
     polylineIntersectionGenerator.generateIntersectionGeometry( &visibleCells );
