@@ -64,16 +64,17 @@ public:
 
 private:
     void resetInternalPointers();
+    void tearDownExistingViewsInEclipseCase();
 
     grpc::Status loadGridGeometryFromAbsoluteFilePath( const std::string filePath );
-    grpc::Status applyIJKCellFilterToEclipseCase( const rips::IJKIndexFilter& filter );
-    grpc::Status initializeApplicationAndEclipseCaseAndEclipseViewFromAbsoluteFilePath( const std::string filePath );
+    grpc::Status applyIJKCellFilterToEclipseView( const rips::IJKIndexFilter& filter, RimEclipseView* view );
+    grpc::Status initializeApplicationAndEclipseCaseFromAbsoluteFilePath( const std::string filePath );
 
-    grpc::Status initializeGridGeometryGeneratorWithEclipseViewCellVisibility( cvf::StructGridGeometryGenerator& generator );
+    grpc::Status initializeGridGeometryGeneratorWithEclipseViewCellVisibility( cvf::StructGridGeometryGenerator& generator,
+                                                                               RimEclipseView* view );
 
     RiaApplication* m_application = nullptr;
     RimEclipseCase* m_eclipseCase = nullptr;
-    RimEclipseView* m_eclipseView = nullptr;
 
     std::unique_ptr<RigGridCellFaceVisibilityFilter> m_faceVisibilityFilter = nullptr;
 };

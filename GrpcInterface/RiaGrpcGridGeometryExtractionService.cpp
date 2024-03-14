@@ -66,20 +66,24 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
                                                                    const rips::GetGridSurfaceRequest* request,
                                                                    rips::GetGridSurfaceResponse*      response )
 {
-    // Reset all pointers
-    resetInternalPointers();
-
     // Initialize pointers
-    grpc::Status status = initializeApplicationAndEclipseCaseAndEclipseViewFromAbsoluteFilePath( request->gridfilename() );
+    grpc::Status status = initializeApplicationAndEclipseCaseFromAbsoluteFilePath( request->gridfilename() );
     if ( status.error_code() != grpc::StatusCode::OK )
     {
         return status;
     }
 
+    auto* eclipseView = dynamic_cast<RimEclipseView*>( m_eclipseCase->views().front() );
+    if ( eclipseView == nullptr )
+    {
+        return grpc::Status( grpc::StatusCode::NOT_FOUND, "No eclipse view found" );
+    }
+    eclipseView->setShowInactiveCells( true );
+
     // Apply ijk-filtering - assuming 0-indexing from gRPC
     if ( request->has_ijkindexfilter() )
     {
-        status = applyIJKCellFilterToEclipseCase( request->ijkindexfilter() );
+        status = applyIJKCellFilterToEclipseView( request->ijkindexfilter(), eclipseView );
         if ( status.error_code() != grpc::StatusCode::OK )
         {
             return status;
@@ -87,12 +91,12 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
     }
 
     // Ensure static geometry parts created for grid part manager in view
-    m_eclipseView->createGridGeometryParts();
+    eclipseView->createGridGeometryParts();
 
     // Initialize grid geometry generator
     const bool useOpenMP             = false;
-    auto       gridGeometryGenerator = cvf::StructGridGeometryGenerator( m_eclipseView->mainGrid(), useOpenMP );
-    status = initializeGridGeometryGeneratorWithEclipseViewCellVisibility( gridGeometryGenerator );
+    auto       gridGeometryGenerator = cvf::StructGridGeometryGenerator( m_eclipseCase->mainGrid(), useOpenMP );
+    status = initializeGridGeometryGeneratorWithEclipseViewCellVisibility( gridGeometryGenerator, eclipseView );
     if ( status.error_code() != grpc::StatusCode::OK )
     {
         return status;
@@ -117,7 +121,7 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
 
     // Origin in utm is the offset
     rips::Vec3d* modelOffset         = new rips::Vec3d;
-    const auto   mainGridModelOffset = m_eclipseView->mainGrid()->displayModelOffset();
+    const auto   mainGridModelOffset = m_eclipseCase->mainGrid()->displayModelOffset();
     modelOffset->set_x( mainGridModelOffset.x() );
     modelOffset->set_y( mainGridModelOffset.y() );
     modelOffset->set_z( mainGridModelOffset.z() );
@@ -139,21 +143,19 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
     }
 
     // Set grid dimensions
-    const auto   countI     = m_eclipseView->mainGrid()->cellCountI();
-    const auto   countJ     = m_eclipseView->mainGrid()->cellCountJ();
-    const auto   countK     = m_eclipseView->mainGrid()->cellCountK();
+    const auto   countI     = m_eclipseCase->mainGrid()->cellCountI();
+    const auto   countJ     = m_eclipseCase->mainGrid()->cellCountJ();
+    const auto   countK     = m_eclipseCase->mainGrid()->cellCountK();
     rips::Vec3i* dimensions = new rips::Vec3i;
     dimensions->set_i( countI );
     dimensions->set_j( countJ );
     dimensions->set_k( countK );
     response->set_allocated_griddimensions( dimensions );
 
-    // Close project and return
-    if ( m_application != nullptr )
-    {
-        m_application->closeProject();
-    }
-    resetInternalPointers();
+    // Clear existing view
+    tearDownExistingViewsInEclipseCase();
+    eclipseView = nullptr;
+    delete eclipseView;
 
     return grpc::Status::OK;
 }
@@ -165,18 +167,21 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
                                                                      const rips::CutAlongPolylineRequest* request,
                                                                      rips::CutAlongPolylineResponse*      response )
 {
-    // Reset all pointers
-    resetInternalPointers();
-
     // Initialize pointers
-    grpc::Status status = initializeApplicationAndEclipseCaseAndEclipseViewFromAbsoluteFilePath( request->gridfilename() );
+    grpc::Status status = initializeApplicationAndEclipseCaseFromAbsoluteFilePath( request->gridfilename() );
     if ( status.error_code() != grpc::StatusCode::OK )
     {
         return status;
     }
 
-    // Ensure static geometry parts created for grid part manager in view
-    m_eclipseView->createGridGeometryParts();
+    // Get eclipse view, show inactive cells and ensure static geometry parts created for grid part manager in view
+    auto* eclipseView = dynamic_cast<RimEclipseView*>( m_eclipseCase->views().front() );
+    if ( eclipseView == nullptr )
+    {
+        return grpc::Status( grpc::StatusCode::NOT_FOUND, "No eclipse view found" );
+    }
+    eclipseView->setShowInactiveCells( true );
+    eclipseView->createGridGeometryParts();
 
     auto& fencePolyline = request->fencepolylineutmxy();
     if ( fencePolyline.size() < 2 )
@@ -196,15 +201,15 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
     RigActiveCellInfo* activeCellInfo    = nullptr; // No active cell info for grid
     const bool         showInactiveCells = true;
     auto               eclipseIntersectionGrid =
-        RivEclipseIntersectionGrid( m_eclipseView->mainGrid(), activeCellInfo, showInactiveCells );
+        RivEclipseIntersectionGrid( m_eclipseCase->mainGrid(), activeCellInfo, showInactiveCells );
 
     auto polylineIntersectionGenerator =
         RivPolylineIntersectionGeometryGenerator( polylineUtmXy, &eclipseIntersectionGrid );
 
     // Handle cell visibilities
     const int       firstTimeStep = 0;
-    cvf::UByteArray visibleCells  = cvf::UByteArray( m_eclipseView->mainGrid()->cellCount() );
-    m_eclipseView->calculateCurrentTotalCellVisibility( &visibleCells, firstTimeStep );
+    cvf::UByteArray visibleCells  = cvf::UByteArray( m_eclipseCase->mainGrid()->cellCount() );
+    eclipseView->calculateCurrentTotalCellVisibility( &visibleCells, firstTimeStep );
 
     // Loop to count number of visible cells
     int numVisibleCells = 0;
@@ -301,6 +306,11 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
         response->set_allocated_polylinetestresponse( polylineTestResponse );
     }
 
+    // Clear existing view
+    tearDownExistingViewsInEclipseCase();
+    eclipseView = nullptr;
+    delete eclipseView;
+
     return grpc::Status::OK;
 }
 
@@ -322,38 +332,60 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcGridGeometryExtractionService::cre
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaGrpcGridGeometryExtractionService::tearDownExistingViewsInEclipseCase()
+{
+    if ( m_eclipseCase == nullptr )
+    {
+        return;
+    }
+
+    std::vector<RimEclipseView*> eclipseViews = m_eclipseCase->reservoirViews.childrenByType();
+    for ( const auto& view : eclipseViews )
+    {
+        m_eclipseCase->reservoirViews.removeChild( view );
+        delete view;
+    }
+    m_eclipseCase->updateAllRequiredEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaGrpcGridGeometryExtractionService::resetInternalPointers()
 {
     m_application = nullptr;
     m_eclipseCase = nullptr;
-    m_eclipseView = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Apply ijk-filtering - assuming 0-indexing from gRPC
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcGridGeometryExtractionService::applyIJKCellFilterToEclipseCase( const rips::IJKIndexFilter& filter )
+grpc::Status RiaGrpcGridGeometryExtractionService::applyIJKCellFilterToEclipseView( const rips::IJKIndexFilter& filter,
+                                                                                    RimEclipseView*             view )
 {
-    if ( m_eclipseCase == nullptr )
+    if ( view == nullptr )
     {
-        return grpc::Status( grpc::StatusCode::NOT_FOUND, "No initialized eclipse case found" );
-    }
-    if ( m_eclipseView == nullptr )
-    {
-        return grpc::Status( grpc::StatusCode::NOT_FOUND, "No initialized eclipse view found" );
+        return grpc::Status( grpc::StatusCode::NOT_FOUND, "Uninitialized eclipse view provided" );
     }
 
     // Find the selected Cell Filter Collection
-    RimCellFilterCollection* filtColl = m_eclipseView->cellFilterCollection();
+    RimCellFilterCollection* filtColl = view->cellFilterCollection();
     if ( filtColl == nullptr )
     {
         return grpc::Status( grpc::StatusCode::NOT_FOUND, "No cell filter collection found for eclipse view" );
     }
 
+    // Clear potentially existing filter
+    const auto existingFilters = filtColl->filters();
+    for ( const auto& filter : existingFilters )
+    {
+        filtColl->removeFilter( filter );
+    }
+
     // Add range filter object
-    const int           sliceDirection  = -1;
-    const int           gridIndex       = 0;
-    RimCellRangeFilter* cellRangeFilter = filtColl->addNewCellRangeFilter( m_eclipseCase, gridIndex, sliceDirection );
+    const int sliceDirection = -1;
+    const int gridIndex      = 0;
+    RimCellRangeFilter* cellRangeFilter = filtColl->addNewCellRangeFilter( view->eclipseCase(), gridIndex, sliceDirection );
 
     // Apply ijk-filter values to range filter object
     cellRangeFilter->startIndexI = filter.imin() + 1; // Eclipse indexing, first index is 1
@@ -370,11 +402,12 @@ grpc::Status RiaGrpcGridGeometryExtractionService::applyIJKCellFilterToEclipseCa
 ///
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcGridGeometryExtractionService::initializeGridGeometryGeneratorWithEclipseViewCellVisibility(
-    cvf::StructGridGeometryGenerator& generator )
+    cvf::StructGridGeometryGenerator& generator,
+    RimEclipseView*                   view )
 {
-    if ( m_eclipseView == nullptr )
+    if ( view == nullptr )
     {
-        return grpc::Status( grpc::StatusCode::NOT_FOUND, "No initialized eclipse view found" );
+        return grpc::Status( grpc::StatusCode::NOT_FOUND, "Uninitialized eclipse view provided" );
     }
 
     auto* mainGrid = m_eclipseCase->mainGrid();
@@ -386,7 +419,7 @@ grpc::Status RiaGrpcGridGeometryExtractionService::initializeGridGeometryGenerat
     // Cell visibilities
     const int firstTimeStep    = 0;
     auto*     cellVisibilities = new cvf::UByteArray( mainGrid->cellCount() );
-    m_eclipseView->calculateCurrentTotalCellVisibility( cellVisibilities, firstTimeStep );
+    view->calculateCurrentTotalCellVisibility( cellVisibilities, firstTimeStep );
 
     // Face visibility filter
     const bool includeFaultFaces = true;
@@ -430,55 +463,71 @@ grpc::Status RiaGrpcGridGeometryExtractionService::loadGridGeometryFromAbsoluteF
 //--------------------------------------------------------------------------------------------------
 /// Helper function to get application instance and load eclipse case from given file path
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcGridGeometryExtractionService::initializeApplicationAndEclipseCaseAndEclipseViewFromAbsoluteFilePath(
-    const std::string filePath )
+grpc::Status
+    RiaGrpcGridGeometryExtractionService::initializeApplicationAndEclipseCaseFromAbsoluteFilePath( const std::string filePath )
 {
+    if ( filePath.empty() )
+    {
+        return grpc::Status( grpc::StatusCode::INVALID_ARGUMENT, "Empty file path" );
+    }
+
     // Get ResInsight instance and open grid
     m_application = RiaApplication::instance();
-
     if ( m_application == nullptr )
     {
         return grpc::Status( grpc::StatusCode::NOT_FOUND, "ResInsight instance not found" );
     }
 
-    // Ensure existing project is closed
-    m_application->closeProject();
+    // Open new grid if file name is different from file name of existing case
+    if ( m_eclipseCase == nullptr || m_eclipseCase->gridFileName() != QString::fromStdString( filePath ) )
+    {
+        // Close potential existing projects
+        m_application->closeProject();
 
-    if ( filePath.empty() )
-    {
-        return grpc::Status( grpc::StatusCode::INVALID_ARGUMENT, "Empty file path" );
-    }
-    if ( filePath == "MOCKED_TEST_GRID" )
-    {
-        // For testing, use mock model
-        m_application->createMockModel();
-    }
-    else
-    {
-        // Load case from file name
-        auto status = loadGridGeometryFromAbsoluteFilePath( filePath );
-        if ( status.error_code() != grpc::StatusCode::OK ) return status;
+        if ( filePath == "MOCKED_TEST_GRID" )
+        {
+            // For testing, use mock model
+            m_application->createMockModel();
+        }
+        else
+        {
+            // Load case from file name
+            auto status = loadGridGeometryFromAbsoluteFilePath( filePath );
+            if ( status.error_code() != grpc::StatusCode::OK ) return status;
+        }
+
+        RimProject* project = m_application->project();
+        if ( project == nullptr )
+        {
+            return grpc::Status( grpc::StatusCode::NOT_FOUND, "No project found" );
+        }
+
+        auto eclipseCases = project->eclipseCases();
+        if ( eclipseCases.empty() || eclipseCases.front() == nullptr )
+        {
+            return grpc::Status( grpc::StatusCode::NOT_FOUND, "No eclipse case found for project" );
+        }
+        if ( eclipseCases.size() > 1 )
+        {
+            return grpc::Status( grpc::StatusCode::INVALID_ARGUMENT, "More than one grid case found for project" );
+        }
+        m_eclipseCase = eclipseCases.front();
     }
 
-    RimProject* project = m_application->project();
-    if ( project == nullptr )
+    if ( m_eclipseCase == nullptr )
     {
-        return grpc::Status( grpc::StatusCode::NOT_FOUND, "No project found" );
+        return grpc::Status( grpc::StatusCode::NOT_FOUND, "No eclipse case found" );
     }
 
-    auto eclipseCases = project->eclipseCases();
-    if ( eclipseCases.empty() || eclipseCases.front() == nullptr )
+    // Ensure one reservoir view for case
+    if ( m_eclipseCase->views().size() > 1 )
     {
-        return grpc::Status( grpc::StatusCode::NOT_FOUND, "No eclipse case found for project" );
+        return grpc::Status( grpc::StatusCode::INVALID_ARGUMENT, "More than one view found for eclipse case" );
     }
-    m_eclipseCase = eclipseCases.front();
-
-    if ( m_eclipseCase->views().empty() || m_eclipseCase->views().front() == nullptr )
+    if ( m_eclipseCase->views().empty() )
     {
-        return grpc::Status( grpc::StatusCode::NOT_FOUND, "No eclipse view found for eclipse case" );
+        m_eclipseCase->createAndAddReservoirView();
     }
-    m_eclipseView = dynamic_cast<RimEclipseView*>( m_eclipseCase->views().front() );
-    m_eclipseView->setShowInactiveCells( true );
 
     return grpc::Status::OK;
 }
