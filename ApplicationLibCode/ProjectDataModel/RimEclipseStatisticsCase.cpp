@@ -288,6 +288,14 @@ void RimEclipseStatisticsCase::selectAllTimeSteps()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseStatisticsCase::setWellDataSourceCase( const QString& reservoirDescription )
+{
+    m_wellDataSourceCase = reservoirDescription;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::computeStatistics()
 {
     if ( eclipseCaseData() == nullptr )
