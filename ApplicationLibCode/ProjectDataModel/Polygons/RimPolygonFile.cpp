@@ -69,6 +69,7 @@ void RimPolygonFile::loadData()
             auto projectPoly = m_polygons()[i];
             auto filePoly    = polygonsFromFile[i];
             projectPoly->setPointsInDomainCoords( filePoly->pointsInDomainCoords() );
+            projectPoly->coordinatesChanged.send();
             delete filePoly;
         }
     }
