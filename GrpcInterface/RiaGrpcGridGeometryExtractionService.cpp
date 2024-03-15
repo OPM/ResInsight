@@ -378,13 +378,43 @@ grpc::Status RiaGrpcGridGeometryExtractionService::applyIJKCellFilterToEclipseVi
     const int gridIndex      = 0;
     RimCellRangeFilter* cellRangeFilter = filtColl->addNewCellRangeFilter( view->eclipseCase(), gridIndex, sliceDirection );
 
+    // Eclipse indexing, first index is 1
+    // Dimension filter is disabled if both min and max is -1 for respective dimension. I.e. all cells for
+    // respective dimension are included in the filter.
+    const bool isIDimensionFilterDisabled = filter.imin() == -1 && filter.imax() == -1;
+    int        startIndexI                = filter.imin() + 1;
+    int        cellCountI                 = filter.imax() - filter.imin() + 1;
+    if ( isIDimensionFilterDisabled )
+    {
+        startIndexI = 1;
+        cellCountI  = view->mainGrid()->cellCountI();
+    }
+
+    const bool isJDimensionFilterDisabled = filter.jmin() == -1 && filter.jmax() == -1;
+    int        startIndexJ                = filter.jmin() + 1;
+    int        cellCountJ                 = filter.jmax() - filter.jmin() + 1;
+    if ( isJDimensionFilterDisabled )
+    {
+        startIndexJ = 1;
+        cellCountJ  = view->mainGrid()->cellCountJ();
+    }
+
+    const bool isKDimensionFilterDisabled = filter.kmin() == -1 && filter.kmax() == -1;
+    int        startIndexK                = filter.kmin() + 1;
+    int        cellCountK                 = filter.kmax() - filter.kmin() + 1;
+    if ( isKDimensionFilterDisabled )
+    {
+        startIndexK = 1;
+        cellCountK  = view->mainGrid()->cellCountK();
+    }
+
     // Apply ijk-filter values to range filter object
-    cellRangeFilter->startIndexI = filter.imin() + 1; // Eclipse indexing, first index is 1
-    cellRangeFilter->startIndexJ = filter.jmin() + 1; // Eclipse indexing, first index is 1
-    cellRangeFilter->startIndexK = filter.kmin() + 1; // Eclipse indexing, first index is 1
-    cellRangeFilter->cellCountI  = filter.imax() - filter.imin() + 1;
-    cellRangeFilter->cellCountJ  = filter.jmax() - filter.jmin() + 1;
-    cellRangeFilter->cellCountK  = filter.kmax() - filter.kmin() + 1;
+    cellRangeFilter->startIndexI = startIndexI;
+    cellRangeFilter->startIndexJ = startIndexJ;
+    cellRangeFilter->startIndexK = startIndexK;
+    cellRangeFilter->cellCountI  = cellCountI;
+    cellRangeFilter->cellCountJ  = cellCountJ;
+    cellRangeFilter->cellCountK  = cellCountK;
 
     return grpc::Status::OK;
 }
