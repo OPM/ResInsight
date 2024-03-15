@@ -52,6 +52,7 @@ class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
 class RimEclipseResultAddressCollection;
 class RifReaderSettings;
+class RimEclipseViewCollection;
 
 //==================================================================================================
 //
@@ -65,9 +66,6 @@ class RimEclipseCase : public RimCase
 public:
     RimEclipseCase();
     ~RimEclipseCase() override;
-
-    // Fields:
-    caf::PdmChildArrayField<RimEclipseView*> reservoirViews_OBSOLETE;
 
     std::vector<RimEclipseView*> reservoirViews() const;
 
@@ -139,9 +137,10 @@ protected:
 
     // Internal methods
 protected:
-    void                 computeCachedData();
-    void                 setReservoirData( RigEclipseCaseData* eclipseCase );
-    std::vector<QString> additionalFiles() const;
+    void                      computeCachedData();
+    void                      setReservoirData( RigEclipseCaseData* eclipseCase );
+    std::vector<QString>      additionalFiles() const;
+    RimEclipseViewCollection* viewCollection() const;
 
 private:
     void                    createTimeStepFormatString();
@@ -170,4 +169,7 @@ private:
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;
 
     caf::PdmField<std::vector<caf::FilePath>> m_filesContainingFaults;
+
+    // Fields:
+    caf::PdmChildArrayField<RimEclipseView*> m_reservoirViews_OBSOLETE;
 };
