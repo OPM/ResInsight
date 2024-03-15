@@ -67,7 +67,9 @@ public:
     ~RimEclipseCase() override;
 
     // Fields:
-    caf::PdmChildArrayField<RimEclipseView*> reservoirViews;
+    caf::PdmChildArrayField<RimEclipseView*> reservoirViews_OBSOLETE;
+
+    std::vector<RimEclipseView*> reservoirViews() const;
 
     std::vector<QString> filesContainingFaults() const;
     void                 setFilesContainingFaults( const std::vector<QString>& val );
