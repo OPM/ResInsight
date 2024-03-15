@@ -217,7 +217,6 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
         }
 
         std::vector<std::vector<cvf::Vec3d>> polygonsForStimPlanCellInEclipseCell;
-        cvf::Vec3d                           areaVector;
         std::vector<cvf::Vec3d>              stimPlanPolygon = m_stimPlanCell.getPolygon();
 
         for ( const std::vector<cvf::Vec3d>& planeCellPolygon : planeCellPolygons )
@@ -233,7 +232,6 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
         if ( polygonsForStimPlanCellInEclipseCell.empty() ) continue;
 
         std::vector<double> areaOfFractureParts;
-        double              length;
         std::vector<double> lengthXareaOfFractureParts;
         double              Ax = 0.0;
         double              Ay = 0.0;
@@ -241,11 +239,11 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 
         for ( const std::vector<cvf::Vec3d>& fracturePartPolygon : polygonsForStimPlanCellInEclipseCell )
         {
-            areaVector  = cvf::GeometryTools::polygonAreaNormal3D( fracturePartPolygon );
-            double area = areaVector.length();
+            cvf::Vec3d areaVector = cvf::GeometryTools::polygonAreaNormal3D( fracturePartPolygon );
+            double     area       = areaVector.length();
             areaOfFractureParts.push_back( area );
 
-            length = RigCellGeometryTools::polygonLengthInLocalXdirWeightedByArea( fracturePartPolygon );
+            double length = RigCellGeometryTools::polygonLengthInLocalXdirWeightedByArea( fracturePartPolygon );
             lengthXareaOfFractureParts.push_back( length * area );
 
             cvf::Plane fracturePlane;

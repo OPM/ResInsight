@@ -132,17 +132,15 @@ double RigFractureTransmissibilityEquations::matrixToFractureTrans( double perm,
                                                                     double fractureAreaWeightedlength,
                                                                     double cDarcy )
 {
-    double transmissibility;
-
     double slDivPi = 0.0;
     if ( cvf::Math::abs( skinfactor ) > EPSILON )
     {
         slDivPi = ( skinfactor * fractureAreaWeightedlength ) / cvf::PI_D;
     }
 
-    transmissibility = 8 * cDarcy * ( perm * NTG ) * A / ( cellSizeLength + slDivPi );
+    double transmissibility = 8 * cDarcy * ( perm * NTG ) * A / ( cellSizeLength + slDivPi );
 
-    CVF_ASSERT( transmissibility == transmissibility );
+    CVF_ASSERT( !std::isnan( transmissibility ) );
     return transmissibility;
 }
 
