@@ -186,7 +186,7 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup( caf::PdmObjectGroup& 
 
         gridCaseGroup->updateConnectedEditors();
 
-        for ( size_t rvIdx = 0; rvIdx < rimResultReservoir->reservoirViews.size(); rvIdx++ )
+        for ( size_t rvIdx = 0; rvIdx < rimResultReservoir->reservoirViews().size(); rvIdx++ )
         {
             RimEclipseView* riv = rimResultReservoir->reservoirViews()[rvIdx];
             riv->loadDataAndUpdate();

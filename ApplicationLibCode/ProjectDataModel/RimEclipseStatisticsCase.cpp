@@ -953,17 +953,18 @@ bool RimEclipseStatisticsCase::hasComputedStatistics() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::updateConnectedEditorsAndReservoirViews()
 {
-    for ( size_t i = 0; i < reservoirViews.size(); ++i )
+    auto views = reservoirViews();
+    for ( size_t i = 0; i < views.size(); ++i )
     {
-        if ( reservoirViews[i] )
+        if ( views[i] )
         {
             // As new result might have been introduced, update all editors connected
-            reservoirViews[i]->cellResult()->updateConnectedEditors();
+            views[i]->cellResult()->updateConnectedEditors();
 
             // It is usually not needed to create new display model, but if any derived geometry based on generated data
             // (from Octave) a full display model rebuild is required
-            reservoirViews[i]->scheduleCreateDisplayModelAndRedraw();
-            reservoirViews[i]->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+            views[i]->scheduleCreateDisplayModelAndRedraw();
+            views[i]->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
         }
     }
 
@@ -999,18 +1000,18 @@ void RimEclipseStatisticsCase::computeStatisticsAndUpdateViews()
     scheduleACTIVEGeometryRegenOnReservoirViews();
     updateConnectedEditorsAndReservoirViews();
 
-    if ( reservoirViews.empty() )
+    if ( reservoirViews().empty() )
     {
         RicNewViewFeature::addReservoirView( this, nullptr );
     }
 
-    if ( reservoirViews.size() == 1 )
+    if ( reservoirViews().size() == 1 )
     {
         // If only one view, set the first result as active
 
         if ( auto cellResultsData = results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
         {
-            auto firstView = reservoirViews[0];
+            auto firstView = reservoirViews()[0];
 
             std::vector<RigEclipseResultAddress> resAddresses = cellResultsData->existingResults();
             if ( firstView && !resAddresses.empty() )

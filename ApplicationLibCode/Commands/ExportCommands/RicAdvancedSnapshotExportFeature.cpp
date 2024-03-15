@@ -146,7 +146,8 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots( const QString& f
 
                 exportViewVariations( copyOfEclipseView, msd, folder );
 
-                eclCase->reservoirViews().removeChild( copyOfEclipseView );
+                // TODO: handle this case!!!
+                // eclCase->reservoirViews().removeChild( copyOfEclipseView );
 
                 delete copyOfEclipseView;
             }
@@ -207,7 +208,8 @@ void RicAdvancedSnapshotExportFeature::exportViewVariations( Rim3dView* rimView,
             exportViewVariationsToFolder( copyOfView, msd, folder );
         }
 
-        eclCase->reservoirViews().removeChild( copyOfView );
+        // TODO: handle this case!!!
+        // eclCase->reservoirViews().removeChild( copyOfView );
 
         delete copyOfView;
     }

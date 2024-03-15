@@ -91,7 +91,7 @@ RimEclipseCase::RimEclipseCase()
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "EclipseCase", ":/Case48x48.png", "", "", "Reservoir", "Abstract base class for Eclipse Cases" );
 
-    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &reservoirViews, "ReservoirViews", "Views", "", "", "", "All Eclipse Views in the case" );
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &reservoirViews_OBSOLETE, "ReservoirViews", "Views", "", "", "", "All Eclipse Views in the case" );
 
     CAF_PDM_InitFieldNoDefault( &m_matrixModelResults, "MatrixModelResults", "" );
     CAF_PDM_InitFieldNoDefault( &m_fractureModelResults, "FractureModelResults", "" );
@@ -132,8 +132,6 @@ RimEclipseCase::RimEclipseCase()
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase::~RimEclipseCase()
 {
-    reservoirViews.deleteChildren();
-
     delete m_matrixModelResults();
     delete m_fractureModelResults();
     delete m_inputPropertyCollection;
@@ -554,11 +552,6 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 {
     if ( uiConfigName == "MainWindow.ProjectTree" )
     {
-        std::vector<PdmObjectHandle*> children = reservoirViews.children();
-
-        for ( auto child : children )
-            uiTreeOrdering.add( child );
-
         if ( !m_2dIntersectionViewCollection->views().empty() )
         {
             uiTreeOrdering.add( &m_2dIntersectionViewCollection );
@@ -1080,7 +1073,7 @@ bool RimEclipseCase::openReserviorCase()
 std::vector<Rim3dView*> RimEclipseCase::allSpecialViews() const
 {
     std::vector<Rim3dView*> views;
-    for ( RimEclipseView* view : reservoirViews )
+    for ( RimEclipseView* view : reservoirViews() )
     {
         views.push_back( view );
     }
@@ -1197,4 +1190,12 @@ void RimEclipseCase::updateResultAddressCollection()
 {
     m_resultAddressCollections.deleteChildren();
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseView*> RimEclipseCase::reservoirViews() const
+{
+    return {};
 }
