@@ -24,21 +24,22 @@
 
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
+#include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapProjection.h"
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseView.h"
+#include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechContourMapViewCollection.h"
 #include "RimGeoMechView.h"
+#include "RimOilField.h"
+#include "RimProject.h"
 #include "RimRegularLegendConfig.h"
-
-#include "RimCellFilterCollection.h"
-#include "RimFaultInViewCollection.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimSurfaceInViewCollection.h"
 
@@ -86,7 +87,7 @@ void RicNewContourMapViewFeature::onActionTriggered( bool isChecked )
 {
     RimEclipseView*           reservoirView             = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>();
     RimEclipseContourMapView* existingEclipseContourMap = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseContourMapView>();
-    RimEclipseCase*           eclipseCase               = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseCase>();
+    RimEclipseCase*           eclipseCase               = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCase>();
     RimEclipseContourMapView* eclipseContourMap         = nullptr;
 
     RimGeoMechView*           geoMechView               = caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechView>();
@@ -97,11 +98,19 @@ void RicNewContourMapViewFeature::onActionTriggered( bool isChecked )
     // Find case to insert into
     if ( existingEclipseContourMap )
     {
-        eclipseContourMap = createEclipseContourMapFromExistingContourMap( eclipseCase, existingEclipseContourMap );
+        eclipseCase = existingEclipseContourMap->eclipseCase();
+        if ( eclipseCase )
+        {
+            eclipseContourMap = createEclipseContourMapFromExistingContourMap( eclipseCase, existingEclipseContourMap );
+        }
     }
     else if ( reservoirView )
     {
-        eclipseContourMap = createEclipseContourMapFrom3dView( eclipseCase, reservoirView );
+        eclipseCase = reservoirView->eclipseCase();
+        if ( eclipseCase )
+        {
+            eclipseContourMap = createEclipseContourMapFrom3dView( eclipseCase, reservoirView );
+        }
     }
     else if ( eclipseCase )
     {
@@ -137,6 +146,12 @@ void RicNewContourMapViewFeature::onActionTriggered( bool isChecked )
 
         eclipseContourMap->createDisplayModelAndRedraw();
         eclipseContourMap->zoomAll();
+
+        RimProject* project = RimProject::current();
+
+        RimOilField* oilField = project->activeOilField();
+
+        oilField->eclipseContourMapCollection()->updateConnectedEditors();
 
         Riu3DMainWindowTools::setExpanded( eclipseContourMap );
     }
@@ -267,6 +282,8 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
     // CVF_ASSERT(fieldsWithFailingResolve.empty());
 
     contourMap->initAfterReadRecursively();
+
+    eclipseCase->contourMapCollection()->updateConnectedEditors();
 
     return contourMap;
 }

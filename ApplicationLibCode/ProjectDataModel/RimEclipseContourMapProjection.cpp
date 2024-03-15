@@ -31,6 +31,7 @@
 #include "RigHexIntersectionTools.h"
 #include "RigMainGrid.h"
 
+#include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapView.h"
@@ -385,7 +386,10 @@ std::vector<double> RimEclipseContourMapProjection::retrieveParameterWeights()
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimEclipseContourMapProjection::eclipseCase() const
 {
-    return firstAncestorOrThisOfType<RimEclipseCase>();
+    auto view = firstAncestorOrThisOfType<Rim3dView>();
+    if ( !view ) return nullptr;
+
+    return dynamic_cast<RimEclipseCase*>( view->ownerCase() );
 }
 
 //--------------------------------------------------------------------------------------------------

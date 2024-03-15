@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2024     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,31 +15,35 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
-#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
+
+#include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
-class RimEclipseContourMapView;
+#include <QString>
 
-class RimEclipseContourMapViewCollection : public caf::PdmObject
+class RimEclipseView;
+class RimEclipseCase;
+
+class RimEclipseViewCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimEclipseContourMapViewCollection();
-    ~RimEclipseContourMapViewCollection() override;
+    RimEclipseViewCollection();
+    ~RimEclipseViewCollection() override;
 
-    std::vector<RimEclipseContourMapView*> views();
-    void                                   push_back( RimEclipseContourMapView* contourMap );
+    bool isEmpty();
 
-    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    RimEclipseView* addView( RimEclipseCase* eclipseCase );
+    void            addView( RimEclipseView* view );
 
-    void clearWithoutDelete();
-    void removeChild( RimEclipseContourMapView* contourMap );
+    void removeView( RimEclipseView* view );
+
+    std::vector<RimEclipseView*> views() const;
 
 private:
-    caf::PdmChildArrayField<RimEclipseContourMapView*> m_contourMapViews;
+    caf::PdmChildArrayField<RimEclipseView*> m_views;
 };

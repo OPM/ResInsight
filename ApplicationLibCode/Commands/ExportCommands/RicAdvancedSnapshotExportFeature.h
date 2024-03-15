@@ -24,6 +24,7 @@ class RimAdvancedSnapshotExportDefinition;
 class RimProject;
 class Rim3dView;
 class RimGridView;
+class RimEclipseView;
 
 //==================================================================================================
 ///
@@ -45,4 +46,5 @@ public:
 private:
     static void    exportViewVariationsToFolder( RimGridView* rimView, RimAdvancedSnapshotExportDefinition* msd, const QString& folder );
     static QString resultName( Rim3dView* rimView );
+    static void    removeViewFromViewCollection( RimEclipseView* view );
 };
