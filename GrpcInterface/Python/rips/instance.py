@@ -8,7 +8,6 @@ creating connections to ResInsight
 from __future__ import annotations
 import os
 import socket
-import logging
 import time
 import tempfile
 import signal
@@ -216,7 +215,6 @@ class Instance:
         Args:
             port(int): port number
         """
-        logging.basicConfig()
         self.location: str = "localhost:" + str(port)
 
         self.channel = grpc.insecure_channel(
