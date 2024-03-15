@@ -358,7 +358,7 @@ void RiuMessageLoggerBase::writeMessageWithPrefixToLogger( const char* prefix, c
 //--------------------------------------------------------------------------------------------------
 void RiaStdOutLogger::writeMessageToLogger( const std::string& str )
 {
-    std::cout << str;
+    std::cout << str << std::flush;
 }
 
 //--------------------------------------------------------------------------------------------------
