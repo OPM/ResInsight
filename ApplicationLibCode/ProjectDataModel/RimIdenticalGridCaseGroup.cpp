@@ -398,9 +398,10 @@ void RimIdenticalGridCaseGroup::clearStatisticsResults()
             rimStaticsCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->clearAllResults();
         }
 
-        for ( size_t j = 0; j < rimStaticsCase->reservoirViews.size(); j++ )
+        auto views = rimStaticsCase->reservoirViews();
+        for ( size_t j = 0; j < views.size(); j++ )
         {
-            RimEclipseView* rimReservoirView = rimStaticsCase->reservoirViews[j];
+            RimEclipseView* rimReservoirView = views[j];
             rimReservoirView->cellResult()->setResultVariable( RiaResultNames::undefinedResultName() );
             rimReservoirView->cellEdgeResult()->setResultVariable( RiaResultNames::undefinedResultName() );
             rimReservoirView->loadDataAndUpdate();
