@@ -263,6 +263,9 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
         for ( double lengtXarea : lengthXareaOfFractureParts )
             totalAreaXLength += lengtXarea;
 
+        // Guard against numerical issues for very small intersections
+        if ( std::isnan( totalAreaXLength ) || std::isnan( fractureArea ) ) continue;
+
         double fractureAreaWeightedlength = totalAreaXLength / fractureArea;
 
         // Transmissibility for inactive cells is set to zero
