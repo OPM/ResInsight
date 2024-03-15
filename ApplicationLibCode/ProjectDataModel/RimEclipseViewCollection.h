@@ -38,6 +38,7 @@ public:
     bool isEmpty();
 
     RimEclipseView* addView( RimEclipseCase* eclipseCase );
+    void            addView( RimEclipseView* view );
 
     std::vector<RimEclipseView*> views() const;
 
