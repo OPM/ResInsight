@@ -567,8 +567,7 @@ void RimSimWellInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& u
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInViewCollection::assignDefaultWellColors()
 {
-    auto ownerCase = firstAncestorOrThisOfTypeAsserted<RimEclipseCase>();
-
+    auto ownerCase = m_reservoirView->eclipseCase();
     for ( size_t wIdx = 0; wIdx < wells.size(); ++wIdx )
     {
         RimSimWellInView* well = wells[wIdx];
