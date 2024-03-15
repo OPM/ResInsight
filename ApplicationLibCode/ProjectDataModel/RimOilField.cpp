@@ -76,7 +76,7 @@ RimOilField::RimOilField()
     CAF_PDM_InitFieldNoDefault( &seismicViewCollection, "SeismicViewCollection", "Seismic Views" );
     seismicViewCollection = new RimSeismicViewCollection();
 
-    CAF_PDM_InitFieldNoDefault( &eclipseViewCollection, "EclipseViewCollection", "Eclipse Views" );
+    CAF_PDM_InitFieldNoDefault( &eclipseViewCollection, "EclipseViewCollection", "Eclipse Views", ":/3DView16x16.png" );
     eclipseViewCollection = new RimEclipseViewCollection();
 
     completionTemplateCollection = new RimCompletionTemplateCollection;

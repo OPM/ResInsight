@@ -92,7 +92,13 @@ RimEclipseCase::RimEclipseCase()
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "EclipseCase", ":/Case48x48.png", "", "", "Reservoir", "Abstract base class for Eclipse Cases" );
 
-    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &reservoirViews_OBSOLETE, "ReservoirViews", "Views", "", "", "", "All Eclipse Views in the case" );
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_reservoirViews_OBSOLETE,
+                                                           "ReservoirViews",
+                                                           "Views",
+                                                           "",
+                                                           "",
+                                                           "",
+                                                           "All Eclipse Views in the case" );
 
     CAF_PDM_InitFieldNoDefault( &m_matrixModelResults, "MatrixModelResults", "" );
     CAF_PDM_InitFieldNoDefault( &m_fractureModelResults, "FractureModelResults", "" );
@@ -275,14 +281,23 @@ void RimEclipseCase::initAfterRead()
 {
     RimCase::initAfterRead();
 
-    size_t j;
-    for ( j = 0; j < reservoirViews().size(); j++ )
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.12.1-dev.23" ) )
     {
-        RimEclipseView* riv = reservoirViews()[j];
-        CVF_ASSERT( riv );
+        // Move views to view collection.
+        RimEclipseViewCollection* viewColl = viewCollection();
+        for ( size_t j = 0; j < m_reservoirViews_OBSOLETE.size(); j++ )
+        {
+            RimEclipseView* riv = m_reservoirViews_OBSOLETE()[j];
+            CVF_ASSERT( riv );
 
-        riv->setEclipseCase( this );
+            riv->setEclipseCase( this );
+            m_reservoirViews_OBSOLETE.removeChild( riv );
+            viewColl->addView( riv );
+        }
+
+        m_reservoirViews_OBSOLETE.clearWithoutDelete();
     }
+
     for ( RimEclipseContourMapView* contourMap : m_contourMapCollection->views() )
     {
         contourMap->setEclipseCase( this );
@@ -294,16 +309,10 @@ void RimEclipseCase::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimEclipseCase::createAndAddReservoirView()
 {
-    RimProject* project = RimProject::current();
-    if ( !project ) return nullptr;
+    RimEclipseViewCollection* viewColl = viewCollection();
+    if ( !viewColl ) return nullptr;
 
-    RimOilField* oilField = project->activeOilField();
-    if ( !oilField ) return nullptr;
-
-    RimEclipseViewCollection* viewCollection = oilField->eclipseViewCollection();
-    if ( !viewCollection ) return nullptr;
-
-    return viewCollection->addView( this );
+    return viewColl->addView( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1183,7 +1192,35 @@ void RimEclipseCase::updateResultAddressCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimEclipseViewCollection* RimEclipseCase::viewCollection() const
+{
+    RimProject* project = RimProject::current();
+    if ( !project ) return nullptr;
+
+    RimOilField* oilField = project->activeOilField();
+    if ( !oilField ) return nullptr;
+
+    RimEclipseViewCollection* viewCollection = oilField->eclipseViewCollection();
+    return viewCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimEclipseView*> RimEclipseCase::reservoirViews() const
 {
-    return {};
+    std::vector<RimEclipseView*> views;
+    RimEclipseViewCollection*    viewColl = viewCollection();
+    if ( viewColl )
+    {
+        for ( auto view : viewColl->views() )
+        {
+            if ( view->eclipseCase() && view->eclipseCase() == this )
+            {
+                views.push_back( view );
+            }
+        }
+    }
+
+    return views;
 }

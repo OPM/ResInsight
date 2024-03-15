@@ -39,7 +39,7 @@ CAF_PDM_SOURCE_INIT( RimEclipseViewCollection, "EclipseViewCollection", "Eclipse
 //--------------------------------------------------------------------------------------------------
 RimEclipseViewCollection::RimEclipseViewCollection()
 {
-    CAF_PDM_InitObject( "Views", ":/EclipseViews24x24.png" );
+    CAF_PDM_InitObject( "Views", ":/3DView16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_views, "Views", "Eclipse Views" );
 
@@ -98,4 +98,13 @@ RimEclipseView* RimEclipseViewCollection::addView( RimEclipseCase* eclipseCase )
     updateConnectedEditors();
 
     return view;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseViewCollection::addView( RimEclipseView* view )
+{
+    m_views.push_back( view );
+    updateConnectedEditors();
 }
