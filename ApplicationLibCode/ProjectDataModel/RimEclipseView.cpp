@@ -1262,11 +1262,9 @@ QString RimEclipseView::createAutoName() const
 
     QStringList generatedAutoTags;
 
-    RimCase* ownerCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
-
-    if ( nameConfig()->addCaseName() )
+    if ( m_eclipseCase && nameConfig()->addCaseName() )
     {
-        generatedAutoTags.push_back( ownerCase->caseUserDescription() );
+        generatedAutoTags.push_back( m_eclipseCase->caseUserDescription() );
     }
 
     if ( nameConfig()->addProperty() )

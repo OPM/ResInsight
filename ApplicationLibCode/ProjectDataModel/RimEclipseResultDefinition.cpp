@@ -769,7 +769,9 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         {
             options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
 
-            auto eclipseCase = firstAncestorOrThisOfTypeAsserted<RimEclipseCase>();
+            RimEclipseView* eclView = firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
+
+            auto eclipseCase = eclView->eclipseCase();
             if ( eclipseCase && eclipseCase->eclipseCaseData() && eclipseCase->eclipseCaseData()->mainGrid() )
             {
                 RimProject* proj = RimProject::current();
@@ -792,7 +794,9 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         }
         else if ( fieldNeedingOptions == &m_timeLapseBaseTimestep )
         {
-            RimEclipseCase* currentCase = firstAncestorOrThisOfTypeAsserted<RimEclipseCase>();
+            RimEclipseView* eclView = firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
+
+            RimEclipseCase* currentCase = eclView->eclipseCase();
 
             RimEclipseCase* baseCase = currentCase;
             if ( m_differenceCase )

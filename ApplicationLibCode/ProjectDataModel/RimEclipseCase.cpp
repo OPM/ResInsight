@@ -58,6 +58,7 @@
 #include "RimEclipseResultAddressCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
+#include "RimEclipseViewCollection.h"
 #include "RimFaultInViewCollection.h"
 #include "RimFormationNames.h"
 #include "RimGridCollection.h"
@@ -293,29 +294,16 @@ void RimEclipseCase::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimEclipseCase::createAndAddReservoirView()
 {
-    RimEclipseView* rimEclipseView = new RimEclipseView();
+    RimProject* project = RimProject::current();
+    if ( !project ) return nullptr;
 
-    rimEclipseView->setEclipseCase( this );
+    RimOilField* oilField = project->activeOilField();
+    if ( !oilField ) return nullptr;
 
-    // Set default values
-    if ( rimEclipseView->currentGridCellResults() )
-    {
-        auto defaultResult = rimEclipseView->currentGridCellResults()->defaultResult();
-        rimEclipseView->cellResult()->setFromEclipseResultAddress( defaultResult );
-    }
+    RimEclipseViewCollection* viewCollection = oilField->eclipseViewCollection();
+    if ( !viewCollection ) return nullptr;
 
-    auto prefs = RiaPreferences::current();
-    rimEclipseView->faultCollection()->setActive( prefs->enableFaultsByDefault() );
-
-    rimEclipseView->cellEdgeResult()->setResultVariable( "MULT" );
-    rimEclipseView->cellEdgeResult()->setActive( false );
-    rimEclipseView->fractureColors()->setDefaultResultName();
-
-    caf::PdmDocument::updateUiIconStateRecursively( rimEclipseView );
-
-    reservoirViews().push_back( rimEclipseView );
-
-    return rimEclipseView;
+    return viewCollection->addView( this );
 }
 
 //--------------------------------------------------------------------------------------------------
