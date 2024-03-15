@@ -42,6 +42,7 @@ class RimSeismicViewCollection;
 class RimSurfaceCollection;
 class RimEnsembleWellLogsCollection;
 class RimPolygonCollection;
+class RimEclipseViewCollection;
 
 //==================================================================================================
 ///
@@ -73,6 +74,7 @@ public:
     caf::PdmChildField<RimSurfaceCollection*>            surfaceCollection;
     caf::PdmChildField<RimSeismicDataCollection*>        seismicDataCollection;
     caf::PdmChildField<RimSeismicViewCollection*>        seismicViewCollection;
+    caf::PdmChildField<RimEclipseViewCollection*>        eclipseViewCollection;
     caf::PdmChildField<RimEnsembleWellLogsCollection*>   ensembleWellLogsCollection;
     caf::PdmChildField<RimPolygonCollection*>            polygonCollection;
 

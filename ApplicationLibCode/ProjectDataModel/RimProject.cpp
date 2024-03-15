@@ -49,6 +49,7 @@
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimEclipseViewCollection.h"
 #include "RimEnsembleWellLogsCollection.h"
 #include "RimFileWellPath.h"
 #include "RimFlowPlotCollection.h"
@@ -1490,6 +1491,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
         if ( oilField )
         {
             if ( oilField->analysisModels() ) uiTreeOrdering.add( oilField->analysisModels() );
+            if ( oilField->eclipseViewCollection() ) uiTreeOrdering.add( oilField->eclipseViewCollection() );
             if ( oilField->geoMechModels() ) uiTreeOrdering.add( oilField->geoMechModels() );
             if ( oilField->wellPathCollection() ) uiTreeOrdering.add( oilField->wellPathCollection() );
             if ( oilField->polygonCollection() ) uiTreeOrdering.add( oilField->polygonCollection() );
