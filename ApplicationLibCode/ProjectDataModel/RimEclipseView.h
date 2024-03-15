@@ -245,8 +245,8 @@ private:
     caf::PdmChildField<RimEclipsePropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimEclipsePropertyFilterCollection>     m_overridePropertyFilterCollection;
 
-    caf::PdmPointer<RimEclipseCase>   m_eclipseCase;
-    caf::PdmPtrField<RimEclipseCase*> m_customEclipseCase;
+    caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
+    caf::PdmPtrField<RimEclipseCase*> m_customEclipseCase_OBSOLETE;
 
     cvf::ref<RivReservoirViewPartMgr>     m_reservoirGridPartManager;
     cvf::ref<RivReservoirSimWellsPartMgr> m_simWellsPartManager;
