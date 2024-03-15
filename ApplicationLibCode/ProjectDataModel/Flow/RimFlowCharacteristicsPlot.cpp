@@ -145,7 +145,7 @@ void RimFlowCharacteristicsPlot::setFromFlowSolution( RimFlowDiagSolution* flowS
     {
         auto eclCase = flowSolution->firstAncestorOrThisOfType<RimEclipseResultCase>();
         m_case       = eclCase;
-        if ( !eclCase->reservoirViews.empty() )
+        if ( !eclCase->reservoirViews().empty() )
         {
             m_cellFilterView = eclCase->reservoirViews()[0];
         }
@@ -399,7 +399,7 @@ void RimFlowCharacteristicsPlot::defineUiOrdering( QString uiConfigName, caf::Pd
         {
             m_case             = defaultCase;
             m_flowDiagSolution = m_case->defaultFlowDiagSolution();
-            if ( !m_case()->reservoirViews.empty() )
+            if ( !m_case()->reservoirViews().empty() )
             {
                 m_cellFilterView = m_case()->reservoirViews()[0];
             }
@@ -506,7 +506,7 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
     {
         m_flowDiagSolution = m_case->defaultFlowDiagSolution();
         m_currentlyPlottedTimeSteps.clear();
-        if ( !m_case()->reservoirViews.empty() )
+        if ( !m_case()->reservoirViews().empty() )
         {
             m_cellFilterView = m_case()->reservoirViews()[0];
         }

@@ -279,17 +279,19 @@ void RimAnnotationInViewCollection::defineEditorAttribute( const caf::PdmFieldHa
 
         if ( attr )
         {
-            auto rimCase = firstAncestorOrThisOfType<RimCase>();
-            if ( rimCase )
+            if ( auto view = firstAncestorOrThisOfType<Rim3dView>() )
             {
-                auto bb         = rimCase->allCellsBoundingBox();
-                attr->m_minimum = -bb.max().z();
-                attr->m_maximum = -bb.min().z();
-            }
-            else
-            {
-                attr->m_minimum = 0;
-                attr->m_maximum = 10000;
+                if ( auto rimCase = view->ownerCase() )
+                {
+                    auto bb         = rimCase->allCellsBoundingBox();
+                    attr->m_minimum = -bb.max().z();
+                    attr->m_maximum = -bb.min().z();
+                }
+                else
+                {
+                    attr->m_minimum = 0;
+                    attr->m_maximum = 10000;
+                }
             }
         }
     }

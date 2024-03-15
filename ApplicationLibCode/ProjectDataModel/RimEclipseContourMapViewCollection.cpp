@@ -47,3 +47,19 @@ void RimEclipseContourMapViewCollection::onChildDeleted( caf::PdmChildArrayField
     auto eclipseCase = firstAncestorOrThisOfType<RimEclipseCase>();
     if ( eclipseCase ) eclipseCase->updateConnectedEditors();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseContourMapViewCollection::clearWithoutDelete()
+{
+    m_contourMapViews.clearWithoutDelete();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseContourMapViewCollection::removeChild( RimEclipseContourMapView* contourMap )
+{
+    m_contourMapViews.removeChild( contourMap );
+}

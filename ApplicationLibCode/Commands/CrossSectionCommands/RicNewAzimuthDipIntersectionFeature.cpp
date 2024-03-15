@@ -103,8 +103,10 @@ void RicNewAzimuthDipIntersectionFeatureCmd::redo()
     intersection->setName( "Azimuth and Dip" );
     intersection->configureForAzimuthLine();
 
-    RimCase*         rimCase = m_intersectionCollection->firstAncestorOrThisOfTypeAsserted<RimCase>();
-    cvf::BoundingBox bBox    = rimCase->allCellsBoundingBox();
+    RimCase* rimCase = m_intersectionCollection->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
+    if ( !rimCase ) return;
+
+    cvf::BoundingBox bBox = rimCase->allCellsBoundingBox();
     if ( bBox.isValid() )
     {
         intersection->setLengthUp( cvf::Math::floor( bBox.extent()[2] / 2 ) );

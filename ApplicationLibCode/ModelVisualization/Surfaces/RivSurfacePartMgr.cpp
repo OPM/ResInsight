@@ -382,8 +382,13 @@ void RivSurfacePartMgr::generatePartGeometry()
 void RivSurfacePartMgr::generateNativePartGeometry()
 {
     cvf::Vec3d displayModOffset( 0, 0, 0 );
-    auto       ownerCase = m_surfaceInView->firstAncestorOrThisOfType<RimCase>();
-    if ( ownerCase ) displayModOffset = ownerCase->displayModelOffset();
+
+    auto view = m_surfaceInView->firstAncestorOrThisOfType<Rim3dView>();
+    if ( view )
+    {
+        auto ownerCase = view->ownerCase();
+        if ( ownerCase ) displayModOffset = ownerCase->displayModelOffset();
+    }
 
     m_usedSurfaceData = m_surfaceInView->surface()->surfaceData();
     if ( m_usedSurfaceData.isNull() ) return;
