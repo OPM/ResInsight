@@ -108,11 +108,9 @@ QString RimEclipseContourMapView::createAutoName() const
 
     QStringList generatedAutoTags;
 
-    RimCase* ownerCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
-
-    if ( nameConfig()->addCaseName() )
+    if ( nameConfig()->addCaseName() && ownerCase() )
     {
-        generatedAutoTags.push_back( ownerCase->caseUserDescription() );
+        generatedAutoTags.push_back( ownerCase()->caseUserDescription() );
     }
 
     if ( nameConfig()->addAggregationType() )

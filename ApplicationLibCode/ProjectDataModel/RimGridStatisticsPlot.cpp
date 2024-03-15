@@ -96,9 +96,9 @@ void RimGridStatisticsPlot::setDefaults()
             m_property->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
             m_property->setResultVariable( "PORO" );
 
-            if ( eclipseCase && !eclipseCase->reservoirViews.children().empty() )
+            if ( eclipseCase && !eclipseCase->reservoirViews().empty() )
             {
-                m_cellFilterView.setValue( eclipseCase->reservoirViews.childrenByType().front() );
+                m_cellFilterView.setValue( eclipseCase->reservoirViews().front() );
             }
 
             m_numHistogramBins = 15;
@@ -196,7 +196,7 @@ QList<caf::PdmOptionItemInfo> RimGridStatisticsPlot::calculateValueOptions( cons
         if ( eclipseCase )
         {
             options.push_back( caf::PdmOptionItemInfo( "Disabled", nullptr ) );
-            for ( RimEclipseView* view : eclipseCase->reservoirViews.childrenByType() )
+            for ( RimEclipseView* view : eclipseCase->reservoirViews() )
             {
                 CVF_ASSERT( view && "Really always should have a valid view pointer in ReservoirViews" );
                 options.push_back( caf::PdmOptionItemInfo( view->name(), view, false, view->uiIconProvider() ) );

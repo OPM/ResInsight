@@ -325,11 +325,29 @@ def view(self, view_id):
     Returns:
         :class:`rips.generated.generated_classes.View`
     """
-    views = self.views()
+    project = self.ancestor(rips.project.Project)
+    views = project.views()
     for view_object in views:
         if view_object.id == view_id:
             return view_object
     return None
+
+
+@add_method(Case)
+def views(self):
+    """Get all views of a case
+
+    Returns:
+        List of :class:`rips.generated.generated_classes.View`
+    """
+    project = self.ancestor(rips.project.Project)
+    views = project.views()
+    views_for_case = []
+    for view_object in views:
+        view_object.print_object_info()
+        if view_object.id == self.id:
+            views_for_case.append(view_object)
+    return views_for_case
 
 
 @add_method(Case)
@@ -990,8 +1008,10 @@ def simulation_wells(self):
         :class:`rips.generated.generated_classes.SimulationWell`
 
     """
-    wells = self.descendants(SimulationWell)
-    return wells
+    if self.views():
+        # Use the first view to get simulation wells.
+        return self.views()[0].descendants(SimulationWell)
+    return []
 
 
 @add_method(Case)
