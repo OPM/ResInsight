@@ -406,6 +406,9 @@ void RimSummaryCase::refreshMetaData()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::onCalculationUpdated()
 {
+    // NB! Performance critical method
+    if ( !m_showSubNodesInTree ) return;
+
     // Delete all calculated address objects
     m_dataVectorFolders->deleteCalculatedObjects();
 
