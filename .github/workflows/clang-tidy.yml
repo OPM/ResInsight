@@ -76,7 +76,7 @@ jobs:
           find -name '*.h' -o -name '*.cpp' -o -name '*.inl' | xargs clang-format-15 -i
           cd ../GrpcInterface
           find -name '*.h' -o -name '*.cpp' -o -name '*.inl' | xargs clang-format-15 -i
-      - uses: peter-evans/create-pull-request@v5
+      - uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Fixes by clang-tidy"
