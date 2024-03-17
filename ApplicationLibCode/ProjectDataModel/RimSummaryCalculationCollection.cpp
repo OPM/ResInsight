@@ -93,11 +93,3 @@ void RimSummaryCalculationCollection::rebuildCaseMetaData()
     ensureValidCalculationIds();
     updateDataDependingOnCalculations();
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCalculationCollection::initAfterRead()
-{
-    rebuildCaseMetaData();
-}
