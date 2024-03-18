@@ -94,9 +94,10 @@ RimEclipseView* RimEclipseViewCollection::addView( RimEclipseCase* eclipseCase )
 
     caf::PdmDocument::updateUiIconStateRecursively( view );
 
+    m_views.push_back( view );
+
     view->loadDataAndUpdate();
 
-    m_views.push_back( view );
     updateConnectedEditors();
 
     return view;
