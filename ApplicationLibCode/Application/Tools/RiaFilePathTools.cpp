@@ -206,7 +206,12 @@ QStringList RiaFilePathTools::splitPathIntoComponents( const QString& inputPath,
 
     QStringList components;
 
-    QDir dir( path );
+    auto indexOfLastSeparator = path.lastIndexOf( separator() );
+    auto indexOfDrive         = path.indexOf( ':' );
+
+    QString pathWithoutDrive = path.mid( indexOfDrive + 1, indexOfLastSeparator - ( indexOfDrive + 1 ) );
+
+    components = pathWithoutDrive.split( separator(), Qt::SkipEmptyParts );
 
     QFileInfo fileInfo( path );
 
@@ -214,18 +219,14 @@ QStringList RiaFilePathTools::splitPathIntoComponents( const QString& inputPath,
     {
         QString extension = fileInfo.completeSuffix();
         path              = path.replace( QString( ".%1" ).arg( extension ), "" );
-        components.push_front( extension );
-        components.push_front( fileInfo.baseName() );
+        components.push_back( extension );
+        components.push_back( fileInfo.baseName() );
     }
     else
     {
         components.push_back( fileInfo.fileName() );
     }
 
-    while ( dir.cdUp() )
-    {
-        components.push_front( dir.dirName() );
-    }
     return components;
 }
 
