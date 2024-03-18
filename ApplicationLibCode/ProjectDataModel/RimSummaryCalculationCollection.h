@@ -43,5 +43,4 @@ public:
 
 private:
     void updateDataDependingOnCalculations();
-    void initAfterRead() override;
 };

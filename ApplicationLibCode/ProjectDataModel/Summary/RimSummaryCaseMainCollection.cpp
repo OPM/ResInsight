@@ -460,6 +460,7 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
             if ( fileSummaryCase )
             {
                 fileSummaryCase->createSummaryReaderInterfaceThreadSafe( &threadSafeLogger );
+                addCaseRealizationParametersIfFound( *fileSummaryCase, fileSummaryCase->summaryHeaderFilename() );
             }
 
             progInfo.setProgress( cIdx );
@@ -482,7 +483,6 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
         if ( fileSummaryCase )
         {
             fileSummaryCase->createRftReaderInterface();
-            addCaseRealizationParametersIfFound( *fileSummaryCase, fileSummaryCase->summaryHeaderFilename() );
         }
     }
 }
@@ -648,9 +648,13 @@ void RimSummaryCaseMainCollection::updateAutoShortName()
     //
     // https://github.com/OPM/ResInsight/issues/7438
 
-    for ( auto s : allSummaryCases() )
+    auto sumCases = allSummaryCases();
+
+#pragma omp parallel for
+    for ( int cIdx = 0; cIdx < static_cast<int>( sumCases.size() ); ++cIdx )
     {
-        s->updateAutoShortName();
+        auto sumCase = sumCases[cIdx];
+        sumCase->updateAutoShortName();
     }
 }
 

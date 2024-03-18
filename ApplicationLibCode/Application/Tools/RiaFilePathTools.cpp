@@ -204,9 +204,12 @@ QStringList RiaFilePathTools::splitPathIntoComponents( const QString& inputPath,
 {
     auto path = QDir::cleanPath( inputPath );
 
-    QStringList components;
+    auto indexOfLastSeparator = path.lastIndexOf( separator() );
+    auto indexOfDrive         = path.indexOf( ':' );
 
-    QDir dir( path );
+    QString pathWithoutDrive = path.mid( indexOfDrive + 1, indexOfLastSeparator - ( indexOfDrive + 1 ) );
+
+    QStringList components = RiaTextStringTools::splitSkipEmptyParts( pathWithoutDrive, separator() );
 
     QFileInfo fileInfo( path );
 
@@ -214,18 +217,14 @@ QStringList RiaFilePathTools::splitPathIntoComponents( const QString& inputPath,
     {
         QString extension = fileInfo.completeSuffix();
         path              = path.replace( QString( ".%1" ).arg( extension ), "" );
-        components.push_front( extension );
-        components.push_front( fileInfo.baseName() );
+        components.push_back( extension );
+        components.push_back( fileInfo.baseName() );
     }
     else
     {
         components.push_back( fileInfo.fileName() );
     }
 
-    while ( dir.cdUp() )
-    {
-        components.push_front( dir.dirName() );
-    }
     return components;
 }
 
@@ -330,16 +329,10 @@ std::map<QString, QStringList> RiaFilePathTools::keyPathComponentsForEachFilePat
 {
     std::map<QString, QStringList> allComponents;
 
-    std::multiset<QString> allPathComponents;
     for ( auto fileName : filePaths )
     {
         QStringList pathComponentsForFile = splitPathIntoComponents( fileName, true );
         allComponents[fileName]           = pathComponentsForFile;
-
-        for ( auto pathComponent : pathComponentsForFile )
-        {
-            allPathComponents.insert( pathComponent );
-        }
     }
 
     auto topNode = std::unique_ptr<PathNode>( new PathNode( "", nullptr ) );

@@ -248,7 +248,9 @@ void RimSummaryCaseCollection::ensureNameIsUpdated()
         RiaEnsembleNameTools::EnsembleGroupingMode groupingMode = RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
 
         QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames, groupingMode );
-        m_name               = ensembleName;
+        if ( m_name == ensembleName ) return;
+
+        m_name = ensembleName;
         caseNameChanged.send();
     }
 }
