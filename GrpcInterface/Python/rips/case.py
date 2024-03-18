@@ -1008,8 +1008,10 @@ def simulation_wells(self):
         :class:`rips.generated.generated_classes.SimulationWell`
 
     """
-    wells = self.descendants(SimulationWell)
-    return wells
+    if self.views():
+        # Use the first view to get simulation wells.
+        return self.views()[0].descendants(SimulationWell)
+    return []
 
 
 @add_method(Case)

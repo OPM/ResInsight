@@ -14,6 +14,7 @@ import PdmObject_pb2
 from .resinsight_classes import SimulationWell
 
 from .case import Case
+from .view import View
 from .pdmobject import PdmObjectBase, add_method
 
 from typing import List, Optional
@@ -80,4 +81,8 @@ def cells(
 
 @add_method(SimulationWell)
 def case(self: SimulationWell) -> Optional[Case]:
-    return self.ancestor(Case)
+    view = self.ancestor(View)
+    if view:
+        return view.case()
+    else:
+        return None
