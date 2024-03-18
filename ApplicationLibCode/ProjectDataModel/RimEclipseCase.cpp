@@ -92,13 +92,7 @@ RimEclipseCase::RimEclipseCase()
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "EclipseCase", ":/Case48x48.png", "", "", "Reservoir", "Abstract base class for Eclipse Cases" );
 
-    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_reservoirViews_OBSOLETE,
-                                                           "ReservoirViews",
-                                                           "Views",
-                                                           "",
-                                                           "",
-                                                           "",
-                                                           "All Eclipse Views in the case" );
+    CAF_PDM_InitFieldNoDefault( &m_reservoirViews_OBSOLETE, "ReservoirViews", "Views", "", "", "", "All Eclipse Views in the case" );
 
     CAF_PDM_InitFieldNoDefault( &m_matrixModelResults, "MatrixModelResults", "" );
     CAF_PDM_InitFieldNoDefault( &m_fractureModelResults, "FractureModelResults", "" );
