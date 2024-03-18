@@ -676,6 +676,7 @@ void RigGriddedPart3d::shiftNodes( const cvf::Vec3d offset )
     for ( int i = 0; i < (int)m_nodes.size(); i++ )
     {
         m_nodes[i] += offset;
+        m_dataNodes[i] += offset;
     }
 
     for ( int i = 0; i < (int)m_meshLines.size(); i++ )
