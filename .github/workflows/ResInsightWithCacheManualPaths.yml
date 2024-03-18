@@ -109,7 +109,7 @@ jobs:
         with:
           VCPKGRESPONSEFILE: ${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}
       - name: Run vcpkg
-        uses: lukka/run-vcpkg@v5
+        uses: lukka/run-vcpkg@dev/node20-v7
         id: runvcpkg
         with:
           vcpkgArguments: "@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}"
