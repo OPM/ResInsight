@@ -204,14 +204,12 @@ QStringList RiaFilePathTools::splitPathIntoComponents( const QString& inputPath,
 {
     auto path = QDir::cleanPath( inputPath );
 
-    QStringList components;
-
     auto indexOfLastSeparator = path.lastIndexOf( separator() );
     auto indexOfDrive         = path.indexOf( ':' );
 
     QString pathWithoutDrive = path.mid( indexOfDrive + 1, indexOfLastSeparator - ( indexOfDrive + 1 ) );
 
-    components = pathWithoutDrive.split( separator(), Qt::SkipEmptyParts );
+    QStringList components = RiaTextStringTools::splitSkipEmptyParts( pathWithoutDrive, separator() );
 
     QFileInfo fileInfo( path );
 
