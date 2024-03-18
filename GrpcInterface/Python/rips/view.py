@@ -186,10 +186,12 @@ def export_property(self, undefined_value=0.0):
         )
     )
 
+
 def extract_address(address) -> int:
     # Address form: "RimReservoir:123345345345435"
-    parts = address.split(':')
+    parts = address.split(":")
     return int(parts[1])
+
 
 @add_method(View)
 def case(self):
