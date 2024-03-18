@@ -332,6 +332,7 @@ def view(self, view_id):
             return view_object
     return None
 
+
 @add_method(Case)
 def views(self):
     """Get all views of a case
@@ -347,7 +348,6 @@ def views(self):
         if view_object.id == self.id:
             views_for_case.append(view_object)
     return views_for_case
-
 
 
 @add_method(Case)
