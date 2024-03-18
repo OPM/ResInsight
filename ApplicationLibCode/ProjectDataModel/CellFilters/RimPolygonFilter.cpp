@@ -885,6 +885,7 @@ caf::PickEventHandler* RimPolygonFilter::pickEventHandler() const
     if ( filterColl && !filterColl->isActive() ) return nullptr;
 
     if ( !isActive() ) return nullptr;
+    if ( !isPolygonDefinedLocally() && m_cellFilterPolygon && m_cellFilterPolygon()->isReadOnly() ) return nullptr;
 
     return m_pickTargetsEventHandler.get();
 }

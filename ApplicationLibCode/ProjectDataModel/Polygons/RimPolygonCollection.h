@@ -47,6 +47,8 @@ public:
     std::vector<RimPolygonFile*> polygonFiles() const;
     std::vector<RimPolygon*>     allPolygons() const;
 
+    static void appendPolygonMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder );
+
 private:
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;

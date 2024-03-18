@@ -84,14 +84,7 @@ void RimPolygon::uiOrderingForLocalPolygon( QString uiConfigName, caf::PdmUiOrde
 //--------------------------------------------------------------------------------------------------
 void RimPolygon::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
-    menuBuilder << "RicDuplicatePolygonFeature";
-    menuBuilder << "RicNewPolygonIntersectionFeature";
-    menuBuilder << "RicNewPolygonFilterFeature";
-    menuBuilder << "Separator";
-    menuBuilder << "RicExportPolygonCsvFeature";
-    menuBuilder << "RicExportPolygonPolFeature";
-    menuBuilder << "Separator";
-    menuBuilder << "RicSimplifyPolygonFeature";
+    RimPolygon::appendPolygonMenuItems( menuBuilder );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -249,6 +242,21 @@ void RimPolygon::onColorTagClicked( const SignalEmitter* emitter, size_t index )
         setColor( RiaColorTools::fromQColorTo3f( newColor ) );
         objectChanged.send();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygon::appendPolygonMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder )
+{
+    menuBuilder << "RicNewPolygonIntersectionFeature";
+    menuBuilder << "RicNewPolygonFilterFeature";
+    menuBuilder << "Separator";
+    menuBuilder << "RicDuplicatePolygonFeature";
+    menuBuilder << "RicSimplifyPolygonFeature";
+    menuBuilder << "Separator";
+    menuBuilder << "RicExportPolygonCsvFeature";
+    menuBuilder << "RicExportPolygonPolFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

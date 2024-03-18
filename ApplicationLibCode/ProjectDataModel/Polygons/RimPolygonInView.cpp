@@ -233,6 +233,13 @@ void RimPolygonInView::updatePolygonFromTargets()
             points.push_back( target->targetPointXYZ() );
         }
         m_polygon->setPointsInDomainCoords( points );
+
+        // update other pick editors, make sure we don't update ourselves
+        m_polygon->coordinatesChanged.block( this );
+        m_polygon->coordinatesChanged.send();
+        m_polygon->coordinatesChanged.unblock( this );
+
+        m_polygon->objectChanged.send();
     }
 }
 
@@ -374,7 +381,7 @@ void RimPolygonInView::uiOrderingForLocalPolygon( QString uiConfigName, caf::Pdm
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInView::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
-    if ( m_polygon() ) m_polygon->appendMenuItems( menuBuilder );
+    RimPolygon::appendPolygonMenuItems( menuBuilder );
 }
 
 //--------------------------------------------------------------------------------------------------

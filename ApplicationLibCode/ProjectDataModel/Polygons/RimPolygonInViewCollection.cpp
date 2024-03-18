@@ -126,6 +126,14 @@ void RimPolygonInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonInViewCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    RimPolygonCollection::appendPolygonMenuItems( menuBuilder );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonInViewCollection::updateAllViewItems()
 {
     // Based on the same concept as RimSurfaceInViewCollection
@@ -222,8 +230,8 @@ void RimPolygonInViewCollection::syncPolygonsWithView()
         if ( it != existingPolygonsInView.end() )
         {
             newPolygonsInView.push_back( *it );
-            existingPolygonsInView.erase( it );
             ( *it )->updateTargetsFromPolygon();
+            existingPolygonsInView.erase( it );
         }
         else
         {
