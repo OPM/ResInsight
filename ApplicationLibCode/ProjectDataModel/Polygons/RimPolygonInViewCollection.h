@@ -45,6 +45,7 @@ public:
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
     void            setPolygonFile( RimPolygonFile* polygonFile );
     RimPolygonFile* polygonFile() const;

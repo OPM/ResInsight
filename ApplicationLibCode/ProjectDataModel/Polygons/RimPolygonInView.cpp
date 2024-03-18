@@ -375,7 +375,7 @@ void RimPolygonInView::uiOrderingForLocalPolygon( QString uiConfigName, caf::Pdm
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInView::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
-    if ( m_polygon() ) m_polygon->appendMenuItems( menuBuilder );
+    RimPolygon::appendPolygonMenuItems( menuBuilder );
 }
 
 //--------------------------------------------------------------------------------------------------
