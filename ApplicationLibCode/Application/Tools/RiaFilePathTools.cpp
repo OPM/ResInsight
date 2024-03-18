@@ -330,16 +330,10 @@ std::map<QString, QStringList> RiaFilePathTools::keyPathComponentsForEachFilePat
 {
     std::map<QString, QStringList> allComponents;
 
-    std::multiset<QString> allPathComponents;
     for ( auto fileName : filePaths )
     {
         QStringList pathComponentsForFile = splitPathIntoComponents( fileName, true );
         allComponents[fileName]           = pathComponentsForFile;
-
-        for ( auto pathComponent : pathComponentsForFile )
-        {
-            allPathComponents.insert( pathComponent );
-        }
     }
 
     auto topNode = std::unique_ptr<PathNode>( new PathNode( "", nullptr ) );
