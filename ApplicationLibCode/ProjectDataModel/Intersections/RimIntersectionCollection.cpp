@@ -328,7 +328,7 @@ void RimIntersectionCollection::appendIntersectionNoUpdate( RimExtrudedCurveInte
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::syncronize2dIntersectionViews()
 {
-    auto ownerCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
+    auto ownerCase = firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
     ownerCase->intersectionViewCollection()->syncFromExistingIntersections( true );
 }
 
