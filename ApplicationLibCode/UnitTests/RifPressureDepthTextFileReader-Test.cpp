@@ -62,3 +62,33 @@ TEST( RifPressureDepthTextFileReaderTest, LoadFileNonExistingFiles )
     EXPECT_FALSE( errorMessage.isEmpty() );
     EXPECT_EQ( 0u, items.size() );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifPressureDepthTextFileReaderTest, FieldUnitData )
+{
+    auto content = R"(
+--TVDMSL
+RFT  
+--
+WELLNAME 'A1'
+DATE 18-NOV-2018
+PRESSURE DEPTH
+PSIA FEET
+12008.00  22640.66
+12020.40  22674.44
+\n)";
+
+    auto [items, errorMessage] = RifPressureDepthTextFileReader::parse( content );
+
+    EXPECT_TRUE( errorMessage.isEmpty() );
+    ASSERT_EQ( 1u, items.size() );
+
+    EXPECT_EQ( "A1", items[0].wellName().toStdString() );
+    std::vector<std::pair<double, double>> values0 = items[0].getPressureDepthValues();
+    EXPECT_EQ( 2u, values0.size() );
+    double delta = 0.001;
+    EXPECT_NEAR( 12008.0, values0[0].first, delta );
+    EXPECT_NEAR( 22640.66, values0[0].second, delta );
+}
