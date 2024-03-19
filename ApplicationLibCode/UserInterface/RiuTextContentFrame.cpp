@@ -34,12 +34,15 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuTextContentFrame::RiuTextContentFrame( QWidget* parent, const QString& title, const QString& text )
+RiuTextContentFrame::RiuTextContentFrame( QWidget* parent, const QString& title, const QString& text, int fontPixelSize )
     : RiuAbstractOverlayContentFrame( parent )
     , m_title( title )
     , m_text( text )
+    , m_fontPixelSize( fontPixelSize )
 {
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
+
+    updateFontSize();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,6 +74,7 @@ QSize RiuTextContentFrame::minimumSizeHint() const
 {
     LayoutInfo layout( QSize( 200, 100 ) ); // Use default size
     layoutInfo( &layout );
+
     QFont titleFont = font();
     titleFont.setBold( true );
     QFontMetrics fontMetrics( titleFont );
@@ -159,4 +163,21 @@ void RiuTextContentFrame::layoutInfo( LayoutInfo* layout ) const
     layout->lineSpacing       = fontMetrics.lineSpacing();
     layout->margins           = QMargins( 8, 8, 8, 8 );
     layout->tickTextLeadSpace = 5;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuTextContentFrame::updateFontSize()
+{
+    if ( m_fontPixelSize != -1 )
+    {
+        QFont font = this->font();
+        font.setPixelSize( m_fontPixelSize );
+        setFont( font );
+    }
+    else
+    {
+        RiuAbstractOverlayContentFrame::updateFontSize();
+    }
 }

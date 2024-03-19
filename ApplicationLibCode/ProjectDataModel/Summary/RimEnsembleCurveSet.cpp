@@ -1756,7 +1756,7 @@ void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
             }
             if ( !title.isEmpty() && !description.isEmpty() )
             {
-                m_objectiveFunctionOverlayFrame->setContentFrame( new RiuTextContentFrame( nullptr, title, description ) );
+                m_objectiveFunctionOverlayFrame->setContentFrame( new RiuTextContentFrame( nullptr, title, description, -1 ) );
                 m_objectiveFunctionOverlayFrame->setMaximumWidth( 10000 );
                 plot->plotWidget()->addOverlayFrame( m_objectiveFunctionOverlayFrame );
             }
