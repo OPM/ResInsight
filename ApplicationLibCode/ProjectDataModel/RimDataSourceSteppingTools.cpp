@@ -18,12 +18,10 @@
 
 #include "RimDataSourceSteppingTools.h"
 
-#include "RiaSummaryAddressAnalyzer.h"
+#include "RimProject.h"
+#include "RimSummaryCalculationCollection.h"
 
 #include "RifEclipseSummaryAddress.h"
-#include "cafPdmUiFieldHandle.h"
-
-#include "cvfAssert.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -184,12 +182,34 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
 //--------------------------------------------------------------------------------------------------
 bool RimDataSourceSteppingTools::updateQuantityIfMatching( const QVariant& oldValue, const QVariant& newValue, RifEclipseSummaryAddress& adr )
 {
-    std::string oldString = oldValue.toString().toStdString();
-    std::string newString = newValue.toString().toStdString();
+    std::string oldString  = oldValue.toString().toStdString();
+    auto        newQString = newValue.toString();
+    std::string newString  = newQString.toStdString();
+
+    // Calculation ID < 0 means native summary vector
+    int calculationId = -1;
+
+    RimSummaryCalculationCollection* calculationColl = RimProject::current()->calculationCollection();
+    if ( calculationColl )
+    {
+        // Parse the calculations and find ID if text is matching. This can cause issues if a calculation has the same name as a native
+        // summary vector imported from file.
+
+        auto calculations = calculationColl->calculations();
+        for ( auto c : calculations )
+        {
+            if ( c->shortName() == newQString )
+            {
+                calculationId = c->id();
+                break;
+            }
+        }
+    }
 
     if ( adr.vectorName() == oldString )
     {
         adr.setVectorName( newString );
+        adr.setId( calculationId );
 
         return true;
     }
