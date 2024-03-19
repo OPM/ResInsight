@@ -25,10 +25,7 @@
 #include "RiuTextContentFrame.h"
 
 #include <cafPdmUiPushButtonEditor.h>
-#include <cafPdmUiTableViewEditor.h>
 #include <cafPdmUiTreeOrdering.h>
-
-#include <algorithm>
 
 CAF_PDM_SOURCE_INIT( RimEnsembleCurveFilterCollection, "RimEnsembleCurveFilterCollection" );
 
@@ -43,7 +40,6 @@ RimEnsembleCurveFilterCollection::RimEnsembleCurveFilterCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_filters, "CurveFilters", "" );
     m_filters.uiCapability()->setUiTreeChildrenHidden( true );
-    // m_filters.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
     m_filters.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_newFilterButton, "NewEnsembleFilter", "New Filter" );
@@ -247,7 +243,18 @@ RiuTextContentFrame* RimEnsembleCurveFilterCollection::makeFilterDescriptionFram
 {
     QString descriptions = filterDescriptions();
     descriptions.replace( "+", "\n+" );
-    return new RiuTextContentFrame( nullptr, QString( "Active curve filters:" ), descriptions );
+
+    // A size of -1 use default plot font
+    int fontSize = -1;
+
+    auto plotWindow = firstAncestorOrThisOfType<RimPlotWindow>();
+    if ( plotWindow )
+    {
+        const double scalingFactor = 1.4;
+        fontSize                   = scalingFactor * plotWindow->fontSize();
+    }
+
+    return new RiuTextContentFrame( nullptr, QString( "Active curve filters:" ), descriptions, fontSize );
 }
 
 //--------------------------------------------------------------------------------------------------
