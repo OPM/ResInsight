@@ -73,8 +73,21 @@ private:
     grpc::Status initializeGridGeometryGeneratorWithEclipseViewCellVisibility( cvf::StructGridGeometryGenerator& generator,
                                                                                RimEclipseView* view );
 
-    RiaApplication* m_application = nullptr;
-    RimEclipseCase* m_eclipseCase = nullptr;
-
+    RiaApplication*                                  m_application          = nullptr;
+    RimEclipseCase*                                  m_eclipseCase          = nullptr;
     std::unique_ptr<RigGridCellFaceVisibilityFilter> m_faceVisibilityFilter = nullptr;
+
+    struct ElapsedTimeInfo
+    {
+        std::uint32_t                        totalTimeElapsedMs = 0; // Total time elapsed for entire request
+        std::map<std::string, std::uint32_t> elapsedTimePerEventMs; // Time elapsed for each custom named event
+
+        void reset()
+        {
+            totalTimeElapsedMs = 0;
+            elapsedTimePerEventMs.clear();
+        }
+    };
+
+    ElapsedTimeInfo m_elapsedTimeInfo;
 };

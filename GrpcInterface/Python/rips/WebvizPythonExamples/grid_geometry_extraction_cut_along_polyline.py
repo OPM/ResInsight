@@ -15,7 +15,7 @@ grid_geometry_extraction_stub = GridGeometryExtractionStub(rips_instance.channel
 
 grid_file_name = "MOCKED_TEST_GRID"
 grid_file_name = (
-    "D:\\Git\\resinsight-tutorials\\model-data\\norne\\NORNE_ATW2013_RFTPLT_V2.EGRID"
+    "D:/Git/resinsight-tutorials/model-data/norne/NORNE_ATW2013_RFTPLT_V2.EGRID"
 )
 
 # Test polylines
@@ -51,6 +51,11 @@ cut_along_polyline_request = GridGeometryExtraction__pb2.CutAlongPolylineRequest
 )
 cut_along_polyline_response: GridGeometryExtraction__pb2.CutAlongPolylineResponse = (
     grid_geometry_extraction_stub.CutAlongPolyline(cut_along_polyline_request)
+)
+
+total_time_elapsed = cut_along_polyline_response.timeElapsedInfo.totalTimeElapsedMs
+named_events_and_time_elapsed = (
+    cut_along_polyline_response.timeElapsedInfo.namedEventsAndTimeElapsedMs
 )
 
 fence_mesh_sections = cut_along_polyline_response.fenceMeshSections
@@ -201,5 +206,9 @@ fig = go.Figure(data=figure_data)
 #     f"Grid dimensions [I, J, K]: [{grid_dimensions.dimensions.i}, {grid_dimensions.dimensions.j}, {grid_dimensions.dimensions.k}]"
 # )
 print(fig.data)
+print(f"Total time elapsed: {total_time_elapsed} ms")
+# print(f"Time elapsed per event [ms]: {named_events_and_time_elapsed}")
+for message, time_elapsed in named_events_and_time_elapsed.items():
+    print(f"{message}: {time_elapsed}")
 
 fig.show()

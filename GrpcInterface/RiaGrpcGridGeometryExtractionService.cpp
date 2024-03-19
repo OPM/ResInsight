@@ -55,6 +55,29 @@
 #include "qfileinfo.h"
 #include "qstring.h"
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class ElapsedTimeCount
+{
+public:
+    ElapsedTimeCount(): m_start( std::chrono::high_resolution_clock::now() ){};
+    ~ElapsedTimeCount() = default;
+
+    long long elapsedMsCount() const
+    {
+        const auto end     = std::chrono::high_resolution_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>( end - m_start );
+        return elapsed.count();
+    }
+
+private:
+    const std::chrono::high_resolution_clock::time_point m_start;
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaGrpcGridGeometryExtractionService::RiaGrpcGridGeometryExtractionService()
 {
 }
@@ -66,6 +89,9 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
                                                                    const rips::GetGridSurfaceRequest* request,
                                                                    rips::GetGridSurfaceResponse*      response )
 {
+    m_elapsedTimeInfo.reset();
+    auto totalTimeCount = ElapsedTimeCount();
+
     // Initialize pointers
     grpc::Status status = initializeApplicationAndEclipseCaseFromAbsoluteFilePath( request->gridfilename() );
     if ( status.error_code() != grpc::StatusCode::OK )
@@ -90,33 +116,42 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
         }
     }
 
-    // Ensure static geometry parts created for grid part manager in view
+    // Configure eclipse view
+    // - Ensure static geometry parts created for grid part manager in view
+    // - Initialize grid geometry generator
+    auto createGridGeometryPartsTimeCount = ElapsedTimeCount();
     eclipseView->createGridGeometryParts();
+    m_elapsedTimeInfo.elapsedTimePerEventMs["CreateGridGeometryParts"] =
+        static_cast<std::uint32_t>( createGridGeometryPartsTimeCount.elapsedMsCount() );
 
-    // Initialize grid geometry generator
     const bool useOpenMP             = false;
-    auto       gridGeometryGenerator = cvf::StructGridGeometryGenerator( m_eclipseCase->mainGrid(), useOpenMP );
+    auto       gridGeometryGenerator = cvf::StructGridGeometryGenerator( eclipseView->mainGrid(), useOpenMP );
     status = initializeGridGeometryGeneratorWithEclipseViewCellVisibility( gridGeometryGenerator, eclipseView );
     if ( status.error_code() != grpc::StatusCode::OK )
     {
         return status;
     }
 
-    auto* gridSurfaceVertices = gridGeometryGenerator.getOrCreateVertices();
+    // Create grid surface vertices
+    auto  createVerticesTimeCount = ElapsedTimeCount();
+    auto* gridSurfaceVertices     = gridGeometryGenerator.getOrCreateVertices();
     if ( gridSurfaceVertices == nullptr )
     {
         return grpc::Status( grpc::StatusCode::NOT_FOUND, "No grid vertices found" );
     }
+    m_elapsedTimeInfo.elapsedTimePerEventMs["CreateGridSurfaceVertices"] =
+        static_cast<std::uint32_t>( createVerticesTimeCount.elapsedMsCount() );
 
     // Set vertex_array and quadindicesarr response
-    for ( int i = 0; i < gridSurfaceVertices->size(); ++i )
+    auto fillResponseTimeCount = ElapsedTimeCount();
+    for ( size_t i = 0; i < gridSurfaceVertices->size(); ++i )
     {
         const auto& vertex = gridSurfaceVertices->get( i );
         response->add_vertexarray( vertex.x() );
         response->add_vertexarray( vertex.y() );
         response->add_vertexarray( vertex.z() );
 
-        response->add_quadindicesarr( i );
+        response->add_quadindicesarr( static_cast<google::protobuf::uint32>( i ));
     }
 
     // Origin in utm is the offset
@@ -143,19 +178,33 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
     }
 
     // Set grid dimensions
-    const auto   countI     = m_eclipseCase->mainGrid()->cellCountI();
-    const auto   countJ     = m_eclipseCase->mainGrid()->cellCountJ();
-    const auto   countK     = m_eclipseCase->mainGrid()->cellCountK();
     rips::Vec3i* dimensions = new rips::Vec3i;
-    dimensions->set_i( countI );
-    dimensions->set_j( countJ );
-    dimensions->set_k( countK );
+    dimensions->set_i( m_eclipseCase->mainGrid()->cellCountK() );
+    dimensions->set_j( m_eclipseCase->mainGrid()->cellCountK() );
+    dimensions->set_k( m_eclipseCase->mainGrid()->cellCountK() );
     response->set_allocated_griddimensions( dimensions );
+
+    m_elapsedTimeInfo.elapsedTimePerEventMs["FillResponse"] =
+        static_cast<std::uint32_t>( fillResponseTimeCount.elapsedMsCount() );
 
     // Clear existing view
     tearDownExistingViewsInEclipseCase();
     eclipseView = nullptr;
     delete eclipseView;
+
+    // Fill elapsed time info
+    m_elapsedTimeInfo.totalTimeElapsedMs = static_cast<std::uint32_t>( totalTimeCount.elapsedMsCount() );
+
+    // Add elapsed time info to response
+    rips::TimeElapsedInfo* elapsedTimeInfo = new rips::TimeElapsedInfo;
+    elapsedTimeInfo->set_totaltimeelapsedms( m_elapsedTimeInfo.totalTimeElapsedMs );
+    for ( const auto& event : m_elapsedTimeInfo.elapsedTimePerEventMs )
+    {
+        const auto& message                                                  = event.first;
+        const auto& timeElapsed                                              = event.second;
+        ( *elapsedTimeInfo->mutable_namedeventsandtimeelapsedms() )[message] = timeElapsed;
+    }
+    response->set_allocated_timeelapsedinfo( elapsedTimeInfo );
 
     return grpc::Status::OK;
 }
@@ -167,6 +216,9 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
                                                                      const rips::CutAlongPolylineRequest* request,
                                                                      rips::CutAlongPolylineResponse*      response )
 {
+    m_elapsedTimeInfo.reset();
+    auto totalTimeCount = ElapsedTimeCount();
+
     // Initialize pointers
     grpc::Status status = initializeApplicationAndEclipseCaseFromAbsoluteFilePath( request->gridfilename() );
     if ( status.error_code() != grpc::StatusCode::OK )
@@ -188,7 +240,11 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
         return grpc::Status( grpc::StatusCode::NOT_FOUND, "No eclipse view found" );
     }
     eclipseView->setShowInactiveCells( true );
+
+    auto createGridGeometryPartsTimeCount = ElapsedTimeCount();
     eclipseView->createGridGeometryParts();
+    m_elapsedTimeInfo.elapsedTimePerEventMs["CreateGridGeometryParts"] =
+        static_cast<std::uint32_t>( createGridGeometryPartsTimeCount.elapsedMsCount() );
 
     // Convert polyline to vector of cvf::Vec3d
     std::vector<cvf::Vec2d> polylineUtmXy;
@@ -213,13 +269,17 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
     eclipseView->calculateCurrentTotalCellVisibility( &visibleCells, firstTimeStep );
 
     // Generate intersection
+    auto generateIntersectionTimeCount = ElapsedTimeCount();
     polylineIntersectionGenerator.generateIntersectionGeometry( &visibleCells );
     if ( !polylineIntersectionGenerator.isAnyGeometryPresent() )
     {
         return grpc::Status( grpc::StatusCode::INVALID_ARGUMENT, "No intersection geometry present" );
     }
+    m_elapsedTimeInfo.elapsedTimePerEventMs["GenerateIntersection"] =
+        static_cast<std::uint32_t>( generateIntersectionTimeCount.elapsedMsCount() );
 
-    // Add fence mesh sections
+    // Add fence mesh sections to response
+    auto        fillResponseTimeCount    = ElapsedTimeCount();
     const auto& polylineSegmentsMeshData = polylineIntersectionGenerator.polylineSegmentsMeshData();
     for ( const auto& segment : polylineSegmentsMeshData )
     {
@@ -262,9 +322,20 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
         }
     }
 
+    // Add grid dimensions
+    rips::Vec3i* dimensions = new rips::Vec3i;
+    dimensions->set_i( m_eclipseCase->mainGrid()->cellCountI() );
+    dimensions->set_j( m_eclipseCase->mainGrid()->cellCountJ() );
+    dimensions->set_k( m_eclipseCase->mainGrid()->cellCountK() );
+    response->set_allocated_griddimensions( dimensions );
+
+    m_elapsedTimeInfo.elapsedTimePerEventMs["FillResponse"] =
+        static_cast<std::uint32_t>( fillResponseTimeCount.elapsedMsCount() );
+
     // Add temporary test response
     {
-        rips::PolylineTestResponse* polylineTestResponse = new rips::PolylineTestResponse;
+        auto                        fillTestResponseTimeCount = ElapsedTimeCount();
+        rips::PolylineTestResponse* polylineTestResponse      = new rips::PolylineTestResponse;
 
         // Polygon vertices
         const auto& polygonVertices = polylineIntersectionGenerator.polygonVxes();
@@ -272,7 +343,7 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
         {
             return grpc::Status( grpc::StatusCode::NOT_FOUND, "No polygon vertices found for polyline" );
         }
-        for ( int i = 0; i < polygonVertices->size(); ++i )
+        for ( size_t i = 0; i < polygonVertices->size(); ++i )
         {
             const auto& vertex = polygonVertices->get( i );
             polylineTestResponse->add_polygonvertexarray( vertex.x() );
@@ -295,12 +366,28 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
         }
 
         response->set_allocated_polylinetestresponse( polylineTestResponse );
+        m_elapsedTimeInfo.elapsedTimePerEventMs["FillResponse"] =
+            static_cast<std::uint32_t>( fillTestResponseTimeCount.elapsedMsCount() );
     }
 
     // Clear existing view
     tearDownExistingViewsInEclipseCase();
     eclipseView = nullptr;
     delete eclipseView;
+
+    // Fill elapsed time info
+    m_elapsedTimeInfo.totalTimeElapsedMs = static_cast<std::uint32_t>( totalTimeCount.elapsedMsCount() );
+
+    // Add elapsed time info to response
+    rips::TimeElapsedInfo* elapsedTimeInfo = new rips::TimeElapsedInfo;
+    elapsedTimeInfo->set_totaltimeelapsedms( m_elapsedTimeInfo.totalTimeElapsedMs );
+    for ( const auto& event : m_elapsedTimeInfo.elapsedTimePerEventMs )
+    {
+        const auto& message                                                  = event.first;
+        const auto& timeElapsed                                              = event.second;
+        ( *elapsedTimeInfo->mutable_namedeventsandtimeelapsedms() )[message] = timeElapsed;
+    }
+    response->set_allocated_timeelapsedinfo( elapsedTimeInfo );
 
     return grpc::Status::OK;
 }
@@ -431,7 +518,7 @@ grpc::Status RiaGrpcGridGeometryExtractionService::initializeGridGeometryGenerat
         return grpc::Status( grpc::StatusCode::NOT_FOUND, "Uninitialized eclipse view provided" );
     }
 
-    auto* mainGrid = m_eclipseCase->mainGrid();
+    auto* mainGrid = view->mainGrid();
     if ( mainGrid == nullptr )
     {
         return grpc::Status( grpc::StatusCode::NOT_FOUND, "No main grid found for eclipse view" );
@@ -513,7 +600,10 @@ grpc::Status
         else
         {
             // Load case from file name
-            auto status = loadGridGeometryFromAbsoluteFilePath( filePath );
+            auto loadCaseFromFileNameTimeCount = ElapsedTimeCount();
+            auto status                        = loadGridGeometryFromAbsoluteFilePath( filePath );
+            m_elapsedTimeInfo.elapsedTimePerEventMs["LoadGridFromFilePath"] =
+                static_cast<std::uint32_t>( loadCaseFromFileNameTimeCount.elapsedMsCount() );
             if ( status.error_code() != grpc::StatusCode::OK ) return status;
         }
 
@@ -547,7 +637,10 @@ grpc::Status
     }
     if ( m_eclipseCase->views().empty() )
     {
+        auto createAndAddViewTimeCount = ElapsedTimeCount();
         m_eclipseCase->createAndAddReservoirView();
+        m_elapsedTimeInfo.elapsedTimePerEventMs["CreateAndAddView"] =
+            static_cast<std::uint32_t>( createAndAddViewTimeCount.elapsedMsCount() );
     }
 
     return grpc::Status::OK;

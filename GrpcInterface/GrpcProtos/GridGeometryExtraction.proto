@@ -11,6 +11,12 @@ service GridGeometryExtraction
     rpc CutAlongPolyline(CutAlongPolylineRequest) returns (CutAlongPolylineResponse);
 }
 
+message TimeElapsedInfo
+{
+	fixed32 totalTimeElapsedMs = 1; // Total time elapsed for the entire request
+    map<string, fixed32> namedEventsAndTimeElapsedMs = 2; // Time elapsed for each custom named event
+}
+
 message IJKIndexFilter
 {
     int32 iMin = 1;
@@ -49,6 +55,7 @@ message GetGridSurfaceResponse
     repeated fixed32 sourceCellIndicesArr = 3;  // The originating cell index per quad, longnumQuads long
     Vec3i gridDimensions = 5;
     Vec3d originUtm = 6;
+    TimeElapsedInfo timeElapsedInfo = 7;
 }
 
 message CutAlongPolylineRequest 
@@ -80,6 +87,7 @@ message CutAlongPolylineResponse
 {
     repeated FenceMeshSection fenceMeshSections = 1;
     PolylineTestResponse polylineTestResponse = 2;
-    Vec3i gridDimensions = 3;
+    TimeElapsedInfo timeElapsedInfo = 3;
+    Vec3i gridDimensions = 4;
 }
 

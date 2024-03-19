@@ -13,7 +13,7 @@ grid_geometry_extraction_stub = GridGeometryExtractionStub(rips_instance.channel
 
 # grid_file_name = "MOCKED_TEST_GRID"
 grid_file_name = (
-    "D:\\Git\\resinsight-tutorials\\model-data\\norne\\NORNE_ATW2013_RFTPLT_V2.EGRID"
+    "D:/Git/resinsight-tutorials/model-data/norne/NORNE_ATW2013_RFTPLT_V2.EGRID"
 )
 
 # Test polylines

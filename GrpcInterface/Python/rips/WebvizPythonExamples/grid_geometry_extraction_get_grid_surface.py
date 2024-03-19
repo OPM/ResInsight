@@ -6,18 +6,22 @@ from rips.instance import *
 from rips.generated.GridGeometryExtraction_pb2_grpc import *
 from rips.generated.GridGeometryExtraction_pb2 import *
 
+# from ..instance import *
+# from ..generated.GridGeometryExtraction_pb2_grpc import *
+# from ..generated.GridGeometryExtraction_pb2 import *
+
 rips_instance = Instance.find()
 grid_geometry_extraction_stub = GridGeometryExtractionStub(rips_instance.channel)
 
-# grid_file_name = "MOCKED_TEST_GRID"
 grid_file_name = (
-    "D:\\Git\\resinsight-tutorials\\model-data\\norne\\NORNE_ATW2013_RFTPLT_V2.EGRID"
+    "D:/Git/resinsight-tutorials/model-data/norne/NORNE_ATW2013_RFTPLT_V2.EGRID"
 )
+# grid_file_name = "MOCKED_TEST_GRID"
 
-# ijk_index_filter = GridGeometryExtraction__pb2.IJKIndexFilter(
-#     iMin=0, iMax=1, jMin=1, jMax=3, kMin=3, kMax=3
-# )
-ijk_index_filter = None
+ijk_index_filter = GridGeometryExtraction__pb2.IJKIndexFilter(
+    iMin=-1, iMax=-1, jMin=-1, jMax=-1, kMin=-1, kMax=-1
+)
+# ijk_index_filter = None
 
 get_grid_surface_request = GridGeometryExtraction__pb2.GetGridSurfaceRequest(
     gridFilename=grid_file_name,
@@ -27,6 +31,11 @@ get_grid_surface_request = GridGeometryExtraction__pb2.GetGridSurfaceRequest(
 )
 get_grid_surface_response: GridGeometryExtraction__pb2.GetGridSurfaceResponse = (
     grid_geometry_extraction_stub.GetGridSurface(get_grid_surface_request)
+)
+
+total_time_elapsed = get_grid_surface_response.timeElapsedInfo.totalTimeElapsedMs
+named_events_and_time_elapsed = (
+    get_grid_surface_response.timeElapsedInfo.namedEventsAndTimeElapsedMs
 )
 
 vertex_array = get_grid_surface_response.vertexArray
@@ -44,9 +53,9 @@ x_array = []
 y_array = []
 z_array = []
 for i in range(0, len(vertex_array), num_vertex_coords):
-    x_array.append(vertex_array[i + 0] + origin_utm.x)
-    y_array.append(vertex_array[i + 1] + origin_utm.y)
-    z_array.append(vertex_array[i + 2] + origin_utm.z)
+    x_array.append(vertex_array[i + 0])
+    y_array.append(vertex_array[i + 1])
+    z_array.append(vertex_array[i + 2])
 
 # Create triangular mesh
 i_array = []
@@ -75,6 +84,7 @@ fig = go.Figure(
     ]
 )
 
+
 print(f"Number of quads: {num_quads}")
 print(f"Source cell indices array length: {len(source_cell_indices_arr)}")
 print(
@@ -84,5 +94,10 @@ print(
     f"Grid dimensions [I, J, K]: [{grid_dimensions.i}, {grid_dimensions.j}, {grid_dimensions.k}]"
 )
 print(fig.data)
+
+print(f"Total time elapsed: {total_time_elapsed} ms")
+# print(f"Time elapsed per event [ms]: {named_events_and_time_elapsed}")
+for message, time_elapsed in named_events_and_time_elapsed.items():
+    print(f"{message}: {time_elapsed}")
 
 fig.show()
