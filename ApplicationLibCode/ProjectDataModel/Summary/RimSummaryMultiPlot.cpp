@@ -157,6 +157,7 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
 
     m_sourceStepping = new RimSummaryPlotSourceStepping;
     m_sourceStepping->setSourceSteppingObject( this );
+    m_sourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_sourceStepping.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_defaultStepDimension, "DefaultStepDimension", "Default Step Dimension" );
