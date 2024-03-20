@@ -66,6 +66,7 @@ private:
     void resetInternalPointers();
     void tearDownExistingViewsInEclipseCase();
 
+    grpc::Status ensureViewInEclipseCase( RimEclipseCase& eclipseCase );
     grpc::Status loadGridGeometryFromAbsoluteFilePath( const std::string filePath );
     grpc::Status applyIJKCellFilterToEclipseView( const rips::IJKIndexFilter& filter, RimEclipseView* view );
     grpc::Status initializeApplicationAndEclipseCaseFromAbsoluteFilePath( const std::string filePath );
