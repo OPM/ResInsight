@@ -18,9 +18,11 @@
 
 #include "RicNewRangeFilterSliceFeature.h"
 
+#include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
 #include "RimCellRangeFilter.h"
+
 #include "Riu3DMainWindowTools.h"
 
 #include "cafCmdExecCommandManager.h"
@@ -45,13 +47,16 @@ void RicNewRangeFilterSliceFeature::onActionTriggered( bool isChecked )
     RimCellFilterCollection* filtColl = colls[0];
 
     // and the case to use
-    RimCase* sourceCase = filtColl->firstAncestorOrThisOfTypeAsserted<RimCase>();
+    RimCase* sourceCase = filtColl->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
 
-    int            gridIndex            = 0;
-    RimCellFilter* lastCreatedOrUpdated = filtColl->addNewCellRangeFilter( sourceCase, gridIndex, m_sliceDirection );
-    if ( lastCreatedOrUpdated )
+    if ( sourceCase )
     {
-        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
+        int            gridIndex            = 0;
+        RimCellFilter* lastCreatedOrUpdated = filtColl->addNewCellRangeFilter( sourceCase, gridIndex, m_sliceDirection );
+        if ( lastCreatedOrUpdated )
+        {
+            Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
+        }
     }
 }
 

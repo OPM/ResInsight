@@ -18,9 +18,11 @@
 
 #include "RicNewUserDefinedFilterFeature.h"
 
+#include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
 #include "RimUserDefinedFilter.h"
+
 #include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManagerTools.h"
@@ -41,12 +43,15 @@ void RicNewUserDefinedFilterFeature::onActionTriggered( bool isChecked )
     RimCellFilterCollection* filtColl = colls[0];
 
     // and the case to use
-    RimCase* sourceCase = filtColl->firstAncestorOrThisOfTypeAsserted<RimCase>();
+    RimCase* sourceCase = filtColl->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
 
-    RimUserDefinedFilter* lastCreatedOrUpdated = filtColl->addNewUserDefinedFilter( sourceCase );
-    if ( lastCreatedOrUpdated )
+    if ( sourceCase )
     {
-        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
+        RimUserDefinedFilter* lastCreatedOrUpdated = filtColl->addNewUserDefinedFilter( sourceCase );
+        if ( lastCreatedOrUpdated )
+        {
+            Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
+        }
     }
 }
 

@@ -806,13 +806,16 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 
             options.push_back( caf::PdmOptionItemInfo( "Disabled", RigEclipseResultAddress::noTimeLapseValue() ) );
 
-            std::vector<QDateTime> stepDates = baseCase->timeStepDates();
-            for ( size_t stepIdx = 0; stepIdx < stepDates.size(); ++stepIdx )
+            if ( baseCase )
             {
-                QString displayString = stepDates[stepIdx].toString( RiaQDateTimeTools::dateFormatString() );
-                displayString += QString( " (#%1)" ).arg( stepIdx );
+                std::vector<QDateTime> stepDates = baseCase->timeStepDates();
+                for ( size_t stepIdx = 0; stepIdx < stepDates.size(); ++stepIdx )
+                {
+                    QString displayString = stepDates[stepIdx].toString( RiaQDateTimeTools::dateFormatString() );
+                    displayString += QString( " (#%1)" ).arg( stepIdx );
 
-                options.push_back( caf::PdmOptionItemInfo( displayString, static_cast<int>( stepIdx ) ) );
+                    options.push_back( caf::PdmOptionItemInfo( displayString, static_cast<int>( stepIdx ) ) );
+                }
             }
         }
     }
