@@ -50,11 +50,12 @@ message GetGridSurfaceRequest
     
 message GetGridSurfaceResponse
 {
-    repeated float vertexArray = 1;
+    // Vertex array with local x and y coordinates, around originUtmXy. z is coordinate on global Z
+    repeated float vertexArray = 1; // [x0, y0, z0, x1, y1, z1, ...]
     repeated fixed32 quadIndicesArr = 2;        // 4*NumQuads long
     repeated fixed32 sourceCellIndicesArr = 3;  // The originating cell index per quad, longnumQuads long
     Vec3i gridDimensions = 5;
-    Vec3d originUtm = 6;
+    Vec2d originUtmXy = 6;
     TimeElapsedInfo timeElapsedInfo = 7;
 }
 

@@ -149,25 +149,27 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
     m_elapsedTimeInfo.elapsedTimePerEventMs["CreateGridSurfaceVertices"] =
         static_cast<std::uint32_t>( createVerticesTimeCount.elapsedMsCount() );
 
+    // Retrieve the UTM offset
+    const auto mainGridModelOffset = m_eclipseCase->mainGrid()->displayModelOffset();
+
     // Set vertex_array and quadindicesarr response
-    auto fillResponseTimeCount = ElapsedTimeCount();
+    auto       fillResponseTimeCount = ElapsedTimeCount();
+    const auto zAxisOffset           = mainGridModelOffset.z();
     for ( size_t i = 0; i < gridSurfaceVertices->size(); ++i )
     {
         const auto& vertex = gridSurfaceVertices->get( i );
         response->add_vertexarray( vertex.x() );
         response->add_vertexarray( vertex.y() );
-        response->add_vertexarray( vertex.z() );
+        response->add_vertexarray( vertex.z() + zAxisOffset );
 
         response->add_quadindicesarr( static_cast<google::protobuf::uint32>( i ) );
     }
 
-    // Origin in utm is the offset
-    rips::Vec3d* modelOffset         = new rips::Vec3d;
-    const auto   mainGridModelOffset = m_eclipseCase->mainGrid()->displayModelOffset();
-    modelOffset->set_x( mainGridModelOffset.x() );
-    modelOffset->set_y( mainGridModelOffset.y() );
-    modelOffset->set_z( mainGridModelOffset.z() );
-    response->set_allocated_originutm( modelOffset );
+    // Origin is the UTM offset
+    rips::Vec2d* originUtmXy = new rips::Vec2d;
+    originUtmXy->set_x( mainGridModelOffset.x() );
+    originUtmXy->set_y( mainGridModelOffset.y() );
+    response->set_allocated_originutmxy( originUtmXy );
 
     // Source cell indices from main grid part manager
     std::vector<size_t> sourceCellIndicesArray = std::vector<size_t>();

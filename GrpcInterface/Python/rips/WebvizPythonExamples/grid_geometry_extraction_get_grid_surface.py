@@ -40,7 +40,7 @@ named_events_and_time_elapsed = (
 
 vertex_array = get_grid_surface_response.vertexArray
 quad_indices_array = get_grid_surface_response.quadIndicesArr
-origin_utm = get_grid_surface_response.originUtm
+origin_utm_xy = get_grid_surface_response.originUtmXy
 source_cell_indices_arr = get_grid_surface_response.sourceCellIndicesArr
 grid_dimensions = get_grid_surface_response.gridDimensions
 
@@ -87,9 +87,7 @@ fig = go.Figure(
 
 print(f"Number of quads: {num_quads}")
 print(f"Source cell indices array length: {len(source_cell_indices_arr)}")
-print(
-    f"Origin UTM coordinates [x, y, z]: [{origin_utm.x}, {origin_utm.y}, {origin_utm.z}]"
-)
+print(f"Origin UTM coordinates [x, y]: [{origin_utm_xy.x}, {origin_utm_xy.y}]")
 print(
     f"Grid dimensions [I, J, K]: [{grid_dimensions.i}, {grid_dimensions.j}, {grid_dimensions.k}]"
 )
