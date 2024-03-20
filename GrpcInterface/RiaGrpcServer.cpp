@@ -37,6 +37,7 @@
 #include <grpcpp/grpcpp.h>
 
 #include <QTcpServer>
+#include <omp.h>
 
 using grpc::CompletionQueue;
 using grpc::Server;
@@ -140,6 +141,13 @@ void RiaGrpcServerImpl::initialize()
     CAF_ASSERT( m_portNumber >= 0 && m_portNumber <= (int)std::numeric_limits<quint16>::max() );
 
     ServerBuilder builder;
+
+    int numOmpThreads = 0;
+#pragma omp parallel
+    {
+        numOmpThreads = omp_get_num_threads();
+    }
+    RiaLogging::info( QString( "OpenMP Num Threads: %1" ).arg( numOmpThreads ) );
 
     // When setting port number to 0, grpc will find and use a valid port number
     // The port number is assigned to the m_portNumber variable after calling builder.BuildAndStart()
