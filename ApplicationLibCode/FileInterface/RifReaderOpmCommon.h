@@ -56,6 +56,8 @@ private:
                            RigGridBase*        riGrid,
                            RigEclipseCaseData* caseData );
 
+    bool isDualPorosity( Opm::EclIO::EGrid& opmMainGrid );
+
     struct TimeDataFile
     {
         int    sequenceNumber;
