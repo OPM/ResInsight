@@ -188,8 +188,8 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
 
     // Set grid dimensions
     rips::Vec3i* dimensions = new rips::Vec3i;
-    dimensions->set_i( m_eclipseCase->mainGrid()->cellCountK() );
-    dimensions->set_j( m_eclipseCase->mainGrid()->cellCountK() );
+    dimensions->set_i( m_eclipseCase->mainGrid()->cellCountI() );
+    dimensions->set_j( m_eclipseCase->mainGrid()->cellCountJ() );
     dimensions->set_k( m_eclipseCase->mainGrid()->cellCountK() );
     response->set_allocated_griddimensions( dimensions );
 
