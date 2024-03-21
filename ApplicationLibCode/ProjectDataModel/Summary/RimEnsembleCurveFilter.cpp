@@ -19,6 +19,7 @@
 #include "RimEnsembleCurveFilter.h"
 
 #include "RiaCurveDataTools.h"
+#include "RiaStdStringTools.h"
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RimCustomObjectiveFunction.h"
@@ -106,6 +107,8 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
 
     CAF_PDM_InitFieldNoDefault( &m_categories, "Categories", "Categories" );
 
+    CAF_PDM_InitFieldNoDefault( &m_realizationFilter, "RealizationFilter", "Realization Filter" );
+
     setDeletable( true );
 }
 
@@ -185,6 +188,11 @@ QString RimEnsembleCurveFilter::description() const
     QString descriptor;
     if ( m_filterMode() == FilterMode::BY_ENSEMBLE_PARAMETER )
     {
+        if ( m_ensembleParameterName() == RiaDefines::summaryRealizationNumber() )
+        {
+            return "Realizations : " + m_realizationFilter;
+        }
+
         descriptor = QString( "%0" ).arg( m_ensembleParameterName() );
     }
     else if ( m_filterMode() == FilterMode::BY_OBJECTIVE_FUNCTION )
@@ -357,7 +365,8 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
         }
         updateMaxMinAndDefaultValues( true );
     }
-    else if ( changedField == &m_active || changedField == &m_minValue || changedField == &m_maxValue || changedField == &m_categories )
+    else if ( changedField == &m_active || changedField == &m_minValue || changedField == &m_maxValue || changedField == &m_categories ||
+              changedField == &m_realizationFilter )
     {
         if ( curveSet )
         {
@@ -458,7 +467,11 @@ void RimEnsembleCurveFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         uiOrdering.add( &m_customObjectiveFunction );
     }
 
-    if ( eParam.isNumeric() )
+    if ( m_ensembleParameterName() == RiaDefines::summaryRealizationNumber() )
+    {
+        uiOrdering.add( &m_realizationFilter );
+    }
+    else if ( eParam.isNumeric() )
     {
         uiOrdering.add( &m_minValue );
         uiOrdering.add( &m_maxValue );
@@ -506,6 +519,19 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
     auto ensemble = curveSet ? curveSet->summaryCaseCollection() : nullptr;
     if ( !ensemble || !isActive() ) return allSumCases;
 
+    bool          useIntegerSelection = false;
+    std::set<int> integerSelection;
+
+    if ( m_ensembleParameterName() == RiaDefines::summaryRealizationNumber() )
+    {
+        auto eParam   = selectedEnsembleParameter();
+        int  minValue = eParam.minValue;
+        int  maxValue = eParam.maxValue;
+
+        integerSelection    = RiaStdStringTools::valuesFromRangeSelection( m_realizationFilter().toStdString(), minValue, maxValue );
+        useIntegerSelection = true;
+    }
+
     std::set<RimSummaryCase*> casesToRemove;
     for ( const auto& sumCase : allSumCases )
     {
@@ -517,7 +543,16 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
 
             auto crpValue = sumCase->caseRealizationParameters()->parameterValue( m_ensembleParameterName() );
 
-            if ( eParam.isNumeric() )
+            if ( useIntegerSelection )
+            {
+                int integerValue = crpValue.numericValue();
+
+                if ( !integerSelection.contains( integerValue ) )
+                {
+                    casesToRemove.insert( sumCase );
+                }
+            }
+            else if ( eParam.isNumeric() )
             {
                 if ( !crpValue.isNumeric() || crpValue.numericValue() < m_minValue() || crpValue.numericValue() > m_maxValue() )
                 {
@@ -653,6 +688,19 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
 
             m_minValue.uiCapability()->setUiName( QString( "Min (%1)" ).arg( m_lowerLimit ) );
             m_maxValue.uiCapability()->setUiName( QString( "Max (%1)" ).arg( m_upperLimit ) );
+
+            if ( m_ensembleParameterName() == RiaDefines::summaryRealizationNumber() )
+            {
+                int lower = eParam.minValue;
+                int upper = eParam.maxValue;
+
+                m_realizationFilter.uiCapability()->setUiName( QString( "Integer Selection\n[%1..%2]" ).arg( lower ).arg( upper ) );
+
+                if ( m_realizationFilter().isEmpty() )
+                {
+                    m_realizationFilter = QString( "%1-%2" ).arg( lower ).arg( upper );
+                }
+            }
         }
     }
     else if ( m_filterMode() == FilterMode::BY_OBJECTIVE_FUNCTION )

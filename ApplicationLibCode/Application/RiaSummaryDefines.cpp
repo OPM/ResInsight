@@ -157,3 +157,11 @@ QString RiaDefines::summaryCalculated()
 {
     return "Calculated";
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::summaryRealizationNumber()
+{
+    return "RI:REALIZATION_NUM";
+}

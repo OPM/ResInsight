@@ -202,3 +202,58 @@ TEST( RiaStdStringToolsTest, DISABLED_PerformanceConversion )
         std::cout << "std::from_chars " << std::setw( 9 ) << diff.count() << " s\n";
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaStdStringToolsTest, ValuesFromRangeSelection )
+{
+    std::string   testString     = "1,2,5-10,15";
+    std::set<int> expectedValues = { 1, 2, 5, 6, 7, 8, 9, 10, 15 };
+
+    auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString );
+
+    ASSERT_EQ( expectedValues, actualValues );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaStdStringToolsTest, ValuesFromRangeSelectionMinMax )
+{
+    std::string   testString     = "-3, 5, 6-8, 10, 15-";
+    int           minimumValue   = 1;
+    int           maximumValue   = 20;
+    std::set<int> expectedValues = { 1, 2, 3, 5, 6, 7, 8, 10, 15, 16, 17, 18, 19, 20 };
+
+    auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString, minimumValue, maximumValue );
+
+    ASSERT_EQ( expectedValues, actualValues );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaStdStringToolsTest, TestInvalidRangeStrings )
+{
+    int minimumValue = 1;
+    int maximumValue = 20;
+
+    {
+        // Handle blank space and inverted from/to
+        std::string   testString     = "5,   -3,   9-8";
+        std::set<int> expectedValues = { 1, 2, 3, 5, 8, 9 };
+        auto          actualValues   = RiaStdStringTools::valuesFromRangeSelection( testString, minimumValue, maximumValue );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
+
+    {
+        // If the range is invalid, the result should be an empty set
+        std::string   testString     = "5, a";
+        std::set<int> expectedValues = {};
+        auto          actualValues   = RiaStdStringTools::valuesFromRangeSelection( testString, minimumValue, maximumValue );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
+}
