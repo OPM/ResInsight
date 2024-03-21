@@ -171,7 +171,7 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
 {
     summaryCase->nameChanged.connect( this, &RimSummaryCaseCollection::onCaseNameChanged );
 
-    if ( m_cases.empty() ) summaryCase->setShowRealizationDataSource( true );
+    summaryCase->setShowRealizationDataSource( m_cases.empty() );
 
     m_cases.push_back( summaryCase );
     m_cachedSortedEnsembleParameters.clear();

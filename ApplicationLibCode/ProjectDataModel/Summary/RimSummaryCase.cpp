@@ -18,30 +18,18 @@
 
 #include "RimSummaryCase.h"
 
-#include "RiaFilePathTools.h"
-#include "RiaSummaryTools.h"
+#include "RiaEnsembleNameTools.h"
 
 #include "RicfCommandObject.h"
 #include "RifSummaryReaderInterface.h"
 
-#include "RifEclipseSummaryAddress.h"
-
-#include "RimMainPlotCollection.h"
 #include "RimProject.h"
-#include "RimSummaryAddress.h"
 #include "RimSummaryAddressCollection.h"
-#include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCaseCollection.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
-
-#include "cvfAssert.h"
-
-#include "RiaEnsembleNameTools.h"
-#include <QFileInfo>
-#include <QRegularExpression>
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimSummaryCase, "SummaryCase" );
 
@@ -56,7 +44,7 @@ RimSummaryCase::RimSummaryCase()
     CAF_PDM_InitScriptableFieldNoDefault( &m_displayName, "ShortName", "Display Name" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_displayNameOption, "NameSetting", "Name Setting" );
 
-    CAF_PDM_InitScriptableField( &m_showSubNodesInTree, "ShowSubNodesInTree", false, "Show Summary Data Sub-Tree" );
+    CAF_PDM_InitScriptableField( &m_showSubNodesInTree, "ShowSubNodesInTree", true, "Show Summary Data Sub-Tree" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showSubNodesInTree );
 
     CAF_PDM_InitScriptableField( &m_useAutoShortName_OBSOLETE, "AutoShortyName", false, "Use Auto Display Name" );
