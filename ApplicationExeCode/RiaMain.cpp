@@ -18,6 +18,7 @@
 
 #include "RiaArgumentParser.h"
 #include "RiaMainTools.h"
+#include "RiaOpenMPTools.h"
 #include "RiaPreferences.h"
 
 #ifdef ENABLE_GRPC
@@ -138,6 +139,9 @@ int main( int argc, char* argv[] )
     // Make execution of command line stuff operate in identical conditions as interactive operation.
 
     RiaApplication::ApplicationStatus status = app->handleArguments( &progOpt );
+
+    int numOmpThreads = RiaOpenMPTools::numberOfThreads();
+    app->showFormattedTextInMessageBoxOrConsole( QString( "OpenMP Num Threads: %1\n" ).arg( numOmpThreads ) );
 
     if ( status == RiaApplication::ApplicationStatus::EXIT_COMPLETED )
     {

@@ -27,4 +27,5 @@ namespace RiaOpenMPTools
 {
 int availableThreadCount();
 int currentThreadIndex();
+int numberOfThreads();
 }; // namespace RiaOpenMPTools
