@@ -17,8 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaStdStringTools.h"
+#include "RiaLogging.h"
 
 #include "fast_float/include/fast_float/fast_float.h"
+
+#include <QString>
 
 #include <charconv>
 #include <regex>
@@ -300,4 +303,119 @@ std::string RiaStdStringTools::removeHtmlTags( const std::string& s )
     std::string result = std::regex_replace( s, html_tags, "" );
 
     return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<int> RiaStdStringTools::valuesFromRangeSelection( const std::string& s )
+{
+    try
+    {
+        std::set<int>      result;
+        std::istringstream stringStream( s );
+        std::string        token;
+
+        while ( std::getline( stringStream, token, ',' ) )
+        {
+            token = RiaStdStringTools::trimString( token );
+
+            std::istringstream tokenStream( token );
+            int                startIndex, endIndex;
+            char               dash;
+
+            if ( tokenStream >> startIndex )
+            {
+                if ( tokenStream >> dash && dash == '-' && tokenStream >> endIndex )
+                {
+                    if ( startIndex > endIndex )
+                    {
+                        // If start is greater than end, swap them
+                        std::swap( startIndex, endIndex );
+                    }
+
+                    for ( int i = startIndex; i <= endIndex; ++i )
+                    {
+                        result.insert( i );
+                    }
+                }
+                else
+                {
+                    result.insert( startIndex );
+                }
+            }
+        }
+
+        return result;
+    }
+    catch ( const std::exception& e )
+    {
+        QString str = QString( "Failed to convert text string \" %1 \" to list of integers : " ).arg( QString::fromStdString( s ) ) +
+                      QString::fromStdString( e.what() );
+        RiaLogging::error( str );
+    }
+    catch ( ... )
+    {
+        QString str =
+            QString( "Failed to convert text string \" %1 \" to list of integers : Caught unknown exception" ).arg( QString::fromStdString( s ) );
+        RiaLogging::error( str );
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<int> RiaStdStringTools::valuesFromRangeSelection( const std::string& s, int minVal, int maxVal )
+{
+    try
+    {
+        std::set<int>     result;
+        std::stringstream stringStream( s );
+        std::string       token;
+
+        while ( std::getline( stringStream, token, ',' ) )
+        {
+            token = RiaStdStringTools::trimString( token );
+
+            // Check for range
+            size_t dashPos = token.find( '-' );
+            if ( dashPos != std::string::npos )
+            {
+                int startIndex = ( dashPos == 0 ) ? minVal : std::stoi( token.substr( 0, dashPos ) );
+                int endIndex   = ( dashPos == token.size() - 1 ) ? maxVal : std::stoi( token.substr( dashPos + 1 ) );
+                if ( startIndex > endIndex )
+                {
+                    // If start is greater than end, swap them
+                    std::swap( startIndex, endIndex );
+                }
+                for ( int i = startIndex; i <= endIndex; ++i )
+                {
+                    result.insert( i );
+                }
+            }
+            else
+            {
+                // Check for individual numbers
+                result.insert( std::stoi( token ) );
+            }
+        }
+
+        return result;
+    }
+    catch ( const std::exception& e )
+    {
+        QString str = QString( "Failed to convert text string \" %1 \" to list of integers : " ).arg( QString::fromStdString( s ) ) +
+                      QString::fromStdString( e.what() );
+        RiaLogging::error( str );
+    }
+    catch ( ... )
+    {
+        QString str =
+            QString( "Failed to convert text string \" %1 \" to list of integers : Caught unknown exception" ).arg( QString::fromStdString( s ) );
+        RiaLogging::error( str );
+    }
+
+    return {};
 }

@@ -105,6 +105,8 @@ private:
     caf::PdmField<double>               m_maxValue;
     caf::PdmField<std::vector<QString>> m_categories;
 
+    caf::PdmField<QString> m_realizationFilter;
+
     double m_lowerLimit;
     double m_upperLimit;
 };

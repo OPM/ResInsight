@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <iterator>
 #include <numeric>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -59,6 +60,13 @@ public:
     static int computeEditDistance( const std::string& x, const std::string& y );
 
     static std::string removeHtmlTags( const std::string& s );
+
+    // Convert the string "1,2,5-8,10" to {1, 2, 5, 6, 7, 8, 10}
+    static std::set<int> valuesFromRangeSelection( const std::string& s );
+
+    // Convert the range string with support for open ended expressions. minimum and maximum value will be used to limit the ranges.
+    // The input "-3,5-8,10-", min:1, max:12 will produce {1, 2, 3, 5, 6, 7, 8, 10, 11, 12}
+    static std::set<int> valuesFromRangeSelection( const std::string& s, int minimumValue, int maximumValue );
 
 private:
     template <class Container>
