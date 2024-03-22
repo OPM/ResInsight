@@ -99,7 +99,7 @@ public:
     virtual QString locationOnDisc() const { return QString(); }
 
     RimCaseCollection*                  parentCaseCollection();
-    RimEclipseContourMapViewCollection* contourMapCollection();
+    RimEclipseContourMapViewCollection* contourMapCollection() const;
     RimEclipseInputPropertyCollection*  inputPropertyCollection() const;
 
     QStringList            timeStepStrings() const override;
@@ -137,15 +137,18 @@ protected:
 
     // Internal methods
 protected:
-    void                      computeCachedData();
-    void                      setReservoirData( RigEclipseCaseData* eclipseCase );
-    std::vector<QString>      additionalFiles() const;
-    RimEclipseViewCollection* viewCollection() const;
+    void                                computeCachedData();
+    void                                setReservoirData( RigEclipseCaseData* eclipseCase );
+    std::vector<QString>                additionalFiles() const;
+    RimEclipseViewCollection*           viewCollection() const;
+    RimEclipseContourMapViewCollection* contourMapViewCollection() const;
 
 private:
-    void                    createTimeStepFormatString();
-    std::vector<Rim3dView*> allSpecialViews() const override;
-    void                    buildResultChildNodes();
+    void                                   createTimeStepFormatString();
+    std::vector<Rim3dView*>                allSpecialViews() const override;
+    std::vector<RimEclipseContourMapView*> contourMapViews() const;
+
+    void buildResultChildNodes();
 
 protected:
     caf::PdmField<bool>                                    m_flipXAxis;
@@ -156,8 +159,6 @@ protected:
 
 private:
     caf::PdmField<bool> m_releaseResultMemory;
-
-    caf::PdmChildField<RimEclipseContourMapViewCollection*> m_contourMapCollection;
 
     cvf::ref<RigEclipseCaseData>    m_rigEclipseCase;
     QString                         m_timeStepFormatString;
@@ -170,6 +171,7 @@ private:
 
     caf::PdmField<std::vector<caf::FilePath>> m_filesContainingFaults;
 
-    // Fields:
-    caf::PdmChildArrayField<RimEclipseView*> m_reservoirViews_OBSOLETE;
+    // Obsolete fields:
+    caf::PdmChildArrayField<RimEclipseView*>                m_reservoirViews_OBSOLETE;
+    caf::PdmChildField<RimEclipseContourMapViewCollection*> m_contourMapCollection_OBSOLETE;
 };

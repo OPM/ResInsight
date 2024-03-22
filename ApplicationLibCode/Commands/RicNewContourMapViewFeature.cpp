@@ -86,7 +86,7 @@ void RicNewContourMapViewFeature::onActionTriggered( bool isChecked )
 {
     RimEclipseView*           reservoirView             = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>();
     RimEclipseContourMapView* existingEclipseContourMap = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseContourMapView>();
-    RimEclipseCase*           eclipseCase               = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseCase>();
+    RimEclipseCase*           eclipseCase               = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCase>();
     RimEclipseContourMapView* eclipseContourMap         = nullptr;
 
     RimGeoMechView*           geoMechView               = caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechView>();
@@ -97,11 +97,19 @@ void RicNewContourMapViewFeature::onActionTriggered( bool isChecked )
     // Find case to insert into
     if ( existingEclipseContourMap )
     {
-        eclipseContourMap = createEclipseContourMapFromExistingContourMap( eclipseCase, existingEclipseContourMap );
+        eclipseCase = existingEclipseContourMap->eclipseCase();
+        if ( eclipseCase )
+        {
+            eclipseContourMap = createEclipseContourMapFromExistingContourMap( eclipseCase, existingEclipseContourMap );
+        }
     }
     else if ( reservoirView )
     {
-        eclipseContourMap = createEclipseContourMapFrom3dView( eclipseCase, reservoirView );
+        eclipseCase = reservoirView->eclipseCase();
+        if ( eclipseCase )
+        {
+            eclipseContourMap = createEclipseContourMapFrom3dView( eclipseCase, reservoirView );
+        }
     }
     else if ( eclipseCase )
     {
@@ -267,6 +275,8 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
     // CVF_ASSERT(fieldsWithFailingResolve.empty());
 
     contourMap->initAfterReadRecursively();
+
+    eclipseCase->contourMapCollection()->updateConnectedEditors();
 
     return contourMap;
 }
