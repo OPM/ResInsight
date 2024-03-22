@@ -106,8 +106,8 @@ RimEclipseCase::RimEclipseCase()
     // https://github.com/OPM/ResInsight/issues/7308
     m_filesContainingFaults.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_contourMapCollection, "ContourMaps", "2d Contour Maps" );
-    m_contourMapCollection = new RimEclipseContourMapViewCollection;
+    CAF_PDM_InitFieldNoDefault( &m_contourMapCollection_OBSOLETE, "ContourMaps", "2d Contour Maps" );
+    m_contourMapCollection_OBSOLETE = new RimEclipseContourMapViewCollection;
 
     CAF_PDM_InitFieldNoDefault( &m_inputPropertyCollection, "InputPropertyCollection", "" );
     m_inputPropertyCollection = new RimEclipseInputPropertyCollection;
@@ -290,11 +290,14 @@ void RimEclipseCase::initAfterRead()
         }
 
         m_reservoirViews_OBSOLETE.clearWithoutDelete();
-    }
 
-    for ( RimEclipseContourMapView* contourMap : m_contourMapCollection->views() )
-    {
-        contourMap->setEclipseCase( this );
+        // Move contour maps
+        for ( RimEclipseContourMapView* contourMap : m_contourMapCollection_OBSOLETE->views() )
+        {
+            contourMap->setEclipseCase( this );
+
+            // TODO: move to root collection
+        }
     }
 }
 
@@ -547,11 +550,6 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
         {
             uiTreeOrdering.add( &m_2dIntersectionViewCollection );
         }
-
-        if ( !m_contourMapCollection->views().empty() )
-        {
-            uiTreeOrdering.add( &m_contourMapCollection );
-        }
     }
     else if ( uiConfigName == "MainWindow.DataSources" )
     {
@@ -652,9 +650,15 @@ RimCaseCollection* RimEclipseCase::parentCaseCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseContourMapViewCollection* RimEclipseCase::contourMapCollection()
+RimEclipseContourMapViewCollection* RimEclipseCase::contourMapCollection() const
 {
-    return m_contourMapCollection;
+    RimProject* project = RimProject::current();
+    if ( !project ) return nullptr;
+
+    RimOilField* oilField = project->activeOilField();
+    if ( !oilField ) return nullptr;
+
+    return oilField->eclipseContourMapCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1069,7 +1073,7 @@ std::vector<Rim3dView*> RimEclipseCase::allSpecialViews() const
         views.push_back( view );
     }
 
-    for ( RimEclipseContourMapView* view : m_contourMapCollection->views() )
+    for ( RimEclipseContourMapView* view : contourMapViews() )
     {
         views.push_back( view );
     }
@@ -1194,8 +1198,7 @@ RimEclipseViewCollection* RimEclipseCase::viewCollection() const
     RimOilField* oilField = project->activeOilField();
     if ( !oilField ) return nullptr;
 
-    RimEclipseViewCollection* viewCollection = oilField->eclipseViewCollection();
-    return viewCollection;
+    return oilField->eclipseViewCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1205,6 +1208,27 @@ std::vector<RimEclipseView*> RimEclipseCase::reservoirViews() const
 {
     std::vector<RimEclipseView*> views;
     RimEclipseViewCollection*    viewColl = viewCollection();
+    if ( viewColl )
+    {
+        for ( auto view : viewColl->views() )
+        {
+            if ( view->eclipseCase() && view->eclipseCase() == this )
+            {
+                views.push_back( view );
+            }
+        }
+    }
+
+    return views;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseContourMapView*> RimEclipseCase::contourMapViews() const
+{
+    std::vector<RimEclipseContourMapView*> views;
+    RimEclipseContourMapViewCollection*    viewColl = contourMapCollection();
     if ( viewColl )
     {
         for ( auto view : viewColl->views() )
