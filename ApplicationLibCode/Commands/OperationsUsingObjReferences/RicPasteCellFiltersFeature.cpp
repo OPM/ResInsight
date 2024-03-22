@@ -20,6 +20,7 @@
 
 #include "RicPasteFeatureImpl.h"
 
+#include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellFilter.h"
 #include "RimCellFilterCollection.h"
@@ -42,17 +43,9 @@ bool RicPasteCellFiltersFeature::isCommandEnabled() const
 
     std::vector<caf::PdmPointer<RimCellFilter>> typedObjects;
     objectGroup.objectsByType( &typedObjects );
-    if ( typedObjects.empty() )
-    {
-        return false;
-    }
+    if ( typedObjects.empty() ) return false;
 
-    if ( dynamic_cast<RimCellFilterCollection*>( caf::SelectionManager::instance()->selectedItem() ) )
-    {
-        return true;
-    }
-
-    return false;
+    return dynamic_cast<RimCellFilterCollection*>( caf::SelectionManager::instance()->selectedItem() ) != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,7 +56,11 @@ void RicPasteCellFiltersFeature::onActionTriggered( bool isChecked )
     auto cellFilterCollection = dynamic_cast<RimCellFilterCollection*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !cellFilterCollection ) return;
 
-    auto eclipseCase = cellFilterCollection->firstAncestorOfType<RimCase>();
+    auto view = cellFilterCollection->firstAncestorOfType<Rim3dView>();
+    if ( !view ) return;
+
+    auto eclipseCase = view->ownerCase();
+    if ( !eclipseCase ) return;
 
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );

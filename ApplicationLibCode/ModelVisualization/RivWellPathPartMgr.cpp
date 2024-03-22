@@ -388,7 +388,7 @@ void RivWellPathPartMgr::appendPerforationsToModel( cvf::ModelBasicList*        
     QDateTime currentTimeStamp;
     if ( m_rimView )
     {
-        auto rimCase = m_rimView->firstAncestorOrThisOfType<RimCase>();
+        auto rimCase = m_rimView->ownerCase();
 
         if ( rimCase )
         {

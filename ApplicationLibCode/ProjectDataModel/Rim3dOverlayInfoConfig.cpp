@@ -1013,12 +1013,14 @@ void Rim3dOverlayInfoConfig::updateSeismicInfo( RimSeismicView* seisView )
 //--------------------------------------------------------------------------------------------------
 void Rim3dOverlayInfoConfig::update3DInfoIn2dViews() const
 {
-    RimCase* rimCase = firstAncestorOrThisOfType<RimCase>();
-    if ( rimCase )
+    if ( auto rimView = firstAncestorOrThisOfType<Rim3dView>() )
     {
-        for ( Rim2dIntersectionView* view : rimCase->intersectionViewCollection()->views() )
+        if ( RimCase* rimCase = rimView->ownerCase() )
         {
-            view->update3dInfo();
+            for ( Rim2dIntersectionView* view : rimCase->intersectionViewCollection()->views() )
+            {
+                view->update3dInfo();
+            }
         }
     }
 }
