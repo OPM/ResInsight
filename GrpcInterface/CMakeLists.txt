@@ -50,6 +50,7 @@ set(SOURCE_GROUP_HEADER_FILES
     RiaGrpcPdmObjectService.h
     RiaGrpcApplicationInterface.h
     RiaGrpcGridGeometryExtractionService.h
+    RiaGrpcGridGeometryExtractionServiceHelper.h
     )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -67,6 +68,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     RiaGrpcPdmObjectService.cpp
     RiaGrpcApplicationInterface.cpp
     RiaGrpcGridGeometryExtractionService.cpp
+    RiaGrpcGridGeometryExtractionServiceHelper.cpp
 )
 
 # Find Protobuf installation Looks for protobuf-config.cmake file installed by

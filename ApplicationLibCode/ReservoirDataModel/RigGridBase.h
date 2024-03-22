@@ -128,9 +128,8 @@ private:
 class RigGridCellFaceVisibilityFilter : public cvf::CellFaceVisibilityFilter
 {
 public:
-    explicit RigGridCellFaceVisibilityFilter( const RigGridBase* const grid, bool includeFaultFaces )
+    explicit RigGridCellFaceVisibilityFilter( const RigGridBase* const grid )
         : m_grid( grid )
-        , m_includeFaultFaces( includeFaultFaces )
     {
     }
 
@@ -138,5 +137,4 @@ public:
 
 private:
     const RigGridBase* const m_grid;
-    const bool               m_includeFaultFaces;
 };

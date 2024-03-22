@@ -32,11 +32,13 @@
 #include "RigGeoMechCaseData.h"
 #include "RigGridBase.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
 #include "RimCellRangeFilter.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGridView.h"
 #include "RimProject.h"
@@ -112,6 +114,7 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
         return grpc::Status( grpc::StatusCode::NOT_FOUND, "No eclipse view found" );
     }
     eclipseView->setShowInactiveCells( true );
+    eclipseView->faultCollection()->setActive( false ); // TODO: Check if this is correct??
 
     // Apply ijk-filtering - assuming 0-indexing from gRPC
     if ( request->has_ijkindexfilter() )
@@ -125,15 +128,19 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
 
     // Configure eclipse view
     // - Ensure static geometry parts created for grid part manager in view
-    // - Initialize grid geometry generator
+    // - To include inactive cells and activate requested filter for view
     auto createGridGeometryPartsTimeCount = ElapsedTimeCount();
     eclipseView->createGridGeometryParts();
     m_elapsedTimeInfo.elapsedTimePerEventMs["CreateGridGeometryParts"] =
         static_cast<std::uint32_t>( createGridGeometryPartsTimeCount.elapsedMsCount() );
 
-    const bool useOpenMP             = false;
-    auto       gridGeometryGenerator = cvf::StructGridGeometryGenerator( eclipseView->mainGrid(), useOpenMP );
-    status = initializeGridGeometryGeneratorWithEclipseViewCellVisibility( gridGeometryGenerator, eclipseView );
+    // Set visibility
+    const bool useOpenMP                    = false;
+    auto       surfaceGridGeometryGenerator = cvf::StructGridGeometryGenerator( eclipseView->mainGrid(), useOpenMP );
+    auto       faultGridGeometryGenerator   = cvf::StructGridGeometryGenerator( eclipseView->mainGrid(), useOpenMP );
+    status = initializeGridGeometryGeneratorWithEclipseViewCellVisibility( surfaceGridGeometryGenerator,
+                                                                           faultGridGeometryGenerator,
+                                                                           eclipseView );
     if ( status.error_code() != grpc::StatusCode::OK )
     {
         return status;
@@ -141,13 +148,23 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
 
     // Create grid surface vertices
     auto  createVerticesTimeCount = ElapsedTimeCount();
-    auto* gridSurfaceVertices     = gridGeometryGenerator.getOrCreateVertices();
+    auto* gridSurfaceVertices     = surfaceGridGeometryGenerator.getOrCreateVertices();
     if ( gridSurfaceVertices == nullptr )
     {
-        return grpc::Status( grpc::StatusCode::NOT_FOUND, "No grid vertices found" );
+        return grpc::Status( grpc::StatusCode::NOT_FOUND, "No grid surface vertices found" );
     }
     m_elapsedTimeInfo.elapsedTimePerEventMs["CreateGridSurfaceVertices"] =
         static_cast<std::uint32_t>( createVerticesTimeCount.elapsedMsCount() );
+
+    // Create grid fault vertices
+    auto  createFaultVerticesTimeCount = ElapsedTimeCount();
+    auto* gridFaultVertices            = faultGridGeometryGenerator.getOrCreateVertices();
+    if ( gridFaultVertices == nullptr )
+    {
+        return grpc::Status( grpc::StatusCode::NOT_FOUND, "No grid fault vertices found" );
+    }
+    m_elapsedTimeInfo.elapsedTimePerEventMs["CreateGridFaultVertices"] =
+        static_cast<std::uint32_t>( createFaultVerticesTimeCount.elapsedMsCount() );
 
     // Retrieve the UTM offset
     const auto mainGridModelOffset = m_eclipseCase->mainGrid()->displayModelOffset();
@@ -165,6 +182,18 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
         response->add_quadindicesarr( static_cast<google::protobuf::uint32>( i ) );
     }
 
+    const auto indexOffset = gridSurfaceVertices->size();
+    for ( size_t i = 0; i < gridFaultVertices->size(); ++i )
+    {
+        const auto& vertex = gridFaultVertices->get( i );
+        response->add_vertexarray( vertex.x() );
+        response->add_vertexarray( vertex.y() );
+        response->add_vertexarray( vertex.z() + zAxisOffset );
+
+        auto index = indexOffset + i;
+        response->add_quadindicesarr( static_cast<google::protobuf::uint32>( index ) );
+    }
+
     // Origin is the UTM offset
     rips::Vec2d* originUtmXy = new rips::Vec2d;
     originUtmXy->set_x( mainGridModelOffset.x() );
@@ -173,9 +202,19 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
 
     // Source cell indices from main grid part manager
     std::vector<size_t> sourceCellIndicesArray = std::vector<size_t>();
-    if ( gridGeometryGenerator.quadToCellFaceMapper() != nullptr )
+    if ( surfaceGridGeometryGenerator.quadToCellFaceMapper() != nullptr )
     {
-        sourceCellIndicesArray = gridGeometryGenerator.quadToCellFaceMapper()->quadToCellIndicesArray();
+        for ( const auto& elm : surfaceGridGeometryGenerator.quadToCellFaceMapper()->quadToCellIndicesArray() )
+        {
+            sourceCellIndicesArray.push_back( elm );
+        }
+    }
+    if ( faultGridGeometryGenerator.quadToCellFaceMapper() != nullptr )
+    {
+        for ( const auto& elm : faultGridGeometryGenerator.quadToCellFaceMapper()->quadToCellIndicesArray() )
+        {
+            sourceCellIndicesArray.push_back( elm );
+        }
     }
     if ( sourceCellIndicesArray.empty() )
     {
@@ -524,7 +563,8 @@ grpc::Status RiaGrpcGridGeometryExtractionService::applyIJKCellFilterToEclipseVi
 ///
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcGridGeometryExtractionService::initializeGridGeometryGeneratorWithEclipseViewCellVisibility(
-    cvf::StructGridGeometryGenerator& generator,
+    cvf::StructGridGeometryGenerator& surfaceGeometryGenerator,
+    cvf::StructGridGeometryGenerator& faultGeometryGenerator,
     RimEclipseView*                   view )
 {
     if ( view == nullptr )
@@ -541,15 +581,19 @@ grpc::Status RiaGrpcGridGeometryExtractionService::initializeGridGeometryGenerat
     // Cell visibilities
     const int firstTimeStep    = 0;
     auto*     cellVisibilities = new cvf::UByteArray( mainGrid->cellCount() );
-    view->calculateCurrentTotalCellVisibility( cellVisibilities, firstTimeStep );
+    view->calculateCurrentTotalCellVisibility( cellVisibilities, firstTimeStep ); // TODO: Check if this is correct way
+                                                                                  // to get cell visibilities
 
     // Face visibility filter
-    const bool includeFaultFaces = true;
-    m_faceVisibilityFilter       = std::make_unique<RigGridCellFaceVisibilityFilter>(
-        RigGridCellFaceVisibilityFilter( mainGrid, includeFaultFaces ) );
+    m_surfaceFaceVisibilityFilter =
+        std::make_unique<RigGridCellFaceVisibilityFilter>( RigGridCellFaceVisibilityFilter( mainGrid ) );
+    surfaceGeometryGenerator.setCellVisibility( cellVisibilities ); // Ownership transferred
+    surfaceGeometryGenerator.addFaceVisibilityFilter( m_surfaceFaceVisibilityFilter.get() );
 
-    generator.setCellVisibility( cellVisibilities ); // Ownership transferred
-    generator.addFaceVisibilityFilter( m_faceVisibilityFilter.get() );
+    m_faultFaceVisibilityFilter =
+        std::make_unique<RigGridCellFaultFaceVisibilityFilter>( RigGridCellFaultFaceVisibilityFilter( mainGrid ) );
+    faultGeometryGenerator.setCellVisibility( cellVisibilities ); // Ownership transferred
+    faultGeometryGenerator.addFaceVisibilityFilter( m_faultFaceVisibilityFilter.get() );
 
     return grpc::Status::OK;
 }
@@ -637,6 +681,24 @@ grpc::Status
             return grpc::Status( grpc::StatusCode::INVALID_ARGUMENT, "More than one grid case found for project" );
         }
         m_eclipseCase = eclipseCases.front();
+
+        // Set nncData for main grid
+        // TODO: Do not perform if calling intersection endpoint only
+        if ( m_eclipseCase && m_eclipseCase->eclipseCaseData() && m_eclipseCase->eclipseCaseData()->mainGrid() &&
+             m_eclipseCase->eclipseCaseData()->mainGrid()->nncData() )
+        {
+            auto       createNncDataForGrid = ElapsedTimeCount();
+            const bool includeInactiveCells = true;
+            m_eclipseCase->eclipseCaseData()
+                ->mainGrid()
+                ->nncData()
+                ->setSourceDataForProcessing( m_eclipseCase->eclipseCaseData()->mainGrid(),
+                                              m_eclipseCase->eclipseCaseData()->activeCellInfo(
+                                                  RiaDefines::PorosityModelType::MATRIX_MODEL ),
+                                              includeInactiveCells );
+            m_elapsedTimeInfo.elapsedTimePerEventMs["CreateNncDataForGrid"] =
+                static_cast<std::uint32_t>( createNncDataForGrid.elapsedMsCount() );
+        }
     }
 
     if ( m_eclipseCase == nullptr )

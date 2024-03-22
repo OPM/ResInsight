@@ -19,6 +19,7 @@
 
 #include "GridGeometryExtraction.grpc.pb.h"
 #include "RiaApplication.h"
+#include "RiaGrpcGridGeometryExtractionServiceHelper.h"
 #include "RiaGrpcServiceInterface.h"
 #include "RigGridBase.h"
 #include "RimEclipseCase.h"
@@ -71,12 +72,15 @@ private:
     grpc::Status applyIJKCellFilterToEclipseView( const rips::IJKIndexFilter& filter, RimEclipseView* view );
     grpc::Status initializeApplicationAndEclipseCaseFromAbsoluteFilePath( const std::string filePath );
 
-    grpc::Status initializeGridGeometryGeneratorWithEclipseViewCellVisibility( cvf::StructGridGeometryGenerator& generator,
-                                                                               RimEclipseView* view );
+    grpc::Status initializeGridGeometryGeneratorWithEclipseViewCellVisibility(
+        cvf::StructGridGeometryGenerator& surfaceGeometryGenerator,
+        cvf::StructGridGeometryGenerator& faultGeometryGenerator,
+        RimEclipseView*                   view );
 
-    RiaApplication*                                  m_application          = nullptr;
-    RimEclipseCase*                                  m_eclipseCase          = nullptr;
-    std::unique_ptr<RigGridCellFaceVisibilityFilter> m_faceVisibilityFilter = nullptr;
+    RiaApplication*                                       m_application                 = nullptr;
+    RimEclipseCase*                                       m_eclipseCase                 = nullptr;
+    std::unique_ptr<RigGridCellFaceVisibilityFilter>      m_surfaceFaceVisibilityFilter = nullptr;
+    std::unique_ptr<RigGridCellFaultFaceVisibilityFilter> m_faultFaceVisibilityFilter   = nullptr;
 
     struct ElapsedTimeInfo
     {
