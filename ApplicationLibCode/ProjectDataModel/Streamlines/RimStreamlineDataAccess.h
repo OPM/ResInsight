@@ -25,7 +25,7 @@
 #include <QString>
 
 #include <list>
-#include <set>
+#include <map>
 
 class RigCell;
 class RimStreamline;

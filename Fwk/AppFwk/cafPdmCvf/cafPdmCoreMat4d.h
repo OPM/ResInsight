@@ -43,6 +43,8 @@
 
 #include "cafPdmXmlMat4d.h"
 
+#include <QTextStream>
+
 namespace caf
 {
 template <>

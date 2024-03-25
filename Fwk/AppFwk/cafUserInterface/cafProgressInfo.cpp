@@ -46,6 +46,7 @@
 #include <QThread>
 
 #include <algorithm>
+#include <iostream>
 
 namespace caf
 {

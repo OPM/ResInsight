@@ -40,7 +40,6 @@
 
 #include <QString>
 #include <QStringList>
-#include <QTextStream>
 
 #include <vector>
 
@@ -98,8 +97,18 @@ namespace caf
 ///     }
 //==================================================================================================
 
+class AppEnumInterface
+{
+    // This non-templated base class is used in cafInternalPdmStreamOperators.h to create a QTextStream operator. Having
+    // the QTextStream operator working on each templated type was seen as a performance issue when profiling use of
+    // include files
+public:
+    virtual QString textForSerialization() const                   = 0;
+    virtual void    setTextForSerialization( const QString& text ) = 0;
+};
+
 template <class T>
-class AppEnum
+class AppEnum : public AppEnumInterface
 {
 public:
     AppEnum() { m_value = EnumMapper::instance()->defaultValue(); }
@@ -122,6 +131,9 @@ public:
     }
     bool setFromText( const QString& text ) { return EnumMapper::instance()->enumVal( m_value, text ); }
     bool setFromIndex( size_t index ) { return EnumMapper::instance()->enumVal( m_value, index ); }
+
+    QString textForSerialization() const override { return text(); }
+    void    setTextForSerialization( const QString& text ) override { setFromText( text ); }
 
     // Static interface to access the properties of the enum definition
 
@@ -343,29 +355,3 @@ private:
 };
 
 } // namespace caf
-
-//==================================================================================================
-/// Implementation of stream operators to make PdmField<AppEnum<> > work smoothly
-/// Assumes that the stream ends at the end of the enum text
-//==================================================================================================
-
-template <typename T>
-QTextStream& operator>>( QTextStream& str, caf::AppEnum<T>& appEnum )
-{
-    QString text;
-    str >> text;
-
-    // Make sure the text parsed from a text stream is trimmed
-    // https://github.com/OPM/ResInsight/issues/7829
-    appEnum.setFromText( text.trimmed() );
-
-    return str;
-}
-
-template <typename T>
-QTextStream& operator<<( QTextStream& str, const caf::AppEnum<T>& appEnum )
-{
-    str << appEnum.text();
-
-    return str;
-}

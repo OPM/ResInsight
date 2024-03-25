@@ -1,6 +1,8 @@
 #include <QString>
 #include <QTextStream>
 
+#include "cafAppEnum.h"
+
 //--------------------------------------------------------------------------------------------------
 /// Specialized read operation for Bool`s
 //--------------------------------------------------------------------------------------------------
@@ -80,6 +82,24 @@ QTextStream& operator>>( QTextStream& str, QTime& value )
 QTextStream& operator<<( QTextStream& str, const QTime& value )
 {
     QString text = value.toString( "HH:mm:ss" );
+    str << text;
+    return str;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Specialized read operation for AppEnum
+//--------------------------------------------------------------------------------------------------
+QTextStream& operator>>( QTextStream& str, caf::AppEnumInterface& value )
+{
+    QString text;
+    str >> text;
+    value.setTextForSerialization( text );
+    return str;
+}
+
+QTextStream& operator<<( QTextStream& str, const caf::AppEnumInterface& value )
+{
+    QString text = value.textForSerialization();
     str << text;
     return str;
 }
