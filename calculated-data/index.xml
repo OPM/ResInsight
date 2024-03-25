@@ -5,7 +5,11 @@
     <link>https://resinsight.org/calculated-data/</link>
     <description>Recent content in Calculated Data on ResInsight</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://resinsight.org/calculated-data/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-us</language>
+    
+	<atom:link href="https://resinsight.org/calculated-data/index.xml" rel="self" type="application/rss+xml" />
+    
+    
     <item>
       <title>Calculator Expressions</title>
       <link>https://resinsight.org/calculated-data/calculatorexpressions/</link>
@@ -20,16 +24,6 @@ Operators and Functions Possible operations and functions are found by right-cli
     </item>
     
     <item>
-      <title>Aggregation of Grid Cell Values</title>
-      <link>https://resinsight.org/calculated-data/aggregationofgridcellvalues/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/calculated-data/aggregationofgridcellvalues/</guid>
-      <description>Calculate statistics for sum of mobile oil for an ensemble Workflow description
-Import an ensemble of grid models with identical IJK into a Grid Case Group. Create a view on one of the source grid models, and create a cell filter. Create an expression for mobile oil MOBILE_OIL := if(((SOIL-SOWCR) &amp;lt; 0.00), 0.00, PORV*(SOIL-SOWCR)) Optionally select a subset of time steps Create an expression to sum values for all visible cells SUM_MOBILE_OIL := sum(MOBILE_OIL) Use the result from the previous calculation as input to the variable, use MOBILE_OIL from the Generated category.</description>
-    </item>
-    
-    <item>
       <title>Curve Calculator</title>
       <link>https://resinsight.org/calculated-data/curvecalculator/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -37,16 +31,6 @@ Import an ensemble of grid models with identical IJK into a Grid Case Group. Cre
       <guid>https://resinsight.org/calculated-data/curvecalculator/</guid>
       <description>The summary curve calculator is a tool to do calculations on a set of curves. The created curves can be stored for later use in the project.
 The calculator can be run by pressing the calculator icon in the menu bar, or by right-clicking on either a summary case or the summary plot collection.
-Expressions can be saved to a text file using the Export Calculations button. The default location for calculations can be set in Preference-&amp;gt;Import/Export.</description>
-    </item>
-    
-    <item>
-      <title>Grid Property Calculator</title>
-      <link>https://resinsight.org/calculated-data/gridpropertycalculator/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/calculated-data/gridpropertycalculator/</guid>
-      <description>ResInsight offers a built-in property calculator for grid parameters. The Grid Property Calculator enables arithmetic expressions to be parsed and calculated for visualization purposes. The expression can be applied to one or multiple grid models, and the expression text can be stored to a file for later use.
 Expressions can be saved to a text file using the Export Calculations button. The default location for calculations can be set in Preference-&amp;gt;Import/Export.</description>
     </item>
     
@@ -89,7 +73,7 @@ $Value_{[t-b]} = Value_{[t]} - Value_{[b]}$</description>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/calculated-data/casegroupsandstatistics/</guid>
-      <description>Grid Case Group&amp;rsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
+      <description>Grid Case Group&amp;lsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
 If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step.</description>
     </item>
     

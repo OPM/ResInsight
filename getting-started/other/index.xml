@@ -5,7 +5,11 @@
     <link>https://resinsight.org/getting-started/other/</link>
     <description>Recent content in Other on ResInsight</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://resinsight.org/getting-started/other/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-us</language>
+    
+	<atom:link href="https://resinsight.org/getting-started/other/index.xml" rel="self" type="application/rss+xml" />
+    
+    
     <item>
       <title>Release Notification Subscription</title>
       <link>https://resinsight.org/getting-started/other/releasenotification/</link>
@@ -26,7 +30,7 @@ Subscribe</description>
       <description>“I have been using ResInsight now for some time and have stopped using the commercial software as ResInsight is much more responsive and easier to use. It really is an excellent piece of software.”
 David Baxendale
 Senior Petroleum Engineering Advisor, RPS Energy
-&amp;ldquo;ResInsight is an excellent tool to visualize simulation results and offers good-looking and illustrative graphs for presentations. I found the integration with Octave especially powerful in my research.&amp;rdquo;</description>
+&amp;ldquo;ResInsight is an excellent tool to visualize simulation results and offers good-looking and illustrative graphs for presentations. I found the integration with Octave especially powerful in my research.&amp;quot;</description>
     </item>
     
   </channel>

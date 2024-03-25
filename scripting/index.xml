@@ -5,7 +5,11 @@
     <link>https://resinsight.org/scripting/</link>
     <description>Recent content in Scripting on ResInsight</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://resinsight.org/scripting/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-us</language>
+    
+	<atom:link href="https://resinsight.org/scripting/index.xml" rel="self" type="application/rss+xml" />
+    
+    
     <item>
       <title>Python interface</title>
       <link>https://resinsight.org/scripting/pythoninterface/</link>
@@ -13,7 +17,7 @@
       
       <guid>https://resinsight.org/scripting/pythoninterface/</guid>
       <description>ResInsight offers a powerful programming interface which allows you to interact with a running ResInsight instance from Python 3. This enables you to:
-start ResInsight from Python communicate with an a running ResInsight instance load a ResInsight project file load data files such as Eclipse EGRID files and summary files extract data to Python for further processing and automation export snapshots of graphics Please refer to the ResInsight Python API for configuration and details.</description>
+ start ResInsight from Python communicate with an a running ResInsight instance load a ResInsight project file load data files such as Eclipse EGRID files and summary files extract data to Python for further processing and automation export snapshots of graphics  Please refer to the ResInsight Python API for configuration and details.</description>
     </item>
     
     <item>
@@ -25,7 +29,7 @@ start ResInsight from Python communicate with an a running ResInsight instance l
       <description>ResInsight supports several command line parameters that can be used to automate some tasks using shell scripts.
 Command line parameters are prefixed using a double dash. This convention is used on all platforms to make it possible to reuse scripts across different platforms. See GNU Standards for Command Line Interfaces.
 Examples on how command line options are used are given below
-Command line options General Parameter Description --help, --? Displays help text and version info --project &amp;lt;filename&amp;gt; Open project file &amp;lt;filename&amp;gt;.</description>
+Command line options General    Parameter Description     --help, --?</description>
     </item>
     
     <item>
@@ -36,7 +40,7 @@ Command line options General Parameter Description --help, --? Displays help tex
       <guid>https://resinsight.org/scripting/commandfile/</guid>
       <description>The command file interface allows a sequence of specified commands to be run in order from the command line. The interface is used by supplying the command file as a command line parameter. Once the command file is finished executing, ResInsight will exit.
 It is possible to use these commands directly from a Python script. For further details, please see the ResInsight Python API.
-Command List Case Control Commands openProject closeProject setStartDir loadCase createGridCaseGroup createStatisticsCase replaceCase replaceSourceCases Export Commands setExportFolder exportMultiCaseSnapshots exportSnapshots exportProperty exportPropertyInViews exportWellPathCompletions exportSimWellFractureCompletions exportMsw exportWellPaths exportVisibleCells exportFlowCharacteristics Other Commands runOctaveScript setMainWindowSize computeCaseGroupStatistics setTimeStep scaleFractureTemplate setFractureContainment createMultipleFractures createLgrForCompletions createSaturationPressurePlots Syntax The command file is comprised of a set of commands to be executed in order.</description>
+Command List Case Control Commands  openProject closeProject setStartDir loadCase createGridCaseGroup createStatisticsCase replaceCase replaceSourceCases  Export Commands  setExportFolder exportMultiCaseSnapshots exportSnapshots exportProperty exportPropertyInViews exportWellPathCompletions exportSimWellFractureCompletions exportMsw exportWellPaths exportVisibleCells exportFlowCharacteristics  Other Commands  runOctaveScript setMainWindowSize computeCaseGroupStatistics setTimeStep scaleFractureTemplate setFractureContainment createMultipleFractures createLgrForCompletions createSaturationPressurePlots  Syntax The command file is comprised of a set of commands to be executed in order.</description>
     </item>
     
     <item>
@@ -46,9 +50,9 @@ Command List Case Control Commands openProject closeProject setStartDir loadCase
       
       <guid>https://resinsight.org/scripting/octaveinterface/</guid>
       <description>ResInsight provides a flexible interface to Octave including:
-Octave functions that communicates with a running ResInsight session Features to simplify management and editing of Octave scripts from ResInsight Commands to execute scripts using Octave. The Octave functions are documented in Octave Interface Reference.
+ Octave functions that communicates with a running ResInsight session Features to simplify management and editing of Octave scripts from ResInsight Commands to execute scripts using Octave.  The Octave functions are documented in Octave Interface Reference.
 Note: The Octave interface does not support Flow diagnostics and Injection flooding results in addition to Geomechanical cases.
-Octave Script Management Octave scripts are available in the Scripts folder in the Project Tree.</description>
+Octave Script Management Octave scripts are available in the Scripts folder in the Project Tree.</description>
     </item>
     
     <item>

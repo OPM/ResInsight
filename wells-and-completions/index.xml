@@ -5,7 +5,11 @@
     <link>https://resinsight.org/wells-and-completions/</link>
     <description>Recent content in Wells and Completions on ResInsight</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://resinsight.org/wells-and-completions/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-us</language>
+    
+	<atom:link href="https://resinsight.org/wells-and-completions/index.xml" rel="self" type="application/rss+xml" />
+    
+    
     <item>
       <title>Simulation Wells</title>
       <link>https://resinsight.org/wells-and-completions/simulationwells/</link>
@@ -14,7 +18,7 @@
       <guid>https://resinsight.org/wells-and-completions/simulationwells/</guid>
       <description>This section describes how wells defined in the simulation are displayed, and how to control the different aspects of their visualization.
 Commands Several commands are available as right-click commands on a simulation well. These commands are available either by right-clicking the well in the 3D View or in the Project Tree.
-New Well Log Extraction Curve &amp;ndash; Creates a new Well Log curve based on the selected simulation well, the current time step and cell property.</description>
+ New Well Log Extraction Curve &amp;ndash; Creates a new Well Log curve based on the selected simulation well, the current time step and cell property.</description>
     </item>
     
     <item>
@@ -36,7 +40,7 @@ Ascii Well Paths The command File -&amp;gt; Import -&amp;gt; Well Data -&amp;gt;
       <guid>https://resinsight.org/wells-and-completions/createnewwellpaths/</guid>
       <description>ResInsight lets the user create new/custom well paths by clicking in the 3D view. A self created well path will behave the same way as an imported well path.
 Building a multilateral well path
-Building a well path Right click Wells in the project tree Select Create Well Path in the right-click menu. A new well node and a well targets node are created Click in the 3D view on locations where the well path should pass (well path targets) When finished placing targets, click on &amp;ldquo;Stop Picking Targets&amp;rdquo; in the property editor Well targets property editor fields:</description>
+Building a well path  Right click Wells in the project tree Select Create Well Path in the right-click menu. A new well node and a well targets node are created Click in the 3D view on locations where the well path should pass (well path targets) When finished placing targets, click on &amp;ldquo;Stop Picking Targets&amp;rdquo; in the property editor  Well targets property editor fields:</description>
     </item>
     
     <item>
@@ -46,7 +50,7 @@ Building a well path Right click Wells in the project tree Select Create Well Pa
       
       <guid>https://resinsight.org/wells-and-completions/createmultilateralwellpaths/</guid>
       <description>ResInsight lets the user create additional well path laterals by clicking in the 3D view. Completions can be added to laterals, and the complete specification of the well can be exported using the Completion Export
-Building a well path Start from an existing well path, either imported or create a new well path In the 3D view, right-click on the well path at the depth location for your lateral A new well path lateral is created, and click in the 3D scene to define targets for the lateral Repeat from 2.</description>
+Building a well path  Start from an existing well path, either imported or create a new well path In the 3D view, right-click on the well path at the depth location for your lateral  A new well path lateral is created, and click in the 3D scene to define targets for the lateral Repeat from 2.</description>
     </item>
     
     <item>
@@ -77,7 +81,7 @@ Completions can be modeled by adding new perforation intervals, fishbones subs o
       <guid>https://resinsight.org/wells-and-completions/ensemblefracturestatistics/</guid>
       <description>Importing Ensemble Fracture Statistics Right-click on Completion Templates &amp;gt; Ensemble Fracture Statistics in the Project Tree and select the Import StimPlan Fracture Recursively option. Then select the StimPlan fracture Xml files to be part of the ensemble.
 After importing the Property Panel of the Ensemble Fracture Statistics item has these options:
-Name &amp;ndash; Name of the ensemble fracture statistics. Exclude Zero Width Fractures &amp;ndash; Toggle to remove zero width fractures from the statistics.</description>
+ Name &amp;ndash; Name of the ensemble fracture statistics. Exclude Zero Width Fractures &amp;ndash; Toggle to remove zero width fractures from the statistics.</description>
     </item>
     
     <item>
@@ -89,7 +93,7 @@ Name &amp;ndash; Name of the ensemble fracture statistics. Exclude Zero Width Fr
       <description>ResInsight supports creating and exporting LGRs (Local Grid Refinement) in main grid cells intersected by completions.
 Create Temporary LGRs To create temporary LGR(s), first select one or more well paths in the project tree, right click and select &amp;lsquo;Create Temporary LGR&amp;rsquo;. This command brings up the following dialog.
 The dialog contains several input fields
-Source Case &amp;ndash; The source case/grid Time Step &amp;ndash; The time step to use Fractures, Fishbones, Perforations &amp;ndash; Check boxes to control which completion types to create LGRs for Split Type &amp;ndash; Three options controlling how the LGRs will be created LGR Per Cell &amp;ndash; One LGR is created for each main grid cell intersected by completions of the selected type LGR Per Completion &amp;ndash; One LGR is created for each completion of the selected types.</description>
+ Source Case &amp;ndash; The source case/grid Time Step &amp;ndash; The time step to use Fractures, Fishbones, Perforations &amp;ndash; Check boxes to control which completion types to create LGRs for Split Type &amp;ndash; Three options controlling how the LGRs will be created  LGR Per Cell &amp;ndash; One LGR is created for each main grid cell intersected by completions of the selected type LGR Per Completion &amp;ndash; One LGR is created for each completion of the selected types.</description>
     </item>
     
     <item>
@@ -100,7 +104,8 @@ Source Case &amp;ndash; The source case/grid Time Step &amp;ndash; The time step
       <guid>https://resinsight.org/wells-and-completions/wellmeasurements/</guid>
       <description>ResInsight can import well measurements from a comma-separated values file.
 Importing Well Measurements The command File -&amp;gt; Import -&amp;gt; Well Data -&amp;gt; Import Measurements will read well measurements from the selected files, and create one entry for each file under the Wells -&amp;gt; Well Measurements item in the Project Tree.
-File Format The format is comma-separated values with one measurement per line. The following requirements have to be met:</description>
+File Format The format is comma-separated values with one measurement per line. The following requirements have to be met:
+ Each data line must contain seven values: Well Name, MD, Date, Measurement Kind, Value, Quality, and Comment.</description>
     </item>
     
   </channel>
