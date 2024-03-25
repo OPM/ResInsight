@@ -19,6 +19,7 @@
 #pragma once
 
 #include "cafCmdFeature.h"
+#include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
 #include <QList>

@@ -25,6 +25,8 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPathTieIn.h"
 
+#include "RiuMainWindow.h"
+
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
 
