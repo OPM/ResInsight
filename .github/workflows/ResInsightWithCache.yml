@@ -306,6 +306,6 @@ jobs:
       # https://docs.pypi.org/trusted-publishers/adding-a-publisher/
       uses: pypa/gh-action-pypi-publish@release/v1
       # uncomment the two lines below to publish to test PyPi
-      with:
-        repository-url: https://test.pypi.org/legacy/
+      # with:
+      #   repository-url: https://test.pypi.org/legacy/
 
