@@ -389,8 +389,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewEditableWellPathFeature";
             menuBuilder << "RicNewWellPathLateralFeature";
-            menuBuilder << "RicLinkWellPathFeature";
             menuBuilder << "RicDuplicateWellPathFeature";
+
+            menuBuilder.addSeparator();
+            menuBuilder << "RicSetParentWellPathFeature";
 
             menuBuilder.addSeparator();
             menuBuilder << "RicNewWellPathIntersectionFeature";
@@ -421,6 +423,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.subMenuEnd();
             menuBuilder.addSeparator();
 
+            menuBuilder << "RicLinkWellPathFeature";
             menuBuilder << "RicDeleteWellPathFeature";
 
             menuBuilder.addSeparator();

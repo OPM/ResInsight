@@ -32,6 +32,7 @@
 
 #include "RigWellPathGeometryTools.h"
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiLabelEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimWellPathTieIn, "RimWellPathTieIn" );
 
@@ -42,7 +43,14 @@ RimWellPathTieIn::RimWellPathTieIn()
 {
     CAF_PDM_InitObject( "Well Path Tie In", ":/NotDefined.png", "", "Well Path Tie In description" );
 
+    CAF_PDM_InitFieldNoDefault( &m_infoLabel, "InfoLabel", "Use right-click menu of well to set parent well." );
+    m_infoLabel.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
+    m_infoLabel.xmlCapability()->disableIO();
+    m_infoLabel.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
     CAF_PDM_InitFieldNoDefault( &m_parentWell, "ParentWellPath", "Parent Well Path" );
+    m_parentWell.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitFieldNoDefault( &m_childWell, "ChildWellPath", "ChildWellPath" );
     CAF_PDM_InitFieldNoDefault( &m_tieInMeasuredDepth, "TieInMeasuredDepth", "Tie In Measured Depth" );
     m_tieInMeasuredDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -161,6 +169,7 @@ const RimWellPathValve* RimWellPathTieIn::outletValve() const
 void RimWellPathTieIn::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     auto tieInGroup = uiOrdering.addNewGroup( "Tie In Settings" );
+    tieInGroup->add( &m_infoLabel );
     tieInGroup->add( &m_parentWell );
     if ( m_parentWell() != nullptr )
     {
@@ -187,6 +196,9 @@ void RimWellPathTieIn::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 void RimWellPathTieIn::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    // TODO: It is not possible to change the parent well from the UI as the field is set to read only. Refactor and possibly delete this
+    // method.
+
     if ( changedField == &m_parentWell )
     {
         updateFirstTargetFromParentWell();

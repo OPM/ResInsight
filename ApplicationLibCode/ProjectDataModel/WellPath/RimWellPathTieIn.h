@@ -55,6 +55,8 @@ private:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
+    caf::PdmField<QString> m_infoLabel;
+
     caf::PdmPtrField<RimWellPath*> m_parentWell;
     caf::PdmPtrField<RimWellPath*> m_childWell;
     caf::PdmField<double>          m_tieInMeasuredDepth;

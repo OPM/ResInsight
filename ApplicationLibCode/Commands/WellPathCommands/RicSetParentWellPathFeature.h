@@ -19,6 +19,38 @@
 #pragma once
 
 #include "cafCmdFeature.h"
+#include "cafPdmPtrField.h"
+
+#include <QList>
+
+#include <vector>
+
+namespace caf
+{
+class PdmOptionItemInfo;
+}
+
+class RimWellPath;
+
+class RicSelectWellPathUi : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RicSelectWellPathUi();
+
+    void setWellPaths( const std::vector<RimWellPath*>& wellPaths );
+    void setSelectedWell( RimWellPath* selectedWell );
+
+    RimWellPath* wellPath() const;
+
+protected:
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
+private:
+    caf::PdmPtrField<RimWellPath*> m_selectedWellPath;
+    std::vector<RimWellPath*>      m_wellPaths;
+};
 
 //==================================================================================================
 ///
@@ -28,7 +60,6 @@ class RicSetParentWellPathFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 };
