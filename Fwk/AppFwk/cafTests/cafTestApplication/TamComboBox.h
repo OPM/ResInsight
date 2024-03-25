@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
