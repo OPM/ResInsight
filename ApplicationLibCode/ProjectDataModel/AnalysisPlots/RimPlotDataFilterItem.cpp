@@ -92,7 +92,6 @@ RimPlotDataFilterItem::RimPlotDataFilterItem()
     CAF_PDM_InitFieldNoDefault( &m_filterTarget, "FilterTarget", "Use only the" );
 
     CAF_PDM_InitFieldNoDefault( &m_filterAddress, "FilterAddressField", "Filter Address" );
-    m_filterAddress.uiCapability()->setUiTreeHidden( true );
     m_filterAddress.uiCapability()->setUiTreeChildrenHidden( true );
     m_filterAddress = new RimSummaryAddress();
 

@@ -64,11 +64,8 @@
 #include "cvfSampler.h"
 #include "cvfRenderStateTextureBindings.h"
 #include "cvfRect.h"
-
-#ifndef CVF_OPENGL_ES
 #include "cvfRenderState_FF.h"
 #include "cvfTexture2D_FF.h"
-#endif
 
 
 namespace cvf {
@@ -286,11 +283,7 @@ void OverlayNavigationCube::renderAxis(OpenGLContext* oglContext, const MatrixSt
 //--------------------------------------------------------------------------------------------------
 void OverlayNavigationCube::renderAxisImmediateMode(OpenGLContext* oglContext, const MatrixState& matrixState)
 {
-#ifdef CVF_OPENGL_ES
-    CVF_FAIL_MSG("Not supported on OpenGL ES");
-#else
     m_axis->renderImmediateMode(oglContext, matrixState);  
-#endif // CVF_OPENGL_ES
 }
 
 
@@ -367,7 +360,6 @@ void OverlayNavigationCube::updateTextureBindings(OpenGLContext* oglContext, boo
         {
             if (software)
             {
-#ifndef CVF_OPENGL_ES
                 // Use fixed function texture setup
                 ref<Texture2D_FF> texture = new Texture2D_FF(it->second.p());
                 texture->setWrapMode(Texture2D_FF::CLAMP);
@@ -380,10 +372,6 @@ void OverlayNavigationCube::updateTextureBindings(OpenGLContext* oglContext, boo
                 textureMapping->setTextureFunction(RenderStateTextureMapping_FF::MODULATE);
 
                 m_faceTextureBindings[face] = textureMapping;
-#else
-                CVF_FAIL_MSG("Not supported on OpenGL ES");
-#endif
-
             }
             else
             {
@@ -420,14 +408,12 @@ void OverlayNavigationCube::renderCubeGeos(OpenGLContext* oglContext, bool softw
 
     if (software)
     {
-#ifndef CVF_OPENGL_ES
         RenderStateMaterial_FF mat;
         mat.enableColorMaterial(true);
         mat.applyOpenGL(oglContext);
 
         RenderStateLighting_FF light;
         light.applyOpenGL(oglContext);
-#endif
     }
 
     for (size_t i = 0; i < 6; i++)
@@ -485,12 +471,8 @@ void OverlayNavigationCube::renderCubeGeos(OpenGLContext* oglContext, bool softw
 
                 if (software)
                 {
-#ifdef CVF_OPENGL_ES
-                    CVF_FAIL_MSG("Not supported on OpenGL ES");
-#else
                     glColor3fv(renderFaceColor.ptr());
                     m_cubeGeos[i]->renderImmediateMode(oglContext, matrixState);
-#endif
                 }
                 else
                 {
@@ -533,15 +515,11 @@ void OverlayNavigationCube::render2dItems(OpenGLContext* oglContext, const Vec2i
 
     if (software)
     {
-#ifdef CVF_OPENGL_ES
-        CVF_FAIL_MSG("Not supported on OpenGL ES");
-#else
         RenderStateLighting_FF light(false);
         light.applyOpenGL(oglContext);
         glColor3fv(m_hightlightItem == NCI_HOME ? m_itemHighlightColor.ptr() : m_2dItemsColor.ptr());
 
         m_homeGeo->renderImmediateMode(oglContext, matrixState);
-#endif
     }
     else
     {
@@ -568,12 +546,8 @@ void OverlayNavigationCube::render2dItems(OpenGLContext* oglContext, const Vec2i
 
             if (software)
             {
-#ifdef CVF_OPENGL_ES
-                CVF_FAIL_MSG("Not supported on OpenGL ES");
-#else
                 glColor3fv(renderFaceColor.ptr());
                 m_2dGeos[i]->renderImmediateMode(oglContext, matrixState);
-#endif
             }
             else
             {
@@ -590,12 +564,8 @@ void OverlayNavigationCube::render2dItems(OpenGLContext* oglContext, const Vec2i
 
     if (software)
     {
-#ifdef CVF_OPENGL_ES
-        CVF_FAIL_MSG("Not supported on OpenGL ES");
-#else
         RenderStateLighting_FF resetLight;
         resetLight.applyOpenGL(oglContext);
-#endif
     }
 }
 

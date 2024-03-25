@@ -27,10 +27,8 @@
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
 
+#include "Rim3dView.h"
 #include "RimCase.h"
-#include "RimGridView.h"
-#include "RimProject.h"
-#include "RimViewController.h"
 #include "RimViewLinker.h"
 
 #include "RivGridBoxGenerator.h"
@@ -60,19 +58,14 @@
 
 #include "cvfCamera.h"
 #include "cvfFont.h"
-#include "cvfOpenGLResourceManager.h"
 #include "cvfOverlayAxisCross.h"
 #include "cvfOverlayItem.h"
-#include "cvfPartRenderHintCollection.h"
-#include "cvfRenderQueueSorter.h"
-#include "cvfRenderSequence.h"
 #include "cvfRendering.h"
 #include "cvfScene.h"
 
-#include <QLabel>
-#include <QMouseEvent>
-
 #include <algorithm>
+
+#include <QLabel>
 
 using cvf::ManipulatorTrackball;
 
@@ -92,8 +85,8 @@ std::unique_ptr<QCursor> RiuViewer::s_hoverCursor;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
-    : caf::Viewer( format, parent )
+RiuViewer::RiuViewer( QWidget* parent )
+    : caf::Viewer( parent )
     , m_isNavigationRotationEnabled( true )
     , m_zScale( 1.0 )
 {
@@ -489,17 +482,20 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
     {
         Rim3dView* view = dynamic_cast<Rim3dView*>( m_rimView.p() );
 
-        QString stepName = view->timeStepName( view->currentTimeStep() );
+        if ( view )
+        {
+            QString stepName = view->timeStepName( view->currentTimeStep() );
 
-        m_animationProgress->setFormat( "Time Step: %v/%m " + stepName );
-        m_animationProgress->setMinimum( 0 );
-        m_animationProgress->setMaximum( static_cast<int>( view->timeStepCount() ) - 1 );
-        m_animationProgress->setValue( view->currentTimeStep() );
+            m_animationProgress->setFormat( "Time Step: %v/%m " + stepName );
+            m_animationProgress->setMinimum( 0 );
+            m_animationProgress->setMaximum( static_cast<int>( view->timeStepCount() ) - 1 );
+            m_animationProgress->setValue( view->currentTimeStep() );
 
-        m_animationProgress->resize( columnWidth, m_animationProgress->sizeHint().height() );
-        m_animationProgress->render( painter, QPoint( columnPos, yPos ) );
+            m_animationProgress->resize( columnWidth, m_animationProgress->sizeHint().height() );
+            m_animationProgress->render( painter, QPoint( columnPos, yPos ) );
 
-        yPos += m_animationProgress->height() + margin;
+            yPos += m_animationProgress->height() + margin;
+        }
     }
 
     if ( m_showInfoText && !isComparisonViewActive() )
@@ -685,6 +681,21 @@ void RiuViewer::showHistogram( bool enable )
 void RiuViewer::mousePressEvent( QMouseEvent* event )
 {
     m_lastMousePressPosition = event->pos();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::mouseDoubleClickEvent( QMouseEvent* event )
+{
+    if ( auto view = dynamic_cast<Rim3dView*>( m_rimView.p() ) )
+    {
+        view->zoomAll();
+
+        return;
+    }
+
+    caf::Viewer::mouseDoubleClickEvent( event );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1029,6 +1040,8 @@ RimViewWindow* RiuViewer::ownerViewWindow() const
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::optimizeClippingPlanes()
 {
+    if ( m_rimView == nullptr ) return;
+
     if ( m_showWindowEdgeAxes )
     {
         m_windowEdgeAxisOverlay->setDisplayCoordTransform( m_rimView->displayCoordTransform().p() );

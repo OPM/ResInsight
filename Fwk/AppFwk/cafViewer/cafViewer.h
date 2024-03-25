@@ -36,16 +36,13 @@
 
 #pragma once
 
-#include "cvfAssert.h"
-#include "cvfBase.h"
 #include "cvfCollection.h"
 #include "cvfObject.h"
 #include "cvfOpenGL.h"
 #include "cvfRect.h"
-#include "cvfRenderingScissor.h"
 #include "cvfVector3.h"
 
-#include "cafOpenGLWidget.h"
+#include "cvfqtOpenGLWidget.h"
 
 namespace cvf
 {
@@ -61,6 +58,7 @@ class Scene;
 class Texture;
 class TextureImage;
 class RayIntersectSpec;
+class RenderingScissor;
 } // namespace cvf
 
 namespace caf
@@ -79,11 +77,11 @@ namespace caf
 class GlobalViewerDynUniformSet;
 class ScissorChanger;
 
-class Viewer : public caf::OpenGLWidget
+class Viewer : public cvfqt::OpenGLWidget
 {
     Q_OBJECT
 public:
-    Viewer( const QGLFormat& format, QWidget* parent );
+    Viewer( QWidget* parent );
     ~Viewer() override;
 
     QWidget*     layoutWidget() { return m_layoutWidget; } // Use this when putting it into something
@@ -194,6 +192,8 @@ protected:
     // Method to override if painting directly on the OpenGl Canvas is needed.
     virtual void paintOverlayItems( QPainter* painter ){};
 
+    void onWidgetOpenGLReady() override;
+
     // Overridable methods to setup the render system
     virtual void optimizeClippingPlanes();
 
@@ -204,7 +204,7 @@ protected:
 
     // Standard overrides. Not for overriding
     void resizeGL( int width, int height ) override;
-    void paintEvent( QPaintEvent* event ) override;
+    void paintGL() override;
 
     // Support the navigation policy concept
     bool event( QEvent* e ) override;
@@ -234,6 +234,7 @@ private:
     void updateCamera( int width, int height );
     void releaseOGlResourcesForCurrentFrame();
     void debugShowRenderingSequencePartNames();
+    void deleteFboOpenGLResources();
 
     int clampFrameIndex( int frameIndex ) const;
 
@@ -249,10 +250,8 @@ private:
     void                        updateOverlayImagePresence();
 
     // System to make sure we share OpenGL resources
-    static Viewer*                  sharedWidget();
     static cvf::OpenGLContextGroup* contextGroup();
 
-    static std::list<Viewer*>                sm_viewers;
     static cvf::ref<cvf::OpenGLContextGroup> sm_openGLContextGroup;
 
     caf::FrameAnimationControl* m_animationControl;

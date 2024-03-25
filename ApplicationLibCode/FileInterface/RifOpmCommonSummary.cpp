@@ -398,9 +398,9 @@ std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress,
 
 #pragma omp parallel
     {
-        std::set<RifEclipseSummaryAddress>              threadAddresses;
-        std::map<RifEclipseSummaryAddress, std::string> threadAddressToKeywordMap;
-        std::vector<std::string>                        threadInvalidKeywords;
+        std::vector<RifEclipseSummaryAddress>                         threadAddresses;
+        std::vector<std::pair<RifEclipseSummaryAddress, std::string>> threadAddressToKeywordMap;
+        std::vector<std::string>                                      threadInvalidKeywords;
 
 #pragma omp for
         for ( int index = 0; index < (int)keywords.size(); index++ )
@@ -418,8 +418,8 @@ std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress,
 
             if ( eclAdr.isValid() )
             {
-                threadAddresses.insert( eclAdr );
-                threadAddressToKeywordMap[eclAdr] = keyword;
+                threadAddresses.emplace_back( eclAdr );
+                threadAddressToKeywordMap.emplace_back( std::make_pair( eclAdr, keyword ) );
             }
         }
 

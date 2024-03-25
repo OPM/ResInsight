@@ -33,11 +33,12 @@ jobs:
               vcpkg-triplet: x64-windows,
               build-python-module: true,
               execute-unit-tests: true,
+              execute-pytests: true,
               unity-build: true,
               publish-to-pypi: false,
             }
           - {
-              name: "Ubuntu Latest gcc",
+              name: "Ubuntu 20.04 gcc",
               os: ubuntu-20.04,
               cc: "gcc",
               cxx: "g++",
@@ -45,29 +46,31 @@ jobs:
               vcpkg-triplet: x64-linux,
               build-python-module: true,
               execute-unit-tests: true,
+              execute-pytests: true,
               unity-build: false,
               publish-to-pypi: true,
             }
           - {
-              name: "Ubuntu Latest clang",
-              os: ubuntu-20.04,
-              cc: "clang",
-              cxx: "clang++",
+              name: "Ubuntu 22.04 clang-16",
+              os: ubuntu-22.04,
+              cc: "clang-16",
+              cxx: "clang++-16",
               vcpkg-response-file: vcpkg_x64-linux.txt,
               vcpkg-triplet: x64-linux,
               build-python-module: true,
               execute-unit-tests: true,
+              execute-pytests: false,
               unity-build: false,
               publish-to-pypi: false,
             }
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.8"
       - name: Display Python version
@@ -84,7 +87,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r GrpcInterface/Python/requirements.txt
+          pip install -r GrpcInterface/Python/dev-requirements.txt
 
       - name: Use CMake
         uses: lukka/get-cmake@latest
@@ -116,7 +119,7 @@ jobs:
           endif()
 
       - name: Get current time
-        uses: josStorer/get-current-time@v2.0.2
+        uses: josStorer/get-current-time@v2
         id: current-time
         with:
           format: YYYY-MM-DD
@@ -126,7 +129,7 @@ jobs:
 
       - name: Cache Buildcache
         id: cache-buildcache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.BUILDCACHE_DIR }}
           key: ${{ matrix.config.os }}-${{ matrix.config.cc }}-cache-v03-${{ steps.current-time.outputs.formattedTime }}
@@ -139,7 +142,7 @@ jobs:
 
       - name: Set apt mirror
         # see https://github.com/actions/runner-images/issues/7048
-        if: ${{contains( matrix.config.os, 'ubuntu') }}
+        if: contains( matrix.config.os, 'ubuntu')
         run: |
           # make sure there is a `\t` between URL and `priority:*` attributes
           printf 'http://azure.archive.ubuntu.com/ubuntu	priority:1\n' | sudo tee /etc/apt/mirrors.txt
@@ -147,11 +150,24 @@ jobs:
           sudo sed -i 's/http:\/\/azure.archive.ubuntu.com\/ubuntu\//mirror+file:\/etc\/apt\/mirrors.txt/' /etc/apt/sources.list
 
       - name: Install Linux dependencies
-        if: ${{contains( matrix.config.os, 'ubuntu') }}
+        if: contains( matrix.config.os, 'ubuntu')
         run: |
           sudo apt-get update --option="APT::Acquire::Retries=3"
           sudo apt-get install --option="APT::Acquire::Retries=3" libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
+
+      - name: Install gcc-10
+        if: contains( matrix.config.cc, 'gcc')
+        run: |
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10 --slave /usr/bin/gcov gcov /usr/bin/gcov-10
+  
+      - name: Install clang-16
+        if: contains( matrix.config.cc, 'clang')
+        run: |
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 100 --slave /usr/bin/g++ g++ /usr/bin/g++-11 --slave /usr/bin/gcov gcov /usr/bin/gcov-11
+          sudo apt-get upgrade
+          wget https://apt.llvm.org/llvm.sh
+          sudo chmod +x llvm.sh
+          sudo ./llvm.sh 16 all
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
@@ -170,14 +186,14 @@ jobs:
           appendedCacheKey: ${{ matrix.config.os }}-${{ matrix.config.cxx }}-cache-key-v2
 
       - name: Cache dynamic version of OpenSSL (Linux)
-        if: ${{contains( matrix.config.os, 'ubuntu_disabled') }}
-        uses: actions/cache@v3
+        if: contains( matrix.config.os, 'ubuntu_disabled')
+        uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/ThirdParty/vcpkg/installed/x64-linux-dynamic
           key: ${{ matrix.config.os }}-vcpkg-x64-linux-dynamic_v05
 
       - name: Install dynamic version of OpenSSL (Linux)
-        if: ${{contains( matrix.config.os, 'ubuntu') }}
+        if: contains( matrix.config.os, 'ubuntu')
         run: |
           $VCPKG_ROOT/vcpkg install --overlay-triplets=${{ github.workspace }}/ThirdParty/vcpkg-custom-triplets --triplet x64-linux-dynamic openssl
 
@@ -194,6 +210,7 @@ jobs:
               -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
               -D CMAKE_INSTALL_PREFIX=cmakebuild/install
               -D RESINSIGHT_BUNDLE_OPENSSL=true
+              -D RESINSIGHT_QT5_BUNDLE_LIBRARIES=true
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
               -D RESINSIGHT_ENABLE_PRECOMPILED_HEADERS=false
@@ -224,11 +241,12 @@ jobs:
 
       - name: Stats for buildcache
         run: ${{ github.workspace }}/buildcache/bin/buildcache -s
+
       - name: Run Unit Tests
         if: matrix.config.execute-unit-tests
         shell: bash
         run: |
-          cmakebuild/ApplicationExeCode/ResInsight --unittest
+          cmakebuild/ApplicationLibCode/UnitTests/ResInsight-tests
 
       - name: (Python) Check types using mypy
         if: matrix.config.build-python-module
@@ -239,7 +257,7 @@ jobs:
           ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m mypy *.py generated/generated_classes.py
 
       - name: Run pytest
-        if: matrix.config.build-python-module
+        if: matrix.config.execute-pytests
         env:
           RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationExeCode/ResInsight
         run: |
@@ -250,14 +268,13 @@ jobs:
 
       - name: Upload python distribution folder
         if: matrix.config.publish-to-pypi
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: python-distribution
           path: GrpcInterface/Python/dist
 
-      - name: Upload Windows install artifact
-        if: ${{contains( matrix.config.os, 'windows') }}
-        uses: actions/upload-artifact@v3
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: ResInsight-${{ matrix.config.name }}
           path: ${{ runner.workspace }}/ResInsight/cmakebuild/install

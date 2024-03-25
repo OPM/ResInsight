@@ -20,7 +20,6 @@
 
 #include "RimRegularLegendConfig.h"
 
-#include "cafPdmUiOrdering.h"
 #include "cafPdmUiTreeOrdering.h"
 
 CAF_PDM_SOURCE_INIT( RimStimPlanLegendConfig, "RimStimPlanLegendConfig" );

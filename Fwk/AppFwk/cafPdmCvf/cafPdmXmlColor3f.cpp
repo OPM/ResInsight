@@ -36,6 +36,7 @@
 
 #include "cafPdmXmlColor3f.h"
 
+#include <QString>
 #include <QTextStream>
 
 QTextStream& operator>>( QTextStream& str, cvf::Color3f& value )

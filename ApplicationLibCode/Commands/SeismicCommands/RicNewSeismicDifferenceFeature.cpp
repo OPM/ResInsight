@@ -18,7 +18,7 @@
 
 #include "RicNewSeismicDifferenceFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "RimOilField.h"
 #include "RimProject.h"

@@ -19,6 +19,7 @@
 
 #include "RiaGrpcCallbacks.h"
 #include "RiaGrpcCaseService.h"
+#include "RiaGrpcHelper.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigActiveCellsResultAccessor.h"
@@ -52,7 +53,7 @@ using namespace rips;
 
 class RiaCellResultsStateHandler
 {
-    typedef grpc::Status Status;
+    using Status = grpc::Status;
 
 public:
     //--------------------------------------------------------------------------------------------------
@@ -83,7 +84,7 @@ public:
     Status init( const PropertyRequest* request )
     {
         int caseId    = request->case_request().id();
-        m_eclipseCase = dynamic_cast<RimEclipseCase*>( RiaGrpcServiceInterface::findCase( caseId ) );
+        m_eclipseCase = dynamic_cast<RimEclipseCase*>( RiaGrpcHelper::findCase( caseId ) );
 
         if ( m_eclipseCase )
         {
@@ -147,7 +148,7 @@ public:
     Status assignStreamReply( PropertyChunk* reply )
     {
         // How many data units will fit into one stream package?
-        const size_t packageSize    = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( double ) );
+        const size_t packageSize    = RiaGrpcHelper::numberOfDataUnitsInPackage( sizeof( double ) );
         size_t       indexInPackage = 0u;
         reply->mutable_values()->Reserve( (int)packageSize );
 
@@ -405,7 +406,7 @@ grpc::Status RiaGrpcPropertiesService::GetAvailableProperties( grpc::ServerConte
                                                                AvailableProperties*              reply )
 {
     int             caseId      = request->case_request().id();
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( RiaGrpcServiceInterface::findCase( caseId ) );
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( RiaGrpcHelper::findCase( caseId ) );
     if ( eclipseCase )
     {
         auto        porosityModel = static_cast<RiaDefines::PorosityModelType>( request->porosity_model() );

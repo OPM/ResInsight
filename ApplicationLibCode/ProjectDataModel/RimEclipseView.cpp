@@ -20,6 +20,7 @@
 
 #include "RimEclipseView.h"
 
+#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
@@ -41,6 +42,7 @@
 #include "RigWellResultFrame.h"
 #include "RigWellResultPoint.h"
 
+#include "Polygons/RimPolygonInViewCollection.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimAnnotationCollection.h"
@@ -146,52 +148,40 @@ RimEclipseView::RimEclipseView()
 
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_cellResult, "GridCellResult", "CellResult", "Cell Result", ":/CellResult.png" );
     m_cellResult = new RimEclipseCellColors();
-    m_cellResult.uiCapability()->setUiTreeHidden( true );
     m_cellResult->enableDeltaResults( true );
 
     CAF_PDM_InitFieldNoDefault( &m_cellEdgeResult, "GridCellEdgeResult", "Cell Edge Result", ":/EdgeResult_1.png" );
     m_cellEdgeResult = new RimCellEdgeColors();
-    m_cellEdgeResult.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_elementVectorResult, "ElementVectorResult", "Vector Result", ":/CellResult.png" );
     m_elementVectorResult = new RimElementVectorResult;
-    m_elementVectorResult.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_faultResultSettings, "FaultResultSettings", "Fault Result" );
     m_faultResultSettings = new RimEclipseFaultColors();
-    m_faultResultSettings.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_fractureColors, "StimPlanColors", "Fracture" );
     m_fractureColors = new RimStimPlanColors();
-    m_fractureColors.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_virtualPerforationResult, "VirtualPerforationResult", "" );
     m_virtualPerforationResult = new RimVirtualPerforationResults();
-    m_virtualPerforationResult.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_wellCollection, "WellCollection", "Simulation Wells" );
     m_wellCollection = new RimSimWellInViewCollection;
-    m_wellCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_faultCollection, "FaultCollection", "Faults" );
     m_faultCollection = new RimFaultInViewCollection;
-    m_faultCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_faultReactivationModelCollection, "FaultReactivationModelCollection", "Fault Reactivation Models" );
     m_faultReactivationModelCollection = new RimFaultReactivationModelCollection;
-    m_faultReactivationModelCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_annotationCollection, "AnnotationCollection", "Annotations" );
     m_annotationCollection = new RimAnnotationInViewCollection;
-    m_annotationCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_streamlineCollection, "StreamlineCollection", "Streamlines" );
     m_streamlineCollection = new RimStreamlineInViewCollection();
-    m_streamlineCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_propertyFilterCollection, "PropertyFilters", "Property Filters" );
     m_propertyFilterCollection = new RimEclipsePropertyFilterCollection();
-    m_propertyFilterCollection.uiCapability()->setUiTreeHidden( true );
 
     // Visualization fields
     CAF_PDM_InitField( &m_showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells" );
@@ -659,6 +649,9 @@ void RimEclipseView::onCreateDisplayModel()
         nativeOrOverrideViewer()->addStaticModelOnce( m_surfaceVizModel.p(), isUsingOverrideViewer() );
     }
 
+    // Polygons
+    appendPolygonPartsToModel( transform.p(), ownerCase()->allCellsBoundingBox() );
+
     // Well path model
     m_wellPathPipeVizModel->removeAllParts();
 
@@ -1089,7 +1082,7 @@ void RimEclipseView::appendStreamlinesToModel()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::onLoadDataAndUpdate()
 {
-    updateSurfacesInViewTreeItems();
+    updateViewTreeItems( RiaDefines::ItemIn3dView::ALL );
 
     onUpdateScaleTransform();
 
@@ -1953,11 +1946,13 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     if ( faultReactivationModelCollection()->shouldBeVisibleInTree() ) uiTreeOrdering.add( faultReactivationModelCollection() );
 
-    uiTreeOrdering.add( annotationCollection() );
     uiTreeOrdering.add( intersectionCollection() );
+    uiTreeOrdering.add( m_polygonInViewCollection );
 
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
     if ( seismicSectionCollection()->shouldBeVisibleInTree() ) uiTreeOrdering.add( seismicSectionCollection() );
+
+    uiTreeOrdering.add( annotationCollection() );
 
     uiTreeOrdering.skipRemainingChildren( true );
 }

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.15)
 
 project(CeeApp)
 
@@ -11,27 +11,6 @@ if(MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
   )
 endif()
 
-# Qt
-if(NOT DEFINED (CEE_USE_QT5))
-  option(CEE_USE_QT5 "Use Qt5" ON)
-endif(NOT DEFINED (CEE_USE_QT5))
-
-if(CEE_USE_QT5)
-  find_package(
-    Qt5
-    COMPONENTS
-    REQUIRED Core Gui OpenGL Widgets
-  )
-  set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets)
-else()
-  find_package(
-    Qt4
-    COMPONENTS QtCore QtGui QtMain QtOpenGl
-    REQUIRED
-  )
-  include(${QT_USE_FILE})
-endif(CEE_USE_QT5)
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -39,6 +18,15 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 if(MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 endif()
+
+# Qt
+if(NOT DEFINED (CEE_USE_QT5))
+  option(CEE_USE_QT5 "Use Qt5" ON)
+endif(NOT DEFINED (CEE_USE_QT5))
+
+if(NOT DEFINED (CEE_USE_QT6))
+  option(CEE_USE_QT6 "Use Qt6" OFF)
+endif(NOT DEFINED (CEE_USE_QT6))
 
 # CeeViz is not available here, exclude it from the build
 set(CAF_EXCLUDE_CVF ON)

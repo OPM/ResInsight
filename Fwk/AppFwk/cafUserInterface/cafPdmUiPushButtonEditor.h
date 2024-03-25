@@ -35,12 +35,14 @@
 //##################################################################################################
 
 #pragma once
+
 #include "cafPdmUiFieldEditorHandle.h"
 
 #include <QLabel>
 #include <QPointer>
 #include <QPushButton>
 #include <QWidget>
+
 class QHBoxLayout;
 
 namespace caf
@@ -67,7 +69,8 @@ public:
     PdmUiPushButtonEditor() {}
     ~PdmUiPushButtonEditor() override {}
 
-    static void configureEditorForField( PdmFieldHandle* fieldHandle );
+    static void configureEditorLabelLeft( PdmFieldHandle* fieldHandle );
+    static void configureEditorLabelHidden( PdmFieldHandle* fieldHandle );
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;

@@ -23,7 +23,6 @@
 #include "RimCaseDisplayNameTools.h"
 
 #include "cafFilePath.h"
-#include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -66,6 +65,7 @@ public:
     int  caseId() const;
 
     void refreshMetaData();
+    void onCalculationUpdated();
 
     virtual void                       createSummaryReaderInterface() = 0;
     virtual void                       createRftReaderInterface() {}

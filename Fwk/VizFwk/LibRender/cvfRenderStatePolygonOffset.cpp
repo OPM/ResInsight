@@ -197,13 +197,11 @@ void RenderStatePolygonOffset::applyOpenGL(OpenGLContext* oglContext) const
     if (m_enableFillMode)   glEnable(GL_POLYGON_OFFSET_FILL);
     else                    glDisable(GL_POLYGON_OFFSET_FILL);
         
-#ifndef CVF_OPENGL_ES
     if (m_enableLineMode)   glEnable(GL_POLYGON_OFFSET_LINE);
     else                    glDisable(GL_POLYGON_OFFSET_LINE);
 
     if (m_enablePointMode)  glEnable(GL_POLYGON_OFFSET_POINT);
     else                    glDisable(GL_POLYGON_OFFSET_POINT);
-#endif
     
     CVF_CHECK_OGL(oglContext);
 }

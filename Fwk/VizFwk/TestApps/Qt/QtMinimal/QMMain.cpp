@@ -34,17 +34,13 @@
 //
 //##################################################################################################
 
-
 #include "cvfLibCore.h"
 
 #include "QMMainWindow.h"
 
-#include <QtGlobal>
-#if QT_VERSION >= 0x050000
 #include <QApplication>
-#else
-#include <QtGui/QApplication>
-#endif
+
+#include <locale.h>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -52,6 +48,9 @@
 //--------------------------------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
+    cvf::LogManager* logManager = cvf::LogManager::instance();
+    logManager->logger("cee.cvf.OpenGL")->setLevel(cvf::Logger::LL_DEBUG);
+
     QApplication app(argc, argv);
 
     // On Linux, Qt will use the system locale, force number formatting settings back to "C" locale

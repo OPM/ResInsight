@@ -157,7 +157,7 @@ RimWellConnectivityTable::RimWellConnectivityTable()
     CAF_PDM_InitFieldNoDefault( &m_excludeTimeSteps, "ExcludeTimeSteps", "" );
     m_excludeTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     CAF_PDM_InitFieldNoDefault( &m_applyTimeStepSelections, "ApplyTimeStepSelections", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_applyTimeStepSelections );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_applyTimeStepSelections );
 
     // Producer/Injector tracer configuration
     CAF_PDM_InitFieldNoDefault( &m_selectedProducerTracersUiField, "SelectedProducerTracers", "Producer Tracers" );
@@ -169,7 +169,7 @@ RimWellConnectivityTable::RimWellConnectivityTable()
     CAF_PDM_InitField( &m_syncSelectedProducersFromInjectorSelection, "SyncSelectedInjProd", false, "<- Synch Communicators" );
     m_syncSelectedProducersFromInjectorSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     CAF_PDM_InitFieldNoDefault( &m_applySelectedInectorProducerTracers, "ApplySelectedInectorProducerTracers", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_applySelectedInectorProducerTracers );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_applySelectedInectorProducerTracers );
 
     // Table settings
     CAF_PDM_InitField( &m_showValueLabels, "ShowValueLabels", false, "Show Value Labels" );
@@ -1291,6 +1291,8 @@ std::vector<QString> RimWellConnectivityTable::getViewFilteredWellNamesFromFilte
         const auto productionWellResultFrame = wellResult->staticWellResultFrame();
         for ( const auto& resultPoint : productionWellResultFrame->allResultPoints() )
         {
+            if ( !resultPoint.isCell() ) continue;
+
             if ( cellIdxCalc.isCellVisible( resultPoint.gridIndex(), resultPoint.cellIndex() ) )
             {
                 productionWells.push_back( wellResult->m_wellName );

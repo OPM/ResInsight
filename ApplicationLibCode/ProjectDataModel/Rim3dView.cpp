@@ -51,7 +51,6 @@
 #include "RimWellPathCollection.h"
 
 #include "RivAnnotationsPartMgr.h"
-#include "RivCellFilterPartMgr.h"
 #include "RivMeasurementPartMgr.h"
 #include "RivWellPathsPartMgr.h"
 
@@ -174,7 +173,6 @@ Rim3dView::Rim3dView()
 
     m_wellPathsPartManager   = new RivWellPathsPartMgr( this );
     m_annotationsPartManager = new RivAnnotationsPartMgr( this );
-    m_cellfilterPartManager  = new RivCellFilterPartMgr( this );
     m_measurementPartManager = new RivMeasurementPartMgr( this );
 
     this->setAs3DViewMdiWindow();
@@ -358,14 +356,11 @@ cvf::Color3f Rim3dView::backgroundColor() const
 //--------------------------------------------------------------------------------------------------
 QWidget* Rim3dView::createViewWidget( QWidget* mainWindowParent )
 {
-    QGLFormat glFormat;
-    glFormat.setDirectRendering( RiaGuiApplication::instance()->useShaders() );
-
     // If parent widget is a live widget, the application will get OpenGL window issues if started on a non-primary
     // screen. Using nullptr as parent solves the issue.
     // https://github.com/OPM/ResInsight/issues/8192
     //
-    m_viewer = new RiuViewer( glFormat, nullptr );
+    m_viewer = new RiuViewer( nullptr );
     m_viewer->setOwnerReservoirView( this );
 
     cvf::String xLabel;
@@ -537,11 +532,6 @@ QImage Rim3dView::snapshotWindowContent()
 {
     if ( m_viewer )
     {
-        // Force update of scheduled display models before snapshotting
-        RiaViewRedrawScheduler::instance()->updateAndRedrawScheduledViews();
-
-        m_viewer->repaint();
-
         return m_viewer->snapshotImage();
     }
 
@@ -709,14 +699,12 @@ void Rim3dView::updateDisplayModelForCurrentTimeStepAndRedraw()
         this->onUpdateDisplayModelForCurrentTimeStep();
         appendAnnotationsToModel();
         appendMeasurementToModel();
-        appendCellFiltersToModel();
 
         if ( Rim3dView* depView = prepareComparisonView() )
         {
             depView->onUpdateDisplayModelForCurrentTimeStep();
             depView->appendAnnotationsToModel();
             depView->appendMeasurementToModel();
-            depView->appendCellFiltersToModel();
 
             restoreComparisonView();
         }
@@ -1139,19 +1127,6 @@ void Rim3dView::addAnnotationsToModel( cvf::ModelBasicList* annotationsModel )
     }
 
     annotationsModel->updateBoundingBoxesRecursive();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void Rim3dView::addCellFiltersToModel( cvf::ModelBasicList* cellFilterModel )
-{
-    if ( !this->ownerCase() ) return;
-
-    cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
-    m_cellfilterPartManager->appendGeometryPartsToModel( cellFilterModel, transForm.p(), ownerCase()->allCellsBoundingBox() );
-
-    cellFilterModel->updateBoundingBoxesRecursive();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1727,44 +1702,23 @@ void Rim3dView::updateScreenSpaceModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::appendCellFiltersToModel()
-{
-    if ( !nativeOrOverrideViewer() ) return;
-
-    cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
-    if ( frameScene )
-    {
-        cvf::String name = "CellFilters";
-        this->removeModelByName( frameScene, name );
-
-        cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
-        model->setName( name );
-
-        addCellFiltersToModel( model.p() );
-
-        frameScene->addModel( model.p() );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void Rim3dView::appendMeasurementToModel()
 {
     if ( !nativeOrOverrideViewer() ) return;
 
-    cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
-    if ( frameScene )
+    const cvf::String name = "Measurement";
+
+    cvf::Scene* scene = nativeOrOverrideViewer()->currentScene( isUsingOverrideViewer() );
+    if ( scene )
     {
-        cvf::String name = "Measurement";
-        this->removeModelByName( frameScene, name );
+        Rim3dView::removeModelByName( scene, name );
 
         cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
         model->setName( name );
 
         addMeasurementToModel( model.p() );
 
-        frameScene->addModel( model.p() );
+        scene->addModel( model.p() );
     }
 }
 
@@ -1868,7 +1822,7 @@ void Rim3dView::onUpdateScaleTransform()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::updateSurfacesInViewTreeItems()
+void Rim3dView::updateViewTreeItems( RiaDefines::ItemIn3dView itemType )
 {
     // default is to do nothing
 }

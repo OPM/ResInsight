@@ -36,7 +36,6 @@
 
 #pragma once
 
-//#include <QAbstractItemModel>
 #include <QList>
 #include <iostream>
 

@@ -42,16 +42,13 @@
 #include "cafPointOfInterestVisualizer.h"
 
 #include "cvfCamera.h"
-#include "cvfDebugTimer.h"
 #include "cvfDrawable.h"
-#include "cvfDrawableGeo.h"
 #include "cvfDynamicUniformSet.h"
 #include "cvfFramebufferObject.h"
 #include "cvfHitItemCollection.h"
-#include "cvfManipulatorTrackball.h"
 #include "cvfModel.h"
 #include "cvfOpenGLCapabilities.h"
-#include "cvfOpenGLResourceManager.h"
+#include "cvfOpenGLUtils.h"
 #include "cvfOverlayImage.h"
 #include "cvfPart.h"
 #include "cvfRay.h"
@@ -65,17 +62,18 @@
 #include "cvfShaderSourceProvider.h"
 #include "cvfSingleQuadRenderingGenerator.h"
 #include "cvfTextureImage.h"
-#include "cvfTransform.h"
 #include "cvfUniform.h"
 #include "cvfUniformSet.h"
 
-#include "cvfqtOpenGLContext.h"
+#include "cvfqtOpenGLWidget.h"
 #include "cvfqtPerformanceInfoHud.h"
 #include "cvfqtUtils.h"
 
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QInputEvent>
+#include <QOpenGLContext>
+#include <QPainter>
 
 #include <cmath>
 
@@ -108,14 +106,13 @@ private:
 
 } // namespace caf
 
-std::list<caf::Viewer*>           caf::Viewer::sm_viewers;
 cvf::ref<cvf::OpenGLContextGroup> caf::Viewer::sm_openGLContextGroup;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::Viewer::Viewer( const QGLFormat& format, QWidget* parent )
-    : caf::OpenGLWidget( contextGroup(), format, nullptr, sharedWidget() )
+caf::Viewer::Viewer( QWidget* parent )
+    : cvfqt::OpenGLWidget( contextGroup(), parent )
     , m_navigationPolicy( nullptr )
     , m_navigationPolicyEnabled( true )
     , m_defaultPerspectiveNearPlaneDistance( 0.05 )
@@ -176,12 +173,7 @@ caf::Viewer::Viewer( const QGLFormat& format, QWidget* parent )
     m_overlayImage->setBlending( cvf::OverlayImage::TEXTURE_ALPHA );
     m_overlayImage->setLayoutFixedPosition( cvf::Vec2i( 0, 0 ) );
 
-    setupMainRendering();
-    setupRenderingSequence();
-
     m_showPerfInfoHud = false;
-
-    sm_viewers.push_back( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,10 +181,6 @@ caf::Viewer::Viewer( const QGLFormat& format, QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 caf::Viewer::~Viewer()
 {
-    this->cvfShutdownOpenGLContext();
-    sm_viewers.remove( this );
-
-    // To delete the layout widget
     if ( m_layoutWidget ) m_layoutWidget->deleteLater();
 }
 
@@ -213,14 +201,6 @@ void caf::Viewer::setupMainRendering()
 
     m_mainRendering->addGlobalDynamicUniformSet( m_globalUniformSet.p() );
     m_comparisonMainRendering->addGlobalDynamicUniformSet( m_globalUniformSet.p() );
-
-    // Set fixed function rendering if QGLFormat does not support directRendering
-    if ( !this->format().directRendering() )
-    {
-        m_mainRendering->renderEngine()->enableForcedImmediateMode( true );
-        m_comparisonMainRendering->renderEngine()->enableForcedImmediateMode( true );
-        m_overlayItemsRendering->renderEngine()->enableForcedImmediateMode( true );
-    }
 
     if ( contextGroup()->capabilities() &&
          contextGroup()->capabilities()->hasCapability( cvf::OpenGLCapabilities::FRAMEBUFFER_OBJECT ) )
@@ -278,14 +258,19 @@ void caf::Viewer::setupRenderingSequence()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::Viewer* caf::Viewer::sharedWidget()
+void caf::Viewer::deleteFboOpenGLResources()
 {
-    if ( !sm_viewers.empty() )
-    {
-        return *( sm_viewers.begin() );
-    }
+    // The OpenGL resources can be deleted at any time. CeeViz does not delete resources for FBOs, so delete them manually
 
-    return nullptr;
+    if ( m_offscreenFbo.notNull() )
+    {
+        if ( auto context = cvfOpenGLContext() )
+        {
+            context->makeCurrent();
+
+            m_offscreenFbo->deleteOrReleaseOpenGLResources( context );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -589,21 +574,6 @@ bool caf::Viewer::calculateNearFarPlanes( const cvf::Rendering* rendering,
 //--------------------------------------------------------------------------------------------------
 bool caf::Viewer::event( QEvent* e )
 {
-    // The most reliable way we have found of detecting when an OpenGL context is about to be destroyed is
-    // hooking into the QEvent::PlatformSurface event and checking for the SurfaceAboutToBeDestroyed event type.
-    // From the Qt doc:
-    //   The underlying native surface will be destroyed immediately after this event.
-    //   The SurfaceAboutToBeDestroyed event type is useful as a means of stopping rendering to a platform window before
-    //   it is destroyed.
-    if ( e->type() == QEvent::PlatformSurface )
-    {
-        QPlatformSurfaceEvent* platformSurfaceEvent = static_cast<QPlatformSurfaceEvent*>( e );
-        if ( platformSurfaceEvent->surfaceEventType() == QPlatformSurfaceEvent::SurfaceAboutToBeDestroyed )
-        {
-            cvfShutdownOpenGLContext();
-        }
-    }
-
     if ( e && m_navigationPolicy.notNull() && m_navigationPolicyEnabled )
     {
         switch ( e->type() )
@@ -625,18 +595,14 @@ bool caf::Viewer::event( QEvent* e )
             case QEvent::TouchBegin:
             case QEvent::TouchUpdate:
             case QEvent::TouchEnd:
-                if ( m_navigationPolicy->handleInputEvent( static_cast<QInputEvent*>( e ) ) )
-                    return true;
-                else
-                    return QGLWidget::event( e );
+                if ( m_navigationPolicy->handleInputEvent( static_cast<QInputEvent*>( e ) ) ) return true;
                 break;
             default:
-                return QGLWidget::event( e );
                 break;
         }
     }
-    else
-        return QGLWidget::event( e );
+
+    return cvfqt::OpenGLWidget::event( e );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -783,10 +749,8 @@ bool caf::Viewer::isPerfInfoHudEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::Viewer::paintEvent( QPaintEvent* event )
+void caf::Viewer::paintGL()
 {
-    makeCurrent();
-
     cvf::ref<cvf::OpenGLContext> myOglContext = cvfOpenGLContext();
     CVF_CHECK_OGL( myOglContext.p() );
     CVF_ASSERT( myOglContext->isContextValid() );
@@ -850,7 +814,7 @@ void caf::Viewer::paintEvent( QPaintEvent* event )
 
     if ( isShadersSupported() )
     {
-        cvfqt::OpenGLContext::saveOpenGLState( myOglContext.p() );
+        cvf::OpenGLUtils::pushOpenGLState( myOglContext.p() );
     }
 
     optimizeClippingPlanes();
@@ -880,10 +844,26 @@ void caf::Viewer::paintEvent( QPaintEvent* event )
 
     if ( isShadersSupported() )
     {
-        cvfqt::OpenGLContext::restoreOpenGLState( myOglContext.p() );
+        cvf::OpenGLUtils::popOpenGLState( myOglContext.p() );
     }
 
     painter.endNativePainting();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::onWidgetOpenGLReady()
+{
+    setupMainRendering();
+    setupRenderingSequence();
+
+    QOpenGLContext* myQtOpenGLContext = context();
+    CVF_ASSERT( myQtOpenGLContext );
+    CVF_ASSERT( myQtOpenGLContext->isValid() );
+
+    // Connect to signal so we get notified when Qt's OpenGL context is about to be destroyed
+    connect( myQtOpenGLContext, &QOpenGLContext::aboutToBeDestroyed, this, &Viewer::deleteFboOpenGLResources );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1176,15 +1156,7 @@ void caf::Viewer::updateCachedValuesInScene()
 //--------------------------------------------------------------------------------------------------
 bool caf::Viewer::isShadersSupported()
 {
-    QGLFormat::OpenGLVersionFlags flags         = QGLFormat::openGLVersionFlags();
-    bool                          hasOpenGL_2_0 = QGLFormat::OpenGL_Version_2_0 & flags;
-
-    if ( hasOpenGL_2_0 )
-    {
-        return true;
-    }
-
-    return false;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1192,55 +1164,10 @@ bool caf::Viewer::isShadersSupported()
 //--------------------------------------------------------------------------------------------------
 QImage caf::Viewer::snapshotImage()
 {
-    // Qt5 : Call paintEvent() manually to make sure invisible widgets are rendered properly
-    // If this call is skipped, we get an assert in cvf::FramebufferObject::bind()
-    paintEvent( nullptr );
+    auto image = grabFramebuffer();
 
-    QImage image;
-    if ( m_offscreenFbo.notNull() && m_offscreenViewportWidth > 0 && m_offscreenViewportHeight > 0 )
-    {
-        cvf::ref<cvf::OpenGLContext> myOglContext = cvfOpenGLContext();
-
-        m_offscreenFbo->bind( myOglContext.p() );
-
-        GLint iOldPackAlignment = 0;
-        glGetIntegerv( GL_PACK_ALIGNMENT, &iOldPackAlignment );
-        glPixelStorei( GL_PACK_ALIGNMENT, 1 );
-        CVF_CHECK_OGL( myOglContext.p() );
-
-        cvf::UByteArray arr( 3 * m_offscreenViewportWidth * m_offscreenViewportHeight );
-
-        glReadPixels( 0,
-                      0,
-                      static_cast<GLsizei>( m_offscreenViewportWidth ),
-                      static_cast<GLsizei>( m_offscreenViewportHeight ),
-                      GL_RGB,
-                      GL_UNSIGNED_BYTE,
-                      arr.ptr() );
-        CVF_CHECK_OGL( myOglContext.p() );
-
-        glPixelStorei( GL_PACK_ALIGNMENT, iOldPackAlignment );
-        CVF_CHECK_OGL( myOglContext.p() );
-
-        cvf::FramebufferObject::useDefaultWindowFramebuffer( myOglContext.p() );
-
-        cvf::TextureImage texImage;
-        texImage.setFromRgb( arr.ptr(), m_offscreenViewportWidth, m_offscreenViewportHeight );
-
-        image = cvfqt::Utils::toQImage( texImage );
-    }
-    else
-    {
-        // Code moved from RimView::snapshotWindowContent()
-
-        GLint currentReadBuffer;
-        glGetIntegerv( GL_READ_BUFFER, &currentReadBuffer );
-
-        glReadBuffer( GL_FRONT );
-        image = this->grabFrameBuffer();
-
-        glReadBuffer( currentReadBuffer );
-    }
+    // Convert to RGB32 format to avoid visual artifacts related to alpha channel
+    image.reinterpretAsFormat( QImage::Format_RGB32 );
 
     return image;
 }

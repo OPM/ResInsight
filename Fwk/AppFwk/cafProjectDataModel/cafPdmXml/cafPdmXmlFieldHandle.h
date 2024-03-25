@@ -2,7 +2,6 @@
 
 #include "cafPdmFieldCapability.h"
 #include <QString>
-#include <vector>
 
 class QXmlStreamReader;
 class QXmlStreamWriter;

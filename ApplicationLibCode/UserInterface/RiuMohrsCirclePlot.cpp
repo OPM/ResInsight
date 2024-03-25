@@ -371,7 +371,7 @@ bool RiuMohrsCirclePlot::addOrUpdateCurves( const RimGeoMechResultDefinition* ge
 {
     RigFemPart* femPart = geomResDef->ownerCaseData()->femParts()->part( gridIndex );
 
-    if ( femPart->elementType( elmIndex ) != HEX8P ) return false;
+    if ( femPart->elementType( elmIndex ) != RigElementType::HEX8P ) return false;
 
     RigFemPartResultsCollection* resultCollection = geomResDef->geoMechCase()->geoMechData()->femPartResults();
 

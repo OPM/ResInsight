@@ -19,15 +19,13 @@
 #include "RifPressureDepthTextFileReader.h"
 
 #include "RiaDateStringParser.h"
-#include "RiaDefines.h"
 
 #include "RigPressureDepthData.h"
 
 #include "RifFileParseTools.h"
 
-#include "cafAssert.h"
-
 #include <QFile>
+#include <QRegularExpression>
 #include <QTextStream>
 
 //--------------------------------------------------------------------------------------------------
@@ -43,9 +41,20 @@ std::pair<std::vector<RigPressureDepthData>, QString> RifPressureDepthTextFileRe
         return std::make_pair( items, QString( "Unable to open file: %1" ).arg( filePath ) );
     }
 
+    return parse( file.readAll() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::vector<RigPressureDepthData>, QString> RifPressureDepthTextFileReader::parse( const QString& content )
+{
+    std::vector<RigPressureDepthData> items;
+
     QString separator = " ";
 
-    QTextStream in( &file );
+    QString     streamContent( content );
+    QTextStream in( &streamContent );
     while ( !in.atEnd() )
     {
         QString line = in.readLine();
@@ -64,7 +73,7 @@ std::pair<std::vector<RigPressureDepthData>, QString> RifPressureDepthTextFileRe
                 items.back().setTimeStep( date.value() );
             }
         }
-        else if ( isPropertiesLine( line ) || isUnitsLine( line ) || isCommentLine( line ) )
+        else if ( containsLetters( line ) || isCommentLine( line ) )
         {
             // Ignored.
         }
@@ -105,19 +114,10 @@ bool RifPressureDepthTextFileReader::isDateLine( const QString& line )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifPressureDepthTextFileReader::isPropertiesLine( const QString& line )
+bool RifPressureDepthTextFileReader::containsLetters( const QString& line )
 {
-    // TODO: this might be to strict..
-    return line.startsWith( "PRESSURE DEPTH" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RifPressureDepthTextFileReader::isUnitsLine( const QString& line )
-{
-    // TODO: this might be to strict..
-    return line.startsWith( "BARSA METRES" );
+    QRegularExpression regex( "[a-zA-Z]" );
+    return regex.match( line ).hasMatch();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -151,8 +151,6 @@ std::optional<QDateTime> RifPressureDepthTextFileReader::parseDateLine( const QS
     bool        skipEmptyParts = true;
     QStringList values         = RifFileParseTools::splitLineAndTrim( line, " ", skipEmptyParts );
     if ( values.size() != 2 ) return {};
-
-    CAF_ASSERT( values[0] == "DATE" );
 
     // Second value is depth
     QDateTime dateTime = RiaDateStringParser::parseDateString( values[1], RiaDateStringParser::OrderPreference::DAY_FIRST );

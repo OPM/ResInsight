@@ -445,18 +445,22 @@ void RigEclipseCaseData::computeActiveCellIJKBBox()
                 fractureModelActiveBB.add( i, j, k );
             }
         }
-        m_activeCellInfo->setIJKBoundingBox( matrixModelActiveBB.m_min, matrixModelActiveBB.m_max );
-        m_fractureActiveCellInfo->setIJKBoundingBox( fractureModelActiveBB.m_min, fractureModelActiveBB.m_max );
+        m_activeCellInfo->setIjkBoundingBox( matrixModelActiveBB.m_min, matrixModelActiveBB.m_max );
+        m_fractureActiveCellInfo->setIjkBoundingBox( fractureModelActiveBB.m_min, fractureModelActiveBB.m_max );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::computeActiveCellBoundingBoxes()
+void RigEclipseCaseData::computeActiveCellBoundingBoxes( bool useOptimizedVersion )
 {
     computeActiveCellIJKBBox();
-    computeActiveCellsGeometryBoundingBox();
+
+    if ( useOptimizedVersion )
+        computeActiveCellsGeometryBoundingBoxOptimized();
+    else
+        computeActiveCellsGeometryBoundingBoxSlow();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -627,7 +631,7 @@ bool RigEclipseCaseData::hasFractureResults() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::computeActiveCellsGeometryBoundingBox()
+void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxSlow()
 {
     if ( m_activeCellInfo.isNull() || m_fractureActiveCellInfo.isNull() )
     {
@@ -673,7 +677,73 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBox()
         activeInfos[acIdx]->setGeometryBoundingBox( bb );
     }
 
+    // This design choice is unfortunate, as the bounding box of active cells can be computed in different ways.
+    // Must keep the code to make sure existing projects display 3D model at the same location in the scene.
     m_mainGrid->setDisplayModelOffset( bb.min() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxOptimized()
+{
+    if ( m_activeCellInfo.isNull() || m_fractureActiveCellInfo.isNull() )
+    {
+        return;
+    }
+
+    if ( m_mainGrid.isNull() )
+    {
+        cvf::BoundingBox bb;
+        m_activeCellInfo->setGeometryBoundingBox( bb );
+        m_fractureActiveCellInfo->setGeometryBoundingBox( bb );
+        return;
+    }
+
+    RigActiveCellInfo* activeInfos[2];
+    activeInfos[0] = m_fractureActiveCellInfo.p();
+    activeInfos[1] = m_activeCellInfo.p();
+
+    cvf::BoundingBox bb;
+    for ( int acIdx = 0; acIdx < 2; ++acIdx )
+    {
+        bb.reset();
+        if ( m_mainGrid->nodes().empty() )
+        {
+            bb.add( cvf::Vec3d::ZERO );
+        }
+        else
+        {
+            // Use the top and bottom layer of active cells to compute the bounding box
+
+            auto [minBB, maxBB] = activeInfos[acIdx]->ijkBoundingBox();
+
+            for ( auto k : { minBB.z(), maxBB.z() } )
+            {
+                for ( size_t i = minBB.x(); i <= maxBB.x(); i++ )
+                {
+                    for ( size_t j = minBB.y(); j <= maxBB.y(); j++ )
+                    {
+                        size_t cellIndex = m_mainGrid->cellIndexFromIJK( i, j, k );
+
+                        std::array<cvf::Vec3d, 8> hexCorners;
+                        m_mainGrid->cellCornerVertices( cellIndex, hexCorners.data() );
+                        for ( const auto& corner : hexCorners )
+                        {
+                            bb.add( corner );
+                        }
+                    }
+                }
+            }
+        }
+
+        activeInfos[acIdx]->setGeometryBoundingBox( bb );
+    }
+
+    auto bbMainGrid = m_mainGrid->boundingBox();
+
+    // Use center of bounding box as display offset. This point will be stable and independent of the active cell bounding box.
+    m_mainGrid->setDisplayModelOffset( bbMainGrid.center() );
 }
 
 //--------------------------------------------------------------------------------------------------

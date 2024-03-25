@@ -78,7 +78,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellPlotTools::hasPressureData( const RimWellLogLasFile* wellLogFile )
+bool RimWellPlotTools::hasPressureData( const RimWellLogFile* wellLogFile )
 {
     for ( RimWellLogFileChannel* const wellLogChannel : wellLogFile->wellLogChannels() )
     {
@@ -92,7 +92,7 @@ bool RimWellPlotTools::hasPressureData( const RimWellLogLasFile* wellLogFile )
 //--------------------------------------------------------------------------------------------------
 bool RimWellPlotTools::hasPressureData( RimWellPath* wellPath )
 {
-    for ( RimWellLogLasFile* const wellLogFile : wellPath->wellLogFiles() )
+    for ( RimWellLogFile* const wellLogFile : wellPath->wellLogFiles() )
     {
         if ( hasPressureData( wellLogFile ) )
         {
@@ -144,7 +144,7 @@ bool RimWellPlotTools::hasPressureData( RimEclipseResultCase* gridCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellPlotTools::hasFlowData( const RimWellLogLasFile* wellLogFile )
+bool RimWellPlotTools::hasFlowData( const RimWellLogFile* wellLogFile )
 {
     for ( RimWellLogFileChannel* const wellLogChannel : wellLogFile->wellLogChannels() )
     {
@@ -158,7 +158,7 @@ bool RimWellPlotTools::hasFlowData( const RimWellLogLasFile* wellLogFile )
 //--------------------------------------------------------------------------------------------------
 bool RimWellPlotTools::hasFlowData( const RimWellPath* wellPath )
 {
-    for ( RimWellLogLasFile* const wellLogFile : wellPath->wellLogFiles() )
+    for ( RimWellLogFile* const wellLogFile : wellPath->wellLogFiles() )
     {
         if ( hasFlowData( wellLogFile ) )
         {
@@ -268,20 +268,20 @@ void RimWellPlotTools::addTimeStepsToMap( std::map<QDateTime, std::set<RifDataSo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogLasFile*> RimWellPlotTools::wellLogFilesContainingPressure( const QString& wellPathNameOrSimWellName )
+std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingPressure( const QString& wellPathNameOrSimWellName )
 {
-    std::vector<RimWellLogLasFile*> wellLogFiles;
-    const RimProject* const         project   = RimProject::current();
-    std::vector<RimWellPath*>       wellPaths = project->allWellPaths();
+    std::vector<RimWellLogFile*> wellLogFiles;
+    const RimProject* const      project   = RimProject::current();
+    std::vector<RimWellPath*>    wellPaths = project->allWellPaths();
 
     for ( auto wellPath : wellPaths )
     {
         if ( !wellPathNameOrSimWellName.isEmpty() &&
              ( wellPathNameOrSimWellName == wellPath->associatedSimulationWellName() || wellPathNameOrSimWellName == wellPath->name() ) )
         {
-            const std::vector<RimWellLogLasFile*> files = wellPath->wellLogFiles();
+            const std::vector<RimWellLogFile*> files = wellPath->wellLogFiles();
 
-            for ( RimWellLogLasFile* file : files )
+            for ( RimWellLogFile* file : files )
             {
                 if ( hasPressureData( file ) )
                 {
@@ -297,7 +297,7 @@ std::vector<RimWellLogLasFile*> RimWellPlotTools::wellLogFilesContainingPressure
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogFileChannel* RimWellPlotTools::getPressureChannelFromWellFile( const RimWellLogLasFile* wellLogFile )
+RimWellLogFileChannel* RimWellPlotTools::getPressureChannelFromWellFile( const RimWellLogFile* wellLogFile )
 {
     if ( wellLogFile != nullptr )
     {
@@ -315,19 +315,19 @@ RimWellLogFileChannel* RimWellPlotTools::getPressureChannelFromWellFile( const R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogLasFile*> RimWellPlotTools::wellLogFilesContainingFlow( const QString& wellPathName )
+std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingFlow( const QString& wellPathName )
 {
-    std::vector<RimWellLogLasFile*> wellLogFiles;
-    const RimProject* const         project   = RimProject::current();
-    std::vector<RimWellPath*>       wellPaths = project->allWellPaths();
+    std::vector<RimWellLogFile*> wellLogFiles;
+    const RimProject* const      project   = RimProject::current();
+    std::vector<RimWellPath*>    wellPaths = project->allWellPaths();
 
     for ( auto wellPath : wellPaths )
     {
         if ( wellPath->name() == wellPathName )
         {
-            std::vector<RimWellLogLasFile*> files = wellPath->wellLogFiles();
+            std::vector<RimWellLogFile*> files = wellPath->wellLogFiles();
 
-            for ( RimWellLogLasFile* file : files )
+            for ( RimWellLogFile* file : files )
             {
                 if ( hasFlowData( file ) )
                 {
@@ -342,14 +342,14 @@ std::vector<RimWellLogLasFile*> RimWellPlotTools::wellLogFilesContainingFlow( co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPath* RimWellPlotTools::wellPathFromWellLogFile( const RimWellLogLasFile* wellLogFile )
+RimWellPath* RimWellPlotTools::wellPathFromWellLogFile( const RimWellLogFile* wellLogFile )
 {
     RimProject* const project = RimProject::current();
     for ( const auto& oilField : project->oilFields )
     {
         for ( const auto& wellPath : oilField->wellPathCollection()->allWellPaths() )
         {
-            for ( RimWellLogLasFile* const file : wellPath->wellLogFiles() )
+            for ( RimWellLogFile* const file : wellPath->wellLogFiles() )
             {
                 if ( file == wellLogFile )
                 {
@@ -676,7 +676,7 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve( const RimWellLogCu
     }
     else if ( wellLogFileCurve != nullptr )
     {
-        RimWellLogLasFile* const wellLogFile = wellLogFileCurve->wellLogFile();
+        RimWellLogFile* const wellLogFile = wellLogFileCurve->wellLogFile();
 
         if ( wellLogFile != nullptr )
         {
@@ -684,7 +684,10 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve( const RimWellLogCu
 
             if ( date.isValid() )
             {
-                return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( wellLogFile ), wellLogFile->wellName(), date );
+                if ( auto wellLogLasFile = dynamic_cast<RimWellLogLasFile*>( wellLogFile ) )
+                {
+                    return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( wellLogLasFile ), wellLogFile->wellName(), date );
+                }
             }
         }
     }

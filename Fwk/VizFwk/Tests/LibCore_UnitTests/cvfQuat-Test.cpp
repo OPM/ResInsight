@@ -875,6 +875,6 @@ AxisAngleQuat AAQ_ARRAY[] =
 
 
 
-INSTANTIATE_TEST_CASE_P(ParamInst, QuatTestAxisAngle, ::testing::ValuesIn(AAQ_ARRAY));
+INSTANTIATE_TEST_SUITE_P(ParamInst, QuatTestAxisAngle, ::testing::ValuesIn(AAQ_ARRAY));
 
 

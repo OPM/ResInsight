@@ -24,7 +24,6 @@
 #include "cvfColor3.h"
 #include "cvfMatrix4.h"
 #include "cvfObject.h"
-#include "cvfPlane.h"
 #include "cvfStructGrid.h"
 #include "cvfTextureImage.h"
 #include "cvfVector3.h"
@@ -36,9 +35,8 @@
 #include <vector>
 
 class RigGriddedPart3d;
-class RigMainGrid;
-class RimFaultReactivationDataAccess;
 class RigFaultReactivationModelGenerator;
+class RimEclipseCase;
 
 class RigFRModelPart
 {
@@ -71,6 +69,7 @@ public:
     void setGenerator( std::shared_ptr<RigFaultReactivationModelGenerator> generator );
 
     std::pair<cvf::Vec3d, cvf::Vec3d> modelLocalNormalsXY() const;
+    cvf::Vec3d                        transformPointIfNeeded( const cvf::Vec3d point ) const;
 
     void updateGeometry( size_t startCell, cvf::StructGridInterface::FaceType startFace );
 
@@ -82,8 +81,13 @@ public:
 
     const RigGriddedPart3d* grid( GridPart part ) const;
 
-    const cvf::Vec3d                        faultNormal() const;
+    const cvf::Vec3d                        modelNormal() const;
     const std::pair<cvf::Vec3d, cvf::Vec3d> faultTopBottom() const;
+    std::pair<double, double>               depthTopBottom() const;
+
+    RimFaultReactivation::GridPart normalPointsAt() const;
+
+    void postProcessElementSets( const RimEclipseCase* eCase );
 
 private:
     std::shared_ptr<RigFaultReactivationModelGenerator> m_generator;
@@ -94,4 +98,5 @@ private:
     bool m_isValid;
 
     std::map<GridPart, RigGriddedPart3d*> m_3dparts;
+    RimFaultReactivation::GridPart        m_normalPointsAt;
 };

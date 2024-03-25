@@ -55,14 +55,17 @@
 #include "RimTimeStepFilter.h"
 #include "RimTools.h"
 
+#include "cafPdmUiCheckBoxAndTextEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafProgressInfo.h"
 #include "cafUtils.h"
 
+#include <QApplication>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+
 #include <fstream>
 #include <string>
 
@@ -91,7 +94,6 @@ RimEclipseResultCase::RimEclipseResultCase()
     m_unitSystem.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_flowDiagSolutions, "FlowDiagSolutions", "Flow Diagnostics Solutions" );
-    m_flowDiagSolutions.uiCapability()->setUiTreeHidden( true );
     m_flowDiagSolutions.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_flipXAxis.xmlCapability()->setIOWritable( true );
@@ -102,6 +104,9 @@ RimEclipseResultCase::RimEclipseResultCase()
 #ifndef USE_HDF5
     m_sourSimFileName.uiCapability()->setUiHidden( true );
 #endif
+
+    CAF_PDM_InitField( &m_mswMergeThreshold, "MswMergeThreshold", std::make_pair( false, 3 ), "MSW Short Well Merge Threshold" );
+    m_mswMergeThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -313,7 +318,7 @@ bool RimEclipseResultCase::openAndReadActiveCellData( RigEclipseCaseData* mainEc
     CVF_ASSERT( eclipseCaseData() );
     CVF_ASSERT( readerInterface.notNull() );
 
-    eclipseCaseData()->computeActiveCellBoundingBoxes();
+    computeActiveCellsBoundingBox();
 
     m_activeCellInfoIsReadFromFile = true;
 
@@ -493,6 +498,13 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel( QString mode
 //--------------------------------------------------------------------------------------------------
 RimEclipseResultCase::~RimEclipseResultCase()
 {
+    // Disconnect all comparison views. In debug build on Windows, a crash occurs. The comparison view is also set to zero in the destructor
+    // of Rim3dView()
+    for ( auto v : reservoirViews )
+    {
+        if ( v ) v->setComparisonView( nullptr );
+    }
+
     reservoirViews.deleteChildren();
     m_flowDiagSolutions.deleteChildren();
 }
@@ -564,6 +576,21 @@ RifReaderRftInterface* RimEclipseResultCase::rftReader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimEclipseResultCase::mswMergeThreshold() const
+{
+    // This value is used in RigMswCenterLineCalculator::calculateMswWellPipeGeometry
+
+    if ( m_mswMergeThreshold().first )
+    {
+        return m_mswMergeThreshold().second;
+    }
+
+    return 4;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseResultCase::setCaseInfo( const QString& userDescription, const QString& fileName )
 {
     setCaseUserDescription( userDescription );
@@ -607,6 +634,7 @@ void RimEclipseResultCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     group->add( &m_activeFormationNames );
     group->add( &m_flipXAxis );
     group->add( &m_flipYAxis );
+    group->add( &m_mswMergeThreshold );
 
     if ( eclipseCaseData() && eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) &&
          eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->maxTimeStepCount() > 0 )
@@ -625,6 +653,15 @@ void RimEclipseResultCase::fieldChangedByUi( const caf::PdmFieldHandle* changedF
     if ( changedField == &m_sourSimFileName )
     {
         loadAndUpdateSourSimData();
+    }
+
+    if ( changedField == &m_mswMergeThreshold )
+    {
+        for ( auto resView : reservoirViews() )
+        {
+            resView->scheduleSimWellGeometryRegen();
+            resView->scheduleCreateDisplayModelAndRedraw();
+        }
     }
 
     return RimEclipseCase::fieldChangedByUi( changedField, oldValue, newValue );

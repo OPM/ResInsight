@@ -51,14 +51,11 @@ cvf::BoundingBox RivFemIntersectionGrid::boundingBox() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivFemIntersectionGrid::findIntersectingCells( const cvf::BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells ) const
+std::vector<size_t> RivFemIntersectionGrid::findIntersectingCells( const cvf::BoundingBox& intersectingBB ) const
 {
     // For FEM models the term element is used instead of cell.
     // Each FEM part has a local element index which is transformed into global index for a FEM part collection.
-    std::vector<size_t> intersectedGlobalElementIndices;
-    m_femParts->findIntersectingGlobalElementIndices( intersectingBB, &intersectedGlobalElementIndices );
-
-    *intersectedCells = intersectedGlobalElementIndices;
+    return m_femParts->findIntersectingGlobalElementIndices( intersectingBB );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +107,7 @@ void RivFemIntersectionGrid::cellCornerIndices( size_t globalCellIndex, size_t c
     auto [part, elementIdx] = m_femParts->partAndElementIndex( globalCellIndex );
 
     RigElementType elmType = part->elementType( elementIdx );
-    if ( elmType != HEX8 && elmType != HEX8P ) return;
+    if ( !RigFemTypes::is8NodeElement( elmType ) ) return;
 
     int       elmIdx = static_cast<int>( elementIdx );
     const int partId = part->elementPartId();

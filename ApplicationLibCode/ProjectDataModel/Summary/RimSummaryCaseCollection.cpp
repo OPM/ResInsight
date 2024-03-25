@@ -22,30 +22,23 @@
 #include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
 #include "RiaStatisticsTools.h"
-#include "RiaStdStringTools.h"
 #include "RiaSummaryAddressAnalyzer.h"
-#include "RiaWeightedMeanCalculator.h"
-
-#include "RicfCommandObject.h"
 
 #include "RifReaderRftInterface.h"
 #include "RifSummaryReaderInterface.h"
 
-#include "RimAnalysisPlotDataEntry.h"
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimProject.h"
 #include "RimSummaryAddressCollection.h"
-#include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
 
 #include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 
-#include <QDate>
 #include <QFileInfo>
 
-#include <algorithm>
 #include <cmath>
 
 CAF_PDM_SOURCE_INIT( RimSummaryCaseCollection, "SummaryCaseSubCollection" );
@@ -110,7 +103,6 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
     CAF_PDM_InitScriptableObject( "Summary Case Group", ":/SummaryGroup16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "" );
-    m_cases.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitScriptableField( &m_name, "SummaryCollectionName", QString( "Group" ), "Name" );
     CAF_PDM_InitScriptableField( &m_autoName, "CreateAutoName", true, "Auto Name" );
@@ -130,7 +122,6 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
     CAF_PDM_InitFieldNoDefault( &m_dataVectorFolders, "DataVectorFolders", "Data Folders" );
     m_dataVectorFolders = new RimSummaryAddressCollection();
     m_dataVectorFolders.uiCapability()->setUiHidden( true );
-    m_dataVectorFolders.uiCapability()->setUiTreeHidden( true );
     m_dataVectorFolders->uiCapability()->setUiTreeHidden( true );
     m_dataVectorFolders.xmlCapability()->disableIO();
 
@@ -180,7 +171,7 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
 {
     summaryCase->nameChanged.connect( this, &RimSummaryCaseCollection::onCaseNameChanged );
 
-    if ( m_cases.empty() ) summaryCase->setShowRealizationDataSource( true );
+    summaryCase->setShowRealizationDataSource( m_cases.empty() );
 
     m_cases.push_back( summaryCase );
     m_cachedSortedEnsembleParameters.clear();
@@ -257,7 +248,9 @@ void RimSummaryCaseCollection::ensureNameIsUpdated()
         RiaEnsembleNameTools::EnsembleGroupingMode groupingMode = RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
 
         QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames, groupingMode );
-        m_name               = ensembleName;
+        if ( m_name == ensembleName ) return;
+
+        m_name = ensembleName;
         caseNameChanged.send();
     }
 }
@@ -286,7 +279,7 @@ void RimSummaryCaseCollection::setAsEnsemble( bool isEnsemble )
             calculateEnsembleParametersIntersectionHash();
         }
 
-        refreshMetaData();
+        buildMetaData();
     }
 }
 
@@ -1157,10 +1150,23 @@ void RimSummaryCaseCollection::buildChildNodes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::refreshMetaData()
+void RimSummaryCaseCollection::buildMetaData()
 {
     clearChildNodes();
     buildChildNodes();
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::onCalculationUpdated()
+{
+    m_dataVectorFolders->deleteCalculatedObjects();
+    m_dataVectorFolders->updateFolderStructure( ensembleSummaryAddresses(), -1, m_ensembleId );
+
+    m_analyzer.reset();
+
     updateConnectedEditors();
 }
 

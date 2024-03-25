@@ -31,7 +31,6 @@
 
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
-#include "cafPdmUiOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 CAF_PDM_SOURCE_INIT( RicCreateDepthAdjustedLasFilesUi, "RicCreateDepthAdjustedLasFilesUi" );
@@ -140,7 +139,7 @@ void RicCreateDepthAdjustedLasFilesUi::fieldChangedByUi( const caf::PdmFieldHand
         wellLogFile = nullptr;
         if ( sourceWell != nullptr && !sourceWell->wellLogFiles().empty() )
         {
-            wellLogFile = sourceWell->wellLogFiles()[0];
+            wellLogFile = dynamic_cast<RimWellLogLasFile*>( sourceWell->wellLogFiles()[0] );
         }
     }
     if ( changedField == &wellLogFile )
@@ -188,7 +187,7 @@ void RicCreateDepthAdjustedLasFilesUi::setDefaultValues()
             if ( !wellPath->wellLogFiles().empty() )
             {
                 sourceWell  = wellPath;
-                wellLogFile = wellPath->wellLogFiles()[0];
+                wellLogFile = dynamic_cast<RimWellLogLasFile*>( sourceWell->wellLogFiles()[0] );
                 break;
             }
         }

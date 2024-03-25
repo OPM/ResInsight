@@ -21,12 +21,11 @@
 #pragma once
 
 #include "RigNncConnection.h"
+#include "RigReservoirBuilder.h"
 
 #include "cvfArray.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
-
-#include <deque>
 
 class RigEclipseCaseData;
 class RigMainGrid;
@@ -34,21 +33,6 @@ class RigGridBase;
 class RigCell;
 
 class QString;
-
-class LocalGridRefinement
-{
-public:
-    LocalGridRefinement( const cvf::Vec3st& mainGridMin, const cvf::Vec3st& mainGridMax, const cvf::Vec3st& singleCellRefinementFactors )
-    {
-        m_mainGridMinCellPosition     = mainGridMin;
-        m_mainGridMaxCellPosition     = mainGridMax;
-        m_singleCellRefinementFactors = singleCellRefinementFactors;
-    }
-
-    cvf::Vec3st m_mainGridMinCellPosition;
-    cvf::Vec3st m_mainGridMaxCellPosition;
-    cvf::Vec3st m_singleCellRefinementFactors;
-};
 
 class RigReservoirBuilderMock
 {
@@ -60,9 +44,8 @@ public:
     void setResultInfo( size_t resultCount, size_t timeStepCount );
     void enableWellData( bool enableWellData );
 
-    size_t      resultCount() const { return m_resultCount; }
-    size_t      timeStepCount() const { return m_timeStepCount; }
-    cvf::Vec3st gridPointDimensions() const { return m_gridPointDimensions; }
+    size_t resultCount() const { return m_resultCount; }
+    size_t timeStepCount() const { return m_timeStepCount; }
 
     void addLocalGridRefinement( const cvf::Vec3st& minCellPosition,
                                  const cvf::Vec3st& maxCellPosition,
@@ -79,34 +62,12 @@ private:
 
     static void
         addNnc( RigMainGrid* grid, size_t i1, size_t j1, size_t k1, size_t i2, size_t j2, size_t k2, RigConnectionContainer& nncConnections );
-    void        addWellData( RigEclipseCaseData* eclipseCase, RigGridBase* grid );
-    static void appendCells( size_t nodeStartIndex, size_t cellCount, RigGridBase* hostGrid, std::vector<RigCell>& cells );
-
-    static void appendNodes( const cvf::Vec3d& min, const cvf::Vec3d& max, const cvf::Vec3st& cubeDimension, std::vector<cvf::Vec3d>& nodes );
-    static void appendCubeNodes( const cvf::Vec3d& min, const cvf::Vec3d& max, std::vector<cvf::Vec3d>& nodes );
-
-    size_t cellIndexFromIJK( size_t i, size_t j, size_t k ) const
-    {
-        CVF_TIGHT_ASSERT( i < ( m_gridPointDimensions.x() - 1 ) );
-        CVF_TIGHT_ASSERT( j < ( m_gridPointDimensions.y() - 1 ) );
-        CVF_TIGHT_ASSERT( k < ( m_gridPointDimensions.z() - 1 ) );
-
-        size_t ci = i + j * ( m_gridPointDimensions.x() - 1 ) + k * ( ( m_gridPointDimensions.x() - 1 ) * ( m_gridPointDimensions.y() - 1 ) );
-        return ci;
-    }
-
-    cvf::Vec3st cellDimension()
-    {
-        return cvf::Vec3st( m_gridPointDimensions.x() - 1, m_gridPointDimensions.y() - 1, m_gridPointDimensions.z() - 1 );
-    }
+    void addWellData( RigEclipseCaseData* eclipseCase, RigGridBase* grid );
 
 private:
-    cvf::Vec3d  m_minWorldCoordinate;
-    cvf::Vec3d  m_maxWorldCoordinate;
-    cvf::Vec3st m_gridPointDimensions;
-    size_t      m_resultCount;
-    size_t      m_timeStepCount;
-    bool        m_enableWellData;
+    size_t m_resultCount;
+    size_t m_timeStepCount;
+    bool   m_enableWellData;
 
-    std::vector<LocalGridRefinement> m_localGridRefinements;
+    RigReservoirBuilder m_reservoirBuilder;
 };

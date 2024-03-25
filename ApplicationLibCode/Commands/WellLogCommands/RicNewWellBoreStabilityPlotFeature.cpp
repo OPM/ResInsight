@@ -56,6 +56,7 @@
 #include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
 #include "cvfAssert.h"
+#include "cvfColor3.h"
 #include "cvfMath.h"
 
 #include <QAction>
@@ -63,6 +64,7 @@
 #include <QString>
 
 #include <algorithm>
+#include <set>
 
 CAF_CMD_SOURCE_INIT( RicNewWellBoreStabilityPlotFeature, "RicNewWellBoreStabilityPlotFeature" );
 
@@ -262,7 +264,7 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
     paramCurvesTrack->setFormationCase( geoMechCase );
     paramCurvesTrack->setShowRegionLabels( true );
     paramCurvesTrack->setShowWindow( false );
-    std::set<RigWbsParameter> parameters = RigWbsParameter::allParameters();
+    std::set<RigWbsParameter> parameters = parametersForTrack();
 
     caf::ColorTable                                    colors     = RiaColorTables::contrastCategoryPaletteColors();
     std::vector<RiuQwtPlotCurveDefines::LineStyleEnum> lineStyles = { RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID,
@@ -284,6 +286,7 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
         curve->setLineThickness( 2 );
         curve->loadDataAndUpdate( false );
         curve->setAutoNameComponents( false, true, false, false, false );
+        curve->updateCurveName();
 
         i++;
     }
@@ -321,6 +324,15 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
     std::vector<RiuQwtPlotCurveDefines::LineStyleEnum> lineStyles( resultNames.size(), RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
     lineStyles.back() = RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH;
 
+    std::set<QString> defaultOffResults = {
+        RiaResultNames::wbsSHMkResult(),
+        RiaResultNames::wbsSHMkExpResult(),
+        RiaResultNames::wbsSHMkMinResult(),
+        RiaResultNames::wbsSHMkMaxResult(),
+        RiaResultNames::wbsFGMkExpResult(),
+        RiaResultNames::wbsFGMkMinResult(),
+    };
+
     for ( size_t i = 0; i < resultNames.size(); ++i )
     {
         const QString&      resultName = resultNames[i];
@@ -330,16 +342,18 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
         curve->setGeoMechResultAddress( resAddr );
         curve->setCurrentTimeStep( timeStep );
         curve->setAutoNameComponents( false, true, false, false, false );
-        curve->setColor( colors[i % colors.size()] );
-        curve->setLineStyle( lineStyles[i] );
+        auto [color, lineStyle] = getColorAndLineStyle( resultName, i, colors );
+        curve->setColor( color );
+        curve->setLineStyle( lineStyle );
         curve->setLineThickness( 2 );
         curve->loadDataAndUpdate( false );
         curve->setSmoothCurve( true );
         curve->setSmoothingThreshold( 0.002 );
-        if ( resultNames[i] == RiaResultNames::wbsSHMkResult() )
+        if ( defaultOffResults.count( resultNames[i] ) )
         {
             curve->setCheckState( false );
         }
+        curve->updateCurveName();
     }
 
     RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
@@ -359,6 +373,36 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
     }
 
     stabilityCurvesTrack->setAutoScalePropertyValuesEnabled( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<cvf::Color3f, RiuQwtPlotCurveDefines::LineStyleEnum>
+    RicNewWellBoreStabilityPlotFeature::getColorAndLineStyle( const QString& resultName, size_t i, const std::vector<cvf::Color3f>& colors )
+{
+    if ( resultName == RiaResultNames::wbsSHMkResult() ) return { cvf::Color3f::GREEN, RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID };
+    if ( resultName == RiaResultNames::wbsSHMkExpResult() )
+        return { cvf::Color3f::GREEN, RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH };
+    if ( resultName == RiaResultNames::wbsSHMkMinResult() )
+        return { cvf::Color3f::GREEN, RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DOT };
+    if ( resultName == RiaResultNames::wbsSHMkMaxResult() )
+        return { cvf::Color3f::GREEN, RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH_DOT };
+
+    if ( resultName == RiaResultNames::wbsFGMkExpResult() )
+        return { cvf::Color3f::BLUE, RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH };
+    if ( resultName == RiaResultNames::wbsFGMkMinResult() ) return { cvf::Color3f::BLUE, RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DOT };
+
+    if ( resultName == RiaResultNames::wbsPPInitialResult() )
+        return { cvf::Color3f::DEEP_PINK, RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID };
+    if ( resultName == RiaResultNames::wbsPPExpResult() )
+        return { cvf::Color3f::DEEP_PINK, RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH };
+    if ( resultName == RiaResultNames::wbsPPMinResult() )
+        return { cvf::Color3f::DEEP_PINK, RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DOT };
+    if ( resultName == RiaResultNames::wbsPPMaxResult() )
+        return { cvf::Color3f::DEEP_PINK, RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH_DOT };
+
+    return { colors[i % colors.size()], RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -407,4 +451,23 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
     wellPathAnglesTrack->setAnnotationType( RiaDefines::RegionAnnotationType::FORMATION_ANNOTATIONS );
     wellPathAnglesTrack->setAnnotationDisplay( RiaDefines::LIGHT_LINES );
     wellPathAnglesTrack->setShowRegionLabels( false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RigWbsParameter> RicNewWellBoreStabilityPlotFeature::parametersForTrack()
+{
+    return { RigWbsParameter::PP_Reservoir(),
+             RigWbsParameter::PP_NonReservoir(),
+             RigWbsParameter::poissonRatio(),
+             RigWbsParameter::UCS(),
+             RigWbsParameter::OBG(),
+             RigWbsParameter::OBG0(),
+             RigWbsParameter::SH(),
+             RigWbsParameter::DF(),
+             RigWbsParameter::K0_FG(),
+             RigWbsParameter::K0_SH(),
+             RigWbsParameter::FG_Shale(),
+             RigWbsParameter::waterDensity() };
 }

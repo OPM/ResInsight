@@ -34,12 +34,14 @@
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmSettings.h"
+#include "cafPdmUiCheckBoxAndTextEditor.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiLineEditor.h"
 
+#include <QCoreApplication>
 #include <QDate>
 #include <QDir>
 #include <QLocale>
@@ -124,6 +126,19 @@ RiaPreferences::RiaPreferences()
     m_pythonExecutable.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     m_pythonExecutable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     CAF_PDM_InitField( &showPythonDebugInfo, "pythonDebugInfo", false, "Show Python Debug Info" );
+
+    auto defaultFilename = QStandardPaths::writableLocation( QStandardPaths::DocumentsLocation );
+    if ( defaultFilename.isEmpty() )
+    {
+        defaultFilename = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
+    }
+    defaultFilename += "/ResInsight.log";
+
+    CAF_PDM_InitField( &m_loggerFilename, "loggerFilename", std::make_pair( false, defaultFilename ), "Logging To File" );
+    m_loggerFilename.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_loggerFlushInterval, "loggerFlushInterval", 500, "Logging Flush Interval [ms]" );
+    CAF_PDM_InitField( &m_loggerTrapSignalAndFlush, "loggerTrapSignalAndFlush", false, "Trap SIGNAL and Flush File Logs" );
 
     CAF_PDM_InitField( &ssihubAddress, "ssihubAddress", QString( "http://" ), "SSIHUB Address" );
     ssihubAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
@@ -461,6 +476,13 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
         otherGroup->add( &m_gridCalculationExpressionFolder );
         otherGroup->add( &m_summaryCalculationExpressionFolder );
+
+        caf::PdmUiGroup* loggingGroup = uiOrdering.addNewGroup( "Logging" );
+        loggingGroup->add( &m_loggerFilename );
+        loggingGroup->add( &m_loggerFlushInterval );
+        loggingGroup->add( &m_loggerTrapSignalAndFlush );
+        m_loggerTrapSignalAndFlush.uiCapability()->setUiReadOnly( !m_loggerFilename().first );
+        m_loggerFlushInterval.uiCapability()->setUiReadOnly( !m_loggerFilename().first );
     }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {
@@ -930,6 +952,35 @@ QString RiaPreferences::pythonExecutable() const
 QString RiaPreferences::octaveExecutable() const
 {
     return m_octaveExecutable().trimmed();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::loggerFilename() const
+{
+    if ( m_loggerFilename().first )
+    {
+        return m_loggerFilename().second;
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaPreferences::loggerFlushInterval() const
+{
+    return m_loggerFlushInterval();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::loggerTrapSignalAndFlush() const
+{
+    return m_loggerTrapSignalAndFlush();
 }
 
 //--------------------------------------------------------------------------------------------------

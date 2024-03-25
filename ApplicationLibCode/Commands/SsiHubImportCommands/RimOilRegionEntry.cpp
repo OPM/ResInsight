@@ -31,7 +31,6 @@ RimOilRegionEntry::RimOilRegionEntry()
     CAF_PDM_InitFieldNoDefault( &name, "OilRegionEntry", "OilRegionEntry" );
 
     CAF_PDM_InitFieldNoDefault( &fields, "Fields", "" );
-    fields.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &selected, "Selected", false, "Selected" );
 }

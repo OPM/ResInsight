@@ -114,33 +114,27 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     CAF_PDM_InitField( &m_autoSubPlotTitle, "AutoSubPlotTitle", true, "Auto Sub Plot Title" );
 
     CAF_PDM_InitField( &m_createPlotDuplicate, "DuplicatePlot", false, "", "", "Duplicate Plot" );
-    m_createPlotDuplicate.xmlCapability()->disableIO();
-    m_createPlotDuplicate.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_createPlotDuplicate );
     m_createPlotDuplicate.uiCapability()->setUiIconFromResourceString( ":/Copy.svg" );
 
     CAF_PDM_InitField( &m_disableWheelZoom, "DisableWheelZoom", true, "", "", "Disable Mouse Wheel Zooming in Multi Summary Plot" );
-    m_disableWheelZoom.xmlCapability()->disableIO();
-    m_disableWheelZoom.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_disableWheelZoom );
     m_disableWheelZoom.uiCapability()->setUiIconFromResourceString( ":/DisableZoom.png" );
 
     CAF_PDM_InitField( &m_appendNextPlot, "AppendNextPlot", false, "", "", "Step Next and Add to New Plot" );
-    m_appendNextPlot.xmlCapability()->disableIO();
-    m_appendNextPlot.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_appendNextPlot );
     m_appendNextPlot.uiCapability()->setUiIconFromResourceString( ":/AppendNext.png" );
 
     CAF_PDM_InitField( &m_appendPrevPlot, "AppendPrevPlot", false, "", "", "Step Previous and Add to New Plot" );
-    m_appendPrevPlot.xmlCapability()->disableIO();
-    m_appendPrevPlot.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_appendPrevPlot );
     m_appendPrevPlot.uiCapability()->setUiIconFromResourceString( ":/AppendPrev.png" );
 
     CAF_PDM_InitField( &m_appendNextCurve, "AppendNextCurve", false, "", "", "Step Next and Add Curve to Plot" );
-    m_appendNextCurve.xmlCapability()->disableIO();
-    m_appendNextCurve.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_appendNextCurve );
     m_appendNextCurve.uiCapability()->setUiIconFromResourceString( ":/AppendNextCurve.png" );
 
     CAF_PDM_InitField( &m_appendPrevCurve, "AppendPrevCurve", false, "", "", "Step Previous and Add Curve to Plot" );
-    m_appendPrevCurve.xmlCapability()->disableIO();
-    m_appendPrevCurve.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_appendPrevCurve );
     m_appendPrevCurve.uiCapability()->setUiIconFromResourceString( ":/AppendPrevCurve.png" );
 
     CAF_PDM_InitField( &m_linkSubPlotAxes, "LinkSubPlotAxes", false, "Link Y Axes" );
@@ -155,8 +149,7 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Y Axis Range" );
 
     CAF_PDM_InitField( &m_hidePlotsWithValuesBelow, "HidePlotsWithValuesBelow", false, "" );
-    m_hidePlotsWithValuesBelow.xmlCapability()->disableIO();
-    m_hidePlotsWithValuesBelow.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_hidePlotsWithValuesBelow );
 
     CAF_PDM_InitField( &m_plotFilterYAxisThreshold, "PlotFilterYAxisThreshold", 0.0, "Y-Axis Filter Threshold" );
 
@@ -164,7 +157,6 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
 
     m_sourceStepping = new RimSummaryPlotSourceStepping;
     m_sourceStepping->setSourceSteppingObject( this );
-    m_sourceStepping.uiCapability()->setUiTreeHidden( true );
     m_sourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_sourceStepping.xmlCapability()->disableIO();
 

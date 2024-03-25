@@ -19,6 +19,7 @@
 #include "RimFaultReactivationModel.h"
 
 #include "RiaApplication.h"
+#include "RiaFilePathTools.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesGeoMech.h"
 #include "RiaQDateTimeTools.h"
@@ -46,7 +47,6 @@
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
-#include "RimFaultReactivationDataAccess.h"
 #include "RimFaultReactivationEnums.h"
 #include "RimFaultReactivationTools.h"
 #include "RimGeoMechCase.h"
@@ -82,7 +82,7 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitFieldNoDefault( &m_baseDir, "BaseDirectory", "Working Folder" );
     CAF_PDM_InitField( &m_modelThickness, "ModelThickness", 100.0, "Model Cell Thickness" );
 
-    CAF_PDM_InitField( &m_modelExtentFromAnchor, "ModelExtentFromAnchor", 3000.0, "Horz. Extent from Anchor" );
+    CAF_PDM_InitField( &m_modelExtentFromAnchor, "ModelExtentFromAnchor", 1000.0, "Horz. Extent from Anchor" );
     CAF_PDM_InitField( &m_modelMinZ, "ModelMinZ", 0.0, "Seabed Depth" );
     CAF_PDM_InitField( &m_modelBelowSize, "ModelBelowSize", 500.0, "Depth Below Fault" );
 
@@ -96,6 +96,8 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_faultExtendDownwards, "FaultExtendDownwards", 0.0, "Below Reservoir" );
     m_faultExtendDownwards.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
+    CAF_PDM_InitField( &m_faultZoneCells, "FaultZoneCells", 0, "Fault Zone Width [cells]" );
+
     CAF_PDM_InitField( &m_showModelPlane, "ShowModelPlane", true, "Show 2D Model" );
 
     CAF_PDM_InitFieldNoDefault( &m_fault, "Fault", "Fault" );
@@ -104,13 +106,14 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_modelPart1Color, "ModelPart1Color", cvf::Color3f( cvf::Color3f::GREEN ), "Part 1 Color" );
     CAF_PDM_InitField( &m_modelPart2Color, "ModelPart2Color", cvf::Color3f( cvf::Color3f::BLUE ), "Part 2 Color" );
 
-    CAF_PDM_InitField( &m_maxReservoirCellHeight, "MaxReservoirCellHeight", 20.0, "Max. Reservoir Cell Height" );
-    CAF_PDM_InitField( &m_cellHeightGrowFactor, "CellHeightGrowFactor", 1.05, "Cell Height Grow Factor" );
+    CAF_PDM_InitField( &m_maxReservoirCellHeight, "MaxReservoirCellHeight", 5.0, "Max. Reservoir Cell Height" );
+    CAF_PDM_InitField( &m_minReservoirCellHeight, "MinReservoirCellHeight", 0.5, "Min. Reservoir Cell Height" );
+    CAF_PDM_InitField( &m_cellHeightGrowFactor, "CellHeightGrowFactor", 1.15, "Cell Height Grow Factor" );
 
-    CAF_PDM_InitField( &m_minReservoirCellWidth, "MinReservoirCellWidth", 20.0, "Reservoir Cell Width" );
-    CAF_PDM_InitField( &m_cellWidthGrowFactor, "CellWidthGrowFactor", 1.05, "Cell Width Grow Factor" );
+    CAF_PDM_InitField( &m_minReservoirCellWidth, "MinReservoirCellWidth", 5.0, "Reservoir Cell Width" );
+    CAF_PDM_InitField( &m_cellWidthGrowFactor, "CellWidthGrowFactor", 1.15, "Cell Width Grow Factor" );
 
-    CAF_PDM_InitField( &m_useLocalCoordinates, "UseLocalCoordinates", false, "Export Using Local Coordinates" );
+    CAF_PDM_InitField( &m_useLocalCoordinates, "UseLocalCoordinates", true, "Use Local Coordinates" );
 
     // Time Step Selection
     CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps" );
@@ -123,14 +126,17 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_useGridTemperature, "UseGridTemperature", true, "Output Grid Temperature" );
     CAF_PDM_InitField( &m_useGridDensity, "UseGridDensity", false, "Output Grid Density" );
     CAF_PDM_InitField( &m_useGridElasticProperties, "UseGridElasticProperties", false, "Output Grid Elastic Properties" );
-    CAF_PDM_InitField( &m_useGridStress, "UseGridStress", false, "Output Grid Stress" );
 
     CAF_PDM_InitField( &m_waterDensity, "WaterDensity", 1030.0, "Water Density [kg/m3]" );
+    CAF_PDM_InitField( &m_frictionAngleDeg, "FrictionAngle", 20.0, "Fault Friction Angle [degree]" );
+    CAF_PDM_InitField( &m_seabedTemperature, "SeabedTemperature", 5.0, "Seabed Temperature [C]" );
+    CAF_PDM_InitField( &m_lateralStressCoefficient, "LateralStressCoefficient", 0.5, "Lateral Stress Coefficient" );
+
+    CAF_PDM_InitFieldNoDefault( &m_stressSource, "StressSource", "Use Stress from" );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_targets.uiCapability()->setUiTreeChildrenHidden( true );
-    m_targets.uiCapability()->setUiTreeHidden( true );
     m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_targets.uiCapability()->setCustomContextMenuEnabled( false );
 
@@ -194,21 +200,28 @@ caf::PdmFieldHandle* RimFaultReactivationModel::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<bool, std::string> RimFaultReactivationModel::validateBeforeRun() const
+std::pair<bool, std::string> RimFaultReactivationModel::validateModel() const
 {
+    const std::string postStr = ". Please check your model settings.";
+
     if ( fault() == nullptr )
     {
-        return std::make_pair( false, "A fault has not been selected. Please check your model settings." );
+        return std::make_pair( false, "A fault has not been selected" + postStr );
     }
 
     if ( selectedTimeSteps().size() < 2 )
     {
-        return std::make_pair( false, "You need at least 2 selected timesteps. Please check your model settings." );
+        return std::make_pair( false, "You need at least 2 selected timesteps" + postStr );
     }
 
     if ( selectedTimeSteps()[0] != m_availableTimeSteps[0] )
     {
-        return std::make_pair( false, "The first available timestep must always be selected. Please check your model settings." );
+        return std::make_pair( false, "The first available timestep must always be selected" + postStr );
+    }
+
+    if ( ( m_frictionAngleDeg() <= 0.0 ) || ( m_frictionAngleDeg() >= 90.0 ) )
+    {
+        return std::make_pair( false, "Fault Friction Angle must be between 0 and 90 degrees" + postStr );
     }
 
     return std::make_pair( true, "" );
@@ -308,22 +321,27 @@ void RimFaultReactivationModel::updateVisualization()
     if ( !normal.normalize() ) return;
 
     auto modelNormal = normal ^ cvf::Vec3d::Z_AXIS;
-    modelNormal.normalize();
+    if ( !modelNormal.normalize() ) return;
 
-    auto generator = std::make_shared<RigFaultReactivationModelGenerator>( m_targets[0]->targetPointXYZ(), modelNormal );
+    auto generator = std::make_shared<RigFaultReactivationModelGenerator>( m_targets[0]->targetPointXYZ(), modelNormal, normal );
     generator->setFault( m_fault()->faultGeometry() );
     generator->setGrid( eclipseCase()->mainGrid() );
     generator->setActiveCellInfo( eclipseCase()->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
     generator->setModelSize( m_modelMinZ, m_modelBelowSize, m_modelExtentFromAnchor );
-    generator->setFaultBufferDepth( m_faultExtendUpwards, m_faultExtendDownwards );
+    generator->setFaultBufferDepth( m_faultExtendUpwards, m_faultExtendDownwards, m_faultZoneCells );
     generator->setModelThickness( m_modelThickness );
-    generator->setModelGriddingOptions( m_maxReservoirCellHeight, m_cellHeightGrowFactor, m_minReservoirCellWidth, m_cellWidthGrowFactor );
+    generator->setModelGriddingOptions( m_minReservoirCellHeight,
+                                        m_maxReservoirCellHeight,
+                                        m_cellHeightGrowFactor,
+                                        m_minReservoirCellWidth,
+                                        m_cellWidthGrowFactor );
     generator->setupLocalCoordinateTransform();
     generator->setUseLocalCoordinates( m_useLocalCoordinates );
 
     m_2Dmodel->setPartColors( m_modelPart1Color, m_modelPart2Color );
     m_2Dmodel->setGenerator( generator );
     m_2Dmodel->updateGeometry( m_startCellIndex, (cvf::StructGridInterface::FaceType)m_startCellFace() );
+    m_2Dmodel->postProcessElementSets( eclipseCase() );
 
     view->scheduleCreateDisplayModelAndRedraw();
 }
@@ -376,6 +394,7 @@ QList<caf::PdmOptionItemInfo> RimFaultReactivationModel::calculateValueOptions( 
     else if ( fieldNeedingOptions == &m_geomechCase )
     {
         RimTools::geoMechCaseOptionItems( &options );
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
     }
 
     return options;
@@ -425,8 +444,11 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     sizeModelGrp->add( &m_modelExtentFromAnchor );
     sizeModelGrp->add( &m_modelMinZ );
     sizeModelGrp->add( &m_modelBelowSize );
+    sizeModelGrp->add( &m_faultZoneCells );
 
-    if ( m_geomechCase() != nullptr )
+    const bool hasGeoMechCase = ( m_geomechCase() != nullptr );
+
+    if ( hasGeoMechCase )
     {
         m_modelMinZ.setValue( std::abs( m_geomechCase->allCellsBoundingBox().max().z() ) );
         m_modelMinZ.uiCapability()->setUiReadOnly( true );
@@ -441,6 +463,7 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     faultGrp->add( &m_faultExtendDownwards );
 
     auto gridModelGrp = modelGrp->addNewGroup( "Grid Definition" );
+    gridModelGrp->add( &m_minReservoirCellHeight );
     gridModelGrp->add( &m_maxReservoirCellHeight );
     gridModelGrp->add( &m_cellHeightGrowFactor );
 
@@ -463,14 +486,40 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     propertiesGrp->add( &m_useGridPorePressure );
     propertiesGrp->add( &m_useGridVoidRatio );
     propertiesGrp->add( &m_useGridTemperature );
-    propertiesGrp->add( &m_useGridDensity );
-    propertiesGrp->add( &m_useGridElasticProperties );
-    propertiesGrp->add( &m_useGridStress );
-    propertiesGrp->add( &m_waterDensity );
 
-    auto trgGroup = uiOrdering.addNewGroup( "Debug" );
-    trgGroup->setCollapsedByDefault();
-    trgGroup->add( &m_targets );
+    if ( hasGeoMechCase )
+    {
+        propertiesGrp->add( &m_useGridDensity );
+        propertiesGrp->add( &m_useGridElasticProperties );
+
+        bool useTemperatureFromGrid = m_useGridTemperature();
+        m_seabedTemperature.uiCapability()->setUiReadOnly( !useTemperatureFromGrid );
+    }
+
+    propertiesGrp->add( &m_stressSource );
+    if ( hasGeoMechCase )
+    {
+        m_stressSource.uiCapability()->setUiReadOnly( false );
+    }
+    else
+    {
+        m_stressSource = RimFaultReactivation::StressSource::StressFromEclipse;
+        m_stressSource.uiCapability()->setUiReadOnly( true );
+    }
+
+    auto parmGrp = propertiesGrp->addNewGroup( "Parameters" );
+
+    parmGrp->add( &m_frictionAngleDeg );
+    if ( m_stressSource() == RimFaultReactivation::StressSource::StressFromEclipse )
+    {
+        parmGrp->add( &m_lateralStressCoefficient );
+    }
+
+    if ( hasGeoMechCase )
+    {
+        parmGrp->add( &m_waterDensity );
+        parmGrp->add( &m_seabedTemperature );
+    }
 
     uiOrdering.skipRemainingFields();
 }
@@ -480,8 +529,9 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
 //--------------------------------------------------------------------------------------------------
 void RimFaultReactivationModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( ( changedField == &m_useGridPorePressure ) || ( changedField == &m_useGridVoidRatio ) || ( changedField == &m_useGridTemperature ) ||
-         ( changedField == &m_useGridDensity ) || ( changedField == &m_useGridElasticProperties ) )
+    if ( ( changedField == &m_useGridPorePressure ) || ( changedField == &m_useGridVoidRatio ) ||
+         ( changedField == &m_useGridTemperature ) || ( changedField == &m_useGridDensity ) ||
+         ( changedField == &m_useGridElasticProperties ) || ( changedField == &m_waterDensity ) || ( changedField == &m_frictionAngleDeg ) )
     {
         return; // do nothing
     }
@@ -542,22 +592,20 @@ void RimFaultReactivationModel::defineEditorAttribute( const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimFaultReactivationModel::eclipseCase()
+RimEclipseCase* RimFaultReactivationModel::eclipseCase() const
 {
     auto eCase = firstAncestorOrThisOfType<RimEclipseCase>();
 
-    if ( eCase == nullptr )
-    {
-        eCase = dynamic_cast<RimEclipseCase*>( RiaApplication::instance()->activeGridView()->ownerCase() );
-    }
-
-    return eCase;
+    if ( eCase != nullptr )
+        return eCase;
+    else
+        return dynamic_cast<RimEclipseCase*>( RiaApplication::instance()->activeGridView()->ownerCase() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechCase* RimFaultReactivationModel::geoMechCase()
+RimGeoMechCase* RimFaultReactivationModel::geoMechCase() const
 {
     return m_geomechCase();
 }
@@ -586,6 +634,17 @@ void RimFaultReactivationModel::updateTimeSteps()
     m_availableTimeSteps.clear();
     const auto eCase = eclipseCase();
     if ( eCase != nullptr ) m_availableTimeSteps = eCase->timeStepDates();
+
+    int nAvailSteps = (int)m_availableTimeSteps.size();
+
+    if ( m_selectedTimeSteps().empty() )
+    {
+        std::vector<QDateTime> newVal;
+        if ( nAvailSteps > 0 ) newVal.push_back( m_availableTimeSteps.front() );
+        if ( nAvailSteps > 1 ) newVal.push_back( m_availableTimeSteps.back() );
+
+        m_selectedTimeSteps.setValue( newVal );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -605,13 +664,29 @@ std::vector<QDateTime> RimFaultReactivationModel::selectedTimeSteps() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<size_t> RimFaultReactivationModel::selectedTimeStepIndexes() const
+{
+    std::vector<size_t> selectedTimeStepIndexes;
+    for ( auto& timeStep : selectedTimeSteps() )
+    {
+        auto idx = std::find( m_availableTimeSteps.begin(), m_availableTimeSteps.end(), timeStep );
+        if ( idx == m_availableTimeSteps.end() ) return {};
+
+        selectedTimeStepIndexes.push_back( idx - m_availableTimeSteps.begin() );
+    }
+    return selectedTimeStepIndexes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QStringList RimFaultReactivationModel::commandParameters() const
 {
     QStringList retlist;
 
     retlist << baseDir();
-    retlist << inputFilename();
-    retlist << outputOdbFilename();
+    retlist << QString::fromStdString( inputFilename() );
+    retlist << QString::fromStdString( outputOdbFilename() );
 
     return retlist;
 }
@@ -619,110 +694,55 @@ QStringList RimFaultReactivationModel::commandParameters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultReactivationModel::outputOdbFilename() const
+std::string RimFaultReactivationModel::outputOdbFilename() const
+{
+    return baseFilePath() + ".odb";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimFaultReactivationModel::inputFilename() const
+{
+    return baseFilePath() + ".inp";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimFaultReactivationModel::settingsFilename() const
+{
+    return baseFilePath() + ".settings.json";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimFaultReactivationModel::baseFilename() const
+{
+    return RiaFilePathTools::makeSuitableAsFileName( m_userDescription().toStdString() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimFaultReactivationModel::baseFilePath() const
 {
     QDir directory( baseDir() );
-    return directory.absoluteFilePath( baseFilename() + ".odb" );
+    return directory.absoluteFilePath( QString::fromStdString( baseFilename() ) ).toStdString();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultReactivationModel::inputFilename() const
+std::array<double, 4> RimFaultReactivationModel::materialParameters( ElementSets elementSet ) const
 {
-    QDir directory( baseDir() );
-    return directory.absoluteFilePath( baseFilename() + ".inp" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimFaultReactivationModel::settingsFilename() const
-{
-    QDir directory( baseDir() );
-    return directory.absoluteFilePath( baseFilename() + ".settings.json" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimFaultReactivationModel::baseFilename() const
-{
-    QString tmp = m_userDescription();
-
-    if ( tmp.isEmpty() ) return "faultReactivation";
-
-    tmp.replace( ' ', '_' );
-    tmp.replace( '/', '_' );
-    tmp.replace( '\\', '_' );
-    tmp.replace( ':', '_' );
-
-    return tmp;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationModel::exportModelSettings()
-{
-    if ( m_2Dmodel.isNull() ) return false;
-    if ( !m_2Dmodel->isValid() ) return false;
-
-    QMap<QString, QVariant> settings;
-
-    auto [topPosition, bottomPosition] = m_2Dmodel->faultTopBottom();
-    auto faultNormal                   = m_2Dmodel->faultNormal();
-
-    // make sure we move horizontally, and along the 2D model
-    faultNormal.z() = 0.0;
-    faultNormal.normalize();
-    faultNormal = faultNormal ^ cvf::Vec3d::Z_AXIS;
-
-    RimFaultReactivationTools::addSettingsToMap( settings, faultNormal, topPosition, bottomPosition );
-
-    QDir directory( baseDir() );
-    return ResInsightInternalJson::JsonWriter::encodeFile( settingsFilename(), settings );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationModel::extractAndExportModelData()
-{
-    if ( m_dataAccess ) m_dataAccess->clearModelData();
-
-    if ( !exportModelSettings() ) return false;
-
-    auto eCase = eclipseCase();
-    if ( eCase == nullptr ) return false;
-
-    // get the selected time step indexes
-    std::vector<size_t> selectedTimeStepIndexes;
-    for ( auto& timeStep : selectedTimeSteps() )
-    {
-        auto idx = std::find( m_availableTimeSteps.begin(), m_availableTimeSteps.end(), timeStep );
-        if ( idx == m_availableTimeSteps.end() ) return false;
-
-        selectedTimeStepIndexes.push_back( idx - m_availableTimeSteps.begin() );
-    }
-
-    // extract data for each timestep
-    m_dataAccess = std::make_shared<RimFaultReactivationDataAccess>( eCase, geoMechCase(), selectedTimeStepIndexes );
-    m_dataAccess->extractModelData( *model() );
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::array<double, 3> RimFaultReactivationModel::materialParameters( ElementSets elementSet ) const
-{
-    std::array<double, 3>                     retVal   = { 0.0, 0.0, 0.0 };
+    std::array<double, 4>                     retVal   = { 0.0, 0.0, 0.0, 0.0 };
     static std::map<ElementSets, std::string> groupMap = { { ElementSets::OverBurden, "material_overburden" },
                                                            { ElementSets::Reservoir, "material_reservoir" },
                                                            { ElementSets::IntraReservoir, "material_intrareservoir" },
-                                                           { ElementSets::UnderBurden, "material_underburden" } };
+                                                           { ElementSets::UnderBurden, "material_underburden" },
+                                                           { ElementSets::FaultZone, "material_faultzone" } };
 
     auto keyName = QString::fromStdString( groupMap[elementSet] );
 
@@ -733,6 +753,7 @@ std::array<double, 3> RimFaultReactivationModel::materialParameters( ElementSets
         retVal[0] = grp->parameterDoubleValue( "youngs_modulus", 0.0 );
         retVal[1] = grp->parameterDoubleValue( "poissons_number", 0.0 );
         retVal[2] = grp->parameterDoubleValue( "density", 0.0 );
+        retVal[3] = grp->parameterDoubleValue( "expansion", 0.0 );
 
         break;
     }
@@ -743,9 +764,9 @@ std::array<double, 3> RimFaultReactivationModel::materialParameters( ElementSets
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<RimFaultReactivationDataAccess> RimFaultReactivationModel::dataAccess() const
+bool RimFaultReactivationModel::useLocalCoordinates() const
 {
-    return m_dataAccess;
+    return m_useLocalCoordinates();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -791,9 +812,9 @@ bool RimFaultReactivationModel::useGridElasticProperties() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationModel::useGridStress() const
+RimFaultReactivation::StressSource RimFaultReactivationModel::stressSource() const
 {
-    return m_useGridStress();
+    return m_stressSource();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -807,7 +828,31 @@ double RimFaultReactivationModel::seaBedDepth() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimFaultReactivationModel::frictionAngleDeg() const
+{
+    return m_frictionAngleDeg;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimFaultReactivationModel::waterDensity() const
 {
     return m_waterDensity;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFaultReactivationModel::seabedTemperature() const
+{
+    return m_seabedTemperature;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFaultReactivationModel::lateralStressCoefficient() const
+{
+    return m_lateralStressCoefficient;
 }

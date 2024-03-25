@@ -25,13 +25,14 @@ class RicPointTangentManipulator;
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
+#include <QPointer>
+
 namespace cvf
 {
 class ModelBasicList;
 }
 
 class QString;
-#include <QPointer>
 
 class RicPolylineTarget3dEditor : public Ric3dObjectEditorHandle
 {

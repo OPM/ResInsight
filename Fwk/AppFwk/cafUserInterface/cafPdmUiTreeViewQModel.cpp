@@ -36,10 +36,11 @@
 
 #include "cafPdmUiTreeViewQModel.h"
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafPdmReferenceHelper.h"
 #include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiDragDropInterface.h"
+#include "cafPdmUiFieldHandle.h"
+#include "cafPdmUiObjectHandle.h"
 #include "cafPdmUiTreeItemEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeViewEditor.h"

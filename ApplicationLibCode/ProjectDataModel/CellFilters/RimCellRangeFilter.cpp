@@ -184,8 +184,7 @@ void RimCellRangeFilter::setDefaultValues( int sliceDirection, int defaultSlice 
 
     if ( grid == mainGrid && actCellInfo )
     {
-        cvf::Vec3st min, max;
-        actCellInfo->IJKBoundingBox( min, max );
+        auto [min, max] = actCellInfo->ijkBoundingBox();
 
         // Adjust to Eclipse indexing
         min.x() = min.x() + 1;
@@ -280,8 +279,7 @@ void RimCellRangeFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 
     if ( grid == mainGrid && actCellInfo )
     {
-        cvf::Vec3st min, max;
-        actCellInfo->IJKBoundingBox( min, max );
+        auto [min, max] = actCellInfo->ijkBoundingBox();
 
         // Adjust to Eclipse indexing
         min.x() = min.x() + 1;

@@ -18,7 +18,15 @@
 
 #include "RimSummaryCalculationCollection.h"
 
+#include "RiaSummaryTools.h"
+
+#include "RifSummaryReaderInterface.h"
+
+#include "RimObservedSummaryData.h"
 #include "RimSummaryCalculation.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 
 CAF_PDM_SOURCE_INIT( RimSummaryCalculationCollection, "RimSummaryCalculationCollection" );
 //--------------------------------------------------------------------------------------------------
@@ -40,15 +48,52 @@ RimSummaryCalculation* RimSummaryCalculationCollection::createCalculation() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculationCollection::rebuildCaseMetaData()
+void RimSummaryCalculationCollection::updateDataDependingOnCalculations()
 {
-    ensureValidCalculationIds();
+    // Refresh data sources tree
+    // Refresh meta data for all summary cases and rebuild AddressNodes in the summary tree
+    RimSummaryCaseMainCollection* summaryCaseCollection = RiaSummaryTools::summaryCaseMainCollection();
+    auto                          summaryCases          = summaryCaseCollection->allSummaryCases();
+    for ( RimSummaryCase* summaryCase : summaryCases )
+    {
+        if ( !summaryCase ) continue;
+
+        if ( auto reader = summaryCase->summaryReader() )
+        {
+            reader->buildMetaData();
+
+            if ( summaryCase->showRealizationDataSources() )
+            {
+                summaryCase->onCalculationUpdated();
+            }
+        }
+    }
+
+    RimObservedDataCollection* observedDataCollection = RiaSummaryTools::observedDataCollection();
+    auto                       observedData           = observedDataCollection->allObservedSummaryData();
+    for ( auto obs : observedData )
+    {
+        if ( !obs ) continue;
+
+        if ( auto reader = obs->summaryReader() )
+        {
+            reader->buildMetaData();
+            obs->onCalculationUpdated();
+        }
+    }
+
+    auto summaryCaseCollections = summaryCaseCollection->summaryCaseCollections();
+    for ( RimSummaryCaseCollection* summaryCaseCollection : summaryCaseCollections )
+    {
+        summaryCaseCollection->onCalculationUpdated();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculationCollection::initAfterRead()
+void RimSummaryCalculationCollection::rebuildCaseMetaData()
 {
-    rebuildCaseMetaData();
+    ensureValidCalculationIds();
+    updateDataDependingOnCalculations();
 }

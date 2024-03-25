@@ -151,8 +151,7 @@ size_t RigMainGrid::findReservoirCellIndexFromPoint( const cvf::Vec3d& point ) c
     cvf::BoundingBox pointBBox;
     pointBBox.add( point );
 
-    std::vector<size_t> cellIndices;
-    m_mainGrid->findIntersectingCells( pointBBox, &cellIndices );
+    std::vector<size_t> cellIndices = m_mainGrid->findIntersectingCells( pointBBox );
 
     cvf::Vec3d hexCorners[8];
     for ( size_t cellIndex : cellIndices )
@@ -289,6 +288,8 @@ void RigMainGrid::computeCachedData( std::string* aabbTreeInfo )
         *aabbTreeInfo += "Cells per bounding box : " + std::to_string( cellsPerBoundingBox ) + "\n";
         *aabbTreeInfo += m_cellSearchTree->info();
     }
+
+    computeBoundingBox();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -432,6 +433,35 @@ bool RigMainGrid::hasFaultWithName( const QString& name ) const
         }
     }
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::computeBoundingBox()
+{
+    m_boundingBox.reset();
+
+    const int numberOfThreads = RiaOpenMPTools::availableThreadCount();
+
+    std::vector<cvf::BoundingBox> threadBoundingBoxes( numberOfThreads );
+
+#pragma omp parallel
+    {
+        int myThread = RiaOpenMPTools::currentThreadIndex();
+
+        // NB! We are inside a parallel section, do not use "parallel for" here
+#pragma omp for
+        for ( long i = 0; i < static_cast<long>( m_nodes.size() ); i++ )
+        {
+            threadBoundingBoxes[myThread].add( m_nodes[i] );
+        }
+    }
+
+    for ( int i = 0; i < numberOfThreads; i++ )
+    {
+        m_boundingBox.add( threadBoundingBoxes[i] );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -781,11 +811,12 @@ const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace( size_t reservoir
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigMainGrid::findIntersectingCells( const cvf::BoundingBox& inputBB, std::vector<size_t>* cellIndices ) const
+std::vector<size_t> RigMainGrid::findIntersectingCells( const cvf::BoundingBox& inputBB ) const
 {
     CVF_ASSERT( m_cellSearchTree.notNull() );
-
-    m_cellSearchTree->findIntersections( inputBB, cellIndices );
+    std::vector<size_t> cellIndices;
+    m_cellSearchTree->findIntersections( inputBB, &cellIndices );
+    return cellIndices;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -943,13 +974,6 @@ void RigMainGrid::buildCellSearchTreeOptimized( size_t cellsPerBoundingBox )
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RigMainGrid::boundingBox() const
 {
-    if ( m_boundingBox.isValid() ) return m_boundingBox;
-
-    for ( const auto& node : m_nodes )
-    {
-        m_boundingBox.add( node );
-    }
-
     return m_boundingBox;
 }
 

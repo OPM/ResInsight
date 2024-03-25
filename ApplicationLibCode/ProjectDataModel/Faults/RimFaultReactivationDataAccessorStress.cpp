@@ -19,18 +19,25 @@
 #include "RimFaultReactivationDataAccessorStress.h"
 
 #include "RiaEclipseUnitTools.h"
+#include "RiaLogging.h"
 
+#include "RigFaultReactivationModel.h"
 #include "RigFemAddressDefines.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
 #include "RigFemScalarResultFrames.h"
 #include "RigGeoMechCaseData.h"
-#include "RigResultAccessorFactory.h"
+#include "RigGeoMechWellLogExtractor.h"
+#include "RigGriddedPart3d.h"
+#include "RigWellPath.h"
 
+#include "RimFaultReactivationDataAccessorWellLogExtraction.h"
 #include "RimFaultReactivationEnums.h"
 #include "RimGeoMechCase.h"
 #include "RimWellIADataAccess.h"
+
+#include "cvfVector3.h"
 
 #include <cmath>
 #include <limits>
@@ -38,12 +45,13 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaultReactivationDataAccessorStress::RimFaultReactivationDataAccessorStress( RimGeoMechCase*                geoMechCase,
-                                                                                RimFaultReactivation::Property property )
-    : m_geoMechCase( geoMechCase )
-    , m_property( property )
+RimFaultReactivationDataAccessorStress::RimFaultReactivationDataAccessorStress( RimFaultReactivation::Property property,
+                                                                                double                         gradient,
+                                                                                double                         seabedDepth )
+    : m_property( property )
+    , m_gradient( gradient )
+    , m_seabedDepth( seabedDepth )
 {
-    m_geoMechCaseData = geoMechCase->geoMechData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,39 +59,6 @@ RimFaultReactivationDataAccessorStress::RimFaultReactivationDataAccessorStress( 
 //--------------------------------------------------------------------------------------------------
 RimFaultReactivationDataAccessorStress::~RimFaultReactivationDataAccessorStress()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFaultReactivationDataAccessorStress::updateResultAccessor()
-{
-    const int partIndex = 0;
-
-    auto loadFrameLambda = [&]( auto femParts, RigFemResultAddress addr ) -> RigFemScalarResultFrames*
-    {
-        auto result = femParts->findOrLoadScalarResult( partIndex, addr );
-        if ( result->frameData( 0, 0 ).empty() )
-        {
-            return nullptr;
-        }
-        return result;
-    };
-
-    auto femParts = m_geoMechCaseData->femPartResults();
-    m_femPart     = femParts->parts()->part( partIndex );
-    m_s33Frames   = loadFrameLambda( femParts, getResultAddress( "ST", "S33" ) );
-    m_s11Frames   = loadFrameLambda( femParts, getResultAddress( "ST", "S11" ) );
-    m_s22Frames   = loadFrameLambda( femParts, getResultAddress( "ST", "S22" ) );
-    m_porFrames   = loadFrameLambda( femParts, RigFemAddressDefines::elementNodalPorBarAddress() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigFemResultAddress RimFaultReactivationDataAccessorStress::getResultAddress( const std::string& fieldName, const std::string& componentName )
-{
-    return RigFemResultAddress( RIG_ELEMENT_NODAL, fieldName, componentName );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,39 +72,36 @@ bool RimFaultReactivationDataAccessorStress::isMatching( RimFaultReactivation::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccessorStress::valueAtPosition( const cvf::Vec3d& position, double topDepth, double bottomDepth ) const
+double RimFaultReactivationDataAccessorStress::valueAtPosition( const cvf::Vec3d&                position,
+                                                                const RigFaultReactivationModel& model,
+                                                                RimFaultReactivation::GridPart   gridPart,
+                                                                double                           topDepth,
+                                                                double                           bottomDepth,
+                                                                size_t                           elementIndex ) const
 {
-    if ( !m_porFrames || !m_s11Frames || !m_s22Frames || !m_s33Frames || !m_femPart ) return std::numeric_limits<double>::infinity();
-
-    RimWellIADataAccess iaDataAccess( m_geoMechCase );
-    int                 centerElementIdx = iaDataAccess.elementIndex( position );
+    if ( !isDataAvailable() ) return std::numeric_limits<double>::infinity();
 
     cvf::Vec3d topPosition( position.x(), position.y(), topDepth );
-    int        topElementIdx = iaDataAccess.elementIndex( topPosition );
-
     cvf::Vec3d bottomPosition( position.x(), position.y(), bottomDepth );
-    int        bottomElementIdx = iaDataAccess.elementIndex( bottomPosition );
-    if ( centerElementIdx != -1 && topElementIdx != -1 && bottomElementIdx != -1 )
+    auto       part = model.grid( gridPart );
+
+    auto [isOk, elementSet] = findElementSetForElementIndex( part->elementSets(), static_cast<int>( elementIndex ) );
+
+    if ( isPositionValid( position, topPosition, bottomPosition, gridPart ) )
     {
-        int timeStepIndex = 0;
-        int frameIndex    = 0;
-
-        const std::vector<float>& s11Data = m_s11Frames->frameData( timeStepIndex, frameIndex );
-        const std::vector<float>& s22Data = m_s22Frames->frameData( timeStepIndex, frameIndex );
-        const std::vector<float>& s33Data = m_s33Frames->frameData( timeStepIndex, frameIndex );
-        const std::vector<float>& porData = m_porFrames->frameData( timeStepIndex, frameIndex );
-
         if ( m_property == RimFaultReactivation::Property::StressTop )
         {
-            double s33    = interpolatedResultValue( iaDataAccess, m_femPart, topPosition, s33Data );
-            double porBar = interpolatedResultValue( iaDataAccess, m_femPart, topPosition, porData );
-            return RiaEclipseUnitTools::barToPascal( s33 - porBar );
+            auto [porBar, extractionPos] = calculatePorBar( topPosition, elementSet, m_gradient, gridPart );
+            if ( std::isinf( porBar ) ) return porBar;
+            double s33 = extractStressValue( StressType::S33, extractionPos, gridPart );
+            return -RiaEclipseUnitTools::barToPascal( s33 - porBar );
         }
         else if ( m_property == RimFaultReactivation::Property::StressBottom )
         {
-            double s33    = interpolatedResultValue( iaDataAccess, m_femPart, bottomPosition, s33Data );
-            double porBar = interpolatedResultValue( iaDataAccess, m_femPart, bottomPosition, porData );
-            return RiaEclipseUnitTools::barToPascal( s33 - porBar );
+            auto [porBar, extractionPos] = calculatePorBar( bottomPosition, elementSet, m_gradient, gridPart );
+            if ( std::isinf( porBar ) ) return porBar;
+            double s33 = extractStressValue( StressType::S33, extractionPos, gridPart );
+            return -RiaEclipseUnitTools::barToPascal( s33 - porBar );
         }
         else if ( m_property == RimFaultReactivation::Property::DepthTop )
         {
@@ -141,17 +113,11 @@ double RimFaultReactivationDataAccessorStress::valueAtPosition( const cvf::Vec3d
         }
         else if ( m_property == RimFaultReactivation::Property::LateralStressComponentX )
         {
-            double s11    = interpolatedResultValue( iaDataAccess, m_femPart, position, s11Data );
-            double s33    = interpolatedResultValue( iaDataAccess, m_femPart, position, s33Data );
-            double porBar = interpolatedResultValue( iaDataAccess, m_femPart, position, porData );
-            return ( s11 - porBar ) / ( s33 - porBar );
+            return lateralStressComponentX( position, elementSet, gridPart );
         }
         else if ( m_property == RimFaultReactivation::Property::LateralStressComponentY )
         {
-            double s22    = interpolatedResultValue( iaDataAccess, m_femPart, position, s22Data );
-            double s33    = interpolatedResultValue( iaDataAccess, m_femPart, position, s33Data );
-            double porBar = interpolatedResultValue( iaDataAccess, m_femPart, position, porData );
-            return ( s22 - porBar ) / ( s33 - porBar );
+            return lateralStressComponentY( position, elementSet, gridPart );
         }
     }
 
@@ -161,19 +127,27 @@ double RimFaultReactivationDataAccessorStress::valueAtPosition( const cvf::Vec3d
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationDataAccessorStress::hasValidDataAtPosition( const cvf::Vec3d& position ) const
+double RimFaultReactivationDataAccessorStress::lateralStressComponentX( const cvf::Vec3d&                 position,
+                                                                        RimFaultReactivation::ElementSets elementSet,
+                                                                        RimFaultReactivation::GridPart    gridPart ) const
 {
-    double value = valueAtPosition( position );
-    return !std::isinf( value );
+    auto [porBar, extractionPos] = calculatePorBar( position, elementSet, m_gradient, gridPart );
+    if ( std::isinf( porBar ) ) return porBar;
+    double s11 = extractStressValue( StressType::S11, extractionPos, gridPart );
+    double s33 = extractStressValue( StressType::S33, extractionPos, gridPart );
+    return ( s11 - porBar ) / ( s33 - porBar );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccessorStress::interpolatedResultValue( RimWellIADataAccess&      iaDataAccess,
-                                                                        const RigFemPart*         femPart,
-                                                                        const cvf::Vec3d&         position,
-                                                                        const std::vector<float>& scalarResults ) const
+double RimFaultReactivationDataAccessorStress::lateralStressComponentY( const cvf::Vec3d&                 position,
+                                                                        RimFaultReactivation::ElementSets elementSet,
+                                                                        RimFaultReactivation::GridPart    gridPart ) const
 {
-    return iaDataAccess.interpolatedResultValue( femPart, scalarResults, RIG_ELEMENT_NODAL, position );
+    auto [porBar, extractionPos] = calculatePorBar( position, elementSet, m_gradient, gridPart );
+    if ( std::isinf( porBar ) ) return porBar;
+    double s22 = extractStressValue( StressType::S22, extractionPos, gridPart );
+    double s33 = extractStressValue( StressType::S33, extractionPos, gridPart );
+    return ( s22 - porBar ) / ( s33 - porBar );
 }

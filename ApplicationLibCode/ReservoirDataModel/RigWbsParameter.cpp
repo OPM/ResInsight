@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RigWbsParameter.h"
 
+#include "RiaResultNames.h"
 #include "RiaWellLogUnitTools.h"
 #include "RigFemAddressDefines.h"
 
@@ -262,6 +263,47 @@ RigWbsParameter RigWbsParameter::PP_NonReservoir()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RigWbsParameter RigWbsParameter::PP_Min()
+{
+    SourceVector sources = { { LAS_FILE, SourceAddress( RiaResultNames::wbsPPMinResult(), "", RiaWellLogUnitTools<double>::barUnitString() ) } };
+
+    return RigWbsParameter( "PP_MIN", true, sources );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigWbsParameter RigWbsParameter::PP_Max()
+{
+    SourceVector sources = { { LAS_FILE, SourceAddress( RiaResultNames::wbsPPMaxResult(), "", RiaWellLogUnitTools<double>::barUnitString() ) } };
+
+    return RigWbsParameter( "PP_MAX", true, sources );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigWbsParameter RigWbsParameter::PP_Exp()
+{
+    SourceVector sources = { { LAS_FILE, SourceAddress( RiaResultNames::wbsPPExpResult(), "", RiaWellLogUnitTools<double>::barUnitString() ) } };
+
+    return RigWbsParameter( "PP_EXP", true, sources );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigWbsParameter RigWbsParameter::PP_Initial()
+{
+    SourceVector sources = {
+        { LAS_FILE, SourceAddress( RiaResultNames::wbsPPInitialResult(), "", RiaWellLogUnitTools<double>::barUnitString() ) } };
+
+    return RigWbsParameter( "PP_INIT", true, sources );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RigWbsParameter RigWbsParameter::poissonRatio()
 {
     return RigWbsParameter( "Poisson_Ratio",
@@ -368,6 +410,26 @@ RigWbsParameter RigWbsParameter::FG_Shale()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RigWbsParameter RigWbsParameter::FG_MkMin()
+{
+    RigWbsParameter param( "FG_MK_MIN", false, { { DERIVED_FROM_K0FG, SourceAddress() }, { PROPORTIONAL_TO_SH, SourceAddress() } } );
+    param.setOptionsExclusive( true );
+    return param;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigWbsParameter RigWbsParameter::FG_MkExp()
+{
+    RigWbsParameter param( "FG_MK_EXP", false, { { DERIVED_FROM_K0FG, SourceAddress() }, { PROPORTIONAL_TO_SH, SourceAddress() } } );
+    param.setOptionsExclusive( true );
+    return param;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RigWbsParameter RigWbsParameter::waterDensity()
 {
     RigWbsParameter param( "WaterDensity",
@@ -376,12 +438,30 @@ RigWbsParameter RigWbsParameter::waterDensity()
                              { LAS_FILE, SourceAddress( "RHO_INP", "", RiaWellLogUnitTools<double>::gPerCm3UnitString() ) } } );
     return param;
 }
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::set<RigWbsParameter> RigWbsParameter::allParameters()
 {
-    return { PP_Reservoir(), PP_NonReservoir(), poissonRatio(), UCS(), OBG(), OBG0(), SH(), DF(), K0_FG(), K0_SH(), FG_Shale(), waterDensity() };
+    return { PP_Reservoir(),
+             PP_NonReservoir(),
+             PP_Min(),
+             PP_Max(),
+             PP_Exp(),
+             PP_Initial(),
+             poissonRatio(),
+             UCS(),
+             OBG(),
+             OBG0(),
+             SH(),
+             DF(),
+             K0_FG(),
+             K0_SH(),
+             FG_Shale(),
+             FG_MkMin(),
+             FG_MkExp(),
+             waterDensity() };
 }
 
 //--------------------------------------------------------------------------------------------------

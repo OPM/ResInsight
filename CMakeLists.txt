@@ -324,6 +324,12 @@ set(CMAKE_CXX_COMPILER_LAUNCHER ${TEMP_CMAKE_CXX_COMPILER_LAUNCHER})
 # ##############################################################################
 find_package(Git QUIET)
 if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+  execute_process(
+    COMMAND git log -1 --pretty=format:%h
+    OUTPUT_VARIABLE RESINSIGHT_GIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET
+  )
+
   # Update submodules as needed
   option(RESINSIGHT_UPDATE_SUBMODULES "Check submodules during build" ON)
   mark_as_advanced(RESINSIGHT_UPDATE_SUBMODULES)
@@ -546,7 +552,7 @@ list(APPEND THIRD_PARTY_LIBRARIES qwt)
 # ##############################################################################
 # Qt Advanced Docking System
 # ##############################################################################
-set(ADS_VERSION "4.0.3")
+set(ADS_VERSION "4.2.1")
 
 add_subdirectory(ThirdParty/qtadvanceddocking EXCLUDE_FROM_ALL)
 
@@ -624,9 +630,82 @@ set_property(
 add_subdirectory(ThirdParty/tomlplusplus)
 
 # ##############################################################################
+# spdlog
+# ##############################################################################
+
+add_subdirectory(ThirdParty/spdlog)
+list(APPEND THIRD_PARTY_LIBRARIES spdlog)
+
+# ##############################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
 # ##############################################################################
 set_property(TARGET ${THIRD_PARTY_LIBRARIES} PROPERTY FOLDER "Thirdparty")
+
+# ##############################################################################
+# Build list of DLLs needed for executables
+# ##############################################################################
+if(MSVC)
+
+  if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
+    set(RESINSIGHT_USE_ODB_API 1)
+  endif()
+
+  # Odb Dlls
+  if(RESINSIGHT_USE_ODB_API)
+    # Find all the dlls
+    file(GLOB RI_ALL_ODB_DLLS ${RESINSIGHT_ODB_API_DIR}/lib/*.dll)
+
+    # Strip off the path
+    foreach(aDLL ${RI_ALL_ODB_DLLS})
+      get_filename_component(filenameWithExt ${aDLL} NAME)
+      list(APPEND RI_ODB_DLLS ${filenameWithExt})
+    endforeach(aDLL)
+
+    foreach(aDLL ${RI_ODB_DLLS})
+      list(APPEND RI_FILENAMES ${RESINSIGHT_ODB_API_DIR}/lib/${aDLL})
+    endforeach()
+  endif()
+
+  # OpenVDS Dlls
+  set(OPENVDS_DLL_NAMES openvds segyutils)
+  foreach(OPENVDS_DLL_NAME ${OPENVDS_DLL_NAMES})
+    list(APPEND RI_FILENAMES
+         ${RESINSIGHT_OPENVDS_API_DIR}/bin/msvc_141/${OPENVDS_DLL_NAME}.dll
+    )
+  endforeach(OPENVDS_DLL_NAME)
+  list(APPEND RI_FILENAMES
+       ${RESINSIGHT_OPENVDS_API_DIR}/bin/msvc_141/SEGYImport.exe
+  )
+
+  # HDF5 Dlls
+  if(RESINSIGHT_FOUND_HDF5)
+    set(HDF5_DLL_NAMES hdf5 hdf5_cpp szip zlib)
+    foreach(HDF5_DLL_NAME ${HDF5_DLL_NAMES})
+      list(APPEND RI_FILENAMES ${RESINSIGHT_HDF5_DIR}/bin/${HDF5_DLL_NAME}.dll)
+    endforeach(HDF5_DLL_NAME)
+  endif()
+
+else()
+  # Linux
+
+  # OpenVDS lib files
+  list(APPEND RI_FILENAMES ${RESINSIGHT_OPENVDS_API_DIR}/bin/SEGYImport)
+
+  set(OPENVDS_LIB_NAMES
+      libopenvds.so
+      libopenvds.so.3
+      libopenvds.so.3.2.7
+      libopenvds-e1541338.so.3.2.7
+      libsegyutils.so
+      libsegyutils.so.3
+      libsegyutils.so.3.2.7
+  )
+  foreach(OPENVDS_LIB_NAME ${OPENVDS_LIB_NAMES})
+    list(APPEND RI_FILENAMES
+         ${RESINSIGHT_OPENVDS_API_DIR}/lib64/${OPENVDS_LIB_NAME}
+    )
+  endforeach(OPENVDS_LIB_NAME)
+endif(MSVC)
 
 # ##############################################################################
 # Unity Build
@@ -674,6 +753,14 @@ if(CMAKE_COMPILER_IS_GNUCC)
 
 endif()
 
+# !!! For now, we force Qt to version 5
+message(STATUS "Forcing setting of CEE_USE_QT5 to ON")
+set(CEE_USE_QT5
+    ON
+    CACHE BOOL "Force usage of Qt5" FORCE
+)
+message(STATUS "CEE_USE_QT5=${CEE_USE_QT5}")
+
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibCore)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibGeometry)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibRender)
@@ -702,6 +789,9 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif()
 
 set_property(TARGET ${VIZ_FWK_LIBRARIES} PROPERTY FOLDER "VizFwk")
+if(WIN32)
+  set_property(TARGET run_Glsl2Include PROPERTY FOLDER "VizFwk")
+endif()
 
 # ##############################################################################
 # Application Framework
@@ -907,6 +997,7 @@ add_subdirectory(ApplicationLibCode)
 add_subdirectory(ApplicationLibCode/Commands)
 add_subdirectory(ApplicationLibCode/ResultStatisticsCache)
 add_subdirectory(ApplicationLibCode/GeoMech/GeoMechDataModel)
+add_subdirectory(ApplicationLibCode/GeoMech/GeoMechFileInterface)
 if(RESINSIGHT_USE_ODB_API)
   add_subdirectory(ApplicationLibCode/GeoMech/OdbReader)
 endif()
@@ -941,8 +1032,13 @@ if(MSVC AND RESINSIGHT_ENABLE_STATIC_ANALYSIS)
   )
 
   set(TARGETS_FOR_STATIC_ANALYSIS
-      ${APP_FWK_LIBRARIES} ${APP_FWK_TEST_PROJECTS} ApplicationLibCode Commands
-      ResultStatisticsCache RigGeoMechDataModel
+      ${APP_FWK_LIBRARIES}
+      ${APP_FWK_TEST_PROJECTS}
+      ApplicationLibCode
+      Commands
+      ResultStatisticsCache
+      RigGeoMechDataModel
+      RifGeoMechFileInterface
   )
 
   foreach(TARGET_PROJECT ${TARGETS_FOR_STATIC_ANALYSIS})

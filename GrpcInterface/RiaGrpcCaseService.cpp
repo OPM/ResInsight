@@ -54,7 +54,7 @@ grpc::Status RiaActiveCellInfoStateHandler::init( const rips::CellInfoRequest* r
     m_request = request;
 
     m_porosityModel  = RiaDefines::PorosityModelType( m_request->porosity_model() );
-    RimCase* rimCase = RiaGrpcServiceInterface::findCase( m_request->case_request().id() );
+    RimCase* rimCase = RiaGrpcHelper::findCase( m_request->case_request().id() );
     m_eclipseCase    = dynamic_cast<RimEclipseCase*>( rimCase );
 
     if ( !m_eclipseCase )
@@ -191,7 +191,7 @@ const std::vector<RigCell>& RiaActiveCellInfoStateHandler::reservoirCells() cons
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaActiveCellInfoStateHandler::assignReply( rips::CellInfoArray* reply )
 {
-    const size_t packageSize    = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( rips::CellInfo ) );
+    const size_t packageSize    = RiaGrpcHelper::numberOfDataUnitsInPackage( sizeof( rips::CellInfo ) );
     size_t       indexInPackage = 0u;
     reply->mutable_data()->Reserve( (int)packageSize );
 
@@ -259,7 +259,7 @@ void RiaActiveCellInfoStateHandler::assignCellCenter( rips::Vec3d*              
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaActiveCellInfoStateHandler::assignCellCentersReply( rips::CellCenters* reply )
 {
-    const size_t packageSize    = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( rips::Vec3d ) );
+    const size_t packageSize    = RiaGrpcHelper::numberOfDataUnitsInPackage( sizeof( rips::Vec3d ) );
     size_t       indexInPackage = 0u;
     reply->mutable_centers()->Reserve( (int)packageSize );
     for ( ; indexInPackage < packageSize && m_currentCellIdx < m_activeCellInfo->reservoirCellCount(); ++indexInPackage )
@@ -332,7 +332,7 @@ void RiaActiveCellInfoStateHandler::assignCellCorners( rips::CellCorners*       
 //--------------------------------------------------------------------------------------------------
 Status RiaActiveCellInfoStateHandler::assignCellCornersReply( rips::CellCornersArray* reply )
 {
-    const size_t packageSize    = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( rips::CellCorners ) );
+    const size_t packageSize    = RiaGrpcHelper::numberOfDataUnitsInPackage( sizeof( rips::CellCorners ) );
     size_t       indexInPackage = 0u;
     reply->mutable_cells()->Reserve( (int)packageSize );
     for ( ; indexInPackage < packageSize && m_currentCellIdx < m_activeCellInfo->reservoirCellCount(); ++indexInPackage )
@@ -363,7 +363,7 @@ grpc::Status RiaGrpcCaseService::GetGridCount( grpc::ServerContext*     context,
                                                const rips::CaseRequest* request,
                                                rips::GridCount*         reply )
 {
-    RimCase* rimCase = findCase( request->id() );
+    RimCase* rimCase = RiaGrpcHelper::findCase( request->id() );
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase );
     if ( eclipseCase )
@@ -382,7 +382,7 @@ grpc::Status RiaGrpcCaseService::GetCellCount( grpc::ServerContext*         cont
                                                const rips::CellInfoRequest* request,
                                                rips::CellCount*             reply )
 {
-    RimCase* rimCase = findCase( request->case_request().id() );
+    RimCase* rimCase = RiaGrpcHelper::findCase( request->case_request().id() );
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase );
     if ( eclipseCase )
@@ -403,7 +403,7 @@ grpc::Status RiaGrpcCaseService::GetTimeSteps( grpc::ServerContext*     context,
                                                const rips::CaseRequest* request,
                                                rips::TimeStepDates*     reply )
 {
-    RimCase* rimCase = findCase( request->id() );
+    RimCase* rimCase = RiaGrpcHelper::findCase( request->id() );
 
     if ( rimCase )
     {
@@ -430,7 +430,7 @@ grpc::Status RiaGrpcCaseService::GetDaysSinceStart( grpc::ServerContext*     con
                                                     const rips::CaseRequest* request,
                                                     rips::DaysSinceStart*    reply )
 {
-    RimCase* rimCase = findCase( request->id() );
+    RimCase* rimCase = RiaGrpcHelper::findCase( request->id() );
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase );
     if ( eclipseCase )
@@ -466,7 +466,7 @@ grpc::Status RiaGrpcCaseService::GetDaysSinceStart( grpc::ServerContext*     con
 grpc::Status
     RiaGrpcCaseService::GetCaseInfo( grpc::ServerContext* context, const rips::CaseRequest* request, rips::CaseInfo* reply )
 {
-    RimCase* rimCase = findCase( request->id() );
+    RimCase* rimCase = RiaGrpcHelper::findCase( request->id() );
     if ( rimCase )
     {
         qint64  caseId      = rimCase->caseId();
@@ -490,7 +490,7 @@ grpc::Status RiaGrpcCaseService::GetPdmObject( grpc::ServerContext*     context,
                                                const rips::CaseRequest* request,
                                                rips::PdmObject*         reply )
 {
-    RimCase* rimCase = findCase( request->id() );
+    RimCase* rimCase = RiaGrpcHelper::findCase( request->id() );
     if ( rimCase )
     {
         copyPdmObjectFromCafToRips( rimCase, reply );
@@ -549,7 +549,7 @@ Status RiaSelectedCellsStateHandler::init( const rips::CaseRequest* request )
     CAF_ASSERT( request );
     m_request = request;
 
-    RimCase* rimCase = RiaGrpcServiceInterface::findCase( m_request->id() );
+    RimCase* rimCase = RiaGrpcHelper::findCase( m_request->id() );
     m_eclipseCase    = dynamic_cast<RimEclipseCase*>( rimCase );
 
     if ( !m_eclipseCase )
@@ -624,7 +624,7 @@ grpc::Status RiaSelectedCellsStateHandler::assignReply( rips::SelectedCells* rep
         }
     }
 
-    const size_t packageSize    = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( rips::SelectedCell ) );
+    const size_t packageSize    = RiaGrpcHelper::numberOfDataUnitsInPackage( sizeof( rips::SelectedCell ) );
     size_t       indexInPackage = 0u;
     reply->mutable_cells()->Reserve( (int)packageSize );
     for ( ; indexInPackage < packageSize && m_currentItem < eclipseItems.size(); ++indexInPackage )
@@ -667,7 +667,7 @@ grpc::Status RiaGrpcCaseService::GetReservoirBoundingBox( grpc::ServerContext*  
                                                           const rips::CaseRequest* request,
                                                           rips::BoundingBox*       reply )
 {
-    RimCase* rimCase = findCase( request->id() );
+    RimCase* rimCase = RiaGrpcHelper::findCase( request->id() );
     if ( rimCase )
     {
         cvf::BoundingBox boundingBox = rimCase->reservoirBoundingBox();
@@ -689,7 +689,7 @@ grpc::Status RiaGrpcCaseService::GetCoarseningInfoArray( grpc::ServerContext*   
                                                          const rips::CaseRequest*   request,
                                                          rips::CoarseningInfoArray* reply )
 {
-    RimEclipseCase* rimCase = dynamic_cast<RimEclipseCase*>( findCase( request->id() ) );
+    RimEclipseCase* rimCase = dynamic_cast<RimEclipseCase*>( RiaGrpcHelper::findCase( request->id() ) );
     if ( rimCase && rimCase->eclipseCaseData() && rimCase->eclipseCaseData()->mainGrid() )
     {
         for ( size_t gridIdx = 0; gridIdx < rimCase->eclipseCaseData()->gridCount(); gridIdx++ )

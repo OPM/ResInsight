@@ -1,16 +1,20 @@
-cmake_minimum_required(VERSION 2.8.12)
-
-find_package(Qt5 CONFIG COMPONENTS Core)
-if(Qt5Core_FOUND)
-  find_package(Qt5 CONFIG REQUIRED Core)
+if(CEE_USE_QT6)
+  find_package(
+    Qt6
+    COMPONENTS
+    REQUIRED Core
+  )
+  set(QT_LIBRARIES Qt6::Core)
 else()
   find_package(
-    Qt4
-    COMPONENTS QtCore
-    REQUIRED
+    Qt5
+    COMPONENTS
+    REQUIRED Core
   )
-  include(${QT_USE_FILE})
-endif(Qt5Core_FOUND)
+  set(QT_LIBRARIES Qt5::Core)
+  qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
+  qt5_add_resources(QRC_FILES_CPP ${QRC_FILES})
+endif()
 
 project(cafPdmCvf_UnitTests)
 

@@ -42,5 +42,5 @@ public:
     RimSummaryCalculation* createCalculation() const override;
 
 private:
-    void initAfterRead() override;
+    void updateDataDependingOnCalculations();
 };

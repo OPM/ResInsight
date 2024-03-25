@@ -59,15 +59,15 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
                        "" );
 
     CAF_PDM_InitFieldNoDefault( &applyLocalMinMax, "m_applyLocalMinMax", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &applyLocalMinMax );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &applyLocalMinMax );
     applyLocalMinMax = false;
 
     CAF_PDM_InitFieldNoDefault( &applyGlobalMinMax, "m_applyGlobalMinMax", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &applyGlobalMinMax );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &applyGlobalMinMax );
     applyGlobalMinMax = false;
 
     CAF_PDM_InitFieldNoDefault( &applyFullRangeMinMax, "m_applyFullRangeMinMax", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &applyFullRangeMinMax );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &applyFullRangeMinMax );
     applyFullRangeMinMax = false;
 
     CAF_PDM_InitFieldNoDefault( &ternaryRangeSummary, "ternaryRangeSummary", "Range summary" );

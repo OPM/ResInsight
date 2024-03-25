@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cvfBase.h"
@@ -46,6 +45,9 @@
 
 #include "cvfqtOpenGLWidget.h"
 
+#include <QPointer>
+
+class QMMainWindow;
 
 
 //==================================================================================================
@@ -55,26 +57,27 @@
 //==================================================================================================
 class QMWidget : public cvfqt::OpenGLWidget
 {
-    Q_OBJECT
-
 public:
-    QMWidget(cvf::OpenGLContextGroup* contextGroup, QWidget* parent);
+    QMWidget(cvf::OpenGLContextGroup* contextGroup, QWidget* parent, QMMainWindow* mainWindow);
     ~QMWidget();
 
     void    setScene(cvf::Scene* scene);
 
 protected:
-    void    resizeGL(int width, int height);
-    void    paintEvent(QPaintEvent *event);
+    virtual void    resizeGL(int w, int h);
+    virtual void    paintGL();
 
-    void    mousePressEvent(QMouseEvent* event);
-    void    mouseMoveEvent(QMouseEvent* event);
-    void    mouseReleaseEvent(QMouseEvent* event);
+    virtual void    mouseMoveEvent(QMouseEvent* event);
+    virtual void    mousePressEvent(QMouseEvent* event);
+    virtual void    mouseReleaseEvent(QMouseEvent* event);
 
 private:
+    virtual void    onWidgetOpenGLReady();
+
+private:
+    QPointer<QMMainWindow>              m_mainWindow;
     cvf::ref<cvf::RenderSequence>       m_renderSequence;
     cvf::ref<cvf::Camera>               m_camera;
     cvf::ref<cvf::ManipulatorTrackball> m_trackball;
 };
-
 

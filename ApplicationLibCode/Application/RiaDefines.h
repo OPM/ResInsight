@@ -132,10 +132,11 @@ enum class ImportFileType
     ECLIPSE_SUMMARY_FILE    = 0x08,
     GEOMECH_ODB_FILE        = 0x10,
     RESINSIGHT_PROJECT_FILE = 0x20,
-    ROFF_FILE               = 0x30,
     GEOMECH_INP_FILE        = 0x40,
+    EM_H5GRID               = 0x80,
+    ROFF_FILE               = 0x100,
     ECLIPSE_RESULT_GRID     = ECLIPSE_GRID_FILE | ECLIPSE_EGRID_FILE,
-    ANY_ECLIPSE_FILE        = ECLIPSE_RESULT_GRID | ECLIPSE_INPUT_FILE | ECLIPSE_SUMMARY_FILE | ROFF_FILE,
+    ANY_ECLIPSE_FILE        = ECLIPSE_RESULT_GRID | ECLIPSE_INPUT_FILE | ECLIPSE_SUMMARY_FILE | ROFF_FILE | EM_H5GRID,
     ANY_GEOMECH_FILE        = GEOMECH_ODB_FILE | GEOMECH_INP_FILE,
     ANY_IMPORT_FILE         = 0xFF
 };
@@ -242,8 +243,17 @@ enum class View3dContent
     ALL               = 0b00011111
 };
 
+enum class ItemIn3dView
+{
+    NONE    = 0b00000000,
+    SURFACE = 0b00000001,
+    POLYGON = 0b00000010,
+    ALL     = 0b00000011
+};
+
 }; // namespace RiaDefines
 
 // Activate bit mask operators at global scope
 ENABLE_BITMASK_OPERATORS( RiaDefines::MultiPlotPageUpdateType )
 ENABLE_BITMASK_OPERATORS( RiaDefines::View3dContent )
+ENABLE_BITMASK_OPERATORS( RiaDefines::ItemIn3dView )

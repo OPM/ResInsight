@@ -101,7 +101,6 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitFieldNoDefault( &m_valuesFontSize, "ValueDeltaFontSize", "Font Size" );
 
     CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "" );
-    m_annotations.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count" );
 
@@ -732,7 +731,7 @@ void RimPlotAxisProperties::defineObjectEditorAttribute( QString uiConfigName, c
         if ( treeItemAttribute )
         {
             treeItemAttribute->tags.clear();
-            auto tag  = caf::PdmUiTreeViewItemAttribute::Tag::create();
+            auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
             tag->icon = caf::IconProvider( ":/chain.png" );
 
             treeItemAttribute->tags.push_back( std::move( tag ) );

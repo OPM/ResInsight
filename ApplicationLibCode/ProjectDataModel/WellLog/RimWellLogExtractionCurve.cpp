@@ -122,13 +122,11 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "CurveEclipseResult", "" );
-    m_eclipseResultDefinition.uiCapability()->setUiTreeHidden( true );
     m_eclipseResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_eclipseResultDefinition = new RimEclipseResultDefinition;
     m_eclipseResultDefinition->findField( "MResultType" )->uiCapability()->setUiName( "Result Type" );
 
     CAF_PDM_InitFieldNoDefault( &m_geomResultDefinition, "CurveGeomechResult", "" );
-    m_geomResultDefinition.uiCapability()->setUiTreeHidden( true );
     m_geomResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_geomResultDefinition = new RimGeoMechResultDefinition;
     m_geomResultDefinition->setAddWellPathDerivedResults( true );
@@ -885,12 +883,10 @@ void RimWellLogExtractionCurve::findAndLoadWbsParametersFromFiles( const RimWell
             else
             {
                 QString errMsg =
-                    QString( "Could not convert units of LAS-channel %1 from %2 to %3" ).arg( lasAddress ).arg( lasUnits ).arg( extractorUnits );
+                    QString( "Could not convert units of LAS-channel '%1' from '%2' to '%3'" ).arg( lasAddress ).arg( lasUnits ).arg( extractorUnits );
                 RiaLogging::error( errMsg );
             }
         }
-
-        // csv
     }
 }
 

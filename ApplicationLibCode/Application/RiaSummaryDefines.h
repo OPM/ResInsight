@@ -52,4 +52,6 @@ QString summaryLgrWell();
 QString summaryLgrBlock();
 QString summaryCalculated();
 
+QString summaryRealizationNumber();
+
 }; // namespace RiaDefines

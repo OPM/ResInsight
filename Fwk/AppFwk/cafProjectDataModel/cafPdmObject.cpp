@@ -1,5 +1,7 @@
 #include "cafPdmObject.h"
 
+#include "cafPdmUiFieldHandle.h"
+
 using namespace caf;
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( PdmObject, "PdmObjectBase" );
@@ -13,6 +15,20 @@ caf::PdmObject::PdmObject()
     , PdmUiObjectHandle( this, false )
 {
     CAF_PDM_InitObject( "Base PDM Object", "", "", "The Abstract Base Class for the Project Data Model" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmObject::addFieldUiNoDefault( PdmFieldHandle* field, const QString& keyword, PdmUiItemInfo* fieldDescription )
+{
+    addField( field, keyword );
+
+    PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+    if ( uiFieldHandle )
+    {
+        uiFieldHandle->setUiItemInfo( fieldDescription );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

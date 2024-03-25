@@ -17,29 +17,36 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimFaultReactivationDataAccessorPorePressure.h"
+#include "RimEclipseCase.h"
 #include "RimFaciesProperties.h"
+#include "RimFaultReactivationDataAccessorWellLogExtraction.h"
 #include "RimFaultReactivationEnums.h"
 
 #include "RiaDefines.h"
+#include "RiaEclipseUnitTools.h"
 #include "RiaPorosityModel.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
+#include "RigEclipseWellLogExtractor.h"
+#include "RigFaultReactivationModel.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
-
-#include "RimEclipseCase.h"
+#include "RigWellPath.h"
 
 #include <cmath>
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimFaultReactivationDataAccessorPorePressure::RimFaultReactivationDataAccessorPorePressure( RimEclipseCase* eclipseCase,
-                                                                                            double          porePressureGradient )
+                                                                                            double          porePressureGradient,
+                                                                                            double          seabedDepth )
     : m_eclipseCase( eclipseCase )
     , m_defaultPorePressureGradient( porePressureGradient )
+    , m_seabedDepth( seabedDepth )
     , m_caseData( nullptr )
     , m_mainGrid( nullptr )
 {
@@ -62,17 +69,18 @@ RimFaultReactivationDataAccessorPorePressure::~RimFaultReactivationDataAccessorP
 //--------------------------------------------------------------------------------------------------
 void RimFaultReactivationDataAccessorPorePressure::updateResultAccessor()
 {
-    if ( m_caseData )
-    {
-        RigEclipseResultAddress resVarAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" );
-        m_eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( resVarAddress );
+    if ( !m_caseData ) return;
 
-        m_resultAccessor = RigResultAccessorFactory::createFromResultAddress( m_caseData,
-                                                                              0,
-                                                                              RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                              m_timeStep,
-                                                                              resVarAddress );
-    }
+    RigEclipseResultAddress resVarAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" );
+    m_eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( resVarAddress );
+
+    m_resultAccessor =
+        RigResultAccessorFactory::createFromResultAddress( m_caseData, 0, RiaDefines::PorosityModelType::MATRIX_MODEL, m_timeStep, resVarAddress );
+
+    auto [wellPaths, extractors] =
+        RimFaultReactivationDataAccessorWellLogExtraction::createEclipseWellPathExtractors( *m_model, *m_caseData, m_seabedDepth );
+    m_wellPaths  = wellPaths;
+    m_extractors = extractors;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,40 +94,42 @@ bool RimFaultReactivationDataAccessorPorePressure::isMatching( RimFaultReactivat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccessorPorePressure::valueAtPosition( const cvf::Vec3d& position, double topDepth, double bottomDepth ) const
+double RimFaultReactivationDataAccessorPorePressure::valueAtPosition( const cvf::Vec3d&                position,
+                                                                      const RigFaultReactivationModel& model,
+                                                                      RimFaultReactivation::GridPart   gridPart,
+                                                                      double                           topDepth,
+                                                                      double                           bottomDepth,
+                                                                      size_t                           elementIndex ) const
 {
     if ( ( m_mainGrid != nullptr ) && m_resultAccessor.notNull() )
     {
+        CAF_ASSERT( m_extractors.find( gridPart ) != m_extractors.end() );
+        auto extractor = m_extractors.find( gridPart )->second;
+
+        CAF_ASSERT( m_wellPaths.find( gridPart ) != m_wellPaths.end() );
+        auto wellPath = m_wellPaths.find( gridPart )->second;
+
         auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
         if ( cellIdx != cvf::UNDEFINED_SIZE_T )
         {
-            double value = m_resultAccessor->cellScalar( cellIdx );
-            if ( !std::isinf( value ) )
-            {
-                return 100000.0 * value; // return in pascal, not bar
-            }
+            double valueFromEclipse = m_resultAccessor->cellScalar( cellIdx );
+            if ( !std::isinf( valueFromEclipse ) ) return RiaEclipseUnitTools::barToPascal( valueFromEclipse );
         }
+
+        auto [values, intersections] =
+            RimFaultReactivationDataAccessorWellLogExtraction::extractValuesAndIntersections( *m_resultAccessor.p(), *extractor.p(), *wellPath );
+
+        RimFaultReactivation::ElementSets elementSet = RimFaultReactivation::ElementSets::UnderBurden;
+        auto [value, pos]                            = RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( model,
+                                                                                                gridPart,
+                                                                                                intersections,
+                                                                                                values,
+                                                                                                position,
+                                                                                                elementSet,
+                                                                                                m_defaultPorePressureGradient );
+
+        return RiaEclipseUnitTools::barToPascal( value );
     }
 
-    return calculatePorePressure( std::abs( position.z() ), m_defaultPorePressureGradient );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccessorPorePressure::calculatePorePressure( double depth, double gradient )
-{
-    return gradient * 9.81 * depth * 1000.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationDataAccessorPorePressure::hasValidDataAtPosition( const cvf::Vec3d& position ) const
-{
-    auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
-    if ( cellIdx == cvf::UNDEFINED_SIZE_T ) return false;
-
-    double value = m_resultAccessor->cellScalar( cellIdx );
-    return !std::isinf( value );
+    return std::numeric_limits<double>::infinity();
 }

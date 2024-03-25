@@ -41,7 +41,6 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiFieldEditorHandle.h"
-#include "cafPdmUiOrdering.h"
 
 #include "cafFactory.h"
 
@@ -117,7 +116,7 @@ QWidget* PdmUiActionPushButtonEditor::createEditorWidget( QWidget* parent )
 
     m_buttonLayout = new QHBoxLayout( containerWidget );
     m_buttonLayout->addWidget( m_pushButton );
-    m_buttonLayout->setMargin( 0 );
+    m_buttonLayout->setContentsMargins( 0, 0, 0, 0 );
     m_buttonLayout->setSpacing( 0 );
     containerWidget->setLayout( m_buttonLayout );
 

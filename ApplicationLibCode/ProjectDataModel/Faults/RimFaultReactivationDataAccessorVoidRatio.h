@@ -41,11 +41,12 @@ public:
 
     bool isMatching( RimFaultReactivation::Property property ) const override;
 
-    double valueAtPosition( const cvf::Vec3d& position,
-                            double            topDepth    = std::numeric_limits<double>::infinity(),
-                            double            bottomDepth = std::numeric_limits<double>::infinity() ) const override;
-
-    bool hasValidDataAtPosition( const cvf::Vec3d& position ) const override;
+    double valueAtPosition( const cvf::Vec3d&                position,
+                            const RigFaultReactivationModel& model,
+                            RimFaultReactivation::GridPart   gridPart,
+                            double                           topDepth     = std::numeric_limits<double>::infinity(),
+                            double                           bottomDepth  = std::numeric_limits<double>::infinity(),
+                            size_t                           elementIndex = std::numeric_limits<size_t>::max() ) const override;
 
 private:
     void updateResultAccessor() override;

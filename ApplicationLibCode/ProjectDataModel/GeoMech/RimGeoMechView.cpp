@@ -19,6 +19,7 @@
 
 #include "RimGeoMechView.h"
 
+#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
@@ -31,6 +32,7 @@
 #include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
 
+#include "Polygons/RimPolygonInViewCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
@@ -93,22 +95,18 @@ RimGeoMechView::RimGeoMechView()
 
     CAF_PDM_InitFieldNoDefault( &cellResult, "GridCellResult", "Color Result", ":/CellResult.png" );
     cellResult = new RimGeoMechCellColors();
-    cellResult.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_tensorResults, "TensorResults", "Tensor Results" );
     m_tensorResults = new RimTensorResults();
-    m_tensorResults.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_faultReactivationResult, "FaultReactivationResult", "Fault Reactivation Result" );
     m_faultReactivationResult = new RimGeoMechFaultReactivationResult();
 
     CAF_PDM_InitFieldNoDefault( &m_propertyFilterCollection, "PropertyFilters", "Property Filters" );
     m_propertyFilterCollection = new RimGeoMechPropertyFilterCollection();
-    m_propertyFilterCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_partsCollection, "Parts", "Parts" );
     m_partsCollection = new RimGeoMechPartCollection();
-    m_partsCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_showDisplacement, "ShowDisplacement", false, "Show Displacement" );
     CAF_PDM_InitField( &m_displacementScaling, "DisplacementScaling", 1.0, "Scaling Factor" );
@@ -157,7 +155,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
 
     onUpdateScaleTransform();
 
-    updateSurfacesInViewTreeItems();
+    updateViewTreeItems( RiaDefines::ItemIn3dView::ALL );
 
     if ( m_geomechCase )
     {
@@ -322,6 +320,9 @@ void RimGeoMechView::onCreateDisplayModel()
     m_seismicVizModel->removeAllParts();
     m_seismicSectionCollection->appendPartsToModel( this, m_seismicVizModel.p(), transform.p(), femBBox );
     nativeOrOverrideViewer()->addStaticModelOnce( m_seismicVizModel.p(), isUsingOverrideViewer() );
+
+    // Polygons
+    appendPolygonPartsToModel( transform.p(), ownerCase()->allCellsBoundingBox() );
 
     // Surfaces
 
@@ -1046,6 +1047,8 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( m_intersectionCollection() );
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
     if ( seismicSectionCollection()->shouldBeVisibleInTree() ) uiTreeOrdering.add( seismicSectionCollection() );
+
+    uiTreeOrdering.add( m_polygonInViewCollection );
 
     uiTreeOrdering.skipRemainingChildren( true );
 }

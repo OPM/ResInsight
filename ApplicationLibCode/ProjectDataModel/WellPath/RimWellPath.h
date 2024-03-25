@@ -47,7 +47,7 @@ class RigWellPath;
 class RigWellPathFormations;
 
 class RimProject;
-class RimWellLogLasFile;
+class RimWellLogFile;
 class RimFractureTemplateCollection;
 class RimStimPlanModelCollection;
 class RimFishbonesCollection;
@@ -61,6 +61,7 @@ class Rim3dWellLogCurveCollection;
 class RimWellPathTieIn;
 class RimMswCompletionParameters;
 class RimWellIASettingsCollection;
+class RimWellLogFile;
 
 //==================================================================================================
 ///
@@ -104,11 +105,11 @@ public:
     double uniqueStartMD() const;
     double uniqueEndMD() const;
 
-    void                            addWellLogFile( RimWellLogLasFile* logFileInfo );
-    void                            deleteWellLogFile( RimWellLogLasFile* logFileInfo );
-    void                            detachWellLogFile( RimWellLogLasFile* logFileInfo );
-    std::vector<RimWellLogLasFile*> wellLogFiles() const;
-    RimWellLogLasFile*              firstWellLogFileMatchingChannelName( const QString& channelName ) const;
+    void                         addWellLogFile( RimWellLogFile* logFileInfo );
+    void                         deleteWellLogFile( RimWellLogFile* logFileInfo );
+    void                         detachWellLogFile( RimWellLogFile* logFileInfo );
+    std::vector<RimWellLogFile*> wellLogFiles() const;
+    RimWellLogFile*              firstWellLogFileMatchingChannelName( const QString& channelName ) const;
 
     void setFormationsGeometry( cvf::ref<RigWellPathFormations> wellPathFormations );
     bool readWellPathFormationsFile( QString* errorMessage, RifWellPathFormationsImporter* wellPathFormationsImporter );
@@ -169,7 +170,7 @@ public:
     std::vector<RimWellPath*> wellPathLaterals() const;
 
     RimWellPathTieIn* wellPathTieIn() const;
-    void              connectWellPaths( RimWellPath* childWell, double tieInMeasuredDepth );
+    void              connectWellPaths( RimWellPath* parentWell, double tieInMeasuredDepth );
 
 protected:
     // Override PdmObject
@@ -209,7 +210,7 @@ private:
     caf::PdmField<double>       m_wellPathRadiusScaleFactor;
     caf::PdmField<cvf::Color3f> m_wellPathColor;
 
-    caf::PdmChildArrayField<RimWellLogLasFile*>         m_wellLogFiles;
+    caf::PdmChildArrayField<RimWellLogFile*>            m_wellLogFiles;
     caf::PdmChildField<Rim3dWellLogCurveCollection*>    m_3dWellLogCurves;
     caf::PdmChildField<RimWellPathCompletionSettings*>  m_completionSettings;
     caf::PdmChildField<RimWellPathCompletions*>         m_completions;

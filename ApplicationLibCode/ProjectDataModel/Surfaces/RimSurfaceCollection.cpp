@@ -56,12 +56,10 @@ RimSurfaceCollection::RimSurfaceCollection()
     m_collectionName = "Surfaces";
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_subCollections, "SubCollections", "Surfaces" );
-    m_subCollections.uiCapability()->setUiTreeHidden( true );
     auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_subCollections );
     reorderability->orderChanged.connect( this, &RimSurfaceCollection::orderChanged );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_surfaces, "SurfacesField", "Surfaces" );
-    m_surfaces.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( true );
 }
@@ -304,7 +302,7 @@ void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToR
     proj->allViews( views );
     for ( auto view : views )
     {
-        view->updateSurfacesInViewTreeItems();
+        view->updateViewTreeItems( RiaDefines::ItemIn3dView::SURFACE );
 
         if ( auto gridView = dynamic_cast<RimGridView*>( view ) )
         {
@@ -357,7 +355,7 @@ void RimSurfaceCollection::updateViews()
 
     for ( auto view : views )
     {
-        view->updateSurfacesInViewTreeItems();
+        view->updateViewTreeItems( RiaDefines::ItemIn3dView::SURFACE );
     }
 
     for ( auto view : views )

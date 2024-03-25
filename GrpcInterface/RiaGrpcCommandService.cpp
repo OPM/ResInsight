@@ -45,7 +45,7 @@ using namespace google::protobuf;
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcCommandService::Execute( grpc::ServerContext* context, const CommandParams* request, CommandReply* reply )
 {
-    auto requestDescriptor = request->GetDescriptor();
+    auto requestDescriptor = rips::CommandParams::GetDescriptor();
 
     CommandParams::ParamsCase paramsCase = request->params_case();
     if ( paramsCase != CommandParams::PARAMS_NOT_SET )
@@ -379,7 +379,7 @@ void RiaGrpcCommandService::assignResultToReply( const caf::PdmObject* result, C
 
     QString resultType = result->classKeyword();
 
-    auto                   replyDescriptor = reply->GetDescriptor();
+    auto                   replyDescriptor = rips::CommandReply::GetDescriptor();
     auto                   oneofDescriptor = replyDescriptor->FindOneofByName( "result" );
     const FieldDescriptor* matchingOneOf   = nullptr;
     for ( int fieldIndex = 0; fieldIndex < oneofDescriptor->field_count(); ++fieldIndex )
@@ -393,7 +393,7 @@ void RiaGrpcCommandService::assignResultToReply( const caf::PdmObject* result, C
     }
 
     CAF_ASSERT( matchingOneOf );
-    Message* message = reply->GetReflection()->MutableMessage( reply, matchingOneOf );
+    Message* message = rips::CommandReply::GetReflection()->MutableMessage( reply, matchingOneOf );
     CAF_ASSERT( message );
     auto resultDescriptor = message->GetDescriptor();
 

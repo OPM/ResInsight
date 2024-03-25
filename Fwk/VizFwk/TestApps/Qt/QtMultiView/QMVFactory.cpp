@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cvfLibCore.h"
 #include "cvfLibRender.h"
 #include "cvfLibGeometry.h"
@@ -43,7 +42,6 @@
 #include "cvfuPartCompoundGenerator.h"
 
 #include "QMVFactory.h"
-
 
 
 
@@ -56,8 +54,9 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QMVModelFactory::QMVModelFactory(bool useShaders)
-:   m_useShaders(useShaders)
+QMVModelFactory::QMVModelFactory(bool useShaders, const cvf::OpenGLCapabilities& capabilities)
+:   m_useShaders(useShaders),
+    m_capabilities(capabilities)
 {
 }
 
@@ -65,24 +64,27 @@ QMVModelFactory::QMVModelFactory(bool useShaders)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ref<cvf::Model> QMVModelFactory::createSphereAndBox()
+cvf::ref<cvf::Model> QMVModelFactory::createSphereAndBox()
 {
-    ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
+    cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
 
     {
         cvf::GeometryBuilderDrawableGeo builder;
         cvf::GeometryUtils::createSphere(2, 10, 10, &builder);
 
-        ref<cvf::Effect> eff = new cvf::Effect;
-        eff->setRenderState(new cvf::RenderStateMaterial_FF(cvf::Color3::BLUE));
+        cvf::ref<cvf::Effect> eff = new cvf::Effect;
         if (m_useShaders)
         {
-            ref<cvf::ShaderProgram> prog = createProgramStandardHeadlightColor();
+            cvf::ref<cvf::ShaderProgram> prog = createProgramStandardHeadlightColor();
             eff->setShaderProgram(prog.p());
             eff->setUniform(new cvf::UniformFloat("u_color", cvf::Color4f(cvf::Color3::GREEN)));
         }
+        else
+        {
+            eff->setRenderState(new cvf::RenderStateMaterial_FF(cvf::Color3::BLUE));
+        }
 
-        ref<cvf::Part> part = new cvf::Part;
+        cvf::ref<cvf::Part> part = new cvf::Part;
         part->setName("MySphere");
         part->setDrawable(0, builder.drawableGeo().p());
         part->setEffect(eff.p());
@@ -94,16 +96,19 @@ ref<cvf::Model> QMVModelFactory::createSphereAndBox()
         cvf::GeometryBuilderDrawableGeo builder;
         cvf::GeometryUtils::createBox(cvf::Vec3f(5, 0, 0), 2, 3, 4, &builder);
 
-        ref<cvf::Effect> eff = new cvf::Effect;
-        eff->setRenderState(new cvf::RenderStateMaterial_FF(cvf::Color3::RED));
+        cvf::ref<cvf::Effect> eff = new cvf::Effect;
         if (m_useShaders)
         {
-            ref<cvf::ShaderProgram> prog = createProgramUnlit();
+            cvf::ref<cvf::ShaderProgram> prog = createProgramUnlit();
             eff->setShaderProgram(prog.p());
             eff->setUniform(new cvf::UniformFloat("u_color", cvf::Color4f(cvf::Color3::GREEN)));
         }
+        else
+        {
+            eff->setRenderState(new cvf::RenderStateMaterial_FF(cvf::Color3::RED));
+        }
 
-        ref<cvf::Part> part = new cvf::Part;
+        cvf::ref<cvf::Part> part = new cvf::Part;
         part->setName("MyBox");
         part->setDrawable(0, builder.drawableGeo().p());
         part->setEffect(eff.p());
@@ -120,9 +125,10 @@ ref<cvf::Model> QMVModelFactory::createSphereAndBox()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ref<cvf::Model> QMVModelFactory::createSpheres() 
+cvf::ref<cvf::Model> QMVModelFactory::createSpheres() 
 {
     cvfu::PartCompoundGenerator gen;
+    gen.setUseShaders(m_useShaders);
     gen.setPartDistribution(cvf::Vec3i(5, 5, 5));
     gen.setNumEffects(8);
     gen.useRandomEffectAssignment(false);
@@ -132,9 +138,9 @@ ref<cvf::Model> QMVModelFactory::createSpheres()
     cvf::Collection<cvf::Part> parts;
     gen.generateSpheres(20, 20, &parts);
 
-    ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
+    cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
 
-    ref<cvf::ShaderProgram> prog = createProgramStandardHeadlightColor();
+    cvf::ref<cvf::ShaderProgram> prog = createProgramStandardHeadlightColor();
 
     size_t i;
     for (i = 0; i < parts.size(); i++)
@@ -158,9 +164,10 @@ ref<cvf::Model> QMVModelFactory::createSpheres()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ref<cvf::Model> QMVModelFactory::createBoxes() 
+cvf::ref<cvf::Model> QMVModelFactory::createBoxes() 
 {
     cvfu::PartCompoundGenerator gen;
+    gen.setUseShaders(m_useShaders);
     gen.setPartDistribution(cvf::Vec3i(5, 5, 5));
     gen.setNumEffects(8);
     gen.useRandomEffectAssignment(false);
@@ -170,9 +177,9 @@ ref<cvf::Model> QMVModelFactory::createBoxes()
     cvf::Collection<cvf::Part> parts;
     gen.generateBoxes(&parts);
 
-    ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
+    cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
 
-    ref<cvf::ShaderProgram> prog = createProgramStandardHeadlightColor();
+    cvf::ref<cvf::ShaderProgram> prog = createProgramStandardHeadlightColor();
 
     size_t i;
     for (i = 0; i < parts.size(); i++)
@@ -196,9 +203,10 @@ ref<cvf::Model> QMVModelFactory::createBoxes()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ref<cvf::Model> QMVModelFactory::createTriangles() 
+cvf::ref<cvf::Model> QMVModelFactory::createTriangles() 
 {
     cvfu::PartCompoundGenerator gen;
+    gen.setUseShaders(m_useShaders);
     gen.setPartDistribution(cvf::Vec3i(5, 5, 5));
     gen.setNumEffects(8);
     gen.useRandomEffectAssignment(false);
@@ -208,9 +216,9 @@ ref<cvf::Model> QMVModelFactory::createTriangles()
     cvf::Collection<cvf::Part> parts;
     gen.generateTriangles(&parts);
 
-    ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
+    cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
 
-    ref<cvf::ShaderProgram> prog = createProgramStandardHeadlightColor();
+    cvf::ref<cvf::ShaderProgram> prog = createProgramStandardHeadlightColor();
 
     size_t i;
     for (i = 0; i < parts.size(); i++)
@@ -234,11 +242,11 @@ ref<cvf::Model> QMVModelFactory::createTriangles()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ref<cvf::ShaderProgram> QMVModelFactory::createProgramStandardHeadlightColor()
+cvf::ref<cvf::ShaderProgram> QMVModelFactory::createProgramStandardHeadlightColor()
 {
     cvf::ShaderProgramGenerator gen("StandardHeadlightColor", cvf::ShaderSourceProvider::instance());
     gen.configureStandardHeadlightColor();
-    ref<cvf::ShaderProgram> prog = gen.generate();
+    cvf::ref<cvf::ShaderProgram> prog = gen.generate();
     return prog;
 }
 
@@ -246,13 +254,13 @@ ref<cvf::ShaderProgram> QMVModelFactory::createProgramStandardHeadlightColor()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ref<cvf::ShaderProgram> QMVModelFactory::createProgramUnlit()
+cvf::ref<cvf::ShaderProgram> QMVModelFactory::createProgramUnlit()
 {
     cvf::ShaderProgramGenerator gen("Unlit", cvf::ShaderSourceProvider::instance());
     gen.addVertexCode(cvf::ShaderSourceRepository::vs_Standard);
     gen.addFragmentCode(cvf::ShaderSourceRepository::src_Color);
     gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Unlit);
-    ref<cvf::ShaderProgram> prog = gen.generate();
+    cvf::ref<cvf::ShaderProgram> prog = gen.generate();
     return prog;
 }
 
@@ -275,9 +283,9 @@ QMVSceneFactory::QMVSceneFactory(QMVModelFactory* modelFactory)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ref<cvf::Scene> QMVSceneFactory::createNumberedScene(int sceneNumber) 
+cvf::ref<cvf::Scene> QMVSceneFactory::createNumberedScene(int sceneNumber) 
 {
-    ref<cvf::Model> model;
+    cvf::ref<cvf::Model> model;
     switch (sceneNumber)
     {
         case 0:     model = m_modelFactory->createSphereAndBox();  break;
@@ -293,9 +301,9 @@ ref<cvf::Scene> QMVSceneFactory::createNumberedScene(int sceneNumber)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ref<cvf::Scene> QMVSceneFactory::createFromModel(cvf::Model* model) 
+cvf::ref<cvf::Scene> QMVSceneFactory::createFromModel(cvf::Model* model) 
 {
-    ref<cvf::Scene> scene = new cvf::Scene;
+    cvf::ref<cvf::Scene> scene = new cvf::Scene;
 
     if (model)
     {
@@ -316,9 +324,9 @@ ref<cvf::Scene> QMVSceneFactory::createFromModel(cvf::Model* model)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ref<cvf::RenderSequence> QMVRenderSequenceFactory::createFromScene(cvf::Scene* scene) 
+cvf::ref<cvf::RenderSequence> QMVRenderSequenceFactory::createFromScene(cvf::Scene* scene) 
 {
-    ref<cvf::Rendering> rendering = new cvf::Rendering;
+    cvf::ref<cvf::Rendering> rendering = new cvf::Rendering;
     rendering->renderEngine()->enableItemCountUpdate(true);
     rendering->setScene(scene);
 
@@ -334,7 +342,7 @@ ref<cvf::RenderSequence> QMVRenderSequenceFactory::createFromScene(cvf::Scene* s
         }
     }
 
-    ref<cvf::RenderSequence> renderSeq = new cvf::RenderSequence;
+    cvf::ref<cvf::RenderSequence> renderSeq = new cvf::RenderSequence;
     renderSeq->addRendering(rendering.p());
 
     return renderSeq;

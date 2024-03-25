@@ -27,14 +27,14 @@ class RiuTextContentFrame : public RiuAbstractOverlayContentFrame
     Q_OBJECT
 
 public:
-    RiuTextContentFrame( QWidget* parent, const QString& title, const QString& text );
+    RiuTextContentFrame( QWidget* parent, const QString& title, const QString& text, int fontPixeSize );
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
     void renderTo( QPainter* painter, const QRect& targetRect ) override;
 
-protected:
+private:
     struct LayoutInfo
     {
         LayoutInfo( const QSize& size )
@@ -60,7 +60,10 @@ protected:
 private:
     virtual void layoutInfo( LayoutInfo* layout ) const;
 
-protected:
+    void updateFontSize();
+
+private:
     QString m_title;
     QString m_text;
+    int     m_fontPixelSize;
 };

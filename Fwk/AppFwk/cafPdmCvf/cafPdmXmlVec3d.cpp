@@ -36,6 +36,7 @@
 
 #include "cafPdmXmlVec3d.h"
 
+#include <QString>
 #include <QTextStream>
 
 QTextStream& operator>>( QTextStream& str, cvf::Vec3d& value )

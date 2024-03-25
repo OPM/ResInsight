@@ -40,6 +40,8 @@
 #include "RicfCommandObject.h"
 
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
+#include "Polygons/RimPolygonCollection.h"
+
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
@@ -124,10 +126,6 @@
 #else
 #include <unistd.h> // for usleep
 #endif // WIN32
-
-#ifdef USE_UNIT_TESTS
-#include "gtest/gtest.h"
-#endif // USE_UNIT_TESTS
 
 // Required to ignore warning of usused variable when defining caf::PdmMarkdownGenerator
 #if defined( __clang__ )
@@ -548,6 +546,8 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         {
             seismicData->ensureFileReaderIsInitialized();
         }
+
+        oilField->polygonCollection()->loadData();
     }
 
     {
@@ -662,7 +662,10 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
                         }
                     }
 
-                    setActiveReservoirView( riv );
+                    if ( riv->showWindow() )
+                    {
+                        setActiveReservoirView( riv );
+                    }
 
                     RimGridView* rigv = dynamic_cast<RimGridView*>( riv );
                     if ( rigv ) rigv->cellFilterCollection()->updateIconState();
@@ -1398,56 +1401,6 @@ void RiaApplication::waitUntilCommandObjectsHasBeenProcessed()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiaApplication::launchUnitTests()
-{
-#ifdef USE_UNIT_TESTS
-
-    caf::ProgressInfoBlocker progressBlocker;
-    cvf::Assert::setReportMode( cvf::Assert::CONSOLE );
-
-    int                      argc      = QCoreApplication::arguments().size();
-    QStringList              arguments = QCoreApplication::arguments();
-    std::vector<std::string> argumentsStd;
-    for ( QString qstring : arguments )
-    {
-        argumentsStd.push_back( qstring.toStdString() );
-    }
-    std::vector<char*> argVector;
-    for ( std::string& string : argumentsStd )
-    {
-        argVector.push_back( &string.front() );
-    }
-    char** argv = argVector.data();
-
-    testing::InitGoogleTest( &argc, argv );
-
-    //
-    // Use the gtest filter to execute a subset of tests
-    QString filterText = RiaPreferencesSystem::current()->gtestFilter();
-    if ( !filterText.isEmpty() )
-    {
-        ::testing::GTEST_FLAG( filter ) = filterText.toStdString();
-
-        // Example on filter syntax
-        //::testing::GTEST_FLAG( filter ) = "*RifCaseRealizationParametersReaderTest*";
-    }
-
-    // Use this macro in main() to run all tests.  It returns 0 if all
-    // tests are successful, or 1 otherwise.
-    //
-    // RUN_ALL_TESTS() should be invoked after the command line has been
-    // parsed by InitGoogleTest().
-
-    return RUN_ALL_TESTS();
-
-#else
-    return -1;
-#endif
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 const QString RiaApplication::startDir() const
 {
     return m_startupDefaultDirectory;
@@ -1560,14 +1513,6 @@ void RiaApplication::initialize()
     m_project->setPlotTemplateFolders( m_preferences->plotTemplateFolders() );
 
     caf::SelectionManager::instance()->setPdmRootObject( project() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RiaApplication::launchUnitTestsWithConsole()
-{
-    return launchUnitTests();
 }
 
 //--------------------------------------------------------------------------------------------------

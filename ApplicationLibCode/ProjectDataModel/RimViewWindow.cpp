@@ -45,7 +45,6 @@ RimViewWindow::RimViewWindow()
     CAF_PDM_InitScriptableObjectWithNameAndComment( "View window", "", "", "", "ViewWindow", "The Base Class for all Views and Plots in ResInsight" );
 
     CAF_PDM_InitFieldNoDefault( &m_windowController, "WindowController", "" );
-    m_windowController.uiCapability()->setUiTreeHidden( true );
     m_windowController.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_showWindow, "ShowWindow", true, "Show Window" );
@@ -320,7 +319,7 @@ void RimViewWindow::defineObjectEditorAttribute( QString uiConfigName, caf::PdmU
     if ( treeItemAttribute && RiaPreferencesSystem::current()->showViewIdInProjectTree() && id() >= 0 )
     {
         treeItemAttribute->tags.clear();
-        auto tag                   = caf::PdmUiTreeViewItemAttribute::Tag::create();
+        auto tag                   = caf::PdmUiTreeViewItemAttribute::createTag();
         tag->text                  = QString( "%1" ).arg( id() );
         cvf::Color3f viewColor     = RiaColorTables::contrastCategoryPaletteColors().cycledColor3f( (size_t)id() );
         cvf::Color3f viewTextColor = RiaColorTools::contrastColor( viewColor );

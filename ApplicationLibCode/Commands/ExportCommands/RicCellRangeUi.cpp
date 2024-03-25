@@ -218,8 +218,7 @@ void RicCellRangeUi::setDefaultValues()
 
     if ( grid == mainGrid && actCellInfo )
     {
-        cvf::Vec3st min, max;
-        actCellInfo->IJKBoundingBox( min, max );
+        auto [min, max] = actCellInfo->ijkBoundingBox();
 
         // Adjust to Eclipse indexing
         min.x() = min.x() + 1;
@@ -273,8 +272,7 @@ void RicCellRangeUi::updateLegendText()
 
     if ( grid == mainGrid && actCellInfo )
     {
-        cvf::Vec3st min, max;
-        actCellInfo->IJKBoundingBox( min, max );
+        auto [min, max] = actCellInfo->ijkBoundingBox();
 
         // Adjust to Eclipse indexing
         min.x() = min.x() + 1;

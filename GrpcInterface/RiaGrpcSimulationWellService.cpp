@@ -18,6 +18,7 @@
 #include "RiaGrpcSimulationWellService.h"
 
 #include "RiaGrpcCallbacks.h"
+#include "RiaGrpcHelper.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
@@ -40,7 +41,7 @@ grpc::Status RiaGrpcSimulationWellService::GetSimulationWellStatus( grpc::Server
                                                                     rips::SimulationWellStatus*        reply )
 
 {
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( findCase( request->case_id() ) );
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( RiaGrpcHelper::findCase( request->case_id() ) );
     if ( !eclipseCase )
     {
         return grpc::Status( grpc::NOT_FOUND, "Case not found" );
@@ -91,7 +92,7 @@ grpc::Status RiaGrpcSimulationWellService::GetSimulationWellCells( grpc::ServerC
                                                                    const rips::SimulationWellRequest* request,
                                                                    rips::SimulationWellCellInfoArray* reply )
 {
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( findCase( request->case_id() ) );
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( RiaGrpcHelper::findCase( request->case_id() ) );
     if ( !eclipseCase )
     {
         return grpc::Status( grpc::NOT_FOUND, "Case not found" );

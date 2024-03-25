@@ -124,8 +124,16 @@ private:
                                                              bool                       forceGridSourceforPPReservoir = false );
     void wellBoreWallCurveData( const RigFemResultAddress& resAddr, int timeStepIndex, int frameIndex, std::vector<double>* values );
 
-    void wellBoreFGShale( int timeStepIndex, int frameIndex, std::vector<double>* values );
-    void wellBoreSH_MatthewsKelly( int timeStepIndex, int frameIndex, std::vector<double>* values );
+    void wellBoreFGShale( const RigWbsParameter& parameter, int timeStepIndex, int frameIndex, std::vector<double>* values );
+    void wellBoreSH_MatthewsKelly( int                  timeStepIndex,
+                                   int                  frameIndex,
+                                   const QString&       wbsPPResultName,
+                                   const QString&       wbsPP0ResultName,
+                                   std::vector<double>* values );
+
+    void wellBoreFGDerivedFromK0FG( const QString& ppResult, int timeStepIndex, int frameIndex, std::vector<double>* values, bool onlyForPPReservoir );
+
+    void wellBoreFG_MatthewsKelly( const RigWbsParameter& parameter, int timeStepIndex, int frameIndex, std::vector<double>* values );
 
     template <typename T>
     T interpolateGridResultValue( RigFemResultPosEnum resultPosType, const std::vector<T>& gridResultValues, int64_t intersectionIdx ) const;

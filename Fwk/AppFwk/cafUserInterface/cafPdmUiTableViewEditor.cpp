@@ -42,7 +42,6 @@
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiTableViewDelegate.h"
 #include "cafPdmUiTableViewQModel.h"
-#include "cafQShortenedLabel.h"
 #include "cafSelectionManager.h"
 
 #include <QApplication>
@@ -160,7 +159,7 @@ QWidget* PdmUiTableViewEditor::createLabelWidget( QWidget* parent )
     }
 
     QHBoxLayout* layoutForIconLabel = new QHBoxLayout();
-    layoutForIconLabel->setMargin( 0 );
+    layoutForIconLabel->setContentsMargins( 0, 0, 0, 0 );
     layoutForIconLabel->addWidget( m_tableHeadingIcon );
     layoutForIconLabel->addSpacing( 3 );
     layoutForIconLabel->addWidget( m_tableHeading );
@@ -193,9 +192,25 @@ void PdmUiTableViewEditor::configureAndUpdateUi( const QString& uiConfigName )
         this->setRowSelectionLevel( editorAttrib.rowSelectionLevel );
         this->enableHeaderText( editorAttrib.enableHeaderText );
 
-        QPalette myPalette( m_tableView->palette() );
-        myPalette.setColor( QPalette::Base, editorAttrib.baseColor );
-        m_tableView->setPalette( myPalette );
+        QString styleSheetTable;
+        QString styleSheetHeader;
+
+        if ( editorAttrib.baseColor.isValid() )
+        {
+            // Configure style sheet to set the background color of the table and headers, including the corner button
+
+            styleSheetTable = QString( "QTableView QTableCornerButton::section { background: %1 } QTableView { "
+                                       "background-color : %1 } " )
+                                  .arg( editorAttrib.baseColor.name() );
+
+            styleSheetHeader =
+                QString( "QHeaderView { background-color: %1 } QHeaderView::section { background-color: %1 }" )
+                    .arg( editorAttrib.baseColor.name() );
+        }
+
+        m_tableView->setStyleSheet( styleSheetTable );
+        m_tableView->horizontalHeader()->setStyleSheet( styleSheetHeader );
+        m_tableView->verticalHeader()->setStyleSheet( styleSheetHeader );
 
         // Drop target settings
         m_tableView->setAcceptDrops( editorAttrib.enableDropTarget );

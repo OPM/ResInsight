@@ -45,3 +45,28 @@ print(
 )
 perforation.skin_factor = new_skin_factor
 perforation.update()
+
+# Optionally update the completion settings
+completions_settings = well_path.completion_settings()
+completions_settings.msw_roughness = 12.34
+completions_settings.msw_liner_diameter = 0.2222
+completions_settings.well_name_for_export = "file name"
+completions_settings.group_name_for_export = "msj"
+completions_settings.well_type_for_export = "GAS"
+completions_settings.update()  # Commit updates back to ResInsight
+
+# export completions
+cases = resinsight.project.cases()
+
+for case in cases:
+    print("Case name: ", case.name)
+    print("Case id: ", case.id)
+
+    case.export_well_path_completions(
+        time_step=0,
+        well_path_names=["Test Well-1 Y1"],
+        file_split="UNIFIED_FILE",
+        include_perforations=True,
+        # Replace the following with a valid path
+        custom_file_name="f:/scratch/2023-11-02/myfile.myext",
+    )

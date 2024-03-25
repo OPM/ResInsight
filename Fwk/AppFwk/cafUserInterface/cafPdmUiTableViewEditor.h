@@ -36,11 +36,11 @@
 
 #pragma once
 
-#include "cafPdmDocument.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafSelectionChangedReceiver.h"
 
 #include <QAbstractItemModel>
+#include <QBoxLayout>
 #include <QPointer>
 #include <QTableView>
 #include <QWidget>
@@ -107,11 +107,8 @@ public:
         , resizePolicy( NO_AUTOMATIC_RESIZE )
         , enableDropTarget( false )
     {
-        QPalette myPalette;
-        baseColor = myPalette.color( QPalette::Active, QPalette::Base );
     }
 
-    int              selectionLevel;
     int              tableSelectionLevel;
     int              rowSelectionLevel;
     bool             enableHeaderText;

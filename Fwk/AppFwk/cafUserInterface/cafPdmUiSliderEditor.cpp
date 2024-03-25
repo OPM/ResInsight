@@ -42,7 +42,6 @@
 #include "cafPdmUiFieldEditorHandle.h"
 
 #include "cafFactory.h"
-#include "cafQShortenedLabel.h"
 
 #include <QHBoxLayout>
 #include <QIntValidator>
@@ -104,7 +103,7 @@ QWidget* PdmUiSliderEditor::createEditorWidget( QWidget* parent )
     QWidget* containerWidget = new QWidget( parent );
 
     QHBoxLayout* layout = new QHBoxLayout();
-    layout->setMargin( 0 );
+    layout->setContentsMargins( 0, 0, 0, 0 );
     containerWidget->setLayout( layout );
 
     m_spinBox = new QSpinBox( containerWidget );

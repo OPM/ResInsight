@@ -52,11 +52,15 @@ public:
 
         auto pair = std::make_pair( false, 12.0 );
         CAF_PDM_InitField( &m_checkableDouble, "CheckableDouble", pair, "label text" );
+
+        auto strPair = std::make_pair( false, QString( "msj" ) );
+        CAF_PDM_InitField( &m_checkableString, "CheckableString", strPair, "label text" );
     }
 
     ~AggregatedTypes() {}
 
-    caf::PdmField<std::pair<bool, double>> m_checkableDouble;
+    caf::PdmField<std::pair<bool, double>>  m_checkableDouble;
+    caf::PdmField<std::pair<bool, QString>> m_checkableString;
 };
 CAF_PDM_SOURCE_INIT( AggregatedTypes, "AggregatedTypes" );
 
@@ -79,14 +83,19 @@ TEST( AggregatedTypeTest, MyTest )
     QXmlStreamWriter xmlStream( &xml );
     xmlStream.setAutoFormatting( true );
 
-    const double testValue = 0.0012;
+    const double  testValue  = 0.0012;
+    const QString testString = "string with spaces";
 
     {
         AggregatedTypes myObj;
 
         auto testPair           = std::make_pair( true, testValue );
         myObj.m_checkableDouble = testPair;
-        xml                     = myObj.writeObjectToXmlString();
+
+        auto testStrPair        = std::make_pair( true, testString );
+        myObj.m_checkableString = testStrPair;
+
+        xml = myObj.writeObjectToXmlString();
     }
 
     {
@@ -95,8 +104,10 @@ TEST( AggregatedTypeTest, MyTest )
         myObj.readObjectFromXmlString( xml, caf::PdmDefaultObjectFactory::instance() );
 
         auto fieldValue = myObj.m_checkableDouble();
-
         ASSERT_TRUE( fieldValue.first );
         ASSERT_DOUBLE_EQ( testValue, fieldValue.second );
+
+        auto fieldStrValue = myObj.m_checkableString();
+        ASSERT_STREQ( testString.toStdString().data(), fieldStrValue.second.toStdString().data() );
     }
 }

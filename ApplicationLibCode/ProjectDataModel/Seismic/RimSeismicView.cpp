@@ -58,20 +58,16 @@ RimSeismicView::RimSeismicView()
     CAF_PDM_InitFieldNoDefault( &m_seismicData, "SeismicData", "Seismic Data" );
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceInViewCollection", "Surface Collection Field" );
-    m_surfaceCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_seismicSectionCollection, "SeismicSectionCollection", "Seismic Collection Field" );
-    m_seismicSectionCollection.uiCapability()->setUiTreeHidden( true );
     m_seismicSectionCollection = new RimSeismicSectionCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_annotationCollection, "AnnotationCollection", "Annotations" );
-    m_annotationCollection.uiCapability()->setUiTreeHidden( true );
     m_annotationCollection = new RimAnnotationInViewCollection;
 
     CAF_PDM_InitFieldNoDefault( &m_overlayInfoConfig, "OverlayInfoConfig", "Info Box" );
     m_overlayInfoConfig = new Rim3dOverlayInfoConfig();
     m_overlayInfoConfig->setReservoirView( this );
-    m_overlayInfoConfig.uiCapability()->setUiTreeHidden( true );
 
     m_scaleTransform = new cvf::Transform();
 
@@ -411,7 +407,7 @@ void RimSeismicView::onUpdateLegends()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicView::onLoadDataAndUpdate()
 {
-    updateSurfacesInViewTreeItems();
+    updateViewTreeItems( RiaDefines::ItemIn3dView::ALL );
     syncronizeLocalAnnotationsFromGlobal();
     onUpdateScaleTransform();
 
@@ -465,23 +461,28 @@ void RimSeismicView::updateGridBoxData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicView::updateSurfacesInViewTreeItems()
+void RimSeismicView::updateViewTreeItems( RiaDefines::ItemIn3dView itemType )
 {
-    RimSurfaceCollection* surfColl = RimTools::surfaceCollection();
+    auto bitmaskEnum = BitmaskEnum( itemType );
 
-    if ( surfColl && surfColl->containsSurface() )
+    if ( bitmaskEnum.AnyOf( RiaDefines::ItemIn3dView::SURFACE ) )
     {
-        if ( !m_surfaceCollection() )
+        RimSurfaceCollection* surfColl = RimTools::surfaceCollection();
+
+        if ( surfColl && surfColl->containsSurface() )
         {
-            m_surfaceCollection = new RimSurfaceInViewCollection();
-        }
+            if ( !m_surfaceCollection() )
+            {
+                m_surfaceCollection = new RimSurfaceInViewCollection();
+            }
 
-        m_surfaceCollection->setSurfaceCollection( surfColl );
-        m_surfaceCollection->updateFromSurfaceCollection();
-    }
-    else
-    {
-        delete m_surfaceCollection;
+            m_surfaceCollection->setSurfaceCollection( surfColl );
+            m_surfaceCollection->updateFromSurfaceCollection();
+        }
+        else
+        {
+            delete m_surfaceCollection;
+        }
     }
 
     updateConnectedEditors();

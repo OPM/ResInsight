@@ -41,10 +41,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiFieldEditorHandle.h"
-#include "cafPdmUiOrdering.h"
 
 #include "cafFactory.h"
-#include "cafQShortenedLabel.h"
 
 #include <QBoxLayout>
 
@@ -114,19 +112,39 @@ void PdmUiPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiPushButtonEditor::configureEditorForField( PdmFieldHandle* fieldHandle )
+void PdmUiPushButtonEditor::configureEditorLabelLeft( PdmFieldHandle* fieldHandle )
 {
     if ( fieldHandle )
     {
-        if ( fieldHandle->xmlCapability() )
+        if ( auto xmlCap = fieldHandle->xmlCapability() )
         {
-            fieldHandle->xmlCapability()->disableIO();
+            xmlCap->disableIO();
         }
 
-        if ( fieldHandle->uiCapability() )
+        if ( auto uiCap = fieldHandle->uiCapability() )
         {
-            fieldHandle->uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-            fieldHandle->uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LEFT );
+            uiCap->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+            uiCap->setUiLabelPosition( caf::PdmUiItemInfo::LEFT );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiPushButtonEditor::configureEditorLabelHidden( PdmFieldHandle* fieldHandle )
+{
+    if ( fieldHandle )
+    {
+        if ( auto xmlCap = fieldHandle->xmlCapability() )
+        {
+            xmlCap->disableIO();
+        }
+
+        if ( auto uiCap = fieldHandle->uiCapability() )
+        {
+            uiCap->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+            uiCap->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
         }
     }
 }
@@ -143,7 +161,7 @@ QWidget* PdmUiPushButtonEditor::createEditorWidget( QWidget* parent )
 
     m_buttonLayout = new QHBoxLayout( containerWidget );
     m_buttonLayout->addWidget( m_pushButton );
-    m_buttonLayout->setMargin( 0 );
+    m_buttonLayout->setContentsMargins( 0, 0, 0, 0 );
     m_buttonLayout->setSpacing( 0 );
 
     containerWidget->setLayout( m_buttonLayout );

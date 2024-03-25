@@ -48,6 +48,7 @@
 #include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogExtractionCurve.h"
+#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellLogLasFileCurve.h"
@@ -104,7 +105,6 @@ RimWellPltPlot::RimWellPltPlot()
     CAF_PDM_InitObject( "Well Allocation Plot", ":/WellFlowPlot16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogPlot_OBSOLETE, "WellLog", "WellLog" );
-    m_wellLogPlot_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_wellPathName, "WellName", "Well Name" );
@@ -116,7 +116,6 @@ RimWellPltPlot::RimWellPltPlot()
     m_selectedSources.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_selectedSourcesForIo, "Sources", "Sources" );
-    m_selectedSourcesForIo.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Time Steps" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -780,10 +779,13 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
 
             for ( const auto& wellLogFile : wellLogFiles )
             {
-                auto addr = RifDataSourceForRftPlt( wellLogFile );
-                auto item = caf::PdmOptionItemInfo( wellLogFile->name(), QVariant::fromValue( addr ) );
-                item.setLevel( 1 );
-                options.push_back( item );
+                if ( auto wellLogLasFile = dynamic_cast<RimWellLogLasFile*>( wellLogFile ) )
+                {
+                    auto addr = RifDataSourceForRftPlt( wellLogLasFile );
+                    auto item = caf::PdmOptionItemInfo( wellLogFile->name(), QVariant::fromValue( addr ) );
+                    item.setLevel( 1 );
+                    options.push_back( item );
+                }
             }
         }
     }
@@ -994,8 +996,11 @@ void RimWellPltPlot::initAfterLoad()
             {
                 for ( const auto& wellLogFile : wellLogFiles )
                 {
-                    auto addr = RifDataSourceForRftPlt( wellLogFile );
-                    selectedSources.push_back( addr );
+                    if ( auto wellLogLasFile = dynamic_cast<RimWellLogLasFile*>( wellLogFile ) )
+                    {
+                        auto addr = RifDataSourceForRftPlt( wellLogLasFile );
+                        selectedSources.push_back( addr );
+                    }
                 }
             }
 

@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cvfLibCore.h"
 #include "cvfLibRender.h"
 #include "cvfLibGeometry.h"
@@ -44,8 +43,7 @@
 #include "QMVWidget.h"
 #include "QMVFactory.h"
 
-#include <QtCore/QTimer>
-#if QT_VERSION >= 0x050000
+#include <QTimer>
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QAction>
@@ -53,17 +51,6 @@
 #include <QMenuBar>
 #include <QStatusBar>
 #include <QLabel>
-#else
-#include <QtGui/QFrame>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QAction>
-#include <QtGui/QMenu>
-#include <QtGui/QMenuBar>
-#include <QtGui/QStatusBar>
-#include <QtGui/QLabel>
-#endif
-
-using cvf::ref;
 
 
 
@@ -80,98 +67,72 @@ QMVMainWindow::QMVMainWindow()
     setCentralWidget(mainFrame);
 
 
+    QMenu* widgetsMenu = menuBar()->addMenu("&Widgets");
+
+    m_createWidgetsAsFloatingDialogsAction = new QAction("Create Widgets as Floating Dialogs", this);
+    m_createWidgetsAsFloatingDialogsAction->setCheckable(true);
+
     m_recycleScenesInWidgetConfigAction = new QAction("Recycle Scenes When Changing Widget Config", this);
     m_recycleScenesInWidgetConfigAction->setCheckable(true);
 
-    m_softwareRenderingWidgetsAction = new QAction("Software Rendering in Widgets", this);
-    m_softwareRenderingWidgetsAction->setCheckable(true);
-    connect(m_softwareRenderingWidgetsAction, SIGNAL(toggled(bool)), SLOT(slotSoftwareRenderingWidgets(bool)));
+    m_configNumWidgets1Action = new QAction("1 Widget", this);
+    m_configNumWidgets2Action = new QAction("2 Widgets", this);
+    m_configNumWidgets4Action = new QAction("4 Widgets", this);
+    m_configNumWidgetsNoneAction = new QAction("No Widgets", this);
+    connect(m_configNumWidgets1Action, SIGNAL(triggered()), SLOT(slotConfigNumVizWidgets()));
+    connect(m_configNumWidgets2Action, SIGNAL(triggered()), SLOT(slotConfigNumVizWidgets()));
+    connect(m_configNumWidgets4Action, SIGNAL(triggered()), SLOT(slotConfigNumVizWidgets()));
+    connect(m_configNumWidgetsNoneAction, SIGNAL(triggered()), SLOT(slotConfigNumVizWidgets()));
 
-    m_configNumWidgets1Action   = new QAction("1 Widget", this);
-    m_configNumWidgets2Action   = new QAction("2 Widgets", this);
-    m_configNumWidgets4Action   = new QAction("4 Widgets", this);
-    m_configNumWidgetsNoneAction= new QAction("No Widgets", this);
-    connect(m_configNumWidgets1Action,    SIGNAL(triggered()), SLOT(slotConfigNumWidgets()));
-    connect(m_configNumWidgets2Action,    SIGNAL(triggered()), SLOT(slotConfigNumWidgets()));
-    connect(m_configNumWidgets4Action,    SIGNAL(triggered()), SLOT(slotConfigNumWidgets()));
-    connect(m_configNumWidgetsNoneAction, SIGNAL(triggered()), SLOT(slotConfigNumWidgets()));
-
-    m_createSphereAndBoxSceneAction  = new QAction("Sphere And Box Scene", this);
-    m_createSpheresSceneAction       = new QAction("Spheres Scene", this);
-    m_createBoxesSceneAction         = new QAction("Boxes Scene", this);
-    m_createTrianglesSceneAction     = new QAction("Triangles Scene", this);
-    m_allWidgetsDifferentSceneAction = new QAction("All Widgets Show Different Scene", this);
-    m_clearSceneAction               = new QAction("Clear Scene", this);
-    connect(m_createSphereAndBoxSceneAction,    SIGNAL(triggered()), SLOT(slotCreateSphereAndBoxScene()));
-    connect(m_createSpheresSceneAction,         SIGNAL(triggered()), SLOT(slotCreateSpheresScene()));
-    connect(m_createBoxesSceneAction,           SIGNAL(triggered()), SLOT(slotCreateBoxesScene()));
-    connect(m_createTrianglesSceneAction,       SIGNAL(triggered()), SLOT(slotCreateTrianglesScene()));
-    connect(m_allWidgetsDifferentSceneAction,   SIGNAL(triggered()), SLOT(slotAllWidgetsDifferentScene()));
-    connect(m_clearSceneAction,                 SIGNAL(triggered()), SLOT(slotClearScene()));
-
-    m_useBufferObjectsAction        = new QAction("Use Buffer Objects", this);
-    m_useClientVertexArraysAction   = new QAction("Use Client Vertex Arrays", this);
-    connect(m_useBufferObjectsAction,       SIGNAL(triggered()), SLOT(slotUseBufferObjects()));
-    connect(m_useClientVertexArraysAction,  SIGNAL(triggered()), SLOT(slotUseClientVertexArrays()));
-
-    m_deleteAllResourcesInResourceManagerAction = new QAction("Delete All Resources In Resource Manager", this);
-    connect(m_deleteAllResourcesInResourceManagerAction,    SIGNAL(triggered()), SLOT(slotDeleteAllResourcesInResourceManager()));
-
-
-    QMenu* widgetsMenu = menuBar()->addMenu("&Widgets");
-    widgetsMenu->addAction(m_recycleScenesInWidgetConfigAction);
+    widgetsMenu->addAction(m_createWidgetsAsFloatingDialogsAction);
     widgetsMenu->addSeparator();
-    widgetsMenu->addAction(m_softwareRenderingWidgetsAction);
+    widgetsMenu->addAction(m_recycleScenesInWidgetConfigAction);
     widgetsMenu->addSeparator();
     widgetsMenu->addAction(m_configNumWidgets1Action);
     widgetsMenu->addAction(m_configNumWidgets2Action);
     widgetsMenu->addAction(m_configNumWidgets4Action);
     widgetsMenu->addAction(m_configNumWidgetsNoneAction);
+    widgetsMenu->addSeparator();
+    widgetsMenu->addAction("Delete First Widget", this, SLOT(slotDeleteFirstVizWidget()));
+    widgetsMenu->addAction("Delete Second Widget", this, SLOT(slotDeleteSecondVizWidget()));
+
 
     QMenu* scenesMenu = menuBar()->addMenu("&Scenes");
-    scenesMenu->addAction(m_createSphereAndBoxSceneAction);
-    scenesMenu->addAction(m_createSpheresSceneAction);
-    scenesMenu->addAction(m_createBoxesSceneAction);
-    scenesMenu->addAction(m_createTrianglesSceneAction);
+
+    m_useShadersAction = new QAction("Use Shaders When Creating Scenes", this);
+    m_useShadersAction->setCheckable(true);
+    m_useShadersAction->setChecked(true);
+
+    scenesMenu->addAction(m_useShadersAction);
     scenesMenu->addSeparator();
-    scenesMenu->addAction(m_allWidgetsDifferentSceneAction);
+    scenesMenu->addAction("Sphere And Box Scene", this, SLOT(slotCreateSphereAndBoxScene()));
+    scenesMenu->addAction("Spheres Scene", this, SLOT(slotCreateSpheresScene()));
+    scenesMenu->addAction("Boxes Scene", this, SLOT(slotCreateBoxesScene()));
+    scenesMenu->addAction("Triangles Scene", this, SLOT(slotCreateTrianglesScene()));
     scenesMenu->addSeparator();
-    scenesMenu->addAction(m_clearSceneAction);
+    scenesMenu->addAction("All Widgets Show Different Scene", this, SLOT(slotAllWidgetsDifferentScene()));
+    scenesMenu->addSeparator();
+    scenesMenu->addAction("Clear Scene", this, SLOT(slotClearScene()));
+
 
     QMenu* renderingMenu = menuBar()->addMenu("&Rendering");
-    renderingMenu->addAction(m_useBufferObjectsAction);
-    renderingMenu->addAction(m_useClientVertexArraysAction);
+    renderingMenu->addAction("Use Buffer Objects", this, SLOT(slotUseBufferObjects()));
+    renderingMenu->addAction("Use Client Vertex Arrays", this, SLOT(slotUseClientVertexArrays()));
+
 
     QMenu* testMenu = menuBar()->addMenu("&Test");
-    testMenu->addAction(m_deleteAllResourcesInResourceManagerAction);
+    testMenu->addAction("Delete All Resources In Resource Manager", this, SLOT(slotDeleteAllResourcesInResourceManager()));
+    testMenu->addAction("Delete or Release OpenGL Resources in All Widgets", this, SLOT(slotDeleteOrReleaseOpenGLResourcesInAllVizWidgets()));
+
 
     // Must create context group before launching any widgets
     m_contextGroup = new cvf::OpenGLContextGroup;
 
-    createVizWidgets(1, m_softwareRenderingWidgetsAction->isChecked(), false);
-    slotCreateSphereAndBoxScene();
+    createVizWidgets(1, false);
 
     QTimer* timer = new QTimer;
     connect(timer, SIGNAL(timeout()), SLOT(slotUpdateStatusbar()));
     timer->start(250);
-
-    /*
-    {
-        QWidget* myWidget = new QWidget;
-        QGridLayout* layout = new QGridLayout(myWidget);
-        
-        QLabel* l1 = new QLabel("JALLA", myWidget);
-        QLabel* l2 = new QLabel("BALLA", myWidget);
-        QLabel* l3 = new QLabel("TRALLA", myWidget);
-        layout->addWidget(l1, 0, 0);
-        layout->addWidget(l2, 0, 1);
-        layout->addWidget(l3, 1, 1);
-
-        QStatusBar* sb = statusBar();
-        //sb->addPermanentWidget(new QLabel("JALLA"));
-        sb->addPermanentWidget(myWidget);
-    }
-    */
 }
 
 
@@ -207,7 +168,7 @@ int QMVMainWindow::vizWidgetCount()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::createVizWidgets(int numWidgets, bool software, bool recycleScenes)
+void QMVMainWindow::createVizWidgets(int numWidgets, bool recycleScenes)
 {
     CVF_ASSERT(numWidgets <= MAX_NUM_WIDGETS);
 
@@ -219,39 +180,38 @@ void QMVMainWindow::createVizWidgets(int numWidgets, bool software, bool recycle
 
     deleteAllVizWidgets();
 
-    QWidget* parentWidget = centralWidget();
-    QGridLayout* layout = dynamic_cast<QGridLayout*>(parentWidget->layout());
-    CVF_ASSERT(layout);
+    // Note that creating the widgets as floating dialogs will only work if the 
+    // Qt::AA_ShareOpenGLContexts has been set using QApplication::setAttribute(Qt::AA_ShareOpenGLContexts) before Application object is constructed
+    const bool createAsDialogs = m_createWidgetsAsFloatingDialogsAction->isChecked();
 
-    QGLFormat oglFormat;
-    if (software)
-    {
-        oglFormat.setOption(QGL::IndirectRendering);
-    }
+    QWidget* parentWidget = centralWidget();
 
     // The context group that all the contexts end up in
     CVF_ASSERT(m_contextGroup.notNull());
     CVF_ASSERT(m_contextGroup->contextCount() == 0);
     
-    QMVWidget* shareWidget = NULL;
-    
     int i;
     for (i = 0; i < numWidgets; i++)
     {
         QMVWidget* newWidget = NULL;
-        if (shareWidget)
+
+        if (createAsDialogs)
         {
-            newWidget = new QMVWidget(shareWidget, parentWidget);
+            newWidget = new QMVWidget(m_contextGroup.p(), i, parentWidget, Qt::Dialog);
+            newWidget->resize(600, 400);
+            newWidget->show();
         }
         else
         {
-            newWidget = new QMVWidget(m_contextGroup.p(), oglFormat, parentWidget);
-            shareWidget = newWidget;
+            newWidget = new QMVWidget(m_contextGroup.p(), i, parentWidget);
+            QGridLayout* layout = parentWidget ? dynamic_cast<QGridLayout*>(parentWidget->layout()) : NULL;
+            if (layout)
+            {
+                int row = i/2;
+                int col = i-2*row;
+                layout->addWidget(newWidget, row, col);
+            }
         }
-
-        int row = i/2;
-        int col = i-2*row;
-        layout->addWidget(newWidget, row, col);
 
         m_vizWidgets[i] = newWidget;
     }
@@ -266,12 +226,12 @@ void QMVMainWindow::createVizWidgets(int numWidgets, bool software, bool recycle
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::deleteAllOpenGLResourcesInAllVizWidgets()
+void QMVMainWindow::deleteOrReleaseOpenGLResourcesInAllVizWidgets()
 {
-    cvf::OpenGLResourceManager* resourceManager = m_contextGroup.notNull() ? m_contextGroup->resourceManager() : NULL;
+    // Will be set to one of the OpenGL contexts so we can use it in final evict call
+    cvf::OpenGLContext* someOglContext = NULL;
 
-    // The loop below should not be needed now that we can clean up resources 
-    // by calling on the resource manager, but leave it as long as deleteOrReleaseOpenGLResources() is in place
+    // Loops over all the widgets and deletes/releases the OpenGL resources for each of them
     int i;
     for (i = 0; i < MAX_NUM_WIDGETS; i++)
     {
@@ -282,19 +242,42 @@ void QMVMainWindow::deleteAllOpenGLResourcesInAllVizWidgets()
             cvf::OpenGLContext* oglContext = vizWidget->cvfOpenGLContext();
             CVF_ASSERT(oglContext);
             CVF_ASSERT(oglContext->isCurrent());
+            someOglContext = oglContext;
 
             cvf::RenderSequence* renderSeq = vizWidget->renderSequence();
             if (renderSeq)
             {
                 renderSeq->deleteOrReleaseOpenGLResources(oglContext);
             }
-
-            CVF_ASSERT(resourceManager);
-            resourceManager->deleteAllOpenGLResources(oglContext);
         }
+    }
+
+    cvf::OpenGLResourceManager* resourceManager = m_contextGroup.notNull() ? m_contextGroup->resourceManager() : NULL;
+    if (resourceManager && someOglContext)
+    {
+        resourceManager->evictOrphanedOpenGLResources(someOglContext);
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void QMVMainWindow::deleteAllOpenGLResourcesInResourceManager()
+{
+    if (m_contextGroup.notNull())
+    {
+        cvf::OpenGLResourceManager* rcMgr = m_contextGroup->resourceManager();
+        CVF_ASSERT(rcMgr);
+
+        if (m_contextGroup->contextCount() > 0)
+        {
+            // Grab any context in the group
+            cvf::OpenGLContext* oglContext = m_contextGroup->context(0);
+            oglContext->makeCurrent();
+            rcMgr->deleteAllOpenGLResources(oglContext);
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -304,7 +287,9 @@ void QMVMainWindow::deleteAllVizWidgets()
     QWidget* parentWidget = centralWidget();
     QLayout* layout = parentWidget->layout();
 
-    deleteAllOpenGLResourcesInAllVizWidgets();
+    // Should not be needed, but left for experimentation
+    //deleteOrReleaseOpenGLResourcesInAllVizWidgets();
+    //deleteAllOpenGLResourcesInResourceManager();
 
     int i;
     for (i = 0; i < MAX_NUM_WIDGETS; i++)
@@ -320,6 +305,21 @@ void QMVMainWindow::deleteAllVizWidgets()
     CVF_ASSERT(m_contextGroup.isNull() || m_contextGroup->contextCount() == 0);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void QMVMainWindow::deleteVizWidgetAt(int index)
+{
+    QWidget* parentWidget = centralWidget();
+    QLayout* layout = parentWidget->layout();
+
+    if (m_vizWidgets[index])
+    {
+        layout->removeWidget(m_vizWidgets[index]);
+        delete m_vizWidgets[index];
+        m_vizWidgets[index] = NULL;
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -333,7 +333,7 @@ void QMVMainWindow::setSceneInAllVizWidgets(cvf::Scene* scene)
     {
         if (m_vizWidgets[i] != NULL)
         {
-            ref<cvf::RenderSequence> renderSeq = factory.createFromScene(scene);
+            cvf::ref<cvf::RenderSequence> renderSeq = factory.createFromScene(scene);
             m_vizWidgets[i]->setRenderSequence(renderSeq.p());
         }
     }
@@ -358,7 +358,7 @@ void QMVMainWindow::spreadScenesAcrossVizWidgets(cvf::Collection<cvf::Scene>* sc
             cvf::Scene* scene = (sceneCollection->size() > i) ? sceneCollection->at(i) : NULL;
             if (scene)
             {
-                ref<cvf::RenderSequence> renderSeq = factory.createFromScene(scene);
+                cvf::ref<cvf::RenderSequence> renderSeq = factory.createFromScene(scene);
                 vizWidget->setRenderSequence(renderSeq.p());
             }
         }
@@ -449,49 +449,56 @@ void QMVMainWindow::setRenderModeInAllModels(cvf::DrawableGeo::RenderMode render
 //--------------------------------------------------------------------------------------------------
 void QMVMainWindow::closeEvent(QCloseEvent*)
 {
-    deleteAllOpenGLResourcesInAllVizWidgets();
+    // Should not be needed any more, but left for experimentation
+    //deleteOrReleaseOpenGLResourcesInAllVizWidgets();
+    //deleteAllOpenGLResourcesInResourceManager();
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::slotSoftwareRenderingWidgets(bool software)
-{
-    int currNumWidgets = vizWidgetCount();
-
-    // Just recreate with the same number of widgets
-    createVizWidgets(currNumWidgets, software, m_recycleScenesInWidgetConfigAction->isChecked());
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void QMVMainWindow::slotConfigNumWidgets()
+void QMVMainWindow::slotConfigNumVizWidgets()
 {
     QObject* senderAct = sender();
 
-    bool software = m_softwareRenderingWidgetsAction->isChecked();
     bool recycleScenes = m_recycleScenesInWidgetConfigAction->isChecked();
 
-    if      (senderAct == m_configNumWidgets1Action)    createVizWidgets(1, software, recycleScenes);
-    else if (senderAct == m_configNumWidgets2Action)    createVizWidgets(2, software, recycleScenes);
-    else if (senderAct == m_configNumWidgets4Action)    createVizWidgets(4, software, recycleScenes);
-    else if (senderAct == m_configNumWidgetsNoneAction) createVizWidgets(0, software, recycleScenes);
+    if      (senderAct == m_configNumWidgets1Action)    createVizWidgets(1, recycleScenes);
+    else if (senderAct == m_configNumWidgets2Action)    createVizWidgets(2, recycleScenes);
+    else if (senderAct == m_configNumWidgets4Action)    createVizWidgets(4, recycleScenes);
+    else if (senderAct == m_configNumWidgetsNoneAction) createVizWidgets(0, recycleScenes);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void QMVMainWindow::slotDeleteFirstVizWidget()
+{
+    deleteVizWidgetAt(0);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void QMVMainWindow::slotDeleteSecondVizWidget()
+{
+    deleteVizWidgetAt(1);
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void QMVMainWindow::slotCreateSphereAndBoxScene()
 {
-    QMVModelFactory modelFactory(!m_softwareRenderingWidgetsAction->isChecked());
+    // Without initialization we're not getting the correct capabilities
+    CVF_ASSERT(m_contextGroup->isContextGroupInitialized());
+
+    QMVModelFactory modelFactory(m_useShadersAction->isChecked(), *m_contextGroup->capabilities());
     QMVSceneFactory sceneFactory(&modelFactory);
 
-    ref<cvf::Model> model = modelFactory.createSphereAndBox();
-    ref<cvf::Scene> scene = sceneFactory.createFromModel(model.p());
+    cvf::ref<cvf::Model> model = modelFactory.createSphereAndBox();
+    cvf::ref<cvf::Scene> scene = sceneFactory.createFromModel(model.p());
 
     setSceneInAllVizWidgets(scene.p());
 }
@@ -502,11 +509,14 @@ void QMVMainWindow::slotCreateSphereAndBoxScene()
 //--------------------------------------------------------------------------------------------------
 void QMVMainWindow::slotCreateSpheresScene()
 {
-    QMVModelFactory modelFactory(!m_softwareRenderingWidgetsAction->isChecked());
+    // Without initialization we're not getting the correct capabilities
+    CVF_ASSERT(m_contextGroup->isContextGroupInitialized());
+
+    QMVModelFactory modelFactory(m_useShadersAction->isChecked(), *m_contextGroup->capabilities());
     QMVSceneFactory sceneFactory(&modelFactory);
 
-    ref<cvf::Model> model = modelFactory.createSpheres();
-    ref<cvf::Scene> scene = sceneFactory.createFromModel(model.p());
+    cvf::ref<cvf::Model> model = modelFactory.createSpheres();
+    cvf::ref<cvf::Scene> scene = sceneFactory.createFromModel(model.p());
 
     setSceneInAllVizWidgets(scene.p());
 }
@@ -517,11 +527,14 @@ void QMVMainWindow::slotCreateSpheresScene()
 //--------------------------------------------------------------------------------------------------
 void QMVMainWindow::slotCreateBoxesScene()
 {
-    QMVModelFactory modelFactory(!m_softwareRenderingWidgetsAction->isChecked());
+    // Without initialization we're not getting the correct capabilities
+    CVF_ASSERT(m_contextGroup->isContextGroupInitialized());
+
+    QMVModelFactory modelFactory(m_useShadersAction->isChecked(), *m_contextGroup->capabilities());
     QMVSceneFactory sceneFactory(&modelFactory);
 
-    ref<cvf::Model> model = modelFactory.createBoxes();
-    ref<cvf::Scene> scene = sceneFactory.createFromModel(model.p());
+    cvf::ref<cvf::Model> model = modelFactory.createBoxes();
+    cvf::ref<cvf::Scene> scene = sceneFactory.createFromModel(model.p());
 
     setSceneInAllVizWidgets(scene.p());
 }
@@ -532,11 +545,14 @@ void QMVMainWindow::slotCreateBoxesScene()
 //--------------------------------------------------------------------------------------------------
 void QMVMainWindow::slotCreateTrianglesScene()
 {
-    QMVModelFactory modelFactory(!m_softwareRenderingWidgetsAction->isChecked());
+    // Without initialization we're not getting the correct capabilities
+    CVF_ASSERT(m_contextGroup->isContextGroupInitialized());
+
+    QMVModelFactory modelFactory(m_useShadersAction->isChecked(), *m_contextGroup->capabilities());
     QMVSceneFactory sceneFactory(&modelFactory);
 
-    ref<cvf::Model> model = modelFactory.createTriangles();
-    ref<cvf::Scene> scene = sceneFactory.createFromModel(model.p());
+    cvf::ref<cvf::Model> model = modelFactory.createTriangles();
+    cvf::ref<cvf::Scene> scene = sceneFactory.createFromModel(model.p());
 
     setSceneInAllVizWidgets(scene.p());
 }
@@ -547,7 +563,10 @@ void QMVMainWindow::slotCreateTrianglesScene()
 //--------------------------------------------------------------------------------------------------
 void QMVMainWindow::slotAllWidgetsDifferentScene()
 {
-    QMVModelFactory modelFactory(!m_softwareRenderingWidgetsAction->isChecked());
+    // Without initialization we're not getting the correct capabilities
+    CVF_ASSERT(m_contextGroup->isContextGroupInitialized());
+
+    QMVModelFactory modelFactory(m_useShadersAction->isChecked(), *m_contextGroup->capabilities());
     QMVSceneFactory sceneFactory(&modelFactory);
     QMVRenderSequenceFactory renderSeqFactory;
 
@@ -556,8 +575,8 @@ void QMVMainWindow::slotAllWidgetsDifferentScene()
     {
         if (m_vizWidgets[i] != NULL)
         {
-            ref<cvf::Scene> scene = sceneFactory.createNumberedScene(i);
-            ref<cvf::RenderSequence> renderSeq = renderSeqFactory.createFromScene(scene.p());
+            cvf::ref<cvf::Scene> scene = sceneFactory.createNumberedScene(i);
+            cvf::ref<cvf::RenderSequence> renderSeq = renderSeqFactory.createFromScene(scene.p());
             m_vizWidgets[i]->setRenderSequence(renderSeq.p());
         }
     }
@@ -607,23 +626,16 @@ void QMVMainWindow::slotUseClientVertexArrays()
 //--------------------------------------------------------------------------------------------------
 void QMVMainWindow::slotDeleteAllResourcesInResourceManager()
 {
-    if (m_contextGroup.notNull())
-    {
-        cvf::OpenGLResourceManager* rcMgr = m_contextGroup->resourceManager();
-        CVF_ASSERT(rcMgr);
-
-        QMVWidget* vizWidget = m_vizWidgets[0];
-        cvf::OpenGLContext* oglContext = vizWidget ? vizWidget->cvfOpenGLContext() : NULL;
-        if (oglContext)
-        {
-            oglContext->makeCurrent();
-            rcMgr->deleteAllOpenGLResources(oglContext);
-        }
-    }
-
-    redrawAllVizWidgets();
+    deleteAllOpenGLResourcesInResourceManager();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void QMVMainWindow::slotDeleteOrReleaseOpenGLResourcesInAllVizWidgets()
+{
+    deleteOrReleaseOpenGLResourcesInAllVizWidgets();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -650,22 +662,20 @@ void QMVMainWindow::slotUpdateStatusbar()
             if (renderSeq)
             {
                 cvf::PerformanceInfo pi = renderSeq->performanceInfo();
-                QGLFormat oglFormat = vizWidget->format();
-                QString hwSw = oglFormat.testOption(QGL::IndirectRendering) ? "sw" : "hw";
-                QString viewMsg = QString("V%1(%2) #p=%3 #t=%4    ").arg(i).arg(hwSw).arg(pi.visiblePartsCount).arg((pi.triangleCount));
+                QString viewMsg = QString("V%1 #p=%2 #t=%3    ").arg(i).arg(pi.visiblePartsCount).arg((pi.triangleCount));
                 msg += viewMsg;
             }
         }
+    }
+
+    if (m_contextGroup.notNull())
+    {
+        const cvf::OpenGLInfo info = m_contextGroup->info();
+        msg += QString("  |  ") + QString::fromStdString(info.renderer().toStdString());
     }
 
     QStatusBar* sb = statusBar();
     sb->showMessage(msg);
 }
 
-
-//########################################################
-#ifndef CVF_USING_CMAKE
-#include "qt-generated/moc_QMVMainWindow.cpp"
-#endif
-//########################################################
 

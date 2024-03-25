@@ -17,8 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaArgumentParser.h"
-#include "RiaLogging.h"
 #include "RiaMainTools.h"
+#include "RiaPreferences.h"
 
 #ifdef ENABLE_GRPC
 #include "RiaGrpcConsoleApplication.h"
@@ -40,11 +40,15 @@
 #include <unistd.h>
 #endif
 
+#include <signal.h>
+
+void manageSegFailure( int signalCode );
+
 RiaApplication* createApplication( int& argc, char* argv[] )
 {
     for ( int i = 1; i < argc; ++i )
     {
-        if ( !qstrcmp( argv[i], "--console" ) || !qstrcmp( argv[i], "--unittest" ) || !qstrcmp( argv[i], "--version" ) )
+        if ( !qstrcmp( argv[i], "--console" ) || !qstrcmp( argv[i], "--unittest" ) )
         {
 #ifdef ENABLE_GRPC
             return new RiaGrpcConsoleApplication( argc, argv );
@@ -72,8 +76,12 @@ int main( int argc, char* argv[] )
         return 1;
     }
 #endif
-    // Global initialization
-    RiaLogging::loggerInstance()->setLevel( int( RILogLevel::RI_LL_DEBUG ) );
+
+    // The Qt::AA_ShareOpenGLContexts setting is needed when we have multiple viz widgets in flight
+    // and we have a setup where these widgets belong to different top-level windows, or end up
+    // belonging to different top-level windows through re-parenting.
+    // See test application QtTestBenchOpenGLWidget
+    QApplication::setAttribute( Qt::AA_ShareOpenGLContexts );
 
     // Create feature manager before the application object is created
     RiaMainTools::initializeSingletons();
@@ -111,6 +119,17 @@ int main( int argc, char* argv[] )
 
     QLocale::setDefault( QLocale( QLocale::English, QLocale::UnitedStates ) );
     setlocale( LC_NUMERIC, "C" );
+
+    // Set up signal handlers
+    if ( RiaPreferences::current()->loggerTrapSignalAndFlush() )
+    {
+        signal( SIGINT, manageSegFailure );
+        signal( SIGILL, manageSegFailure );
+        signal( SIGFPE, manageSegFailure );
+        signal( SIGSEGV, manageSegFailure );
+        signal( SIGTERM, manageSegFailure );
+        signal( SIGABRT, manageSegFailure );
+    }
 
     // Handle the command line arguments.
     // Todo: Move to a one-shot timer, delaying the execution until we are inside the event loop.

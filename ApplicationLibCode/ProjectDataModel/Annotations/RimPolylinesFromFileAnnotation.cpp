@@ -158,7 +158,7 @@ bool RimPolylinesFromFileAnnotation::isEmpty()
 {
     if ( m_polyLinesData.isNull() ) return true;
 
-    for ( const std::vector<cvf::Vec3d>& line : m_polyLinesData->polyLines() )
+    for ( const std::vector<cvf::Vec3d>& line : m_polyLinesData->rawPolyLines() )
     {
         if ( !line.empty() ) return false;
     }

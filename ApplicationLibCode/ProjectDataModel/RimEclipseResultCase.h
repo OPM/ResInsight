@@ -73,6 +73,10 @@ public:
 
     RifReaderRftInterface* rftReader();
 
+    // A multi segment well can have multiple well paths. Valves can be modeled using short branches. This threshold defines the limit for
+    // merging branches into the upstream branch.
+    int mswMergeThreshold() const;
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
@@ -94,6 +98,8 @@ private:
     caf::PdmProxyValueField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_unitSystem;
     caf::PdmChildArrayField<RimFlowDiagSolution*>                        m_flowDiagSolutions;
     caf::PdmField<caf::FilePath>                                         m_sourSimFileName;
+
+    caf::PdmField<std::pair<bool, int>> m_mswMergeThreshold;
 
     bool m_gridAndWellDataIsReadFromFile;
     bool m_activeCellInfoIsReadFromFile;

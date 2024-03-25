@@ -122,6 +122,7 @@ public:
     void ensureFaultDataIsComputed();
     bool ensureNncDataIsComputed();
     void createDisplayModelAndUpdateAllViews();
+    void computeActiveCellsBoundingBox();
 
     void setReaderSettings( std::shared_ptr<RifReaderSettings> readerSettings );
 
@@ -166,7 +167,5 @@ private:
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;
 
-    // To be removed as the caching of file names causes issues when using the project file as template
-    // https://github.com/OPM/ResInsight/issues/7308
-    caf::PdmField<std::vector<caf::FilePath>> m_filesContainingFaults_OBSOLETE;
+    caf::PdmField<std::vector<caf::FilePath>> m_filesContainingFaults;
 };

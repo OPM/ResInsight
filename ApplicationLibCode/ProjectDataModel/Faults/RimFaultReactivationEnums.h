@@ -38,7 +38,9 @@ enum class BorderSurface
 enum class Boundary
 {
     FarSide,
-    Bottom
+    Bottom,
+    Fault,
+    Reservoir
 };
 
 enum class ElementSets
@@ -46,7 +48,14 @@ enum class ElementSets
     OverBurden,
     UnderBurden,
     Reservoir,
-    IntraReservoir
+    IntraReservoir,
+    FaultZone
+};
+
+enum class StressSource
+{
+    StressFromEclipse,
+    StressFromGeoMech
 };
 
 enum class Property

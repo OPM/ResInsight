@@ -85,6 +85,8 @@ public:
     void setSourceProperties( RiaDefines::ResultCatType propertyType, const std::vector<QString>& propertyNames );
     void selectAllTimeSteps();
 
+    void setWellDataSourceCase( const QString& reservoirDescription );
+
 private:
     void scheduleACTIVEGeometryRegenOnReservoirViews();
 

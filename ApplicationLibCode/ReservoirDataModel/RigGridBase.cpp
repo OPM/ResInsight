@@ -52,6 +52,18 @@ RigGridBase::~RigGridBase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigGridBase::setGridPointDimensions( const cvf::Vec3st& gridDimensions )
+{
+    m_gridPointDimensions = gridDimensions;
+
+    m_cellCount.x() = ( m_gridPointDimensions.x() > 0 ? m_gridPointDimensions.x() - 1 : 0 );
+    m_cellCount.y() = ( m_gridPointDimensions.y() > 0 ? m_gridPointDimensions.y() - 1 : 0 );
+    m_cellCount.z() = ( m_gridPointDimensions.z() > 0 ? m_gridPointDimensions.z() - 1 : 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigGridBase::setGridName( const std::string& gridName )
 {
     m_gridName = gridName;
@@ -173,8 +185,7 @@ size_t RigGridBase::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
     CVF_TIGHT_ASSERT( i != cvf::UNDEFINED_SIZE_T && j != cvf::UNDEFINED_SIZE_T && k != cvf::UNDEFINED_SIZE_T );
     CVF_TIGHT_ASSERT( i < m_gridPointDimensions.x() && j < m_gridPointDimensions.y() && k < m_gridPointDimensions.z() );
 
-    size_t ci = i + j * ( m_gridPointDimensions.x() - 1 ) + k * ( ( m_gridPointDimensions.x() - 1 ) * ( m_gridPointDimensions.y() - 1 ) );
-    return ci;
+    return i + j * cellCountI() + k * cellCountI() * cellCountJ();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,8 +193,7 @@ size_t RigGridBase::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
 //--------------------------------------------------------------------------------------------------
 size_t RigGridBase::cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const
 {
-    size_t ci = i + j * ( m_gridPointDimensions.x() - 1 ) + k * ( ( m_gridPointDimensions.x() - 1 ) * ( m_gridPointDimensions.y() - 1 ) );
-    return ci;
+    return i + j * cellCountI() + k * cellCountI() * cellCountJ();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -207,8 +217,8 @@ bool RigGridBase::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size
         return false;
     }
 
-    const size_t cellCountI = m_gridPointDimensions[0] - 1u;
-    const size_t cellCountJ = m_gridPointDimensions[1] - 1u;
+    const size_t cellCountI = this->cellCountI();
+    const size_t cellCountJ = this->cellCountJ();
 
     *i = index % cellCountI;
     index /= cellCountI;
@@ -254,8 +264,8 @@ void RigGridBase::ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t
 {
     size_t index = cellIndex;
 
-    const size_t cellCountI = m_gridPointDimensions[0] - 1u;
-    const size_t cellCountJ = m_gridPointDimensions[1] - 1u;
+    const size_t cellCountI = this->cellCountI();
+    const size_t cellCountJ = this->cellCountJ();
 
     *i = index % cellCountI;
     index /= cellCountI;
@@ -297,30 +307,6 @@ cvf::Vec3d RigGridBase::minCoordinate() const
     cvf::Vec3d v;
 
     return v;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RigGridBase::gridPointCountI() const
-{
-    return m_gridPointDimensions.x();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RigGridBase::gridPointCountJ() const
-{
-    return m_gridPointDimensions.y();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RigGridBase::gridPointCountK() const
-{
-    return m_gridPointDimensions.z();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -510,6 +496,38 @@ cvf::BoundingBox RigGridBase::boundingBox()
     }
 
     return m_boundingBox;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigGridBase::cellCountI() const
+{
+    return m_cellCount.x();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigGridBase::cellCountJ() const
+{
+    return m_cellCount.y();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigGridBase::cellCountK() const
+{
+    return m_cellCount.z();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigGridBase::cellCount() const
+{
+    return cellCountI() * cellCountJ() * cellCountK();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -42,7 +42,6 @@ RimWellIASettingsCollection::RimWellIASettingsCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_wellIASettings, "WellIASettings", "Settings" );
     m_wellIASettings.uiCapability()->setUiHidden( true );
-    m_wellIASettings.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( true );
 }

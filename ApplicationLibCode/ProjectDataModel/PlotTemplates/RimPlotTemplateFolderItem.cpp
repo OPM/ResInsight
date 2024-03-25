@@ -40,9 +40,7 @@ RimPlotTemplateFolderItem::RimPlotTemplateFolderItem()
     CAF_PDM_InitFieldNoDefault( &m_folderName, "FolderName", "Folder" );
     m_folderName.uiCapability()->setUiReadOnly( true );
     CAF_PDM_InitFieldNoDefault( &m_fileNames, "FileNames", "" );
-    m_fileNames.uiCapability()->setUiTreeHidden( true );
     CAF_PDM_InitFieldNoDefault( &m_subFolders, "SubFolders", "" );
-    m_subFolders.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

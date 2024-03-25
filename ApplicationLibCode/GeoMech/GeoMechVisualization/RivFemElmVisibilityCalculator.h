@@ -41,7 +41,8 @@ public:
                                         const cvf::CellRangeFilter& rangeFilter,
                                         const cvf::UByteArray*      indexIncludeVisibility,
                                         const cvf::UByteArray*      indexExcludeVisibility,
-                                        bool                        useIndexInclude );
+                                        bool                        useIndexInclude,
+                                        bool                        useAndOperation );
 
     static void computePropertyVisibility( cvf::UByteArray*                    cellVisibility,
                                            const RigFemPart*                   grid,

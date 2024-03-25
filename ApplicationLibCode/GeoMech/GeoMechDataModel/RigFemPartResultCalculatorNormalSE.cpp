@@ -94,7 +94,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalSE::calculate( int par
 
                 int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
 
-                if ( elmType == HEX8P )
+                if ( elmType == RigElementType::HEX8P )
                 {
                     for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                     {

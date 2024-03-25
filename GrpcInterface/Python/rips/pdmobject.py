@@ -511,3 +511,13 @@ class PdmObjectBase:
             raise Exception(
                 "Object is not connected to GRPC service so cannot update ResInsight"
             )
+
+    def delete(self) -> None:
+        """Delete object in ResInsight"""
+        self.__copy_to_pb2()
+        if self._pdm_object_stub is not None:
+            self._pdm_object_stub.DeleteExistingPdmObject(self._pb2_object)
+        else:
+            raise Exception(
+                "Object is not connected to GRPC service so cannot update ResInsight"
+            )

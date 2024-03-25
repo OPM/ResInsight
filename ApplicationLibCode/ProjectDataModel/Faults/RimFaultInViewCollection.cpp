@@ -98,7 +98,6 @@ RimFaultInViewCollection::RimFaultInViewCollection()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_hideNNCsWhenNoResultIsAvailable );
 
     CAF_PDM_InitFieldNoDefault( &m_faults, "Faults", "Faults" );
-    m_faults.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_showFaultsOutsideFilters_obsolete, "ShowFaultsOutsideFilters", true, "Show Faults Outside Filters" );
     m_showFaultsOutsideFilters_obsolete.xmlCapability()->setIOWritable( false );

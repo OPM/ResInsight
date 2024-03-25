@@ -21,7 +21,6 @@
 #include <QDateTime>
 #include <QString>
 
-#include <memory>
 #include <optional>
 #include <vector>
 
@@ -34,13 +33,13 @@ class RifPressureDepthTextFileReader
 {
 public:
     static std::pair<std::vector<RigPressureDepthData>, QString> readFile( const QString& fileName );
+    static std::pair<std::vector<RigPressureDepthData>, QString> parse( const QString& content );
 
 private:
     static bool isHeaderLine( const QString& line );
     static bool isCommentLine( const QString& line );
     static bool isDateLine( const QString& line );
-    static bool isPropertiesLine( const QString& line );
-    static bool isUnitsLine( const QString& line );
+    static bool containsLetters( const QString& line );
 
     static std::optional<std::pair<double, double>> parseDataLine( const QString& line );
     static std::optional<QDateTime>                 parseDateLine( const QString& line );

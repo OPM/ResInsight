@@ -61,18 +61,14 @@ void RimFaultReactivationDataAccessorGeoMech::updateResultAccessor()
 {
     const int partIndex = 0;
 
-    auto loadFrameLambda = [&]( auto femParts, RigFemResultAddress addr ) -> RigFemScalarResultFrames*
+    auto loadFrameLambda = [&]( auto femParts, RigFemResultAddress addr ) -> std::vector<float>
     {
         auto result = femParts->findOrLoadScalarResult( partIndex, addr );
-        if ( result->frameData( 0, 0 ).empty() )
-        {
-            return nullptr;
-        }
-        return result;
+        return result->frameData( 0, 0 );
     };
 
-    auto femParts  = m_geoMechCaseData->femPartResults();
-    m_resultFrames = loadFrameLambda( femParts, getResultAddress( m_property ) );
+    auto femParts = m_geoMechCaseData->femPartResults();
+    m_data        = loadFrameLambda( femParts, getResultAddress( m_property ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,36 +93,27 @@ bool RimFaultReactivationDataAccessorGeoMech::isMatching( RimFaultReactivation::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccessorGeoMech::valueAtPosition( const cvf::Vec3d& position, double topDepth, double bottomDepth ) const
-
+double RimFaultReactivationDataAccessorGeoMech::valueAtPosition( const cvf::Vec3d&                position,
+                                                                 const RigFaultReactivationModel& model,
+                                                                 RimFaultReactivation::GridPart   gridPart,
+                                                                 double                           topDepth,
+                                                                 double                           bottomDepth,
+                                                                 size_t                           elementIndex ) const
 {
-    if ( !m_resultFrames ) return std::numeric_limits<double>::infinity();
+    if ( !m_data.empty() ) return std::numeric_limits<double>::infinity();
 
     RimWellIADataAccess iaDataAccess( m_geoMechCase );
     int                 elementIdx = iaDataAccess.elementIndex( position );
     if ( elementIdx != -1 )
     {
-        int timeStepIndex = 0;
-        int frameIndex    = 0;
-
-        const std::vector<float>& data = m_resultFrames->frameData( timeStepIndex, frameIndex );
-        if ( elementIdx >= static_cast<int>( data.size() ) ) return std::numeric_limits<double>::infinity();
+        if ( elementIdx >= static_cast<int>( m_data.size() ) ) return std::numeric_limits<double>::infinity();
 
         if ( m_property == RimFaultReactivation::Property::YoungsModulus )
         {
-            return RiaEclipseUnitTools::gigaPascalToPascal( data[elementIdx] );
+            return RiaEclipseUnitTools::gigaPascalToPascal( m_data[elementIdx] );
         }
-        return data[elementIdx];
+        return m_data[elementIdx];
     }
 
     return std::numeric_limits<double>::infinity();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationDataAccessorGeoMech::hasValidDataAtPosition( const cvf::Vec3d& position ) const
-{
-    double value = valueAtPosition( position );
-    return !std::isinf( value );
 }

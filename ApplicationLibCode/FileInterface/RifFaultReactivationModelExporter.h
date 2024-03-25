@@ -21,6 +21,7 @@
 #include "RigFaultReactivationModel.h"
 #include "RigGriddedPart3d.h"
 
+#include "RimFaultReactivationDataAccess.h"
 #include "RimFaultReactivationModel.h"
 
 #include <map>
@@ -34,9 +35,8 @@
 class RifFaultReactivationModelExporter
 {
 public:
-    static std::pair<bool, std::string>
-        exportToStream( std::ostream& stream, const std::string& exportDirecotry, const RimFaultReactivationModel& model );
-    static std::pair<bool, std::string> exportToFile( const std::string& filePath, const RimFaultReactivationModel& model );
+    static std::pair<bool, std::string> exportToStream( std::ostream& stream, const RimFaultReactivationModel& model );
+    static std::pair<bool, std::string> exportToFile( const RimFaultReactivationModel& model );
 
 private:
     static std::pair<bool, std::string> printHeading( std::ostream& stream, const std::string& applicationNameAndVersion );
@@ -52,6 +52,7 @@ private:
     static std::pair<bool, std::string> printAssembly( std::ostream&                                                stream,
                                                        const RigFaultReactivationModel&                             model,
                                                        const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
+                                                       bool                                                         includeTransform,
                                                        const std::pair<cvf::Vec3d, cvf::Vec3d>&                     transform );
 
     static std::pair<bool, std::string> printMaterials( std::ostream&                                                   stream,
@@ -73,8 +74,7 @@ private:
                                                                const RimFaultReactivationDataAccess&                        dataAccess,
                                                                const std::string&                                           exportDirectory,
                                                                const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
-                                                               bool useGridVoidRatio,
-                                                               bool useGridStress );
+                                                               bool useGridVoidRatio );
     static std::pair<bool, std::string> printSteps( std::ostream&                                                stream,
                                                     const RigFaultReactivationModel&                             model,
                                                     const RimFaultReactivationDataAccess&                        dataAccess,
@@ -108,7 +108,8 @@ private:
                                        const std::string&                                           tableName,
                                        const std::string&                                           heading );
 
-    static std::string createFileName( const std::string& title, const std::string& stepName );
+    static std::string createFilePostfix( const std::string& title, const std::string& stepName );
 
-    static std::string createFilePath( const std::string& dir, const std::string& fileName );
+    static bool                                            exportModelSettings( const RimFaultReactivationModel& model );
+    static std::shared_ptr<RimFaultReactivationDataAccess> extractAndExportModelData( const RimFaultReactivationModel& model );
 };

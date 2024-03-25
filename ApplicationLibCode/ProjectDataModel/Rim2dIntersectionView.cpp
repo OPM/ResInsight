@@ -70,13 +70,11 @@ Rim2dIntersectionView::Rim2dIntersectionView()
     m_intersection.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend" );
-    m_legendConfig.uiCapability()->setUiTreeHidden( true );
     m_legendConfig.uiCapability()->setUiTreeChildrenHidden( true );
     m_legendConfig.xmlCapability()->disableIO();
     m_legendConfig = new RimRegularLegendConfig();
 
     CAF_PDM_InitFieldNoDefault( &m_ternaryLegendConfig, "TernaryLegendDefinition", "Ternary Color Legend" );
-    m_ternaryLegendConfig.uiCapability()->setUiTreeHidden( true );
     m_ternaryLegendConfig.uiCapability()->setUiTreeChildrenHidden( true );
     m_ternaryLegendConfig.xmlCapability()->disableIO();
     m_ternaryLegendConfig = new RimTernaryLegendConfig();

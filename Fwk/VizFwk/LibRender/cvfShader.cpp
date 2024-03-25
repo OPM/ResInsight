@@ -141,9 +141,7 @@ bool Shader::compile(OpenGLContext* oglContext)
         {
             case VERTEX_SHADER:     glShaderType = GL_VERTEX_SHADER;        break;
             case FRAGMENT_SHADER:   glShaderType = GL_FRAGMENT_SHADER;      break;
-#ifndef CVF_OPENGL_ES
             case GEOMETRY_SHADER:   glShaderType = GL_GEOMETRY_SHADER;      break;
-#endif
             default:                CVF_FAIL_MSG("Unhandled shader type");  break;
         }
 
@@ -183,6 +181,16 @@ bool Shader::compile(OpenGLContext* oglContext)
         String errStr = String("Error compiling shader: '%1'\n").arg(m_shaderName);
         errStr += "GLSL details:\n";
         errStr += shaderInfoLog(oglContext);
+
+        // {
+        //     errStr += "Shader prog:\n";
+        //     std::vector<String> progArr = m_source.split("\n");
+        //     for (size_t i = 0; i < progArr.size(); ++i)
+        //     {
+        //         errStr += String("%1: %2\n").arg(static_cast<int>(i + 1), 3).arg(progArr[i]);
+        //     }
+        // }
+
         CVF_LOG_RENDER_ERROR(oglContext, errStr);
         return false;
     }

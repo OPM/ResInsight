@@ -103,7 +103,6 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     CAF_PDM_InitObject( "Depth Track Plot", "", "", "A Plot With a shared Depth Axis and Multiple Tracks" );
 
     CAF_PDM_InitFieldNoDefault( &m_commonDataSource, "CommonDataSource", "Data Source", "", "Change the Data Source of All Curves in the Plot", "" );
-    m_commonDataSource.uiCapability()->setUiTreeHidden( true );
     m_commonDataSource.uiCapability()->setUiTreeChildrenHidden( true );
     m_commonDataSource.xmlCapability()->disableIO();
     m_commonDataSource = new RimWellLogCurveCommonDataSource;
@@ -139,7 +138,6 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     CAF_PDM_InitScriptableField( &m_autoZoomMaxDepthFactor, "AutoZoomMaxDepthFactor", 0.0, "Auto Zoom Maximum Factor" );
 
     CAF_PDM_InitFieldNoDefault( &m_depthAnnotations, "DepthAnnotations", "Depth Annotations" );
-    m_depthAnnotations.uiCapability()->setUiTreeHidden( true );
     m_depthAnnotations.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Track Title Font Size" );
@@ -147,7 +145,6 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     CAF_PDM_InitScriptableFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size" );
 
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "" );
-    m_nameConfig.uiCapability()->setUiTreeHidden( true );
     m_nameConfig.uiCapability()->setUiTreeChildrenHidden( true );
     m_nameConfig = new RimWellLogPlotNameConfig();
 
@@ -155,7 +152,6 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     CAF_PDM_InitFieldNoDefault( &m_depthEqualization, "DepthEqualization", "Depth Equalization" );
 
     CAF_PDM_InitFieldNoDefault( &m_plots, "Tracks", "Tracks" );
-    m_plots.uiCapability()->setUiTreeHidden( true );
     auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_plots );
     reorderability->orderChanged.connect( this, &RimDepthTrackPlot::onPlotsReordered );
 

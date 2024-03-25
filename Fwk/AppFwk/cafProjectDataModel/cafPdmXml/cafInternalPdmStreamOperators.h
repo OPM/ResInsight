@@ -81,6 +81,22 @@ template <typename T, typename U>
 QTextStream& operator>>( QTextStream& str, std::pair<T, U>& sobj )
 {
     T first;
+    U second;
+
+    str >> first >> second;
+
+    sobj = std::make_pair( first, second );
+
+    return str;
+}
+
+//==================================================================================================
+/// Explicit specialization for std::pair<T, QString>, as the string can contain spaces
+//==================================================================================================
+template <typename T>
+QTextStream& operator>>( QTextStream& str, std::pair<T, QString>& sobj )
+{
+    T first;
 
     str >> first;
 
@@ -100,10 +116,7 @@ QTextStream& operator>>( QTextStream& str, std::pair<T, U>& sobj )
         }
     }
 
-    QVariant v      = restOfString;
-    U        second = v.value<U>();
-
-    sobj = std::make_pair( first, second );
+    sobj = std::make_pair( first, restOfString );
 
     return str;
 }

@@ -35,23 +35,38 @@
 #include "RimFaultReactivationDataAccessor.h"
 #include "RimFaultReactivationDataAccessorGeoMech.h"
 #include "RimFaultReactivationDataAccessorPorePressure.h"
-#include "RimFaultReactivationDataAccessorStress.h"
+#include "RimFaultReactivationDataAccessorStressEclipse.h"
+#include "RimFaultReactivationDataAccessorStressGeoMech.h"
 #include "RimFaultReactivationDataAccessorTemperature.h"
 #include "RimFaultReactivationDataAccessorVoidRatio.h"
 #include "RimFaultReactivationEnums.h"
+#include "RimFaultReactivationModel.h"
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( RimEclipseCase*            thecase,
-                                                                RimGeoMechCase*            geoMechCase,
-                                                                const std::vector<size_t>& timeSteps )
+RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( const RimFaultReactivationModel&   model,
+                                                                RimEclipseCase*                    eCase,
+                                                                RimGeoMechCase*                    geoMechCase,
+                                                                const std::vector<size_t>&         timeSteps,
+                                                                RimFaultReactivation::StressSource stressSource )
     : m_timeSteps( timeSteps )
 {
-    // TODO: correct default pore pressure gradient?
-    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorPorePressure>( thecase, 1.0 ) );
-    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorVoidRatio>( thecase, 0.0001 ) );
-    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorTemperature>( thecase ) );
+    double porePressureGradient = 1.0;
+    double topTemperature       = model.seabedTemperature();
+    double seabedDepth          = -model.seaBedDepth();
+    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorPorePressure>( eCase, porePressureGradient, seabedDepth ) );
+    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorVoidRatio>( eCase, 0.0001 ) );
+    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorTemperature>( eCase, topTemperature, seabedDepth ) );
+
+    std::vector<RimFaultReactivation::Property> stressProperties = { RimFaultReactivation::Property::StressTop,
+                                                                     RimFaultReactivation::Property::DepthTop,
+                                                                     RimFaultReactivation::Property::StressBottom,
+                                                                     RimFaultReactivation::Property::DepthBottom,
+                                                                     RimFaultReactivation::Property::LateralStressComponentX,
+                                                                     RimFaultReactivation::Property::LateralStressComponentY };
+
     if ( geoMechCase )
     {
         std::vector<RimFaultReactivation::Property> properties = { RimFaultReactivation::Property::YoungsModulus,
@@ -62,16 +77,43 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( RimEclipseCase* 
         {
             m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorGeoMech>( geoMechCase, property ) );
         }
+    }
 
-        std::vector<RimFaultReactivation::Property> stressProperties = { RimFaultReactivation::Property::StressTop,
-                                                                         RimFaultReactivation::Property::DepthTop,
-                                                                         RimFaultReactivation::Property::StressBottom,
-                                                                         RimFaultReactivation::Property::DepthBottom,
-                                                                         RimFaultReactivation::Property::LateralStressComponentX,
-                                                                         RimFaultReactivation::Property::LateralStressComponentY };
+    if ( ( stressSource == RimFaultReactivation::StressSource::StressFromGeoMech ) && ( geoMechCase ) )
+    {
         for ( auto property : stressProperties )
         {
-            m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorStress>( geoMechCase, property ) );
+            m_accessors.push_back(
+                std::make_shared<RimFaultReactivationDataAccessorStressGeoMech>( geoMechCase, property, porePressureGradient, seabedDepth ) );
+        }
+    }
+    else
+    {
+        auto extractDensities = []( const RimFaultReactivationModel& model )
+        {
+            std::map<RimFaultReactivation::ElementSets, double> densities;
+            std::vector<RimFaultReactivation::ElementSets>      elementSets = { RimFaultReactivation::ElementSets::OverBurden,
+                                                                                RimFaultReactivation::ElementSets::UnderBurden,
+                                                                                RimFaultReactivation::ElementSets::Reservoir,
+                                                                                RimFaultReactivation::ElementSets::IntraReservoir,
+                                                                                RimFaultReactivation::ElementSets::FaultZone };
+            for ( auto e : elementSets )
+            {
+                densities[e] = model.materialParameters( e )[2];
+            }
+            return densities;
+        };
+
+        std::map<RimFaultReactivation::ElementSets, double> densities = extractDensities( model );
+        for ( auto property : stressProperties )
+        {
+            m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorStressEclipse>( eCase,
+                                                                                                    property,
+                                                                                                    porePressureGradient,
+                                                                                                    seabedDepth,
+                                                                                                    model.waterDensity(),
+                                                                                                    model.lateralStressCoefficient(),
+                                                                                                    densities ) );
         }
     }
 }
@@ -126,39 +168,52 @@ std::vector<double> RimFaultReactivationDataAccess::extractModelData( const RigF
     };
 
     std::shared_ptr<RimFaultReactivationDataAccessor> accessor = getAccessor( property );
+
     if ( accessor )
     {
-        accessor->setTimeStep( timeStep );
+        accessor->setModelAndTimeStep( model, timeStep );
 
         auto grid = model.grid( gridPart );
 
-        std::vector<double> values;
+        const std::map<RimFaultReactivation::BorderSurface, std::vector<unsigned int>>& borderSurfaceElements = grid->borderSurfaceElements();
+        auto it = borderSurfaceElements.find( RimFaultReactivation::BorderSurface::Seabed );
+        CAF_ASSERT( it != borderSurfaceElements.end() && "Sea bed border surface does not exist" );
+        std::set<unsigned int> seabedElements( it->second.begin(), it->second.end() );
 
         if ( nodeProperties.contains( property ) )
         {
-            for ( auto& node : grid->globalNodes() )
+            int                 numNodes = static_cast<int>( grid->dataNodes().size() );
+            std::vector<double> values( numNodes, std::numeric_limits<double>::infinity() );
+
+            for ( int nodeIndex = 0; nodeIndex < numNodes; nodeIndex++ )
             {
-                double value = accessor->valueAtPosition( node );
-                values.push_back( value );
+                double value      = accessor->valueAtPosition( grid->dataNodes()[nodeIndex], model, gridPart );
+                values[nodeIndex] = value;
             }
+            return values;
         }
         else
         {
-            size_t numElements = grid->elementIndices().size();
-            for ( size_t elementIndex = 0; elementIndex < numElements; elementIndex++ )
-            {
-                std::vector<cvf::Vec3d> corners = grid->elementCorners( elementIndex );
+            int                 numElements = static_cast<int>( grid->elementIndices().size() );
+            std::vector<double> values( numElements, std::numeric_limits<double>::infinity() );
 
-                double topDepth    = computeAverageDepth( corners, { 0, 1, 2, 3 } );
+            for ( int elementIndex = 0; elementIndex < numElements; elementIndex++ )
+            {
+                std::vector<cvf::Vec3d> corners = grid->elementDataCorners( elementIndex );
+
+                // Move top of sea bed element down to end up inside top element
+                bool   isTopElement   = seabedElements.contains( static_cast<unsigned int>( elementIndex ) );
+                double topDepthAdjust = isTopElement ? 0.1 : 0.0;
+
+                double topDepth    = computeAverageDepth( corners, { 0, 1, 2, 3 } ) - topDepthAdjust;
                 double bottomDepth = computeAverageDepth( corners, { 4, 5, 6, 7 } );
 
-                cvf::Vec3d position = RigCaseToCaseCellMapperTools::calculateCellCenter( corners.data() );
-                double     value    = accessor->valueAtPosition( position, topDepth, bottomDepth );
-                values.push_back( value );
+                cvf::Vec3d position  = RigCaseToCaseCellMapperTools::calculateCellCenter( corners.data() );
+                double     value     = accessor->valueAtPosition( position, model, gridPart, topDepth, bottomDepth, elementIndex );
+                values[elementIndex] = value;
             }
+            return values;
         }
-
-        return values;
     }
 
     return {};
@@ -205,25 +260,4 @@ std::shared_ptr<RimFaultReactivationDataAccessor> RimFaultReactivationDataAccess
         if ( accessor->isMatching( property ) ) return accessor;
 
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationDataAccess::elementHasValidData( std::vector<cvf::Vec3d> elementCorners ) const
-{
-    auto accessor = getAccessor( RimFaultReactivation::Property::PorePressure );
-    if ( !accessor ) return false;
-
-    accessor->setTimeStep( 0 );
-
-    int nValid = 0;
-
-    for ( auto& p : elementCorners )
-    {
-        if ( accessor->hasValidDataAtPosition( p ) ) nValid++;
-    }
-
-    // if more than half of the nodes have valid data, we're ok
-    return nValid > 4;
 }

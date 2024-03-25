@@ -63,7 +63,6 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
 
     // Set to hidden to avoid this item to been displayed as a child item
     // Fields in this object are displayed using defineUiOrdering()
-    m_resultDefinition.uiCapability()->setUiTreeHidden( true );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_rangeLabelText, "Dummy_keyword", QString( "Range Type" ), "Range Type" );
@@ -390,7 +389,7 @@ void RimEclipsePropertyFilter::defineObjectEditorAttribute( QString uiConfigName
         if ( treeItemAttribute )
         {
             treeItemAttribute->tags.clear();
-            auto tag  = caf::PdmUiTreeViewItemAttribute::Tag::create();
+            auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
             tag->icon = caf::IconProvider( ":/chain.png" );
 
             treeItemAttribute->tags.push_back( std::move( tag ) );

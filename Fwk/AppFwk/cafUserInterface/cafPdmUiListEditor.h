@@ -38,12 +38,12 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
+#include <QStringListModel>
+
 class QItemSelection;
 class QLabel;
 class QListViewHeightHint;
 class QModelIndex;
-class QStringList;
-class QStringListModel;
 
 namespace caf
 {

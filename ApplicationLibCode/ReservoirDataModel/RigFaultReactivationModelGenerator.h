@@ -33,57 +33,76 @@ class RigFault;
 class RigMainGrid;
 class RigGriddedPart3d;
 class RigActiveCellInfo;
+class RigCell;
 
 class RigFaultReactivationModelGenerator : cvf::Object
 {
+    using FaceType = cvf::StructGridInterface::FaceType;
+
 public:
-    RigFaultReactivationModelGenerator( cvf::Vec3d position, cvf::Vec3d normal );
-    ~RigFaultReactivationModelGenerator();
+    RigFaultReactivationModelGenerator( cvf::Vec3d position, cvf::Vec3d modelNormal, cvf::Vec3d direction );
+    ~RigFaultReactivationModelGenerator() override;
 
     void setFault( const RigFault* fault );
     void setGrid( const RigMainGrid* grid );
     void setActiveCellInfo( const RigActiveCellInfo* activeCellInfo );
-    void setFaultBufferDepth( double aboveFault, double belowFault );
+    void setFaultBufferDepth( double aboveFault, double belowFault, int faultZoneCells );
     void setModelSize( double startDepth, double depthBelowFault, double horzExtentFromFault );
     void setModelThickness( double thickness );
-    void setModelGriddingOptions( double maxCellHeight, double cellSizeFactorHeight, double minCellWidth, double cellSizeFactorWidth );
+    void setModelGriddingOptions( double minCellHeight,
+                                  double maxCellHeight,
+                                  double cellSizeFactorHeight,
+                                  double minCellWidth,
+                                  double cellSizeFactorWidth );
 
     void setUseLocalCoordinates( bool useLocalCoordinates );
     void setupLocalCoordinateTransform();
 
+    cvf::Vec3d transformPointIfNeeded( const cvf::Vec3d point ) const;
+
     std::pair<cvf::Vec3d, cvf::Vec3d> modelLocalNormalsXY();
 
-    void generateGeometry( size_t                             startCellIndex,
-                           cvf::StructGridInterface::FaceType startFace,
-                           RigGriddedPart3d*                  frontPart,
-                           RigGriddedPart3d*                  backPart );
+    void generateGeometry( size_t startCellIndex, FaceType startFace, RigGriddedPart3d* frontPart, RigGriddedPart3d* backPart );
 
     const std::array<cvf::Vec3d, 12>&       frontPoints() const;
     const std::array<cvf::Vec3d, 12>&       backPoints() const;
-    const cvf::Vec3d                        normal() const;
+    const cvf::Vec3d                        modelNormal() const;
     const std::pair<cvf::Vec3d, cvf::Vec3d> faultTopBottomPoints() const;
+    std::pair<double, double>               depthTopBottom() const;
 
 protected:
-    static const std::array<int, 4>      faceIJCornerIndexes( cvf::StructGridInterface::FaceType face );
+    static const std::array<int, 4>      faceIJCornerIndexes( FaceType face );
     static const std::vector<cvf::Vec3d> interpolateExtraPoints( cvf::Vec3d from, cvf::Vec3d to, double maxStep );
     static const std::vector<double>     partition( double distance, double startSize, double sizeFactor );
+    static std::pair<FaceType, FaceType> sideFacesIJ( FaceType face );
 
-    static cvf::Vec3d lineIntersect( const cvf::Plane& plane, cvf::Vec3d lineA, cvf::Vec3d lineB );
-    static cvf::Vec3d extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double stopDepth );
-    static void       splitLargeLayers( std::map<double, cvf::Vec3d>& layers, std::vector<int>& kLayers, double maxHeight );
+    static cvf::Vec3d                 extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double stopDepth );
+    static void                       splitLargeLayers( std::map<double, cvf::Vec3d>& layers, double maxHeight );
+    static void                       mergeTinyLayers( std::map<double, cvf::Vec3d>& layers, double minHeight );
+    static std::vector<double>        extractZValues( const std::vector<cvf::Vec3d>& points );
+    static std::array<cvf::Vec3d, 12> shiftOrigin( const std::array<cvf::Vec3d, 12>& points, const cvf::Vec3d& newOrigin );
 
-    std::map<double, cvf::Vec3d> elementLayers( cvf::StructGridInterface::FaceType face, std::vector<size_t>& cellIndexColumn );
-    std::vector<int>             elementKLayers( const std::vector<size_t>& cellIndexColumn );
+    std::vector<size_t> buildCellColumn( size_t startCell, FaceType startFace, std::map<double, cvf::Vec3d>& layers );
 
-    void addFilter( QString name, std::vector<size_t> cells );
+    void updateFilters( std::vector<size_t> frontCells, std::vector<size_t> backCells );
 
-    size_t oppositeStartCellIndex( const std::vector<size_t> cellIndexColumn, cvf::StructGridInterface::FaceType face );
+    size_t oppositeStartCellIndex( const std::vector<size_t> cellIndexColumn, FaceType face );
 
     void generatePointsFrontBack();
 
+    std::pair<size_t, size_t> findCellWithIntersection( const std::vector<RigCell>& cellRow,
+                                                        FaceType                    face,
+                                                        size_t&                     cellIndex,
+                                                        cvf::Vec3d&                 intersect1,
+                                                        cvf::Vec3d&                 intersect2,
+                                                        bool                        goingUp );
+
 private:
     cvf::Vec3d m_startPosition;
-    cvf::Vec3d m_normal;
+    cvf::Vec3d m_modelNormal;
+    cvf::Vec3d m_modelDirection;
+
+    cvf::Plane m_modelPlane;
 
     std::array<cvf::Vec3d, 12> m_frontPoints;
     std::array<cvf::Vec3d, 12> m_backPoints;
@@ -96,12 +115,15 @@ private:
 
     double m_bufferAboveFault;
     double m_bufferBelowFault;
+    int    m_faultZoneCells;
 
     double m_startDepth;
+    double m_bottomDepth;
     double m_depthBelowFault;
     double m_horzExtentFromFault;
     double m_modelThickness;
 
+    double m_minCellHeight;
     double m_maxCellHeight;
     double m_cellSizeHeightFactor;
     double m_minCellWidth;

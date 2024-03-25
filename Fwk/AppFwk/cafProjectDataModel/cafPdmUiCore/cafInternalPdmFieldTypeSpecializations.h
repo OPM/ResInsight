@@ -4,10 +4,6 @@
 #include "cafPdmObjectHandle.h"
 #include "cafPdmPointer.h"
 
-#include <QStringList>
-
-#include <type_traits>
-
 namespace caf
 {
 template <typename T>

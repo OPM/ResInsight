@@ -48,7 +48,7 @@ double RiaEclipseUnitTools::darcysConstant( RiaDefines::EclipseUnitSystem unitSy
 
 //--------------------------------------------------------------------------------------------------
 /// Convert Gas to oil equivalents
-/// If field unit, the Gas is in Mega ft^3 while the others are in [stb] (barrel)
+/// If field unit, the Gas is in Mft^3(=1000ft^3) while the others are in [stb] (barrel)
 //--------------------------------------------------------------------------------------------------
 double RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( RiaDefines::EclipseUnitSystem caseUnitSystem, double eclGasFlowRate )
 {
@@ -56,18 +56,24 @@ double RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( RiaDefine
     /// we convert gas to stb as well. Based on
     /// 1 [stb] = 0.15898729492800007 [m^3]
     /// 1 [ft]  = 0.3048 [m]
-    /// megaFt3ToStbFactor = 1.0 / (1.0e-6 * 0.15898729492800007 * ( 1.0 / 0.3048 )^3 )
-    /// double megaFt3ToStbFactor = 178107.60668;
+    ///
+    /// NB Mft^3 = 1000 ft^3 - can wrongly be interpreted as M for Mega in metric units
 
-    double fieldGasToOilEquivalent  = 1.0e6 / 5800; // Mega ft^3 to BOE
-    double metricGasToOilEquivalent = 1.0 / 1.0e3; // Sm^3 Gas to Sm^3 oe
+    if ( caseUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+    {
+        const double fieldGasToOilEquivalent = 1000.0 / 5614.63;
 
-    double oilEquivalentGasRate = HUGE_VAL;
+        return fieldGasToOilEquivalent * eclGasFlowRate;
+    }
 
-    if ( caseUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD ) oilEquivalentGasRate = fieldGasToOilEquivalent * eclGasFlowRate;
-    if ( caseUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC ) oilEquivalentGasRate = metricGasToOilEquivalent * eclGasFlowRate;
+    if ( caseUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
+    {
+        double metricGasToOilEquivalent = 1.0 / 1000.0; // Sm^3 Gas to Sm^3 oe
 
-    return oilEquivalentGasRate;
+        return metricGasToOilEquivalent * eclGasFlowRate;
+    }
+
+    return HUGE_VAL;
 }
 
 //--------------------------------------------------------------------------------------------------

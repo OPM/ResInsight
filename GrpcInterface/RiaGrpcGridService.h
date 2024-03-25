@@ -40,7 +40,7 @@ class GridDimensions;
 //==================================================================================================
 class RiaCellCenterStateHandler
 {
-    typedef grpc::Status Status;
+    using Status = grpc::Status;
 
 public:
     RiaCellCenterStateHandler();

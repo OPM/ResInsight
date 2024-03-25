@@ -71,7 +71,11 @@ void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, 
     socketStream << (qint64)(timeStepCount);
     socketStream << (qint64)singleTimeStepByteCount;
 
+#if OCTAVE_MAJOR_VERSION > 6
+    auto internalData = propertyFrames.data();
+#else
     const double* internalData = propertyFrames.fortran_vec();
+#endif
 
     QStringList errorMessages;
     if (!RiaSocketDataTransfer::writeBlockDataToSocket(&socket, (const char *)internalData, timeStepCount*singleTimeStepByteCount, errorMessages))
@@ -154,14 +158,6 @@ DEFUN_DLD (riSetGridProperty, args, nargout,
     }
 
     NDArray propertyFrames = args(0).array_value();
-
-    if (error_state)
-    {
-        error("riSetGridProperty: The supplied first argument is not a valid Matrix");
-        print_usage();
-
-        return octave_value_list ();
-    }
 
 
     dim_vector mxDims = propertyFrames.dims();

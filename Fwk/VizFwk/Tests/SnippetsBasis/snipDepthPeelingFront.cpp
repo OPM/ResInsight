@@ -461,7 +461,7 @@ void DepthPeelingFront::renderFrontToBackPeeling()
     // 3. Final Pass
     // ---------------------------------------------------------------------
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_openGLContext->defaultFramebufferObject());
     glDrawBuffer(GL_BACK);
     glDisable(GL_DEPTH_TEST);
 

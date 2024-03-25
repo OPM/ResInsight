@@ -33,7 +33,6 @@
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiGroup.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QDir>
@@ -516,8 +515,7 @@ void RicExportEclipseSectorModelUi::applyBoundaryDefaults()
 {
     if ( exportGridBox == ACTIVE_CELLS_BOX )
     {
-        cvf::Vec3st minActive, maxActive;
-        m_caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->IJKBoundingBox( minActive, maxActive );
+        auto [minActive, maxActive] = m_caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->ijkBoundingBox();
         setMin( cvf::Vec3i( minActive ) );
         setMax( cvf::Vec3i( maxActive ) );
     }

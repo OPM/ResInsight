@@ -43,7 +43,6 @@
 #include "cvfuTestSnippet.h"
 #include "cvfqtUtils.h"
 
-#if QT_VERSION >= 0x050000
 #include <QApplication>
 #include <QComboBox>
 #include <QDockWidget>
@@ -52,13 +51,7 @@
 #include <QPushButton>
 #include <QSpacerItem>
 #include <QLineEdit>
-#else
-#include <QtGui/QGridLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
-#include <QtGui/QSpacerItem>
-#include <QtGui/QLineEdit>
-#endif
+
 using cvfu::TestSnippet;
 using cvfu::SnippetInfo;
 using cvfu::SnippetRegistry;
@@ -232,10 +225,3 @@ void QSRRunPanel::slotPrevButtonClicked()
     executeCurrentSnippet();
     updateCurrSnippetInfoWidgets();
 }
-
-
-// -------------------------------------------------------
-#ifndef CVF_USING_CMAKE
-#include "qt-generated/moc_QSRRunPanel.cpp"
-#endif
-

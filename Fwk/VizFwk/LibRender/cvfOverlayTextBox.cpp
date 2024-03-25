@@ -49,10 +49,7 @@
 #include "cvfFont.h"
 #include "cvfGlyph.h"
 #include "cvfRenderStateLine.h"
-
-#ifndef CVF_OPENGL_ES
 #include "cvfRenderState_FF.h"
-#endif
 
 namespace cvf {
 
@@ -183,14 +180,13 @@ void OverlayTextBox::renderBackgroundAndBorder(OpenGLContext* oglContext, const 
             ShaderProgram::useNoProgram(oglContext);
         }
 
-#ifndef CVF_OPENGL_ES
         RenderStateMaterial_FF mat;
         mat.enableColorMaterial(true);
         mat.applyOpenGL(oglContext);
 
         RenderStateLighting_FF light(false);
         light.applyOpenGL(oglContext);
-#endif
+
         projCam.applyOpenGL();
     }
     else
@@ -225,7 +221,6 @@ void OverlayTextBox::renderBackgroundAndBorder(OpenGLContext* oglContext, const 
     {
         if (software)
         {
-#ifndef CVF_OPENGL_ES
             glColor4fv(m_backgroundColor.ptr());
             glBegin(GL_TRIANGLE_FAN);
             glVertex3fv(v1);
@@ -233,7 +228,6 @@ void OverlayTextBox::renderBackgroundAndBorder(OpenGLContext* oglContext, const 
             glVertex3fv(v3);
             glVertex3fv(v4);
             glEnd();
-#endif
         }
         else
         {
@@ -248,7 +242,6 @@ void OverlayTextBox::renderBackgroundAndBorder(OpenGLContext* oglContext, const 
     {
         if (software)
         {
-#ifndef CVF_OPENGL_ES
             glColor3fv(m_borderColor.ptr());
             glBegin(GL_LINE_LOOP);
             glVertex3fv(v1);
@@ -256,7 +249,6 @@ void OverlayTextBox::renderBackgroundAndBorder(OpenGLContext* oglContext, const 
             glVertex3fv(v3);
             glVertex3fv(v4);
             glEnd();
-#endif
         }
         else
         {

@@ -23,14 +23,8 @@
 #include "RiuInterfaceToViewWindow.h"
 #include "RiuViewerToViewInterface.h"
 
-#include "cafFontTools.h"
-#include "cafMouseState.h"
 #include "cafPdmInterfacePointer.h"
-#include "cafPdmObject.h"
-#include "cafPdmPointer.h"
 #include "cafViewer.h"
-
-#include "cvfStructGrid.h"
 
 #include <memory>
 
@@ -73,7 +67,7 @@ class RiuViewer : public caf::Viewer, public RiuInterfaceToViewWindow
     Q_OBJECT
 
 public:
-    RiuViewer( const QGLFormat& format, QWidget* parent );
+    RiuViewer( QWidget* parent );
     ~RiuViewer() override;
 
     RiuViewer( const RiuViewer& ) = delete;
@@ -166,6 +160,7 @@ private:
 
     void mouseReleaseEvent( QMouseEvent* event ) override;
     void mousePressEvent( QMouseEvent* event ) override;
+    void mouseDoubleClickEvent( QMouseEvent* event ) override;
 
 private:
     QLabel* m_infoLabel;

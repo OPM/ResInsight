@@ -23,6 +23,7 @@
 
 #include "cafPdmFieldCapability.h"
 
+#include <QApplication>
 #include <QProcess>
 #include <QProcessEnvironment>
 

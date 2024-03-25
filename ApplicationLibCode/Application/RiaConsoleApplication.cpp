@@ -103,8 +103,9 @@ void RiaConsoleApplication::initialize()
 
     RiaApplication::initialize();
 
-    RiaLogging::setLoggerInstance( std::make_unique<RiaStdOutLogger>() );
-    RiaLogging::loggerInstance()->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
+    auto logger = std::make_unique<RiaStdOutLogger>();
+    logger->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
+    RiaLogging::appendLoggerInstance( std::move( logger ) );
 
     m_socketServer = new RiaSocketServer( this );
 }
@@ -130,6 +131,7 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( gsl::n
     if ( progOpt->option( "version" ) )
     {
         QString text = QString( STRPRODUCTVER ) + "\n";
+        text += "SHA " + QString( RESINSIGHT_GIT_HASH ) + "\n";
 
         showFormattedTextInMessageBoxOrConsole( text );
 
@@ -151,22 +153,6 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( gsl::n
         }
 
         return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
-    }
-
-    // Unit testing
-    // --------------------------------------------------------
-    if ( cvf::Option o = progOpt->option( "unittest" ) )
-    {
-        int testReturnValue = launchUnitTestsWithConsole();
-        if ( testReturnValue == 0 )
-        {
-            return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
-        }
-        else
-        {
-            RiaLogging::error( "Error running unit tests" );
-            return RiaApplication::ApplicationStatus::EXIT_WITH_ERROR;
-        }
     }
 
     if ( cvf::Option o = progOpt->option( "startdir" ) )

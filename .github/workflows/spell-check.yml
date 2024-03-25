@@ -7,11 +7,11 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: sobolevn/misspell-fixer-action@master
         with:
           options: "-rsvnuR ApplicationLibCode/"
-      - uses: peter-evans/create-pull-request@v5
+      - uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Fixes by misspell-fixer"

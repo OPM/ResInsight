@@ -18,16 +18,17 @@
 
 #pragma once
 
+#include "RimFaultReactivationDataAccessor.h"
+
 #include "cvfObject.h"
 #include "cvfVector3.h"
-
-#include "RimFaultReactivationDataAccessor.h"
-#include "RimFaultReactivationEnums.h"
 
 class RimEclipseCase;
 class RigEclipseCaseData;
 class RigMainGrid;
 class RigResultAccessor;
+class RigEclipseWellLogExtractor;
+class RigWellPath;
 
 //==================================================================================================
 ///
@@ -36,16 +37,17 @@ class RigResultAccessor;
 class RimFaultReactivationDataAccessorPorePressure : public RimFaultReactivationDataAccessor
 {
 public:
-    RimFaultReactivationDataAccessorPorePressure( RimEclipseCase* eclipseCase, double porePressureGradient );
+    RimFaultReactivationDataAccessorPorePressure( RimEclipseCase* eclipseCase, double porePressureGradient, double seabedDepth );
     ~RimFaultReactivationDataAccessorPorePressure();
 
     bool isMatching( RimFaultReactivation::Property property ) const override;
 
-    double valueAtPosition( const cvf::Vec3d& position,
-                            double            topDepth    = std::numeric_limits<double>::infinity(),
-                            double            bottomDepth = std::numeric_limits<double>::infinity() ) const override;
-
-    bool hasValidDataAtPosition( const cvf::Vec3d& position ) const override;
+    double valueAtPosition( const cvf::Vec3d&                position,
+                            const RigFaultReactivationModel& model,
+                            RimFaultReactivation::GridPart   gridPart,
+                            double                           topDepth     = std::numeric_limits<double>::infinity(),
+                            double                           bottomDepth  = std::numeric_limits<double>::infinity(),
+                            size_t                           elementIndex = std::numeric_limits<size_t>::max() ) const override;
 
 private:
     void updateResultAccessor() override;
@@ -56,5 +58,9 @@ private:
     RigEclipseCaseData*         m_caseData;
     const RigMainGrid*          m_mainGrid;
     double                      m_defaultPorePressureGradient;
+    double                      m_seabedDepth;
     cvf::ref<RigResultAccessor> m_resultAccessor;
+
+    std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>                m_wellPaths;
+    std::map<RimFaultReactivation::GridPart, cvf::ref<RigEclipseWellLogExtractor>> m_extractors;
 };

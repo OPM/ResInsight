@@ -116,7 +116,7 @@ RimWellAllocationOverTimePlot::RimWellAllocationOverTimePlot()
     CAF_PDM_InitFieldNoDefault( &m_excludeTimeSteps, "ExcludeTimeSteps", "" );
     m_excludeTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     CAF_PDM_InitFieldNoDefault( &m_applyTimeStepSelections, "ApplyTimeStepSelections", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_applyTimeStepSelections );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_applyTimeStepSelections );
 
     CAF_PDM_InitFieldNoDefault( &m_flowDiagSolution, "FlowDiagSolution", "Plot Type" );
     CAF_PDM_InitFieldNoDefault( &m_flowValueType, "FlowValueType", "Value Type" );

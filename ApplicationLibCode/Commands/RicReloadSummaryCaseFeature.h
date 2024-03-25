@@ -28,9 +28,6 @@ class RicReloadSummaryCaseFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-    static void reloadSummaryCase( RimSummaryCase* summaryCase );
-
 protected:
     bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;

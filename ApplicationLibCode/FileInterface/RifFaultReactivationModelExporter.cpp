@@ -24,24 +24,34 @@
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
 #include "RiaEclipseUnitTools.h"
+#include "RiaFilePathTools.h"
 #include "RiaVersionInfo.h"
 #include "RiaWellLogUnitTools.h"
 
 #include "RifInpExportTools.h"
+#include "RifJsonEncodeDecode.h"
+
 #include "RimFaultReactivationDataAccess.h"
 #include "RimFaultReactivationEnums.h"
 #include "RimFaultReactivationModel.h"
+#include "RimFaultReactivationTools.h"
 
+#include <cmath>
 #include <filesystem>
 #include <fstream>
+#include <numbers>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( std::ostream&                    stream,
-                                                                                const std::string&               exportDirectory,
-                                                                                const RimFaultReactivationModel& rimModel )
+std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( std::ostream& stream, const RimFaultReactivationModel& rimModel )
 {
+    auto [modelOk, errorMsg] = rimModel.validateModel();
+    if ( !modelOk ) return { false, errorMsg };
+
+    auto dataAccess = extractAndExportModelData( rimModel );
+    if ( !dataAccess ) return { false, "Unable to get necessary data from the input case." };
+
     std::string applicationNameAndVersion = std::string( RI_APPLICATION_NAME ) + " " + std::string( STRPRODUCTVER );
 
     using PartBorderSurface                                        = RimFaultReactivation::BorderSurface;
@@ -52,13 +62,13 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
 
     // The two parts are "mirrored", so face number 4 of the two parts should face eachother.
     using FaultGridPart                                              = RimFaultReactivation::GridPart;
-    std::map<std::pair<FaultGridPart, PartBorderSurface>, int> faces = { { { FaultGridPart::FW, PartBorderSurface::FaultSurface }, 4 },
-                                                                         { { FaultGridPart::FW, PartBorderSurface::UpperSurface }, 4 },
-                                                                         { { FaultGridPart::FW, PartBorderSurface::LowerSurface }, 4 },
+    std::map<std::pair<FaultGridPart, PartBorderSurface>, int> faces = { { { FaultGridPart::FW, PartBorderSurface::FaultSurface }, 5 },
+                                                                         { { FaultGridPart::FW, PartBorderSurface::UpperSurface }, 5 },
+                                                                         { { FaultGridPart::FW, PartBorderSurface::LowerSurface }, 5 },
                                                                          { { FaultGridPart::FW, PartBorderSurface::Seabed }, 2 },
-                                                                         { { FaultGridPart::HW, PartBorderSurface::FaultSurface }, 4 },
-                                                                         { { FaultGridPart::HW, PartBorderSurface::UpperSurface }, 4 },
-                                                                         { { FaultGridPart::HW, PartBorderSurface::LowerSurface }, 4 },
+                                                                         { { FaultGridPart::HW, PartBorderSurface::FaultSurface }, 5 },
+                                                                         { { FaultGridPart::HW, PartBorderSurface::UpperSurface }, 5 },
+                                                                         { { FaultGridPart::HW, PartBorderSurface::LowerSurface }, 5 },
                                                                          { { FaultGridPart::HW, PartBorderSurface::Seabed }, 2 } };
 
     std::map<FaultGridPart, std::string> partNames = {
@@ -76,36 +86,35 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
         { RimFaultReactivation::ElementSets::IntraReservoir, "INTRA_RESERVOIR" },
         { RimFaultReactivation::ElementSets::Reservoir, "RESERVOIR" },
         { RimFaultReactivation::ElementSets::UnderBurden, "UNDERBURDEN" },
+        { RimFaultReactivation::ElementSets::FaultZone, "FAULT_ZONE" },
     };
 
-    double faultFriction            = 0.0;
-    bool   useGridVoidRatio         = rimModel.useGridVoidRatio();
-    bool   useGridPorePressure      = rimModel.useGridPorePressure();
-    bool   useGridTemperature       = rimModel.useGridTemperature();
-    bool   useGridDensity           = rimModel.useGridDensity();
-    bool   useGridElasticProperties = rimModel.useGridElasticProperties();
-    bool   useGridStress            = rimModel.useGridStress();
+    bool useGridVoidRatio         = rimModel.useGridVoidRatio();
+    bool useGridPorePressure      = rimModel.useGridPorePressure();
+    bool useGridTemperature       = rimModel.useGridTemperature();
+    bool useGridDensity           = rimModel.useGridDensity();
+    bool useGridElasticProperties = rimModel.useGridElasticProperties();
 
-    double seaBedDepth  = rimModel.seaBedDepth();
-    double waterDensity = rimModel.waterDensity();
-    double seaWaterLoad = RiaWellLogUnitTools<double>::gravityAcceleration() * seaBedDepth * waterDensity;
-
-    auto dataAccess = rimModel.dataAccess();
+    double seaBedDepth   = rimModel.seaBedDepth();
+    double waterDensity  = rimModel.waterDensity();
+    double seaWaterLoad  = RiaWellLogUnitTools<double>::gravityAcceleration() * seaBedDepth * waterDensity;
+    double frictionValue = std::tan( ( rimModel.frictionAngleDeg() / 180.0 ) * std::numbers::pi );
 
     auto model = rimModel.model();
     CAF_ASSERT( !model.isNull() );
 
+    const std::string basePath = rimModel.baseFilePath();
+
     std::vector<std::function<std::pair<bool, std::string>()>> methods = {
         [&]() { return printHeading( stream, applicationNameAndVersion ); },
         [&]() { return printParts( stream, *model, partNames, borders, faces, boundaries, materialNames ); },
-        [&]() { return printAssembly( stream, *model, partNames, model->modelLocalNormalsXY() ); },
-        [&]()
-        {
-            return printMaterials( stream, rimModel, materialNames, *dataAccess, exportDirectory, partNames, useGridDensity, useGridElasticProperties );
+        [&]() { return printAssembly( stream, *model, partNames, !rimModel.useLocalCoordinates(), model->modelLocalNormalsXY() ); },
+        [&]() {
+            return printMaterials( stream, rimModel, materialNames, *dataAccess, basePath, partNames, useGridDensity, useGridElasticProperties );
         },
-        [&]() { return printInteractionProperties( stream, faultFriction ); },
+        [&]() { return printInteractionProperties( stream, frictionValue ); },
         [&]() { return printBoundaryConditions( stream, *model, partNames, boundaries ); },
-        [&]() { return printPredefinedFields( stream, *model, *dataAccess, exportDirectory, partNames, useGridVoidRatio, useGridStress ); },
+        [&]() { return printPredefinedFields( stream, *model, *dataAccess, basePath, partNames, useGridVoidRatio ); },
         [&]() { return printInteractions( stream, partNames, borders ); },
         [&]()
         {
@@ -114,7 +123,7 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
                                *dataAccess,
                                partNames,
                                rimModel.selectedTimeSteps(),
-                               exportDirectory,
+                               basePath,
                                useGridPorePressure,
                                useGridTemperature,
                                seaWaterLoad );
@@ -133,14 +142,10 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToFile( const std::string&               filePath,
-                                                                              const RimFaultReactivationModel& model )
+std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToFile( const RimFaultReactivationModel& model )
 {
-    std::filesystem::path p( filePath );
-    std::string           exportDirectory = p.parent_path().generic_string();
-
-    std::ofstream stream( filePath );
-    return exportToStream( stream, exportDirectory, model );
+    std::ofstream stream( model.inputFilename() );
+    return exportToStream( stream, model );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -199,13 +204,13 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printParts(
         for ( auto [boundary, boundaryName] : boundaries )
         {
             // Create boundary condition sets for each side of the parts (except top).
-            auto boundaryNodes    = grid->boundaryNodes();
-            auto boundaryElements = grid->boundaryElements();
+            const auto& boundaryNodes    = grid->boundaryNodes();
+            const auto& boundaryElements = grid->boundaryElements();
 
-            const std::vector<unsigned int>& nodes = boundaryNodes[boundary];
+            const std::vector<unsigned int>& nodes = boundaryNodes.at( boundary );
             RifInpExportTools::printNodeSet( stream, boundaryName, false, nodes );
 
-            const std::vector<unsigned int>& elements = boundaryElements[boundary];
+            const std::vector<unsigned int>& elements = boundaryElements.at( boundary );
             RifInpExportTools::printElementSet( stream, boundaryName, false, elements );
         }
 
@@ -261,6 +266,7 @@ std::pair<bool, std::string>
     RifFaultReactivationModelExporter::printAssembly( std::ostream&                                                stream,
                                                       const RigFaultReactivationModel&                             model,
                                                       const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
+                                                      bool                                                         includeTransform,
                                                       const std::pair<cvf::Vec3d, cvf::Vec3d>&                     transform )
 {
     // ASSEMBLY part
@@ -280,15 +286,18 @@ std::pair<bool, std::string>
         RifInpExportTools::printHeading( stream, "End Instance" );
     }
 
-    for ( const auto& part : parts )
+    if ( includeTransform )
     {
-        auto partNameIt = partNames.find( part );
-        CAF_ASSERT( partNameIt != partNames.end() );
-        std::string partName = partNameIt->second;
+        for ( const auto& part : parts )
+        {
+            auto partNameIt = partNames.find( part );
+            CAF_ASSERT( partNameIt != partNames.end() );
+            std::string partName = partNameIt->second;
 
-        RifInpExportTools::printHeading( stream, "Transform, nset=" + partName + ".ALL" );
-        auto [dir1, dir2] = transform;
-        RifInpExportTools::printNumbers( stream, { dir1.x(), dir1.y(), dir1.z(), dir2.x(), dir2.y(), dir2.z() } );
+            RifInpExportTools::printHeading( stream, "Transform, nset=" + partName + ".ALL" );
+            auto [dir1, dir2] = transform;
+            RifInpExportTools::printNumbers( stream, { dir1.x(), dir1.y(), dir1.z(), dir2.x(), dir2.y(), dir2.z() } );
+        }
     }
 
     RifInpExportTools::printHeading( stream, "End Assembly" );
@@ -304,7 +313,7 @@ std::pair<bool, std::string>
                                                        const RimFaultReactivationModel&                                rimModel,
                                                        const std::map<RimFaultReactivation::ElementSets, std::string>& materialNames,
                                                        const RimFaultReactivationDataAccess&                           dataAccess,
-                                                       const std::string&                                              exportDirectory,
+                                                       const std::string&                                              exportBasePath,
                                                        const std::map<RimFaultReactivation::GridPart, std::string>&    partNames,
                                                        bool                                                            densityFromGrid,
                                                        bool elasticPropertiesFromGrid )
@@ -318,6 +327,7 @@ std::pair<bool, std::string>
         double      poissonNumber;
         double      permeability1;
         double      permeability2;
+        double      expansion;
     };
 
     RifInpExportTools::printSectionComment( stream, "MATERIALS" );
@@ -325,7 +335,7 @@ std::pair<bool, std::string>
 
     for ( auto [element, materialName] : materialNames )
     {
-        std::array<double, 3> parameters = rimModel.materialParameters( element );
+        std::array<double, 4> parameters = rimModel.materialParameters( element );
 
         // Incoming unit for Young's Modulus is GPa: convert to Pa.
         double youngsModulus = RiaEclipseUnitTools::gigaPascalToPascal( parameters[0] );
@@ -336,12 +346,15 @@ std::pair<bool, std::string>
         // Unit is already kg/m^3
         double density = parameters[2];
 
+        double expansion = parameters[3];
+
         materials.push_back( Material{ .name          = materialName,
                                        .density       = density,
                                        .youngsModulus = youngsModulus,
                                        .poissonNumber = poissonNumber,
                                        .permeability1 = 1e-09,
-                                       .permeability2 = 0.3 } );
+                                       .permeability2 = 0.3,
+                                       .expansion     = expansion } );
     }
 
     for ( Material mat : materials )
@@ -369,15 +382,16 @@ std::pair<bool, std::string>
 
         RifInpExportTools::printHeading( stream, "Permeability, specific=1." );
         RifInpExportTools::printNumbers( stream, { mat.permeability1, mat.permeability2 } );
+        RifInpExportTools::printHeading( stream, "Expansion" );
+        RifInpExportTools::printNumbers( stream, { mat.expansion } );
     }
 
     if ( densityFromGrid )
     {
         // Export the density to a separate inp file
-        std::string tableName = "DENSITY";
-        std::string fileName  = tableName + ".inp";
-
-        std::string filePath = createFilePath( exportDirectory, fileName );
+        std::string tableName     = "DENSITY";
+        std::string fullPath      = exportBasePath + "_" + tableName + ".inp";
+        auto [filePath, fileName] = RiaFilePathTools::toFolderAndFileName( QString::fromStdString( fullPath ) );
 
         auto model = rimModel.model();
         bool isOk  = writePropertiesToFile( *model,
@@ -385,21 +399,21 @@ std::pair<bool, std::string>
                                             { RimFaultReactivation::Property::Density },
                                             { "DENSITY" },
                                            0,
-                                           filePath,
+                                           fullPath,
                                            partNames,
                                            tableName,
                                            ", 1." );
         if ( !isOk ) return { false, "Failed to create density file." };
 
-        RifInpExportTools::printHeading( stream, "INCLUDE, input=" + fileName );
+        RifInpExportTools::printHeading( stream, "INCLUDE, input=" + fileName.toStdString() );
     }
 
     if ( elasticPropertiesFromGrid )
     {
         // Export the elastic properties to a separate inp file
-        std::string tableName = "ELASTICS";
-        std::string fileName  = tableName + ".inp";
-        std::string filePath  = createFilePath( exportDirectory, fileName );
+        std::string tableName     = "ELASTICS";
+        std::string fullPath      = exportBasePath + "_" + tableName + ".inp";
+        auto [filePath, fileName] = RiaFilePathTools::toFolderAndFileName( QString::fromStdString( fullPath ) );
 
         auto model = rimModel.model();
         bool isOk  = writePropertiesToFile( *model,
@@ -407,13 +421,13 @@ std::pair<bool, std::string>
                                             { RimFaultReactivation::Property::YoungsModulus, RimFaultReactivation::Property::PoissonsRatio },
                                             { "MODULUS", "RATIO" },
                                            0,
-                                           filePath,
+                                           fullPath,
                                            partNames,
                                            tableName,
                                            ", 2." );
         if ( !isOk ) return { false, "Failed to create elastic properties file." };
 
-        RifInpExportTools::printHeading( stream, "INCLUDE, input=" + fileName );
+        RifInpExportTools::printHeading( stream, "INCLUDE, input=" + fileName.toStdString() );
     }
 
     return { true, "" };
@@ -498,10 +512,9 @@ std::pair<bool, std::string>
     RifFaultReactivationModelExporter::printPredefinedFields( std::ostream&                                                stream,
                                                               const RigFaultReactivationModel&                             model,
                                                               const RimFaultReactivationDataAccess&                        dataAccess,
-                                                              const std::string&                                           exportDirectory,
+                                                              const std::string&                                           exportBasePath,
                                                               const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
-                                                              bool voidRatioFromEclipse,
-                                                              bool stressFromGrid )
+                                                              bool voidRatioFromEclipse )
 {
     // PREDEFINED FIELDS
     struct PredefinedField
@@ -519,10 +532,9 @@ std::pair<bool, std::string>
         {
             fields.push_back( PredefinedField{ .initialConditionType = "RATIO", .partName = name, .value = 0.3 } );
         }
-        fields.push_back( PredefinedField{ .initialConditionType = "PORE PRESSURE", .partName = name, .value = 0.0 } );
     }
 
-    RifInpExportTools::printSectionComment( stream, "PREDEFINED FIELDS" );
+    RifInpExportTools::printSectionComment( stream, "INITIAL CONDITIONS" );
 
     for ( auto field : fields )
     {
@@ -532,28 +544,26 @@ std::pair<bool, std::string>
 
     if ( voidRatioFromEclipse )
     {
-        std::string ratioName = "RATIO";
-
         // Export the ratio to a separate inp file for each step
-        std::string fileName = ratioName + ".inp";
-        std::string filePath = createFilePath( exportDirectory, fileName );
+        std::string ratioName     = "RATIO";
+        std::string fullPath      = exportBasePath + "_" + ratioName + ".inp";
+        auto [filePath, fileName] = RiaFilePathTools::toFolderAndFileName( QString::fromStdString( fullPath ) );
 
         // Use void ratio from first time step
         size_t timeStep = 0;
-        bool isOk = writePropertyToFile( model, dataAccess, RimFaultReactivation::Property::VoidRatio, timeStep, filePath, partNames, "" );
+        bool isOk = writePropertyToFile( model, dataAccess, RimFaultReactivation::Property::VoidRatio, timeStep, fullPath, partNames, "" );
         if ( !isOk ) return { false, "Failed to create " + ratioName + " file." };
 
         RifInpExportTools::printHeading( stream, "Initial Conditions, TYPE=" + ratioName );
-        RifInpExportTools::printHeading( stream, "INCLUDE, input=" + fileName );
+        RifInpExportTools::printHeading( stream, "INCLUDE, input=" + fileName.toStdString() );
     }
 
-    if ( stressFromGrid )
+    // stress export
     {
-        std::string stressName = "STRESS";
-
         // Export the stress to a separate inp file
-        std::string fileName = stressName + ".inp";
-        std::string filePath = createFilePath( exportDirectory, fileName );
+        std::string stressName    = "STRESS";
+        std::string fullPath      = exportBasePath + "_" + stressName + ".inp";
+        auto [filePath, fileName] = RiaFilePathTools::toFolderAndFileName( QString::fromStdString( fullPath ) );
 
         // Use stress from first time step
         size_t timeStep = 0;
@@ -567,15 +577,15 @@ std::pair<bool, std::string>
                                                    RimFaultReactivation::Property::LateralStressComponentY },
                                                  {},
                                            timeStep,
-                                           filePath,
+                                           fullPath,
                                            partNames,
                                            "",
                                            "" );
 
         if ( !isOk ) return { false, "Failed to create " + stressName + " file." };
 
-        RifInpExportTools::printHeading( stream, "Initial Conditions, TYPE=" + stressName );
-        RifInpExportTools::printHeading( stream, "INCLUDE, input=" + fileName );
+        RifInpExportTools::printHeading( stream, "Initial Conditions, TYPE=" + stressName + ", geostatic" );
+        RifInpExportTools::printHeading( stream, "INCLUDE, input=" + fileName.toStdString() );
     }
 
     return { true, "" };
@@ -589,7 +599,7 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printSteps( std:
                                                                             const RimFaultReactivationDataAccess& dataAccess,
                                                                             const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
                                                                             const std::vector<QDateTime>& timeSteps,
-                                                                            const std::string&            exportDirectory,
+                                                                            const std::string&            exportBasePath,
                                                                             bool                          useGridPorePressure,
                                                                             bool                          useGridTemperature,
                                                                             double                        seaWaterLoad )
@@ -601,17 +611,21 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printSteps( std:
     {
         std::string stepNum  = std::to_string( i + 1 );
         std::string stepName = timeSteps[i].toString( "yyyy-MM-dd" ).toStdString();
+        if ( i == 0 ) stepName = "Geostatic_" + stepName;
+        std::string stepType = i == 0 ? "Geostatic, utol" : "Soils, utol=1.0";
+
         RifInpExportTools::printComment( stream, "----------------------------------------------------------------" );
         RifInpExportTools::printSectionComment( stream, "STEP: " + stepName );
 
         RifInpExportTools::printHeading( stream, "Step, name=" + stepName + ", nlgeom=NO" );
 
-        std::string stepType = i == 0 ? "Geostatic, utol" : "Soils, utol=1.0";
         RifInpExportTools::printHeading( stream, stepType );
         RifInpExportTools::printNumbers( stream, { 1.0, 1.0, 1e-05, 1.0 } );
 
         if ( i == 0 )
         {
+            RifInpExportTools::printComment( stream, "GRAVITY LOADS FROM ROCK AND SEAWATER" );
+
             RifInpExportTools::printHeading( stream, "Dload" );
             RifInpExportTools::printLine( stream, ",GRAV, 9.80665, 0., 0., -1." );
 
@@ -630,15 +644,16 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printSteps( std:
             RifInpExportTools::printSectionComment( stream, "BOUNDARY CONDITIONS" );
 
             // Export the pore pressure to a separate inp file for each step
-            std::string fileName = createFileName( "PORE_PRESSURE", stepName );
-            std::string filePath = createFilePath( exportDirectory, fileName );
+            std::string postfix       = createFilePostfix( "PORE_PRESSURE", stepName );
+            std::string fullPath      = exportBasePath + postfix;
+            auto [filePath, fileName] = RiaFilePathTools::toFolderAndFileName( QString::fromStdString( fullPath ) );
 
             bool isOk =
-                writePropertyToFile( model, dataAccess, RimFaultReactivation::Property::PorePressure, i, filePath, partNames, "8, 8, " );
+                writePropertyToFile( model, dataAccess, RimFaultReactivation::Property::PorePressure, i, fullPath, partNames, "8, 8, " );
             if ( !isOk ) return { false, "Failed to create pore pressure file." };
 
             RifInpExportTools::printHeading( stream, "Boundary, type=displacement" );
-            RifInpExportTools::printHeading( stream, "INCLUDE, input=" + fileName );
+            RifInpExportTools::printHeading( stream, "INCLUDE, input=" + fileName.toStdString() );
         }
 
         if ( useGridTemperature )
@@ -646,23 +661,25 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printSteps( std:
             RifInpExportTools::printSectionComment( stream, "TEMPERATURE" );
 
             // Export the temperature to a separate inp file for each step
-            std::string fileName = createFileName( "TEMPERATURE", stepName );
-            std::string filePath = createFilePath( exportDirectory, fileName );
+            std::string postfix       = createFilePostfix( "TEMPERATURE", stepName );
+            std::string fullPath      = exportBasePath + postfix;
+            auto [filePath, fileName] = RiaFilePathTools::toFolderAndFileName( QString::fromStdString( fullPath ) );
 
-            bool isOk = writePropertyToFile( model, dataAccess, RimFaultReactivation::Property::Temperature, i, filePath, partNames, "" );
+            bool isOk = writePropertyToFile( model, dataAccess, RimFaultReactivation::Property::Temperature, i, fullPath, partNames, "" );
             if ( !isOk ) return { false, "Failed to create temperature file." };
 
             RifInpExportTools::printHeading( stream, "Temperature" );
-            RifInpExportTools::printHeading( stream, "INCLUDE, input=" + fileName );
+            RifInpExportTools::printHeading( stream, "INCLUDE, input=" + fileName.toStdString() );
         }
 
-        RifInpExportTools::printSectionComment( stream, "OUTPUT REQUESTS" );
-        RifInpExportTools::printHeading( stream, "Restart, write, frequency=0" );
+        RifInpExportTools::printSectionComment( stream, "OUTPUT" );
+        RifInpExportTools::printHeading( stream, "Output, field" );
+        RifInpExportTools::printHeading( stream, "Node Output" );
+        RifInpExportTools::printLine( stream, "COORD, POR, U" );
+        RifInpExportTools::printHeading( stream, "Element Output" );
+        RifInpExportTools::printLine( stream, "COORD, VOIDR, S, E, TEMP" );
 
-        RifInpExportTools::printSectionComment( stream, "FIELD OUTPUT: F-Output-" + stepNum );
-        RifInpExportTools::printHeading( stream, "Output, field, variable=PRESELECT" );
-
-        RifInpExportTools::printSectionComment( stream, "HISTORY OUTPUT: H-Output-" + stepNum );
+        RifInpExportTools::printComment( stream, "" );
         RifInpExportTools::printHeading( stream, "Output, history, variable=PRESELECT" );
 
         RifInpExportTools::printHeading( stream, "End Step" );
@@ -797,15 +814,56 @@ std::pair<bool, std::string>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RifFaultReactivationModelExporter::createFileName( const std::string& title, const std::string& stepName )
+std::string RifFaultReactivationModelExporter::createFilePostfix( const std::string& title, const std::string& stepName )
 {
-    return QString( "%1_%2.inp" ).arg( QString::fromStdString( title ) ).arg( QString::fromStdString( stepName ) ).toStdString();
+    return QString( "_%1_%2.inp" ).arg( QString::fromStdString( title ) ).arg( QString::fromStdString( stepName ) ).toStdString();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RifFaultReactivationModelExporter::createFilePath( const std::string& dir, const std::string& fileName )
+bool RifFaultReactivationModelExporter::exportModelSettings( const RimFaultReactivationModel& rimModel )
 {
-    return dir + "/" + fileName;
-};
+    auto model = rimModel.model();
+
+    if ( model.isNull() ) return false;
+    if ( !model->isValid() ) return false;
+
+    QMap<QString, QVariant> settings;
+
+    auto [topPosition, bottomPosition] = model->faultTopBottom();
+    auto faultNormal                   = model->modelNormal();
+
+    // make sure we export in local coordinates, if that is used
+    topPosition    = model->transformPointIfNeeded( topPosition );
+    bottomPosition = model->transformPointIfNeeded( bottomPosition );
+
+    // make sure we move horizontally, and along the 2D model
+    faultNormal.z() = 0.0;
+    faultNormal.normalize();
+    faultNormal = faultNormal ^ cvf::Vec3d::Z_AXIS;
+
+    RimFaultReactivationTools::addSettingsToMap( settings, faultNormal, topPosition, bottomPosition );
+    return ResInsightInternalJson::JsonWriter::encodeFile( QString::fromStdString( rimModel.settingsFilename() ), settings );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<RimFaultReactivationDataAccess>
+    RifFaultReactivationModelExporter::extractAndExportModelData( const RimFaultReactivationModel& rimModel )
+{
+    if ( !exportModelSettings( rimModel ) ) return nullptr;
+
+    auto eCase = rimModel.eclipseCase();
+    if ( eCase == nullptr ) return nullptr;
+
+    // extract data for each timestep
+    auto dataAccess = std::make_shared<RimFaultReactivationDataAccess>( rimModel,
+                                                                        eCase,
+                                                                        rimModel.geoMechCase(),
+                                                                        rimModel.selectedTimeStepIndexes(),
+                                                                        rimModel.stressSource() );
+    dataAccess->extractModelData( *rimModel.model() );
+    return dataAccess;
+}

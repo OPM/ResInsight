@@ -251,6 +251,7 @@ std::vector<double> RigWellLogCurveData::depthValuesByIntervals( RiaDefines::Dep
                                                                  RiaDefines::DepthUnitType destinationDepthUnit ) const
 {
     const std::vector<double> depthValues = RigWellLogCurveData::depthsForDepthUnit( depths( depthType ), m_depthUnit, destinationDepthUnit );
+    if ( depthValues.empty() ) return depthValues;
 
     std::vector<double> filteredValues;
     RiaCurveDataTools::getValuesByIntervals( depthValues, m_intervalsOfContinousValidValues, &filteredValues );

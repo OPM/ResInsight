@@ -41,8 +41,6 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
-#include "cafPdmUiOrdering.h"
-#include "cafQShortenedLabel.h"
 #include "cafSelectionManager.h"
 
 #include <QApplication>

@@ -29,7 +29,6 @@
 
 #include "RigFemPartCollection.h"
 #include "RigGeoMechCaseData.h"
-#include "RigHexIntersectionTools.h"
 #include "RigReservoirGridTools.h"
 
 #include "RimFaultReactivationTools.h"
@@ -75,7 +74,7 @@ RimGeoMechFaultReactivationResult::RimGeoMechFaultReactivationResult()
     CAF_PDM_InitField( &m_distanceFromFault, "DistanceFromFault", 5.0, "Distance From Fault" );
 
     CAF_PDM_InitFieldNoDefault( &m_createFaultReactivationPlot, "CreateReactivationPlot", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_createFaultReactivationPlot );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_createFaultReactivationPlot );
 
     CAF_PDM_InitFieldNoDefault( &m_faultNormal, "FaultNormal", "" );
     CAF_PDM_InitFieldNoDefault( &m_faultTopPosition, "FaultTopPosition", "" );
@@ -253,8 +252,8 @@ void RimGeoMechFaultReactivationResult::createWellGeometry()
     m_faceBWellPath->createWellPathGeometry();
 
     // Detect which part well path centers are in
-    m_faceAWellPathPartIndex = getPartIndexFromPoint( geoMechPartCollection, partATop );
-    m_faceBWellPathPartIndex = getPartIndexFromPoint( geoMechPartCollection, partBTop );
+    m_faceAWellPathPartIndex = geoMechPartCollection->getPartIndexFromPoint( partATop );
+    m_faceBWellPathPartIndex = geoMechPartCollection->getPartIndexFromPoint( partBTop );
 
     // Update UI
     wellPathCollection->uiCapability()->updateConnectedEditors();
@@ -323,39 +322,6 @@ void RimGeoMechFaultReactivationResult::createWellLogCurves()
                                                wellLogExtractionFaultmobResult,
                                                m_faceBWellPath(),
                                                m_faceBWellPathPartIndex() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RimGeoMechFaultReactivationResult::getPartIndexFromPoint( const RigFemPartCollection* const partCollection, const cvf::Vec3d& point ) const
-{
-    const int idx = 0;
-    if ( !partCollection ) return idx;
-
-    // Find candidates for intersected global elements
-    const cvf::BoundingBox intersectingBb( point, point );
-    std::vector<size_t>    intersectedGlobalElementIndexCandidates;
-    partCollection->findIntersectingGlobalElementIndices( intersectingBb, &intersectedGlobalElementIndexCandidates );
-
-    if ( intersectedGlobalElementIndexCandidates.empty() ) return idx;
-
-    // Iterate through global element candidates and check if point is in hexCorners
-    for ( const auto& globalElementIndex : intersectedGlobalElementIndexCandidates )
-    {
-        const auto [part, elementIndex] = partCollection->partAndElementIndex( globalElementIndex );
-
-        // Find nodes from element
-        std::array<cvf::Vec3d, 8> coordinates;
-        const bool                isSuccess = part->fillElementCoordinates( elementIndex, coordinates );
-        if ( !isSuccess ) continue;
-
-        const bool isPointInCell = RigHexIntersectionTools::isPointInCell( point, coordinates.data() );
-        if ( isPointInCell ) return part->elementPartId();
-    }
-
-    // Utilize first part to have an id
-    return idx;
 }
 
 //--------------------------------------------------------------------------------------------------

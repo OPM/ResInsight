@@ -99,6 +99,9 @@ public:
     void                    mobileVolumeWeightedMean( const RigEclipseResultAddress& resVarAddr, double& meanValue );
     void                    mobileVolumeWeightedMean( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& meanValue );
 
+    // Return the number of double values allocated for each result
+    std::map<std::string, size_t> resultValueCount() const;
+
     // Access meta-information about the results
 
     size_t timeStepCount( const RigEclipseResultAddress& resVarAddr ) const;
@@ -128,8 +131,11 @@ public:
     QString makeResultNameUnique( const QString& resultNameProposal ) const;
 
     bool ensureKnownResultLoaded( const RigEclipseResultAddress& resultAddress );
-
     bool findAndLoadResultByName( const QString& resultName, const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder );
+
+    // Load result for a single time step. This can be used to process data for a single time step
+    // Other data access functions assume all time steps are loaded at the same time
+    size_t findOrLoadKnownScalarResultForTimeStep( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex );
 
     bool hasResultEntry( const RigEclipseResultAddress& resultAddress ) const;
     bool isResultLoaded( const RigEclipseResultAddress& resultAddress ) const;
@@ -164,7 +170,6 @@ private:
     friend class RigOilVolumeResultCalculator;
     friend class RigCellVolumeResultCalculator;
     friend class RigCellsWithNncsCalculator;
-    size_t findOrLoadKnownScalarResultForTimeStep( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex );
 
     size_t findOrCreateScalarResultIndex( const RigEclipseResultAddress& resVarAddr, bool needsToBeStored );
 
@@ -199,7 +204,8 @@ private:
     void computeFaultDistance();
     void computeNncsCells();
 
-    bool isDataPresent( size_t scalarResultIndex ) const;
+    bool   isDataPresent( size_t scalarResultIndex ) const;
+    size_t allocatedValueCount( size_t scalarResultIndex ) const;
 
     void assignValuesToTemporaryLgrs( const QString& resultName, std::vector<double>& values );
 

@@ -1,6 +1,7 @@
 """
 ResInsight 3d contour map module
 """
+
 import Commands_pb2
 
 from .pdmobject import add_method

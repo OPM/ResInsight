@@ -32,6 +32,7 @@ class RimEclipseCase;
 class RimGeoMechCase;
 class RimFaultReactivationDataAccessor;
 class RigFaultReactivationModel;
+class RimFaultReactivationModel;
 
 //==================================================================================================
 ///
@@ -40,7 +41,11 @@ class RigFaultReactivationModel;
 class RimFaultReactivationDataAccess
 {
 public:
-    RimFaultReactivationDataAccess( RimEclipseCase* eclipseCase, RimGeoMechCase* geoMechCase, const std::vector<size_t>& timeSteps );
+    RimFaultReactivationDataAccess( const RimFaultReactivationModel&   model,
+                                    RimEclipseCase*                    eclipseCase,
+                                    RimGeoMechCase*                    geoMechCase,
+                                    const std::vector<size_t>&         timeSteps,
+                                    RimFaultReactivation::StressSource stressSource );
     ~RimFaultReactivationDataAccess();
 
     void extractModelData( const RigFaultReactivationModel& model );
@@ -49,8 +54,6 @@ public:
 
     std::vector<double>
         propertyValues( RimFaultReactivation::GridPart gridPart, RimFaultReactivation::Property property, size_t outputTimeStep ) const;
-
-    bool elementHasValidData( std::vector<cvf::Vec3d> elementCorners ) const;
 
 private:
     std::shared_ptr<RimFaultReactivationDataAccessor> getAccessor( RimFaultReactivation::Property property ) const;

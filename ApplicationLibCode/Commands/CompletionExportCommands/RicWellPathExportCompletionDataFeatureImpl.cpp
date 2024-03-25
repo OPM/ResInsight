@@ -91,9 +91,19 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                                                     const std::vector<RimSimWellInView*>&    simWells,
                                                                     const RicExportCompletionDataSettingsUi& exportSettings )
 {
-    if ( exportSettings.caseToApply() == nullptr || exportSettings.caseToApply()->eclipseCaseData() == nullptr )
+    if ( exportSettings.caseToApply() == nullptr )
     {
-        RiaLogging::error( "Export Completions Data: Cannot export completions data without specified eclipse case" );
+        RiaLogging::error( "Export Completions Data: Cannot export completions data a valid Eclipse case" );
+        return;
+    }
+
+    // Ensure that the case is open. This will enable export without any open views.
+    // https://github.com/OPM/ResInsight/issues/11134
+    exportSettings.caseToApply()->ensureReservoirCaseIsOpen();
+
+    if ( exportSettings.caseToApply()->eclipseCaseData() == nullptr )
+    {
+        RiaLogging::error( "Export Completions Data: No data available for Eclipse Case" );
         return;
     }
 

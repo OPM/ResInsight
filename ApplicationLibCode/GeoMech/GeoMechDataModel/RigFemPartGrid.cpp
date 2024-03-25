@@ -200,7 +200,7 @@ void RigFemPartGrid::generateStructGridData()
         RigElementType elementType = m_femPart->elementType( elmIdx );
         size_t         i, j, k;
         bool           validIndex = ijkFromCellIndex( elmIdx, &i, &j, &k );
-        if ( elementType == HEX8P && validIndex )
+        if ( ( elementType == RigElementType::HEX8P ) && validIndex )
         {
             if ( i < min.x() ) min.x() = i;
             if ( j < min.y() ) min.y() = j;
@@ -254,7 +254,7 @@ cvf::Vec3i RigFemPartGrid::findMainIJKFaces( int elementIndex ) const
     // Record three independent main direction vectors for the element, and what face they are created from
     cvf::Vec3f mainElmDirections[3];
     int        mainElmDirOriginFaces[3];
-    if ( eType == HEX8 || eType == HEX8P )
+    if ( RigFemTypes::is8NodeElement( eType ) )
     {
         mainElmDirections[0]     = normals[0] - normals[1]; // To get a better "average" direction vector
         mainElmDirections[1]     = normals[2] - normals[3];
@@ -365,30 +365,6 @@ int RigFemPartGrid::perpendicularFaceInDirection( cvf::Vec3f direction, int perp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigFemPartGrid::gridPointCountI() const
-{
-    return m_elementIJKCounts[0] + 1;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RigFemPartGrid::gridPointCountJ() const
-{
-    return m_elementIJKCounts[1] + 1;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RigFemPartGrid::gridPointCountK() const
-{
-    return m_elementIJKCounts[2] + 1;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RigFemPartGrid::isCellValid( size_t i, size_t j, size_t k ) const
 {
     CVF_ASSERT( false );
@@ -489,6 +465,30 @@ cvf::Vec3d RigFemPartGrid::cellCentroid( size_t cellIndex ) const
         centroid += cellVertices[i];
     }
     return centroid / 8.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigFemPartGrid::cellCountI() const
+{
+    return m_elementIJKCounts[0];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigFemPartGrid::cellCountJ() const
+{
+    return m_elementIJKCounts[1];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigFemPartGrid::cellCountK() const
+{
+    return m_elementIJKCounts[2];
 }
 
 //--------------------------------------------------------------------------------------------------

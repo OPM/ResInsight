@@ -41,7 +41,7 @@ void RicDeleteTemporaryLgrsFeature::deleteAllTemporaryLgrs( RimEclipseCase* ecli
 
     if ( eclipseCase )
     {
-        RimReloadCaseTools::reloadAllEclipseGridData( eclipseCase );
+        RimReloadCaseTools::reloadEclipseGrid( eclipseCase );
     }
 }
 

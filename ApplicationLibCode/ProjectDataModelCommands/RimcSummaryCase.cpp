@@ -18,7 +18,6 @@
 
 #include "RimcSummaryCase.h"
 
-#include "RiaQDateTimeTools.h"
 #include "RiaSummaryTools.h"
 
 #include "RifSummaryReaderInterface.h"
@@ -276,7 +275,27 @@ caf::PdmObjectHandle* RimSummaryCase_setSummaryVectorValues::execute()
     auto* fileSummaryCase = dynamic_cast<RimFileSummaryCase*>( summaryCase );
     if ( fileSummaryCase )
     {
+        bool rebuildUserInterface = true;
+
+        if ( auto reader = fileSummaryCase->summaryReader() )
+        {
+            auto allAddr = reader->allResultAddresses();
+            for ( auto adr : allAddr )
+            {
+                if ( adr.uiText() == m_addressString().toStdString() )
+                {
+                    rebuildUserInterface = false;
+                    break;
+                }
+            }
+        }
+
         fileSummaryCase->setSummaryData( m_addressString().toStdString(), m_unitString().toStdString(), m_values() );
+
+        if ( rebuildUserInterface )
+        {
+            fileSummaryCase->refreshMetaData();
+        }
     }
 
     return nullptr;

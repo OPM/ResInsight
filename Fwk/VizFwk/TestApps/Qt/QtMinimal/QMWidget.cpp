@@ -34,35 +34,44 @@
 //
 //##################################################################################################
 
-
-#include "cvfLibCore.h"
-#include "cvfLibRender.h"
-#include "cvfLibGeometry.h"
-#include "cvfLibViewing.h"
-
 #include "QMWidget.h"
+#include "QMMainWindow.h"
 
-#include "cvfqtOpenGLContext.h"
+#include "cvfRendering.h"
+#include "cvfRenderSequence.h"
+#include "cvfScene.h"
+#include "cvfCamera.h"
+#include "cvfManipulatorTrackball.h"
+#include "cvfOverlayAxisCross.h"
+#include "cvfFixedAtlasFont.h"
+#include "cvfRayIntersectSpec.h"
+#include "cvfHitItemCollection.h"
+#include "cvfHitItem.h"
+#include "cvfTrace.h"
+#include "cvfPart.h"
 
-#if QT_VERSION >= 0x050000
 #include <QMouseEvent>
-#else
-#include <QtGui/QMouseEvent>
-#endif
-
-using cvf::ref;
 
 
+
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QMWidget::QMWidget(cvf::OpenGLContextGroup* contextGroup, QWidget* parent)
-:   cvfqt::OpenGLWidget(contextGroup, QGLFormat(), parent)
+QMWidget::QMWidget(cvf::OpenGLContextGroup* contextGroup, QWidget* parent, QMMainWindow* mainWindow)
+:   cvfqt::OpenGLWidget(contextGroup, parent),
+    m_mainWindow(mainWindow)
 {
+    CVF_ASSERT(contextGroup);
+
     m_camera = new cvf::Camera;
 
-    ref<cvf::Rendering> rendering = new cvf::Rendering;
+    cvf::ref<cvf::Rendering> rendering = new cvf::Rendering;
     rendering->setCamera(m_camera.p());
     rendering->addOverlayItem(new cvf::OverlayAxisCross(m_camera.p(), new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD)));
 
@@ -73,7 +82,6 @@ QMWidget::QMWidget(cvf::OpenGLContextGroup* contextGroup, QWidget* parent)
     m_trackball->setCamera(m_camera.p());
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -81,17 +89,15 @@ QMWidget::~QMWidget()
 {
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void QMWidget::setScene(cvf::Scene* scene)
 {
-    ref<cvf::Rendering> rendering = m_renderSequence->firstRendering();
+    cvf::ref<cvf::Rendering> rendering = m_renderSequence->firstRendering();
     CVF_ASSERT(rendering.notNull());
 
     rendering->setScene(scene);
-
     if (scene)
     {
         cvf::BoundingBox bb = scene->boundingBox();
@@ -105,51 +111,31 @@ void QMWidget::setScene(cvf::Scene* scene)
     update();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-///  
+/// 
 //--------------------------------------------------------------------------------------------------
-void QMWidget::resizeGL(int width, int height)
+void QMWidget::resizeGL(int w, int h)
 {
     if (m_camera.notNull())
     {
-        m_camera->viewport()->set(0, 0, width, height);
+        m_camera->viewport()->set(0, 0, w, h);
         m_camera->setProjectionAsPerspective(m_camera->fieldOfViewYDeg(), m_camera->nearPlane(), m_camera->farPlane());
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-///  
+/// 
 //--------------------------------------------------------------------------------------------------
-void QMWidget::paintEvent(QPaintEvent* /*event*/)
+void QMWidget::paintGL()
 {
-    QPainter painter(this);
-
-    makeCurrent();
-
     cvf::OpenGLContext* currentOglContext = cvfOpenGLContext();
     CVF_ASSERT(currentOglContext);
-    CVF_CHECK_OGL(currentOglContext);
-
-#if QT_VERSION >= 0x040600
-    painter.beginNativePainting();
-#endif
-
-	cvfqt::OpenGLContext::saveOpenGLState(currentOglContext);
 
     if (m_renderSequence.notNull())
     {
         m_renderSequence->render(currentOglContext);
     }
-
-	cvfqt::OpenGLContext::restoreOpenGLState(currentOglContext);
-
-#if QT_VERSION >= 0x040600
-    painter.endNativePainting();
-#endif
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -159,19 +145,24 @@ void QMWidget::mouseMoveEvent(QMouseEvent* event)
     if (m_renderSequence.isNull()) return;
 
     Qt::MouseButtons mouseBn = event->buttons();
-    int posX = event->x();
-    int posY = height() - event->y();
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    const int posX = event->position().toPoint().x();
+    const int posY = height() - event->position().toPoint().y();
+#else
+    const int posX = event->x();
+    const int posY = height() - event->y();
+#endif
 
     cvf::ManipulatorTrackball::NavigationType navType = cvf::ManipulatorTrackball::NONE;
     if (mouseBn == Qt::LeftButton)
     {
         navType = cvf::ManipulatorTrackball::PAN;
     }
-    else if (mouseBn == Qt::RightButton) 
+    else if (mouseBn == Qt::RightButton)
     {
         navType = cvf::ManipulatorTrackball::ROTATE;
     }
-    else if (mouseBn == (Qt::LeftButton | Qt::RightButton) || mouseBn == Qt::MidButton)
+    else if (mouseBn == (Qt::LeftButton | Qt::RightButton) || mouseBn == Qt::MiddleButton)
     {
         navType = cvf::ManipulatorTrackball::WALK;
     }
@@ -188,7 +179,6 @@ void QMWidget::mouseMoveEvent(QMouseEvent* event)
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -196,10 +186,19 @@ void QMWidget::mousePressEvent(QMouseEvent* event)
 {
     if (m_renderSequence.isNull()) return;
 
-    if (event->buttons() == Qt::LeftButton && event->modifiers() == Qt::ControlModifier)
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    const int posX = event->position().toPoint().x();
+    const int posY = height() - event->position().toPoint().y();
+#else
+    const int posX = event->x();
+    const int posY = height() - event->y();
+#endif
+
+    if (event->buttons() == Qt::LeftButton && 
+        event->modifiers() == Qt::ControlModifier)
     {
         cvf::Rendering* r = m_renderSequence->firstRendering();
-        ref<cvf::RayIntersectSpec> ris = r->rayIntersectSpecFromWindowCoordinates(event->x(), height() - event->y());
+        cvf::ref<cvf::RayIntersectSpec> ris = r->rayIntersectSpecFromWindowCoordinates(posX, posY);
 
         cvf::HitItemCollection hic;
         if (r->rayIntersect(*ris, &hic))
@@ -215,7 +214,6 @@ void QMWidget::mousePressEvent(QMouseEvent* event)
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -225,10 +223,13 @@ void QMWidget::mouseReleaseEvent(QMouseEvent* /*event*/)
 }
 
 
-
-
-#ifndef CVF_USING_CMAKE
-//########################################################
-#include "qt-generated/moc_QMWidget.cpp"
-//########################################################
-#endif
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void QMWidget::onWidgetOpenGLReady()
+{
+    if (m_mainWindow)
+    {
+        m_mainWindow->handleVizWidgetIsOpenGLReady();
+    }
+}

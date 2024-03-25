@@ -271,13 +271,13 @@ set(LINK_LIBRARIES
     ${VIZ_FWK_LIBRARIES}
     ApplicationLibCode
     Commands
+    RigGeoMechDataModel
+    RifGeoMechFileInterface
 )
 
 if(RESINSIGHT_ENABLE_GRPC)
   list(APPEND LINK_LIBRARIES GrpcInterface)
 endif()
-
-list(APPEND LINK_LIBRARIES RigGeoMechDataModel)
 
 if(RESINSIGHT_USE_ODB_API)
   add_definitions(-DUSE_ODB_API)
@@ -317,68 +317,6 @@ endif()
 # ##############################################################################
 # Copy Dlls on MSVC
 # ##############################################################################
-if(MSVC)
-
-  if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
-    set(RESINSIGHT_USE_ODB_API 1)
-  endif()
-
-  # Odb Dlls
-  if(RESINSIGHT_USE_ODB_API)
-    # Find all the dlls
-    file(GLOB RI_ALL_ODB_DLLS ${RESINSIGHT_ODB_API_DIR}/lib/*.dll)
-
-    # Strip off the path
-    foreach(aDLL ${RI_ALL_ODB_DLLS})
-      get_filename_component(filenameWithExt ${aDLL} NAME)
-      list(APPEND RI_ODB_DLLS ${filenameWithExt})
-    endforeach(aDLL)
-
-    foreach(aDLL ${RI_ODB_DLLS})
-      list(APPEND RI_FILENAMES ${RESINSIGHT_ODB_API_DIR}/lib/${aDLL})
-    endforeach()
-  endif()
-
-  # OpenVDS Dlls
-  set(OPENVDS_DLL_NAMES openvds segyutils)
-  foreach(OPENVDS_DLL_NAME ${OPENVDS_DLL_NAMES})
-    list(APPEND RI_FILENAMES
-         ${RESINSIGHT_OPENVDS_API_DIR}/bin/msvc_141/${OPENVDS_DLL_NAME}.dll
-    )
-  endforeach(OPENVDS_DLL_NAME)
-  list(APPEND RI_FILENAMES
-       ${RESINSIGHT_OPENVDS_API_DIR}/bin/msvc_141/SEGYImport.exe
-  )
-
-  # HDF5 Dlls
-  if(RESINSIGHT_FOUND_HDF5)
-    set(HDF5_DLL_NAMES hdf5 hdf5_cpp szip zlib)
-    foreach(HDF5_DLL_NAME ${HDF5_DLL_NAMES})
-      list(APPEND RI_FILENAMES ${RESINSIGHT_HDF5_DIR}/bin/${HDF5_DLL_NAME}.dll)
-    endforeach(HDF5_DLL_NAME)
-  endif()
-
-else()
-  # Linux
-
-  # OpenVDS lib files
-  list(APPEND RI_FILENAMES ${RESINSIGHT_OPENVDS_API_DIR}/bin/SEGYImport)
-
-  set(OPENVDS_LIB_NAMES
-      libopenvds.so
-      libopenvds.so.3
-      libopenvds.so.3.2.7
-      libopenvds-e1541338.so.3.2.7
-      libsegyutils.so
-      libsegyutils.so.3
-      libsegyutils.so.3.2.7
-  )
-  foreach(OPENVDS_LIB_NAME ${OPENVDS_LIB_NAMES})
-    list(APPEND RI_FILENAMES
-         ${RESINSIGHT_OPENVDS_API_DIR}/lib64/${OPENVDS_LIB_NAME}
-    )
-  endforeach(OPENVDS_LIB_NAME)
-endif(MSVC)
 
 # create an empty library target that will be used to copy files to the build
 # folder
@@ -398,11 +336,7 @@ foreach(riFileName ${RI_FILENAMES})
     $<TARGET_FILE_DIR:ResInsightDummyTarget>
   )
 endforeach()
-add_custom_target(
-  PreBuildFileCopy
-  COMMENT "PreBuildFileCopy step: copy runtime files into build folder"
-  ${copyCommands}
-)
+add_custom_target(PreBuildFileCopy ${copyCommands})
 set_property(TARGET PreBuildFileCopy PROPERTY FOLDER "FileCopyTargets")
 
 # Make ResInsight depend on the prebuild target.
@@ -446,8 +380,15 @@ endif(RESINSIGHT_ENABLE_GRPC)
 # bundle libraries together with private installation
 if(RESINSIGHT_PRIVATE_INSTALL)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    # tell binary to first attempt to load libraries from its own directory
-    set(RESINSIGHT_INSTALL_RPATH "\$ORIGIN")
+
+    set(RESINSIGHT_INSTALL_RPATH
+        ""
+        CACHE STRING "RPATH to be injected into binary"
+    )
+    mark_as_advanced(FORCE RESINSIGHT_INSTALL_RPATH)
+
+    # Add ORIGIN to represent the directory where the binary is located
+    set(RESINSIGHT_INSTALL_RPATH ${RESINSIGHT_INSTALL_RPATH} "\$ORIGIN")
 
     if(${RESINSIGHT_USE_ODB_API})
       # This is a "hack" to make ResInsight runtime find the ODB so files used
@@ -542,6 +483,8 @@ if(RESINSIGHT_PRIVATE_INSTALL)
         DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/plugins/xcbglintegrations/
         OPTIONAL
       )
+
+      install(FILES qt.conf DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/)
 
     endif(RESINSIGHT_QT5_BUNDLE_LIBRARIES)
 

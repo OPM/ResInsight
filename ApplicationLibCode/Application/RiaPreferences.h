@@ -117,6 +117,10 @@ public:
     QString pythonExecutable() const;
     QString octaveExecutable() const;
 
+    QString loggerFilename() const;
+    int     loggerFlushInterval() const;
+    bool    loggerTrapSignalAndFlush() const;
+
     RiaPreferencesGeoMech* geoMechPreferences() const;
     RiaPreferencesSummary* summaryPreferences() const;
     RiaPreferencesSystem*  systemPreferences() const;
@@ -202,6 +206,11 @@ private:
     // Script paths
     caf::PdmField<QString> m_octaveExecutable;
     caf::PdmField<QString> m_pythonExecutable;
+
+    // Logging
+    caf::PdmField<std::pair<bool, QString>> m_loggerFilename;
+    caf::PdmField<int>                      m_loggerFlushInterval;
+    caf::PdmField<bool>                     m_loggerTrapSignalAndFlush;
 
     // Surface Import
     caf::PdmField<double> m_surfaceImportResamplingDistance;

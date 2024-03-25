@@ -24,6 +24,7 @@
 #include "RimCellIndexFilter.h"
 #include "RimCellRangeFilter.h"
 #include "RimPolygonFilter.h"
+#include "RimProject.h"
 #include "RimUserDefinedFilter.h"
 #include "RimUserDefinedIndexFilter.h"
 #include "RimViewController.h"
@@ -32,7 +33,20 @@
 #include "cafPdmFieldReorderCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiLabelEditor.h"
+
 #include "cvfStructGridGeometryGenerator.h"
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RimCellFilterCollection::CombineFilterModeType>::setUp()
+{
+    addItem( RimCellFilterCollection::AND, "AND", "AND" );
+    addItem( RimCellFilterCollection::OR, "OR", "OR" );
+    setDefault( RimCellFilterCollection::AND );
+}
+} // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimCellFilterCollection, "CellFilterCollection", "RimCellFilterCollection", "CellRangeFilterCollection" );
 
@@ -47,13 +61,17 @@ RimCellFilterCollection::RimCellFilterCollection()
     CAF_PDM_InitScriptableField( &m_isActive, "Active", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_combineFilterMode, "CombineFilterMode", "" );
+
+    CAF_PDM_InitField( &m_combineModeLabel, "CombineModeLabel", QString( "" ), "Combine Polygon and Range Filters Using Operation" );
+    m_combineModeLabel.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
+    m_combineModeLabel.xmlCapability()->disableIO();
+
     CAF_PDM_InitFieldNoDefault( &m_cellFilters, "CellFilters", "Filters" );
-    m_cellFilters.uiCapability()->setUiTreeHidden( true );
     caf::PdmFieldReorderCapability::addToField( &m_cellFilters );
 
     // for backwards project file compatibility with old CellRangeFilterCollection
     CAF_PDM_InitFieldNoDefault( &m_rangeFilters_OBSOLETE, "RangeFilters", "Range Filters" );
-    m_rangeFilters_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_rangeFilters_OBSOLETE.xmlCapability()->setIOWritable( false );
 }
 
@@ -87,6 +105,14 @@ void RimCellFilterCollection::setActive( bool bActive )
 {
     m_isActive = bActive;
     updateIconState();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimCellFilterCollection::useAndOperation() const
+{
+    return m_combineFilterMode() == RimCellFilterCollection::AND;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,6 +152,12 @@ void RimCellFilterCollection::initAfterRead()
         m_cellFilters.push_back( filter );
     }
 
+    // fallback to OR mode for older projects made without AND support
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.12.0" ) )
+    {
+        m_combineFilterMode = RimCellFilterCollection::OR;
+    }
+
     // Copy by xml serialization does not give a RimCase parent the first time initAfterRead is called here when creating a new a contour
     // view from a 3d view. The second time we get called it is ok, so just skip setting up the filter connections if we have no case.
     auto rimCase = firstAncestorOrThisOfType<RimCase>();
@@ -147,6 +179,12 @@ void RimCellFilterCollection::fieldChangedByUi( const caf::PdmFieldHandle* chang
     uiCapability()->updateConnectedEditors();
 
     onFilterUpdated( nullptr );
+
+    for ( const auto& filter : m_cellFilters )
+    {
+        // Update the filters to make sure the 3D polygon targets are removed if the filter collection is disabled
+        filter->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -155,6 +193,17 @@ void RimCellFilterCollection::fieldChangedByUi( const caf::PdmFieldHandle* chang
 caf::PdmFieldHandle* RimCellFilterCollection::objectToggleField()
 {
     return &m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_combineModeLabel );
+    uiOrdering.add( &m_combineFilterMode );
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -176,6 +225,18 @@ void RimCellFilterCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTr
     }
 
     updateIconState();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    caf::PdmUiLabelEditorAttribute* myAttr = dynamic_cast<caf::PdmUiLabelEditorAttribute*>( attribute );
+    if ( myAttr )
+    {
+        myAttr->m_useSingleWidgetInsteadOfLabelAndEditorWidget = true;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,12 +318,22 @@ bool RimCellFilterCollection::hasActiveIncludeRangeFilters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPolygonFilter* RimCellFilterCollection::addNewPolygonFilter( RimCase* srcCase )
+RimPolygonFilter* RimCellFilterCollection::addNewPolygonFilter( RimCase* srcCase, RimPolygon* polygon )
 {
     RimPolygonFilter* pFilter = new RimPolygonFilter();
     pFilter->setCase( srcCase );
+    pFilter->setPolygon( polygon );
     addFilter( pFilter );
-    pFilter->enablePicking( true );
+    pFilter->configurePolygonEditor();
+    if ( polygon )
+    {
+        pFilter->enableFilter( true );
+    }
+    else
+    {
+        pFilter->enablePicking( true );
+    }
+
     onFilterUpdated( pFilter );
     return pFilter;
 }
@@ -486,4 +557,24 @@ void RimCellFilterCollection::updateCellVisibilityByIndex( cvf::UByteArray* incl
             filter->updateCellIndexFilter( includeCellVisibility, excludeCellVisibility, (int)gridIndex );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolygonInView*> RimCellFilterCollection::enabledCellFilterPolygons() const
+{
+    std::vector<RimPolygonInView*> polyInView;
+
+    for ( const auto& filter : m_cellFilters )
+    {
+        if ( !filter->isActive() ) continue;
+
+        if ( auto polygonFilter = dynamic_cast<RimPolygonFilter*>( filter.p() ) )
+        {
+            polyInView.push_back( polygonFilter->polygonInView() );
+        }
+    }
+
+    return polyInView;
 }

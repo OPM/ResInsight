@@ -27,7 +27,6 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiOrdering.h"
 #include "cafPdmUiTreeOrdering.h"
 
 namespace caf
@@ -98,7 +97,6 @@ RimWellPathCompletionSettings::RimWellPathCompletionSettings()
 
     CAF_PDM_InitFieldNoDefault( &m_mswParameters, "MswParameters", "Multi Segment Well Parameters" );
     m_mswParameters = new RimMswCompletionParameters;
-    m_mswParameters.uiCapability()->setUiTreeHidden( true );
     m_mswParameters.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_mswLinerDiameter, "MswLinerDiameter", "MSW Liner Diameter" );

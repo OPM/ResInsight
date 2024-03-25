@@ -28,6 +28,8 @@ class RimEclipseCase;
 class RigEclipseCaseData;
 class RigMainGrid;
 class RigResultAccessor;
+class RigWellPath;
+class RigEclipseWellLogExtractor;
 
 //==================================================================================================
 ///
@@ -36,22 +38,31 @@ class RigResultAccessor;
 class RimFaultReactivationDataAccessorTemperature : public RimFaultReactivationDataAccessor
 {
 public:
-    RimFaultReactivationDataAccessorTemperature( RimEclipseCase* eclipseCase );
+    RimFaultReactivationDataAccessorTemperature( RimEclipseCase* eclipseCase, double seabedTemperature, double seabedDepth );
     ~RimFaultReactivationDataAccessorTemperature();
 
     bool isMatching( RimFaultReactivation::Property property ) const override;
 
-    double valueAtPosition( const cvf::Vec3d& position,
-                            double            topDepth    = std::numeric_limits<double>::infinity(),
-                            double            bottomDepth = std::numeric_limits<double>::infinity() ) const override;
-
-    bool hasValidDataAtPosition( const cvf::Vec3d& position ) const override;
+    double valueAtPosition( const cvf::Vec3d&                position,
+                            const RigFaultReactivationModel& model,
+                            RimFaultReactivation::GridPart   gridPart,
+                            double                           topDepth     = std::numeric_limits<double>::infinity(),
+                            double                           bottomDepth  = std::numeric_limits<double>::infinity(),
+                            size_t                           elementIndex = std::numeric_limits<size_t>::max() ) const override;
 
 private:
-    void updateResultAccessor() override;
+    void   updateResultAccessor() override;
+    double computeGradient() const;
 
-    RimEclipseCase*             m_eclipseCase;
-    RigEclipseCaseData*         m_caseData;
-    const RigMainGrid*          m_mainGrid;
+    RimEclipseCase*     m_eclipseCase;
+    RigEclipseCaseData* m_caseData;
+    const RigMainGrid*  m_mainGrid;
+    double              m_seabedTemperature;
+    double              m_seabedDepth;
+    double              m_gradient;
+
     cvf::ref<RigResultAccessor> m_resultAccessor;
+
+    std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>                m_wellPaths;
+    std::map<RimFaultReactivation::GridPart, cvf::ref<RigEclipseWellLogExtractor>> m_extractors;
 };

@@ -18,10 +18,9 @@
 
 #include "RicImportGridModelFromSummaryCurveFeature.h"
 
-#include "RicImportGridModelFromSummaryCaseFeature.h"
-
 #include "RimFileSummaryCase.h"
 #include "RimProject.h"
+#include "RimReloadCaseTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -44,11 +43,9 @@ void RicImportGridModelFromSummaryCurveFeature::onActionTriggered( bool isChecke
         {
             if ( sumCase->caseId() == summaryCaseId )
             {
-                auto fileSummaryCase = dynamic_cast<RimFileSummaryCase*>( sumCase );
-
-                if ( fileSummaryCase )
+                if ( auto fileSummaryCase = dynamic_cast<RimFileSummaryCase*>( sumCase ) )
                 {
-                    RicImportGridModelFromSummaryCaseFeature::openOrImportGridModelFromSummaryCase( fileSummaryCase );
+                    RimReloadCaseTools::openOrImportGridModelFromSummaryCase( fileSummaryCase );
 
                     return;
                 }

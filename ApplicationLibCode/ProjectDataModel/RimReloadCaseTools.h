@@ -20,6 +20,8 @@
 
 class RimEclipseCase;
 class RigEclipseCaseData;
+class RimSummaryCase;
+class RimEclipseResultCase;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -28,15 +30,21 @@ class RimReloadCaseTools
 {
 public:
     // Reload all eclipse data, both grid and summary
-    static void reloadAllEclipseData( RimEclipseCase* eclipseCase );
+    static void reloadEclipseGridAndSummary( RimEclipseCase* eclipseCase );
 
     // Reload grid data, but not summary
-    static void reloadAllEclipseGridData( RimEclipseCase* eclipseCase );
+    static void reloadEclipseGrid( RimEclipseCase* eclipseCase );
 
     static void updateAll3dViews( RimEclipseCase* eclipseCase );
 
+    static RimEclipseCase* gridModelFromSummaryCase( const RimSummaryCase* summaryCase );
+    static RimSummaryCase* findSummaryCaseFromEclipseResultCase( const RimEclipseResultCase* eclResCase );
+    static bool            openOrImportGridModelFromSummaryCase( const RimSummaryCase* summaryCase );
+
 private:
-    static void reloadAllEclipseData( RimEclipseCase* eclipseCase, bool reloadSummaryData );
+    static void reloadEclipseData( RimEclipseCase* eclipseCase, bool reloadSummaryData );
     static void clearAllGridData( RigEclipseCaseData* eclipseCaseData );
     static void updateAllPlots();
+
+    static bool findGridModelAndActivateFirstView( const RimSummaryCase* summaryCase );
 };

@@ -141,21 +141,18 @@ RimSummaryPlot::RimSummaryPlot()
     m_useQtChartsPlot.uiCapability()->setUiHidden( true );
 #endif
     CAF_PDM_InitFieldNoDefault( &m_summaryCurveCollection, "SummaryCurveCollection", "" );
-    m_summaryCurveCollection.uiCapability()->setUiTreeHidden( true );
     m_summaryCurveCollection = new RimSummaryCurveCollection;
     m_summaryCurveCollection->curvesChanged.connect( this, &RimSummaryPlot::onCurveCollectionChanged );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSetCollection, "EnsembleCurveSetCollection", "" );
-    m_ensembleCurveSetCollection.uiCapability()->setUiTreeHidden( true );
     m_ensembleCurveSetCollection = new RimEnsembleCurveSetCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_gridTimeHistoryCurves, "GridTimeHistoryCurves", "" );
-    m_gridTimeHistoryCurves.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_asciiDataCurves, "AsciiDataCurves", "" );
-    m_asciiDataCurves.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_axisPropertiesArray, "AxisProperties", "Axes", ":/Axes16x16.png" );
+    m_axisPropertiesArray.uiCapability()->setUiTreeHidden( false );
 
     auto leftAxis = addNewAxisProperties( RiuPlotAxis::defaultLeft(), "Left" );
     leftAxis->setAlwaysRequired( true );
@@ -169,7 +166,6 @@ RimSummaryPlot::RimSummaryPlot()
     m_sourceStepping = new RimSummaryPlotSourceStepping;
 
     m_sourceStepping->setSourceSteppingObject( this );
-    m_sourceStepping.uiCapability()->setUiTreeHidden( true );
     m_sourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_sourceStepping.xmlCapability()->disableIO();
 
@@ -182,22 +178,18 @@ RimSummaryPlot::RimSummaryPlot()
 
     // Obsolete axis fields
     CAF_PDM_InitFieldNoDefault( &m_leftYAxisProperties_OBSOLETE, "LeftYAxisProperties", "Left Y Axis" );
-    m_leftYAxisProperties_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_leftYAxisProperties_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_leftYAxisProperties_OBSOLETE = new RimPlotAxisProperties;
 
     CAF_PDM_InitFieldNoDefault( &m_rightYAxisProperties_OBSOLETE, "RightYAxisProperties", "Right Y Axis" );
-    m_rightYAxisProperties_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_rightYAxisProperties_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_rightYAxisProperties_OBSOLETE = new RimPlotAxisProperties;
 
     CAF_PDM_InitFieldNoDefault( &m_bottomAxisProperties_OBSOLETE, "BottomAxisProperties", "Bottom X Axis" );
-    m_bottomAxisProperties_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_bottomAxisProperties_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_bottomAxisProperties_OBSOLETE = new RimPlotAxisProperties;
 
     CAF_PDM_InitFieldNoDefault( &m_timeAxisProperties_OBSOLETE, "TimeAxisProperties", "Time Axis" );
-    m_timeAxisProperties_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_timeAxisProperties_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_timeAxisProperties_OBSOLETE = new RimSummaryTimeAxisProperties;
 
@@ -2850,24 +2842,12 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
     {
         for ( RimSummaryCurve* curve : m_summaryCurveCollection->curves() )
         {
-            if ( curve->summaryAddressY().isCalculated() )
-            {
-                std::vector<RifEclipseSummaryAddress> calcAddresses;
-                RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( curve->summaryAddressY().id(), sumCases, calcAddresses );
-                for ( const auto& adr : calcAddresses )
-                {
-                    addresses.emplace_back( adr );
-                }
-            }
-            else
-            {
-                addresses.push_back( curve->curveAddress() );
-                sumCases.push_back( curve->summaryCaseY() );
+            addresses.push_back( curve->curveAddress() );
+            sumCases.push_back( curve->summaryCaseY() );
 
-                if ( curve->summaryCaseX() )
-                {
-                    sumCases.push_back( curve->summaryCaseX() );
-                }
+            if ( curve->summaryCaseX() )
+            {
+                sumCases.push_back( curve->summaryCaseX() );
             }
         }
     }

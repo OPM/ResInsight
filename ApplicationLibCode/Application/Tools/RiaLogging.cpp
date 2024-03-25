@@ -169,22 +169,28 @@ void RiaDefaultConsoleLogger::writeToConsole( const std::string& str )
 //
 //==================================================================================================
 
-std::unique_ptr<RiaLogger> RiaLogging::sm_logger = std::make_unique<RiaDefaultConsoleLogger>();
+std::vector<std::unique_ptr<RiaLogger>> RiaLogging::sm_logger;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaLogger* RiaLogging::loggerInstance()
+std::vector<RiaLogger*> RiaLogging::loggerInstances()
 {
-    return sm_logger.get();
+    std::vector<RiaLogger*> loggerInstances;
+    for ( auto& logger : sm_logger )
+    {
+        loggerInstances.push_back( logger.get() );
+    }
+
+    return loggerInstances;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogging::setLoggerInstance( std::unique_ptr<RiaLogger> loggerInstance )
+void RiaLogging::appendLoggerInstance( std::unique_ptr<RiaLogger> loggerInstance )
 {
-    sm_logger = std::move( loggerInstance );
+    sm_logger.push_back( std::move( loggerInstance ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,10 +208,13 @@ RILogLevel RiaLogging::logLevelBasedOnPreferences()
 //--------------------------------------------------------------------------------------------------
 void RiaLogging::error( const QString& message )
 {
-    if ( sm_logger && sm_logger->level() >= int( RILogLevel::RI_LL_ERROR ) )
+    for ( const auto& logger : sm_logger )
     {
+        if ( logger && logger->level() >= int( RILogLevel::RI_LL_ERROR ) )
+        {
 #pragma omp critical( critical_section_logging )
-        sm_logger->error( message.toLatin1().constData() );
+            logger->error( message.toLatin1().constData() );
+        }
     }
 }
 
@@ -214,10 +223,13 @@ void RiaLogging::error( const QString& message )
 //--------------------------------------------------------------------------------------------------
 void RiaLogging::warning( const QString& message )
 {
-    if ( sm_logger && sm_logger->level() >= int( RILogLevel::RI_LL_WARNING ) )
+    for ( const auto& logger : sm_logger )
     {
+        if ( logger && logger->level() >= int( RILogLevel::RI_LL_WARNING ) )
+        {
 #pragma omp critical( critical_section_logging )
-        sm_logger->warning( message.toLatin1().constData() );
+            logger->warning( message.toLatin1().constData() );
+        }
     }
 }
 
@@ -226,10 +238,13 @@ void RiaLogging::warning( const QString& message )
 //--------------------------------------------------------------------------------------------------
 void RiaLogging::info( const QString& message )
 {
-    if ( sm_logger && sm_logger->level() >= int( RILogLevel::RI_LL_INFO ) )
+    for ( const auto& logger : sm_logger )
     {
+        if ( logger && logger->level() >= int( RILogLevel::RI_LL_INFO ) )
+        {
 #pragma omp critical( critical_section_logging )
-        sm_logger->info( message.toLatin1().constData() );
+            logger->info( message.toLatin1().constData() );
+        }
     }
 }
 
@@ -238,10 +253,13 @@ void RiaLogging::info( const QString& message )
 //--------------------------------------------------------------------------------------------------
 void RiaLogging::debug( const QString& message )
 {
-    if ( sm_logger && sm_logger->level() >= int( RILogLevel::RI_LL_DEBUG ) )
+    for ( const auto& logger : sm_logger )
     {
+        if ( logger && logger->level() >= int( RILogLevel::RI_LL_DEBUG ) )
+        {
 #pragma omp critical( critical_section_logging )
-        sm_logger->debug( message.toLatin1().constData() );
+            logger->debug( message.toLatin1().constData() );
+        }
     }
 }
 

@@ -41,8 +41,6 @@
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiOrdering.h"
-#include "cafQShortenedLabel.h"
 
 #include <QLabel>
 #include <QSlider>
@@ -259,7 +257,7 @@ QWidget* PdmUiValueRangeEditor::createEditorWidget( QWidget* parent )
     auto containerWidget = new QWidget( parent );
 
     auto layout = new QGridLayout();
-    layout->setMargin( 0 );
+    layout->setContentsMargins( 0, 0, 0, 0 );
     containerWidget->setLayout( layout );
 
     m_lineEditMin = new QLineEdit( containerWidget );

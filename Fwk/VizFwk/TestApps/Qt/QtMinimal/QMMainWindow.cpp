@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cvfLibCore.h"
 #include "cvfLibRender.h"
 #include "cvfLibGeometry.h"
@@ -42,20 +41,12 @@
 
 #include "QMMainWindow.h"
 #include "QMWidget.h"
-#if QT_VERSION >= 0x050000
+
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QAction>
 #include <QMenu>
 #include <QMenuBar>
-#else
-#include <QtGui/QFrame>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QAction>
-#include <QtGui/QMenu>
-#include <QtGui/QMenuBar>
-#endif
-using cvf::ref;
 
 
 
@@ -69,41 +60,57 @@ QMMainWindow::QMMainWindow()
     setCentralWidget(mainFrame);
 
     m_contextGroup = new cvf::OpenGLContextGroup;
-    m_vizWidget = new QMWidget(m_contextGroup.p(), mainFrame);
+
+    // Pass pointer to ourselves to get notified when the vizWidget is ready for use and we can load our default scene
+    m_vizWidget = new QMWidget(m_contextGroup.p(), mainFrame, this);
 
     m_vizWidget->setFocus();
     frameLayout->addWidget(m_vizWidget);
 
-
-    m_createDefaultSceneAction  = new QAction("Default Scene", this);
-    m_clearSceneAction          = new QAction("Clear Scene", this);
-    connect(m_createDefaultSceneAction, SIGNAL(triggered()), SLOT(slotCreateDefaultScene()));
-    connect(m_clearSceneAction,         SIGNAL(triggered()), SLOT(slotClearScene()));
-
     QMenu* menu = menuBar()->addMenu("&Scenes");
-    menu->addAction(m_createDefaultSceneAction);
+    menu->addAction("Default Scene", this, SLOT(slotCreateDefaultScene()));
     menu->addSeparator();
-    menu->addAction(m_clearSceneAction);
-
-    slotCreateDefaultScene();
+    menu->addAction("Clear Scene", this, SLOT(slotClearScene()));
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void QMMainWindow::handleVizWidgetIsOpenGLReady()
+{
+    slotCreateDefaultScene();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void QMMainWindow::slotCreateDefaultScene()
 {
-    ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
+    cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
+
+    const bool useShaders = true;
+
+    CVF_ASSERT(m_contextGroup->isContextGroupInitialized());
+    cvf::ShaderProgramGenerator spGen("SimpleHeadlight", cvf::ShaderSourceProvider::instance());
+    spGen.configureStandardHeadlightColor();
+    cvf::ref<cvf::ShaderProgram> shaderProg = spGen.generate();
 
     {
         cvf::GeometryBuilderDrawableGeo builder;
         cvf::GeometryUtils::createSphere(2, 10, 10, &builder);
 
-        ref<cvf::Effect> eff = new cvf::Effect;
-        eff->setRenderState(new cvf::RenderStateMaterial_FF(cvf::Color3::BLUE));
+        cvf::ref<cvf::Effect> eff = new cvf::Effect;
+        if (useShaders)
+        {
+            eff->setShaderProgram(shaderProg.p());
+            eff->setUniform(new cvf::UniformFloat("u_color", cvf::Color4f(cvf::Color3::GREEN)));
+        }
+        else
+        {
+            eff->setRenderState(new cvf::RenderStateMaterial_FF(cvf::Color3::BLUE));
+        }
 
-        ref<cvf::Part> part = new cvf::Part;
+        cvf::ref<cvf::Part> part = new cvf::Part;
         part->setName("MySphere");
         part->setDrawable(0, builder.drawableGeo().p());
         part->setEffect(eff.p());
@@ -115,10 +122,18 @@ void QMMainWindow::slotCreateDefaultScene()
         cvf::GeometryBuilderDrawableGeo builder;
         cvf::GeometryUtils::createBox(cvf::Vec3f(5, 0, 0), 2, 3, 4, &builder);
 
-        ref<cvf::Effect> eff = new cvf::Effect;
-        eff->setRenderState(new cvf::RenderStateMaterial_FF(cvf::Color3::RED));
+        cvf::ref<cvf::Effect> eff = new cvf::Effect;
+        if (useShaders)
+        {
+            eff->setShaderProgram(shaderProg.p());
+            eff->setUniform(new cvf::UniformFloat("u_color", cvf::Color4f(cvf::Color3::YELLOW)));
+        }
+        else
+        {
+            eff->setRenderState(new cvf::RenderStateMaterial_FF(cvf::Color3::RED));
+        }
 
-        ref<cvf::Part> part = new cvf::Part;
+        cvf::ref<cvf::Part> part = new cvf::Part;
         part->setName("MyBox");
         part->setDrawable(0, builder.drawableGeo().p());
         part->setEffect(eff.p());
@@ -128,7 +143,7 @@ void QMMainWindow::slotCreateDefaultScene()
 
     model->updateBoundingBoxesRecursive();
 
-    ref<cvf::Scene> scene = new cvf::Scene;
+    cvf::ref<cvf::Scene> scene = new cvf::Scene;
     scene->addModel(model.p());
 
     CVF_ASSERT(m_vizWidget);
@@ -146,22 +161,3 @@ void QMMainWindow::slotClearScene()
 }
 
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void QMMainWindow::closeEvent(QCloseEvent* /*event*/)
-{
-    CVF_ASSERT(m_contextGroup.notNull());
-    CVF_ASSERT(m_vizWidget);
-
-    // Shut down the CeeViz OpenGL context contained in the widget
-    // Deletes all OpenGL resources and removes context from context group
-    m_vizWidget->cvfShutdownOpenGLContext();
-}
-
-
-#ifndef CVF_USING_CMAKE
-//########################################################
-#include "qt-generated/moc_QMMainWindow.cpp"
-//########################################################
-#endif

@@ -45,7 +45,6 @@ RimFaultReactivationModelCollection::RimFaultReactivationModelCollection()
     CAF_PDM_InitField( &m_userDescription, "UserDescription", QString( "Fault Reactivation Models" ), "Name" );
 
     CAF_PDM_InitFieldNoDefault( &m_models, "FaultReactivationModels", "Models" );
-    m_models.uiCapability()->setUiTreeHidden( true );
     m_models.uiCapability()->setUiHidden( true );
 
     setName( "Fault Reactivation Models" );

@@ -129,13 +129,11 @@ void RiuMenuBarBuildTools::addImportMenuWithActions( QObject* parent, QMenu* men
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryGroupFeature" ) );
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportEnsembleFeature" ) );
 
-#ifdef USE_ODB_API
     importMenu->addSeparator();
     QMenu* importGeoMechMenu = importMenu->addMenu( QIcon( ":/GeoMechCase24x24.png" ), "Geo Mechanical Cases" );
     importGeoMechMenu->addAction( cmdFeatureMgr->action( "RicImportGeoMechCaseFeature" ) );
     importGeoMechMenu->addAction( cmdFeatureMgr->action( "RicImportGeoMechCaseTimeStepFilterFeature" ) );
     importGeoMechMenu->addAction( cmdFeatureMgr->action( "RicImportElementPropertyFeature" ) );
-#endif
 
     importMenu->addSeparator();
     QMenu* importWellMenu = importMenu->addMenu( QIcon( ":/Well.svg" ), "Well Data" );

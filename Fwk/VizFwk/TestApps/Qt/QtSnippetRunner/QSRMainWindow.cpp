@@ -127,7 +127,7 @@ void QSRMainWindow::createActions()
     }
 
     m_activateLastUsedSnippetAction = new QAction("Load last used snippet", this);
-    m_activateLastUsedSnippetAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L));
+    m_activateLastUsedSnippetAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_L));
     connect(m_activateLastUsedSnippetAction, SIGNAL(triggered()), SLOT(slotRunLastUsedSnippet()));
 
     m_closeCurrentSnippetAction = new QAction("Close Current Snippet", this);
@@ -136,19 +136,19 @@ void QSRMainWindow::createActions()
     // View menu
     m_showHUDAction = new QAction("Show HUD", this);
     m_showHUDAction->setCheckable(true);
-    m_showHUDAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_H));
+    m_showHUDAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_H));
     connect(m_showHUDAction, SIGNAL(triggered()), SLOT(slotShowHUD()));
 
     m_redrawAction = new QAction("Redraw view", this);
-    m_redrawAction ->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
+    m_redrawAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_R));
     connect(m_redrawAction, SIGNAL(triggered()), SLOT(slotViewRedraw()));
 
     m_multipleRedrawAction = new QAction("Redraw 10 times", this);
-    m_multipleRedrawAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_M));
+    m_multipleRedrawAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_M));
     connect(m_multipleRedrawAction, SIGNAL(triggered()), SLOT(slotViewMultipleRedraw()));
 
     m_multipleRedrawManyAction = new QAction("Redraw 50 times", this);
-    m_multipleRedrawManyAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_M));
+    m_multipleRedrawManyAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_M));
     connect(m_multipleRedrawManyAction, SIGNAL(triggered()), SLOT(slotViewMultipleRedrawMany()));
 
 
@@ -302,7 +302,21 @@ void QSRMainWindow::createDockPanels()
 //--------------------------------------------------------------------------------------------------
 void QSRMainWindow::executeTestSnippetInNewWidget(const cvf::String& snippetId, TestSnippet* snippet)
 {
+    cvf::Trace::show("Executing snippet: %s", snippetId.toAscii().ptr());
+
     closeCurrentSnippet();
+
+    QWidget* parentWidget = centralWidget();
+    CVF_ASSERT(m_contextGroup.notNull());
+
+#ifdef QSR_USE_OPENGLWIDGET
+
+    QSurfaceFormat surfFormat;
+    surfFormat.setSamples(m_formatMultisampleAction->isChecked() ? 8 : 0);
+    m_currentSnippetWidget = new QSRSnippetWidget(snippet, m_contextGroup.p(), parentWidget);
+    m_currentSnippetWidget->setFormat(surfFormat);
+
+#else
 
     QGLFormat glFormat;
 
@@ -320,9 +334,11 @@ void QSRMainWindow::executeTestSnippetInNewWidget(const cvf::String& snippetId, 
     // For FSAA, use with glEnable(GL_MULTISAMPLE);
     //glFormat.setSampleBuffers(true);
 
-    QWidget* parentWidget = centralWidget();
-    CVF_ASSERT(m_contextGroup.notNull());
     m_currentSnippetWidget = new QSRSnippetWidget(snippet, m_contextGroup.p(), glFormat, parentWidget);
+
+#endif
+
+
     m_currentSnippetWidget->setFocus();
 
     if (m_formatMultisampleAction->isChecked())
@@ -344,7 +360,7 @@ void QSRMainWindow::executeTestSnippetInNewWidget(const cvf::String& snippetId, 
 
     // Store ID of this 'last run' snippet in registry
     QSettings settings("Ceetron", "SnippetRunner");
-    settings.setValue("LastUsedSnippetID", snippetId.toAscii().ptr());
+    settings.setValue("LastUsedSnippetID", cvfqt::Utils::toQString(snippetId));
 
 	repaint();
 }
@@ -537,6 +553,9 @@ void QSRMainWindow::slotViewMultipleRedrawMany()
 //--------------------------------------------------------------------------------------------------
 void QSRMainWindow::slotSaveFrameBufferToFile()
 {
+#ifdef QSR_USE_OPENGLWIDGET
+    cvf::Trace::show("NOT IMPLEMENTED!!");
+#else
     if (!m_currentSnippetWidget) 
     {
         cvf::Trace::show("No current widget");
@@ -556,7 +575,7 @@ void QSRMainWindow::slotSaveFrameBufferToFile()
     {
         cvf::Trace::show("FAILED to saved image: %s", (const char*)fileName.toLatin1());
     }
-
+#endif
 }
 
 
@@ -740,34 +759,49 @@ void QSRMainWindow::slotShowHelp()
         }
 
         // OpenGL info
+        cvf::OpenGLContext* currentOglContext = m_currentSnippetWidget->cvfOpenGLContext();
+        if (currentOglContext)
         {
+            cvf::OpenGLInfo cvfOglInfo = currentOglContext->group()->info();
             oglInfo  = QString("OpenGL info:");
-            oglInfo += QString("\nversion:\t") + reinterpret_cast<const char*>(glGetString(GL_VERSION));
-            oglInfo += QString("\nrenderer:\t") + reinterpret_cast<const char*>(glGetString(GL_RENDERER));
-            oglInfo += QString("\nvendor:\t") + reinterpret_cast<const char*>(glGetString(GL_VENDOR));
-            oglInfo += QString("\nglsl ver.:\t") + reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+            oglInfo += QString("\nversion: ") + cvfqt::Utils::toQString(cvfOglInfo.version());
+            oglInfo += QString("\nrenderer: ") + cvfqt::Utils::toQString(cvfOglInfo.renderer());
+            oglInfo += QString("\nvendor: ") + cvfqt::Utils::toQString(cvfOglInfo.vendor());
         }
 
+#ifdef QSR_USE_OPENGLWIDGET
         {
-            oglInfo += "\n\nReported by Qt:";
-            
-            QGLFormat currrentFormat = m_currentSnippetWidget->format();
+            oglInfo += "\n\nReported by Qt QSurfaceFormat:";
 
-#if QT_VERSION >= 0x040700
+            QSurfaceFormat currrentFormat = m_currentSnippetWidget->format();
             oglInfo += QString("\nOpenGL version:\t%1.%2").arg(currrentFormat.majorVersion()).arg(currrentFormat.minorVersion());
-
             switch (currrentFormat.profile())
             {
-                case QGLFormat::NoProfile:              oglInfo += "\nProfile:\t\tNoProfile (GLver < 3.3)"; break;
-                case QGLFormat::CoreProfile:            oglInfo += "\nProfile:\t\tCoreProfile"; break;
-                case QGLFormat::CompatibilityProfile:   oglInfo += "\nProfile:\t\tCompatibilityProfile"; break;
+                case QSurfaceFormat::NoProfile:              oglInfo += "\nProfile:NoProfile (GLver < 3.3)"; break;
+                case QSurfaceFormat::CoreProfile:            oglInfo += "\nProfile:CoreProfile"; break;
+                case QSurfaceFormat::CompatibilityProfile:   oglInfo += "\nProfile:CompatibilityProfile"; break;
             }
-#endif
 
-            oglInfo += QString("\nColor buffer size:\t<%1 %2 %3 %4>").arg(currrentFormat.redBufferSize()).arg(currrentFormat.greenBufferSize()).arg(currrentFormat.blueBufferSize()).arg(currrentFormat.alphaBufferSize());
-            oglInfo += QString("\nDepth buffer size:\t%1").arg(currrentFormat.depthBufferSize());
+            oglInfo += QString("\nColor buffer size:<%1 %2 %3 %4>").arg(currrentFormat.redBufferSize()).arg(currrentFormat.greenBufferSize()).arg(currrentFormat.blueBufferSize()).arg(currrentFormat.alphaBufferSize());
+            oglInfo += QString("\nDepth buffer size:%1").arg(currrentFormat.depthBufferSize());
         }
+#else
+        {
+            oglInfo += "\n\nReported by Qt QGLFormat:";
+            
+            QGLFormat currrentFormat = m_currentSnippetWidget->format();
+            oglInfo += QString("\nOpenGL version:\t%1.%2").arg(currrentFormat.majorVersion()).arg(currrentFormat.minorVersion());
+            switch (currrentFormat.profile())
+            {
+                case QGLFormat::NoProfile:              oglInfo += "\nProfile:NoProfile (GLver < 3.3)"; break;
+                case QGLFormat::CoreProfile:            oglInfo += "\nProfile:CoreProfile"; break;
+                case QGLFormat::CompatibilityProfile:   oglInfo += "\nProfile:CompatibilityProfile"; break;
+            }
 
+            oglInfo += QString("\nColor buffer size:<%1 %2 %3 %4>").arg(currrentFormat.redBufferSize()).arg(currrentFormat.greenBufferSize()).arg(currrentFormat.blueBufferSize()).arg(currrentFormat.alphaBufferSize());
+            oglInfo += QString("\nDepth buffer size:%1").arg(currrentFormat.depthBufferSize());
+        }
+#endif
     }
 
     QMessageBox dlg(this);
@@ -832,9 +866,3 @@ void QSRMainWindow::slotUpdateViewMenu()
 
     m_showHUDAction->blockSignals(false);
 }
-
-
-// -------------------------------------------------------
-#ifndef CVF_USING_CMAKE
-#include "qt-generated/moc_QSRMainWindow.cpp"
-#endif

@@ -59,6 +59,8 @@ public:
     static std::vector<int> openRoffCasesFromFileNames( const QStringList& fileNames, bool createDefaultView );
     static RimRoffCase*     openRoffCaseFromFileName( const QString& fileName, bool createDefaultView );
 
+    static bool openEmFilesFromFileNames( const QStringList& fileNames, bool createDefaultView, std::vector<int>& createdCaseIds );
+
 private:
     static int openEclipseCaseShowTimeStepFilterImpl( const QString&                     fileName,
                                                       bool                               showTimeStepFilter,

@@ -261,18 +261,12 @@ bool Texture::setupTexture(OpenGLContext* oglContext)
             }
             else if (m_internalFormat == DEPTH24_STENCIL8)
             {
-#ifndef CVF_OPENGL_ES
-                
                 CVF_ASSERT(m_image.isNull());
                 CVF_ASSERT(!m_enableMipmapGeneration);
                 glTexImage2D(GL_TEXTURE_2D, 0, internalFormatOpenGL(), static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, 0);
-#else
-                CVF_FAIL_MSG("Not supported on IOS");
-#endif
             }
             else
             {
-#ifndef CVF_OPENGL_ES
                 if (!supportsGenerateMipmapFunc)
                 {
                     // Explicit mipmap generation not supported so must configure before specifying texture image
@@ -286,7 +280,6 @@ bool Texture::setupTexture(OpenGLContext* oglContext)
                         glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE); 
                     }
                 }
-#endif
 
                 glTexImage2D(GL_TEXTURE_2D, 0, internalFormatOpenGL(), static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), 0, GL_RGBA, GL_UNSIGNED_BYTE, m_image.notNull() ? m_image->ptr() : 0);
 
@@ -302,7 +295,6 @@ bool Texture::setupTexture(OpenGLContext* oglContext)
 
         case TEXTURE_RECTANGLE:
         {
-#ifndef CVF_OPENGL_ES
             CVF_ASSERT(!m_enableMipmapGeneration);
 
             if (m_internalFormat == DEPTH_COMPONENT16 || m_internalFormat == DEPTH_COMPONENT24 || m_internalFormat == DEPTH_COMPONENT32)
@@ -314,9 +306,7 @@ bool Texture::setupTexture(OpenGLContext* oglContext)
             {
                 glTexImage2D(GL_TEXTURE_RECTANGLE, 0, internalFormatOpenGL(), static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), 0, GL_RGBA, GL_UNSIGNED_BYTE, m_image.notNull() ? m_image->ptr() : 0);
             }
-#else
-            CVF_FAIL_MSG("Not supported on iOS");
-#endif
+
             break;
         }
 
@@ -332,7 +322,6 @@ bool Texture::setupTexture(OpenGLContext* oglContext)
             }
             else
             {
-#ifndef CVF_OPENGL_ES
                 if (!supportsGenerateMipmapFunc)
                 {
                     if (m_enableMipmapGeneration)
@@ -345,7 +334,6 @@ bool Texture::setupTexture(OpenGLContext* oglContext)
                         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP, GL_FALSE); 
                     }
                 }
-#endif
 
                 CVF_ASSERT(m_cubeMapImages.size() == 6);
                 uint i;
@@ -400,12 +388,7 @@ bool Texture::isBound(OpenGLContext* /*oglContext*/) const
     switch (m_textureType)
     {
         case TEXTURE_2D:        glGetIntegerv(GL_TEXTURE_BINDING_2D, &currentTextureBinding); break;
-        case TEXTURE_RECTANGLE: 
-#ifndef CVF_OPENGL_ES
-                                glGetIntegerv(GL_TEXTURE_BINDING_RECTANGLE, &currentTextureBinding); break;
-#else       
-                                CVF_FAIL_MSG("Not supported on iOS"); break;
-#endif
+        case TEXTURE_RECTANGLE: glGetIntegerv(GL_TEXTURE_BINDING_RECTANGLE, &currentTextureBinding); break;
         case TEXTURE_CUBE_MAP:  glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP, &currentTextureBinding); break;
     }
 
@@ -438,12 +421,7 @@ void Texture::setupTextureParamsFromSampler(OpenGLContext* oglContext, const Sam
     {
         case Sampler::CLAMP_TO_EDGE:             oglWrapS = GL_CLAMP_TO_EDGE; break;
         case Sampler::REPEAT:                    oglWrapS = GL_REPEAT; break;
-        case Sampler::CLAMP_TO_BORDER:
-#ifdef CVF_OPENGL_ES
-                                                 CVF_FAIL_MSG("CLAMP_TO_BORDER not supported"); break;
-#else            
-                                                 oglWrapS = GL_CLAMP_TO_BORDER; break;
-#endif
+        case Sampler::CLAMP_TO_BORDER:           oglWrapS = GL_CLAMP_TO_BORDER; break;
         case Sampler::MIRRORED_REPEAT:           oglWrapS = GL_MIRRORED_REPEAT; break;
     }
 
@@ -451,11 +429,7 @@ void Texture::setupTextureParamsFromSampler(OpenGLContext* oglContext, const Sam
     {
         case Sampler::CLAMP_TO_EDGE:             oglWrapT = GL_CLAMP_TO_EDGE; break;
         case Sampler::REPEAT:                    oglWrapT = GL_REPEAT; break;
-#ifdef CVF_OPENGL_ES
-        case Sampler::CLAMP_TO_BORDER:           CVF_FAIL_MSG("CLAMP_TO_BORDER not supported"); break;
-#else            
         case Sampler::CLAMP_TO_BORDER:           oglWrapT = GL_CLAMP_TO_BORDER; break;
-#endif
         case Sampler::MIRRORED_REPEAT:           oglWrapT = GL_MIRRORED_REPEAT; break;
     }
 
@@ -486,13 +460,11 @@ void Texture::setupTextureParamsFromSampler(OpenGLContext* oglContext, const Sam
     glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, oglMagFilter);
 
     // HACK
-#ifndef CVF_OPENGL_ES
     if (m_internalFormat == DEPTH_COMPONENT16 || m_internalFormat == DEPTH_COMPONENT24 || m_internalFormat == DEPTH_COMPONENT32)
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
     }
-#endif
 
     // Set these to openGL 
     //  TODO  TEXTURE_WRAP_R, TEXTURE_BORDER_COLOR, TEXTURE_MIN_LOD, TEXTURE_MAX_LOD, TEXTURE_LOD_BIAS, 
@@ -664,13 +636,11 @@ cvfGLint Texture::internalFormatOpenGL() const
     {
         case RGBA:              return GL_RGBA;
         case DEPTH_COMPONENT16: return GL_DEPTH_COMPONENT16;
-#ifndef CVF_OPENGL_ES
         case RGBA32F:           return GL_RGBA32F;
         case R32F:              return GL_R32F;
         case DEPTH_COMPONENT24: return GL_DEPTH_COMPONENT24;
         case DEPTH_COMPONENT32: return GL_DEPTH_COMPONENT32;
         case DEPTH24_STENCIL8:  return GL_DEPTH24_STENCIL8;
-#endif
     }
 
     CVF_FAIL_MSG("Illegal texture internal format");
@@ -686,9 +656,7 @@ cvfGLenum Texture::textureTypeOpenGL() const
     switch(m_textureType)
     {
         case TEXTURE_2D:            return GL_TEXTURE_2D;
-#ifndef CVF_OPENGL_ES
         case TEXTURE_RECTANGLE:     return GL_TEXTURE_RECTANGLE;
-#endif
         case TEXTURE_CUBE_MAP:      return GL_TEXTURE_CUBE_MAP;
     }
 

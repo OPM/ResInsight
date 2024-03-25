@@ -93,16 +93,13 @@ RimSummaryPlotManager::RimSummaryPlotManager()
     m_includeDiffCurves.uiCapability()->setUiEditorTypeName( caf::PdmUiNativeCheckBoxEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_pushButtonReplace, "PushButtonReplace", "Replace (CTRL + Enter)" );
-    m_pushButtonReplace.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_pushButtonReplace.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pushButtonReplace );
 
     CAF_PDM_InitFieldNoDefault( &m_pushButtonNewPlot, "PushButtonNewPlot", "New (Alt + Enter)" );
-    m_pushButtonNewPlot.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_pushButtonNewPlot.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pushButtonNewPlot );
 
     CAF_PDM_InitFieldNoDefault( &m_pushButtonAppend, "PushButtonAppend", "Append (Shift + Enter)" );
-    m_pushButtonAppend.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_pushButtonAppend.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pushButtonAppend );
 
     CAF_PDM_InitFieldNoDefault( &m_labelA, "LabelA", "" );
     m_labelA.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );

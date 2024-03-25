@@ -252,18 +252,6 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
         {
             text = summaryAddress.vectorName();
         }
-        else if ( summaryAddress.isCalculated() )
-        {
-            // Need to add case name for calculated summary
-            RimProject*                      proj     = RimProject::current();
-            RimSummaryCalculationCollection* calcColl = proj->calculationCollection();
-
-            RimUserDefinedCalculation* calculation = calcColl->findCalculationById( summaryAddress.id() );
-            if ( calculation )
-            {
-                text = calculation->shortName().toStdString();
-            }
-        }
 
         if ( m_unit && !unitText.empty() )
         {
@@ -273,7 +261,7 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
 
     appendAddressDetails( text, summaryAddress, plotNameHelper );
 
-    if ( !caseName.empty() && !summaryAddress.isCalculated() )
+    if ( !caseName.empty() )
     {
         bool skipSubString = plotNameHelper && plotNameHelper->isCaseInTitle();
 

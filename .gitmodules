@@ -7,9 +7,6 @@
 [submodule "ThirdParty/fast_float"]
 	path = ThirdParty/fast_float
 	url = https://github.com/fastfloat/fast_float
-[submodule "ThirdParty/qtadvanceddocking"]
-	path = ThirdParty/qtadvanceddocking
-	url = https://github.com/CeetronSolutions/qtadvanceddocking.git
 [submodule "ThirdParty/custom-opm-common/opm-common"]
 	path = ThirdParty/custom-opm-common/opm-common
 	url = https://github.com/CeetronSolutions/opm-common
@@ -25,3 +22,9 @@
 [submodule "ThirdParty/tomlplusplus"]
 	path = ThirdParty/tomlplusplus
 	url = https://github.com/marzer/tomlplusplus.git
+[submodule "ThirdParty/qtadvanceddocking"]
+	path = ThirdParty/qtadvanceddocking
+	url = https://github.com/CeetronSolutions/qtadvanceddocking.git
+[submodule "ThirdParty/spdlog"]
+	path = ThirdParty/spdlog
+	url = https://github.com/gabime/spdlog.git

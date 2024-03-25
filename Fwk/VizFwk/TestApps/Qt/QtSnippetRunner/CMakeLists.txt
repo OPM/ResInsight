@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 2.8.12)
-
 project(QtSnippetRunner)
 
 
@@ -37,6 +35,15 @@ QSRStdInclude.cpp
 QSRTranslateEvent.cpp
 )
 
+set(CEE_HEADER_FILES
+QSRCommandLineArgs.h
+QSRPropertiesPanel.h
+QSRRunPanel.h
+QSRSnippetWidget.h
+QSRStdInclude.h
+QSRTranslateEvent.h
+)
+
 # Headers that need MOCing
 set(MOC_HEADER_FILES
 QSRMainWindow.h
@@ -45,42 +52,24 @@ QSRRunPanel.h
 QSRSnippetWidget.h
 )
 
-# Qt
-if (CEE_USE_QT5)
-	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
-	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
-	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-else()
-    find_package(Qt4 COMPONENTS QtCore QtGui QtOpenGl REQUIRED)
-    include(${QT_USE_FILE})
-	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-endif(CEE_USE_QT5)
 
-add_definitions(-DCVF_USING_CMAKE)
+# Qt
+if (CEE_USE_QT6)
+    find_package(Qt6 COMPONENTS REQUIRED OpenGLWidgets)
+    set(QT_LIBRARIES Qt6::OpenGLWidgets )
+    qt_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
+elseif (CEE_USE_QT5)
+    find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
+    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
+    qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
+else()
+    message(FATAL_ERROR "No supported Qt version selected for build")
+endif()
 
 set(SYSTEM_LIBRARIES)
 if (CMAKE_COMPILER_IS_GNUCXX)
 	set(SYSTEM_LIBRARIES -lrt -lpthread)
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
-add_executable(${PROJECT_NAME} ${CEE_SOURCE_FILES} ${MOC_SOURCE_FILES})
+add_executable(${PROJECT_NAME} ${CEE_SOURCE_FILES} ${CEE_HEADER_FILES} ${MOC_SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${CEE_LIBS} ${OPENGL_LIBRARIES} ${QT_LIBRARIES} ${SYSTEM_LIBRARIES})
-
-
-if (CEE_USE_QT5)
-    foreach (qtlib ${QT_LIBRARIES})
-		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
-    )
-	endforeach(qtlib)
-else()
-	# Copy Qt Dlls
-	if (MSVC)
-	    set (QTLIBLIST QtCore QtGui QtOpenGl)
-	    foreach (qtlib ${QTLIBLIST})
-	        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-				COMMAND ${CMAKE_COMMAND} -E copy_if_different ${QT_BINARY_DIR}/$<IF:$<CONFIG:Debug>,${qtlib}d4.dll,${qtlib}4.dll> $<TARGET_FILE_DIR:${PROJECT_NAME}>
-			)
-	    endforeach( qtlib )
-	endif(MSVC)
-endif(CEE_USE_QT5)

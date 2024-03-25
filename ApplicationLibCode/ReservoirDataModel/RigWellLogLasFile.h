@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "RiaDefines.h"
+#include "RigWellLogFile.h"
 
-#include "cvfObject.h"
+#include "RiaDefines.h"
 
 #include <QStringList>
 #include <vector>
@@ -36,7 +36,7 @@ class RimWellLogCurve;
 //==================================================================================================
 ///
 //==================================================================================================
-class RigWellLogLasFile : public cvf::Object
+class RigWellLogLasFile : public RigWellLogFile
 {
 public:
     RigWellLogLasFile();
@@ -46,26 +46,24 @@ public:
 
     QString     wellName() const;
     QString     date() const;
-    QStringList wellLogChannelNames() const;
+    QStringList wellLogChannelNames() const override;
 
-    std::vector<double> depthValues() const;
-    std::vector<double> tvdMslValues() const;
-    std::vector<double> tvdRkbValues() const;
+    std::vector<double> depthValues() const override;
+    std::vector<double> tvdMslValues() const override;
+    std::vector<double> tvdRkbValues() const override;
 
-    std::vector<double> values( const QString& name ) const;
+    std::vector<double> values( const QString& name ) const override;
 
-    QString wellLogChannelUnitString( const QString& wellLogChannelName, RiaDefines::DepthUnitType displayDepthUnit ) const;
-    QString wellLogChannelUnitString( const QString& wellLogChannelName ) const;
-    RiaDefines::DepthUnitType depthUnit() const;
+    QString wellLogChannelUnitString( const QString& wellLogChannelName ) const override;
 
-    bool hasTvdMslChannel() const;
-    bool hasTvdRkbChannel() const;
+    bool hasTvdMslChannel() const override;
+    bool hasTvdRkbChannel() const override;
 
-    double getMissingValue() const;
+    double getMissingValue() const override;
 
 private:
     void    close();
-    QString depthUnitString() const;
+    QString depthUnitString() const override;
 
     NRLib::Well* m_wellLogFile;
     QStringList  m_wellLogChannelNames;

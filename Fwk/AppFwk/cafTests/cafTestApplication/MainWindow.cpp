@@ -33,7 +33,6 @@
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiListEditor.h"
-#include "cafPdmUiOrdering.h"
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableView.h"

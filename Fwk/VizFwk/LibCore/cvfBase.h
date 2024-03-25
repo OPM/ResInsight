@@ -68,7 +68,7 @@
 // Makes it easier to check on the current GCC version
 #ifdef __GNUC__
 // 40302 means version 4.3.2.
-# define CVF_GCC_VER  (__GNUC__*10000 + __GNUC_MINOR__*100 + __GNUC_PATCHLEVEL__)
+#define CVF_GCC_VER  (__GNUC__*10000 + __GNUC_MINOR__*100 + __GNUC_PATCHLEVEL__)
 #endif  
 
 // Helper macro to disable (ignore) compiler warnings on GCC
@@ -78,6 +78,15 @@
 #define CVF_GCC_DIAGNOSTIC_IGNORE(OPTION_STRING) CVF_DO_PRAGMA(GCC diagnostic ignored OPTION_STRING)
 #else
 #define CVF_GCC_DIAGNOSTIC_IGNORE(OPTION_STRING) 
+#endif
+
+// Helper macros for push/pop of GCC diagnostics, available from GCC 4.6.x
+#if defined(__GNUC__) && (CVF_GCC_VER >= 40600)
+#define CVF_GCC_DIAGNOSTIC_PUSH  _Pragma("GCC diagnostic push")
+#define CVF_GCC_DIAGNOSTIC_POP   _Pragma("GCC diagnostic pop")
+#else
+#define CVF_GCC_DIAGNOSTIC_PUSH
+#define CVF_GCC_DIAGNOSTIC_POP
 #endif
 
 
@@ -121,6 +130,13 @@ typedef unsigned int     uint;
 typedef __int64 int64;  
 #elif defined(CVF_LINUX) || defined(CVF_IOS) || defined(CVF_OSX) || defined(CVF_ANDROID)
 typedef int64_t int64;  
+#endif 
+
+// 64bit unsigned integer support via the int64 type
+#ifdef WIN32
+typedef unsigned __int64 uint64;  
+#elif defined(CVF_LINUX) || defined(CVF_IOS) || defined(CVF_OSX) || defined(CVF_ANDROID)
+typedef uint64_t uint64;  
 #endif 
 
 }

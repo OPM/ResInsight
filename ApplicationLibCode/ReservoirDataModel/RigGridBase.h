@@ -43,10 +43,13 @@ public:
     explicit RigGridBase( RigMainGrid* mainGrid );
     ~RigGridBase() override;
 
-    void        setGridPointDimensions( const cvf::Vec3st& gridDimensions ) { m_gridPointDimensions = gridDimensions; }
-    cvf::Vec3st gridPointDimensions() { return m_gridPointDimensions; }
+    void setGridPointDimensions( const cvf::Vec3st& gridDimensions );
 
-    size_t         cellCount() const { return cellCountI() * cellCountJ() * cellCountK(); }
+    size_t cellCountI() const override;
+    size_t cellCountJ() const override;
+    size_t cellCountK() const override;
+
+    size_t         cellCount() const;
     RigCell&       cell( size_t gridLocalCellIndex );
     const RigCell& cell( size_t gridLocalCellIndex ) const;
 
@@ -84,10 +87,6 @@ protected:
 
     // Interface implementation
 public:
-    size_t gridPointCountI() const override;
-    size_t gridPointCountJ() const override;
-    size_t gridPointCountK() const override;
-
     cvf::Vec3d minCoordinate() const override;
     cvf::Vec3d maxCoordinate() const override;
     cvf::Vec3d displayModelOffset() const override;
@@ -116,6 +115,7 @@ public:
 private:
     std::string      m_gridName;
     cvf::Vec3st      m_gridPointDimensions;
+    cvf::Vec3st      m_cellCount;
     size_t           m_indexToStartOfCells; ///< Index into the global cell array stored in main-grid where this grids cells starts.
     size_t           m_gridIndex; ///< The LGR index of this grid. Starts with 1. Main grid has index 0.
     int              m_gridId; ///< The LGR id of this grid. Main grid has id 0.

@@ -36,7 +36,7 @@ void RifMultipleSummaryReaders::addReader( RifSummaryReaderInterface* reader )
 
     m_readers.push_back( reader );
 
-    rebuildMetaData();
+    buildMetaData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ void RifMultipleSummaryReaders::addReader( RifSummaryReaderInterface* reader )
 void RifMultipleSummaryReaders::removeReader( RifSummaryReaderInterface* reader )
 {
     m_readers.erase( reader );
-    rebuildMetaData();
+    buildMetaData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,7 +100,7 @@ RiaDefines::EclipseUnitSystem RifMultipleSummaryReaders::unitSystem() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifMultipleSummaryReaders::rebuildMetaData()
+void RifMultipleSummaryReaders::buildMetaData()
 {
     m_allErrorAddresses.clear();
     m_allResultAddresses.clear();

@@ -51,7 +51,6 @@ RimSeismicSectionCollection::RimSeismicSectionCollection()
     CAF_PDM_InitField( &m_userDescription, "UserDescription", QString( "Seismic Sections" ), "Name" );
 
     CAF_PDM_InitFieldNoDefault( &m_seismicSections, "SeismicSections", "SeismicSections" );
-    m_seismicSections.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_surfaceIntersectionLinesScaleFactor, "SurfaceIntersectionLinesScaleFactor", 5.0, "Line Scale Factor ( >= 1.0 )" );
 

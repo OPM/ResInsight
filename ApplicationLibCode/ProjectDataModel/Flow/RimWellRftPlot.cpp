@@ -25,8 +25,6 @@
 #include "RiaSimWellBranchTools.h"
 #include "RiaSummaryTools.h"
 
-#include "RicImportGridModelFromSummaryCaseFeature.h"
-
 #include "RifReaderEclipseRft.h"
 
 #include "RigCaseCellResultsData.h"
@@ -44,6 +42,7 @@
 #include "RimPressureDepthData.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
+#include "RimReloadCaseTools.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimTools.h"
@@ -96,7 +95,6 @@ RimWellRftPlot::RimWellRftPlot()
     CAF_PDM_InitField( &m_showErrorInObservedData, "ShowErrorObserved", true, "Show Observed Data Error" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogPlot_OBSOLETE, "WellLog", "Well Log" );
-    m_wellLogPlot_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     m_depthType = RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH;
@@ -295,12 +293,15 @@ void RimWellRftPlot::applyInitialSelections( std::variant<RimSummaryCase*, RimSu
         if ( ensemble ) sourcesToSelect.push_back( RifDataSourceForRftPlt( ensemble ) );
     }
 
-    std::vector<RimWellLogLasFile*> wellLogFiles = RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName );
+    std::vector<RimWellLogFile*> wellLogFiles = RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName );
     if ( !wellLogFiles.empty() )
     {
-        for ( RimWellLogLasFile* const wellLogFile : wellLogFiles )
+        for ( RimWellLogFile* const wellLogFile : wellLogFiles )
         {
-            sourcesToSelect.push_back( RifDataSourceForRftPlt( wellLogFile ) );
+            if ( auto wellLogLasFile = dynamic_cast<RimWellLogLasFile*>( wellLogFile ) )
+            {
+                sourcesToSelect.push_back( RifDataSourceForRftPlt( wellLogLasFile ) );
+            }
         }
     }
 
@@ -722,9 +723,12 @@ std::vector<RifDataSourceForRftPlt> RimWellRftPlot::selectedSourcesExpanded() co
     {
         if ( addr.sourceType() == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE )
         {
-            for ( RimWellLogLasFile* const wellLogFile : RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName ) )
+            for ( RimWellLogFile* const wellLogFile : RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName ) )
             {
-                sources.push_back( RifDataSourceForRftPlt( wellLogFile ) );
+                if ( auto wellLogLasFile = dynamic_cast<RimWellLogLasFile*>( wellLogFile ) )
+                {
+                    sources.push_back( RifDataSourceForRftPlt( wellLogLasFile ) );
+                }
             }
         }
         else
@@ -896,7 +900,7 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptionsForSources() 
         {
             if ( summaryCase->rftReader() && summaryCase->rftReader()->wellNames().contains( m_wellPathNameOrSimWellName ) )
             {
-                auto eclipeGridModel = RicImportGridModelFromSummaryCaseFeature::gridModelFromSummaryCase( summaryCase );
+                auto eclipeGridModel = RimReloadCaseTools::gridModelFromSummaryCase( summaryCase );
                 auto parentEnsemble  = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
                 auto addr            = RifDataSourceForRftPlt( summaryCase, parentEnsemble, eclipeGridModel );
 
@@ -932,10 +936,13 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptionsForSources() 
 
         for ( const auto& wellLogFile : wellLogFiles )
         {
-            auto addr = RifDataSourceForRftPlt( wellLogFile );
-            auto item = caf::PdmOptionItemInfo( "Observed Data", QVariant::fromValue( addr ) );
-            item.setLevel( 1 );
-            options.push_back( item );
+            if ( auto wellLogLasFile = dynamic_cast<RimWellLogLasFile*>( wellLogFile ) )
+            {
+                auto addr = RifDataSourceForRftPlt( wellLogLasFile );
+                auto item = caf::PdmOptionItemInfo( "Observed Data", QVariant::fromValue( addr ) );
+                item.setLevel( 1 );
+                options.push_back( item );
+            }
         }
     }
     const std::vector<RimObservedFmuRftData*> observedFmuRftCases = RimWellPlotTools::observedFmuRftDataForWell( m_wellPathNameOrSimWellName );

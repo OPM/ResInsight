@@ -527,7 +527,7 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
                 fileCurve->setWellPath( wellPathToApply() );
                 if ( !fileCurve->wellLogChannelUiName().isEmpty() )
                 {
-                    RimWellLogLasFile* logFile = wellPathToApply()->firstWellLogFileMatchingChannelName( fileCurve->wellLogChannelUiName() );
+                    RimWellLogFile* logFile = wellPathToApply()->firstWellLogFileMatchingChannelName( fileCurve->wellLogChannelUiName() );
                     fileCurve->setWellLogFile( logFile );
                     auto parentPlot = fileCurve->firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
                     plots.insert( parentPlot );

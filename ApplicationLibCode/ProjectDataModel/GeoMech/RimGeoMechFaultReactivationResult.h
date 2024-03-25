@@ -58,8 +58,6 @@ private:
     void createWellGeometry();
     void createWellLogCurves();
 
-    int getPartIndexFromPoint( const RigFemPartCollection* const partCollection, const cvf::Vec3d& point ) const;
-
     RimWellLogExtractionCurve* createWellLogExtractionCurveAndAddToTrack( RimWellLogTrack*           track,
                                                                           const RigFemResultAddress& resultAddress,
                                                                           RimModeledWellPath*        wellPath,

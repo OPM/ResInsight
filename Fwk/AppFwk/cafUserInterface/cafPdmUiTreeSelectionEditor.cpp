@@ -39,7 +39,6 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiTreeSelectionQModel.h"
-#include "cafQShortenedLabel.h"
 
 #include <QBoxLayout>
 #include <QCheckBox>
@@ -683,17 +682,10 @@ void PdmUiTreeSelectionEditor::slotTextFilterChanged()
         return;
     }
 
-    QString searchString = m_textFilterLineEdit->text();
-    searchString += "*";
-
-    // Escape the characters '[' and ']' as these have special meaning for a search string
-    // To be able to search for vector names in brackets, these must be escaped
-    // See "Wildcard Matching" in Qt documentation
-    searchString.replace( "[", "\\[" );
-    searchString.replace( "]", "\\]" );
-
-    QRegExp searcher( searchString, Qt::CaseInsensitive, QRegExp::WildcardUnix );
-    m_proxyModel->setFilterRegExp( searcher );
+    auto               regExpString = m_textFilterLineEdit->text() + ".*";
+    QRegularExpression regExp( regExpString );
+    regExp.setPatternOptions( QRegularExpression::CaseInsensitiveOption );
+    m_proxyModel->setFilterRegularExpression( regExp );
 
     updateUi();
 }

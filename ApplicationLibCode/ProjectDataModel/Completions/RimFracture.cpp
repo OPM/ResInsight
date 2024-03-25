@@ -203,14 +203,10 @@ void RimFracture::setStimPlanTimeIndexToPlot( int timeIndex )
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RimFracture::getPotentiallyFracturedCells( const RigMainGrid* mainGrid ) const
 {
-    std::vector<size_t> cellindecies;
-    if ( !mainGrid ) return cellindecies;
+    if ( !mainGrid ) return {};
 
     cvf::BoundingBox fractureBBox = boundingBoxInDomainCoords();
-
-    mainGrid->findIntersectingCells( fractureBBox, &cellindecies );
-
-    return cellindecies;
+    return mainGrid->findIntersectingCells( fractureBBox );
 }
 
 //--------------------------------------------------------------------------------------------------

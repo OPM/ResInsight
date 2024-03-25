@@ -74,27 +74,34 @@ RiuWellAllocationPlot::RiuWellAllocationPlot( RimWellAllocationPlot* plotDefinit
     mainLayout->addLayout( plotWidgetsLayout );
     plotWidgetsLayout->addLayout( leftColumnLayout );
 
-    m_legendWidget = new RiuNightchartsWidget( this );
-    new RiuPlotObjectPicker( m_legendWidget, m_plotDefinition->plotLegend() );
-
     caf::CmdFeatureMenuBuilder menuForSubWidgets;
     menuForSubWidgets << "RicShowTotalAllocationDataFeature";
-    new RiuContextMenuLauncher( m_legendWidget, menuForSubWidgets );
 
-    leftColumnLayout->addWidget( m_legendWidget );
-    m_legendWidget->showPie( false );
+    {
+        QWidget* totalFlowAllocationWidget = m_plotDefinition->totalWellFlowPlot()->createViewWidget( this );
+        new RiuPlotObjectPicker( totalFlowAllocationWidget, m_plotDefinition->totalWellFlowPlot() );
+        new RiuContextMenuLauncher( totalFlowAllocationWidget, menuForSubWidgets );
 
-    QWidget* totalFlowAllocationWidget = m_plotDefinition->totalWellFlowPlot()->createViewWidget( this );
-    new RiuPlotObjectPicker( totalFlowAllocationWidget, m_plotDefinition->totalWellFlowPlot() );
-    new RiuContextMenuLauncher( totalFlowAllocationWidget, menuForSubWidgets );
+        leftColumnLayout->addWidget( totalFlowAllocationWidget, Qt::AlignTop );
+    }
 
-    leftColumnLayout->addWidget( totalFlowAllocationWidget, Qt::AlignTop );
+    {
+        m_legendWidget = new RiuNightchartsWidget( this );
+        new RiuPlotObjectPicker( m_legendWidget, m_plotDefinition->plotLegend() );
+
+        new RiuContextMenuLauncher( m_legendWidget, menuForSubWidgets );
+
+        leftColumnLayout->addWidget( m_legendWidget );
+        m_legendWidget->showPie( false );
+    }
+
     leftColumnLayout->addWidget( m_plotDefinition->tofAccumulatedPhaseFractionsPlot()->createViewWidget( this ), Qt::AlignTop );
     leftColumnLayout->addStretch();
 
     QWidget* wellFlowWidget = m_plotDefinition->accumulatedWellFlowPlot()->createPlotWidget();
 
     plotWidgetsLayout->addWidget( wellFlowWidget );
+    plotWidgetsLayout->addSpacing( 10 );
 
     {
         caf::CmdFeatureMenuBuilder menuBuilder;

@@ -49,6 +49,7 @@
 #include "cafPdmUiTreeViewQModel.h"
 #include "cafSelectionManager.h"
 
+#include <QApplication>
 #include <QDebug>
 #include <QDragMoveEvent>
 #include <QEvent>
@@ -194,10 +195,7 @@ QWidget* PdmUiTreeViewEditor::createWidget( QWidget* parent )
     m_filterModel   = new QSortFilterProxyModel( this );
     m_filterModel->setFilterKeyColumn( 0 );
     m_filterModel->setFilterCaseSensitivity( Qt::CaseInsensitive );
-
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 10, 0 )
     m_filterModel->setRecursiveFilteringEnabled( true );
-#endif
 
     m_filterModel->setSourceModel( m_treeViewModel );
     m_treeView = new PdmUiTreeViewWidget( m_mainWidget );
@@ -618,7 +616,7 @@ void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& subRo
                 {
                     size_t indexInParentField = reorderability->indexOf( pdmObject );
                     {
-                        auto tag          = PdmUiTreeViewItemAttribute::Tag::create();
+                        auto tag          = PdmUiTreeViewItemAttribute::createTag();
                         tag->icon         = caf::IconProvider( ":/caf/Up16x16.png" );
                         tag->selectedOnly = true;
                         if ( reorderability->canItemBeMovedUp( indexInParentField ) )
@@ -633,7 +631,7 @@ void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& subRo
                         m_delegate->addTag( filterIndex, std::move( tag ) );
                     }
                     {
-                        auto tag          = PdmUiTreeViewItemAttribute::Tag::create();
+                        auto tag          = PdmUiTreeViewItemAttribute::createTag();
                         tag->icon         = IconProvider( ":/caf/Down16x16.png" );
                         tag->selectedOnly = true;
                         if ( reorderability->canItemBeMovedDown( indexInParentField ) )

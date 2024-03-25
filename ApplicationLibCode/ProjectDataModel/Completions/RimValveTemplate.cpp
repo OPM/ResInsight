@@ -51,7 +51,6 @@ RimValveTemplate::RimValveTemplate()
 
     CAF_PDM_InitFieldNoDefault( &m_aicdParameters, "AICDParameters", "AICD Parameters" );
     m_aicdParameters = new RimWellPathAicdParameters;
-    m_aicdParameters.uiCapability()->setUiTreeHidden( true );
     m_aicdParameters.uiCapability()->setUiTreeChildrenHidden( true );
 }
 

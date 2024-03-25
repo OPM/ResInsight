@@ -133,6 +133,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultDefinitionTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RimResultSelectionUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotRectAnnotation.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEmCase.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -265,6 +266,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultDefinitionTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimResultSelectionUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotRectAnnotation.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEmCase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimPolylinePickerInterface.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)

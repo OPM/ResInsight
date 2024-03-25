@@ -120,7 +120,6 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitObject( "Ensemble Curve Set", ":/EnsembleCurveSet16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_curves, "EnsembleCurveSet", "Ensemble Curve Set" );
-    m_curves.uiCapability()->setUiTreeHidden( true );
     m_curves.uiCapability()->setUiTreeChildrenHidden( false );
 
     CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves" );
@@ -136,13 +135,11 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_yValuesSummaryAddressUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryAddress, "SummaryAddress", "Summary Address" );
-    m_yValuesSummaryAddress.uiCapability()->setUiTreeHidden( true );
     m_yValuesSummaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
     m_yValuesSummaryAddress = new RimSummaryAddress;
 
     CAF_PDM_InitFieldNoDefault( &m_yPushButtonSelectSummaryAddress, "SelectAddress", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_yPushButtonSelectSummaryAddress );
-    m_yPushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_yPushButtonSelectSummaryAddress );
     m_yPushButtonSelectSummaryAddress = false;
 
     CAF_PDM_InitFieldNoDefault( &m_resampling, "Resampling", "Resampling" );
@@ -157,7 +154,6 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_xAddressSelector = new RimSummaryAddressSelector;
     m_xAddressSelector->setAxisOrientation( RimPlotAxisProperties::Orientation::HORIZONTAL );
     m_xAddressSelector->setShowResampling( false );
-    m_xAddressSelector.uiCapability()->setUiTreeHidden( true );
     m_xAddressSelector.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR_WITH_ALPHA ), "Coloring Mode" );
@@ -191,12 +187,10 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_objectiveValuesSummaryAddressesUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddresses, "ObjectiveSummaryAddress", "Summary Address" );
-    m_objectiveValuesSummaryAddresses.uiCapability()->setUiTreeHidden( true );
     m_objectiveValuesSummaryAddresses.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSelectSummaryAddressPushButton, "SelectObjectiveSummaryAddress", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_objectiveValuesSelectSummaryAddressPushButton );
-    m_objectiveValuesSelectSummaryAddressPushButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_objectiveValuesSelectSummaryAddressPushButton );
     m_objectiveValuesSelectSummaryAddressPushButton = false;
 
     CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Objective Function" );
@@ -242,12 +236,10 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function" );
     m_objectiveFunction = new RimObjectiveFunction();
-    m_objectiveFunction.uiCapability()->setUiTreeHidden( true );
     m_objectiveFunction->changed.connect( this, &RimEnsembleCurveSet::onObjectiveFunctionChanged );
 
     CAF_PDM_InitFieldNoDefault( &m_statistics, "Statistics", "Statistics" );
     m_statistics = new RimEnsembleStatistics( this );
-    m_statistics.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_userDefinedName, "UserDefinedName", QString( "Ensemble Curve Set" ), "Curve Set Name" );
 
@@ -258,7 +250,6 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitField( &m_isUsingAutoName, "AutoName", true, "Auto Name" );
     CAF_PDM_InitFieldNoDefault( &m_summaryAddressNameTools, "SummaryAddressNameTools", "SummaryAddressNameTools" );
-    m_summaryAddressNameTools.uiCapability()->setUiTreeHidden( true );
     m_summaryAddressNameTools.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_summaryAddressNameTools = new RimSummaryCurveAutoName;
@@ -1071,7 +1062,7 @@ void RimEnsembleCurveSet::defineObjectEditorAttribute( QString uiConfigName, caf
     if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
     {
         treeItemAttribute->tags.clear();
-        auto tag     = caf::PdmUiTreeViewItemAttribute::Tag::create();
+        auto tag     = caf::PdmUiTreeViewItemAttribute::createTag();
         tag->bgColor = RiaColorTools::toQColor( m_colorForRealizations );
         tag->fgColor = RiaColorTools::toQColor( m_statistics->color() );
         tag->text    = "---";
@@ -1765,7 +1756,7 @@ void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
             }
             if ( !title.isEmpty() && !description.isEmpty() )
             {
-                m_objectiveFunctionOverlayFrame->setContentFrame( new RiuTextContentFrame( nullptr, title, description ) );
+                m_objectiveFunctionOverlayFrame->setContentFrame( new RiuTextContentFrame( nullptr, title, description, -1 ) );
                 m_objectiveFunctionOverlayFrame->setMaximumWidth( 10000 );
                 plot->plotWidget()->addOverlayFrame( m_objectiveFunctionOverlayFrame );
             }

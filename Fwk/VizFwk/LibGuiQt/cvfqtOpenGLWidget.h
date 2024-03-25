@@ -34,33 +34,63 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
-#include <QtOpenGL/QGLWidget>
+#include "cvfBase.h"
+#include "cvfObject.h"
 
-namespace cvf
-{
+#include <QOpenGLWidget>
+
+namespace cvf {
     class OpenGLContext;
     class OpenGLContextGroup;
+    class Logger;
 }
 
 namespace cvfqt {
 
 
+
 //==================================================================================================
 //
-// Derived QGLWidget
+// 
 //
 //==================================================================================================
-class OpenGLWidget : public QGLWidget
+class OpenGLWidget : public QOpenGLWidget
 {
 public:
-    OpenGLWidget(cvf::OpenGLContextGroup* contextGroup, const QGLFormat& format, QWidget* parent, Qt::WindowFlags f = 0);
-    OpenGLWidget(OpenGLWidget* shareWidget, QWidget* parent , Qt::WindowFlags f = 0);
+    OpenGLWidget(cvf::OpenGLContextGroup* contextGroup, QWidget* parent, Qt::WindowFlags f = Qt::WindowFlags());
+    ~OpenGLWidget();
 
-    cvf::OpenGLContext* cvfOpenGLContext() const;
-    void                cvfShutdownOpenGLContext();
+    cvf::OpenGLContext*     cvfOpenGLContext();
+
+protected:
+    virtual void            initializeGL();
+    virtual void            resizeGL(int w, int h);
+    virtual void            paintGL();
+    
+    int                     instanceNumber() const;
+
+    virtual void            onWidgetOpenGLReady();
+
+private:
+    void                    qtOpenGLContextAboutToBeDestroyed();
+    void                    shutdownCvfOpenGLContext();
+
+private:
+    enum InitializationState
+    {
+        UNINITIALIZED,
+        PENDING_REINITIALIZATION,
+        IS_INITIALIZED
+    };
+
+    int                                 m_instanceNumber;
+    InitializationState                 m_initializationState;
+    cvf::ref<cvf::OpenGLContextGroup>   m_cvfOpenGlContextGroup;
+    cvf::ref<cvf::OpenGLContext>        m_cvfForwardingOpenGlContext;
+    cvf::ref<cvf::Logger>               m_logger;
 };
+
 
 }

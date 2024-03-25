@@ -33,6 +33,7 @@
 #include "RigGridBase.h"
 
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
+#include "Polygons/RimPolygonCollection.h"
 #include "RimAdvancedSnapshotExportDefinition.h"
 #include "RimAnalysisPlotCollection.h"
 #include "RimAnnotationCollection.h"
@@ -145,26 +146,21 @@ RimProject::RimProject()
     m_globalPathList.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &oilFields, "OilFields", "Oil Fields" );
-    oilFields.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &colorLegendCollection, "ColorLegendCollection", "Color Legend Collection" );
     colorLegendCollection = new RimColorLegendCollection();
     colorLegendCollection->createStandardColorLegends();
 
     CAF_PDM_InitFieldNoDefault( &scriptCollection, "ScriptCollection", "Octave Scripts", ":/octave.png" );
-    scriptCollection.uiCapability()->setUiTreeHidden( true );
     scriptCollection.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &wellPathImport, "WellPathImport", "WellPathImport" );
     wellPathImport = new RimWellPathImport();
-    wellPathImport.uiCapability()->setUiTreeHidden( true );
     wellPathImport.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_mainPlotCollection, "MainPlotCollection", "Plots" );
-    m_mainPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &viewLinkerCollection, "LinkedViews", "Linked Views", ":/LinkView.svg" );
-    viewLinkerCollection.uiCapability()->setUiTreeHidden( true );
     viewLinkerCollection = new RimViewLinkerCollection;
 
     CAF_PDM_InitFieldNoDefault( &calculationCollection, "CalculationCollection", "Calculation Collection" );
@@ -204,7 +200,6 @@ RimProject::RimProject()
 
     CAF_PDM_InitFieldNoDefault( &m_dialogData, "DialogData", "DialogData" );
     m_dialogData = new RimDialogData();
-    m_dialogData.uiCapability()->setUiTreeHidden( true );
     m_dialogData.uiCapability()->setUiTreeChildrenHidden( true );
 
     // Obsolete fields. The content is moved to OilFields and friends
@@ -1529,6 +1524,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( oilField->analysisModels() ) uiTreeOrdering.add( oilField->analysisModels() );
             if ( oilField->geoMechModels() ) uiTreeOrdering.add( oilField->geoMechModels() );
             if ( oilField->wellPathCollection() ) uiTreeOrdering.add( oilField->wellPathCollection() );
+            if ( oilField->polygonCollection() ) uiTreeOrdering.add( oilField->polygonCollection() );
             if ( oilField->surfaceCollection() ) uiTreeOrdering.add( oilField->surfaceCollection() );
             if ( oilField->seismicDataCollection() )
             {

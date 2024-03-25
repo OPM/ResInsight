@@ -34,117 +34,301 @@
 //
 //##################################################################################################
 
-
-#include "cvfBase.h"
-#include "cvfOpenGLContextGroup.h"
-#include "cvfqtCvfBoundQGLContext.h"
 #include "cvfqtOpenGLWidget.h"
+
+#include "cvfTrace.h"
+#include "cvfString.h"
+#include "cvfOpenGLContext.h"
+#include "cvfLogManager.h"
+
+#include <QOpenGLContext>
+#include <QPointer>
+#include <QEvent>
+#include <QPlatformSurfaceEvent>
 
 namespace cvfqt {
 
 
 
 //==================================================================================================
-///
-/// \class cvfqt::OpenGLWidget
-/// \ingroup GuiQt
-///
-/// 
-/// 
+//
+// 
+//
+//==================================================================================================
+class ForwardingOpenGLContext_OpenGLWidget : public cvf::OpenGLContext
+{
+public:
+    ForwardingOpenGLContext_OpenGLWidget(cvf::OpenGLContextGroup* contextGroup, QOpenGLWidget* ownerQtOpenGLWidget)
+    :   cvf::OpenGLContext(contextGroup),
+        m_ownerQtOpenGLWidget(ownerQtOpenGLWidget)
+    {
+        CVF_ASSERT(contextGroup);
+
+        // In our current usage pattern the owner widget (and its contained Qt OpenGL context)
+        // must already be initialized/created
+        CVF_ASSERT(m_ownerQtOpenGLWidget);
+        CVF_ASSERT(m_ownerQtOpenGLWidget->isValid());
+        CVF_ASSERT(m_ownerQtOpenGLWidget->context());
+        CVF_ASSERT(m_ownerQtOpenGLWidget->context()->isValid());
+    }
+
+    virtual void makeCurrent()
+    {
+        if (m_ownerQtOpenGLWidget)
+        {
+            m_ownerQtOpenGLWidget->makeCurrent();
+        }
+    }
+    
+    virtual bool isCurrent() const
+    {
+        QOpenGLContext* ownersContext = m_ownerQtOpenGLWidget ? m_ownerQtOpenGLWidget->context() : NULL;
+        if (ownersContext && QOpenGLContext::currentContext() == ownersContext)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    virtual cvf::OglId defaultFramebufferObject() const
+    {
+        if (m_ownerQtOpenGLWidget)
+        {
+            return m_ownerQtOpenGLWidget->defaultFramebufferObject();
+        }
+
+        return 0;
+    }
+
+    QOpenGLWidget* ownerQtOpenGLWidget()
+    {
+        return m_ownerQtOpenGLWidget;
+    }
+
+private:
+    QPointer<QOpenGLWidget>    m_ownerQtOpenGLWidget;
+};
+
+
+
+
+//==================================================================================================
+//
+// 
+//
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-OpenGLWidget::OpenGLWidget(cvf::OpenGLContextGroup* contextGroup, const QGLFormat& format, QWidget* parent, Qt::WindowFlags f)
-:   QGLWidget(new CvfBoundQGLContext(contextGroup, format), parent, NULL, f)
+OpenGLWidget::OpenGLWidget(cvf::OpenGLContextGroup* contextGroup, QWidget* parent, Qt::WindowFlags f)
+:   QOpenGLWidget(parent, f),
+    m_instanceNumber(-1),
+    m_initializationState(UNINITIALIZED),
+    m_cvfOpenGlContextGroup(contextGroup),
+    m_logger(CVF_GET_LOGGER("cee.cvf.qt"))
 {
-    // This constructor can only be used with an empty context group!
-    // We're not able to check this up front, but assert that the count is 1 by the time we get here
-    CVF_ASSERT(contextGroup->contextCount() == 1);
+    static int sl_nextInstanceNumber = 0;
+    m_instanceNumber = sl_nextInstanceNumber++;
 
-    if (isValid())
-    {
-        cvf::ref<cvf::OpenGLContext> myContext = cvfOpenGLContext();
-        if (myContext.notNull())
-        {
-            myContext->initializeContext();
-        }
-    }
+    CVF_LOG_DEBUG(m_logger, cvf::String("OpenGLWidget[%1]::OpenGLWidget()").arg(m_instanceNumber));
+
+    CVF_ASSERT(m_cvfOpenGlContextGroup.notNull());
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// Constructor
-///
-/// Tries to create a widget that shares OpenGL resources with \a shareWidget
-/// To check if creation was actually successful, you must call isValidContext() on the context
-/// of the newly created widget. For example:
-/// \code
-/// myNewWidget->cvfOpenGLContext()->isValidContext();
-/// \endcode
-///
-/// If the context is not valid, sharing failed and the newly created widget/context be discarded.
+/// 
 //--------------------------------------------------------------------------------------------------
-OpenGLWidget::OpenGLWidget(OpenGLWidget* shareWidget, QWidget* parent , Qt::WindowFlags f)
-:   QGLWidget(new CvfBoundQGLContext(shareWidget->cvfOpenGLContext()->group(), shareWidget->format()), parent, shareWidget, f)
+OpenGLWidget::~OpenGLWidget()
 {
-    CVF_ASSERT(shareWidget);
-    cvf::ref<cvf::OpenGLContext> shareContext = shareWidget->cvfOpenGLContext();
-    CVF_ASSERT(shareContext.notNull());
+    CVF_LOG_DEBUG(m_logger, cvf::String("OpenGLWidget[%1]::~OpenGLWidget()").arg(m_instanceNumber));
 
-    cvf::ref<cvf::OpenGLContext> myContext = cvfOpenGLContext();
-    if (myContext.notNull())
+    if (m_initializationState == IS_INITIALIZED)
     {
-        // We need to check if we actually got a context that shares resources with shareWidget.
-        if (isSharing())
+        // Make sure we disconnect from the aboutToBeDestroyed signal since after this destructor has been 
+        // called, our object is dangling and the call to the slot will cause a crash
+        QOpenGLContext* myQtOpenGLContext = context();
+        if (myQtOpenGLContext)
         {
-            if (isValid())
+            disconnect(myQtOpenGLContext, &QOpenGLContext::aboutToBeDestroyed, this, &OpenGLWidget::qtOpenGLContextAboutToBeDestroyed);
+        }
+    }
+
+    shutdownCvfOpenGLContext();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// This is where we do the custom initialization needed for the Qt binding to work
+/// 
+/// Note that if you re-implement this function in your subclass, you must make 
+/// sure to call the base class.
+//--------------------------------------------------------------------------------------------------
+void OpenGLWidget::initializeGL()
+{
+    CVF_LOG_DEBUG(m_logger, cvf::String("OpenGLWidget[%1]::initializeGL()").arg(m_instanceNumber));
+
+    if (!isValid())
+    {
+        CVF_LOG_WARNING(m_logger, cvf::String("OpenGLWidget[%1]: Widget is not valid for initialization").arg(m_instanceNumber));
+    }
+
+    // According to Qt doc this function is called once before the first call to paintGL() or resizeGL().
+    // Further it is stated that this widget's QOpenGLContext is already current.
+    // We should be able to assume that we will only be called with a create, valid and current QOpenGLContext
+    //
+    // Note that in some scenarios, such as when a widget get reparented, initializeGL() ends up being called
+    // multiple times in the lifetime of the widget. In those cases, the widget's associated context is first destroyed 
+    // and then a new one is created. This is then followed by a new call to initializeGL() where all OpenGL resources must get reinitialized.
+
+    QOpenGLContext* myQtOpenGLContext = context();
+    CVF_ASSERT(myQtOpenGLContext);
+    CVF_ASSERT(myQtOpenGLContext->isValid());
+    CVF_ASSERT(QOpenGLContext::currentContext() == myQtOpenGLContext);
+
+    if (m_initializationState != IS_INITIALIZED)
+    {
+        CVF_LOG_DEBUG(m_logger, cvf::String("OpenGLWidget[%1]: Starting internal initialization").arg(m_instanceNumber));
+
+        // This should either be the first call or the result of a destroy/recreate cycle
+        CVF_ASSERT(m_cvfForwardingOpenGlContext.isNull());
+
+        // Try and detect the situation where the user is trying to associate incompatible widgets/contexts in the same cvf OpenGLContextGroup
+        // The assert below will fail if two incompatible OpenGL contexts end up in the same context group
+        if (m_cvfOpenGlContextGroup->contextCount() > 0)
+        {
+            for (size_t i = 0; i < m_cvfOpenGlContextGroup->contextCount(); i++)
             {
-                CVF_ASSERT(myContext->group() == shareContext->group());
-                myContext->initializeContext();
+                ForwardingOpenGLContext_OpenGLWidget* existingFwdContext = dynamic_cast<ForwardingOpenGLContext_OpenGLWidget*>(m_cvfOpenGlContextGroup->context(i));
+                QOpenGLWidget* existingWidget = existingFwdContext ? existingFwdContext->ownerQtOpenGLWidget() : NULL;
+                QOpenGLContext* existingQtContext = existingWidget ? existingWidget->context() : NULL;
+                if (existingQtContext)
+                {
+                    // Assert that these two contexts are actually sharing OpenGL resources
+                    CVF_ASSERT(QOpenGLContext::areSharing(existingQtContext, myQtOpenGLContext));
+                }
             }
         }
-        else
+
+        // Create the actual wrapper/forwarding OpenGL context that implements the cvf::OpenGLContext that we need
+        cvf::ref<ForwardingOpenGLContext_OpenGLWidget> myCvfContext = new ForwardingOpenGLContext_OpenGLWidget(m_cvfOpenGlContextGroup.p(), this);
+
+        // Possibly initialize the context group
+        if (!m_cvfOpenGlContextGroup->isContextGroupInitialized())
         {
-            // If we didn't, we need to remove the newly created context from the group it has been added to since
-            // the construction process above has already optimistically added the new context to the existing group.
-            // In this case, the newly context is basically defunct so we just shut it down (which will also remove it from the group)
-            myContext->shutdownContext();
-            CVF_ASSERT(myContext->group() == NULL);
+            if (!m_cvfOpenGlContextGroup->initializeContextGroup(myCvfContext.p()))
+            {
+                CVF_LOG_ERROR(m_logger, cvf::String("OpenGLWidget[%1]: OpenGL context creation failed, could not initialize context group").arg(m_instanceNumber));
+                return;
+            }
+        }
+
+        // All is well, so store pointer to the cvf OpenGL context
+        m_cvfForwardingOpenGlContext = myCvfContext;
+
+        const InitializationState prevInitState = m_initializationState;
+        m_initializationState = IS_INITIALIZED;
+
+        // Connect to signal so we get notified when Qt's OpenGL context is about to be destroyed
+        connect(myQtOpenGLContext, &QOpenGLContext::aboutToBeDestroyed, this, &OpenGLWidget::qtOpenGLContextAboutToBeDestroyed);
+
+        if (prevInitState == UNINITIALIZED)
+        {
+            // Call overridable notification function to indicate that OpenGL has been initialized
+            // Don't do this if we're being re-initialized
+            onWidgetOpenGLReady();
+        }
+
+        // Trigger a repaint if we're being re-initialized
+        if (prevInitState == PENDING_REINITIALIZATION)
+        {
+            update();
         }
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::OpenGLContext* OpenGLWidget::cvfOpenGLContext() const
+void OpenGLWidget::resizeGL(int /*w*/, int /*h*/)
 {
-    const QGLContext* qglContext = context();
-    const CvfBoundQGLContext* contextBinding = dynamic_cast<const CvfBoundQGLContext*>(qglContext);
-    CVF_ASSERT(contextBinding);
-
-    return contextBinding->cvfOpenGLContext();
+    // Empty, should normally be implemented in derived class
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void OpenGLWidget::paintGL()
+{
+    // No implementation here (nor in QOpenGLWidget::paintGL())
+    // Derived classes must re-implement this function in order to do painting.
+    //
+    // Typical code would go something like this:
+    //   cvf::OpenGLContext* currentOglContext = cvfOpenGLContext();
+    //   myRenderSequence->render(currentOglContext);
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void OpenGLWidget::cvfShutdownOpenGLContext()
+cvf::OpenGLContext* OpenGLWidget::cvfOpenGLContext()
 {
-    // It should be safe to call shutdown multiple times so this call should 
-    // amount to a no-op if the user has already shut down the context
-    cvf::ref<cvf::OpenGLContext> myContext = cvfOpenGLContext();
-    if (myContext.notNull())
+    return m_cvfForwardingOpenGlContext.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int OpenGLWidget::instanceNumber() const
+{
+    return m_instanceNumber;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Notification function that will be called after internal CVF OpenGL initialization has 
+/// successfully completed. This includes both the creation of the CVF OpenGLContext and
+/// successful initialization of the OpenGL context group
+/// 
+/// Can be re-implemented in derived classes to take any needed actions.
+//--------------------------------------------------------------------------------------------------
+void OpenGLWidget::onWidgetOpenGLReady()
+{
+    // Base implementation does nothing
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void OpenGLWidget::qtOpenGLContextAboutToBeDestroyed()
+{
+    CVF_LOG_DEBUG(m_logger, cvf::String("OpenGLWidget[%1]::qtOpenGLContextAboutToBeDestroyed()").arg(m_instanceNumber));
+
+    if (m_cvfForwardingOpenGlContext.notNull())
     {
-        myContext->shutdownContext();
+        CVF_LOG_DEBUG(m_logger, cvf::String("OpenGLWidget[%1]: Shutting down CVF OpenGL context since Qt context is about to be destroyed").arg(m_instanceNumber));
+        shutdownCvfOpenGLContext();
+    }
+
+    if (m_initializationState == IS_INITIALIZED)
+    {
+        m_initializationState = PENDING_REINITIALIZATION;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void OpenGLWidget::shutdownCvfOpenGLContext()
+{
+    if (m_cvfForwardingOpenGlContext.notNull())
+    {
+        makeCurrent();
+
+        m_cvfOpenGlContextGroup->contextAboutToBeShutdown(m_cvfForwardingOpenGlContext.p());
+        m_cvfForwardingOpenGlContext = NULL;
     }
 }
 
 
 } // namespace cvfqt
-
 

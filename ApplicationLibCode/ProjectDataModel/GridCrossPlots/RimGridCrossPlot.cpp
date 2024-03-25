@@ -58,18 +58,15 @@ RimGridCrossPlot::RimGridCrossPlot()
     CAF_PDM_InitField( &m_showInfoBox, "ShowInfoBox", true, "Show Info Box" );
 
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "Name Config" );
-    m_nameConfig.uiCapability()->setUiTreeHidden( true );
     m_nameConfig.uiCapability()->setUiTreeChildrenHidden( true );
     m_nameConfig = new RimGridCrossPlotNameConfig();
 
     CAF_PDM_InitFieldNoDefault( &m_xAxisProperties, "xAxisProperties", "X Axis" );
-    m_xAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_xAxisProperties = new RimPlotAxisProperties;
     m_xAxisProperties->setNameAndAxis( "X-Axis", "X-Axis", RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
     m_xAxisProperties->setEnableTitleTextSettings( false );
 
     CAF_PDM_InitFieldNoDefault( &m_yAxisProperties, "yAxisProperties", "Y Axis" );
-    m_yAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_yAxisProperties = new RimPlotAxisProperties;
     m_yAxisProperties->setNameAndAxis( "Y-Axis", "Y-Axis", RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
     m_yAxisProperties->setEnableTitleTextSettings( false );
@@ -78,7 +75,6 @@ RimGridCrossPlot::RimGridCrossPlot()
     connectAxisSignals( m_yAxisProperties() );
 
     CAF_PDM_InitFieldNoDefault( &m_crossPlotDataSets, "CrossPlotCurve", "Cross Plot Data Set" );
-    m_crossPlotDataSets.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( true );
 }

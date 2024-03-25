@@ -38,7 +38,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigWellLogLasFile::RigWellLogLasFile()
-    : cvf::Object()
+    : RigWellLogFile()
 {
     m_wellLogFile = nullptr;
 }
@@ -226,42 +226,6 @@ QString RigWellLogLasFile::depthUnitString() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigWellLogLasFile::wellLogChannelUnitString( const QString& wellLogChannelName, RiaDefines::DepthUnitType displayDepthUnit ) const
-{
-    QString unit;
-
-    NRLib::LasWell* lasWell = dynamic_cast<NRLib::LasWell*>( m_wellLogFile );
-    if ( lasWell )
-    {
-        unit = QString::fromStdString( lasWell->unitName( wellLogChannelName.toStdString() ) );
-    }
-
-    if ( unit == depthUnitString() )
-    {
-        if ( displayDepthUnit != depthUnit() )
-        {
-            if ( displayDepthUnit == RiaDefines::DepthUnitType::UNIT_METER )
-            {
-                return "M";
-            }
-            else if ( displayDepthUnit == RiaDefines::DepthUnitType::UNIT_FEET )
-            {
-                return "FT";
-            }
-            else if ( displayDepthUnit == RiaDefines::DepthUnitType::UNIT_NONE )
-            {
-                CVF_ASSERT( false );
-                return "";
-            }
-        }
-    }
-
-    return unit;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RigWellLogLasFile::wellLogChannelUnitString( const QString& wellLogChannelName ) const
 {
     QString unit;
@@ -296,19 +260,4 @@ bool RigWellLogLasFile::hasTvdRkbChannel() const
 double RigWellLogLasFile::getMissingValue() const
 {
     return m_wellLogFile->GetContMissing();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiaDefines::DepthUnitType RigWellLogLasFile::depthUnit() const
-{
-    RiaDefines::DepthUnitType unitType = RiaDefines::DepthUnitType::UNIT_METER;
-
-    if ( depthUnitString().toUpper() == "F" || depthUnitString().toUpper() == "FT" )
-    {
-        unitType = RiaDefines::DepthUnitType::UNIT_FEET;
-    }
-
-    return unitType;
 }

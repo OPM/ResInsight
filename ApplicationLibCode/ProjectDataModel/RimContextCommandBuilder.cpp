@@ -389,8 +389,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewEditableWellPathFeature";
             menuBuilder << "RicNewWellPathLateralFeature";
-            menuBuilder << "RicLinkWellPathFeature";
             menuBuilder << "RicDuplicateWellPathFeature";
+
+            menuBuilder.addSeparator();
+            menuBuilder << "RicSetParentWellPathFeature";
 
             menuBuilder.addSeparator();
             menuBuilder << "RicNewWellPathIntersectionFeature";
@@ -421,6 +423,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.subMenuEnd();
             menuBuilder.addSeparator();
 
+            menuBuilder << "RicLinkWellPathFeature";
             menuBuilder << "RicDeleteWellPathFeature";
 
             menuBuilder.addSeparator();
@@ -1151,6 +1154,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
     if ( firstUiItem )
     {
+        if ( auto pdmObject = dynamic_cast<caf::PdmUiObjectHandle*>( firstUiItem ) )
+        {
+            pdmObject->appendMenuItems( menuBuilder );
+        }
+
         // Work in progress -- Start
         // All commands should be aware of selection of multiple objects
         // Based on the selection, the command feature can decide if the command
@@ -1492,6 +1500,7 @@ int RimContextCommandBuilder::appendImportMenu( caf::CmdFeatureMenuBuilder& menu
     candidates << "RicWellPathsImportFileFeature";
     candidates << "RicWellPathFormationsImportFileFeature";
     candidates << "RicWellLogsImportFileFeature";
+    candidates << "RicImportWellLogCsvFileFeature";
     candidates << "RicReloadWellPathFormationNamesFeature";
 
     return appendSubMenuWithCommands( menuBuilder, candidates, "Import", QIcon(), addSeparatorBeforeMenu );

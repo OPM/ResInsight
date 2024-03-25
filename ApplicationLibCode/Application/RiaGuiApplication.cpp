@@ -23,6 +23,7 @@
 #include "RiaArgumentParser.h"
 #include "RiaBaseDefs.h"
 #include "RiaDefines.h"
+#include "RiaFileLogger.h"
 #include "RiaFilePathTools.h"
 #include "RiaFontCache.h"
 #include "RiaImportEclipseCaseTools.h"
@@ -140,10 +141,6 @@
 #ifndef WIN32
 #include <unistd.h> // for usleep
 #endif // WIN32
-
-#ifdef USE_UNIT_TESTS
-#include "gtest/gtest.h"
-#endif // USE_UNIT_TESTS
 
 //==================================================================================================
 ///
@@ -432,9 +429,18 @@ void RiaGuiApplication::initialize()
         auto logger = std::make_unique<RiuMessagePanelLogger>();
         logger->addMessagePanel( m_mainWindow->messagePanel() );
         logger->addMessagePanel( m_mainPlotWindow->messagePanel() );
-        RiaLogging::setLoggerInstance( std::move( logger ) );
+        logger->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
 
-        RiaLogging::loggerInstance()->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
+        RiaLogging::appendLoggerInstance( std::move( logger ) );
+
+        auto filename = RiaPreferences::current()->loggerFilename();
+        if ( !filename.isEmpty() )
+        {
+            auto fileLogger = std::make_unique<RiaFileLogger>( filename.toStdString() );
+            fileLogger->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
+
+            RiaLogging::appendLoggerInstance( std::move( fileLogger ) );
+        }
     }
     m_socketServer = new RiaSocketServer( this );
 }
@@ -457,6 +463,16 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
         return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
     }
 
+    if ( progOpt->option( "version" ) )
+    {
+        QString text = QString( STRPRODUCTVER ) + "\n";
+        text += "SHA " + QString( RESINSIGHT_GIT_HASH ) + "\n";
+
+        showFormattedTextInMessageBoxOrConsole( text );
+
+        return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
+    }
+
     // Code generation
     // -----------------
     if ( cvf::Option o = progOpt->option( "generate" ) )
@@ -474,22 +490,6 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
         return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
     }
 
-    // Unit testing
-    // --------------------------------------------------------
-    if ( cvf::Option o = progOpt->option( "unittest" ) )
-    {
-        int testReturnValue = launchUnitTestsWithConsole();
-        if ( testReturnValue == 0 )
-        {
-            return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
-        }
-        else
-        {
-            RiaLogging::error( "Error running unit tests" );
-            return RiaApplication::ApplicationStatus::EXIT_WITH_ERROR;
-        }
-    }
-
     if ( cvf::Option o = progOpt->option( "regressiontest" ) )
     {
         CVF_ASSERT( o.valueCount() == 1 );
@@ -501,7 +501,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
         auto stdLogger = std::make_unique<RiaStdOutLogger>();
         stdLogger->setLevel( int( RILogLevel::RI_LL_DEBUG ) );
 
-        RiaLogging::setLoggerInstance( std::move( stdLogger ) );
+        RiaLogging::appendLoggerInstance( std::move( stdLogger ) );
 
         RiaRegressionTestRunner::instance()->executeRegressionTests( regressionTestPath, QStringList() );
         return ApplicationStatus::EXIT_COMPLETED;
@@ -884,31 +884,6 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiaGuiApplication::launchUnitTestsWithConsole()
-{
-    // Following code is taken from cvfAssert.cpp
-#ifdef WIN32
-    {
-        // Allocate a new console for this app
-        // Only one console can be associated with an app, so should fail if a console is already present.
-        AllocConsole();
-
-        FILE* consoleFilePointer;
-
-        freopen_s( &consoleFilePointer, "CONOUT$", "w", stdout );
-        freopen_s( &consoleFilePointer, "CONOUT$", "w", stderr );
-
-        // Make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog point to console as well
-        std::ios::sync_with_stdio();
-    }
-#endif
-
-    return launchUnitTests();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RiuMainWindow* RiaGuiApplication::getOrCreateAndShowMainWindow()
 {
     if ( !m_mainWindow )
@@ -964,10 +939,14 @@ void RiaGuiApplication::createMainWindow()
     m_mainWindow->showWindow();
 
     // if there is an existing logger, reconnect to it
-    auto logger = dynamic_cast<RiuMessagePanelLogger*>( RiaLogging::loggerInstance() );
-    if ( logger )
+
+    for ( auto logger : RiaLogging::loggerInstances() )
     {
-        logger->addMessagePanel( m_mainWindow->messagePanel() );
+        auto messagePanelLogger = dynamic_cast<RiuMessagePanelLogger*>( logger );
+        if ( messagePanelLogger )
+        {
+            messagePanelLogger->addMessagePanel( m_mainWindow->messagePanel() );
+        }
     }
 }
 

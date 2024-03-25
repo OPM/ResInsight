@@ -34,12 +34,12 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cvfBase.h"
 #include "cvfRenderSequence.h"
 #include "cvfManipulatorTrackball.h"
+
 #include "cvfqtOpenGLWidget.h"
 
 
@@ -53,12 +53,12 @@ class QMVWidget : public cvfqt::OpenGLWidget
     Q_OBJECT
 
 public:
-    QMVWidget(cvf::OpenGLContextGroup* contextGroup, const QGLFormat& format, QWidget* parent);
-    QMVWidget(QMVWidget* shareWidget, QWidget* parent);
-    ~QMVWidget();
+    QMVWidget(cvf::OpenGLContextGroup* contextGroup, int indexOfWidget, QWidget* parent, Qt::WindowFlags f = Qt::WindowFlags());
 
     void                    setRenderSequence(cvf::RenderSequence* renderSequence);
     cvf::RenderSequence*    renderSequence();
+
+    cvf::OpenGLContext*     cvfOpenGLContext();
 
 private:
     void            resizeGL(int width, int height);
@@ -70,8 +70,10 @@ private:
     void            mouseReleaseEvent(QMouseEvent* event);
 
 private:
-    cvf::ref<cvf::RenderSequence>       m_renderSequence;
+    int                                 m_indexOfWidget;
+    int                                 m_paintCount;
     cvf::ref<cvf::ManipulatorTrackball> m_trackball;
+    cvf::ref<cvf::RenderSequence>       m_renderSequence;
 };
 
 

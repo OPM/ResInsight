@@ -71,8 +71,7 @@ int RimWellIADataAccess::elementIndex( cvf::Vec3d position )
 
     auto part = m_caseData->femParts()->part( 0 );
 
-    std::vector<size_t> closeElements;
-    part->findIntersectingElementIndices( bb, &closeElements );
+    std::vector<size_t> closeElements = part->findIntersectingElementIndices( bb );
     if ( closeElements.empty() ) return -1;
 
     for ( auto elmIdx : closeElements )

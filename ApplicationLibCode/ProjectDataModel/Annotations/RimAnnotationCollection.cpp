@@ -47,10 +47,6 @@ RimAnnotationCollection::RimAnnotationCollection()
     CAF_PDM_InitFieldNoDefault( &m_userDefinedPolylineAnnotations, "UserDefinedPolylineAnnotations", "User Defined Polyline Annotations" );
     CAF_PDM_InitFieldNoDefault( &m_polylineFromFileAnnotations, "PolylineFromFileAnnotations", "Polylines From File" );
 
-    m_reachCircleAnnotations.uiCapability()->setUiTreeHidden( true );
-    m_userDefinedPolylineAnnotations.uiCapability()->setUiTreeHidden( true );
-    m_polylineFromFileAnnotations.uiCapability()->setUiTreeHidden( true );
-
     m_reachCircleAnnotations         = new RimAnnotationGroupCollection();
     m_userDefinedPolylineAnnotations = new RimAnnotationGroupCollection();
     m_polylineFromFileAnnotations    = new RimAnnotationGroupCollection();
@@ -164,7 +160,6 @@ RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylines
         }
     }
 
-    size_t newLinesIdx = 0;
     for ( const QString& newFileName : newFileNames )
     {
         RimPolylinesFromFileAnnotation* newPolyLinesAnnot = new RimPolylinesFromFileAnnotation;
@@ -177,8 +172,6 @@ RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylines
 
         m_polylineFromFileAnnotations->addAnnotation( newPolyLinesAnnot );
         polyLinesObjsToReload.push_back( newPolyLinesAnnot );
-
-        ++newLinesIdx;
     }
 
     updateViewAnnotationCollections();

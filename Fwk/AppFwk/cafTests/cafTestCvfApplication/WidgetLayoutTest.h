@@ -10,7 +10,7 @@ class WidgetLayoutTest : public QWidget
     Q_OBJECT
 
 public:
-    WidgetLayoutTest( QWidget* parent = 0, Qt::WindowFlags f = 0 );
+    WidgetLayoutTest( QWidget* parent = 0, Qt::WindowFlags f = Qt::WindowFlags() );
     ~WidgetLayoutTest();
 
 private:

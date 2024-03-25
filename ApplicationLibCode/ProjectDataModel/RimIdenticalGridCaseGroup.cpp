@@ -63,10 +63,8 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
     groupId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
     CAF_PDM_InitFieldNoDefault( &statisticsCaseCollection, "StatisticsCaseCollection", "statisticsCaseCollection ChildArrayField" );
-    statisticsCaseCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &caseCollection, "CaseCollection", "Source Cases ChildArrayField" );
-    caseCollection.uiCapability()->setUiTreeHidden( true );
 
     caseCollection = new RimCaseCollection;
     caseCollection->uiCapability()->setUiName( "Source Cases" );
@@ -247,7 +245,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 
         if ( i == 0 )
         {
-            rimReservoir->eclipseCaseData()->computeActiveCellBoundingBoxes();
+            rimReservoir->computeActiveCellsBoundingBox();
         }
     }
 }
@@ -375,7 +373,7 @@ void RimIdenticalGridCaseGroup::updateMainGridAndActiveCellsForStatisticsCases()
 
             if ( i == 0 )
             {
-                rimStaticsCase->eclipseCaseData()->computeActiveCellBoundingBoxes();
+                rimStaticsCase->computeActiveCellsBoundingBox();
             }
         }
     }
@@ -431,8 +429,15 @@ RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createStatisticsCase( bool 
 
     if ( selectDefaultResults ) newStatisticsCase->populateResultSelectionAfterLoadingGrid();
 
+    auto reservoirs = caseCollection->reservoirs().childrenByType();
+    if ( !reservoirs.empty() )
+    {
+        auto caseDescription = reservoirs.front()->caseUserDescription();
+        newStatisticsCase->setWellDataSourceCase( caseDescription );
+    }
+
     newStatisticsCase->openEclipseGridFile();
-    newStatisticsCase->eclipseCaseData()->computeActiveCellBoundingBoxes();
+    newStatisticsCase->computeActiveCellsBoundingBox();
     newStatisticsCase->selectAllTimeSteps();
 
     return newStatisticsCase;

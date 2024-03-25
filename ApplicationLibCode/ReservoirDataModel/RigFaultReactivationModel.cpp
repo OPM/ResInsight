@@ -18,13 +18,14 @@
 
 #include "RigFaultReactivationModel.h"
 
+#include "RigActiveCellInfo.h"
+#include "RigEclipseCaseData.h"
 #include "RigFaultReactivationModelGenerator.h"
 #include "RigGriddedPart3d.h"
-#include "RigPolyLinesData.h"
 
-#include "RimFaultReactivationDataAccess.h"
+#include "RimEclipseCase.h"
 
-#include "cafAssert.h"
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -141,12 +142,22 @@ std::pair<cvf::Vec3d, cvf::Vec3d> RigFaultReactivationModel::modelLocalNormalsXY
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Vec3d RigFaultReactivationModel::transformPointIfNeeded( const cvf::Vec3d point ) const
+{
+    if ( m_generator.get() == nullptr ) return point;
+    return m_generator->transformPointIfNeeded( point );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigFaultReactivationModel::updateGeometry( size_t startCell, cvf::StructGridInterface::FaceType startFace )
 {
     reset();
 
-    auto frontPart = m_3dparts[GridPart::FW];
-    auto backPart  = m_3dparts[GridPart::HW];
+    auto frontPart   = m_3dparts[GridPart::FW];
+    auto backPart    = m_3dparts[GridPart::HW];
+    m_normalPointsAt = GridPart::FW;
 
     m_generator->generateGeometry( startCell, startFace, frontPart, backPart );
 
@@ -154,6 +165,7 @@ void RigFaultReactivationModel::updateGeometry( size_t startCell, cvf::StructGri
     {
         m_3dparts[GridPart::HW] = frontPart;
         m_3dparts[GridPart::FW] = backPart;
+        m_normalPointsAt        = GridPart::HW;
     }
 
     auto& frontPoints = m_generator->frontPoints();
@@ -214,10 +226,10 @@ const RigGriddedPart3d* RigFaultReactivationModel::grid( RimFaultReactivation::G
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const cvf::Vec3d RigFaultReactivationModel::faultNormal() const
+const cvf::Vec3d RigFaultReactivationModel::modelNormal() const
 {
     if ( m_generator.get() == nullptr ) return { 0.0, 0.0, 0.0 };
-    return m_generator->normal();
+    return m_generator->modelNormal();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -227,4 +239,38 @@ const std::pair<cvf::Vec3d, cvf::Vec3d> RigFaultReactivationModel::faultTopBotto
 {
     if ( m_generator.get() == nullptr ) return std::make_pair( cvf::Vec3d(), cvf::Vec3d() );
     return m_generator->faultTopBottomPoints();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RigFaultReactivationModel::depthTopBottom() const
+{
+    if ( m_generator.get() == nullptr )
+        return std::make_pair( std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity() );
+    return m_generator->depthTopBottom();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFaultReactivation::GridPart RigFaultReactivationModel::normalPointsAt() const
+{
+    return m_normalPointsAt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModel::postProcessElementSets( const RimEclipseCase* eCase )
+{
+    if ( eCase->eclipseCaseData() == nullptr ) return;
+
+    auto cellInfo = eCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+    for ( auto part : allGridParts() )
+    {
+        auto gridPart = m_3dparts[part];
+        gridPart->postProcessElementSets( eCase->mainGrid(), cellInfo );
+    }
 }

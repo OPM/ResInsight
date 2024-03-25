@@ -48,10 +48,7 @@
 #include "cvfBufferObjectManaged.h"
 #include "cvfCamera.h"
 #include "cvfRenderStateTextureBindings.h"
-
-#ifndef CVF_OPENGL_ES
 #include "cvfRenderState_FF.h"
-#endif
 
 namespace cvf {
 
@@ -198,13 +195,11 @@ void RenderQueueBuilder::populateRenderQueue(RenderQueue* renderQueue)
             textureBindings->setupTextures(m_oglContext.p());
         }
 
-#ifndef CVF_OPENGL_ES
         RenderStateTextureMapping_FF* textureMapping = static_cast<RenderStateTextureMapping_FF*>(effect->renderStateOfType(RenderState::TEXTURE_MAPPING_FF));
         if (textureMapping && canAddToQueue) 
         {
             textureMapping->setupTexture(m_oglContext.p());
         }
-#endif
 
         if (canAddToQueue)
         {

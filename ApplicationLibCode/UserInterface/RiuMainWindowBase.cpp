@@ -43,6 +43,7 @@
 #include "DockWidget.h"
 
 #include <QAction>
+#include <QApplication>
 #include <QClipboard>
 #include <QInputDialog>
 #include <QMdiArea>

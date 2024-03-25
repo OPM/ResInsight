@@ -33,19 +33,27 @@
 #include "RigResultAccessorFactory.h"
 #include "RigStatisticsMath.h"
 
+#include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseTools.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseResultAddress.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimGridCalculationCollection.h"
 #include "RimGridCalculationVariable.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReloadCaseTools.h"
+#include "RimResultSelectionUi.h"
 #include "RimTools.h"
 
 #include "expressionparser/ExpressionParser.h"
 
+#include "cafPdmUiPropertyViewDialog.h"
+#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QCheckBox>
@@ -63,6 +71,14 @@ void caf::AppEnum<RimGridCalculation::DefaultValueType>::setUp()
     addItem( RimGridCalculation::DefaultValueType::USER_DEFINED, "USER_DEFINED", "User Defined Custom Value" );
     setDefault( RimGridCalculation::DefaultValueType::POSITIVE_INFINITY );
 }
+template <>
+void caf::AppEnum<RimGridCalculation::AdditionalCasesType>::setUp()
+{
+    addItem( RimGridCalculation::AdditionalCasesType::NONE, "NONE", "None" );
+    addItem( RimGridCalculation::AdditionalCasesType::GRID_CASE_GROUP, "GRID_CASE_GROUP", "Case Group" );
+    addItem( RimGridCalculation::AdditionalCasesType::ALL_CASES, "NONE", "All Cases" );
+    setDefault( RimGridCalculation::AdditionalCasesType::NONE );
+}
 }; // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -75,8 +91,23 @@ RimGridCalculation::RimGridCalculation()
     CAF_PDM_InitFieldNoDefault( &m_defaultValueType, "DefaultValueType", "Non-visible Cell Value" );
     CAF_PDM_InitField( &m_defaultValue, "DefaultValue", 0.0, "Custom Value" );
     CAF_PDM_InitFieldNoDefault( &m_destinationCase, "DestinationCase", "Destination Case" );
-    CAF_PDM_InitField( &m_applyToAllCases, "AllDestinationCase", false, "Apply to All Cases" );
-    CAF_PDM_InitField( &m_defaultPropertyVariableIndex, "DefaultPropertyVariableName", 0, "Property Variable Name" );
+
+    CAF_PDM_InitField( &m_applyToAllCases_OBSOLETE, "AllDestinationCase", false, "Apply to All Cases" );
+    m_applyToAllCases_OBSOLETE.xmlCapability()->setIOWritable( false );
+
+    CAF_PDM_InitFieldNoDefault( &m_additionalCasesType, "AdditionalCasesType", "Apply To Additional Cases" );
+    CAF_PDM_InitFieldNoDefault( &m_additionalCaseGroup, "AdditionalCaseGroup", "Case Group" );
+
+    CAF_PDM_InitFieldNoDefault( &m_nonVisibleResultAddress, "NonVisibleResultAddress", "" );
+    m_nonVisibleResultAddress = new RimEclipseResultAddress;
+
+    CAF_PDM_InitField( &m_editNonVisibleResultAddress, "EditNonVisibleResultAddress", false, "Edit" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_editNonVisibleResultAddress );
+
+    CAF_PDM_InitFieldNoDefault( &m_nonVisibleResultText, "NonVisibleResultText", "" );
+    m_nonVisibleResultText.registerGetMethod( this, &RimGridCalculation::nonVisibleResultAddressText );
+    m_nonVisibleResultText.uiCapability()->setUiReadOnly( true );
+    m_nonVisibleResultText.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "SelectedTimeSteps", "Time Step Selection" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -87,7 +118,7 @@ RimGridCalculation::RimGridCalculation()
 //--------------------------------------------------------------------------------------------------
 bool RimGridCalculation::preCalculate() const
 {
-    if ( RiaGuiApplication::isRunning() && m_applyToAllCases() )
+    if ( RiaGuiApplication::isRunning() && m_additionalCasesType() != RimGridCalculation::AdditionalCasesType::NONE )
     {
         const QString cacheKey = "GridCalculatorMessage";
 
@@ -156,6 +187,29 @@ bool RimGridCalculation::calculate()
         }
     }
 
+    if ( m_defaultValueType() == DefaultValueType::FROM_PROPERTY )
+    {
+        bool isDataSourceAvailable = false;
+
+        if ( m_nonVisibleResultAddress->eclipseCase() )
+        {
+            auto data = m_nonVisibleResultAddress->eclipseCase()->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+            if ( data && data->hasResultEntry(
+                             RigEclipseResultAddress( m_nonVisibleResultAddress->resultType(), m_nonVisibleResultAddress->resultName() ) ) )
+            {
+                isDataSourceAvailable = true;
+            }
+        }
+
+        if ( !isDataSourceAvailable )
+        {
+            QString msg = "No data available for result defined in 'Non-visible Cell Value'";
+
+            RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
+            return false;
+        }
+    }
+
     cvf::UByteArray* inputValueVisibilityFilter = nullptr;
     if ( m_cellFilterView() )
     {
@@ -184,15 +238,17 @@ bool RimGridCalculation::calculate()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEclipseCase*> RimGridCalculation::outputEclipseCases() const
 {
-    if ( m_applyToAllCases )
+    if ( m_additionalCasesType() == RimGridCalculation::AdditionalCasesType::ALL_CASES )
     {
         // Find all Eclipse cases suitable for grid calculations. This includes all single grid cases and source cases in a grid case group.
         // Exclude the statistics cases, as it is not possible to use them in a grid calculations.
-        //
-        // Note that data read from file can be released from memory when statistics for a time step is calculated. See
-        // RimEclipseStatisticsCaseEvaluator::evaluateForResults()
-
         return RimEclipseCaseTools::allEclipseGridCases();
+    }
+
+    if ( m_additionalCasesType() == RimGridCalculation::AdditionalCasesType::GRID_CASE_GROUP )
+    {
+        if ( m_additionalCaseGroup() && m_additionalCaseGroup()->caseCollection() )
+            return m_additionalCaseGroup()->caseCollection()->reservoirs.childrenByType();
     }
 
     return { m_destinationCase };
@@ -229,18 +285,29 @@ RimGridCalculation::DefaultValueConfig RimGridCalculation::defaultValueConfigura
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimGridCalculation::nonVisibleResultAddressText() const
+{
+    QString txt;
+
+    if ( m_nonVisibleResultAddress->eclipseCase() ) txt += m_nonVisibleResultAddress->eclipseCase()->caseUserDescription() + " : ";
+
+    txt += m_nonVisibleResultAddress->resultName();
+
+    return txt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     RimUserDefinedCalculation::defineUiOrdering( uiConfigName, uiOrdering );
 
     uiOrdering.add( &m_destinationCase );
 
-    uiOrdering.add( &m_applyToAllCases );
-    if ( !allSourceCasesAreEqualToDestinationCase() )
-    {
-        m_applyToAllCases = false;
-    }
-    m_applyToAllCases.uiCapability()->setUiReadOnly( !allSourceCasesAreEqualToDestinationCase() );
+    uiOrdering.add( &m_additionalCasesType );
+    uiOrdering.add( &m_additionalCaseGroup );
+    m_additionalCaseGroup.uiCapability()->setUiHidden( m_additionalCasesType() != RimGridCalculation::AdditionalCasesType::GRID_CASE_GROUP );
 
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup( "Cell Filter" );
     filterGroup->setCollapsedByDefault();
@@ -251,7 +318,10 @@ void RimGridCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
         filterGroup->add( &m_defaultValueType );
 
         if ( m_defaultValueType() == RimGridCalculation::DefaultValueType::FROM_PROPERTY )
-            filterGroup->add( &m_defaultPropertyVariableIndex );
+        {
+            filterGroup->add( &m_nonVisibleResultText );
+            filterGroup->add( &m_editNonVisibleResultAddress, { .newRow = false } );
+        }
         else if ( m_defaultValueType() == RimGridCalculation::DefaultValueType::USER_DEFINED )
             filterGroup->add( &m_defaultValue );
     }
@@ -278,7 +348,16 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
         RimProject::current()->allViews( views );
 
         RimEclipseCase* firstEclipseCase = nullptr;
-        if ( !inputCases().empty() ) firstEclipseCase = inputCases().front();
+        if ( !inputCases().empty() )
+        {
+            firstEclipseCase = inputCases().front();
+        }
+        else
+        {
+            // If no input cases are defined, use the destination case to determine the grid size. This will enable use of expressions
+            // with no input cases like "calculation := 1.0"
+            firstEclipseCase = m_destinationCase();
+        }
 
         if ( firstEclipseCase )
         {
@@ -311,16 +390,6 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
 
         options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
     }
-    else if ( fieldNeedingOptions == &m_defaultPropertyVariableIndex )
-    {
-        for ( int i = 0; i < static_cast<int>( m_variables.size() ); i++ )
-        {
-            auto v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
-
-            QString optionText = v->name();
-            options.push_back( caf::PdmOptionItemInfo( optionText, i ) );
-        }
-    }
     else if ( &m_selectedTimeSteps == fieldNeedingOptions )
     {
         RimEclipseCase* firstEclipseCase = nullptr;
@@ -334,6 +403,20 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
             for ( const auto& text : timeStepStrings )
             {
                 options.push_back( caf::PdmOptionItemInfo( text, index++ ) );
+            }
+        }
+    }
+    else if ( &m_additionalCaseGroup == fieldNeedingOptions )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+
+        RimProject* proj = RimProject::current();
+        if ( proj->activeOilField() && proj->activeOilField()->analysisModels() )
+        {
+            auto analysisModels = proj->activeOilField()->analysisModels();
+            for ( RimIdenticalGridCaseGroup* cg : analysisModels->caseGroups() )
+            {
+                options.push_back( caf::PdmOptionItemInfo( cg->name(), cg, false, cg->uiIconProvider() ) );
             }
         }
     }
@@ -354,6 +437,51 @@ void RimGridCalculation::initAfterRead()
             gridVar->eclipseResultChanged.connect( this, &RimGridCalculation::onVariableUpdated );
 
             if ( m_destinationCase == nullptr ) m_destinationCase = gridVar->eclipseCase();
+        }
+    }
+
+    if ( m_applyToAllCases_OBSOLETE ) m_additionalCasesType = RimGridCalculation::AdditionalCasesType::ALL_CASES;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCalculation::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    RimUserDefinedCalculation::fieldChangedByUi( changedField, oldValue, newValue );
+
+    if ( changedField == &m_editNonVisibleResultAddress )
+    {
+        auto eclipseCase = m_nonVisibleResultAddress->eclipseCase();
+        if ( !eclipseCase ) eclipseCase = m_destinationCase;
+
+        RimResultSelectionUi selectionUi;
+        selectionUi.setEclipseResultAddress( eclipseCase, m_nonVisibleResultAddress->resultType(), m_nonVisibleResultAddress->resultName() );
+
+        caf::PdmUiPropertyViewDialog propertyDialog( nullptr, &selectionUi, "Select Result", "" );
+        if ( propertyDialog.exec() == QDialog::Accepted )
+        {
+            m_nonVisibleResultAddress->setEclipseCase( selectionUi.eclipseCase() );
+            m_nonVisibleResultAddress->setResultType( selectionUi.resultType() );
+            m_nonVisibleResultAddress->setResultName( selectionUi.resultVariable() );
+        }
+
+        m_editNonVisibleResultAddress = false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCalculation::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    RimUserDefinedCalculation::defineEditorAttribute( field, uiConfigName, attribute );
+
+    if ( field == &m_editNonVisibleResultAddress )
+    {
+        if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
+        {
+            attrib->m_buttonText = "Edit";
         }
     }
 }
@@ -414,16 +542,12 @@ RigEclipseResultAddress RimGridCalculation::outputAddress() const
 std::vector<double> RimGridCalculation::getDataForVariable( RimGridCalculationVariable*   variable,
                                                             size_t                        tsId,
                                                             RiaDefines::PorosityModelType porosityModel,
-                                                            RimEclipseCase*               destinationCase,
-                                                            bool                          useDataFromDestinationCase ) const
+                                                            RimEclipseCase*               sourceCase,
+                                                            RimEclipseCase*               destinationCase ) const
 {
-    // The data can be taken from the destination case or from the calculation variable.
-    auto eclipseCase = useDataFromDestinationCase ? destinationCase : variable->eclipseCase();
+    if ( !sourceCase || !destinationCase ) return {};
 
-    if ( !eclipseCase ) return {};
-
-    int timeStep = variable->timeStep();
-
+    int  timeStep           = variable->timeStep();
     auto resultCategoryType = variable->resultCategoryType();
 
     // General case is to use the data from the given time step
@@ -440,25 +564,57 @@ std::vector<double> RimGridCalculation::getDataForVariable( RimGridCalculationVa
         timeStepToUse = timeStep;
     }
 
-    RigEclipseResultAddress resAddr( resultCategoryType, variable->resultVariable() );
+    return getDataForResult( variable->resultVariable(), resultCategoryType, timeStepToUse, porosityModel, sourceCase, destinationCase );
+}
 
-    auto eclipseCaseData        = eclipseCase->eclipseCaseData();
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimGridCalculation::getDataForResult( const QString&                  resultName,
+                                                          const RiaDefines::ResultCatType resultCategoryType,
+                                                          size_t                          tsId,
+                                                          RiaDefines::PorosityModelType   porosityModel,
+                                                          RimEclipseCase*                 sourceCase,
+                                                          RimEclipseCase*                 destinationCase ) const
+{
+    if ( !sourceCase || !destinationCase ) return {};
+
+    size_t timeStepToUse = tsId;
+    if ( resultCategoryType == RiaDefines::ResultCatType::STATIC_NATIVE )
+    {
+        // Use the first time step for static data for all time steps
+        timeStepToUse = 0;
+    }
+
+    RigEclipseResultAddress resAddr( resultCategoryType, resultName );
+
+    auto eclipseCaseData        = sourceCase->eclipseCaseData();
     auto rigCaseCellResultsData = eclipseCaseData->results( porosityModel );
-    if ( !rigCaseCellResultsData->ensureKnownResultLoaded( resAddr ) ) return {};
+    if ( !rigCaseCellResultsData->findOrLoadKnownScalarResultForTimeStep( resAddr, timeStepToUse ) ) return {};
 
-    // Active cell info must always be retrieved from the destination case, as the returned vector must be of the same size as number of
-    // active cells in the destination case.
+    // Active cell info must always be retrieved from the destination case, as the returned vector must be of the same size as
+    // number of active cells in the destination case. Active cells can be different between source and destination case.
     auto activeCellInfoDestination = destinationCase->eclipseCaseData()->activeCellInfo( porosityModel );
     auto activeReservoirCells      = activeCellInfoDestination->activeReservoirCellIndices();
 
     std::vector<double> values( activeCellInfoDestination->activeReservoirCellIndices().size() );
 
-    auto resultAccessor = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData, 0, porosityModel, timeStepToUse, resAddr );
+    size_t gridIndex = 0;
+    auto   resultAccessor =
+        RigResultAccessorFactory::createFromResultAddress( eclipseCaseData, gridIndex, porosityModel, timeStepToUse, resAddr );
 
 #pragma omp parallel for
     for ( int i = 0; i < static_cast<int>( activeReservoirCells.size() ); i++ )
     {
         values[i] = resultAccessor->cellScalarGlobIdx( activeReservoirCells[i] );
+    }
+
+    if ( m_releaseMemoryAfterDataIsExtracted )
+    {
+        auto categoriesToExclude = { RiaDefines::ResultCatType::GENERATED };
+
+        sourceCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->freeAllocatedResultsData( categoriesToExclude, timeStepToUse );
+        sourceCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->freeAllocatedResultsData( categoriesToExclude, timeStepToUse );
     }
 
     return values;
@@ -517,6 +673,7 @@ void RimGridCalculation::replaceFilteredValuesWithDefaultValue( double          
 //--------------------------------------------------------------------------------------------------
 void RimGridCalculation::filterResults( RimGridView*                            cellFilterView,
                                         const std::vector<std::vector<double>>& values,
+                                        size_t                                  timeStep,
                                         RimGridCalculation::DefaultValueType    defaultValueType,
                                         double                                  defaultValue,
                                         std::vector<double>&                    resultValues,
@@ -528,12 +685,22 @@ void RimGridCalculation::filterResults( RimGridView*                            
 
     if ( defaultValueType == RimGridCalculation::DefaultValueType::FROM_PROPERTY )
     {
-        if ( m_defaultPropertyVariableIndex < static_cast<int>( values.size() ) )
-            replaceFilteredValuesWithVector( values[m_defaultPropertyVariableIndex], visibility, resultValues, porosityModel, outputEclipseCase );
+        auto nonVisibleValues = getDataForResult( m_nonVisibleResultAddress->resultName(),
+                                                  m_nonVisibleResultAddress->resultType(),
+                                                  timeStep,
+                                                  porosityModel,
+                                                  m_nonVisibleResultAddress->eclipseCase(),
+                                                  outputEclipseCase );
+
+        if ( !nonVisibleValues.empty() )
+        {
+            replaceFilteredValuesWithVector( nonVisibleValues, visibility, resultValues, porosityModel, outputEclipseCase );
+        }
         else
         {
-            QString errorMessage = "Invalid input data for default result property, no data assigned to non-visible cells.";
-            RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", errorMessage );
+            QString errorMessage =
+                "Grid Property Calculator: Invalid input data for default result property, no data assigned to non-visible cells.";
+            RiaLogging::error( errorMessage );
         }
     }
     else
@@ -617,6 +784,9 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
     const bool hasAggregationExpression = m_expression().contains( "sum" ) || m_expression().contains( "avg" ) ||
                                           m_expression().contains( "min" ) || m_expression().contains( "max" ) ||
                                           m_expression().contains( "count" );
+
+    // If multiple cases are present, release memory after data is extracted to avoid memory issues.
+    m_releaseMemoryAfterDataIsExtracted = isMultipleCasesPresent;
 
     if ( isMultipleCasesPresent )
     {
@@ -702,14 +872,15 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                 RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
                 CAF_ASSERT( v != nullptr );
 
-                bool useDataFromDestinationCase = ( v->eclipseCase() == m_destinationCase );
+                bool useDataFromSourceCase = ( v->eclipseCase() == m_destinationCase );
+                auto sourceCase            = useDataFromSourceCase ? calculationCase : v->eclipseCase();
 
-                auto dataForVariable = getDataForVariable( v, tsId, porosityModel, calculationCase, useDataFromDestinationCase );
+                auto dataForVariable = getDataForVariable( v, tsId, porosityModel, sourceCase, calculationCase );
                 if ( dataForVariable.empty() )
                 {
                     RiaLogging::error( QString( "  No data found for variable '%1'." ).arg( v->name() ) );
                 }
-                else if ( inputValueVisibilityFilter )
+                else if ( inputValueVisibilityFilter && hasAggregationExpression )
                 {
                     const double defaultValue = 0.0;
                     replaceFilteredValuesWithDefaultValue( defaultValue, inputValueVisibilityFilter, dataForVariable, porosityModel, calculationCase );
@@ -727,7 +898,15 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
             }
 
             std::vector<double> resultValues;
-            resultValues.resize( dataForAllVariables[0].size() );
+            if ( m_destinationCase && m_destinationCase->eclipseCaseData() )
+            {
+                // Find number of active cells in the destination case.
+                auto activeCellInfoDestination = m_destinationCase->eclipseCaseData()->activeCellInfo( porosityModel );
+                if ( activeCellInfoDestination )
+                {
+                    resultValues.resize( activeCellInfoDestination->reservoirActiveCellCount() );
+                }
+            }
             parser.assignVector( leftHandSideVariableName, resultValues );
 
             QString errorText;
@@ -753,6 +932,7 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                 {
                     filterResults( m_cellFilterView(),
                                    dataForAllVariables,
+                                   tsId,
                                    m_defaultValueType(),
                                    m_defaultValue(),
                                    resultValues,
@@ -829,9 +1009,9 @@ void RimGridCalculation::findAndEvaluateDependentCalculations( const std::vector
     {
         if ( dependentCalc == this ) continue;
 
-        // Propagate the settings for this calculation to the dependent calculation. This will allow changes on top level calculation to be
-        // propagated to dependent calculations automatically. Do not trigger findAndEvaluateDependentCalculations() recursively, as all
-        // dependent calculations are traversed in this function.
+        // Propagate the settings for this calculation to the dependent calculation. This will allow changes on top level
+        // calculation to be propagated to dependent calculations automatically. Do not trigger
+        // findAndEvaluateDependentCalculations() recursively, as all dependent calculations are traversed in this function.
 
         bool evaluateDependentCalculations = false;
         dependentCalc->calculateForCases( calculationCases, inputValueVisibilityFilter, timeSteps, evaluateDependentCalculations );

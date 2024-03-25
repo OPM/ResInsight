@@ -22,7 +22,9 @@
 #include "RimGridCalculationVariable.h"
 #include "RimUserDefinedCalculation.h"
 
+#include "cafPdmChildField.h"
 #include "cafSignal.h"
+
 #include "cvfArray.h"
 
 #include <optional>
@@ -30,6 +32,8 @@
 class RimEclipseCase;
 class RimGridView;
 class RigEclipseResultAddress;
+class RimEclipseResultAddress;
+class RimIdenticalGridCaseGroup;
 
 //==================================================================================================
 ///
@@ -45,6 +49,13 @@ public:
         POSITIVE_INFINITY,
         FROM_PROPERTY,
         USER_DEFINED
+    };
+
+    enum class AdditionalCasesType
+    {
+        NONE,
+        GRID_CASE_GROUP,
+        ALL_CASES
     };
 
     RimGridCalculation();
@@ -80,11 +91,19 @@ protected:
     std::vector<double> getDataForVariable( RimGridCalculationVariable*   variable,
                                             size_t                        tsId,
                                             RiaDefines::PorosityModelType porosityModel,
-                                            RimEclipseCase*               destinationCase,
-                                            bool                          useDataFromDestinationCase ) const;
+                                            RimEclipseCase*               sourceCase,
+                                            RimEclipseCase*               destinationCase ) const;
+
+    std::vector<double> getDataForResult( const QString&                  resultName,
+                                          const RiaDefines::ResultCatType resultCategoryType,
+                                          size_t                          tsId,
+                                          RiaDefines::PorosityModelType   porosityModel,
+                                          RimEclipseCase*                 sourceCase,
+                                          RimEclipseCase*                 destinationCase ) const;
 
     void filterResults( RimGridView*                            cellFilterView,
                         const std::vector<std::vector<double>>& values,
+                        size_t                                  timeStep,
                         RimGridCalculation::DefaultValueType    defaultValueType,
                         double                                  defaultValue,
                         std::vector<double>&                    resultValues,
@@ -106,9 +125,13 @@ protected:
     using DefaultValueConfig = std::pair<RimGridCalculation::DefaultValueType, double>;
     DefaultValueConfig defaultValueConfiguration() const;
 
+    QString nonVisibleResultAddressText() const;
+
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          initAfterRead() override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     void onVariableUpdated( const SignalEmitter* emitter );
@@ -121,9 +144,17 @@ private:
     caf::PdmField<caf::AppEnum<DefaultValueType>> m_defaultValueType;
     caf::PdmField<double>                         m_defaultValue;
     caf::PdmPtrField<RimEclipseCase*>             m_destinationCase;
-    caf::PdmField<bool>                           m_applyToAllCases;
+
+    caf::PdmField<caf::AppEnum<AdditionalCasesType>> m_additionalCasesType;
+    caf::PdmPtrField<RimIdenticalGridCaseGroup*>     m_additionalCaseGroup;
 
     caf::PdmField<std::vector<int>> m_selectedTimeSteps;
 
-    caf::PdmField<int> m_defaultPropertyVariableIndex;
+    caf::PdmProxyValueField<QString>             m_nonVisibleResultText;
+    caf::PdmChildField<RimEclipseResultAddress*> m_nonVisibleResultAddress;
+    caf::PdmField<bool>                          m_editNonVisibleResultAddress;
+
+    caf::PdmField<bool> m_applyToAllCases_OBSOLETE;
+
+    bool m_releaseMemoryAfterDataIsExtracted = false;
 };

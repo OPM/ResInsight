@@ -95,6 +95,14 @@ int RigFemPart::elementCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RigFemPart::nodeCount() const
+{
+    return static_cast<int>( m_nodes.nodeIds.size() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RigFemPart::allConnectivitiesCount() const
 {
     return static_cast<int>( m_allElementConnectivities.size() );
@@ -442,7 +450,7 @@ float RigFemPart::characteristicElementSize() const
 {
     if ( m_characteristicElementSize != std::numeric_limits<float>::infinity() ) return m_characteristicElementSize;
 
-    std::vector<RigElementType> elementPriority = { HEX8P, HEX8 };
+    std::vector<RigElementType> elementPriority = { RigElementType::HEX8P, RigElementType::HEX8 };
 
     for ( auto elmType : elementPriority )
     {
@@ -508,19 +516,21 @@ cvf::BoundingBox RigFemPart::boundingBox() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemPart::findIntersectingElementIndices( const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices ) const
+std::vector<size_t> RigFemPart::findIntersectingElementIndices( const cvf::BoundingBox& inputBB ) const
 {
     ensureIntersectionSearchTreeIsBuilt();
-    findIntersectingElementsWithExistingSearchTree( inputBB, elementIndices );
+    return findIntersectingElementsWithExistingSearchTree( inputBB );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemPart::findIntersectingElementsWithExistingSearchTree( const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices ) const
+std::vector<size_t> RigFemPart::findIntersectingElementsWithExistingSearchTree( const cvf::BoundingBox& inputBB ) const
 {
     CVF_ASSERT( m_elementSearchTree.notNull() );
-    m_elementSearchTree->findIntersections( inputBB, elementIndices );
+    std::vector<size_t> elementIndices;
+    m_elementSearchTree->findIntersections( inputBB, &elementIndices );
+    return elementIndices;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -604,7 +614,7 @@ size_t RigFemPart::resultValueIdxFromResultPosType( RigFemResultPosEnum resultPo
 bool RigFemPart::isHexahedron( size_t elementIdx ) const
 {
     RigElementType elType = elementType( elementIdx );
-    return elType == HEX8 || elType == HEX8P;
+    return RigFemTypes::is8NodeElement( elType );
 }
 
 //--------------------------------------------------------------------------------------------------

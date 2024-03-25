@@ -21,16 +21,16 @@
 #include "RimFaultReactivationDataAccessor.h"
 #include "RimFaultReactivationEnums.h"
 
-#include "RigFemResultAddress.h"
-
 #include <vector>
 
-class RigFemPartResultsCollection;
-class RimGeoMechCase;
-class RigGeoMechCaseData;
-class RigFemScalarResultFrames;
-class RigFemPart;
-class RimWellIADataAccess;
+#include "cafPdmField.h"
+#include "cafPdmPtrField.h"
+
+#include "cvfObject.h"
+
+class RigGriddedPart3d;
+class RimModeledWellPath;
+class RigWellPath;
 
 //==================================================================================================
 ///
@@ -39,33 +39,48 @@ class RimWellIADataAccess;
 class RimFaultReactivationDataAccessorStress : public RimFaultReactivationDataAccessor
 {
 public:
-    RimFaultReactivationDataAccessorStress( RimGeoMechCase* geoMechCase, RimFaultReactivation::Property property );
-    ~RimFaultReactivationDataAccessorStress();
+    enum class StressType
+    {
+        S11,
+        S22,
+        S33
+    };
+
+    RimFaultReactivationDataAccessorStress( RimFaultReactivation::Property property, double gradient, double seabedDepth );
+    virtual ~RimFaultReactivationDataAccessorStress();
 
     bool isMatching( RimFaultReactivation::Property property ) const override;
 
-    double valueAtPosition( const cvf::Vec3d& position,
-                            double            topDepth    = std::numeric_limits<double>::infinity(),
-                            double            bottomDepth = std::numeric_limits<double>::infinity() ) const override;
+    double valueAtPosition( const cvf::Vec3d&                position,
+                            const RigFaultReactivationModel& model,
+                            RimFaultReactivation::GridPart   gridPart,
+                            double                           topDepth     = std::numeric_limits<double>::infinity(),
+                            double                           bottomDepth  = std::numeric_limits<double>::infinity(),
+                            size_t                           elementIndex = std::numeric_limits<size_t>::max() ) const override;
 
-    bool hasValidDataAtPosition( const cvf::Vec3d& position ) const override;
+protected:
+    virtual bool isDataAvailable() const = 0;
 
-private:
-    void updateResultAccessor() override;
+    virtual double extractStressValue( StressType stressType, const cvf::Vec3d& position, RimFaultReactivation::GridPart gridPart ) const = 0;
 
-    static RigFemResultAddress getResultAddress( const std::string& fieldName, const std::string& componentName );
+    virtual std::pair<double, cvf::Vec3d> calculatePorBar( const cvf::Vec3d&                 position,
+                                                           RimFaultReactivation::ElementSets elementSet,
+                                                           double                            gradient,
+                                                           RimFaultReactivation::GridPart    gridPart ) const = 0;
 
-    double interpolatedResultValue( RimWellIADataAccess&      iaDataAccess,
-                                    const RigFemPart*         femPart,
-                                    const cvf::Vec3d&         position,
-                                    const std::vector<float>& scalarResults ) const;
+    virtual bool isPositionValid( const cvf::Vec3d&              position,
+                                  const cvf::Vec3d&              topPosition,
+                                  const cvf::Vec3d&              bottomPosition,
+                                  RimFaultReactivation::GridPart gridPart ) const = 0;
 
-    RimGeoMechCase*                m_geoMechCase;
+    virtual double lateralStressComponentX( const cvf::Vec3d&                 position,
+                                            RimFaultReactivation::ElementSets elementSet,
+                                            RimFaultReactivation::GridPart    gridPart ) const;
+    virtual double lateralStressComponentY( const cvf::Vec3d&                 position,
+                                            RimFaultReactivation::ElementSets elementSet,
+                                            RimFaultReactivation::GridPart    gridPart ) const;
+
     RimFaultReactivation::Property m_property;
-    RigGeoMechCaseData*            m_geoMechCaseData;
-    RigFemScalarResultFrames*      m_s11Frames;
-    RigFemScalarResultFrames*      m_s22Frames;
-    RigFemScalarResultFrames*      m_s33Frames;
-    RigFemScalarResultFrames*      m_porFrames;
-    const RigFemPart*              m_femPart;
+    double                         m_gradient;
+    double                         m_seabedDepth;
 };

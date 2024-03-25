@@ -42,7 +42,6 @@ RimRftPlotCollection::RimRftPlotCollection()
     CAF_PDM_InitObject( "RFT Plots", ":/RFTPlots16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_rftPlots, "RftPlots", "" );
-    m_rftPlots.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

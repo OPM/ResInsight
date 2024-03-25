@@ -47,6 +47,7 @@
 
 #include "cafProgressInfo.h"
 
+#include <QCoreApplication>
 #include <QDir>
 
 CAF_PDM_SOURCE_INIT( RimSummaryCaseMainCollection, "SummaryCaseCollection" );
@@ -81,7 +82,7 @@ void addCaseRealizationParametersIfFound( RimSummaryCase& sumCase, const QString
 
     int realizationNumber = RifCaseRealizationParametersFileLocator::realizationNumber( modelFolderOrFile );
     parameters->setRealizationNumber( realizationNumber );
-    parameters->addParameter( "RI:REALIZATION_NUM", realizationNumber );
+    parameters->addParameter( RiaDefines::summaryRealizationNumber(), realizationNumber );
 
     sumCase.setCaseRealizationParameters( parameters );
 }
@@ -96,9 +97,6 @@ RimSummaryCaseMainCollection::RimSummaryCaseMainCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "" );
     CAF_PDM_InitFieldNoDefault( &m_caseCollections, "SummaryCaseCollections", "" );
-
-    m_cases.uiCapability()->setUiTreeHidden( true );
-    m_caseCollections.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,26 +106,6 @@ RimSummaryCaseMainCollection::~RimSummaryCaseMainCollection()
 {
     m_cases.deleteChildrenAsync();
     m_caseCollections.deleteChildrenAsync();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryCaseMainCollection::findSummaryCaseFromEclipseResultCase( const RimEclipseResultCase* eclipseResultCase ) const
-{
-    RiaEclipseFileNameTools helper( eclipseResultCase->gridFileName() );
-
-    auto summaryFileName = helper.findSummaryFileCandidates();
-    for ( const auto& candidateFileName : summaryFileName )
-    {
-        auto summaryCase = findTopLevelSummaryCaseFromFileName( candidateFileName );
-        if ( summaryCase )
-        {
-            return summaryCase;
-        }
-    }
-
-    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -482,6 +460,7 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
             if ( fileSummaryCase )
             {
                 fileSummaryCase->createSummaryReaderInterfaceThreadSafe( &threadSafeLogger );
+                addCaseRealizationParametersIfFound( *fileSummaryCase, fileSummaryCase->summaryHeaderFilename() );
             }
 
             progInfo.setProgress( cIdx );
@@ -504,7 +483,6 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
         if ( fileSummaryCase )
         {
             fileSummaryCase->createRftReaderInterface();
-            addCaseRealizationParametersIfFound( *fileSummaryCase, fileSummaryCase->summaryHeaderFilename() );
         }
     }
 }
@@ -670,9 +648,13 @@ void RimSummaryCaseMainCollection::updateAutoShortName()
     //
     // https://github.com/OPM/ResInsight/issues/7438
 
-    for ( auto s : allSummaryCases() )
+    auto sumCases = allSummaryCases();
+
+#pragma omp parallel for
+    for ( int cIdx = 0; cIdx < static_cast<int>( sumCases.size() ); ++cIdx )
     {
-        s->updateAutoShortName();
+        auto sumCase = sumCases[cIdx];
+        sumCase->updateAutoShortName();
     }
 }
 

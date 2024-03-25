@@ -121,8 +121,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "" );
 
     CAF_PDM_InitField( &m_selectDefaultTemplates, "selectDefaultTemplate", false, "", "", "Select Default Templates" );
-    m_selectDefaultTemplates.xmlCapability()->disableIO();
-    m_selectDefaultTemplates.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_selectDefaultTemplates );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedDefaultTemplates, "defaultSummaryTemplates", "Select Summary Plot Templates" );
     m_selectedDefaultTemplates.uiCapability()->setUiReadOnly( true );

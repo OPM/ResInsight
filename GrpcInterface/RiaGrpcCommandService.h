@@ -49,7 +49,7 @@ class RiaGrpcCommandService : public rips::Commands::AsyncService, public RiaGrp
 {
 public:
     grpc::Status
-                                           Execute( grpc::ServerContext* context, const rips::CommandParams* request, rips::CommandReply* reply ) override;
+        Execute( grpc::ServerContext* context, const rips::CommandParams* request, rips::CommandReply* reply ) override;
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 
 private:

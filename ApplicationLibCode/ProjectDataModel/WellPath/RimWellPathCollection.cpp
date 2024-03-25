@@ -107,12 +107,10 @@ RimWellPathCollection::RimWellPathCollection()
     CAF_PDM_InitField( &wellPathClipZDistance, "WellPathClipZDistance", 100, "Well Path Clipping Depth Distance" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPaths, "WellPaths", "Well Paths" );
-    m_wellPaths.uiCapability()->setUiTreeHidden( true );
     m_wellPaths.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_wellMeasurements, "WellMeasurements", "Measurements" );
     m_wellMeasurements = new RimWellMeasurementCollection;
-    m_wellMeasurements.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_wellPathNodes, "WellPathNodes", "Well Path Nodes" );
     m_wellPathNodes.xmlCapability()->disableIO();
@@ -169,7 +167,7 @@ void RimWellPathCollection::loadDataAndUpdate()
 
         if ( wellPath )
         {
-            for ( RimWellLogLasFile* const wellLogFile : wellPath->wellLogFiles() )
+            for ( RimWellLogFile* const wellLogFile : wellPath->wellLogFiles() )
             {
                 if ( wellLogFile )
                 {
@@ -384,6 +382,16 @@ std::vector<RimWellLogLasFile*> RimWellPathCollection::addWellLogs( const QStrin
     updateAllRequiredEditors();
 
     return logFileInfos;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::addWellLog( RimWellLogFile* wellLogFile, RimWellPath* wellPath )
+{
+    wellPath->addWellLogFile( wellLogFile );
+    sortWellsByName();
+    updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

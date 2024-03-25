@@ -31,6 +31,8 @@
 #include "RigSimWellData.h"
 #include "RigWellResultFrame.h"
 
+#include "cafProgressInfo.h"
+
 #include "opm/input/eclipse/Deck/Deck.hpp"
 #include "opm/input/eclipse/EclipseState/Runspec.hpp"
 #include "opm/input/eclipse/Parser/Parser.hpp"
@@ -41,6 +43,7 @@
 #include "opm/io/eclipse/RestartFileView.hpp"
 #include "opm/io/eclipse/rst/state.hpp"
 #include "opm/output/eclipse/VectorItems/group.hpp"
+#include "opm/output/eclipse/VectorItems/intehead.hpp"
 #include "opm/output/eclipse/VectorItems/well.hpp"
 
 using namespace Opm;
@@ -64,6 +67,8 @@ RifReaderOpmCommon::~RifReaderOpmCommon()
 //--------------------------------------------------------------------------------------------------
 bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* eclipseCase )
 {
+    caf::ProgressInfo progress( 100, "Reading Grid" );
+
     QStringList fileSet;
     if ( !RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( fileName, &fileSet ) ) return false;
 
@@ -78,7 +83,24 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
             return false;
         }
 
-        buildMetaData( eclipseCase );
+        {
+            auto task = progress.task( "Reading faults", 25 );
+
+            if ( isFaultImportEnabled() )
+            {
+                cvf::Collection<RigFault> faults;
+
+                importFaults( fileSet, &faults );
+
+                RigMainGrid* mainGrid = eclipseCase->mainGrid();
+                mainGrid->setFaults( faults );
+            }
+        }
+
+        {
+            auto task = progress.task( "Reading Results Meta data", 50 );
+            buildMetaData( eclipseCase );
+        }
 
         return true;
     }
@@ -125,6 +147,10 @@ bool RifReaderOpmCommon::staticResult( const QString& result, RiaDefines::Porosi
                     }
                 }
             }
+
+            // Always clear data after reading to avoid memory use
+            m_initFile->clearData();
+
             return true;
         }
         catch ( std::exception& e )
@@ -176,6 +202,9 @@ bool RifReaderOpmCommon::dynamicResult( const QString&                result,
                     }
                 }
             }
+
+            // Always clear data after reading to avoid memory use
+            m_restartFile->clearData();
 
             return true;
         }
@@ -264,7 +293,7 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
             QDate     date( timeStep.year, timeStep.month, timeStep.day );
             QDateTime dateTime = RiaQDateTimeTools::createDateTime( date );
             dateTimes.push_back( dateTime );
-            timeStepInfos.emplace_back( dateTime, timeStep.sequenceNumber, 0.0 );
+            timeStepInfos.emplace_back( dateTime, timeStep.sequenceNumber, timeStep.simulationTimeFromStart );
         }
         m_timeSteps = dateTimes;
 
@@ -434,31 +463,40 @@ void RifReaderOpmCommon::readWellCells( std::shared_ptr<EclIO::ERst>  restartFil
 //--------------------------------------------------------------------------------------------------
 std::vector<RifReaderOpmCommon::TimeDataFile> RifReaderOpmCommon::readTimeSteps( std::shared_ptr<EclIO::ERst> restartFile )
 {
-    // It is required to create a deck as the input parameter to runspec. The default() initialization of the runspec keyword does not
-    // initialize the object as expected.
-
-    Deck    deck;
-    Runspec runspec( deck );
-    Parser  parser( false );
-
     std::vector<RifReaderOpmCommon::TimeDataFile> reportTimeData;
     try
     {
-        for ( auto seqNumber : restartFile->listOfReportStepNumbers() )
+        namespace VI = Opm::RestartIO::Helpers::VectorItems;
+
+        for ( auto seqNum : restartFile->listOfReportStepNumbers() )
         {
-            auto fileView = std::make_shared<EclIO::RestartFileView>( restartFile, seqNumber );
+            const std::string inteheadString = "INTEHEAD";
+            const std::string doubheadString = "DOUBHEAD";
 
-            auto state  = RestartIO::RstState::load( fileView, runspec, parser );
-            auto header = state.header;
+            if ( restartFile->hasArray( inteheadString, seqNum ) )
+            {
+                auto intehead = restartFile->getRestartData<int>( inteheadString, seqNum );
+                auto year     = intehead[VI::intehead::YEAR];
+                auto month    = intehead[VI::intehead::MONTH];
+                auto day      = intehead[VI::intehead::DAY];
 
-            int year  = header.year;
-            int month = header.month;
-            int day   = header.mday;
+                double daySinceSimStart = 0.0;
 
-            double daySinceSimStart = header.next_timestep1;
+                if ( restartFile->hasArray( doubheadString, seqNum ) )
+                {
+                    auto doubhead = restartFile->getRestartData<double>( doubheadString, seqNum );
+                    if ( !doubhead.empty() )
+                    {
+                        // Read out the simulation time from start from DOUBHEAD. There is no enum defined to access this value.
+                        // https://github.com/OPM/ResInsight/issues/11092
 
-            reportTimeData.emplace_back(
-                TimeDataFile{ .sequenceNumber = seqNumber, .year = year, .month = month, .day = day, .simulationTimeFromStart = daySinceSimStart } );
+                        daySinceSimStart = doubhead[0];
+                    }
+                }
+
+                reportTimeData.emplace_back(
+                    TimeDataFile{ .sequenceNumber = seqNum, .year = year, .month = month, .day = day, .simulationTimeFromStart = daySinceSimStart } );
+            }
         }
     }
     catch ( std::exception& e )

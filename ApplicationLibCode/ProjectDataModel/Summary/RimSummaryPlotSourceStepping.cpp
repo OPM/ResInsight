@@ -529,9 +529,6 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
                 // The time axis can be zoomed and will be used for all plots. Do not zoom time axis in this case.
                 summaryMultiPlot->zoomAllYAxes();
             }
-
-            RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-            mainPlotWindow->updateMultiPlotToolBar();
         }
         else
         {
@@ -540,6 +537,11 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
             summaryPlot->updateConnectedEditors();
             summaryPlot->curvesChanged.send();
         }
+
+        updateAllRequiredEditors();
+
+        RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
+        mainPlotWindow->updateMultiPlotToolBar();
 
         auto ensembleCurveColl = firstAncestorOrThisOfType<RimEnsembleCurveSetCollection>();
         if ( ensembleCurveColl )

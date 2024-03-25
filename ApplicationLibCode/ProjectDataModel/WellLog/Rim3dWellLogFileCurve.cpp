@@ -25,6 +25,8 @@
 #include "RimWellLogLasFileCurveNameConfig.h"
 #include "RimWellPath.h"
 
+#include "RiaQDateTimeTools.h"
+
 #include <QFileInfo>
 
 //==================================================================================================
@@ -89,7 +91,7 @@ void Rim3dWellLogFileCurve::curveValuesAndMds( std::vector<double>* values, std:
 
     if ( m_wellLogFile )
     {
-        RigWellLogLasFile* wellLogFile = m_wellLogFile->wellLogFileData();
+        RigWellLogFile* wellLogFile = m_wellLogFile->wellLogFileData();
         if ( wellLogFile )
         {
             *values              = wellLogFile->values( m_wellLogChannelName );
@@ -135,7 +137,7 @@ QString Rim3dWellLogFileCurve::createAutoName() const
             channelNameAvailable = true;
         }
 
-        RigWellLogLasFile* wellLogFile = m_wellLogFile ? m_wellLogFile->wellLogFileData() : nullptr;
+        RigWellLogFile* wellLogFile = m_wellLogFile ? m_wellLogFile->wellLogFileData() : nullptr;
 
         if ( wellLogFile )
         {
@@ -153,10 +155,10 @@ QString Rim3dWellLogFileCurve::createAutoName() const
                    } */
             }
 
-            QString date = wellLogFile->date();
+            QString date = m_wellLogFile->date().toString( RiaQDateTimeTools::dateFormatString() );
             if ( !date.isEmpty() )
             {
-                name.push_back( wellLogFile->date() );
+                name.push_back( date );
             }
         }
 
@@ -223,7 +225,7 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogFileCurve::calculateValueOptions( cons
 
         if ( wellPath && !wellPath->wellLogFiles().empty() )
         {
-            for ( RimWellLogLasFile* const wellLogFile : wellPath->wellLogFiles() )
+            for ( RimWellLogFile* const wellLogFile : wellPath->wellLogFiles() )
             {
                 QFileInfo fileInfo( wellLogFile->fileName() );
                 options.push_back( caf::PdmOptionItemInfo( fileInfo.baseName(), wellLogFile ) );

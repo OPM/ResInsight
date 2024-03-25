@@ -42,7 +42,6 @@ RimEnsembleCurveSetCollection::RimEnsembleCurveSetCollection()
     CAF_PDM_InitObject( "Ensemble Curve Sets", ":/EnsembleCurveSets16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_curveSets, "EnsembleCurveSets", "Ensemble Curve Sets" );
-    m_curveSets.uiCapability()->setUiTreeHidden( true );
     m_curveSets.uiCapability()->setUiTreeChildrenHidden( false );
     caf::PdmFieldReorderCapability::addToFieldWithCallback( &m_curveSets, this, &RimEnsembleCurveSetCollection::onCurveSetsReordered );
 
@@ -51,7 +50,6 @@ RimEnsembleCurveSetCollection::RimEnsembleCurveSetCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_ySourceStepping, "YSourceStepping", "" );
     m_ySourceStepping = new RimSummaryPlotSourceStepping;
-    m_ySourceStepping.uiCapability()->setUiTreeHidden( true );
     m_ySourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_ySourceStepping.xmlCapability()->disableIO();
 }

@@ -92,23 +92,21 @@ RimEclipseCase::RimEclipseCase()
     CAF_PDM_InitScriptableObjectWithNameAndComment( "EclipseCase", ":/Case48x48.png", "", "", "Reservoir", "Abstract base class for Eclipse Cases" );
 
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &reservoirViews, "ReservoirViews", "Views", "", "", "", "All Eclipse Views in the case" );
-    reservoirViews.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_matrixModelResults, "MatrixModelResults", "" );
-    m_matrixModelResults.uiCapability()->setUiTreeHidden( true );
     CAF_PDM_InitFieldNoDefault( &m_fractureModelResults, "FractureModelResults", "" );
-    m_fractureModelResults.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_flipXAxis, "FlipXAxis", false, "Flip X Axis" );
     CAF_PDM_InitField( &m_flipYAxis, "FlipYAxis", false, "Flip Y Axis" );
 
-    CAF_PDM_InitFieldNoDefault( &m_filesContainingFaults_OBSOLETE, "CachedFileNamesContainingFaults", "" );
-    m_filesContainingFaults_OBSOLETE.uiCapability()->setUiHidden( true );
-    m_filesContainingFaults_OBSOLETE.xmlCapability()->disableIO();
+    CAF_PDM_InitFieldNoDefault( &m_filesContainingFaults, "CachedFileNamesContainingFaults", "" );
+    m_filesContainingFaults.uiCapability()->setUiHidden( true );
+    // Caching of file names causes issues when using the project file as template, do not save to disk
+    // https://github.com/OPM/ResInsight/issues/7308
+    m_filesContainingFaults.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_contourMapCollection, "ContourMaps", "2d Contour Maps" );
     m_contourMapCollection = new RimEclipseContourMapViewCollection;
-    m_contourMapCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_inputPropertyCollection, "InputPropertyCollection", "" );
     m_inputPropertyCollection = new RimEclipseInputPropertyCollection;
@@ -116,17 +114,14 @@ RimEclipseCase::RimEclipseCase()
 
     CAF_PDM_InitFieldNoDefault( &m_resultAddressCollections, "ResultAddressCollections", "Result Addresses" );
     m_resultAddressCollections.uiCapability()->setUiHidden( true );
-    m_resultAddressCollections.uiCapability()->setUiTreeHidden( true );
     m_resultAddressCollections.xmlCapability()->disableIO();
 
     // Init
 
     m_matrixModelResults = new RimReservoirCellResultsStorage;
-    m_matrixModelResults.uiCapability()->setUiTreeHidden( true );
     m_matrixModelResults.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_fractureModelResults = new RimReservoirCellResultsStorage;
-    m_fractureModelResults.uiCapability()->setUiTreeHidden( true );
     m_fractureModelResults.uiCapability()->setUiTreeChildrenHidden( true );
 
     setReservoirData( nullptr );
@@ -460,7 +455,7 @@ void RimEclipseCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
     RimCase::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_releaseResultMemory )
     {
-        RimReloadCaseTools::reloadAllEclipseGridData( this );
+        RimReloadCaseTools::reloadEclipseGrid( this );
 
         m_releaseResultMemory = oldValue.toBool();
     }
@@ -625,11 +620,9 @@ void RimEclipseCase::computeCachedData()
         caf::ProgressInfo pInf( 30, "" );
 
         {
-            auto task = pInf.task( "", 1 );
-            rigEclipseCase->computeActiveCellBoundingBoxes();
-        }
+            // NB! Call computeCachedData() first, as this function also computes the bounding box used in other functions, specifically
+            // computeActiveCellsBoundingBox()
 
-        {
             auto task = pInf.task( "Calculating Cell Search Tree", 10 );
 
             std::string aabbTreeInfo;
@@ -637,6 +630,11 @@ void RimEclipseCase::computeCachedData()
 
             // Debug output of the content of the AABB tree
             // RiaLogging::debug( QString::fromStdString( aabbTreeInfo ) );
+        }
+
+        {
+            auto task = pInf.task( "", 1 );
+            computeActiveCellsBoundingBox();
         }
 
         {
@@ -708,7 +706,7 @@ void RimEclipseCase::loadAndSynchronizeInputProperties( bool importGridOrFaultDa
     // Make sure we actually have reservoir data
 
     CVF_ASSERT( eclipseCaseData() );
-    CVF_ASSERT( eclipseCaseData()->mainGrid()->gridPointDimensions() != cvf::Vec3st( 0, 0, 0 ) );
+    CVF_ASSERT( eclipseCaseData()->mainGrid()->cellCount() != 0 );
 
     // Then read the properties from all the files referenced by the InputReservoir
 
@@ -769,6 +767,26 @@ void RimEclipseCase::createDisplayModelAndUpdateAllViews()
 
         v->loadDataAndUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::computeActiveCellsBoundingBox()
+{
+    if ( !eclipseCaseData() ) return;
+
+    bool useOptimizedVersion = true;
+
+    if ( auto proj = RimProject::current() )
+    {
+        if ( proj->isProjectFileVersionEqualOrOlderThan( "2023.12.0" ) )
+        {
+            useOptimizedVersion = false;
+        }
+    }
+
+    eclipseCaseData()->computeActiveCellBoundingBoxes( useOptimizedVersion );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -911,7 +929,7 @@ std::vector<QString> RimEclipseCase::filesContainingFaults() const
 {
     std::vector<QString> stdPathList;
 
-    for ( auto& filePath : m_filesContainingFaults_OBSOLETE() )
+    for ( auto& filePath : m_filesContainingFaults() )
     {
         stdPathList.push_back( filePath.path() );
     }
@@ -930,7 +948,7 @@ void RimEclipseCase::setFilesContainingFaults( const std::vector<QString>& pathS
         filePaths.push_back( pathString );
     }
 
-    m_filesContainingFaults_OBSOLETE = filePaths;
+    m_filesContainingFaults = filePaths;
 }
 
 //--------------------------------------------------------------------------------------------------

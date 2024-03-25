@@ -76,7 +76,14 @@ public:
 
     static std::vector<cvf::Vec3d> unionOfPolygons( const std::vector<std::vector<cvf::Vec3d>>& polygons );
 
+    // *** the 2D methods only looks at the X and Y coordinates of the input points ***
+
     static bool pointInsidePolygon2D( const cvf::Vec3d point, const std::vector<cvf::Vec3d>& polygon );
+    static std::pair<bool, cvf::Vec2d>
+                lineLineIntersection2D( const cvf::Vec3d a1, const cvf::Vec3d b1, const cvf::Vec3d a2, const cvf::Vec3d b2 );
+    static bool lineIntersectsLine2D( const cvf::Vec3d a1, const cvf::Vec3d b1, const cvf::Vec3d a2, const cvf::Vec3d b2 );
+    static bool lineIntersectsPolygon2D( const cvf::Vec3d a, const cvf::Vec3d b, const std::vector<cvf::Vec3d>& polygon );
+    static bool polylineIntersectsCellNegK2D( const std::vector<cvf::Vec3d>& polyline, const std::array<cvf::Vec3d, 8>& cellCorners );
 
 private:
     static std::vector<cvf::Vec3d> ajustPolygonToAvoidIntersectionsAtVertex( const std::vector<cvf::Vec3d>& polyLine,

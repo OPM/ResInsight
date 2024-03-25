@@ -42,10 +42,8 @@ RimWellMeasurementCollection::RimWellMeasurementCollection()
     CAF_PDM_InitFieldNoDefault( &m_measurements, "Measurements", "Well Measurements" );
     m_measurements.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_measurements.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
-    m_measurements.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_importedFiles, "ImportedFiles", "Imported Files" );
-    m_importedFiles.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

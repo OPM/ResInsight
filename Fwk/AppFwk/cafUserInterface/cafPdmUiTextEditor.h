@@ -35,7 +35,9 @@
 //##################################################################################################
 
 #pragma once
+
 #include "cafPdmUiFieldEditorHandle.h"
+
 #include <QLabel>
 #include <QPointer>
 #include <QPushButton>

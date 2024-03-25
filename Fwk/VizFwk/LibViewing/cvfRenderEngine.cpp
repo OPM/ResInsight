@@ -262,13 +262,11 @@ void RenderEngine::render(OpenGLContext* oglContext, RenderQueue* renderQueue, s
         }
         else
         {
-#ifndef CVF_OPENGL_ES
             if (lastAppliedMatrixStateVersionTickFixedFunction != matrixState.versionTick())
             {
                 glLoadMatrixf(matrixState.modelViewMatrix().ptr());
                 lastAppliedMatrixStateVersionTickFixedFunction = matrixState.versionTick();
             }
-#endif // CVF_OPENGL_ES
         }
 
 

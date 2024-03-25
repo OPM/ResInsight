@@ -516,7 +516,6 @@ void RiuMainWindow::createMenus()
     testMenu->addSeparator();
     testMenu->addAction( m_showRegressionTestDialog );
     testMenu->addAction( m_executePaintEventPerformanceTest );
-    testMenu->addAction( cmdFeatureMgr->action( "RicLaunchUnitTestsFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicRunCommandFileFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicExportObjectAndFieldKeywordsFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicSaveProjectNoGlobalPathsFeature" ) );
@@ -571,15 +570,14 @@ void RiuMainWindow::createToolBars()
         toolbar->addAction( cmdFeatureMgr->action( "RicImportEnsembleFeature" ) );
         toolbar->hide();
     }
+
     {
-#ifdef USE_ODB_API
         QToolBar* toolbar = addToolBar( tr( "Import GeoMech" ) );
         toolbar->setObjectName( toolbar->windowTitle() );
         toolbar->addAction( cmdFeatureMgr->action( "RicImportGeoMechCaseFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicImportGeoMechCaseTimeStepFilterFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicImportElementPropertyFeature" ) );
         toolbar->hide();
-#endif
     }
 
     {
@@ -666,13 +664,13 @@ void RiuMainWindow::createToolBars()
     {
         QToolBar* toolbar = addToolBar( tr( "Test" ) );
         toolbar->setObjectName( toolbar->windowTitle() );
-        toolbar->addAction( cmdFeatureMgr->action( "RicLaunchUnitTestsFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicLaunchRegressionTestsFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicLaunchRegressionTestDialogFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicShowClassNamesFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicRunCommandFileFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicExecuteLastUsedScriptFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicExportCompletionsForVisibleWellPathsFeature" ) );
+        toolbar->addAction( cmdFeatureMgr->action( "RicShowMemoryReportFeature" ) );
     }
 
     // Create animation toolbar
@@ -1766,7 +1764,6 @@ void RiuMainWindow::updateMemoryUsage()
 
     QColor okColor( 0, 150, 0 );
     QColor warningColor( 200, 0, 0 );
-    QColor criticalColor( 255, 100, 0 );
 
     float currentUsageFraction = 0.0f;
     float availVirtualFraction = 1.0f;

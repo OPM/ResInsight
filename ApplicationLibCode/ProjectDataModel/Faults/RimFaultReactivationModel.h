@@ -18,7 +18,6 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
-#include "RimFaultReactivationDataAccess.h"
 #include "RimFaultReactivationEnums.h"
 #include "RimPolylinePickerInterface.h"
 #include "RimPolylinesDataInterface.h"
@@ -53,7 +52,6 @@ class RimTimeStepFilter;
 class RivFaultReactivationModelPartMgr;
 class RigBasicPlane;
 class RigFaultReactivationModel;
-class RimFaultReactivationDataAccess;
 
 namespace cvf
 {
@@ -67,6 +65,7 @@ class RimFaultReactivationModel : public RimCheckableNamedObject, public RimPoly
 
     using TimeStepFilterEnum = caf::AppEnum<RimTimeStepFilter::TimeStepFilterTypeEnum>;
     using ElementSets        = RimFaultReactivation::ElementSets;
+    using StressSourceEnum   = caf::AppEnum<RimFaultReactivation::StressSource>;
 
 public:
     RimFaultReactivationModel();
@@ -77,7 +76,7 @@ public:
     QString userDescription();
     void    setUserDescription( QString description );
 
-    std::pair<bool, std::string> validateBeforeRun() const;
+    std::pair<bool, std::string> validateModel() const;
 
     void            setFaultInformation( RimFaultInView* fault, size_t cellIndex, cvf::StructGridInterface::FaceType face );
     RimFaultInView* fault() const;
@@ -102,34 +101,40 @@ public:
     cvf::ref<RigFaultReactivationModel> model() const;
     bool                                showModel() const;
 
-    bool extractAndExportModelData();
-
     QString baseDir() const;
     void    setBaseDir( QString path );
 
     std::vector<QDateTime> selectedTimeSteps() const;
+    std::vector<size_t>    selectedTimeStepIndexes() const;
 
-    std::array<double, 3> materialParameters( ElementSets elementSet ) const;
+    std::array<double, 4> materialParameters( ElementSets elementSet ) const;
 
     QStringList commandParameters() const;
 
-    QString outputOdbFilename() const;
-    QString inputFilename() const;
-    QString settingsFilename() const;
+    std::string outputOdbFilename() const;
+    std::string inputFilename() const;
+    std::string settingsFilename() const;
+    std::string baseFilePath() const;
 
     void updateTimeSteps();
-
-    std::shared_ptr<RimFaultReactivationDataAccess> dataAccess() const;
 
     bool useGridVoidRatio() const;
     bool useGridPorePressure() const;
     bool useGridTemperature() const;
     bool useGridDensity() const;
     bool useGridElasticProperties() const;
-    bool useGridStress() const;
+    bool useLocalCoordinates() const;
 
     double seaBedDepth() const;
     double waterDensity() const;
+    double frictionAngleDeg() const;
+    double seabedTemperature() const;
+    double lateralStressCoefficient() const;
+
+    RimFaultReactivation::StressSource stressSource() const;
+
+    RimEclipseCase* eclipseCase() const;
+    RimGeoMechCase* geoMechCase() const;
 
 protected:
     caf::PdmFieldHandle*          userDescriptionField() override;
@@ -139,12 +144,7 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
-    RimEclipseCase* eclipseCase();
-    RimGeoMechCase* geoMechCase();
-
-    QString baseFilename() const;
-
-    bool exportModelSettings();
+    std::string baseFilename() const;
 
 private:
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
@@ -169,8 +169,10 @@ private:
 
     caf::PdmField<double> m_faultExtendUpwards;
     caf::PdmField<double> m_faultExtendDownwards;
+    caf::PdmField<int>    m_faultZoneCells;
 
     caf::PdmField<double> m_maxReservoirCellHeight;
+    caf::PdmField<double> m_minReservoirCellHeight;
     caf::PdmField<double> m_cellHeightGrowFactor;
     caf::PdmField<double> m_minReservoirCellWidth;
     caf::PdmField<double> m_cellWidthGrowFactor;
@@ -182,9 +184,13 @@ private:
     caf::PdmField<bool> m_useGridTemperature;
     caf::PdmField<bool> m_useGridDensity;
     caf::PdmField<bool> m_useGridElasticProperties;
-    caf::PdmField<bool> m_useGridStress;
+
+    caf::PdmField<StressSourceEnum> m_stressSource;
 
     caf::PdmField<double> m_waterDensity;
+    caf::PdmField<double> m_frictionAngleDeg;
+    caf::PdmField<double> m_seabedTemperature;
+    caf::PdmField<double> m_lateralStressCoefficient;
 
     caf::PdmField<size_t> m_startCellIndex;
     caf::PdmField<int>    m_startCellFace;
@@ -197,6 +203,4 @@ private:
     caf::PdmChildArrayField<RimParameterGroup*> m_materialParameters;
 
     std::vector<QDateTime> m_availableTimeSteps;
-
-    std::shared_ptr<RimFaultReactivationDataAccess> m_dataAccess;
 };

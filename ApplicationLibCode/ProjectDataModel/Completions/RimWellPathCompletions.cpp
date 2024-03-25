@@ -55,19 +55,15 @@ RimWellPathCompletions::RimWellPathCompletions()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_perforationCollection, "Perforations", "Perforations" );
     m_perforationCollection = new RimPerforationCollection;
-    m_perforationCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_fishbonesCollection, "Fishbones", "Fishbones" );
     m_fishbonesCollection = new RimFishbonesCollection;
-    m_fishbonesCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_fractureCollection, "Fractures", "Fractures" );
     m_fractureCollection = new RimWellPathFractureCollection;
-    m_fractureCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_stimPlanModelCollection, "StimPlanModels", "StimPlan Models" );
     m_stimPlanModelCollection = new RimStimPlanModelCollection;
-    m_stimPlanModelCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_wellNameForExport_OBSOLETE, "WellNameForExport", QString(), "Well Name" );
     m_wellNameForExport_OBSOLETE.xmlCapability()->setIOWritable( false );

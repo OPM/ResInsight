@@ -54,7 +54,11 @@ void setEclipseProperty(const Matrix& propertyFrames, const QString &hostName, q
     socketStream << (qint64)(timeStepCount);
     socketStream << (qint64)timeStepByteCount;
 
+#if OCTAVE_MAJOR_VERSION > 6
+    auto internalData = propertyFrames.data();
+#else
     const double* internalData = propertyFrames.fortran_vec();
+#endif
 
     QStringList errorMessages;
     if (!RiaSocketDataTransfer::writeBlockDataToSocket(&socket, (const char *)internalData, timeStepByteCount*timeStepCount, errorMessages))
@@ -134,15 +138,6 @@ DEFUN_DLD (riSetActiveCellProperty, args, nargout,
     }
 
     Matrix propertyFrames = args(0).matrix_value();
-
-    if (error_state)
-    {
-        error("riSetActiveCellProperty: The supplied first argument is not a valid Matrix");
-        print_usage();
-
-        return octave_value_list ();
-    }
-
 
     dim_vector mxDims = propertyFrames.dims();
     if (mxDims.length() != 2)

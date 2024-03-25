@@ -89,7 +89,7 @@ RimTimeStepFilter::RimTimeStepFilter()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_readOnlyLastFrame );
 
     CAF_PDM_InitFieldNoDefault( &m_applyReloadOfCase, "ApplyReloadOfCase", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_applyReloadOfCase );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_applyReloadOfCase );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -289,7 +289,7 @@ void RimTimeStepFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 
         if ( rimEclipseResultCase )
         {
-            RimReloadCaseTools::reloadAllEclipseGridData( rimEclipseResultCase );
+            RimReloadCaseTools::reloadEclipseGrid( rimEclipseResultCase );
         }
         else if ( rimGeoMechCase )
         {

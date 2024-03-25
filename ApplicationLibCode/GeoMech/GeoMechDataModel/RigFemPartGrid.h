@@ -31,12 +31,12 @@ public:
 
     void setFemPart( const RigFemPart* femPart );
 
+    size_t cellCountI() const override;
+    size_t cellCountJ() const override;
+    size_t cellCountK() const override;
+
     bool   ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const override;
     size_t cellIndexFromIJK( size_t i, size_t j, size_t k ) const override;
-
-    size_t gridPointCountI() const override;
-    size_t gridPointCountJ() const override;
-    size_t gridPointCountK() const override;
 
     cvf::Vec3i findMainIJKFaces( int elementIndex ) const;
 

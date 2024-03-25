@@ -109,6 +109,7 @@ protected:
     void onLoadDataAndUpdate() override;
 
 private:
+    void setCase( RimEclipseResultCase* eclipseCase );
     void updateFromWell();
     void updateWellFlowPlotXAxisTitle( RimWellLogTrack* plotTrack );
 

@@ -60,6 +60,7 @@ RicImportGeneralDataFeature::OpenCaseResults
     QStringList eclipseInputFiles;
     QStringList eclipseSummaryFiles;
     QStringList roffFiles;
+    QStringList emFiles;
 
     for ( const QString& fileName : fileNames )
     {
@@ -79,6 +80,10 @@ RicImportGeneralDataFeature::OpenCaseResults
         else if ( fileTypeAsInt & int( ImportFileType::ROFF_FILE ) )
         {
             roffFiles.push_back( fileName );
+        }
+        else if ( fileTypeAsInt & int( ImportFileType::EM_H5GRID ) )
+        {
+            emFiles.push_back( fileName );
         }
     }
 
@@ -118,6 +123,14 @@ RicImportGeneralDataFeature::OpenCaseResults
         }
         results.roffFiles = roffFiles;
         RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::ROFF_FILE ), defaultDir );
+    }
+
+    if ( !emFiles.empty() )
+    {
+        if ( !RiaImportEclipseCaseTools::openEmFilesFromFileNames( emFiles, createDefaultView, results.createdCaseIds ) )
+        {
+            return OpenCaseResults();
+        }
     }
 
     return results;

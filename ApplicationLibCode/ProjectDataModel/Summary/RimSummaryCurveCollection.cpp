@@ -51,21 +51,16 @@ RimSummaryCurveCollection::RimSummaryCurveCollection()
     CAF_PDM_InitObject( "Summary Curves", ":/SummaryCurveFilter16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_curves, "CollectionCurves", "Curves" );
-    m_curves.uiCapability()->setUiTreeHidden( true );
-    m_curves.uiCapability()->setUiTreeChildrenHidden( false );
     caf::PdmFieldReorderCapability::addToFieldWithCallback( &m_curves, this, &RimSummaryCurveCollection::onCurvesReordered );
 
     CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves" );
     m_showCurves.uiCapability()->setUiHidden( true );
-    m_showCurves.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_editPlot, "EditPlot", false, "" );
-    m_editPlot.xmlCapability()->disableIO();
-    m_editPlot.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_editPlot );
 
     CAF_PDM_InitFieldNoDefault( &m_ySourceStepping, "YSourceStepping", "" );
     m_ySourceStepping = new RimSummaryPlotSourceStepping;
-    m_ySourceStepping.uiCapability()->setUiTreeHidden( true );
     m_ySourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_ySourceStepping.xmlCapability()->disableIO();
 }
