@@ -53,12 +53,6 @@ RimWellPathImport::RimWellPathImport()
 {
     CAF_PDM_InitObject( "RimWellPathImport" );
 
-    CAF_PDM_InitField( &wellTypeSurvey, "WellTypeSurvey", true, "Survey" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &wellTypeSurvey );
-
-    CAF_PDM_InitField( &wellTypePlans, "WellTypePlans", true, "Plans" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &wellTypePlans );
-
     caf::AppEnum<RimWellPathImport::UtmFilterEnum> defaultUtmMode = UTM_FILTER_OFF;
     CAF_PDM_InitField( &utmFilterMode, "UtmMode", defaultUtmMode, "Utm Filter" );
 
@@ -210,22 +204,6 @@ void RimWellPathImport::defineObjectEditorAttribute( QString uiConfigName, caf::
         colHeaders << "Region";
         myAttr->columnHeaders = colHeaders;
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPathImport::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
-{
-    // NOTE: If the default uiOrdering is used, the first checkbox is not possible to interact with using the mouse
-    // (only keyboard). This is a workaround to make the first checkbox work.
-    //
-    // Related issue, but with an opposite fix
-    // https://github.com/OPM/ResInsight/commit/51443d7aa33abebfaa179e645c729fde19a64666
-    //
-    auto group = uiOrdering.addNewGroup( "Well Types" );
-    group->add( &wellTypeSurvey );
-    group->add( &wellTypePlans );
 }
 
 //--------------------------------------------------------------------------------------------------

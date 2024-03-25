@@ -17,10 +17,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicWellPathsImportSsihubFeature.h"
+#include "RicWellPathsImportOsduFeature.h"
 
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
+#include "RiaOsduConnector.h"
 #include "RiaPreferences.h"
 
 #include "RimFileWellPath.h"
@@ -35,6 +36,7 @@
 #include <QDir>
 #include <QFile>
 #include <QMessageBox>
+#include <QThread>
 
 CAF_CMD_SOURCE_INIT( RicWellPathsImportSsihubFeature, "RicWellPathsImportSsihubFeature" );
 
@@ -86,23 +88,22 @@ void RicWellPathsImportSsihubFeature::onActionTriggered( bool isChecked )
     QString copyOfOriginalObject = app->project()->wellPathImport()->writeObjectToXmlString();
 
     if ( !app->preferences() ) return;
+
+    const QString server         = "https://npequinor.energy.azure.com";
+    const QString dataParitionId = "npequinor-dev";
+    const QString authority      = "https://login.microsoftonline.com/3aa4a235-b6e2-48d5-9195-7fcf05b459b0";
+    const QString scopes         = "openid offline_access "
+                                   "7daee810-3f78-40c4-84c2-7a199428de18/.default "
+                                   "profile";
+    const QString clientId       = "7a414874-4b27-4378-b34f-bc9e5a5faa4f";
+
+    auto m_osduConnector = new RiaOsduConnector( RiuMainWindow::instance(), server, dataParitionId, authority, scopes, clientId );
+
     RiuWellImportWizard wellImportwizard( app->preferences()->ssihubAddress,
                                           wellPathsFolderPath,
+                                          m_osduConnector,
                                           app->project()->wellPathImport(),
                                           RiuMainWindow::instance() );
-
-    // Get password/username from application cache
-    {
-#ifdef _DEBUG
-        // Valid credentials for ssihubfake received in mail from Håkon
-        QString ssihubUsername = "admin";
-        QString ssihubPassword = "resinsight";
-#else
-        QString ssihubUsername = app->cacheDataObject( "ssihub_username" ).toString();
-        QString ssihubPassword;
-#endif
-        wellImportwizard.setCredentials( ssihubUsername, ssihubPassword );
-    }
 
     if ( QDialog::Accepted == wellImportwizard.exec() )
     {

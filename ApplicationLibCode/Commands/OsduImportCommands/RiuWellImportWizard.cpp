@@ -26,6 +26,8 @@
 #include "RimOilRegionEntry.h"
 #include "RimWellPathImport.h"
 
+#include "RiaOsduConnector.h"
+
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmDocument.h"
 #include "cafPdmObject.h"
@@ -54,14 +56,15 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( ObjectGroupWithHeaders, "ObjectGroupWithHeader
 //--------------------------------------------------------------------------------------------------
 RiuWellImportWizard::RiuWellImportWizard( const QString&     webServiceAddress,
                                           const QString&     downloadFolder,
+                                          RiaOsduConnector*  osduConnector,
                                           RimWellPathImport* wellPathImportObject,
                                           QWidget*           parent /*= 0*/ )
     : QWizard( parent )
 {
     m_wellPathImportObject = wellPathImportObject;
 
+    m_osduConnector     = osduConnector;
     m_destinationFolder = downloadFolder;
-    m_webServiceAddress = webServiceAddress;
 
     m_myProgressDialog                  = nullptr;
     m_firstTimeRequestingAuthentication = true;
@@ -72,18 +75,6 @@ RiuWellImportWizard::RiuWellImportWizard( const QString&     webServiceAddress,
     m_wellSummaryPageId    = addPage( new WellSummaryPage( m_wellPathImportObject, this ) );
 
     connect( this, SIGNAL( currentIdChanged( int ) ), SLOT( slotCurrentIdChanged( int ) ) );
-
-    connect( &m_networkAccessManager,
-             SIGNAL( authenticationRequired( QNetworkReply*, QAuthenticator* ) ),
-             this,
-             SLOT( slotAuthenticationRequired( QNetworkReply*, QAuthenticator* ) ) );
-
-#if !defined( QT_NO_OPENSSL ) && !defined( CVF_OSX )
-    connect( &m_networkAccessManager,
-             SIGNAL( sslErrors( QNetworkReply*, QList<QSslError> ) ),
-             this,
-             SLOT( sslErrors( QNetworkReply*, QList<QSslError> ) ) );
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,22 +82,7 @@ RiuWellImportWizard::RiuWellImportWizard( const QString&     webServiceAddress,
 //--------------------------------------------------------------------------------------------------
 RiuWellImportWizard::~RiuWellImportWizard()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiuWellImportWizard::jsonFieldsFilePath()
-{
-    return m_destinationFolder + "/fields.json";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiuWellImportWizard::jsonWellsFilePath()
-{
-    return m_destinationFolder + "/wellpaths.json";
+    printf( "~RIU WELL IMPORT WIZARD\n" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,17 +90,19 @@ QString RiuWellImportWizard::jsonWellsFilePath()
 //--------------------------------------------------------------------------------------------------
 void RiuWellImportWizard::downloadFields()
 {
-    QString wellFileName = jsonWellsFilePath();
-    if ( caf::Utils::fileExists( wellFileName ) )
-    {
-        QFile::remove( wellFileName );
-    }
+    // QString wellFileName = jsonWellsFilePath();
+    // if ( caf::Utils::fileExists( wellFileName ) )
+    // {
+    //     QFile::remove( wellFileName );
+    // }
 
-    QString completeUrlText     = m_webServiceAddress + "/resinsight/projects";
-    QString destinationFileName = jsonFieldsFilePath();
+    // QString completeUrlText     = m_webServiceAddress + "/resinsight/projects";
+    // QString destinationFileName = jsonFieldsFilePath();
 
     m_currentDownloadState = DOWNLOAD_FIELDS;
-    issueHttpRequestToFile( completeUrlText, destinationFileName );
+
+    // m_osduConnector->requestFieldsByName( token, "IVAR" );
+    //     issueHttpRequestToFile( completeUrlText, destinationFileName );
 
     return;
 }
@@ -134,21 +112,21 @@ void RiuWellImportWizard::downloadFields()
 //--------------------------------------------------------------------------------------------------
 void RiuWellImportWizard::issueHttpRequestToFile( QString completeUrlText, QString destinationFileName )
 {
-    setUrl( completeUrlText );
-    m_file = new QFile( destinationFileName );
-    if ( !m_file->open( QIODevice::WriteOnly ) )
-    {
-        QMessageBox::information( this,
-                                  tr( "HTTP" ),
-                                  tr( "Unable to save the file %1: %2." ).arg( destinationFileName ).arg( m_file->errorString() ) );
-        delete m_file;
-        m_file = nullptr;
-        return;
-    }
+    // setUrl( completeUrlText );
+    // m_file = new QFile( destinationFileName );
+    // if ( !m_file->open( QIODevice::WriteOnly ) )
+    // {
+    //     QMessageBox::information( this,
+    //                               tr( "HTTP" ),
+    //                               tr( "Unable to save the file %1: %2." ).arg( destinationFileName ).arg( m_file->errorString() ) );
+    //     delete m_file;
+    //     m_file = nullptr;
+    //     return;
+    // }
 
-    // schedule the request
-    m_httpRequestAborted = false;
-    startRequest( m_url );
+    // // schedule the request
+    // m_httpRequestAborted = false;
+    // startRequest( m_url );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,8 +135,8 @@ void RiuWellImportWizard::issueHttpRequestToFile( QString completeUrlText, QStri
 void RiuWellImportWizard::cancelDownload()
 {
     // m_statusLabel->setText(tr("Download canceled."));
-    m_httpRequestAborted = true;
-    m_reply->abort();
+    // m_httpRequestAborted = true;
+    // m_reply->abort();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,51 +144,52 @@ void RiuWellImportWizard::cancelDownload()
 //--------------------------------------------------------------------------------------------------
 void RiuWellImportWizard::httpFinished()
 {
-    if ( m_httpRequestAborted )
-    {
-        if ( m_file )
-        {
-            m_file->close();
-            m_file->remove();
-            delete m_file;
-            m_file = nullptr;
-        }
-        m_reply->deleteLater();
-        hideProgressDialog();
-        return;
-    }
+    // if ( m_httpRequestAborted )
+    // {
+    //     if ( m_file )
+    //     {
+    //         m_file->close();
+    //         m_file->remove();
+    //         delete m_file;
+    //         m_file = nullptr;
+    //     }
+    //     m_reply->deleteLater();
+    //     hideProgressDialog();
+    //     return;
+    // }
 
-    m_file->flush();
-    m_file->close();
+    // m_file->flush();
+    // m_file->close();
 
-    QVariant redirectionTarget = m_reply->attribute( QNetworkRequest::RedirectionTargetAttribute );
-    if ( m_reply->error() )
-    {
-        m_file->remove();
-        QMessageBox::information( this, tr( "HTTP" ), tr( "Download failed: %1." ).arg( m_reply->errorString() ) );
-    }
-    else if ( !redirectionTarget.isNull() )
-    {
-        QUrl newUrl = m_url.resolved( redirectionTarget.toUrl() );
-        if ( QMessageBox::question( this, tr( "HTTP" ), tr( "Redirect to %1 ?" ).arg( newUrl.toString() ), QMessageBox::Yes | QMessageBox::No ) ==
-             QMessageBox::Yes )
-        {
-            m_url = newUrl;
-            m_reply->deleteLater();
-            m_file->open( QIODevice::WriteOnly );
-            m_file->resize( 0 );
-            startRequest( m_url );
-            return;
-        }
-    }
-    else
-    {
-        // m_statusLabel->setText(tr("Downloaded data to %1.").arg(m_destinationFolder));
-    }
+    // QVariant redirectionTarget = m_reply->attribute( QNetworkRequest::RedirectionTargetAttribute );
+    // if ( m_reply->error() )
+    // {
+    //     m_file->remove();
+    //     QMessageBox::information( this, tr( "HTTP" ), tr( "Download failed: %1." ).arg( m_reply->errorString() ) );
+    // }
+    // else if ( !redirectionTarget.isNull() )
+    // {
+    //     QUrl newUrl = m_url.resolved( redirectionTarget.toUrl() );
+    //     if ( QMessageBox::question( this, tr( "HTTP" ), tr( "Redirect to %1 ?" ).arg( newUrl.toString() ), QMessageBox::Yes |
+    //     QMessageBox::No ) ==
+    //          QMessageBox::Yes )
+    //     {
+    //         m_url = newUrl;
+    //         m_reply->deleteLater();
+    //         m_file->open( QIODevice::WriteOnly );
+    //         m_file->resize( 0 );
+    //         startRequest( m_url );
+    //         return;
+    //     }
+    // }
+    // else
+    // {
+    //     // m_statusLabel->setText(tr("Downloaded data to %1.").arg(m_destinationFolder));
+    // }
 
     if ( m_currentDownloadState == DOWNLOAD_WELL_PATH )
     {
-        QString singleWellPathFilePath = m_file->fileName();
+        QString singleWellPathFilePath = "junk"; // m_file->fileName();
 
         QFile file( singleWellPathFilePath );
         if ( file.open( QFile::ReadOnly ) )
@@ -250,10 +229,10 @@ void RiuWellImportWizard::httpFinished()
         progressDialog()->setValue( newValue );
     }
 
-    m_reply->deleteLater();
-    m_reply = nullptr;
-    delete m_file;
-    m_file = nullptr;
+    // m_reply->deleteLater();
+    // m_reply = nullptr;
+    // delete m_file;
+    // m_file = nullptr;
 
     if ( m_currentDownloadState == DOWNLOAD_WELLS || m_currentDownloadState == DOWNLOAD_WELL_PATH )
     {
@@ -264,18 +243,6 @@ void RiuWellImportWizard::httpFinished()
         updateFieldsModel();
         m_currentDownloadState = DOWNLOAD_UNDEFINED;
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuWellImportWizard::httpReadyRead()
-{
-    // this slot gets called every time the QNetworkReply has new data.
-    // We read all of its new data and write it into the file.
-    // That way we use less RAM than when reading it at the finished()
-    // signal of the QNetworkReply
-    if ( m_file ) m_file->write( m_reply->readAll() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -304,34 +271,6 @@ void RiuWellImportWizard::slotAuthenticationRequired( QNetworkReply* networkRepl
     }
 }
 
-#if !defined( QT_NO_OPENSSL ) && !defined( CVF_OSX )
-void RiuWellImportWizard::sslErrors( QNetworkReply*, const QList<QSslError>& errors )
-{
-    QString errorString;
-    foreach ( const QSslError& error, errors )
-    {
-        if ( !errorString.isEmpty() ) errorString += ", ";
-        errorString += error.errorString();
-    }
-
-    if ( QMessageBox::warning( this,
-                               tr( "HTTP" ),
-                               tr( "One or more SSL errors has occurred: %1" ).arg( errorString ),
-                               QMessageBox::Ignore | QMessageBox::Abort ) == QMessageBox::Ignore )
-    {
-        m_reply->ignoreSslErrors();
-    }
-}
-#endif
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuWellImportWizard::setUrl( const QString& httpAddress )
-{
-    m_url = httpAddress;
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -348,10 +287,6 @@ void RiuWellImportWizard::startRequest( QUrl url )
         request.setSslConfiguration( config );
     }
 #endif
-
-    m_reply = m_networkAccessManager.get( request );
-    connect( m_reply, SIGNAL( finished() ), this, SLOT( httpFinished() ) );
-    connect( m_reply, SIGNAL( readyRead() ), this, SLOT( httpReadyRead() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -409,34 +344,34 @@ void RiuWellImportWizard::hideProgressDialog()
 //--------------------------------------------------------------------------------------------------
 void RiuWellImportWizard::updateFieldsModel()
 {
-    QString fileName = jsonFieldsFilePath();
+    // QString fileName = jsonFieldsFilePath();
 
-    if ( caf::Utils::fileExists( fileName ) )
-    {
-        QStringList regions;
-        QStringList fields;
-        QStringList edmIds;
+    // if ( caf::Utils::fileExists( fileName ) )
+    // {
+    //     QStringList regions;
+    //     QStringList fields;
+    //     QStringList edmIds;
 
-        QMap<QString, QVariant> jsonMap     = ResInsightInternalJson::JsonReader::decodeFile( fileName );
-        QVariantList            variantList = ResInsightInternalJson::JsonReader::getVariantList( jsonMap );
-        for ( const auto& listItem : variantList )
-        {
-            QMap<QString, QVariant> fieldMap = listItem.toMap();
+    //     QMap<QString, QVariant> jsonMap     = ResInsightInternalJson::JsonReader::decodeFile( fileName );
+    //     QVariantList            variantList = ResInsightInternalJson::JsonReader::getVariantList( jsonMap );
+    //     for ( const auto& listItem : variantList )
+    //     {
+    //         QMap<QString, QVariant> fieldMap = listItem.toMap();
 
-            regions.push_back( fieldMap["region"].toString() );
-            fields.push_back( fieldMap["name"].toString() );
-            edmIds.push_back( fieldMap["edmId"].toString() );
-        }
+    //         regions.push_back( fieldMap["region"].toString() );
+    //         fields.push_back( fieldMap["name"].toString() );
+    //         edmIds.push_back( fieldMap["edmId"].toString() );
+    //     }
 
-        m_wellPathImportObject->updateRegions( regions, fields, edmIds );
+    //     m_wellPathImportObject->updateRegions( regions, fields, edmIds );
 
-        for ( size_t i = 0; i < m_wellPathImportObject->regions.size(); i++ )
-        {
-            m_wellPathImportObject->regions[i]->updateState();
-        }
+    //     for ( size_t i = 0; i < m_wellPathImportObject->regions.size(); i++ )
+    //     {
+    //         m_wellPathImportObject->regions[i]->updateState();
+    //     }
 
-        m_wellPathImportObject->updateConnectedEditors();
-    }
+    //     m_wellPathImportObject->updateConnectedEditors();
+    // }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -444,47 +379,47 @@ void RiuWellImportWizard::updateFieldsModel()
 //--------------------------------------------------------------------------------------------------
 void RiuWellImportWizard::downloadWells()
 {
-    for ( size_t rIdx = 0; rIdx < m_wellPathImportObject->regions.size(); rIdx++ )
-    {
-        RimOilRegionEntry* oilRegion = m_wellPathImportObject->regions[rIdx];
-        if ( oilRegion->selected )
-        {
-            for ( size_t fIdx = 0; fIdx < oilRegion->fields.size(); fIdx++ )
-            {
-                RimOilFieldEntry* oilField = oilRegion->fields[fIdx];
-                if ( oilField->selected )
-                {
-                    DownloadEntity urlToFile;
+    // for ( size_t rIdx = 0; rIdx < m_wellPathImportObject->regions.size(); rIdx++ )
+    // {
+    //     RimOilRegionEntry* oilRegion = m_wellPathImportObject->regions[rIdx];
+    //     if ( oilRegion->selected )
+    //     {
+    //         for ( size_t fIdx = 0; fIdx < oilRegion->fields.size(); fIdx++ )
+    //         {
+    //             RimOilFieldEntry* oilField = oilRegion->fields[fIdx];
+    //             if ( oilField->selected )
+    //             {
+    //                 DownloadEntity urlToFile;
 
-                    QString wellRequest;
-                    if ( m_wellPathImportObject->utmFilterMode == RimWellPathImport::UTM_FILTER_OFF )
-                    {
-                        wellRequest = QString( "/resinsight/projects/%1/wells" ).arg( oilField->edmId );
-                    }
-                    else
-                    {
-                        wellRequest = QString( "/resinsight/projects/%1/"
-                                               "wellsInArea?north=%2&south=%3&east=%4&west=%5&utmzone=32N" )
-                                          .arg( oilField->edmId )
-                                          .arg( QString::number( m_wellPathImportObject->north, 'g', 10 ) )
-                                          .arg( QString::number( m_wellPathImportObject->south, 'g', 10 ) )
-                                          .arg( QString::number( m_wellPathImportObject->east, 'g', 10 ) )
-                                          .arg( QString::number( m_wellPathImportObject->west, 'g', 10 ) );
-                    }
+    //                 QString wellRequest;
+    //                 if ( m_wellPathImportObject->utmFilterMode == RimWellPathImport::UTM_FILTER_OFF )
+    //                 {
+    //                     wellRequest = QString( "/resinsight/projects/%1/wells" ).arg( oilField->edmId );
+    //                 }
+    //                 else
+    //                 {
+    //                     wellRequest = QString( "/resinsight/projects/%1/"
+    //                                            "wellsInArea?north=%2&south=%3&east=%4&west=%5&utmzone=32N" )
+    //                                       .arg( oilField->edmId )
+    //                                       .arg( QString::number( m_wellPathImportObject->north, 'g', 10 ) )
+    //                                       .arg( QString::number( m_wellPathImportObject->south, 'g', 10 ) )
+    //                                       .arg( QString::number( m_wellPathImportObject->east, 'g', 10 ) )
+    //                                       .arg( QString::number( m_wellPathImportObject->west, 'g', 10 ) );
+    //                 }
 
-                    urlToFile.requestUrl       = m_webServiceAddress + wellRequest;
-                    urlToFile.responseFilename = m_destinationFolder + QString( "/wells_%1.json" ).arg( oilField->edmId );
+    //                 urlToFile.requestUrl       = m_webServiceAddress + wellRequest;
+    //                 urlToFile.responseFilename = m_destinationFolder + QString( "/wells_%1.json" ).arg( oilField->edmId );
 
-                    oilField->wellsFilePath = urlToFile.responseFilename;
+    //                 oilField->wellsFilePath = urlToFile.responseFilename;
 
-                    m_wellRequestQueue.push_back( urlToFile );
-                }
-            }
-        }
-    }
+    //                 m_wellRequestQueue.push_back( urlToFile );
+    //             }
+    //         }
+    //     }
+    // }
 
-    m_currentDownloadState = DOWNLOAD_WELLS;
-    checkDownloadQueueAndIssueRequests();
+    // m_currentDownloadState = DOWNLOAD_WELLS;
+    // checkDownloadQueueAndIssueRequests();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -572,6 +507,8 @@ void RiuWellImportWizard::checkDownloadQueueAndIssueRequests()
 void RiuWellImportWizard::resetAuthenticationCount()
 {
     m_firstTimeRequestingAuthentication = true;
+    QTimer::singleShot( 0, m_osduConnector, SLOT( requestToken() ) );
+    //    m_osduConnector->requestToken();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -637,46 +574,48 @@ void RiuWellImportWizard::parseWellsResponse( RimOilFieldEntry* oilFieldEntry )
         {
             QMap<QString, QVariant> rootMap = listItem.toMap();
 
-            if ( m_wellPathImportObject->wellTypeSurvey )
-            {
-                QMap<QString, QVariant> surveyMap = rootMap["survey"].toMap();
-                QString                 name      = surveyMap["name"].toString();
+            // if ( m_wellPathImportObject->wellTypeSurvey )
+            // {
+            //     QMap<QString, QVariant> surveyMap = rootMap["survey"].toMap();
+            //     QString                 name      = surveyMap["name"].toString();
 
-                if ( !oilFieldEntry->find( name, RimWellPathEntry::WELL_SURVEY ) )
-                {
-                    QMap<QString, QVariant> linksMap   = surveyMap["links"].toMap();
-                    QString                 requestUrl = m_webServiceAddress + linksMap["entity"].toString();
-                    QString                 surveyType = surveyMap["surveyType"].toString();
-                    RimWellPathEntry*       surveyWellPathEntry =
-                        RimWellPathEntry::createWellPathEntry( name, surveyType, requestUrl, m_destinationFolder, RimWellPathEntry::WELL_SURVEY );
-                    oilFieldEntry->wells.push_back( surveyWellPathEntry );
-                }
+            //     if ( !oilFieldEntry->find( name, RimWellPathEntry::WELL_SURVEY ) )
+            //     {
+            //         QMap<QString, QVariant> linksMap   = surveyMap["links"].toMap();
+            //         QString                 requestUrl = m_webServiceAddress + linksMap["entity"].toString();
+            //         QString                 surveyType = surveyMap["surveyType"].toString();
+            //         RimWellPathEntry*       surveyWellPathEntry =
+            //             RimWellPathEntry::createWellPathEntry( name, surveyType, requestUrl, m_destinationFolder,
+            //             RimWellPathEntry::WELL_SURVEY );
+            //         oilFieldEntry->wells.push_back( surveyWellPathEntry );
+            //     }
 
-                surveyNames.push_back( name );
-            }
+            //     surveyNames.push_back( name );
+            // }
 
-            if ( m_wellPathImportObject->wellTypePlans )
-            {
-                QList<QVariant>         plansList = rootMap["plans"].toList();
-                QListIterator<QVariant> planIt( plansList );
-                while ( planIt.hasNext() )
-                {
-                    QMap<QString, QVariant> planMap = planIt.next().toMap();
-                    QString                 name    = planMap["name"].toString();
+            // if ( m_wellPathImportObject->wellTypePlans )
+            // {
+            //     QList<QVariant>         plansList = rootMap["plans"].toList();
+            //     QListIterator<QVariant> planIt( plansList );
+            //     while ( planIt.hasNext() )
+            //     {
+            //         QMap<QString, QVariant> planMap = planIt.next().toMap();
+            //         QString                 name    = planMap["name"].toString();
 
-                    if ( !oilFieldEntry->find( name, RimWellPathEntry::WELL_PLAN ) )
-                    {
-                        QMap<QString, QVariant> linksMap   = planMap["links"].toMap();
-                        QString                 requestUrl = m_webServiceAddress + linksMap["entity"].toString();
-                        QString                 surveyType = planMap["surveyType"].toString();
-                        RimWellPathEntry*       surveyWellPathEntry =
-                            RimWellPathEntry::createWellPathEntry( name, surveyType, requestUrl, m_destinationFolder, RimWellPathEntry::WELL_PLAN );
-                        oilFieldEntry->wells.push_back( surveyWellPathEntry );
-                    }
+            //         if ( !oilFieldEntry->find( name, RimWellPathEntry::WELL_PLAN ) )
+            //         {
+            //             QMap<QString, QVariant> linksMap   = planMap["links"].toMap();
+            //             QString                 requestUrl = m_webServiceAddress + linksMap["entity"].toString();
+            //             QString                 surveyType = planMap["surveyType"].toString();
+            //             RimWellPathEntry*       surveyWellPathEntry =
+            //                 RimWellPathEntry::createWellPathEntry( name, surveyType, requestUrl, m_destinationFolder,
+            //                 RimWellPathEntry::WELL_PLAN );
+            //             oilFieldEntry->wells.push_back( surveyWellPathEntry );
+            //         }
 
-                    planNames.push_back( name );
-                }
-            }
+            //         planNames.push_back( name );
+            //     }
+            // }
         }
     }
 
@@ -737,7 +676,7 @@ int RiuWellImportWizard::wellSelectionPageId()
 AuthenticationPage::AuthenticationPage( const QString& webServiceAddress, QWidget* parent /*= 0*/ )
     : QWizardPage( parent )
 {
-    setTitle( "SSIHUB - Login" );
+    setTitle( "OSDU - Login" );
 
     QVBoxLayout* layout = new QVBoxLayout;
 

@@ -508,7 +508,8 @@ endif()
 set(RI_QT_MINIMUM_VERSION 5.12)
 
 find_package(
-  Qt5 ${RI_QT_MINIMUM_VERSION} COMPONENTS Core Gui OpenGL Network Widgets
+  Qt5 ${RI_QT_MINIMUM_VERSION} COMPONENTS Core Gui OpenGL Network NetworkAuth
+                                          Widgets
 )
 
 # Open GL

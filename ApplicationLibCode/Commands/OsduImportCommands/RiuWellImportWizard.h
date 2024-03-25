@@ -38,6 +38,8 @@ class RimWellPathImport;
 class RimOilFieldEntry;
 class RimWellPathEntry;
 
+class RiaOsduConnector;
+
 namespace caf
 {
 class PdmUiTreeView;
@@ -201,6 +203,7 @@ public:
 public:
     RiuWellImportWizard( const QString&     webServiceAddress,
                          const QString&     downloadFolder,
+                         RiaOsduConnector*  osduConnector,
                          RimWellPathImport* wellPathImportObject,
                          QWidget*           parent = nullptr );
     ~RiuWellImportWizard() override;
@@ -222,15 +225,10 @@ public slots:
     void cancelDownload();
 
     void httpFinished();
-    void httpReadyRead();
 
     void slotAuthenticationRequired( QNetworkReply* networkReply, QAuthenticator* authenticator );
 
     int wellSelectionPageId();
-
-#if !defined( QT_NO_OPENSSL ) && !defined( CVF_OSX )
-    void sslErrors( QNetworkReply*, const QList<QSslError>& errors );
-#endif
 
 private slots:
     void slotCurrentIdChanged( int currentId );
@@ -238,9 +236,6 @@ private slots:
 private:
     void startRequest( QUrl url );
     void setUrl( const QString& httpAddress );
-
-    QString jsonFieldsFilePath();
-    QString jsonWellsFilePath();
 
     void updateFieldsModel();
     void parseWellsResponse( RimOilFieldEntry* oilFieldEntry );
@@ -251,7 +246,8 @@ private:
     void             hideProgressDialog();
 
 private:
-    QString m_webServiceAddress;
+    RiaOsduConnector* m_osduConnector;
+
     QString m_destinationFolder;
 
     RimWellPathImport*  m_wellPathImportObject;
@@ -259,11 +255,7 @@ private:
 
     QProgressDialog* m_myProgressDialog;
 
-    QUrl                  m_url;
-    QNetworkAccessManager m_networkAccessManager;
-    QNetworkReply*        m_reply;
-    QFile*                m_file;
-    bool                  m_httpRequestAborted;
+    bool m_httpRequestAborted;
 
     bool m_firstTimeRequestingAuthentication;
 

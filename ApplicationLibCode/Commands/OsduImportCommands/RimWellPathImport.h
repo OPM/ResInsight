@@ -41,9 +41,6 @@ public:
     RimWellPathImport();
     ~RimWellPathImport() override;
 
-    caf::PdmField<bool> wellTypeSurvey;
-    caf::PdmField<bool> wellTypePlans;
-
     caf::PdmField<caf::AppEnum<UtmFilterEnum>> utmFilterMode;
     caf::PdmField<double>                      north;
     caf::PdmField<double>                      south;
@@ -57,7 +54,6 @@ public:
     void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     void updateFieldVisibility();
 
