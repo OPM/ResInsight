@@ -30,6 +30,8 @@
 
 #include "cvfStructGridGeometryGenerator.h"
 
+#include <vector>
+
 namespace cvf
 {
 class StructGridInterface;

@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+import "VectorDefines.proto";
+
+// Will this work if we import only part of the protos?
+package rips;
+
+service GridGeometryExtraction
+{
+    rpc GetGridSurface(GetGridSurfaceRequest) returns (GetGridSurfaceResponse);
+    rpc CutAlongPolyline(CutAlongPolylineRequest) returns (CutAlongPolylineResponse);
+}
+
+message TimeElapsedInfo
+{
+	fixed32 totalTimeElapsedMs = 1; // Total time elapsed for the entire request
+    map<string, fixed32> namedEventsAndTimeElapsedMs = 2; // Time elapsed for each custom named event
+}
+
+message IJKIndexFilter
+{
+    int32 iMin = 1;
+    int32 iMax = 2;
+    int32 jMin = 3;
+    int32 jMax = 4;
+    int32 kMin = 5;
+    int32 kMax = 6;
+}
+
+message CellIndexFilter
+{
+    repeated fixed32 cellIndicesArr = 1;
+}
+
+message PropertyFilter
+{
+    // Timestep ??
+    string propertyFilename = 1;
+    float valueMin = 2;
+    float valueMax = 3;
+}
+
+message GetGridSurfaceRequest
+{
+    string gridFilename = 1;
+    IJKIndexFilter ijkIndexFilter = 2;
+    CellIndexFilter cellIndexFilter = 3;
+    PropertyFilter propertyFilter = 4;
+}
+    
+message GetGridSurfaceResponse
+{
+    // Vertex array with local x and y coordinates, around originUtmXy. z is coordinate on global Z
+    repeated float vertexArray = 1; // [x0, y0, z0, x1, y1, z1, ...]
+    repeated fixed32 quadIndicesArr = 2;        // 4*NumQuads long
+    repeated fixed32 sourceCellIndicesArr = 3;  // The originating cell index per quad, longnumQuads long
+    Vec3i gridDimensions = 5;
+    Vec2d originUtmXy = 6;
+    TimeElapsedInfo timeElapsedInfo = 7;
+}
+
+message CutAlongPolylineRequest 
+{
+    string gridFilename = 1;
+    repeated double fencePolylineUtmXY = 2;
+}
+
+message FenceMeshSection
+{
+    // U-axis defined by the unit length vector from start to end, Z is global Z
+    repeated float vertexArrayUZ = 1; // U coordinate is length along U-axis
+    repeated fixed32 polyIndicesArr = 2; // Note: Redundant if no shared nodes?
+    repeated fixed32 verticesPerPolygonArr = 3;     // Number of vertices per polygon, numPolygons long
+    repeated fixed32 sourceCellIndicesArr = 4;      // The originating cell index per polygon, numPolygons long
+    Vec2d startUtmXY = 6;
+    Vec2d endUtmXY = 7;
+}
+
+message PolylineTestResponse
+{
+    // Test response returning all vertices without "local" section coordinates
+    repeated float polygonVertexArray = 1;
+    repeated fixed32 verticesPerPolygonArr  = 2; // Number of vertices per polygon, numPolygons long
+    repeated fixed32 sourceCellIndicesArr = 3;  // The originating cell index per polygon, numPolygons long
+}
+
+message CutAlongPolylineResponse
+{
+    repeated FenceMeshSection fenceMeshSections = 1;
+    PolylineTestResponse polylineTestResponse = 2;
+    TimeElapsedInfo timeElapsedInfo = 3;
+    Vec3i gridDimensions = 4;
+}
+

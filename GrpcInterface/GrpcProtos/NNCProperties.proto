@@ -2,6 +2,7 @@ syntax = "proto3";
 
 import "Case.proto";
 import "Definitions.proto";
+import "VectorDefines.proto";
 
 package rips;
 

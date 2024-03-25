@@ -48,3 +48,22 @@ int RiaOpenMPTools::currentThreadIndex()
 
     return myThread;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaOpenMPTools::numberOfThreads()
+{
+    int numberOfThreads = 1;
+
+#ifdef USE_OPENMP
+
+#pragma omp parallel
+    {
+        numberOfThreads = omp_get_num_threads();
+    }
+
+#endif
+
+    return numberOfThreads;
+}

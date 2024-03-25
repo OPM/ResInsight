@@ -137,6 +137,8 @@ public:
     std::vector<size_t>&                        quadToCellIndexMap() { return m_quadsToCells; }
     std::vector<StructGridInterface::FaceType>& quadToCellFaceMap() { return m_quadsToFace; }
 
+    const std::vector<size_t> quadToCellIndicesArray() const { return m_quadsToCells; }
+
 private:
     std::vector<size_t>                        m_quadsToCells;
     std::vector<StructGridInterface::FaceType> m_quadsToFace;
@@ -194,6 +196,8 @@ public:
     ref<DrawableGeo> generateSurface();
     ref<DrawableGeo> createMeshDrawable();
     ref<DrawableGeo> createOutlineMeshDrawable( double creaseAngle );
+
+    Vec3fArray* getOrCreateVertices();
 
     static ref<DrawableGeo> createMeshDrawableFromSingleCell( const StructGridInterface* grid, size_t cellIndex );
 

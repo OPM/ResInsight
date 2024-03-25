@@ -212,6 +212,24 @@ ref<DrawableGeo> StructGridGeometryGenerator::generateSurface()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Get the vertices of the generated surface, if the vertices have not been generated yet,
+/// they will be generated.
+///
+/// Needed for the gRPC service for GridGeometryExtraction
+//--------------------------------------------------------------------------------------------------
+Vec3fArray* StructGridGeometryGenerator::getOrCreateVertices()
+{
+    if ( m_vertices.isNull() || m_vertices->size() == 0 )
+    {
+        computeArrays();
+    }
+
+    CVF_ASSERT( m_vertices.notNull() );
+
+    return m_vertices.p();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Generates simplified mesh as line drawing
 /// Must call generateSurface first
 //--------------------------------------------------------------------------------------------------
