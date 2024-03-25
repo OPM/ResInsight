@@ -187,12 +187,24 @@ def export_property(self, undefined_value=0.0):
     )
 
 
-@add_method(ViewWindow)
+def extract_address(address) -> int:
+    # Address form: "RimReservoir:123345345345435"
+    parts = address.split(":")
+    return int(parts[1])
+
+
+@add_method(View)
 def case(self):
     """Get the case the view belongs to"""
-    mycase = self.ancestor(rips.case.Case)
-    assert mycase is not None
-    return mycase
+    project = self.ancestor(rips.project.Project)
+
+    eclipse_case_addr = extract_address(self.eclipse_case)
+
+    cases = project.cases()
+    for c in cases:
+        if c.address() == eclipse_case_addr:
+            return c
+    return None
 
 
 @add_method(ViewWindow)

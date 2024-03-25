@@ -327,7 +327,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
 
         for ( RimEclipseCase* eclipseCase : m_sourceCases )
         {
-            if ( eclipseCase->reservoirViews.empty() )
+            if ( eclipseCase->reservoirViews().empty() )
             {
                 eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->freeAllocatedResultsData( categoriesToExclude, timeStepIdx );
                 eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->freeAllocatedResultsData( categoriesToExclude, timeStepIdx );

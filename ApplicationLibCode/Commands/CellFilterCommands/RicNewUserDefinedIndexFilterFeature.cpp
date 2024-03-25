@@ -18,6 +18,7 @@
 
 #include "RicNewUserDefinedIndexFilterFeature.h"
 
+#include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
 #include "RimUserDefinedIndexFilter.h"
@@ -42,12 +43,15 @@ void RicNewUserDefinedIndexFilterFeature::onActionTriggered( bool isChecked )
     RimCellFilterCollection* filtColl = colls[0];
 
     // and the case to use
-    RimCase* sourceCase = filtColl->firstAncestorOrThisOfTypeAsserted<RimCase>();
+    RimCase* sourceCase = filtColl->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
 
-    auto* lastCreatedOrUpdated = filtColl->addNewUserDefinedIndexFilter( sourceCase );
-    if ( lastCreatedOrUpdated )
+    if ( sourceCase )
     {
-        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
+        auto* lastCreatedOrUpdated = filtColl->addNewUserDefinedIndexFilter( sourceCase );
+        if ( lastCreatedOrUpdated )
+        {
+            Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
+        }
     }
 }
 

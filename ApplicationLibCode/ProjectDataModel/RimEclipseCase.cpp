@@ -58,6 +58,7 @@
 #include "RimEclipseResultAddressCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
+#include "RimEclipseViewCollection.h"
 #include "RimFaultInViewCollection.h"
 #include "RimFormationNames.h"
 #include "RimGridCollection.h"
@@ -91,7 +92,7 @@ RimEclipseCase::RimEclipseCase()
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "EclipseCase", ":/Case48x48.png", "", "", "Reservoir", "Abstract base class for Eclipse Cases" );
 
-    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &reservoirViews, "ReservoirViews", "Views", "", "", "", "All Eclipse Views in the case" );
+    CAF_PDM_InitFieldNoDefault( &m_reservoirViews_OBSOLETE, "ReservoirViews", "Views", "", "", "", "All Eclipse Views in the case" );
 
     CAF_PDM_InitFieldNoDefault( &m_matrixModelResults, "MatrixModelResults", "" );
     CAF_PDM_InitFieldNoDefault( &m_fractureModelResults, "FractureModelResults", "" );
@@ -105,8 +106,8 @@ RimEclipseCase::RimEclipseCase()
     // https://github.com/OPM/ResInsight/issues/7308
     m_filesContainingFaults.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_contourMapCollection, "ContourMaps", "2d Contour Maps" );
-    m_contourMapCollection = new RimEclipseContourMapViewCollection;
+    CAF_PDM_InitFieldNoDefault( &m_contourMapCollection_OBSOLETE, "ContourMaps", "2d Contour Maps" );
+    m_contourMapCollection_OBSOLETE = new RimEclipseContourMapViewCollection;
 
     CAF_PDM_InitFieldNoDefault( &m_inputPropertyCollection, "InputPropertyCollection", "" );
     m_inputPropertyCollection = new RimEclipseInputPropertyCollection;
@@ -132,8 +133,6 @@ RimEclipseCase::RimEclipseCase()
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase::~RimEclipseCase()
 {
-    reservoirViews.deleteChildren();
-
     delete m_matrixModelResults();
     delete m_fractureModelResults();
     delete m_inputPropertyCollection;
@@ -276,17 +275,29 @@ void RimEclipseCase::initAfterRead()
 {
     RimCase::initAfterRead();
 
-    size_t j;
-    for ( j = 0; j < reservoirViews().size(); j++ )
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.12.1-dev.23" ) )
     {
-        RimEclipseView* riv = reservoirViews()[j];
-        CVF_ASSERT( riv );
+        // Move views to view collection.
+        RimEclipseViewCollection* viewColl = viewCollection();
+        for ( size_t j = 0; j < m_reservoirViews_OBSOLETE.size(); j++ )
+        {
+            RimEclipseView* riv = m_reservoirViews_OBSOLETE()[j];
+            CVF_ASSERT( riv );
 
-        riv->setEclipseCase( this );
-    }
-    for ( RimEclipseContourMapView* contourMap : m_contourMapCollection->views() )
-    {
-        contourMap->setEclipseCase( this );
+            riv->setEclipseCase( this );
+            m_reservoirViews_OBSOLETE.removeChild( riv );
+            viewColl->addView( riv );
+        }
+
+        m_reservoirViews_OBSOLETE.clearWithoutDelete();
+
+        // Move contour maps
+        for ( RimEclipseContourMapView* contourMap : m_contourMapCollection_OBSOLETE->views() )
+        {
+            contourMap->setEclipseCase( this );
+
+            // TODO: move to root collection
+        }
     }
 }
 
@@ -295,29 +306,10 @@ void RimEclipseCase::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimEclipseCase::createAndAddReservoirView()
 {
-    RimEclipseView* rimEclipseView = new RimEclipseView();
+    RimEclipseViewCollection* viewColl = viewCollection();
+    if ( !viewColl ) return nullptr;
 
-    rimEclipseView->setEclipseCase( this );
-
-    // Set default values
-    if ( rimEclipseView->currentGridCellResults() )
-    {
-        auto defaultResult = rimEclipseView->currentGridCellResults()->defaultResult();
-        rimEclipseView->cellResult()->setFromEclipseResultAddress( defaultResult );
-    }
-
-    auto prefs = RiaPreferences::current();
-    rimEclipseView->faultCollection()->setActive( prefs->enableFaultsByDefault() );
-
-    rimEclipseView->cellEdgeResult()->setResultVariable( "MULT" );
-    rimEclipseView->cellEdgeResult()->setActive( false );
-    rimEclipseView->fractureColors()->setDefaultResultName();
-
-    caf::PdmDocument::updateUiIconStateRecursively( rimEclipseView );
-
-    reservoirViews().push_back( rimEclipseView );
-
-    return rimEclipseView;
+    return viewColl->addView( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -554,19 +546,9 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 {
     if ( uiConfigName == "MainWindow.ProjectTree" )
     {
-        std::vector<PdmObjectHandle*> children = reservoirViews.children();
-
-        for ( auto child : children )
-            uiTreeOrdering.add( child );
-
         if ( !m_2dIntersectionViewCollection->views().empty() )
         {
             uiTreeOrdering.add( &m_2dIntersectionViewCollection );
-        }
-
-        if ( !m_contourMapCollection->views().empty() )
-        {
-            uiTreeOrdering.add( &m_contourMapCollection );
         }
     }
     else if ( uiConfigName == "MainWindow.DataSources" )
@@ -668,9 +650,15 @@ RimCaseCollection* RimEclipseCase::parentCaseCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseContourMapViewCollection* RimEclipseCase::contourMapCollection()
+RimEclipseContourMapViewCollection* RimEclipseCase::contourMapCollection() const
 {
-    return m_contourMapCollection;
+    RimProject* project = RimProject::current();
+    if ( !project ) return nullptr;
+
+    RimOilField* oilField = project->activeOilField();
+    if ( !oilField ) return nullptr;
+
+    return oilField->eclipseContourMapCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1080,12 +1068,12 @@ bool RimEclipseCase::openReserviorCase()
 std::vector<Rim3dView*> RimEclipseCase::allSpecialViews() const
 {
     std::vector<Rim3dView*> views;
-    for ( RimEclipseView* view : reservoirViews )
+    for ( RimEclipseView* view : reservoirViews() )
     {
         views.push_back( view );
     }
 
-    for ( RimEclipseContourMapView* view : m_contourMapCollection->views() )
+    for ( RimEclipseContourMapView* view : contourMapViews() )
     {
         views.push_back( view );
     }
@@ -1197,4 +1185,60 @@ void RimEclipseCase::updateResultAddressCollection()
 {
     m_resultAddressCollections.deleteChildren();
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseViewCollection* RimEclipseCase::viewCollection() const
+{
+    RimProject* project = RimProject::current();
+    if ( !project ) return nullptr;
+
+    RimOilField* oilField = project->activeOilField();
+    if ( !oilField ) return nullptr;
+
+    return oilField->eclipseViewCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseView*> RimEclipseCase::reservoirViews() const
+{
+    std::vector<RimEclipseView*> views;
+    RimEclipseViewCollection*    viewColl = viewCollection();
+    if ( viewColl )
+    {
+        for ( auto view : viewColl->views() )
+        {
+            if ( view->eclipseCase() && view->eclipseCase() == this )
+            {
+                views.push_back( view );
+            }
+        }
+    }
+
+    return views;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseContourMapView*> RimEclipseCase::contourMapViews() const
+{
+    std::vector<RimEclipseContourMapView*> views;
+    RimEclipseContourMapViewCollection*    viewColl = contourMapCollection();
+    if ( viewColl )
+    {
+        for ( auto view : viewColl->views() )
+        {
+            if ( view->eclipseCase() && view->eclipseCase() == this )
+            {
+                views.push_back( view );
+            }
+        }
+    }
+
+    return views;
 }

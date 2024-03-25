@@ -176,7 +176,7 @@ RimCase* Rim2dIntersectionView::ownerCase() const
 
     if ( !rimCase )
     {
-        rimCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
+        rimCase = firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
     }
 
     return rimCase;

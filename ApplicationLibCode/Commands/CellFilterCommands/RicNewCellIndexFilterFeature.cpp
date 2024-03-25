@@ -59,12 +59,15 @@ void RicNewCellIndexFilterFeature::onActionTriggered( bool isChecked )
     RimCellFilterCollection* filtColl = colls[0];
 
     // and the case to use
-    RimCase* sourceCase = filtColl->firstAncestorOrThisOfTypeAsserted<RimCase>();
+    RimCase* sourceCase = filtColl->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
 
-    RimCellIndexFilter* lastCreatedOrUpdated = filtColl->addNewCellIndexFilter( sourceCase );
-    if ( lastCreatedOrUpdated )
+    if ( sourceCase )
     {
-        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
+        RimCellIndexFilter* lastCreatedOrUpdated = filtColl->addNewCellIndexFilter( sourceCase );
+        if ( lastCreatedOrUpdated )
+        {
+            Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
+        }
     }
 }
 

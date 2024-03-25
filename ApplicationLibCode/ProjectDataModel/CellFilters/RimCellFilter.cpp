@@ -298,7 +298,8 @@ QString RimCellFilter::modeString() const
 //--------------------------------------------------------------------------------------------------
 const cvf::StructGridInterface* RimCellFilter::selectedGrid() const
 {
-    auto rimCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
+    auto rimCase = firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
+    if ( !rimCase ) return nullptr;
 
     int clampedIndex = gridIndex();
     if ( clampedIndex >= RigReservoirGridTools::gridCount( rimCase ) )

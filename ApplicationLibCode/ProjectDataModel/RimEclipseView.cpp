@@ -144,7 +144,9 @@ RimEclipseView::RimEclipseView()
                                                     "EclipseView",
                                                     "The Eclipse 3d Reservoir View" );
 
-    CAF_PDM_InitFieldNoDefault( &m_customEclipseCase, "CustomEclipseCase", "Custom Case" );
+    CAF_PDM_InitFieldNoDefault( &m_customEclipseCase_OBSOLETE, "CustomEclipseCase", "Custom Case" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
 
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_cellResult, "GridCellResult", "CellResult", "Cell Result", ":/CellResult.png" );
     m_cellResult = new RimEclipseCellColors();
@@ -392,7 +394,7 @@ void RimEclipseView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 {
     RimGridView::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_customEclipseCase )
+    if ( changedField == &m_eclipseCase )
     {
         propagateEclipseCaseToChildObjects();
 
@@ -1262,11 +1264,9 @@ QString RimEclipseView::createAutoName() const
 
     QStringList generatedAutoTags;
 
-    RimCase* ownerCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
-
-    if ( nameConfig()->addCaseName() )
+    if ( m_eclipseCase && nameConfig()->addCaseName() )
     {
-        generatedAutoTags.push_back( ownerCase->caseUserDescription() );
+        generatedAutoTags.push_back( m_eclipseCase->caseUserDescription() );
     }
 
     if ( nameConfig()->addProperty() )
@@ -1568,8 +1568,6 @@ void RimEclipseView::setEclipseCase( RimEclipseCase* reservoir )
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimEclipseView::eclipseCase() const
 {
-    if ( m_customEclipseCase() != nullptr ) return m_customEclipseCase();
-
     return m_eclipseCase;
 }
 
@@ -1897,16 +1895,14 @@ void RimEclipseView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 {
     Rim3dView::defineUiOrdering( uiConfigName, uiOrdering );
 
+    uiOrdering.add( &m_eclipseCase );
+
     caf::PdmUiGroup* cellGroup = uiOrdering.addNewGroup( "Cell Visibility" );
     cellGroup->add( &m_showInactiveCells );
     cellGroup->add( &m_showInvalidCells );
 
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "View Name" );
     nameConfig()->uiOrdering( uiConfigName, *nameGroup );
-
-    caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup( "Advanced" );
-    advancedGroup->setCollapsedByDefault();
-    advancedGroup->add( &m_customEclipseCase );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -1984,27 +1980,15 @@ std::set<RivCellSetEnum> RimEclipseView::allVisibleFaultGeometryTypes() const
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimEclipseView::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    if ( fieldNeedingOptions == &m_customEclipseCase )
+    if ( fieldNeedingOptions == &m_eclipseCase )
     {
         QList<caf::PdmOptionItemInfo> options;
 
         options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
 
-        if ( m_eclipseCase && m_eclipseCase->mainGrid() )
+        for ( auto eclCase : RimEclipseCaseTools::allEclipseGridCases() )
         {
-            auto currentGridCount = m_eclipseCase->mainGrid()->gridCount();
-
-            for ( auto eclCase : RimEclipseCaseTools::allEclipseGridCases() )
-            {
-                // Find all grid cases with same number of LGRs. If the grid count differs, a crash will happen related to
-                // RimGridCollection::mainEclipseGrid(). This function is using firstAncestorOrThisOfType() to find the Eclipse case. If the
-                // custom case in RimEclipseView has a different number of LGRs, a crash will happen
-
-                if ( eclCase && ( eclCase != m_eclipseCase ) && eclCase->mainGrid() && eclCase->mainGrid()->gridCount() == currentGridCount )
-                {
-                    options.push_back( caf::PdmOptionItemInfo( eclCase->caseUserDescription(), eclCase, false, eclCase->uiIconProvider() ) );
-                }
-            }
+            options.push_back( caf::PdmOptionItemInfo( eclCase->caseUserDescription(), eclCase, false, eclCase->uiIconProvider() ) );
         }
 
         return options;

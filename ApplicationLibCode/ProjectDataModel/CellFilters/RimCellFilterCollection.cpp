@@ -160,7 +160,10 @@ void RimCellFilterCollection::initAfterRead()
 
     // Copy by xml serialization does not give a RimCase parent the first time initAfterRead is called here when creating a new a contour
     // view from a 3d view. The second time we get called it is ok, so just skip setting up the filter connections if we have no case.
-    auto rimCase = firstAncestorOrThisOfType<RimCase>();
+    auto rimView = firstAncestorOrThisOfType<Rim3dView>();
+    if ( rimView == nullptr ) return;
+
+    auto rimCase = rimView->ownerCase();
     if ( rimCase == nullptr ) return;
 
     for ( const auto& filter : m_cellFilters )
