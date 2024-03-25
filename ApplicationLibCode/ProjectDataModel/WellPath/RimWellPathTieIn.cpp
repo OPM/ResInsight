@@ -30,7 +30,6 @@
 
 #include "RiuMainWindow.h"
 
-#include "RigWellPathGeometryTools.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiLabelEditor.h"
 
@@ -198,6 +197,8 @@ void RimWellPathTieIn::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 {
     // TODO: It is not possible to change the parent well from the UI as the field is set to read only. Refactor and possibly delete this
     // method.
+    // https://github.com/OPM/ResInsight/issues/11312
+    // https://github.com/OPM/ResInsight/issues/11313
 
     if ( changedField == &m_parentWell )
     {
