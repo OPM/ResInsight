@@ -11,16 +11,6 @@ template <typename FieldType>
 class PdmFieldXmlCap : public PdmXmlFieldHandle
 {
 public:
-    // Type traits magic to check if a template argument is a vector
-    template <typename T>
-    struct is_vector : public std::false_type
-    {
-    };
-    template <typename T, typename A>
-    struct is_vector<std::vector<T, A>> : public std::true_type
-    {
-    };
-
     PdmFieldXmlCap( FieldType* field, bool giveOwnership )
         : PdmXmlFieldHandle( field, giveOwnership )
     {
@@ -46,7 +36,7 @@ class PdmPtrField;
 template <typename DataType>
 class PdmFieldXmlCap<PdmPtrField<DataType*>> : public PdmXmlFieldHandle
 {
-    typedef PdmPtrField<DataType*> FieldType;
+    using FieldType = PdmPtrField<DataType*>;
 
 public:
     PdmFieldXmlCap( FieldType* field, bool giveOwnership )
@@ -79,7 +69,7 @@ class PdmPtrArrayField;
 template <typename DataType>
 class PdmFieldXmlCap<PdmPtrArrayField<DataType*>> : public PdmXmlFieldHandle
 {
-    typedef PdmPtrArrayField<DataType*> FieldType;
+    using FieldType = PdmPtrArrayField<DataType*>;
 
 public:
     PdmFieldXmlCap( FieldType* field, bool giveOwnership )
@@ -112,7 +102,7 @@ class PdmChildField;
 template <typename DataType>
 class PdmFieldXmlCap<PdmChildField<DataType*>> : public PdmXmlFieldHandle
 {
-    typedef PdmChildField<DataType*> FieldType;
+    using FieldType = PdmChildField<DataType*>;
 
 public:
     PdmFieldXmlCap( FieldType* field, bool giveOwnership )
@@ -138,7 +128,7 @@ class PdmChildArrayField;
 template <typename DataType>
 class PdmFieldXmlCap<PdmChildArrayField<DataType*>> : public PdmXmlFieldHandle
 {
-    typedef PdmChildArrayField<DataType*> FieldType;
+    using FieldType = PdmChildArrayField<DataType*>;
 
 public:
     PdmFieldXmlCap( FieldType* field, bool giveOwnership )
@@ -165,7 +155,7 @@ class PdmField;
 template <typename DataType>
 class PdmFieldXmlCap<PdmField<std::vector<DataType>>> : public PdmXmlFieldHandle
 {
-    typedef PdmField<std::vector<DataType>> FieldType;
+    using FieldType = PdmField<std::vector<DataType>>;
 
 public:
     PdmFieldXmlCap( FieldType* field, bool giveOwnership )

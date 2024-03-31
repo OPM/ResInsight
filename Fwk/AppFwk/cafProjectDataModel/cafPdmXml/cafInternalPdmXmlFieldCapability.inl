@@ -12,10 +12,25 @@
 
 namespace caf
 {
-//==================================================================================================
-/// XML Implementation for PdmFieldXmlCap<> methods
-///
-//==================================================================================================
+
+template <typename T>
+concept Vector = requires {
+    typename T::value_type; // Require the existence of value_type
+    typename T::allocator_type; // Require the existence of allocator_type
+    requires std::same_as<T, std::vector<typename T::value_type, typename T::allocator_type>>; // Ensure it's a vector
+};
+
+template <Vector T>
+bool checkIfVector()
+{
+    return true;
+}
+
+template <typename T>
+bool checkIfVector()
+{
+    return false;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -23,7 +38,7 @@ namespace caf
 template <typename FieldType>
 bool caf::PdmFieldXmlCap<FieldType>::isVectorField() const
 {
-    return is_vector<FieldType>();
+    return checkIfVector<FieldType>();
 }
 
 //--------------------------------------------------------------------------------------------------

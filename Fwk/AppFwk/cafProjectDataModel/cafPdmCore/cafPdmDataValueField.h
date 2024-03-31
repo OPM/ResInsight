@@ -61,17 +61,8 @@ template <typename DataType>
 class PdmDataValueField : public PdmValueField
 {
 public:
-    // Type traits magic to check if a template argument is a vector
-    template <typename T>
-    struct is_vector : public std::false_type
-    {
-    };
-    template <typename T, typename A>
-    struct is_vector<std::vector<T, A>> : public std::true_type
-    {
-    };
+    using FieldDataType = DataType;
 
-    typedef DataType FieldDataType;
     PdmDataValueField()
         : m_fieldValue( DataType() )
         , m_defaultFieldValue( DataType() )
