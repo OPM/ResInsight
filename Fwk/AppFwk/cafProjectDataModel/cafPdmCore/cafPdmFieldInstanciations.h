@@ -20,7 +20,14 @@
 
 #include "cafPdmDataValueField.h"
 
+#include "cafInternalPdmValueFieldSpecializations.h"
+
 extern template class caf::PdmDataValueField<int>;
 extern template class caf::PdmDataValueField<bool>;
 extern template class caf::PdmDataValueField<QString>;
 extern template class caf::PdmDataValueField<double>;
+
+extern template class caf::PdmValueFieldSpecialization<int>;
+extern template class caf::PdmValueFieldSpecialization<bool>;
+extern template class caf::PdmValueFieldSpecialization<QString>;
+extern template class caf::PdmValueFieldSpecialization<double>;

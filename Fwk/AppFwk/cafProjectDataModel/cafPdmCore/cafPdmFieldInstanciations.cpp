@@ -22,3 +22,8 @@ template class caf::PdmDataValueField<int>;
 template class caf::PdmDataValueField<bool>;
 template class caf::PdmDataValueField<QString>;
 template class caf::PdmDataValueField<double>;
+
+template class caf::PdmValueFieldSpecialization<int>;
+template class caf::PdmValueFieldSpecialization<bool>;
+template class caf::PdmValueFieldSpecialization<QString>;
+template class caf::PdmValueFieldSpecialization<double>;
