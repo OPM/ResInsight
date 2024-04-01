@@ -28,6 +28,8 @@
 #include "RigFault.h"
 #include "RigMainGrid.h"
 
+#include "cafPdmSetFieldValue.h"
+
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicEclipseHideFaultFeature, "RicEclipseHideFaultFeature" );
@@ -73,7 +75,7 @@ void RicEclipseHideFaultFeature::onActionTriggered( bool isChecked )
             RimFaultInView* rimFault = eclView->faultCollection()->findFaultByName( faultName );
             if ( rimFault )
             {
-                rimFault->showFault.setValueWithFieldChanged( !rimFault->showFault );
+                caf::setValueWithFieldChanged( &rimFault->showFault, !rimFault->showFault );
             }
         }
     }

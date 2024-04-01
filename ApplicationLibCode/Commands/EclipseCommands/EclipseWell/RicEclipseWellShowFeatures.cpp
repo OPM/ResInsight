@@ -23,6 +23,8 @@
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 
+#include "cafPdmSetFieldValue.h"
+
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicEclipseWellShowLabelFeature, "RicEclipseWellShowLabelFeature" );
@@ -35,7 +37,7 @@ void RicEclipseWellShowLabelFeature::onActionTriggered( bool isChecked )
     std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
     for ( RimSimWellInView* w : selection )
     {
-        w->showWellLabel.setValueWithFieldChanged( isChecked );
+        caf::setValueWithFieldChanged( &w->showWellLabel, isChecked );
     }
 }
 
@@ -83,7 +85,7 @@ void RicEclipseWellShowHeadFeature::onActionTriggered( bool isChecked )
     std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
     for ( RimSimWellInView* w : selection )
     {
-        w->showWellHead.setValueWithFieldChanged( isChecked );
+        caf::setValueWithFieldChanged( &w->showWellHead, isChecked );
     }
 }
 
@@ -131,7 +133,7 @@ void RicEclipseWellShowPipeFeature::onActionTriggered( bool isChecked )
     std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
     for ( RimSimWellInView* w : selection )
     {
-        w->showWellPipe.setValueWithFieldChanged( isChecked );
+        caf::setValueWithFieldChanged( &w->showWellPipe, isChecked );
     }
 }
 
@@ -179,7 +181,7 @@ void RicEclipseWellShowSpheresFeature::onActionTriggered( bool isChecked )
     std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
     for ( RimSimWellInView* w : selection )
     {
-        w->showWellSpheres.setValueWithFieldChanged( isChecked );
+        caf::setValueWithFieldChanged( &w->showWellSpheres, isChecked );
     }
 }
 
@@ -227,7 +229,7 @@ void RicEclipseWellShowWellCellsFeature::onActionTriggered( bool isChecked )
     std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
     for ( RimSimWellInView* w : selection )
     {
-        w->showWellCells.setValueWithFieldChanged( isChecked );
+        caf::setValueWithFieldChanged( &w->showWellCells, isChecked );
     }
 }
 
@@ -275,7 +277,7 @@ void RicEclipseWellShowWellCellFenceFeature::onActionTriggered( bool isChecked )
     std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
     for ( RimSimWellInView* w : selection )
     {
-        w->showWellCellFence.setValueWithFieldChanged( isChecked );
+        caf::setValueWithFieldChanged( &w->showWellCellFence, isChecked );
     }
 }
 
