@@ -14,11 +14,12 @@ namespace caf
 {
 
 template <typename T>
-concept Vector = requires {
-    typename T::value_type; // Require the existence of value_type
-    typename T::allocator_type; // Require the existence of allocator_type
-    requires std::same_as<T, std::vector<typename T::value_type, typename T::allocator_type>>; // Ensure it's a vector
-};
+concept Vector =
+    requires {
+        typename T::value_type; // Require the existence of value_type
+        typename T::allocator_type; // Require the existence of allocator_type
+        requires std::same_as<T, std::vector<typename T::value_type, typename T::allocator_type>>; // Ensure it's a vector
+    };
 
 template <Vector T>
 bool checkIfVector()
