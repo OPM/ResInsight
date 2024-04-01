@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmDataValueField.h"
 #include "cafPdmObject.h"
 
 #include <QXmlStreamWriter>
@@ -79,3 +80,8 @@ public:
 };
 
 } // End of namespace caf
+
+extern template class caf::PdmDataValueField<int>;
+extern template class caf::PdmDataValueField<bool>;
+extern template class caf::PdmDataValueField<QString>;
+extern template class caf::PdmDataValueField<double>;
