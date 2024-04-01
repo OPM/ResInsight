@@ -38,6 +38,7 @@
 
 #include "cafCmdFeatureManager.h"
 #include "cafPdmField.h"
+#include "cafPdmSetFieldValue.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiObjectHandle.h"
@@ -142,9 +143,9 @@ void ToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggleTy
             {
                 caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>( uiObjectHandleChild->objectToggleField() );
 
-                if ( state == TOGGLE_ON ) field->setValueWithFieldChanged( true );
-                if ( state == TOGGLE_OFF ) field->setValueWithFieldChanged( false );
-                if ( state == TOGGLE_SUBITEMS ) field->setValueWithFieldChanged( !( field->v() ) );
+                if ( state == TOGGLE_ON ) caf::setValueWithFieldChanged( field, true );
+                if ( state == TOGGLE_OFF ) caf::setValueWithFieldChanged( field, false );
+                if ( state == TOGGLE_SUBITEMS ) caf::setValueWithFieldChanged( field, !( field->v() ) );
             }
         }
     }
@@ -158,11 +159,11 @@ void ToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggleTy
             {
                 caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>( uiObjectHandle->objectToggleField() );
 
-                if ( state == TOGGLE_ON ) field->setValueWithFieldChanged( true );
-                if ( state == TOGGLE_OFF ) field->setValueWithFieldChanged( false );
+                if ( state == TOGGLE_ON ) caf::setValueWithFieldChanged( field, true );
+                if ( state == TOGGLE_OFF ) caf::setValueWithFieldChanged( field, false );
                 if ( state == TOGGLE_SUBITEMS || state == TOGGLE )
                 {
-                    field->setValueWithFieldChanged( !( field->v() ) );
+                    caf::setValueWithFieldChanged( field, !( field->v() ) );
                 }
             }
         }

@@ -42,6 +42,7 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmSetFieldValue.h"
 #include "cafPdmUiItem.h"
 #include <QAction>
 
@@ -82,7 +83,7 @@ void ToggleItemsOnOthersOffFeature::onActionTriggered( bool isChecked )
 
         if ( field )
         {
-            field->setValueWithFieldChanged( false );
+            caf::setValueWithFieldChanged( field, false );
         }
     }
 
@@ -91,7 +92,7 @@ void ToggleItemsOnOthersOffFeature::onActionTriggered( bool isChecked )
     {
         caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>( selectedObject->objectToggleField() );
 
-        field->setValueWithFieldChanged( true );
+        caf::setValueWithFieldChanged( field, true );
     }
 }
 

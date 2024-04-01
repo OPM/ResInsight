@@ -41,7 +41,6 @@
 
 #include "cafAssert.h"
 #include "cafInternalPdmValueFieldSpecializations.h"
-#include "cafPdmUiFieldHandleInterface.h"
 
 #include <QVariant>
 
@@ -95,7 +94,6 @@ public:
         CAF_ASSERT( isInitializedByInitFieldMacro() );
         m_fieldValue = fieldValue;
     }
-    void setValueWithFieldChanged( const DataType& fieldValue );
 
     // Implementation of PdmValueField interface
 
@@ -136,30 +134,5 @@ public:
 protected:
     DataType m_defaultFieldValue;
 };
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void caf::PdmDataValueField<DataType>::setValueWithFieldChanged( const DataType& fieldValue )
-{
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
-
-    PdmUiFieldHandleInterface* uiFieldHandleInterface = capability<PdmUiFieldHandleInterface>();
-    if ( uiFieldHandleInterface )
-    {
-        QVariant oldValue = uiFieldHandleInterface->toUiBasedQVariant();
-
-        m_fieldValue = fieldValue;
-
-        QVariant newUiBasedQVariant = uiFieldHandleInterface->toUiBasedQVariant();
-
-        uiFieldHandleInterface->notifyFieldChanged( oldValue, newUiBasedQVariant );
-    }
-    else
-    {
-        m_fieldValue = fieldValue;
-    }
-}
 
 } // End of namespace caf

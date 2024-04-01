@@ -38,6 +38,7 @@ set(PROJECT_FILES
     cafPdmFieldCapability.h
     cafPdmFieldHandle.cpp
     cafPdmFieldHandle.h
+    cafPdmSetFieldValue.h
     cafPdmObjectCapability.h
     cafPdmFieldReorderCapability.cpp
     cafPdmFieldReorderCapability.h
