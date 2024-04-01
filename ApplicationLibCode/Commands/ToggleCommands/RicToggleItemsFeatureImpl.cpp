@@ -26,6 +26,7 @@
 #include "RiuPlotMainWindow.h"
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmSetFieldValue.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiObjectHandle.h"
