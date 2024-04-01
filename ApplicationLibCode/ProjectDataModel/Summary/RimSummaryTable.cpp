@@ -34,6 +34,7 @@
 
 #include "RiuMatrixPlotWidget.h"
 
+#include "cafPdmSetFieldValue.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
@@ -767,5 +768,5 @@ void RimSummaryTable::setExcludedRowsUiSelectionsFromTableData()
             newSelections.push_back( categoryName );
         }
     }
-    m_excludedRowsUiField.setValueWithFieldChanged( newSelections );
+    caf::setValueWithFieldChanged( &m_excludedRowsUiField, newSelections );
 }

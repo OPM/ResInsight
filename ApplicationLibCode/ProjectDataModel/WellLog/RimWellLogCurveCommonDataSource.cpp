@@ -44,6 +44,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
+#include "cafPdmSetFieldValue.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiCheckBoxTristateEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
@@ -1180,7 +1181,7 @@ void RimWellLogCurveCommonDataSource::selectWell( QString wellName )
             std::set<QString> sortedWellNames = eclipseCase->sortedSimWellNames();
             if ( std::count( sortedWellNames.begin(), sortedWellNames.end(), wellName ) > 0 )
             {
-                m_simWellName.setValueWithFieldChanged( wellName );
+                caf::setValueWithFieldChanged( &m_simWellName, wellName );
             }
         }
     }

@@ -30,6 +30,7 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmSetFieldValue.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
 
@@ -210,7 +211,7 @@ void RimWellPathTarget::setDerivedTangent( double azimuthRadians, double inclina
 void RimWellPathTarget::updateFrom3DManipulator( const cvf::Vec3d& pointXYD )
 {
     enableFullUpdate( false );
-    m_targetPointXYD.setValueWithFieldChanged( pointXYD );
+    caf::setValueWithFieldChanged( &m_targetPointXYD, pointXYD );
     enableFullUpdate( true );
 }
 
