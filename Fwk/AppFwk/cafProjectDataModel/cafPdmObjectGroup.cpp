@@ -64,8 +64,3 @@ PdmObjectCollection::~PdmObjectCollection()
 }
 
 } // End of namespace caf
-
-template class caf::PdmDataValueField<int>;
-template class caf::PdmDataValueField<bool>;
-template class caf::PdmDataValueField<QString>;
-template class caf::PdmDataValueField<double>;

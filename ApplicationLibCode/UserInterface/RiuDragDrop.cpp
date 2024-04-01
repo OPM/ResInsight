@@ -50,6 +50,7 @@
 
 #include "RicWellLogTools.h"
 
+#include "cafPdmObjectGroup.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"

@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "cafPdmObjectGroup.h"
 #include "cafPdmPointer.h"
 #include "cafPdmUiDragDropInterface.h"
 
@@ -28,6 +27,7 @@ namespace caf
 {
 class PdmObjectHandle;
 class PdmUiTreeView;
+class PdmObjectGroup;
 } // namespace caf
 
 class RimMultiPlot;
