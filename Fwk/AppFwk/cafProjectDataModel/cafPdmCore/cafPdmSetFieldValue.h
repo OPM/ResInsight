@@ -45,7 +45,7 @@ namespace caf
 // This is a template function, and auto is used to allow the compiler to deduce the type of the arguments
 void setValueWithFieldChanged( auto fieldHandle, auto fieldValue )
 {
-    PdmUiFieldHandleInterface* uiFieldHandleInterface = fieldHandle->capability<PdmUiFieldHandleInterface>();
+    PdmUiFieldHandleInterface* uiFieldHandleInterface = fieldHandle->template capability<PdmUiFieldHandleInterface>();
 
     if ( uiFieldHandleInterface )
     {
