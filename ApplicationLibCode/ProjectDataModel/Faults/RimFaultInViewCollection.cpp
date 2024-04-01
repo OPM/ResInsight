@@ -39,6 +39,7 @@
 #include "cafAppEnum.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmSetFieldValue.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
@@ -473,5 +474,5 @@ void RimFaultInViewCollection::setShowOppositeFaultFaces( bool bEnabled )
 //--------------------------------------------------------------------------------------------------
 void RimFaultInViewCollection::setShowFaultLabelWithFieldChanged( bool bEnabled )
 {
-    m_showFaultLabel.setValueWithFieldChanged( bEnabled );
+    caf::setValueWithFieldChanged( &m_showFaultLabel, bEnabled );
 }

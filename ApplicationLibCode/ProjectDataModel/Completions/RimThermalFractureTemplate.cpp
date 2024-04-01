@@ -43,6 +43,7 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmSetFieldValue.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiTextEditor.h"
 
@@ -289,7 +290,8 @@ void RimThermalFractureTemplate::computeDepthOfWellPathAtFracture()
     if ( m_fractureDefinitionData )
     {
         double z = m_fractureDefinitionData->centerPosition().z();
-        m_wellPathDepthAtFracture.setValueWithFieldChanged( z );
+
+        caf::setValueWithFieldChanged( &m_wellPathDepthAtFracture, z );
     }
 }
 

@@ -22,6 +22,7 @@
 #include "RiuViewer.h"
 
 #include "cafDisplayCoordTransform.h"
+#include "cafPdmSetFieldValue.h"
 #include "cafSelectionManager.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -54,7 +55,7 @@ bool RicVec3dPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eventObj
 
     pickedPositionInUTM.z() *= -1.0;
 
-    m_vectorField->setValueWithFieldChanged( pickedPositionInUTM );
+    caf::setValueWithFieldChanged( m_vectorField, pickedPositionInUTM );
     return true;
 }
 

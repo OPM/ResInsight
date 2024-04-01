@@ -50,6 +50,7 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmSetFieldValue.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiTextEditor.h"
@@ -243,13 +244,14 @@ void RimStimPlanFractureTemplate::computeDepthOfWellPathAtFracture()
 
         if ( firstTvd != HUGE_VAL && lastTvd != HUGE_VAL )
         {
-            m_wellPathDepthAtFracture.setValueWithFieldChanged( ( firstTvd + lastTvd ) / 2 );
+            caf::setValueWithFieldChanged( &m_wellPathDepthAtFracture, ( firstTvd + lastTvd ) / 2 );
         }
         else
         {
             firstTvd = m_stimPlanFractureDefinitionData->minDepth();
             lastTvd  = m_stimPlanFractureDefinitionData->maxDepth();
-            m_wellPathDepthAtFracture.setValueWithFieldChanged( ( firstTvd + lastTvd ) / 2 );
+
+            caf::setValueWithFieldChanged( &m_wellPathDepthAtFracture, ( firstTvd + lastTvd ) / 2 );
         }
     }
 }

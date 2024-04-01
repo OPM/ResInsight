@@ -137,7 +137,7 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggl
 
         if ( field == lastField )
         {
-            field->setValueWithFieldChanged( value );
+            caf::setValueWithFieldChanged( field, value );
         }
         else
         {

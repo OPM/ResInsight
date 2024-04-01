@@ -25,7 +25,9 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmSetFieldValue.h"
 #include "cafPdmUiItem.h"
+
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicToggleItemsOnOthersOffFeature, "RicToggleItemsOnOthersOffFeature" );
@@ -72,7 +74,7 @@ void RicToggleItemsOnOthersOffFeature::onActionTriggered( bool isChecked )
     {
         caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>( selectedObject->objectToggleField() );
 
-        field->setValueWithFieldChanged( true );
+        caf::setValueWithFieldChanged( field, true );
     }
 }
 

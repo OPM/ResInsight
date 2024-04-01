@@ -28,6 +28,7 @@
 #include "RigFault.h"
 #include "RigMainGrid.h"
 
+#include "cafPdmSetFieldValue.h"
 #include "cafPdmUiObjectHandle.h"
 
 #include <QAction>
@@ -75,13 +76,13 @@ void RicEclipseShowOnlyFaultFeature::onActionTriggered( bool isChecked )
         {
             caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>( childUiObject->objectToggleField() );
 
-            if ( field ) field->setValueWithFieldChanged( false );
+            if ( field ) caf::setValueWithFieldChanged( field, false );
         }
     }
 
     if ( rimFault )
     {
-        rimFault->showFault.setValueWithFieldChanged( true );
+        caf::setValueWithFieldChanged( &rimFault->showFault, true );
     }
 }
 

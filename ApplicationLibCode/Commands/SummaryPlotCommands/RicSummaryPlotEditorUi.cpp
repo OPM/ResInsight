@@ -52,6 +52,7 @@
 
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
+#include "cafPdmSetFieldValue.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 
@@ -245,7 +246,8 @@ void RicSummaryPlotEditorUi::fieldChangedByUi( const caf::PdmFieldHandle* change
         m_okButtonField    = false;
 
         caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>( m_targetPlot->uiCapability()->objectToggleField() );
-        field->setValueWithFieldChanged( true );
+
+        caf::setValueWithFieldChanged( field, true );
 
         RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
         mainPlotWindow->updateMultiPlotToolBar();
