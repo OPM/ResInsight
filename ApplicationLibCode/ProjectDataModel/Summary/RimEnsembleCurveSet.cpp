@@ -66,6 +66,7 @@
 #include "RiuTextContentFrame.h"
 
 #include "cafPdmObject.h"
+#include "cafPdmSetFieldValue.h"
 #include "cafPdmUiColorEditor.h"
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
@@ -1273,7 +1274,7 @@ void RimEnsembleCurveSet::onColorTagClicked( const SignalEmitter* emitter, size_
         {
             auto myColor = RiaColorTools::fromQColorTo3f( newColor );
 
-            colorToModify->setValueWithFieldChanged( myColor );
+            caf::setValueWithFieldChanged( colorToModify, myColor );
         }
     }
 }

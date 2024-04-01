@@ -41,6 +41,7 @@
 
 #include "RiuPlotMainWindow.h"
 
+#include "cafPdmSetFieldValue.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiLabelEditor.h"
@@ -1151,23 +1152,23 @@ void RimSummaryPlotSourceStepping::setStep( QString stepIdentifier )
     switch ( m_stepDimension() )
     {
         case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL:
-            m_wellName.setValueWithFieldChanged( stepIdentifier );
+            caf::setValueWithFieldChanged( &m_wellName, stepIdentifier );
             break;
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP:
-            m_groupName.setValueWithFieldChanged( stepIdentifier );
+            caf::setValueWithFieldChanged( &m_groupName, stepIdentifier );
             break;
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::NETWORK:
-            m_networkName.setValueWithFieldChanged( stepIdentifier );
+            caf::setValueWithFieldChanged( &m_networkName, stepIdentifier );
             break;
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR:
-            m_vectorName.setValueWithFieldChanged( stepIdentifier );
+            caf::setValueWithFieldChanged( &m_vectorName, stepIdentifier );
             break;
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK:
-            m_cellBlock.setValueWithFieldChanged( stepIdentifier );
+            caf::setValueWithFieldChanged( &m_cellBlock, stepIdentifier );
             break;
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER:

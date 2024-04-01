@@ -62,6 +62,7 @@
 #include "cafFrameAnimationControl.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapabilityCvfColor3.h"
+#include "cafPdmSetFieldValue.h"
 #include "cafPdmUiComboBoxEditor.h"
 
 #include "cvfCamera.h"
@@ -877,8 +878,8 @@ void Rim3dView::setupBeforeSave()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::setMeshOnlyDrawstyle()
 {
-    meshMode.setValueWithFieldChanged( RiaDefines::MeshModeType::FULL_MESH );
-    surfaceMode.setValueWithFieldChanged( NO_SURFACE );
+    caf::setValueWithFieldChanged( &meshMode, RiaDefines::MeshModeType::FULL_MESH );
+    caf::setValueWithFieldChanged( &surfaceMode, NO_SURFACE );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -886,8 +887,8 @@ void Rim3dView::setMeshOnlyDrawstyle()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::setMeshSurfDrawstyle()
 {
-    surfaceMode.setValueWithFieldChanged( SURFACE );
-    meshMode.setValueWithFieldChanged( RiaDefines::MeshModeType::FULL_MESH );
+    caf::setValueWithFieldChanged( &surfaceMode, SURFACE );
+    caf::setValueWithFieldChanged( &meshMode, RiaDefines::MeshModeType::FULL_MESH );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -895,8 +896,8 @@ void Rim3dView::setMeshSurfDrawstyle()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::setFaultMeshSurfDrawstyle()
 {
-    surfaceMode.setValueWithFieldChanged( SURFACE );
-    meshMode.setValueWithFieldChanged( RiaDefines::MeshModeType::FAULTS_MESH );
+    caf::setValueWithFieldChanged( &surfaceMode, SURFACE );
+    caf::setValueWithFieldChanged( &meshMode, RiaDefines::MeshModeType::FAULTS_MESH );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -904,8 +905,8 @@ void Rim3dView::setFaultMeshSurfDrawstyle()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::setSurfOnlyDrawstyle()
 {
-    surfaceMode.setValueWithFieldChanged( SURFACE );
-    meshMode.setValueWithFieldChanged( RiaDefines::MeshModeType::NO_MESH );
+    caf::setValueWithFieldChanged( &surfaceMode, SURFACE );
+    caf::setValueWithFieldChanged( &meshMode, RiaDefines::MeshModeType::NO_MESH );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -913,7 +914,7 @@ void Rim3dView::setSurfOnlyDrawstyle()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::setSurfaceDrawstyle()
 {
-    if ( surfaceMode() != NO_SURFACE ) surfaceMode.setValueWithFieldChanged( SURFACE );
+    if ( surfaceMode() != NO_SURFACE ) caf::setValueWithFieldChanged( &surfaceMode, SURFACE );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1234,7 +1235,7 @@ void Rim3dView::setScaleZAndUpdate( double scalingFactor )
 {
     if ( scaleZ() != scalingFactor )
     {
-        this->m_scaleZ.setValueWithFieldChanged( scalingFactor );
+        caf::setValueWithFieldChanged( &m_scaleZ, scalingFactor );
     }
 }
 
@@ -1598,7 +1599,7 @@ void Rim3dView::setCameraPointOfInterest( const cvf::Vec3d& cameraPointOfInteres
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::forceShowWindowOn()
 {
-    m_showWindow.setValueWithFieldChanged( true );
+    caf::setValueWithFieldChanged( &m_showWindow, true );
 }
 
 //--------------------------------------------------------------------------------------------------
