@@ -137,18 +137,18 @@ public:
     std::vector<RimSummaryCaseCollection*> summaryGroups() const;
     RimSummaryCaseMainCollection*          firstSummaryCaseMainCollection() const;
 
-    void allViews( std::vector<Rim3dView*>& views ) const;
-    void allVisibleViews( std::vector<Rim3dView*>& views ) const;
-    void allVisibleGridViews( std::vector<RimGridView*>& views ) const;
-    void allNotLinkedViews( std::vector<Rim3dView*>& views );
+    [[nodiscard]] std::vector<Rim3dView*>   allViews() const;
+    [[nodiscard]] std::vector<Rim3dView*>   allVisibleViews() const;
+    [[nodiscard]] std::vector<RimGridView*> allVisibleGridViews() const;
+    [[nodiscard]] std::vector<Rim3dView*>   allNotLinkedViews() const;
 
     void scheduleCreateDisplayModelAndRedrawAllViews();
 
     void computeUtmAreaOfInterest();
 
-    void               allOilFields( std::vector<RimOilField*>& allOilFields ) const;
-    RimOilField*       activeOilField();
-    const RimOilField* activeOilField() const;
+    [[nodiscard]] std::vector<RimOilField*> allOilFields() const;
+    RimOilField*                            activeOilField();
+    const RimOilField*                      activeOilField() const;
 
     void actionsBasedOnSelection( QMenu& contextMenu );
 

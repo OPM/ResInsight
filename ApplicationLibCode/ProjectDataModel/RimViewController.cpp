@@ -108,9 +108,8 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions( const ca
 
     if ( fieldNeedingOptions == &m_managedView )
     {
-        RimProject*             proj = RimProject::current();
-        std::vector<Rim3dView*> views;
-        proj->allNotLinkedViews( views );
+        RimProject*             proj  = RimProject::current();
+        std::vector<Rim3dView*> views = proj->allNotLinkedViews();
 
         // Add currently linked view to list
         if ( managedView() )

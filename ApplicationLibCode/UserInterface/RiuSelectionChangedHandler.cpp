@@ -325,8 +325,7 @@ void RiuSelectionChangedHandler::scheduleUpdateForAllVisibleViews() const
     RimProject* proj = RimProject::current();
     if ( proj )
     {
-        std::vector<Rim3dView*> visibleViews;
-        proj->allVisibleViews( visibleViews );
+        std::vector<Rim3dView*> visibleViews = proj->allVisibleViews();
 
         for ( size_t i = 0; i < visibleViews.size(); i++ )
         {

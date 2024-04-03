@@ -189,8 +189,7 @@ void RimPolygonCollection::updateViewTreeItems()
     RimProject* proj = RimProject::current();
 
     // Make sure the tree items are synchronized
-    std::vector<Rim3dView*> views;
-    proj->allViews( views );
+    std::vector<Rim3dView*> views = proj->allViews();
     for ( auto view : views )
     {
         view->updateViewTreeItems( RiaDefines::ItemIn3dView::POLYGON );

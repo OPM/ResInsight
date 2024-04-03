@@ -102,8 +102,7 @@ void RicWellMeasurementImportTools::importWellMeasurementsFromFiles( const QStri
     auto proj = RimProject::current();
     if ( proj )
     {
-        std::vector<Rim3dView*> views;
-        proj->allViews( views );
+        std::vector<Rim3dView*> views = proj->allViews();
         for ( auto& view : views )
         {
             RimGridView* gridView = dynamic_cast<RimGridView*>( view );

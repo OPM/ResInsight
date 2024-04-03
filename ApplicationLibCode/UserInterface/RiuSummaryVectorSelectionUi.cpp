@@ -552,10 +552,8 @@ QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    RimProject*               proj = RimProject::current();
-    std::vector<RimOilField*> oilFields;
-
-    proj->allOilFields( oilFields );
+    RimProject*               proj      = RimProject::current();
+    std::vector<RimOilField*> oilFields = proj->allOilFields();
     for ( RimOilField* oilField : oilFields )
     {
         RimSummaryCaseMainCollection* sumCaseMainColl = oilField->summaryCaseMainCollection();
