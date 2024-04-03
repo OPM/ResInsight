@@ -292,12 +292,15 @@ void RimEclipseCase::initAfterRead()
         m_reservoirViews_OBSOLETE.clearWithoutDelete();
 
         // Move contour maps
+        auto mapViewColl = contourMapCollection();
         for ( RimEclipseContourMapView* contourMap : m_contourMapCollection_OBSOLETE->views() )
         {
             contourMap->setEclipseCase( this );
-
-            // TODO: move to root collection
+            m_contourMapCollection_OBSOLETE->removeChild( contourMap );
+            mapViewColl->push_back( contourMap );
         }
+
+        m_contourMapCollection_OBSOLETE->clearWithoutDelete();
     }
 }
 

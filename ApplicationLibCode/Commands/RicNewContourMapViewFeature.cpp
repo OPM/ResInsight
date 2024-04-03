@@ -24,21 +24,22 @@
 
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
+#include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapProjection.h"
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseView.h"
+#include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechContourMapViewCollection.h"
 #include "RimGeoMechView.h"
+#include "RimOilField.h"
+#include "RimProject.h"
 #include "RimRegularLegendConfig.h"
-
-#include "RimCellFilterCollection.h"
-#include "RimFaultInViewCollection.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimSurfaceInViewCollection.h"
 
@@ -145,6 +146,12 @@ void RicNewContourMapViewFeature::onActionTriggered( bool isChecked )
 
         eclipseContourMap->createDisplayModelAndRedraw();
         eclipseContourMap->zoomAll();
+
+        RimProject* project = RimProject::current();
+
+        RimOilField* oilField = project->activeOilField();
+
+        oilField->eclipseContourMapCollection()->updateConnectedEditors();
 
         Riu3DMainWindowTools::setExpanded( eclipseContourMap );
     }
