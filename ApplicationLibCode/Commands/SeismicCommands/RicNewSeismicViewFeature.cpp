@@ -85,8 +85,7 @@ RimSeismicView* RicNewSeismicViewFeature::createInitialViewIfNeeded( RimSeismicD
 {
     auto proj = RimProject::current();
 
-    std::vector<Rim3dView*> views;
-    proj->allViews( views );
+    std::vector<Rim3dView*> views = proj->allViews();
     if ( !views.empty() ) return nullptr;
 
     return createSeismicView( seisData );

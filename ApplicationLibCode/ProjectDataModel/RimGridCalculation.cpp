@@ -344,9 +344,6 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
     {
         options.push_back( caf::PdmOptionItemInfo( "Disabled", nullptr ) );
 
-        std::vector<Rim3dView*> views;
-        RimProject::current()->allViews( views );
-
         RimEclipseCase* firstEclipseCase = nullptr;
         if ( !inputCases().empty() )
         {
@@ -361,6 +358,7 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
 
         if ( firstEclipseCase )
         {
+            std::vector<Rim3dView*> views = RimProject::current()->allViews();
             for ( auto* view : views )
             {
                 auto eclipseView = dynamic_cast<RimEclipseView*>( view );

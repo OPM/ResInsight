@@ -132,9 +132,7 @@ std::vector<Rim3dView*> RimAnnotationCollectionBase::viewsContainingAnnotations(
     RimProject* project = RimProject::current();
     if ( !project ) return {};
 
-    std::vector<Rim3dView*> views;
-    project->allViews( views );
-    return views;
+    return project->allViews();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -132,8 +132,7 @@ void RimStimPlanModelTemplateCollection::onChildDeleted( caf::PdmChildArrayField
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 
-    std::vector<Rim3dView*> views;
-    proj->allVisibleViews( views );
+    std::vector<Rim3dView*> views = proj->allVisibleViews();
     for ( Rim3dView* visibleView : views )
     {
         if ( dynamic_cast<RimEclipseView*>( visibleView ) )

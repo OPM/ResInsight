@@ -133,8 +133,7 @@ void RicNewPolylineTargetFeature::onActionTriggered( bool isChecked )
         }
         else
         {
-            std::vector<RimGridView*> gridViews;
-            RimProject::current()->allVisibleGridViews( gridViews );
+            std::vector<RimGridView*> gridViews = RimProject::current()->allVisibleGridViews();
             if ( !gridViews.empty() )
             {
                 auto minPos = gridViews.front()->ownerCase()->allCellsBoundingBox().min();

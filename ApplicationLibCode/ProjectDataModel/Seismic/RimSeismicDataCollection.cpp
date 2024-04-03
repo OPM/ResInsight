@@ -109,10 +109,8 @@ void RimSeismicDataCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* ch
 //--------------------------------------------------------------------------------------------------
 void RimSeismicDataCollection::updateViews()
 {
-    RimProject*               proj = RimProject::current();
-    std::vector<RimGridView*> views;
-    proj->allVisibleGridViews( views );
-
+    RimProject*               proj  = RimProject::current();
+    std::vector<RimGridView*> views = proj->allVisibleGridViews();
     for ( auto view : views )
     {
         view->scheduleCreateDisplayModelAndRedraw();
@@ -127,8 +125,7 @@ void RimSeismicDataCollection::updateTreeForAllViews()
     RimProject* proj = RimProject::current();
     if ( proj != nullptr )
     {
-        std::vector<RimGridView*> views;
-        proj->allVisibleGridViews( views );
+        std::vector<RimGridView*> views = proj->allVisibleGridViews();
         for ( auto view : views )
         {
             view->updateAllRequiredEditors();
