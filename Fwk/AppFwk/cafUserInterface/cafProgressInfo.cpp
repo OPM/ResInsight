@@ -48,6 +48,14 @@
 #include <algorithm>
 #include <iostream>
 
+#ifdef _MSC_VER
+// Define this one to tell windows.h to not define min() and max() as macros
+#if defined WIN32 && !defined NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
+
 namespace caf
 {
 //--------------------------------------------------------------------------------------------------
@@ -358,17 +366,6 @@ bool ProgressState::isActive()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-#ifdef _MSC_VER
-#pragma warning( push )
-#pragma warning( disable : 4668 )
-// Define this one to tell windows.h to not define min() and max() as macros
-#if defined WIN32 && !defined NOMINMAX
-#define NOMINMAX
-#endif
-#include <windows.h>
-#pragma warning( pop )
-#endif
-
 void openDebugWindow()
 {
 #ifdef _MSC_VER
