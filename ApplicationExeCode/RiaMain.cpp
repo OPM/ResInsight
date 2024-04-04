@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaArgumentParser.h"
+#include "RiaLogging.h"
 #include "RiaMainTools.h"
 #include "RiaOpenMPTools.h"
 #include "RiaPreferences.h"
@@ -141,7 +142,7 @@ int main( int argc, char* argv[] )
     RiaApplication::ApplicationStatus status = app->handleArguments( &progOpt );
 
     int numOmpThreads = RiaOpenMPTools::numberOfThreads();
-    app->showFormattedTextInMessageBoxOrConsole( QString( "OpenMP Num Threads: %1\n" ).arg( numOmpThreads ) );
+    RiaLogging::info( QString( "OpenMP Num Threads: %1\n" ).arg( numOmpThreads ) );
 
     if ( status == RiaApplication::ApplicationStatus::EXIT_COMPLETED )
     {
