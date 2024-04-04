@@ -305,7 +305,7 @@ void RimIntersectionCollection::appendIntersectionAndUpdate( RimExtrudedCurveInt
     intersection->setDepthOverride( m_depthThresholdOverridden );
     intersection->setDepthOverrideParameters( m_depthUpperThreshold, m_depthLowerThreshold, m_depthFilterType() );
 
-    syncronize2dIntersectionViews();
+    synchronize2dIntersectionViews();
 
     updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( intersection, allowActiveViewChange );
@@ -326,7 +326,7 @@ void RimIntersectionCollection::appendIntersectionNoUpdate( RimExtrudedCurveInte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::syncronize2dIntersectionViews()
+void RimIntersectionCollection::synchronize2dIntersectionViews()
 {
     auto ownerCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
     ownerCase->intersectionViewCollection()->syncFromExistingIntersections( true );
@@ -427,7 +427,7 @@ void RimIntersectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
-    syncronize2dIntersectionViews();
+    synchronize2dIntersectionViews();
     rebuild3dView();
 }
 
@@ -436,7 +436,7 @@ void RimIntersectionCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* c
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::onChildAdded( caf::PdmFieldHandle* containerForNewObject )
 {
-    syncronize2dIntersectionViews();
+    synchronize2dIntersectionViews();
     rebuild3dView();
 }
 

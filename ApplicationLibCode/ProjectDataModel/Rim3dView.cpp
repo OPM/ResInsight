@@ -1845,7 +1845,7 @@ RimAnnotationInViewCollection* Rim3dView::annotationCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::syncronizeLocalAnnotationsFromGlobal()
+void Rim3dView::synchronizeLocalAnnotationsFromGlobal()
 {
     RimProject* proj = RimProject::current();
     if ( proj && proj->activeOilField() )

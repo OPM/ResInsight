@@ -238,7 +238,7 @@ RimFaultInView* RimFaultInViewCollection::findFaultByName( QString name )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// A comparing function used to sort Faults in the RimFaultCollection::syncronizeFaults() method
+/// A comparing function used to sort Faults in the RimFaultCollection::synchronizeFaults() method
 //--------------------------------------------------------------------------------------------------
 bool faultComparator( const cvf::ref<RigFault>& a, const cvf::ref<RigFault>& b )
 {
@@ -252,7 +252,7 @@ bool faultComparator( const cvf::ref<RigFault>& a, const cvf::ref<RigFault>& b )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultInViewCollection::syncronizeFaults()
+void RimFaultInViewCollection::synchronizeFaults()
 {
     if ( !( parentView() && parentView()->mainGrid() ) ) return;
 

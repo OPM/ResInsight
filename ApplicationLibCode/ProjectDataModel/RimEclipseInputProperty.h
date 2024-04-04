@@ -51,7 +51,7 @@ public:
     // Fields:
     caf::PdmField<QString>       resultName;
     caf::PdmField<QString>       eclipseKeyword;
-    caf::PdmField<caf::FilePath> fileName; // ReadOnly Serves as key to syncronize
+    caf::PdmField<caf::FilePath> fileName; // ReadOnly Serves as key to synchronize
                                            // read eclipse prop data and this inputProp object.
     caf::PdmField<ResolveStateEnum> resolvedState; // ReadOnly and not writable
 
