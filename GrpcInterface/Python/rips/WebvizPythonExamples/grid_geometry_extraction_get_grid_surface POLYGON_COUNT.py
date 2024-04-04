@@ -47,10 +47,13 @@ grid_dimensions = get_grid_surface_response.gridDimensions
 
 num_vertex_coords = 3  # [x, y, z]
 num_vertices_per_quad = 4  # [v1, v2, v3, v4]
-num_quads = len(vertex_array) / (num_vertex_coords * num_vertices_per_quad)
+num_quads = len(quad_indices_array) / num_vertices_per_quad
 
 
+print(f"Number of vertices in vertex array: {len(vertex_array) / 3}")
+print(f"Number of quad vertices: {len(quad_indices_array)}")
 print(f"Number of quads: {num_quads}")
+
 print(f"Source cell indices array length: {len(source_cell_indices_arr)}")
 print(f"Origin UTM coordinates [x, y]: [{origin_utm_xy.x}, {origin_utm_xy.y}]")
 print(

@@ -163,35 +163,60 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
     {
         return grpc::Status( grpc::StatusCode::NOT_FOUND, "No grid fault vertices found" );
     }
+
     m_elapsedTimeInfo.elapsedTimePerEventMs["CreateGridFaultVertices"] =
         static_cast<std::uint32_t>( createFaultVerticesTimeCount.elapsedMsCount() );
 
     // Retrieve the UTM offset
     const auto mainGridModelOffset = m_eclipseCase->mainGrid()->displayModelOffset();
 
-    // Set vertex_array and quadindicesarr response
+    // Vertex welding
+    // - Low welding distance, as the goal is to weld duplicate vertices
+    // - Welding is done for surface and fault vertices separately
+    const double weldingDistance       = 1e-3;
+    const double weldingCellSize       = 4.0 * weldingDistance;
+    auto         weldVerticesTimeCount = ElapsedTimeCount();
+
+    // Weld surface vertices
+    cvf::VertexWelder surfaceVertexWelder;
+    const cvf::uint   numSurfaceWelderBuckets = static_cast<cvf::uint>( gridSurfaceVertices->size() );
+    surfaceVertexWelder.initialize( weldingDistance, weldingCellSize, numSurfaceWelderBuckets );
+    const auto& surfaceVertexIndices = weldVertices( surfaceVertexWelder, *gridSurfaceVertices );
+
+    // Weld fault vertices
+    cvf::VertexWelder faultVertexWelder;
+    const cvf::uint   numFaultWelderBuckets = static_cast<cvf::uint>( gridFaultVertices->size() );
+    faultVertexWelder.initialize( weldingDistance, weldingCellSize, numFaultWelderBuckets );
+    const auto& faultVertexIndices = weldVertices( faultVertexWelder, *gridFaultVertices );
+    m_elapsedTimeInfo.elapsedTimePerEventMs["WeldVertices"] =
+        static_cast<std::uint32_t>( weldVerticesTimeCount.elapsedMsCount() );
+
+    // Fill response
     auto       fillResponseTimeCount = ElapsedTimeCount();
     const auto zAxisOffset           = mainGridModelOffset.z();
-    for ( size_t i = 0; i < gridSurfaceVertices->size(); ++i )
+    for ( cvf::uint i = 0; i < surfaceVertexWelder.vertexCount(); ++i )
     {
-        const auto& vertex = gridSurfaceVertices->get( i );
+        const auto& vertex = surfaceVertexWelder.vertex( i );
         response->add_vertexarray( vertex.x() );
         response->add_vertexarray( vertex.y() );
         response->add_vertexarray( vertex.z() + zAxisOffset );
-
-        response->add_quadindicesarr( static_cast<google::protobuf::uint32>( i ) );
+    }
+    for ( const auto& vertexIndex : surfaceVertexIndices )
+    {
+        response->add_quadindicesarr( static_cast<google::protobuf::uint32>( vertexIndex ) );
     }
 
-    const auto indexOffset = gridSurfaceVertices->size();
-    for ( size_t i = 0; i < gridFaultVertices->size(); ++i )
+    const cvf::uint vertexIndexOffset = static_cast<cvf::uint>( surfaceVertexWelder.vertexCount() );
+    for ( cvf::uint i = 0; i < faultVertexWelder.vertexCount(); ++i )
     {
-        const auto& vertex = gridFaultVertices->get( i );
+        const auto& vertex = faultVertexWelder.vertex( i );
         response->add_vertexarray( vertex.x() );
         response->add_vertexarray( vertex.y() );
         response->add_vertexarray( vertex.z() + zAxisOffset );
-
-        auto index = indexOffset + i;
-        response->add_quadindicesarr( static_cast<google::protobuf::uint32>( index ) );
+    }
+    for ( const auto& vertexIndex : faultVertexIndices )
+    {
+        response->add_quadindicesarr( static_cast<google::protobuf::uint32>( vertexIndex + vertexIndexOffset ) );
     }
 
     // Origin is the UTM offset
@@ -399,6 +424,22 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcGridGeometryExtractionService::cre
              new RiaGrpcUnaryCallback<Self, rips::CutAlongPolylineRequest, rips::CutAlongPolylineResponse>( this,
                                                                                                             &Self::CutAlongPolyline,
                                                                                                             &Self::RequestCutAlongPolyline ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Weld vertices and return array of indices of welded vertices
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::uint> RiaGrpcGridGeometryExtractionService::weldVertices( cvf::VertexWelder&     rWelder,
+                                                                           const cvf::Vec3fArray& vertices )
+{
+    std::vector<cvf::uint> vertexIndices;
+    for ( const auto& vertex : vertices )
+    {
+        bool       wasWelded   = false;
+        const auto welderIndex = rWelder.weldVertex( vertex, &wasWelded );
+        vertexIndices.push_back( welderIndex );
+    }
+    return vertexIndices;
 }
 
 //--------------------------------------------------------------------------------------------------

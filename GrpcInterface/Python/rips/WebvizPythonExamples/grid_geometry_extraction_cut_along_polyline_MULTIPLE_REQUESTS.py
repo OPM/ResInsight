@@ -56,8 +56,8 @@ for i in range(num_calls):
         GridGeometryExtraction__pb2.CutAlongPolylineResponse
     ) = grid_geometry_extraction_stub.CutAlongPolyline(cut_along_polyline_request)
 
-    # fence_mesh_sections = cut_along_polyline_response.fenceMeshSections
-    # print(f"Number of fence mesh sections: {len(fence_mesh_sections)}")
-    # time.sleep(sleep_time_s)
+    fence_mesh_sections = cut_along_polyline_response.fenceMeshSections
+    print(f"Number of fence mesh sections: {len(fence_mesh_sections)}")
+    time.sleep(sleep_time_s)
 
 print("Done!")

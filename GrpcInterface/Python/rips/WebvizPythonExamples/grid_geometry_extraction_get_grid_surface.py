@@ -41,22 +41,23 @@ named_events_and_time_elapsed = (
 
 vertex_array = get_grid_surface_response.vertexArray
 quad_indices_array = get_grid_surface_response.quadIndicesArr
-origin_utm_xy = get_grid_surface_response.originUtmXy
 source_cell_indices_arr = get_grid_surface_response.sourceCellIndicesArr
+origin_utm_xy = get_grid_surface_response.originUtmXy
 grid_dimensions = get_grid_surface_response.gridDimensions
 
 num_vertex_coords = 3  # [x, y, z]
 num_vertices_per_quad = 4  # [v1, v2, v3, v4]
-num_quads = len(vertex_array) / (num_vertex_coords * num_vertices_per_quad)
+num_quads = len(quad_indices_array) / num_vertices_per_quad
 
 # Create x-, y-, and z-arrays
 x_array = []
 y_array = []
 z_array = []
-for i in range(0, len(vertex_array), num_vertex_coords):
-    x_array.append(vertex_array[i + 0])
-    y_array.append(vertex_array[i + 1])
-    z_array.append(vertex_array[i + 2])
+for _, vertex_index in enumerate(quad_indices_array, 0):
+    vertex_array_index = vertex_index * num_vertex_coords
+    x_array.append(vertex_array[vertex_array_index + 0])
+    y_array.append(vertex_array[vertex_array_index + 1])
+    z_array.append(vertex_array[vertex_array_index + 2])
 
 # Create triangular mesh
 i_array = []
@@ -86,7 +87,10 @@ fig = go.Figure(
 )
 
 
+print(f"Number of vertices in vertex array: {len(vertex_array) / 3}")
+print(f"Number of quad vertices: {len(quad_indices_array)}")
 print(f"Number of quads: {num_quads}")
+
 print(f"Source cell indices array length: {len(source_cell_indices_arr)}")
 print(f"Origin UTM coordinates [x, y]: [{origin_utm_xy.x}, {origin_utm_xy.y}]")
 print(

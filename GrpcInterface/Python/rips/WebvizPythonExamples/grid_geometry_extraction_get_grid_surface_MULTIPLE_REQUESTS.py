@@ -17,8 +17,8 @@ grid_file_name = (
 # )
 ijk_index_filter = None
 
-num_calls = 30
-sleep_time_s = 0.5
+num_calls = 100
+sleep_time_s = 0.1
 
 for i in range(num_calls):
     print(f"Call {i+1}/{num_calls}")

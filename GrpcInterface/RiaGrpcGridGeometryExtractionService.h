@@ -28,6 +28,7 @@
 
 #include "cvfArray.h"
 #include "cvfStructGridGeometryGenerator.h"
+#include "cvfVertexWelder.h"
 
 #include <grpcpp/grpcpp.h>
 
@@ -62,6 +63,8 @@ public:
 
 public:
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
+
+    static std::vector<cvf::uint> weldVertices( cvf::VertexWelder& rWelder, const cvf::Vec3fArray& vertices );
 
 private:
     void resetInternalPointers();
