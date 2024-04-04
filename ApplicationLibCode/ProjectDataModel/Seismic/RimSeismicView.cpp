@@ -408,7 +408,7 @@ void RimSeismicView::onUpdateLegends()
 void RimSeismicView::onLoadDataAndUpdate()
 {
     updateViewTreeItems( RiaDefines::ItemIn3dView::ALL );
-    syncronizeLocalAnnotationsFromGlobal();
+    synchronizeLocalAnnotationsFromGlobal();
     onUpdateScaleTransform();
 
     updateMdiWindowVisibility();

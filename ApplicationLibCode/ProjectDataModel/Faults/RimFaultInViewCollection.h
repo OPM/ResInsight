@@ -73,7 +73,7 @@ public:
     void setShowOppositeFaultFaces( bool bEnabled );
     void setShowFaultLabelWithFieldChanged( bool bEnabled );
 
-    void syncronizeFaults();
+    void synchronizeFaults();
 
     bool isGridVisualizationMode() const;
     bool shouldApplyCellFiltersToFaults() const;

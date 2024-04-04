@@ -256,7 +256,7 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
 
     eclipseCase->contourMapCollection()->push_back( contourMap );
 
-    contourMap->syncronizeLocalAnnotationsFromGlobal();
+    contourMap->synchronizeLocalAnnotationsFromGlobal();
 
     // Resolve references after contour map has been inserted into Rim structures
     std::vector<caf::PdmFieldHandle*> fieldsWithFailingResolve;

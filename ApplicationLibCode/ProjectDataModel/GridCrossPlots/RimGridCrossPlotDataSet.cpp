@@ -688,7 +688,7 @@ void RimGridCrossPlotDataSet::createCurves( const RigEclipseCrossPlotResult& res
             legendConfig()->scalarMapper()->majorTickValues( &tickValues );
         }
 
-        // NB : Make sure iteration of curve and groups are syncronized with createCurves()
+        // NB : Make sure iteration of curve and groups are synchronized with createCurves()
         for ( auto it = m_groupedResults.rbegin(); it != m_groupedResults.rend(); ++it )
         {
             auto [groupIndex, values]    = *it;
@@ -724,7 +724,7 @@ void RimGridCrossPlotDataSet::fillCurveDataInExistingCurves( const RigEclipseCro
     }
     else
     {
-        // NB : Make sure iteration of curve and groups are syncronized with fillCurveDataInExistingCurves()
+        // NB : Make sure iteration of curve and groups are synchronized with fillCurveDataInExistingCurves()
         auto curveIt = m_crossPlotCurves.begin();
         auto groupIt = m_groupedResults.rbegin();
         for ( ; curveIt != m_crossPlotCurves.end() && groupIt != m_groupedResults.rend(); ++curveIt, ++groupIt )
@@ -768,7 +768,7 @@ void RimGridCrossPlotDataSet::createRegressionCurves( const RigEclipseCrossPlotR
             legendConfig()->scalarMapper()->majorTickValues( &tickValues );
         }
 
-        // NB : Make sure iteration of curve and groups are syncronized with createCurves()
+        // NB : Make sure iteration of curve and groups are synchronized with createCurves()
         for ( auto it = m_groupedResults.rbegin(); it != m_groupedResults.rend(); ++it )
         {
             auto [groupIndex, values] = *it;
@@ -808,7 +808,7 @@ void RimGridCrossPlotDataSet::fillCurveDataInExistingRegressionCurves( const Rig
     }
     else
     {
-        // NB : Make sure iteration of curve and groups are syncronized with fillCurveDataInExistingCurves()
+        // NB : Make sure iteration of curve and groups are synchronized with fillCurveDataInExistingCurves()
         auto curveIt = m_crossPlotRegressionCurves.begin();
         auto groupIt = m_groupedResults.rbegin();
         for ( ; curveIt != m_crossPlotRegressionCurves.end() && groupIt != m_groupedResults.rend(); ++curveIt, ++groupIt )
