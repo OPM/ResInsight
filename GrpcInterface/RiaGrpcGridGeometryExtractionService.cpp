@@ -179,15 +179,11 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
 
     // Weld surface vertices
     cvf::VertexWelder surfaceVertexWelder;
-    const cvf::uint   numSurfaceWelderBuckets = static_cast<cvf::uint>( gridSurfaceVertices->size() );
-    surfaceVertexWelder.initialize( weldingDistance, weldingCellSize, numSurfaceWelderBuckets );
-    const auto& surfaceVertexIndices = weldVertices( surfaceVertexWelder, *gridSurfaceVertices );
+    const auto&       surfaceVertexIndices = initAndWeldVertices( surfaceVertexWelder, *gridSurfaceVertices );
 
     // Weld fault vertices
     cvf::VertexWelder faultVertexWelder;
-    const cvf::uint   numFaultWelderBuckets = static_cast<cvf::uint>( gridFaultVertices->size() );
-    faultVertexWelder.initialize( weldingDistance, weldingCellSize, numFaultWelderBuckets );
-    const auto& faultVertexIndices = weldVertices( faultVertexWelder, *gridFaultVertices );
+    const auto&       faultVertexIndices = initAndWeldVertices( faultVertexWelder, *gridFaultVertices );
     m_elapsedTimeInfo.elapsedTimePerEventMs["WeldVertices"] =
         static_cast<std::uint32_t>( weldVerticesTimeCount.elapsedMsCount() );
 
@@ -429,17 +425,22 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcGridGeometryExtractionService::cre
 //--------------------------------------------------------------------------------------------------
 /// Weld vertices and return array of indices of welded vertices
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::uint> RiaGrpcGridGeometryExtractionService::weldVertices( cvf::VertexWelder&     rWelder,
-                                                                           const cvf::Vec3fArray& vertices )
+std::vector<cvf::uint> RiaGrpcGridGeometryExtractionService::initAndWeldVertices( cvf::VertexWelder& rWelder,
+                                                                                  const cvf::Vec3fArray& vertices ) const
 {
-    std::vector<cvf::uint> vertexIndices;
+    // Initialize welder
+    const cvf::uint numBuckets = static_cast<cvf::uint>( vertices.size() );
+    rWelder.initialize( m_weldingDistance, m_weldingCellSize, numBuckets );
+
+    // Weld vertices
+    std::vector<cvf::uint> weldedVertexIndices;
     for ( const auto& vertex : vertices )
     {
         bool       wasWelded   = false;
         const auto welderIndex = rWelder.weldVertex( vertex, &wasWelded );
-        vertexIndices.push_back( welderIndex );
+        weldedVertexIndices.push_back( welderIndex );
     }
-    return vertexIndices;
+    return weldedVertexIndices;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -64,7 +64,7 @@ public:
 public:
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 
-    static std::vector<cvf::uint> weldVertices( cvf::VertexWelder& rWelder, const cvf::Vec3fArray& vertices );
+    std::vector<cvf::uint> initAndWeldVertices( cvf::VertexWelder& rWelder, const cvf::Vec3fArray& vertices ) const;
 
 private:
     void resetInternalPointers();
@@ -84,6 +84,12 @@ private:
     RimEclipseCase*                                       m_eclipseCase                 = nullptr;
     std::unique_ptr<RigGridCellFaceVisibilityFilter>      m_surfaceFaceVisibilityFilter = nullptr;
     std::unique_ptr<RigGridCellFaultFaceVisibilityFilter> m_faultFaceVisibilityFilter   = nullptr;
+
+    // Vertex welding
+    // - Low welding distance, as the goal is to weld duplicate vertices
+    // - Welding is done for surface and fault vertices separately
+    const double m_weldingDistance = 1e-3;
+    const double m_weldingCellSize = 4.0 * m_weldingDistance;
 
     struct ElapsedTimeInfo
     {

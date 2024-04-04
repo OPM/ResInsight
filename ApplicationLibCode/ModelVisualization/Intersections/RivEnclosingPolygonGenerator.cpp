@@ -19,6 +19,7 @@
 #include "RivEnclosingPolygonGenerator.h"
 #include "cvfMath.h"
 
+#include <algorithm>
 #include <map>
 
 RivEnclosingPolygonGenerator::RivEnclosingPolygonGenerator()
