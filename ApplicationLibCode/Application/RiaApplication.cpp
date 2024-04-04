@@ -690,8 +690,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
     }
 
     {
-        std::vector<Rim3dView*> views = m_project->allViews();
-        for ( auto view : views )
+        for ( auto view : m_project->allViews() )
         {
             if ( auto eclipseView = dynamic_cast<RimEclipseView*>( view ) )
             {

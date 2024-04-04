@@ -316,8 +316,7 @@ void RimFractureTemplateCollection::onChildDeleted( caf::PdmChildArrayFieldHandl
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 
-    std::vector<Rim3dView*> views = proj->allVisibleViews();
-    for ( Rim3dView* visibleView : views )
+    for ( Rim3dView* visibleView : proj->allVisibleViews() )
     {
         if ( dynamic_cast<RimEclipseView*>( visibleView ) )
         {
