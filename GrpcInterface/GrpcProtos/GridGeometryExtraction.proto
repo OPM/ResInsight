@@ -68,27 +68,18 @@ message CutAlongPolylineRequest
 message FenceMeshSection
 {
     // U-axis defined by the unit length vector from start to end, Z is global Z
-    repeated float vertexArrayUZ = 1; // U coordinate is length along U-axis
-    repeated fixed32 polyIndicesArr = 2; // Note: Redundant if no shared nodes?
+    repeated float vertexArrayUZ = 1; // U coordinate is length along U-axis. Unique vertex coordinates (u,z). Stored [u0, z0, u1, z1, ...]
+    repeated fixed32 polyIndicesArr = 2; // Polygon vertex indices. Index of vertex (u,z) in the unique vertex coordinate array.
     repeated fixed32 verticesPerPolygonArr = 3;     // Number of vertices per polygon, numPolygons long
     repeated fixed32 sourceCellIndicesArr = 4;      // The originating cell index per polygon, numPolygons long
     Vec2d startUtmXY = 6;
     Vec2d endUtmXY = 7;
 }
 
-message PolylineTestResponse
-{
-    // Test response returning all vertices without "local" section coordinates
-    repeated float polygonVertexArray = 1;
-    repeated fixed32 verticesPerPolygonArr  = 2; // Number of vertices per polygon, numPolygons long
-    repeated fixed32 sourceCellIndicesArr = 3;  // The originating cell index per polygon, numPolygons long
-}
-
 message CutAlongPolylineResponse
 {
     repeated FenceMeshSection fenceMeshSections = 1;
-    PolylineTestResponse polylineTestResponse = 2;
-    TimeElapsedInfo timeElapsedInfo = 3;
-    Vec3i gridDimensions = 4;
+    TimeElapsedInfo timeElapsedInfo = 2;
+    Vec3i gridDimensions = 3;
 }
 

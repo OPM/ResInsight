@@ -44,7 +44,7 @@ norne_case_single_segment_poly_line_gap_utm_xy = [460877, 7.3236e06, 459279, 7.3
 
 
 # fence_poly_line_utm_xy = norne_case_fence_poly_line_utm_xy
-fence_poly_line_utm_xy = norne_case_single_segment_poly_line_gap_utm_xy
+fence_poly_line_utm_xy = norne_case_fence_poly_line_utm_xy
 
 cut_along_polyline_request = GridGeometryExtraction__pb2.CutAlongPolylineRequest(
     gridFilename=grid_file_name,
@@ -68,10 +68,20 @@ section_polygon_edges_3d = []
 # Use first segment start (x,y) as origin
 x_origin = fence_mesh_sections[0].startUtmXY.x if len(fence_mesh_sections) > 0 else 0
 y_origin = fence_mesh_sections[0].startUtmXY.y if len(fence_mesh_sections) > 0 else 0
+
+section_number = 1
 for section in fence_mesh_sections:
     # Continue to next section
     polygon_vertex_array_uz = section.vertexArrayUZ
     vertices_per_polygon = section.verticesPerPolygonArr
+    polygon_indices_array = section.polyIndicesArr
+
+    num_vertices = sum(vertices_per_polygon)
+    print(f"**** Section number: {section_number} ****")
+    print(f"Number of vertices in vertex uz array: {len(polygon_vertex_array_uz)/2}")
+    print(f"Number of polygon vertices: {len(polygon_indices_array)}")
+    print(f"Number of vertices: {num_vertices}")
+    section_number += 1
 
     # Get start and end coordinates (local coordinates)
     start_x = section.startUtmXY.x - x_origin
@@ -94,18 +104,31 @@ for section in fence_mesh_sections:
     x_array = []
     y_array = []
     z_array = []
-    for i in range(0, len(polygon_vertex_array_uz), vertex_step):
-        u = polygon_vertex_array_uz[i]
-        z = polygon_vertex_array_uz[i + 1]
 
-        # Calculate x, y from u and directional vector,
-        # where u is the length along the direction vector
-        x = start_x + u * direction_vector_norm[0]
-        y = start_y + u * direction_vector_norm[1]
+    vertex_offset = 0
+    for _, value in enumerate(vertices_per_polygon, 0):
+        num_polygon_vertices = value
+        polygon_indices = polygon_indices_array[
+            vertex_offset : vertex_offset + num_polygon_vertices
+        ]
 
-        x_array.append(x)
-        y_array.append(y)
-        z_array.append(z)
+        for vertex_idx in polygon_indices:
+            idx = vertex_idx * vertex_step
+
+            # Extract u, z values for the polygon
+            u = polygon_vertex_array_uz[idx]
+            z = polygon_vertex_array_uz[idx + 1]
+
+            # Calculate x, y from u and directional vector,
+            # where u is the length along the direction vector
+            x = start_x + u * direction_vector_norm[0]
+            y = start_y + u * direction_vector_norm[1]
+
+            x_array.append(x)
+            y_array.append(y)
+            z_array.append(z)
+
+        vertex_offset = vertex_offset + num_polygon_vertices
 
     i = []
     j = []

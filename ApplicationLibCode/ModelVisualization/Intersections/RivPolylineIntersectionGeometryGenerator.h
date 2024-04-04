@@ -26,8 +26,6 @@
 
 #include <vector>
 
-#include <QString>
-
 class RigMainGrid;
 class RigActiveCellInfo;
 class RigResultAccessor;
@@ -60,11 +58,6 @@ public:
     void generateIntersectionGeometry( cvf::UByteArray* visibleCells );
     bool isAnyGeometryPresent() const;
 
-    // TODO: Remove after testing?
-    const cvf::Vec3fArray*     polygonVxes() const;
-    const std::vector<size_t>& vertiesPerPolygon() const;
-    const std::vector<size_t>& polygonToCellIndex() const;
-
     const std::vector<PolylineSegmentMeshData>& polylineSegmentsMeshData() const;
 
 private:
@@ -84,9 +77,4 @@ private:
 
     // Output
     std::vector<PolylineSegmentMeshData> m_polylineSegmentsMeshData;
-
-    // TMP Output arrays for debug
-    std::vector<size_t>       m_polygonToCellIdxMap;
-    cvf::ref<cvf::Vec3fArray> m_polygonVertices;
-    std::vector<size_t>       m_verticesPerPolygon;
 };

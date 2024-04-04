@@ -366,44 +366,6 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
     m_elapsedTimeInfo.elapsedTimePerEventMs["FillResponse"] =
         static_cast<std::uint32_t>( fillResponseTimeCount.elapsedMsCount() );
 
-    // Add temporary test response
-    {
-        auto                        fillTestResponseTimeCount = ElapsedTimeCount();
-        rips::PolylineTestResponse* polylineTestResponse      = new rips::PolylineTestResponse;
-
-        // Polygon vertices
-        const auto& polygonVertices = polylineIntersectionGenerator.polygonVxes();
-        if ( polygonVertices->size() == 0 )
-        {
-            return grpc::Status( grpc::StatusCode::NOT_FOUND, "No polygon vertices found for polyline" );
-        }
-        for ( size_t i = 0; i < polygonVertices->size(); ++i )
-        {
-            const auto& vertex = polygonVertices->get( i );
-            polylineTestResponse->add_polygonvertexarray( vertex.x() );
-            polylineTestResponse->add_polygonvertexarray( vertex.y() );
-            polylineTestResponse->add_polygonvertexarray( vertex.z() );
-        }
-
-        // Vertices per polygon
-        const auto& verticesPerPolygon = polylineIntersectionGenerator.vertiesPerPolygon();
-        for ( const auto& elm : verticesPerPolygon )
-        {
-            polylineTestResponse->add_verticesperpolygonarr( static_cast<google::protobuf::uint32>( elm ) );
-        }
-
-        // Polygon to cell indices
-        const auto& polygonCellIndices = polylineIntersectionGenerator.polygonToCellIndex();
-        for ( const auto& elm : polygonCellIndices )
-        {
-            polylineTestResponse->add_sourcecellindicesarr( static_cast<google::protobuf::uint32>( elm ) );
-        }
-
-        response->set_allocated_polylinetestresponse( polylineTestResponse );
-        m_elapsedTimeInfo.elapsedTimePerEventMs["FillResponse"] =
-            static_cast<std::uint32_t>( fillTestResponseTimeCount.elapsedMsCount() );
-    }
-
     // Clear existing view
     tearDownExistingViewsInEclipseCase();
 
