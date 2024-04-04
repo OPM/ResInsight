@@ -277,9 +277,8 @@ caf::PdmScriptResponse RicExportContourMapToTextFeature::execute()
     RimProject* proj = app->project();
     CAF_ASSERT( proj );
 
-    std::vector<Rim3dView*> allViews = proj->allViews();
-    Rim3dView*              myView   = nullptr;
-    for ( auto view : allViews )
+    Rim3dView* myView = nullptr;
+    for ( auto view : proj->allViews() )
     {
         if ( m_viewId == view->id() )
         {

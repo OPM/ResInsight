@@ -85,9 +85,7 @@ std::vector<Rim3dView*> RicLinkVisibleViewsFeature::findLinkableVisibleViews()
     RimProject* proj = RimProject::current();
 
     std::vector<Rim3dView*> views;
-
-    std::vector<Rim3dView*> candidates = proj->allVisibleViews();
-    for ( auto gridView : candidates )
+    for ( auto gridView : proj->allVisibleViews() )
     {
         if ( gridView && !gridView->assosiatedViewLinker() ) views.push_back( gridView );
     }

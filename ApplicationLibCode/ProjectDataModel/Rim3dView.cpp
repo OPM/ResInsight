@@ -197,8 +197,7 @@ Rim3dView::~Rim3dView()
 
     if ( auto proj = RimProject::current() )
     {
-        std::vector<Rim3dView*> allViews = proj->allViews();
-        for ( auto v : allViews )
+        for ( auto v : proj->allViews() )
         {
             if ( v->activeComparisonView() == this )
             {
@@ -589,10 +588,8 @@ std::vector<Rim3dView*> Rim3dView::validComparisonViews() const
 {
     auto isIntersectionView = []( const Rim3dView* view ) { return dynamic_cast<const Rim2dIntersectionView*>( view ) != nullptr; };
 
-    std::vector<Rim3dView*> views = RimProject::current()->allViews();
-
     std::vector<Rim3dView*> validComparisonViews;
-    for ( auto view : views )
+    for ( auto view : RimProject::current()->allViews() )
     {
         if ( dynamic_cast<RimSeismicView*>( view ) ) continue;
 

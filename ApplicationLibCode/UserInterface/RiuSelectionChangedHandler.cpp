@@ -325,12 +325,10 @@ void RiuSelectionChangedHandler::scheduleUpdateForAllVisibleViews() const
     RimProject* proj = RimProject::current();
     if ( proj )
     {
-        std::vector<Rim3dView*> visibleViews = proj->allVisibleViews();
-
-        for ( size_t i = 0; i < visibleViews.size(); i++ )
+        for ( Rim3dView* visibleView : proj->allVisibleViews() )
         {
-            visibleViews[i]->createHighlightAndGridBoxDisplayModelAndRedraw();
-            visibleViews[i]->createMeasurementDisplayModelAndRedraw();
+            visibleView->createHighlightAndGridBoxDisplayModelAndRedraw();
+            visibleView->createMeasurementDisplayModelAndRedraw();
         }
     }
 }

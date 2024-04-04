@@ -514,8 +514,7 @@ void RimProject::assignCaseIdToSummaryCase( RimSummaryCase* summaryCase )
 {
     if ( summaryCase )
     {
-        std::vector<RimSummaryCase*> summaryCases = allSummaryCases();
-        for ( RimSummaryCase* s : summaryCases )
+        for ( RimSummaryCase* s : allSummaryCases() )
         {
             m_nextValidSummaryCaseId = std::max( m_nextValidSummaryCaseId, s->caseId() + 1 );
         }
@@ -531,8 +530,7 @@ void RimProject::assignIdToEnsemble( RimSummaryCaseCollection* summaryCaseCollec
 {
     if ( summaryCaseCollection )
     {
-        std::vector<RimSummaryCaseCollection*> summaryGroups = RimProject::summaryGroups();
-        for ( RimSummaryCaseCollection* s : summaryGroups )
+        for ( RimSummaryCaseCollection* s : RimProject::summaryGroups() )
         {
             m_nextValidEnsembleId = std::max( m_nextValidEnsembleId, s->ensembleId() + 1 );
         }
@@ -745,13 +743,11 @@ std::vector<Rim3dView*> RimProject::allNotLinkedViews() const
 
     std::vector<Rim3dView*> views;
 
-    std::vector<RimCase*> cases = allGridCases();
-    for ( RimCase* rimCase : cases )
+    for ( RimCase* rimCase : allGridCases() )
     {
         if ( !rimCase ) continue;
 
-        std::vector<Rim3dView*> caseViews = rimCase->views();
-        for ( Rim3dView* caseView : caseViews )
+        for ( Rim3dView* caseView : rimCase->views() )
         {
             RimGridView* gridView = dynamic_cast<RimGridView*>( caseView );
 
@@ -782,13 +778,11 @@ std::vector<Rim3dView*> RimProject::allViews() const
 {
     std::vector<Rim3dView*> views;
 
-    std::vector<RimCase*> cases = allGridCases();
-    for ( RimCase* rimCase : cases )
+    for ( RimCase* rimCase : allGridCases() )
     {
         if ( !rimCase ) continue;
 
-        std::vector<Rim3dView*> caseViews = rimCase->views();
-        for ( Rim3dView* view : caseViews )
+        for ( Rim3dView* view : rimCase->views() )
         {
             if ( view )
             {
@@ -817,14 +811,11 @@ std::vector<Rim3dView*> RimProject::allViews() const
 std::vector<Rim3dView*> RimProject::allVisibleViews() const
 {
     std::vector<Rim3dView*> views;
-
-    std::vector<RimCase*> cases = allGridCases();
-    for ( RimCase* rimCase : cases )
+    for ( RimCase* rimCase : allGridCases() )
     {
         if ( !rimCase ) continue;
 
-        std::vector<Rim3dView*> caseViews = rimCase->views();
-        for ( Rim3dView* view : caseViews )
+        for ( Rim3dView* view : rimCase->views() )
         {
             if ( view && view->viewer() )
             {
@@ -842,8 +833,7 @@ std::vector<Rim3dView*> RimProject::allVisibleViews() const
 std::vector<RimGridView*> RimProject::allVisibleGridViews() const
 {
     std::vector<RimGridView*> views;
-    std::vector<Rim3dView*>   visibleViews = allVisibleViews();
-    for ( Rim3dView* view : visibleViews )
+    for ( Rim3dView* view : allVisibleViews() )
     {
         RimGridView* gridView = dynamic_cast<RimGridView*>( view );
         if ( gridView ) views.push_back( gridView );
@@ -857,12 +847,10 @@ std::vector<RimGridView*> RimProject::allVisibleGridViews() const
 //--------------------------------------------------------------------------------------------------
 void RimProject::scheduleCreateDisplayModelAndRedrawAllViews()
 {
-    std::vector<RimCase*> cases = allGridCases();
-    for ( RimCase* rimCase : cases )
+    for ( RimCase* rimCase : allGridCases() )
     {
         if ( !rimCase ) continue;
-        std::vector<Rim3dView*> views = rimCase->views();
-        for ( Rim3dView* view : views )
+        for ( Rim3dView* view : rimCase->views() )
         {
             view->scheduleCreateDisplayModelAndRedraw();
         }
@@ -913,11 +901,8 @@ const RimOilField* RimProject::activeOilField() const
 //--------------------------------------------------------------------------------------------------
 void RimProject::computeUtmAreaOfInterest()
 {
-    std::vector<RimCase*> cases = allGridCases();
-
     cvf::BoundingBox projectBB;
-
-    for ( RimCase* rimCase : cases )
+    for ( RimCase* rimCase : allGridCases() )
     {
         RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase );
         if ( eclipseCase && eclipseCase->eclipseCaseData() )
@@ -1173,8 +1158,7 @@ std::vector<RimTextAnnotation*> RimProject::textAnnotations() const
     }
 
     // 'Local' text annotations
-    std::vector<RimGridView*> visibleViews = allVisibleGridViews();
-    for ( const auto& view : visibleViews )
+    for ( const auto& view : allVisibleGridViews() )
     {
         std::vector<RimAnnotationInViewCollection*> annotationColls = view->descendantsIncludingThisOfType<RimAnnotationInViewCollection>();
 
@@ -1314,11 +1298,9 @@ std::vector<RimValveTemplate*> RimProject::allValveTemplates() const
 //--------------------------------------------------------------------------------------------------
 caf::AppEnum<RiaDefines::EclipseUnitSystem> RimProject::commonUnitSystemForAllCases() const
 {
-    std::vector<RimCase*> rimCases = allGridCases();
-
     RiaDefines::EclipseUnitSystem commonUnitSystem = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
 
-    for ( const auto& c : rimCases )
+    for ( const auto& c : allGridCases() )
     {
         auto eclipseCase = dynamic_cast<RimEclipseCase*>( c );
         if ( eclipseCase && eclipseCase->eclipseCaseData() )
@@ -1370,8 +1352,7 @@ std::vector<caf::FilePath*> RimProject::allFilePaths() const
 //--------------------------------------------------------------------------------------------------
 void RimProject::reloadCompletionTypeResultsForEclipseCase( RimEclipseCase* eclipseCase )
 {
-    std::vector<Rim3dView*> views = eclipseCase->views();
-    for ( Rim3dView* view : views )
+    for ( Rim3dView* view : eclipseCase->views() )
     {
         view->scheduleCreateDisplayModelAndRedraw();
     }
@@ -1537,8 +1518,7 @@ void RimProject::transferPathsToGlobalPathList()
 {
     RiaVariableMapper variableMapper( m_globalPathList() );
 
-    std::vector<caf::FilePath*> filePaths = allFilePaths();
-    for ( caf::FilePath* filePath : filePaths )
+    for ( caf::FilePath* filePath : allFilePaths() )
     {
         QString path = filePath->path();
         if ( !path.isEmpty() )
@@ -1602,8 +1582,7 @@ void RimProject::distributePathsFromGlobalPathList()
 {
     RiaVariableMapper pathListMapper( m_globalPathList() );
 
-    std::vector<caf::FilePath*> filePaths = allFilePaths();
-    for ( caf::FilePath* filePath : filePaths )
+    for ( caf::FilePath* filePath : allFilePaths() )
     {
         QString     pathIdCandidate  = filePath->path().trimmed();
         QStringList pathIdComponents = pathIdCandidate.split( RiaVariableMapper::variableToken() );
