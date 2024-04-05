@@ -19,6 +19,7 @@
 #pragma once
 
 #include <QDialog>
+#include <QStringList>
 
 namespace caf
 {
@@ -29,7 +30,6 @@ class PdmUiPropertyView;
 class QDialogButtonBox;
 class QWidget;
 class QString;
-class QStringList;
 
 class RiuPropertyViewTabWidget : public QDialog
 {

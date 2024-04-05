@@ -19,12 +19,14 @@
 #pragma once
 
 #include <QString>
+#include <QStringList>
+
 #include <vector>
 
 class RimEclipseCase;
 class RimEclipseView;
 class RimWellPath;
-class QStringList;
+
 
 //==================================================================================================
 //

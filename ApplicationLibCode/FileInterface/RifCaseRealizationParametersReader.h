@@ -24,13 +24,14 @@
 
 #include <QString>
 #include <QTextStream>
+#include <QStringList>
 
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
-class QStringList;
+
 class QTextStream;
 class QXmlStreamReader;
 class QFile;

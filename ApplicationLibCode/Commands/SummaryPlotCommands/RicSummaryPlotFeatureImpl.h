@@ -18,6 +18,7 @@
 #pragma once
 
 #include <QString>
+#include <QStringList>
 
 #include <set>
 #include <vector>
@@ -34,8 +35,6 @@ class RimSummaryPlot;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
 class RimEnsembleCurveSet;
-
-class QStringList;
 
 class RicSummaryPlotFeatureImpl
 {

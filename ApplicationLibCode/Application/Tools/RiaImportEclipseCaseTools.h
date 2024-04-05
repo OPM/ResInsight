@@ -18,13 +18,14 @@
 
 #pragma once
 
+#include <QStringList>
+
 #include <map>
 #include <memory>
 #include <utility>
 #include <vector>
 
 class QString;
-class QStringList;
 
 class RimIdenticalGridCaseGroup;
 class RimRoffCase;

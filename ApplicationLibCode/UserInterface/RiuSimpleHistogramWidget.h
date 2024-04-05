@@ -20,11 +20,11 @@
 
 #pragma once
 
+#include <QStringList>
 #include <QWidget>
 
 class QPaintEvent;
-class QString;
-class QStringList;
+
 
 class RiuSimpleHistogramWidget : public QWidget
 {

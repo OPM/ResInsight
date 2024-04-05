@@ -21,10 +21,10 @@
 #pragma once
 
 #include <QWidget>
+#include <QStringList>
 
 class QPaintEvent;
 class QString;
-class QStringList;
 
 class RiuGridStatisticsHistogramWidget : public QWidget
 {
