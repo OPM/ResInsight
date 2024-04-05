@@ -28,7 +28,7 @@
 
 class RigStimPlanFractureDefinition;
 class QXmlStreamReader;
-class QStringRef;
+class QStringView;
 
 class RifStimPlanXmlReader
 {
@@ -65,5 +65,5 @@ private:
     static double
         valueInRequiredUnitSystem( RiaDefines::EclipseUnitSystem sourceUnit, RiaDefines::EclipseUnitSystem requiredUnit, double value );
 
-    static bool isTextEqual( const QStringRef& text, const QString& compareText );
+    static bool isTextEqual( const QStringView& text, const QString& compareText );
 };

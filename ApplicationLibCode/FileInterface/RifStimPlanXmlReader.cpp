@@ -27,6 +27,7 @@
 #include "RigStimPlanFractureDefinition.h"
 
 #include <QFile>
+#include <QStringView>
 #include <QXmlStreamReader>
 
 #include <cmath> // Needed for HUGE_VAL on Linux
@@ -285,7 +286,7 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
                 stimPlanFileData->generateXsFromFileXs( mirrorMode == MirrorMode::MIRROR_AUTO ? !hasNegativeValues( gridValuesXs )
                                                                                               : (bool)mirrorMode );
             }
-            else if ( xmlStream.name() == "ys" )
+            else if ( isTextEqual( xmlStream.name(), "ys" ) )
             {
                 std::vector<double> gridValuesYs;
                 {
@@ -304,7 +305,7 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
                 stimPlanFileData->m_Ys = ys;
             }
 
-            else if ( xmlStream.name() == "time" )
+            else if ( isTextEqual( xmlStream.name(), "time" ) )
             {
                 double timeStepValue = getAttributeValueDouble( xmlStream, "value" );
                 stimPlanFileData->addTimeStep( timeStepValue );
@@ -449,7 +450,7 @@ double RifStimPlanXmlReader::valueInRequiredUnitSystem( RiaDefines::EclipseUnitS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifStimPlanXmlReader::isTextEqual( const QStringRef& text, const QString& compareText )
+bool RifStimPlanXmlReader::isTextEqual( const QStringView& text, const QString& compareText )
 {
     return text.compare( compareText, Qt::CaseInsensitive ) == 0;
 }
