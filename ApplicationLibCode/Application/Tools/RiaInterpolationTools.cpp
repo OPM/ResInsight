@@ -103,7 +103,22 @@ double RiaInterpolationTools::linear( const std::vector<double>& x, const std::v
 //--------------------------------------------------------------------------------------------------
 double RiaInterpolationTools::extrapolate( const std::vector<double>& x, const std::vector<double>& y, double value )
 {
-    return y[0] + ( value - x[0] ) / ( x[1] - x[0] ) * ( y[1] - y[0] );
+    if ( value <= x[0] )
+        return extrapolate( x[0], y[0], x[1], y[1], value );
+    else
+    {
+        size_t lastIndex       = x.size() - 1;
+        size_t secondLastIndex = x.size() - 2;
+        return extrapolate( x[secondLastIndex], y[secondLastIndex], x[lastIndex], y[lastIndex], value );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiaInterpolationTools::extrapolate( double x0, double y0, double x1, double y1, double value )
+{
+    return y0 + ( value - x0 ) / ( x1 - x0 ) * ( y1 - y0 );
 }
 
 //--------------------------------------------------------------------------------------------------

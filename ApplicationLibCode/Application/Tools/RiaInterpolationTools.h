@@ -47,5 +47,7 @@ private:
     static int findNextDataPoint( const std::vector<double>& values, int index );
     static int findPreviousDataPoint( const std::vector<double>& values, int index );
     static double extrapolate( const std::vector<double>& x, const std::vector<double>& y, double value );
+    static double extrapolate( double x0, double y0, double x1, double y1, double value );
+
     static double extrapolateClosestValue( const std::vector<double>& x, const std::vector<double>& y, double value );
 };
