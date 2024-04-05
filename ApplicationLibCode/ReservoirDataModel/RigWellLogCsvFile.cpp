@@ -58,6 +58,8 @@ RigWellLogCsvFile::~RigWellLogCsvFile()
 bool RigWellLogCsvFile::open( const QString& fileName, RigWellPath* wellPath, QString* errorMessage )
 {
     m_wellLogChannelNames.clear();
+    double                 samplingInterval  = 1.0;
+    cvf::cref<RigWellPath> resampledWellPath = resampleWellPath( *wellPath, samplingInterval );
 
     RifCsvUserDataFileParser parser( fileName, errorMessage );
 
@@ -104,14 +106,14 @@ bool RigWellLogCsvFile::open( const QString& fileName, RigWellPath* wellPath, QS
         if ( channelName == m_tvdMslLogName )
         {
             // Use TVD from well path.
-            m_values[m_tvdMslLogName] = wellPath->trueVerticalDepths();
+            m_values[m_tvdMslLogName] = resampledWellPath->trueVerticalDepths();
         }
         else
         {
             CAF_ASSERT( readValues.size() == readTvds.size() );
 
-            auto wellPathMds  = wellPath->measuredDepths();
-            auto wellPathTvds = wellPath->trueVerticalDepths();
+            auto wellPathMds  = resampledWellPath->measuredDepths();
+            auto wellPathTvds = resampledWellPath->trueVerticalDepths();
 
             // Interpolate values for the well path depths (from TVD).
             // Assumes that the well channel values is dependent on TVD only (MD is not considered).
@@ -128,7 +130,7 @@ bool RigWellLogCsvFile::open( const QString& fileName, RigWellPath* wellPath, QS
 
     // Use MD from well path.
     m_depthLogName           = "DEPTH";
-    m_values[m_depthLogName] = wellPath->measuredDepths();
+    m_values[m_depthLogName] = resampledWellPath->measuredDepths();
 
     return true;
 }
@@ -228,4 +230,38 @@ bool RigWellLogCsvFile::hasTvdRkbChannel() const
 double RigWellLogCsvFile::getMissingValue() const
 {
     return std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigWellPath* RigWellLogCsvFile::resampleWellPath( const RigWellPath& wellPath, double samplingInterval )
+{
+    std::vector<double> measuredDepths = resampleMeasuredDepths( wellPath.measuredDepths(), samplingInterval );
+
+    std::vector<cvf::Vec3d> wellPathPoints;
+    for ( double md : measuredDepths )
+    {
+        wellPathPoints.push_back( wellPath.interpolatedPointAlongWellPath( md ) );
+    }
+
+    return new RigWellPath( wellPathPoints, measuredDepths );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellLogCsvFile::resampleMeasuredDepths( const std::vector<double>& measuredDepths, double samplingInterval )
+{
+    double firstMd = measuredDepths.front();
+    double lastMd  = measuredDepths.back();
+
+    std::vector<double> resampledMds;
+    for ( double md = firstMd; md < lastMd; md += samplingInterval )
+    {
+        resampledMds.push_back( md );
+    }
+    resampledMds.push_back( lastMd );
+
+    return resampledMds;
 }
