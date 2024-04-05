@@ -429,7 +429,7 @@ std::vector<cvf::uint> RiaGrpcGridGeometryExtractionService::initAndWeldVertices
                                                                                   const cvf::Vec3fArray& vertices ) const
 {
     // Initialize welder
-    const cvf::uint numBuckets = static_cast<cvf::uint>( vertices.size() );
+    const cvf::uint numBuckets = std::max( static_cast<cvf::uint>( vertices.size() ), cvf::uint( 1 ) );
     rWelder.initialize( m_weldingDistance, m_weldingCellSize, numBuckets );
 
     // Weld vertices

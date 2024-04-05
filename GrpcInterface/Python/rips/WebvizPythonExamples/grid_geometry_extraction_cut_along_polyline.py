@@ -10,6 +10,8 @@ from rips.generated.GridGeometryExtraction_pb2 import *
 # from ..generated.GridGeometryExtraction_pb2_grpc import *
 # from ..generated.GridGeometryExtraction_pb2 import *
 
+from drogon_grid_well_path_polyline_xy_utm import drogon_well_path_polyline_xy_utm
+
 rips_instance = Instance.find()
 grid_geometry_extraction_stub = GridGeometryExtractionStub(rips_instance.channel)
 
@@ -17,6 +19,7 @@ grid_file_name = "MOCKED_TEST_GRID"
 grid_file_name = (
     "D:/Git/resinsight-tutorials/model-data/norne/NORNE_ATW2013_RFTPLT_V2.EGRID"
 )
+grid_file_name = "D:/ResInsight/GRID__DROGON_13M.roff"
 
 # Test polylines
 mocked_model_fence_poly_line_utm_xy = [
@@ -234,5 +237,8 @@ print(f"Total time elapsed: {total_time_elapsed} ms")
 # print(f"Time elapsed per event [ms]: {named_events_and_time_elapsed}")
 for message, time_elapsed in named_events_and_time_elapsed.items():
     print(f"{message}: {time_elapsed}")
+
+print(f"Expected number of segments: {len(fence_poly_line_utm_xy) / 2 - 1}")
+print(f"Number of segments: {len(fence_mesh_sections)}")
 
 fig.show()

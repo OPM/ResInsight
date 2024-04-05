@@ -165,10 +165,9 @@ void RivPolylineIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray*
         std::vector<cvf::uint> polygonToCellIndexMap = {};
 
         // Welder for segment vertices
-        // - Number of buckets is size of columnCellCandidates divided by 8 to avoid too many buckets (Random selected value).
-        //   Usage of columnCellCandidates is to get a dynamic number of buckets usable for respective segment.
-        const cvf::uint   numWelderBuckets = static_cast<cvf::uint>( columnCellCandidates.size() / size_t( 8 ) );
+        // - Number of buckets is size of columnCellCandidates to get a dynamic number of buckets usable for respective segment.
         cvf::VertexWelder segmentVertexWelder;
+        const cvf::uint   numWelderBuckets = std::max( static_cast<cvf::uint>( columnCellCandidates.size() ), cvf::uint( 1 ) );
         segmentVertexWelder.initialize( weldingDistance, weldingCellSize, numWelderBuckets );
 
         // Intersection per grid cell - transform from set of triangles to polygon for cell
