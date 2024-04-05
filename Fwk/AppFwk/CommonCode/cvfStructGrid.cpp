@@ -380,7 +380,7 @@ void StructGridInterface::computeCharacteristicCellSize( const std::vector<size_
 
         size_t i, j, k = 0;
         size_t index = 0;
-        while ( index < globalCellIndices.size() - 1 )
+        while ( index < globalCellIndices.size() )
         {
             size_t cellIndex = globalCellIndices[index];
             ijkFromCellIndex( cellIndex, &i, &j, &k );
