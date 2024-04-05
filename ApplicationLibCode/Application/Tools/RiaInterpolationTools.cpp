@@ -76,7 +76,7 @@ double RiaInterpolationTools::linear( const std::vector<double>& x, const std::v
         {
             return extrapolateClosestValue( x, y, value );
         }
-        else if ( extrapolationMode == ExtrapolationMode::TREND )
+        else if ( extrapolationMode == ExtrapolationMode::TREND && x.size() >= 2 )
         {
             return extrapolate( x, y, value );
         }
@@ -103,6 +103,9 @@ double RiaInterpolationTools::linear( const std::vector<double>& x, const std::v
 //--------------------------------------------------------------------------------------------------
 double RiaInterpolationTools::extrapolate( const std::vector<double>& x, const std::vector<double>& y, double value )
 {
+    CAF_ASSERT( x.size() == y.size() );
+    CAF_ASSERT( x.size() >= 2 && "Need at least two points for extrapolation" );
+
     if ( value <= x[0] )
         return extrapolate( x[0], y[0], x[1], y[1], value );
     else
