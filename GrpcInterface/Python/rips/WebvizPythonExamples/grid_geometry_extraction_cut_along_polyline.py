@@ -46,8 +46,29 @@ norne_case_single_segment_poly_line_utm_xy = [457150, 7.32106e06, 456885, 7.3217
 norne_case_single_segment_poly_line_gap_utm_xy = [460877, 7.3236e06, 459279, 7.32477e06]
 
 
-# fence_poly_line_utm_xy = norne_case_fence_poly_line_utm_xy
-fence_poly_line_utm_xy = norne_case_fence_poly_line_utm_xy
+# Drogon 13M case
+drogon_13M_start_utm_xy = [457026, 5.93502e06]
+drogon_13M_end_utm_xy = [466228, 5.93108e06]
+
+num_polyline_samples = 300
+drogon_13M_case_poly_line_utm_xy = [
+    drogon_13M_start_utm_xy[0],
+    drogon_13M_start_utm_xy[1],
+]
+for i in range(1, num_polyline_samples):
+    x = drogon_13M_start_utm_xy[0] + (i / num_polyline_samples) * (
+        drogon_13M_end_utm_xy[0] - drogon_13M_start_utm_xy[0]
+    )
+    y = drogon_13M_start_utm_xy[1] + (i / num_polyline_samples) * (
+        drogon_13M_end_utm_xy[1] - drogon_13M_start_utm_xy[1]
+    )
+
+    drogon_13M_case_poly_line_utm_xy.append(x)
+    drogon_13M_case_poly_line_utm_xy.append(y)
+drogon_13M_case_poly_line_utm_xy.append(drogon_13M_end_utm_xy[0])
+drogon_13M_case_poly_line_utm_xy.append(drogon_13M_end_utm_xy[1])
+
+fence_poly_line_utm_xy = drogon_13M_case_poly_line_utm_xy
 
 cut_along_polyline_request = GridGeometryExtraction__pb2.CutAlongPolylineRequest(
     gridFilename=grid_file_name,
@@ -72,6 +93,7 @@ section_polygon_edges_3d = []
 x_origin = fence_mesh_sections[0].startUtmXY.x if len(fence_mesh_sections) > 0 else 0
 y_origin = fence_mesh_sections[0].startUtmXY.y if len(fence_mesh_sections) > 0 else 0
 
+
 section_number = 1
 for section in fence_mesh_sections:
     # Continue to next section
@@ -82,8 +104,10 @@ for section in fence_mesh_sections:
     num_vertices = sum(vertices_per_polygon)
     print(f"**** Section number: {section_number} ****")
     print(f"Number of vertices in vertex uz array: {len(polygon_vertex_array_uz)/2}")
-    print(f"Number of polygon vertices: {len(polygon_indices_array)}")
-    print(f"Number of vertices: {num_vertices}")
+    # print(f"Number of polygon vertices: {len(polygon_indices_array)}")
+    # print(f"Number of vertices: {num_vertices}")
+    # print(f"Number of polygons: {len(vertices_per_polygon)}")
+
     section_number += 1
 
     # Get start and end coordinates (local coordinates)
@@ -240,5 +264,6 @@ for message, time_elapsed in named_events_and_time_elapsed.items():
 
 print(f"Expected number of segments: {len(fence_poly_line_utm_xy) / 2 - 1}")
 print(f"Number of segments: {len(fence_mesh_sections)}")
+
 
 fig.show()

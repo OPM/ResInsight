@@ -52,7 +52,11 @@ class Instance:
     def __is_valid_port(port: int) -> bool:
         location = "localhost:" + str(port)
         channel = grpc.insecure_channel(
-            location, options=[("grpc.enable_http_proxy", False)]
+            location,
+            options=[
+                ("grpc.enable_http_proxy", False),
+                ("grpc.max_receive_message_length", 512 * 1024 * 1024),
+            ],
         )
         app = App_pb2_grpc.AppStub(channel)
         try:
@@ -218,7 +222,11 @@ class Instance:
         self.location: str = "localhost:" + str(port)
 
         self.channel = grpc.insecure_channel(
-            self.location, options=[("grpc.enable_http_proxy", False)]
+            self.location,
+            options=[
+                ("grpc.enable_http_proxy", False),
+                ("grpc.max_receive_message_length", 512 * 1024 * 1024),
+            ],
         )
         self.launched = launched
         self.commands = Commands_pb2_grpc.CommandsStub(self.channel)
