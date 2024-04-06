@@ -79,7 +79,7 @@ RicGridStatisticsDialog::RicGridStatisticsDialog( QWidget* parent )
     dialogLayout->addWidget( m_mainViewWidget );
 
     QVBoxLayout* mainViewLayout = new QVBoxLayout();
-    mainViewLayout->setMargin( 0 );
+    mainViewLayout->setContentsMargins( 0, 0, 0, 0 );
     m_mainViewWidget->setLayout( mainViewLayout );
     mainViewLayout->addWidget( m_label );
     mainViewLayout->addWidget( m_textEdit );
