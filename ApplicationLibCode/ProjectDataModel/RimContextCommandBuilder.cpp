@@ -1040,16 +1040,16 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteCellFiltersFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewPolygonFilterFeature";
-            menuBuilder << "RicNewUserDefinedFilterFeature";
-            menuBuilder << "RicNewUserDefinedIndexFilterFeature";
-            menuBuilder << "RicNewCellIndexFilterFeature";
-            menuBuilder << "Separator";
             menuBuilder << "RicNewCellRangeFilterFeature";
             menuBuilder.subMenuStart( "Slice Filters" );
             menuBuilder << "RicNewRangeFilterSliceIFeature";
             menuBuilder << "RicNewRangeFilterSliceJFeature";
             menuBuilder << "RicNewRangeFilterSliceKFeature";
             menuBuilder.subMenuEnd();
+            menuBuilder << "RicNewCellIndexFilterFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicNewUserDefinedFilterFeature";
+            menuBuilder << "RicNewUserDefinedIndexFilterFeature";
         }
         else if ( dynamic_cast<RimSeismicSectionCollection*>( firstUiItem ) )
         {
