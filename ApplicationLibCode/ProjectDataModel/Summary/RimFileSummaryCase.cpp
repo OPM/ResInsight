@@ -99,18 +99,14 @@ QString RimFileSummaryCase::caseName() const
 //--------------------------------------------------------------------------------------------------
 void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLogger* threadSafeLogger )
 {
-    bool lookForRestartFiles = false;
+    // RimFileSummaryCase::findRelatedFilesAndCreateReader is a performance bottleneck. The function
+    // RifEclipseSummaryTools::getRestartFile() should be refactored to use opm-common instead of libecl.
+    // It is not possible to use restart files in ESMRY file format, see see ESmry::make_esmry_file()
+    //
+    // https://github.com/OPM/ResInsight/issues/11342
 
-    if ( RiaPreferencesSummary::current()->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::LIBECL )
-    {
-        // It is only the libecl reader that requires manual search for referenced restart files
-        // opm-common reader handles restart files internally based on m_includeRestartFiles in RifOpmCommonEclipseSummary::openFileReader
-        //
-        // The performance of the function looking for restart files is bad, and will affect the performance significantly
-        lookForRestartFiles = m_includeRestartFiles;
-    }
-
-    m_fileSummaryReader = RimFileSummaryCase::findRelatedFilesAndCreateReader( summaryHeaderFilename(), lookForRestartFiles, threadSafeLogger );
+    m_fileSummaryReader =
+        RimFileSummaryCase::findRelatedFilesAndCreateReader( summaryHeaderFilename(), m_includeRestartFiles, threadSafeLogger );
 
     m_multiSummaryReader = new RifMultipleSummaryReaders;
     m_multiSummaryReader->addReader( m_fileSummaryReader.p() );
