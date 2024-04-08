@@ -790,7 +790,7 @@ void RiuViewer::updateLegendLayout()
             {
                 int legendWidth = prefSize.x();
                 legend->setLayoutFixedPosition( cvf::Vec2i( xPos, yPos ) );
-                legend->setRenderSize( cvf::Vec2ui( legendWidth, viewPortHeight - 2 * border - 2 * edgeAxisBorderHeight ) );
+                legend->setRenderSize( cvf::Vec2ui( legendWidth, std::max( 0, viewPortHeight - 2 * border - 2 * edgeAxisBorderHeight ) ) );
                 xPos += legendWidth + border;
             }
             else
@@ -858,7 +858,7 @@ void RiuViewer::updateLegendLayout()
             {
                 int legendWidth = prefSize.x();
                 legend->setLayoutFixedPosition( cvf::Vec2i( xPos - legendWidth, yPos ) );
-                legend->setRenderSize( cvf::Vec2ui( legendWidth, viewPortHeight - yPosStart - border - edgeAxisBorderHeight ) );
+                legend->setRenderSize( cvf::Vec2ui( legendWidth, std::max( 0, viewPortHeight - yPosStart - border - edgeAxisBorderHeight ) ) );
                 xPos -= legendWidth + border;
             }
             else
