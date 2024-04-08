@@ -1210,8 +1210,7 @@ RimEclipseViewCollection* RimEclipseCase::viewCollection() const
 std::vector<RimEclipseView*> RimEclipseCase::reservoirViews() const
 {
     std::vector<RimEclipseView*> views;
-    RimEclipseViewCollection*    viewColl = viewCollection();
-    if ( viewColl )
+    if ( RimEclipseViewCollection* viewColl = viewCollection() )
     {
         for ( auto view : viewColl->views() )
         {
@@ -1231,8 +1230,7 @@ std::vector<RimEclipseView*> RimEclipseCase::reservoirViews() const
 std::vector<RimEclipseContourMapView*> RimEclipseCase::contourMapViews() const
 {
     std::vector<RimEclipseContourMapView*> views;
-    RimEclipseContourMapViewCollection*    viewColl = contourMapCollection();
-    if ( viewColl )
+    if ( RimEclipseContourMapViewCollection* viewColl = contourMapCollection() )
     {
         for ( auto view : viewColl->views() )
         {

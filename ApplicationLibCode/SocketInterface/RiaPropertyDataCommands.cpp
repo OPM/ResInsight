@@ -658,18 +658,17 @@ public:
                     m_currentReservoir->eclipseCaseData()->results( m_porosityModelEnum )->recalculateStatistics( m_currentEclResultAddress );
                 }
 
-                auto views = m_currentReservoir->reservoirViews();
-                for ( size_t i = 0; i < views.size(); ++i )
+                for ( RimEclipseView* view : m_currentReservoir->reservoirViews() )
                 {
-                    if ( views[i] )
+                    if ( view )
                     {
                         // As new result might have been introduced, update all editors connected
-                        views[i]->cellResult()->updateConnectedEditors();
+                        view->cellResult()->updateConnectedEditors();
 
                         // It is usually not needed to create new display model, but if any derived geometry based on
                         // generated data (from Octave) a full display model rebuild is required
-                        views[i]->scheduleCreateDisplayModelAndRedraw();
-                        views[i]->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+                        view->scheduleCreateDisplayModelAndRedraw();
+                        view->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
                     }
                 }
             }
@@ -1034,18 +1033,17 @@ public:
                         ->recalculateStatistics( RigEclipseResultAddress( m_currentResultAddress ) );
                 }
 
-                auto views = m_currentReservoir->reservoirViews();
-                for ( size_t i = 0; i < views.size(); ++i )
+                for ( RimEclipseView* view : m_currentReservoir->reservoirViews() )
                 {
-                    if ( views[i] )
+                    if ( view )
                     {
                         // As new result might have been introduced, update all editors connected
-                        views[i]->cellResult()->updateConnectedEditors();
+                        view->cellResult()->updateConnectedEditors();
 
                         // It is usually not needed to create new display model, but if any derived geometry based on
                         // generated data (from Octave) a full display model rebuild is required
-                        views[i]->scheduleCreateDisplayModelAndRedraw();
-                        views[i]->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+                        view->scheduleCreateDisplayModelAndRedraw();
+                        view->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
                     }
                 }
             }
