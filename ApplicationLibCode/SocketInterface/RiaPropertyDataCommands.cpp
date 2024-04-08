@@ -660,16 +660,13 @@ public:
 
                 for ( RimEclipseView* view : m_currentReservoir->reservoirViews() )
                 {
-                    if ( view )
-                    {
-                        // As new result might have been introduced, update all editors connected
-                        view->cellResult()->updateConnectedEditors();
+                    // As new result might have been introduced, update all editors connected
+                    view->cellResult()->updateConnectedEditors();
 
-                        // It is usually not needed to create new display model, but if any derived geometry based on
-                        // generated data (from Octave) a full display model rebuild is required
-                        view->scheduleCreateDisplayModelAndRedraw();
-                        view->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
-                    }
+                    // It is usually not needed to create new display model, but if any derived geometry based on
+                    // generated data (from Octave) a full display model rebuild is required
+                    view->scheduleCreateDisplayModelAndRedraw();
+                    view->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
                 }
             }
 
@@ -1035,16 +1032,13 @@ public:
 
                 for ( RimEclipseView* view : m_currentReservoir->reservoirViews() )
                 {
-                    if ( view )
-                    {
-                        // As new result might have been introduced, update all editors connected
-                        view->cellResult()->updateConnectedEditors();
+                    // As new result might have been introduced, update all editors connected
+                    view->cellResult()->updateConnectedEditors();
 
-                        // It is usually not needed to create new display model, but if any derived geometry based on
-                        // generated data (from Octave) a full display model rebuild is required
-                        view->scheduleCreateDisplayModelAndRedraw();
-                        view->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
-                    }
+                    // It is usually not needed to create new display model, but if any derived geometry based on
+                    // generated data (from Octave) a full display model rebuild is required
+                    view->scheduleCreateDisplayModelAndRedraw();
+                    view->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
                 }
             }
 

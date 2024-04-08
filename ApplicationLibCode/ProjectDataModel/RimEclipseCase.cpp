@@ -466,10 +466,8 @@ void RimEclipseCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 
             computeCachedData();
 
-            for ( size_t i = 0; i < reservoirViews().size(); i++ )
+            for ( RimEclipseView* reservoirView : reservoirViews() )
             {
-                RimEclipseView* reservoirView = reservoirViews()[i];
-
                 reservoirView->scheduleReservoirGridGeometryRegen();
                 reservoirView->scheduleSimWellGeometryRegen();
                 reservoirView->createDisplayModelAndRedraw();
@@ -1217,7 +1215,7 @@ std::vector<RimEclipseView*> RimEclipseCase::reservoirViews() const
     {
         for ( auto view : viewColl->views() )
         {
-            if ( view->eclipseCase() && view->eclipseCase() == this )
+            if ( view && view->eclipseCase() && view->eclipseCase() == this )
             {
                 views.push_back( view );
             }
@@ -1237,7 +1235,7 @@ std::vector<RimEclipseContourMapView*> RimEclipseCase::contourMapViews() const
     {
         for ( auto view : viewColl->views() )
         {
-            if ( view->eclipseCase() && view->eclipseCase() == this )
+            if ( view && view->eclipseCase() && view->eclipseCase() == this )
             {
                 views.push_back( view );
             }

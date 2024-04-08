@@ -462,19 +462,15 @@ void RiaNNCInputValuesStateHandler::finish()
             inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
         }
 
-        auto views = m_eclipseCase->reservoirViews();
-        for ( size_t i = 0; i < views.size(); ++i )
+        for ( RimEclipseView* view : m_eclipseCase->reservoirViews() )
         {
-            if ( views[i] )
-            {
-                // As new result might have been introduced, update all editors connected
-                views[i]->cellResult()->updateConnectedEditors();
+            // As new result might have been introduced, update all editors connected
+            view->cellResult()->updateConnectedEditors();
 
-                // It is usually not needed to create new display model, but if any derived geometry based on
-                // generated data (from Octave) a full display model rebuild is required
-                views[i]->scheduleCreateDisplayModelAndRedraw();
-                views[i]->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
-            }
+            // It is usually not needed to create new display model, but if any derived geometry based on
+            // generated data (from Octave) a full display model rebuild is required
+            view->scheduleCreateDisplayModelAndRedraw();
+            view->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
         }
     }
 }

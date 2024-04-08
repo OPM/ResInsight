@@ -429,7 +429,7 @@ void RimEclipseStatisticsCase::computeStatistics()
                                                                                 calculationName ) );
     }
 
-    bool clearGridCalculationMemory = m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION;
+    bool                              clearGridCalculationMemory = m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION;
     RimEclipseStatisticsCaseEvaluator stat( sourceCases, timeStepIndices, statisticsConfig, resultCase, gridCaseGroup, clearGridCalculationMemory );
 
     if ( m_useZeroAsInactiveCellValue )
@@ -444,11 +444,9 @@ void RimEclipseStatisticsCase::computeStatistics()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::scheduleACTIVEGeometryRegenOnReservoirViews()
 {
-    for ( size_t i = 0; i < reservoirViews().size(); i++ )
+    for ( RimEclipseView* reservoirView : reservoirViews() )
     {
-        RimEclipseView* reservoirView = reservoirViews()[i];
         CVF_ASSERT( reservoirView );
-
         reservoirView->scheduleGeometryRegen( ACTIVE );
     }
 }
@@ -755,9 +753,8 @@ void RimEclipseStatisticsCase::fieldChangedByUi( const caf::PdmFieldHandle* chan
         caf::ProgressInfo progInfo( reservoirViews().size() + 1, "Updating Well Data for Views" );
 
         // Update views
-        for ( size_t i = 0; i < reservoirViews().size(); i++ )
+        for ( RimEclipseView* reservoirView : reservoirViews() )
         {
-            RimEclipseView* reservoirView = reservoirViews()[i];
             CVF_ASSERT( reservoirView );
 
             reservoirView->wellCollection()->wells.deleteChildren();
@@ -962,18 +959,15 @@ bool RimEclipseStatisticsCase::hasComputedStatistics() const
 void RimEclipseStatisticsCase::updateConnectedEditorsAndReservoirViews()
 {
     auto views = reservoirViews();
-    for ( size_t i = 0; i < views.size(); ++i )
+    for ( RimEclipseView* view : reservoirViews() )
     {
-        if ( views[i] )
-        {
-            // As new result might have been introduced, update all editors connected
-            views[i]->cellResult()->updateConnectedEditors();
+        // As new result might have been introduced, update all editors connected
+        view->cellResult()->updateConnectedEditors();
 
-            // It is usually not needed to create new display model, but if any derived geometry based on generated data
-            // (from Octave) a full display model rebuild is required
-            views[i]->scheduleCreateDisplayModelAndRedraw();
-            views[i]->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
-        }
+        // It is usually not needed to create new display model, but if any derived geometry based on generated data
+        // (from Octave) a full display model rebuild is required
+        view->scheduleCreateDisplayModelAndRedraw();
+        view->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 
     updateConnectedEditors();
