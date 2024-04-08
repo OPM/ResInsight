@@ -141,8 +141,13 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera( const Camera* camera )
     double domainMinY = m_domainAxes == XY_AXES ? windowOrigoInDomain.y() : windowOrigoInDomain.z();
     double domainMaxY = m_domainAxes == XY_AXES ? windowMaxInDomain.y() : windowMaxInDomain.z();
 
-    int xTickMaxCount = m_windowSize.x() / ( 2 * m_textSize.x() );
-    int yTickMaxCount = m_windowSize.y() / ( 2 * m_textSize.x() );
+    int textSizeX     = 2 * m_textSize.x();
+    int xTickMaxCount = m_windowSize.x() / textSizeX;
+
+    // Use same textsize for Y dimension for XY axes to get square "tiles".
+    // For XZ axes more ticks looks better in Z (depth) axis.
+    int textSizeY     = m_domainAxes == XY_AXES ? textSizeX : 4 * m_textSize.y();
+    int yTickMaxCount = m_windowSize.y() / textSizeY;
 
     double                 minDomainXStepSize = ( domainMaxX - domainMinX ) / xTickMaxCount;
     caf::TickMarkGenerator xTickCreator( domainMinX, domainMaxX, minDomainXStepSize );
