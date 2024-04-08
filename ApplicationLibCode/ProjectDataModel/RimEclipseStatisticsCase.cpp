@@ -429,7 +429,7 @@ void RimEclipseStatisticsCase::computeStatistics()
                                                                                 calculationName ) );
     }
 
-    bool                              clearGridCalculationMemory = m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION;
+    bool clearGridCalculationMemory = m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION;
     RimEclipseStatisticsCaseEvaluator stat( sourceCases, timeStepIndices, statisticsConfig, resultCase, gridCaseGroup, clearGridCalculationMemory );
 
     if ( m_useZeroAsInactiveCellValue )
