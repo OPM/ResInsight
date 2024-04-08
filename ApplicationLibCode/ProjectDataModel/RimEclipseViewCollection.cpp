@@ -111,3 +111,12 @@ void RimEclipseViewCollection::addView( RimEclipseView* view )
     m_views.push_back( view );
     updateConnectedEditors();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseViewCollection::removeView( RimEclipseView* view )
+{
+    m_views.removeChild( view );
+    updateConnectedEditors();
+}

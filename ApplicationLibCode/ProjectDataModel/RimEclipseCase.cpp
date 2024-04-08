@@ -329,7 +329,10 @@ RimEclipseView* RimEclipseCase::createCopyAndAddView( const RimEclipseView* sour
 
     caf::PdmDocument::updateUiIconStateRecursively( rimEclipseView );
 
-    reservoirViews().push_back( rimEclipseView );
+    RimEclipseViewCollection* viewColl = viewCollection();
+    if ( !viewColl ) return nullptr;
+
+    viewColl->addView( rimEclipseView );
 
     // Resolve references after reservoir view has been inserted into Rim structures
     rimEclipseView->resolveReferencesRecursively();

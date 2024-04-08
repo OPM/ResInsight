@@ -33,10 +33,12 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
+#include "RimEclipseViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 
 #include "RiuAdvancedSnapshotExportWidget.h"
@@ -146,8 +148,7 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots( const QString& f
 
                 exportViewVariations( copyOfEclipseView, msd, folder );
 
-                // TODO: handle this case!!!
-                // eclCase->reservoirViews().removeChild( copyOfEclipseView );
+                removeViewFromViewCollection( copyOfEclipseView );
 
                 delete copyOfEclipseView;
             }
@@ -208,8 +209,7 @@ void RicAdvancedSnapshotExportFeature::exportViewVariations( Rim3dView* rimView,
             exportViewVariationsToFolder( copyOfView, msd, folder );
         }
 
-        // TODO: handle this case!!!
-        // eclCase->reservoirViews().removeChild( copyOfView );
+        removeViewFromViewCollection( copyOfView );
 
         delete copyOfView;
     }
@@ -339,4 +339,20 @@ QString RicAdvancedSnapshotExportFeature::resultName( Rim3dView* rimView )
     }
 
     return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicAdvancedSnapshotExportFeature::removeViewFromViewCollection( RimEclipseView* view )
+{
+    RimProject* project = RimProject::current();
+    if ( !project ) return;
+
+    RimOilField* oilField = project->activeOilField();
+    if ( !oilField ) return;
+
+    RimEclipseViewCollection* viewColl = oilField->eclipseViewCollection();
+    if ( !viewColl ) return;
+    viewColl->removeView( view );
 }

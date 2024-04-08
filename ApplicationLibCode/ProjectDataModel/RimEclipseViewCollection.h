@@ -40,6 +40,8 @@ public:
     RimEclipseView* addView( RimEclipseCase* eclipseCase );
     void            addView( RimEclipseView* view );
 
+    void removeView( RimEclipseView* view );
+
     std::vector<RimEclipseView*> views() const;
 
 private:
