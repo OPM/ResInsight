@@ -1,641 +1,323 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  
   <url>
     <loc>https://resinsight.org/getting-started/overview/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/projecttree/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/3dviews/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/calculated-data/calculatorexpressions/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/download-and-install/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/import/eclipsecases/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/import/eclipsesummarydata/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/import/ensemblefiledialog/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/calculated-data/grid-property-calculations/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/download-and-install/linux-installation/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/misc/preferences/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/import/roffgridmodels/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/wells-and-completions/simulationwells/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/export/snapshots/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/summaryplots/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2019_04/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2019_08/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2019_12/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2019_12_1/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2020_04/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2020_04_1/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2020_10/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2020_10_1/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2021_06/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2021_10/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2022_06/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2022_06_1/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2023_01/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2023_03/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2023_06/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2023_10/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2023_12/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2024_03/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/summaryplotdatasources/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/import/seismicdata/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/import/lasfile/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/misc/projectfile/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/scripting/pythoninterface/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/summaryplotmanager/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/misc/windowmanagement/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/cellresults/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/scripting/commandlineinterface/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/calculated-data/curvecalculator/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/export/eclipseproperties/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/import/geomechanicaldata/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/calculated-data/grid-property-calculations/gridpropertycalculator/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/misc/memorymanagement/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/best-practices/summarydata/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/summarysourcestepping/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/wells-and-completions/wellpaths/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2018_11/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/download-and-install/windows-installation/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/download-and-install/windows-subsystem-for-linux/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/helpmenuanddocumentation/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/import/soursimrlresults/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/misc/advancedtextinput/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/calculated-data/grid-property-calculations/aggregationofgridcellvalues/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/download-and-install/build-instructions-ubuntu/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/download-and-install/buildinstructions/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/scripting/commandfile/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/wells-and-completions/createnewwellpaths/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/import/elementpropertytable/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/export/fluxnummultnum/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/misc/keyboardshortcuts/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/modelnavigation/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/import/observeddata/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/import/pressuredata/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/resultcolorlegend/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/resultinfo/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/summaryploteditor/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/colorlegends/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/wells-and-completions/createmultilateralwellpaths/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/wells-and-completions/3dwelllogcurves/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/import/appendingadditionalproperties/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/calculated-data/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/export/completionexport/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/contourmaps/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/import/pasteexceltimedata/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/misc/regressiontestsystem/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/other/releasenotification/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/summarycrossplots/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/wells-and-completions/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/summaryplottemplate/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/summarytables/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/multiplots/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/wells-and-completions/completions/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/wells-and-completions/ensemblefracturestatistics/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/ensembleplotting/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/import/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/scripting/octaveinterface/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/export/exportwellpaths/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/objectivefunctions/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/analysisplots/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/gridstatisticsplots/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/correlationplots/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/wells-and-completions/completionslgr/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/export/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/scripting/octaveinterfacereference/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/resultinspection/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/export/sectormodel/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/other/testimonials/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/filters/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/scripting/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/welllogsandplots/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/wells-and-completions/wellmeasurements/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/declinecurveanalysis/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/intersections/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/misc/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/regressionanalysis/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/wellborestabilityplots/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/polygons/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/surfaces/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/best-practices/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/workflows/biotcoefficient/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/workflows/ensemblesurface/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/workflows/ensemblewelllog/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/faults/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/getting-started/other/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/rftplot/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/rftsegmentplot/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/allandiagrams/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/formations/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/export/contourmapexport/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/ensemblerftplot/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/workflows/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/calculated-data/derivedresults/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/calculated-data/faultdistance/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/pltplot/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/vfpplot/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/depthplot/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/calculated-data/derivedresultsgeomech/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/flow-diagnostics-plots/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/seismicview/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/seismicsections/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/calculated-data/casegroupsandstatistics/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/gridcrossplots/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/linkedviews/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/plot-window/saturationpressureplots/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/comparisonview/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/flowvectorresult/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/streamlines/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/measurement/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/annotations/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/tensors/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/3d-main-window/gridstatisticsdialog/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/_footer/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/_header/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/about/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/categories/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/search/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/support/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/tags/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://resinsight.org/training/</loc>
   </url>
-  
 </urlset>

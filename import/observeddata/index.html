@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.65.3" />
+    <meta name="generator" content="Hugo 0.113.0">
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Observed Time History Data :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1711366735" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1711366735" rel="stylesheet">
-    <link href="/css/hybrid.css?1711366735" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1711366735" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1711366735" rel="stylesheet">
-    <link href="/css/auto-complete.css?1711366735" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1711366735" rel="stylesheet">
-    <link href="/css/theme.css?1711366735" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1711366735" rel="stylesheet">
+    <link href="/css/nucleus.css?1712564322" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1712564322" rel="stylesheet">
+    <link href="/css/hybrid.css?1712564322" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1712564322" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1712564322" rel="stylesheet">
+    <link href="/css/auto-complete.css?1712564322" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1712564322" rel="stylesheet">
+    <link href="/css/theme.css?1712564322" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1712564322" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1711366735"></script>
+    <script src="/js/jquery-3.3.1.min.js?1712564322"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -2885,16 +2885,14 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 <a href="https://www.equinor.com">Equinor ASA</a>
 
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6BNMNQQY0H"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-6BNMNQQY0H', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-6BNMNQQY0H', { 'anonymize_ip': false });
 }
 </script>
 
@@ -3037,64 +3035,64 @@ The imported <img src="https://resinsight.org/images/import/Default.png" style="
 <p>An Eclipse address consists of a vector name and zero or more parameters. The number of parameters are defined by the category of the vector. The category is determined by looking up the category in an internal vector table. A valid standard vector name has 3 to 5 characters. Optionally it may be postfixed by a user defined name of 3 characters. A vector name having both a standard part and a user part must have 8 characters (5+3). In this case, if the standard part has less than 5 characters, it must be padded with underscores up to 5 characters. Example: &lsquo;RPR__WEL&rsquo;. Vector names having only the standard part are not padded.</p>
 <p>Categories:</p>
 <ul>
-<li><strong>Field</strong> - &lt;VECTOR &lsquo;F&hellip;.&lsquo;&gt;
+<li><strong>Field</strong> - &lt;VECTOR &lsquo;F&hellip;.'&gt;
 <ul>
 <li>Example: &lsquo;FOPT&rsquo;</li>
 </ul>
 </li>
-<li><strong>Aquifer</strong> - &lt;VECTOR &lsquo;A&hellip;.&lsquo;&gt;:&lt;AQUIFER NUMBER&gt;
+<li><strong>Aquifer</strong> - &lt;VECTOR &lsquo;A&hellip;.&rsquo;&gt;:&lt;AQUIFER NUMBER&gt;
 <ul>
 <li>Example: &lsquo;AAQR:1&rsquo;</li>
 </ul>
 </li>
-<li><strong>Network</strong> - &lt;VECTOR &lsquo;N&hellip;.&lsquo;&gt;</li>
-<li><strong>Misc</strong> - &lt;VECTOR &lsquo;&hellip;.&lsquo;&gt;</li>
-<li><strong>Region</strong> - &lt;VECTOR &lsquo;R&hellip;.&lsquo;&gt;:&lt;REGION NUMBER&gt;
+<li><strong>Network</strong> - &lt;VECTOR &lsquo;N&hellip;.'&gt;</li>
+<li><strong>Misc</strong> - &lt;VECTOR &lsquo;&hellip;.'&gt;</li>
+<li><strong>Region</strong> - &lt;VECTOR &lsquo;R&hellip;.&rsquo;&gt;:&lt;REGION NUMBER&gt;
 <ul>
 <li>Example: &lsquo;RPR:1&rsquo;</li>
 </ul>
 </li>
-<li><strong>Region to Region</strong> - &lt;VECTOR &lsquo;R.F..&lsquo;&gt;:&lt;REGION NUMBER&gt;-&lt;REGION NUMBER&gt;
+<li><strong>Region to Region</strong> - &lt;VECTOR &lsquo;R.F..&rsquo;&gt;:&lt;REGION NUMBER&gt;-&lt;REGION NUMBER&gt;
 <ul>
 <li>Example: &lsquo;ROFR:1-2&rsquo;</li>
 </ul>
 </li>
-<li><strong>Group</strong> - &lt;VECTOR &lsquo;G&hellip;.&lsquo;&gt;:&lt;GROUP NAME&gt;
+<li><strong>Group</strong> - &lt;VECTOR &lsquo;G&hellip;.&rsquo;&gt;:&lt;GROUP NAME&gt;
 <ul>
 <li>Example: &lsquo;GOPR:MANI-B1&rsquo;</li>
 </ul>
 </li>
-<li><strong>Well</strong> - &lt;VECTOR &lsquo;W&hellip;.&lsquo;&gt;:&lt;WELL NAME&gt;
+<li><strong>Well</strong> - &lt;VECTOR &lsquo;W&hellip;.&rsquo;&gt;:&lt;WELL NAME&gt;
 <ul>
 <li>Example: &lsquo;WOPR:B-2H&rsquo;</li>
 </ul>
 </li>
-<li><strong>Completion</strong> - &lt;VECTOR &lsquo;C&hellip;.&lsquo;&gt;:&lt;WELL NAME&gt;:&lt;I&gt;,&lt;J&gt;,&lt;K&gt;
+<li><strong>Completion</strong> - &lt;VECTOR &lsquo;C&hellip;.&rsquo;&gt;:&lt;WELL NAME&gt;:&lt;I&gt;,&lt;J&gt;,&lt;K&gt;
 <ul>
 <li>Example: &lsquo;COFRL:C-1H:26,44,16&rsquo;</li>
 </ul>
 </li>
-<li><strong>LGR Completion</strong> - &lt;VECTOR &lsquo;LC&hellip;&lsquo;&gt;:&lt;LGR NAME&gt;:&lt;WELL NAME&gt;:&lt;I&gt;,&lt;J&gt;,&lt;K&gt;
+<li><strong>LGR Completion</strong> - &lt;VECTOR &lsquo;LC&hellip;&rsquo;&gt;:&lt;LGR NAME&gt;:&lt;WELL NAME&gt;:&lt;I&gt;,&lt;J&gt;,&lt;K&gt;
 <ul>
 <li>Example: &lsquo;LCWIT:WELLI1:I1:5,5,5&rsquo;</li>
 </ul>
 </li>
-<li><strong>LGR Well</strong> - &lt;VECTOR &lsquo;LW&hellip;&lsquo;&gt;:&lt;LGR NAME&gt;:&lt;WELL NAME&gt;
+<li><strong>LGR Well</strong> - &lt;VECTOR &lsquo;LW&hellip;&rsquo;&gt;:&lt;LGR NAME&gt;:&lt;WELL NAME&gt;
 <ul>
 <li>Example: &lsquo;LWWIR:WELLI1:I1&rsquo;</li>
 </ul>
 </li>
-<li><strong>Segment</strong> - &lt;VECTOR &lsquo;S&hellip;.&lsquo;&gt;:&lt;WELL NAME&gt;:&lt;SEGMENT NUMBER&gt;
+<li><strong>Segment</strong> - &lt;VECTOR &lsquo;S&hellip;.&rsquo;&gt;:&lt;WELL NAME&gt;:&lt;SEGMENT NUMBER&gt;
 <ul>
 <li>Example: &lsquo;SOFR:B-5H:32&rsquo;</li>
 </ul>
 </li>
-<li><strong>Block</strong> - &lt;Vector &lsquo;B&hellip;.&lsquo;&gt;:&lt;I&gt;,&lt;J&gt;,&lt;K&gt;
+<li><strong>Block</strong> - &lt;Vector &lsquo;B&hellip;.&rsquo;&gt;:&lt;I&gt;,&lt;J&gt;,&lt;K&gt;
 <ul>
 <li>Example: &lsquo;BPR:15,18,21&rsquo;</li>
 </ul>
 </li>
-<li><strong>LGR Block</strong> - &lt;VECTOR &lsquo;LB&hellip;&lsquo;&gt;:&lt;LGR NAME&gt;:&lt;I&gt;,&lt;J&gt;,&lt;K&gt;
+<li><strong>LGR Block</strong> - &lt;VECTOR &lsquo;LB&hellip;&rsquo;&gt;:&lt;LGR NAME&gt;:&lt;I&gt;,&lt;J&gt;,&lt;K&gt;
 <ul>
 <li>Example: &lsquo;LBOSAT:CENTER:5,5,5&rsquo;</li>
 </ul>
@@ -3105,11 +3103,11 @@ The imported <img src="https://resinsight.org/images/import/Default.png" style="
 <p><strong>Instantaneous vs Accumulated Data</strong><br>
 A valid Eclipse vector having a standard name ending with &lsquo;T&rsquo; or &lsquo;TH&rsquo; are considered accumulated data. In the summary plot, these types of data are plotted slightly different. Instantaneous data are plotted using a stepped curve, while accumulated data are plotted using straight lines between the samples.</p>
 <p><strong>Error data</strong><br>
-Any address may have associated error data. Those type of data will have the same address as their associated data, but are prefixed by &lsquo;ER:', &lsquo;ERR:&rsquo; or &lsquo;ERROR:'. Example: &lsquo;ERR:FOPT&rsquo;. It is not possible to select error data explicitly in the plot editor selection fields, but when selecting a vector having associated error data, the error data is plotted as error bars in the summary plot.</p>
+Any address may have associated error data. Those type of data will have the same address as their associated data, but are prefixed by &lsquo;ER:&rsquo;, &lsquo;ERR:&rsquo; or &lsquo;ERROR:&rsquo;. Example: &lsquo;ERR:FOPT&rsquo;. It is not possible to select error data explicitly in the plot editor selection fields, but when selecting a vector having associated error data, the error data is plotted as error bars in the summary plot.</p>
 <p>Example:</p>
 <p><img src="/images/import/ErrorBars.png" alt=""></p>
 <h3 id="csv-line-based-format">CSV Line Based Format</h3>
-<p>ResInsight supports a &lsquo;line based&rsquo; CSV file format variant as well. As opposed to the normal CSV format, data values are organized in lines. Each line must contain at least a date (and time), a vector address and a sample value. Optionally it may also contain an error value and a comment. The information carried by this format is equivalent to the normal CSV format, it is only a different file layout.</p>
+<p>ResInsight supports a &rsquo;line based&rsquo; CSV file format variant as well. As opposed to the normal CSV format, data values are organized in lines. Each line must contain at least a date (and time), a vector address and a sample value. Optionally it may also contain an error value and a comment. The information carried by this format is equivalent to the normal CSV format, it is only a different file layout.</p>
 <p>When importing a line based CSV file, no dialog appears. Instead a more stict set of rules apply to this type of files:</p>
 <ul>
 <li>At least <strong>DATE</strong>, <strong>VECTOR</strong> and <strong>VALUE</strong> columns must be present. The order of columns may be changed.</li>
@@ -3122,14 +3120,14 @@ Any address may have associated error data. Those type of data will have the sam
 <h4 id="example">Example</h4>
 <p>The two examples below are equvalent and result in identical data after importing to ResInsight</p>
 <p>Line based CSV:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">DATE       ;VECTOR ;VALUE ;ERROR
-2018-04-16 ;FOPT   ;12.5  ;0.45
-2018-04-18 ;FOPT   ;8.6   ;0.31
-</code></pre></div><p>Normal CSV:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">DATE       ;FOPT ;ERR:FOPT
-2018-04-16 ;12.5 ;0.45
-2018-04-18 ;8.6  ;0.31
-</code></pre></div><h3 id="import-rsm-observed-time-history-data">Import RSM observed time history data</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>DATE       ;VECTOR ;VALUE ;ERROR
+</span></span><span style="display:flex;"><span>2018-04-16 ;FOPT   ;12.5  ;0.45
+</span></span><span style="display:flex;"><span>2018-04-18 ;FOPT   ;8.6   ;0.31
+</span></span></code></pre></div><p>Normal CSV:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>DATE       ;FOPT ;ERR:FOPT
+</span></span><span style="display:flex;"><span>2018-04-16 ;12.5 ;0.45
+</span></span><span style="display:flex;"><span>2018-04-18 ;8.6  ;0.31
+</span></span></code></pre></div><h3 id="import-rsm-observed-time-history-data">Import RSM observed time history data</h3>
 <p>To import RSM files, the only action needed from the user is to select one or more RSM files. When the import is finished, one tree node for each file will appear under the <strong>Observed Data</strong> node in the project tree. RSM files can be either <em>Column based</em> or <em>Keyword based</em>.</p>
 <h4 id="column-based-file-format">Column Based File Format</h4>
 <p>If a column based file is presented, ResInsight first tries to identify if its header has fixed width or not. Further, the header is interpreted by looking for specific lines.</p>
@@ -3137,83 +3135,83 @@ Any address may have associated error data. Those type of data will have the sam
 <p>The next lines can define units, well/group names, region names, LGR names and block numbers and the local cell number. They do not have to appear in any particular order. Scale factors can also be included, but will be ignored by ResInsight. All lines starting with <em><em>&ndash;</em></em> will also be ignored.</p>
 <h5 id="column-based-with-fixed-header-width">Column Based with Fixed Header Width</h5>
 <p>When interpreting column based files with fixed header width, ResInsight looks for left aligned column entries. These type of files are interpreted as we naturally read them. More than one table can be present in each file.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">1                                                                                                      
- -------------------------------------------------------------------------
- SUMMARY
- -------------------------------------------------------------------------
- DATE         FGIRH        FVPT         FWPT         FOPT         FLPT  
-              SM3/DAY      RM3          SM3          SM3          SM3    
-                           *10**3       *10**3       *10**3       *10**3 
-                                                                         
-                                                                         
- -------------------------------------------------------------------------
-  6-NOV-1997         0            0            0            0            0 
-  7-NOV-1997         0     5.749954     0.004548     4.379801     4.384350  
-  8-NOV-1997         0     13.76883     0.010841     10.48852     10.49936
-  9-NOV-1997         0     19.38692     0.015243     14.76847     14.78372  
- 10-NOV-1997         0     24.07161     0.018914     18.33751     18.35642
- 11-NOV-1997         0     28.79427     0.022613     21.93558     21.95819
-</code></pre></div><h5 id="column-based-with-random-header-width">Column Based with Random Header Width</h5>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>1                                                                                                      
+</span></span><span style="display:flex;"><span> -------------------------------------------------------------------------
+</span></span><span style="display:flex;"><span> SUMMARY
+</span></span><span style="display:flex;"><span> -------------------------------------------------------------------------
+</span></span><span style="display:flex;"><span> DATE         FGIRH        FVPT         FWPT         FOPT         FLPT  
+</span></span><span style="display:flex;"><span>              SM3/DAY      RM3          SM3          SM3          SM3    
+</span></span><span style="display:flex;"><span>                           *10**3       *10**3       *10**3       *10**3 
+</span></span><span style="display:flex;"><span>                                                                         
+</span></span><span style="display:flex;"><span>                                                                         
+</span></span><span style="display:flex;"><span> -------------------------------------------------------------------------
+</span></span><span style="display:flex;"><span>  6-NOV-1997         0            0            0            0            0 
+</span></span><span style="display:flex;"><span>  7-NOV-1997         0     5.749954     0.004548     4.379801     4.384350  
+</span></span><span style="display:flex;"><span>  8-NOV-1997         0     13.76883     0.010841     10.48852     10.49936
+</span></span><span style="display:flex;"><span>  9-NOV-1997         0     19.38692     0.015243     14.76847     14.78372  
+</span></span><span style="display:flex;"><span> 10-NOV-1997         0     24.07161     0.018914     18.33751     18.35642
+</span></span><span style="display:flex;"><span> 11-NOV-1997         0     28.79427     0.022613     21.93558     21.95819
+</span></span></code></pre></div><h5 id="column-based-with-random-header-width">Column Based with Random Header Width</h5>
 <p>Column Based with Random Header Width will try to be parsed in the same way as fixed width, but it might fail in situations like the one below. We can see that SM3/SM3 <em>probably</em> belongs to WGORH, but it is parsed to WWCTH, as it is the second entry on that line.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">TIME      WWCTH      WGORH
-DAYS               SM3/SM3          
-
-          A-5HP          A-5HP
-     1     0.000   0.000
-     2     0.000   0.000
-     3     0.000   0.000
-</code></pre></div><h4 id="keyword-based-file-format">Keyword Based File Format</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>TIME      WWCTH      WGORH
+</span></span><span style="display:flex;"><span>DAYS               SM3/SM3          
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>          A-5HP          A-5HP
+</span></span><span style="display:flex;"><span>     1     0.000   0.000
+</span></span><span style="display:flex;"><span>     2     0.000   0.000
+</span></span><span style="display:flex;"><span>     3     0.000   0.000
+</span></span></code></pre></div><h4 id="keyword-based-file-format">Keyword Based File Format</h4>
 <p>If the non-comment line includes the word &ldquo;VECTOR&rdquo;, the file is interpreted as a keyword based file. In keyword based files, the content of the one-column tables is described in each header. Tables should be associated with a table containing time stamps. In the example below, <em>S-1AH-GOR</em> is associated with <em>YEARX</em>, since their origin is equal. ResInsight always interpret <em>ORIGIN</em> as well name, and look for a table with the line &ldquo;VECTOR YEARX&rdquo; to associate with it.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">----------------------------------------------
--- GOR data 
-----------------------------------------------
-VECTOR S-122AH-GOR
-UNITS SM3/SM3
-ORIGIN GORS-122AH
-330.6601
-257.7500
-335.9894
-301.4388
-260.4193
-306.0298
-280.2883
-
-VECTOR YEARX
-ORIGIN GORS-112AH
-UNITS YEAR
-1999.7902
-1999.8446
-1999.9285
-2000.0391
-2000.0800
-2000.0862
-2000.1285
----comment
-
-
-----------------------------------------------
--- GOR data
-----------------------------------------------
-VECTOR S-211H-GOR
-UNITS SM3/SM3
-ORIGIN GORS-211H
-293.8103
-293.1634
-304.0000
-334.5932
-306.4610
-293.7571
-
-VECTOR YEARX
-ORIGIN GORS-22H
-UNITS YEAR
-1999.8255
-2000.1274
-2000.2075
-2000.2367
-2000.4033
-2000.4966
-</code></pre></div><p>Please seek &ldquo;User data file formats&rdquo; in <strong>Eclipse: File Formats Reference Manual</strong> for details.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>----------------------------------------------
+</span></span><span style="display:flex;"><span>-- GOR data 
+</span></span><span style="display:flex;"><span>----------------------------------------------
+</span></span><span style="display:flex;"><span>VECTOR S-122AH-GOR
+</span></span><span style="display:flex;"><span>UNITS SM3/SM3
+</span></span><span style="display:flex;"><span>ORIGIN GORS-122AH
+</span></span><span style="display:flex;"><span>330.6601
+</span></span><span style="display:flex;"><span>257.7500
+</span></span><span style="display:flex;"><span>335.9894
+</span></span><span style="display:flex;"><span>301.4388
+</span></span><span style="display:flex;"><span>260.4193
+</span></span><span style="display:flex;"><span>306.0298
+</span></span><span style="display:flex;"><span>280.2883
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>VECTOR YEARX
+</span></span><span style="display:flex;"><span>ORIGIN GORS-112AH
+</span></span><span style="display:flex;"><span>UNITS YEAR
+</span></span><span style="display:flex;"><span>1999.7902
+</span></span><span style="display:flex;"><span>1999.8446
+</span></span><span style="display:flex;"><span>1999.9285
+</span></span><span style="display:flex;"><span>2000.0391
+</span></span><span style="display:flex;"><span>2000.0800
+</span></span><span style="display:flex;"><span>2000.0862
+</span></span><span style="display:flex;"><span>2000.1285
+</span></span><span style="display:flex;"><span>---comment
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>----------------------------------------------
+</span></span><span style="display:flex;"><span>-- GOR data
+</span></span><span style="display:flex;"><span>----------------------------------------------
+</span></span><span style="display:flex;"><span>VECTOR S-211H-GOR
+</span></span><span style="display:flex;"><span>UNITS SM3/SM3
+</span></span><span style="display:flex;"><span>ORIGIN GORS-211H
+</span></span><span style="display:flex;"><span>293.8103
+</span></span><span style="display:flex;"><span>293.1634
+</span></span><span style="display:flex;"><span>304.0000
+</span></span><span style="display:flex;"><span>334.5932
+</span></span><span style="display:flex;"><span>306.4610
+</span></span><span style="display:flex;"><span>293.7571
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>VECTOR YEARX
+</span></span><span style="display:flex;"><span>ORIGIN GORS-22H
+</span></span><span style="display:flex;"><span>UNITS YEAR
+</span></span><span style="display:flex;"><span>1999.8255
+</span></span><span style="display:flex;"><span>2000.1274
+</span></span><span style="display:flex;"><span>2000.2075
+</span></span><span style="display:flex;"><span>2000.2367
+</span></span><span style="display:flex;"><span>2000.4033
+</span></span><span style="display:flex;"><span>2000.4966
+</span></span></code></pre></div><p>Please seek &ldquo;User data file formats&rdquo; in <strong>Eclipse: File Formats Reference Manual</strong> for details.</p>
 <h2 id="viewing-observed-time-history-data">Viewing Observed Time History Data</h2>
 <p><img src="/images/import/observedDataCurveCreator.png" alt=""></p>
 <p>To plot Observed Time History Data, choose <strong>New Summary Plot</strong> in the right-click menu of <strong>Summary Plots</strong>, in <strong>Plot Object Project Tree</strong>. Observed time history data will appear in <strong>Sources</strong> together with summary cases. How to use the Plot Editor is covered in <a href="/plot-window/summaryploteditor/">Summary Plot Editor</a>. Observed time history data points are plotted without lines by default.</p>
@@ -5479,19 +5477,19 @@ UNITS YEAR
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1711366735"></script>
-    <script src="/js/perfect-scrollbar.min.js?1711366735"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1711366735"></script>
-    <script src="/js/jquery.sticky.js?1711366735"></script>
-    <script src="/js/featherlight.min.js?1711366735"></script>
-    <script src="/js/highlight.pack.js?1711366735"></script>
+    <script src="/js/clipboard.min.js?1712564322"></script>
+    <script src="/js/perfect-scrollbar.min.js?1712564322"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1712564322"></script>
+    <script src="/js/jquery.sticky.js?1712564322"></script>
+    <script src="/js/featherlight.min.js?1712564322"></script>
+    <script src="/js/highlight.pack.js?1712564322"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1711366735"></script>
-    <script src="/js/learn.js?1711366735"></script>
-    <script src="/js/hugo-learn.js?1711366735"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1712564322"></script>
+    <script src="/js/learn.js?1712564322"></script>
+    <script src="/js/hugo-learn.js?1712564322"></script>
 
-    <link href="/mermaid/mermaid.css?1711366735" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1711366735"></script>
+    <link href="/mermaid/mermaid.css?1712564322" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1712564322"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

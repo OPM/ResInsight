@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.65.3" />
+    <meta name="generator" content="Hugo 0.113.0">
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Octave Interface Reference :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1711366735" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1711366735" rel="stylesheet">
-    <link href="/css/hybrid.css?1711366735" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1711366735" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1711366735" rel="stylesheet">
-    <link href="/css/auto-complete.css?1711366735" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1711366735" rel="stylesheet">
-    <link href="/css/theme.css?1711366735" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1711366735" rel="stylesheet">
+    <link href="/css/nucleus.css?1712564322" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1712564322" rel="stylesheet">
+    <link href="/css/hybrid.css?1712564322" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1712564322" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1712564322" rel="stylesheet">
+    <link href="/css/auto-complete.css?1712564322" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1712564322" rel="stylesheet">
+    <link href="/css/theme.css?1712564322" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1712564322" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1711366735"></script>
+    <script src="/js/jquery-3.3.1.min.js?1712564322"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -2885,16 +2885,14 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 <a href="https://www.equinor.com">Equinor ASA</a>
 
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6BNMNQQY0H"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-6BNMNQQY0H', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-6BNMNQQY0H', { 'anonymize_ip': false });
 }
 </script>
 
@@ -3013,7 +3011,7 @@ if (!doNotTrack) {
 </div>
 
 <h3 id="single-case-scripts">Single Case Scripts</h3>
-<p>Single case scripts do not need to address cases explicitly, but works on what ResInsight considers being the &ldquo;Current Case&rdquo;. When the user selects several cases and executes a script on them, ResInsight loops over all cases in the selection, sets the current case and executes the script. All references to the &ldquo;Current Case&rdquo; from the script will then refer to the case currently being processed by ResInsight. 
+<p>Single case scripts do not need to address cases explicitly, but works on what ResInsight considers being the &ldquo;Current Case&rdquo;. When the user selects several cases and executes a script on them, ResInsight loops over all cases in the selection, sets the current case and executes the script. All references to the &ldquo;Current Case&rdquo; from the script will then refer to the case currently being processed by ResInsight.
 The Current Case can be accessed directly using <strong>riGetCurrentCase()</strong>, but the more direct way is to <em>omit the CaseId parameter</em> in the functions, the Current Case is then automatically used.</p>
 <h3 id="multi-case-scripts">Multi Case Scripts</h3>
 <p>Scripts can access the selection state in ResInsight, and also retrieve lists of Case Groups and cases including some meta information. This can be used if the scripts need to get values from some cases, and store the results in others, etc.</p>
@@ -3076,10 +3074,10 @@ The Current Case can be accessed directly using <strong>riGetCurrentCase()</stro
 }
 </code></pre>
 <h4 id="vectorcaseinfo-rigetcasescasegroupid">Vector[CaseInfo] riGetCases([CaseGroupId])</h4>
-<p>This function returns a CaseInfo Structure for all the cases in the current ResInsight project, including the Statistics cases and Source cases in a Grid Case Group. 
+<p>This function returns a CaseInfo Structure for all the cases in the current ResInsight project, including the Statistics cases and Source cases in a Grid Case Group.
 If a CaseGroupId is provided, only the cases in that Case Group will be returned.</p>
 <h3 id="retrieving-grid-metadata">Retrieving Grid Metadata</h3>
-<h4 id="matrixnumactivecells9-rigetactivecellinfocaseid-porositymodel--matrixfracture-">Matrix[numActiveCells][9] riGetActiveCellInfo([CaseId], [PorosityModel = &ldquo;Matrix&quot;|&quot;Fracture&rdquo;] )</h4>
+<h4 id="matrixnumactivecells9-rigetactivecellinfocaseid-porositymodel--matrixfracture-">Matrix[numActiveCells][9] riGetActiveCellInfo([CaseId], [PorosityModel = &ldquo;Matrix&rdquo;|&ldquo;Fracture&rdquo;] )</h4>
 <p>This function returns a two dimensional matrix containing grid and IJK information about each of the active cells in the requested case. The columns contain the following information:</p>
 <pre><code>[GridIdx, I, J, K, ParentGridIdx, PI, PJ, PK, CoarseBoxIdx]
   GridIdx       # The index of the grid the cell resides in.
@@ -3103,7 +3101,7 @@ If the CaseId is not defined, ResInsight&rsquo;s Current Case is used.</p>
 <p>This function returns a two dimensional matrix: One row for each grid, starting with the main grid.</p>
 <p><em>NOTE</em>: This means that the &ldquo;normal&rdquo; GridIndices where 0 means Main Grid does not work directly with this matrix. You have to add 1.</p>
 <p>The columns contain the following information:
-[NI, NJ, NK]:  I, J, K dimensions of the grid. 
+[NI, NJ, NK]:  I, J, K dimensions of the grid.
 If the CaseId is not defined, ResInsight&rsquo;s Current Case is used.</p>
 <h4 id="vectortimestepdate-rigettimestepdatescaseid">Vector[TimeStepDate] riGetTimeStepDates([CaseId])</h4>
 <p>This function returns the date information for each of the time steps in the case as a Vector of Structures.
@@ -3122,7 +3120,7 @@ The Structure is defined as:</p>
 <p>This function returns the time from the simulation start as decimal days for all the time steps as a Vector of doubles.
 If the CaseId is not defined, ResInsight&rsquo;s Current Case is used.</p>
 <h3 id="retrieving-property-data">Retrieving Property Data</h3>
-<h4 id="vectorpropertyinfo-rigetpropertynamescaseid--porositymodel--matrixfracture">Vector[PropertyInfo] riGetPropertyNames([CaseId] ], [PorosityModel = &ldquo;Matrix&quot;|&quot;Fracture&rdquo;])</h4>
+<h4 id="vectorpropertyinfo-rigetpropertynamescaseid--porositymodel--matrixfracture">Vector[PropertyInfo] riGetPropertyNames([CaseId] ], [PorosityModel = &ldquo;Matrix&rdquo;|&ldquo;Fracture&rdquo;])</h4>
 <p>This function returns the name and type of all the properties in the case as a Vector of Structures.
 The Structure is defined as:</p>
 <pre><code>PropertyInfo {
@@ -3133,30 +3131,30 @@ The Structure is defined as:</p>
 }
 </code></pre>
 <p>If the CaseId is not defined, ResInsight&rsquo;s Current Case is used.</p>
-<h4 id="matrixnumactivecellsnumtimestepsrequested-rigetactivecellpropertycaseid-propertyname-requestedtimesteps-porositymodel--matrixfracture">Matrix[numActiveCells][numTimestepsRequested] riGetActiveCellProperty([CaseId], PropertyName, [RequestedTimeSteps], [PorosityModel = &ldquo;Matrix&quot;|&quot;Fracture&rdquo;])</h4>
+<h4 id="matrixnumactivecellsnumtimestepsrequested-rigetactivecellpropertycaseid-propertyname-requestedtimesteps-porositymodel--matrixfracture">Matrix[numActiveCells][numTimestepsRequested] riGetActiveCellProperty([CaseId], PropertyName, [RequestedTimeSteps], [PorosityModel = &ldquo;Matrix&rdquo;|&ldquo;Fracture&rdquo;])</h4>
 <p>This function returns a two dimensional matrix: [ActiveCells][Num TimestepsRequested] containing the requested property data from the case with CaseId.
-If the case contains coarse-cells, the results are expanded onto the active cells. 
-If the CaseId is not defined, ResInsight&rsquo;s Current Case is used. 
+If the case contains coarse-cells, the results are expanded onto the active cells.
+If the CaseId is not defined, ResInsight&rsquo;s Current Case is used.
 The RequestedTimeSteps must contain a list of indices to the requested time steps. If not defined, all the time steps are returned.</p>
-<h4 id="matrixnuminumjnumknumtimestepsrequested-rigetgridpropertycaseid-gridindex--propertyname-requestedtimesteps-porositymodel--matrixfracture">Matrix[numI][numJ][numK][numTimestepsRequested] riGetGridProperty([CaseId], GridIndex , PropertyName, [RequestedTimeSteps], [PorosityModel = &ldquo;Matrix&quot;|&quot;Fracture&rdquo;])</h4>
+<h4 id="matrixnuminumjnumknumtimestepsrequested-rigetgridpropertycaseid-gridindex--propertyname-requestedtimesteps-porositymodel--matrixfracture">Matrix[numI][numJ][numK][numTimestepsRequested] riGetGridProperty([CaseId], GridIndex , PropertyName, [RequestedTimeSteps], [PorosityModel = &ldquo;Matrix&rdquo;|&ldquo;Fracture&rdquo;])</h4>
 <p>This function returns a matrix of the requested property data for all the grid cells in the requested grid for each requested time step.
-Grids are indexed from 0 (main grid) to max number of LGR&rsquo;s 
+Grids are indexed from 0 (main grid) to max number of LGR&rsquo;s
 If the CaseId is not defined, ResInsight&rsquo;s Current Case is used.
 The RequestedTimeSteps must contain a list of indices to the requested time steps. If not defined, all the time steps are returned.
 Writing Back to ResInsight</p>
-<h4 id="risetactivecellproperty-matrixnumactivecellsnumtimesteps-caseid-propertyname-timestepindices-porositymodel--matrixfracture">riSetActiveCellProperty( Matrix[numActiveCells][numTimeSteps], [CaseId], PropertyName, [TimeStepIndices], [PorosityModel = &ldquo;Matrix&quot;|&quot;Fracture&rdquo;])</h4>
-<p>Interprets the supplied matrix as a property set defined for the active cells in the case, and puts the data into ResInsight as a &ldquo;Generated&rdquo; property with the name &ldquo;PropertyName&rdquo;. 
+<h4 id="risetactivecellproperty-matrixnumactivecellsnumtimesteps-caseid-propertyname-timestepindices-porositymodel--matrixfracture">riSetActiveCellProperty( Matrix[numActiveCells][numTimeSteps], [CaseId], PropertyName, [TimeStepIndices], [PorosityModel = &ldquo;Matrix&rdquo;|&ldquo;Fracture&rdquo;])</h4>
+<p>Interprets the supplied matrix as a property set defined for the active cells in the case, and puts the data into ResInsight as a &ldquo;Generated&rdquo; property with the name &ldquo;PropertyName&rdquo;.
 The &ldquo;TimeStepIndices&rdquo; argument is used to &ldquo;label&rdquo; all the time steps present in the supplied data matrix, and must thus be complete. The time step data will then be put into ResInsight at the time steps requested.<br>
 If the CaseId is not defined, ResInsight&rsquo;s Current Case is used.</p>
-<h4 id="risetgridproperty-matrixnuminumjnumknumtimesteps-caseid-gridindex-propertyname-timestepindices-porositymodel--matrixfracture">riSetGridProperty( Matrix[numI][numJ][numK][numTimeSteps], [CaseId], GridIndex, PropertyName, [TimeStepIndices], [PorosityModel = &ldquo;Matrix&quot;|&quot;Fracture&rdquo;])</h4>
-<p>Interprets the supplied matrix as a property set defined for all cells in one of the grids in a case, and puts the data into ResInsight as a &ldquo;Generated&rdquo; property with the name &ldquo;PropertyName&rdquo;. 
+<h4 id="risetgridproperty-matrixnuminumjnumknumtimesteps-caseid-gridindex-propertyname-timestepindices-porositymodel--matrixfracture">riSetGridProperty( Matrix[numI][numJ][numK][numTimeSteps], [CaseId], GridIndex, PropertyName, [TimeStepIndices], [PorosityModel = &ldquo;Matrix&rdquo;|&ldquo;Fracture&rdquo;])</h4>
+<p>Interprets the supplied matrix as a property set defined for all cells in one of the grids in a case, and puts the data into ResInsight as a &ldquo;Generated&rdquo; property with the name &ldquo;PropertyName&rdquo;.
 The &ldquo;TimeStepIndices&rdquo; argument is used to &ldquo;label&rdquo; all the time steps present in the supplied data matrix, and must thus be complete. The time step data will then be put into ResInsight at the time steps requested.
 If the CaseId is not defined, ResInsight&rsquo;s Current Case is used.</p>
 <h3 id="cell-geometry-functions">Cell Geometry Functions</h3>
 <h4 id="matrixnuminumjnumk3-rigetcellcenterscaseid-gridindex">Matrix[numI][numJ][numK][3] riGetCellCenters([CaseId], GridIndex)</h4>
 <p>This function returns the UTM coordinates (X, Y, Z) of the center point of all the cells in the grid.
 If the CaseId is not defined, ResInsight&rsquo;s Current Case is used.</p>
-<h4 id="matrixactivecells3-rigetactivecellcenterscaseid-porositymodel--matrixfracture">Matrix[ActiveCells][3] riGetActiveCellCenters([CaseId], [PorosityModel = &ldquo;Matrix&quot;|&quot;Fracture&rdquo;])</h4>
+<h4 id="matrixactivecells3-rigetactivecellcenterscaseid-porositymodel--matrixfracture">Matrix[ActiveCells][3] riGetActiveCellCenters([CaseId], [PorosityModel = &ldquo;Matrix&rdquo;|&ldquo;Fracture&rdquo;])</h4>
 <p>This function returns the UTM coordinates (X, Y, Z) of the center point of each of the active cells.
 If the CaseId is not defined, ResInsight&rsquo;s Current Case is used.
 Cell Corner Index layout
@@ -3176,7 +3174,7 @@ The corner indices follow the ECLIPSE standard:</p>
 <h4 id="matrixnuminumjnumk83-rigetcellcornerscaseid-gridindex">Matrix[numI][numJ][numK][8][3] riGetCellCorners([CaseId], GridIndex)</h4>
 <p>This function returns the UTM coordinates(X, Y, Z) of the 8 corners of all the cells in the grid.
 If the CaseId is not defined, ResInsight&rsquo;s Current Case is used.</p>
-<h4 id="matrixactivecells83-rigetactivecellcornerscaseid-porositymodel--matrixfracture">Matrix[ActiveCells][8][3] riGetActiveCellCorners([CaseId], [PorosityModel = &ldquo;Matrix&quot;|&quot;Fracture&rdquo;])</h4>
+<h4 id="matrixactivecells83-rigetactivecellcornerscaseid-porositymodel--matrixfracture">Matrix[ActiveCells][8][3] riGetActiveCellCorners([CaseId], [PorosityModel = &ldquo;Matrix&rdquo;|&ldquo;Fracture&rdquo;])</h4>
 <p>This function returns the UTM coordinates (X, Y, Z) of the 8 corners of each of the active cells.
 If the CaseId is not defined, ResInsight&rsquo;s Current Case is used.</p>
 <h3 id="well-data-functions">Well Data Functions</h3>
@@ -3215,7 +3213,7 @@ The columns contain the following information:</p>
   I, J, K # 1-based index of the cell in the grid.
 </code></pre>
 <p>If the CaseId is not defined, ResInsight&rsquo;s Current Case is used.</p>
-<h4 id="matrixnumselectedcellsnumtimestepsrequested-rigetgridpropertyforselectedcellscaseid-propertyname-requestedtimesteps-porositymodel--matrixfracture-">Matrix[numSelectedCells][numTimestepsRequested] riGetGridPropertyForSelectedCells([CaseId], PropertyName, [RequestedTimeSteps], [PorosityModel = &ldquo;Matrix&quot;|&quot;Fracture&rdquo;] )</h4>
+<h4 id="matrixnumselectedcellsnumtimestepsrequested-rigetgridpropertyforselectedcellscaseid-propertyname-requestedtimesteps-porositymodel--matrixfracture-">Matrix[numSelectedCells][numTimestepsRequested] riGetGridPropertyForSelectedCells([CaseId], PropertyName, [RequestedTimeSteps], [PorosityModel = &ldquo;Matrix&rdquo;|&ldquo;Fracture&rdquo;] )</h4>
 <p>This function returns a two dimensional matrix: [numSelectedCells][numTimestepsRequested] containing the requested property data from the case with CaseId.</p>
 <p>If the CaseId is not defined, ResInsight&rsquo;s Current Case is used.
 The RequestedTimeSteps must contain a list of 1-based indices to the requested time steps. If not defined, all the time steps are returned.</p>
@@ -5514,19 +5512,19 @@ The time step data will then be put into ResInsight at the time steps requested.
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1711366735"></script>
-    <script src="/js/perfect-scrollbar.min.js?1711366735"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1711366735"></script>
-    <script src="/js/jquery.sticky.js?1711366735"></script>
-    <script src="/js/featherlight.min.js?1711366735"></script>
-    <script src="/js/highlight.pack.js?1711366735"></script>
+    <script src="/js/clipboard.min.js?1712564322"></script>
+    <script src="/js/perfect-scrollbar.min.js?1712564322"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1712564322"></script>
+    <script src="/js/jquery.sticky.js?1712564322"></script>
+    <script src="/js/featherlight.min.js?1712564322"></script>
+    <script src="/js/highlight.pack.js?1712564322"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1711366735"></script>
-    <script src="/js/learn.js?1711366735"></script>
-    <script src="/js/hugo-learn.js?1711366735"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1712564322"></script>
+    <script src="/js/learn.js?1712564322"></script>
+    <script src="/js/hugo-learn.js?1712564322"></script>
 
-    <link href="/mermaid/mermaid.css?1711366735" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1711366735"></script>
+    <link href="/mermaid/mermaid.css?1712564322" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1712564322"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

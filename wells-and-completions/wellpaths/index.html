@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.65.3" />
+    <meta name="generator" content="Hugo 0.113.0">
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Well Paths :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1711366735" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1711366735" rel="stylesheet">
-    <link href="/css/hybrid.css?1711366735" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1711366735" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1711366735" rel="stylesheet">
-    <link href="/css/auto-complete.css?1711366735" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1711366735" rel="stylesheet">
-    <link href="/css/theme.css?1711366735" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1711366735" rel="stylesheet">
+    <link href="/css/nucleus.css?1712564322" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1712564322" rel="stylesheet">
+    <link href="/css/hybrid.css?1712564322" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1712564322" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1712564322" rel="stylesheet">
+    <link href="/css/auto-complete.css?1712564322" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1712564322" rel="stylesheet">
+    <link href="/css/theme.css?1712564322" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1712564322" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1711366735"></script>
+    <script src="/js/jquery-3.3.1.min.js?1712564322"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -2885,16 +2885,14 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 <a href="https://www.equinor.com">Equinor ASA</a>
 
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6BNMNQQY0H"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-6BNMNQQY0H', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-6BNMNQQY0H', { 'anonymize_ip': false });
 }
 </script>
 
@@ -3005,7 +3003,7 @@ if (!doNotTrack) {
 
 
 <p><img src="/images/3d-main-window/ResInsight_WellPathWithSimulationWell.png" alt=""></p>
-<p>ResInsight can import well paths from simple Ascii files. 
+<p>ResInsight can import well paths from simple Ascii files.
 In addition, ResInsight is able to retrieve well paths from an Equinor internal web service.</p>
 <p>ResInsight also supports creation of your own user-defined well paths. See <a href="/wells-and-completions/createnewwellpaths/">Create Well Paths</a></p>
 <h2 id="ascii-well-paths">Ascii Well Paths</h2>
@@ -3019,42 +3017,42 @@ In addition, ResInsight is able to retrieve well paths from an Equinor internal 
 <ul>
 <li>If the line contains a pair of : <code> &quot;'&quot;, &quot;`&quot;, &quot;´&quot;, &quot;’&quot; or &quot;‘&quot;</code> the text between the quotation marks is used as a well name.</li>
 <li>If the line contains the case insensitive string &ldquo;name&rdquo; with an optional &ldquo;:&rdquo; after then the rest of the line is used as a well name.</li>
-<li>If there are no quotes or &ldquo;name&rdquo;&lsquo;s, the complete line is used as a well name.</li>
+<li>If there are no quotes or &ldquo;name&rdquo;&rsquo;s, the complete line is used as a well name.</li>
 <li>If there are several consecutive name-like lines, only the last one will be used</li>
 </ul>
 </li>
 <li>If a well name is found, a new well is created and the following data points are added to it.</li>
 </ul>
 <h4 id="example-1">Example 1:</h4>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">WELLNAME: WELL1
-6507.1	725	2542	2590
-6523.5	757	2549	2626.6
-6523.5	760	2559	2637.1
--999
-WELLNAME: WELL2
-550.7 1020.2  2410   2410
-551   1004.1  2422.2 2430.2
-555.2  993.9  2425   2441.6
--999
-</code></pre></div><h4 id="example-2">Example 2:</h4>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">X Y TVD(MSL) MD(RKB)
-Name Well_1
-6507.1	725	2542	2542
-6523.5	757	2549	2578.6
-6523.5	760	2559	2589.1
-
--- A Comment new well
-This is not its name
-Name Well_2
-550.7	1020.2	2410	2520
-551	1004.1	2422.2	2540.2
-# a comment inside the data 
-555.2	993.9	2425	2551.6
-
-3Q AHB-J
-5507.0	4638.5	0.0	0.0
-5507	4638.5	1628.6	1628.6
-</code></pre></div><h3 id="well-path-files-are-referenced">Well Path Files are Referenced</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>WELLNAME: WELL1
+</span></span><span style="display:flex;"><span>6507.1	725	2542	2590
+</span></span><span style="display:flex;"><span>6523.5	757	2549	2626.6
+</span></span><span style="display:flex;"><span>6523.5	760	2559	2637.1
+</span></span><span style="display:flex;"><span>-999
+</span></span><span style="display:flex;"><span>WELLNAME: WELL2
+</span></span><span style="display:flex;"><span>550.7 1020.2  2410   2410
+</span></span><span style="display:flex;"><span>551   1004.1  2422.2 2430.2
+</span></span><span style="display:flex;"><span>555.2  993.9  2425   2441.6
+</span></span><span style="display:flex;"><span>-999
+</span></span></code></pre></div><h4 id="example-2">Example 2:</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>X Y TVD(MSL) MD(RKB)
+</span></span><span style="display:flex;"><span>Name Well_1
+</span></span><span style="display:flex;"><span>6507.1	725	2542	2542
+</span></span><span style="display:flex;"><span>6523.5	757	2549	2578.6
+</span></span><span style="display:flex;"><span>6523.5	760	2559	2589.1
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>-- A Comment new well
+</span></span><span style="display:flex;"><span>This is not its name
+</span></span><span style="display:flex;"><span>Name Well_2
+</span></span><span style="display:flex;"><span>550.7	1020.2	2410	2520
+</span></span><span style="display:flex;"><span>551	1004.1	2422.2	2540.2
+</span></span><span style="display:flex;"><span># a comment inside the data 
+</span></span><span style="display:flex;"><span>555.2	993.9	2425	2551.6
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>3Q AHB-J
+</span></span><span style="display:flex;"><span>5507.0	4638.5	0.0	0.0
+</span></span><span style="display:flex;"><span>5507	4638.5	1628.6	1628.6
+</span></span></code></pre></div><h3 id="well-path-files-are-referenced">Well Path Files are Referenced</h3>
 <p>The well path data is not copied into the ResInsight project as such. The project file only stores the file path, and the next time you open the project, ResInsight will try to read the well data from the file again.</p>
 
 <div class="notices info" ><p>If the well path file is changed and you would like a running ResInsight to update accordingly, you will need to delete all the well paths that emerge from that file, and import it again.</p>
@@ -3098,7 +3096,7 @@ If you are an Equinor employee, make sure you have access to &ldquo;EDM Landmark
 </ul>
 <h3 id="casing-design">Casing Design</h3>
 <p>Some Casing Design elements can be assigned to the well path by selecting <strong>Create Casign Design</strong> from the right-click menu of the well path.</p>
-<p>This will create a new child object for the Well Path, named <strong>Casing Design</strong>. In the <strong>Casign Design</strong> Property editor 
+<p>This will create a new child object for the Well Path, named <strong>Casing Design</strong>. In the <strong>Casign Design</strong> Property editor
 well path containment properties such as Casing (with Casing Shoe) and Liner can be added to the well path along with a start and end depth and a diameter.</p>
 <p><img src="/images/3d-main-window/CasignDesign.png" alt=""></p>
 <p>These can be visualised in the 3D View and Well Log Plots on a <a href="/plot-window/welllogsandplots/#tracks">Well Log Track</a>.</p>
@@ -5366,19 +5364,19 @@ well path containment properties such as Casing (with Casing Shoe) and Liner can
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1711366735"></script>
-    <script src="/js/perfect-scrollbar.min.js?1711366735"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1711366735"></script>
-    <script src="/js/jquery.sticky.js?1711366735"></script>
-    <script src="/js/featherlight.min.js?1711366735"></script>
-    <script src="/js/highlight.pack.js?1711366735"></script>
+    <script src="/js/clipboard.min.js?1712564322"></script>
+    <script src="/js/perfect-scrollbar.min.js?1712564322"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1712564322"></script>
+    <script src="/js/jquery.sticky.js?1712564322"></script>
+    <script src="/js/featherlight.min.js?1712564322"></script>
+    <script src="/js/highlight.pack.js?1712564322"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1711366735"></script>
-    <script src="/js/learn.js?1711366735"></script>
-    <script src="/js/hugo-learn.js?1711366735"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1712564322"></script>
+    <script src="/js/learn.js?1712564322"></script>
+    <script src="/js/hugo-learn.js?1712564322"></script>
 
-    <link href="/mermaid/mermaid.css?1711366735" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1711366735"></script>
+    <link href="/mermaid/mermaid.css?1712564322" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1712564322"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

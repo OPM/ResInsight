@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.65.3" />
+    <meta name="generator" content="Hugo 0.113.0">
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Completions :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1711366735" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1711366735" rel="stylesheet">
-    <link href="/css/hybrid.css?1711366735" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1711366735" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1711366735" rel="stylesheet">
-    <link href="/css/auto-complete.css?1711366735" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1711366735" rel="stylesheet">
-    <link href="/css/theme.css?1711366735" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1711366735" rel="stylesheet">
+    <link href="/css/nucleus.css?1712564322" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1712564322" rel="stylesheet">
+    <link href="/css/hybrid.css?1712564322" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1712564322" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1712564322" rel="stylesheet">
+    <link href="/css/auto-complete.css?1712564322" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1712564322" rel="stylesheet">
+    <link href="/css/theme.css?1712564322" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1712564322" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1711366735"></script>
+    <script src="/js/jquery-3.3.1.min.js?1712564322"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -2885,16 +2885,14 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 <a href="https://www.equinor.com">Equinor ASA</a>
 
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6BNMNQQY0H"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-6BNMNQQY0H', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-6BNMNQQY0H', { 'anonymize_ip': false });
 }
 </script>
 
@@ -3028,7 +3026,7 @@ c.f. <a href="/export/completionexport/">Export Well Segments</a>.</p>
 <li><strong>Geometry Scale Factor</strong> &ndash; Scales the connection factor symbols relative to the displayed well path radius</li>
 <li><strong>Show on Closed Connections</strong> &ndash; Show the connection factors calculated for closed simulation well cells in addition to the ones at open cells.</li>
 </ul>
-<p>A combined view of well connection factors and the derived result <a href="/calculated-data/derivedresults/#completion-type">Completion Type</a> 
+<p>A combined view of well connection factors and the derived result <a href="/calculated-data/derivedresults/#completion-type">Completion Type</a>
 enables the user to see the completion type contributing to connection factor in a cell.</p>
 <h2 id="perforation-intervals">Perforation Intervals</h2>
 <p>A new perforation interval on a well can be set up by right-clicking on the well in the <strong>3D View</strong> or in the <strong>Project Tree</strong>, and choosing the command <strong>Create Perforation interval</strong> in the <strong>Create Completions</strong> sub-menu. In the 3D View the completion will be created at the specific depth the right-click occurred at.</p>
@@ -3107,7 +3105,7 @@ enables the user to see the completion type contributing to connection factor in
 <h3 id="import-perforation-intervals">Import Perforation Intervals</h3>
 <p>Perforation intervals can be imported into ResInsight from <em><code>*.ev</code></em> files. These files consist of a list of wells, and their corresponding measured depth values for perforation start and end.</p>
 <h4 id="perforation-interval-file-format">Perforation Interval File Format</h4>
-<p>&ldquo;&ndash;&rdquo; is interpreted as the start of a comment. The comment ends at the end of the line. 
+<p>&ldquo;&ndash;&rdquo; is interpreted as the start of a comment. The comment ends at the end of the line.
 The files can start with a unit definition line:</p>
 <pre><code>UNITS &lt;unitname&gt;
 </code></pre>
@@ -3147,7 +3145,7 @@ Each set of holes created at the same location along the main bore, is referred 
 <ul>
 <li><strong>StartMD</strong> &ndash; the start position for the fishbones. This will be set to the highest possible value automatically, but can be set lower by the user. Gives the point along the well from which the transmissibility from the matrix to the main bore will be calculated.</li>
 <li><strong>Main Bore Diameter</strong> &ndash; The hole diameter for the main bore will be used in the calculation of the transmissibility (connection factor) into the main bore.</li>
-<li><strong>Main Bore Skin Factor</strong> &ndash; The skin factor for the main bore, used in calculation of the transmissibility (connection factor) into the main bore. 
+<li><strong>Main Bore Skin Factor</strong> &ndash; The skin factor for the main bore, used in calculation of the transmissibility (connection factor) into the main bore.
 For multi-segment wells there are additional parameters which should be set. These are used in the export of WELSEGS data.</li>
 </ul>
 </li>
@@ -3168,7 +3166,7 @@ For multi-segment wells there are additional parameters which should be set. The
 <h3 id="fishbones-subs-definition">Fishbones Subs Definition</h3>
 <p>To add new fishbones completions, select the <strong>New Fishbones Subs Definition</strong> command. This menu item is available by right clicking on <strong>Wells</strong> in the Project Tree or right clicking on the well trajectory in the 3D View.</p>
 <p><img src="/images/3d-main-window/CreateCompletionOnWellPath.png" alt=""></p>
-<p>The new <strong>Fishbones Subs Definition</strong> (a group of fishbone subs) is created in the Project tree. Several subs definitions can be created on the same well trajectory to give more flexibility in placing of the fishbones. The default sub definition is based on the Fishbones Drilling System with 3 laterals exiting per sub in a 8 1/2&rdquo; main bore.</p>
+<p>The new <strong>Fishbones Subs Definition</strong> (a group of fishbone subs) is created in the Project tree. Several subs definitions can be created on the same well trajectory to give more flexibility in placing of the fishbones. The default sub definition is based on the Fishbones Drilling System with 3 laterals exiting per sub in a 8 1/2&quot; main bore.</p>
 <p><img src="/images/3d-main-window/Fishbones_SubDefPropEdit.png" alt=""></p>
 <ul>
 <li><strong>Appearance</strong>
@@ -3224,7 +3222,7 @@ For multi-segment wells there are additional parameters which should be set. The
 <h3 id="export-fishbones-as-well-trajectories">Export Fishbones as Well Trajectories</h3>
 <p>The <strong>Export Laterals</strong> command will export the fishbone laterals as a well trajectory into a  <em><code>*.dev*</code></em> -file.</p>
 
-<div class="notices info" ><p>Notice that only the trajectory data is exported. Properties related to well segment data or Completion Data export can not be written to <code>*.dev*</code> files.</p>
+<div class="notices info" ><p>Notice that only the trajectory data is exported. Properties related to well segment data or Completion Data export can not be written to <code><em>.dev</em></code> files.</p>
 </div>
 
 <h2 id="fractures">Fractures</h2>
@@ -5687,19 +5685,19 @@ For multi-segment wells there are additional parameters which should be set. The
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1711366735"></script>
-    <script src="/js/perfect-scrollbar.min.js?1711366735"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1711366735"></script>
-    <script src="/js/jquery.sticky.js?1711366735"></script>
-    <script src="/js/featherlight.min.js?1711366735"></script>
-    <script src="/js/highlight.pack.js?1711366735"></script>
+    <script src="/js/clipboard.min.js?1712564322"></script>
+    <script src="/js/perfect-scrollbar.min.js?1712564322"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1712564322"></script>
+    <script src="/js/jquery.sticky.js?1712564322"></script>
+    <script src="/js/featherlight.min.js?1712564322"></script>
+    <script src="/js/highlight.pack.js?1712564322"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1711366735"></script>
-    <script src="/js/learn.js?1711366735"></script>
-    <script src="/js/hugo-learn.js?1711366735"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1712564322"></script>
+    <script src="/js/learn.js?1712564322"></script>
+    <script src="/js/hugo-learn.js?1712564322"></script>
 
-    <link href="/mermaid/mermaid.css?1711366735" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1711366735"></script>
+    <link href="/mermaid/mermaid.css?1712564322" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1712564322"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

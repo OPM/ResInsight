@@ -5,11 +5,7 @@
     <link>https://resinsight.org/calculated-data/</link>
     <description>Recent content in Calculated Data on ResInsight</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    
-	<atom:link href="https://resinsight.org/calculated-data/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <language>en-us</language><atom:link href="https://resinsight.org/calculated-data/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Calculator Expressions</title>
       <link>https://resinsight.org/calculated-data/calculatorexpressions/</link>
@@ -73,7 +69,7 @@ $Value_{[t-b]} = Value_{[t]} - Value_{[b]}$</description>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/calculated-data/casegroupsandstatistics/</guid>
-      <description>Grid Case Group&amp;lsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
+      <description>Grid Case Group&amp;rsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
 If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step.</description>
     </item>
     

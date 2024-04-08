@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.65.3" />
+    <meta name="generator" content="Hugo 0.113.0">
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Grid Property Calculator :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1711366735" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1711366735" rel="stylesheet">
-    <link href="/css/hybrid.css?1711366735" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1711366735" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1711366735" rel="stylesheet">
-    <link href="/css/auto-complete.css?1711366735" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1711366735" rel="stylesheet">
-    <link href="/css/theme.css?1711366735" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1711366735" rel="stylesheet">
+    <link href="/css/nucleus.css?1712564322" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1712564322" rel="stylesheet">
+    <link href="/css/hybrid.css?1712564322" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1712564322" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1712564322" rel="stylesheet">
+    <link href="/css/auto-complete.css?1712564322" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1712564322" rel="stylesheet">
+    <link href="/css/theme.css?1712564322" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1712564322" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1711366735"></script>
+    <script src="/js/jquery-3.3.1.min.js?1712564322"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -2885,16 +2885,14 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 <a href="https://www.equinor.com">Equinor ASA</a>
 
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6BNMNQQY0H"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-6BNMNQQY0H', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-6BNMNQQY0H', { 'anonymize_ip': false });
 }
 </script>
 
@@ -3000,22 +2998,22 @@ if (!doNotTrack) {
 
 
 <p><img src="/images/3d-main-window/GridPropertyCalculatorMain.png" alt=""></p>
-<p>ResInsight offers a built-in property calculator for grid parameters. 
+<p>ResInsight offers a built-in property calculator for grid parameters.
 The <strong>Grid Property Calculator</strong> enables arithmetic expressions to be parsed and calculated for visualization purposes. The expression can be applied to one or multiple grid models, and the expression text can be stored to a file for later use.</p>
 <p>Expressions can be saved to a text file using the <strong>Export Calculations</strong> button. The default location for calculations can be set in <strong>Preference-&gt;Import/Export</strong>.</p>
 <p>More details on mathematical operations are described in <a href="/calculated-data/calculatorexpressions/">Calculator Expressions</a></p>
 <h2 id="invoking-the-grid-property-calculator">Invoking the Grid Property Calculator</h2>
 <p>Invoke the the <strong>Grid Property Calculator</strong> by pressing the calculator icon <img src="https://resinsight.org/images/Calculator.svg" style="display:inline; vertical-align:middle; margin:0">
- in the menu bar or by right-clicking 
+ in the menu bar or by right-clicking
 <img src="https://resinsight.org/images/3d-main-window/CellResult.png" style="display:inline; vertical-align:middle; margin:0">
  <strong>Cell Result</strong> in <strong>Project Tree</strong>.</p>
 <p><img src="/images/3d-main-window/GridPropertyCalculatorInvoke.png" alt=""></p>
 <h2 id="example-using-grid-property-calculator">Example using Grid Property Calculator</h2>
-<p>As shown, the <strong>Grid Property Calculator</strong> is invoked by right-clicking 
+<p>As shown, the <strong>Grid Property Calculator</strong> is invoked by right-clicking
 <img src="https://resinsight.org/images/3d-main-window/CellResult.png" style="display:inline; vertical-align:middle; margin:0">
  <strong>Cell Result</strong> in <strong>Project Tree</strong>.
-As seen below, the <strong>Grid Property Calculator</strong> is per default prefilled with the simple summation 
-<em>Calculation_1 := x + y</em>. 
+As seen below, the <strong>Grid Property Calculator</strong> is per default prefilled with the simple summation
+<em>Calculation_1 := x + y</em>.
 This simple summation suffices for exemplifying its use.
 However, you may change name of the calculation and add additional variables and arithmetic operators in the <strong>Expression</strong> field.</p>
 
@@ -3023,8 +3021,8 @@ However, you may change name of the calculation and add additional variables and
 </div>
 
 <p><img src="/images/3d-main-window/GridPropertyCalculatorDefault.png" alt=""></p>
-<p>The next step is to define the variables <em>x</em> and <em>y</em>. 
-An easy way to define each variable is to drag and drop properties from <strong>Data Sources</strong>. See screenshot below for drag and drop of <em>SOIL</em> from <strong>Data Sources</strong> to the row of variable <em>x</em> in <strong>Grid Property Calculator</strong> (emphasized in red). 
+<p>The next step is to define the variables <em>x</em> and <em>y</em>.
+An easy way to define each variable is to drag and drop properties from <strong>Data Sources</strong>. See screenshot below for drag and drop of <em>SOIL</em> from <strong>Data Sources</strong> to the row of variable <em>x</em> in <strong>Grid Property Calculator</strong> (emphasized in red).
 Continue with drag and drop of <em>SGAS</em> to define <em>y</em>.</p>
 <p><img src="/images/3d-main-window/GridPropertyCalculatorDragDrop.png" alt=""></p>
 <p>Finally, press <strong>Calculate</strong> to perform the actual calculation.</p>
@@ -3032,7 +3030,7 @@ Continue with drag and drop of <em>SGAS</em> to define <em>y</em>.</p>
 <p><img src="/images/3d-main-window/GridPropertyCalculatorGeneratedProperty.png" alt=""></p>
 <h2 id="reference-procedure-using-grid-property-calculator">Reference Procedure using Grid Property Calculator</h2>
 <ol>
-<li>Invoke the the <strong>Grid Property Calculator</strong> by right-clicking 
+<li>Invoke the the <strong>Grid Property Calculator</strong> by right-clicking
 <img src="https://resinsight.org/images/3d-main-window/CellResult.png" style="display:inline; vertical-align:middle; margin:0">
  <strong>Cell Result</strong> in <strong>Project Tree</strong>.</li>
 <li>Define the expression for calculation by the involved variables and arithmetic operators
@@ -5311,19 +5309,19 @@ Continue with drag and drop of <em>SGAS</em> to define <em>y</em>.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1711366735"></script>
-    <script src="/js/perfect-scrollbar.min.js?1711366735"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1711366735"></script>
-    <script src="/js/jquery.sticky.js?1711366735"></script>
-    <script src="/js/featherlight.min.js?1711366735"></script>
-    <script src="/js/highlight.pack.js?1711366735"></script>
+    <script src="/js/clipboard.min.js?1712564322"></script>
+    <script src="/js/perfect-scrollbar.min.js?1712564322"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1712564322"></script>
+    <script src="/js/jquery.sticky.js?1712564322"></script>
+    <script src="/js/featherlight.min.js?1712564322"></script>
+    <script src="/js/highlight.pack.js?1712564322"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1711366735"></script>
-    <script src="/js/learn.js?1711366735"></script>
-    <script src="/js/hugo-learn.js?1711366735"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1712564322"></script>
+    <script src="/js/learn.js?1712564322"></script>
+    <script src="/js/hugo-learn.js?1712564322"></script>
 
-    <link href="/mermaid/mermaid.css?1711366735" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1711366735"></script>
+    <link href="/mermaid/mermaid.css?1712564322" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1712564322"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

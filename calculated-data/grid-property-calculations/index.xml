@@ -5,11 +5,7 @@
     <link>https://resinsight.org/calculated-data/grid-property-calculations/</link>
     <description>Recent content in Grid Property Calculator on ResInsight</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    
-	<atom:link href="https://resinsight.org/calculated-data/grid-property-calculations/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <language>en-us</language><atom:link href="https://resinsight.org/calculated-data/grid-property-calculations/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Grid Property Calculator</title>
       <link>https://resinsight.org/calculated-data/grid-property-calculations/gridpropertycalculator/</link>
@@ -27,7 +23,7 @@ Expressions can be saved to a text file using the Export Calculations button. Th
       
       <guid>https://resinsight.org/calculated-data/grid-property-calculations/aggregationofgridcellvalues/</guid>
       <description>Calculate statistics for sum of mobile oil for an ensemble Workflow description
- Import an ensemble of grid models with identical IJK into a Grid Case Group. Create a view on one of the source grid models, and create a cell filter for the region of interest. Create an expression for mobile oil MOBILE_OIL := if(((SOIL-SOWCR) &amp;lt; 0.00), 0.00, PORV*(SOIL-SOWCR)) Select a subset of time steps. This will significantly affect performance for for large grids with many time steps.</description>
+Import an ensemble of grid models with identical IJK into a Grid Case Group. Create a view on one of the source grid models, and create a cell filter for the region of interest. Create an expression for mobile oil MOBILE_OIL := if(((SOIL-SOWCR) &amp;lt; 0.00), 0.00, PORV*(SOIL-SOWCR)) Select a subset of time steps. This will significantly affect performance for for large grids with many time steps.</description>
     </item>
     
   </channel>

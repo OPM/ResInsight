@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.65.3" />
+    <meta name="generator" content="Hugo 0.113.0">
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>What&#39;s New in 2019.08 :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1711366735" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1711366735" rel="stylesheet">
-    <link href="/css/hybrid.css?1711366735" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1711366735" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1711366735" rel="stylesheet">
-    <link href="/css/auto-complete.css?1711366735" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1711366735" rel="stylesheet">
-    <link href="/css/theme.css?1711366735" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1711366735" rel="stylesheet">
+    <link href="/css/nucleus.css?1712564322" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1712564322" rel="stylesheet">
+    <link href="/css/hybrid.css?1712564322" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1712564322" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1712564322" rel="stylesheet">
+    <link href="/css/auto-complete.css?1712564322" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1712564322" rel="stylesheet">
+    <link href="/css/theme.css?1712564322" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1712564322" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1711366735"></script>
+    <script src="/js/jquery-3.3.1.min.js?1712564322"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -2885,16 +2885,14 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 <a href="https://www.equinor.com">Equinor ASA</a>
 
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6BNMNQQY0H"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-6BNMNQQY0H', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-6BNMNQQY0H', { 'anonymize_ip': false });
 }
 </script>
 
@@ -2995,24 +2993,24 @@ if (!doNotTrack) {
 <p>ResInsight 2019.08 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for Eclipse reservoir models. Version 2019.08 opens up a range of new and efficient workflows by adding Python script support in ResInsight.</p>
 <h2 id="python-scripting">Python scripting</h2>
 <p>Basic example on how to update views from Python</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> rips
-<span style="color:#75715e"># Connect to ResInsight instance</span>
-resInsight <span style="color:#f92672">=</span> rips<span style="color:#f92672">.</span>Instance<span style="color:#f92672">.</span>find()
-
-<span style="color:#75715e"># Check if connection worked</span>
-<span style="color:#66d9ef">if</span> resInsight <span style="color:#f92672">is</span> <span style="color:#f92672">not</span> None:
-    <span style="color:#75715e"># Get a list of all cases</span>
-    cases <span style="color:#f92672">=</span> resInsight<span style="color:#f92672">.</span>project<span style="color:#f92672">.</span>cases()
-    <span style="color:#66d9ef">for</span> case <span style="color:#f92672">in</span> cases:
-        <span style="color:#75715e"># Get a list of all views</span>
-        views <span style="color:#f92672">=</span> case<span style="color:#f92672">.</span>views()
-        <span style="color:#66d9ef">for</span> view <span style="color:#f92672">in</span> views:
-            <span style="color:#75715e"># Set some parameters for the view</span>
-            view<span style="color:#f92672">.</span>setShowGridBox(<span style="color:#f92672">not</span> view<span style="color:#f92672">.</span>showGridBox())
-            view<span style="color:#f92672">.</span>setBackgroundColor(<span style="color:#e6db74">&#34;#3388AA&#34;</span>)            
-            <span style="color:#75715e"># Update the view in ResInsight</span>
-            view<span style="color:#f92672">.</span>update()
-</code></pre></div><p>For more information and examples, please see the <a href="https://api.resinsight.org">ResInsight Python API</a>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> rips
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Connect to ResInsight instance</span>
+</span></span><span style="display:flex;"><span>resInsight <span style="color:#f92672">=</span> rips<span style="color:#f92672">.</span>Instance<span style="color:#f92672">.</span>find()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Check if connection worked</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> resInsight <span style="color:#f92672">is</span> <span style="color:#f92672">not</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Get a list of all cases</span>
+</span></span><span style="display:flex;"><span>    cases <span style="color:#f92672">=</span> resInsight<span style="color:#f92672">.</span>project<span style="color:#f92672">.</span>cases()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">case</span> <span style="color:#f92672">in</span> cases:
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Get a list of all views</span>
+</span></span><span style="display:flex;"><span>        views <span style="color:#f92672">=</span> <span style="color:#66d9ef">case</span><span style="color:#f92672">.</span>views()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> view <span style="color:#f92672">in</span> views:
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e"># Set some parameters for the view</span>
+</span></span><span style="display:flex;"><span>            view<span style="color:#f92672">.</span>setShowGridBox(<span style="color:#f92672">not</span> view<span style="color:#f92672">.</span>showGridBox())
+</span></span><span style="display:flex;"><span>            view<span style="color:#f92672">.</span>setBackgroundColor(<span style="color:#e6db74">&#34;#3388AA&#34;</span>)            
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e"># Update the view in ResInsight</span>
+</span></span><span style="display:flex;"><span>            view<span style="color:#f92672">.</span>update()
+</span></span></code></pre></div><p>For more information and examples, please see the <a href="https://api.resinsight.org">ResInsight Python API</a>.</p>
 <h2 id="launch-resinsight-without-user-interface">Launch ResInsight without user interface</h2>
 <p>It is now possible to launch ResInsight as a console application with no user interface. Some workflows might include servers with no graphics card, and the console mode enables use of ResInsight in this context.</p>
 <p>See <a href="/scripting/commandlineinterface/">Command Line Interface</a></p>
@@ -5279,19 +5277,19 @@ resInsight <span style="color:#f92672">=</span> rips<span style="color:#f92672">
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1711366735"></script>
-    <script src="/js/perfect-scrollbar.min.js?1711366735"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1711366735"></script>
-    <script src="/js/jquery.sticky.js?1711366735"></script>
-    <script src="/js/featherlight.min.js?1711366735"></script>
-    <script src="/js/highlight.pack.js?1711366735"></script>
+    <script src="/js/clipboard.min.js?1712564322"></script>
+    <script src="/js/perfect-scrollbar.min.js?1712564322"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1712564322"></script>
+    <script src="/js/jquery.sticky.js?1712564322"></script>
+    <script src="/js/featherlight.min.js?1712564322"></script>
+    <script src="/js/highlight.pack.js?1712564322"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1711366735"></script>
-    <script src="/js/learn.js?1711366735"></script>
-    <script src="/js/hugo-learn.js?1711366735"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1712564322"></script>
+    <script src="/js/learn.js?1712564322"></script>
+    <script src="/js/hugo-learn.js?1712564322"></script>
 
-    <link href="/mermaid/mermaid.css?1711366735" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1711366735"></script>
+    <link href="/mermaid/mermaid.css?1712564322" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1712564322"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

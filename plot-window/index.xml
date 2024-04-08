@@ -5,11 +5,7 @@
     <link>https://resinsight.org/plot-window/</link>
     <description>Recent content in Plot Main Window on ResInsight</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    
-	<atom:link href="https://resinsight.org/plot-window/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <language>en-us</language><atom:link href="https://resinsight.org/plot-window/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Summary Plots</title>
       <link>https://resinsight.org/plot-window/summaryplots/</link>
@@ -50,7 +46,7 @@ The user writes a text string defining the summary vectors and optionally data s
       <description>Summary Plot Source Stepping enables the user to efficiently step through multiple vectors, wells, summary cases, ensembles, groups, regions, blocks, and aquifers for plotting purposes. Source stepping is available from both the Source Stepping Toolbar and the Property editor as described below.
 Source Stepping using the toolbar The toolbar for source stepping is:
 Following this example, the available options are:
- Explicitly setting Step By to vector WBHP by  Change existing plot to display previous or next vector by pressing one of the buttons  Step previous or next vector and add a plot by the buttons  Step previous or next vector and add a curve by the buttons   Source Stepping using the Property Editor Source Stepping is also available through the Property Editor.</description>
+Explicitly setting Step By to vector WBHP by Change existing plot to display previous or next vector by pressing one of the buttons Step previous or next vector and add a plot by the buttons Step previous or next vector and add a curve by the buttons Source Stepping using the Property Editor Source Stepping is also available through the Property Editor.</description>
     </item>
     
     <item>
@@ -114,7 +110,7 @@ The currenly supported types of plots to be part of a Multi Plot are:</descripti
       <guid>https://resinsight.org/plot-window/ensembleplotting/</guid>
       <description>An ensemble is a group of cases that are tightly coupled, only a set of ensemble input parameters differ between cases. This makes it relevant to perform calculations and statistics analysis on ensembles.
 Import There are several ways to import an ensemble:
- Use menu option File-&amp;gt;Import-&amp;gt;Summary Cases-&amp;gt;Import Ensemble Use menu option File-&amp;gt;Import-&amp;gt;Summary Cases-&amp;gt;Import Summary Case group and then convert the group to an ensemble Import a number of summary cases, move them into a group and then convert the group to an ensemble  During import of a summary case, ResInsight tries to find an associated parameters.</description>
+Use menu option File-&amp;gt;Import-&amp;gt;Summary Cases-&amp;gt;Import Ensemble Use menu option File-&amp;gt;Import-&amp;gt;Summary Cases-&amp;gt;Import Summary Case group and then convert the group to an ensemble Import a number of summary cases, move them into a group and then convert the group to an ensemble During import of a summary case, ResInsight tries to find an associated parameters.</description>
     </item>
     
     <item>
@@ -170,7 +166,7 @@ Alternatively, Correlation Plots can be created by right-clicking the Correlatio
       <guid>https://resinsight.org/plot-window/welllogsandplots/</guid>
       <description>ResInsight can display well logs by extracting data from a simulation model along a well trajectory and from imported LAS-files. Extracted simulation data can be exported to LAS-files for further processing.
 Well Log Plots Well log plots can be created in several ways:
- Right-click a well path or a simulation well in the 3D-view and select New Well Log Extraction Curve.
+Right-click a well path or a simulation well in the 3D-view and select New Well Log Extraction Curve.
 A new plot with a single Track and Curve is created matching active case and selected Well trajectory.</description>
     </item>
     
@@ -203,7 +199,7 @@ Regression Types Linear Regression The linear regression (i.e. straight line fit
       <guid>https://resinsight.org/plot-window/wellborestabilityplots/</guid>
       <description>ResInsight can create Well Bore Stability plots for Geomechanical cases. These plots are specialized Well Log Plots to visualize Formations, Well Measurements, Well Path Attributes as well as a set of well path derived curves in different tracks.
 In the figure above, the first track contains Formations and an indication of sea level.
-   Sea Level Formations          The second track contains a visualisation of the well, with well attributes of Casing Design as well Completions</description>
+Sea Level Formations The second track contains a visualisation of the well, with well attributes of Casing Design as well Completions</description>
     </item>
     
     <item>

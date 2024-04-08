@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.65.3" />
+    <meta name="generator" content="Hugo 0.113.0">
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Summary Plots :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1711366735" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1711366735" rel="stylesheet">
-    <link href="/css/hybrid.css?1711366735" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1711366735" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1711366735" rel="stylesheet">
-    <link href="/css/auto-complete.css?1711366735" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1711366735" rel="stylesheet">
-    <link href="/css/theme.css?1711366735" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1711366735" rel="stylesheet">
+    <link href="/css/nucleus.css?1712564322" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1712564322" rel="stylesheet">
+    <link href="/css/hybrid.css?1712564322" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1712564322" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1712564322" rel="stylesheet">
+    <link href="/css/auto-complete.css?1712564322" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1712564322" rel="stylesheet">
+    <link href="/css/theme.css?1712564322" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1712564322" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1711366735"></script>
+    <script src="/js/jquery-3.3.1.min.js?1712564322"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -2885,16 +2885,14 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 <a href="https://www.equinor.com">Equinor ASA</a>
 
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6BNMNQQY0H"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-6BNMNQQY0H', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-6BNMNQQY0H', { 'anonymize_ip': false });
 }
 </script>
 
@@ -3017,13 +3015,13 @@ if (!doNotTrack) {
 
 
 <p><img src="/images/plot-window/SummaryPlotsMain.png" alt=""></p>
-<p>Summary Plots are a display of curves based on 
+<p>Summary Plots are a display of curves based on
 <a href="/import/eclipsesummarydata/">Eclipse Summary Data</a>
-which can be combined with 
-<a href="/import/observeddata/">imported observed data</a>, 
-<a href="/3d-main-window/resultinspection/#result-plot">grid cell time history curve</a>, and 
+which can be combined with
+<a href="/import/observeddata/">imported observed data</a>,
+<a href="/3d-main-window/resultinspection/#result-plot">grid cell time history curve</a>, and
 <a href="/import/pasteexceltimedata/">pasted ascii curves</a>.</p>
-<p>Summary plots are displayed on screen by maximum four rows by four columns of plots. 
+<p>Summary plots are displayed on screen by maximum four rows by four columns of plots.
 In the example above, ResInsight displays two columns and two rows of plots, each plot comprising a single curve. However, a plot may contain an arbitrary number of curves.
 As shown in the screenshot above, essential helpers for setup of Summary Plots are:</p>
 <ul>
@@ -3045,12 +3043,12 @@ powerful text-based selection of vectors for summary plotting</li>
 <li><em>Right-click</em> selected vector(s) and select <strong>New Summary Plot</strong></li>
 <li><em>Drag &amp; Drop</em> additional vector(s) to append curves into an existing plot or vacant plot area</li>
 </ul>
-<p>Creating a new summary plot of <em>WBHP</em> of <em>Well B-1H</em> and subsequent <em>Drag &amp; Drop</em> of WGOR and WGORH into the same subplot produces the following. 
+<p>Creating a new summary plot of <em>WBHP</em> of <em>Well B-1H</em> and subsequent <em>Drag &amp; Drop</em> of WGOR and WGORH into the same subplot produces the following.
 ResInsight will automatically make new axes if necessary. If units are the same as for WGOR and WGORH, a new axis is unnecessary.</p>
 <p><img src="/images/plot-window/SummaryPlots_WBHP_WGOR.png" alt=""></p>
 <h3 id="using-plot-manager-to-create-summary-plots">Using Plot Manager to create Summary Plots</h3>
-<p>Having imported <a href="/import/eclipsesummarydata/">Eclipse Summary Data</a>, the 
-<a href="/plot-window/summaryplotmanager/"><strong>Plot Manager</strong></a> 
+<p>Having imported <a href="/import/eclipsesummarydata/">Eclipse Summary Data</a>, the
+<a href="/plot-window/summaryplotmanager/"><strong>Plot Manager</strong></a>
 provides an alternative and powerful approach to create Summary Plots by text-based selection of data sources and vectors to plot.</p>
 <h2 id="summary-plots-and-functionality">Summary Plots and Functionality</h2>
 <h3 id="multiple-summary-plots-and-curves">Multiple Summary Plots and Curves</h3>
@@ -3109,7 +3107,7 @@ Use toolbar button <img src="https://resinsight.org/images/plot-window/ZoomAll16
 <p><img src="/images/plot-window/SummaryCurveHighlight.png" alt=""></p>
 <p>Summary curves can also be activated and deactivated by clicking the check-boxes in <strong>Plots</strong> window. See also <strong>Plots</strong> right-click menu items, e.g. <em>On - Others Off</em> which is an effective way to deactivate all curves not selected.</p>
 <h3 id="duplicate-plot-copy-and-paste">Duplicate plot, Copy and Paste</h3>
-<p>An entire summary plot may be duplicated using the toolbar button 
+<p>An entire summary plot may be duplicated using the toolbar button
 <img src="https://resinsight.org/images/plot-window/ToolbarDuplicatePlot.png" style="display:inline; vertical-align:middle; margin:0">
  <strong>Duplicate Plot</strong>.</p>
 <p>Copy and Paste of a summary plot, subplot (see below) or curve is also possible using the <strong>Plots</strong> right-click menu and standard keyboard shortcuts (CTRL-C/CTRL-V). This enables pasting a subplot or curve to wherever desired in the the <strong>Plots</strong> tree.</p>
@@ -3119,11 +3117,11 @@ Use toolbar button <img src="https://resinsight.org/images/plot-window/ZoomAll16
 To activate filtering of subplots, click a plot in <strong>Plots</strong> window, set the <em>Y-axis Threshold</em> in Property Editor, and click <em>Apply Filter</em>.</p>
 <p><img src="/images/plot-window/SummaryPlotVisibilityFilter.png" alt=""></p>
 <h3 id="splitting-a-plot-into-subplots">Splitting a plot into subplots</h3>
-<p>A plot with many curves can easily be split into multiple subplots. 
+<p>A plot with many curves can easily be split into multiple subplots.
 Right-click a composite plot in <strong>Plots</strong> and select <strong>Split Into Single Curve Plots</strong> to split  into subplots each comprising one curve.</p>
 <p><img src="/images/plot-window/SummaryPlotSplitIntoSingleCurvePlots.png" alt=""></p>
 <h3 id="accessing-plot-data">Accessing Plot Data</h3>
-<p>Right-clicking a plot in <strong>Plots</strong> window and selecting <strong>Show Plot Data</strong> will open a window containing the plot data as text columns. 
+<p>Right-clicking a plot in <strong>Plots</strong> window and selecting <strong>Show Plot Data</strong> will open a window containing the plot data as text columns.
 The window displays plot data by day, week, month, quarter, half year and year.</p>
 <p><strong>Resampling Method Description</strong></p>
 <ol>
@@ -3168,11 +3166,11 @@ It is also possible to save the text data to a file by the right-click command <
 <ul>
 <li><strong>Title Text</strong>: Caters for automatic or user specification of title and inclusion of vector name, acronym, and units in plot.</li>
 <li><strong>Title Layout</strong>: Positioning of title (<em>Center</em> or <em>At End</em>) and font size.</li>
-<li><strong>Axis Values</strong>: Logarithmic scale, inversion of axis, legend number formatting, scale factor, 
+<li><strong>Axis Values</strong>: Logarithmic scale, inversion of axis, legend number formatting, scale factor,
 max/max range, and font size.</li>
 </ul>
 <h3 id="changing-content-of-a-summary-plot">Changing content of a Summary Plot</h3>
-<p>Right-clicking an existing summary plot in <strong>Plots</strong> and selecting <em>Edit Summary Plot</em> initiates the 
+<p>Right-clicking an existing summary plot in <strong>Plots</strong> and selecting <em>Edit Summary Plot</em> initiates the
 <a href="/plot-window/summaryploteditor/"><em>Summary Plot Editor</em></a> which offers complete functionality to navigate and select vectors from all summary types.</p>
 
 
@@ -5433,19 +5431,19 @@ max/max range, and font size.</li>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1711366735"></script>
-    <script src="/js/perfect-scrollbar.min.js?1711366735"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1711366735"></script>
-    <script src="/js/jquery.sticky.js?1711366735"></script>
-    <script src="/js/featherlight.min.js?1711366735"></script>
-    <script src="/js/highlight.pack.js?1711366735"></script>
+    <script src="/js/clipboard.min.js?1712564322"></script>
+    <script src="/js/perfect-scrollbar.min.js?1712564322"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1712564322"></script>
+    <script src="/js/jquery.sticky.js?1712564322"></script>
+    <script src="/js/featherlight.min.js?1712564322"></script>
+    <script src="/js/highlight.pack.js?1712564322"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1711366735"></script>
-    <script src="/js/learn.js?1711366735"></script>
-    <script src="/js/hugo-learn.js?1711366735"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1712564322"></script>
+    <script src="/js/learn.js?1712564322"></script>
+    <script src="/js/hugo-learn.js?1712564322"></script>
 
-    <link href="/mermaid/mermaid.css?1711366735" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1711366735"></script>
+    <link href="/mermaid/mermaid.css?1712564322" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1712564322"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

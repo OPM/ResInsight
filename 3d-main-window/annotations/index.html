@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.65.3" />
+    <meta name="generator" content="Hugo 0.113.0">
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Annotations :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1711366734" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1711366734" rel="stylesheet">
-    <link href="/css/hybrid.css?1711366734" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1711366734" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1711366734" rel="stylesheet">
-    <link href="/css/auto-complete.css?1711366734" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1711366734" rel="stylesheet">
-    <link href="/css/theme.css?1711366734" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1711366734" rel="stylesheet">
+    <link href="/css/nucleus.css?1712564322" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1712564322" rel="stylesheet">
+    <link href="/css/hybrid.css?1712564322" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1712564322" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1712564322" rel="stylesheet">
+    <link href="/css/auto-complete.css?1712564322" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1712564322" rel="stylesheet">
+    <link href="/css/theme.css?1712564322" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1712564322" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1711366734"></script>
+    <script src="/js/jquery-3.3.1.min.js?1712564322"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -2885,16 +2885,14 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 <a href="https://www.equinor.com">Equinor ASA</a>
 
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6BNMNQQY0H"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-6BNMNQQY0H', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-6BNMNQQY0H', { 'anonymize_ip': false });
 }
 </script>
 
@@ -3059,20 +3057,20 @@ Global annotations sub tree</p>
 </ul>
 <h3 id="polyline-file-format">Polyline File format</h3>
 <p>Define each point as three double per line (<strong>X Y Depth</strong>). Comment lines are supported by using <strong>#</strong> at the start of the line</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt"># This is a comment
-# This is a comment
-58177.76 732.7 1643.6 
-58260.83 732.8 1596.6 
-57985.66 732.7 1542.0 
-59601.45 732.4 3639.0 
-59422.01 732.2 3639.0 
-59793.41 732.2 3639.0 
-999 999 999
-# starting polyline 2
-58260.83 732.8 1596.6 
-57985.66 732.7 1542.0 
-59601.45 732.4 3639.0 
-</code></pre></div><h2 id="annotations-visibility">Annotations visibility</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span># This is a comment
+</span></span><span style="display:flex;"><span># This is a comment
+</span></span><span style="display:flex;"><span>58177.76 732.7 1643.6 
+</span></span><span style="display:flex;"><span>58260.83 732.8 1596.6 
+</span></span><span style="display:flex;"><span>57985.66 732.7 1542.0 
+</span></span><span style="display:flex;"><span>59601.45 732.4 3639.0 
+</span></span><span style="display:flex;"><span>59422.01 732.2 3639.0 
+</span></span><span style="display:flex;"><span>59793.41 732.2 3639.0 
+</span></span><span style="display:flex;"><span>999 999 999
+</span></span><span style="display:flex;"><span># starting polyline 2
+</span></span><span style="display:flex;"><span>58260.83 732.8 1596.6 
+</span></span><span style="display:flex;"><span>57985.66 732.7 1542.0 
+</span></span><span style="display:flex;"><span>59601.45 732.4 3639.0 
+</span></span></code></pre></div><h2 id="annotations-visibility">Annotations visibility</h2>
 <p>Local annotations visibility is controlled by the check boxes in the local annotations sub tree only. Global annotations visibility, on the other hand, is controlled by the check boxes in both the global and local annotations sub trees. So in order to display a global annotation in a specific view, both the annotation tree note itself and its representation in the local sub tree must have visibilty enabled.</p>
 
 
@@ -5336,19 +5334,19 @@ Global annotations sub tree</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1711366735"></script>
-    <script src="/js/perfect-scrollbar.min.js?1711366735"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1711366735"></script>
-    <script src="/js/jquery.sticky.js?1711366735"></script>
-    <script src="/js/featherlight.min.js?1711366735"></script>
-    <script src="/js/highlight.pack.js?1711366735"></script>
+    <script src="/js/clipboard.min.js?1712564322"></script>
+    <script src="/js/perfect-scrollbar.min.js?1712564322"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1712564322"></script>
+    <script src="/js/jquery.sticky.js?1712564322"></script>
+    <script src="/js/featherlight.min.js?1712564322"></script>
+    <script src="/js/highlight.pack.js?1712564322"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1711366735"></script>
-    <script src="/js/learn.js?1711366735"></script>
-    <script src="/js/hugo-learn.js?1711366735"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1712564322"></script>
+    <script src="/js/learn.js?1712564322"></script>
+    <script src="/js/hugo-learn.js?1712564322"></script>
 
-    <link href="/mermaid/mermaid.css?1711366735" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1711366735"></script>
+    <link href="/mermaid/mermaid.css?1712564322" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1712564322"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

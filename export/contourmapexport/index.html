@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.65.3" />
+    <meta name="generator" content="Hugo 0.113.0">
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Contour Map Export :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1711366735" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1711366735" rel="stylesheet">
-    <link href="/css/hybrid.css?1711366735" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1711366735" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1711366735" rel="stylesheet">
-    <link href="/css/auto-complete.css?1711366735" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1711366735" rel="stylesheet">
-    <link href="/css/theme.css?1711366735" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1711366735" rel="stylesheet">
+    <link href="/css/nucleus.css?1712564322" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1712564322" rel="stylesheet">
+    <link href="/css/hybrid.css?1712564322" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1712564322" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1712564322" rel="stylesheet">
+    <link href="/css/auto-complete.css?1712564322" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1712564322" rel="stylesheet">
+    <link href="/css/theme.css?1712564322" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1712564322" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1711366735"></script>
+    <script src="/js/jquery-3.3.1.min.js?1712564322"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -2885,16 +2885,14 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 <a href="https://www.equinor.com">Equinor ASA</a>
 
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6BNMNQQY0H"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-6BNMNQQY0H', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-6BNMNQQY0H', { 'anonymize_ip': false });
 }
 </script>
 
@@ -3015,26 +3013,26 @@ if (!doNotTrack) {
 <p>If local coordinates are exported, the UTM coordinate offset is included as a comment in the header of the export file (c.f. example file below).
 To anonymize the data, the UTM coordinate offset may be removed from file.</p>
 <p>Example file:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt"># case name : 1_R001_REEK-0
-# sampling points : nx=90 ny=100
-# time and date : 01.Jan 2000
-# property name : Arithmetic Mean, PRESSURE
-# UTM offset : x=456256 y=5.92663e+06
-
-x               y               value    
-5209.20099      254.10737       341.09308
-5336.25467      254.10737       341.13252
-5463.30835      254.10737       341.36091
-5590.36204      254.10737       341.62615
-5717.41572      254.10737       341.70246
-5082.14731      381.16105       340.56455
-5209.20099      381.16105       340.79087
-5336.25467      381.16105       341.02580
-5463.30835      381.16105       341.40061
-5590.36204      381.16105       341.86177
-5717.41572      381.16105       342.34527
-...             ...             ...
-</code></pre></div><h2 id="python-interface-for-export-of-contour-maps">Python interface for export of contour maps</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span># case name : 1_R001_REEK-0
+</span></span><span style="display:flex;"><span># sampling points : nx=90 ny=100
+</span></span><span style="display:flex;"><span># time and date : 01.Jan 2000
+</span></span><span style="display:flex;"><span># property name : Arithmetic Mean, PRESSURE
+</span></span><span style="display:flex;"><span># UTM offset : x=456256 y=5.92663e+06
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>x               y               value    
+</span></span><span style="display:flex;"><span>5209.20099      254.10737       341.09308
+</span></span><span style="display:flex;"><span>5336.25467      254.10737       341.13252
+</span></span><span style="display:flex;"><span>5463.30835      254.10737       341.36091
+</span></span><span style="display:flex;"><span>5590.36204      254.10737       341.62615
+</span></span><span style="display:flex;"><span>5717.41572      254.10737       341.70246
+</span></span><span style="display:flex;"><span>5082.14731      381.16105       340.56455
+</span></span><span style="display:flex;"><span>5209.20099      381.16105       340.79087
+</span></span><span style="display:flex;"><span>5336.25467      381.16105       341.02580
+</span></span><span style="display:flex;"><span>5463.30835      381.16105       341.40061
+</span></span><span style="display:flex;"><span>5590.36204      381.16105       341.86177
+</span></span><span style="display:flex;"><span>5717.41572      381.16105       342.34527
+</span></span><span style="display:flex;"><span>...             ...             ...
+</span></span></code></pre></div><h2 id="python-interface-for-export-of-contour-maps">Python interface for export of contour maps</h2>
 <p>The <a href="https://api.resinsight.org">ResInsight Python API</a> allows the user to access all contour maps belonging to a project.
 A Python script for exporting contour maps to a text file is included as one of the examples of the
 <a href="https://api.resinsight.org">ResInsight Python API</a>.</p>
@@ -5300,19 +5298,19 @@ A Python script for exporting contour maps to a text file is included as one of 
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1711366735"></script>
-    <script src="/js/perfect-scrollbar.min.js?1711366735"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1711366735"></script>
-    <script src="/js/jquery.sticky.js?1711366735"></script>
-    <script src="/js/featherlight.min.js?1711366735"></script>
-    <script src="/js/highlight.pack.js?1711366735"></script>
+    <script src="/js/clipboard.min.js?1712564322"></script>
+    <script src="/js/perfect-scrollbar.min.js?1712564322"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1712564322"></script>
+    <script src="/js/jquery.sticky.js?1712564322"></script>
+    <script src="/js/featherlight.min.js?1712564322"></script>
+    <script src="/js/highlight.pack.js?1712564322"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1711366735"></script>
-    <script src="/js/learn.js?1711366735"></script>
-    <script src="/js/hugo-learn.js?1711366735"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1712564322"></script>
+    <script src="/js/learn.js?1712564322"></script>
+    <script src="/js/hugo-learn.js?1712564322"></script>
 
-    <link href="/mermaid/mermaid.css?1711366735" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1711366735"></script>
+    <link href="/mermaid/mermaid.css?1712564322" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1712564322"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

@@ -5,11 +5,7 @@
     <link>https://resinsight.org/</link>
     <description>Recent content on ResInsight</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    
-	<atom:link href="https://resinsight.org/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <language>en-us</language><atom:link href="https://resinsight.org/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Overview</title>
       <link>https://resinsight.org/getting-started/overview/</link>
@@ -28,7 +24,7 @@ Docking Windows Each of the main windows has a central area and several docking 
       
       <guid>https://resinsight.org/getting-started/projecttree/</guid>
       <description>As described in Overview, ResInsight has two main windows, one for 3D related visualizations and one for 2D graphs and plots. The content and appearance of displayed information is managed and controlled by the Project Tree and the Plots windows. Some of their general functionality is described and exemplified below.
-Multiple selection and collective actions Multiple selection of items in ResInsight offers an entrance to powerful combinations and collective actions. To exemplify, consider the plot of Bottom Hole Pressure for a number of wells atop this page.</description>
+Multiple selection and collective actions Multiple selection of items in ResInsight offers an entrance to powerful combinations and collective actions.</description>
     </item>
     
     <item>
@@ -62,8 +58,8 @@ Operators and Functions Possible operations and functions are found by right-cli
       
       <guid>https://resinsight.org/import/eclipsecases/</guid>
       <description>ResInsight supports the following type of Eclipse input data:
- *.GRID and *.EGRID files along with their *.INIT and restart files *.XNNN and *.UNRST. Grid and Property data from *.GRDECL files.  Release 2018.11 supports import of simulations from Intersect. To be able to import into ResInsight, the Intersect simulation must be exported into Eclipse file format.
-Eclipse Results ResInsight offers several ways to import Eclipse (grid) files. Use one of the following commands in the File-&amp;gt;Import-&amp;gt;Eclipse Cases menu:</description>
+*.GRID and *.EGRID files along with their *.INIT and restart files *.XNNN and *.UNRST. Grid and Property data from *.GRDECL files. Release 2018.11 supports import of simulations from Intersect. To be able to import into ResInsight, the Intersect simulation must be exported into Eclipse file format.
+Eclipse Results ResInsight offers several ways to import Eclipse (grid) files. Use one of the following commands in the File-&amp;gt;Import-&amp;gt;Eclipse Cases menu:</description>
     </item>
     
     <item>
@@ -95,8 +91,8 @@ This dialog is used for import of different file types like *.</description>
       
       <guid>https://resinsight.org/getting-started/download-and-install/linux-installation/</guid>
       <description>Install From Binary Packages on Linux Please not that the distribution by the OPM Project will be updated some time after the release of a new version on GitHub.
-Ubuntu On the command line do:
-sudo apt-get updatesudo apt-get install software-properties-commonsudo apt-add-repository ppa:opm/ppasudo apt-get updatesudo apt-get install resinsightsudo apt-get install octave-resinsight Launch the application using the command ResInsight
+Ubuntu On the command line do:
+sudo apt-get updatesudo apt-get install software-properties-commonsudo apt-add-repository ppa:opm/ppasudo apt-get updatesudo apt-get install resinsightsudo apt-get install octave-resinsightLaunch the application using the command ResInsight
 For further installation details, see the ResInsight distribution on Opm Project Downloading and Installing.</description>
     </item>
     
@@ -117,7 +113,7 @@ General When changing the preferences, any default color, font or Z-scale Factor
       
       <guid>https://resinsight.org/import/roffgridmodels/</guid>
       <description>ResInsight supports the following type of ROFF input data:
- *.ROFF and *.ROFFASC containing data from RMS as Roxar Open File Format (ROFF) in binary or ascii format.  Roff Data Roff Data can be imported from File-&amp;gt;Import-&amp;gt;Roff Grid Models-&amp;gt;Import Roff Case menu. Select a grid file and additional files with properties in the import dialog. The grid will be displayed and used in the same way as an Eclipse grid model.</description>
+*.ROFF and *.ROFFASC containing data from RMS as Roxar Open File Format (ROFF) in binary or ascii format. Roff Data Roff Data can be imported from File-&amp;gt;Import-&amp;gt;Roff Grid Models-&amp;gt;Import Roff Case menu. Select a grid file and additional files with properties in the import dialog. The grid will be displayed and used in the same way as an Eclipse grid model.</description>
     </item>
     
     <item>
@@ -128,7 +124,7 @@ General When changing the preferences, any default color, font or Z-scale Factor
       <guid>https://resinsight.org/wells-and-completions/simulationwells/</guid>
       <description>This section describes how wells defined in the simulation are displayed, and how to control the different aspects of their visualization.
 Commands Several commands are available as right-click commands on a simulation well. These commands are available either by right-clicking the well in the 3D View or in the Project Tree.
- New Well Log Extraction Curve &amp;ndash; Creates a new Well Log curve based on the selected simulation well, the current time step and cell property.</description>
+New Well Log Extraction Curve &amp;ndash; Creates a new Well Log curve based on the selected simulation well, the current time step and cell property.</description>
     </item>
     
     <item>
@@ -169,7 +165,7 @@ Grid Cross Plots ResInsight supports the creation of cross plots of two results 
       <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2019_08/</guid>
       <description>ResInsight 2019.08 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for Eclipse reservoir models. Version 2019.08 opens up a range of new and efficient workflows by adding Python script support in ResInsight.
 Python scripting Basic example on how to update views from Python
-import rips# Connect to ResInsight instance resInsight = rips.Instance.find()# Check if connection worked if resInsight is not None:# Get a list of all cases cases = resInsight.</description>
+import rips # Connect to ResInsight instance resInsight = rips.Instance.find() # Check if connection worked if resInsight is not None: # Get a list of all cases cases = resInsight.</description>
     </item>
     
     <item>
@@ -191,8 +187,7 @@ Comparison View ResInsight offers a Comparison View to compare two existing view
       <description>ResInsight 2019.12.1 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2019.12.1 consists of a few critical issues and minor functionality changes.
 Bugfixes Release info on GitHub
 Changes in behavior WELSEGS Output of segment depth is based on center of segment. Previously the segment end was reported.
-Export of Completions and MSW 
-Multiple completions in same cell In previous releases, no connection factor has been reported if multiple fracture completions has been detected in the same cell.</description>
+Export of Completions and MSW Multiple completions in same cell In previous releases, no connection factor has been reported if multiple fracture completions has been detected in the same cell.</description>
     </item>
     
     <item>
@@ -214,7 +209,7 @@ Allan Diagrams Allan Diagrams displays the overlap of formations and layers acro
       <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2020_04_1/</guid>
       <description>ResInsight 2020.04.1 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2020.04.1 is a patch update with several critical fixes.
 Most important fixes
- Performance improvements related to import and calculations of faults and NNCs Performance related to well disks and import of summary data Adjustments for well bore stability plots Completions : Use well name defined in project for export  Release notes for 2020.</description>
+Performance improvements related to import and calculations of faults and NNCs Performance related to well disks and import of summary data Adjustments for well bore stability plots Completions : Use well name defined in project for export Release notes for 2020.</description>
     </item>
     
     <item>
@@ -235,7 +230,7 @@ Surfaces ResInsight supports import of 3D Surfaces , and allows mapping properti
       <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2020_10_1/</guid>
       <description>ResInsight 2020.10.1 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2020.04.1 is a patch update with several critical fixes.
 Most important fixes
- Using text filter to select summary curves for ensembles now works Summary address selection for analysis and tornado plots can now select single address instead of always all wells Fixed several visualization issues related to contour plots Make sure the color legend is drawn as discrete instead of continuous Recalculate required curves when summary case is replaced Fixed crash when closing combined view Fixed crash for color legends with less than two colors 2D plots : Allow inverted y-axis when user defined min/max is active Well Targets : Fixed crash when toggling target at sea level  Python API fixes</description>
+Using text filter to select summary curves for ensembles now works Summary address selection for analysis and tornado plots can now select single address instead of always all wells Fixed several visualization issues related to contour plots Make sure the color legend is drawn as discrete instead of continuous Recalculate required curves when summary case is replaced Fixed crash when closing combined view Fixed crash for color legends with less than two colors 2D plots : Allow inverted y-axis when user defined min/max is active Well Targets : Fixed crash when toggling target at sea level Python API fixes</description>
     </item>
     
     <item>
@@ -267,7 +262,7 @@ Performance Improved performance for grid model import from GRDECL. Improved per
       
       <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2022_06/</guid>
       <description>Summary Plotting Summary Plotting is updated with new features and improved workflows:
- data sources for summary data can be used for drag/drop operations and efficient and easy production of plots extended summary template features enable more powerful and efficient use of preset appearances and layouts optional curve coloring based on the summary vector phase improved management of multiple subplots restructured organization of plot items in Property Editor easy and efficient documentation and paging of multiple summary plots to PDF file  Plot Templates Plot Templates now offer extended features and support for multiplots.</description>
+data sources for summary data can be used for drag/drop operations and efficient and easy production of plots extended summary template features enable more powerful and efficient use of preset appearances and layouts optional curve coloring based on the summary vector phase improved management of multiple subplots restructured organization of plot items in Property Editor easy and efficient documentation and paging of multiple summary plots to PDF file Plot Templates Plot Templates now offer extended features and support for multiplots.</description>
     </item>
     
     <item>
@@ -288,7 +283,7 @@ Icons are added to the docking windows to make it easy to find a window.</descri
       
       <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2023_01/</guid>
       <description>Summary Plotting Summary Plotting is updated with new features and improved workflows:
- Improved logarithmic legend and default ranges Visual appearance of curves is now stable when doing Source Stepping Curve name and plot name improvements  Change Data Source by Clicking in 3D The data source for multiple plots can be updated by clicking on a well path in 3D. This feature can be useful for large fields with many wells and you want to investigate a small subset of wells.</description>
+Improved logarithmic legend and default ranges Visual appearance of curves is now stable when doing Source Stepping Curve name and plot name improvements Change Data Source by Clicking in 3D The data source for multiple plots can be updated by clicking on a well path in 3D. This feature can be useful for large fields with many wells and you want to investigate a small subset of wells.</description>
     </item>
     
     <item>
@@ -310,7 +305,7 @@ Multi Segment Well Improvements Multi Segmented Wells - MSW is updated with new 
       
       <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2023_06/</guid>
       <description>Seismic Data ResInsight supports the following seismic file formats:
- SEGY: file format developed by the Society of Exploration Geophysicists for storing geophysical data VDS: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenVDS ZGY: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenZGY  Seismic Data
+SEGY: file format developed by the Society of Exploration Geophysicists for storing geophysical data VDS: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenVDS ZGY: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenZGY Seismic Data
 Seismic Sections
 Summary Table Summary Tables are a display of curve data based on Eclipse Summary Data as a color map in table format.</description>
     </item>
@@ -334,7 +329,7 @@ Summary Cross Plot Curves Summary Cross Plot curves are now easily available as 
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2023_12/</guid>
-      <description>Grid Calculations  Grid Property Calculations can now be applied to multiple grid cases. A grid calculation can be used as data source for Grid Case Statistics. The data source for statistics computations can either be a cell property or a grid calculation expression. Time step selection is added to the Grid Case Statistics settings to reduce computation demand. Expressions can be stored to a file and loaded from a file.</description>
+      <description>Grid Calculations Grid Property Calculations can now be applied to multiple grid cases. A grid calculation can be used as data source for Grid Case Statistics. The data source for statistics computations can either be a cell property or a grid calculation expression. Time step selection is added to the Grid Case Statistics settings to reduce computation demand. Expressions can be stored to a file and loaded from a file. This makes it possible to reuse expressions in multiple projects.</description>
     </item>
     
     <item>
@@ -344,7 +339,7 @@ Summary Cross Plot Curves Summary Cross Plot curves are now easily available as 
       
       <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2024_03/</guid>
       <description>Grid Calculations Grid Property Calculations perform better for multiple (large) grid models
-Polygons  Polygons are now available as project objects, and a can be displayed in 3D views. A polygon can also be used to define an intersection and polygon cell filters. Polygons can be imported from a file, or created from a selection of cells in the 3D view. Polygons can be exported to file. A polygon cell filter can now be configured to use a polyline to define intersected cells in addition to a closed polygon.</description>
+Polygons Polygons are now available as project objects, and a can be displayed in 3D views. A polygon can also be used to define an intersection and polygon cell filters. Polygons can be imported from a file, or created from a selection of cells in the 3D view. Polygons can be exported to file. A polygon cell filter can now be configured to use a polyline to define intersected cells in addition to a closed polygon.</description>
     </item>
     
     <item>
@@ -365,7 +360,7 @@ Searching for data sources Atop the Data Sources window, there is a search field
       
       <guid>https://resinsight.org/import/seismicdata/</guid>
       <description>Importing Seismic Data ResInsight supports the following seismic file formats:
- SEGY: file format developed by the Society of Exploration Geophysicists for storing geophysical data VDS: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenVDS ZGY: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenZGY  A seismic file is imported by right-clicking the Seismic item in Project Tree or by using menu item File-&amp;gt;Import-&amp;gt;Import Seismic.</description>
+SEGY: file format developed by the Society of Exploration Geophysicists for storing geophysical data VDS: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenVDS ZGY: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenZGY A seismic file is imported by right-clicking the Seismic item in Project Tree or by using menu item File-&amp;gt;Import-&amp;gt;Import Seismic.</description>
     </item>
     
     <item>
@@ -396,7 +391,7 @@ The *.rsp file is an XML file, and can be edited by any text editor.</descriptio
       
       <guid>https://resinsight.org/scripting/pythoninterface/</guid>
       <description>ResInsight offers a powerful programming interface which allows you to interact with a running ResInsight instance from Python 3. This enables you to:
- start ResInsight from Python communicate with an a running ResInsight instance load a ResInsight project file load data files such as Eclipse EGRID files and summary files extract data to Python for further processing and automation export snapshots of graphics  Please refer to the ResInsight Python API for configuration and details.</description>
+start ResInsight from Python communicate with an a running ResInsight instance load a ResInsight project file load data files such as Eclipse EGRID files and summary files extract data to Python for further processing and automation export snapshots of graphics Please refer to the ResInsight Python API for configuration and details.</description>
     </item>
     
     <item>
@@ -427,7 +422,7 @@ Default Horizontally Vertically Window Management The window management system w
       <guid>https://resinsight.org/3d-main-window/cellresults/</guid>
       <description>The main results to post process in ResInsight are Cell Results. A Cell Result is one value, or a small set of values per cell over a region of the grid. A Cell Result is also referred to as a Property.
 Cell Results are used in several operations and settings:
- Cell Colors Cell Edge Result (Eclipse Only) Separate Fault Result (Eclipse Only) Property Filters Well Log Extraction Curves Cell Result Time History Curves  In the property panel of all those, the same options are used to define the Cell Result of interest.</description>
+Cell Colors Cell Edge Result (Eclipse Only) Separate Fault Result (Eclipse Only) Property Filters Well Log Extraction Curves Cell Result Time History Curves In the property panel of all those, the same options are used to define the Cell Result of interest.</description>
     </item>
     
     <item>
@@ -439,7 +434,7 @@ Cell Results are used in several operations and settings:
       <description>ResInsight supports several command line parameters that can be used to automate some tasks using shell scripts.
 Command line parameters are prefixed using a double dash. This convention is used on all platforms to make it possible to reuse scripts across different platforms. See GNU Standards for Command Line Interfaces.
 Examples on how command line options are used are given below
-Command line options General    Parameter Description     --help, --?</description>
+Command line options General Parameter Description --help, --? Displays help text and version info --project &amp;lt;filename&amp;gt; Open project file &amp;lt;filename&amp;gt;.</description>
     </item>
     
     <item>
@@ -462,7 +457,7 @@ Expressions can be saved to a text file using the Export Calculations button. Th
       <description>Eclipse Properties can be exported to Eclipse ASCII files. This is particularly useful when a new property is generated using Octave. The generated property can be exported for further use in the simulator.
 Export Command To export the property currently active in the 3D View, activate the right-click menu on a Cell Result item in the Project Tree.
 The following dialog will appear:
- Export File Name &amp;ndash; The path to exported file Eclipse Keyword &amp;ndash; The keyword to use for the property in the eclipse file Undefined Value &amp;ndash; This value is written to the file for all values that are flagged as undefined in ResInsight  For import this type of property data see Import: Eclipse Cases</description>
+Export File Name &amp;ndash; The path to exported file Eclipse Keyword &amp;ndash; The keyword to use for the property in the eclipse file Undefined Value &amp;ndash; This value is written to the file for all values that are flagged as undefined in ResInsight For import this type of property data see Import: Eclipse Cases</description>
     </item>
     
     <item>
@@ -472,7 +467,7 @@ The following dialog will appear:
       
       <guid>https://resinsight.org/import/geomechanicaldata/</guid>
       <description>ResInsight can be built with support for reading and displaying geomechanical analysis models produced by ABAQUS in the *.odb format. This is only possible if you or your organization has a copy of the ODB-Api from Simulia, and a valid license to use it.
-If you have, and would like to a use these features, please see Build Instructions  for a description on how to build ResInsight and how to include the support for odb-files.</description>
+If you have, and would like to a use these features, please see Build Instructions for a description on how to build ResInsight and how to include the support for odb-files.</description>
     </item>
     
     <item>
@@ -514,7 +509,7 @@ ESMRY File Format *.ESMRY files contains the same data as SMSPEC/UNSMRY.</descri
       <description>Summary Plot Source Stepping enables the user to efficiently step through multiple vectors, wells, summary cases, ensembles, groups, regions, blocks, and aquifers for plotting purposes. Source stepping is available from both the Source Stepping Toolbar and the Property editor as described below.
 Source Stepping using the toolbar The toolbar for source stepping is:
 Following this example, the available options are:
- Explicitly setting Step By to vector WBHP by  Change existing plot to display previous or next vector by pressing one of the buttons  Step previous or next vector and add a plot by the buttons  Step previous or next vector and add a curve by the buttons   Source Stepping using the Property Editor Source Stepping is also available through the Property Editor.</description>
+Explicitly setting Step By to vector WBHP by Change existing plot to display previous or next vector by pressing one of the buttons Step previous or next vector and add a plot by the buttons Step previous or next vector and add a curve by the buttons Source Stepping using the Property Editor Source Stepping is also available through the Property Editor.</description>
     </item>
     
     <item>
@@ -546,9 +541,9 @@ Well Path Creation ResInsight lets the user create new/custom well paths by clic
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/getting-started/download-and-install/windows-installation/</guid>
-      <description>ResInsight Installation  Download ZIP binary distribution from https://github.com/OPM/ResInsight/releases Extract content from ZIP file Start ResInsight.exe  The binary distribution does not support ABAQUS odb files. For building ResInsight with ABAQUS support, see Build Instructions.
-Octave Installation (optional)  Download Octave-4.0.0 and install it. (Newer versions will not work) Launch ResInsight.exe, open Edit-&amp;gt;Preferences. On the Octave tab, enter the path to the Octave command line interpreter executable.
-( Usually C:\Your\Path\To\Octave-x.</description>
+      <description>ResInsight Installation Download ZIP binary distribution from https://github.com/OPM/ResInsight/releases Extract content from ZIP file Start ResInsight.exe The binary distribution does not support ABAQUS odb files. For building ResInsight with ABAQUS support, see Build Instructions.
+Octave Installation (optional) Download Octave-4.0.0 and install it. (Newer versions will not work) Launch ResInsight.exe, open Edit-&amp;gt;Preferences. On the Octave tab, enter the path to the Octave command line interpreter executable.
+( Usually C:\Your\Path\To\Octave-x.x.x\bin\octave-cli.exe ) A binary package of ResInsight will normally not work with other Octave versions than the one it is compiled with.</description>
     </item>
     
     <item>
@@ -569,8 +564,8 @@ ResInsight has been successfully installed and used on Ubuntu in WSL. The instal
       
       <guid>https://resinsight.org/getting-started/helpmenuanddocumentation/</guid>
       <description>Integrated ResInsight Help If you need the user manual for an object, you can use the right-click menu of the object and select Search Help for:. This will open up the user manual for the selected object from resinsight.org.
-ResInsight Online Tutorials  ResInsight Tutorial Videos (YouTube) ResInsight Tutorials  ResInsight Help Menu ResInsight Help menu options are:
- About &amp;ndash; Opens a dialog with information on ResInsight version, enabled features, and technical information of subsystems.</description>
+ResInsight Online Tutorials ResInsight Tutorial Videos (YouTube) ResInsight Tutorials ResInsight Help Menu ResInsight Help menu options are:
+About &amp;ndash; Opens a dialog with information on ResInsight version, enabled features, and technical information of subsystems.</description>
     </item>
     
     <item>
@@ -590,8 +585,8 @@ Importing such a file will enable result type called SourSimRL as explained in E
       
       <guid>https://resinsight.org/misc/advancedtextinput/</guid>
       <description>When the user is requested to specify a list of integer values, it can be useful to input the list using a text string. This can be a selection of K slices, a selection of realisations or a selection of integer values in a integer cell result.
-Supported text format 5,10-13,20-26:2This text will produce an integer array with values
-[5, 10, 11, 12, 13, 20, 22, 24, 26]Using the syntax &amp;ldquo;20-26:2&amp;rdquo; will produce integer values in the range at a step of 2, resulting in [20, 22, 24, 26]</description>
+Supported text format 5,10-13,20-26:2 This text will produce an integer array with values
+[5, 10, 11, 12, 13, 20, 22, 24, 26] Using the syntax &amp;ldquo;20-26:2&amp;rdquo; will produce integer values in the range at a step of 2, resulting in [20, 22, 24, 26]</description>
     </item>
     
     <item>
@@ -601,7 +596,7 @@ Supported text format 5,10-13,20-26:2This text will produce an integer array wi
       
       <guid>https://resinsight.org/calculated-data/grid-property-calculations/aggregationofgridcellvalues/</guid>
       <description>Calculate statistics for sum of mobile oil for an ensemble Workflow description
- Import an ensemble of grid models with identical IJK into a Grid Case Group. Create a view on one of the source grid models, and create a cell filter for the region of interest. Create an expression for mobile oil MOBILE_OIL := if(((SOIL-SOWCR) &amp;lt; 0.00), 0.00, PORV*(SOIL-SOWCR)) Select a subset of time steps. This will significantly affect performance for for large grids with many time steps.</description>
+Import an ensemble of grid models with identical IJK into a Grid Case Group. Create a view on one of the source grid models, and create a cell filter for the region of interest. Create an expression for mobile oil MOBILE_OIL := if(((SOIL-SOWCR) &amp;lt; 0.00), 0.00, PORV*(SOIL-SOWCR)) Select a subset of time steps. This will significantly affect performance for for large grids with many time steps.</description>
     </item>
     
     <item>
@@ -610,9 +605,11 @@ Supported text format 5,10-13,20-26:2This text will produce an integer array wi
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/getting-started/download-and-install/build-instructions-ubuntu/</guid>
-      <description>Dependencies and Prerequisites Configuration and build    Tool Minimum version     git 2.7.4   gcc 10   python 3    Update apt installer
-sudo apt update Install GCC and related tools
-sudo apt install build-essentialsudo apt install curl zip unzip tar As gcc 10 is required, it can be useful to set the default compiler. Set default compiler</description>
+      <description>Dependencies and Prerequisites Configuration and build Tool Minimum version git 2.7.4 gcc 10 python 3 Update apt installer
+sudo apt updateInstall GCC and related tools
+sudo apt install build-essentialsudo apt install curl zip unzip tarAs gcc 10 is required, it can be useful to set the default compiler. Set default compiler
+Install Qt
+sudo apt install -y qtbase5-dev libqt5svg5-dev qtbase5-private-devClone and update sub modules git clone https://github.</description>
     </item>
     
     <item>
@@ -625,7 +622,7 @@ sudo apt install build-essentialsudo apt install curl zip unzip tar As gcc 10 
 In a git enabled shell do: git clone https://github.com/OPM/ResInsight.git
 Dependencies and Prerequisites Windows Compiler Visual Studio 2019 and later is supported.
 GCC Compiler On RedHat Linux 7 or CentOS 7 you need to install devtoolset-10, and enable it with
-source /opt/rh/devtoolset-10/enable Qt 5 Qt 5.12 or later is supported, Qt 5.15 is recommended.
+source /opt/rh/devtoolset-10/enableQt 5 Qt 5.12 or later is supported, Qt 5.15 is recommended.
 Qt download
 On some configurations you will be asked to specify the location of Qt.</description>
     </item>
@@ -638,7 +635,7 @@ On some configurations you will be asked to specify the location of Qt.</descrip
       <guid>https://resinsight.org/scripting/commandfile/</guid>
       <description>The command file interface allows a sequence of specified commands to be run in order from the command line. The interface is used by supplying the command file as a command line parameter. Once the command file is finished executing, ResInsight will exit.
 It is possible to use these commands directly from a Python script. For further details, please see the ResInsight Python API.
-Command List Case Control Commands  openProject closeProject setStartDir loadCase createGridCaseGroup createStatisticsCase replaceCase replaceSourceCases  Export Commands  setExportFolder exportMultiCaseSnapshots exportSnapshots exportProperty exportPropertyInViews exportWellPathCompletions exportSimWellFractureCompletions exportMsw exportWellPaths exportVisibleCells exportFlowCharacteristics  Other Commands  runOctaveScript setMainWindowSize computeCaseGroupStatistics setTimeStep scaleFractureTemplate setFractureContainment createMultipleFractures createLgrForCompletions createSaturationPressurePlots  Syntax The command file is comprised of a set of commands to be executed in order.</description>
+Command List Case Control Commands openProject closeProject setStartDir loadCase createGridCaseGroup createStatisticsCase replaceCase replaceSourceCases Export Commands setExportFolder exportMultiCaseSnapshots exportSnapshots exportProperty exportPropertyInViews exportWellPathCompletions exportSimWellFractureCompletions exportMsw exportWellPaths exportVisibleCells exportFlowCharacteristics Other Commands runOctaveScript setMainWindowSize computeCaseGroupStatistics setTimeStep scaleFractureTemplate setFractureContainment createMultipleFractures createLgrForCompletions createSaturationPressurePlots Syntax The command file is comprised of a set of commands to be executed in order.</description>
     </item>
     
     <item>
@@ -649,7 +646,7 @@ Command List Case Control Commands  openProject closeProject setStartDir loadCas
       <guid>https://resinsight.org/wells-and-completions/createnewwellpaths/</guid>
       <description>ResInsight lets the user create new/custom well paths by clicking in the 3D view. A self created well path will behave the same way as an imported well path.
 Building a multilateral well path
-Building a well path  Right click Wells in the project tree Select Create Well Path in the right-click menu. A new well node and a well targets node are created Click in the 3D view on locations where the well path should pass (well path targets) When finished placing targets, click on &amp;ldquo;Stop Picking Targets&amp;rdquo; in the property editor  Well targets property editor fields:</description>
+Building a well path Right click Wells in the project tree Select Create Well Path in the right-click menu. A new well node and a well targets node are created Click in the 3D view on locations where the well path should pass (well path targets) When finished placing targets, click on &amp;ldquo;Stop Picking Targets&amp;rdquo; in the property editor Well targets property editor fields:</description>
     </item>
     
     <item>
@@ -661,7 +658,7 @@ Building a well path  Right click Wells in the project tree Select Create Well P
       <description>Element property tables in ABQUS input file format can be imported into ResInsight and displayed as Element Results. This can be used to display material properties, or any scalar value on each element.
 To view the data as a Color Result select the Result Position: Element ( See Geomechanical Results )
 A couple of property names are recognized and treated specially:
- MODULUS &amp;ndash; Scaled by 1.0e-9 and shown as &amp;ldquo;Young&amp;rsquo;s Modulus&amp;rdquo; in the user interface RATIO &amp;ndash; Shown as &amp;ldquo;Poisson&amp;rsquo;s Ratio&amp;rdquo; in the user interface  File Format A couple of examples on the file format are shown below.</description>
+MODULUS &amp;ndash; Scaled by 1.0e-9 and shown as &amp;ldquo;Young&amp;rsquo;s Modulus&amp;rdquo; in the user interface RATIO &amp;ndash; Shown as &amp;ldquo;Poisson&amp;rsquo;s Ratio&amp;rdquo; in the user interface File Format A couple of examples on the file format are shown below.</description>
     </item>
     
     <item>
@@ -672,7 +669,7 @@ A couple of property names are recognized and treated specially:
       <guid>https://resinsight.org/export/fluxnummultnum/</guid>
       <description>The visible cells can be exported as a FLUXNUM or MULTNUM keyword that can be used in an Eclipse input data deck.
 You can do this by using the command Export Visible Cells as FLUXNUM/MULTNUM found by right clicking:
- View in the Project Tree. Cell Result in the Project Tree. In any Eclipse 3D View.  The command can also be found in File -&amp;gt; Export. If the command is used in the project tree, the visible cells from the selected view are used for calculation.</description>
+View in the Project Tree. Cell Result in the Project Tree. In any Eclipse 3D View. The command can also be found in File -&amp;gt; Export. If the command is used in the project tree, the visible cells from the selected view are used for calculation.</description>
     </item>
     
     <item>
@@ -683,7 +680,7 @@ You can do this by using the command Export Visible Cells as FLUXNUM/MULTNUM fou
       <guid>https://resinsight.org/misc/keyboardshortcuts/</guid>
       <description>ResInsight supports a selection of Keyboard Shortcuts for convenience. These include Delete for removing deletable items from the project tree, Ctrl-Alt-A for Zoom All and Ctrl-Alt-S/N/W/E/D/U for changing the camera view to South, North, West, East, Down and Up respectively.
 Other available keyboard shortcuts are
- Ctrl-Shift-P for opening up the plot window when you are in the 3d View Ctrl-Shift-3 for opening up the 3d View while you are in the Plot Window Ctrl-X for Cut and Ctrl-V for Paste of project tree items where this functionality is available.</description>
+Ctrl-Shift-P for opening up the plot window when you are in the 3d View Ctrl-Shift-3 for opening up the 3d View while you are in the Plot Window Ctrl-X for Cut and Ctrl-V for Paste of project tree items where this functionality is available.</description>
     </item>
     
     <item>
@@ -695,7 +692,7 @@ Other available keyboard shortcuts are
       <description>ResInsight comes with four navigation modes. The active mode can be selected in the [Preferences dialog] (/misc/preferences/).
 Note that changing the navigation mode applies to the currently active view only, and views created after the change.
 These abbreviations are used in the tables below:
-   Abbreviation Meaning     LMB Press the left mouse button   MMB Press the middle mouse button or scroll wheel button   RMB Press the right mouse button    The following applies to all navigation modes:</description>
+Abbreviation Meaning LMB Press the left mouse button MMB Press the middle mouse button or scroll wheel button RMB Press the right mouse button The following applies to all navigation modes:</description>
     </item>
     
     <item>
@@ -706,7 +703,7 @@ These abbreviations are used in the tables below:
       <guid>https://resinsight.org/import/observeddata/</guid>
       <description>Observed Time History Data, is data measured in time. On import of observed time history data, ResInsight translates the data to make it similar to summary data. Observed time history data can be plotted along with summary data in Summary Plots.
 Import Observed Time History Data Importing observed time history data to ResInsight may be performed in two different ways:
- By selecting the main menu item File -&amp;gt; Import -&amp;gt; Import Observed Data By using the right-click command Import Observed Data on the Observed Data item in the Plot Main Window Project Tree  The following file types are supported:</description>
+By selecting the main menu item File -&amp;gt; Import -&amp;gt; Import Observed Data By using the right-click command Import Observed Data on the Observed Data item in the Plot Main Window Project Tree The following file types are supported:</description>
     </item>
     
     <item>
@@ -716,8 +713,8 @@ Import Observed Time History Data Importing observed time history data to ResIns
       
       <guid>https://resinsight.org/import/pressuredata/</guid>
       <description>Import Pressure/Depth Data Importing pressure data to ResInsight may be performed in two different ways:
- By selecting the main menu item File -&amp;gt; Import -&amp;gt; Import Pressure Depth Data By using the right-click command Import Pressure Data on the Observed Data item in the Plot Main Window Project Tree  The imported pressure data can visualized in [RFT Plots]
-Pressure/Depth File Format --TVDMSL RFT --WELLNAME &amp;#39;OP_1&amp;#39;DATE 28-FEB-2000PRESSURE DEPTHBARSA METRES302.</description>
+By selecting the main menu item File -&amp;gt; Import -&amp;gt; Import Pressure Depth Data By using the right-click command Import Pressure Data on the Observed Data item in the Plot Main Window Project Tree The imported pressure data can visualized in [RFT Plots]
+Pressure/Depth File Format --TVDMSL RFT -- WELLNAME &amp;#39;OP_1&amp;#39; DATE 28-FEB-2000 PRESSURE DEPTH BARSA METRES 302.</description>
     </item>
     
     <item>
@@ -728,7 +725,7 @@ Pressure/Depth File Format --TVDMSL RFT --WELLNAME &amp;#39;OP_1&amp;#39;DATE 
       <guid>https://resinsight.org/3d-main-window/resultcolorlegend/</guid>
       <description>The color mapping of the displayed cell result is controlled by the Color Legend item in Project Tree. The legend can be shown or hidden by checking or unchecking the box in front of the Color Legend item.
 Legend configuration As shown above, the Legend configuration for cell results allows the following settings:
- Number of levels &amp;ndash; Defines the number of tick marks displayed next to the color legend Significant digits &amp;ndash; Defines the number of significant digits in the number formatting Number format &amp;ndash; Defines how the numbers are formatted Colors &amp;ndash; Defines the color palette for the legend by selecting from Color Legends Mapping &amp;ndash; Defines the mapping of numerical values to legend colors:  Discrete Linear &amp;ndash; Legend divided into linear levels defined by Number of levels Continuous Linear &amp;ndash; Continuous linear legend with tick mark count defined by Number of levels Continuous Logarithmic &amp;ndash; Continuous logarithmic legend with tick mark count defined by Number of levels Discrete Logarithmic &amp;ndash; Logarithmic legend divided into levels defined by Number of levels Category &amp;ndash; Legend with one level per category for formation names and discrete data (e.</description>
+Number of levels &amp;ndash; Defines the number of tick marks displayed next to the color legend Significant digits &amp;ndash; Defines the number of significant digits in the number formatting Number format &amp;ndash; Defines how the numbers are formatted Colors &amp;ndash; Defines the color palette for the legend by selecting from Color Legends Mapping &amp;ndash; Defines the mapping of numerical values to legend colors: Discrete Linear &amp;ndash; Legend divided into linear levels defined by Number of levels Continuous Linear &amp;ndash; Continuous linear legend with tick mark count defined by Number of levels Continuous Logarithmic &amp;ndash; Continuous logarithmic legend with tick mark count defined by Number of levels Discrete Logarithmic &amp;ndash; Logarithmic legend divided into levels defined by Number of levels Category &amp;ndash; Legend with one level per category for formation names and discrete data (e.</description>
     </item>
     
     <item>
@@ -769,7 +766,7 @@ Standard Color Legends ResInsight offers an extensive set of built-in color lege
       
       <guid>https://resinsight.org/wells-and-completions/createmultilateralwellpaths/</guid>
       <description>ResInsight lets the user create additional well path laterals by clicking in the 3D view. Completions can be added to laterals, and the complete specification of the well can be exported using the Completion Export
-Building a well path  Start from an existing well path, either imported or create a new well path In the 3D view, right-click on the well path at the depth location for your lateral  A new well path lateral is created, and click in the 3D scene to define targets for the lateral Repeat from 2.</description>
+Building a well path Start from an existing well path, either imported or create a new well path In the 3D view, right-click on the well path at the depth location for your lateral A new well path lateral is created, and click in the 3D scene to define targets for the lateral Repeat from 2.</description>
     </item>
     
     <item>
@@ -790,7 +787,7 @@ Creating new 3D Well Log Curves Add a new 3D well log curve by selecting a Well 
       <guid>https://resinsight.org/import/appendingadditionalproperties/</guid>
       <description>A grid model can be imported from several sources, either Eclipse binary/ascii or ROFF binary/ascii. Grid properties in separate files can be imported into any grid type as long as the number of grid cells is matching.
 Appending properties
- From the right-click menu of the case or Cell Result, select Add Input Property Select the file with properties The imported data is then available in the Cell Result by activating the Input Property in the Type drop down list.</description>
+From the right-click menu of the case or Cell Result, select Add Input Property Select the file with properties The imported data is then available in the Cell Result by activating the Input Property in the Type drop down list.</description>
     </item>
     
     <item>
@@ -828,7 +825,7 @@ Paste Options Dialog Most of the fields in this dialog are the same as in the CS
       
       <guid>https://resinsight.org/misc/regressiontestsystem/</guid>
       <description>A regression tool for QA is build into ResInsight. This tool will do the following:
- Scan a directory for sub directories containing a RegressionTest.rsp files. Each found project file will be opened, and all views in this project will be exported as snapshot images to file. When snapshot images from all projects are completed, difference images based on generated and QA-approved images are computed. Based on these three sets of images, an HTML report is created and automatically displayed.</description>
+Scan a directory for sub directories containing a RegressionTest.rsp files. Each found project file will be opened, and all views in this project will be exported as snapshot images to file. When snapshot images from all projects are completed, difference images based on generated and QA-approved images are computed. Based on these three sets of images, an HTML report is created and automatically displayed.</description>
     </item>
     
     <item>
@@ -902,7 +899,7 @@ Completions can be modeled by adding new perforation intervals, fishbones subs o
       <guid>https://resinsight.org/wells-and-completions/ensemblefracturestatistics/</guid>
       <description>Importing Ensemble Fracture Statistics Right-click on Completion Templates &amp;gt; Ensemble Fracture Statistics in the Project Tree and select the Import StimPlan Fracture Recursively option. Then select the StimPlan fracture Xml files to be part of the ensemble.
 After importing the Property Panel of the Ensemble Fracture Statistics item has these options:
- Name &amp;ndash; Name of the ensemble fracture statistics. Exclude Zero Width Fractures &amp;ndash; Toggle to remove zero width fractures from the statistics.</description>
+Name &amp;ndash; Name of the ensemble fracture statistics. Exclude Zero Width Fractures &amp;ndash; Toggle to remove zero width fractures from the statistics.</description>
     </item>
     
     <item>
@@ -913,7 +910,7 @@ After importing the Property Panel of the Ensemble Fracture Statistics item has 
       <guid>https://resinsight.org/plot-window/ensembleplotting/</guid>
       <description>An ensemble is a group of cases that are tightly coupled, only a set of ensemble input parameters differ between cases. This makes it relevant to perform calculations and statistics analysis on ensembles.
 Import There are several ways to import an ensemble:
- Use menu option File-&amp;gt;Import-&amp;gt;Summary Cases-&amp;gt;Import Ensemble Use menu option File-&amp;gt;Import-&amp;gt;Summary Cases-&amp;gt;Import Summary Case group and then convert the group to an ensemble Import a number of summary cases, move them into a group and then convert the group to an ensemble  During import of a summary case, ResInsight tries to find an associated parameters.</description>
+Use menu option File-&amp;gt;Import-&amp;gt;Summary Cases-&amp;gt;Import Ensemble Use menu option File-&amp;gt;Import-&amp;gt;Summary Cases-&amp;gt;Import Summary Case group and then convert the group to an ensemble Import a number of summary cases, move them into a group and then convert the group to an ensemble During import of a summary case, ResInsight tries to find an associated parameters.</description>
     </item>
     
     <item>
@@ -923,9 +920,9 @@ Import There are several ways to import an ensemble:
       
       <guid>https://resinsight.org/scripting/octaveinterface/</guid>
       <description>ResInsight provides a flexible interface to Octave including:
- Octave functions that communicates with a running ResInsight session Features to simplify management and editing of Octave scripts from ResInsight Commands to execute scripts using Octave.  The Octave functions are documented in Octave Interface Reference.
+Octave functions that communicates with a running ResInsight session Features to simplify management and editing of Octave scripts from ResInsight Commands to execute scripts using Octave. The Octave functions are documented in Octave Interface Reference.
 Note: The Octave interface does not support Flow diagnostics and Injection flooding results in addition to Geomechanical cases.
-Octave Script Management Octave scripts are available in the Scripts folder in the Project Tree.</description>
+Octave Script Management Octave scripts are available in the Scripts folder in the Project Tree.</description>
     </item>
     
     <item>
@@ -936,7 +933,7 @@ Note: The Octave interface does not support Flow diagnostics and Injection flood
       <guid>https://resinsight.org/export/exportwellpaths/</guid>
       <description>In order to export well paths to dev files, select the menu item File -&amp;gt; Export -&amp;gt; Export Visible Well Paths or select one or more well paths and then select one of the items in the sub menu Export Well Paths.
 A dialog appears after selecting an export well path command.
- Export Folder - Folder for the exported well path file(s). The folder will be created when performing the export and the names of the exported file(s) will be on the format &amp;lt;well name&amp;gt;.</description>
+Export Folder - Folder for the exported well path file(s). The folder will be created when performing the export and the names of the exported file(s) will be on the format &amp;lt;well name&amp;gt;.</description>
     </item>
     
     <item>
@@ -993,7 +990,7 @@ Alternatively, Correlation Plots can be created by right-clicking the Correlatio
       <description>ResInsight supports creating and exporting LGRs (Local Grid Refinement) in main grid cells intersected by completions.
 Create Temporary LGRs To create temporary LGR(s), first select one or more well paths in the project tree, right click and select &amp;lsquo;Create Temporary LGR&amp;rsquo;. This command brings up the following dialog.
 The dialog contains several input fields
- Source Case &amp;ndash; The source case/grid Time Step &amp;ndash; The time step to use Fractures, Fishbones, Perforations &amp;ndash; Check boxes to control which completion types to create LGRs for Split Type &amp;ndash; Three options controlling how the LGRs will be created  LGR Per Cell &amp;ndash; One LGR is created for each main grid cell intersected by completions of the selected type LGR Per Completion &amp;ndash; One LGR is created for each completion of the selected types.</description>
+Source Case &amp;ndash; The source case/grid Time Step &amp;ndash; The time step to use Fractures, Fishbones, Perforations &amp;ndash; Check boxes to control which completion types to create LGRs for Split Type &amp;ndash; Three options controlling how the LGRs will be created LGR Per Cell &amp;ndash; One LGR is created for each main grid cell intersected by completions of the selected type LGR Per Completion &amp;ndash; One LGR is created for each completion of the selected types.</description>
     </item>
     
     <item>
@@ -1037,7 +1034,7 @@ Exporting Grid and Faults Grid Export The Export dialog will allow the user to e
       <description>“I have been using ResInsight now for some time and have stopped using the commercial software as ResInsight is much more responsive and easier to use. It really is an excellent piece of software.”
 David Baxendale
 Senior Petroleum Engineering Advisor, RPS Energy
-&amp;ldquo;ResInsight is an excellent tool to visualize simulation results and offers good-looking and illustrative graphs for presentations. I found the integration with Octave especially powerful in my research.&amp;quot;</description>
+&amp;ldquo;ResInsight is an excellent tool to visualize simulation results and offers good-looking and illustrative graphs for presentations. I found the integration with Octave especially powerful in my research.&amp;rdquo;</description>
     </item>
     
     <item>
@@ -1047,9 +1044,9 @@ Senior Petroleum Engineering Advisor, RPS Energy
       
       <guid>https://resinsight.org/3d-main-window/filters/</guid>
       <description>Filters are used to control the visibility of cells in the 3D view. Two types of filters exist:
- Cell Filter &amp;ndash; Extracts subset(s) of grid cells Property Filter &amp;ndash; Extracts cells with a property value matching a value range  The visibility of cells connected to wells, and fences can be controlled from  Simulation Wells.
+Cell Filter &amp;ndash; Extracts subset(s) of grid cells Property Filter &amp;ndash; Extracts cells with a property value matching a value range The visibility of cells connected to wells, and fences can be controlled from Simulation Wells.
 (Not applicable for Geomechanical cases)
-Filters Settings Filters can be turned on and off using their check-boxes in Project Tree and controlled by their corresponding Property Editor.</description>
+Filters Settings Filters can be turned on and off using their check-boxes in Project Tree and controlled by their corresponding Property Editor.</description>
     </item>
     
     <item>
@@ -1060,7 +1057,7 @@ Senior Petroleum Engineering Advisor, RPS Energy
       <guid>https://resinsight.org/plot-window/welllogsandplots/</guid>
       <description>ResInsight can display well logs by extracting data from a simulation model along a well trajectory and from imported LAS-files. Extracted simulation data can be exported to LAS-files for further processing.
 Well Log Plots Well log plots can be created in several ways:
- Right-click a well path or a simulation well in the 3D-view and select New Well Log Extraction Curve.
+Right-click a well path or a simulation well in the 3D-view and select New Well Log Extraction Curve.
 A new plot with a single Track and Curve is created matching active case and selected Well trajectory.</description>
     </item>
     
@@ -1072,8 +1069,7 @@ A new plot with a single Track and Curve is created matching active case and sel
       <guid>https://resinsight.org/wells-and-completions/wellmeasurements/</guid>
       <description>ResInsight can import well measurements from a comma-separated values file.
 Importing Well Measurements The command File -&amp;gt; Import -&amp;gt; Well Data -&amp;gt; Import Measurements will read well measurements from the selected files, and create one entry for each file under the Wells -&amp;gt; Well Measurements item in the Project Tree.
-File Format The format is comma-separated values with one measurement per line. The following requirements have to be met:
- Each data line must contain seven values: Well Name, MD, Date, Measurement Kind, Value, Quality, and Comment.</description>
+File Format The format is comma-separated values with one measurement per line. The following requirements have to be met:</description>
     </item>
     
     <item>
@@ -1094,7 +1090,7 @@ Origins J.J. Arps [1] concluded that the decline in oil production rate ($q_i$) 
       
       <guid>https://resinsight.org/3d-main-window/intersections/</guid>
       <description>Intersections are cross sections of a grid model that cut the grid in various ways to display grid cell values. There are two main types of intersections:
-  Intersection: is defined by a piece-wise linear curve and a direction of extrusion. The curve can be either a simulation well, a well path, a user defined polyline, or a user defined line. An intersection can also be shown in a separate 2D Intersection View.</description>
+Intersection: is defined by a piece-wise linear curve and a direction of extrusion. The curve can be either a simulation well, a well path, a user defined polyline, or a user defined line. An intersection can also be shown in a separate 2D Intersection View.</description>
     </item>
     
     <item>
@@ -1115,7 +1111,7 @@ Regression Types Linear Regression The linear regression (i.e. straight line fit
       <guid>https://resinsight.org/plot-window/wellborestabilityplots/</guid>
       <description>ResInsight can create Well Bore Stability plots for Geomechanical cases. These plots are specialized Well Log Plots to visualize Formations, Well Measurements, Well Path Attributes as well as a set of well path derived curves in different tracks.
 In the figure above, the first track contains Formations and an indication of sea level.
-   Sea Level Formations          The second track contains a visualisation of the well, with well attributes of Casing Design as well Completions</description>
+Sea Level Formations The second track contains a visualisation of the well, with well attributes of Casing Design as well Completions</description>
     </item>
     
     <item>
@@ -1127,7 +1123,7 @@ In the figure above, the first track contains Formations and an indication of se
       <description>ResInsight supports import, export and creation of polygons and polylines.
 Polygons in Project A polygon is available for all views in a project. The polygons can be imported from file, exported to file or created by interactively clicking in a view.
 Create a Polygon To create a polygon, the user clicks on a set of locations in 3D. This operation can be started by:
- Right-click on some geometry in a view, from the menu select Polygon Right-click on Polygons in the Project Tree and select Create Polygon  This will enable a mode where the user can click in the view to create a polygon.</description>
+Right-click on some geometry in a view, from the menu select Polygon Right-click on Polygons in the Project Tree and select Create Polygon This will enable a mode where the user can click in the view to create a polygon.</description>
     </item>
     
     <item>
@@ -1150,7 +1146,7 @@ Imported surfaces are listed under the entry in the Project Tree. You can click 
       <description>Background
 The Biot porelastic coefficient defines the compressibility of sand grains, and will influence some of the calculations in ResInsight.
 Description The Biot coefficient can be defined in three ways:
- Default (Constant value of 1.0) User defined constant for all element One value for each element based on imported values from an element property table  These settings are controlled from the Property Editor when a Geomechanical Case is selected.</description>
+Default (Constant value of 1.0) User defined constant for all element One value for each element based on imported values from an element property table These settings are controlled from the Property Editor when a Geomechanical Case is selected. To use Biot coefficients for each element, perform the following steps:</description>
     </item>
     
     <item>
@@ -1160,7 +1156,7 @@ Description The Biot coefficient can be defined in three ways:
       
       <guid>https://resinsight.org/workflows/ensemblesurface/</guid>
       <description>Introduction To study the structural uncertainty, ResInsight enables the user to create and import an ensemble of surfaces and compute the statistical surfaces based on this ensemble. This page describes the interactive workflow, but in many cases it can be useful to create scripts related to mangement of Ensemble Surfaces. See Python Examples for more details.
-Create Ensemble Surface   From the right-click menu of surfaces, select Import Ensemble Surface   Select the ensemble grid models to create surfaces for, either &amp;quot;*.</description>
+Create Ensemble Surface From the right-click menu of surfaces, select Import Ensemble Surface Select the ensemble grid models to create surfaces for, either &amp;quot;*.</description>
     </item>
     
     <item>
@@ -1170,7 +1166,7 @@ Create Ensemble Surface   From the right-click menu of surfaces, select Import E
       
       <guid>https://resinsight.org/workflows/ensemblewelllog/</guid>
       <description>Introduction To study the uncertainty for well log extraction curves, ResInsight enables the user to import an ensemble of well logs and compute the statistical distribution in this ensemble.
-Workflow   From the right-click menu of Wells, select Create Ensemble Well Log   In the ensemble import dialog, select the files for import into ensembles   Select well path and properties for export, select time step for dynamic properties, and use the checkbox to control if you want to create a well log ensemble based on the exported well log files   Click OK when you are ready</description>
+Workflow From the right-click menu of Wells, select Create Ensemble Well Log In the ensemble import dialog, select the files for import into ensembles Select well path and properties for export, select time step for dynamic properties, and use the checkbox to control if you want to create a well log ensemble based on the exported well log files Click OK when you are ready</description>
     </item>
     
     <item>
@@ -1215,8 +1211,8 @@ Additional data from WSEGLINK Some cases require data from WSEGLINK keyword. Whe
       
       <guid>https://resinsight.org/3d-main-window/allandiagrams/</guid>
       <description>Allan Diagrams displays the overlap of formations and layers across fault faces.
-Separate Fault Result The Allan Diagram is dispayed by selecting the Separate Fault Result in the project tree. See Faults  for more details.
-Property Editor Settings  Binary Formation Allan One color for all NNC areas with same formation on across fault, and one color for NNC with different formations across fault Formation Allan Formation colors are used, and a mix of the two formation colors are displayed if we have different formations across fault  Mouse interaction When clicking on an NNC area multiple times, the highlighted cell switched from the cell in front of the formation and behind the fault.</description>
+Separate Fault Result The Allan Diagram is dispayed by selecting the Separate Fault Result in the project tree. See Faults for more details.
+Property Editor Settings Binary Formation Allan One color for all NNC areas with same formation on across fault, and one color for NNC with different formations across fault Formation Allan Formation colors are used, and a mix of the two formation colors are displayed if we have different formations across fault Mouse interaction When clicking on an NNC area multiple times, the highlighted cell switched from the cell in front of the formation and behind the fault.</description>
     </item>
     
     <item>
@@ -1228,7 +1224,7 @@ Property Editor Settings  Binary Formation Allan One color for all NNC areas wit
       <description>This section will describe how to use formations for different k-layers of a case, and how to use well picks/zonations for ranges of measured depths of a well path.
 Formations for k-layers Formation information can be utilized in ResInsight as cell colors, used in property filters and are displayed in the Result info panel when selecting single cells.
 To use this functionality you will need to :
- Import one or more Formation Names file(s) Select the correct Formation Names file in the Case of interest  Import of Formation Names Files Formation Names files can be imported by using the command: File-&amp;gt;Import-&amp;gt;Import Formation Names.</description>
+Import one or more Formation Names file(s) Select the correct Formation Names file in the Case of interest Import of Formation Names Files Formation Names files can be imported by using the command: File-&amp;gt;Import-&amp;gt;Import Formation Names.</description>
     </item>
     
     <item>
@@ -1354,7 +1350,7 @@ The plot utilize the Flow Diagnostics to provide an overview of which well or ph
       <description>Creating a Seismic Section Import of data is described in Seismic Data
 Seismic Sections are cross sections that cut a grid model in various ways to display seismic data. A Seismic Section is created by right-clicking the Seismic Section item in Project Tree
 The following types of Seismic Sections are available:
- Inline Section: A seismic line within a 3D survey parallel to the direction in which the data were acquired.</description>
+Inline Section: A seismic line within a 3D survey parallel to the direction in which the data were acquired.</description>
     </item>
     
     <item>
@@ -1363,7 +1359,7 @@ The following types of Seismic Sections are available:
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/calculated-data/casegroupsandstatistics/</guid>
-      <description>Grid Case Group&amp;lsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
+      <description>Grid Case Group&amp;rsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
 If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step.</description>
     </item>
     
@@ -1404,7 +1400,7 @@ To create these plots, right click on the view in the Property Editor, and selec
       
       <guid>https://resinsight.org/3d-main-window/comparisonview/</guid>
       <description>ResInsight offers a Comparison View to compare two existing views in terms of grid geometry, results, intersections and more. The Comparison View allows comparison of information of different grids and different solutions on the same grid in a single view. This improves efficiency and simplifies the workflow when working with related but different models.
-The figure above exemplifies a Comparison View for comparison of two different simulations models and results. The left hand side is used to display grid and results of an Eclipse simulation while the right hand side displays an ABAQUS grid and simulation results from geomechanical analysis.</description>
+The figure above exemplifies a Comparison View for comparison of two different simulations models and results.</description>
     </item>
     
     <item>
@@ -1446,7 +1442,7 @@ When ResInsight is in measurement mode, clicking on an surface in the 3D view wi
       
       <guid>https://resinsight.org/3d-main-window/annotations/</guid>
       <description>ResInsight supports displaying a few types of annotations in 3D views and Contour Map view.
- Text annotations Reach circle annotations Polyline annotations  User defined polylines Polylines imported from file    Global scope vs local scope annotations Global annotations may be displayed in all views and are located in the Annotations project tree node right below Grid Models (Global annotations sub tree). Local annotations are associated with a specific view and are located in the Annotations project tree node below the view node (Local annotations sub tree).</description>
+Text annotations Reach circle annotations Polyline annotations User defined polylines Polylines imported from file Global scope vs local scope annotations Global annotations may be displayed in all views and are located in the Annotations project tree node right below Grid Models (Global annotations sub tree). Local annotations are associated with a specific view and are located in the Annotations project tree node below the view node (Local annotations sub tree).</description>
     </item>
     
     <item>
@@ -1468,7 +1464,7 @@ Visualization The tensor arrows visualize the principal vectors in three directi
       <guid>https://resinsight.org/3d-main-window/gridstatisticsdialog/</guid>
       <description>ResInsight 3D Views has an info box in the upper right corner displaying statistics for the current view. A more detailed version of this information may also be displayed in a separate dialog window. Right click on the 3D view background and select Grid Statistics to bring up the dialog.
 Grid Statistics Dialog Fields The dialog consist of three information parts.
- Info text Histogram Cumulative Histogram  Info Text The Info Text field shows general info about the case, the selected results, and some statistics.</description>
+Info text Histogram Cumulative Histogram Info Text The Info Text field shows general info about the case, the selected results, and some statistics.</description>
     </item>
     
     <item>
@@ -1506,7 +1502,7 @@ Efficient User Interface The user interface is tailored for efficient interpreta
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/search/</guid>
-      <description>Search for: window.store = [];window.store[&#34;/getting-started/overview/&#34;] = {title: &#34;Overview&#34;,content: &#34;User Interface ResInsight has two main windows, one for 3D related visualizations and one for 2D graphs and plots.\n3D Main Window Plot Main Window Switching Between the Two Main Windows The two main windows has a toolbar button each, that directly opens and raises the other window. Each of the windows can also be closed freely, but if both are closed, ResInsight exits.</description>
+      <description>Search for: </description>
     </item>
     
     <item>
@@ -1518,8 +1514,7 @@ Efficient User Interface The user interface is tailored for efficient interpreta
       <description>For inquiries for new features, enhancements or support and maintenance agreements, please contact us for an offer.
 Phone : +47 73 60 43 00 e-mail : info@ceetronsolutions.com
 Bug reports and general feature requests can be filed directly on GitHub
-
-Ceetron Solutions AS - Digitalization and visualization for engineers</description>
+Ceetron Solutions AS - Digitalization and visualization for engineers </description>
     </item>
     
     <item>
@@ -1528,7 +1523,7 @@ Ceetron Solutions AS - Digitalization and visualization for engineers</descripti
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/training/</guid>
-      <description>ResInsight Introduction Course Content  3D visualization of Eclipse models including faults, intersections, surfaces, and contour maps Eclipse Summary plots, ensemble plots and observed data RFT plots, correlation plots, and analysis plots Flow Diagnostics Linking and comparison of views  Course goals Proficiency in evaluating Eclipse simulation results by 3D visualization and plotting in ResInsight.
+      <description>ResInsight Introduction Course Content 3D visualization of Eclipse models including faults, intersections, surfaces, and contour maps Eclipse Summary plots, ensemble plots and observed data RFT plots, correlation plots, and analysis plots Flow Diagnostics Linking and comparison of views Course goals Proficiency in evaluating Eclipse simulation results by 3D visualization and plotting in ResInsight.
 Prerequisites Knowledge about Eclipse reservoir simulations.
 Notes The course is offered online on both Windows and Linux systems.</description>
     </item>
