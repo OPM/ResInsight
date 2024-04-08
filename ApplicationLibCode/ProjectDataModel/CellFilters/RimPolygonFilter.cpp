@@ -497,6 +497,7 @@ void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& 
 
     std::list<size_t> foundCells;
     const bool        closedPolygon = isPolygonClosed();
+    const bool        singlePoint   = ( points.size() == 1 );
 
     // find all cells in the K layer that matches the polygon
 #pragma omp parallel for
@@ -524,7 +525,7 @@ void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& 
             }
             else
             {
-                if ( points.size() == 1 )
+                if ( singlePoint )
                 {
                     if ( RigCellGeometryTools::pointInsideCellNegK2D( points[0], hexCorners ) )
                     {
@@ -642,6 +643,7 @@ void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& p
 void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid, int partId )
 {
     const bool closedPolygon = isPolygonClosed();
+    const bool singlePoint   = ( points.size() == 1 );
 
     // we need to find the K layer we hit with the first point
     size_t nk;
@@ -717,7 +719,7 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
             }
             else
             {
-                if ( points.size() == 1 )
+                if ( singlePoint )
                 {
                     if ( RigCellGeometryTools::pointInsideCellNegK2D( points[0], hexCorners ) )
                     {
