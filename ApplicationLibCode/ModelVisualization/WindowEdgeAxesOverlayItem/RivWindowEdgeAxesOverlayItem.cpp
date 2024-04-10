@@ -89,7 +89,7 @@ RivWindowEdgeAxesOverlayItem::~RivWindowEdgeAxesOverlayItem()
 //--------------------------------------------------------------------------------------------------
 void RivWindowEdgeAxesOverlayItem::setDisplayCoordTransform( const caf::DisplayCoordTransform* displayCoordTransform )
 {
-    m_dispalyCoordsTransform = displayCoordTransform;
+    m_displayCoordsTransform = displayCoordTransform;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,10 +126,10 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera( const Camera* camera )
     camera->unproject( Vec3d( 0, 0, 0 ), &windowOrigoInDomain );
     camera->unproject( Vec3d( m_windowSize.x(), m_windowSize.y(), 0 ), &windowMaxInDomain );
 
-    if ( m_dispalyCoordsTransform.notNull() )
+    if ( m_displayCoordsTransform.notNull() )
     {
-        windowOrigoInDomain = m_dispalyCoordsTransform->transformToDomainCoord( windowOrigoInDomain );
-        windowMaxInDomain   = m_dispalyCoordsTransform->transformToDomainCoord( windowMaxInDomain );
+        windowOrigoInDomain = m_displayCoordsTransform->transformToDomainCoord( windowOrigoInDomain );
+        windowMaxInDomain   = m_displayCoordsTransform->transformToDomainCoord( windowMaxInDomain );
     }
 
     // For extreme zoom factors we might end up with both variables as zero. Return to avoid divide by zero.
@@ -165,9 +165,9 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera( const Camera* camera )
     for ( double domainX : m_domainCoordsXValues )
     {
         Vec3d displayDomainTick = createDomainVec( m_domainAxes, domainX, domainMinY );
-        if ( m_dispalyCoordsTransform.notNull() )
+        if ( m_displayCoordsTransform.notNull() )
         {
-            displayDomainTick = m_dispalyCoordsTransform->transformToDisplayCoord( displayDomainTick );
+            displayDomainTick = m_displayCoordsTransform->transformToDisplayCoord( displayDomainTick );
         }
         camera->project( displayDomainTick, &windowPoint );
         m_windowTickXValues.push_back( windowPoint.x() );
@@ -177,9 +177,9 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera( const Camera* camera )
     for ( double domainY : m_domainCoordsYValues )
     {
         Vec3d displayDomainTick = createDomainVec( m_domainAxes, domainMinX, domainY );
-        if ( m_dispalyCoordsTransform.notNull() )
+        if ( m_displayCoordsTransform.notNull() )
         {
-            displayDomainTick = m_dispalyCoordsTransform->transformToDisplayCoord( displayDomainTick );
+            displayDomainTick = m_displayCoordsTransform->transformToDisplayCoord( displayDomainTick );
         }
         camera->project( displayDomainTick, &windowPoint );
         m_windowTickYValues.push_back( windowPoint.y() );
