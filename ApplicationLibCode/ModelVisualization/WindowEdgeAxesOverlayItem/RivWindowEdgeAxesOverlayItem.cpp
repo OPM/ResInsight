@@ -157,19 +157,14 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera( const Camera* camera )
     caf::TickMarkGenerator yTickCreator( domainMinY, domainMaxY, minDomainYStepSize );
     m_domainCoordsYValues = yTickCreator.tickMarkValues();
 
+    auto createDomainVec = []( auto domainAxes, double x, double y )
+    { return ( domainAxes == XY_AXES ) ? Vec3d( x, y, 0 ) : Vec3d( x, 0, y ); };
+
     m_windowTickXValues.clear();
     Vec3d windowPoint;
     for ( double domainX : m_domainCoordsXValues )
     {
-        Vec3d displayDomainTick;
-        if ( m_domainAxes == XY_AXES )
-        {
-            displayDomainTick = Vec3d( domainX, domainMinY, 0 );
-        }
-        else
-        {
-            displayDomainTick = Vec3d( domainX, 0, domainMinY );
-        }
+        Vec3d displayDomainTick = createDomainVec( m_domainAxes, domainX, domainMinY );
         if ( m_dispalyCoordsTransform.notNull() )
         {
             displayDomainTick = m_dispalyCoordsTransform->transformToDisplayCoord( displayDomainTick );
@@ -181,17 +176,7 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera( const Camera* camera )
     m_windowTickYValues.clear();
     for ( double domainY : m_domainCoordsYValues )
     {
-        Vec3d displayDomainTick;
-
-        if ( m_domainAxes == XY_AXES )
-        {
-            displayDomainTick = Vec3d( domainMinX, domainY, 0 );
-        }
-        else
-        {
-            displayDomainTick = Vec3d( domainMinX, 0, domainY );
-        }
-
+        Vec3d displayDomainTick = createDomainVec( m_domainAxes, domainMinX, domainY );
         if ( m_dispalyCoordsTransform.notNull() )
         {
             displayDomainTick = m_dispalyCoordsTransform->transformToDisplayCoord( displayDomainTick );
