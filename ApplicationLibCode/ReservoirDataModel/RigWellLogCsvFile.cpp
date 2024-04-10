@@ -58,7 +58,7 @@ RigWellLogCsvFile::~RigWellLogCsvFile()
 bool RigWellLogCsvFile::open( const QString& fileName, RigWellPath* wellPath, QString* errorMessage )
 {
     m_wellLogChannelNames.clear();
-    double                 samplingInterval  = 1.0;
+    double                 samplingInterval  = 0.1;
     cvf::cref<RigWellPath> resampledWellPath = resampleWellPath( *wellPath, samplingInterval );
 
     RifCsvUserDataFileParser parser( fileName, errorMessage );
