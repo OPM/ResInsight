@@ -48,7 +48,7 @@ jobs:
               execute-unit-tests: true,
               execute-pytests: true,
               unity-build: false,
-              publish-to-pypi: true,
+              publish-to-pypi: false,
             }
           - {
               name: "Ubuntu 22.04 clang-16",
@@ -281,7 +281,22 @@ jobs:
           name: ResInsight-${{ matrix.config.name }}
           path: ${{ runner.workspace }}/ResInsight/cmakebuild/install
 
+      - name: Compress gcc build for GitHub release
+        if: matrix.config.cc == 'gcc'
+        run: |
+          cd ${{ runner.workspace }}/ResInsight/cmakebuild/
+          tar -czvf ResInsight-${{ matrix.config.name }}.tar.gz install
+
+      - name: Publish gcc GitHub release
+        if: matrix.config.cc == 'gcc' && startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2        
+        with:
+          files: ${{ runner.workspace }}/ResInsight/cmakebuild/ResInsight-${{ matrix.config.name }}.tar.gz
+
   pypi-publish:
+    # If this is a tagged release (DISABLED)
+    if: false && github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+
     name: Upload release to PyPI
     needs: build
     runs-on: ubuntu-latest
@@ -291,9 +306,6 @@ jobs:
     permissions:
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing  
     
-    # If this is a tagged release
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-
     steps:
     - name: Download python distribution folder
       uses: actions/download-artifact@v4
