@@ -133,8 +133,6 @@ private:
 
     void wellBoreFGDerivedFromK0FG( const QString& ppResult, int timeStepIndex, int frameIndex, std::vector<double>* values, bool onlyForPPReservoir );
 
-    void wellBoreFG_MatthewsKelly( const RigWbsParameter& parameter, int timeStepIndex, int frameIndex, std::vector<double>* values );
-
     template <typename T>
     T interpolateGridResultValue( RigFemResultPosEnum resultPosType, const std::vector<T>& gridResultValues, int64_t intersectionIdx ) const;
     size_t              gridResultIndexFace( size_t elementIdx, cvf::StructGridInterface::FaceType cellFace, int faceLocalNodeIdx ) const;
