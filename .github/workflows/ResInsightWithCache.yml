@@ -288,7 +288,7 @@ jobs:
           tar -czvf ResInsight-${{ matrix.config.name }}.tar.gz install
 
       - name: Publish gcc GitHub release
-        if: matrix.config.cc == 'gcc' && startsWith(github.ref, 'refs/tags/')
+        if: matrix.config.cc == 'gcc' && startsWith(github.ref, 'refs/tags/webviz')
         uses: softprops/action-gh-release@v2        
         with:
           files: ${{ runner.workspace }}/ResInsight/cmakebuild/ResInsight-${{ matrix.config.name }}.tar.gz
