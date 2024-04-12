@@ -1895,7 +1895,8 @@ void RimEclipseView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 {
     Rim3dView::defineUiOrdering( uiConfigName, uiOrdering );
 
-    uiOrdering.add( &m_eclipseCase );
+    // Only show case option when not under a case in the project tree.
+    if ( !firstAncestorOrThisOfType<RimEclipseCase>() ) uiOrdering.add( &m_eclipseCase );
 
     caf::PdmUiGroup* cellGroup = uiOrdering.addNewGroup( "Cell Visibility" );
     cellGroup->add( &m_showInactiveCells );
