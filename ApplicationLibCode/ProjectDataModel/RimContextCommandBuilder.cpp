@@ -60,6 +60,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
+#include "RimEclipseViewCollection.h"
 #include "RimElasticProperties.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimEnsembleCurveFilterCollection.h"
@@ -281,6 +282,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewViewFeature";
             menuBuilder << "RicComputeStatisticsFeature";
             menuBuilder << "Separator";
+        }
+        else if ( dynamic_cast<RimEclipseViewCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewViewFeature";
         }
         else if ( dynamic_cast<RimEclipseCase*>( firstUiItem ) )
         {
