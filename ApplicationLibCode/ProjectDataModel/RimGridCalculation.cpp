@@ -175,6 +175,21 @@ bool RimGridCalculation::calculate()
     {
         if ( !calculationCase ) continue;
 
+        if ( !calculationCase->eclipseCaseData() )
+        {
+            QString msg = QString( "No data available for case %1, aborting calculation" ).arg( calculationCase->caseUserDescription() );
+            RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
+            return false;
+        }
+
+        if ( !calculationCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
+        {
+            QString msg =
+                QString( "No active cell data available for case %1, aborting calculation" ).arg( calculationCase->caseUserDescription() );
+            RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
+            return false;
+        }
+
         for ( auto inputCase : inputCases() )
         {
             if ( !calculationCase->isGridSizeEqualTo( inputCase ) )
@@ -539,11 +554,11 @@ RigEclipseResultAddress RimGridCalculation::outputAddress() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimGridCalculation::getDataForVariable( RimGridCalculationVariable*   variable,
-                                                            size_t                        tsId,
-                                                            RiaDefines::PorosityModelType porosityModel,
-                                                            RimEclipseCase*               sourceCase,
-                                                            RimEclipseCase*               destinationCase ) const
+std::vector<double> RimGridCalculation::getActiveCellValuesForVariable( RimGridCalculationVariable*   variable,
+                                                                        size_t                        tsId,
+                                                                        RiaDefines::PorosityModelType porosityModel,
+                                                                        RimEclipseCase*               sourceCase,
+                                                                        RimEclipseCase*               destinationCase ) const
 {
     if ( !sourceCase || !destinationCase ) return {};
 
@@ -564,18 +579,19 @@ std::vector<double> RimGridCalculation::getDataForVariable( RimGridCalculationVa
         timeStepToUse = timeStep;
     }
 
-    return getDataForResult( variable->resultVariable(), resultCategoryType, timeStepToUse, porosityModel, sourceCase, destinationCase );
+    return getActiveCellValues( variable->resultVariable(), resultCategoryType, timeStepToUse, porosityModel, sourceCase, destinationCase );
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Return values for active cells, both for dynamic and static results. Use the active cell info from the destination case, and read data
+/// from the source case.
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimGridCalculation::getDataForResult( const QString&                  resultName,
-                                                          const RiaDefines::ResultCatType resultCategoryType,
-                                                          size_t                          tsId,
-                                                          RiaDefines::PorosityModelType   porosityModel,
-                                                          RimEclipseCase*                 sourceCase,
-                                                          RimEclipseCase*                 destinationCase ) const
+std::vector<double> RimGridCalculation::getActiveCellValues( const QString&                  resultName,
+                                                             const RiaDefines::ResultCatType resultCategoryType,
+                                                             size_t                          tsId,
+                                                             RiaDefines::PorosityModelType   porosityModel,
+                                                             RimEclipseCase*                 sourceCase,
+                                                             RimEclipseCase*                 destinationCase ) const
 {
     if ( !sourceCase || !destinationCase ) return {};
 
@@ -595,7 +611,10 @@ std::vector<double> RimGridCalculation::getDataForResult( const QString&        
     // Active cell info must always be retrieved from the destination case, as the returned vector must be of the same size as
     // number of active cells in the destination case. Active cells can be different between source and destination case.
     auto activeCellInfoDestination = destinationCase->eclipseCaseData()->activeCellInfo( porosityModel );
-    auto activeReservoirCells      = activeCellInfoDestination->activeReservoirCellIndices();
+    if ( !activeCellInfoDestination ) return {};
+
+    auto activeReservoirCells = activeCellInfoDestination->activeReservoirCellIndices();
+    if ( activeReservoirCells.empty() ) return {};
 
     std::vector<double> values( activeCellInfoDestination->activeReservoirCellIndices().size() );
 
@@ -623,23 +642,25 @@ std::vector<double> RimGridCalculation::getDataForResult( const QString&        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCalculation::replaceFilteredValuesWithVector( const std::vector<double>&    inputValues,
-                                                          cvf::ref<cvf::UByteArray>     visibility,
-                                                          std::vector<double>&          resultValues,
-                                                          RiaDefines::PorosityModelType porosityModel,
-                                                          RimEclipseCase*               outputEclipseCase )
+void RimGridCalculation::replaceFilteredValuesWithVector( const std::vector<double>& inputValues,
+                                                          cvf::ref<cvf::UByteArray>  visibility,
+                                                          std::vector<double>&       resultValues,
+                                                          RigActiveCellInfo*         activeCellInfo )
 
 {
-    auto activeCellInfo = outputEclipseCase->eclipseCaseData()->activeCellInfo( porosityModel );
-    int  numCells       = static_cast<int>( visibility->size() );
+    auto activeReservoirCellIndices = activeCellInfo->activeReservoirCellIndices();
+    int  numActiveCells             = static_cast<int>( activeReservoirCellIndices.size() );
+
+    CAF_ASSERT( numActiveCells == (int)resultValues.size() );
+    CAF_ASSERT( numActiveCells == (int)inputValues.size() );
 
 #pragma omp parallel for
-    for ( int i = 0; i < numCells; i++ )
+    for ( int i = 0; i < numActiveCells; i++ )
     {
-        if ( !visibility->val( i ) && activeCellInfo->isActive( i ) )
+        const auto reservoirCellIndex = activeReservoirCellIndices[i];
+        if ( !visibility->val( reservoirCellIndex ) )
         {
-            size_t cellResultIndex        = activeCellInfo->cellResultIndex( i );
-            resultValues[cellResultIndex] = inputValues[cellResultIndex];
+            resultValues[i] = inputValues[i];
         }
     }
 }
@@ -647,23 +668,24 @@ void RimGridCalculation::replaceFilteredValuesWithVector( const std::vector<doub
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCalculation::replaceFilteredValuesWithDefaultValue( double                        defaultValue,
-                                                                cvf::ref<cvf::UByteArray>     visibility,
-                                                                std::vector<double>&          resultValues,
-                                                                RiaDefines::PorosityModelType porosityModel,
-                                                                RimEclipseCase*               outputEclipseCase )
+void RimGridCalculation::replaceFilteredValuesWithDefaultValue( double                    defaultValue,
+                                                                cvf::ref<cvf::UByteArray> visibility,
+                                                                std::vector<double>&      resultValues,
+                                                                RigActiveCellInfo*        activeCellInfo )
 
 {
-    auto activeCellInfo = outputEclipseCase->eclipseCaseData()->activeCellInfo( porosityModel );
-    int  numCells       = static_cast<int>( visibility->size() );
+    auto activeReservoirCellIndices = activeCellInfo->activeReservoirCellIndices();
+    int  numActiveCells             = static_cast<int>( activeReservoirCellIndices.size() );
+
+    CAF_ASSERT( numActiveCells == (int)resultValues.size() );
 
 #pragma omp parallel for
-    for ( int i = 0; i < numCells; i++ )
+    for ( int i = 0; i < numActiveCells; i++ )
     {
-        if ( !visibility->val( i ) && activeCellInfo->isActive( i ) )
+        const auto reservoirCellIndex = activeReservoirCellIndices[i];
+        if ( !visibility->val( reservoirCellIndex ) )
         {
-            size_t cellResultIndex        = activeCellInfo->cellResultIndex( i );
-            resultValues[cellResultIndex] = defaultValue;
+            resultValues[i] = defaultValue;
         }
     }
 }
@@ -683,18 +705,20 @@ void RimGridCalculation::filterResults( RimGridView*                            
 {
     auto visibility = cellFilterView->currentTotalCellVisibility();
 
+    auto activeCellInfo = outputEclipseCase->eclipseCaseData()->activeCellInfo( porosityModel );
+
     if ( defaultValueType == RimGridCalculation::DefaultValueType::FROM_PROPERTY )
     {
-        auto nonVisibleValues = getDataForResult( m_nonVisibleResultAddress->resultName(),
-                                                  m_nonVisibleResultAddress->resultType(),
-                                                  timeStep,
-                                                  porosityModel,
-                                                  m_nonVisibleResultAddress->eclipseCase(),
-                                                  outputEclipseCase );
+        auto nonVisibleValues = getActiveCellValues( m_nonVisibleResultAddress->resultName(),
+                                                     m_nonVisibleResultAddress->resultType(),
+                                                     timeStep,
+                                                     porosityModel,
+                                                     outputEclipseCase,
+                                                     outputEclipseCase );
 
         if ( !nonVisibleValues.empty() )
         {
-            replaceFilteredValuesWithVector( nonVisibleValues, visibility, resultValues, porosityModel, outputEclipseCase );
+            replaceFilteredValuesWithVector( nonVisibleValues, visibility, resultValues, activeCellInfo );
         }
         else
         {
@@ -708,7 +732,7 @@ void RimGridCalculation::filterResults( RimGridView*                            
         double valueToUse = defaultValue;
         if ( defaultValueType == RimGridCalculation::DefaultValueType::POSITIVE_INFINITY ) valueToUse = HUGE_VAL;
 
-        replaceFilteredValuesWithDefaultValue( valueToUse, visibility, resultValues, porosityModel, outputEclipseCase );
+        replaceFilteredValuesWithDefaultValue( valueToUse, visibility, resultValues, activeCellInfo );
     }
 }
 
@@ -875,15 +899,16 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                 bool useDataFromSourceCase = ( v->eclipseCase() == m_destinationCase );
                 auto sourceCase            = useDataFromSourceCase ? calculationCase : v->eclipseCase();
 
-                auto dataForVariable = getDataForVariable( v, tsId, porosityModel, sourceCase, calculationCase );
+                auto dataForVariable = getActiveCellValuesForVariable( v, tsId, porosityModel, sourceCase, calculationCase );
                 if ( dataForVariable.empty() )
                 {
                     RiaLogging::error( QString( "  No data found for variable '%1'." ).arg( v->name() ) );
                 }
                 else if ( inputValueVisibilityFilter && hasAggregationExpression )
                 {
-                    const double defaultValue = 0.0;
-                    replaceFilteredValuesWithDefaultValue( defaultValue, inputValueVisibilityFilter, dataForVariable, porosityModel, calculationCase );
+                    const double defaultValue   = 0.0;
+                    auto         activeCellInfo = calculationCase->eclipseCaseData()->activeCellInfo( porosityModel );
+                    replaceFilteredValuesWithDefaultValue( defaultValue, inputValueVisibilityFilter, dataForVariable, activeCellInfo );
                 }
 
                 dataForAllVariables.push_back( dataForVariable );
@@ -898,10 +923,10 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
             }
 
             std::vector<double> resultValues;
-            if ( m_destinationCase && m_destinationCase->eclipseCaseData() )
+            if ( calculationCase && calculationCase->eclipseCaseData() )
             {
                 // Find number of active cells in the destination case.
-                auto activeCellInfoDestination = m_destinationCase->eclipseCaseData()->activeCellInfo( porosityModel );
+                auto activeCellInfoDestination = calculationCase->eclipseCaseData()->activeCellInfo( porosityModel );
                 if ( activeCellInfoDestination )
                 {
                     resultValues.resize( activeCellInfoDestination->reservoirActiveCellCount() );
