@@ -117,6 +117,9 @@ RimEclipseCase::RimEclipseCase()
     m_resultAddressCollections.uiCapability()->setUiHidden( true );
     m_resultAddressCollections.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault( &m_viewCollection, "ViewCollection", "Views" );
+    m_viewCollection = new RimEclipseViewCollection;
+
     // Init
 
     m_matrixModelResults = new RimReservoirCellResultsStorage;
@@ -136,6 +139,7 @@ RimEclipseCase::~RimEclipseCase()
     delete m_matrixModelResults();
     delete m_fractureModelResults();
     delete m_inputPropertyCollection;
+    delete m_viewCollection;
 
     RimProject* project = RimProject::current();
     if ( project )
@@ -307,9 +311,9 @@ void RimEclipseCase::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseView* RimEclipseCase::createAndAddReservoirView()
+RimEclipseView* RimEclipseCase::createAndAddReservoirView( bool useGlobalViewCollection )
 {
-    RimEclipseViewCollection* viewColl = viewCollection();
+    RimEclipseViewCollection* viewColl = useGlobalViewCollection ? globalViewCollection() : viewCollection();
     if ( !viewColl ) return nullptr;
 
     return viewColl->addView( this );
@@ -550,6 +554,11 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 {
     if ( uiConfigName == "MainWindow.ProjectTree" )
     {
+        for ( auto view : m_viewCollection->views() )
+        {
+            uiTreeOrdering.add( view );
+        }
+
         if ( !m_2dIntersectionViewCollection->views().empty() )
         {
             uiTreeOrdering.add( &m_2dIntersectionViewCollection );
@@ -1196,6 +1205,14 @@ void RimEclipseCase::updateResultAddressCollection()
 //--------------------------------------------------------------------------------------------------
 RimEclipseViewCollection* RimEclipseCase::viewCollection() const
 {
+    return m_viewCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseViewCollection* RimEclipseCase::globalViewCollection() const
+{
     RimProject* project = RimProject::current();
     if ( !project ) return nullptr;
 
@@ -1211,7 +1228,18 @@ RimEclipseViewCollection* RimEclipseCase::viewCollection() const
 std::vector<RimEclipseView*> RimEclipseCase::reservoirViews() const
 {
     std::vector<RimEclipseView*> views;
-    if ( RimEclipseViewCollection* viewColl = viewCollection() )
+
+    addViewsFromViewCollection( views, viewCollection() );
+    addViewsFromViewCollection( views, globalViewCollection() );
+    return views;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::addViewsFromViewCollection( std::vector<RimEclipseView*>& views, const RimEclipseViewCollection* viewColl ) const
+{
+    if ( viewColl )
     {
         for ( auto view : viewColl->views() )
         {
@@ -1221,8 +1249,6 @@ std::vector<RimEclipseView*> RimEclipseCase::reservoirViews() const
             }
         }
     }
-
-    return views;
 }
 
 //--------------------------------------------------------------------------------------------------

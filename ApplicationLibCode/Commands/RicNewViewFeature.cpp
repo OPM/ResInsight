@@ -23,8 +23,10 @@
 
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCaseTools.h"
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseView.h"
+#include "RimEclipseViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
 
@@ -39,9 +41,9 @@ CAF_CMD_SOURCE_INIT( RicNewViewFeature, "RicNewViewFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewViewFeature::addReservoirView( RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase )
+void RicNewViewFeature::addReservoirView( RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase, bool useGlobalViewCollection )
 {
-    Rim3dView* newView = createReservoirView( eclipseCase, geomCase );
+    Rim3dView* newView = createReservoirView( eclipseCase, geomCase, useGlobalViewCollection );
 
     if ( newView )
     {
@@ -58,7 +60,7 @@ void RicNewViewFeature::addReservoirView( RimEclipseCase* eclipseCase, RimGeoMec
 bool RicNewViewFeature::isCommandEnabled() const
 {
     return selectedEclipseCase() != nullptr || selectedEclipseView() != nullptr || selectedGeoMechCase() != nullptr ||
-           selectedGeoMechView() != nullptr;
+           selectedGeoMechView() != nullptr || selectedEclipseViewCollection() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,7 +78,21 @@ void RicNewViewFeature::onActionTriggered( bool isChecked )
     if ( geoMechView ) geomCase = geoMechView->geoMechCase();
     if ( reservoirView ) eclipseCase = reservoirView->eclipseCase();
 
-    addReservoirView( eclipseCase, geomCase );
+    bool useGlobalViewCollection = false;
+    if ( selectedEclipseViewCollection() )
+    {
+        // Use global view collection if view collection is not descendant of Eclipse case.
+        useGlobalViewCollection = selectedEclipseViewCollection()->firstAncestorOrThisOfType<RimEclipseCase>() == nullptr;
+        if ( !eclipseCase )
+        {
+            auto eclipseCases = RimEclipseCaseTools::allEclipseGridCases();
+            if ( !eclipseCases.empty() )
+            {
+                eclipseCase = eclipseCases[0];
+            }
+        }
+    }
+    addReservoirView( eclipseCase, geomCase, useGlobalViewCollection );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,13 +107,13 @@ void RicNewViewFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim3dView* RicNewViewFeature::createReservoirView( RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase )
+Rim3dView* RicNewViewFeature::createReservoirView( RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase, bool useGlobalViewCollection )
 {
     RimGridView* insertedView = nullptr;
 
     if ( eclipseCase )
     {
-        insertedView = eclipseCase->createAndAddReservoirView();
+        insertedView = eclipseCase->createAndAddReservoirView( useGlobalViewCollection );
     }
     else if ( geomCase )
     {
@@ -168,6 +184,17 @@ RimEclipseView* RicNewViewFeature::selectedEclipseView()
         }
     }
 
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseViewCollection* RicNewViewFeature::selectedEclipseViewCollection()
+{
+    std::vector<RimEclipseViewCollection*> selection;
+    caf::SelectionManager::instance()->objectsByType( &selection );
+    if ( !selection.empty() ) return selection[0];
     return nullptr;
 }
 

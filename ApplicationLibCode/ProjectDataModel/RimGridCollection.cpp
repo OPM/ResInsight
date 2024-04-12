@@ -19,6 +19,7 @@
 
 #include "RimGridCollection.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseView.h"
 #include "RimGridView.h"
 
 #include "RigMainGrid.h"
@@ -479,7 +480,10 @@ void RimGridCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrde
 //--------------------------------------------------------------------------------------------------
 const RigMainGrid* RimGridCollection::mainEclipseGrid() const
 {
-    auto eclipseCase = firstAncestorOrThisOfType<RimEclipseCase>();
+    RimEclipseView* gridView = firstAncestorOrThisOfType<RimEclipseView>();
+    if ( !gridView ) return nullptr;
+
+    auto eclipseCase = gridView->eclipseCase();
     return eclipseCase ? eclipseCase->mainGrid() : nullptr;
 }
 

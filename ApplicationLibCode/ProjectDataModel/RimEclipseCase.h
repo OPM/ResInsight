@@ -91,7 +91,7 @@ public:
     RimReservoirCellResultsStorage*       resultsStorage( RiaDefines::PorosityModelType porosityModel );
     const RimReservoirCellResultsStorage* resultsStorage( RiaDefines::PorosityModelType porosityModel ) const;
 
-    RimEclipseView* createAndAddReservoirView();
+    RimEclipseView* createAndAddReservoirView( bool useGlobalViewCollection = false );
     RimEclipseView* createCopyAndAddView( const RimEclipseView* sourceView );
 
     const RigVirtualPerforationTransmissibilities* computeAndGetVirtualPerforationTransmissibilities();
@@ -141,7 +141,9 @@ protected:
     void                                setReservoirData( RigEclipseCaseData* eclipseCase );
     std::vector<QString>                additionalFiles() const;
     RimEclipseViewCollection*           viewCollection() const;
+    RimEclipseViewCollection*           globalViewCollection() const;
     RimEclipseContourMapViewCollection* contourMapViewCollection() const;
+    void addViewsFromViewCollection( std::vector<RimEclipseView*>& views, const RimEclipseViewCollection* viewColl ) const;
 
 private:
     void                                   createTimeStepFormatString();
@@ -168,6 +170,7 @@ private:
 
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;
+    caf::PdmChildField<RimEclipseViewCollection*>       m_viewCollection;
 
     caf::PdmField<std::vector<caf::FilePath>> m_filesContainingFaults;
 
