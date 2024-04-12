@@ -212,6 +212,8 @@ void RimEclipseContourMapView::defineUiOrdering( QString uiConfigName, caf::PdmU
     viewGroup->add( &m_showAxisLines );
     viewGroup->add( &m_showScaleLegend );
 
+    uiOrdering.add( &m_eclipseCase );
+
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Contour Map Name" );
     nameConfig()->uiOrdering( uiConfigName, *nameGroup );
 

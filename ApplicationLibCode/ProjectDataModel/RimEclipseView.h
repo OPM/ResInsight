@@ -222,7 +222,8 @@ private:
     void propagateEclipseCaseToChildObjects();
 
 protected:
-    cvf::ref<cvf::ModelBasicList> m_faultReactVizModel;
+    cvf::ref<cvf::ModelBasicList>     m_faultReactVizModel;
+    caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
 
 private:
     caf::PdmField<bool> m_showInvalidCells;
@@ -245,7 +246,6 @@ private:
     caf::PdmChildField<RimEclipsePropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimEclipsePropertyFilterCollection>     m_overridePropertyFilterCollection;
 
-    caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
     caf::PdmPtrField<RimEclipseCase*> m_customEclipseCase_OBSOLETE;
 
     cvf::ref<RivReservoirViewPartMgr>     m_reservoirGridPartManager;
