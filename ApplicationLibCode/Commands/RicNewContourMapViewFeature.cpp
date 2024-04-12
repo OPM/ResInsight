@@ -273,14 +273,6 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
 
     contourMap->synchronizeLocalAnnotationsFromGlobal();
 
-    // Resolve references after contour map has been inserted into Rim structures
-    std::vector<caf::PdmFieldHandle*> fieldsWithFailingResolve;
-    contourMap->resolveReferencesRecursively( &fieldsWithFailingResolve );
-
-    // TODO: Introduce the assert when code is stable
-    // If we have intersections on well paths, the resolving is now failing
-    // CVF_ASSERT(fieldsWithFailingResolve.empty());
-
     contourMap->initAfterReadRecursively();
 
     eclipseCase->contourMapCollection()->updateConnectedEditors();
