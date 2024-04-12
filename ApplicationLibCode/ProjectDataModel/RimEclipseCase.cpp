@@ -1063,15 +1063,6 @@ bool RimEclipseCase::openReserviorCase()
         }
     }
 
-    // Update grids node
-    {
-        std::vector<RimGridCollection*> gridColls = descendantsIncludingThisOfType<RimGridCollection>();
-        for ( RimGridCollection* gridCollection : gridColls )
-        {
-            gridCollection->syncFromMainEclipseGrid();
-        }
-    }
-
     return true;
 }
 

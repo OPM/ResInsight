@@ -385,6 +385,13 @@ void RimEclipseView::propagateEclipseCaseToChildObjects()
     faultResultSettings()->customFaultResult()->setEclipseCase( currentEclipseCase );
     cellFilterCollection()->setCase( currentEclipseCase );
     m_streamlineCollection->setEclipseCase( currentEclipseCase );
+
+    // Update grids node
+    std::vector<RimGridCollection*> gridColls = descendantsIncludingThisOfType<RimGridCollection>();
+    for ( RimGridCollection* gridCollection : gridColls )
+    {
+        gridCollection->syncFromMainEclipseGrid();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
