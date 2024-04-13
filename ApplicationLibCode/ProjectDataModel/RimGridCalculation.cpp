@@ -606,7 +606,7 @@ std::vector<double> RimGridCalculation::getActiveCellValues( const QString&     
 
     auto eclipseCaseData        = sourceCase->eclipseCaseData();
     auto rigCaseCellResultsData = eclipseCaseData->results( porosityModel );
-    if ( !rigCaseCellResultsData->findOrLoadKnownScalarResultForTimeStep( resAddr, timeStepToUse ) ) return {};
+    if ( rigCaseCellResultsData->findOrLoadKnownScalarResultForTimeStep( resAddr, timeStepToUse ) == cvf::UNDEFINED_SIZE_T ) return {};
 
     // Active cell info must always be retrieved from the destination case, as the returned vector must be of the same size as
     // number of active cells in the destination case. Active cells can be different between source and destination case.
