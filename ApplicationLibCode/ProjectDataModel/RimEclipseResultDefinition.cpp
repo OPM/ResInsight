@@ -1419,6 +1419,8 @@ bool RimEclipseResultDefinition::isCompletionTypeSelected() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::hasCategoryResult() const
 {
+    if ( RiaResultNames::isCategoryResult( m_resultVariable() ) ) return true;
+
     if ( auto* gridCellResults = currentGridCellResults() )
     {
         const auto addresses = gridCellResults->existingResults();

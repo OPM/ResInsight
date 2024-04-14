@@ -100,6 +100,17 @@ bool RiaResultNames::isFlowResultWithBothPosAndNegValues( const QString& resultN
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaResultNames::isCategoryResult( const QString& resultName )
+{
+    if ( resultName.endsWith( "NUM", Qt::CaseInsensitive ) ) return true;
+    if ( resultName.startsWith( "FIP", Qt::CaseInsensitive ) ) return true;
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaResultNames::activeFormationNamesResultName()
 {
     return "Active Formation Names";
