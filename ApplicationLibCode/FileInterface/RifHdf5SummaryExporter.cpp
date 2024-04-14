@@ -45,6 +45,7 @@
 //--------------------------------------------------------------------------------------------------
 bool RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( const std::vector<std::string>& smspecFileNames,
                                                                    const std::vector<std::string>& h5FileNames,
+                                                                   bool                            createHdfIfNotPresent,
                                                                    int                             threadCount )
 {
     if ( smspecFileNames.empty() ) return true;
@@ -61,7 +62,7 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( const std::ve
         const auto& smspecFileName = smspecFileNames[cIdx];
         const auto& h5FileName     = h5FileNames[cIdx];
 
-        RifHdf5SummaryExporter::ensureHdf5FileIsCreated( smspecFileName, h5FileName, hdfFilesCreatedCount );
+        RifHdf5SummaryExporter::ensureHdf5FileIsCreated( smspecFileName, h5FileName, createHdfIfNotPresent, hdfFilesCreatedCount );
     }
 
     if ( hdfFilesCreatedCount > 0 )
@@ -78,29 +79,47 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( const std::ve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecFileName, const std::string& h5FileName, size_t& hdfFilesCreatedCount )
+bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecFileName,
+                                                      const std::string& h5FileName,
+                                                      bool               createHdfIfNotPresent,
+                                                      size_t&            hdfFilesCreatedCount )
 {
+    // If an H5 file is present, and the SMSPEC file is newer than the H5 file, the H5 file will be recreated.
+    // If no H5 file is present, the H5 file will be created if the flag createHdfIfNotPresent is set to true.
+    //
+    // NB! Always make sure the logic is consistent with the logic in RifOpmCommonEclipseSummary::open
+
     if ( !std::filesystem::exists( smspecFileName ) ) return false;
-
-    {
-        // Check if we have write permission in the folder
-        QFileInfo info( QString::fromStdString( smspecFileName ) );
-
-        if ( !info.isWritable() ) return true;
-    }
 
     bool exportIsRequired = false;
 
+    bool h5FileExists = std::filesystem::exists( h5FileName );
+    if ( !h5FileExists )
     {
-        bool h5FileExists = std::filesystem::exists( h5FileName );
-        if ( !h5FileExists )
+        if ( createHdfIfNotPresent )
         {
             exportIsRequired = true;
         }
-        else if ( RiaFilePathTools::isFirstOlderThanSecond( h5FileName, smspecFileName ) )
+    }
+    else if ( RiaFilePathTools::isFirstOlderThanSecond( h5FileName, smspecFileName ) )
+    {
+        // If both files are present, check if the SMSPEC file is newer than the H5 file. If the SMSPEC file is newer, we abort if it is not
+        // possible to write to the H5 file
+
+        // Check if we have write permission in the folder
+        QFileInfo info( QString::fromStdString( smspecFileName ) );
+
+        if ( !info.isWritable() )
         {
-            exportIsRequired = true;
+            QString txt =
+                QString( "HDF is older than SMSPEC, but export to file %1 failed due to missing write permissions. Aborting operation." )
+                    .arg( QString::fromStdString( h5FileName ) );
+            RiaLogging::error( txt );
+
+            return false;
         }
+
+        exportIsRequired = true;
     }
 
     if ( exportIsRequired )
@@ -127,7 +146,7 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
         }
         catch ( std::exception& e )
         {
-            QString txt = QString( "HDF export to file %1 failed : %3" ).arg( QString::fromStdString( smspecFileName ), e.what() );
+            QString txt = QString( "HDF export to file %1 failed : %2" ).arg( QString::fromStdString( smspecFileName ), e.what() );
 
             RiaLogging::error( txt );
 
