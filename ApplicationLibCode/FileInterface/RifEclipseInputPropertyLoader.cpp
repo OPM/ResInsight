@@ -19,6 +19,7 @@
 #include "RifEclipseInputPropertyLoader.h"
 
 #include "RiaLogging.h"
+#include "RiaResultNames.h"
 
 #include "RifEclipseInputFileTools.h"
 #include "RifEclipseKeywordContent.h"
@@ -177,8 +178,8 @@ bool RifEclipseInputPropertyLoader::appendNewInputPropertyResult( RigEclipseCase
         return false;
     }
 
-    bool endsWithNum = eclipseKeyword.ends_with( "NUM" );
-    auto dataType    = endsWithNum ? RiaDefines::ResultDataType::INTEGER : RiaDefines::ResultDataType::FLOAT;
+    bool isCategory = RiaResultNames::isCategoryResult( resultName );
+    auto dataType   = isCategory ? RiaDefines::ResultDataType::INTEGER : RiaDefines::ResultDataType::FLOAT;
 
     RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, dataType, resultName );
     caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
