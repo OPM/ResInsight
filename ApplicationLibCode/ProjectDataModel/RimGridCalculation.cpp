@@ -171,9 +171,15 @@ RimGridCalculationVariable* RimGridCalculation::createVariable()
 //--------------------------------------------------------------------------------------------------
 bool RimGridCalculation::calculate()
 {
+    // Equal grid size is required if there is more than one grid case in the expression. If a cell filter view is active, the visibility is
+    // based on one view and reused for all other grid models, and requires equal grid size.
+    bool checkIfGridSizeIsEqual = !allSourceCasesAreEqualToDestinationCase() || m_cellFilterView != nullptr;
+
     for ( auto calculationCase : outputEclipseCases() )
     {
         if ( !calculationCase ) continue;
+
+        calculationCase->ensureReservoirCaseIsOpen();
 
         if ( !calculationCase->eclipseCaseData() )
         {
@@ -190,14 +196,17 @@ bool RimGridCalculation::calculate()
             return false;
         }
 
-        for ( auto inputCase : inputCases() )
+        if ( checkIfGridSizeIsEqual )
         {
-            if ( !calculationCase->isGridSizeEqualTo( inputCase ) )
+            for ( auto inputCase : inputCases() )
             {
-                QString msg = "Detected IJK mismatch between input cases and destination case. All grid "
-                              "cases must have identical IJK sizes.";
-                RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
-                return false;
+                if ( !calculationCase->isGridSizeEqualTo( inputCase ) )
+                {
+                    QString msg = "Detected IJK mismatch between input cases and destination case. All grid "
+                                  "cases must have identical IJK sizes.";
+                    RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
+                    return false;
+                }
             }
         }
     }
