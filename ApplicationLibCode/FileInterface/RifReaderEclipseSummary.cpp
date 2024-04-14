@@ -95,18 +95,18 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
              ( h5FileFound || ( prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON ) ) )
         {
 #ifdef USE_HDF5
-            if ( prefSummary->createH5SummaryDataFiles() )
-            {
-                size_t createdH5FileCount = 0;
-                RifHdf5SummaryExporter::ensureHdf5FileIsCreated( headerFileName.toStdString(), h5FileName.toStdString(), createdH5FileCount );
+            size_t createdH5FileCount = 0;
+            RifHdf5SummaryExporter::ensureHdf5FileIsCreated( headerFileName.toStdString(),
+                                                             h5FileName.toStdString(),
+                                                             prefSummary->createH5SummaryDataFiles(),
+                                                             createdH5FileCount );
 
-                if ( createdH5FileCount > 0 )
-                {
-                    QString txt = QString( "Created %1 " ).arg( h5FileName );
-                    if ( threadSafeLogger ) threadSafeLogger->info( txt );
-                }
-                h5FileFound = QFile::exists( h5FileName );
+            if ( createdH5FileCount > 0 )
+            {
+                QString txt = QString( "Created %1 " ).arg( h5FileName );
+                if ( threadSafeLogger ) threadSafeLogger->info( txt );
             }
+            h5FileFound = QFile::exists( h5FileName );
 
             if ( h5FileFound )
             {
