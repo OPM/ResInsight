@@ -722,6 +722,10 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
 
     CAF_ASSERT( pp.size() == intersections().size() );
 
+    std::vector<double> ppShaleValues( intersections().size(), std::numeric_limits<double>::infinity() );
+    calculateWbsParameterForAllSegments( RigWbsParameter::PP_NonReservoir(), 0, 0, &ppShaleValues, true );
+    CAF_ASSERT( ppShaleValues.size() == intersections().size() );
+
 #pragma omp parallel for
     for ( int64_t intersectionIdx = 0; intersectionIdx < static_cast<int64_t>( intersections().size() ); ++intersectionIdx )
     {
@@ -730,6 +734,12 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
         double hydroStaticPorePressureBar = hydroStaticPorePressureForSegment( intersectionIdx );
 
         double porePressureBar = ppSandAllSegments[intersectionIdx];
+        if ( resAddr.fieldName == RiaResultNames::wbsSFGResult().toStdString() )
+        {
+            // SFG needs PP for shale.
+            porePressureBar = ppShaleValues[intersectionIdx] * hydroStaticPorePressureBar;
+        }
+
         if ( porePressureBar == std::numeric_limits<double>::infinity() )
         {
             porePressureBar = hydroStaticPorePressureBar;
