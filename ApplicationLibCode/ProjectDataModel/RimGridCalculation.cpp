@@ -22,6 +22,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPorosityModel.h"
+#include "RiaRegressionTestRunner.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -118,7 +119,8 @@ RimGridCalculation::RimGridCalculation()
 //--------------------------------------------------------------------------------------------------
 bool RimGridCalculation::preCalculate() const
 {
-    if ( RiaGuiApplication::isRunning() && m_additionalCasesType() != RimGridCalculation::AdditionalCasesType::NONE )
+    if ( !RiaRegressionTestRunner::instance()->isRunningRegressionTests() && RiaGuiApplication::isRunning() &&
+         m_additionalCasesType() != RimGridCalculation::AdditionalCasesType::NONE )
     {
         const QString cacheKey = "GridCalculatorMessage";
 
