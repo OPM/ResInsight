@@ -91,7 +91,7 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* pare
     CAF_ASSERT( m_plotDefinition );
 
     m_layout = new QVBoxLayout( this );
-    m_layout->setMargin( 0 );
+    m_layout->setContentsMargins( 0, 0, 0, 0 );
     m_layout->setSpacing( 4 );
 
     m_plotTitle = createTitleLabel();

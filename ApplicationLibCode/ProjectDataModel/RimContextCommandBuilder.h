@@ -20,6 +20,8 @@
 #pragma once
 
 #include <QIcon>
+#include <QStringList>
+
 #include <vector>
 
 namespace caf
@@ -28,7 +30,6 @@ class CmdFeatureMenuBuilder;
 }
 
 class QString;
-class QStringList;
 class QMenu;
 class RimWellPath;
 class RimScriptCollection;

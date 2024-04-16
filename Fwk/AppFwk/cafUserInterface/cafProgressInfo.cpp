@@ -34,7 +34,13 @@
 //
 //##################################################################################################
 
+// This include is required to avoid ambiguous definition during unity build
+#ifdef WIN32
+#include <windows.h>
+#endif // WIN32
+
 #include "cafProgressInfo.h"
+
 #include "cafAssert.h"
 #include "cafMemoryInspector.h"
 #include "cafProgressState.h"

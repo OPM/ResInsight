@@ -138,13 +138,13 @@ public:
             {
                 int lineCount       = 1 + posTickTypeText.second.label.count( "\n" );
                 mediumTextLineCount = std::max( mediumTextLineCount, lineCount );
-                medTickMaxTextSize  = std::max( posTickTypeText.second.label.size(), medTickMaxTextSize );
+                medTickMaxTextSize  = std::max( (int)posTickTypeText.second.label.size(), medTickMaxTextSize );
             }
             else if ( posTickTypeText.second.tickType == QwtScaleDiv::MinorTick )
             {
                 int lineCount      = 1 + posTickTypeText.second.label.count( "\n" );
                 minorTextLineCount = std::max( minorTextLineCount, lineCount );
-                minTickMaxTextSize = std::max( posTickTypeText.second.label.size(), minTickMaxTextSize );
+                minTickMaxTextSize = std::max( (int)posTickTypeText.second.label.size(), minTickMaxTextSize );
             }
         }
 

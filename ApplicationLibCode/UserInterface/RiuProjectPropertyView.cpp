@@ -74,7 +74,7 @@ RiuProjectAndPropertyView::RiuProjectAndPropertyView( QWidget* parent, Qt::Windo
         propertyHeader->setFixedHeight( 20 );
 
         QVBoxLayout* layout = new QVBoxLayout;
-        layout->setMargin( 0 );
+        layout->setContentsMargins( 0, 0, 0, 0 );
         layout->addWidget( propertyHeader );
         layout->addWidget( m_propertyView );
 
@@ -87,7 +87,7 @@ RiuProjectAndPropertyView::RiuProjectAndPropertyView( QWidget* parent, Qt::Windo
     splitter->addWidget( propertyEditorWithHeader );
 
     QVBoxLayout* layout = new QVBoxLayout;
-    layout->setMargin( 0 );
+    layout->setContentsMargins( 0, 0, 0, 0 );
     layout->addWidget( splitter );
 
     setLayout( layout );

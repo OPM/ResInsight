@@ -19,9 +19,9 @@
 #pragma once
 
 #include <QString>
-#include <map>
+#include <QStringList>
 
-class QStringList;
+#include <map>
 
 //--------------------------------------------------------------------------------------------------
 ///

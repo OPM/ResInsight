@@ -22,6 +22,7 @@
 #include "cvfVector3.h"
 
 #include <array>
+#include <list>
 
 //==================================================================================================
 ///  Internal class for intersection point info

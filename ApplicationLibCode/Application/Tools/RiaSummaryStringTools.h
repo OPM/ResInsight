@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <QStringList>
+
 #include <set>
 #include <vector>
 
@@ -26,7 +28,6 @@ class RifEclipseSummaryAddress;
 class RimSummaryCaseCollection;
 
 class QString;
-class QStringList;
 
 //==================================================================================================
 //

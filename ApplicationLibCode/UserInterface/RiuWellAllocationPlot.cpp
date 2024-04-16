@@ -46,7 +46,7 @@ RiuWellAllocationPlot::RiuWellAllocationPlot( RimWellAllocationPlot* plotDefinit
 
     QVBoxLayout* mainLayout = new QVBoxLayout();
     setLayout( mainLayout );
-    layout()->setMargin( 0 );
+    layout()->setContentsMargins( 0, 0, 0, 0 );
     layout()->setSpacing( 2 );
 
     m_titleLabel = new QLabel( this );
