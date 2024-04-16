@@ -24,6 +24,7 @@
 #include "RigCaseCellResultsData.h"
 
 #include "Rim3dView.h"
+#include "RimCase.h"
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
@@ -59,6 +60,18 @@ RimEclipseViewCollection::~RimEclipseViewCollection()
 std::vector<RimEclipseView*> RimEclipseViewCollection::views() const
 {
     return m_views.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseViewCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    // If a view is child of a case, the view collection object is hidden in the tree view. Find the parent case and update connected editors.
+    if ( auto parentCase = firstAncestorOrThisOfType<RimCase>() )
+    {
+        parentCase->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
