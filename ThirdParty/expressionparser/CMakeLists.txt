@@ -7,9 +7,16 @@ if(MSVC)
     message(STATUS "MSVC: Enabled increased number of sections in object files") 
  endif() 
 
- 
-find_package(Qt5 COMPONENTS REQUIRED Core)
-set(QT_LIBRARIES Qt5::Core)
+if (CEE_USE_QT6)
+    find_package(Qt6 COMPONENTS REQUIRED Core)
+    set(QT_LIBRARIES Qt6::Core)
+    qt_standard_project_setup()
+elseif (CEE_USE_QT5)
+    find_package(Qt5 COMPONENTS REQUIRED Core)
+    set(QT_LIBRARIES Qt5::Core)
+else()
+    message(FATAL_ERROR "No supported Qt version selected for build")
+endif()
 
 list (APPEND MAIN_SOURCE_FILES
     ExpressionParser.h
