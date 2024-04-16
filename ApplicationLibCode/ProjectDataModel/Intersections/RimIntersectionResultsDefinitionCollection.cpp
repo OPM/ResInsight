@@ -72,7 +72,12 @@ void RimIntersectionResultsDefinitionCollection::appendIntersectionResultDefinit
 
     if ( interResDef->activeCase() == nullptr )
     {
-        if ( auto gridView = firstAncestorOrThisOfType<Rim3dView>() )
+        auto ownerCase = firstAncestorOrThisOfType<RimCase>();
+        if ( ownerCase )
+        {
+            interResDef->setActiveCase( ownerCase );
+        }
+        else if ( auto gridView = firstAncestorOrThisOfType<Rim3dView>() )
         {
             if ( auto ownerCase = gridView->ownerCase() )
             {
