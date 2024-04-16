@@ -6,11 +6,9 @@ if (CEE_USE_QT6)
     find_package(Qt6 COMPONENTS REQUIRED Core Gui Widgets)
     set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets)
     qt_standard_project_setup()
-elseif (CEE_USE_QT5)
+else()
     find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
     set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-else()
-    message(FATAL_ERROR "No supported Qt version selected for build")
 endif()
 
 list (APPEND MAIN_SOURCE_FILES
