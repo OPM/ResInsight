@@ -283,11 +283,9 @@ void RimEclipseCase::initAfterRead()
     {
         // Move views to view collection.
         RimEclipseViewCollection* viewColl = viewCollection();
-        for ( size_t j = 0; j < m_reservoirViews_OBSOLETE.size(); j++ )
+        for ( RimEclipseView* riv : m_reservoirViews_OBSOLETE.childrenByType() )
         {
-            RimEclipseView* riv = m_reservoirViews_OBSOLETE()[j];
             CVF_ASSERT( riv );
-
             riv->setEclipseCase( this );
             m_reservoirViews_OBSOLETE.removeChild( riv );
             viewColl->addView( riv );
