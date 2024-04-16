@@ -39,8 +39,6 @@ class RimObservedDataCollection;
 class RimSummaryCurve;
 class RimUserDefinedCalculation;
 
-
-
 namespace caf
 {
 class PdmObject;

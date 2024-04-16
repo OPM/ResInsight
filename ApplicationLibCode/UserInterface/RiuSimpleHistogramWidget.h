@@ -25,7 +25,6 @@
 
 class QPaintEvent;
 
-
 class RiuSimpleHistogramWidget : public QWidget
 {
 public:

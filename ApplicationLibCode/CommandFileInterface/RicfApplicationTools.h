@@ -27,7 +27,6 @@ class RimEclipseCase;
 class RimEclipseView;
 class RimWellPath;
 
-
 //==================================================================================================
 //
 //

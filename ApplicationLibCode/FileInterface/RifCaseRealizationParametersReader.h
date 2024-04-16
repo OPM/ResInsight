@@ -23,14 +23,13 @@
 #include "RigCaseRealizationParameters.h"
 
 #include <QString>
-#include <QTextStream>
 #include <QStringList>
+#include <QTextStream>
 
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
-
 
 class QTextStream;
 class QXmlStreamReader;

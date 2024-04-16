@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include <QWidget>
 #include <QStringList>
+#include <QWidget>
 
 class QPaintEvent;
 class QString;
