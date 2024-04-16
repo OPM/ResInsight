@@ -113,7 +113,7 @@ public:
     uint   numberOfValidCells() const;
     size_t numberOfVertices() const;
 
-    bool       checkForMapIntersection( const cvf::Vec3d& localPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint ) const;
+    bool       checkForMapIntersection( const cvf::Vec3d& domainPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint ) const;
     void       setPickPoint( cvf::Vec2d globalPickPoint );
     cvf::Vec3d origin3d() const;
 
