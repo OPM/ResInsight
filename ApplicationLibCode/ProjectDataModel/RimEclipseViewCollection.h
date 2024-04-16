@@ -45,5 +45,8 @@ public:
     std::vector<RimEclipseView*> views() const;
 
 private:
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
+private:
     caf::PdmChildArrayField<RimEclipseView*> m_views;
 };
