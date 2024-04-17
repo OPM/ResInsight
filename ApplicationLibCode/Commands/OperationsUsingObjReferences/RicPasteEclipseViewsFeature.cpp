@@ -98,7 +98,7 @@ void RicPasteEclipseViewsFeature::onActionTriggered( bool isChecked )
             auto contourMapView = dynamic_cast<RimEclipseContourMapView*>( rimReservoirView );
             CVF_ASSERT( contourMapView );
 
-            eclipseCase->contourMapCollection()->push_back( contourMapView );
+            eclipseCase->contourMapCollection()->addView( contourMapView );
         }
         else
         {

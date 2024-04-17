@@ -219,7 +219,7 @@ RimEclipseContourMapView*
 
     size_t i = eclipseCase->contourMapCollection()->views().size();
     contourMap->setName( QString( "Contour Map %1" ).arg( i + 1 ) );
-    eclipseCase->contourMapCollection()->push_back( contourMap );
+    eclipseCase->contourMapCollection()->addView( contourMap );
 
     // Resolve references after contour map has been inserted into Rim structures
     contourMap->resolveReferencesRecursively();
@@ -269,7 +269,7 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
 
     caf::PdmDocument::updateUiIconStateRecursively( contourMap );
 
-    eclipseCase->contourMapCollection()->push_back( contourMap );
+    eclipseCase->contourMapCollection()->addView( contourMap );
 
     contourMap->synchronizeLocalAnnotationsFromGlobal();
 
@@ -313,7 +313,7 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMap( 
     contourMap->faultCollection()->setActive( false );
     contourMap->wellCollection()->isActive = false;
 
-    eclipseCase->contourMapCollection()->push_back( contourMap );
+    eclipseCase->contourMapCollection()->addView( contourMap );
 
     auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
     contourMap->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
@@ -343,7 +343,7 @@ RimGeoMechContourMapView*
 
     size_t i = geoMechCase->contourMapCollection()->views().size();
     contourMap->setName( QString( "Contour Map %1" ).arg( i + 1 ) );
-    geoMechCase->contourMapCollection()->push_back( contourMap );
+    geoMechCase->contourMapCollection()->addView( contourMap );
 
     // Resolve references after contour map has been inserted into Rim structures
     contourMap->resolveReferencesRecursively();
@@ -373,7 +373,7 @@ RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMapFr
 
     caf::PdmDocument::updateUiIconStateRecursively( contourMap );
 
-    geoMechCase->contourMapCollection()->push_back( contourMap );
+    geoMechCase->contourMapCollection()->addView( contourMap );
 
     // Resolve references after contour map has been inserted into Rim structures
     std::vector<caf::PdmFieldHandle*> fieldsWithFailingResolve;
@@ -395,7 +395,7 @@ RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMap( 
 
     size_t i = geoMechCase->contourMapCollection()->views().size();
     contourMap->setName( QString( "Contour Map %1" ).arg( i + 1 ) );
-    geoMechCase->contourMapCollection()->push_back( contourMap );
+    geoMechCase->contourMapCollection()->addView( contourMap );
 
     auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
     contourMap->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
