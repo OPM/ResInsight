@@ -58,7 +58,6 @@
 #include "qwt_scale_widget.h"
 
 #include <QDebug>
-#include <QDesktopWidget>
 #include <QFocusEvent>
 #include <QFontMetrics>
 #include <QGraphicsDropShadowEffect>
