@@ -299,7 +299,7 @@ void RimEclipseCase::initAfterRead()
         {
             contourMap->setEclipseCase( this );
             m_contourMapCollection_OBSOLETE->removeChild( contourMap );
-            mapViewColl->push_back( contourMap );
+            mapViewColl->addView( contourMap );
         }
 
         m_contourMapCollection_OBSOLETE->clearWithoutDelete();

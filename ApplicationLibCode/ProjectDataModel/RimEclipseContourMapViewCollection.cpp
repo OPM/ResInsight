@@ -33,7 +33,7 @@ std::vector<RimEclipseContourMapView*> RimEclipseContourMapViewCollection::views
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapViewCollection::push_back( RimEclipseContourMapView* contourMap )
+void RimEclipseContourMapViewCollection::addView( RimEclipseContourMapView* contourMap )
 {
     m_contourMapViews.push_back( contourMap );
 }
