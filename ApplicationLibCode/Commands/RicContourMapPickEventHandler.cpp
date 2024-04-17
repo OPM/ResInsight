@@ -61,34 +61,35 @@ bool RicContourMapPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
             RimGridView* view = contourMap->firstAncestorOrThisOfTypeAsserted<RimGridView>();
             if ( !view ) return false;
 
-            cvf::Vec2d pickedPoint;
+            const auto& firstPickItem       = eventObject.m_pickItemInfos.front();
+            auto        targetPointInDomain = view->displayCoordTransform()->transformToDomainCoord( firstPickItem.globalPickedPoint() );
+
+            QString curveText = QString( "%1\n" ).arg( view->createAutoName() );
+
+            cvf::Vec2d pickedPoint( cvf::Vec2d::UNDEFINED );
             double     valueAtPoint = 0.0;
-            if ( contourMap->checkForMapIntersection( firstPickedItem.globalPickedPoint(), &pickedPoint, &valueAtPoint ) )
+
+            if ( contourMap->checkForMapIntersection( targetPointInDomain, &pickedPoint, &valueAtPoint ) )
             {
-                QString curveText;
-                curveText += QString( "%1\n" ).arg( view->createAutoName() );
                 curveText += QString( "Picked Point X, Y: %1, %2\n" ).arg( pickedPoint.x(), 5, 'f', 0 ).arg( pickedPoint.y(), 5, 'f', 0 );
                 curveText += QString( "Result Type: %1\n" ).arg( contourMap->resultDescriptionText() );
                 curveText += QString( "Aggregated Value: %1\n" ).arg( valueAtPoint );
-
-                RiuMainWindow::instance()->setResultInfo( curveText );
-
-                contourMap->setPickPoint( pickedPoint );
-
-                RimGeoMechContourMapView* geoMechContourView = dynamic_cast<RimGeoMechContourMapView*>( view );
-                RimEclipseContourMapView* eclipseContourView = dynamic_cast<RimEclipseContourMapView*>( view );
-                if ( geoMechContourView )
-                {
-                    geoMechContourView->updatePickPointAndRedraw();
-                }
-                else if ( eclipseContourView )
-                {
-                    eclipseContourView->updatePickPointAndRedraw();
-                }
-                return true;
             }
-            contourMap->setPickPoint( cvf::Vec2d::UNDEFINED );
-            view->updateDisplayModelForCurrentTimeStepAndRedraw();
+
+            contourMap->setPickPoint( pickedPoint );
+
+            RimGeoMechContourMapView* geoMechContourView = dynamic_cast<RimGeoMechContourMapView*>( view );
+            RimEclipseContourMapView* eclipseContourView = dynamic_cast<RimEclipseContourMapView*>( view );
+            if ( geoMechContourView )
+            {
+                geoMechContourView->updatePickPointAndRedraw();
+            }
+            else if ( eclipseContourView )
+            {
+                eclipseContourView->updatePickPointAndRedraw();
+            }
+
+            RiuMainWindow::instance()->setResultInfo( curveText );
 
             return true;
         }
