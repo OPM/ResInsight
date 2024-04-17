@@ -61,8 +61,6 @@ bool RicContourMapPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
             RimGridView* view = contourMap->firstAncestorOrThisOfTypeAsserted<RimGridView>();
             if ( !view ) return false;
 
-            const auto& firstPoint = firstPickedItem.globalPickedPoint();
-
             const auto& firstPickItem       = eventObject.m_pickItemInfos.front();
             auto        targetPointInDomain = view->displayCoordTransform()->transformToDomainCoord( firstPickItem.globalPickedPoint() );
 
