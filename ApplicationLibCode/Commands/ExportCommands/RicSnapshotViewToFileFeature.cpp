@@ -38,7 +38,6 @@
 #include <QAction>
 #include <QClipboard>
 #include <QDebug>
-#include <QDesktopWidget>
 #include <QFileInfo>
 #include <QMdiSubWindow>
 #include <QPageLayout>
