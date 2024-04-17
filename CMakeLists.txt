@@ -725,34 +725,6 @@ endif()
 # Vizualization Framework
 # ##############################################################################
 
-# Allow use of non-threadsafe reference counter in cvf::Object on systems with
-# no atomics support
-if(CMAKE_COMPILER_IS_GNUCC)
-
-  if(NOT DEFINED HAVE_GCC_SYNC_FUNCTIONS)
-    check_c_source_compiles(
-      "int main(int argc, char **argv) {
-            int a;
-            __sync_add_and_fetch(&a, 1);
-            __sync_fetch_and_add(&a, 1);
-            __sync_sub_and_fetch(&a, 1);
-            __sync_fetch_and_sub(&a, 1); }"
-      HAVE_GCC_SYNC_FUNCTIONS
-    )
-  endif()
-
-  if(HAVE_GCC_SYNC_FUNCTIONS)
-    message(STATUS "GCC synchronization functions detected")
-  else()
-    message(
-      STATUS
-        "GCC synchronization functions NOT detected, fallback to non threadsafe reference counting"
-    )
-    add_definitions(-DCVF_USE_NON_THREADSAFE_REFERENCE_COUNT)
-  endif()
-
-endif()
-
 # !!! For now, we force Qt to version 5
 message(STATUS "Forcing setting of CEE_USE_QT5 to ON")
 set(CEE_USE_QT5
