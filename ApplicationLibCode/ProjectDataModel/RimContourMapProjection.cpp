@@ -399,12 +399,12 @@ size_t RimContourMapProjection::numberOfVertices() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::checkForMapIntersection( const cvf::Vec3d& localPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint ) const
+bool RimContourMapProjection::checkForMapIntersection( const cvf::Vec3d& domainPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint ) const
 {
     CVF_TIGHT_ASSERT( contourMapPoint );
     CVF_TIGHT_ASSERT( valueAtPoint );
 
-    cvf::Vec3d mapPos3d = localPoint3d - m_expandedBoundingBox.min() + m_gridBoundingBox.min();
+    cvf::Vec3d mapPos3d = domainPoint3d - m_expandedBoundingBox.min();
     cvf::Vec2d mapPos2d( mapPos3d.x(), mapPos3d.y() );
     cvf::Vec2d gridorigin( m_expandedBoundingBox.min().x(), m_expandedBoundingBox.min().y() );
 
