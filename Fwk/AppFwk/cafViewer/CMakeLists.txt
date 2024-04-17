@@ -27,6 +27,8 @@ else()
   )
   set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
   qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
+
+  set(QT5_OPENGL_FILES cafOpenGLWidget.cpp cafOpenGLWidget.h)
 endif()
 
 add_library(
@@ -42,8 +44,6 @@ add_library(
   cafNavigationPolicy.cpp
   cafNavigationPolicy.h
   cafPointOfInterestVisualizer.h
-  cafOpenGLWidget.cpp
-  cafOpenGLWidget.h
   cafViewer.cpp
   cafViewer.h
   ${MOC_SOURCE_FILES}
