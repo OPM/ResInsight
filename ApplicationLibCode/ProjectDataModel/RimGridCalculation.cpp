@@ -181,8 +181,6 @@ bool RimGridCalculation::calculate()
     {
         if ( !calculationCase ) continue;
 
-        calculationCase->ensureReservoirCaseIsOpen();
-
         if ( !calculationCase->eclipseCaseData() )
         {
             QString msg = QString( "No data available for case %1, aborting calculation" ).arg( calculationCase->caseUserDescription() );
