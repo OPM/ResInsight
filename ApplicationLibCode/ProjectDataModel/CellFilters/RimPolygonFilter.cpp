@@ -803,7 +803,7 @@ void RimPolygonFilter::updateCells()
     }
 
     // We need at least three points to make a closed polygon, or just 2 for a polyline
-    if ( ( !isPolygonClosed() && ( points.size() < 1 ) ) || ( isPolygonClosed() && ( points.size() < 3 ) ) ) return;
+    if ( ( !isPolygonClosed() && ( points.empty() ) ) || ( isPolygonClosed() && ( points.size() < 3 ) ) ) return;
 
     // make sure first and last point is the same (req. by closed polygon methods used later)
     if ( isPolygonClosed() ) points.push_back( points.front() );
