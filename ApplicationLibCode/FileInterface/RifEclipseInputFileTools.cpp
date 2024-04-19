@@ -22,6 +22,7 @@
 
 #include "RiaCellDividingTools.h"
 #include "RiaLogging.h"
+#include "RiaResultNames.h"
 #include "RiaStringEncodingTools.h"
 #include "RiaTextStringTools.h"
 
@@ -439,7 +440,7 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
         if ( resultValues.empty() ) continue;
 
         double defaultExportValue = 0.0;
-        if ( keyword.endsWith( "NUM" ) )
+        if ( RiaResultNames::isCategoryResult( keyword ) )
         {
             defaultExportValue = 1.0;
         }

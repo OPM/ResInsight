@@ -374,8 +374,6 @@ void RimEclipseResultCase::ensureRftDataIsImported()
 
     if ( rftFileInfo.exists() )
     {
-        RiaLogging::info( QString( "RFT file found" ) );
-
         if ( m_useOpmRftReader )
         {
             m_readerOpmRft = new RifReaderOpmRft( rftFileInfo.filePath() );

@@ -411,7 +411,7 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
     // If h5 mode, check all summary files and create or recreate h5 files if required
 #ifdef USE_HDF5
     {
-        if ( prefs->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON && prefs->createH5SummaryDataFiles() )
+        if ( prefs->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON )
         {
             int threadCount = 1;
 #ifdef USE_OPENMP
@@ -433,7 +433,10 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
                 h5FileNames.push_back( h5FilenameCandidate.toStdString() );
             }
 
-            RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( headerFileNames, h5FileNames, threadCount );
+            RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( headerFileNames,
+                                                                          h5FileNames,
+                                                                          prefs->createH5SummaryDataFiles(),
+                                                                          threadCount );
         }
     }
 #endif

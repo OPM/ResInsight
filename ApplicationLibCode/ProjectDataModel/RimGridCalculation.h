@@ -34,6 +34,7 @@ class RimGridView;
 class RigEclipseResultAddress;
 class RimEclipseResultAddress;
 class RimIdenticalGridCaseGroup;
+class RigActiveCellInfo;
 
 //==================================================================================================
 ///
@@ -88,18 +89,18 @@ protected:
 
     std::pair<bool, QString> validateVariables();
 
-    std::vector<double> getDataForVariable( RimGridCalculationVariable*   variable,
-                                            size_t                        tsId,
-                                            RiaDefines::PorosityModelType porosityModel,
-                                            RimEclipseCase*               sourceCase,
-                                            RimEclipseCase*               destinationCase ) const;
+    std::vector<double> getActiveCellValuesForVariable( RimGridCalculationVariable*   variable,
+                                                        size_t                        tsId,
+                                                        RiaDefines::PorosityModelType porosityModel,
+                                                        RimEclipseCase*               sourceCase,
+                                                        RimEclipseCase*               destinationCase ) const;
 
-    std::vector<double> getDataForResult( const QString&                  resultName,
-                                          const RiaDefines::ResultCatType resultCategoryType,
-                                          size_t                          tsId,
-                                          RiaDefines::PorosityModelType   porosityModel,
-                                          RimEclipseCase*                 sourceCase,
-                                          RimEclipseCase*                 destinationCase ) const;
+    std::vector<double> getActiveCellValues( const QString&                  resultName,
+                                             const RiaDefines::ResultCatType resultCategoryType,
+                                             size_t                          tsId,
+                                             RiaDefines::PorosityModelType   porosityModel,
+                                             RimEclipseCase*                 sourceCase,
+                                             RimEclipseCase*                 destinationCase ) const;
 
     void filterResults( RimGridView*                            cellFilterView,
                         const std::vector<std::vector<double>>& values,
@@ -110,17 +111,15 @@ protected:
                         RiaDefines::PorosityModelType           porosityModel,
                         RimEclipseCase*                         outputEclipseCase ) const;
 
-    static void replaceFilteredValuesWithVector( const std::vector<double>&    inputValues,
-                                                 cvf::ref<cvf::UByteArray>     visibility,
-                                                 std::vector<double>&          resultValues,
-                                                 RiaDefines::PorosityModelType porosityModel,
-                                                 RimEclipseCase*               outputEclipseCase );
+    static void replaceFilteredValuesWithVector( const std::vector<double>& inputValues,
+                                                 cvf::ref<cvf::UByteArray>  visibility,
+                                                 std::vector<double>&       resultValues,
+                                                 RigActiveCellInfo*         activeCellInfo );
 
-    static void replaceFilteredValuesWithDefaultValue( double                        defaultValue,
-                                                       cvf::ref<cvf::UByteArray>     visibility,
-                                                       std::vector<double>&          resultValues,
-                                                       RiaDefines::PorosityModelType porosityModel,
-                                                       RimEclipseCase*               outputEclipseCase );
+    static void replaceFilteredValuesWithDefaultValue( double                    defaultValue,
+                                                       cvf::ref<cvf::UByteArray> visibility,
+                                                       std::vector<double>&      resultValues,
+                                                       RigActiveCellInfo*        activeCellInfo );
 
     using DefaultValueConfig = std::pair<RimGridCalculation::DefaultValueType, double>;
     DefaultValueConfig defaultValueConfiguration() const;
