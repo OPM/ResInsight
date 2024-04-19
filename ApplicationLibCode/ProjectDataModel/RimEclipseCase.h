@@ -52,6 +52,7 @@ class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
 class RimEclipseResultAddressCollection;
 class RifReaderSettings;
+class RimEclipseViewCollection;
 
 //==================================================================================================
 //
@@ -66,8 +67,8 @@ public:
     RimEclipseCase();
     ~RimEclipseCase() override;
 
-    // Fields:
-    caf::PdmChildArrayField<RimEclipseView*> reservoirViews;
+    std::vector<RimEclipseView*> reservoirViews() const;
+    RimEclipseViewCollection*    viewCollection() const;
 
     std::vector<QString> filesContainingFaults() const;
     void                 setFilesContainingFaults( const std::vector<QString>& val );
@@ -91,7 +92,8 @@ public:
     RimReservoirCellResultsStorage*       resultsStorage( RiaDefines::PorosityModelType porosityModel );
     const RimReservoirCellResultsStorage* resultsStorage( RiaDefines::PorosityModelType porosityModel ) const;
 
-    RimEclipseView* createAndAddReservoirView();
+    RimEclipseView* createAndAddReservoirView( bool useGlobalViewCollection = false );
+    RimEclipseView* createAndAddReservoirView( RimEclipseViewCollection* viewColl );
     RimEclipseView* createCopyAndAddView( const RimEclipseView* sourceView );
 
     const RigVirtualPerforationTransmissibilities* computeAndGetVirtualPerforationTransmissibilities();
@@ -99,7 +101,7 @@ public:
     virtual QString locationOnDisc() const { return QString(); }
 
     RimCaseCollection*                  parentCaseCollection();
-    RimEclipseContourMapViewCollection* contourMapCollection();
+    RimEclipseContourMapViewCollection* contourMapCollection() const;
     RimEclipseInputPropertyCollection*  inputPropertyCollection() const;
 
     QStringList            timeStepStrings() const override;
@@ -137,14 +139,19 @@ protected:
 
     // Internal methods
 protected:
-    void                 computeCachedData();
-    void                 setReservoirData( RigEclipseCaseData* eclipseCase );
-    std::vector<QString> additionalFiles() const;
+    void                                computeCachedData();
+    void                                setReservoirData( RigEclipseCaseData* eclipseCase );
+    std::vector<QString>                additionalFiles() const;
+    RimEclipseViewCollection*           globalViewCollection() const;
+    RimEclipseContourMapViewCollection* contourMapViewCollection() const;
+    void addViewsFromViewCollection( std::vector<RimEclipseView*>& views, const RimEclipseViewCollection* viewColl ) const;
 
 private:
-    void                    createTimeStepFormatString();
-    std::vector<Rim3dView*> allSpecialViews() const override;
-    void                    buildResultChildNodes();
+    void                                   createTimeStepFormatString();
+    std::vector<Rim3dView*>                allSpecialViews() const override;
+    std::vector<RimEclipseContourMapView*> contourMapViews() const;
+
+    void buildResultChildNodes();
 
 protected:
     caf::PdmField<bool>                                    m_flipXAxis;
@@ -156,8 +163,6 @@ protected:
 private:
     caf::PdmField<bool> m_releaseResultMemory;
 
-    caf::PdmChildField<RimEclipseContourMapViewCollection*> m_contourMapCollection;
-
     cvf::ref<RigEclipseCaseData>    m_rigEclipseCase;
     QString                         m_timeStepFormatString;
     std::map<QString, cvf::Color3f> m_wellToColorMap;
@@ -166,6 +171,11 @@ private:
 
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;
+    caf::PdmChildField<RimEclipseViewCollection*>       m_viewCollection;
 
     caf::PdmField<std::vector<caf::FilePath>> m_filesContainingFaults;
+
+    // Obsolete fields:
+    caf::PdmChildArrayField<RimEclipseView*>                m_reservoirViews_OBSOLETE;
+    caf::PdmChildField<RimEclipseContourMapViewCollection*> m_contourMapCollection_OBSOLETE;
 };

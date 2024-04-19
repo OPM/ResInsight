@@ -769,7 +769,9 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         {
             options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
 
-            auto eclipseCase = firstAncestorOrThisOfTypeAsserted<RimEclipseCase>();
+            RimEclipseView* eclView = firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
+
+            auto eclipseCase = eclView->eclipseCase();
             if ( eclipseCase && eclipseCase->eclipseCaseData() && eclipseCase->eclipseCaseData()->mainGrid() )
             {
                 RimProject* proj = RimProject::current();
@@ -792,7 +794,9 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         }
         else if ( fieldNeedingOptions == &m_timeLapseBaseTimestep )
         {
-            RimEclipseCase* currentCase = firstAncestorOrThisOfTypeAsserted<RimEclipseCase>();
+            RimEclipseView* eclView = firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
+
+            RimEclipseCase* currentCase = eclView->eclipseCase();
 
             RimEclipseCase* baseCase = currentCase;
             if ( m_differenceCase )
@@ -802,13 +806,16 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 
             options.push_back( caf::PdmOptionItemInfo( "Disabled", RigEclipseResultAddress::noTimeLapseValue() ) );
 
-            std::vector<QDateTime> stepDates = baseCase->timeStepDates();
-            for ( size_t stepIdx = 0; stepIdx < stepDates.size(); ++stepIdx )
+            if ( baseCase )
             {
-                QString displayString = stepDates[stepIdx].toString( RiaQDateTimeTools::dateFormatString() );
-                displayString += QString( " (#%1)" ).arg( stepIdx );
+                std::vector<QDateTime> stepDates = baseCase->timeStepDates();
+                for ( size_t stepIdx = 0; stepIdx < stepDates.size(); ++stepIdx )
+                {
+                    QString displayString = stepDates[stepIdx].toString( RiaQDateTimeTools::dateFormatString() );
+                    displayString += QString( " (#%1)" ).arg( stepIdx );
 
-                options.push_back( caf::PdmOptionItemInfo( displayString, static_cast<int>( stepIdx ) ) );
+                    options.push_back( caf::PdmOptionItemInfo( displayString, static_cast<int>( stepIdx ) ) );
+                }
             }
         }
     }

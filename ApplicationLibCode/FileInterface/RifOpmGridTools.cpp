@@ -27,11 +27,12 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
-#include "cvfGeometryTools.h"
+#include "cafAssert.h"
 
 #include "opm/io/eclipse/EGrid.hpp"
 
 #include <algorithm>
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 ///

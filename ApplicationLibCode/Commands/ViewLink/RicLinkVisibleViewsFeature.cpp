@@ -44,15 +44,13 @@ bool RicLinkVisibleViewsFeature::isCommandEnabled() const
     RimProject* proj = RimProject::current();
     if ( !proj ) return false;
 
-    std::vector<Rim3dView*> visibleViews;
-    proj->allVisibleViews( visibleViews );
-
     std::vector<Rim3dView*> linkedviews;
     if ( proj->viewLinkerCollection() && proj->viewLinkerCollection()->viewLinker() )
     {
         linkedviews = proj->viewLinkerCollection()->viewLinker()->allViews();
     }
 
+    std::vector<Rim3dView*> visibleViews = proj->allVisibleViews();
     if ( visibleViews.size() >= 2 && ( linkedviews.size() < visibleViews.size() ) )
     {
         return !findLinkableVisibleViews().empty();
@@ -87,11 +85,7 @@ std::vector<Rim3dView*> RicLinkVisibleViewsFeature::findLinkableVisibleViews()
     RimProject* proj = RimProject::current();
 
     std::vector<Rim3dView*> views;
-
-    std::vector<Rim3dView*> candidates;
-    proj->allVisibleViews( candidates );
-
-    for ( auto gridView : candidates )
+    for ( auto gridView : proj->allVisibleViews() )
     {
         if ( gridView && !gridView->assosiatedViewLinker() ) views.push_back( gridView );
     }

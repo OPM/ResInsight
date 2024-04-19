@@ -94,6 +94,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicExportSummaryCalculationExpressionsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCalculationExpressionsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportWellLogCsvFileFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewViewForGridEnsembleFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -191,6 +192,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicExportSummaryCalculationExpressionsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCalculationExpressionsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportWellLogCsvFileFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewViewForGridEnsembleFeature.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)

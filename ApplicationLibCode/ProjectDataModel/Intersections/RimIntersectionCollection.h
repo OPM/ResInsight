@@ -66,7 +66,7 @@ public:
 
     void updateIntersectionBoxGeometry();
 
-    void syncronize2dIntersectionViews();
+    void synchronize2dIntersectionViews();
     void scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
 
     bool shouldApplyCellFiltersToIntersections() const;

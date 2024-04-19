@@ -33,7 +33,7 @@ std::vector<RimGeoMechContourMapView*> RimGeoMechContourMapViewCollection::views
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechContourMapViewCollection::push_back( RimGeoMechContourMapView* contourMap )
+void RimGeoMechContourMapViewCollection::addView( RimGeoMechContourMapView* contourMap )
 {
     m_contourMapViews.push_back( contourMap );
 }

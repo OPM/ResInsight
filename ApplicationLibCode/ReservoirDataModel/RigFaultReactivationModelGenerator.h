@@ -23,11 +23,12 @@
 #include "cvfStructGrid.h"
 #include "cvfVector3.h"
 
+#include <QString>
+
 #include <array>
+#include <map>
 #include <utility>
 #include <vector>
-
-#include <QString>
 
 class RigFault;
 class RigMainGrid;

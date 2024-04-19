@@ -378,9 +378,8 @@ void RimGridView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part
         {
             RiuEclipseSelectionItem* eclipseSelItem = static_cast<RiuEclipseSelectionItem*>( items[i] );
 
-            if ( eclipseSelItem && eclipseSelItem->m_view == this )
+            if ( eclipseSelItem && eclipseSelItem->m_view == this && eclipseSelItem->m_resultDefinition->eclipseCase() )
             {
-                CVF_ASSERT( eclipseSelItem->m_resultDefinition->eclipseCase() );
                 CVF_ASSERT( eclipseSelItem->m_resultDefinition->eclipseCase()->eclipseCaseData() );
 
                 RivSingleCellPartGenerator partGen( eclipseSelItem->m_resultDefinition->eclipseCase()->eclipseCaseData(),

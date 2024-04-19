@@ -298,9 +298,7 @@ void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToR
     RimProject* proj = RimProject::current();
 
     // Make sure the tree items are synchronized
-    std::vector<Rim3dView*> views;
-    proj->allViews( views );
-    for ( auto view : views )
+    for ( auto view : proj->allViews() )
     {
         view->updateViewTreeItems( RiaDefines::ItemIn3dView::SURFACE );
 
@@ -347,9 +345,8 @@ void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToR
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::updateViews()
 {
-    RimProject*             proj = RimProject::current();
-    std::vector<Rim3dView*> views;
-    proj->allViews( views );
+    RimProject*             proj  = RimProject::current();
+    std::vector<Rim3dView*> views = proj->allViews();
 
     // Make sure the tree items are synchronized
 

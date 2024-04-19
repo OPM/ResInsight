@@ -22,6 +22,7 @@
 #include "RimObservedDataCollection.h"
 
 #include <QString>
+#include <QStringList>
 
 #include <vector>
 
@@ -37,8 +38,6 @@ class RimSummaryTableCollection;
 class RimObservedDataCollection;
 class RimSummaryCurve;
 class RimUserDefinedCalculation;
-
-class QStringList;
 
 namespace caf
 {

@@ -444,11 +444,9 @@ void RimEclipseStatisticsCase::computeStatistics()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::scheduleACTIVEGeometryRegenOnReservoirViews()
 {
-    for ( size_t i = 0; i < reservoirViews().size(); i++ )
+    for ( RimEclipseView* reservoirView : reservoirViews() )
     {
-        RimEclipseView* reservoirView = reservoirViews()[i];
         CVF_ASSERT( reservoirView );
-
         reservoirView->scheduleGeometryRegen( ACTIVE );
     }
 }
@@ -755,9 +753,8 @@ void RimEclipseStatisticsCase::fieldChangedByUi( const caf::PdmFieldHandle* chan
         caf::ProgressInfo progInfo( reservoirViews().size() + 1, "Updating Well Data for Views" );
 
         // Update views
-        for ( size_t i = 0; i < reservoirViews().size(); i++ )
+        for ( RimEclipseView* reservoirView : reservoirViews() )
         {
-            RimEclipseView* reservoirView = reservoirViews()[i];
             CVF_ASSERT( reservoirView );
 
             reservoirView->wellCollection()->wells.deleteChildren();
@@ -961,18 +958,16 @@ bool RimEclipseStatisticsCase::hasComputedStatistics() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::updateConnectedEditorsAndReservoirViews()
 {
-    for ( size_t i = 0; i < reservoirViews.size(); ++i )
+    auto views = reservoirViews();
+    for ( RimEclipseView* view : reservoirViews() )
     {
-        if ( reservoirViews[i] )
-        {
-            // As new result might have been introduced, update all editors connected
-            reservoirViews[i]->cellResult()->updateConnectedEditors();
+        // As new result might have been introduced, update all editors connected
+        view->cellResult()->updateConnectedEditors();
 
-            // It is usually not needed to create new display model, but if any derived geometry based on generated data
-            // (from Octave) a full display model rebuild is required
-            reservoirViews[i]->scheduleCreateDisplayModelAndRedraw();
-            reservoirViews[i]->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
-        }
+        // It is usually not needed to create new display model, but if any derived geometry based on generated data
+        // (from Octave) a full display model rebuild is required
+        view->scheduleCreateDisplayModelAndRedraw();
+        view->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 
     updateConnectedEditors();
@@ -1007,18 +1002,18 @@ void RimEclipseStatisticsCase::computeStatisticsAndUpdateViews()
     scheduleACTIVEGeometryRegenOnReservoirViews();
     updateConnectedEditorsAndReservoirViews();
 
-    if ( reservoirViews.empty() )
+    if ( reservoirViews().empty() )
     {
-        RicNewViewFeature::addReservoirView( this, nullptr );
+        RicNewViewFeature::addReservoirView( this, nullptr, viewCollection() );
     }
 
-    if ( reservoirViews.size() == 1 )
+    if ( reservoirViews().size() == 1 )
     {
         // If only one view, set the first result as active
 
         if ( auto cellResultsData = results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
         {
-            auto firstView = reservoirViews[0];
+            auto firstView = reservoirViews()[0];
 
             std::vector<RigEclipseResultAddress> resAddresses = cellResultsData->existingResults();
             if ( firstView && !resAddresses.empty() )

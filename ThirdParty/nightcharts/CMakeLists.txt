@@ -1,10 +1,13 @@
-cmake_minimum_required (VERSION 2.8.12)
-
 project (nightcharts)
 
-find_package(Qt5 COMPONENTS REQUIRED Core Widgets)
-set(QT_LIBRARIES Qt5::Core Qt5::Widgets)
-qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})	
+if (CEE_USE_QT6)
+    find_package(Qt6 COMPONENTS REQUIRED Core Gui Widgets)
+    set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets)
+    qt_standard_project_setup()
+else()
+    find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
+    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+endif()
 
 list (APPEND MAIN_SOURCE_FILES
     nightcharts.h

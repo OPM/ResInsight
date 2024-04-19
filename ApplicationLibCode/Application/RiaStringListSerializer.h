@@ -19,8 +19,7 @@
 #pragma once
 
 #include <QString>
-
-class QStringList;
+#include <QStringList>
 
 //--------------------------------------------------------------------------------------------------
 ///

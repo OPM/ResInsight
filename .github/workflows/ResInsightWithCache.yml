@@ -294,7 +294,7 @@ jobs:
 
     steps:
     - name: Download python distribution folder
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: python-distribution
         path: dist
@@ -307,5 +307,5 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       # uncomment the two lines below to publish to test PyPi
       # with:
-        # repository-url: https://test.pypi.org/legacy/
+      #   repository-url: https://test.pypi.org/legacy/
 

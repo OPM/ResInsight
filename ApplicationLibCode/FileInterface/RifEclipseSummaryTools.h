@@ -23,12 +23,12 @@
 #include "ert/ecl/ecl_sum.hpp"
 
 #include <QString>
+#include <QStringList>
 
 #include <string>
 #include <vector>
 
 class RifSummaryReaderInterface;
-class QStringList;
 
 //==================================================================================================
 //

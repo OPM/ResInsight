@@ -64,11 +64,13 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
         }
     }
 
-    auto sourceCase = cellFilterCollection->firstAncestorOrThisOfTypeAsserted<RimCase>();
-
-    if ( auto lastCreatedOrUpdated = cellFilterCollection->addNewPolygonFilter( sourceCase, polygon ) )
+    auto sourceCase = cellFilterCollection->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
+    if ( sourceCase )
     {
-        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
+        if ( auto lastCreatedOrUpdated = cellFilterCollection->addNewPolygonFilter( sourceCase, polygon ) )
+        {
+            Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
+        }
     }
 }
 
@@ -78,5 +80,5 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
 void RicNewPolygonFilterFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/CellFilter_Polygon.png" ) );
-    actionToSetup->setText( "Create Polygon Filter" );
+    actionToSetup->setText( "New Polygon Filter" );
 }

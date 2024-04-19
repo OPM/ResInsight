@@ -19,7 +19,6 @@ cvfArray.inl
 cvfArrayWrapperConst.h
 cvfArrayWrapperToEdit.h
 cvfAssert.h
-cvfAtomicCounter.h
 cvfBase.h
 cvfBase64.h
 cvfCharArray.h
@@ -75,7 +74,6 @@ cvfVersion.h
 
 set(CEE_SOURCE_FILES
 cvfAssert.cpp 
-cvfAtomicCounter.cpp
 cvfBase64.cpp
 cvfCharArray.cpp
 cvfCodeLocation.cpp

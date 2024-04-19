@@ -176,7 +176,7 @@ RimCase* Rim2dIntersectionView::ownerCase() const
 
     if ( !rimCase )
     {
-        rimCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
+        rimCase = firstAncestorOrThisOfType<RimCase>();
     }
 
     return rimCase;
@@ -258,7 +258,7 @@ void Rim2dIntersectionView::update3dInfo()
         }
     }
 
-    if ( overlayInfoConfig->showCaseInfo() )
+    if ( overlayInfoConfig->showCaseInfo() && ownerCase() )
     {
         overlayInfoText += "<b>--" + ownerCase()->caseUserDescription() + "--</b>";
     }
@@ -467,7 +467,7 @@ bool Rim2dIntersectionView::hasResults()
 //--------------------------------------------------------------------------------------------------
 size_t Rim2dIntersectionView::onTimeStepCountRequested()
 {
-    if ( isTimeStepDependentDataVisible() )
+    if ( isTimeStepDependentDataVisible() && ownerCase() )
     {
         return ownerCase()->timeStepStrings().size();
     }
@@ -557,7 +557,7 @@ void Rim2dIntersectionView::onCreateDisplayModel()
     if ( m_intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_WELL_PATH && m_intersection->wellPath() )
     {
         Rim3dView* settingsView = m_intersection->firstAncestorOrThisOfType<Rim3dView>();
-        if ( settingsView )
+        if ( settingsView && ownerCase() )
         {
             m_flatWellpathPartMgr = new RivWellPathPartMgr( m_intersection->wellPath(), settingsView );
             m_flatWellpathPartMgr->appendFlattenedStaticGeometryPartsToModel( m_intersectionVizModel.p(),

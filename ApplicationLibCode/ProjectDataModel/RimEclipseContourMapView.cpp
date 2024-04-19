@@ -108,11 +108,9 @@ QString RimEclipseContourMapView::createAutoName() const
 
     QStringList generatedAutoTags;
 
-    RimCase* ownerCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
-
-    if ( nameConfig()->addCaseName() )
+    if ( nameConfig()->addCaseName() && ownerCase() )
     {
-        generatedAutoTags.push_back( ownerCase->caseUserDescription() );
+        generatedAutoTags.push_back( ownerCase()->caseUserDescription() );
     }
 
     if ( nameConfig()->addAggregationType() )
@@ -213,6 +211,8 @@ void RimEclipseContourMapView::defineUiOrdering( QString uiConfigName, caf::PdmU
     viewGroup->add( backgroundColorField() );
     viewGroup->add( &m_showAxisLines );
     viewGroup->add( &m_showScaleLegend );
+
+    uiOrdering.add( &m_eclipseCase );
 
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Contour Map Name" );
     nameConfig()->uiOrdering( uiConfigName, *nameGroup );

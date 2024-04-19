@@ -1,5 +1,3 @@
-cmake_minimum_required (VERSION 2.8.12)
-
 project (custom-opm-flowdiag-app)
 
 if (CMAKE_COMPILER_IS_GNUCXX)

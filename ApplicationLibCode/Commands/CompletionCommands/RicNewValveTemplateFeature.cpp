@@ -50,10 +50,7 @@ void RicNewValveTemplateFeature::selectValveTemplateAndUpdate( RimValveTemplate*
 
     RimProject* project = RimProject::current();
 
-    std::vector<Rim3dView*> views;
-    project->allVisibleViews( views );
-
-    for ( Rim3dView* view : views )
+    for ( Rim3dView* view : project->allVisibleViews() )
     {
         if ( dynamic_cast<RimEclipseView*>( view ) )
         {

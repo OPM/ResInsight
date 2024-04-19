@@ -45,6 +45,7 @@
 #include "cafPdmScriptIOMessages.h"
 
 #include <QIODevice>
+#include <QTextStream>
 
 #define CAF_PDM_InitScriptableField( field, keyword, default, uiName, ... )                          \
     {                                                                                                \

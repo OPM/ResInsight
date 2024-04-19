@@ -72,7 +72,7 @@ auto RiaRftPltCurveDefinition::operator<=>( const RiaRftPltCurveDefinition& othe
     {
         if ( m_wellName == other.m_wellName )
         {
-            return m_timeStep.toTime_t() <=> other.m_timeStep.toTime_t();
+            return m_timeStep.toMSecsSinceEpoch() <=> other.m_timeStep.toMSecsSinceEpoch();
         }
         return m_wellName.toStdString() <=> other.m_wellName.toStdString();
     }

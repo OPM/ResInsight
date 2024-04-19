@@ -497,6 +497,7 @@ void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& 
 
     std::list<size_t> foundCells;
     const bool        closedPolygon = isPolygonClosed();
+    const bool        singlePoint   = ( points.size() == 1 );
 
     // find all cells in the K layer that matches the polygon
 #pragma omp parallel for
@@ -524,8 +525,16 @@ void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& 
             }
             else
             {
+                if ( singlePoint )
+                {
+                    if ( RigCellGeometryTools::pointInsideCellNegK2D( points[0], hexCorners ) )
+                    {
+#pragma omp critical
+                        foundCells.push_back( cellIdx );
+                    }
+                }
                 // check if the polyline touches the top face of the cell
-                if ( RigCellGeometryTools::polylineIntersectsCellNegK2D( points, hexCorners ) )
+                else if ( RigCellGeometryTools::polylineIntersectsCellNegK2D( points, hexCorners ) )
                 {
 #pragma omp critical
                     foundCells.push_back( cellIdx );
@@ -634,6 +643,7 @@ void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& p
 void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid, int partId )
 {
     const bool closedPolygon = isPolygonClosed();
+    const bool singlePoint   = ( points.size() == 1 );
 
     // we need to find the K layer we hit with the first point
     size_t nk;
@@ -660,7 +670,7 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
                     bb.add( point );
 
                 // check all points for a bb match
-                for ( size_t p = 0; p < points.size() - 1; p++ )
+                for ( size_t p = 0; p < points.size(); p++ )
                 {
                     // is the point inside?
                     if ( bb.contains( points[p] ) )
@@ -709,8 +719,16 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
             }
             else
             {
+                if ( singlePoint )
+                {
+                    if ( RigCellGeometryTools::pointInsideCellNegK2D( points[0], hexCorners ) )
+                    {
+#pragma omp critical
+                        foundCells.push_back( cellIdx );
+                    }
+                }
                 // check if the polyline touches the top face of the cell
-                if ( RigCellGeometryTools::polylineIntersectsCellNegK2D( points, hexCorners ) )
+                else if ( RigCellGeometryTools::polylineIntersectsCellNegK2D( points, hexCorners ) )
                 {
 #pragma omp critical
                     foundCells.push_back( cellIdx );
@@ -785,7 +803,7 @@ void RimPolygonFilter::updateCells()
     }
 
     // We need at least three points to make a closed polygon, or just 2 for a polyline
-    if ( ( !isPolygonClosed() && ( points.size() < 2 ) ) || ( isPolygonClosed() && ( points.size() < 3 ) ) ) return;
+    if ( ( !isPolygonClosed() && ( points.empty() ) ) || ( isPolygonClosed() && ( points.size() < 3 ) ) ) return;
 
     // make sure first and last point is the same (req. by closed polygon methods used later)
     if ( isPolygonClosed() ) points.push_back( points.front() );
@@ -992,7 +1010,7 @@ int RimPolygonFilter::findEclipseKLayer( const std::vector<cvf::Vec3d>& points, 
 
     // look for a hit in the main grid frist
     RigMainGrid* mainGrid = data->mainGrid();
-    for ( size_t p = 0; p < points.size() - 1; p++ )
+    for ( size_t p = 0; p < points.size(); p++ )
     {
         size_t cIdx = mainGrid->findReservoirCellIndexFromPoint( points[p] );
         if ( cIdx != cvf::UNDEFINED_SIZE_T )
@@ -1035,7 +1053,7 @@ int RimPolygonFilter::findEclipseKLayer( const std::vector<cvf::Vec3d>& points, 
     };
 
     // shoot a ray down from each point to try to find a valid hit there
-    for ( size_t p = 0; p < points.size() - 1; p++ )
+    for ( size_t p = 0; p < points.size(); p++ )
     {
         int k = findKLayerBelowPoint( points[p], data->mainGrid() );
         if ( k != -1 ) return k;
@@ -1063,7 +1081,7 @@ int RimPolygonFilter::findEclipseKLayer( const std::vector<cvf::Vec3d>& points, 
             }
 
             // loop over all points to find at least one point with a valid K layer
-            for ( size_t p = 0; p < points.size() - 1; p++ )
+            for ( size_t p = 0; p < points.size(); p++ )
             {
                 if ( bb.contains( points[p] ) )
                 {

@@ -89,7 +89,7 @@ RivWindowEdgeAxesOverlayItem::~RivWindowEdgeAxesOverlayItem()
 //--------------------------------------------------------------------------------------------------
 void RivWindowEdgeAxesOverlayItem::setDisplayCoordTransform( const caf::DisplayCoordTransform* displayCoordTransform )
 {
-    m_dispalyCoordsTransform = displayCoordTransform;
+    m_displayCoordsTransform = displayCoordTransform;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,10 +126,10 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera( const Camera* camera )
     camera->unproject( Vec3d( 0, 0, 0 ), &windowOrigoInDomain );
     camera->unproject( Vec3d( m_windowSize.x(), m_windowSize.y(), 0 ), &windowMaxInDomain );
 
-    if ( m_dispalyCoordsTransform.notNull() )
+    if ( m_displayCoordsTransform.notNull() )
     {
-        windowOrigoInDomain = m_dispalyCoordsTransform->transformToDomainCoord( windowOrigoInDomain );
-        windowMaxInDomain   = m_dispalyCoordsTransform->transformToDomainCoord( windowMaxInDomain );
+        windowOrigoInDomain = m_displayCoordsTransform->transformToDomainCoord( windowOrigoInDomain );
+        windowMaxInDomain   = m_displayCoordsTransform->transformToDomainCoord( windowMaxInDomain );
     }
 
     // For extreme zoom factors we might end up with both variables as zero. Return to avoid divide by zero.
@@ -141,8 +141,13 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera( const Camera* camera )
     double domainMinY = m_domainAxes == XY_AXES ? windowOrigoInDomain.y() : windowOrigoInDomain.z();
     double domainMaxY = m_domainAxes == XY_AXES ? windowMaxInDomain.y() : windowMaxInDomain.z();
 
-    int xTickMaxCount = m_windowSize.x() / ( 2 * m_textSize.x() );
-    int yTickMaxCount = m_windowSize.y() / ( 2 * m_textSize.x() );
+    int textSizeX     = 2 * m_textSize.x();
+    int xTickMaxCount = m_windowSize.x() / textSizeX;
+
+    // Use same textsize for Y dimension for XY axes to get square "tiles".
+    // For XZ axes more ticks looks better in Z (depth) axis.
+    int textSizeY     = m_domainAxes == XY_AXES ? textSizeX : 4 * m_textSize.y();
+    int yTickMaxCount = m_windowSize.y() / textSizeY;
 
     double                 minDomainXStepSize = ( domainMaxX - domainMinX ) / xTickMaxCount;
     caf::TickMarkGenerator xTickCreator( domainMinX, domainMaxX, minDomainXStepSize );
@@ -152,22 +157,17 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera( const Camera* camera )
     caf::TickMarkGenerator yTickCreator( domainMinY, domainMaxY, minDomainYStepSize );
     m_domainCoordsYValues = yTickCreator.tickMarkValues();
 
+    auto createDomainVec = []( auto domainAxes, double x, double y )
+    { return ( domainAxes == XY_AXES ) ? Vec3d( x, y, 0 ) : Vec3d( x, 0, y ); };
+
     m_windowTickXValues.clear();
     Vec3d windowPoint;
     for ( double domainX : m_domainCoordsXValues )
     {
-        Vec3d displayDomainTick;
-        if ( m_domainAxes == XY_AXES )
+        Vec3d displayDomainTick = createDomainVec( m_domainAxes, domainX, domainMinY );
+        if ( m_displayCoordsTransform.notNull() )
         {
-            displayDomainTick = Vec3d( domainX, domainMinY, 0 );
-        }
-        else
-        {
-            displayDomainTick = Vec3d( domainX, 0, domainMinY );
-        }
-        if ( m_dispalyCoordsTransform.notNull() )
-        {
-            displayDomainTick = m_dispalyCoordsTransform->transformToDisplayCoord( displayDomainTick );
+            displayDomainTick = m_displayCoordsTransform->transformToDisplayCoord( displayDomainTick );
         }
         camera->project( displayDomainTick, &windowPoint );
         m_windowTickXValues.push_back( windowPoint.x() );
@@ -176,20 +176,10 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera( const Camera* camera )
     m_windowTickYValues.clear();
     for ( double domainY : m_domainCoordsYValues )
     {
-        Vec3d displayDomainTick;
-
-        if ( m_domainAxes == XY_AXES )
+        Vec3d displayDomainTick = createDomainVec( m_domainAxes, domainMinX, domainY );
+        if ( m_displayCoordsTransform.notNull() )
         {
-            displayDomainTick = Vec3d( domainMinX, domainY, 0 );
-        }
-        else
-        {
-            displayDomainTick = Vec3d( domainMinX, 0, domainY );
-        }
-
-        if ( m_dispalyCoordsTransform.notNull() )
-        {
-            displayDomainTick = m_dispalyCoordsTransform->transformToDisplayCoord( displayDomainTick );
+            displayDomainTick = m_displayCoordsTransform->transformToDisplayCoord( displayDomainTick );
         }
         camera->project( displayDomainTick, &windowPoint );
         m_windowTickYValues.push_back( windowPoint.y() );

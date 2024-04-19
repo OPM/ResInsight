@@ -1,7 +1,5 @@
 #pragma once
 
-#include <QTextStream>
-
 //==================================================================================================
 /// QTextStream Stream operator overloading for bool`s
 /// Prints bool`s as "True"/"False", and reads them too
@@ -33,6 +31,15 @@ QTextStream& operator<<( QTextStream& str, const QDate& value );
 // class QTime;
 QTextStream& operator>>( QTextStream& str, QTime& value );
 QTextStream& operator<<( QTextStream& str, const QTime& value );
+
+// AppEnum
+namespace caf
+{
+class AppEnumInterface;
+}
+
+QTextStream& operator>>( QTextStream& str, caf::AppEnumInterface& value );
+QTextStream& operator<<( QTextStream& str, const caf::AppEnumInterface& value );
 
 //==================================================================================================
 /// QTextStream Stream operator overloading for std::vector of things.

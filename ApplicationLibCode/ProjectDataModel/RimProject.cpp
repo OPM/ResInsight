@@ -49,6 +49,8 @@
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimEclipseContourMapViewCollection.h"
+#include "RimEclipseViewCollection.h"
 #include "RimEnsembleWellLogsCollection.h"
 #include "RimFileWellPath.h"
 #include "RimFlowPlotCollection.h"
@@ -418,7 +420,7 @@ void RimProject::setScriptDirectories( const QString& scriptDirectories, int max
     scriptCollection->subDirectories().deleteChildren();
 
     QStringList pathList = scriptDirectories.split( ';' );
-    foreach ( QString path, pathList )
+    for ( const QString& path : pathList )
     {
         QDir dir( path );
         if ( !path.isEmpty() && dir.exists() && dir.isReadable() )
@@ -514,8 +516,7 @@ void RimProject::assignCaseIdToSummaryCase( RimSummaryCase* summaryCase )
 {
     if ( summaryCase )
     {
-        std::vector<RimSummaryCase*> summaryCases = allSummaryCases();
-        for ( RimSummaryCase* s : summaryCases )
+        for ( RimSummaryCase* s : allSummaryCases() )
         {
             m_nextValidSummaryCaseId = std::max( m_nextValidSummaryCaseId, s->caseId() + 1 );
         }
@@ -531,8 +532,7 @@ void RimProject::assignIdToEnsemble( RimSummaryCaseCollection* summaryCaseCollec
 {
     if ( summaryCaseCollection )
     {
-        std::vector<RimSummaryCaseCollection*> summaryGroups = RimProject::summaryGroups();
-        for ( RimSummaryCaseCollection* s : summaryGroups )
+        for ( RimSummaryCaseCollection* s : RimProject::summaryGroups() )
         {
             m_nextValidEnsembleId = std::max( m_nextValidEnsembleId, s->ensembleId() + 1 );
         }
@@ -548,36 +548,34 @@ std::vector<RimCase*> RimProject::allGridCases() const
 {
     std::vector<RimCase*> cases;
 
-    for ( size_t oilFieldIdx = 0; oilFieldIdx < oilFields().size(); oilFieldIdx++ )
+    for ( RimOilField* oilField : oilFields() )
     {
-        RimOilField* oilField = oilFields[oilFieldIdx];
         if ( !oilField ) continue;
 
         RimEclipseCaseCollection* analysisModels = oilField->analysisModels();
         if ( analysisModels )
         {
-            for ( size_t caseIdx = 0; caseIdx < analysisModels->cases.size(); caseIdx++ )
+            for ( RimEclipseCase* eclipseCase : analysisModels->cases )
             {
-                cases.push_back( analysisModels->cases[caseIdx] );
+                cases.push_back( eclipseCase );
             }
-            for ( size_t cgIdx = 0; cgIdx < analysisModels->caseGroups.size(); cgIdx++ )
+            for ( RimIdenticalGridCaseGroup* cg : analysisModels->caseGroups )
             {
                 // Load the Main case of each IdenticalGridCaseGroup
-                RimIdenticalGridCaseGroup* cg = analysisModels->caseGroups[cgIdx];
                 if ( cg == nullptr ) continue;
 
                 if ( cg->statisticsCaseCollection() )
                 {
-                    for ( size_t caseIdx = 0; caseIdx < cg->statisticsCaseCollection()->reservoirs.size(); caseIdx++ )
+                    for ( RimEclipseCase* eclipseCase : cg->statisticsCaseCollection()->reservoirs )
                     {
-                        cases.push_back( cg->statisticsCaseCollection()->reservoirs[caseIdx] );
+                        cases.push_back( eclipseCase );
                     }
                 }
                 if ( cg->caseCollection() )
                 {
-                    for ( size_t caseIdx = 0; caseIdx < cg->caseCollection()->reservoirs.size(); caseIdx++ )
+                    for ( RimEclipseCase* eclipseCase : cg->caseCollection()->reservoirs )
                     {
-                        cases.push_back( cg->caseCollection()->reservoirs[caseIdx] );
+                        cases.push_back( eclipseCase );
                     }
                 }
             }
@@ -737,25 +735,23 @@ RimSummaryCaseMainCollection* RimProject::firstSummaryCaseMainCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProject::allNotLinkedViews( std::vector<Rim3dView*>& views )
+std::vector<Rim3dView*> RimProject::allNotLinkedViews() const
 {
-    std::vector<RimCase*> cases = allGridCases();
-
     std::vector<Rim3dView*> alreadyLinkedViews;
     if ( viewLinkerCollection->viewLinker() )
     {
         alreadyLinkedViews = viewLinkerCollection->viewLinker()->allViews();
     }
 
-    for ( size_t caseIdx = 0; caseIdx < cases.size(); caseIdx++ )
+    std::vector<Rim3dView*> views;
+
+    for ( RimCase* rimCase : allGridCases() )
     {
-        RimCase* rimCase = cases[caseIdx];
         if ( !rimCase ) continue;
 
-        std::vector<Rim3dView*> caseViews = rimCase->views();
-        for ( size_t viewIdx = 0; viewIdx < caseViews.size(); viewIdx++ )
+        for ( Rim3dView* caseView : rimCase->views() )
         {
-            RimGridView* gridView = dynamic_cast<RimGridView*>( caseViews[viewIdx] );
+            RimGridView* gridView = dynamic_cast<RimGridView*>( caseView );
 
             if ( !gridView ) continue;
 
@@ -773,33 +769,32 @@ void RimProject::allNotLinkedViews( std::vector<Rim3dView*>& views )
             }
         }
     }
+
+    return views;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProject::allViews( std::vector<Rim3dView*>& views ) const
+std::vector<Rim3dView*> RimProject::allViews() const
 {
-    std::vector<RimCase*> cases = allGridCases();
+    std::vector<Rim3dView*> views;
 
-    for ( size_t caseIdx = 0; caseIdx < cases.size(); caseIdx++ )
+    for ( RimCase* rimCase : allGridCases() )
     {
-        RimCase* rimCase = cases[caseIdx];
         if ( !rimCase ) continue;
 
-        std::vector<Rim3dView*> caseViews = rimCase->views();
-        for ( size_t viewIdx = 0; viewIdx < caseViews.size(); viewIdx++ )
+        for ( Rim3dView* view : rimCase->views() )
         {
-            if ( caseViews[viewIdx] )
+            if ( view )
             {
-                views.push_back( caseViews[viewIdx] );
+                views.push_back( view );
             }
         }
     }
 
-    for ( size_t oilFieldIdx = 0; oilFieldIdx < oilFields().size(); oilFieldIdx++ )
+    for ( RimOilField* oilField : oilFields() )
     {
-        RimOilField* oilField = oilFields[oilFieldIdx];
         if ( !oilField ) continue;
         if ( !oilField->seismicViewCollection() ) continue;
 
@@ -808,43 +803,45 @@ void RimProject::allViews( std::vector<Rim3dView*>& views ) const
             views.push_back( seisview );
         }
     }
+
+    return views;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProject::allVisibleViews( std::vector<Rim3dView*>& views ) const
+std::vector<Rim3dView*> RimProject::allVisibleViews() const
 {
-    std::vector<RimCase*> cases = allGridCases();
-
-    for ( size_t caseIdx = 0; caseIdx < cases.size(); caseIdx++ )
+    std::vector<Rim3dView*> views;
+    for ( RimCase* rimCase : allGridCases() )
     {
-        RimCase* rimCase = cases[caseIdx];
         if ( !rimCase ) continue;
 
-        std::vector<Rim3dView*> caseViews = rimCase->views();
-        for ( size_t viewIdx = 0; viewIdx < caseViews.size(); viewIdx++ )
+        for ( Rim3dView* view : rimCase->views() )
         {
-            if ( caseViews[viewIdx] && caseViews[viewIdx]->viewer() )
+            if ( view && view->viewer() )
             {
-                views.push_back( caseViews[viewIdx] );
+                views.push_back( view );
             }
         }
     }
+
+    return views;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProject::allVisibleGridViews( std::vector<RimGridView*>& views ) const
+std::vector<RimGridView*> RimProject::allVisibleGridViews() const
 {
-    std::vector<Rim3dView*> visibleViews;
-    allVisibleViews( visibleViews );
-    for ( Rim3dView* view : visibleViews )
+    std::vector<RimGridView*> views;
+    for ( Rim3dView* view : allVisibleViews() )
     {
         RimGridView* gridView = dynamic_cast<RimGridView*>( view );
         if ( gridView ) views.push_back( gridView );
     }
+
+    return views;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -852,16 +849,12 @@ void RimProject::allVisibleGridViews( std::vector<RimGridView*>& views ) const
 //--------------------------------------------------------------------------------------------------
 void RimProject::scheduleCreateDisplayModelAndRedrawAllViews()
 {
-    std::vector<RimCase*> cases = allGridCases();
-    for ( size_t caseIdx = 0; caseIdx < cases.size(); caseIdx++ )
+    for ( RimCase* rimCase : allGridCases() )
     {
-        RimCase* rimCase = cases[caseIdx];
-        if ( rimCase == nullptr ) continue;
-        std::vector<Rim3dView*> views = rimCase->views();
-
-        for ( size_t viewIdx = 0; viewIdx < views.size(); viewIdx++ )
+        if ( !rimCase ) continue;
+        for ( Rim3dView* view : rimCase->views() )
         {
-            views[viewIdx]->scheduleCreateDisplayModelAndRedraw();
+            view->scheduleCreateDisplayModelAndRedraw();
         }
     }
 
@@ -878,13 +871,9 @@ void RimProject::scheduleCreateDisplayModelAndRedrawAllViews()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProject::allOilFields( std::vector<RimOilField*>& allOilFields ) const
+std::vector<RimOilField*> RimProject::allOilFields() const
 {
-    allOilFields.clear();
-    for ( const auto& oilField : oilFields )
-    {
-        allOilFields.push_back( oilField );
-    }
+    return oilFields.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -914,20 +903,15 @@ const RimOilField* RimProject::activeOilField() const
 //--------------------------------------------------------------------------------------------------
 void RimProject::computeUtmAreaOfInterest()
 {
-    std::vector<RimCase*> cases = allGridCases();
-
     cvf::BoundingBox projectBB;
-
-    for ( size_t i = 0; i < cases.size(); i++ )
+    for ( RimCase* rimCase : allGridCases() )
     {
-        RimEclipseCase* rimCase = dynamic_cast<RimEclipseCase*>( cases[i] );
-
-        if ( rimCase && rimCase->eclipseCaseData() )
+        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase );
+        if ( eclipseCase && eclipseCase->eclipseCaseData() )
         {
-            for ( size_t gridIdx = 0; gridIdx < rimCase->eclipseCaseData()->gridCount(); gridIdx++ )
+            for ( size_t gridIdx = 0; gridIdx < eclipseCase->eclipseCaseData()->gridCount(); gridIdx++ )
             {
-                RigGridBase* rigGrid = rimCase->eclipseCaseData()->grid( gridIdx );
-
+                RigGridBase* rigGrid = eclipseCase->eclipseCaseData()->grid( gridIdx );
                 projectBB.add( rigGrid->boundingBox() );
             }
         }
@@ -1176,9 +1160,7 @@ std::vector<RimTextAnnotation*> RimProject::textAnnotations() const
     }
 
     // 'Local' text annotations
-    std::vector<RimGridView*> visibleViews;
-    allVisibleGridViews( visibleViews );
-    for ( const auto& view : visibleViews )
+    for ( const auto& view : allVisibleGridViews() )
     {
         std::vector<RimAnnotationInViewCollection*> annotationColls = view->descendantsIncludingThisOfType<RimAnnotationInViewCollection>();
 
@@ -1239,10 +1221,8 @@ std::vector<RimPolylinesAnnotation*> RimProject::polylineAnnotations() const
 std::vector<RimGeoMechCase*> RimProject::geoMechCases() const
 {
     std::vector<RimGeoMechCase*> cases;
-
-    for ( size_t oilFieldIdx = 0; oilFieldIdx < oilFields().size(); oilFieldIdx++ )
+    for ( RimOilField* oilField : oilFields() )
     {
-        RimOilField* oilField = oilFields[oilFieldIdx];
         if ( !oilField ) continue;
 
         RimGeoMechModels* geomModels = oilField->geoMechModels();
@@ -1263,10 +1243,7 @@ std::vector<RimGeoMechCase*> RimProject::geoMechCases() const
 std::vector<RimFractureTemplateCollection*> RimProject::allFractureTemplateCollections() const
 {
     std::vector<RimFractureTemplateCollection*> templColls;
-    std::vector<RimOilField*>                   rimOilFields;
-
-    allOilFields( rimOilFields );
-    for ( RimOilField* oilField : rimOilFields )
+    for ( RimOilField* oilField : allOilFields() )
     {
         templColls.push_back( oilField->fractureDefinitionCollection() );
     }
@@ -1295,10 +1272,7 @@ std::vector<RimFractureTemplate*> RimProject::allFractureTemplates() const
 std::vector<RimValveTemplateCollection*> RimProject::allValveTemplateCollections() const
 {
     std::vector<RimValveTemplateCollection*> templColls;
-    std::vector<RimOilField*>                rimOilFields;
-
-    allOilFields( rimOilFields );
-    for ( RimOilField* oilField : rimOilFields )
+    for ( RimOilField* oilField : allOilFields() )
     {
         templColls.push_back( oilField->valveTemplateCollection() );
     }
@@ -1326,11 +1300,9 @@ std::vector<RimValveTemplate*> RimProject::allValveTemplates() const
 //--------------------------------------------------------------------------------------------------
 caf::AppEnum<RiaDefines::EclipseUnitSystem> RimProject::commonUnitSystemForAllCases() const
 {
-    std::vector<RimCase*> rimCases = allGridCases();
-
     RiaDefines::EclipseUnitSystem commonUnitSystem = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
 
-    for ( const auto& c : rimCases )
+    for ( const auto& c : allGridCases() )
     {
         auto eclipseCase = dynamic_cast<RimEclipseCase*>( c );
         if ( eclipseCase && eclipseCase->eclipseCaseData() )
@@ -1382,11 +1354,9 @@ std::vector<caf::FilePath*> RimProject::allFilePaths() const
 //--------------------------------------------------------------------------------------------------
 void RimProject::reloadCompletionTypeResultsForEclipseCase( RimEclipseCase* eclipseCase )
 {
-    std::vector<Rim3dView*> views = eclipseCase->views();
-
-    for ( size_t viewIdx = 0; viewIdx < views.size(); viewIdx++ )
+    for ( Rim3dView* view : eclipseCase->views() )
     {
-        views[viewIdx]->scheduleCreateDisplayModelAndRedraw();
+        view->scheduleCreateDisplayModelAndRedraw();
     }
 
     RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews( { eclipseCase } );
@@ -1522,6 +1492,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
         if ( oilField )
         {
             if ( oilField->analysisModels() ) uiTreeOrdering.add( oilField->analysisModels() );
+            if ( oilField->eclipseViewCollection() ) uiTreeOrdering.add( oilField->eclipseViewCollection() );
             if ( oilField->geoMechModels() ) uiTreeOrdering.add( oilField->geoMechModels() );
             if ( oilField->wellPathCollection() ) uiTreeOrdering.add( oilField->wellPathCollection() );
             if ( oilField->polygonCollection() ) uiTreeOrdering.add( oilField->polygonCollection() );
@@ -1535,6 +1506,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( oilField->formationNamesCollection() ) uiTreeOrdering.add( oilField->formationNamesCollection() );
             if ( oilField->completionTemplateCollection() ) uiTreeOrdering.add( oilField->completionTemplateCollection() );
             if ( oilField->annotationCollection() ) uiTreeOrdering.add( oilField->annotationCollection() );
+            if ( oilField->eclipseContourMapCollection() ) uiTreeOrdering.add( oilField->eclipseContourMapCollection() );
         }
 
         uiTreeOrdering.add( colorLegendCollection() );
@@ -1550,8 +1522,7 @@ void RimProject::transferPathsToGlobalPathList()
 {
     RiaVariableMapper variableMapper( m_globalPathList() );
 
-    std::vector<caf::FilePath*> filePaths = allFilePaths();
-    for ( caf::FilePath* filePath : filePaths )
+    for ( caf::FilePath* filePath : allFilePaths() )
     {
         QString path = filePath->path();
         if ( !path.isEmpty() )
@@ -1615,8 +1586,7 @@ void RimProject::distributePathsFromGlobalPathList()
 {
     RiaVariableMapper pathListMapper( m_globalPathList() );
 
-    std::vector<caf::FilePath*> filePaths = allFilePaths();
-    for ( caf::FilePath* filePath : filePaths )
+    for ( caf::FilePath* filePath : allFilePaths() )
     {
         QString     pathIdCandidate  = filePath->path().trimmed();
         QStringList pathIdComponents = pathIdCandidate.split( RiaVariableMapper::variableToken() );

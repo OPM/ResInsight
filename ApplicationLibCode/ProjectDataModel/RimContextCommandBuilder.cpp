@@ -49,6 +49,7 @@
 #include "RimCustomObjectiveFunctionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseContourMapViewCollection.h"
@@ -60,6 +61,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
+#include "RimEclipseViewCollection.h"
 #include "RimElasticProperties.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimEnsembleCurveFilterCollection.h"
@@ -226,6 +228,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicImportEclipseCasesFeature";
             menuBuilder << "RicImportInputEclipseCaseFeature";
             menuBuilder << "RicCreateGridCaseGroupFromFilesFeature";
+            menuBuilder << "RicCreateGridCaseEnsemblesFromFilesFeature";
             menuBuilder.subMenuEnd();
             menuBuilder << "RicEclipseCaseNewGroupFeature";
         }
@@ -271,6 +274,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicNewStatisticsCaseFeature";
         }
+        else if ( dynamic_cast<RimEclipseCaseEnsemble*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewViewForGridEnsembleFeature";
+        }
         else if ( dynamic_cast<RimGeoMechModels*>( firstUiItem ) )
         {
             menuBuilder << "RicImportGeoMechCaseFeature";
@@ -281,6 +288,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewViewFeature";
             menuBuilder << "RicComputeStatisticsFeature";
             menuBuilder << "Separator";
+        }
+        else if ( dynamic_cast<RimEclipseViewCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewViewFeature";
         }
         else if ( dynamic_cast<RimEclipseCase*>( firstUiItem ) )
         {
@@ -1040,16 +1051,16 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteCellFiltersFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewPolygonFilterFeature";
-            menuBuilder << "RicNewUserDefinedFilterFeature";
-            menuBuilder << "RicNewUserDefinedIndexFilterFeature";
-            menuBuilder << "RicNewCellIndexFilterFeature";
-            menuBuilder << "Separator";
             menuBuilder << "RicNewCellRangeFilterFeature";
             menuBuilder.subMenuStart( "Slice Filters" );
             menuBuilder << "RicNewRangeFilterSliceIFeature";
             menuBuilder << "RicNewRangeFilterSliceJFeature";
             menuBuilder << "RicNewRangeFilterSliceKFeature";
             menuBuilder.subMenuEnd();
+            menuBuilder << "RicNewCellIndexFilterFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicNewUserDefinedFilterFeature";
+            menuBuilder << "RicNewUserDefinedIndexFilterFeature";
         }
         else if ( dynamic_cast<RimSeismicSectionCollection*>( firstUiItem ) )
         {

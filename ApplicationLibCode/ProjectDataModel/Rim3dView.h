@@ -195,7 +195,7 @@ public:
     virtual void updateViewTreeItems( RiaDefines::ItemIn3dView itemType );
 
     RimAnnotationInViewCollection* annotationCollection() const;
-    void                           syncronizeLocalAnnotationsFromGlobal();
+    void                           synchronizeLocalAnnotationsFromGlobal();
 
 protected:
     static void removeModelByName( cvf::Scene* scene, const cvf::String& modelName );

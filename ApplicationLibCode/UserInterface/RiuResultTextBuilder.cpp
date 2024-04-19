@@ -999,7 +999,7 @@ QString RiuResultTextBuilder::cellResultText( const std::vector<RimEclipseResult
         auto resultTextAndValues = cellResultTextAndValueText( resDef );
         for ( const auto& [key, value] : resultTextAndValues )
         {
-            maxKeyLength   = std::max( maxKeyLength, key.length() );
+            maxKeyLength   = std::max( maxKeyLength, (int)key.length() );
             keyValues[key] = value;
         }
     }

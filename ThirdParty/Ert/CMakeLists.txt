@@ -1,4 +1,3 @@
-cmake_minimum_required( VERSION 2.8.12 ) # If you are creating Python wrappers for Windows, the actual version requirement is 3.4
 project( ERT C CXX )
 
 include(GNUInstallDirs)

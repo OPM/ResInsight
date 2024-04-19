@@ -498,12 +498,11 @@ RimEclipseResultCase::~RimEclipseResultCase()
 {
     // Disconnect all comparison views. In debug build on Windows, a crash occurs. The comparison view is also set to zero in the destructor
     // of Rim3dView()
-    for ( auto v : reservoirViews )
+    for ( auto v : reservoirViews() )
     {
         if ( v ) v->setComparisonView( nullptr );
     }
 
-    reservoirViews.deleteChildren();
     m_flowDiagSolutions.deleteChildren();
 }
 

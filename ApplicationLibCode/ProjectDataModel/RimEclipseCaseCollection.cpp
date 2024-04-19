@@ -31,6 +31,7 @@
 
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimProject.h"
@@ -46,6 +47,8 @@ RimEclipseCaseCollection::RimEclipseCaseCollection()
     CAF_PDM_InitFieldNoDefault( &cases, "Reservoirs", "" );
 
     CAF_PDM_InitFieldNoDefault( &caseGroups, "CaseGroups", "" );
+
+    CAF_PDM_InitFieldNoDefault( &caseEnsembles, "CaseEnsembles", "" );
 
     m_gridCollection = new RigGridManager;
 }
@@ -67,6 +70,7 @@ void RimEclipseCaseCollection::close()
 
     cases.deleteChildren();
     caseGroups.deleteChildren();
+    caseEnsembles.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
