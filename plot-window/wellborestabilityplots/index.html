@@ -12,18 +12,18 @@
     <title>Well Bore Stability Plots :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1712564322" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1712564322" rel="stylesheet">
-    <link href="/css/hybrid.css?1712564322" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1712564322" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1712564322" rel="stylesheet">
-    <link href="/css/auto-complete.css?1712564322" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1712564322" rel="stylesheet">
-    <link href="/css/theme.css?1712564322" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1712564322" rel="stylesheet">
+    <link href="/css/nucleus.css?1713533513" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1713533513" rel="stylesheet">
+    <link href="/css/hybrid.css?1713533513" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1713533513" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1713533513" rel="stylesheet">
+    <link href="/css/auto-complete.css?1713533513" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1713533513" rel="stylesheet">
+    <link href="/css/theme.css?1713533513" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1713533513" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1712564322"></script>
+    <script src="/js/jquery-3.3.1.min.js?1713533513"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -283,6 +283,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -3135,8 +3138,8 @@ if (!doNotTrack) {
 <h3 id="fracture-gradient-calculations-based-on-kirsch-in-sand">Fracture gradient calculations based on Kirsch in sand</h3>
 <p>To estimate the fracture gradient <em>FG</em>, first step is to find the principal effective stresses at the borehole wall:</p>
 <p>$$\sigma&rsquo;_1 = \sigma&rsquo;_1 (\theta)= \sigma&rsquo;_r = p_w - p_0$$</p>
-<p>$$\sigma&rsquo;_2 = \sigma&rsquo;_2 (\theta) = \sigma_{t \max} = \frac{1}{2} \left( (\sigma_z + \sigma_\theta) + \sqrt{(\sigma_z + \sigma_\theta)^2 + 4\tau_{\theta z}^2} \right) - p_0$$</p>
-<p>$$\sigma&rsquo;_2 = \sigma&rsquo;_3 (\theta) = \sigma_{t \min} = \frac{1}{2} \left( (\sigma_z + \sigma_\theta) - \sqrt{(\sigma_z + \sigma_\theta)^2 + 4\tau_{\theta z}^2} \right) - p_0$$</p>
+<p>$$\sigma&rsquo;_2 = \sigma&rsquo;_2 (\theta) = \sigma_{t \max} = \frac{1}{2} \left( (\sigma_z + \sigma_\theta) + \sqrt{(\sigma_z - \sigma_\theta)^2 + 4\tau_{\theta z}^2} \right) - p_0$$</p>
+<p>$$\sigma&rsquo;_2 = \sigma&rsquo;_3 (\theta) = \sigma_{t \min} = \frac{1}{2} \left( (\sigma_z + \sigma_\theta) - \sqrt{(\sigma_z - \sigma_\theta)^2 + 4\tau_{\theta z}^2} \right) - p_0$$</p>
 <p>Next step is to solve for the value of $\theta \in [0 - 180]$ that yields $\sigma&rsquo;_3 (\theta) = 0$ which in turn gives us $\sigma_\theta$ which can be used to solve for $P_w$ in the Kirsch equations.</p>
 <p>Then calculate <em>FG</em> in equivalent mud weight units as
 $$ FG = \frac{P_w}{TVD_{RKB} \: g  \: \rho}$$ where $TVD_{RKB} = TVD_{MSL} + AirGap$, the gravity acceleration $g = 9.81 m/s^2$ and  the density of sea water $\rho$ in $kg/m^3$ (thus 1000 x the UI input in $g/cm^3$).</p>
@@ -3332,6 +3335,11 @@ under <em>Python Examples</em>.</p>
             
         
                     
+            
+        
+                    
+                        
+            
             
         
                     
@@ -5419,19 +5427,19 @@ under <em>Python Examples</em>.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1712564322"></script>
-    <script src="/js/perfect-scrollbar.min.js?1712564322"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1712564322"></script>
-    <script src="/js/jquery.sticky.js?1712564322"></script>
-    <script src="/js/featherlight.min.js?1712564322"></script>
-    <script src="/js/highlight.pack.js?1712564322"></script>
+    <script src="/js/clipboard.min.js?1713533513"></script>
+    <script src="/js/perfect-scrollbar.min.js?1713533513"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1713533513"></script>
+    <script src="/js/jquery.sticky.js?1713533513"></script>
+    <script src="/js/featherlight.min.js?1713533513"></script>
+    <script src="/js/highlight.pack.js?1713533513"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1712564322"></script>
-    <script src="/js/learn.js?1712564322"></script>
-    <script src="/js/hugo-learn.js?1712564322"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1713533513"></script>
+    <script src="/js/learn.js?1713533513"></script>
+    <script src="/js/hugo-learn.js?1713533513"></script>
 
-    <link href="/mermaid/mermaid.css?1712564322" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1712564322"></script>
+    <link href="/mermaid/mermaid.css?1713533513" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1713533513"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>
