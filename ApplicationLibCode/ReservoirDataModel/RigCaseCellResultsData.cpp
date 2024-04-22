@@ -1647,9 +1647,12 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
             m_cellScalarResults[scalarResultIndex].resize( 1 );
 
             std::vector<double>& values = m_cellScalarResults[scalarResultIndex][0];
-            if ( !m_readerInterface->staticResult( resultName, m_porosityModel, &values ) )
+            if ( values.empty() )
             {
-                resultLoadingSuccess = false;
+                if ( !m_readerInterface->staticResult( resultName, m_porosityModel, &values ) )
+                {
+                    resultLoadingSuccess = false;
+                }
             }
         }
 
