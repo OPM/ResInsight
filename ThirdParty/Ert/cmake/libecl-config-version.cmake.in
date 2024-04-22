@@ -4,7 +4,7 @@ set(PACKAGE_VERSION_MINOR   @ERT_VERSION_MINOR@)
 set(PACKAGE_VERSION_PATCH   @ERT_VERSION_MICRO@)
 
 set(libecl_INCLUDE_DIRS @CMAKE_INSTALL_PREFIX@/include)
-set(libecl_LIBRARIES -lecl_well -lecl -lert_geometry -lert_util)
+set(libecl_LIBRARIES -lecl_well -lresdata2 -lert_geometry -lert_util)
 link_directories( @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@ )
 include_directories( @CMAKE_INSTALL_PREFIX@/include )
 
