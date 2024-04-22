@@ -871,7 +871,7 @@ char * util_alloc_realpath(const char * input_path) {
      the entry exists; and if not we abort. If the entry indeed exists
      we call the util_alloc_cwd_abs_path() function: */
 #ifdef ERT_HAVE_SYMLINK
-  ERROR - What the fuck; have symlinks and not realpath()?!
+  ERROR - internal error - have symlinks and not realpath()?!
 #endif
   if (!util_entry_exists( input_path ))
     util_abort("%s: input_path:%s does not exist - failed.\n",__func__ , input_path);
@@ -912,7 +912,7 @@ char * util_alloc_abs_path( const char * path ) {
 /**
    Both path arguments must be absolute paths; if not a copy of the
    input path will be returned. Neither of the input arguments can
-   have "/../" elements - that will just fuck things up.
+   have "/../" elements
 
    root_path can be NULL - in which case cwd is used.
 */

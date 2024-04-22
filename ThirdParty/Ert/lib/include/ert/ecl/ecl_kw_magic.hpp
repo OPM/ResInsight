@@ -623,7 +623,7 @@ values (2e20) are denoted with '*'.
 #define FILEHEAD_ORGFORMAT_INDEX 6
 
 #define GRIDHEAD_GRIDTYPE_CORNERPOINT 1 /*  <----\                        */
-                                        /*       |  Fucking hysterical!   */
+                                        /*       |                        */
 #define FILEHEAD_GRIDTYPE_CORNERPOINT 0 /*  <----/                        */
 
 #define FILEHEAD_ORGTYPE_CORNERPOINT  1

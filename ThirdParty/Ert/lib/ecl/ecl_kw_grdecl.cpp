@@ -554,7 +554,7 @@ ecl_kw_type * ecl_kw_fscanf_alloc_grdecl( FILE * stream , const char * kw , int 
    This function will read and allocate the next keyword in the
    file. This function does not take either kw or the size of the kw
    as input, and has virtually zero possibilities to check what it is
-   doing. The possibilities of failure are fucking endless, and the
+   doing. The possibilities of failure are endless, and the
    function should only be used when you are goddamn certain that the
    input file is well formatted.
 */
