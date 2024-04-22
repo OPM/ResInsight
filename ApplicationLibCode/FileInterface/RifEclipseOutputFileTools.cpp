@@ -379,7 +379,7 @@ QStringList RifEclipseOutputFileTools::filterFileNamesOfType( const QStringList&
 }
 
 //-------------------------------------------------------------------------------------------------------
-/// Check if libecl accepts the file name. libecl refuses to open files with mixed case in the file name.
+/// Check if resdata accepts the file name. resdata refuses to open files with mixed case in the file name.
 //-------------------------------------------------------------------------------------------------------
 bool RifEclipseOutputFileTools::isValidEclipseFileName( const QString& fileName )
 {

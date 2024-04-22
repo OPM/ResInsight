@@ -358,7 +358,7 @@ void RifOpmGridTools::transferCoordinatesCartesian( Opm::EclIO::EGrid&  opmMainG
 
     riActiveCells->setReservoirCellCount( riMainGrid->cellCount() );
 
-    // same mapping as libecl
+    // same mapping as resdata
     const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 
 #pragma omp parallel for

@@ -199,10 +199,10 @@ if(RESINSIGHT_ENABLE_UNITY_BUILD)
 endif()
 
 # ##############################################################################
-# ERT
+# resdata
 # ##############################################################################
 
-# Use of CMAKE_CXX_COMPILER_LAUNCHER is not working with libecl. Disable by
+# Use of CMAKE_CXX_COMPILER_LAUNCHER is not working with resdata. Disable by
 # temporarily setting compiler launcher to nothing
 set(TEMP_CMAKE_CXX_COMPILER_LAUNCHER ${CMAKE_CXX_COMPILER_LAUNCHER})
 set(CMAKE_CXX_COMPILER_LAUNCHER)
@@ -279,7 +279,7 @@ else()
   endif()
 
   if(MSVC)
-    # libecl : Disable some warnings
+    # resdata : Disable some warnings
     set_target_properties(
       ecl
       PROPERTIES
@@ -316,7 +316,7 @@ else()
 
 endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
-# restore buildcache when libecl has been configured
+# restore buildcache when resdata has been configured
 set(CMAKE_CXX_COMPILER_LAUNCHER ${TEMP_CMAKE_CXX_COMPILER_LAUNCHER})
 
 # ##############################################################################
@@ -884,7 +884,7 @@ set(RESINSIGHT_INSTALL_FOLDER ".")
 
 # override system install prefix if private installation chosen
 option(RESINSIGHT_PRIVATE_INSTALL
-       "Linux only: Install the libecl shared libraries along the executable"
+       "Linux only: Install the resdata shared libraries along the executable"
        ON
 )
 mark_as_advanced(FORCE RESINSIGHT_PRIVATE_INSTALL)

@@ -160,7 +160,7 @@ std::vector<RifRestartFileInfo> RifEclipseSummaryTools::getRestartFiles( const Q
     currFile.fileName = headerFileName;
     while ( !currFile.fileName.isEmpty() )
     {
-        // Due to a weakness in libecl regarding restart summary header file selection,
+        // Due to a weakness in resdata regarding restart summary header file selection,
         // do some extra checking
         {
             QString formattedHeaderExtension    = ".FSMSPEC";
