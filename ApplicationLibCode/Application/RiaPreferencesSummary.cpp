@@ -57,7 +57,7 @@ void RiaPreferencesSummary::SummaryHistoryCurveStyleModeType::setUp()
 template <>
 void RiaPreferencesSummary::SummaryReaderModeType::setUp()
 {
-    addItem( RiaPreferencesSummary::SummaryReaderMode::LIBECL, "LIBECL", "UNSMRY (libecl)" );
+    addItem( RiaPreferencesSummary::SummaryReaderMode::RESDATA, "RESDATA", "UNSMRY (resdata)", { "LIBECL" } );
     addItem( RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON, "HDF5_OPM_COMMON", "h5 (HDF5)" );
     addItem( RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON, "OPM_COMMON", "ESMRY (opm-common)" );
     setDefault( RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON );
@@ -471,7 +471,7 @@ QList<caf::PdmOptionItemInfo> RiaPreferencesSummary::calculateValueOptions( cons
 #ifdef USE_HDF5
         availableModes.push_back( SummaryReaderMode::HDF5_OPM_COMMON );
 #endif // USE_HDF5
-        availableModes.push_back( SummaryReaderMode::LIBECL );
+        availableModes.push_back( SummaryReaderMode::RESDATA );
         availableModes.push_back( SummaryReaderMode::OPM_COMMON );
 
         for ( auto enumValue : availableModes )
