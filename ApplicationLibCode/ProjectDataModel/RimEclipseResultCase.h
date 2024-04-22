@@ -94,7 +94,6 @@ private:
     cvf::ref<RifReaderEclipseRft> m_readerEclipseRft;
     cvf::ref<RifReaderOpmRft>     m_readerOpmRft;
 
-    caf::PdmField<caf::AppEnum<RiaDefines::GridModelReader>>             m_gridModelReader;
     caf::PdmProxyValueField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_unitSystem;
     caf::PdmChildArrayField<RimFlowDiagSolution*>                        m_flowDiagSolutions;
     caf::PdmField<caf::FilePath>                                         m_sourSimFileName;

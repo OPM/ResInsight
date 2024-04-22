@@ -172,7 +172,7 @@ enum class GridCaseAxis
 
 enum class GridModelReader
 {
-    LIBECL,
+    RESDATA,
     OPM_COMMON
 };
 

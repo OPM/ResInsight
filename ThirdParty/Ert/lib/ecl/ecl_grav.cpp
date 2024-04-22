@@ -361,7 +361,7 @@ static ecl_grav_survey_type * ecl_grav_survey_alloc_empty(const ecl_grav_type * 
 
 /**
    Check that the rporv values are in the right ballpark.  For ECLIPSE
-   version 2008.2 they are way fucking off. Check PORV versus RPORV
+   version 2008.2 they are way off. Check PORV versus RPORV
    for some random locations in the grid.
 */
 

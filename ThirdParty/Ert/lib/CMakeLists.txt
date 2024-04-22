@@ -20,6 +20,7 @@ if (ERT_HAVE_SPAWN)
     list(APPEND opt_srcs util/util_spawn.cpp)
 endif()
 
+
 if (ERT_HAVE_LOCKF)
     list(APPEND opt_srcs util/util_lockf.cpp)
 endif ()
@@ -60,7 +61,7 @@ configure_file(ert_api_config.h.in include/ert/util/ert_api_config.h)
 configure_file(build_config.hpp.in   include/ert/util/build_config.hpp)
 configure_file(ert_api_config.hpp.in include/ert/util/ert_api_config.hpp)
 
-add_library(ecl util/rng.cpp
+add_library(resdata util/rng.cpp
                 util/lookup_table.cpp
                 util/statistics.cpp
                 util/mzran.cpp
@@ -153,13 +154,12 @@ add_library(ecl util/rng.cpp
 )
 
 if (ERT_WINDOWS)
-    set_target_properties(ecl PROPERTIES PREFIX "lib")
     if (MSVC)
-        set_target_properties(ecl PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
+        set_target_properties(resdata PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
   endif()
 endif ()
 
-target_link_libraries(ecl PUBLIC ${m}
+target_link_libraries(resdata PUBLIC ${m}
                                  ${dl}
                                  ${pthread}
                                  ${blas}
@@ -167,7 +167,7 @@ target_link_libraries(ecl PUBLIC ${m}
                                  ${shlwapi}
 )
 
-target_include_directories(ecl
+target_include_directories(resdata
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
            $<INSTALL_INTERFACE:include>
@@ -186,7 +186,7 @@ if (NOT INSTALL_ERT)
   set(GIT_COMMIT_SHORT 0)
 endif()
 
-target_compile_definitions(ecl PRIVATE
+target_compile_definitions(resdata PRIVATE
             -DGIT_COMMIT=${GIT_COMMIT}
             -DGIT_COMMIT_SHORT=${GIT_COMMIT_SHORT}
             -DECL_VERSION_MAJOR=${ECL_VERSION_MAJOR}
@@ -195,20 +195,20 @@ target_compile_definitions(ecl PRIVATE
             $<$<BOOL:${BIG_ENDIAN}>:HOST_BIG_ENDIAN>
 )
 
-target_compile_options(ecl PUBLIC ${pthreadarg})
+target_compile_options(resdata PUBLIC ${pthreadarg})
 
 
 if (ERT_USE_OPENMP)
-    target_compile_options(ecl PUBLIC ${OpenMP_CXX_FLAGS})
-    set_property(TARGET ecl APPEND PROPERTY LINK_FLAGS ${OpenMP_CXX_FLAGS})
-    target_link_libraries( ecl PUBLIC ${OpenMP_EXE_LINKER_FLAGS})
+    target_compile_options(resdata PUBLIC ${OpenMP_CXX_FLAGS})
+    set_property(TARGET resdata APPEND PROPERTY LINK_FLAGS ${OpenMP_CXX_FLAGS})
+    target_link_libraries( resdata PUBLIC ${OpenMP_EXE_LINKER_FLAGS})
 endif ()
 
-set_target_properties(ecl PROPERTIES
+set_target_properties(resdata PROPERTIES
                           VERSION ${ECL_VERSION_MAJOR}.${ECL_VERSION_MINOR}
                           SOVERSION ${ECL_VERSION_MAJOR})
 if (INSTALL_ERT)
-install(TARGETS ecl
+install(TARGETS resdata
         EXPORT  ecl-config
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -231,7 +231,7 @@ add_executable(ecl3-testsuite test/testsuite.cpp
 target_include_directories(ecl3-testsuite
     PRIVATE e3
 )
-target_link_libraries(ecl3-testsuite catch2 ecl)
+target_link_libraries(ecl3-testsuite catch2 resdata)
 
 add_test(NAME ecl3 COMMAND ecl3-testsuite)
 
@@ -265,17 +265,17 @@ foreach (name   ert_util_alloc_file_components
 
     add_executable(${name} util/tests/${name}.cpp)
     target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private-include)
-    target_link_libraries(${name} ecl)
+    target_link_libraries(${name} resdata)
     add_test(NAME ${name} COMMAND ${name})
 endforeach ()
 
 add_executable(ecl_smspec_node ecl/tests/ecl_smspec_node.cpp)
-target_link_libraries( ecl_smspec_node ecl)
+target_link_libraries( ecl_smspec_node resdata)
 add_test(NAME ecl_smspec_node COMMAND ecl_smspec_node)
 
 
 add_executable(ert_util_work_area util/tests/ert_util_work_area.cpp)
-target_link_libraries(ert_util_work_area ecl)
+target_link_libraries(ert_util_work_area resdata)
 add_test(NAME ert_util_work_area
     COMMAND ert_util_work_area  data2/file1
                                 ${CMAKE_CURRENT_SOURCE_DIR}/util/tests/data2/file2
@@ -284,49 +284,49 @@ add_test(NAME ert_util_work_area
 )
 
 add_executable(ert_util_cwd_test util/tests/ert_util_cwd_test.cpp)
-target_link_libraries(ert_util_cwd_test ecl)
+target_link_libraries(ert_util_cwd_test resdata)
 add_test(NAME ert_util_cwd_test COMMAND ert_util_cwd_test ${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(ert_util_copy_file util/tests/ert_util_copy_file.cpp)
-target_link_libraries(ert_util_copy_file ecl)
+target_link_libraries(ert_util_copy_file resdata)
 add_test(NAME ert_util_copy_file
         COMMAND ert_util_copy_file
         $<TARGET_FILE:ert_util_copy_file>)
 
 add_executable(ert_util_file_readable util/tests/ert_util_file_readable.cpp)
-target_link_libraries(ert_util_file_readable ecl)
+target_link_libraries(ert_util_file_readable resdata)
 add_test(NAME ert_util_file_readable COMMAND ert_util_file_readable)
 
 add_executable(ert_util_path_stack_test util/tests/ert_util_path_stack_test.cpp)
-target_link_libraries(ert_util_path_stack_test ecl)
+target_link_libraries(ert_util_path_stack_test resdata)
 add_test(NAME ert_util_path_stack_test COMMAND ert_util_path_stack_test
     ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 if (HAVE_BACKTRACE)
    add_executable(ert_util_abort_gnu_tests util/tests/ert_util_abort_gnu_tests.cpp)
-   target_link_libraries(ert_util_abort_gnu_tests ecl)
+   target_link_libraries(ert_util_abort_gnu_tests resdata)
    add_test(NAME ert_util_abort_gnu_tests COMMAND ert_util_abort_gnu_tests)
 
    add_executable(ert_util_addr2line util/tests/ert_util_addr2line.cpp)
-   target_link_libraries(ert_util_addr2line ecl)
+   target_link_libraries(ert_util_addr2line resdata)
    add_test(NAME ert_util_addr2line COMMAND ert_util_addr2line)
 endif()
 
 if (HAVE_UTIL_ABORT_INTERCEPT)
    add_executable(ert_util_type_vector_test util/tests/ert_util_type_vector_test.cpp)
-   target_link_libraries(ert_util_type_vector_test ecl)
+   target_link_libraries(ert_util_type_vector_test resdata)
    add_test(NAME ert_util_type_vector_test COMMAND ert_util_type_vector_test)
 endif()
 
 if (ERT_HAVE_SPAWN)
    add_executable(ert_util_spawn util/tests/ert_util_spawn.cpp)
-   target_link_libraries(ert_util_spawn ecl)
+   target_link_libraries(ert_util_spawn resdata)
    add_test(NAME ert_util_spawn COMMAND ert_util_spawn)
 endif()
 
 #
-# ecl
+# resdata
 #
 
 foreach (name   ecl_alloc_cpgrid
@@ -381,24 +381,24 @@ foreach (name   ecl_alloc_cpgrid
                 ecl_file
         )
         add_executable(${name} ecl/tests/${name}.cpp)
-        target_link_libraries(${name} ecl)
+        target_link_libraries(${name} resdata)
         target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private-include)
         add_test(NAME ${name} COMMAND ${name})
 endforeach ()
 
 if (HAVE_UTIL_ABORT_INTERCEPT)
    add_executable(ecl_grid_corner ecl/tests/ecl_grid_corner.cpp)
-   target_link_libraries(ecl_grid_corner ecl)
+   target_link_libraries(ecl_grid_corner resdata)
    add_test(NAME ecl_grid_corner COMMAND ecl_grid_corner)
 
    add_executable(ecl_layer ecl/tests/ecl_layer.cpp)
-   target_link_libraries(ecl_layer ecl)
+   target_link_libraries(ecl_layer resdata)
    target_include_directories(ecl_layer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private-include)
    add_test(NAME ecl_layer COMMAND ecl_layer)
 endif()
 
 add_executable(ecl_get_num_cpu ecl/tests/ecl_get_num_cpu_test.cpp)
-target_link_libraries(ecl_get_num_cpu ecl)
+target_link_libraries(ecl_get_num_cpu resdata)
 add_test(NAME ecl_get_num_cpu COMMAND ecl_get_num_cpu
             ${CMAKE_CURRENT_SOURCE_DIR}/ecl/tests/data/num_cpu1
             ${CMAKE_CURRENT_SOURCE_DIR}/ecl/tests/data/num_cpu2
@@ -409,7 +409,7 @@ add_test(NAME ecl_get_num_cpu COMMAND ecl_get_num_cpu
 # into the CTEST system. Should be invoked manually on Windows.
 if (ERT_WINDOWS)
    add_executable(ecl_lfs ecl/tests/ecl_lfs.cpp)
-   target_link_libraries(ecl_lfs ecl)
+   target_link_libraries(ecl_lfs resdata)
 endif()
 
 #
@@ -419,19 +419,19 @@ endif()
 
 foreach (name geo_util_xlines geo_polygon geo_polygon_collection)
     add_executable(${name} geometry/tests/${name}.cpp)
-    target_link_libraries(${name} ecl)
+    target_link_libraries(${name} resdata)
     add_test(NAME ${name} COMMAND ${name})
 endforeach ()
 
 foreach (test ert_util_unique_ptr)
     add_executable(${test} util/tests/${test}.cpp)
-    target_link_libraries(${test} ecl)
+    target_link_libraries(${test} resdata)
     add_test(NAME ${test} COMMAND ${test})
 endforeach()
 
 foreach (test eclxx_kw eclxx_fortio eclxx_filename eclxx_types)
     add_executable(${test} ecl/tests/${test}.cpp)
-    target_link_libraries(${test} ecl)
+    target_link_libraries(${test} resdata)
     add_test(NAME ${test} COMMAND ${test})
 endforeach ()
 
@@ -477,7 +477,7 @@ foreach(name ecl_coarse_test
              well_lgr_load)
 
   add_executable(${name} ecl/tests/${name}.cpp)
-  target_link_libraries(${name} ecl)
+  target_link_libraries(${name} resdata)
   target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private-include)
 endforeach()
 
@@ -641,7 +641,7 @@ add_test(NAME ecl_fault_block_layer_equinor COMMAND ecl_fault_block_layer_equino
 
 if (HAVE_UTIL_ABORT_INTERCEPT)
    add_executable(ecl_fortio ecl/tests/ecl_fortio.cpp)
-   target_link_libraries( ecl_fortio ecl)
+   target_link_libraries( ecl_fortio resdata)
    add_test(NAME ecl_fortio COMMAND ecl_fortio ${_eclpath}/Gurbat/ECLIPSE.UNRST)
 endif()
 
@@ -698,7 +698,7 @@ add_test(NAME well_lgr_load2 COMMAND well_lgr_load ${_eclpath}/AmalgLGRcase/TEST
 # geometry
 #
 add_executable(geo_surface geometry/tests/geo_surface.cpp)
-target_link_libraries(geo_surface ecl)
+target_link_libraries(geo_surface resdata)
 add_test(NAME geo_surface COMMAND geo_surface
         ${_geopath}/Surface.irap
         ${_geopath}/Surface_incompatible.irap)

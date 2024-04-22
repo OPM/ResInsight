@@ -55,7 +55,7 @@ std::pair<bool, std::vector<double>> RifSummaryReaderMultipleFiles::values( cons
             // When a well is introduced, no data is present before the time step the well is introduced
             // Add values of zero for this interval
             //
-            // This issue was reported for libecl, but it is not relevant now as the low level file readers only handle
+            // This issue was reported for resdata, but it is not relevant now as the low level file readers only handle
             // a single file.
             // https://github.com/OPM/ResInsight/issues/7065
 

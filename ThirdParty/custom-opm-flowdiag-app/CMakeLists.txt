@@ -33,7 +33,7 @@ add_library(custom-opm-flowdiag-app
 find_package(Boost REQUIRED filesystem system)
 
 target_link_libraries(custom-opm-flowdiag-app 
-  ecl
+  resdata
   Boost::filesystem
 )
 

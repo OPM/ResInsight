@@ -42,7 +42,7 @@ class RiaPreferencesSummary : public caf::PdmObject
 public:
     enum class SummaryReaderMode
     {
-        LIBECL,
+        RESDATA,
         OPM_COMMON,
         HDF5_OPM_COMMON
     };

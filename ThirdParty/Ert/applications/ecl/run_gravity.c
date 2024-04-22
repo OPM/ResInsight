@@ -815,7 +815,7 @@ static int gravity_check_input( const ecl_grid_type * ecl_grid ,
 
   /**
      Check that the rporv values are in the right ballpark.  For
-     ECLIPSE version 2008.2 they are way fucking off. Check PORV
+     ECLIPSE version 2008.2 they are way off. Check PORV
      versus RPORV for ten 'random' locations in the grid.
   */
   {

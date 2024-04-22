@@ -353,5 +353,5 @@ if (INSTALL_ERT)
    install(EXPORT ecl-config DESTINATION share/cmake/ecl)
 endif()
 
-export(TARGETS ecl FILE eclConfig.cmake)
-export(PACKAGE ecl)
+export(TARGETS resdata  FILE eclConfig.cmake)
+export(PACKAGE resdata)

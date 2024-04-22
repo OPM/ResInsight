@@ -199,10 +199,10 @@ if(RESINSIGHT_ENABLE_UNITY_BUILD)
 endif()
 
 # ##############################################################################
-# ERT
+# resdata
 # ##############################################################################
 
-# Use of CMAKE_CXX_COMPILER_LAUNCHER is not working with libecl. Disable by
+# Use of CMAKE_CXX_COMPILER_LAUNCHER is not working with resdata. Disable by
 # temporarily setting compiler launcher to nothing
 set(TEMP_CMAKE_CXX_COMPILER_LAUNCHER ${CMAKE_CXX_COMPILER_LAUNCHER})
 set(CMAKE_CXX_COMPILER_LAUNCHER)
@@ -237,7 +237,7 @@ if(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
   list(APPEND ERT_INCLUDE_DIRS ${RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT})
 
-  list(APPEND ERT_LIBRARIES ${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl.so)
+  list(APPEND ERT_LIBRARIES ${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/resdata.so)
 
 else()
 
@@ -279,35 +279,35 @@ else()
   endif()
 
   if(MSVC)
-    # libecl : Disable some warnings
+    # resdata : Disable some warnings
     set_target_properties(
-      ecl
+      resdata
       PROPERTIES
         COMPILE_FLAGS
         "/wd4244 /wd4267 /wd4013 /wd4190 /wd4018 /wd4477 /wd4098 /wd4293 /wd4305 /wd4020 /wd4028 /wd4715 /wd4245 /wd4804 /wd4100 /wd4456 /wd4458 /wd4090 /wd4297 /wd4701 /wd4101 /wd4702 /wd4457"
     )
   elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set_target_properties(
-      ecl
+      resdata
       PROPERTIES
         COMPILE_FLAGS
         "-Wno-deprecated -Wno-deprecated-declarations -Wno-sign-compare"
     )
   else()
     set_target_properties(
-      ecl
+      resdata
       PROPERTIES
         COMPILE_FLAGS
         "-Wno-deprecated -Wno-deprecated-declarations -Wno-clobbered -Wno-int-in-bool-context"
     )
 
     target_compile_options(
-      ecl PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-Wno-class-memaccess>
+      resdata PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-Wno-class-memaccess>
     )
 
   endif()
 
-  list(APPEND THIRD_PARTY_LIBRARIES ecl)
+  list(APPEND THIRD_PARTY_LIBRARIES resdata)
 
   set_property(TARGET catch2 PROPERTY FOLDER "Thirdparty")
 
@@ -316,7 +316,7 @@ else()
 
 endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
-# restore buildcache when libecl has been configured
+# restore buildcache when resdata has been configured
 set(CMAKE_CXX_COMPILER_LAUNCHER ${TEMP_CMAKE_CXX_COMPILER_LAUNCHER})
 
 # ##############################################################################
@@ -884,7 +884,7 @@ set(RESINSIGHT_INSTALL_FOLDER ".")
 
 # override system install prefix if private installation chosen
 option(RESINSIGHT_PRIVATE_INSTALL
-       "Linux only: Install the libecl shared libraries along the executable"
+       "Linux only: Install the resdata shared libraries along the executable"
        ON
 )
 mark_as_advanced(FORCE RESINSIGHT_PRIVATE_INSTALL)
@@ -898,9 +898,9 @@ if(RESINSIGHT_PRIVATE_INSTALL)
 
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(ERT_SHARED_LIB_FILES
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2.4
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libresdata.so
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libresdata.so.2
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libresdata.so.2.4
     )
     install(FILES ${ERT_SHARED_LIB_FILES}
             DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
@@ -909,9 +909,9 @@ if(RESINSIGHT_PRIVATE_INSTALL)
 
   if(APPLE)
     set(ERT_SHARED_LIB_FILES
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.dylib
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.2.dylib
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.2.4.dylib
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libresdata.dylib
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libresdata.2.dylib
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libresdata.2.4.dylib
     )
     install(
       FILES ${ERT_SHARED_LIB_FILES}

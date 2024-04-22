@@ -342,7 +342,7 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
 
     // Do not perform the transformation (applyMapaxes == false):
     // The coordinates have been transformed to the map axes coordinate system already.
-    // However, send the map axes data in to libecl so that the coordinate system description is saved.
+    // However, send the map axes data in to resdata so that the coordinate system description is saved.
     bool           applyMapaxes = false;
     ecl_grid_type* mainEclGrid =
         ecl_grid_alloc_GRID_data( (int)ecl_coords.size(), ecl_nx, ecl_ny, ecl_nz, 5, &ecl_coords[0], &ecl_corners[0], applyMapaxes, mapAxes.data() );
