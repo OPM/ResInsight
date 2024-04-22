@@ -1587,13 +1587,6 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultByResultTypeOrder( con
 //--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex )
 {
-    size_t scalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
-    if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T )
-    {
-        return cvf::UNDEFINED_SIZE_T;
-    }
-    if ( isDataPresent( scalarResultIndex ) ) return scalarResultIndex;
-
     RiaDefines::ResultCatType type       = resVarAddr.resultCatType();
     QString                   resultName = resVarAddr.resultName();
 
@@ -1622,6 +1615,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
         return completionTypeScalarResultIndex;
     }
 
+    size_t scalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
     if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T ) return cvf::UNDEFINED_SIZE_T;
 
     if ( type == RiaDefines::ResultCatType::GENERATED )
