@@ -898,9 +898,9 @@ if(RESINSIGHT_PRIVATE_INSTALL)
 
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(ERT_SHARED_LIB_FILES
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/resdata.so
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/resdata.so.2
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/resdata.so.2.4
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libresdata.so
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libresdata.so.2
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libresdata.so.2.4
     )
     install(FILES ${ERT_SHARED_LIB_FILES}
             DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
@@ -909,9 +909,9 @@ if(RESINSIGHT_PRIVATE_INSTALL)
 
   if(APPLE)
     set(ERT_SHARED_LIB_FILES
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/resdata.dylib
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/resdata.2.dylib
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/resdata.2.4.dylib
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libresdata.dylib
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libresdata.2.dylib
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libresdata.2.4.dylib
     )
     install(
       FILES ${ERT_SHARED_LIB_FILES}
