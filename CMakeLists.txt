@@ -307,7 +307,6 @@ else()
 
   endif()
 
-
   list(APPEND THIRD_PARTY_LIBRARIES resdata)
 
   set_property(TARGET catch2 PROPERTY FOLDER "Thirdparty")
@@ -1049,4 +1048,3 @@ if(RESINSIGHT_BUILD_DOCUMENTATION)
   # IF you do NOT want the documentation to be generated EVERY time you build
   # the project then leave out the 'ALL' keyword from the above command.
 endif(RESINSIGHT_BUILD_DOCUMENTATION)
-
