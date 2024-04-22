@@ -75,7 +75,7 @@ TEST( DISABLED_RifSummaryDataTest, LibEclAllData )
 
             auto                          end  = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> diff = end - start;
-            std::cout << "LibEcl : Open " << std::setw( 9 ) << diff.count() << " s\n";
+            std::cout << "resdata : Open " << std::setw( 9 ) << diff.count() << " s\n";
         }
 
         //     for ( auto adr : reader.allResultAddresses() )
@@ -101,7 +101,7 @@ TEST( DISABLED_RifSummaryDataTest, LibEclAllData )
 
             auto                          end  = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> diff = end - start;
-            std::cout << "LibEcl read data" << std::setw( 9 ) << totalValuesRead << "totalValueCount" << diff.count() << " s\n";
+            std::cout << "resdata read data" << std::setw( 9 ) << totalValuesRead << "totalValueCount" << diff.count() << " s\n";
         }
     }
 }

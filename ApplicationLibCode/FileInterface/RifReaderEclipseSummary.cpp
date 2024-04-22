@@ -68,7 +68,7 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
     // - else
     //   - create ESMRY file if defined in preference
     //   - use ESMRY reader
-    // - if no reader has been created, fallback to libecl
+    // - if no reader has been created, fallback to resdata
     //
     // H5
     // - if h5 file is present on disk
@@ -76,9 +76,9 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
     // - else
     //   - create h5 file if defined in preference
     //   - use h5 reader
-    // - if no reader has been created, fallback to libecl
+    // - if no reader has been created, fallback to resdata
     //
-    // For all import modes, use libecl to read data if no data is imported with ESMRY or h5
+    // For all import modes, use resdata to read data if no data is imported with ESMRY or h5
 
     RiaPreferencesSummary* prefSummary = RiaPreferencesSummary::current();
 
@@ -136,7 +136,7 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
         }
     }
 
-    // If no summary reader has been created, always try to read data using libecl
+    // If no summary reader has been created, always try to read data using resdata
     if ( !isValid )
     {
         auto libeclReader = std::make_unique<RifEclEclipseSummary>();

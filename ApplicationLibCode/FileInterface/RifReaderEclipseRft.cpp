@@ -68,7 +68,7 @@ void RifReaderEclipseRft::open()
 
     if ( m_ecl_rft_file == nullptr )
     {
-        RiaLogging::warning( QString( "Libecl could not find/open file '%1" ).arg( m_fileName ) );
+        RiaLogging::warning( QString( "resdata library could not find/open file '%1" ).arg( m_fileName ) );
         return;
     }
 
