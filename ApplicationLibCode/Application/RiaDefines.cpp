@@ -65,10 +65,10 @@ void caf::AppEnum<RiaDefines::DepthUnitType>::setUp()
 template <>
 void caf::AppEnum<RiaDefines::GridModelReader>::setUp()
 {
-    addItem( RiaDefines::GridModelReader::LIBECL, "LIBECL", "libecl" );
+    addItem( RiaDefines::GridModelReader::RESDATA, "RESDATA", "resdata", { "LIBECL" } );
     addItem( RiaDefines::GridModelReader::OPM_COMMON, "OPM_COMMON", "opm-common (beta)" );
 
-    setDefault( RiaDefines::GridModelReader::LIBECL );
+    setDefault( RiaDefines::GridModelReader::RESDATA );
 }
 
 template <>

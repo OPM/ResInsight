@@ -145,7 +145,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
             return false;
         }
 
-        if ( m_gridModelReader == RiaDefines::GridModelReader::LIBECL )
+        if ( m_gridModelReader == RiaDefines::GridModelReader::RESDATA )
         {
             auto readerEclipseOutput = new RifReaderEclipseOutput();
 
