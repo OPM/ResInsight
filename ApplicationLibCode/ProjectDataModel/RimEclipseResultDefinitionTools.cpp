@@ -20,6 +20,7 @@
 
 #include "RiaColorTables.h"
 #include "RiaColorTools.h"
+#include "RiaLogging.h"
 
 #include "RigAllanDiagramData.h"
 #include "RigCaseCellResultsData.h"
@@ -633,12 +634,6 @@ void RimEclipseResultDefinitionTools::updateCellResultLegend( const RimEclipseRe
                 std::iota( uniqueValues.begin(), uniqueValues.end(), 0 );
             }
 
-            cvf::Color3ubArray legendBaseColors = legendConfigToUpdate->colorLegend()->colorArray();
-
-            cvf::ref<caf::CategoryMapper> categoryMapper = new caf::CategoryMapper;
-            categoryMapper->setCategories( uniqueValues );
-            categoryMapper->setInterpolateColors( legendBaseColors );
-
             std::vector<int> visibleCategoryValues = uniqueValues;
 
             if ( resultDefinition->showOnlyVisibleCategoriesInLegend() )
@@ -658,6 +653,26 @@ void RimEclipseResultDefinitionTools::updateCellResultLegend( const RimEclipseRe
                     }
                 }
             }
+
+            const size_t maxCategoryCount = 500;
+            if ( legendConfigToUpdate->mappingMode() == RimRegularLegendConfig::MappingType::CATEGORY_INTEGER &&
+                 visibleCategoryValues.size() > maxCategoryCount )
+            {
+                QString txt = QString( "Detected %1 category values. Maximum number of categories is %2. Only the first %2 "
+                                       "categories will be displayed. Please use a different color mapping." )
+                                  .arg( visibleCategoryValues.size() )
+                                  .arg( maxCategoryCount );
+                RiaLogging::error( txt );
+
+                visibleCategoryValues.resize( maxCategoryCount );
+            }
+
+            cvf::Color3ubArray legendBaseColors = legendConfigToUpdate->colorLegend()->colorArray();
+
+            cvf::ref<caf::CategoryMapper> categoryMapper = new caf::CategoryMapper;
+            categoryMapper->setCategories( visibleCategoryValues );
+            categoryMapper->setInterpolateColors( legendBaseColors );
+
             std::vector<std::tuple<QString, int, cvf::Color3ub>> categoryVector;
 
             for ( auto value : visibleCategoryValues )
