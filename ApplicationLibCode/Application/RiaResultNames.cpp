@@ -102,6 +102,10 @@ bool RiaResultNames::isFlowResultWithBothPosAndNegValues( const QString& resultN
 //--------------------------------------------------------------------------------------------------
 bool RiaResultNames::isCategoryResult( const QString& resultName )
 {
+    static std::set<QString> excludedResultNames = { "FIPOIL", "FIPGAS", "FIPWAT" };
+
+    if ( excludedResultNames.find( resultName.toUpper() ) != excludedResultNames.end() ) return false;
+
     if ( resultName.endsWith( "NUM", Qt::CaseInsensitive ) ) return true;
     if ( resultName.startsWith( "FIP", Qt::CaseInsensitive ) ) return true;
 
