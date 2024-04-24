@@ -1617,11 +1617,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
 
     size_t scalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
     if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T ) return cvf::UNDEFINED_SIZE_T;
-
-    if ( type == RiaDefines::ResultCatType::GENERATED )
-    {
-        return cvf::UNDEFINED_SIZE_T;
-    }
+    if ( type == RiaDefines::ResultCatType::GENERATED ) return scalarResultIndex;
 
     if ( m_readerInterface.notNull() )
     {
