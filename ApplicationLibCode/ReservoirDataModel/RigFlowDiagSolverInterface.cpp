@@ -737,6 +737,28 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
         return retCurveArr;
     }
 
+    // For unknown reasons, the ECLSaturationFunc returns a KROG curve when there is no gas in the system.
+    // Remove invalid KROG curve if no KRG curve is present
+    // https://github.com/OPM/ResInsight/issues/11396
+
+    bool hasKRG = false;
+    for ( const RelPermCurve& curve : retCurveArr )
+    {
+        if ( curve.ident == RelPermCurve::KRG )
+        {
+            hasKRG = true;
+            break;
+        }
+    }
+
+    if ( !hasKRG )
+    {
+        retCurveArr.erase( std::remove_if( retCurveArr.begin(),
+                                           retCurveArr.end(),
+                                           []( const RelPermCurve& curve ) { return curve.ident == RelPermCurve::KROG; } ),
+                           retCurveArr.end() );
+    }
+
     return retCurveArr;
 }
 
