@@ -77,6 +77,7 @@ public:
 
     static std::vector<RimWellLogFile*> wellLogFilesContainingFlow( const QString& wellName );
     static RimWellPath*                 wellPathByWellPathNameOrSimWellName( const QString& wellPathNameOrSimwellName );
+    static std::vector<RimWellPath*>    wellPathsContainingFlow();
 
     // RFT Only
 private:

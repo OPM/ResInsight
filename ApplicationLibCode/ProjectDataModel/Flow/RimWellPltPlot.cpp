@@ -1031,18 +1031,11 @@ void RimWellPltPlot::syncSourcesIoFieldFromGuiField()
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::calculateValueOptionsForWells( QList<caf::PdmOptionItemInfo>& options )
 {
-    RimProject* proj = RimProject::current();
-
-    if ( proj != nullptr )
+    auto wellPathsContainingFlowData = RimWellPlotTools::wellPathsContainingFlow();
+    for ( const RimWellPath* const wellPath : wellPathsContainingFlowData )
     {
-        // Observed wells
-        for ( const RimWellPath* const wellPath : proj->allWellPaths() )
-        {
-            const QString wellName = wellPath->name();
-
-            if ( wellPath->wellPathGeometry() || RimWellPlotTools::hasFlowData( wellPath ) )
-                options.push_back( caf::PdmOptionItemInfo( wellName, wellName ) );
-        }
+        const QString wellName = wellPath->name();
+        options.push_back( caf::PdmOptionItemInfo( wellName, wellName ) );
     }
 
     options.push_back( caf::PdmOptionItemInfo( "None", "" ) );
