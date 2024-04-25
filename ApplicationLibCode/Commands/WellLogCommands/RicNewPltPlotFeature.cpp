@@ -19,6 +19,8 @@
 
 #include "RicNewPltPlotFeature.h"
 
+#include "RiaLogging.h"
+
 #include "RicNewWellLogPlotFeatureImpl.h"
 #include "RicWellLogPlotCurveFeatureImpl.h"
 
@@ -84,6 +86,15 @@ bool RicNewPltPlotFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewPltPlotFeature::onActionTriggered( bool isChecked )
 {
+    if ( RimWellPlotTools::wellPathsContainingFlow().empty() )
+    {
+        QString displayMessage =
+            "To create a PLT plot, either import a LAS file with observed production data or import a well path trajectory.";
+
+        RiaLogging::errorInMessageBox( nullptr, "No well data available to create a PLT plot", displayMessage );
+        return;
+    }
+
     RimPltPlotCollection* pltPlotColl = RimMainPlotCollection::current()->pltPlotCollection();
     if ( pltPlotColl )
     {
@@ -116,7 +127,6 @@ void RicNewPltPlotFeature::onActionTriggered( bool isChecked )
         pltPlot->nameConfig()->setCustomName( plotName );
         pltPlot->setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );
 
-        // pltPlot->applyInitialSelections();
         pltPlot->loadDataAndUpdate();
         pltPlotColl->updateConnectedEditors();
 

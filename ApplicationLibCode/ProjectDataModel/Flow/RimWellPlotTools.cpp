@@ -708,6 +708,20 @@ RimWellPath* RimWellPlotTools::wellPathByWellPathNameOrSimWellName( const QStrin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimWellPath*> RimWellPlotTools::wellPathsContainingFlow()
+{
+    std::vector<RimWellPath*> wellPaths;
+    for ( RimWellPath* wellPath : RimProject::current()->allWellPaths() )
+    {
+        if ( wellPath->wellPathGeometry() || RimWellPlotTools::hasFlowData( wellPath ) ) wellPaths.push_back( wellPath );
+    }
+
+    return wellPaths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWellPlotTools::simWellName( const QString& wellPathNameOrSimWellName )
 {
     RimWellPath* wellPath = wellPathByWellPathNameOrSimWellName( wellPathNameOrSimWellName );
