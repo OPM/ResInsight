@@ -2942,7 +2942,10 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                                    RigEclipseResultAddress( RiaDefines::ResultCatType::FORMATION_NAMES,
                                                                                             RiaResultNames::activeFormationNamesResultName() ) );
 
-            curveData = RimWellLogTrack::curveSamplingPointData( eclWellLogExtractor, resultAccessor.p() );
+            if ( resultAccessor.notNull() )
+            {
+                curveData = RimWellLogTrack::curveSamplingPointData( eclWellLogExtractor, resultAccessor.p() );
+            }
         }
         else
         {

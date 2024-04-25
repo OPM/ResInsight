@@ -23,6 +23,7 @@
 #include "RiuViewer.h"
 #include "RivContourMapProjectionPartMgr.h"
 
+#include "Polygons/RimPolygonInViewCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"
@@ -231,9 +232,10 @@ void RimEclipseContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
     cellResult()->uiCapability()->setUiReadOnly( m_contourMapProjection->isColumnResult() );
     uiTreeOrdering.add( wellCollection() );
     uiTreeOrdering.add( faultCollection() );
-    uiTreeOrdering.add( annotationCollection() );
     uiTreeOrdering.add( m_cellFilterCollection() );
     uiTreeOrdering.add( nativePropertyFilterCollection() );
+    uiTreeOrdering.add( m_polygonInViewCollection );
+    uiTreeOrdering.add( annotationCollection() );
 
     uiTreeOrdering.skipRemainingChildren();
 }

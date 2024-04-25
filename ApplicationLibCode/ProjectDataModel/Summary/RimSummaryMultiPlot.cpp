@@ -651,23 +651,24 @@ std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryMultiPlot::handleGlobalKeyEvent( QKeyEvent* keyEvent )
 {
-    if ( !RimSummaryPlotControls::handleKeyEvents( m_sourceStepping(), keyEvent ) )
+    bool isHandled = RimSummaryPlotControls::handleKeyEvents( m_sourceStepping(), keyEvent );
+
+    if ( !isHandled && isMouseCursorInsidePlot() )
     {
-        if ( isMouseCursorInsidePlot() )
+        if ( keyEvent->key() == Qt::Key_PageUp )
         {
-            if ( keyEvent->key() == Qt::Key_PageUp )
-            {
-                m_viewer->goToPrevPage();
-                return true;
-            }
-            else if ( keyEvent->key() == Qt::Key_PageDown )
-            {
-                m_viewer->goToNextPage();
-                return true;
-            }
+            m_viewer->goToPrevPage();
+            return true;
+        }
+
+        if ( keyEvent->key() == Qt::Key_PageDown )
+        {
+            m_viewer->goToNextPage();
+            return true;
         }
     }
-    return false;
+
+    return isHandled;
 }
 
 //--------------------------------------------------------------------------------------------------

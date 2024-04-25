@@ -22,6 +22,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigFemPartCollection.h"
 
+#include "Polygons/RimPolygonInView.h"
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellFilterCollection.h"
@@ -37,8 +38,7 @@
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechContourMapViewCollection.h"
 #include "RimGeoMechView.h"
-#include "RimOilField.h"
-#include "RimProject.h"
+#include "RimPolygonFilter.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimSurfaceInViewCollection.h"
@@ -276,6 +276,30 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
     contourMap->initAfterReadRecursively();
 
     eclipseCase->contourMapCollection()->updateConnectedEditors();
+
+    // Polygon cell filters are not working due to different organization of the project tree for Eclipse view and contour map view
+    // Manually assign pointers to polygon objects
+    //
+    // TODO: Find a more robust solution, perhaps introduce a root token making it possible to have a reference string pointing to objects
+    // relative root "$root$ PolygonCollection 0 Polygon 2"
+    // Make sure this concept works for geomech contour maps
+
+    auto sourceFilters      = sourceView->cellFilterCollection()->filters();
+    auto destinationFilters = contourMap->cellFilterCollection()->filters();
+    if ( sourceFilters.size() == destinationFilters.size() )
+    {
+        for ( size_t i = 0; i < sourceFilters.size(); ++i )
+        {
+            auto sourcePolygonFilter      = dynamic_cast<RimPolygonFilter*>( sourceFilters[i] );
+            auto destinationPolygonFilter = dynamic_cast<RimPolygonFilter*>( destinationFilters[i] );
+
+            if ( sourcePolygonFilter && sourcePolygonFilter->polygonInView() && destinationPolygonFilter )
+            {
+                destinationPolygonFilter->setPolygon( sourcePolygonFilter->polygonInView()->polygon() );
+                destinationPolygonFilter->configurePolygonEditor();
+            }
+        }
+    }
 
     return contourMap;
 }
