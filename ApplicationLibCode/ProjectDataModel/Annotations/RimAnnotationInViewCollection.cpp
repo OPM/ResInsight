@@ -26,14 +26,12 @@
 #include "RimCase.h"
 #include "RimGridView.h"
 #include "RimPolylinesFromFileAnnotation.h"
-#include "RimPolylinesFromFileAnnotationInView.h"
 #include "RimProject.h"
 #include "RimReachCircleAnnotation.h"
 #include "RimReachCircleAnnotationInView.h"
 #include "RimTextAnnotation.h"
 #include "RimTextAnnotationInView.h"
 #include "RimUserDefinedPolylinesAnnotation.h"
-#include "RimUserDefinedPolylinesAnnotationInView.h"
 
 #include <cvfBoundingBox.h>
 
@@ -56,18 +54,6 @@ caf::PdmObject* sourcePdmAnnotation( const caf::PdmObject* annotationInView )
         return c->sourceAnnotation();
     }
 
-    auto up = dynamic_cast<const RimUserDefinedPolylinesAnnotationInView*>( annotationInView );
-    if ( up )
-    {
-        return up->sourceAnnotation();
-    }
-
-    auto pf = dynamic_cast<const RimPolylinesFromFileAnnotationInView*>( annotationInView );
-    if ( pf )
-    {
-        return pf->sourceAnnotation();
-    }
-
     return nullptr;
 }
 
@@ -88,29 +74,16 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_globalTextAnnotations, "TextAnnotationsInView", "Global Text Annotations" );
     CAF_PDM_InitFieldNoDefault( &m_globalReachCircleAnnotations, "ReachCircleAnnotationsInView", "Global Reach Circle Annotations" );
-    CAF_PDM_InitFieldNoDefault( &m_globalUserDefinedPolylineAnnotations,
-                                "UserDefinedPolylinesAnnotationsInView",
-                                "Global User Defined Polylines Annotations" );
-    CAF_PDM_InitFieldNoDefault( &m_globalPolylineFromFileAnnotations,
-                                "PolylinesFromFileAnnotationsInView",
-                                "Global Polylines From File Annotations" );
-
     CAF_PDM_InitFieldNoDefault( &m_annotationFontSize, "AnnotationFontSize", "Default Font Size" );
 
-    m_globalTextAnnotations                = new RimAnnotationGroupCollection();
-    m_globalReachCircleAnnotations         = new RimAnnotationGroupCollection();
-    m_globalUserDefinedPolylineAnnotations = new RimAnnotationGroupCollection();
-    m_globalPolylineFromFileAnnotations    = new RimAnnotationGroupCollection();
+    m_globalTextAnnotations        = new RimAnnotationGroupCollection();
+    m_globalReachCircleAnnotations = new RimAnnotationGroupCollection();
 
     m_globalTextAnnotations->uiCapability()->setUiName( "Global Text Annotations" );
     m_globalReachCircleAnnotations->uiCapability()->setUiName( "Global Reach Circle Annotations" );
-    m_globalUserDefinedPolylineAnnotations->uiCapability()->setUiName( "Global User Defined Polylines Annotations" );
-    m_globalPolylineFromFileAnnotations->uiCapability()->setUiName( "Global Polylines From File Annotations" );
 
     m_globalTextAnnotations->uiCapability()->setUiIconFromResourceString( ":/TextAnnotation16x16.png" );
     m_globalReachCircleAnnotations->uiCapability()->setUiIconFromResourceString( ":/ReachCircle16x16.png" );
-    m_globalUserDefinedPolylineAnnotations->uiCapability()->setUiIconFromResourceString( ":/PolylinesFromFile16x16.png" );
-    m_globalPolylineFromFileAnnotations->uiCapability()->setUiIconFromResourceString( ":/PolylinesFromFile16x16.png" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,32 +131,6 @@ std::vector<RimReachCircleAnnotationInView*> RimAnnotationInViewCollection::glob
     for ( auto& a : m_globalReachCircleAnnotations->annotations() )
     {
         annotations.push_back( dynamic_cast<RimReachCircleAnnotationInView*>( a ) );
-    }
-    return annotations;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimUserDefinedPolylinesAnnotationInView*> RimAnnotationInViewCollection::globalUserDefinedPolylineAnnotations() const
-{
-    std::vector<RimUserDefinedPolylinesAnnotationInView*> annotations;
-    for ( auto& a : m_globalUserDefinedPolylineAnnotations->annotations() )
-    {
-        annotations.push_back( dynamic_cast<RimUserDefinedPolylinesAnnotationInView*>( a ) );
-    }
-    return annotations;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimPolylinesFromFileAnnotationInView*> RimAnnotationInViewCollection::globalPolylineFromFileAnnotations() const
-{
-    std::vector<RimPolylinesFromFileAnnotationInView*> annotations;
-    for ( auto& a : m_globalPolylineFromFileAnnotations->annotations() )
-    {
-        annotations.push_back( dynamic_cast<RimPolylinesFromFileAnnotationInView*>( a ) );
     }
     return annotations;
 }
@@ -305,10 +252,6 @@ std::vector<caf::PdmObject*> RimAnnotationInViewCollection::allGlobalPdmAnnotati
     std::vector<caf::PdmObject*> all;
     all.insert( all.end(), m_globalTextAnnotations->m_annotations.begin(), m_globalTextAnnotations->m_annotations.end() );
     all.insert( all.end(), m_globalReachCircleAnnotations->m_annotations.begin(), m_globalReachCircleAnnotations->m_annotations.end() );
-    all.insert( all.end(),
-                m_globalUserDefinedPolylineAnnotations->m_annotations.begin(),
-                m_globalUserDefinedPolylineAnnotations->m_annotations.end() );
-    all.insert( all.end(), m_globalPolylineFromFileAnnotations->m_annotations.begin(), m_globalPolylineFromFileAnnotations->m_annotations.end() );
     return all;
 }
 
@@ -328,20 +271,6 @@ void RimAnnotationInViewCollection::addGlobalAnnotation( caf::PdmObject* annotat
     if ( c )
     {
         m_globalReachCircleAnnotations->addAnnotation( new RimReachCircleAnnotationInView( c ) );
-        return;
-    }
-
-    auto up = dynamic_cast<RimUserDefinedPolylinesAnnotation*>( annotation );
-    if ( up )
-    {
-        m_globalUserDefinedPolylineAnnotations->addAnnotation( new RimUserDefinedPolylinesAnnotationInView( up ) );
-        return;
-    }
-
-    auto pf = dynamic_cast<RimPolylinesFromFileAnnotation*>( annotation );
-    if ( pf )
-    {
-        m_globalPolylineFromFileAnnotations->addAnnotation( new RimPolylinesFromFileAnnotationInView( pf ) );
         return;
     }
 }
@@ -365,24 +294,6 @@ void RimAnnotationInViewCollection::deleteGlobalAnnotation( const caf::PdmObject
         if ( m_globalReachCircleAnnotations->m_annotations[i] == annotation )
         {
             m_globalReachCircleAnnotations->m_annotations.erase( i );
-            return;
-        }
-    }
-
-    for ( size_t i = 0; i < m_globalUserDefinedPolylineAnnotations->m_annotations.size(); i++ )
-    {
-        if ( m_globalUserDefinedPolylineAnnotations->m_annotations[i] == annotation )
-        {
-            m_globalUserDefinedPolylineAnnotations->m_annotations.erase( i );
-            return;
-        }
-    }
-
-    for ( size_t i = 0; i < m_globalPolylineFromFileAnnotations->m_annotations.size(); i++ )
-    {
-        if ( m_globalPolylineFromFileAnnotations->m_annotations[i] == annotation )
-        {
-            m_globalPolylineFromFileAnnotations->m_annotations.erase( i );
             return;
         }
     }

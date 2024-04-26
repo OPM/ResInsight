@@ -1083,8 +1083,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicCreateTextAnnotationFeature";
             menuBuilder << "RicCreateReachCircleAnnotationFeature";
-            menuBuilder << "RicCreateUserDefinedPolylinesAnnotationFeature";
-            menuBuilder << "RicImportPolylinesAnnotationFeature";
         }
         else if ( dynamic_cast<RimAnnotationInViewCollection*>( firstUiItem ) )
         {

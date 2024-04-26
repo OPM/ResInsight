@@ -52,10 +52,8 @@ public:
     double annotationPlaneZ() const;
     bool   snapAnnotations() const;
 
-    std::vector<RimTextAnnotationInView*>                 globalTextAnnotations() const;
-    std::vector<RimReachCircleAnnotationInView*>          globalReachCircleAnnotations() const;
-    std::vector<RimUserDefinedPolylinesAnnotationInView*> globalUserDefinedPolylineAnnotations() const;
-    std::vector<RimPolylinesFromFileAnnotationInView*>    globalPolylineFromFileAnnotations() const;
+    std::vector<RimTextAnnotationInView*>        globalTextAnnotations() const;
+    std::vector<RimReachCircleAnnotationInView*> globalReachCircleAnnotations() const;
 
     void onGlobalCollectionChanged( const RimAnnotationCollection* globalCollection );
 
@@ -80,6 +78,4 @@ private:
     caf::PdmField<caf::FontTools::RelativeSizeEnum>   m_annotationFontSize;
     caf::PdmChildField<RimAnnotationGroupCollection*> m_globalTextAnnotations;
     caf::PdmChildField<RimAnnotationGroupCollection*> m_globalReachCircleAnnotations;
-    caf::PdmChildField<RimAnnotationGroupCollection*> m_globalUserDefinedPolylineAnnotations;
-    caf::PdmChildField<RimAnnotationGroupCollection*> m_globalPolylineFromFileAnnotations;
 };

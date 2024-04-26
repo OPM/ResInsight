@@ -24,10 +24,6 @@
 #include "RimAnnotationInViewCollection.h"
 #include "RimProject.h"
 
-#include "RimPolylinesFromFileAnnotationInView.h"
-#include "RimUserDefinedPolylinesAnnotationInView.h"
-
-#include "RivPolylinePartMgr.h"
 #include "RivReachCircleAnnotationPartMgr.h"
 #include "RivTextAnnotationPartMgr.h"
 
@@ -65,10 +61,6 @@ void RivAnnotationsPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList*    
     {
         partMgr->appendDynamicGeometryPartsToModel( model, displayCoordTransform, boundingBox );
     }
-    for ( auto& partMgr : m_polylineAnnotationPartMgrs )
-    {
-        partMgr->appendDynamicGeometryPartsToModel( model, displayCoordTransform, boundingBox );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,11 +73,9 @@ void RivAnnotationsPartMgr::createAnnotationPartManagers()
     if ( colls.empty() ) return;
     auto coll = colls.front();
 
-    auto localTextAnnotations           = coll->textAnnotations();
-    auto textAnnotations                = coll->globalTextAnnotations();
-    auto reachCircleAnnotations         = coll->globalReachCircleAnnotations();
-    auto userDefinedPolylineAnnotations = coll->globalUserDefinedPolylineAnnotations();
-    auto polylineFromFileAnnotations    = coll->globalPolylineFromFileAnnotations();
+    auto localTextAnnotations   = coll->textAnnotations();
+    auto textAnnotations        = coll->globalTextAnnotations();
+    auto reachCircleAnnotations = coll->globalReachCircleAnnotations();
 
     clearGeometryCache();
 
@@ -110,19 +100,6 @@ void RivAnnotationsPartMgr::createAnnotationPartManagers()
             m_reachCircleAnnotationPartMgrs.push_back( apm );
         }
     }
-    if ( m_polylineAnnotationPartMgrs.size() != userDefinedPolylineAnnotations.size() + polylineFromFileAnnotations.size() )
-    {
-        for ( auto annotation : userDefinedPolylineAnnotations )
-        {
-            auto* apm = new RivPolylinePartMgr( m_rimView, annotation, coll );
-            m_polylineAnnotationPartMgrs.push_back( apm );
-        }
-        for ( auto annotation : polylineFromFileAnnotations )
-        {
-            auto* apm = new RivPolylinePartMgr( m_rimView, annotation, coll );
-            m_polylineAnnotationPartMgrs.push_back( apm );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,5 +109,4 @@ void RivAnnotationsPartMgr::clearGeometryCache()
 {
     m_textAnnotationPartMgrs.clear();
     m_reachCircleAnnotationPartMgrs.clear();
-    m_polylineAnnotationPartMgrs.clear();
 }
