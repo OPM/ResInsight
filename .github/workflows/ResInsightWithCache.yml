@@ -185,18 +185,6 @@ jobs:
             "${{ github.workspace }}/ThirdParty/vcpkg"
           appendedCacheKey: ${{ matrix.config.os }}-${{ matrix.config.cxx }}-cache-key-v2
 
-      - name: Cache dynamic version of OpenSSL (Linux)
-        if: contains( matrix.config.os, 'ubuntu_disabled')
-        uses: actions/cache@v4
-        with:
-          path: ${{ github.workspace }}/ThirdParty/vcpkg/installed/x64-linux-dynamic
-          key: ${{ matrix.config.os }}-vcpkg-x64-linux-dynamic_v05
-
-      - name: Install dynamic version of OpenSSL (Linux)
-        if: contains( matrix.config.os, 'ubuntu')
-        run: |
-          $VCPKG_ROOT/vcpkg install --overlay-triplets=${{ github.workspace }}/ThirdParty/vcpkg-custom-triplets --triplet x64-linux-dynamic openssl
-
       - name: Configure
         shell: cmake -P {0}
         run: |
@@ -209,7 +197,6 @@ jobs:
               -B cmakebuild
               -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
               -D CMAKE_INSTALL_PREFIX=cmakebuild/install
-              -D RESINSIGHT_BUNDLE_OPENSSL=true
               -D RESINSIGHT_QT5_BUNDLE_LIBRARIES=true
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
