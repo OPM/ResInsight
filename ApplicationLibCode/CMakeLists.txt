@@ -37,6 +37,7 @@ if(Qt5Core_FOUND)
                Concurrent
                PrintSupport
                Svg
+               Sql
     OPTIONAL_COMPONENTS Charts
   )
   set(QT_LIBRARIES
@@ -49,6 +50,7 @@ if(Qt5Core_FOUND)
       Qt5::Concurrent
       Qt5::PrintSupport
       Qt5::Svg
+      Qt5::Sql
   )
   if(Qt5Charts_FOUND)
     list(APPEND QT_LIBRARIES Qt5::Charts)
