@@ -140,6 +140,8 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &m_loggerFlushInterval, "loggerFlushInterval", 500, "Logging Flush Interval [ms]" );
     CAF_PDM_InitField( &m_loggerTrapSignalAndFlush, "loggerTrapSignalAndFlush", false, "Trap SIGNAL and Flush File Logs" );
 
+    CAF_PDM_InitField( &m_storeBackupOfProjectFile, "storeBackupOfProjectFile", true, "Store Backup of Project Files" );
+
     CAF_PDM_InitField( &ssihubAddress, "ssihubAddress", QString( "http://" ), "SSIHUB Address" );
     ssihubAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
@@ -477,7 +479,8 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         otherGroup->add( &m_gridCalculationExpressionFolder );
         otherGroup->add( &m_summaryCalculationExpressionFolder );
 
-        caf::PdmUiGroup* loggingGroup = uiOrdering.addNewGroup( "Logging" );
+        caf::PdmUiGroup* loggingGroup = uiOrdering.addNewGroup( "Logging and Backup" );
+        loggingGroup->add( &m_storeBackupOfProjectFile );
         loggingGroup->add( &m_loggerFilename );
         loggingGroup->add( &m_loggerFlushInterval );
         loggingGroup->add( &m_loggerTrapSignalAndFlush );
@@ -981,6 +984,14 @@ int RiaPreferences::loggerFlushInterval() const
 bool RiaPreferences::loggerTrapSignalAndFlush() const
 {
     return m_loggerTrapSignalAndFlush();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::storeBackupOfProjectFiles() const
+{
+    return m_storeBackupOfProjectFile();
 }
 
 //--------------------------------------------------------------------------------------------------

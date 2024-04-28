@@ -413,8 +413,7 @@ bool RimProject::writeProjectFile()
     QString content = documentAsString();
     xmlFile.write( content.toUtf8() );
 
-    bool createBackup = true;
-    if ( createBackup )
+    if ( RiaPreferences::current()->storeBackupOfProjectFiles() )
     {
         QString backupFilename = fileName + "db";
         RiaProjectBackupTools::appendTextToDatabase( backupFilename, content );

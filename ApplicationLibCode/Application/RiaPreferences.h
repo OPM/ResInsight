@@ -120,6 +120,7 @@ public:
     QString loggerFilename() const;
     int     loggerFlushInterval() const;
     bool    loggerTrapSignalAndFlush() const;
+    bool    storeBackupOfProjectFiles() const;
 
     RiaPreferencesGeoMech* geoMechPreferences() const;
     RiaPreferencesSummary* summaryPreferences() const;
@@ -211,6 +212,8 @@ private:
     caf::PdmField<std::pair<bool, QString>> m_loggerFilename;
     caf::PdmField<int>                      m_loggerFlushInterval;
     caf::PdmField<bool>                     m_loggerTrapSignalAndFlush;
+
+    caf::PdmField<bool> m_storeBackupOfProjectFile;
 
     // Surface Import
     caf::PdmField<double> m_surfaceImportResamplingDistance;
