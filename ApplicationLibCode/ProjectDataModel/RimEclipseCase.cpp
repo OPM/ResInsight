@@ -279,31 +279,28 @@ void RimEclipseCase::initAfterRead()
 {
     RimCase::initAfterRead();
 
-    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2024.03.0" ) )
+    // Move views to view collection.
+    RimEclipseViewCollection* viewColl = viewCollection();
+    for ( RimEclipseView* riv : m_reservoirViews_OBSOLETE.childrenByType() )
     {
-        // Move views to view collection.
-        RimEclipseViewCollection* viewColl = viewCollection();
-        for ( RimEclipseView* riv : m_reservoirViews_OBSOLETE.childrenByType() )
-        {
-            CVF_ASSERT( riv );
-            riv->setEclipseCase( this );
-            m_reservoirViews_OBSOLETE.removeChild( riv );
-            viewColl->addView( riv );
-        }
-
-        m_reservoirViews_OBSOLETE.clearWithoutDelete();
-
-        // Move contour maps
-        auto mapViewColl = contourMapCollection();
-        for ( RimEclipseContourMapView* contourMap : m_contourMapCollection_OBSOLETE->views() )
-        {
-            contourMap->setEclipseCase( this );
-            m_contourMapCollection_OBSOLETE->removeChild( contourMap );
-            mapViewColl->addView( contourMap );
-        }
-
-        m_contourMapCollection_OBSOLETE->clearWithoutDelete();
+        CVF_ASSERT( riv );
+        riv->setEclipseCase( this );
+        m_reservoirViews_OBSOLETE.removeChild( riv );
+        viewColl->addView( riv );
     }
+
+    m_reservoirViews_OBSOLETE.clearWithoutDelete();
+
+    // Move contour maps
+    auto mapViewColl = contourMapCollection();
+    for ( RimEclipseContourMapView* contourMap : m_contourMapCollection_OBSOLETE->views() )
+    {
+        contourMap->setEclipseCase( this );
+        m_contourMapCollection_OBSOLETE->removeChild( contourMap );
+        mapViewColl->addView( contourMap );
+    }
+
+    m_contourMapCollection_OBSOLETE->clearWithoutDelete();
 }
 
 //--------------------------------------------------------------------------------------------------
