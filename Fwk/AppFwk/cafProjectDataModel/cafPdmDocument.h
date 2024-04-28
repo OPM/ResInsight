@@ -57,6 +57,8 @@ public:
     void readFile();
     bool writeFile();
 
+    QString documentAsString();
+
     void readFile( QIODevice* device );
     void writeFile( QIODevice* device );
 

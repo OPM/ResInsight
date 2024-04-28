@@ -407,24 +407,22 @@ bool RimProject::writeProjectFile()
 {
     transferPathsToGlobalPathList();
 
-    bool couldOpenFile = writeFile();
+    QFile xmlFile( fileName );
+    if ( !xmlFile.open( QIODevice::WriteOnly | QIODevice::Text ) ) return false;
+
+    QString content = documentAsString();
+    xmlFile.write( content.toUtf8() );
 
     bool createBackup = true;
     if ( createBackup )
     {
-        QFile xmlFile( fileName );
-        if ( xmlFile.open( QIODevice::ReadOnly | QIODevice::Text ) )
-        {
-            QString content = xmlFile.readAll();
-
-            QString backupFilename = fileName + "db";
-            RiaProjectBackupTools::appendTextToDatabase( backupFilename, content );
-        }
+        QString backupFilename = fileName + "db";
+        RiaProjectBackupTools::appendTextToDatabase( backupFilename, content );
     }
 
     distributePathsFromGlobalPathList();
 
-    return couldOpenFile;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

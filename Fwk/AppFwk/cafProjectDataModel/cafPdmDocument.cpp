@@ -107,22 +107,46 @@ bool PdmDocument::writeFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+auto writeDocumentToXmlStream = []( QXmlStreamWriter& xmlStream, const PdmDocument& document )
+{
+    xmlStream.setAutoFormatting( true );
+
+    xmlStream.writeStartDocument();
+    QString className = document.classKeyword();
+
+    xmlStream.writeStartElement( "", className );
+    document.writeFields( xmlStream );
+    xmlStream.writeEndElement();
+
+    xmlStream.writeEndDocument();
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void PdmDocument::writeFile( QIODevice* xmlFile )
 {
     // Ask all objects to make them ready to write themselves to file
     setupBeforeSaveRecursively();
 
     QXmlStreamWriter xmlStream( xmlFile );
-    xmlStream.setAutoFormatting( true );
+    writeDocumentToXmlStream( xmlStream, *this );
+}
 
-    xmlStream.writeStartDocument();
-    QString className = classKeyword();
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString PdmDocument::documentAsString()
+{
+    // Ask all objects to make them ready to write themselves to file
+    setupBeforeSaveRecursively();
 
-    xmlStream.writeStartElement( "", className );
-    writeFields( xmlStream );
-    xmlStream.writeEndElement();
+    QString content;
 
-    xmlStream.writeEndDocument();
+    QXmlStreamWriter xmlStream( &content );
+    writeDocumentToXmlStream( xmlStream, *this );
+
+    return content;
 }
 
 //--------------------------------------------------------------------------------------------------
