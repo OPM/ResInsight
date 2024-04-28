@@ -23,6 +23,7 @@
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QVariant>
 
 namespace RiaProjectBackupTools
 {
