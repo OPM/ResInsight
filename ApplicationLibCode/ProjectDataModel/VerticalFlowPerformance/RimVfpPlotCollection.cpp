@@ -29,6 +29,8 @@
 #include "RimProject.h"
 #include "RimVfpPlot.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
+
 CAF_PDM_SOURCE_INIT( RimVfpPlotCollection, "RimVfpPlotCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -95,4 +97,12 @@ void RimVfpPlotCollection::removePlot( RimVfpPlot* vfpPlot )
 {
     m_vfpPlots.removeChild( vfpPlot );
     updateAllRequiredEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlotCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicNewVfpPlotFeature";
 }

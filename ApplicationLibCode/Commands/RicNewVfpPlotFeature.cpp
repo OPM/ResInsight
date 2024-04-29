@@ -23,11 +23,11 @@
 
 #include "RimMainPlotCollection.h"
 #include "RimSimWellInView.h"
-#include "RimVfpPlot.h"
-#include "RimVfpPlotCollection.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
+#include "VerticalFlowPerformance/RimVfpPlot.h"
+#include "VerticalFlowPerformance/RimVfpPlotCollection.h"
 
 #include "RiuFileDialogTools.h"
 #include "RiuPlotMainWindow.h"

@@ -49,7 +49,6 @@
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryTableCollection.h"
-#include "RimVfpPlotCollection.h"
 #include "RimViewWindow.h"
 #include "RimWellAllocationOverTimePlot.h"
 #include "RimWellAllocationPlot.h"
@@ -58,6 +57,7 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
+#include "VerticalFlowPerformance/RimVfpPlotCollection.h"
 
 #ifdef USE_QTCHARTS
 #include "RimEnsembleFractureStatisticsPlot.h"

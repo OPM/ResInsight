@@ -148,7 +148,6 @@
 #include "RimSurfaceCollection.h"
 #include "RimValveTemplate.h"
 #include "RimValveTemplateCollection.h"
-#include "RimVfpPlotCollection.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
@@ -586,10 +585,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimPltPlotCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicNewPltPlotFeature";
-        }
-        else if ( dynamic_cast<RimVfpPlotCollection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicNewVfpPlotFeature";
         }
         else if ( dynamic_cast<RimSummaryMultiPlotCollection*>( firstUiItem ) )
         {
