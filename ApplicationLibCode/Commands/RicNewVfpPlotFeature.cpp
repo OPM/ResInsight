@@ -26,6 +26,8 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
+
+#include "VerticalFlowPerformance/RimVfpDeck.h"
 #include "VerticalFlowPerformance/RimVfpPlot.h"
 #include "VerticalFlowPerformance/RimVfpPlotCollection.h"
 
@@ -56,6 +58,9 @@ bool RicNewVfpPlotFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewVfpPlotFeature::onActionTriggered( bool isChecked )
 {
+    RimVfpPlotCollection* vfpPlotColl = RimMainPlotCollection::current()->vfpPlotCollection();
+    if ( !vfpPlotColl ) return;
+
     RiaApplication*    app = RiaGuiApplication::instance();
     RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
 
@@ -68,11 +73,17 @@ void RicNewVfpPlotFeature::onActionTriggered( bool isChecked )
 
     app->setLastUsedDialogDirectory( vfpDataKey, QFileInfo( fileNames.last() ).absolutePath() );
 
-    RimVfpPlotCollection* vfpPlotColl = RimMainPlotCollection::current()->vfpPlotCollection();
-    if ( vfpPlotColl )
+    std::vector<RimVfpPlot*> vfpPlots;
+    std::vector<RimVfpDeck*> vfpDecks;
+
+    for ( const auto& fileName : fileNames )
     {
-        std::vector<RimVfpPlot*> vfpPlots;
-        for ( const auto& fileName : fileNames )
+        if ( fileName.contains( ".DATA" ) )
+        {
+            RimVfpDeck* vfpDeck = vfpPlotColl->addDeck( fileName );
+            vfpDecks.push_back( vfpDeck );
+        }
+        else
         {
             RimVfpPlot* vfpPlot = new RimVfpPlot();
             vfpPlot->setFileName( fileName );
@@ -80,20 +91,25 @@ void RicNewVfpPlotFeature::onActionTriggered( bool isChecked )
 
             vfpPlots.push_back( vfpPlot );
         }
+    }
 
-        vfpPlotColl->updateConnectedEditors();
+    vfpPlotColl->updateConnectedEditors();
 
-        for ( auto plot : vfpPlots )
-        {
-            plot->loadDataAndUpdate();
-        }
+    for ( auto deck : vfpDecks )
+    {
+        deck->loadDataAndUpdate();
+    }
 
-        RiuPlotMainWindowTools::showPlotMainWindow();
+    for ( auto plot : vfpPlots )
+    {
+        plot->loadDataAndUpdate();
+    }
 
-        if ( !vfpPlots.empty() )
-        {
-            RiuPlotMainWindowTools::onObjectAppended( vfpPlots.front() );
-        }
+    RiuPlotMainWindowTools::showPlotMainWindow();
+
+    if ( !vfpPlots.empty() )
+    {
+        RiuPlotMainWindowTools::onObjectAppended( vfpPlots.front() );
     }
 }
 

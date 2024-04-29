@@ -137,8 +137,9 @@ RimVfpPlot::RimVfpPlot()
     CAF_PDM_InitField( &m_gasLiquidRatioIdx, "GasLiquidRatioIdx", 0, "Gas Liquid Ratio" );
     m_gasLiquidRatioIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    m_showWindow      = true;
-    m_showPlotLegends = true;
+    m_showWindow       = true;
+    m_showPlotLegends  = true;
+    m_readDataFromFile = true;
 
     setAsPlotMdiWindow();
 
@@ -355,6 +356,32 @@ void RimVfpPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimVfpPlot::setProductionTable( const Opm::VFPProdTable& table )
+{
+    m_prodTable = std::make_unique<Opm::VFPProdTable>( table );
+    m_injectionTable.reset();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlot::setInjectionTable( const Opm::VFPInjTable& table )
+{
+    m_prodTable.reset();
+    m_injectionTable = std::make_unique<Opm::VFPInjTable>( table );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlot::setReadDataFromFile( bool readDataFromFile )
+{
+    m_readDataFromFile = readDataFromFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimVfpPlot::doRemoveFromCollection()
 {
 }
@@ -423,45 +450,60 @@ void RimVfpPlot::onLoadDataAndUpdate()
 
     updateLegend();
 
-    QString filePath = m_filePath.v().path();
-    if ( !filePath.isEmpty() )
-    {
-        QFileInfo fi( filePath );
-        QString   wellName = fi.baseName();
+    QString wellName;
 
-        // Try to read the file as an prod table first (most common)
-        const std::vector<Opm::VFPProdTable> tables = RiaOpmParserTools::extractVfpProductionTables( filePath.toStdString() );
-        if ( !tables.empty() )
+    if ( m_readDataFromFile )
+    {
+        QString filePath = m_filePath.v().path();
+        if ( !filePath.isEmpty() )
         {
-            m_prodTable            = std::make_unique<Opm::VFPProdTable>( tables[0] );
-            m_tableType            = RimVfpDefines::TableType::PRODUCTION;
-            m_tableNumber          = tables[0].getTableNum();
-            m_referenceDepth       = tables[0].getDatumDepth();
-            m_flowingPhase         = getFlowingPhaseType( tables[0] );
-            m_flowingGasFraction   = getFlowingGasFractionType( tables[0] );
-            m_flowingWaterFraction = getFlowingWaterFractionType( tables[0] );
-            populatePlotWidgetWithCurveData( m_plotWidget, tables[0], m_primaryVariable(), m_familyVariable() );
-        }
-        else
-        {
-            const std::vector<Opm::VFPInjTable> tables = RiaOpmParserTools::extractVfpInjectionTables( filePath.toStdString() );
+            QFileInfo fi( filePath );
+            wellName = fi.baseName();
+
+            // Try to read the file as an prod table first (most common)
+            const std::vector<Opm::VFPProdTable> tables = RiaOpmParserTools::extractVfpProductionTables( filePath.toStdString() );
             if ( !tables.empty() )
             {
-                m_injectionTable = std::make_unique<Opm::VFPInjTable>( tables[0] );
-                m_tableType      = RimVfpDefines::TableType::INJECTION;
-                m_tableNumber    = tables[0].getTableNum();
-                m_referenceDepth = tables[0].getDatumDepth();
-                m_flowingPhase   = getFlowingPhaseType( tables[0] );
-                populatePlotWidgetWithCurveData( m_plotWidget, tables[0] );
+                setProductionTable( tables[0] );
+            }
+            else
+            {
+                const std::vector<Opm::VFPInjTable> tables = RiaOpmParserTools::extractVfpInjectionTables( filePath.toStdString() );
+                if ( !tables.empty() )
+                {
+                    setInjectionTable( tables[0] );
+                }
             }
         }
-
-        updatePlotTitle(
-            generatePlotTitle( wellName, m_tableNumber(), m_tableType(), m_interpolatedVariable(), m_primaryVariable(), m_familyVariable() ) );
-
-        m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
-        m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
     }
+
+    if ( m_prodTable )
+    {
+        auto table             = *m_prodTable;
+        m_tableType            = RimVfpDefines::TableType::PRODUCTION;
+        m_tableNumber          = table.getTableNum();
+        m_referenceDepth       = table.getDatumDepth();
+        m_flowingPhase         = getFlowingPhaseType( table );
+        m_flowingGasFraction   = getFlowingGasFractionType( table );
+        m_flowingWaterFraction = getFlowingWaterFractionType( table );
+        populatePlotWidgetWithCurveData( m_plotWidget, table, m_primaryVariable(), m_familyVariable() );
+    }
+    else if ( m_injectionTable )
+    {
+        auto table = *m_injectionTable;
+
+        m_tableType      = RimVfpDefines::TableType::INJECTION;
+        m_tableNumber    = table.getTableNum();
+        m_referenceDepth = table.getDatumDepth();
+        m_flowingPhase   = getFlowingPhaseType( table );
+        populatePlotWidgetWithCurveData( m_plotWidget, table );
+    }
+
+    updatePlotTitle(
+        generatePlotTitle( wellName, m_tableNumber(), m_tableType(), m_interpolatedVariable(), m_primaryVariable(), m_familyVariable() ) );
+
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
 
     m_plotWidget->scheduleReplot();
 }
@@ -765,36 +807,33 @@ void RimVfpPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiO
 {
     uiOrdering.add( &m_filePath );
 
-    if ( !m_filePath.v().path().isEmpty() )
+    uiOrdering.add( &m_tableType );
+    uiOrdering.add( &m_tableNumber );
+    uiOrdering.add( &m_referenceDepth );
+    uiOrdering.add( &m_interpolatedVariable );
+    uiOrdering.add( &m_flowingPhase );
+
+    if ( m_tableType == RimVfpDefines::TableType::PRODUCTION )
     {
-        uiOrdering.add( &m_tableType );
-        uiOrdering.add( &m_tableNumber );
-        uiOrdering.add( &m_referenceDepth );
-        uiOrdering.add( &m_interpolatedVariable );
-        uiOrdering.add( &m_flowingPhase );
+        uiOrdering.add( &m_flowingWaterFraction );
+        uiOrdering.add( &m_flowingGasFraction );
 
-        if ( m_tableType == RimVfpDefines::TableType::PRODUCTION )
-        {
-            uiOrdering.add( &m_flowingWaterFraction );
-            uiOrdering.add( &m_flowingGasFraction );
+        uiOrdering.add( &m_primaryVariable );
+        uiOrdering.add( &m_familyVariable );
 
-            uiOrdering.add( &m_primaryVariable );
-            uiOrdering.add( &m_familyVariable );
+        caf::PdmUiOrdering* fixedVariablesGroup = uiOrdering.addNewGroup( "Fixed Variables" );
+        fixedVariablesGroup->add( &m_flowRateIdx );
+        fixedVariablesGroup->add( &m_thpIdx );
+        fixedVariablesGroup->add( &m_articifialLiftQuantityIdx );
+        fixedVariablesGroup->add( &m_waterCutIdx );
+        fixedVariablesGroup->add( &m_gasLiquidRatioIdx );
 
-            caf::PdmUiOrdering* fixedVariablesGroup = uiOrdering.addNewGroup( "Fixed Variables" );
-            fixedVariablesGroup->add( &m_flowRateIdx );
-            fixedVariablesGroup->add( &m_thpIdx );
-            fixedVariablesGroup->add( &m_articifialLiftQuantityIdx );
-            fixedVariablesGroup->add( &m_waterCutIdx );
-            fixedVariablesGroup->add( &m_gasLiquidRatioIdx );
-
-            // Disable the choices for variables as primary or family
-            setFixedVariableUiEditability( m_flowRateIdx, RimVfpDefines::ProductionVariableType::FLOW_RATE );
-            setFixedVariableUiEditability( m_thpIdx, RimVfpDefines::ProductionVariableType::THP );
-            setFixedVariableUiEditability( m_articifialLiftQuantityIdx, RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY );
-            setFixedVariableUiEditability( m_waterCutIdx, RimVfpDefines::ProductionVariableType::WATER_CUT );
-            setFixedVariableUiEditability( m_gasLiquidRatioIdx, RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO );
-        }
+        // Disable the choices for variables as primary or family
+        setFixedVariableUiEditability( m_flowRateIdx, RimVfpDefines::ProductionVariableType::FLOW_RATE );
+        setFixedVariableUiEditability( m_thpIdx, RimVfpDefines::ProductionVariableType::THP );
+        setFixedVariableUiEditability( m_articifialLiftQuantityIdx, RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY );
+        setFixedVariableUiEditability( m_waterCutIdx, RimVfpDefines::ProductionVariableType::WATER_CUT );
+        setFixedVariableUiEditability( m_gasLiquidRatioIdx, RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO );
     }
 
     uiOrdering.skipRemainingFields( true );
