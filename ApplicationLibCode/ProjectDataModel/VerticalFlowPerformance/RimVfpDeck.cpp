@@ -53,9 +53,23 @@ void RimVfpDeck::loadDataAndUpdate()
     m_vfpPlotCollection->deleteAllPlots();
 
     auto [vfpProdTables, vfpInjTables] = RiaOpmParserTools::extractVfpTablesFromDataFile( m_filePath().path().toStdString() );
-    for ( auto prodTable : vfpProdTables )
+    for ( const auto& prodTable : vfpProdTables )
     {
         auto plot = new RimVfpPlot();
-        plot->setVfpTable( prodTable );
+        plot->setReadDataFromFile( false );
+
+        plot->setProductionTable( prodTable );
+        m_vfpPlotCollection->addPlot( plot );
+        plot->loadDataAndUpdate();
+    }
+
+    for ( const auto& injTable : vfpInjTables )
+    {
+        auto plot = new RimVfpPlot();
+        plot->setReadDataFromFile( false );
+
+        plot->setInjectionTable( injTable );
+        m_vfpPlotCollection->addPlot( plot );
+        plot->loadDataAndUpdate();
     }
 }

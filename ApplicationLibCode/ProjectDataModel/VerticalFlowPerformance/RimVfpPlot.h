@@ -65,6 +65,10 @@ public:
     QImage   snapshotWindowContent() override;
     void     zoomAll() override;
 
+    void setProductionTable( const Opm::VFPProdTable& table );
+    void setInjectionTable( const Opm::VFPInjTable& table );
+    void setReadDataFromFile( bool readDataFromFile );
+
 private:
     // RimPlot implementations
     void doRemoveFromCollection();
@@ -160,4 +164,6 @@ private:
     QPointer<RiuPlotWidget>            m_plotWidget;
     std::unique_ptr<Opm::VFPProdTable> m_prodTable;
     std::unique_ptr<Opm::VFPInjTable>  m_injectionTable;
+
+    bool m_readDataFromFile;
 };

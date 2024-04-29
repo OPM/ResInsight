@@ -115,6 +115,22 @@ RimVfpDeck* RimVfpPlotCollection::addDeck( const QString& filename )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimVfpPlotCollection::loadDataAndUpdateAllPlots()
+{
+    for ( auto plot : plots() )
+    {
+        plot->loadDataAndUpdate();
+    }
+
+    for ( auto deck : m_vfpDecks.childrenByType() )
+    {
+        deck->loadDataAndUpdate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimVfpPlotCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicNewVfpPlotFeature";

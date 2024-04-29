@@ -48,6 +48,8 @@ public:
     RimVfpDeck* addDeck( const QString& filename );
 
 private:
+    void loadDataAndUpdateAllPlots() override;
+
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
