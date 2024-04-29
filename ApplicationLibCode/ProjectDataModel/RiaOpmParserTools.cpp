@@ -37,10 +37,49 @@
 
 #include <set>
 
+namespace RiaOpmParserTools
+{
+
+Opm::VFPInjTable createInjectionTable( const Opm::DeckKeyword& keyword )
+{
+    Opm::UnitSystem unitSystem;
+    {
+        const auto& header = keyword.getRecord( 0 );
+
+        if ( header.getItem<Opm::ParserKeywords::VFPINJ::UNITS>().hasValue( 0 ) )
+        {
+            std::string units_string;
+            units_string = header.getItem<Opm::ParserKeywords::VFPINJ::UNITS>().get<std::string>( 0 );
+            unitSystem   = Opm::UnitSystem( units_string );
+        }
+    }
+
+    return { keyword, unitSystem };
+}
+
+Opm::VFPProdTable createProductionTable( const Opm::DeckKeyword& keyword )
+{
+    Opm::UnitSystem unitSystem;
+    {
+        const auto& header = keyword.getRecord( 0 );
+
+        if ( header.getItem<Opm::ParserKeywords::VFPPROD::UNITS>().hasValue( 0 ) )
+        {
+            std::string units_string;
+            units_string = header.getItem<Opm::ParserKeywords::VFPPROD::UNITS>().get<std::string>( 0 );
+            unitSystem   = Opm::UnitSystem( units_string );
+        }
+    }
+
+    bool gaslift_opt_active = false;
+
+    return { keyword, gaslift_opt_active, unitSystem };
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<Opm::VFPInjTable> RiaOpmParserTools::extractVfpInjectionTables( const std::string& filename )
+std::vector<Opm::VFPInjTable> extractVfpInjectionTables( const std::string& filename )
 {
     std::vector<Opm::VFPInjTable> tables;
 
@@ -60,21 +99,7 @@ std::vector<Opm::VFPInjTable> RiaOpmParserTools::extractVfpInjectionTables( cons
 
         for ( auto kw : keywordList )
         {
-            auto name = kw->name();
-
-            Opm::UnitSystem unitSystem;
-            {
-                const auto& header = kw->getRecord( 0 );
-
-                if ( header.getItem<Opm::ParserKeywords::VFPINJ::UNITS>().hasValue( 0 ) )
-                {
-                    std::string units_string;
-                    units_string = header.getItem<Opm::ParserKeywords::VFPINJ::UNITS>().get<std::string>( 0 );
-                    unitSystem   = Opm::UnitSystem( units_string );
-                }
-            }
-
-            Opm::VFPInjTable table( *kw, unitSystem );
+            auto table = createInjectionTable( *kw );
             tables.push_back( table );
         }
     }
@@ -88,7 +113,7 @@ std::vector<Opm::VFPInjTable> RiaOpmParserTools::extractVfpInjectionTables( cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<Opm::VFPProdTable> RiaOpmParserTools::extractVfpProductionTables( const std::string& filename )
+std::vector<Opm::VFPProdTable> extractVfpProductionTables( const std::string& filename )
 {
     std::vector<Opm::VFPProdTable> tables;
 
@@ -106,22 +131,7 @@ std::vector<Opm::VFPProdTable> RiaOpmParserTools::extractVfpProductionTables( co
 
         for ( auto kw : keywordList )
         {
-            auto name = kw->name();
-
-            Opm::UnitSystem unitSystem;
-            {
-                const auto& header = kw->getRecord( 0 );
-
-                if ( header.getItem<Opm::ParserKeywords::VFPPROD::UNITS>().hasValue( 0 ) )
-                {
-                    std::string units_string;
-                    units_string = header.getItem<Opm::ParserKeywords::VFPPROD::UNITS>().get<std::string>( 0 );
-                    unitSystem   = Opm::UnitSystem( units_string );
-                }
-            }
-
-            bool              gaslift_opt_active = false;
-            Opm::VFPProdTable table( *kw, gaslift_opt_active, unitSystem );
+            auto table = createProductionTable( *kw );
             tables.push_back( table );
         }
     }
@@ -135,7 +145,51 @@ std::vector<Opm::VFPProdTable> RiaOpmParserTools::extractVfpProductionTables( co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<std::string, std::vector<std::pair<int, int>>> RiaOpmParserTools::extractWseglink( const std::string& filename )
+std::pair<std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>> extractVfpTablesFromDataFile( const std::string& dataDeckFilename )
+{
+    if ( !std::filesystem::exists( dataDeckFilename ) ) return {};
+
+    Opm::Parser                     parser( false );
+    std::vector<Opm::ParserKeyword> parserKeywords = { Opm::ParserKeywords::VFPPROD(),
+                                                       Opm::ParserKeywords::VFPINJ(),
+                                                       Opm::ParserKeywords::INCLUDE() };
+    for ( const auto& kw : parserKeywords )
+    {
+        parser.addParserKeyword( kw );
+    }
+
+    Opm::ParseContext parseContext( Opm::InputError::Action::WARN );
+    auto              deck = parser.parseFile( dataDeckFilename, parseContext );
+
+    std::vector<Opm::VFPProdTable> prodTables;
+    std::vector<Opm::VFPInjTable>  injTables;
+
+    {
+        std::string prodKeyword = "VFPPROD";
+        auto        keywordList = deck.getKeywordList( prodKeyword );
+        for ( auto kw : keywordList )
+        {
+            auto table = createProductionTable( *kw );
+            prodTables.push_back( table );
+        }
+    }
+    {
+        std::string injKeyword  = "VFPINJ";
+        auto        keywordList = deck.getKeywordList( injKeyword );
+        for ( auto kw : keywordList )
+        {
+            auto table = createInjectionTable( *kw );
+            injTables.push_back( table );
+        }
+    }
+
+    return { prodTables, injTables };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<std::string, std::vector<std::pair<int, int>>> extractWseglink( const std::string& filename )
 {
     if ( !std::filesystem::exists( filename ) ) return {};
 
@@ -205,7 +259,7 @@ std::map<std::string, std::vector<std::pair<int, int>>> RiaOpmParserTools::extra
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaOpmParserTools::AicdTemplateValues> RiaOpmParserTools::extractWsegAicd( const std::string& filename )
+std::vector<RiaOpmParserTools::AicdTemplateValues> extractWsegAicd( const std::string& filename )
 {
     if ( !std::filesystem::exists( filename ) ) return {};
 
@@ -291,7 +345,7 @@ std::vector<RiaOpmParserTools::AicdTemplateValues> RiaOpmParserTools::extractWse
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaOpmParserTools::AicdTemplateValues> RiaOpmParserTools::extractWsegAicdCompletor( const std::string& filename )
+std::vector<RiaOpmParserTools::AicdTemplateValues> extractWsegAicdCompletor( const std::string& filename )
 {
     QFile file( QString::fromStdString( filename ) );
     if ( !file.open( QFile::ReadOnly ) ) return {};
@@ -346,7 +400,9 @@ std::vector<RiaOpmParserTools::AicdTemplateValues> RiaOpmParserTools::extractWse
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RiaOpmParserTools::aicdTemplateId()
+std::string aicdTemplateId()
 {
     return "ID_NUMBER";
 }
+
+} // namespace RiaOpmParserTools
