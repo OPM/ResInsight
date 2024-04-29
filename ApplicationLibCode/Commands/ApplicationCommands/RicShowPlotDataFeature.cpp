@@ -33,10 +33,11 @@
 #include "RimPlotWindow.h"
 #include "RimProject.h"
 #include "RimSummaryPlot.h"
-#include "RimVfpPlot.h"
 #include "RimWellAllocationOverTimePlot.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
+
+#include "VerticalFlowPerformance/RimVfpPlot.h"
 
 #include "RiuPlotMainWindow.h"
 #include "RiuTextDialog.h"
