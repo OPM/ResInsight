@@ -44,5 +44,8 @@ public:
     void   removePlot( RimVfpPlot* vfpPlot ) final;
 
 private:
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
+private:
     caf::PdmChildArrayField<RimVfpPlot*> m_vfpPlots;
 };
