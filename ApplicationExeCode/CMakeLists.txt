@@ -33,6 +33,7 @@ if(Qt5Core_FOUND)
                Concurrent
                PrintSupport
                Svg
+               Sql
     OPTIONAL_COMPONENTS Charts
   )
   set(QT_LIBRARIES
@@ -45,6 +46,7 @@ if(Qt5Core_FOUND)
       Qt5::Concurrent
       Qt5::PrintSupport
       Qt5::Svg
+      Qt5::Sql
   )
   if(Qt5Charts_FOUND)
     list(APPEND QT_LIBRARIES Qt5::Charts)
@@ -481,6 +483,13 @@ if(RESINSIGHT_PRIVATE_INSTALL)
       install(
         FILES ${QT_PLUGIN_PATH}/xcbglintegrations/libqxcb-glx-integration.so
         DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/plugins/xcbglintegrations/
+        OPTIONAL
+      )
+
+      # Required sql driver
+      install(
+        FILES ${QT_PLUGIN_PATH}/sqldrivers/libqsqlite.so
+        DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/sqldrivers/
         OPTIONAL
       )
 
