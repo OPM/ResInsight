@@ -83,7 +83,7 @@ void PdmDocument::readFile( QIODevice* xmlFile )
         }
     }
 
-    // Ask all objects to initialize and set up internal datastructure and pointers
+    // Ask all objects to initialize and set up internal data structures and pointers
     // after everything is read from file
 
     resolveReferencesRecursively();
@@ -107,30 +107,13 @@ bool PdmDocument::writeFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-auto writeDocumentToXmlStream = []( QXmlStreamWriter& xmlStream, const PdmDocument& document )
-{
-    xmlStream.setAutoFormatting( true );
-
-    xmlStream.writeStartDocument();
-    QString className = document.classKeyword();
-
-    xmlStream.writeStartElement( "", className );
-    document.writeFields( xmlStream );
-    xmlStream.writeEndElement();
-
-    xmlStream.writeEndDocument();
-};
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void PdmDocument::writeFile( QIODevice* xmlFile )
 {
     // Ask all objects to make them ready to write themselves to file
     setupBeforeSaveRecursively();
 
     QXmlStreamWriter xmlStream( xmlFile );
-    writeDocumentToXmlStream( xmlStream, *this );
+    writeDocumentToXmlStream( xmlStream );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,10 +124,9 @@ QString PdmDocument::documentAsString()
     // Ask all objects to make them ready to write themselves to file
     setupBeforeSaveRecursively();
 
-    QString content;
-
+    QString          content;
     QXmlStreamWriter xmlStream( &content );
-    writeDocumentToXmlStream( xmlStream, *this );
+    writeDocumentToXmlStream( xmlStream );
 
     return content;
 }
@@ -184,6 +166,23 @@ void PdmDocument::updateUiIconStateRecursively( PdmObjectHandle* object )
 //--------------------------------------------------------------------------------------------------
 void PdmDocument::beforeInitAfterRead()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmDocument::writeDocumentToXmlStream( QXmlStreamWriter& xmlStream )
+{
+    xmlStream.setAutoFormatting( true );
+
+    xmlStream.writeStartDocument();
+    QString className = classKeyword();
+
+    xmlStream.writeStartElement( "", className );
+    writeFields( xmlStream );
+    xmlStream.writeEndElement();
+
+    xmlStream.writeEndDocument();
 }
 
 } // End of namespace caf
