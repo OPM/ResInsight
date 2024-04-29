@@ -24,6 +24,7 @@
 #include "RiaFieldHandleTools.h"
 #include "RiaFilePathTools.h"
 #include "RiaGuiApplication.h"
+#include "RiaPreferences.h"
 #include "RiaProjectBackupTools.h"
 #include "RiaProjectFileVersionTools.h"
 #include "RiaTextStringTools.h"
