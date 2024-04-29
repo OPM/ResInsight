@@ -27,7 +27,7 @@
 
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
-#include "RimVfpPlot.h"
+#include "RimVfpDeck.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 
@@ -41,6 +41,7 @@ RimVfpPlotCollection::RimVfpPlotCollection()
     CAF_PDM_InitObject( "VFP Plots", ":/VfpPlotCollection.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_vfpPlots, "VfpPlots", "Vertical Flow Performance Plots" );
+    CAF_PDM_InitFieldNoDefault( &m_vfpDecks, "VfpDecks", "Vertical Flow Performance Decks" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,6 +98,18 @@ void RimVfpPlotCollection::removePlot( RimVfpPlot* vfpPlot )
 {
     m_vfpPlots.removeChild( vfpPlot );
     updateAllRequiredEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimVfpDeck* RimVfpPlotCollection::addDeck( const QString& filename )
+{
+    RimVfpDeck* deck = new RimVfpDeck();
+    deck->setFileName( filename );
+    m_vfpDecks.push_back( deck );
+
+    return deck;
 }
 
 //--------------------------------------------------------------------------------------------------

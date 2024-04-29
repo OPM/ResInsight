@@ -23,6 +23,8 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
+class RimVfpDeck;
+
 //==================================================================================================
 ///
 ///
@@ -43,9 +45,12 @@ public:
     void   insertPlot( RimVfpPlot* vfpPlot, size_t index ) final;
     void   removePlot( RimVfpPlot* vfpPlot ) final;
 
+    RimVfpDeck* addDeck( const QString& filename );
+
 private:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
     caf::PdmChildArrayField<RimVfpPlot*> m_vfpPlots;
+    caf::PdmChildArrayField<RimVfpDeck*> m_vfpDecks;
 };
