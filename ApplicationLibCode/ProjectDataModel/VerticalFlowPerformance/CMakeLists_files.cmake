@@ -1,11 +1,11 @@
-set(SOURCE_GROUP_HEADER_FILES 
+set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimVfpDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RimVfpDeck.h
     ${CMAKE_CURRENT_LIST_DIR}/RimVfpPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RimVfpPlotCollection.h
 )
 
-set(SOURCE_GROUP_SOURCE_FILES 
+set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimVfpDeck.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimVfpDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimVfpPlot.cpp
@@ -17,5 +17,5 @@ list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 
 source_group(
   "VFP Plots" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-                ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+                    ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
 )
