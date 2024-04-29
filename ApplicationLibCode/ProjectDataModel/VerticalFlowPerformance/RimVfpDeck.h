@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020- Equinor ASA
+//  Copyright (C) 2024     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,11 +18,16 @@
 
 #pragma once
 
+#include "RimNamedObject.h"
+
 #include "cafFilePath.h"
 
 class RimVfpPlotCollection;
 
-class RimVfpDeck : public caf::PdmObject
+//--------------------------------------------------------------------------------------------------
+/// RimVfpDeck parses a deck file (*.DATA) containing VFP data and creates a collection of VFP plots.
+//--------------------------------------------------------------------------------------------------
+class RimVfpDeck : public RimNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -31,6 +36,10 @@ public:
 
     void setFileName( const QString& filename );
     void loadDataAndUpdate();
+
+private:
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void updateObjectName();
 
 private:
     caf::PdmField<caf::FilePath>              m_filePath;

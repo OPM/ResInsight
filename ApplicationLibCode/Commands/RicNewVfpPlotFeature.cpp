@@ -22,10 +22,6 @@
 #include "RiaGuiApplication.h"
 
 #include "RimMainPlotCollection.h"
-#include "RimSimWellInView.h"
-#include "RimWellLogPlot.h"
-#include "RimWellLogTrack.h"
-#include "RimWellPath.h"
 
 #include "VerticalFlowPerformance/RimVfpDeck.h"
 #include "VerticalFlowPerformance/RimVfpPlot.h"
@@ -40,8 +36,6 @@
 #include <QAction>
 #include <QFileInfo>
 
-#include <vector>
-
 CAF_CMD_SOURCE_INIT( RicNewVfpPlotFeature, "RicNewVfpPlotFeature" );
 
 //--------------------------------------------------------------------------------------------------
@@ -49,7 +43,7 @@ CAF_CMD_SOURCE_INIT( RicNewVfpPlotFeature, "RicNewVfpPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicNewVfpPlotFeature::isCommandEnabled() const
 {
-    RimVfpPlotCollection* plotColl = caf::firstAncestorOfTypeFromSelectedObject<RimVfpPlotCollection>();
+    auto plotColl = caf::firstAncestorOfTypeFromSelectedObject<RimVfpPlotCollection>();
     return ( plotColl != nullptr );
 }
 
@@ -67,7 +61,7 @@ void RicNewVfpPlotFeature::onActionTriggered( bool isChecked )
     const QString vfpDataKey = "VFP_DATA";
     QString       defaultDir = app->lastUsedDialogDirectory( vfpDataKey );
     QStringList   fileNames =
-        RiuFileDialogTools::getOpenFileNames( mpw, "Import VFP Files", defaultDir, "VFP Text Files (*.ecl *.vfp);;All Files (*.*)" );
+        RiuFileDialogTools::getOpenFileNames( mpw, "Import VFP Files", defaultDir, "VFP Text Files (*.ecl *.vfp *.data);;All Files (*.*)" );
 
     if ( fileNames.isEmpty() ) return;
 
@@ -80,12 +74,12 @@ void RicNewVfpPlotFeature::onActionTriggered( bool isChecked )
     {
         if ( fileName.contains( ".DATA" ) )
         {
-            RimVfpDeck* vfpDeck = vfpPlotColl->addDeck( fileName );
+            auto vfpDeck = vfpPlotColl->addDeck( fileName );
             vfpDecks.push_back( vfpDeck );
         }
         else
         {
-            RimVfpPlot* vfpPlot = new RimVfpPlot();
+            auto vfpPlot = new RimVfpPlot();
             vfpPlot->setFileName( fileName );
             vfpPlotColl->addPlot( vfpPlot );
 
@@ -98,6 +92,7 @@ void RicNewVfpPlotFeature::onActionTriggered( bool isChecked )
     for ( auto deck : vfpDecks )
     {
         deck->loadDataAndUpdate();
+        deck->updateConnectedEditors();
     }
 
     for ( auto plot : vfpPlots )
@@ -110,6 +105,11 @@ void RicNewVfpPlotFeature::onActionTriggered( bool isChecked )
     if ( !vfpPlots.empty() )
     {
         RiuPlotMainWindowTools::onObjectAppended( vfpPlots.front() );
+    }
+
+    if ( !vfpDecks.empty() )
+    {
+        RiuPlotMainWindowTools::onObjectAppended( vfpDecks.front() );
     }
 }
 

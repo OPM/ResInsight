@@ -68,6 +68,7 @@ public:
     void setProductionTable( const Opm::VFPProdTable& table );
     void setInjectionTable( const Opm::VFPInjTable& table );
     void setReadDataFromFile( bool readDataFromFile );
+    int  tableNumber() const;
 
 private:
     // RimPlot implementations

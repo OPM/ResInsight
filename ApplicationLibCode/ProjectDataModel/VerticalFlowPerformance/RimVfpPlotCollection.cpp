@@ -86,6 +86,22 @@ void RimVfpPlotCollection::deleteChildren()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimVfpPlot* RimVfpPlotCollection::plotForTableNumber( int tableNumber ) const
+{
+    for ( auto plot : plots() )
+    {
+        if ( plot->tableNumber() == tableNumber )
+        {
+            return plot;
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 size_t RimVfpPlotCollection::plotCount() const
 {
     return m_vfpPlots.size();
