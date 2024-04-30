@@ -1560,13 +1560,14 @@ void RimProject::transferPathsToGlobalPathList()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimProject::updateFilePathFromPathId( QString filePath, RiaVariableMapper* pathListMapper /*=nullptr*/ ) const
+QString RimProject::updatedFilePathFromPathId( QString filePath, RiaVariableMapper* pathListMapper /*=nullptr*/ ) const
 {
-    bool cleanUpMapper = false;
+    std::unique_ptr<RiaVariableMapper> internalMapper;
+
     if ( pathListMapper == nullptr )
     {
-        pathListMapper = new RiaVariableMapper( m_globalPathList );
-        cleanUpMapper  = true;
+        internalMapper.reset( new RiaVariableMapper( m_globalPathList ) );
+        pathListMapper = internalMapper.get();
     }
 
     QString     returnValue      = filePath;
@@ -1583,8 +1584,6 @@ QString RimProject::updateFilePathFromPathId( QString filePath, RiaVariableMappe
         }
     }
 
-    if ( cleanUpMapper ) delete pathListMapper;
-
     return returnValue;
 }
 
@@ -1597,7 +1596,7 @@ void RimProject::distributePathsFromGlobalPathList()
 
     for ( caf::FilePath* filePath : allFilePaths() )
     {
-        filePath->setPath( updateFilePathFromPathId( filePath->path(), &pathListMapper ) );
+        filePath->setPath( updatedFilePathFromPathId( filePath->path(), &pathListMapper ) );
     }
 
     for ( auto summaryCase : allSummaryCases() )

@@ -87,7 +87,7 @@ void RimPolygonFile::loadData()
     }
     else
     {
-        RiaLogging::info( QString( "Imported %1 polygons from file: " ).arg( polygonsFromFile.size() ) + m_fileName().path() );
+        RiaLogging::info( QString( "Imported %1 polygon(s) from file: " ).arg( polygonsFromFile.size() ) + m_fileName().path() );
     }
 }
 

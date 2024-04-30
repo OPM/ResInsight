@@ -194,7 +194,7 @@ public:
     RimPlotTemplateFolderItem* rootPlotTemplateItem() const;
 
     std::vector<caf::FilePath*> allFilePaths() const;
-    QString                     updateFilePathFromPathId( QString filePath, RiaVariableMapper* pathListMapper = nullptr ) const;
+    QString                     updatedFilePathFromPathId( QString filePath, RiaVariableMapper* pathListMapper = nullptr ) const;
 
 protected:
     void beforeInitAfterRead() override;
