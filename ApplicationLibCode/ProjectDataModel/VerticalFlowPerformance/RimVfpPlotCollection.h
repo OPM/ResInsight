@@ -50,6 +50,7 @@ public:
 
 private:
     void loadDataAndUpdateAllPlots() override;
+    void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
 
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 

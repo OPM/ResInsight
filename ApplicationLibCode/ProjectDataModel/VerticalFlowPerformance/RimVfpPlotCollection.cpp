@@ -131,6 +131,17 @@ RimVfpDeck* RimVfpPlotCollection::addDeck( const QString& filename )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimVfpPlotCollection::onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects )
+{
+    for ( auto plot : plots() )
+    {
+        plot->updateMdiWindowVisibility();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimVfpPlotCollection::loadDataAndUpdateAllPlots()
 {
     for ( auto plot : plots() )
