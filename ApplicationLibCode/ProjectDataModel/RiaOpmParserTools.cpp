@@ -30,6 +30,7 @@
 #include "opm/input/eclipse/Parser/Parser.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/I.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/P.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/T.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/V.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
 
@@ -149,38 +150,52 @@ std::pair<std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>> extract
 {
     if ( !std::filesystem::exists( dataDeckFilename ) ) return {};
 
-    Opm::Parser                     parser( false );
-    std::vector<Opm::ParserKeyword> parserKeywords = { Opm::ParserKeywords::VFPPROD(),
-                                                       Opm::ParserKeywords::VFPINJ(),
-                                                       Opm::ParserKeywords::INCLUDE() };
-    for ( const auto& kw : parserKeywords )
-    {
-        parser.addParserKeyword( kw );
-    }
-
-    Opm::ParseContext parseContext( Opm::InputError::Action::WARN );
-    auto              deck = parser.parseFile( dataDeckFilename, parseContext );
-
     std::vector<Opm::VFPProdTable> prodTables;
     std::vector<Opm::VFPInjTable>  injTables;
 
+    try
     {
-        std::string prodKeyword = "VFPPROD";
-        auto        keywordList = deck.getKeywordList( prodKeyword );
-        for ( auto kw : keywordList )
+        Opm::Parser parser( false );
+
+        // Required to include the TUNING keyword to avoid parsing error of a Norne DATA file containing the TUNING keyword
+        // The TUNING keyword is not required nor related to VFP data
+        std::vector<Opm::ParserKeyword> parserKeywords = { Opm::ParserKeywords::VFPPROD(),
+                                                           Opm::ParserKeywords::VFPINJ(),
+                                                           Opm::ParserKeywords::INCLUDE(),
+                                                           Opm::ParserKeywords::TUNING() };
+        for ( const auto& kw : parserKeywords )
         {
-            auto table = createProductionTable( *kw );
-            prodTables.push_back( table );
+            parser.addParserKeyword( kw );
+        }
+
+        Opm::ParseContext parseContext( Opm::InputError::Action::WARN );
+        auto              deck = parser.parseFile( dataDeckFilename, parseContext );
+
+        {
+            std::string prodKeyword = "VFPPROD";
+            auto        keywordList = deck.getKeywordList( prodKeyword );
+            for ( auto kw : keywordList )
+            {
+                auto table = createProductionTable( *kw );
+                prodTables.push_back( table );
+            }
+        }
+        {
+            std::string injKeyword  = "VFPINJ";
+            auto        keywordList = deck.getKeywordList( injKeyword );
+            for ( auto kw : keywordList )
+            {
+                auto table = createInjectionTable( *kw );
+                injTables.push_back( table );
+            }
         }
     }
+    catch ( ... )
     {
-        std::string injKeyword  = "VFPINJ";
-        auto        keywordList = deck.getKeywordList( injKeyword );
-        for ( auto kw : keywordList )
-        {
-            auto table = createInjectionTable( *kw );
-            injTables.push_back( table );
-        }
+        QString text = QString( "Error detected when parsing '%1'. Imported data might be missing or incomplete." )
+                           .arg( QString::fromStdString( dataDeckFilename ) );
+
+        RiaLogging::warning( text );
     }
 
     return { prodTables, injTables };
