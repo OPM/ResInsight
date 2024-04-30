@@ -67,7 +67,7 @@ public:
 
     void setProductionTable( const Opm::VFPProdTable& table );
     void setInjectionTable( const Opm::VFPInjTable& table );
-    void setReadDataFromFile( bool readDataFromFile );
+    void setDataIsImportedExternally( bool dataIsImportedExternally );
     int  tableNumber() const;
 
 private:
@@ -166,5 +166,5 @@ private:
     std::unique_ptr<Opm::VFPProdTable> m_prodTable;
     std::unique_ptr<Opm::VFPInjTable>  m_injectionTable;
 
-    bool m_readDataFromFile;
+    bool m_dataIsImportedExternally;
 };

@@ -137,9 +137,9 @@ RimVfpPlot::RimVfpPlot()
     CAF_PDM_InitField( &m_gasLiquidRatioIdx, "GasLiquidRatioIdx", 0, "Gas Liquid Ratio" );
     m_gasLiquidRatioIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    m_showWindow       = true;
-    m_showPlotLegends  = true;
-    m_readDataFromFile = true;
+    m_showWindow               = true;
+    m_showPlotLegends          = true;
+    m_dataIsImportedExternally = false;
 
     setAsPlotMdiWindow();
 
@@ -374,9 +374,9 @@ void RimVfpPlot::setInjectionTable( const Opm::VFPInjTable& table )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::setReadDataFromFile( bool readDataFromFile )
+void RimVfpPlot::setDataIsImportedExternally( bool dataIsImportedExternally )
 {
-    m_readDataFromFile = readDataFromFile;
+    m_dataIsImportedExternally = dataIsImportedExternally;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -460,7 +460,7 @@ void RimVfpPlot::onLoadDataAndUpdate()
 
     QString wellName;
 
-    if ( m_readDataFromFile )
+    if ( !m_dataIsImportedExternally )
     {
         QString filePath = m_filePath.v().path();
         if ( !filePath.isEmpty() )
@@ -814,6 +814,7 @@ size_t RimVfpPlot::getVariableIndex( const Opm::VFPProdTable&              table
 void RimVfpPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_filePath );
+    m_filePath.uiCapability()->setUiReadOnly( m_dataIsImportedExternally );
 
     uiOrdering.add( &m_tableType );
     uiOrdering.add( &m_tableNumber );

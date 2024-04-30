@@ -60,7 +60,6 @@ void RimVfpDeck::loadDataAndUpdate()
     auto createRimVfpPlot = [&]() -> RimVfpPlot*
     {
         auto plot = new RimVfpPlot();
-        plot->setReadDataFromFile( false );
         plot->setFileName( m_filePath().path() );
         return plot;
     };
@@ -74,14 +73,15 @@ void RimVfpDeck::loadDataAndUpdate()
         if ( !plot )
         {
             plot = createRimVfpPlot();
-            plot->setProductionTable( prodTable );
             m_vfpPlotCollection->addPlot( plot );
         }
         else
         {
-            plot->setProductionTable( prodTable );
             std::erase( currentPlots, plot );
         }
+        plot->setProductionTable( prodTable );
+        plot->setDataIsImportedExternally( true );
+        plot->setDeletable( false );
         plot->loadDataAndUpdate();
     }
 
@@ -91,14 +91,15 @@ void RimVfpDeck::loadDataAndUpdate()
         if ( !plot )
         {
             plot = createRimVfpPlot();
-            plot->setInjectionTable( injTable );
             m_vfpPlotCollection->addPlot( plot );
         }
         else
         {
-            plot->setInjectionTable( injTable );
             std::erase( currentPlots, plot );
         }
+        plot->setInjectionTable( injTable );
+        plot->setDataIsImportedExternally( true );
+        plot->setDeletable( false );
         plot->loadDataAndUpdate();
     }
 
