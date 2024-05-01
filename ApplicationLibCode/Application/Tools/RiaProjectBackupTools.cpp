@@ -97,7 +97,7 @@ bool appendTextToDatabase( const QString& databaseFilePath, const QString& conte
         return false;
     }
 
-    // Set the file name for the database. The database will be created if it does not exist
+    // Set the file name for the database. The database will be created if it does not exist.
     db.setDatabaseName( databaseFilePath );
 
     if ( !createTableIfNeeded() ) return false;
