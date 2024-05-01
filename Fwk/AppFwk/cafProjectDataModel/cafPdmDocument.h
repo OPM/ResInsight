@@ -39,6 +39,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+class QXmlStreamWriter;
+
 namespace caf
 {
 //==================================================================================================
@@ -57,6 +59,8 @@ public:
     void readFile();
     bool writeFile();
 
+    QString documentAsString();
+
     void readFile( QIODevice* device );
     void writeFile( QIODevice* device );
 
@@ -64,6 +68,9 @@ public:
 
 protected:
     virtual void beforeInitAfterRead();
+
+private:
+    void writeDocumentToXmlStream( QXmlStreamWriter& xmlStream );
 };
 
 } // End of namespace caf

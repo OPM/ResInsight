@@ -24,6 +24,8 @@
 #include "RiaFieldHandleTools.h"
 #include "RiaFilePathTools.h"
 #include "RiaGuiApplication.h"
+#include "RiaPreferences.h"
+#include "RiaProjectBackupTools.h"
 #include "RiaProjectFileVersionTools.h"
 #include "RiaTextStringTools.h"
 #include "RiaVersionInfo.h"
@@ -405,10 +407,22 @@ RimMainPlotCollection* RimProject::mainPlotCollection() const
 bool RimProject::writeProjectFile()
 {
     transferPathsToGlobalPathList();
-    bool couldOpenFile = writeFile();
+
+    QFile xmlFile( fileName );
+    if ( !xmlFile.open( QIODevice::WriteOnly | QIODevice::Text ) ) return false;
+
+    QString content = documentAsString();
+    xmlFile.write( content.toUtf8() );
+
+    if ( RiaPreferences::current()->storeBackupOfProjectFiles() )
+    {
+        QString backupFilename = fileName + "db";
+        RiaProjectBackupTools::appendTextToDatabase( backupFilename, content );
+    }
+
     distributePathsFromGlobalPathList();
 
-    return couldOpenFile;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
