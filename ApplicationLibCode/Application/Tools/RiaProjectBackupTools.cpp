@@ -72,16 +72,23 @@ bool insertContent( const QString& content )
 //--------------------------------------------------------------------------------------------------
 bool appendTextToDatabase( const QString& databaseFilePath, const QString& content )
 {
-    const QString databaseTypeName = "QSQLITE";
-    const QString connectionName   = "ResInsightBackup";
+    const QString databaseType = "QSQLITE";
+
+    if ( !QSqlDatabase::isDriverAvailable( databaseType ) )
+    {
+        RiaLogging::error( "sqlite database is not available." );
+        return false;
+    }
 
     // Try to open the SQLITE database
-    auto db = QSqlDatabase::database( connectionName );
-    if ( !db.open() )
+    QSqlDatabase db = QSqlDatabase::database();
+    if ( !db.isValid() || !db.open() )
     {
+        RiaLogging::info( "Adding database" );
+
         // Add the SQLITE database, and it it required to do this once per session. The database will be available during the lifetime of
         // the application, and can be accessed using QSqlDatabase::database()
-        db = QSqlDatabase::addDatabase( databaseTypeName, connectionName );
+        db = QSqlDatabase::addDatabase( databaseType );
     }
     if ( !db.open() )
     {
