@@ -720,8 +720,6 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
             sumCaseGroup->loadDataAndUpdate();
         }
 
-        oilField->annotationCollection()->loadDataAndUpdate();
-
         for ( auto well : oilField->wellPathCollection()->allWellPaths() )
         {
             for ( auto stimPlan : well->stimPlanModelCollection()->allStimPlanModels() )

@@ -1210,28 +1210,6 @@ std::vector<RimReachCircleAnnotation*> RimProject::reachCircleAnnotations() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPolylinesAnnotation*> RimProject::polylineAnnotations() const
-{
-    std::vector<RimPolylinesAnnotation*> annotations;
-    for ( const auto& oilField : oilFields() )
-    {
-        auto annotationColl = oilField->annotationCollection();
-        for ( const auto& annotation : annotationColl->userDefinedPolylineAnnotations() )
-        {
-            annotations.push_back( annotation );
-        }
-
-        for ( const auto& annotation : annotationColl->polylinesFromFileAnnotations() )
-        {
-            annotations.push_back( annotation );
-        }
-    }
-    return annotations;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RimGeoMechCase*> RimProject::geoMechCases() const
 {
     std::vector<RimGeoMechCase*> cases;
@@ -1596,25 +1574,43 @@ void RimProject::transferPathsToGlobalPathList()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimProject::updatedFilePathFromPathId( QString filePath, RiaVariableMapper* pathListMapper /*=nullptr*/ ) const
+{
+    std::unique_ptr<RiaVariableMapper> internalMapper;
+
+    if ( pathListMapper == nullptr )
+    {
+        internalMapper.reset( new RiaVariableMapper( m_globalPathList ) );
+        pathListMapper = internalMapper.get();
+    }
+
+    QString     returnValue      = filePath;
+    QString     pathIdCandidate  = filePath.trimmed();
+    QStringList pathIdComponents = pathIdCandidate.split( RiaVariableMapper::variableToken() );
+
+    if ( pathIdComponents.size() == 3 && pathIdComponents[0].size() == 0 && pathIdComponents[1].size() > 0 && pathIdComponents[2].size() == 0 )
+    {
+        bool    isFound = false;
+        QString path    = pathListMapper->valueForVariable( pathIdCandidate, &isFound );
+        if ( isFound )
+        {
+            returnValue = path;
+        }
+    }
+
+    return returnValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimProject::distributePathsFromGlobalPathList()
 {
     RiaVariableMapper pathListMapper( m_globalPathList() );
 
     for ( caf::FilePath* filePath : allFilePaths() )
     {
-        QString     pathIdCandidate  = filePath->path().trimmed();
-        QStringList pathIdComponents = pathIdCandidate.split( RiaVariableMapper::variableToken() );
-
-        if ( pathIdComponents.size() == 3 && pathIdComponents[0].size() == 0 && pathIdComponents[1].size() > 0 &&
-             pathIdComponents[2].size() == 0 )
-        {
-            bool    isFound = false;
-            QString path    = pathListMapper.valueForVariable( pathIdCandidate, &isFound );
-            if ( isFound )
-            {
-                filePath->setPath( path );
-            }
-        }
+        filePath->setPath( updatedFilePathFromPathId( filePath->path(), &pathListMapper ) );
     }
 
     for ( auto summaryCase : allSummaryCases() )

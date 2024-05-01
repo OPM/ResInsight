@@ -30,6 +30,8 @@
 
 #include <vector>
 
+class RiaVariableMapper;
+
 class RigEclipseCaseData;
 class RigGridManager;
 class RigMainGrid;
@@ -177,7 +179,6 @@ public:
     std::vector<RimWellPath*>              allWellPaths() const;
     std::vector<RimTextAnnotation*>        textAnnotations() const;
     std::vector<RimReachCircleAnnotation*> reachCircleAnnotations() const;
-    std::vector<RimPolylinesAnnotation*>   polylineAnnotations() const;
 
     std::vector<RimGeoMechCase*> geoMechCases() const;
 
@@ -193,6 +194,7 @@ public:
     RimPlotTemplateFolderItem* rootPlotTemplateItem() const;
 
     std::vector<caf::FilePath*> allFilePaths() const;
+    QString                     updatedFilePathFromPathId( QString filePath, RiaVariableMapper* pathListMapper = nullptr ) const;
 
 protected:
     void beforeInitAfterRead() override;
