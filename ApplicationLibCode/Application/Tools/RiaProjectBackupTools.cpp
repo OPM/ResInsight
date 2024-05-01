@@ -72,12 +72,16 @@ bool insertContent( const QString& content )
 //--------------------------------------------------------------------------------------------------
 bool appendTextToDatabase( const QString& databaseFilePath, const QString& content )
 {
-    const QString connectionName = "QSQLITE";
+    const QString databaseTypeName = "QSQLITE";
+    const QString connectionName   = "ResInsightBackup";
 
+    // Try to open the SQLITE database
     auto db = QSqlDatabase::database( connectionName );
     if ( !db.open() )
     {
-        db = QSqlDatabase::addDatabase( connectionName );
+        // Add the SQLITE database, and it it required to do this once per session. The database will be available during the lifetime of
+        // the application, and can be accessed using QSqlDatabase::database()
+        db = QSqlDatabase::addDatabase( databaseTypeName, connectionName );
     }
     if ( !db.open() )
     {
@@ -86,6 +90,7 @@ bool appendTextToDatabase( const QString& databaseFilePath, const QString& conte
         return false;
     }
 
+    // Set the file name for the database. The database will be created if it does not exist
     db.setDatabaseName( databaseFilePath );
 
     if ( !createTableIfNeeded() ) return false;
