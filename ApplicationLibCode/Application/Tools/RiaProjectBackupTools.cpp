@@ -72,14 +72,21 @@ bool insertContent( const QString& content )
 //--------------------------------------------------------------------------------------------------
 bool appendTextToDatabase( const QString& databaseFilePath, const QString& content )
 {
-    QSqlDatabase db = QSqlDatabase::addDatabase( "QSQLITE" );
-    db.setDatabaseName( databaseFilePath );
+    const QString connectionName = "QSQLITE";
+
+    auto db = QSqlDatabase::database( connectionName );
+    if ( !db.open() )
+    {
+        db = QSqlDatabase::addDatabase( connectionName );
+    }
     if ( !db.open() )
     {
         QString txt = "Error opening database:" + db.lastError().text();
         RiaLogging::error( txt );
         return false;
     }
+
+    db.setDatabaseName( databaseFilePath );
 
     if ( !createTableIfNeeded() ) return false;
     if ( !insertContent( content ) ) return false;
