@@ -126,7 +126,6 @@ protected:
     QString         yAxisParameterString() const;
 
     void                             updateAxisInQwt( RiaDefines::PlotAxis axisType );
-    void                             updateAxisFromQwt( RiaDefines::PlotAxis axisType );
     std::vector<const RimPlotCurve*> visibleCurves() const;
 
     RimPlotAxisProperties* xAxisProperties();

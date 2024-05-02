@@ -34,6 +34,8 @@
 #include "RimPlotAxisLogRangeCalculator.h"
 #include "RimPlotAxisProperties.h"
 
+#include "Tools/RimPlotAxisTools.h"
+
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
@@ -783,8 +785,8 @@ void RimGridCrossPlot::updatePlotWidgetFromAxisRanges()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::updateAxisRangesFromPlotWidget()
 {
-    updateAxisFromQwt( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
-    updateAxisFromQwt( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+    RimPlotAxisTools::updateVisibleRangesFromPlotWidget( m_xAxisProperties(), RiuPlotAxis::defaultBottom(), m_plotWidget );
+    RimPlotAxisTools::updateVisibleRangesFromPlotWidget( m_yAxisProperties(), RiuPlotAxis::defaultLeft(), m_plotWidget );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -924,34 +926,6 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
     {
         m_plotWidget->enableAxis( axis, false );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::updateAxisFromQwt( RiaDefines::PlotAxis axisType )
-{
-    if ( !m_plotWidget ) return;
-
-    auto [xAxisRangeMin, xAxisRangeMax] = m_plotWidget->axisRange( RiuPlotAxis::defaultBottom() );
-
-    RimPlotAxisProperties* axisProperties = m_xAxisProperties();
-    double                 axisRangeMin   = xAxisRangeMin;
-    double                 axisRangeMax   = xAxisRangeMax;
-
-    if ( axisType == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
-    {
-        axisProperties                      = m_yAxisProperties();
-        auto [yAxisRangeMin, yAxisRangeMax] = m_plotWidget->axisRange( RiuPlotAxis::defaultLeft() );
-
-        axisRangeMin = yAxisRangeMin;
-        axisRangeMax = yAxisRangeMax;
-    }
-
-    axisProperties->setVisibleRangeMin( std::min( axisRangeMin, axisRangeMax ) );
-    axisProperties->setVisibleRangeMax( std::max( axisRangeMin, axisRangeMax ) );
-
-    axisProperties->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
