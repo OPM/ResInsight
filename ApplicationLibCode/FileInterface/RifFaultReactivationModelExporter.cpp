@@ -114,7 +114,7 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
         },
         [&]() { return printInteractionProperties( stream, frictionValue ); },
         [&]() { return printBoundaryConditions( stream, *model, partNames, boundaries ); },
-        [&]() { return printPredefinedFields( stream, *model, *dataAccess, basePath, partNames, useGridVoidRatio ); },
+        [&]() { return printPredefinedFields( stream, *model, *dataAccess, basePath, partNames, useGridVoidRatio, useGridTemperature ); },
         [&]() { return printInteractions( stream, partNames, borders ); },
         [&]()
         {
@@ -514,7 +514,8 @@ std::pair<bool, std::string>
                                                               const RimFaultReactivationDataAccess&                        dataAccess,
                                                               const std::string&                                           exportBasePath,
                                                               const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
-                                                              bool voidRatioFromEclipse )
+                                                              bool voidRatioFromEclipse,
+                                                              bool useGridTemperature )
 {
     // PREDEFINED FIELDS
     struct PredefinedField
@@ -555,6 +556,22 @@ std::pair<bool, std::string>
         if ( !isOk ) return { false, "Failed to create " + ratioName + " file." };
 
         RifInpExportTools::printHeading( stream, "Initial Conditions, TYPE=" + ratioName );
+        RifInpExportTools::printHeading( stream, "INCLUDE, input=" + fileName.toStdString() );
+    }
+
+    if ( useGridTemperature )
+    {
+        // Export the temperature to a separate inp file for each step
+        std::string propertyName  = "TEMPERATURE";
+        std::string fullPath      = exportBasePath + "_" + propertyName + ".inp";
+        auto [filePath, fileName] = RiaFilePathTools::toFolderAndFileName( QString::fromStdString( fullPath ) );
+
+        // Use temperature from first time step
+        size_t timeStep = 0;
+        bool isOk = writePropertyToFile( model, dataAccess, RimFaultReactivation::Property::Temperature, timeStep, fullPath, partNames, "" );
+        if ( !isOk ) return { false, "Failed to create " + propertyName + " file." };
+
+        RifInpExportTools::printHeading( stream, "Initial Conditions, TYPE=" + propertyName );
         RifInpExportTools::printHeading( stream, "INCLUDE, input=" + fileName.toStdString() );
     }
 
