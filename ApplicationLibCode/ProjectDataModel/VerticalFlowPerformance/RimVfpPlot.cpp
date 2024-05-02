@@ -37,6 +37,7 @@
 
 #include <QFileInfo>
 
+#include "RiuQwtCurvePointTracker.h"
 #include <memory>
 
 //==================================================================================================
@@ -406,7 +407,8 @@ RiuPlotWidget* RimVfpPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
     }
 
     {
-        RiuPlotWidget* plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
+        auto plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
+        new RiuQwtCurvePointTracker( plotWidget->qwtPlot(), true, nullptr );
 
         // Remove event filter to disable unwanted highlighting on left click in plot.
         plotWidget->removeEventFilter();
