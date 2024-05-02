@@ -74,7 +74,8 @@ private:
                                                                const RimFaultReactivationDataAccess&                        dataAccess,
                                                                const std::string&                                           exportDirectory,
                                                                const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
-                                                               bool useGridVoidRatio );
+                                                               bool useGridVoidRatio,
+                                                               bool useGridTemperature );
     static std::pair<bool, std::string> printSteps( std::ostream&                                                stream,
                                                     const RigFaultReactivationModel&                             model,
                                                     const RimFaultReactivationDataAccess&                        dataAccess,
