@@ -184,8 +184,8 @@ public:
     void           setAutoScaleYEnabled( bool enabled ) override;
     RiuPlotWidget* plotWidget() override;
     void           zoomAll() override;
-    void           updateZoomInParentPlot() override;
-    void           updateZoomFromParentPlot() override;
+    void           updatePlotWidgetFromAxisRanges() override;
+    void           updateAxisRangesFromPlotWidget() override;
 
     caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const override;
 

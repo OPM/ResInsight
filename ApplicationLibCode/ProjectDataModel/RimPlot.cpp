@@ -252,14 +252,14 @@ void RimPlot::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::ve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlot::updateZoomInParentPlot()
+void RimPlot::updatePlotWidgetFromAxisRanges()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlot::updateZoomFromParentPlot()
+void RimPlot::updateAxisRangesFromPlotWidget()
 {
 }
 

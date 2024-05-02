@@ -851,7 +851,7 @@ void RimMultiPlot::updateZoom()
 {
     for ( RimPlot* plot : plots() )
     {
-        plot->updateZoomInParentPlot();
+        plot->updatePlotWidgetFromAxisRanges();
     }
 }
 
