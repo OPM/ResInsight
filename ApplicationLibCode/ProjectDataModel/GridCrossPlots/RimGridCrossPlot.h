@@ -100,8 +100,8 @@ public:
 
     void updateLegend() override;
 
-    void updateZoomInParentPlot() override;
-    void updateZoomFromParentPlot() override;
+    void updatePlotWidgetFromAxisRanges() override;
+    void updateAxisRangesFromPlotWidget() override;
 
     void            setAutoScaleXEnabled( bool enabled ) override;
     void            setAutoScaleYEnabled( bool enabled ) override;

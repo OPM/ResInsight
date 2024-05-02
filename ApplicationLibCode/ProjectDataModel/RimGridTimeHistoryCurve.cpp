@@ -368,7 +368,7 @@ void RimGridTimeHistoryCurve::updateZoomInParentPlot()
 {
     auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
 
-    plot->updateZoomInParentPlot();
+    plot->updatePlotWidgetFromAxisRanges();
 }
 
 //--------------------------------------------------------------------------------------------------

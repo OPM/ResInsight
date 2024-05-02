@@ -165,7 +165,7 @@ void RimWellDistributionPlot::updateLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlot::updateZoomInParentPlot()
+void RimWellDistributionPlot::updatePlotWidgetFromAxisRanges()
 {
     // cvf::Trace::show("RimWellDistributionPlot::updateZoomInParentPlot()");
 }
@@ -173,7 +173,7 @@ void RimWellDistributionPlot::updateZoomInParentPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlot::updateZoomFromParentPlot()
+void RimWellDistributionPlot::updateAxisRangesFromPlotWidget()
 {
     // cvf::Trace::show("RimWellDistributionPlot::updateZoomFromParentPlot()");
 }

@@ -236,7 +236,7 @@ void RimSummaryPlot::updateAxes()
     updateNumericalAxis( RiaDefines::PlotAxis::PLOT_AXIS_TOP );
     updateTimeAxis( timeAxisProperties() );
 
-    updateZoomInParentPlot();
+    updatePlotWidgetFromAxisRanges();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1442,7 +1442,7 @@ void RimSummaryPlot::zoomAll()
 {
     setAutoScaleXEnabled( true );
     setAutoScaleYEnabled( true );
-    updateZoomInParentPlot();
+    updatePlotWidgetFromAxisRanges();
 
     axisChanged.send( this );
 }
@@ -1929,7 +1929,7 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateZoomInParentPlot()
+void RimSummaryPlot::updatePlotWidgetFromAxisRanges()
 {
     if ( !plotWidget() ) return;
 
@@ -1939,7 +1939,7 @@ void RimSummaryPlot::updateZoomInParentPlot()
     }
 
     plotWidget()->updateAxes();
-    updateZoomFromParentPlot();
+    updateAxisRangesFromPlotWidget();
     plotWidget()->updateZoomDependentCurveProperties();
 
     // Must create and set new custom tickmarks for time axis after zoom update
@@ -1960,7 +1960,7 @@ void RimSummaryPlot::updateZoomInParentPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateZoomFromParentPlot()
+void RimSummaryPlot::updateAxisRangesFromPlotWidget()
 {
     if ( !plotWidget() ) return;
 
@@ -2641,7 +2641,7 @@ void RimSummaryPlot::onPlotZoomed()
 
     plotZoomedByUser.send();
 
-    updateZoomFromParentPlot();
+    updateAxisRangesFromPlotWidget();
 
     timeAxisSettingsChanged( nullptr );
 

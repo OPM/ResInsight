@@ -597,7 +597,7 @@ void RimSummaryCurve::updateZoomInParentPlot()
 {
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
-    plot->updateZoomInParentPlot();
+    plot->updatePlotWidgetFromAxisRanges();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -153,8 +153,8 @@ public:
     void setVisiblePropertyValueRange( double minValue, double maxValue );
     void setVisibleDepthRange( double minValue, double maxValue );
 
-    void updateZoomInParentPlot() override;
-    void updateZoomFromParentPlot() override;
+    void updatePlotWidgetFromAxisRanges() override;
+    void updateAxisRangesFromPlotWidget() override;
 
     void updateParentPlotZoom();
 
