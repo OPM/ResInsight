@@ -182,7 +182,7 @@ void RimGridCrossPlot::zoomAll()
     setAutoScaleXEnabled( true );
     setAutoScaleYEnabled( true );
 
-    updateZoomInParentPlot();
+    updatePlotWidgetFromAxisRanges();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -215,7 +215,7 @@ void RimGridCrossPlot::reattachAllCurves()
         }
         updateCurveNamesAndPlotTitle();
         updateLegend();
-        updateZoomInParentPlot();
+        updatePlotWidgetFromAxisRanges();
     }
 }
 
@@ -454,7 +454,7 @@ void RimGridCrossPlot::onPlotZoomed()
 {
     setAutoScaleXEnabled( false );
     setAutoScaleYEnabled( false );
-    updateZoomFromParentPlot();
+    updateAxisRangesFromPlotWidget();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -766,14 +766,14 @@ void RimGridCrossPlot::updateLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::updateZoomInParentPlot()
+void RimGridCrossPlot::updatePlotWidgetFromAxisRanges()
 {
     if ( m_plotWidget )
     {
         updateAxisInQwt( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
         updateAxisInQwt( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
         m_plotWidget->qwtPlot()->updateAxes();
-        updateZoomFromParentPlot();
+        updateAxisRangesFromPlotWidget();
         m_plotWidget->scheduleReplot();
     }
 }
@@ -781,7 +781,7 @@ void RimGridCrossPlot::updateZoomInParentPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::updateZoomFromParentPlot()
+void RimGridCrossPlot::updateAxisRangesFromPlotWidget()
 {
     updateAxisFromQwt( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
     updateAxisFromQwt( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );

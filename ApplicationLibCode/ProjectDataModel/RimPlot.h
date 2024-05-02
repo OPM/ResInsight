@@ -96,8 +96,8 @@ public:
 
     virtual RiuPlotWidget* plotWidget() = 0;
 
-    virtual void updateZoomInParentPlot();
-    virtual void updateZoomFromParentPlot();
+    virtual void updatePlotWidgetFromAxisRanges();
+    virtual void updateAxisRangesFromPlotWidget();
 
     virtual caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const;
     virtual void            handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects );
