@@ -18,22 +18,28 @@
 
 #include "RimVfpPlot.h"
 
-#include "RiaDefines.h"
-#include "RiaOpmParserTools.h"
-#include "RimVfpDefines.h"
-
 #include "RiaColorTables.h"
 #include "RiaEclipseUnitTools.h"
+#include "RiaOpmParserTools.h"
+
+#include "RimPlotAxisProperties.h"
+#include "RimVfpDefines.h"
+#include "Tools/RimPlotAxisTools.h"
 
 #include "RiuContextMenuLauncher.h"
 #include "RiuPlotCurve.h"
 #include "RiuPlotWidget.h"
 #include "RiuQwtPlotCurveDefines.h"
+#include "RiuQwtPlotWheelZoomer.h"
 #include "RiuQwtPlotWidget.h"
 
-#include "RiuQwtSymbol.h"
-#include "cafCmdFeatureMenuBuilder.h"
+#include "RiuQwtCurvePointTracker.h"
+#include "RiuQwtPlotWidget.h"
+#include "RiuQwtPlotZoomer.h"
+
 #include "cafPdmUiComboBoxEditor.h"
+
+#include "qwt_plot_panner.h"
 
 #include <QFileInfo>
 
@@ -137,8 +143,22 @@ RimVfpPlot::RimVfpPlot()
     CAF_PDM_InitField( &m_gasLiquidRatioIdx, "GasLiquidRatioIdx", 0, "Gas Liquid Ratio" );
     m_gasLiquidRatioIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    m_showWindow      = true;
-    m_showPlotLegends = true;
+    CAF_PDM_InitFieldNoDefault( &m_xAxisProperties, "xAxisProperties", "X Axis" );
+    m_xAxisProperties = new RimPlotAxisProperties;
+    m_xAxisProperties->setNameAndAxis( "X-Axis", "X-Axis", RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+    m_xAxisProperties->setEnableTitleTextSettings( false );
+
+    CAF_PDM_InitFieldNoDefault( &m_yAxisProperties, "yAxisProperties", "Y Axis" );
+    m_yAxisProperties = new RimPlotAxisProperties;
+    m_yAxisProperties->setNameAndAxis( "Y-Axis", "Y-Axis", RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+    m_yAxisProperties->setEnableTitleTextSettings( false );
+
+    connectAxisSignals( m_xAxisProperties() );
+    connectAxisSignals( m_yAxisProperties() );
+
+    m_showWindow               = true;
+    m_showPlotLegends          = true;
+    m_dataIsImportedExternally = false;
 
     setAsPlotMdiWindow();
 
@@ -181,15 +201,17 @@ bool RimVfpPlot::isCurveHighlightSupported() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::setAutoScaleXEnabled( bool /*enabled*/ )
+void RimVfpPlot::setAutoScaleXEnabled( bool enabled )
 {
+    m_xAxisProperties->setAutoZoom( enabled );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::setAutoScaleYEnabled( bool /*enabled*/ )
+void RimVfpPlot::setAutoScaleYEnabled( bool enabled )
 {
+    m_yAxisProperties->setAutoZoom( enabled );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -197,6 +219,13 @@ void RimVfpPlot::setAutoScaleYEnabled( bool /*enabled*/ )
 //--------------------------------------------------------------------------------------------------
 void RimVfpPlot::updateAxes()
 {
+    if ( !m_plotWidget ) return;
+
+    QString title;
+    RimPlotAxisTools::updatePlotWidgetFromAxisProperties( m_plotWidget, RiuPlotAxis::defaultBottom(), m_xAxisProperties(), title, {} );
+    RimPlotAxisTools::updatePlotWidgetFromAxisProperties( m_plotWidget, RiuPlotAxis::defaultLeft(), m_yAxisProperties(), title, {} );
+
+    m_plotWidget->scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -209,7 +238,7 @@ void RimVfpPlot::updateLegend()
         return;
     }
 
-    // Hide the legend when in multiplot mode, as the legend is handeled by the multi plot grid layout
+    // Hide the legend when in multiplot mode, as the legend is handled by the multi plot grid layout
     bool doShowLegend = false;
     if ( isMdiWindow() )
     {
@@ -350,6 +379,44 @@ QImage RimVfpPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimVfpPlot::zoomAll()
 {
+    setAutoScaleXEnabled( true );
+    setAutoScaleYEnabled( true );
+
+    updatePlotWidgetFromAxisRanges();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlot::setProductionTable( const Opm::VFPProdTable& table )
+{
+    m_prodTable = std::make_unique<Opm::VFPProdTable>( table );
+    m_injectionTable.reset();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlot::setInjectionTable( const Opm::VFPInjTable& table )
+{
+    m_prodTable.reset();
+    m_injectionTable = std::make_unique<Opm::VFPInjTable>( table );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlot::setDataIsImportedExternally( bool dataIsImportedExternally )
+{
+    m_dataIsImportedExternally = dataIsImportedExternally;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimVfpPlot::tableNumber() const
+{
+    return m_tableNumber();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -365,21 +432,35 @@ void RimVfpPlot::doRemoveFromCollection()
 RiuPlotWidget* RimVfpPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
 {
     // It seems we risk being called multiple times
-    if ( m_plotWidget )
-    {
-        return m_plotWidget;
-    }
+    if ( m_plotWidget ) return m_plotWidget;
 
-    {
-        RiuPlotWidget* plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
+    auto qwtPlotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
+    auto qwtPlot       = qwtPlotWidget->qwtPlot();
+    new RiuQwtCurvePointTracker( qwtPlot, true, nullptr );
 
-        // Remove event filter to disable unwanted highlighting on left click in plot.
-        plotWidget->removeEventFilter();
+    // LeftButton for the zooming
+    auto plotZoomer = new RiuQwtPlotZoomer( qwtPlot->canvas() );
+    plotZoomer->setTrackerMode( QwtPicker::AlwaysOff );
+    plotZoomer->initMousePattern( 1 );
 
-        new RiuContextMenuLauncher( plotWidget, { "RicShowPlotDataFeature" } );
+    // MidButton for the panning
+    auto panner = new QwtPlotPanner( qwtPlot->canvas() );
+    panner->setMouseButton( Qt::MiddleButton );
 
-        m_plotWidget = plotWidget;
-    }
+    auto wheelZoomer = new RiuQwtPlotWheelZoomer( qwtPlot );
+
+    // Use lambda functions to connect signals to functions instead of slots
+    connect( wheelZoomer, &RiuQwtPlotWheelZoomer::zoomUpdated, [=]() { onPlotZoomed(); } );
+    connect( plotZoomer, &RiuQwtPlotZoomer::zoomed, [=]() { onPlotZoomed(); } );
+    connect( panner, &QwtPlotPanner::panned, [=]() { onPlotZoomed(); } );
+    connect( qwtPlotWidget, &RiuQwtPlotWidget::plotZoomed, [=]() { onPlotZoomed(); } );
+
+    // Remove event filter to disable unwanted highlighting on left click in plot.
+    qwtPlotWidget->removeEventFilter();
+
+    new RiuContextMenuLauncher( qwtPlotWidget, { "RicShowPlotDataFeature" } );
+
+    m_plotWidget = qwtPlotWidget;
 
     updateLegend();
     onLoadDataAndUpdate();
@@ -423,45 +504,62 @@ void RimVfpPlot::onLoadDataAndUpdate()
 
     updateLegend();
 
-    QString filePath = m_filePath.v().path();
-    if ( !filePath.isEmpty() )
-    {
-        QFileInfo fi( filePath );
-        QString   wellName = fi.baseName();
+    QString wellName;
 
-        // Try to read the file as an prod table first (most common)
-        const std::vector<Opm::VFPProdTable> tables = RiaOpmParserTools::extractVfpProductionTables( filePath.toStdString() );
-        if ( !tables.empty() )
+    if ( !m_dataIsImportedExternally )
+    {
+        QString filePath = m_filePath.v().path();
+        if ( !filePath.isEmpty() )
         {
-            m_prodTable            = std::make_unique<Opm::VFPProdTable>( tables[0] );
-            m_tableType            = RimVfpDefines::TableType::PRODUCTION;
-            m_tableNumber          = tables[0].getTableNum();
-            m_referenceDepth       = tables[0].getDatumDepth();
-            m_flowingPhase         = getFlowingPhaseType( tables[0] );
-            m_flowingGasFraction   = getFlowingGasFractionType( tables[0] );
-            m_flowingWaterFraction = getFlowingWaterFractionType( tables[0] );
-            populatePlotWidgetWithCurveData( m_plotWidget, tables[0], m_primaryVariable(), m_familyVariable() );
-        }
-        else
-        {
-            const std::vector<Opm::VFPInjTable> tables = RiaOpmParserTools::extractVfpInjectionTables( filePath.toStdString() );
+            QFileInfo fi( filePath );
+            wellName = fi.baseName();
+
+            // Try to read the file as an prod table first (most common)
+            const std::vector<Opm::VFPProdTable> tables = RiaOpmParserTools::extractVfpProductionTables( filePath.toStdString() );
             if ( !tables.empty() )
             {
-                m_injectionTable = std::make_unique<Opm::VFPInjTable>( tables[0] );
-                m_tableType      = RimVfpDefines::TableType::INJECTION;
-                m_tableNumber    = tables[0].getTableNum();
-                m_referenceDepth = tables[0].getDatumDepth();
-                m_flowingPhase   = getFlowingPhaseType( tables[0] );
-                populatePlotWidgetWithCurveData( m_plotWidget, tables[0] );
+                setProductionTable( tables[0] );
+            }
+            else
+            {
+                const std::vector<Opm::VFPInjTable> tables = RiaOpmParserTools::extractVfpInjectionTables( filePath.toStdString() );
+                if ( !tables.empty() )
+                {
+                    setInjectionTable( tables[0] );
+                }
             }
         }
-
-        updatePlotTitle(
-            generatePlotTitle( wellName, m_tableNumber(), m_tableType(), m_interpolatedVariable(), m_primaryVariable(), m_familyVariable() ) );
-
-        m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
-        m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
     }
+
+    if ( m_prodTable )
+    {
+        auto table             = *m_prodTable;
+        m_tableType            = RimVfpDefines::TableType::PRODUCTION;
+        m_tableNumber          = table.getTableNum();
+        m_referenceDepth       = table.getDatumDepth();
+        m_flowingPhase         = getFlowingPhaseType( table );
+        m_flowingGasFraction   = getFlowingGasFractionType( table );
+        m_flowingWaterFraction = getFlowingWaterFractionType( table );
+        populatePlotWidgetWithCurveData( m_plotWidget, table, m_primaryVariable(), m_familyVariable() );
+    }
+    else if ( m_injectionTable )
+    {
+        auto table = *m_injectionTable;
+
+        m_tableType      = RimVfpDefines::TableType::INJECTION;
+        m_tableNumber    = table.getTableNum();
+        m_referenceDepth = table.getDatumDepth();
+        m_flowingPhase   = getFlowingPhaseType( table );
+        populatePlotWidgetWithCurveData( m_plotWidget, table );
+    }
+
+    updatePlotTitle(
+        generatePlotTitle( wellName, m_tableNumber(), m_tableType(), m_interpolatedVariable(), m_primaryVariable(), m_familyVariable() ) );
+
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
+
+    updatePlotWidgetFromAxisRanges();
 
     m_plotWidget->scheduleReplot();
 }
@@ -509,10 +607,10 @@ void RimVfpPlot::populatePlotData( const Opm::VFPInjTable&                 table
 
         double  value = convertToDisplayUnit( thpValues[thp], RimVfpDefines::ProductionVariableType::THP );
         QString unit  = getDisplayUnit( RimVfpDefines::ProductionVariableType::THP );
-        QString title = QString( "%1: %2 %3" )
+        QString title = QString( "%1 [%2]: %3" )
                             .arg( caf::AppEnum<RimVfpDefines::ProductionVariableType>::uiText( RimVfpDefines::ProductionVariableType::THP ) )
-                            .arg( value )
-                            .arg( unit );
+                            .arg( unit )
+                            .arg( value );
 
         convertToDisplayUnit( yVals, RimVfpDefines::ProductionVariableType::THP );
         convertToDisplayUnit( xVals, RimVfpDefines::ProductionVariableType::FLOW_RATE );
@@ -588,6 +686,69 @@ QString RimVfpPlot::axisTitle( RimVfpDefines::ProductionVariableType variableTyp
                                      getDisplayUnitWithBracket( variableType ) );
 
     return title;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlot::connectAxisSignals( RimPlotAxisProperties* axis )
+{
+    axis->settingsChanged.connect( this, &RimVfpPlot::axisSettingsChanged );
+    axis->logarithmicChanged.connect( this, &RimVfpPlot::axisLogarithmicChanged );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlot::axisSettingsChanged( const caf::SignalEmitter* emitter )
+{
+    updateAxes();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlot::axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic )
+{
+    // Currently not supported
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlot::updatePlotWidgetFromAxisRanges()
+{
+    if ( m_plotWidget )
+    {
+        updateAxes();
+
+        if ( auto qwtWidget = dynamic_cast<RiuQwtPlotWidget*>( m_plotWidget.data() ) )
+        {
+            if ( qwtWidget->qwtPlot() ) qwtWidget->qwtPlot()->updateAxes();
+        }
+
+        updateAxisRangesFromPlotWidget();
+        m_plotWidget->scheduleReplot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlot::updateAxisRangesFromPlotWidget()
+{
+    RimPlotAxisTools::updateVisibleRangesFromPlotWidget( m_xAxisProperties(), RiuPlotAxis::defaultBottom(), m_plotWidget );
+    RimPlotAxisTools::updateVisibleRangesFromPlotWidget( m_yAxisProperties(), RiuPlotAxis::defaultLeft(), m_plotWidget );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlot::onPlotZoomed()
+{
+    setAutoScaleXEnabled( false );
+    setAutoScaleYEnabled( false );
+    updateAxisRangesFromPlotWidget();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -764,37 +925,35 @@ size_t RimVfpPlot::getVariableIndex( const Opm::VFPProdTable&              table
 void RimVfpPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_filePath );
+    m_filePath.uiCapability()->setUiReadOnly( m_dataIsImportedExternally );
 
-    if ( !m_filePath.v().path().isEmpty() )
+    uiOrdering.add( &m_tableType );
+    uiOrdering.add( &m_tableNumber );
+    uiOrdering.add( &m_referenceDepth );
+    uiOrdering.add( &m_interpolatedVariable );
+    uiOrdering.add( &m_flowingPhase );
+
+    if ( m_tableType == RimVfpDefines::TableType::PRODUCTION )
     {
-        uiOrdering.add( &m_tableType );
-        uiOrdering.add( &m_tableNumber );
-        uiOrdering.add( &m_referenceDepth );
-        uiOrdering.add( &m_interpolatedVariable );
-        uiOrdering.add( &m_flowingPhase );
+        uiOrdering.add( &m_flowingWaterFraction );
+        uiOrdering.add( &m_flowingGasFraction );
 
-        if ( m_tableType == RimVfpDefines::TableType::PRODUCTION )
-        {
-            uiOrdering.add( &m_flowingWaterFraction );
-            uiOrdering.add( &m_flowingGasFraction );
+        uiOrdering.add( &m_primaryVariable );
+        uiOrdering.add( &m_familyVariable );
 
-            uiOrdering.add( &m_primaryVariable );
-            uiOrdering.add( &m_familyVariable );
+        caf::PdmUiOrdering* fixedVariablesGroup = uiOrdering.addNewGroup( "Fixed Variables" );
+        fixedVariablesGroup->add( &m_flowRateIdx );
+        fixedVariablesGroup->add( &m_thpIdx );
+        fixedVariablesGroup->add( &m_articifialLiftQuantityIdx );
+        fixedVariablesGroup->add( &m_waterCutIdx );
+        fixedVariablesGroup->add( &m_gasLiquidRatioIdx );
 
-            caf::PdmUiOrdering* fixedVariablesGroup = uiOrdering.addNewGroup( "Fixed Variables" );
-            fixedVariablesGroup->add( &m_flowRateIdx );
-            fixedVariablesGroup->add( &m_thpIdx );
-            fixedVariablesGroup->add( &m_articifialLiftQuantityIdx );
-            fixedVariablesGroup->add( &m_waterCutIdx );
-            fixedVariablesGroup->add( &m_gasLiquidRatioIdx );
-
-            // Disable the choices for variables as primary or family
-            setFixedVariableUiEditability( m_flowRateIdx, RimVfpDefines::ProductionVariableType::FLOW_RATE );
-            setFixedVariableUiEditability( m_thpIdx, RimVfpDefines::ProductionVariableType::THP );
-            setFixedVariableUiEditability( m_articifialLiftQuantityIdx, RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY );
-            setFixedVariableUiEditability( m_waterCutIdx, RimVfpDefines::ProductionVariableType::WATER_CUT );
-            setFixedVariableUiEditability( m_gasLiquidRatioIdx, RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO );
-        }
+        // Disable the choices for variables as primary or family
+        setFixedVariableUiEditability( m_flowRateIdx, RimVfpDefines::ProductionVariableType::FLOW_RATE );
+        setFixedVariableUiEditability( m_thpIdx, RimVfpDefines::ProductionVariableType::THP );
+        setFixedVariableUiEditability( m_articifialLiftQuantityIdx, RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY );
+        setFixedVariableUiEditability( m_waterCutIdx, RimVfpDefines::ProductionVariableType::WATER_CUT );
+        setFixedVariableUiEditability( m_gasLiquidRatioIdx, RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO );
     }
 
     uiOrdering.skipRemainingFields( true );

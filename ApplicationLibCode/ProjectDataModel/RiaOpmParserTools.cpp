@@ -52,9 +52,9 @@ Opm::VFPInjTable createInjectionTable( const Opm::DeckKeyword& keyword )
 
         if ( header.getItem<Opm::ParserKeywords::VFPINJ::UNITS>().hasValue( 0 ) )
         {
-            std::string units_string;
-            units_string = header.getItem<Opm::ParserKeywords::VFPINJ::UNITS>().get<std::string>( 0 );
-            unitSystem   = Opm::UnitSystem( units_string );
+            std::string unitString;
+            unitString = header.getItem<Opm::ParserKeywords::VFPINJ::UNITS>().get<std::string>( 0 );
+            unitSystem = Opm::UnitSystem( unitString );
         }
     }
 
@@ -72,9 +72,9 @@ Opm::VFPProdTable createProductionTable( const Opm::DeckKeyword& keyword )
 
         if ( header.getItem<Opm::ParserKeywords::VFPPROD::UNITS>().hasValue( 0 ) )
         {
-            std::string units_string;
-            units_string = header.getItem<Opm::ParserKeywords::VFPPROD::UNITS>().get<std::string>( 0 );
-            unitSystem   = Opm::UnitSystem( units_string );
+            std::string unitString;
+            unitString = header.getItem<Opm::ParserKeywords::VFPPROD::UNITS>().get<std::string>( 0 );
+            unitSystem = Opm::UnitSystem( unitString );
         }
     }
 
@@ -101,9 +101,8 @@ std::vector<Opm::VFPInjTable> extractVfpInjectionTables( const std::string& file
 
         auto deck = parser.parseFile( filename );
 
-        std::string myKeyword   = "VFPINJ";
-        auto        keywordList = deck.getKeywordList( myKeyword );
-
+        std::string keyword     = ::Opm::ParserKeywords::VFPINJ::keywordName;
+        auto        keywordList = deck.getKeywordList( keyword );
         for ( auto kw : keywordList )
         {
             auto table = createInjectionTable( *kw );
@@ -133,9 +132,8 @@ std::vector<Opm::VFPProdTable> extractVfpProductionTables( const std::string& fi
 
         auto deck = parser.parseFile( filename );
 
-        std::string myKeyword   = "VFPPROD";
-        auto        keywordList = deck.getKeywordList( myKeyword );
-
+        std::string keyword     = ::Opm::ParserKeywords::VFPPROD::keywordName;
+        auto        keywordList = deck.getKeywordList( keyword );
         for ( auto kw : keywordList )
         {
             auto table = createProductionTable( *kw );

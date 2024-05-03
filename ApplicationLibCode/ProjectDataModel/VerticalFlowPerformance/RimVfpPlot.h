@@ -22,7 +22,6 @@
 #include "RimVfpDefines.h"
 
 #include "cafFilePath.h"
-#include "cafPdmPtrField.h"
 
 #include <QPointer>
 
@@ -31,6 +30,7 @@
 
 class RiuPlotWidget;
 class VfpPlotData;
+class RimPlotAxisProperties;
 
 //--------------------------------------------------------------------------------------------------
 /// Vertical Flow Performance Plot
@@ -64,6 +64,11 @@ public:
     QWidget* viewWidget() override;
     QImage   snapshotWindowContent() override;
     void     zoomAll() override;
+
+    void setProductionTable( const Opm::VFPProdTable& table );
+    void setInjectionTable( const Opm::VFPInjTable& table );
+    void setDataIsImportedExternally( bool dataIsImportedExternally );
+    int  tableNumber() const;
 
 private:
     // RimPlot implementations
@@ -137,6 +142,14 @@ private:
 
     static QString axisTitle( RimVfpDefines::ProductionVariableType variableType, RimVfpDefines::FlowingPhaseType flowingPhase );
 
+    void connectAxisSignals( RimPlotAxisProperties* axis );
+    void axisSettingsChanged( const caf::SignalEmitter* emitter );
+    void axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic );
+    void updatePlotWidgetFromAxisRanges() override;
+    void updateAxisRangesFromPlotWidget() override;
+
+    void onPlotZoomed();
+
 private:
     caf::PdmField<QString>                                               m_plotTitle;
     caf::PdmField<caf::FilePath>                                         m_filePath;
@@ -157,7 +170,12 @@ private:
     caf::PdmField<int> m_waterCutIdx;
     caf::PdmField<int> m_gasLiquidRatioIdx;
 
+    caf::PdmChildField<RimPlotAxisProperties*> m_yAxisProperties;
+    caf::PdmChildField<RimPlotAxisProperties*> m_xAxisProperties;
+
     QPointer<RiuPlotWidget>            m_plotWidget;
     std::unique_ptr<Opm::VFPProdTable> m_prodTable;
     std::unique_ptr<Opm::VFPInjTable>  m_injectionTable;
+
+    bool m_dataIsImportedExternally;
 };

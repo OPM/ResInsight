@@ -44,11 +44,11 @@ void RimPlotAxisTools::updateVisibleRangesFromPlotWidget( RimPlotAxisProperties*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisTools::updatePlotWidgetFromAxisProperties( RiuPlotWidget*                     plotWidget,
-                                                           RiuPlotAxis                        axis,
-                                                           const RimPlotAxisProperties* const axisProperties,
-                                                           const QString&                     axisTitle,
-                                                           std::vector<const RimPlotCurve*>   plotCurves )
+void RimPlotAxisTools::updatePlotWidgetFromAxisProperties( RiuPlotWidget*                          plotWidget,
+                                                           RiuPlotAxis                             axis,
+                                                           const RimPlotAxisProperties* const      axisProperties,
+                                                           const QString&                          axisTitle,
+                                                           const std::vector<const RimPlotCurve*>& plotCurves )
 {
     if ( !plotWidget || !axisProperties ) return;
 

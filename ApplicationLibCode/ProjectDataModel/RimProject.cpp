@@ -92,7 +92,6 @@
 #include "RimUserDefinedPolylinesAnnotation.h"
 #include "RimValveTemplate.h"
 #include "RimValveTemplateCollection.h"
-#include "RimVfpPlotCollection.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimViewWindow.h"
@@ -100,6 +99,7 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "VerticalFlowPerformance/RimVfpPlotCollection.h"
 
 #include "Tools/RiaVariableMapper.h"
 

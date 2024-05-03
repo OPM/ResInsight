@@ -30,10 +30,10 @@ namespace RimPlotAxisTools
 {
 void updateVisibleRangesFromPlotWidget( RimPlotAxisProperties* axisProperties, RiuPlotAxis plotAxis, const RiuPlotWidget* const plotWidget );
 
-void updatePlotWidgetFromAxisProperties( RiuPlotWidget*                     plotWidget,
-                                         RiuPlotAxis                        plotAxis,
-                                         const RimPlotAxisProperties* const axisProperties,
-                                         const QString&                     axisTitle,
-                                         std::vector<const RimPlotCurve*>   plotCurves );
+void updatePlotWidgetFromAxisProperties( RiuPlotWidget*                          plotWidget,
+                                         RiuPlotAxis                             plotAxis,
+                                         const RimPlotAxisProperties* const      axisProperties,
+                                         const QString&                          axisTitle,
+                                         const std::vector<const RimPlotCurve*>& plotCurves );
 
 }; // namespace RimPlotAxisTools
