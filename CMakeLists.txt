@@ -991,7 +991,7 @@ endif(OCTAVE_MKOCTFILE)
 
 add_subdirectory(ThirdParty/extract-projectfile-versions)
 install(TARGETS extract-projectfile-versions
-  DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+        DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
 )
 
 # ##############################################################################
