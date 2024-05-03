@@ -27,7 +27,9 @@
 
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
-#include "RimVfpPlot.h"
+#include "RimVfpDeck.h"
+
+#include "cafCmdFeatureMenuBuilder.h"
 
 CAF_PDM_SOURCE_INIT( RimVfpPlotCollection, "RimVfpPlotCollection" );
 
@@ -39,6 +41,7 @@ RimVfpPlotCollection::RimVfpPlotCollection()
     CAF_PDM_InitObject( "VFP Plots", ":/VfpPlotCollection.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_vfpPlots, "VfpPlots", "Vertical Flow Performance Plots" );
+    CAF_PDM_InitFieldNoDefault( &m_vfpDecks, "VfpDecks", "Vertical Flow Performance Decks" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,6 +86,22 @@ void RimVfpPlotCollection::deleteChildren()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimVfpPlot* RimVfpPlotCollection::plotForTableNumber( int tableNumber ) const
+{
+    for ( auto plot : plots() )
+    {
+        if ( plot->tableNumber() == tableNumber )
+        {
+            return plot;
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 size_t RimVfpPlotCollection::plotCount() const
 {
     return m_vfpPlots.size();
@@ -95,4 +114,51 @@ void RimVfpPlotCollection::removePlot( RimVfpPlot* vfpPlot )
 {
     m_vfpPlots.removeChild( vfpPlot );
     updateAllRequiredEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimVfpDeck* RimVfpPlotCollection::addDeck( const QString& filename )
+{
+    RimVfpDeck* deck = new RimVfpDeck();
+    deck->setFileName( filename );
+    m_vfpDecks.push_back( deck );
+
+    return deck;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlotCollection::onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects )
+{
+    for ( auto plot : plots() )
+    {
+        plot->updateMdiWindowVisibility();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlotCollection::loadDataAndUpdateAllPlots()
+{
+    for ( auto plot : plots() )
+    {
+        plot->loadDataAndUpdate();
+    }
+
+    for ( auto deck : m_vfpDecks.childrenByType() )
+    {
+        deck->loadDataAndUpdate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlotCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicNewVfpPlotFeature";
 }

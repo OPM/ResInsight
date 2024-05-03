@@ -22,12 +22,10 @@
 #include "RiaGuiApplication.h"
 
 #include "RimMainPlotCollection.h"
-#include "RimSimWellInView.h"
-#include "RimVfpPlot.h"
-#include "RimVfpPlotCollection.h"
-#include "RimWellLogPlot.h"
-#include "RimWellLogTrack.h"
-#include "RimWellPath.h"
+
+#include "VerticalFlowPerformance/RimVfpDeck.h"
+#include "VerticalFlowPerformance/RimVfpPlot.h"
+#include "VerticalFlowPerformance/RimVfpPlotCollection.h"
 
 #include "RiuFileDialogTools.h"
 #include "RiuPlotMainWindow.h"
@@ -38,8 +36,6 @@
 #include <QAction>
 #include <QFileInfo>
 
-#include <vector>
-
 CAF_CMD_SOURCE_INIT( RicNewVfpPlotFeature, "RicNewVfpPlotFeature" );
 
 //--------------------------------------------------------------------------------------------------
@@ -47,7 +43,7 @@ CAF_CMD_SOURCE_INIT( RicNewVfpPlotFeature, "RicNewVfpPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicNewVfpPlotFeature::isCommandEnabled() const
 {
-    RimVfpPlotCollection* plotColl = caf::firstAncestorOfTypeFromSelectedObject<RimVfpPlotCollection>();
+    auto plotColl = caf::firstAncestorOfTypeFromSelectedObject<RimVfpPlotCollection>();
     return ( plotColl != nullptr );
 }
 
@@ -56,44 +52,64 @@ bool RicNewVfpPlotFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewVfpPlotFeature::onActionTriggered( bool isChecked )
 {
+    RimVfpPlotCollection* vfpPlotColl = RimMainPlotCollection::current()->vfpPlotCollection();
+    if ( !vfpPlotColl ) return;
+
     RiaApplication*    app = RiaGuiApplication::instance();
     RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
 
     const QString vfpDataKey = "VFP_DATA";
     QString       defaultDir = app->lastUsedDialogDirectory( vfpDataKey );
     QStringList   fileNames =
-        RiuFileDialogTools::getOpenFileNames( mpw, "Import VFP Files", defaultDir, "VFP Text Files (*.ecl *.vfp);;All Files (*.*)" );
+        RiuFileDialogTools::getOpenFileNames( mpw, "Import VFP Files", defaultDir, "VFP Text Files (*.ecl *.vfp *.data);;All Files (*.*)" );
 
     if ( fileNames.isEmpty() ) return;
 
     app->setLastUsedDialogDirectory( vfpDataKey, QFileInfo( fileNames.last() ).absolutePath() );
 
-    RimVfpPlotCollection* vfpPlotColl = RimMainPlotCollection::current()->vfpPlotCollection();
-    if ( vfpPlotColl )
+    std::vector<RimVfpPlot*> vfpPlots;
+    std::vector<RimVfpDeck*> vfpDecks;
+
+    for ( const auto& fileName : fileNames )
     {
-        std::vector<RimVfpPlot*> vfpPlots;
-        for ( const auto& fileName : fileNames )
+        if ( fileName.contains( ".DATA" ) )
         {
-            RimVfpPlot* vfpPlot = new RimVfpPlot();
+            auto vfpDeck = vfpPlotColl->addDeck( fileName );
+            vfpDecks.push_back( vfpDeck );
+        }
+        else
+        {
+            auto vfpPlot = new RimVfpPlot();
             vfpPlot->setFileName( fileName );
             vfpPlotColl->addPlot( vfpPlot );
 
             vfpPlots.push_back( vfpPlot );
         }
+    }
 
-        vfpPlotColl->updateConnectedEditors();
+    vfpPlotColl->updateConnectedEditors();
 
-        for ( auto plot : vfpPlots )
-        {
-            plot->loadDataAndUpdate();
-        }
+    for ( auto deck : vfpDecks )
+    {
+        deck->loadDataAndUpdate();
+        deck->updateConnectedEditors();
+    }
 
-        RiuPlotMainWindowTools::showPlotMainWindow();
+    for ( auto plot : vfpPlots )
+    {
+        plot->loadDataAndUpdate();
+    }
 
-        if ( !vfpPlots.empty() )
-        {
-            RiuPlotMainWindowTools::onObjectAppended( vfpPlots.front() );
-        }
+    RiuPlotMainWindowTools::showPlotMainWindow();
+
+    if ( !vfpPlots.empty() )
+    {
+        RiuPlotMainWindowTools::onObjectAppended( vfpPlots.front() );
+    }
+
+    if ( !vfpDecks.empty() )
+    {
+        RiuPlotMainWindowTools::onObjectAppended( vfpDecks.front() );
     }
 }
 
