@@ -52,10 +52,10 @@ public:
 
     static QString findCollectionName( SelectionToggleType state );
 
+    static std::pair<caf::PdmObjectHandle*, caf::PdmChildArrayFieldHandle*> findOwnerAndChildArrayField( caf::PdmFieldHandle* fieldHandle );
+
 private:
     static caf::PdmUiTreeView*               findTreeView( const caf::PdmUiItem* uiItem );
     static caf::PdmUiTreeOrdering*           findTreeItemFromSelectedUiItem( const caf::PdmUiItem* uiItem );
     static std::vector<caf::PdmField<bool>*> findToggleFieldsFromSelection( SelectionToggleType state );
-
-    static std::pair<caf::PdmObjectHandle*, caf::PdmChildArrayFieldHandle*> findOwnerAndChildArrayField( caf::PdmFieldHandle* fieldHandle );
 };
