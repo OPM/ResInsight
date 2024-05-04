@@ -117,17 +117,17 @@ int main( int argc, char* argv[] )
         // of the application, and can be accessed using QSqlDatabase::database()
         db = QSqlDatabase::addDatabase( databaseType );
     }
+
+    QFileInfo fileInfo( databaseFilePath );
+    auto      dbPath = fileInfo.absoluteFilePath();
+    db.setDatabaseName( dbPath );
+
     if ( !db.open() )
     {
         QString txt = "Error opening database:" + db.lastError().text();
         qCritical() << txt;
         return 1;
     }
-
-    QFileInfo fileInfo( databaseFilePath );
-    auto      dbPath = fileInfo.absoluteFilePath();
-    db.setDatabaseName( dbPath );
-    db.open();
 
     extractVersionsToFolder( destinationDir );
 

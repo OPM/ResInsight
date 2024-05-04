@@ -25,5 +25,5 @@
 //==================================================================================================
 namespace RiaProjectBackupTools
 {
-bool appendTextToDatabase( const QString& databaseFilePath, const QString& content );
-}
+bool appendTextToDatabase( const QString& databaseFilePath, int maximumRecordCount, const QString& content );
+} // namespace RiaProjectBackupTools

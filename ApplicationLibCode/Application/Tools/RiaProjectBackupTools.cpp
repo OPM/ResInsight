@@ -66,11 +66,40 @@ bool insertContent( const QString& content )
 
     return true;
 }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool deleteOldRecords( int maximumRecordCount )
+{
+    QSqlQuery countQuery( "SELECT COUNT(*) FROM file_versions" );
+    if ( !countQuery.exec() || !countQuery.next() )
+    {
+        qDebug() << "Error counting records:" << countQuery.lastError().text();
+        return false;
+    }
+
+    int count           = countQuery.value( 0 ).toInt();
+    int recordsToDelete = count - maximumRecordCount;
+    if ( recordsToDelete <= 0 ) return true;
+
+    QSqlQuery query;
+    query.prepare( "DELETE FROM file_versions WHERE id IN (SELECT id FROM file_versions ORDER BY timestamp ASC LIMIT :limit)" );
+    query.bindValue( ":limit", recordsToDelete );
+
+    if ( !query.exec() )
+    {
+        QString txt = "Error deleting old records:" + query.lastError().text();
+        RiaLogging::error( txt );
+        return false;
+    }
+
+    return true;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool appendTextToDatabase( const QString& databaseFilePath, const QString& content )
+bool appendTextToDatabase( const QString& databaseFilePath, int maximumRecordCount, const QString& content )
 {
     const QString databaseType = "QSQLITE";
 
@@ -101,6 +130,8 @@ bool appendTextToDatabase( const QString& databaseFilePath, const QString& conte
     db.setDatabaseName( databaseFilePath );
 
     if ( !createTableIfNeeded() ) return false;
+    if ( !deleteOldRecords( maximumRecordCount ) ) return false;
+
     if ( !insertContent( content ) ) return false;
 
     return true;
