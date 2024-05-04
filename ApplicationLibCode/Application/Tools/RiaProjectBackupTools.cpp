@@ -74,7 +74,7 @@ bool deleteOldRecords( int maximumRecordCount )
     QSqlQuery countQuery( "SELECT COUNT(*) FROM file_versions" );
     if ( !countQuery.exec() || !countQuery.next() )
     {
-        qDebug() << "Error counting records:" << countQuery.lastError().text();
+        RiaLogging::error( "Error counting records: " + countQuery.lastError().text() );
         return false;
     }
 
