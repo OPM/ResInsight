@@ -416,8 +416,9 @@ bool RimProject::writeProjectFile()
 
     if ( RiaPreferences::current()->storeBackupOfProjectFiles() )
     {
-        QString backupFilename = fileName + "db";
-        RiaProjectBackupTools::appendTextToDatabase( backupFilename, content );
+        QString   backupFilename     = fileName + "db";
+        const int maximumRecordCount = 50;
+        RiaProjectBackupTools::appendTextToDatabase( backupFilename, maximumRecordCount, content );
     }
 
     distributePathsFromGlobalPathList();
