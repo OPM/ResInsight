@@ -79,7 +79,7 @@ int main( int argc, char* argv[] )
     const QStringList args = parser.positionalArguments();
     if ( args.size() != 2 )
     {
-        qCritical() << "Not able parser two input arguments.";
+        qCritical() << "Failed to detect two input arguments.";
         parser.showHelp( 1 );
         return 1;
     }
@@ -93,7 +93,11 @@ int main( int argc, char* argv[] )
 
     QString destinationDir = args[1];
     QDir    dir;
-    dir.mkpath( destinationDir );
+    if ( !dir.mkpath( destinationDir ) )
+    {
+        qCritical() << "Not able to create destination folder : " << destinationDir;
+        return 1;
+    }
 
     const QString databaseType = "QSQLITE";
 
@@ -120,7 +124,6 @@ int main( int argc, char* argv[] )
         return 1;
     }
 
-    // Set the file name for the database. The database will be created if it does not exist.
     QFileInfo fileInfo( databaseFilePath );
     auto      dbPath = fileInfo.absoluteFilePath();
     db.setDatabaseName( dbPath );
