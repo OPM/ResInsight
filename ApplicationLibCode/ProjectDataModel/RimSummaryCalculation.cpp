@@ -304,7 +304,9 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
     auto vars = variables.value();
     substituteVariables( vars, addr );
 
-    return calculateResult( m_expression, vars, summaryCase );
+    RimSummaryCase* summaryCaseForVariableSubstitution = m_distributeToAllCases ? summaryCase : nullptr;
+
+    return calculateResult( m_expression, vars, summaryCaseForVariableSubstitution );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -313,7 +315,7 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
 std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
     RimSummaryCalculation::calculateResult( const QString&                                 expression,
                                             const std::vector<SummaryCalculationVariable>& variables,
-                                            RimSummaryCase*                                summaryCase )
+                                            RimSummaryCase*                                summaryCaseForSubstitution )
 
 {
     QString leftHandSideVariableName = RimSummaryCalculation::findLeftHandSide( expression );
@@ -324,12 +326,13 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
     {
         SummaryCalculationVariable v = variables[i];
 
-        RiaSummaryCurveDefinition curveDef( summaryCase, v.summaryAddress, false );
+        RimSummaryCase* summaryCaseForValues = v.summaryCase;
+        if ( summaryCaseForSubstitution ) summaryCaseForValues = summaryCaseForSubstitution;
 
-        std::vector<double> curveValues = RiaSummaryCurveDefinition::resultValues( curveDef );
+        RiaSummaryCurveDefinition curveDef( summaryCaseForValues, v.summaryAddress, false );
 
+        std::vector<double> curveValues    = RiaSummaryCurveDefinition::resultValues( curveDef );
         std::vector<time_t> curveTimeSteps = RiaSummaryCurveDefinition::timeSteps( curveDef );
-
         if ( !curveTimeSteps.empty() && !curveValues.empty() )
         {
             timeHistoryCurveMerger.addCurveData( curveTimeSteps, curveValues );
@@ -431,26 +434,19 @@ void RimSummaryCalculation::removeDependentObjects()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCalculationAddress> RimSummaryCalculation::allAddressesForSummaryCase( RimSummaryCase* summaryCase ) const
 {
-    if ( !m_distributeToAllCases )
-    {
-        for ( auto& v : m_variables )
-        {
-            if ( auto variable = dynamic_cast<RimSummaryCalculationVariable*>( v.p() ) )
-            {
-                if ( variable->summaryCase() != summaryCase )
-                {
-                    return {};
-                }
-            }
-        }
-    }
-
     auto variables = getVariables();
     if ( variables && !variables.value().empty() )
     {
+        auto firstVariable = variables.value().front();
+
+        if ( !m_distributeToAllCases && ( firstVariable.summaryCase != summaryCase ) )
+        {
+            // The calculation is only displayed in the summary case matching the first variable
+            return {};
+        }
+
         // The first variable is the substituable one. Use its category to
         // provide all available addresses.
-        auto firstVariable = variables.value().front();
         if ( m_distributeToOtherItems )
         {
             auto allResultAddresses = summaryCase->summaryReader()->allResultAddresses();

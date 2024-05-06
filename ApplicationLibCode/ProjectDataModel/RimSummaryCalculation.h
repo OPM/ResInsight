@@ -76,7 +76,9 @@ protected:
     RimSummaryCalculationVariable* createVariable() override;
 
     static std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
-        calculateResult( const QString& expression, const std::vector<SummaryCalculationVariable>& variables, RimSummaryCase* summaryCase );
+        calculateResult( const QString&                                 expression,
+                         const std::vector<SummaryCalculationVariable>& variables,
+                         RimSummaryCase*                                summaryCaseForSubstitution );
 
     std::optional<std::pair<std::vector<double>, std::vector<time_t>>> calculateWithSubstitutions( RimSummaryCase* summaryCase,
                                                                                                    const RifEclipseSummaryAddress& addr );
