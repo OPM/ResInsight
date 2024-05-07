@@ -1162,7 +1162,7 @@ void RimSummaryCaseCollection::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::onCalculationUpdated()
 {
-    m_dataVectorFolders->deleteCalculatedObjects();
+    m_dataVectorFolders->deleteCalculatedAddresses();
     m_dataVectorFolders->updateFolderStructure( ensembleSummaryAddresses(), -1, m_ensembleId );
 
     m_analyzer.reset();
