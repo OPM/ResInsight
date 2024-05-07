@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewVfpPlotFeature.h"
+#include "RicImportVfpDataFeature.h"
 
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
@@ -36,12 +36,12 @@
 #include <QAction>
 #include <QFileInfo>
 
-CAF_CMD_SOURCE_INIT( RicNewVfpPlotFeature, "RicNewVfpPlotFeature" );
+CAF_CMD_SOURCE_INIT( RicImportVfpDataFeature, "RicImportVfpDataFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewVfpPlotFeature::isCommandEnabled() const
+bool RicImportVfpDataFeature::isCommandEnabled() const
 {
     auto plotColl = caf::firstAncestorOfTypeFromSelectedObject<RimVfpPlotCollection>();
     return ( plotColl != nullptr );
@@ -50,7 +50,7 @@ bool RicNewVfpPlotFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewVfpPlotFeature::onActionTriggered( bool isChecked )
+void RicImportVfpDataFeature::onActionTriggered( bool isChecked )
 {
     RimVfpPlotCollection* vfpPlotColl = RimMainPlotCollection::current()->vfpPlotCollection();
     if ( !vfpPlotColl ) return;
@@ -60,8 +60,21 @@ void RicNewVfpPlotFeature::onActionTriggered( bool isChecked )
 
     const QString vfpDataKey = "VFP_DATA";
     QString       defaultDir = app->lastUsedDialogDirectory( vfpDataKey );
-    QStringList   fileNames =
-        RiuFileDialogTools::getOpenFileNames( mpw, "Import VFP Files", defaultDir, "VFP Text Files (*.ecl *.vfp *.data);;All Files (*.*)" );
+
+    QString vfpTextFileFilter    = "VFP Text Files (*.ecl *.vfp)";
+    QString simulatorInputFilter = "Simulator Input Files (*.data)";
+    QString allFilters           = vfpTextFileFilter + ";;" + simulatorInputFilter + ";;" + "All Files (*.*)";
+
+    QString selectedFilter = simulatorInputFilter;
+
+    QVariant userData = this->userData();
+    if ( !userData.isNull() && userData.canConvert<bool>() )
+    {
+        bool isVfpFiles = userData.toBool();
+        if ( isVfpFiles ) selectedFilter = vfpTextFileFilter;
+    }
+
+    QStringList fileNames = RiuFileDialogTools::getOpenFileNames( mpw, "Import VFP Files", defaultDir, allFilters, &selectedFilter );
 
     if ( fileNames.isEmpty() ) return;
 
@@ -116,8 +129,8 @@ void RicNewVfpPlotFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewVfpPlotFeature::setupActionLook( QAction* actionToSetup )
+void RicImportVfpDataFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "New VFP Plots" );
+    actionToSetup->setText( "Import VFP Data" );
     actionToSetup->setIcon( QIcon( ":/VfpPlot.svg" ) );
 }

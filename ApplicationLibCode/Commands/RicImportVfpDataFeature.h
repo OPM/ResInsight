@@ -23,7 +23,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewVfpPlotFeature : public caf::CmdFeature
+class RicImportVfpDataFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

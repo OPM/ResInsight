@@ -160,5 +160,9 @@ void RimVfpPlotCollection::loadDataAndUpdateAllPlots()
 //--------------------------------------------------------------------------------------------------
 void RimVfpPlotCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
-    menuBuilder << "RicNewVfpPlotFeature";
+    // A variant with a true value is used to indicate that the VFP data is imported from a file
+    // This is used to distinguish between VFP data imported from a file and VFP data imported from a simulator
+    QVariant variant( QVariant::fromValue( true ) );
+    menuBuilder.addCmdFeatureWithUserData( "RicImportVfpDataFeature", "Import VFP Files", variant );
+    menuBuilder.addCmdFeature( "RicImportVfpDataFeature", "Import VFP from Simulator Files" );
 }
