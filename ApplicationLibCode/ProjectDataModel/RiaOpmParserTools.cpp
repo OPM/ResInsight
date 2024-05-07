@@ -25,6 +25,7 @@
 #include "cafPdmUiItem.h"
 #include "cafUtils.h"
 
+#include "opm/common/utility/OpmInputError.hpp"
 #include "opm/input/eclipse/Deck/Deck.hpp"
 #include "opm/input/eclipse/Parser/ParseContext.hpp"
 #include "opm/input/eclipse/Parser/Parser.hpp"
@@ -109,8 +110,20 @@ std::vector<Opm::VFPInjTable> extractVfpInjectionTables( const std::string& file
             tables.push_back( table );
         }
     }
+    catch ( Opm::OpmInputError& e )
+    {
+        QString text = QString( "Error detected when parsing '%1'. Imported data might be missing or incomplete.\n%2" )
+                           .arg( QString::fromStdString( filename ) )
+                           .arg( QString::fromStdString( e.what() ) );
+
+        RiaLogging::warning( text );
+    }
     catch ( ... )
     {
+        QString text =
+            QString( "Error detected when parsing '%1'. Imported data might be missing or incomplete." ).arg( QString::fromStdString( filename ) );
+
+        RiaLogging::warning( text );
     }
 
     return tables;
@@ -140,8 +153,20 @@ std::vector<Opm::VFPProdTable> extractVfpProductionTables( const std::string& fi
             tables.push_back( table );
         }
     }
+    catch ( Opm::OpmInputError& e )
+    {
+        QString text = QString( "Error detected when parsing '%1'. Imported data might be missing or incomplete.\n%2" )
+                           .arg( QString::fromStdString( filename ) )
+                           .arg( QString::fromStdString( e.what() ) );
+
+        RiaLogging::warning( text );
+    }
     catch ( ... )
     {
+        QString text =
+            QString( "Error detected when parsing '%1'. Imported data might be missing or incomplete." ).arg( QString::fromStdString( filename ) );
+
+        RiaLogging::warning( text );
     }
 
     return tables;
@@ -193,6 +218,14 @@ std::pair<std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>> extract
                 injTables.push_back( table );
             }
         }
+    }
+    catch ( Opm::OpmInputError& e )
+    {
+        QString text = QString( "Error detected when parsing '%1'. Imported data might be missing or incomplete.\n%2" )
+                           .arg( QString::fromStdString( dataDeckFilename ) )
+                           .arg( QString::fromStdString( e.what() ) );
+
+        RiaLogging::warning( text );
     }
     catch ( ... )
     {
