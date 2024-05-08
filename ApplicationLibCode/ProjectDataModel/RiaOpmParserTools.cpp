@@ -29,6 +29,7 @@
 #include "opm/input/eclipse/Deck/Deck.hpp"
 #include "opm/input/eclipse/Parser/ParseContext.hpp"
 #include "opm/input/eclipse/Parser/Parser.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/G.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/I.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/P.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/T.hpp"
@@ -186,12 +187,15 @@ std::pair<std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>> extract
     {
         Opm::Parser parser( false );
 
-        // Required to include the TUNING keyword to avoid parsing error of a Norne DATA file containing the TUNING keyword
-        // The TUNING keyword is not required nor related to VFP data
+        // Required to include the some keywords not related or required for VFP data to avoid paring errors causing data to be skipped.
+        // TUNING caused error in a Norne model
+        // GRUPTREE, WELSPECS caused error in an unknown models
         std::vector<Opm::ParserKeyword> parserKeywords = { Opm::ParserKeywords::VFPPROD(),
                                                            Opm::ParserKeywords::VFPINJ(),
                                                            Opm::ParserKeywords::INCLUDE(),
-                                                           Opm::ParserKeywords::TUNING() };
+                                                           Opm::ParserKeywords::TUNING(),
+                                                           Opm::ParserKeywords::GRUPTREE(),
+                                                           Opm::ParserKeywords::WELSPECS() };
         for ( const auto& kw : parserKeywords )
         {
             parser.addParserKeyword( kw );
