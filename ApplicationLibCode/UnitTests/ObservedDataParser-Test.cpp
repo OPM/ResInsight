@@ -445,6 +445,74 @@ DAYS;BARS;BARS;BARS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( RifColumnBasedAsciiParserTest, LineBasedWithErrorCsv )
+{
+    QString data = R"(
+DATE       ;VECTOR    ;VALUE ;ERROR
+2018-04-16 ;FOPT      ;12.5  ;0.45
+2018-04-18 ;FOPT      ;8.6   ;0.31
+2018-04-18 ;WOPT:BH-1 ;0.1   ;0.2
+)";
+
+    QTextStream out( &data );
+
+    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser( data );
+    parser.parse( {} );
+
+    auto tableData   = parser.tableData();
+    auto columnInfos = tableData.columnInfos();
+
+    ASSERT_EQ( columnInfos.size(), 4 );
+
+    // FOPT
+    ASSERT_EQ( columnInfos[0].values.size(), 2 );
+    ASSERT_EQ( columnInfos[0].dateTimeValues.size(), 2 );
+
+    // FOPT_ERR
+    ASSERT_EQ( columnInfos[1].values.size(), 2 );
+    ASSERT_EQ( columnInfos[1].dateTimeValues.size(), 2 );
+
+    // WOPT:BH-1
+    ASSERT_EQ( columnInfos[2].values.size(), 1 );
+    ASSERT_EQ( columnInfos[2].dateTimeValues.size(), 1 );
+
+    // WOPT:BH-1_ERR
+    ASSERT_EQ( columnInfos[3].values.size(), 1 );
+    ASSERT_EQ( columnInfos[3].dateTimeValues.size(), 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifColumnBasedAsciiParserTest, LineBasedCsv )
+{
+    QString data = R"(
+DATE       ;VECTOR    ;VALUE
+2018-04-16 ;FOPT      ;12.5 
+2018-04-18 ;FOPT      ;8.6  
+2018-04-18 ;WOPT:BH-1 ;0.1  
+)";
+
+    QTextStream out( &data );
+
+    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser( data );
+    parser.parse( {} );
+
+    auto tableData   = parser.tableData();
+    auto columnInfos = tableData.columnInfos();
+
+    ASSERT_EQ( columnInfos.size(), 2 );
+
+    ASSERT_EQ( columnInfos[0].values.size(), 2 );
+    ASSERT_EQ( columnInfos[0].dateTimeValues.size(), 2 );
+
+    ASSERT_EQ( columnInfos[1].values.size(), 1 );
+    ASSERT_EQ( columnInfos[1].dateTimeValues.size(), 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( RifRsmspecParserToolsTest, TestSplitLineToDoubles )
 {
     QString     data;
