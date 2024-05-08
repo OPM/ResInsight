@@ -288,7 +288,9 @@ RifCsvUserDataParser::CsvLayout RifCsvUserDataParser::determineCsvLayout()
     {
         firstLine = dataStream->readLine();
         if ( firstLine.isEmpty() ) continue;
-        headers = firstLine.split( ';' );
+
+        headers = RifFileParseTools::splitLineAndTrim( firstLine, ";" );
+
         if ( headers.size() < 3 || headers.size() > 5 ) continue;
         break;
     }
