@@ -29,11 +29,36 @@ TEST( RifColumnBasedAsciiParserTest, TestDateFormatYyyymmddWithDash )
 
     QString     data;
     QTextStream out( &data );
-    out << "Date" << "\t" << "Oil" << "\t" << "PW" << "\n";
-    out << "1993-02-23" << "\t" << "10" << "\t" << "1" << "\n";
-    out << "1993-06-15" << "\t" << "20" << "\t" << "2" << "\n";
-    out << "1994-02-26" << "\t" << "30" << "\t" << "3" << "\n";
-    out << "1994-05-23" << "\t" << "40" << "\t" << "4" << "\n";
+    out << "Date"
+        << "\t"
+        << "Oil"
+        << "\t"
+        << "PW"
+        << "\n";
+    out << "1993-02-23"
+        << "\t"
+        << "10"
+        << "\t"
+        << "1"
+        << "\n";
+    out << "1993-06-15"
+        << "\t"
+        << "20"
+        << "\t"
+        << "2"
+        << "\n";
+    out << "1994-02-26"
+        << "\t"
+        << "30"
+        << "\t"
+        << "3"
+        << "\n";
+    out << "1994-05-23"
+        << "\t"
+        << "40"
+        << "\t"
+        << "4"
+        << "\n";
 
     RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser( data );
     ASSERT_TRUE( parser.parse( parseOptions ) );
@@ -61,11 +86,36 @@ TEST( RifColumnBasedAsciiParserTest, TestDateFormatYymmddWithDot )
 
     QString     data;
     QTextStream out( &data );
-    out << "Date" << "\t" << "Oil" << "\t" << "PW" << "\n";
-    out << "93.02.23" << "\t" << "10" << "\t" << "1" << "\n";
-    out << "93.06.15" << "\t" << "20" << "\t" << "2" << "\n";
-    out << "94.02.26" << "\t" << "30" << "\t" << "3" << "\n";
-    out << "94.05.23" << "\t" << "40" << "\t" << "4" << "\n";
+    out << "Date"
+        << "\t"
+        << "Oil"
+        << "\t"
+        << "PW"
+        << "\n";
+    out << "93.02.23"
+        << "\t"
+        << "10"
+        << "\t"
+        << "1"
+        << "\n";
+    out << "93.06.15"
+        << "\t"
+        << "20"
+        << "\t"
+        << "2"
+        << "\n";
+    out << "94.02.26"
+        << "\t"
+        << "30"
+        << "\t"
+        << "3"
+        << "\n";
+    out << "94.05.23"
+        << "\t"
+        << "40"
+        << "\t"
+        << "4"
+        << "\n";
 
     RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser( data );
 
@@ -91,11 +141,36 @@ TEST( RifColumnBasedAsciiParserTest, TestDateFormatDdmmyyWithDot )
 
     QString     data;
     QTextStream out( &data );
-    out << "Date" << "\t" << "Oil" << "\t" << "PW" << "\n";
-    out << "23.02.93" << "\t" << "10" << "\t" << "1" << "\n";
-    out << "15.06.93" << "\t" << "20" << "\t" << "2" << "\n";
-    out << "26.02.94" << "\t" << "30" << "\t" << "3" << "\n";
-    out << "23.05.94" << "\t" << "40" << "\t" << "4" << "\n";
+    out << "Date"
+        << "\t"
+        << "Oil"
+        << "\t"
+        << "PW"
+        << "\n";
+    out << "23.02.93"
+        << "\t"
+        << "10"
+        << "\t"
+        << "1"
+        << "\n";
+    out << "15.06.93"
+        << "\t"
+        << "20"
+        << "\t"
+        << "2"
+        << "\n";
+    out << "26.02.94"
+        << "\t"
+        << "30"
+        << "\t"
+        << "3"
+        << "\n";
+    out << "23.05.94"
+        << "\t"
+        << "40"
+        << "\t"
+        << "4"
+        << "\n";
 
     RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser( data );
     ASSERT_TRUE( parser.parse( parseOptions ) );
@@ -121,11 +196,36 @@ TEST( RifColumnBasedAsciiParserTest, TestDecimalLocaleNorwegian )
 
     QString     data;
     QTextStream out( &data );
-    out << "Date" << "\t" << "Oil" << "\t" << "PW" << "\n";
-    out << "93.02.23" << "\t" << "10,1" << "\t" << "1,0" << "\n";
-    out << "93.06.15" << "\t" << "20,40" << "\t" << "2,33" << "\n";
-    out << "94.02.26" << "\t" << "30,2" << "\t" << "3,09" << "\n";
-    out << "94.05.23" << "\t" << "40,8" << "\t" << "4,44" << "\n";
+    out << "Date"
+        << "\t"
+        << "Oil"
+        << "\t"
+        << "PW"
+        << "\n";
+    out << "93.02.23"
+        << "\t"
+        << "10,1"
+        << "\t"
+        << "1,0"
+        << "\n";
+    out << "93.06.15"
+        << "\t"
+        << "20,40"
+        << "\t"
+        << "2,33"
+        << "\n";
+    out << "94.02.26"
+        << "\t"
+        << "30,2"
+        << "\t"
+        << "3,09"
+        << "\n";
+    out << "94.05.23"
+        << "\t"
+        << "40,8"
+        << "\t"
+        << "4,44"
+        << "\n";
 
     RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser( data );
 
@@ -163,11 +263,46 @@ TEST( RifColumnBasedAsciiParserTest, TestDecimalLocaleC )
 
     QString     data;
     QTextStream out( &data );
-    out << "Date" << "\t" << "Oil" << "\t" << "PW" << "\t" << "H2S" << "\n";
-    out << "93.02.23" << "\t" << "10.1" << "\t" << "1.0" << "\t" << "0.2" << "\n";
-    out << "93.06.15" << "\t" << "20.40" << "\t" << "2.33" << "\t" << "2.13" << "\n";
-    out << "94.02.26" << "\t" << "30.2" << "\t" << "3.09" << "\t" << "2.1" << "\n";
-    out << "94.05.23" << "\t" << "40.8" << "\t" << "4.44" << "\t" << "1.0" << "\n";
+    out << "Date"
+        << "\t"
+        << "Oil"
+        << "\t"
+        << "PW"
+        << "\t"
+        << "H2S"
+        << "\n";
+    out << "93.02.23"
+        << "\t"
+        << "10.1"
+        << "\t"
+        << "1.0"
+        << "\t"
+        << "0.2"
+        << "\n";
+    out << "93.06.15"
+        << "\t"
+        << "20.40"
+        << "\t"
+        << "2.33"
+        << "\t"
+        << "2.13"
+        << "\n";
+    out << "94.02.26"
+        << "\t"
+        << "30.2"
+        << "\t"
+        << "3.09"
+        << "\t"
+        << "2.1"
+        << "\n";
+    out << "94.05.23"
+        << "\t"
+        << "40.8"
+        << "\t"
+        << "4.44"
+        << "\t"
+        << "1.0"
+        << "\n";
 
     RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser( data );
 
@@ -213,11 +348,36 @@ TEST( RifColumnBasedAsciiParserTest, TestCellSeparatorComma )
     QString     data;
     QTextStream out( &data );
 
-    out << "Date" << "," << "Oil" << "," << "PW" << "\n";
-    out << "93.02.23" << "," << "10.1" << "," << "1.0" << "\n";
-    out << "93.06.15" << "," << "20.40" << "," << "2.33" << "\n";
-    out << "94.02.26" << "," << "30.2" << "," << "3.09" << "\n";
-    out << "94.05.23" << "," << "40.8" << "," << "4.44" << "\n";
+    out << "Date"
+        << ","
+        << "Oil"
+        << ","
+        << "PW"
+        << "\n";
+    out << "93.02.23"
+        << ","
+        << "10.1"
+        << ","
+        << "1.0"
+        << "\n";
+    out << "93.06.15"
+        << ","
+        << "20.40"
+        << ","
+        << "2.33"
+        << "\n";
+    out << "94.02.26"
+        << ","
+        << "30.2"
+        << ","
+        << "3.09"
+        << "\n";
+    out << "94.05.23"
+        << ","
+        << "40.8"
+        << ","
+        << "4.44"
+        << "\n";
 
     RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser( data );
 
