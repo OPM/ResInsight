@@ -349,7 +349,7 @@ void RimSummaryAddressCollection::deleteChildren()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAddressCollection::deleteCalculatedObjects()
+int RimSummaryAddressCollection::deleteCalculatedAddresses()
 {
     std::vector<RimSummaryAddress*> toDelete;
     for ( const auto& a : m_adresses )
@@ -360,6 +360,8 @@ void RimSummaryAddressCollection::deleteCalculatedObjects()
         }
     }
 
+    int calculationAddressCount = static_cast<int>( toDelete.size() );
+
     for ( auto a : toDelete )
     {
         m_adresses.removeChild( a );
@@ -368,8 +370,10 @@ void RimSummaryAddressCollection::deleteCalculatedObjects()
 
     for ( auto& folder : m_subfolders )
     {
-        folder->deleteCalculatedObjects();
+        calculationAddressCount += folder->deleteCalculatedAddresses();
     }
+
+    return calculationAddressCount;
 }
 
 //--------------------------------------------------------------------------------------------------
