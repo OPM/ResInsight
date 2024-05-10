@@ -138,7 +138,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
             return false;
         }
 
-        auto readerType = m_gridModelReader().value();
+        auto readerType = RiaPreferences::current()->gridModelReader();
 
         // opmcommon reader only reads EGRID
         if ( !gridFileName().toLower().endsWith( ".egrid" ) )
