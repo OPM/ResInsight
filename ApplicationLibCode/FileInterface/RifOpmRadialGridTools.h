@@ -39,23 +39,14 @@ class RigEclipseCaseData;
 //==================================================================================================
 ///
 //==================================================================================================
-class RifOpmGridTools
+class RifOpmRadialGridTools
 {
 public:
     // If the grid is radial, the coordinates are imported and adjusted to fit the host cells
     static void importCoordinatesForRadialGrid( const std::string& gridFilePath, RigMainGrid* mainGrid );
 
-    static bool importGrid( const std::string& gridFilePath, RigMainGrid* mainGrid, RigEclipseCaseData* caseData );
-
-    static std::vector<std::vector<int>> activeCellsFromActnumKeyword( Opm::EclIO::EGrid& grid );
-
     static void
         transferCoordinatesRadial( Opm::EclIO::EGrid& opmMainGrid, Opm::EclIO::EGrid& opmGrid, RigMainGrid* riMainGrid, RigGridBase* riGrid );
-    static void transferCoordinatesCartesian( Opm::EclIO::EGrid&  opmMainGrid,
-                                              Opm::EclIO::EGrid&  opmGrid,
-                                              RigMainGrid*        riMainGrid,
-                                              RigGridBase*        riGrid,
-                                              RigEclipseCaseData* caseData );
 
     static std::map<int, std::pair<double, double>>
         computeXyCenterForTopOfCells( Opm::EclIO::EGrid& opmMainGrid, Opm::EclIO::EGrid& opmGrid, RigGridBase* riGrid );

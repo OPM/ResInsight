@@ -79,7 +79,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSeismicReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifSeismicZGYReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifOpenVDSReader.h
-    ${CMAKE_CURRENT_LIST_DIR}/RifOpmGridTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifOpmRadialGridTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RifCsvSummaryReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealSummaryCsvReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealCsvSectionSummaryReader.h
@@ -177,7 +177,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSeismicReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSeismicZGYReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifOpenVDSReader.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RifOpmGridTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifOpmRadialGridTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifCsvSummaryReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealCsvSummaryReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseReportKeywords.cpp

@@ -30,7 +30,7 @@
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseRestartDataAccess.h"
 #include "RifHdf5ReaderInterface.h"
-#include "RifOpmGridTools.h"
+#include "RifOpmRadialGridTools.h"
 #include "RifReaderSettings.h"
 
 #ifdef USE_HDF5
@@ -115,17 +115,47 @@
 
 static const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 
-//**************************************************************************************************
-// Static functions
-//**************************************************************************************************
+//--------------------------------------------------------------------------------------------------
+/// Constructor
+//--------------------------------------------------------------------------------------------------
+RifReaderEclipseOutput::RifReaderEclipseOutput()
+{
+    m_fileName.clear();
+    m_filesWithSameBaseName.clear();
 
-bool transferGridCellData( RigMainGrid*         mainGrid,
-                           RigActiveCellInfo*   activeCellInfo,
-                           RigActiveCellInfo*   fractureActiveCellInfo,
-                           RigGridBase*         localGrid,
-                           const ecl_grid_type* localEclGrid,
-                           size_t               matrixActiveStartIndex,
-                           size_t               fractureActiveStartIndex )
+    m_eclipseCase = nullptr;
+
+    m_ecl_init_file        = nullptr;
+    m_dynamicResultsAccess = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Destructor
+//--------------------------------------------------------------------------------------------------
+RifReaderEclipseOutput::~RifReaderEclipseOutput()
+{
+    if ( m_ecl_init_file )
+    {
+        ecl_file_close( m_ecl_init_file );
+    }
+    m_ecl_init_file = nullptr;
+
+    if ( m_dynamicResultsAccess.notNull() )
+    {
+        m_dynamicResultsAccess->close();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifReaderEclipseOutput::transferGridCellData( RigMainGrid*         mainGrid,
+                                                   RigActiveCellInfo*   activeCellInfo,
+                                                   RigActiveCellInfo*   fractureActiveCellInfo,
+                                                   RigGridBase*         localGrid,
+                                                   const ecl_grid_type* localEclGrid,
+                                                   size_t               matrixActiveStartIndex,
+                                                   size_t               fractureActiveStartIndex )
 {
     CVF_ASSERT( activeCellInfo && fractureActiveCellInfo );
 
@@ -149,7 +179,6 @@ bool transferGridCellData( RigMainGrid*         mainGrid,
         cell.setGridLocalCellIndex( gridLocalCellIndex );
 
         // Active cell index
-
         int matrixActiveIndex = ecl_grid_get_active_index1( localEclGrid, gridLocalCellIndex );
         if ( matrixActiveIndex != -1 )
         {
@@ -163,7 +192,6 @@ bool transferGridCellData( RigMainGrid*         mainGrid,
         }
 
         // Parent cell index
-
         int parentCellIndex = ecl_grid_get_parent_cell1( localEclGrid, gridLocalCellIndex );
         if ( parentCellIndex == -1 )
         {
@@ -201,43 +229,6 @@ bool transferGridCellData( RigMainGrid*         mainGrid,
     }
 
     return true;
-}
-
-//==================================================================================================
-//
-// Class RigReaderInterfaceECL
-//
-//==================================================================================================
-
-//--------------------------------------------------------------------------------------------------
-/// Constructor
-//--------------------------------------------------------------------------------------------------
-RifReaderEclipseOutput::RifReaderEclipseOutput()
-{
-    m_fileName.clear();
-    m_filesWithSameBaseName.clear();
-
-    m_eclipseCase = nullptr;
-
-    m_ecl_init_file        = nullptr;
-    m_dynamicResultsAccess = nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Destructor
-//--------------------------------------------------------------------------------------------------
-RifReaderEclipseOutput::~RifReaderEclipseOutput()
-{
-    if ( m_ecl_init_file )
-    {
-        ecl_file_close( m_ecl_init_file );
-    }
-    m_ecl_init_file = nullptr;
-
-    if ( m_dynamicResultsAccess.notNull() )
-    {
-        m_dynamicResultsAccess->close();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -406,7 +397,7 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
         auto task = progress.task( "Transferring grid geometry", 10 );
         if ( !transferGeometry( mainEclGrid, eclipseCase ) ) return false;
 
-        RifOpmGridTools::importCoordinatesForRadialGrid( fileName.toStdString(), eclipseCase->mainGrid() );
+        RifOpmRadialGridTools::importCoordinatesForRadialGrid( fileName.toStdString(), eclipseCase->mainGrid() );
     }
 
     {
@@ -805,56 +796,20 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
 
     progInfo.setNextProgressIncrement( m_filesWithSameBaseName.size() );
 
-    RigCaseCellResultsData* matrixModelResults   = m_eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    RigCaseCellResultsData* fractureModelResults = m_eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
-
     std::vector<RigEclipseTimeStepInfo> timeStepInfos;
 
     // Create access object for dynamic results
     ensureDynamicResultAccessIsPresent();
     if ( m_dynamicResultsAccess.notNull() )
     {
-        m_dynamicResultsAccess->open();
-
         progInfo.incrementProgress();
 
-        timeStepInfos = createFilteredTimeStepInfos();
+        m_dynamicResultsAccess->open();
 
-        auto keywordValueCounts = m_dynamicResultsAccess->keywordValueCounts();
+        timeStepInfos    = createFilteredTimeStepInfos();
+        auto keywordInfo = m_dynamicResultsAccess->keywordValueCounts();
 
-        {
-            auto validKeywords = validKeywordsForPorosityModel( keywordValueCounts,
-                                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
-                                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
-                                                                RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                m_dynamicResultsAccess->timeStepCount() );
-
-            for ( const auto& keywordData : validKeywords )
-            {
-                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                 RifEclipseKeywordValueCount::mapType( keywordData.dataType() ),
-                                                 QString::fromStdString( keywordData.keyword() ) );
-                matrixModelResults->createResultEntry( resAddr, false );
-                matrixModelResults->setTimeStepInfos( resAddr, timeStepInfos );
-            }
-        }
-
-        {
-            auto validKeywords = validKeywordsForPorosityModel( keywordValueCounts,
-                                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
-                                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
-                                                                RiaDefines::PorosityModelType::FRACTURE_MODEL,
-                                                                m_dynamicResultsAccess->timeStepCount() );
-
-            for ( const auto& keywordData : validKeywords )
-            {
-                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                 RifEclipseKeywordValueCount::mapType( keywordData.dataType() ),
-                                                 QString::fromStdString( keywordData.keyword() ) );
-                fractureModelResults->createResultEntry( resAddr, false );
-                fractureModelResults->setTimeStepInfos( resAddr, timeStepInfos );
-            }
-        }
+        RifEclipseOutputFileTools::createResultEntries( keywordInfo, timeStepInfos, RiaDefines::ResultCatType::DYNAMIC_NATIVE, m_eclipseCase );
     }
 
     progInfo.incrementProgress();
@@ -909,42 +864,7 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
             staticTimeStepInfo.push_back( timeStepInfos.front() );
         }
 
-        {
-            auto validKeywords = validKeywordsForPorosityModel( keywordInfo,
-                                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
-                                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
-                                                                RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                1 );
-
-            validKeywords.push_back( RifEclipseKeywordValueCount( "ACTNUM", 0, RifEclipseKeywordValueCount::KeywordDataType::INTEGER ) );
-
-            for ( const auto& keywordData : validKeywords )
-            {
-                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                 RifEclipseKeywordValueCount::mapType( keywordData.dataType() ),
-                                                 QString::fromStdString( keywordData.keyword() ) );
-                matrixModelResults->createResultEntry( resAddr, false );
-                matrixModelResults->setTimeStepInfos( resAddr, staticTimeStepInfo );
-            }
-        }
-
-        {
-            auto validKeywords = validKeywordsForPorosityModel( keywordInfo,
-                                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
-                                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
-                                                                RiaDefines::PorosityModelType::FRACTURE_MODEL,
-                                                                1 );
-            validKeywords.push_back( RifEclipseKeywordValueCount( "ACTNUM", 0, RifEclipseKeywordValueCount::KeywordDataType::INTEGER ) );
-
-            for ( const auto& keywordData : validKeywords )
-            {
-                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                 RifEclipseKeywordValueCount::mapType( keywordData.dataType() ),
-                                                 QString::fromStdString( keywordData.keyword() ) );
-                fractureModelResults->createResultEntry( resAddr, false );
-                fractureModelResults->setTimeStepInfos( resAddr, staticTimeStepInfo );
-            }
-        }
+        RifEclipseOutputFileTools::createResultEntries( keywordInfo, staticTimeStepInfo, RiaDefines::ResultCatType::STATIC_NATIVE, m_eclipseCase );
     }
 }
 
@@ -1996,106 +1916,6 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
     well_info_free( ert_well_info );
 
     m_eclipseCase->setSimWellData( wells );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RifEclipseKeywordValueCount>
-    RifReaderEclipseOutput::validKeywordsForPorosityModel( const std::vector<RifEclipseKeywordValueCount>& keywordItemCounts,
-                                                           const RigActiveCellInfo*                        matrixActiveCellInfo,
-                                                           const RigActiveCellInfo*                        fractureActiveCellInfo,
-                                                           RiaDefines::PorosityModelType                   porosityModel,
-                                                           size_t                                          timeStepCount )
-{
-    CVF_ASSERT( matrixActiveCellInfo );
-
-    if ( porosityModel == RiaDefines::PorosityModelType::FRACTURE_MODEL )
-    {
-        if ( fractureActiveCellInfo->reservoirActiveCellCount() == 0 )
-        {
-            return {};
-        }
-    }
-
-    std::vector<RifEclipseKeywordValueCount> keywordsWithCorrectNumberOfDataItems;
-
-    for ( const auto& keywordValueCount : keywordItemCounts )
-    {
-        QString keyword    = QString::fromStdString( keywordValueCount.keyword() );
-        size_t  valueCount = keywordValueCount.valueCount();
-
-        bool validKeyword = false;
-
-        size_t timeStepsAllCellsRest = valueCount % matrixActiveCellInfo->reservoirCellCount();
-        if ( timeStepsAllCellsRest == 0 && valueCount <= timeStepCount * matrixActiveCellInfo->reservoirCellCount() )
-        {
-            // Found result for all cells for N time steps, usually a static dataset for one time step
-            validKeyword = true;
-        }
-        else
-        {
-            size_t timeStepsMatrixRest = valueCount % matrixActiveCellInfo->reservoirActiveCellCount();
-
-            size_t timeStepsFractureRest = 0;
-            if ( fractureActiveCellInfo->reservoirActiveCellCount() > 0 )
-            {
-                timeStepsFractureRest = valueCount % fractureActiveCellInfo->reservoirActiveCellCount();
-            }
-
-            size_t sumFractureMatrixActiveCellCount = matrixActiveCellInfo->reservoirActiveCellCount() +
-                                                      fractureActiveCellInfo->reservoirActiveCellCount();
-            size_t timeStepsMatrixAndFractureRest = valueCount % sumFractureMatrixActiveCellCount;
-
-            if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL && timeStepsMatrixRest == 0 )
-            {
-                if ( valueCount <=
-                     timeStepCount * std::max( matrixActiveCellInfo->reservoirActiveCellCount(), sumFractureMatrixActiveCellCount ) )
-                {
-                    validKeyword = true;
-                }
-            }
-            else if ( porosityModel == RiaDefines::PorosityModelType::FRACTURE_MODEL &&
-                      fractureActiveCellInfo->reservoirActiveCellCount() > 0 && timeStepsFractureRest == 0 )
-            {
-                if ( valueCount <=
-                     timeStepCount * std::max( fractureActiveCellInfo->reservoirActiveCellCount(), sumFractureMatrixActiveCellCount ) )
-                {
-                    validKeyword = true;
-                }
-            }
-            else if ( timeStepsMatrixAndFractureRest == 0 )
-            {
-                if ( valueCount <= timeStepCount * sumFractureMatrixActiveCellCount )
-                {
-                    validKeyword = true;
-                }
-            }
-        }
-
-        // Check for INIT values that has only values for main grid active cells
-        if ( !validKeyword )
-        {
-            if ( timeStepCount == 1 )
-            {
-                size_t mainGridMatrixActiveCellCount   = matrixActiveCellInfo->gridActiveCellCounts( 0 );
-                size_t mainGridFractureActiveCellCount = fractureActiveCellInfo->gridActiveCellCounts( 0 );
-
-                if ( valueCount == mainGridMatrixActiveCellCount || valueCount == mainGridFractureActiveCellCount ||
-                     valueCount == mainGridMatrixActiveCellCount + mainGridFractureActiveCellCount )
-                {
-                    validKeyword = true;
-                }
-            }
-        }
-
-        if ( validKeyword )
-        {
-            keywordsWithCorrectNumberOfDataItems.push_back( keywordValueCount );
-        }
-    }
-
-    return keywordsWithCorrectNumberOfDataItems;
 }
 
 //--------------------------------------------------------------------------------------------------

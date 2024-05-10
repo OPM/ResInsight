@@ -58,8 +58,6 @@ private:
                            size_t              matrixActiveStartIndex,
                            size_t              fractureActiveStartIndex );
 
-    bool isDualPorosity( Opm::EclIO::EGrid& opmMainGrid );
-
     struct TimeDataFile
     {
         int    sequenceNumber;

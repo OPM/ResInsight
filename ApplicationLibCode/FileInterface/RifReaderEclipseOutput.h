@@ -113,16 +113,16 @@ private:
 
     void ensureDynamicResultAccessIsPresent();
 
-    static std::vector<RifEclipseKeywordValueCount>
-        validKeywordsForPorosityModel( const std::vector<RifEclipseKeywordValueCount>& keywordItemCounts,
-                                       const RigActiveCellInfo*                        activeCellInfo,
-                                       const RigActiveCellInfo*                        fractureActiveCellInfo,
-                                       RiaDefines::PorosityModelType                   matrixOrFracture,
-                                       size_t                                          timeStepCount );
-
     std::vector<RigEclipseTimeStepInfo> createFilteredTimeStepInfos();
 
     static bool isEclipseAndSoursimTimeStepsEqual( const QDateTime& eclipseDateTime, const QDateTime& sourSimDateTime );
+    static bool transferGridCellData( RigMainGrid*         mainGrid,
+                                      RigActiveCellInfo*   activeCellInfo,
+                                      RigActiveCellInfo*   fractureActiveCellInfo,
+                                      RigGridBase*         localGrid,
+                                      const ecl_grid_type* localEclGrid,
+                                      size_t               matrixActiveStartIndex,
+                                      size_t               fractureActiveStartIndex );
 
 private:
     QString     m_fileName; // Name of file used to start accessing Eclipse output files

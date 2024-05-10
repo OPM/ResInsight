@@ -101,13 +101,14 @@ public:
 
     static bool assignActiveCellData( std::vector<std::vector<int>>& actnumValuesPerGrid, RigEclipseCaseData* eclipseCaseData );
 
-private:
-    static void                     getDayMonthYear( const ecl_kw_type* intehead_kw, int* day, int* month, int* year );
-    static RifEclipseReportKeywords createReportStepsMetaData( const std::vector<ecl_file_type*>& ecl_files );
     static std::vector<RifEclipseKeywordValueCount>
         validKeywordsForPorosityModel( const std::vector<RifEclipseKeywordValueCount>& keywordItemCounts,
                                        const RigActiveCellInfo*                        activeCellInfo,
                                        const RigActiveCellInfo*                        fractureActiveCellInfo,
                                        RiaDefines::PorosityModelType                   matrixOrFracture,
                                        size_t                                          timeStepCount );
+
+private:
+    static void                     getDayMonthYear( const ecl_kw_type* intehead_kw, int* day, int* month, int* year );
+    static RifEclipseReportKeywords createReportStepsMetaData( const std::vector<ecl_file_type*>& ecl_files );
 };

@@ -94,6 +94,11 @@ void RifEclipseOutputFileTools::createResultEntries( const std::vector<RifEclips
                                                             RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                             timeStepInfo.size() );
 
+        if ( resultCategory == RiaDefines::ResultCatType::STATIC_NATIVE )
+        {
+            validKeywords.push_back( RifEclipseKeywordValueCount( "ACTNUM", 0, RifEclipseKeywordValueCount::KeywordDataType::INTEGER ) );
+        }
+
         for ( const auto& keywordData : validKeywords )
         {
             RigEclipseResultAddress resAddr( resultCategory,
@@ -110,6 +115,11 @@ void RifEclipseOutputFileTools::createResultEntries( const std::vector<RifEclips
                                                             eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
                                                             RiaDefines::PorosityModelType::FRACTURE_MODEL,
                                                             timeStepInfo.size() );
+
+        if ( resultCategory == RiaDefines::ResultCatType::STATIC_NATIVE )
+        {
+            validKeywords.push_back( RifEclipseKeywordValueCount( "ACTNUM", 0, RifEclipseKeywordValueCount::KeywordDataType::INTEGER ) );
+        }
 
         for ( const auto& keywordData : validKeywords )
         {

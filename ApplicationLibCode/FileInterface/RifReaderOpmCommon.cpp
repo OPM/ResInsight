@@ -24,7 +24,6 @@
 
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseReportKeywords.h"
-#include "RifOpmGridTools.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
@@ -105,12 +104,6 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* case
         {
             auto task = progress.task( "Reading Results Meta data", 25 );
             buildMetaData( caseData );
-        }
-
-        {
-            auto                task = progress.task( "Reading Active Cell Information", 25 );
-            std::vector<double> matrixActiveCells;
-            staticResult( "PORV", RiaDefines::PorosityModelType::MATRIX_MODEL, &matrixActiveCells );
         }
 
         return true;
@@ -543,10 +536,18 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
         std::vector<EclIO::EclFile::EclEntry> entries;
         for ( auto reportNumber : m_restartFile->listOfReportStepNumbers() )
         {
+            // TODO - fix reading of results here
             for ( auto& gridName : m_gridNames )
             {
-                auto gridEntries = m_restartFile->listOfRstArrays( reportNumber, gridName );
-                entries.insert( entries.end(), gridEntries.begin(), gridEntries.end() );
+                try
+                {
+                    auto gridEntries = m_restartFile->listOfRstArrays( reportNumber, gridName );
+                    entries.insert( entries.end(), gridEntries.begin(), gridEntries.end() );
+                }
+                catch ( ... )
+                {
+                    continue;
+                }
             }
         }
 
@@ -780,88 +781,4 @@ std::vector<RifReaderOpmCommon::TimeDataFile> RifReaderOpmCommon::readTimeSteps(
     }
 
     return reportTimeData;
-}
-
-////--------------------------------------------------------------------------------------------------
-/////
-////--------------------------------------------------------------------------------------------------
-// std::vector<std::vector<int>>
-//     RifReaderOpmCommon::activeCellsFromPorvKeyword( const ecl_file_type* ecl_file, bool dualPorosity, const int cellCountMainGrid )
-//{
-//     CAF_ASSERT( ecl_file );
-//
-//     std::vector<std::vector<int>> activeCellsAllGrids;
-//
-//     // Active cell count is always the same size as the number of cells in the grid
-//     // If we have dual porosity, we have to divide by 2
-//     //
-//     // See documentation of active cells in top of ecl_grid.cpp
-//
-//     bool divideCellCountByTwo = dualPorosity;
-//
-//     int porvKeywordCount = ecl_file_get_num_named_kw( ecl_file, PORV_KW );
-//     for ( size_t gridIdx = 0; gridIdx < static_cast<size_t>( porvKeywordCount ); gridIdx++ )
-//     {
-//         std::vector<double> porvValues;
-//         RifEclipseOutputFileTools::keywordData( ecl_file, PORV_KW, gridIdx, &porvValues );
-//
-//         int activeCellCount = static_cast<int>( porvValues.size() );
-//
-//         // For some cases, the dual porosity flag is not interpreted correctly. Add a fallback by checking the number of
-//         // cells in the main grid
-//         // https://github.com/OPM/ResInsight/issues/9833
-//         if ( ( gridIdx == 0 ) && ( activeCellCount == cellCountMainGrid * 2 ) ) divideCellCountByTwo = true;
-//
-//         if ( divideCellCountByTwo )
-//         {
-//             activeCellCount /= 2;
-//         }
-//
-//         std::vector<int> activeCellsOneGrid;
-//         activeCellsOneGrid.resize( activeCellCount, 0 );
-//
-//         for ( int poreValueIndex = 0; poreValueIndex < static_cast<int>( porvValues.size() ); poreValueIndex++ )
-//         {
-//             int indexToCell = poreValueIndex;
-//             if ( indexToCell >= activeCellCount )
-//             {
-//                 indexToCell = poreValueIndex - activeCellCount;
-//             }
-//
-//             if ( porvValues[poreValueIndex] > 0.0 )
-//             {
-//                 if ( dualPorosity )
-//                 {
-//                     if ( poreValueIndex < activeCellCount )
-//                     {
-//                         activeCellsOneGrid[indexToCell] += CELL_ACTIVE_MATRIX;
-//                     }
-//                     else
-//                     {
-//                         activeCellsOneGrid[indexToCell] += CELL_ACTIVE_FRACTURE;
-//                     }
-//                 }
-//                 else
-//                 {
-//                     activeCellsOneGrid[indexToCell] = CELL_ACTIVE_MATRIX;
-//                 }
-//             }
-//         }
-//
-//         activeCellsAllGrids.push_back( activeCellsOneGrid );
-//     }
-//
-//     return activeCellsAllGrids;
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RifReaderOpmCommon::isDualPorosity( Opm::EclIO::EGrid& opmMainGrid )
-{
-    bool dualPorosity = opmMainGrid.porosity_mode() > 0;
-
-    std::vector<double> matrixActiveCells;
-    staticResult( "PORV", RiaDefines::PorosityModelType::MATRIX_MODEL, &matrixActiveCells );
-    return dualPorosity;
 }
