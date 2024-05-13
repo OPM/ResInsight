@@ -91,17 +91,9 @@ public:
 private:
     bool readActiveCellInfo();
 
-    void buildMetaData( ecl_grid_type* grid );
-    void readWellCells( const ecl_grid_type* mainEclGrid, bool importCompleteMswData );
-
     std::string ertGridName( size_t gridNr );
 
-    RigWellResultPoint createWellResultPoint( const RigGridBase* grid, const well_conn_type* ert_connection, const char* wellName );
-
-    RigWellResultPoint createWellResultPoint( const RigGridBase*       grid,
-                                              const well_conn_type*    ert_connection,
-                                              const well_segment_type* segment,
-                                              const char*              wellName );
+    void buildMetaData( ecl_grid_type* grid );
 
     void openInitFile();
 
@@ -128,7 +120,7 @@ private:
     QString     m_fileName; // Name of file used to start accessing Eclipse output files
     QStringList m_filesWithSameBaseName; // Set of files in filename's path with same base name as filename
 
-    RigEclipseCaseData* m_eclipseCase;
+    RigEclipseCaseData* m_eclipseCaseData;
 
     ecl_file_type*                                m_ecl_init_file; // File access to static results
     mutable cvf::ref<RifEclipseRestartDataAccess> m_dynamicResultsAccess; // File access to dynamic results

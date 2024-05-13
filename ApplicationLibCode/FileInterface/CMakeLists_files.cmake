@@ -10,6 +10,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifPerforationIntervalReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseInput.h
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseOutput.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseWell.h
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryReaderInterface.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseUserDataParserTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RifColumnBasedUserDataParser.h
@@ -111,6 +112,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifPerforationIntervalReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseInput.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseOutput.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseWell.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryReaderInterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseUserDataParserTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifColumnBasedUserDataParser.cpp
