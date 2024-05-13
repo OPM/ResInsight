@@ -23,28 +23,19 @@
 #include "RiaPlotDefines.h"
 
 #include "RimDepthTrackPlot.h"
-#include "RimFishbones.h"
-#include "RimFracture.h"
-#include "RimFractureTemplate.h"
-#include "RimPerforationInterval.h"
 #include "RimWellLogPlot.h"
-#include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathAttribute.h"
 #include "RimWellPathAttributeCollection.h"
 #include "RimWellPathValve.h"
 
 #include "RigWellPath.h"
-#include "RiuPlotAxis.h"
 #include "RiuQwtPlotTools.h"
+#include "RiuQwtSymbol.h"
 
 #include "qwt_plot.h"
 #include "qwt_plot_marker.h"
-#include "qwt_plot_shapeitem.h"
 #include "qwt_text.h"
-
-#include <QBrush>
-#include <Qt>
 
 //--------------------------------------------------------------------------------------------------
 ///
