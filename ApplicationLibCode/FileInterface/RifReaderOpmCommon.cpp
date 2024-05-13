@@ -547,9 +547,9 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
 
             for ( auto& [keyName, resType] : keyNames )
             {
-                auto [occurences, totalSize] = m_restartFile->occurrenceCountSize( keyName, reportNumber );
+                auto dataSize = m_restartFile->dataSize( keyName, reportNumber );
 
-                entries.emplace_back( keyName, resType, totalSize );
+                entries.emplace_back( keyName, resType, dataSize );
             }
         }
 
