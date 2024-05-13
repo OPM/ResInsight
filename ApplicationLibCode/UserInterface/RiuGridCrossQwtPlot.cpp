@@ -37,6 +37,7 @@
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWheelZoomer.h"
 #include "RiuQwtPlotZoomer.h"
+#include "RiuQwtSymbol.h"
 #include "RiuWidgetDragger.h"
 
 #include "cafCmdFeatureMenuBuilder.h"

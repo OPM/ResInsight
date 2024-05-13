@@ -24,7 +24,6 @@
 
 #include "RiuPlotAxis.h"
 #include "RiuQwtPlotCurveDefines.h"
-#include "RiuQwtSymbol.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -34,7 +33,6 @@
 #include "cafPdmPtrArrayField.h"
 
 #include <QPointer>
-#include <Qt>
 
 class RiuPlotCurve;
 class RiuPlotWidget;
@@ -104,7 +102,7 @@ public:
 
     virtual void updateCurveVisibility();
     void         updateLegendEntryVisibilityAndPlotLegend();
-    void         updateLegendEntryVisibilityNoPlotUpdate();
+    virtual void updateLegendEntryVisibilityNoPlotUpdate();
     virtual void replotParentPlot();
 
     bool showInLegend() const;
@@ -133,21 +131,22 @@ public:
     void setParentPlotNoReplot( RiuPlotWidget* );
     void setParentPlotAndReplot( RiuPlotWidget* );
 
-    void attach( RiuPlotWidget* );
-    void detach( bool deletePlotCurve = false );
-    void reattach();
-    bool isSameCurve( const RiuPlotCurve* plotCurve ) const;
-    void deletePlotCurve();
+    void          attach( RiuPlotWidget* );
+    void          detach( bool deletePlotCurve = false );
+    void          reattach();
+    bool          isSameCurve( const RiuPlotCurve* plotCurve ) const;
+    void          deletePlotCurve();
+    RiuPlotCurve* plotCurve() const;
 
     std::vector<RimPlotRectAnnotation*> rectAnnotations() const;
 
 protected:
-    virtual QString createCurveAutoName() = 0;
+    virtual QString createCurveAutoName();
 
     virtual QStringList supportedCurveNameVariables() const;
 
-    virtual void updateZoomInParentPlot()                     = 0;
-    virtual void onLoadDataAndUpdate( bool updateParentPlot ) = 0;
+    virtual void updateZoomInParentPlot();
+    virtual void onLoadDataAndUpdate( bool updateParentPlot );
     void         initAfterRead() override;
     void         updateCurvePresentation( bool updatePlotLegendAndTitle );
 
@@ -181,7 +180,7 @@ protected:
     void         onCurveAppearanceChanged( const caf::SignalEmitter* emitter );
     virtual void onFillColorChanged( const caf::SignalEmitter* emitter );
 
-    bool         canCurveBeAttached() const;
+    virtual bool canCurveBeAttached() const;
     virtual void clearErrorBars();
     void         checkAndApplyDefaultFillColor();
 
@@ -191,6 +190,8 @@ protected:
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     void onColorTagClicked( const SignalEmitter* emitter, size_t index );
+
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
     bool isCurveNameTemplateSupported() const;

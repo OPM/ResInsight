@@ -21,19 +21,13 @@
 #include "RiaDefines.h"
 #include "RiuQwtPlotItemGroup.h"
 
-#include "RimPlotCurve.h"
 #include "RimWellLogPlot.h"
-#include "RimWellPathAttribute.h"
 #include "RimWellPathComponentInterface.h"
 
-#include "cafPdmBase.h"
-#include "cafPdmObject.h"
-#include "cafPdmPtrField.h"
+#include "RiuPlotCurveSymbol.h"
 
 #include "cvfColor4.h"
-#include "cvfObject.h"
 
-#include <QBrush>
 #include <QString>
 
 class RigWellLogCurveData;

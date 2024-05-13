@@ -1389,3 +1389,62 @@ void RimSummaryCurve::calculateCurveInterpolationFromAddress()
 void RimSummaryCurve::updateTimeAnnotations()
 {
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::updateLegendEntryVisibilityNoPlotUpdate()
+{
+    if ( !m_plotCurve ) return;
+
+    auto ensembleCurveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
+    if ( ensembleCurveSet )
+    {
+        return;
+    }
+
+    bool showLegendInPlot = m_showLegend();
+
+    auto summaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>();
+    if ( summaryPlot )
+    {
+        bool anyCalculated = false;
+        for ( const auto c : summaryPlot->summaryCurves() )
+        {
+            if ( c->summaryAddressY().isCalculated() )
+            {
+                // Never hide the legend for calculated curves, as the curve legend is used to
+                // show some essential auto generated data
+                anyCalculated = true;
+            }
+        }
+
+        auto isMultiPlot = ( firstAncestorOrThisOfType<RimMultiPlot>() != nullptr );
+
+        if ( !anyCalculated && isMultiPlot && summaryPlot->ensembleCurveSetCollection()->curveSets().empty() && summaryPlot->curveCount() == 1 )
+        {
+            // Disable display of legend if the summary plot has only one single curve
+            showLegendInPlot = false;
+        }
+    }
+
+    m_plotCurve->setVisibleInLegend( showLegendInPlot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCurve::canCurveBeAttached() const
+{
+    if ( !RimPlotCurve::canCurveBeAttached() ) return false;
+
+    bool isVisibleInPossibleParent = true;
+
+    auto summaryCurveCollection = firstAncestorOrThisOfType<RimSummaryCurveCollection>();
+    if ( summaryCurveCollection ) isVisibleInPossibleParent = summaryCurveCollection->isCurvesVisible();
+
+    auto ensembleCurveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
+    if ( ensembleCurveSet ) isVisibleInPossibleParent = ensembleCurveSet->isCurvesVisible();
+
+    return isVisibleInPossibleParent;
+}

@@ -21,6 +21,8 @@
 #include "RiaTextStringTools.h"
 #include "RifCsvUserDataParser.h"
 
+#include "RiuQwtSymbol.h"
+
 #include "cafPdmUiItem.h"
 #include "cafPdmUiTextEditor.h"
 

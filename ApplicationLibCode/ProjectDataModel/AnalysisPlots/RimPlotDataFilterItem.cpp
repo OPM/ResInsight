@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimPlotDataFilterItem.h"
 
+#include "RiaCurveDataTools.h"
 #include "RiaResultNames.h"
 
 #include "RifSummaryReaderInterface.h"

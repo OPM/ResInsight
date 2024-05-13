@@ -42,6 +42,7 @@
 #include "RiuPlotCurve.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotCurve.h"
+#include "RiuQwtSymbol.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuSummaryVectorSelectionDialog.h"
 

@@ -106,6 +106,7 @@ public:
     RiaDefines::PhaseType phaseType() const override;
 
     virtual bool isRegressionCurve() const;
+    void         updateLegendEntryVisibilityNoPlotUpdate() override;
 
 protected:
     // RimPlotCurve overrides
@@ -124,6 +125,7 @@ protected:
     virtual std::vector<time_t> timeStepsX() const;
 
     virtual void updateTimeAnnotations();
+    bool         canCurveBeAttached() const override;
 
     // Overridden PDM methods
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
