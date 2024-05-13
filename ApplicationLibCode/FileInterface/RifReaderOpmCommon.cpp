@@ -536,18 +536,20 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
         std::vector<EclIO::EclFile::EclEntry> entries;
         for ( auto reportNumber : m_restartFile->listOfReportStepNumbers() )
         {
-            // TODO - fix reading of results here
-            for ( auto& gridName : m_gridNames )
+            auto stepEntries = m_restartFile->listOfRstArrays( reportNumber );
+
+            std::set<std::pair<std::string, Opm::EclIO::eclArrType>> keyNames;
+
+            for ( auto& [keyName, resType, nValues] : stepEntries )
             {
-                try
-                {
-                    auto gridEntries = m_restartFile->listOfRstArrays( reportNumber, gridName );
-                    entries.insert( entries.end(), gridEntries.begin(), gridEntries.end() );
-                }
-                catch ( ... )
-                {
-                    continue;
-                }
+                keyNames.insert( { keyName, resType } );
+            }
+
+            for ( auto& [keyName, resType] : keyNames )
+            {
+                auto [occurences, totalSize] = m_restartFile->occurrenceCountSize( keyName, reportNumber );
+
+                entries.emplace_back( keyName, resType, totalSize );
             }
         }
 
