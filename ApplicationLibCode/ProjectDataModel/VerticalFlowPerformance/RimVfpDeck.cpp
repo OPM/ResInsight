@@ -18,13 +18,13 @@
 
 #include "RimVfpDeck.h"
 
-#include "RiaOpmParserTools.h"
+#include "RigVfpTables.h"
 
+#include "RimVfpDataCollection.h"
 #include "RimVfpPlotCollection.h"
+#include "RimVfpTableData.h"
 
 #include "cafPdmUiTreeOrdering.h"
-
-#include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RimVfpDeck, "RimVfpDeck" );
 
@@ -35,7 +35,7 @@ RimVfpDeck::RimVfpDeck()
 {
     CAF_PDM_InitObject( "VFP Plot", ":/VfpPlot.svg" );
 
-    CAF_PDM_InitFieldNoDefault( &m_filePath, "FilePath", "File Path" );
+    CAF_PDM_InitFieldNoDefault( &m_vfpTableData, "VfpTableData", "VFP Data Source" );
     CAF_PDM_InitFieldNoDefault( &m_vfpPlotCollection, "VfpPlotCollection", "Plot Collection" );
     m_vfpPlotCollection = new RimVfpPlotCollection();
 
@@ -45,9 +45,9 @@ RimVfpDeck::RimVfpDeck()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpDeck::setFileName( const QString& filename )
+void RimVfpDeck::setDataSource( RimVfpTableData* tableData )
 {
-    m_filePath = filename;
+    m_vfpTableData = tableData;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,50 +57,40 @@ void RimVfpDeck::loadDataAndUpdate()
 {
     updateObjectName();
 
-    auto createRimVfpPlot = [&]() -> RimVfpPlot*
-    {
-        auto plot = new RimVfpPlot();
-        plot->setFileName( m_filePath().path() );
-        return plot;
-    };
-
     std::vector<RimVfpPlot*> currentPlots = m_vfpPlotCollection->plots();
 
-    auto [vfpProdTables, vfpInjTables] = RiaOpmParserTools::extractVfpTablesFromDataFile( m_filePath().path().toStdString() );
-    for ( const auto& prodTable : vfpProdTables )
+    if ( m_vfpTableData )
     {
-        RimVfpPlot* plot = m_vfpPlotCollection->plotForTableNumber( prodTable.getTableNum() );
-        if ( !plot )
-        {
-            plot = createRimVfpPlot();
-            m_vfpPlotCollection->addPlot( plot );
-        }
-        else
-        {
-            std::erase( currentPlots, plot );
-        }
-        plot->setProductionTable( prodTable );
-        plot->setDataIsImportedExternally( true );
-        plot->setDeletable( false );
-        plot->loadDataAndUpdate();
-    }
+        m_vfpTableData->ensureDataIsImported();
 
-    for ( const auto& injTable : vfpInjTables )
-    {
-        RimVfpPlot* plot = m_vfpPlotCollection->plotForTableNumber( injTable.getTableNum() );
-        if ( !plot )
+        if ( m_vfpTableData->vfpTables() )
         {
-            plot = createRimVfpPlot();
-            m_vfpPlotCollection->addPlot( plot );
+            auto tables = m_vfpTableData->vfpTables();
+
+            auto allTableNumbers = tables->productionTableNumbers();
+            auto injTableNumbers = tables->injectionTableNumbers();
+            allTableNumbers.insert( allTableNumbers.end(), injTableNumbers.begin(), injTableNumbers.end() );
+
+            for ( const auto& number : allTableNumbers )
+            {
+                RimVfpPlot* plot = m_vfpPlotCollection->plotForTableNumber( number );
+                if ( !plot )
+                {
+                    plot = new RimVfpPlot();
+                    plot->setDataSource( m_vfpTableData );
+                    plot->setTableNumber( number );
+                    plot->initializeObject();
+
+                    m_vfpPlotCollection->addPlot( plot );
+                }
+                else
+                {
+                    std::erase( currentPlots, plot );
+                }
+                plot->setDeletable( false );
+                plot->loadDataAndUpdate();
+            }
         }
-        else
-        {
-            std::erase( currentPlots, plot );
-        }
-        plot->setInjectionTable( injTable );
-        plot->setDataIsImportedExternally( true );
-        plot->setDeletable( false );
-        plot->loadDataAndUpdate();
     }
 
     for ( auto plotToDelete : currentPlots )
@@ -109,6 +99,15 @@ void RimVfpDeck::loadDataAndUpdate()
         delete plotToDelete;
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimVfpPlot*> RimVfpDeck::plots() const
+{
+    return m_vfpPlotCollection->plots();
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -127,13 +126,30 @@ void RimVfpDeck::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
 //--------------------------------------------------------------------------------------------------
 void RimVfpDeck::updateObjectName()
 {
-    QString name = "VFP Plots";
+    QString name = "VFP Deck";
 
-    QFileInfo fileInfo( m_filePath().path() );
-    auto      fileName = fileInfo.fileName();
-    if ( !fileName.isEmpty() )
+    if ( m_vfpTableData )
     {
-        name += " - " + fileName;
+        name = m_vfpTableData->name();
     }
+
     setName( name );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimVfpDeck::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+    if ( fieldNeedingOptions == &m_vfpTableData )
+    {
+        RimVfpDataCollection* vfpDataCollection = RimVfpDataCollection::instance();
+        for ( auto table : vfpDataCollection->vfpTableData() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( table->name(), table ) );
+        }
+    }
+
+    return options;
 }

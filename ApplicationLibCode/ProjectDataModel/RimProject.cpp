@@ -99,6 +99,8 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+
+#include "VerticalFlowPerformance/RimVfpDataCollection.h"
 #include "VerticalFlowPerformance/RimVfpPlotCollection.h"
 
 #include "Tools/RiaVariableMapper.h"
@@ -1457,6 +1459,10 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( oilField->ensembleWellLogsCollection() )
             {
                 uiTreeOrdering.add( oilField->ensembleWellLogsCollection() );
+            }
+            if ( oilField->vfpDataCollection() )
+            {
+                uiTreeOrdering.add( oilField->vfpDataCollection() );
             }
         }
     }

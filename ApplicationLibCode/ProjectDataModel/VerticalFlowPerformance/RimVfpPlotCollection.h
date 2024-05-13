@@ -35,24 +35,27 @@ class RimVfpPlotCollection : public caf::PdmObject, public RimTypedPlotCollectio
 
 public:
     RimVfpPlotCollection();
-    ~RimVfpPlotCollection() override;
+
+    RimVfpPlot* createAndAppendPlots( RimVfpTableData* tableData );
+    RimVfpPlot* plotForTableNumber( int tableNumber ) const;
 
     void                     addPlot( RimVfpPlot* newPlot ) override;
     std::vector<RimVfpPlot*> plots() const override;
-    void                     deleteChildren();
-    RimVfpPlot*              plotForTableNumber( int tableNumber ) const;
 
     size_t plotCount() const final;
     void   insertPlot( RimVfpPlot* vfpPlot, size_t index ) final;
     void   removePlot( RimVfpPlot* vfpPlot ) final;
+    void   deleteAllPlots() override;
 
-    RimVfpDeck* addDeck( const QString& filename );
+    static void addImportItems( caf::CmdFeatureMenuBuilder& menuBuilder );
 
 private:
     void loadDataAndUpdateAllPlots() override;
     void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
 
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
+    void addDeck( RimVfpDeck* deck );
 
 private:
     caf::PdmChildArrayField<RimVfpPlot*> m_vfpPlots;

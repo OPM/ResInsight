@@ -23,6 +23,7 @@
 
 #include "RimMainPlotCollection.h"
 
+#include "VerticalFlowPerformance/RimVfpDataCollection.h"
 #include "VerticalFlowPerformance/RimVfpDeck.h"
 #include "VerticalFlowPerformance/RimVfpPlot.h"
 #include "VerticalFlowPerformance/RimVfpPlotCollection.h"
@@ -37,15 +38,6 @@
 #include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicImportVfpDataFeature, "RicImportVfpDataFeature" );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicImportVfpDataFeature::isCommandEnabled() const
-{
-    auto plotColl = caf::firstAncestorOfTypeFromSelectedObject<RimVfpPlotCollection>();
-    return ( plotColl != nullptr );
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -83,47 +75,17 @@ void RicImportVfpDataFeature::onActionTriggered( bool isChecked )
     std::vector<RimVfpPlot*> vfpPlots;
     std::vector<RimVfpDeck*> vfpDecks;
 
+    auto vfpDataColl = RimVfpDataCollection::instance();
+
     for ( const auto& fileName : fileNames )
     {
-        if ( fileName.contains( ".DATA" ) )
-        {
-            auto vfpDeck = vfpPlotColl->addDeck( fileName );
-            vfpDecks.push_back( vfpDeck );
-        }
-        else
-        {
-            auto vfpPlot = new RimVfpPlot();
-            vfpPlot->setFileName( fileName );
-            vfpPlotColl->addPlot( vfpPlot );
-
-            vfpPlots.push_back( vfpPlot );
-        }
+        auto vfpDataSource = vfpDataColl->appendTableDataObject( fileName );
+        auto firstPlot     = vfpPlotColl->createAndAppendPlots( vfpDataSource );
+        vfpDataColl->updateAllRequiredEditors();
+        RiuPlotMainWindowTools::onObjectAppended( firstPlot, firstPlot );
     }
 
-    vfpPlotColl->updateConnectedEditors();
-
-    for ( auto deck : vfpDecks )
-    {
-        deck->loadDataAndUpdate();
-        deck->updateConnectedEditors();
-    }
-
-    for ( auto plot : vfpPlots )
-    {
-        plot->loadDataAndUpdate();
-    }
-
-    RiuPlotMainWindowTools::showPlotMainWindow();
-
-    if ( !vfpPlots.empty() )
-    {
-        RiuPlotMainWindowTools::onObjectAppended( vfpPlots.front() );
-    }
-
-    if ( !vfpDecks.empty() )
-    {
-        RiuPlotMainWindowTools::onObjectAppended( vfpDecks.front() );
-    }
+    vfpPlotColl->updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

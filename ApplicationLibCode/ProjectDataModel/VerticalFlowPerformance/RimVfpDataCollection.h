@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2024     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,28 +15,32 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "cafPdmChildArrayField.h"
+#include "cafPdmObject.h"
 
-class RimPlot;
-
-#include <vector>
+class RimVfpTableData;
 
 //==================================================================================================
 ///
+///
 //==================================================================================================
-class RicDeleteSubPlotFeature : public caf::CmdFeature
+class RimVfpDataCollection : public caf::PdmObject
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
-protected:
-    bool isCommandEnabled() const override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
+public:
+    RimVfpDataCollection();
+
+    static RimVfpDataCollection* instance();
+
+    RimVfpTableData*              appendTableDataObject( const QString& fileName );
+    std::vector<RimVfpTableData*> vfpTableData() const;
 
 private:
-    void getSelection( std::vector<RimPlot*>& selection ) const;
-    bool isAnyDeletablePlotSelected() const;
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
+private:
+    caf::PdmChildArrayField<RimVfpTableData*> m_vfpTableData;
 };
