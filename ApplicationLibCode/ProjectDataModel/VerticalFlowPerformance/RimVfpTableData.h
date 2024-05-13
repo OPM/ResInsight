@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020- Equinor ASA
+//  Copyright (C) 2024     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,26 +18,38 @@
 
 #pragma once
 
-#include <map>
-#include <string>
-#include <vector>
+#include "RimNamedObject.h"
 
-#include "opm/input/eclipse/Schedule/VFPInjTable.hpp"
-#include "opm/input/eclipse/Schedule/VFPProdTable.hpp"
+#include "cafFilePath.h"
+
+#include <memory>
+
+class RigVfpTables;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-namespace RiaOpmParserTools
+class RimVfpTableData : public RimNamedObject
 {
+    CAF_PDM_HEADER_INIT;
 
-std::pair<std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>> extractVfpTablesFromDataFile( const std::string& dataDeckFilename );
+public:
+    RimVfpTableData();
 
-std::map<std::string, std::vector<std::pair<int, int>>> extractWseglink( const std::string& filename );
+    void    setFileName( const QString& filename );
+    QString baseFileName();
+    void    ensureDataIsImported();
 
-using AicdTemplateValues = std::map<std::string, double>;
-std::vector<AicdTemplateValues> extractWsegAicd( const std::string& filename );
-std::vector<AicdTemplateValues> extractWsegAicdCompletor( const std::string& filename );
+    size_t tableCount() const;
 
-std::string aicdTemplateId();
-}; // namespace RiaOpmParserTools
+    const RigVfpTables* vfpTables() const;
+
+private:
+    void updateObjectName();
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
+private:
+    caf::PdmField<caf::FilePath> m_filePath;
+
+    std::unique_ptr<RigVfpTables> m_vfpTables;
+};

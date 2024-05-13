@@ -18,16 +18,8 @@
 
 #include "RimVfpPlotCollection.h"
 
-#include "RiaApplication.h"
-
-#include "RigCaseCellResultsData.h"
-#include "RigEclipseCaseData.h"
-#include "RigEclipseResultAddress.h"
-#include "RigEquil.h"
-
-#include "RimEclipseResultCase.h"
-#include "RimProject.h"
 #include "RimVfpDeck.h"
+#include "RimVfpTableData.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 
@@ -47,8 +39,43 @@ RimVfpPlotCollection::RimVfpPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimVfpPlotCollection::~RimVfpPlotCollection()
+RimVfpPlot* RimVfpPlotCollection::createAndAppendPlots( RimVfpTableData* tableData )
 {
+    if ( !tableData ) return nullptr;
+
+    tableData->ensureDataIsImported();
+
+    if ( !tableData->vfpTables() ) return nullptr;
+
+    RimVfpPlot* firstPlot = nullptr;
+
+    if ( tableData->tableCount() > 1 )
+    {
+        auto* deck = new RimVfpDeck();
+        deck->setDataSource( tableData );
+        addDeck( deck );
+        deck->loadDataAndUpdate();
+        deck->updateAllRequiredEditors();
+
+        auto plots = deck->plots();
+        if ( !plots.empty() )
+        {
+            firstPlot = plots.front();
+        }
+    }
+    else
+    {
+        auto vfpPlot = new RimVfpPlot();
+        vfpPlot->setDataSource( tableData );
+        vfpPlot->initializeObject();
+
+        addPlot( vfpPlot );
+        vfpPlot->loadDataAndUpdate();
+
+        firstPlot = vfpPlot;
+    }
+
+    return firstPlot;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,14 +100,6 @@ void RimVfpPlotCollection::insertPlot( RimVfpPlot* vfpPlot, size_t index )
 std::vector<RimVfpPlot*> RimVfpPlotCollection::plots() const
 {
     return m_vfpPlots.childrenByType();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimVfpPlotCollection::deleteChildren()
-{
-    m_vfpPlots.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,13 +138,30 @@ void RimVfpPlotCollection::removePlot( RimVfpPlot* vfpPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimVfpDeck* RimVfpPlotCollection::addDeck( const QString& filename )
+void RimVfpPlotCollection::addDeck( RimVfpDeck* deck )
 {
-    RimVfpDeck* deck = new RimVfpDeck();
-    deck->setFileName( filename );
     m_vfpDecks.push_back( deck );
+}
 
-    return deck;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlotCollection::deleteAllPlots()
+{
+    m_vfpPlots.deleteChildren();
+    m_vfpDecks.deleteChildren();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlotCollection::addImportItems( caf::CmdFeatureMenuBuilder& menuBuilder )
+{
+    // A variant with a true value is used to indicate that the VFP data is imported from a file
+    // This is used to distinguish between VFP data imported from a file and VFP data imported from a simulator
+    QVariant variant( QVariant::fromValue( true ) );
+    menuBuilder.addCmdFeatureWithUserData( "RicImportVfpDataFeature", "Import VFP Files", variant );
+    menuBuilder.addCmdFeature( "RicImportVfpDataFeature", "Import VFP from Simulator Files" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -160,9 +196,5 @@ void RimVfpPlotCollection::loadDataAndUpdateAllPlots()
 //--------------------------------------------------------------------------------------------------
 void RimVfpPlotCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
-    // A variant with a true value is used to indicate that the VFP data is imported from a file
-    // This is used to distinguish between VFP data imported from a file and VFP data imported from a simulator
-    QVariant variant( QVariant::fromValue( true ) );
-    menuBuilder.addCmdFeatureWithUserData( "RicImportVfpDataFeature", "Import VFP Files", variant );
-    menuBuilder.addCmdFeature( "RicImportVfpDataFeature", "Import VFP from Simulator Files" );
+    addImportItems( menuBuilder );
 }

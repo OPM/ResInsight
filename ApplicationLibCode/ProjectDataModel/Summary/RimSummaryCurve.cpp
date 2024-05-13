@@ -1396,17 +1396,10 @@ void RimSummaryCurve::updateTimeAnnotations()
 void RimSummaryCurve::updateLegendEntryVisibilityNoPlotUpdate()
 {
     if ( !m_plotCurve ) return;
-
-    auto ensembleCurveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
-    if ( ensembleCurveSet )
-    {
-        return;
-    }
+    if ( !firstAncestorOrThisOfType<RimEnsembleCurveSet>() ) return;
 
     bool showLegendInPlot = m_showLegend();
-
-    auto summaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>();
-    if ( summaryPlot )
+    if ( auto summaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>() )
     {
         bool anyCalculated = false;
         for ( const auto c : summaryPlot->summaryCurves() )

@@ -98,6 +98,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigWellResultBranch.h
     ${CMAKE_CURRENT_LIST_DIR}/RigWellResultFrame.h
     ${CMAKE_CURRENT_LIST_DIR}/RigReservoirBuilder.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigVfpTables.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -194,6 +195,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigWellResultFrame.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigDeclineCurveCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigReservoirBuilder.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigVfpTables.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

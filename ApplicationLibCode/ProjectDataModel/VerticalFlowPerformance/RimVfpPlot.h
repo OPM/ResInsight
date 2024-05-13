@@ -22,15 +22,24 @@
 #include "RimVfpDefines.h"
 
 #include "cafFilePath.h"
+#include "cafPdmPtrField.h"
 
 #include <QPointer>
-
-#include "opm/input/eclipse/Schedule/VFPInjTable.hpp"
-#include "opm/input/eclipse/Schedule/VFPProdTable.hpp"
 
 class RiuPlotWidget;
 class VfpPlotData;
 class RimPlotAxisProperties;
+class RigVfpTables;
+class RimVfpTableData;
+
+struct VfpTableSelection;
+struct VfpTableInitialData;
+
+namespace Opm
+{
+class VFPInjTable;
+class VFPProdTable;
+} // namespace Opm
 
 //--------------------------------------------------------------------------------------------------
 /// Vertical Flow Performance Plot
@@ -43,7 +52,9 @@ public:
     RimVfpPlot();
     ~RimVfpPlot() override;
 
-    void setFileName( const QString& filename );
+    void setDataSource( RimVfpTableData* vfpTableData );
+    void setTableNumber( int tableNumber );
+    void initializeObject();
 
     // RimPlot implementations
     RiuPlotWidget* plotWidget() override;
@@ -65,42 +76,29 @@ public:
     QImage   snapshotWindowContent() override;
     void     zoomAll() override;
 
-    void setProductionTable( const Opm::VFPProdTable& table );
-    void setInjectionTable( const Opm::VFPInjTable& table );
     void setDataIsImportedExternally( bool dataIsImportedExternally );
     int  tableNumber() const;
 
 private:
-    // RimPlot implementations
-    void doRemoveFromCollection();
-
-    // RimViewWindow implementations
+    void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
     void deleteViewWidget() override;
     void onLoadDataAndUpdate() override;
 
-    // PDM methods
     caf::PdmFieldHandle* userDescriptionField() override;
 
+    void scheduleReplot();
+
 private:
-    RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent ) override;
-
-    void                populatePlotWidgetWithCurveData( RiuPlotWidget* plotWidget, const Opm::VFPInjTable& table );
-    void                populatePlotWidgetWithCurveData( RiuPlotWidget*                        plotWidget,
-                                                         const Opm::VFPProdTable&              table,
-                                                         RimVfpDefines::ProductionVariableType primaryVariable,
-                                                         RimVfpDefines::ProductionVariableType familyVariable );
-    std::vector<double> getProductionTableData( const Opm::VFPProdTable& table, RimVfpDefines::ProductionVariableType variableType ) const;
-    size_t              getVariableIndex( const Opm::VFPProdTable&              table,
-                                          RimVfpDefines::ProductionVariableType targetVariable,
-                                          RimVfpDefines::ProductionVariableType primaryVariable,
-                                          size_t                                primaryValue,
-                                          RimVfpDefines::ProductionVariableType familyVariable,
-                                          size_t                                familyValue ) const;
-
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-
+    void initAfterRead() override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
+    VfpTableSelection   tableSelection() const;
+    void                initializeFromInitData( const VfpTableInitialData& table );
+    const RigVfpTables* vfpTables() const;
+
+    RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent ) override;
 
     void calculateTableValueOptions( RimVfpDefines::ProductionVariableType variableType, QList<caf::PdmOptionItemInfo>& options );
 
@@ -114,29 +112,10 @@ private:
                                       RimVfpDefines::ProductionVariableType   primaryVariable,
                                       RimVfpDefines::ProductionVariableType   familyVariable );
 
-    static double convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType );
-    static void   convertToDisplayUnit( std::vector<double>& values, RimVfpDefines::ProductionVariableType variableType );
-
+    static double  convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType );
+    static void    convertToDisplayUnit( std::vector<double>& values, RimVfpDefines::ProductionVariableType variableType );
     static QString getDisplayUnit( RimVfpDefines::ProductionVariableType variableType );
-
     static QString getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType variableType );
-
-    static RimVfpDefines::FlowingPhaseType         getFlowingPhaseType( const Opm::VFPProdTable& table );
-    static RimVfpDefines::FlowingPhaseType         getFlowingPhaseType( const Opm::VFPInjTable& table );
-    static RimVfpDefines::FlowingWaterFractionType getFlowingWaterFractionType( const Opm::VFPProdTable& table );
-    static RimVfpDefines::FlowingGasFractionType   getFlowingGasFractionType( const Opm::VFPProdTable& table );
-
-    void populatePlotData( const Opm::VFPProdTable&                table,
-                           RimVfpDefines::ProductionVariableType   primaryVariable,
-                           RimVfpDefines::ProductionVariableType   familyVariable,
-                           RimVfpDefines::InterpolatedVariableType interpolatedVariable,
-                           RimVfpDefines::FlowingPhaseType         flowingPhase,
-                           VfpPlotData&                            plotData ) const;
-
-    static void populatePlotData( const Opm::VFPInjTable&                 table,
-                                  RimVfpDefines::InterpolatedVariableType interpolatedVariable,
-                                  RimVfpDefines::FlowingPhaseType         flowingPhase,
-                                  VfpPlotData&                            plotData );
 
     void populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, const VfpPlotData& plotData );
 
@@ -149,10 +128,11 @@ private:
     void updateAxisRangesFromPlotWidget() override;
 
     void onPlotZoomed();
+    void curveAppearanceChanged( const caf::SignalEmitter* emitter );
 
 private:
     caf::PdmField<QString>                                               m_plotTitle;
-    caf::PdmField<caf::FilePath>                                         m_filePath;
+    caf::PdmPtrField<RimVfpTableData*>                                   m_vfpTableData;
     caf::PdmField<int>                                                   m_tableNumber;
     caf::PdmField<double>                                                m_referenceDepth;
     caf::PdmField<caf::AppEnum<RimVfpDefines::FlowingPhaseType>>         m_flowingPhase;
@@ -173,9 +153,12 @@ private:
     caf::PdmChildField<RimPlotAxisProperties*> m_yAxisProperties;
     caf::PdmChildField<RimPlotAxisProperties*> m_xAxisProperties;
 
-    QPointer<RiuPlotWidget>            m_plotWidget;
-    std::unique_ptr<Opm::VFPProdTable> m_prodTable;
-    std::unique_ptr<Opm::VFPInjTable>  m_injectionTable;
+    caf::PdmChildArrayField<RimPlotCurve*> m_plotCurves;
+
+    QPointer<RiuPlotWidget> m_plotWidget;
+
+    std::unique_ptr<RigVfpTables> m_vfpTables;
+    caf::PdmField<caf::FilePath>  m_filePath_OBSOLETE;
 
     bool m_dataIsImportedExternally;
 };

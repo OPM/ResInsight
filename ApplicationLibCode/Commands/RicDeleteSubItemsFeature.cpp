@@ -27,6 +27,7 @@
 #include "RimWellPathFractureCollection.h"
 
 #include "cafPdmUiItem.h"
+#include "cafPdmUiObjectHandle.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -110,6 +111,14 @@ bool RicDeleteSubItemsFeature::hasDeletableSubItems( caf::PdmUiItem* uiItem )
     {
         auto collection = dynamic_cast<RimWellPathFractureCollection*>( uiItem );
         if ( collection && !collection->allFractures().empty() )
+        {
+            return true;
+        }
+    }
+
+    {
+        auto collection = dynamic_cast<RimPlotCollection*>( uiItem );
+        if ( collection && collection->plotCount() > 0 )
         {
             return true;
         }
@@ -225,6 +234,19 @@ void RicDeleteSubItemsFeature::deleteSubItems( bool onlyDeleteUnchecked )
 
                 RimProject* proj = RimProject::current();
                 if ( proj ) proj->reloadCompletionTypeResultsInAllViews();
+            }
+        }
+
+        {
+            auto collection = dynamic_cast<RimPlotCollection*>( item );
+            if ( collection )
+            {
+                collection->deleteAllPlots();
+
+                if ( auto objHandle = dynamic_cast<caf::PdmUiObjectHandle*>( item ) )
+                {
+                    objHandle->updateConnectedEditors();
+                }
             }
         }
     }

@@ -44,6 +44,7 @@ class RimEnsembleWellLogsCollection;
 class RimPolygonCollection;
 class RimEclipseViewCollection;
 class RimEclipseContourMapViewCollection;
+class RimVfpDataCollection;
 
 //==================================================================================================
 ///
@@ -79,6 +80,7 @@ public:
     caf::PdmChildField<RimEnsembleWellLogsCollection*>      ensembleWellLogsCollection;
     caf::PdmChildField<RimPolygonCollection*>               polygonCollection;
     caf::PdmChildField<RimEclipseContourMapViewCollection*> eclipseContourMapCollection;
+    caf::PdmChildField<RimVfpDataCollection*>               vfpDataCollection;
 
 protected:
     void initAfterRead() override;

@@ -44,10 +44,7 @@ bool RicDeleteSubPlotFeature::isCommandEnabled() const
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
 
-    std::vector<RimPlot*> selection;
-    getSelection( selection );
-
-    return ( !selection.empty() );
+    return isAnyDeletablePlotSelected();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,4 +146,24 @@ void RicDeleteSubPlotFeature::getSelection( std::vector<RimPlot*>& selection ) c
     {
         caf::SelectionManager::instance()->objectsByType( &selection );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicDeleteSubPlotFeature::isAnyDeletablePlotSelected() const
+{
+    std::vector<RimPlot*> selection;
+    getSelection( selection );
+
+    for ( RimPlot* plot : selection )
+    {
+        if ( !plot ) continue;
+
+        RimMultiPlot*   multiPlot   = plot->firstAncestorOrThisOfType<RimMultiPlot>();
+        RimWellLogPlot* wellLogPlot = plot->firstAncestorOrThisOfType<RimWellLogPlot>();
+        if ( multiPlot || wellLogPlot ) return true;
+    }
+
+    return false;
 }

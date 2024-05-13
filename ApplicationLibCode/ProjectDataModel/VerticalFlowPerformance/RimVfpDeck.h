@@ -21,8 +21,11 @@
 #include "RimNamedObject.h"
 
 #include "cafFilePath.h"
+#include "cafPdmPtrField.h"
 
 class RimVfpPlotCollection;
+class RimVfpTableData;
+class RimVfpPlot;
 
 //--------------------------------------------------------------------------------------------------
 /// RimVfpDeck parses a deck file (*.DATA) containing VFP data and creates a collection of VFP plots.
@@ -34,14 +37,17 @@ class RimVfpDeck : public RimNamedObject
 public:
     RimVfpDeck();
 
-    void setFileName( const QString& filename );
+    void setDataSource( RimVfpTableData* tableData );
     void loadDataAndUpdate();
 
-private:
-    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void updateObjectName();
+    std::vector<RimVfpPlot*> plots() const;
 
 private:
-    caf::PdmField<caf::FilePath>              m_filePath;
+    void                          defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void                          updateObjectName();
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
+private:
+    caf::PdmPtrField<RimVfpTableData*>        m_vfpTableData;
     caf::PdmChildField<RimVfpPlotCollection*> m_vfpPlotCollection;
 };
