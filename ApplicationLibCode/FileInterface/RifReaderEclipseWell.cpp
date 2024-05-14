@@ -432,13 +432,14 @@ private:
 void RifReaderEclipseWell::readWellCells( RifEclipseRestartDataAccess* restartDataAccess,
                                           RigEclipseCaseData*          eclipseCaseData,
                                           std::vector<QDateTime>       filteredTimeSteps,
+                                          std::vector<std::string>     gridNames,
                                           bool                         importCompleteMswData )
 {
     CVF_ASSERT( eclipseCaseData );
 
     if ( restartDataAccess == nullptr ) return;
 
-    well_info_type* ert_well_info = well_info_alloc( nullptr );
+    well_info_type* ert_well_info = well_info_alloc( gridNames );
     if ( !ert_well_info ) return;
 
     restartDataAccess->readWellData( ert_well_info, importCompleteMswData );

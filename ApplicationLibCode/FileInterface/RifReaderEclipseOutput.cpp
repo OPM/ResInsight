@@ -459,9 +459,18 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
                 filteredTimeSteps.push_back( a.m_date );
             }
 
+            std::vector<std::string> gridNames;
+            gridNames.push_back( "global" );
+            for ( int i = 0; i < ecl_grid_get_num_lgr( mainEclGrid ); i++ )
+            {
+                const char* gridName = ecl_grid_iget_lgr_name( mainEclGrid, i );
+                gridNames.push_back( gridName );
+            }
+
             RifReaderEclipseWell::readWellCells( m_dynamicResultsAccess.p(),
                                                  m_eclipseCaseData,
                                                  filteredTimeSteps,
+                                                 gridNames,
                                                  isImportOfCompleteMswDataEnabled() );
         }
         else

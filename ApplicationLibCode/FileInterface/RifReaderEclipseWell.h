@@ -50,6 +50,7 @@ public:
     static void readWellCells( RifEclipseRestartDataAccess* restartDataAccess,
                                RigEclipseCaseData*          eclipseCaseData,
                                std::vector<QDateTime>       filteredTimeSteps,
+                               std::vector<std::string>     gridNames,
                                bool                         importCompleteMswData );
 
     static size_t
