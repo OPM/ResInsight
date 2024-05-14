@@ -973,15 +973,6 @@ void RifReaderEclipseWell::readWellCells( RifEclipseRestartDataAccess* restartDa
             }
         }
 
-        // std::vector<QDateTime> filteredTimeSteps;
-        //{
-        //     std::vector<RigEclipseTimeStepInfo> filteredTimeStepInfos = RifReaderEclipseWell::createFilteredTimeStepInfos();
-        //     for ( auto a : filteredTimeStepInfos )
-        //     {
-        //         filteredTimeSteps.push_back( a.m_date );
-        //     }
-        // }
-
         simWellData->computeMappingFromResultTimeIndicesToWellTimeIndices( filteredTimeSteps );
 
         wells.push_back( simWellData.p() );

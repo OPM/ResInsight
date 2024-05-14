@@ -352,9 +352,9 @@ bool RifReaderEclipseOutput::transferGeometry( const ecl_grid_type* mainEclGrid,
 //--------------------------------------------------------------------------------------------------
 /// Open file and read geometry into given reservoir object
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* eclipseCase )
+bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* eclipseCaseData )
 {
-    CVF_ASSERT( eclipseCase );
+    CVF_ASSERT( eclipseCaseData );
     caf::ProgressInfo progress( 100, "Reading Grid" );
 
     if ( !RifEclipseOutputFileTools::isValidEclipseFileName( fileName ) )
@@ -396,9 +396,9 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
 
     {
         auto task = progress.task( "Transferring grid geometry", 10 );
-        if ( !transferGeometry( mainEclGrid, eclipseCase ) ) return false;
+        if ( !transferGeometry( mainEclGrid, eclipseCaseData ) ) return false;
 
-        RifOpmRadialGridTools::importCoordinatesForRadialGrid( fileName.toStdString(), eclipseCase->mainGrid() );
+        RifOpmRadialGridTools::importCoordinatesForRadialGrid( fileName.toStdString(), eclipseCaseData->mainGrid() );
     }
 
     {
@@ -410,12 +410,12 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
 
             importFaults( fileSet, &faults );
 
-            RigMainGrid* mainGrid = eclipseCase->mainGrid();
+            RigMainGrid* mainGrid = eclipseCaseData->mainGrid();
             mainGrid->setFaults( faults );
         }
     }
 
-    m_eclipseCaseData = eclipseCase;
+    m_eclipseCaseData = eclipseCaseData;
 
     {
         auto task = progress.task( "Reading Results Meta data", 25 );
@@ -427,7 +427,7 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
         if ( isNNCsEnabled() )
         {
             caf::ProgressInfo nncProgress( 10, "" );
-            RigMainGrid*      mainGrid = eclipseCase->mainGrid();
+            RigMainGrid*      mainGrid = eclipseCaseData->mainGrid();
 
             {
                 auto subNncTask = nncProgress.task( "Reading static NNC data" );

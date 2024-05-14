@@ -32,6 +32,11 @@ class EGrid;
 class RigMainGrid;
 class RigGridBase;
 
+namespace caf
+{
+class ProgressInfo;
+}
+
 //==================================================================================================
 //
 //
@@ -48,7 +53,7 @@ public:
     bool dynamicResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values ) override;
 
 private:
-    void buildMetaData( RigEclipseCaseData* caseData );
+    void buildMetaData( RigEclipseCaseData* caseData, caf::ProgressInfo& progress );
     bool importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* caseData );
     void transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
                            Opm::EclIO::EGrid&  opmGrid,

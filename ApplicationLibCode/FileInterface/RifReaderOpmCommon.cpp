@@ -24,6 +24,8 @@
 
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseReportKeywords.h"
+#include "RifEclipseRestartDataAccess.h"
+#include "RifReaderEclipseWell.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
@@ -103,7 +105,7 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* case
 
         {
             auto task = progress.task( "Reading Results Meta data", 25 );
-            buildMetaData( caseData );
+            buildMetaData( caseData, progress );
         }
 
         return true;
@@ -505,7 +507,7 @@ static std::vector<RifEclipseKeywordValueCount> createKeywordInfo( std::vector<E
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
+void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf::ProgressInfo& progress )
 {
     auto getFileNameForType = []( RiaEclipseFileNameTools::EclipseFileType fileType, const QString& candidate ) -> std::string
     {
@@ -571,11 +573,9 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
 
         std::vector<RifEclipseKeywordValueCount> keywordInfo = createKeywordInfo( entries );
 
-        RifEclipseOutputFileTools::createResultEntries( keywordInfo, timeStepInfos, RiaDefines::ResultCatType::DYNAMIC_NATIVE, eclipseCase );
+        RifEclipseOutputFileTools::createResultEntries( keywordInfo, timeStepInfos, RiaDefines::ResultCatType::DYNAMIC_NATIVE, eclipseCaseData );
 
         firstTimeStepInfo = timeStepInfos.front();
-
-        readWellCells( m_restartFile, eclipseCase, m_timeSteps );
     }
 
     if ( !initFileName.empty() )
@@ -594,7 +594,25 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
 
         std::vector<RifEclipseKeywordValueCount> keywordInfo = createKeywordInfo( entries );
 
-        RifEclipseOutputFileTools::createResultEntries( keywordInfo, { firstTimeStepInfo }, RiaDefines::ResultCatType::STATIC_NATIVE, eclipseCase );
+        RifEclipseOutputFileTools::createResultEntries( keywordInfo,
+                                                        { firstTimeStepInfo },
+                                                        RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                        eclipseCaseData );
+    }
+
+    auto task = progress.task( "Handling well information", 10 );
+    if ( !isSkipWellData() && !restartFileName.empty() )
+    {
+        auto restartAccess = RifEclipseOutputFileTools::createDynamicResultAccess( QString::fromStdString( m_gridFileName ) );
+        restartAccess->open();
+
+        RifReaderEclipseWell::readWellCells( restartAccess.p(), eclipseCaseData, m_timeSteps, m_gridNames, isImportOfCompleteMswDataEnabled() );
+
+        restartAccess->close();
+    }
+    else
+    {
+        RiaLogging::info( "Skipping import of simulation well data" );
     }
 }
 
@@ -602,7 +620,7 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
 ///
 //--------------------------------------------------------------------------------------------------
 void RifReaderOpmCommon::readWellCells( std::shared_ptr<EclIO::ERst>  restartFile,
-                                        RigEclipseCaseData*           eclipseCase,
+                                        RigEclipseCaseData*           eclipseCaseData,
                                         const std::vector<QDateTime>& timeSteps )
 {
     // It is required to create a deck as the input parameter to runspec. The default() initialization of the runspec keyword does not
@@ -683,7 +701,7 @@ void RifReaderOpmCommon::readWellCells( std::shared_ptr<EclIO::ERst>  restartFil
                 // Well head
                 RigWellResultPoint wellHead;
                 wellHead.setGridIndex( 0 );
-                auto cellIndex = eclipseCase->mainGrid()->cellIndexFromIJK( rstWell.ij[0], rstWell.ij[1], 0 );
+                auto cellIndex = eclipseCaseData->mainGrid()->cellIndexFromIJK( rstWell.ij[0], rstWell.ij[1], 0 );
                 wellHead.setGridCellIndex( cellIndex );
 
                 wellResFrame.setWellHead( wellHead );
@@ -702,7 +720,7 @@ void RifReaderOpmCommon::readWellCells( std::shared_ptr<EclIO::ERst>  restartFil
                     {
                         RigWellResultPoint wellResPoint;
                         wellResPoint.setGridIndex( 0 );
-                        auto cellIndex = eclipseCase->mainGrid()->cellIndexFromIJK( conn.ijk[0], conn.ijk[1], conn.ijk[2] );
+                        auto cellIndex = eclipseCaseData->mainGrid()->cellIndexFromIJK( conn.ijk[0], conn.ijk[1], conn.ijk[2] );
                         wellResPoint.setGridCellIndex( cellIndex );
 
                         wellResPoint.setIsOpen( conn.state == Connection::State::OPEN );
@@ -733,7 +751,7 @@ void RifReaderOpmCommon::readWellCells( std::shared_ptr<EclIO::ERst>  restartFil
         std::cout << "Exception: " << e.what() << std::endl;
     }
 
-    eclipseCase->setSimWellData( wells );
+    eclipseCaseData->setSimWellData( wells );
 }
 
 //--------------------------------------------------------------------------------------------------
