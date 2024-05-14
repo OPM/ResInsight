@@ -34,11 +34,13 @@
 
 #include "cvfTrace.h"
 
-#include "Ert/ecl_well/well_segment_collection.h"
 #include "ert/ecl_well/well_conn.h"
 #include "ert/ecl_well/well_info.h"
 #include "ert/ecl_well/well_segment.h"
+#include "ert/ecl_well/well_segment_collection.h"
 #include "ert/ecl_well/well_state.h"
+
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 /// Helper struct to store info on how a well-to-grid connection contributes to the position of

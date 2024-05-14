@@ -21,6 +21,7 @@
 #include <map>
 #include <vector>
 
+#include "cvfVector3.h"
 #include <QDateTime>
 
 class RifEclipseRestartDataAccess;
