@@ -41,8 +41,6 @@
 #include "opm/io/eclipse/ERst.hpp"
 #include "opm/output/eclipse/VectorItems/intehead.hpp"
 
-// #include <iostream>
-
 using namespace Opm;
 
 //--------------------------------------------------------------------------------------------------
