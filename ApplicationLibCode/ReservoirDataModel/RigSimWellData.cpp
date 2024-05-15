@@ -65,16 +65,10 @@ void RigSimWellData::computeMappingFromResultTimeIndicesToWellTimeIndices( const
             wellTimeStepIndex++;
         }
 
-        if ( wellTimeStepIndex < m_wellCellsTimeSteps.size() )
+        if ( ( wellTimeStepIndex < m_wellCellsTimeSteps.size() ) &&
+             ( m_wellCellsTimeSteps[wellTimeStepIndex].timestamp() == simulationTimeSteps[resultTimeStepIndex] ) )
         {
-            if ( m_wellCellsTimeSteps[wellTimeStepIndex].timestamp() == simulationTimeSteps[resultTimeStepIndex] )
-            {
-                m_resultTimeStepIndexToWellTimeStepIndex[resultTimeStepIndex] = wellTimeStepIndex;
-            }
-            else
-            {
-                m_resultTimeStepIndexToWellTimeStepIndex[resultTimeStepIndex] = cvf::UNDEFINED_SIZE_T;
-            }
+            m_resultTimeStepIndexToWellTimeStepIndex[resultTimeStepIndex] = wellTimeStepIndex;
         }
         else
         {
