@@ -58,7 +58,7 @@ public:
     static QDateTime addPeriod( const QDateTime& dt, RiaDefines::DateTimePeriod period );
     static QDateTime subtractPeriod( const QDateTime& dt, RiaDefines::DateTimePeriod period );
 
-    static QDateTime createDateTime( const QDate& date );
+    static QDateTime createDateTime( const QDate& date, Qt::TimeSpec timeSpec = Qt::LocalTime );
 
     static QDateTime epoch();
 

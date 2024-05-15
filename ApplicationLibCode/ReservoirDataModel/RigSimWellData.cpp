@@ -60,14 +60,14 @@ void RigSimWellData::computeMappingFromResultTimeIndicesToWellTimeIndices( const
     for ( size_t resultTimeStepIndex = 0; resultTimeStepIndex < simulationTimeSteps.size(); resultTimeStepIndex++ )
     {
         while ( wellTimeStepIndex < m_wellCellsTimeSteps.size() &&
-                m_wellCellsTimeSteps[wellTimeStepIndex].timestamp().date() < simulationTimeSteps[resultTimeStepIndex].date() )
+                m_wellCellsTimeSteps[wellTimeStepIndex].timestamp() < simulationTimeSteps[resultTimeStepIndex] )
         {
             wellTimeStepIndex++;
         }
 
         if ( wellTimeStepIndex < m_wellCellsTimeSteps.size() )
         {
-            if ( m_wellCellsTimeSteps[wellTimeStepIndex].timestamp().date() == simulationTimeSteps[resultTimeStepIndex].date() )
+            if ( m_wellCellsTimeSteps[wellTimeStepIndex].timestamp() == simulationTimeSteps[resultTimeStepIndex] )
             {
                 m_resultTimeStepIndexToWellTimeStepIndex[resultTimeStepIndex] = wellTimeStepIndex;
             }

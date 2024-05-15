@@ -507,7 +507,7 @@ void RifReaderEclipseWell::readWellCells( RifEclipseRestartDataAccess* restartDa
 
                 // Also see RifEclipseOutputFileAccess::timeStepsText for accessing time_t structures
                 time_t stepTime = well_state_get_sim_time( ert_well_state );
-                wellResFrame.setTimestamp( QDateTime::fromSecsSinceEpoch( stepTime ) );
+                wellResFrame.setTimestamp( QDateTime::fromSecsSinceEpoch( stepTime, Qt::UTC ) );
             }
 
             // Production type
