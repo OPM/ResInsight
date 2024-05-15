@@ -36,21 +36,12 @@
 
 #include "cafProgressInfo.h"
 
-#include "opm/input/eclipse/Deck/Deck.hpp"
-#include "opm/input/eclipse/EclipseState/Runspec.hpp"
-#include "opm/input/eclipse/Parser/Parser.hpp"
-#include "opm/input/eclipse/Schedule/Well/Connection.hpp"
-#include "opm/input/eclipse/Schedule/Well/Well.hpp"
 #include "opm/io/eclipse/EGrid.hpp"
 #include "opm/io/eclipse/EInit.hpp"
 #include "opm/io/eclipse/ERst.hpp"
-#include "opm/io/eclipse/RestartFileView.hpp"
-#include "opm/io/eclipse/rst/state.hpp"
-#include "opm/output/eclipse/VectorItems/group.hpp"
 #include "opm/output/eclipse/VectorItems/intehead.hpp"
-#include "opm/output/eclipse/VectorItems/well.hpp"
 
-#include <iostream>
+// #include <iostream>
 
 using namespace Opm;
 
@@ -71,7 +62,7 @@ RifReaderOpmCommon::~RifReaderOpmCommon()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* caseData )
+bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* eclipseCaseData )
 {
     caf::ProgressInfo progress( 100, "Reading Grid" );
 
@@ -82,7 +73,7 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* case
     {
         m_gridFileName = fileName.toStdString();
 
-        if ( !importGrid( caseData->mainGrid(), caseData ) )
+        if ( !importGrid( eclipseCaseData->mainGrid(), eclipseCaseData ) )
         {
             RiaLogging::error( "Failed to open grid file " + fileName );
 
@@ -98,14 +89,14 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* case
 
                 importFaults( fileSet, &faults );
 
-                RigMainGrid* mainGrid = caseData->mainGrid();
+                RigMainGrid* mainGrid = eclipseCaseData->mainGrid();
                 mainGrid->setFaults( faults );
             }
         }
 
         {
             auto task = progress.task( "Reading Results Meta data", 25 );
-            buildMetaData( caseData, progress );
+            buildMetaData( eclipseCaseData, progress );
         }
 
         return true;
@@ -122,12 +113,12 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* case
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* caseData )
+bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* eclipseCaseData )
 {
     Opm::EclIO::EGrid opmGrid( m_gridFileName );
 
-    RigActiveCellInfo* activeCellInfo         = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    RigActiveCellInfo* fractureActiveCellInfo = caseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+    RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
 
     const auto& dims = opmGrid.dimension();
     mainGrid->setGridPointDimensions( cvf::Vec3st( dims[0] + 1, dims[1] + 1, dims[2] + 1 ) );
@@ -174,7 +165,7 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
 
     {
         auto task = progInfo.task( "Loading Main Grid Data", 3 );
-        transferGeometry( opmGrid, opmGrid, mainGrid, mainGrid, caseData, 0, 0 );
+        transferGeometry( opmGrid, opmGrid, mainGrid, mainGrid, eclipseCaseData, 0, 0 );
     }
 
     activeCellInfo->setGridCount( 1 + numLGRs );
@@ -194,7 +185,7 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
         RigLocalGrid* localGrid = static_cast<RigLocalGrid*>( mainGrid->gridById( lgrIdx + 1 ) );
         localGrid->setParentGrid( parentGrid );
 
-        transferGeometry( opmGrid, lgrGrids[lgrIdx], mainGrid, localGrid, caseData, globalMatrixActiveSize, globalFractureActiveSize );
+        transferGeometry( opmGrid, lgrGrids[lgrIdx], mainGrid, localGrid, eclipseCaseData, globalMatrixActiveSize, globalFractureActiveSize );
 
         int matrixActiveCellCount = lgrGrids[lgrIdx].activeCells();
         globalMatrixActiveSize += matrixActiveCellCount;
@@ -245,7 +236,7 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
                                            Opm::EclIO::EGrid&  opmGrid,
                                            RigMainGrid*        mainGrid,
                                            RigGridBase*        localGrid,
-                                           RigEclipseCaseData* caseData,
+                                           RigEclipseCaseData* eclipseCaseData,
                                            size_t              matrixActiveStartIndex,
                                            size_t              fractureActiveStartIndex )
 {
@@ -253,8 +244,8 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
     size_t cellStartIndex = mainGrid->globalCellArray().size();
     size_t nodeStartIndex = mainGrid->nodes().size();
 
-    RigActiveCellInfo* activeCellInfo         = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    RigActiveCellInfo* fractureActiveCellInfo = caseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+    RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
 
     RigCell defaultCell;
     defaultCell.setHostGrid( localGrid );

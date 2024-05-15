@@ -869,7 +869,8 @@ std::vector<RifEclipseKeywordValueCount>
         // is this a result with a value for all cells?
         if ( !validKeyword )
         {
-            if ( valueCount > 0 && ( valueCount % matrixActiveCellInfo->reservoirCellCount() == 0 ) )
+            if ( valueCount > 0 && ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL ) &&
+                 ( valueCount % matrixActiveCellInfo->reservoirCellCount() == 0 ) )
             {
                 validKeyword = true;
             }
