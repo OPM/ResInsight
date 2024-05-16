@@ -418,6 +418,7 @@ set(UNITY_EXCLUDE_FILES
     # Exclude files including opm-common
     ProjectDataModel/RimVfpTableExtractor.cpp
     ProjectDataModel/RimVfpPlot.cpp
+    ProjectDataModel/RiaOpmParserTools.cpp
 )
 
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
