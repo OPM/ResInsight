@@ -25,6 +25,7 @@
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseReportKeywords.h"
 #include "RifEclipseRestartDataAccess.h"
+#include "RifOpmRadialGridTools.h"
 #include "RifReaderEclipseWell.h"
 
 #include "RigActiveCellInfo.h"
@@ -256,6 +257,12 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
     opmGrid.loadData();
     opmGrid.load_grid_data();
 
+    const bool isRadialGrid = opmGrid.is_radial();
+
+    // Compute the center of the LGR radial grid cells for each K layer
+    std::map<int, std::pair<double, double>> radialGridCenterTopLayerOpm =
+        RifOpmRadialGridTools::computeXyCenterForTopOfCells( opmMainGrid, opmGrid, localGrid );
+
     // same mapping as libecl
     const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 
@@ -265,6 +272,16 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
     for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( localGrid->cellCount() ); opmCellIndex++ )
     {
         auto opmIJK = opmGrid.ijk_from_global_index( opmCellIndex );
+
+        double xCenterCoordOpm = 0.0;
+        double yCenterCoordOpm = 0.0;
+
+        if ( isRadialGrid && radialGridCenterTopLayerOpm.contains( opmIJK[2] ) )
+        {
+            const auto& [xCenter, yCenter] = radialGridCenterTopLayerOpm[opmIJK[2]];
+            xCenterCoordOpm                = xCenter;
+            yCenterCoordOpm                = yCenter;
+        }
 
         auto     riReservoirIndex = localGrid->cellIndexFromIJK( opmIJK[0], opmIJK[1], opmIJK[2] );
         RigCell& cell             = mainGrid->globalCellArray()[cellStartIndex + riReservoirIndex];
@@ -308,8 +325,8 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
             size_t riNodeIndex   = riNodeStartIndex + riCornerIndex;
 
             auto& riNode = riNodes[riNodeIndex];
-            riNode.x()   = opmX[opmNodeIndex];
-            riNode.y()   = opmY[opmNodeIndex];
+            riNode.x()   = opmX[opmNodeIndex] + xCenterCoordOpm;
+            riNode.y()   = opmY[opmNodeIndex] + yCenterCoordOpm;
             riNode.z()   = -opmZ[opmNodeIndex];
 
             cell.cornerIndices()[riCornerIndex] = riNodeIndex;
