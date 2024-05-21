@@ -819,14 +819,17 @@ QString RimFlowCharacteristicsPlot::curveDataAsText() const
             auto storageCapacityValues = a->second.m_storageCapFlowCapCurve.first;
             auto flowCapacityValues    = a->second.m_storageCapFlowCapCurve.second;
 
+            if ( storageCapacityValues.size() < 2 || flowCapacityValues.size() < 2 )
+            {
+                continue;
+            }
+
             bool                extrapolate = false;
             std::vector<double> flowCapacitySamplingValues;
             for ( const auto storageCapacity : storageCapacitySamplingValues )
             {
-                {
-                    double flowCapacity = interpolate( storageCapacityValues, flowCapacityValues, storageCapacity, extrapolate );
-                    flowCapacitySamplingValues.push_back( flowCapacity );
-                }
+                double flowCapacity = interpolate( storageCapacityValues, flowCapacityValues, storageCapacity, extrapolate );
+                flowCapacitySamplingValues.push_back( flowCapacity );
             }
 
             auto dimensionLessTimeValues = a->second.m_dimensionlessTimeSweepEfficiencyCurve.first;

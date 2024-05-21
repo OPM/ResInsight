@@ -625,6 +625,11 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame
         return result;
     }
 
+    if ( m_opmFlowDiagStaticData.isNull() )
+    {
+        return result;
+    }
+
     std::vector<double> poreVolume;
     for ( size_t cellIndex : selected_cell_indices )
     {
