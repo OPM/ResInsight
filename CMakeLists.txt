@@ -636,26 +636,24 @@ add_subdirectory(ThirdParty/tomlplusplus)
 add_subdirectory(ThirdParty/spdlog)
 list(APPEND THIRD_PARTY_LIBRARIES spdlog)
 
-
 # ##############################################################################
 # Arrow
 # ##############################################################################
 find_package(Arrow CONFIG REQUIRED)
 if(MSVC)
-list(APPEND THIRD_PARTY_LIBRARIES Arrow::arrow_shared)
+  list(APPEND THIRD_PARTY_LIBRARIES Arrow::arrow_shared)
 else()
-list(APPEND THIRD_PARTY_LIBRARIES Arrow::arrow_static)
+  list(APPEND THIRD_PARTY_LIBRARIES Arrow::arrow_static)
 endif()
-
 
 # ##############################################################################
 # Parquet
 # ##############################################################################
 find_package(Parquet CONFIG REQUIRED)
 if(MSVC)
-list(APPEND THIRD_PARTY_LIBRARIES Parquet::parquet_shared)
+  list(APPEND THIRD_PARTY_LIBRARIES Parquet::parquet_shared)
 else()
-list(APPEND THIRD_PARTY_LIBRARIES Parquet::parquet_static)
+  list(APPEND THIRD_PARTY_LIBRARIES Parquet::parquet_static)
 endif()
 
 # ##############################################################################
