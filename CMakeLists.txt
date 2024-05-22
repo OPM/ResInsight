@@ -641,18 +641,22 @@ list(APPEND THIRD_PARTY_LIBRARIES spdlog)
 # Arrow
 # ##############################################################################
 find_package(Arrow CONFIG REQUIRED)
+if(MSVC)
+list(APPEND THIRD_PARTY_LIBRARIES Arrow::arrow_shared)
+else()
 list(APPEND THIRD_PARTY_LIBRARIES Arrow::arrow_static)
+endif()
 
-#target_link_libraries(main PRIVATE "$<IF:$<BOOL:${ARROW_BUILD_STATIC}>,Arrow::arrow_static,Arrow::arrow_shared>")
 
 # ##############################################################################
 # Parquet
 # ##############################################################################
 find_package(Parquet CONFIG REQUIRED)
+if(MSVC)
+list(APPEND THIRD_PARTY_LIBRARIES Parquet::parquet_shared)
+else()
 list(APPEND THIRD_PARTY_LIBRARIES Parquet::parquet_static)
-#target_link_libraries(main PRIVATE "$<IF:$<BOOL:${ARROW_BUILD_STATIC}>,Parquet::parquet_static,Parquet::parquet_shared>")
-
-
+endif()
 
 # ##############################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
