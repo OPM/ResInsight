@@ -636,6 +636,24 @@ add_subdirectory(ThirdParty/tomlplusplus)
 add_subdirectory(ThirdParty/spdlog)
 list(APPEND THIRD_PARTY_LIBRARIES spdlog)
 
+
+# ##############################################################################
+# Arrow
+# ##############################################################################
+find_package(Arrow CONFIG REQUIRED)
+list(APPEND THIRD_PARTY_LIBRARIES Arrow::arrow_static)
+
+#target_link_libraries(main PRIVATE "$<IF:$<BOOL:${ARROW_BUILD_STATIC}>,Arrow::arrow_static,Arrow::arrow_shared>")
+
+# ##############################################################################
+# Parquet
+# ##############################################################################
+find_package(Parquet CONFIG REQUIRED)
+list(APPEND THIRD_PARTY_LIBRARIES Parquet::parquet_static)
+#target_link_libraries(main PRIVATE "$<IF:$<BOOL:${ARROW_BUILD_STATIC}>,Parquet::parquet_static,Parquet::parquet_shared>")
+
+
+
 # ##############################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
 # ##############################################################################
