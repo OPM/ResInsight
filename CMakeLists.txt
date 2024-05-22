@@ -637,6 +637,26 @@ add_subdirectory(ThirdParty/spdlog)
 list(APPEND THIRD_PARTY_LIBRARIES spdlog)
 
 # ##############################################################################
+# Arrow
+# ##############################################################################
+find_package(Arrow CONFIG REQUIRED)
+if(MSVC)
+  list(APPEND THIRD_PARTY_LIBRARIES Arrow::arrow_shared)
+else()
+  list(APPEND THIRD_PARTY_LIBRARIES Arrow::arrow_static)
+endif()
+
+# ##############################################################################
+# Parquet
+# ##############################################################################
+find_package(Parquet CONFIG REQUIRED)
+if(MSVC)
+  list(APPEND THIRD_PARTY_LIBRARIES Parquet::parquet_shared)
+else()
+  list(APPEND THIRD_PARTY_LIBRARIES Parquet::parquet_static)
+endif()
+
+# ##############################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
 # ##############################################################################
 set_property(TARGET ${THIRD_PARTY_LIBRARIES} PROPERTY FOLDER "Thirdparty")
