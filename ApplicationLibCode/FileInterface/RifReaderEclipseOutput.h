@@ -97,9 +97,6 @@ private:
 
     void openInitFile();
 
-    void extractResultValuesBasedOnPorosityModel( RiaDefines::PorosityModelType matrixOrFracture,
-                                                  std::vector<double>*          values,
-                                                  const std::vector<double>&    fileValues );
     void transferStaticNNCData( const ecl_grid_type* mainEclGrid, ecl_file_type* init_file, RigMainGrid* mainGrid );
     void transferDynamicNNCData( const ecl_grid_type* mainEclGrid, RigMainGrid* mainGrid );
 

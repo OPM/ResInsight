@@ -108,6 +108,11 @@ public:
                                        RiaDefines::PorosityModelType                   matrixOrFracture,
                                        size_t                                          timeStepCount );
 
+    static void extractResultValuesBasedOnPorosityModel( RigEclipseCaseData*           eclipseCaseData,
+                                                         RiaDefines::PorosityModelType matrixOrFracture,
+                                                         std::vector<double>*          values,
+                                                         const std::vector<double>&    fileValues );
+
 private:
     static void                     getDayMonthYear( const ecl_kw_type* intehead_kw, int* day, int* month, int* year );
     static RifEclipseReportKeywords createReportStepsMetaData( const std::vector<ecl_file_type*>& ecl_files );

@@ -900,3 +900,57 @@ std::vector<RifEclipseKeywordValueCount>
 
     return keywordsWithCorrectNumberOfDataItems;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseOutputFileTools::extractResultValuesBasedOnPorosityModel( RigEclipseCaseData*           eclipseCaseData,
+                                                                         RiaDefines::PorosityModelType matrixOrFracture,
+                                                                         std::vector<double>*          destinationResultValues,
+                                                                         const std::vector<double>&    sourceResultValues )
+{
+    if ( sourceResultValues.empty() ) return;
+
+    RigActiveCellInfo* fracActCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+
+    if ( matrixOrFracture == RiaDefines::PorosityModelType::MATRIX_MODEL && fracActCellInfo->reservoirActiveCellCount() == 0 )
+    {
+        destinationResultValues->insert( destinationResultValues->end(), sourceResultValues.begin(), sourceResultValues.end() );
+    }
+    else
+    {
+        RigActiveCellInfo* actCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+        size_t sourceStartPosition = 0;
+
+        for ( size_t i = 0; i < eclipseCaseData->mainGrid()->gridCount(); i++ )
+        {
+            if ( eclipseCaseData->mainGrid()->gridByIndex( i )->isTempGrid() ) continue;
+
+            size_t matrixActiveCellCount   = actCellInfo->gridActiveCellCounts( i );
+            size_t fractureActiveCellCount = fracActCellInfo->gridActiveCellCounts( i );
+
+            if ( matrixOrFracture == RiaDefines::PorosityModelType::MATRIX_MODEL )
+            {
+                destinationResultValues->insert( destinationResultValues->end(),
+                                                 sourceResultValues.begin() + sourceStartPosition,
+                                                 sourceResultValues.begin() + sourceStartPosition + matrixActiveCellCount );
+            }
+            else
+            {
+                if ( ( matrixActiveCellCount + fractureActiveCellCount ) > sourceResultValues.size() )
+                {
+                    // Special handling of the situation where we only have data for one fracture mode
+                    matrixActiveCellCount = 0;
+                }
+
+                destinationResultValues->insert( destinationResultValues->end(),
+                                                 sourceResultValues.begin() + sourceStartPosition + matrixActiveCellCount,
+                                                 sourceResultValues.begin() + sourceStartPosition + matrixActiveCellCount +
+                                                     fractureActiveCellCount );
+            }
+
+            sourceStartPosition += ( matrixActiveCellCount + fractureActiveCellCount );
+        }
+    }
+}

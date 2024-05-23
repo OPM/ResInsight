@@ -932,7 +932,7 @@ bool RifReaderEclipseOutput::staticResult( const QString& result, RiaDefines::Po
             fileValues.insert( fileValues.end(), partValues.begin(), partValues.end() );
         }
 
-        extractResultValuesBasedOnPorosityModel( matrixOrFracture, values, fileValues );
+        RifEclipseOutputFileTools::extractResultValuesBasedOnPorosityModel( m_eclipseCaseData, matrixOrFracture, values, fileValues );
     }
 
     return true;
@@ -1004,7 +1004,7 @@ bool RifReaderEclipseOutput::dynamicResult( const QString&                result
             return false;
         }
 
-        extractResultValuesBasedOnPorosityModel( matrixOrFracture, values, fileValues );
+        RifEclipseOutputFileTools::extractResultValuesBasedOnPorosityModel( m_eclipseCaseData, matrixOrFracture, values, fileValues );
     }
 
     return true;
@@ -1107,59 +1107,6 @@ void RifReaderEclipseOutput::updateFromGridCount( size_t gridCount )
     if ( m_dynamicResultsAccess.notNull() )
     {
         m_dynamicResultsAccess->updateFromGridCount( gridCount );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel( RiaDefines::PorosityModelType matrixOrFracture,
-                                                                      std::vector<double>*          destinationResultValues,
-                                                                      const std::vector<double>&    sourceResultValues )
-{
-    if ( sourceResultValues.empty() ) return;
-
-    RigActiveCellInfo* fracActCellInfo = m_eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
-
-    if ( matrixOrFracture == RiaDefines::PorosityModelType::MATRIX_MODEL && fracActCellInfo->reservoirActiveCellCount() == 0 )
-    {
-        destinationResultValues->insert( destinationResultValues->end(), sourceResultValues.begin(), sourceResultValues.end() );
-    }
-    else
-    {
-        RigActiveCellInfo* actCellInfo = m_eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-
-        size_t sourceStartPosition = 0;
-
-        for ( size_t i = 0; i < m_eclipseCaseData->mainGrid()->gridCount(); i++ )
-        {
-            if ( m_eclipseCaseData->mainGrid()->gridByIndex( i )->isTempGrid() ) continue;
-
-            size_t matrixActiveCellCount   = actCellInfo->gridActiveCellCounts( i );
-            size_t fractureActiveCellCount = fracActCellInfo->gridActiveCellCounts( i );
-
-            if ( matrixOrFracture == RiaDefines::PorosityModelType::MATRIX_MODEL )
-            {
-                destinationResultValues->insert( destinationResultValues->end(),
-                                                 sourceResultValues.begin() + sourceStartPosition,
-                                                 sourceResultValues.begin() + sourceStartPosition + matrixActiveCellCount );
-            }
-            else
-            {
-                if ( ( matrixActiveCellCount + fractureActiveCellCount ) > sourceResultValues.size() )
-                {
-                    // Special handling of the situation where we only have data for one fracture mode
-                    matrixActiveCellCount = 0;
-                }
-
-                destinationResultValues->insert( destinationResultValues->end(),
-                                                 sourceResultValues.begin() + sourceStartPosition + matrixActiveCellCount,
-                                                 sourceResultValues.begin() + sourceStartPosition + matrixActiveCellCount +
-                                                     fractureActiveCellCount );
-            }
-
-            sourceStartPosition += ( matrixActiveCellCount + fractureActiveCellCount );
-        }
     }
 }
 

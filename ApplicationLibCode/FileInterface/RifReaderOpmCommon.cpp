@@ -48,6 +48,7 @@ using namespace Opm;
 ///
 //--------------------------------------------------------------------------------------------------
 RifReaderOpmCommon::RifReaderOpmCommon()
+    : m_eclipseCaseData( nullptr )
 {
 }
 
@@ -92,6 +93,8 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
                 mainGrid->setFaults( faults );
             }
         }
+
+        m_eclipseCaseData = eclipseCaseData;
 
         {
             auto task = progress.task( "Reading Results Meta data", 25 );
@@ -359,6 +362,8 @@ bool RifReaderOpmCommon::staticResult( const QString& result, RiaDefines::Porosi
         {
             auto resultName = result.toStdString();
 
+            std::vector<double> combinedFileValues;
+
             const auto& resultEntries = m_initFile->getList();
             for ( const auto& entry : resultEntries )
             {
@@ -370,17 +375,17 @@ bool RifReaderOpmCommon::staticResult( const QString& result, RiaDefines::Porosi
                         if ( kwType == EclIO::eclArrType::REAL )
                         {
                             const auto& fileValues = m_initFile->getInitData<float>( resultName, gridName );
-                            values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                            combinedFileValues.insert( combinedFileValues.end(), fileValues.begin(), fileValues.end() );
                         }
                         else if ( kwType == EclIO::eclArrType::DOUB )
                         {
                             const auto& fileValues = m_initFile->getInitData<double>( resultName, gridName );
-                            values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                            combinedFileValues.insert( combinedFileValues.end(), fileValues.begin(), fileValues.end() );
                         }
                         else if ( kwType == EclIO::eclArrType::INTE )
                         {
                             const auto& fileValues = m_initFile->getInitData<int>( resultName, gridName );
-                            values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                            combinedFileValues.insert( combinedFileValues.end(), fileValues.begin(), fileValues.end() );
                         }
                     }
                     break;
@@ -389,6 +394,8 @@ bool RifReaderOpmCommon::staticResult( const QString& result, RiaDefines::Porosi
 
             // Always clear data after reading to avoid memory use
             m_initFile->clearData();
+
+            RifEclipseOutputFileTools::extractResultValuesBasedOnPorosityModel( m_eclipseCaseData, matrixOrFracture, values, combinedFileValues );
 
             return true;
         }
@@ -418,6 +425,8 @@ bool RifReaderOpmCommon::dynamicResult( const QString&                result,
             const auto& stepNumbers = m_restartFile->listOfReportStepNumbers();
             auto        stepNumber  = stepNumbers[stepIndex];
 
+            std::vector<double> combinedFileValues;
+
             auto resultEntries = m_restartFile->getList();
             for ( const auto& entry : resultEntries )
             {
@@ -431,17 +440,17 @@ bool RifReaderOpmCommon::dynamicResult( const QString&                result,
                             if ( kwType == EclIO::eclArrType::DOUB )
                             {
                                 const auto& fileValues = m_restartFile->getRestartData<double>( resultName, stepNumber );
-                                values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                                combinedFileValues.insert( combinedFileValues.end(), fileValues.begin(), fileValues.end() );
                             }
                             if ( kwType == EclIO::eclArrType::REAL )
                             {
                                 const auto& fileValues = m_restartFile->getRestartData<float>( resultName, stepNumber );
-                                values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                                combinedFileValues.insert( combinedFileValues.end(), fileValues.begin(), fileValues.end() );
                             }
                             else if ( kwType == EclIO::eclArrType::INTE )
                             {
                                 const auto& fileValues = m_restartFile->getRestartData<int>( resultName, stepNumber );
-                                values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                                combinedFileValues.insert( combinedFileValues.end(), fileValues.begin(), fileValues.end() );
                             }
                         }
                         else
@@ -449,17 +458,17 @@ bool RifReaderOpmCommon::dynamicResult( const QString&                result,
                             if ( kwType == EclIO::eclArrType::DOUB )
                             {
                                 const auto& fileValues = m_restartFile->getRestartData<double>( resultName, stepNumber, gridName );
-                                values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                                combinedFileValues.insert( combinedFileValues.end(), fileValues.begin(), fileValues.end() );
                             }
                             if ( kwType == EclIO::eclArrType::REAL )
                             {
                                 const auto& fileValues = m_restartFile->getRestartData<float>( resultName, stepNumber, gridName );
-                                values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                                combinedFileValues.insert( combinedFileValues.end(), fileValues.begin(), fileValues.end() );
                             }
                             else if ( kwType == EclIO::eclArrType::INTE )
                             {
                                 const auto& fileValues = m_restartFile->getRestartData<int>( resultName, stepNumber, gridName );
-                                values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                                combinedFileValues.insert( combinedFileValues.end(), fileValues.begin(), fileValues.end() );
                             }
                         }
                     }
@@ -469,6 +478,8 @@ bool RifReaderOpmCommon::dynamicResult( const QString&                result,
 
             // Always clear data after reading to avoid memory use
             m_restartFile->clearData();
+
+            RifEclipseOutputFileTools::extractResultValuesBasedOnPorosityModel( m_eclipseCaseData, matrixOrFracture, values, combinedFileValues );
 
             return true;
         }

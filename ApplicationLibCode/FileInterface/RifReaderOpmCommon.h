@@ -31,6 +31,7 @@ class EGrid;
 
 class RigMainGrid;
 class RigGridBase;
+class RigEclipseCaseData;
 
 namespace caf
 {
@@ -78,7 +79,8 @@ private:
                                                     const std::vector<QDateTime>&     timeSteps );
 
 private:
-    std::string m_gridFileName;
+    std::string         m_gridFileName;
+    RigEclipseCaseData* m_eclipseCaseData;
 
     std::shared_ptr<Opm::EclIO::ERst>  m_restartFile;
     std::shared_ptr<Opm::EclIO::EInit> m_initFile;
