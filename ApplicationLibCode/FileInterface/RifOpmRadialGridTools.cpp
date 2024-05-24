@@ -188,71 +188,93 @@ void RifOpmRadialGridTools::transferCoordinatesRadial( Opm::EclIO::EGrid& opmMai
             // First grid dimension is radius, check if cell has are at the outer-most slice
             if ( !hostCellGlobalIndices.empty() && ( gridDimension[0] - 1 == ijkCell[0] ) )
             {
-                std::array<double, 8> cellRadius{};
-                std::array<double, 8> cellTheta{};
-                std::array<double, 8> cellZ{};
-                opmGrid.getRadialCellCorners( ijkCell, cellRadius, cellTheta, cellZ );
+                auto hostCellIndex = hostCellGlobalIndices[opmCellIndex];
 
-                double maxRadius = *std::max_element( cellRadius.begin(), cellRadius.end() );
+                lockToHostPillars( riNode, opmMainGrid, opmGrid, ijkCell, hostCellIndex, opmCellIndex, opmNodeIndex, xCenterCoordOpm, yCenterCoordOpm );
+            }
+        }
+    }
+}
 
-                // Check if the radius is at the outer surface of the radial grid
-                // Adjust the outer nodes to match the corner pillars of the host cell
-                const double epsilon = 0.15;
-                if ( fabs( maxRadius - cellRadius[opmNodeIndex] ) < epsilon * cellRadius[opmNodeIndex] )
+//--------------------------------------------------------------------------------------------------
+//
+//--------------------------------------------------------------------------------------------------
+void RifOpmRadialGridTools::lockToHostPillars( cvf::Vec3d&         riNode,
+                                               Opm::EclIO::EGrid&  opmMainGrid,
+                                               Opm::EclIO::EGrid&  opmGrid,
+                                               std::array<int, 3>& ijkCell,
+                                               int                 hostCellIndex,
+                                               int                 opmCellIndex,
+                                               size_t              opmNodeIndex,
+                                               double              xCenterCoordOpm,
+                                               double              yCenterCoordOpm )
+{
+    std::array<double, 8> cellRadius{};
+    std::array<double, 8> cellTheta{};
+    std::array<double, 8> cellZ{};
+    opmGrid.getRadialCellCorners( ijkCell, cellRadius, cellTheta, cellZ );
+
+    double maxRadius = *std::max_element( cellRadius.begin(), cellRadius.end() );
+
+    // Check if the radius is at the outer surface of the radial grid
+    // Adjust the outer nodes to match the corner pillars of the host cell
+    const double epsilon = 0.15;
+    if ( fabs( maxRadius - cellRadius[opmNodeIndex] ) < epsilon * cellRadius[opmNodeIndex] )
+    {
+        std::array<double, 8> opmX{};
+        std::array<double, 8> opmY{};
+        std::array<double, 8> opmZ{};
+
+        opmGrid.getCellCorners( opmCellIndex, opmX, opmY, opmZ );
+
+        double closestPillarDistance = std::numeric_limits<double>::max();
+        int    closestPillarIndex    = -1;
+
+        const auto cylinderCoordX = opmX[opmNodeIndex] + xCenterCoordOpm;
+        const auto cylinderCoordY = opmY[opmNodeIndex] + yCenterCoordOpm;
+        const auto cylinderCoordZ = opmZ[opmNodeIndex];
+
+        const cvf::Vec3d coordinateOnCylinder = cvf::Vec3d( cylinderCoordX, cylinderCoordY, cylinderCoordZ );
+
+        const auto candidates = computeSnapToCoordinates( opmMainGrid, opmGrid, hostCellIndex, opmCellIndex );
+        for ( int pillarIndex = 0; pillarIndex < static_cast<int>( candidates.size() ); pillarIndex++ )
+        {
+            for ( const auto& c : candidates[pillarIndex] )
+            {
+                double distance = coordinateOnCylinder.pointDistance( c );
+                if ( distance < closestPillarDistance )
                 {
-                    const auto hostCellIndex = hostCellGlobalIndices[opmCellIndex];
-
-                    double closestPillarDistance = std::numeric_limits<double>::max();
-                    int    closestPillarIndex    = -1;
-
-                    const auto cylinderCoordX = opmX[opmNodeIndex] + xCenterCoordOpm;
-                    const auto cylinderCoordY = opmY[opmNodeIndex] + yCenterCoordOpm;
-                    const auto cylinderCoordZ = opmZ[opmNodeIndex];
-
-                    const cvf::Vec3d coordinateOnCylinder = cvf::Vec3d( cylinderCoordX, cylinderCoordY, cylinderCoordZ );
-
-                    const auto candidates = computeSnapToCoordinates( opmMainGrid, opmGrid, hostCellIndex, opmCellIndex );
-                    for ( int pillarIndex = 0; pillarIndex < static_cast<int>( candidates.size() ); pillarIndex++ )
-                    {
-                        for ( const auto& c : candidates[pillarIndex] )
-                        {
-                            double distance = coordinateOnCylinder.pointDistance( c );
-                            if ( distance < closestPillarDistance )
-                            {
-                                closestPillarDistance = distance;
-                                closestPillarIndex    = pillarIndex;
-                            }
-                        }
-                    }
-
-                    if ( closestPillarDistance < std::numeric_limits<double>::max() )
-                    {
-                        const auto& pillarCordinates = candidates[closestPillarIndex];
-
-                        int layerCount               = static_cast<int>( pillarCordinates.size() / 2 );
-                        int layerIndexInMainGridCell = ijkCell[2] % layerCount;
-                        int localNodeIndex           = opmNodeIndex % 8;
-
-                        cvf::Vec3d closestPillarCoord;
-                        if ( localNodeIndex < 4 )
-                        {
-                            // Top of cell
-                            int pillarCoordIndex = layerIndexInMainGridCell * 2;
-                            closestPillarCoord   = pillarCordinates[pillarCoordIndex];
-                        }
-                        else
-                        {
-                            // Bottom of cell
-                            int pillarCoordIndex = layerIndexInMainGridCell * 2 + 1;
-                            closestPillarCoord   = pillarCordinates[pillarCoordIndex];
-                        }
-
-                        riNode.x() = closestPillarCoord.x();
-                        riNode.y() = closestPillarCoord.y();
-                        riNode.z() = -closestPillarCoord.z();
-                    }
+                    closestPillarDistance = distance;
+                    closestPillarIndex    = pillarIndex;
                 }
             }
+        }
+
+        if ( closestPillarDistance < std::numeric_limits<double>::max() )
+        {
+            const auto& pillarCordinates = candidates[closestPillarIndex];
+
+            int layerCount               = static_cast<int>( pillarCordinates.size() / 2 );
+            int layerIndexInMainGridCell = ijkCell[2] % layerCount;
+            int localNodeIndex           = opmNodeIndex % 8;
+
+            cvf::Vec3d closestPillarCoord;
+            if ( localNodeIndex < 4 )
+            {
+                // Top of cell
+                int pillarCoordIndex = layerIndexInMainGridCell * 2;
+                closestPillarCoord   = pillarCordinates[pillarCoordIndex];
+            }
+            else
+            {
+                // Bottom of cell
+                int pillarCoordIndex = layerIndexInMainGridCell * 2 + 1;
+                closestPillarCoord   = pillarCordinates[pillarCoordIndex];
+            }
+
+            riNode.x() = closestPillarCoord.x();
+            riNode.y() = closestPillarCoord.y();
+            riNode.z() = -closestPillarCoord.z();
         }
     }
 }

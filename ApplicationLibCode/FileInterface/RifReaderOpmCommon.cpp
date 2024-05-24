@@ -262,14 +262,15 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
 
     const bool isRadialGrid = opmGrid.is_radial();
 
+    const auto& gridDimension         = opmGrid.dimension();
+    const auto& hostCellGlobalIndices = opmGrid.hostCellsGlobalIndex();
+
     // Compute the center of the LGR radial grid cells for each K layer
     std::map<int, std::pair<double, double>> radialGridCenterTopLayerOpm =
         RifOpmRadialGridTools::computeXyCenterForTopOfCells( opmMainGrid, opmGrid, localGrid );
 
     // same mapping as libecl
     const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
-
-    const auto host_parentcell = opmGrid.hostCellsGlobalIndex();
 
 #pragma omp parallel for
     for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( localGrid->cellCount() ); opmCellIndex++ )
@@ -304,9 +305,9 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
         }
 
         // parent cell index
-        if ( ( host_parentcell.size() > (size_t)opmCellIndex ) && host_parentcell[opmCellIndex] >= 0 )
+        if ( ( hostCellGlobalIndices.size() > (size_t)opmCellIndex ) && hostCellGlobalIndices[opmCellIndex] >= 0 )
         {
-            cell.setParentCellIndex( host_parentcell[opmCellIndex] );
+            cell.setParentCellIndex( hostCellGlobalIndices[opmCellIndex] );
         }
         else
         {
@@ -333,6 +334,22 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
             riNode.z()   = -opmZ[opmNodeIndex];
 
             cell.cornerIndices()[riCornerIndex] = riNodeIndex;
+
+            // First grid dimension is radius, check if cell has are at the outer-most slice
+            if ( isRadialGrid && !hostCellGlobalIndices.empty() && ( gridDimension[0] - 1 == opmIJK[0] ) )
+            {
+                auto hostCellIndex = hostCellGlobalIndices[opmCellIndex];
+
+                RifOpmRadialGridTools::lockToHostPillars( riNode,
+                                                          opmMainGrid,
+                                                          opmGrid,
+                                                          opmIJK,
+                                                          hostCellIndex,
+                                                          opmCellIndex,
+                                                          opmNodeIndex,
+                                                          xCenterCoordOpm,
+                                                          yCenterCoordOpm );
+            }
         }
 
         cell.setInvalid( cell.isLongPyramidCell() );
@@ -344,7 +361,7 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
 
     if ( parentGrid != nullptr )
     {
-        for ( auto localCellInGlobalIdx : opmGrid.hostCellsGlobalIndex() )
+        for ( auto localCellInGlobalIdx : hostCellGlobalIndices )
         {
             parentGrid->cell( localCellInGlobalIdx ).setSubGrid( realLocalGrid );
         }

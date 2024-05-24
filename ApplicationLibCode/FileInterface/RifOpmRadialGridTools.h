@@ -53,4 +53,14 @@ public:
 
     static std::vector<std::vector<cvf::Vec3d>>
         computeSnapToCoordinates( Opm::EclIO::EGrid& opmMainGrid, Opm::EclIO::EGrid& opmGrid, int mainGridCellIndex, int lgrCellIndex );
+
+    static void lockToHostPillars( cvf::Vec3d&         riNode,
+                                   Opm::EclIO::EGrid&  opmMainGrid,
+                                   Opm::EclIO::EGrid&  opmGrid,
+                                   std::array<int, 3>& ijkCell,
+                                   int                 hostCellIndex,
+                                   int                 opmCellIndex,
+                                   size_t              opmNodeIndex,
+                                   double              xCenterCoordOpm,
+                                   double              yCenterCoordOpm );
 };
