@@ -127,8 +127,8 @@ private:
 
     void setCheckedStateOfSelected( bool checked );
     void setCheckedStateForSubItemsOfSelected( bool checked );
-    void checkAllItems();
-    void unCheckAllItems();
+    void checkAllItemsMatchingFilter();
+    void unCheckAllItemsMatchingFilter();
     void setCheckedStateForIntegerItemsMatchingFilter();
 
     QModelIndexList allVisibleSourceModelIndices() const;

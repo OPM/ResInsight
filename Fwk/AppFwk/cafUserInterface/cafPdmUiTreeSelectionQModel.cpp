@@ -176,6 +176,14 @@ void caf::PdmUiTreeSelectionQModel::invertCheckedStateForItems( const QModelInde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void caf::PdmUiTreeSelectionQModel::unselectAllItems()
+{
+    PdmUiCommandSystemProxy::instance()->setUiValueToField( m_uiFieldHandle->uiField(), {} );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void caf::PdmUiTreeSelectionQModel::enableSingleSelectionMode( bool enable )
 {
     m_singleSelectionMode = enable;

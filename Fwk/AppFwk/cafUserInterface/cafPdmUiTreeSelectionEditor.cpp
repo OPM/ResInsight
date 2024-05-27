@@ -551,11 +551,18 @@ void PdmUiTreeSelectionEditor::slotToggleAll()
 {
     if ( m_toggleAllCheckBox->isChecked() )
     {
-        checkAllItems();
+        checkAllItemsMatchingFilter();
         return;
     }
 
-    unCheckAllItems();
+    if ( m_textFilterLineEdit->text().isEmpty() )
+    {
+        m_model->unselectAllItems();
+    }
+    else
+    {
+        unCheckAllItemsMatchingFilter();
+    }
 
     // Apply integer filtering if the model contains only integers
     if ( hasOnlyIntegers( m_model ) )
@@ -788,7 +795,7 @@ void PdmUiTreeSelectionEditor::currentChanged( const QModelIndex& current )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::checkAllItems()
+void PdmUiTreeSelectionEditor::checkAllItemsMatchingFilter()
 {
     QModelIndexList indices = allVisibleSourceModelIndices();
 
@@ -798,7 +805,7 @@ void PdmUiTreeSelectionEditor::checkAllItems()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::unCheckAllItems()
+void PdmUiTreeSelectionEditor::unCheckAllItemsMatchingFilter()
 {
     QModelIndexList indices = allVisibleSourceModelIndices();
 
