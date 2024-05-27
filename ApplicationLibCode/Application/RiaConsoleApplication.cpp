@@ -161,6 +161,13 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( gsl::n
         setStartDir( cvfqt::Utils::toQString( o.value( 0 ) ) );
     }
 
+    if ( cvf::Option o = progOpt->option( "egridReader" ) )
+    {
+        CVF_ASSERT( o.valueCount() == 1 );
+        std::string readerName = o.value( 0 ).toLower().toStdString();
+        m_preferences->setGridModelReaderOverride( readerName );
+    }
+
     QString projectFileName;
 
     if ( progOpt->hasOption( "last" ) )

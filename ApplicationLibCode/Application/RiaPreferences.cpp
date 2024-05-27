@@ -23,6 +23,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaLogging.h"
 #include "RiaPreferencesGeoMech.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaPreferencesSystem.h"
@@ -81,6 +82,7 @@ CAF_PDM_SOURCE_INIT( RiaPreferences, "RiaPreferences" );
 ///
 //--------------------------------------------------------------------------------------------------
 RiaPreferences::RiaPreferences()
+    : m_gridModelReaderOverride( RiaDefines::GridModelReader::NOT_SET )
 {
     CAF_PDM_InitField( &m_navigationPolicy,
                        "navigationPolicy",
@@ -388,7 +390,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     }
     else if ( uiConfigName == RiaPreferences::tabNameGrid() )
     {
-        uiOrdering.add( &m_gridModelReader );
+        if ( m_gridModelReaderOverride == RiaDefines::GridModelReader::NOT_SET ) uiOrdering.add( &m_gridModelReader );
 
         caf::PdmUiGroup* newCaseBehaviourGroup = uiOrdering.addNewGroup( "Behavior When Loading Data" );
         newCaseBehaviourGroup->add( &autocomputeDepthRelatedProperties );
@@ -692,7 +694,40 @@ const RifReaderSettings* RiaPreferences::readerSettings() const
 //--------------------------------------------------------------------------------------------------
 RiaDefines::GridModelReader RiaPreferences::gridModelReader() const
 {
+    if ( m_gridModelReaderOverride != RiaDefines::GridModelReader::NOT_SET )
+    {
+        return m_gridModelReaderOverride;
+    }
+
     return m_gridModelReader();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPreferences::setGridModelReaderOverride( const std::string& readerName )
+{
+    RiaDefines::GridModelReader readerType = RiaDefines::GridModelReader::NOT_SET;
+    if ( readerName == "opm_common" )
+    {
+        readerType = RiaDefines::GridModelReader::OPM_COMMON;
+    }
+    else if ( readerName == "resdata" )
+    {
+        readerType = RiaDefines::GridModelReader::RESDATA;
+    }
+    else
+    {
+        RiaLogging::warning( QString::fromStdString( "Unknown EGRID reader type specified on command line: " + readerName ) );
+        return;
+    }
+
+    if ( readerType != RiaDefines::GridModelReader::NOT_SET )
+    {
+        RiaLogging::info( QString::fromStdString( "Using EGRID reader: " + readerName ) );
+    }
+
+    m_gridModelReaderOverride = readerType;
 }
 
 //--------------------------------------------------------------------------------------------------
