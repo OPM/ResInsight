@@ -31,11 +31,11 @@ class RimWellLogCurve;
 //==================================================================================================
 ///
 //==================================================================================================
-class RigWellLogFile : public cvf::Object
+class RigWellLogData : public cvf::Object
 {
 public:
-    RigWellLogFile();
-    ~RigWellLogFile() override;
+    RigWellLogData();
+    ~RigWellLogData() override;
 
     virtual QStringList wellLogChannelNames() const = 0;
 

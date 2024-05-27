@@ -17,12 +17,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigWellLogFile.h"
+#include "RigWellLogData.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWellLogFile::RigWellLogFile()
+RigWellLogData::RigWellLogData()
     : cvf::Object()
 {
 }
@@ -30,14 +30,14 @@ RigWellLogFile::RigWellLogFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWellLogFile::~RigWellLogFile()
+RigWellLogData::~RigWellLogData()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::DepthUnitType RigWellLogFile::depthUnit() const
+RiaDefines::DepthUnitType RigWellLogData::depthUnit() const
 {
     RiaDefines::DepthUnitType unitType = RiaDefines::DepthUnitType::UNIT_METER;
 
@@ -52,7 +52,7 @@ RiaDefines::DepthUnitType RigWellLogFile::depthUnit() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigWellLogFile::convertedWellLogChannelUnitString( const QString& wellLogChannelName, RiaDefines::DepthUnitType displayDepthUnit ) const
+QString RigWellLogData::convertedWellLogChannelUnitString( const QString& wellLogChannelName, RiaDefines::DepthUnitType displayDepthUnit ) const
 {
     QString unit = wellLogChannelUnitString( wellLogChannelName );
 

@@ -38,7 +38,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigWellLogLasFile::RigWellLogLasFile()
-    : RigWellLogFile()
+    : RigWellLogData()
 {
     m_wellLogFile = nullptr;
 }
