@@ -48,13 +48,13 @@ public:
 
     static RimWellLogLasFile* readWellLogFile( const QString& logFilePath, QString* errorMessage );
 
-    QString name() const override { return m_name; }
+    QString name() const override;
 
     bool readFile( QString* errorMessage ) override;
 
     QString wellName() const override;
 
-    RigWellLogLasFile* wellLogData() override { return m_wellLogDataFile.p(); }
+    RigWellLogLasFile* wellLogData() override;
 
     bool hasFlowData() const;
 
@@ -64,7 +64,7 @@ public:
         WELL_FLOW_COND_STANDARD
     };
 
-    RimWellLogLasFile::WellFlowCondition wellFlowRateCondition() const { return m_wellFlowCondition(); }
+    RimWellLogLasFile::WellFlowCondition wellFlowRateCondition() const;
 
     std::vector<std::pair<double, double>>
         findMdAndChannelValuesForWellPath( const RimWellPath& wellPath, const QString& channelName, QString* unitString = nullptr ) override;
@@ -73,7 +73,7 @@ private:
     void setupBeforeSave() override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    caf::PdmFieldHandle* userDescriptionField() override { return &m_name; }
+    caf::PdmFieldHandle* userDescriptionField() override;
 
     static bool isDateValid( const QDateTime dateTime );
 
