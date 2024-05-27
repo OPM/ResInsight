@@ -85,7 +85,7 @@ void RimWellLogLasFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( m_wellPath && m_wellLogFile )
         {
-            RigWellLogFile* wellLogFile = m_wellLogFile->wellLogFileData();
+            RigWellLogData* wellLogFile = m_wellLogFile->wellLogFileData();
             if ( wellLogFile )
             {
                 std::vector<double> values              = wellLogFile->values( m_wellLogChannelName );
@@ -457,7 +457,7 @@ QString RimWellLogLasFileCurve::createCurveAutoName()
             channelNameAvailable = true;
         }
 
-        RigWellLogFile* wellLogFile = m_wellLogFile ? m_wellLogFile->wellLogFileData() : nullptr;
+        RigWellLogData* wellLogFile = m_wellLogFile ? m_wellLogFile->wellLogFileData() : nullptr;
 
         if ( wellLogFile )
         {

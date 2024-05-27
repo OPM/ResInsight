@@ -28,7 +28,7 @@
 class RimWellLogChannel;
 class RimWellPath;
 
-class RigWellLogFile;
+class RigWellLogData;
 
 //==================================================================================================
 ///
@@ -49,7 +49,7 @@ public:
     virtual QString         wellName() const                  = 0;
     virtual QString         name() const                      = 0;
     virtual bool            readFile( QString* errorMessage ) = 0;
-    virtual RigWellLogFile* wellLogFileData()                 = 0;
+    virtual RigWellLogData* wellLogFileData()                 = 0;
 
     virtual QDateTime date() const;
 

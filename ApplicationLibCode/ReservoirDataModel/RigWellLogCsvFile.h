@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RigWellLogFile.h"
+#include "RigWellLogData.h"
 
 #include "RiaDefines.h"
 
@@ -32,7 +32,7 @@ class RigWellPath;
 //==================================================================================================
 ///
 //==================================================================================================
-class RigWellLogCsvFile : public RigWellLogFile
+class RigWellLogCsvFile : public RigWellLogData
 {
 public:
     RigWellLogCsvFile();
