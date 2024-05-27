@@ -590,7 +590,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         }
         else if ( sourceDef.sourceType() == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE )
         {
-            if ( sourceDef.wellLogFile() && sourceDef.wellLogFile()->wellLogFileData() )
+            if ( sourceDef.wellLogFile() && sourceDef.wellLogFile()->wellLogData() )
             {
                 RimWellLogLasFile::WellFlowCondition flowCondition = sourceDef.wellLogFile()->wellFlowRateCondition();
 
@@ -599,9 +599,9 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                 {
                     using ChannelValNameIdxTuple = std::tuple<double, QString, int>;
 
-                    RigWellLogLasFile* wellLogFileData = sourceDef.wellLogFile()->wellLogFileData();
+                    RigWellLogLasFile* wellLogData = sourceDef.wellLogFile()->wellLogData();
 
-                    QStringList channelNames = wellLogFileData->wellLogChannelNames();
+                    QStringList channelNames = wellLogData->wellLogChannelNames();
 
                     std::multiset<ChannelValNameIdxTuple> sortedChannels;
                     std::vector<std::vector<double>>      channelData;
@@ -610,16 +610,16 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                     for ( int chIdx = 0; chIdx < channelNames.size(); ++chIdx )
                     {
                         QString channelName = channelNames[chIdx];
-                        channelData[chIdx]  = wellLogFileData->values( channelName );
+                        channelData[chIdx]  = wellLogData->values( channelName );
                         if ( !channelData[chIdx].empty() )
                         {
                             sortedChannels.insert( ChannelValNameIdxTuple( -fabs( channelData[chIdx].front() ), channelName, chIdx ) );
                         }
                     }
 
-                    std::vector<double> depthValues = wellLogFileData->depthValues();
+                    std::vector<double> depthValues = wellLogData->depthValues();
 
-                    RiaDefines::EclipseUnitSystem unitSystem = RiaDefines::fromDepthUnit( wellLogFileData->depthUnit() );
+                    RiaDefines::EclipseUnitSystem unitSystem = RiaDefines::fromDepthUnit( wellLogData->depthUnit() );
 
                     for ( const ChannelValNameIdxTuple& channelInfo : sortedChannels )
                     {

@@ -198,7 +198,7 @@ std::vector<std::pair<double, double>> RimWellLogLasFile::findMdAndChannelValues
     std::vector<RimWellLogLasFile*> wellLogFiles = wellPath.descendantsIncludingThisOfType<RimWellLogLasFile>();
     for ( RimWellLogLasFile* wellLogFile : wellLogFiles )
     {
-        RigWellLogLasFile*  fileData      = wellLogFile->wellLogFileData();
+        RigWellLogLasFile*  fileData      = wellLogFile->wellLogData();
         std::vector<double> channelValues = fileData->values( channelName );
         if ( !channelValues.empty() )
         {
