@@ -32,6 +32,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultInfo.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 #include "RigSimWellData.h"
 #include "RigWellResultFrame.h"
 
@@ -99,6 +100,31 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
         {
             auto task = progress.task( "Reading Results Meta data", 25 );
             buildMetaData( eclipseCaseData, progress );
+        }
+
+        auto task = progress.task( "Handling NCC data", 25 );
+        if ( isNNCsEnabled() )
+        {
+            caf::ProgressInfo nncProgress( 10, "" );
+            RigMainGrid*      mainGrid = eclipseCaseData->mainGrid();
+
+            {
+                auto subNncTask = nncProgress.task( "Reading static NNC data" );
+                // transfer cached nnc data to mainGrid->nncData here
+                // transferStaticNNCData( mainEclGrid, m_ecl_init_file, mainGrid );
+            }
+
+            //// This test should probably be improved to test more directly for presence of NNC data
+            // if ( m_eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->hasFlowDiagUsableFluxes() )
+            //{
+            //     auto subNncTask = nncProgress.task( "Reading dynamic NNC data" );
+            //     transferDynamicNNCData( mainEclGrid, mainGrid );
+            // }
+
+            RigActiveCellInfo* activeCellInfo = m_eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+            bool includeInactiveCells = includeInactiveCellsInFaultGeometry();
+            mainGrid->nncData()->setSourceDataForProcessing( mainGrid, activeCellInfo, includeInactiveCells );
         }
 
         return true;
@@ -201,6 +227,8 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
     mainGrid->initAllSubGridsParentGridPointer();
     activeCellInfo->computeDerivedData();
     fractureActiveCellInfo->computeDerivedData();
+
+    // TODO - cache egrid NNC data here
 
     auto opmMapAxes = opmGrid.get_mapaxes();
     if ( opmMapAxes.size() == 6 )
