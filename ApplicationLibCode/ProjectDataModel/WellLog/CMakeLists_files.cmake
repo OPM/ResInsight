@@ -42,7 +42,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCsvFile.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFile.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileUtil.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileChannel.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogChannel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogLasFileCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogWbsCurve.cpp

@@ -40,9 +40,9 @@
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 #include "RimTools.h"
+#include "RimWellLogChannel.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogExtractionCurveNameConfig.h"
-#include "RimWellLogFileChannel.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellPath.h"
 

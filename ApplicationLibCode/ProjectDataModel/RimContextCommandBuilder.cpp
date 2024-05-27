@@ -154,8 +154,8 @@
 #include "RimVirtualPerforationResults.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellIASettings.h"
+#include "RimWellLogChannel.h"
 #include "RimWellLogCurve.h"
-#include "RimWellLogFileChannel.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
@@ -838,7 +838,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
                 menuBuilder << "RicShowSummaryCurveCalculatorFeature";
             }
         }
-        else if ( dynamic_cast<RimWellLogFileChannel*>( firstUiItem ) )
+        else if ( dynamic_cast<RimWellLogChannel*>( firstUiItem ) )
         {
             menuBuilder << "RicAddWellLogToPlotFeature";
         }
@@ -1240,7 +1240,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
         }
 
-        if ( dynamic_cast<RimWellLogFileChannel*>( firstUiItem ) )
+        if ( dynamic_cast<RimWellLogChannel*>( firstUiItem ) )
         {
             menuBuilder << "RicAddWellLogToPlotFeature";
         }

@@ -37,8 +37,8 @@
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimWellLogChannel.h"
 #include "RimWellLogExtractionCurve.h"
-#include "RimWellLogFileChannel.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellLogLasFileCurve.h"
 #include "RimWellLogRftCurve.h"
@@ -80,7 +80,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 bool RimWellPlotTools::hasPressureData( const RimWellLogFile* wellLogFile )
 {
-    for ( RimWellLogFileChannel* const wellLogChannel : wellLogFile->wellLogChannels() )
+    for ( RimWellLogChannel* const wellLogChannel : wellLogFile->wellLogChannels() )
     {
         if ( isPressureChannel( wellLogChannel ) ) return true;
     }
@@ -125,7 +125,7 @@ std::pair<RigEclipseResultAddress, QString> RimWellPlotTools::pressureResultData
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellPlotTools::isPressureChannel( RimWellLogFileChannel* channel )
+bool RimWellPlotTools::isPressureChannel( RimWellLogChannel* channel )
 {
     for ( const auto& pressureDataName : PRESSURE_DATA_NAMES )
     {
@@ -146,7 +146,7 @@ bool RimWellPlotTools::hasPressureData( RimEclipseResultCase* gridCase )
 //--------------------------------------------------------------------------------------------------
 bool RimWellPlotTools::hasFlowData( const RimWellLogFile* wellLogFile )
 {
-    for ( RimWellLogFileChannel* const wellLogChannel : wellLogFile->wellLogChannels() )
+    for ( RimWellLogChannel* const wellLogChannel : wellLogFile->wellLogChannels() )
     {
         if ( isFlowChannel( wellLogChannel ) ) return true;
     }
@@ -182,7 +182,7 @@ bool RimWellPlotTools::hasAssociatedWellPath( const QString& wellName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellPlotTools::isFlowChannel( RimWellLogFileChannel* channel )
+bool RimWellPlotTools::isFlowChannel( RimWellLogChannel* channel )
 {
     return tryMatchChannelName( FLOW_DATA_NAMES, channel->name() );
 }
@@ -297,11 +297,11 @@ std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingPressure( c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogFileChannel* RimWellPlotTools::getPressureChannelFromWellFile( const RimWellLogFile* wellLogFile )
+RimWellLogChannel* RimWellPlotTools::getPressureChannelFromWellFile( const RimWellLogFile* wellLogFile )
 {
     if ( wellLogFile != nullptr )
     {
-        for ( RimWellLogFileChannel* const channel : wellLogFile->wellLogChannels() )
+        for ( RimWellLogChannel* const channel : wellLogFile->wellLogChannels() )
         {
             if ( isPressureChannel( channel ) )
             {
@@ -1368,7 +1368,7 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>>
 void RimWellPlotTools::calculateValueOptionsForTimeSteps( const QString&                             wellPathNameOrSimWellName,
                                                           const std::vector<RifDataSourceForRftPlt>& selSources,
                                                           const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults,
-                                                          QList<caf::PdmOptionItemInfo>& options )
+                                                          QList<caf::PdmOptionItemInfo>&                               options )
 {
     auto timestepsToShowWithSources = calculateRelevantTimeStepsFromCases( wellPathNameOrSimWellName, selSources, interestingRFTResults );
 
