@@ -44,7 +44,7 @@ class RimEclipseCase;
 class RimEclipseResultCase;
 class RimRegularLegendConfig;
 class RimWellLogCurve;
-class RimWellLogFileChannel;
+class RimWellLogChannel;
 class RimWellPath;
 class RimWellPathCollection;
 class RiuWellRftPlot;

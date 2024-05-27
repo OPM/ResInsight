@@ -43,7 +43,7 @@
 #include "RimStimPlanModelCollection.h"
 #include "RimTools.h"
 #include "RimWellIASettingsCollection.h"
-#include "RimWellLogFileChannel.h"
+#include "RimWellLogChannel.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPathAttributeCollection.h"
@@ -588,8 +588,8 @@ RimWellLogFile* RimWellPath::firstWellLogFileMatchingChannelName( const QString&
     std::vector<RimWellLogFile*> allWellLogFiles = wellLogFiles();
     for ( RimWellLogFile* logFile : allWellLogFiles )
     {
-        std::vector<RimWellLogFileChannel*> channels = logFile->wellLogChannels();
-        for ( RimWellLogFileChannel* channel : channels )
+        std::vector<RimWellLogChannel*> channels = logFile->wellLogChannels();
+        for ( RimWellLogChannel* channel : channels )
         {
             if ( channel->name() == channelName )
             {

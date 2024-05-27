@@ -20,7 +20,7 @@
 
 #include "RigWellLogLasFile.h"
 
-#include "RimWellLogFileChannel.h"
+#include "RimWellLogChannel.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellLogLasFileCurveNameConfig.h"
 #include "RimWellPath.h"
@@ -72,7 +72,7 @@ void Rim3dWellLogFileCurve::setDefaultFileCurveDataInfo()
 
     if ( m_wellLogFile )
     {
-        std::vector<RimWellLogFileChannel*> fileLogs = m_wellLogFile->wellLogChannels();
+        std::vector<RimWellLogChannel*> fileLogs = m_wellLogFile->wellLogChannels();
 
         if ( !fileLogs.empty() )
         {
@@ -204,7 +204,7 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogFileCurve::calculateValueOptions( cons
     {
         if ( m_wellLogFile )
         {
-            std::vector<RimWellLogFileChannel*> fileLogs = m_wellLogFile->wellLogChannels();
+            std::vector<RimWellLogChannel*> fileLogs = m_wellLogFile->wellLogChannels();
 
             for ( size_t i = 0; i < fileLogs.size(); i++ )
             {

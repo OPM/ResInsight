@@ -29,7 +29,7 @@
 
 #include <QDateTime>
 
-class RimWellLogFileChannel;
+class RimWellLogChannel;
 class RimWellPath;
 
 class QString;

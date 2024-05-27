@@ -20,7 +20,7 @@
 
 #include "RimFileWellPath.h"
 #include "RimTools.h"
-#include "RimWellLogFileChannel.h"
+#include "RimWellLogChannel.h"
 
 #include "RiaFieldHandleTools.h"
 #include "RiaQDateTimeTools.h"
@@ -79,9 +79,9 @@ QString RimWellLogFile::fileName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFileChannel*> RimWellLogFile::wellLogChannels() const
+std::vector<RimWellLogChannel*> RimWellLogFile::wellLogChannels() const
 {
-    std::vector<RimWellLogFileChannel*> channels;
+    std::vector<RimWellLogChannel*> channels;
     for ( const auto& channel : m_wellLogChannelNames )
     {
         channels.push_back( channel );

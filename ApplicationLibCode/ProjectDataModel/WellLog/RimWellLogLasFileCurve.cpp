@@ -30,7 +30,7 @@
 
 #include "RimProject.h"
 #include "RimTools.h"
-#include "RimWellLogFileChannel.h"
+#include "RimWellLogChannel.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
@@ -382,7 +382,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogLasFileCurve::calculateValueOptions( con
         {
             if ( m_wellLogFile )
             {
-                std::vector<RimWellLogFileChannel*> fileLogs = m_wellLogFile->wellLogChannels();
+                std::vector<RimWellLogChannel*> fileLogs = m_wellLogFile->wellLogChannels();
 
                 for ( size_t i = 0; i < fileLogs.size(); i++ )
                 {

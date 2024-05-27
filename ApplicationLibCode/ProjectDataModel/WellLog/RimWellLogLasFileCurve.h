@@ -27,7 +27,7 @@
 #include <vector>
 
 class RimWellPath;
-class RimWellLogFileChannel;
+class RimWellLogChannel;
 class RimWellLogFile;
 class RigWellLogIndexDepthOffset;
 

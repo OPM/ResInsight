@@ -46,8 +46,8 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimTools.h"
+#include "RimWellLogChannel.h"
 #include "RimWellLogExtractionCurve.h"
-#include "RimWellLogFileChannel.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellLogLasFileCurve.h"
 #include "RimWellLogPlot.h"
@@ -687,8 +687,8 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             RimWellPath* const       wellPath    = RimWellPlotTools::wellPathFromWellLogFile( wellLogFile );
             if ( wellLogFile != nullptr )
             {
-                RimWellLogFileChannel* pressureChannel = RimWellPlotTools::getPressureChannelFromWellFile( wellLogFile );
-                auto                   curve           = new RimWellLogLasFileCurve();
+                RimWellLogChannel* pressureChannel = RimWellPlotTools::getPressureChannelFromWellFile( wellLogFile );
+                auto               curve           = new RimWellLogLasFileCurve();
 
                 plotTrack->addCurve( curve );
                 curve->setWellPath( wellPath );

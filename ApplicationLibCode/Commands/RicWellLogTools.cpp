@@ -31,9 +31,9 @@
 #include "RimSimWellInView.h"
 #include "RimSummaryCase.h"
 #include "RimWellLogCalculatedCurve.h"
+#include "RimWellLogChannel.h"
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogExtractionCurve.h"
-#include "RimWellLogFileChannel.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellLogLasFileCurve.h"
 #include "RimWellLogRftCurve.h"
@@ -136,21 +136,21 @@ bool RicWellLogTools::isWellPathOrSimWellSelectedInView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellLogTools::addWellLogChannelsToPlotTrack( RimWellLogTrack* plotTrack, const std::vector<RimWellLogFileChannel*>& wellLogFileChannels )
+void RicWellLogTools::addWellLogChannelsToPlotTrack( RimWellLogTrack* plotTrack, const std::vector<RimWellLogChannel*>& wellLogChannels )
 {
-    for ( size_t cIdx = 0; cIdx < wellLogFileChannels.size(); cIdx++ )
+    for ( RimWellLogChannel* wellLogChannel : wellLogChannels )
     {
         RimWellLogLasFileCurve* plotCurve = RicWellLogTools::addFileCurve( plotTrack );
 
-        RimWellPath*       wellPath    = wellLogFileChannels[cIdx]->firstAncestorOrThisOfType<RimWellPath>();
-        RimWellLogLasFile* wellLogFile = wellLogFileChannels[cIdx]->firstAncestorOrThisOfType<RimWellLogLasFile>();
+        RimWellPath*       wellPath    = wellLogChannel->firstAncestorOrThisOfType<RimWellPath>();
+        RimWellLogLasFile* wellLogFile = wellLogChannel->firstAncestorOrThisOfType<RimWellLogLasFile>();
 
         if ( wellPath )
         {
             if ( wellLogFile ) plotCurve->setWellLogFile( wellLogFile );
 
             plotCurve->setWellPath( wellPath );
-            plotCurve->setWellLogChannelName( wellLogFileChannels[cIdx]->name() );
+            plotCurve->setWellLogChannelName( wellLogChannel->name() );
             plotCurve->loadDataAndUpdate( true );
             plotCurve->updateConnectedEditors();
         }

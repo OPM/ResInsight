@@ -25,7 +25,7 @@
 
 #include "RimFileWellPath.h"
 #include "RimTools.h"
-#include "RimWellLogFileChannel.h"
+#include "RimWellLogChannel.h"
 
 #include <QFileInfo>
 #include <QString>
@@ -91,7 +91,7 @@ bool RimWellLogCsvFile::readFile( QString* errorMessage )
     QStringList wellLogNames = m_wellLogDataFile->wellLogChannelNames();
     for ( int logIdx = 0; logIdx < wellLogNames.size(); logIdx++ )
     {
-        RimWellLogFileChannel* wellLog = new RimWellLogFileChannel();
+        RimWellLogChannel* wellLog = new RimWellLogChannel();
         wellLog->setName( wellLogNames[logIdx] );
         m_wellLogChannelNames.push_back( wellLog );
     }

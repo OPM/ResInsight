@@ -38,7 +38,7 @@
 class RimEclipseCase;
 class RimEclipseResultCase;
 class RimWellLogCurve;
-class RimWellLogFileChannel;
+class RimWellLogChannel;
 class RimWellPath;
 class RiuWellPltPlot;
 class RimWellLogTrack;

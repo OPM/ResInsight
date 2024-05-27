@@ -17,18 +17,18 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellLogFileChannel.h"
+#include "RimWellLogChannel.h"
 
 #include "RiaFieldHandleTools.h"
 
 #include <QString>
 
-CAF_PDM_SOURCE_INIT( RimWellLogFileChannel, "WellLogFileChannel" );
+CAF_PDM_SOURCE_INIT( RimWellLogChannel, "WellLogFileChannel" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogFileChannel::RimWellLogFileChannel()
+RimWellLogChannel::RimWellLogChannel()
 {
     CAF_PDM_InitObject( "Well Log File Channel" );
 
@@ -39,7 +39,7 @@ RimWellLogFileChannel::RimWellLogFileChannel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogFileChannel::setName( const QString& name )
+void RimWellLogChannel::setName( const QString& name )
 {
     m_name = name;
 }
