@@ -23,7 +23,7 @@
 #include "RifCsvUserDataParser.h"
 #include "RifEclipseSummaryAddress.h"
 
-#include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
+#include "RifAsciiDataParseOptions.h"
 
 #include <QDateTime>
 #include <QTextStream>
@@ -49,7 +49,7 @@ bool RifReaderObservedData::open( const QString&                                
                                   const QString&                                   identifierName,
                                   RifEclipseSummaryAddressDefines::SummaryCategory summaryCategory )
 {
-    AsciiDataParseOptions parseOptions;
+    RifAsciiDataParseOptions parseOptions;
     parseOptions.dateFormat    = "yyyy-MM-dd";
     parseOptions.cellSeparator = "\t";
     parseOptions.locale        = caf::norwegianLocale();

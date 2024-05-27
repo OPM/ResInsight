@@ -20,6 +20,7 @@
 
 #include "RimPlotCurve.h"
 
+#include "RifAsciiDataParseOptions.h"
 #include "RifCsvUserDataParser.h"
 #include "RifEclipseSummaryAddressDefines.h"
 
@@ -31,43 +32,6 @@
 #include <QString>
 
 #include <memory>
-
-//==================================================================================================
-///
-//==================================================================================================
-class AsciiDataParseOptions
-{
-public:
-    AsciiDataParseOptions()
-        : useCustomDateTimeFormat( false )
-        , assumeNumericDataColumns( false )
-        , curveSymbolSkipDistance( 0.0f )
-        , defaultCategory( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
-    {
-    }
-
-    QString plotTitle;
-    QString curvePrefix;
-    QString decimalSeparator;
-    QLocale locale;
-
-    bool    useCustomDateTimeFormat;
-    QString dateFormat;
-    QString timeFormat;
-    QString fallbackDateTimeFormat;
-    QString dateTimeFormat;
-    QString cellSeparator;
-    QString timeSeriesColumnName;
-
-    QDateTime startDateTime;
-    bool      assumeNumericDataColumns;
-
-    RifEclipseSummaryAddressDefines::SummaryCategory defaultCategory;
-
-    RiuQwtPlotCurveDefines::LineStyleEnum curveLineStyle;
-    RiuPlotCurveSymbol::PointSymbolEnum   curveSymbol;
-    float                                 curveSymbolSkipDistance;
-};
 
 //==================================================================================================
 ///
@@ -132,9 +96,9 @@ public:
     void setUiModeImport( const QString& fileName );
     void setUiModePasteText( const QString& text );
 
-    UiMode                      uiModeImport() const;
-    const AsciiDataParseOptions parseOptions() const;
-    void                        setCreateNewPlot();
+    UiMode                         uiModeImport() const;
+    const RifAsciiDataParseOptions parseOptions() const;
+    void                           setCreateNewPlot();
 
     QString contextString() const;
 

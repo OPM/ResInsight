@@ -233,9 +233,9 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::UiMode RicPasteAsciiDataToSummaryPlotFe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const AsciiDataParseOptions RicPasteAsciiDataToSummaryPlotFeatureUi::parseOptions() const
+const RifAsciiDataParseOptions RicPasteAsciiDataToSummaryPlotFeatureUi::parseOptions() const
 {
-    AsciiDataParseOptions parseOptions;
+    RifAsciiDataParseOptions parseOptions;
 
     parseOptions.assumeNumericDataColumns = true;
     parseOptions.plotTitle                = m_plotTitle();
