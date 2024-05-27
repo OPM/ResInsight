@@ -149,7 +149,7 @@ bool RicPasteAsciiDataToSummaryPlotFeature::hasPastedText()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurves( QString&                                       data,
+std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurves( QString& data,
                                                                                     const RicPasteAsciiDataToSummaryPlotFeatureUi& settings )
 {
     std::vector<RimAsciiDataCurve*> curves;
