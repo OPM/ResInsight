@@ -102,6 +102,7 @@
 #include "RimMultiPlot.h"
 #include "RimMultiPlotCollection.h"
 #include "RimObservedSummaryData.h"
+#include "RimOsduWellPath.h"
 #include "RimParameterResultCrossPlot.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
@@ -409,7 +410,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
             appendCreateCompletions( menuBuilder );
             menuBuilder.addSeparator();
-            appendImportMenu( menuBuilder );
+            bool addSeparatorBeforeMenu = false;
+            bool addOsduImportMenuItem  = dynamic_cast<RimOsduWellPath*>( firstUiItem ) != nullptr;
+            appendImportMenu( menuBuilder, addSeparatorBeforeMenu, addOsduImportMenuItem );
             menuBuilder.addSeparator();
             appendExportCompletions( menuBuilder );
             menuBuilder.addSeparator();
@@ -1498,7 +1501,7 @@ void RimContextCommandBuilder::appendScriptItems( caf::CmdFeatureMenuBuilder& me
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimContextCommandBuilder::appendImportMenu( caf::CmdFeatureMenuBuilder& menuBuilder, bool addSeparatorBeforeMenu )
+int RimContextCommandBuilder::appendImportMenu( caf::CmdFeatureMenuBuilder& menuBuilder, bool addSeparatorBeforeMenu, bool addOsduImportMenuItem )
 {
     QStringList candidates;
     candidates << "RicWellPathsImportFileFeature";
@@ -1506,6 +1509,8 @@ int RimContextCommandBuilder::appendImportMenu( caf::CmdFeatureMenuBuilder& menu
     candidates << "RicWellLogsImportFileFeature";
     candidates << "RicImportWellLogCsvFileFeature";
     candidates << "RicReloadWellPathFormationNamesFeature";
+
+    if ( addOsduImportMenuItem ) candidates << "RicImportWellLogOsduFeature";
 
     return appendSubMenuWithCommands( menuBuilder, candidates, "Import", QIcon(), addSeparatorBeforeMenu );
 }

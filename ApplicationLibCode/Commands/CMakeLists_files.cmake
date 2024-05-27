@@ -194,6 +194,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicExportSummaryCalculationExpressionsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCalculationExpressionsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportWellLogCsvFileFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportWellLogOsduFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewViewForGridEnsembleFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewVfpPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomVfpPlotFeature.cpp
