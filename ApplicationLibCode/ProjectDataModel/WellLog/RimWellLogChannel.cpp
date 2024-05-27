@@ -21,8 +21,6 @@
 
 #include "RiaFieldHandleTools.h"
 
-#include <QString>
-
 CAF_PDM_SOURCE_INIT( RimWellLogChannel, "WellLogFileChannel" );
 
 //--------------------------------------------------------------------------------------------------
@@ -32,14 +30,5 @@ RimWellLogChannel::RimWellLogChannel()
 {
     CAF_PDM_InitObject( "Well Log File Channel" );
 
-    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "" );
-    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_name );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellLogChannel::setName( const QString& name )
-{
-    m_name = name;
+    RiaFieldHandleTools::disableWriteAndSetFieldHidden( nameField() );
 }
