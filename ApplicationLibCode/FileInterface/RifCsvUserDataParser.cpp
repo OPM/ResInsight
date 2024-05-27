@@ -89,7 +89,7 @@ bool RifCsvUserDataParser::parse( const AsciiDataParseOptions&                  
                                   const std::map<QString, QString>&                    nameMapping,
                                   const std::map<QString, std::pair<QString, double>>& unitMapping )
 {
-    if ( determineCsvLayout() == LineBased ) return parseLineBasedData();
+    if ( determineCsvLayout() == LineBased ) return parseLineBasedData( parseOptions );
     return parseColumnBasedData( parseOptions, nameMapping, unitMapping );
 }
 
@@ -618,7 +618,7 @@ bool RifCsvUserDataParser::parseColumnBasedData( const AsciiDataParseOptions&   
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserDataParser::parseLineBasedData()
+bool RifCsvUserDataParser::parseLineBasedData( const AsciiDataParseOptions& parseOptions )
 {
     QTextStream* dataStream = openDataStream();
     if ( !dataStream )
@@ -688,11 +688,11 @@ bool RifCsvUserDataParser::parseLineBasedData()
             {
                 auto dateText = dataItems[colIndexes[(size_t)CsvLineBasedColumnType::DATE]].toStdString();
 
-                dateTime = tryParseDateTime( dateText, ISO_DATE_FORMAT );
-                if ( !dateTime.isValid() )
+                const auto formats = { parseOptions.dateFormat, QString( ISO_DATE_FORMAT ), QString( ISO_DATE_FORMAT ) + " " + TIME_FORMAT };
+                for ( const auto& format : formats )
                 {
-                    // Try to match date and time
-                    dateTime = tryParseDateTime( dateText, QString( ISO_DATE_FORMAT ) + " " + TIME_FORMAT );
+                    dateTime = tryParseDateTime( dateText, format );
+                    if ( dateTime.isValid() ) break;
                 }
 
                 if ( !dateTime.isValid() )

@@ -83,7 +83,7 @@ private:
     bool             parseColumnBasedData( const AsciiDataParseOptions&                         parseOptions,
                                            const std::map<QString, QString>&                    nameMapping = {},
                                            const std::map<QString, std::pair<QString, double>>& unitMapping = {} );
-    bool             parseLineBasedData();
+    bool             parseLineBasedData( const AsciiDataParseOptions& parseOptions);
     static QDateTime tryParseDateTime( const std::string& colData, const QString& format );
 
 private:
