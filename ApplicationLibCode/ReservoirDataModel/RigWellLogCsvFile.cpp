@@ -40,7 +40,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigWellLogCsvFile::RigWellLogCsvFile()
-    : RigWellLogFile()
+    : RigWellLogData()
 {
 }
 

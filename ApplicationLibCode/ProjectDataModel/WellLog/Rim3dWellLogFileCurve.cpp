@@ -91,7 +91,7 @@ void Rim3dWellLogFileCurve::curveValuesAndMds( std::vector<double>* values, std:
 
     if ( m_wellLogFile )
     {
-        RigWellLogFile* wellLogFile = m_wellLogFile->wellLogFileData();
+        RigWellLogData* wellLogFile = m_wellLogFile->wellLogFileData();
         if ( wellLogFile )
         {
             *values              = wellLogFile->values( m_wellLogChannelName );
@@ -137,7 +137,7 @@ QString Rim3dWellLogFileCurve::createAutoName() const
             channelNameAvailable = true;
         }
 
-        RigWellLogFile* wellLogFile = m_wellLogFile ? m_wellLogFile->wellLogFileData() : nullptr;
+        RigWellLogData* wellLogFile = m_wellLogFile ? m_wellLogFile->wellLogFileData() : nullptr;
 
         if ( wellLogFile )
         {
