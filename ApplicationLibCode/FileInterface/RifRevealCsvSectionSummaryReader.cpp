@@ -27,7 +27,7 @@
 #include "RifEclipseUserDataKeywordTools.h"
 #include "RifEclipseUserDataParserTools.h"
 
-#include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
+#include "RifAsciiDataParseOptions.h"
 
 #include "cafUtils.h"
 
@@ -59,7 +59,7 @@ bool RifRevealCsvSectionSummaryReader::parse( const QString&                    
     m_allResultAddresses.clear();
     m_mapFromAddressToResultIndex.clear();
 
-    AsciiDataParseOptions parseOptions;
+    RifAsciiDataParseOptions parseOptions;
     parseOptions.useCustomDateTimeFormat = true;
     parseOptions.dateTimeFormat          = "dd.MM.yyyy hh:mm:ss";
     parseOptions.fallbackDateTimeFormat  = "dd.MM.yyyy";

@@ -27,6 +27,8 @@
 #include "RifSummaryReaderInterface.h"
 #include "RifSummaryReaderMultipleFiles.h"
 
+#include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
+
 #include "RimCalculatedSummaryCurveReader.h"
 #include "RimProject.h"
 #include "RimSummaryCalculationCollection.h"

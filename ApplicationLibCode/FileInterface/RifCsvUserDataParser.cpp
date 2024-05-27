@@ -18,6 +18,7 @@
 
 #include "RifCsvUserDataParser.h"
 
+#include "RifAsciiDataParseOptions.h"
 #include "RifEclipseSummaryAddress.h"
 #include "RifEclipseUserDataKeywordTools.h"
 #include "RifEclipseUserDataParserTools.h"
@@ -28,8 +29,6 @@
 #include "RiaQDateTimeTools.h"
 #include "RiaStdStringTools.h"
 #include "RiaTextStringTools.h"
-
-#include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
 
 #include "caf.h"
 #include "cvfAssert.h"
@@ -85,7 +84,7 @@ RifCsvUserDataParser::~RifCsvUserDataParser()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserDataParser::parse( const AsciiDataParseOptions&                         parseOptions,
+bool RifCsvUserDataParser::parse( const RifAsciiDataParseOptions&                      parseOptions,
                                   const std::map<QString, QString>&                    nameMapping,
                                   const std::map<QString, std::pair<QString, double>>& unitMapping )
 {
@@ -152,7 +151,7 @@ std::vector<int> RifCsvUserDataParser::parseLineBasedHeader( QStringList headerC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserDataParser::parseColumnInfo( const AsciiDataParseOptions& parseOptions )
+bool RifCsvUserDataParser::parseColumnInfo( const RifAsciiDataParseOptions& parseOptions )
 {
     QTextStream*        dataStream = openDataStream();
     std::vector<Column> columnInfoList;
@@ -169,7 +168,7 @@ bool RifCsvUserDataParser::parseColumnInfo( const AsciiDataParseOptions& parseOp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifCsvUserDataParser::previewText( int lineCount, const AsciiDataParseOptions& parseOptions )
+QString RifCsvUserDataParser::previewText( int lineCount, const RifAsciiDataParseOptions& parseOptions )
 {
     QTextStream* stream = openDataStream();
 
@@ -230,7 +229,7 @@ QString RifCsvUserDataParser::previewText( int lineCount, const AsciiDataParseOp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RifCsvUserDataParser::timeColumnPreviewData( int lineCount, const AsciiDataParseOptions& parseOptions )
+QStringList RifCsvUserDataParser::timeColumnPreviewData( int lineCount, const RifAsciiDataParseOptions& parseOptions )
 {
     QStringList timeStrings;
 
@@ -307,7 +306,7 @@ RifCsvUserDataParser::CsvLayout RifCsvUserDataParser::determineCsvLayout()
 ///
 //--------------------------------------------------------------------------------------------------
 bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                                         dataStream,
-                                            const AsciiDataParseOptions&                         parseOptions,
+                                            const RifAsciiDataParseOptions&                      parseOptions,
                                             std::vector<Column>*                                 columnInfoList,
                                             const std::map<QString, QString>&                    nameMapping,
                                             const std::map<QString, std::pair<QString, double>>& unitMapping )
@@ -465,7 +464,7 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserDataParser::parseColumnBasedData( const AsciiDataParseOptions&                         parseOptions,
+bool RifCsvUserDataParser::parseColumnBasedData( const RifAsciiDataParseOptions&                      parseOptions,
                                                  const std::map<QString, QString>&                    nameMapping,
                                                  const std::map<QString, std::pair<QString, double>>& unitMapping )
 {

@@ -1,6 +1,8 @@
 #include "gtest/gtest.h"
 
 #include "RiaQDateTimeTools.h"
+
+#include "RifAsciiDataParseOptions.h"
 #include "RifColumnBasedUserData.h"
 #include "RifColumnBasedUserDataParser.h"
 #include "RifCsvUserDataParser.h"
@@ -21,7 +23,7 @@
 //--------------------------------------------------------------------------------------------------
 TEST( RifColumnBasedAsciiParserTest, TestDateFormatYyyymmddWithDash )
 {
-    AsciiDataParseOptions parseOptions;
+    RifAsciiDataParseOptions parseOptions;
     parseOptions.dateFormat           = "yyyy-MM-dd";
     parseOptions.cellSeparator        = "\t";
     parseOptions.locale               = caf::norwegianLocale();
@@ -78,7 +80,7 @@ TEST( RifColumnBasedAsciiParserTest, TestDateFormatYyyymmddWithDash )
 //--------------------------------------------------------------------------------------------------
 TEST( RifColumnBasedAsciiParserTest, TestDateFormatYymmddWithDot )
 {
-    AsciiDataParseOptions parseOptions;
+    RifAsciiDataParseOptions parseOptions;
     parseOptions.dateFormat           = "yy.MM.dd";
     parseOptions.cellSeparator        = "\t";
     parseOptions.locale               = caf::norwegianLocale();
@@ -133,7 +135,7 @@ TEST( RifColumnBasedAsciiParserTest, TestDateFormatYymmddWithDot )
 //--------------------------------------------------------------------------------------------------
 TEST( RifColumnBasedAsciiParserTest, TestDateFormatDdmmyyWithDot )
 {
-    AsciiDataParseOptions parseOptions;
+    RifAsciiDataParseOptions parseOptions;
     parseOptions.dateFormat           = "dd.MM.yy";
     parseOptions.cellSeparator        = "\t";
     parseOptions.locale               = caf::norwegianLocale();
@@ -187,7 +189,7 @@ TEST( RifColumnBasedAsciiParserTest, TestDateFormatDdmmyyWithDot )
 //--------------------------------------------------------------------------------------------------
 TEST( RifColumnBasedAsciiParserTest, TestDecimalLocaleNorwegian )
 {
-    AsciiDataParseOptions parseOptions;
+    RifAsciiDataParseOptions parseOptions;
     parseOptions.dateFormat           = "yy.MM.dd";
     parseOptions.cellSeparator        = "\t";
     parseOptions.decimalSeparator     = ",";
@@ -255,7 +257,7 @@ TEST( RifColumnBasedAsciiParserTest, TestDecimalLocaleNorwegian )
 //--------------------------------------------------------------------------------------------------
 TEST( RifColumnBasedAsciiParserTest, TestDecimalLocaleC )
 {
-    AsciiDataParseOptions parseOptions;
+    RifAsciiDataParseOptions parseOptions;
     parseOptions.dateFormat           = "yy.MM.dd";
     parseOptions.cellSeparator        = "\t";
     parseOptions.locale               = QLocale::c();
@@ -339,7 +341,7 @@ TEST( RifColumnBasedAsciiParserTest, TestDecimalLocaleC )
 //--------------------------------------------------------------------------------------------------
 TEST( RifColumnBasedAsciiParserTest, TestCellSeparatorComma )
 {
-    AsciiDataParseOptions parseOptions;
+    RifAsciiDataParseOptions parseOptions;
     parseOptions.dateFormat           = "yy.MM.dd";
     parseOptions.cellSeparator        = ",";
     parseOptions.locale               = QLocale::c();
@@ -406,7 +408,7 @@ TEST( RifColumnBasedAsciiParserTest, TestCellSeparatorComma )
 //--------------------------------------------------------------------------------------------------
 TEST( RifColumnBasedAsciiParserTest, ThreeLinesHeader )
 {
-    AsciiDataParseOptions parseOptions;
+    RifAsciiDataParseOptions parseOptions;
     parseOptions.dateFormat           = "dd.MM.yyyy";
     parseOptions.cellSeparator        = ";";
     parseOptions.locale               = QLocale::c();
