@@ -120,7 +120,7 @@ void RiaOsduConnector::requestFieldsByName( const QString& server, const QString
     params["limit"] = "10000";
     params["query"] = "data.FieldName:" + fieldName;
 
-    auto reply = makeRequest( params, server, dataPartitionId, token );
+    auto reply = makeSearchRequest( params, server, dataPartitionId, token );
     connect( reply,
              &QNetworkReply::finished,
              [this, reply]()
@@ -150,7 +150,7 @@ void RiaOsduConnector::requestWellsByFieldId( const QString& server, const QStri
     params["limit"] = "10000";
     params["query"] = QString( "nested(data.GeoContexts, (FieldID:\"%1\"))" ).arg( fieldId );
 
-    auto reply = makeRequest( params, server, dataPartitionId, token );
+    auto reply = makeSearchRequest( params, server, dataPartitionId, token );
     connect( reply,
              &QNetworkReply::finished,
              [this, reply, fieldId]()
@@ -180,7 +180,7 @@ void RiaOsduConnector::requestWellboresByWellId( const QString& server, const QS
     params["limit"] = "10000";
     params["query"] = "data.WellID: \"" + wellId + "\"";
 
-    auto reply = makeRequest( params, server, dataPartitionId, token );
+    auto reply = makeSearchRequest( params, server, dataPartitionId, token );
     connect( reply,
              &QNetworkReply::finished,
              [this, reply, wellId]()
@@ -221,7 +221,7 @@ void RiaOsduConnector::requestWellboreTrajectoryByWellboreId( const QString& ser
     params["limit"] = "10000";
     params["query"] = "data.WellboreID: \"" + wellboreId + "\"";
 
-    auto reply = makeRequest( params, server, dataPartitionId, token );
+    auto reply = makeSearchRequest( params, server, dataPartitionId, token );
     connect( reply,
              &QNetworkReply::finished,
              [this, reply, wellboreId]()
@@ -239,7 +239,9 @@ void RiaOsduConnector::requestWellboreTrajectoryByWellboreId( const QString& ser
 void RiaOsduConnector::requestFileDownloadByFileId( const QString& server, const QString& dataPartitionId, const QString& token, const QString& fileId )
 {
     RiaLogging::info( "Requesting download of file id: " + fileId );
-    auto reply = makeDownloadRequest( server, dataPartitionId, fileId, token );
+    QString url = constructFileDownloadUrl( server, fileId );
+
+    auto reply = makeDownloadRequest( url, dataPartitionId, token, CONTENT_TYPE_JSON );
     connect( reply,
              &QNetworkReply::finished,
              [this, reply, fileId]()
@@ -266,7 +268,7 @@ QString RiaOsduConnector::constructSearchUrl( const QString& server )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaOsduConnector::constructDownloadUrl( const QString& server, const QString& fileId )
+QString RiaOsduConnector::constructFileDownloadUrl( const QString& server, const QString& fileId )
 {
     return server + "/api/file/v2/files/" + fileId + "/downloadURL";
 }
@@ -290,15 +292,23 @@ QString RiaOsduConnector::constructTokenUrl( const QString& authority )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QNetworkReply* RiaOsduConnector::makeRequest( const std::map<QString, QString>& parameters,
-                                              const QString&                    server,
-                                              const QString&                    dataPartitionId,
-                                              const QString&                    token )
+QString RiaOsduConnector::constructWellLogDownloadUrl( const QString& server, const QString& wellLogId )
+{
+    return server + "/api/os-wellbore-ddms/ddms/v3/welllogs/" + wellLogId + "/data";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QNetworkReply* RiaOsduConnector::makeSearchRequest( const std::map<QString, QString>& parameters,
+                                                    const QString&                    server,
+                                                    const QString&                    dataPartitionId,
+                                                    const QString&                    token )
 {
     QNetworkRequest m_networkRequest;
     m_networkRequest.setUrl( QUrl( constructSearchUrl( server ) ) );
 
-    addStandardHeader( m_networkRequest, token, dataPartitionId );
+    addStandardHeader( m_networkRequest, token, dataPartitionId, CONTENT_TYPE_JSON );
 
     QJsonObject obj;
     for ( auto [key, value] : parameters )
@@ -484,9 +494,12 @@ void RiaOsduConnector::saveFile( QNetworkReply* reply, const QString& fileId )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaOsduConnector::addStandardHeader( QNetworkRequest& networkRequest, const QString& token, const QString& dataPartitionId )
+void RiaOsduConnector::addStandardHeader( QNetworkRequest& networkRequest,
+                                          const QString&   token,
+                                          const QString&   dataPartitionId,
+                                          const QString&   contentType )
 {
-    networkRequest.setHeader( QNetworkRequest::ContentTypeHeader, "application/json" );
+    networkRequest.setHeader( QNetworkRequest::ContentTypeHeader, contentType );
     networkRequest.setRawHeader( "Authorization", "Bearer " + token.toUtf8() );
     networkRequest.setRawHeader( QByteArray( "Data-Partition-Id" ), dataPartitionId.toUtf8() );
 }
@@ -495,17 +508,14 @@ void RiaOsduConnector::addStandardHeader( QNetworkRequest& networkRequest, const
 ///
 //--------------------------------------------------------------------------------------------------
 QNetworkReply*
-    RiaOsduConnector::makeDownloadRequest( const QString& server, const QString& dataPartitionId, const QString& id, const QString& token )
+    RiaOsduConnector::makeDownloadRequest( const QString& url, const QString& dataPartitionId, const QString& token, const QString& contentType )
 {
-    QNetworkRequest m_networkRequest;
+    QNetworkRequest networkRequest;
+    networkRequest.setUrl( QUrl( url ) );
 
-    QString url = constructDownloadUrl( server, id );
+    addStandardHeader( networkRequest, token, dataPartitionId, contentType );
 
-    m_networkRequest.setUrl( QUrl( url ) );
-
-    addStandardHeader( m_networkRequest, token, dataPartitionId );
-
-    auto reply = m_networkAccessManager->get( m_networkRequest );
+    auto reply = m_networkAccessManager->get( networkRequest );
     return reply;
 }
 
@@ -635,6 +645,7 @@ std::pair<QString, QString> RiaOsduConnector::requestFileContentsById( const QSt
              this,
              SLOT( fileDownloadComplete( const QString&, const QString& ) ) );
     connect( this, SIGNAL( fileDownloadFinished( const QString&, const QString& ) ), &loop2, SLOT( quit() ) );
+
     requestFileDownloadByFileId( m_server, m_dataPartitionId, m_token, fileId );
     loop2.exec();
 
@@ -649,4 +660,67 @@ std::pair<QString, QString> RiaOsduConnector::requestFileContentsById( const QSt
     auto        fileContent = stream.readAll();
 
     return { fileContent, "" };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<QByteArray, QString> RiaOsduConnector::requestWellLogParquetDataById( const QString& wellLogId )
+{
+    if ( m_token.isEmpty() )
+    {
+        // TODO: improve this..
+        QEventLoop loop;
+        connect( this, SIGNAL( tokenReady( const QString& ) ), &loop, SLOT( quit() ) );
+        requestToken();
+        loop.exec();
+    }
+
+    QEventLoop loop2;
+    connect( this,
+             SIGNAL( wellLogDownloadFinished( const QByteArray&, const QString& ) ),
+             this,
+             SLOT( wellLogDownloadComplete( const QByteArray&, const QString& ) ) );
+    connect( this, SIGNAL( wellLogDownloadFinished( const QByteArray&, const QString& ) ), &loop2, SLOT( quit() ) );
+
+    QString url = constructWellLogDownloadUrl( m_server, wellLogId );
+    RiaLogging::debug( "Well log URL: " + url );
+
+    requestWellLog( url, m_dataPartitionId, m_token );
+    loop2.exec();
+
+    return { m_wellLogContents, "" };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaOsduConnector::requestWellLog( const QString& url, const QString& dataPartitionId, const QString& token )
+{
+    RiaLogging::info( "Requesting download of well log from: " + url );
+
+    auto reply = makeDownloadRequest( url, dataPartitionId, token, CONTENT_TYPE_PARQUET );
+    connect( reply,
+             &QNetworkReply::finished,
+             [this, reply, url]()
+             {
+                 if ( reply->error() == QNetworkReply::NoError )
+                 {
+                     QByteArray contents = reply->readAll();
+                     RiaLogging::info( QString( "Download succeeded: %1 bytes." ).arg( contents.length() ) );
+                     emit wellLogDownloadFinished( contents, "" );
+                 }
+                 else
+                 {
+                     RiaLogging::error( "Download failed: " + url + " failed." + reply->errorString() );
+                 }
+             } );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaOsduConnector::wellLogDownloadComplete( const QByteArray& contents, const QString& url )
+{
+    m_wellLogContents = contents;
 }

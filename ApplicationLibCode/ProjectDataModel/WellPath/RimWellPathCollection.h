@@ -22,6 +22,7 @@
 
 #include "RiaDefines.h"
 
+#include "RigOsduWellLogData.h"
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -41,6 +42,7 @@
 class RiaOsduConnector;
 class RifWellPathImporter;
 class RigWellPath;
+class RigOsduWellLogData;
 class RimFileWellPath;
 class RimEclipseView;
 class RimProject;
@@ -49,6 +51,7 @@ class RimWellLogFile;
 class RimWellPath;
 class RifWellPathFormationsImporter;
 class RimWellMeasurementCollection;
+class RimWellLog;
 class cafTreeNode;
 class QString;
 
@@ -118,7 +121,7 @@ public:
 
     std::vector<RimWellLogLasFile*> addWellLogs( const QStringList& filePaths, QStringList* errorMessages );
     void                            addWellPathFormations( const QStringList& filePaths );
-    void                            addWellLog( RimWellLogFile* wellLogFile, RimWellPath* wellPath );
+    void                            addWellLog( RimWellLog* wellLog, RimWellPath* wellPath );
 
     void scheduleRedrawAffectedViews();
 
@@ -133,6 +136,8 @@ public:
     void onChildAdded( caf::PdmFieldHandle* containerForNewObject ) override;
 
     static std::pair<cvf::ref<RigWellPath>, QString> loadWellPathGeometryFromOsdu( RiaOsduConnector* osduConnector, const QString& fileId );
+
+    static std::pair<cvf::ref<RigOsduWellLogData>, QString> loadWellLogFromOsdu( RiaOsduConnector* osduConnector, const QString& wellLogId );
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

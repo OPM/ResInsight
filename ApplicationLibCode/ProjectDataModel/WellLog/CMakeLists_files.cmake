@@ -41,6 +41,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogExtractionCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogLasFile.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCsvFile.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellLog.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLog.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFile.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileUtil.cpp
