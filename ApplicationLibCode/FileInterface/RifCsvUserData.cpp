@@ -49,7 +49,7 @@ RifCsvUserData::~RifCsvUserData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserData::parse( const QString& fileName, const AsciiDataParseOptions& parseOptions, QString* errorText )
+bool RifCsvUserData::parse( const QString& fileName, const RifAsciiDataParseOptions& parseOptions, QString* errorText )
 {
     m_allResultAddresses.clear();
     m_mapFromAddressToResultIndex.clear();

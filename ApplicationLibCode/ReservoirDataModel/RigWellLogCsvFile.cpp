@@ -23,7 +23,7 @@
 #include "RigWellLogCurveData.h"
 #include "RigWellPathGeometryTools.h"
 
-#include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
+#include "RifAsciiDataParseOptions.h"
 
 #include "RiaLogging.h"
 #include "RiaStringEncodingTools.h"
@@ -63,7 +63,7 @@ bool RigWellLogCsvFile::open( const QString& fileName, RigWellPath* wellPath, QS
 
     RifCsvUserDataFileParser parser( fileName, errorMessage );
 
-    AsciiDataParseOptions parseOptions;
+    RifAsciiDataParseOptions parseOptions;
     parseOptions.useCustomDateTimeFormat = true;
     parseOptions.dateTimeFormat          = "dd.MM.yyyy hh:mm:ss";
     parseOptions.fallbackDateTimeFormat  = "dd.MM.yyyy";

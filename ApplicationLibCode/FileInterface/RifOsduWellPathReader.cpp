@@ -20,7 +20,7 @@
 
 #include "RiaTextStringTools.h"
 
-#include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
+#include "RifAsciiDataParseOptions.h"
 
 #include "RifCsvUserDataParser.h"
 
@@ -37,7 +37,7 @@ std::pair<cvf::ref<RigWellPath>, QString> RifOsduWellPathReader::parseCsv( const
     QString                        errorMessage;
     RifCsvUserDataPastedTextParser parser( content, &errorMessage );
 
-    AsciiDataParseOptions parseOptions;
+    RifAsciiDataParseOptions parseOptions;
     parseOptions.cellSeparator    = ",";
     parseOptions.decimalSeparator = ".";
 

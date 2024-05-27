@@ -97,6 +97,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCalculationExporter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifPolygonReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifOsduWellPathReader.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifAsciiDataParseOptions.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
