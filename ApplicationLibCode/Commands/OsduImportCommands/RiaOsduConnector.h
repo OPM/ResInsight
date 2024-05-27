@@ -59,8 +59,11 @@ public:
     void requestWellboresByWellId( const QString& wellId );
     void requestWellboreTrajectoryByWellboreId( const QString& wellboreId );
     void requestFileDownloadByFileId( const QString& fileId );
+    void requestWellLog( const QString& url, const QString& dataPartitionId, const QString& token );
 
     std::pair<QString, QString> requestFileContentsById( const QString& fileId );
+
+    std::pair<QByteArray, QString> requestWellLogParquetDataById( const QString& wellLogId );
 
     QString wellIdForWellboreId( const QString& wellboreId ) const;
 
@@ -81,9 +84,11 @@ public slots:
     void saveFile( QNetworkReply* reply, const QString& fileId );
     void accessGranted();
     void fileDownloadComplete( const QString& fileId, const QString& filePath );
+    void wellLogDownloadComplete( const QByteArray&, const QString& url );
 
 signals:
     void fileDownloadFinished( const QString& fileId, const QString& filePath );
+    void wellLogDownloadFinished( const QByteArray& contents, const QString& url );
     void fieldsFinished();
     void wellsFinished();
     void wellboresFinished( const QString& wellId );
@@ -91,12 +96,14 @@ signals:
     void tokenReady( const QString& token );
 
 private:
-    void addStandardHeader( QNetworkRequest& networkRequest, const QString& token, const QString& dataPartitionId );
+    void addStandardHeader( QNetworkRequest& networkRequest, const QString& token, const QString& dataPartitionId, const QString& contentType );
 
-    QNetworkReply*
-        makeRequest( const std::map<QString, QString>& parameters, const QString& server, const QString& dataPartitionId, const QString& token );
+    QNetworkReply* makeSearchRequest( const std::map<QString, QString>& parameters,
+                                      const QString&                    server,
+                                      const QString&                    dataPartitionId,
+                                      const QString&                    token );
 
-    QNetworkReply* makeDownloadRequest( const QString& server, const QString& dataPartitionId, const QString& id, const QString& token );
+    QNetworkReply* makeDownloadRequest( const QString& url, const QString& dataPartitionId, const QString& token, const QString& contentType );
 
     void requestFieldsByName( const QString& server, const QString& dataPartitionId, const QString& token, const QString& fieldName );
     void requestWellsByFieldId( const QString& server, const QString& dataPartitionId, const QString& token, const QString& fieldId );
@@ -109,9 +116,10 @@ private:
 
     static QString generateRandomString( int length = 20 );
     static QString constructSearchUrl( const QString& server );
-    static QString constructDownloadUrl( const QString& server, const QString& fileId );
+    static QString constructFileDownloadUrl( const QString& server, const QString& fileId );
     static QString constructAuthUrl( const QString& authority );
     static QString constructTokenUrl( const QString& authority );
+    static QString constructWellLogDownloadUrl( const QString& server, const QString& wellLogId );
 
     QOAuth2AuthorizationCodeFlow* m_osdu;
     QNetworkAccessManager*        m_networkAccessManager;
@@ -128,9 +136,13 @@ private:
     std::map<QString, std::vector<OsduWellbore>>           m_wellbores;
     std::map<QString, std::vector<OsduWellboreTrajectory>> m_wellboreTrajectories;
     QString                                                m_filePath;
+    QByteArray                                             m_wellLogContents;
 
     static inline const QString FIELD_KIND               = "osdu:wks:master-data--Field:1.0.0";
     static inline const QString WELL_KIND                = "osdu:wks:master-data--Well:1.2.0";
     static inline const QString WELLBORE_KIND            = "osdu:wks:master-data--Wellbore:1.1.0";
     static inline const QString WELLBORE_TRAJECTORY_KIND = "osdu:wks:work-product-component--WellboreTrajectory:1.1.0";
+
+    static inline const QString CONTENT_TYPE_JSON    = "application/json";
+    static inline const QString CONTENT_TYPE_PARQUET = "application/x-parquet";
 };
