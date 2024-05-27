@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2023-     Equinor ASA
+//  Copyright (C) 2024-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,30 +22,42 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <QDateTime>
 #include <QString>
 
-#include "RimWellLog.h"
+class RimWellLogChannel;
+class RimWellPath;
+
+class RigWellLogData;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimWellLogFile : public RimWellLog
+class RimWellLog : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellLogFile();
-    ~RimWellLogFile() override;
+    RimWellLog();
 
-    virtual void    setFileName( const QString& fileName );
-    virtual QString fileName() const;
+    virtual std::vector<RimWellLogChannel*> wellLogChannels() const;
 
-    virtual bool readFile( QString* errorMessage ) = 0;
+    virtual QString         wellName() const = 0;
+    virtual QString         name() const     = 0;
+    virtual RigWellLogData* wellLogData()    = 0;
+
+    virtual QDateTime date() const;
+
+    virtual std::vector<std::pair<double, double>>
+        findMdAndChannelValuesForWellPath( const RimWellPath& wellPath, const QString& channelName, QString* unitString = nullptr ) = 0;
+
+    const static QDateTime DEFAULT_DATE_TIME;
 
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    caf::PdmField<caf::FilePath> m_fileName;
+    caf::PdmChildArrayField<RimWellLogChannel*> m_wellLogChannelNames;
+    caf::PdmField<QDateTime>                    m_date;
 };
