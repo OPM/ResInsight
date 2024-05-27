@@ -41,8 +41,8 @@
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
 #include "RimWellAllocationPlot.h"
+#include "RimWellLogChannel.h"
 #include "RimWellLogCurve.h"
-#include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
@@ -216,7 +216,7 @@ Qt::DropActions RiuDragDrop::supportedDropActions() const
     {
         return Qt::CopyAction | Qt::MoveAction;
     }
-    else if ( RiuTypedPdmObjects<RimWellLogFileChannel>::containsTypedObjects( m_dragItems ) )
+    else if ( RiuTypedPdmObjects<RimWellLogChannel>::containsTypedObjects( m_dragItems ) )
     {
         return Qt::CopyAction;
     }
@@ -247,7 +247,7 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
         }
 
         if ( dynamic_cast<RimEclipseCase*>( uiItem ) || dynamic_cast<RimWellLogCurve*>( uiItem ) ||
-             dynamic_cast<RimWellLogFileChannel*>( uiItem ) || dynamic_cast<RimPlot*>( uiItem ) || dynamic_cast<RimSummaryCase*>( uiItem ) ||
+             dynamic_cast<RimWellLogChannel*>( uiItem ) || dynamic_cast<RimPlot*>( uiItem ) || dynamic_cast<RimSummaryCase*>( uiItem ) ||
              dynamic_cast<RimSummaryCaseCollection*>( uiItem ) || dynamic_cast<RimSurface*>( uiItem ) )
         {
             itemflags |= Qt::ItemIsDragEnabled;
@@ -342,14 +342,14 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
         {
             if ( dynamic_cast<RimWellLogTrack*>( uiItem ) )
             {
-                if ( RiuTypedPdmObjects<RimWellLogFileChannel>::containsTypedObjects( m_dragItems ) )
+                if ( RiuTypedPdmObjects<RimWellLogChannel>::containsTypedObjects( m_dragItems ) )
                 {
                     itemflags |= Qt::ItemIsDropEnabled;
                 }
             }
             else if ( dynamic_cast<RimWellLogCurve*>( uiItem ) )
             {
-                if ( RiuTypedPdmObjects<RimWellLogFileChannel>::containsTypedObjects( m_dragItems ) )
+                if ( RiuTypedPdmObjects<RimWellLogChannel>::containsTypedObjects( m_dragItems ) )
                 {
                     itemflags |= Qt::ItemIsDropEnabled;
                 }
@@ -523,13 +523,12 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop( Qt::DropAction       action,
                                               RimWellLogTrack*     trackTarget,
                                               int                  insertAtPosition )
 {
-    std::vector<RimWellLogFileChannel*> wellLogFileChannels =
-        RiuTypedPdmObjects<RimWellLogFileChannel>::typedObjectsFromGroup( draggedObjects );
-    if ( !wellLogFileChannels.empty() )
+    std::vector<RimWellLogChannel*> wellLogChannels = RiuTypedPdmObjects<RimWellLogChannel>::typedObjectsFromGroup( draggedObjects );
+    if ( !wellLogChannels.empty() )
     {
         if ( action == Qt::CopyAction )
         {
-            RicWellLogTools::addWellLogChannelsToPlotTrack( trackTarget, wellLogFileChannels );
+            RicWellLogTools::addWellLogChannelsToPlotTrack( trackTarget, wellLogChannels );
             return true;
         }
     }

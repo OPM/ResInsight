@@ -26,7 +26,7 @@
 class RimMainPlotCollection;
 class RimWellLogPlotCollection;
 class RimWellLogPlot;
-class RimWellLogFileChannel;
+class RimWellLogChannel;
 
 //==================================================================================================
 ///
@@ -41,5 +41,5 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static std::vector<RimWellLogFileChannel*> selectedWellLogs();
+    static std::vector<RimWellLogChannel*> selectedWellLogs();
 };

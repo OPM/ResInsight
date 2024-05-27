@@ -38,8 +38,8 @@
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimWellLogChannel.h"
 #include "RimWellLogCurve.h"
-#include "RimWellLogFileChannel.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellLogLasFileCurve.h"
 #include "RimWellLogPlot.h"
@@ -567,7 +567,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleWellLogCurveSet::calculateValueOptions(
             std::set<QString> wellLogChannelNames;
             for ( auto wellLogFile : m_ensembleWellLogs->wellLogFiles() )
             {
-                std::vector<RimWellLogFileChannel*> fileLogs = wellLogFile->wellLogChannels();
+                std::vector<RimWellLogChannel*> fileLogs = wellLogFile->wellLogChannels();
                 for ( size_t i = 0; i < fileLogs.size(); i++ )
                 {
                     QString wellLogChannelName = fileLogs[i]->name();

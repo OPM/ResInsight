@@ -25,7 +25,7 @@
 #include <QDateTime>
 #include <QString>
 
-class RimWellLogFileChannel;
+class RimWellLogChannel;
 class RimWellPath;
 
 class RigWellLogFile;
@@ -42,9 +42,9 @@ public:
     RimWellLogFile();
     ~RimWellLogFile() override;
 
-    virtual void                                setFileName( const QString& fileName );
-    virtual QString                             fileName() const;
-    virtual std::vector<RimWellLogFileChannel*> wellLogChannels() const;
+    virtual void                            setFileName( const QString& fileName );
+    virtual QString                         fileName() const;
+    virtual std::vector<RimWellLogChannel*> wellLogChannels() const;
 
     virtual QString         wellName() const                  = 0;
     virtual QString         name() const                      = 0;
@@ -62,7 +62,7 @@ protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    caf::PdmChildArrayField<RimWellLogFileChannel*> m_wellLogChannelNames;
-    caf::PdmField<caf::FilePath>                    m_fileName;
-    caf::PdmField<QDateTime>                        m_date;
+    caf::PdmChildArrayField<RimWellLogChannel*> m_wellLogChannelNames;
+    caf::PdmField<caf::FilePath>                m_fileName;
+    caf::PdmField<QDateTime>                    m_date;
 };

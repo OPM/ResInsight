@@ -36,7 +36,7 @@ class RimEclipseResultCase;
 class RimObservedFmuRftData;
 class RimSummaryCaseCollection;
 class RimWellLogCurve;
-class RimWellLogFileChannel;
+class RimWellLogChannel;
 class RimWellLogPlot;
 class RimWellPath;
 class RimPressureDepthData;
@@ -87,7 +87,7 @@ public:
     static void                         addTimeStepsToMap( std::map<QDateTime, std::set<RifDataSourceForRftPlt>>&       destMap,
                                                            const std::map<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepsToAdd );
     static std::vector<RimWellLogFile*> wellLogFilesContainingPressure( const QString& wellPathNameOrSimWellName );
-    static RimWellLogFileChannel*       getPressureChannelFromWellFile( const RimWellLogFile* wellLogFile );
+    static RimWellLogChannel*           getPressureChannelFromWellFile( const RimWellLogFile* wellLogFile );
     static RimWellPath*                 wellPathFromWellLogFile( const RimWellLogFile* wellLogFile );
     static std::map<QDateTime, std::set<RifDataSourceForRftPlt>> timeStepsMapFromGridCase( RimEclipseCase* gridCase );
     static RiaRftPltCurveDefinition                              curveDefFromCurve( const RimWellLogCurve* curve );
@@ -147,11 +147,11 @@ private:
     static std::set<QString> FLOW_DATA_NAMES;
 
     static bool                hasPressureData( const RimWellLogFile* wellLogFile );
-    static bool                isPressureChannel( RimWellLogFileChannel* channel );
+    static bool                isPressureChannel( RimWellLogChannel* channel );
     static bool                hasPressureData( RimEclipseResultCase* gridCase );
     static bool                hasPressureData( RimWellPath* wellPath );
     static bool                hasFlowData( RimEclipseResultCase* gridCase );
-    static bool                isFlowChannel( RimWellLogFileChannel* channel );
+    static bool                isFlowChannel( RimWellLogChannel* channel );
     static bool                tryMatchChannelName( const std::set<QString>& channelNames, const QString& channelNameToMatch );
     static std::set<QDateTime> findMatchingOrAdjacentTimeSteps( const std::set<QDateTime>& baseTimeLine,
                                                                 const std::set<QDateTime>& availableTimeSteps );
