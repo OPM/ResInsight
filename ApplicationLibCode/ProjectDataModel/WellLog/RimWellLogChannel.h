@@ -19,27 +19,16 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-
-class QString;
+#include "RimNamedObject.h"
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimWellLogChannel : public caf::PdmObject
+class RimWellLogChannel : public RimNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     RimWellLogChannel();
-
-    void    setName( const QString& name );
-    QString name() const { return m_name; }
-
-    caf::PdmFieldHandle* userDescriptionField() override { return &m_name; }
-
-private:
-    caf::PdmField<QString> m_name;
 };
