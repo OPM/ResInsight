@@ -54,7 +54,7 @@ public:
 
     QString wellName() const override;
 
-    RigWellLogLasFile* wellLogFileData() override { return m_wellLogDataFile.p(); }
+    RigWellLogLasFile* wellLogData() override { return m_wellLogDataFile.p(); }
 
     bool hasFlowData() const;
 

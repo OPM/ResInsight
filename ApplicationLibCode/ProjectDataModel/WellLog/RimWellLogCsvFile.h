@@ -49,7 +49,7 @@ public:
 
     QString wellName() const override;
 
-    RigWellLogCsvFile* wellLogFileData() override;
+    RigWellLogCsvFile* wellLogData() override;
 
     std::vector<std::pair<double, double>>
         findMdAndChannelValuesForWellPath( const RimWellPath& wellPath, const QString& channelName, QString* unitString = nullptr ) override;

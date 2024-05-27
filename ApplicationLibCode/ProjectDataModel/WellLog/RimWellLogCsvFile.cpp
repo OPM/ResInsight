@@ -117,7 +117,7 @@ std::vector<std::pair<double, double>> RimWellLogCsvFile::findMdAndChannelValues
     std::vector<RimWellLogCsvFile*> wellLogFiles = wellPath.descendantsIncludingThisOfType<RimWellLogCsvFile>();
     for ( RimWellLogCsvFile* wellLogFile : wellLogFiles )
     {
-        RigWellLogCsvFile* fileData = wellLogFile->wellLogFileData();
+        RigWellLogCsvFile* fileData = wellLogFile->wellLogData();
         if ( fileData )
         {
             std::vector<double> channelValues = fileData->values( channelName );
@@ -144,7 +144,7 @@ std::vector<std::pair<double, double>> RimWellLogCsvFile::findMdAndChannelValues
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWellLogCsvFile* RimWellLogCsvFile::wellLogFileData()
+RigWellLogCsvFile* RimWellLogCsvFile::wellLogData()
 {
     return m_wellLogDataFile.p();
 }
