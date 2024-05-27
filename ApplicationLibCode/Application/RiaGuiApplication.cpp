@@ -521,6 +521,13 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
         setStartDir( cvfqt::Utils::toQString( o.value( 0 ) ) );
     }
 
+    if ( cvf::Option o = progOpt->option( "egridReader" ) )
+    {
+        CVF_ASSERT( o.valueCount() == 1 );
+        std::string readerName = o.value( 0 ).toLower().toStdString();
+        m_preferences->setGridModelReaderOverride( readerName );
+    }
+
     if ( cvf::Option o = progOpt->option( "size" ) )
     {
         int width  = o.safeValue( 0 ).toInt( -1 );

@@ -173,7 +173,8 @@ enum class GridCaseAxis
 enum class GridModelReader
 {
     RESDATA,
-    OPM_COMMON
+    OPM_COMMON,
+    NOT_SET
 };
 
 enum class ThemeEnum

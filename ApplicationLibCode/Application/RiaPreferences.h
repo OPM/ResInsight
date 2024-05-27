@@ -39,6 +39,7 @@
 #include <QStringList>
 
 #include <map>
+#include <string>
 
 class RifReaderSettings;
 class RiaPreferencesSummary;
@@ -71,6 +72,7 @@ public:
 
     const RifReaderSettings*    readerSettings() const;
     RiaDefines::GridModelReader gridModelReader() const;
+    void                        setGridModelReaderOverride( const std::string& readerName );
 
     bool useUndoRedo() const;
 
@@ -180,6 +182,7 @@ private:
 
 private:
     caf::PdmField<GridModelEnum>           m_gridModelReader;
+    RiaDefines::GridModelReader            m_gridModelReaderOverride;
     caf::PdmChildField<RifReaderSettings*> m_readerSettings;
 
     caf::PdmField<QString> m_dateFormat;
