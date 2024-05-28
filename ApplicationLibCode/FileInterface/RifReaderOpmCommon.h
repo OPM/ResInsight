@@ -73,6 +73,15 @@ private:
         double simulationTimeFromStart;
     };
 
+    struct NNCInfo
+    {
+        int   gridId1;
+        int   cellId1;
+        int   gridId2;
+        int   cellId2;
+        float transValue;
+    };
+
     static std::vector<TimeDataFile> readTimeSteps( std::shared_ptr<Opm::EclIO::ERst> restartFile );
     static void                      readWellCells( std::shared_ptr<Opm::EclIO::ERst> restartFile,
                                                     RigEclipseCaseData*               eclipseCase,
