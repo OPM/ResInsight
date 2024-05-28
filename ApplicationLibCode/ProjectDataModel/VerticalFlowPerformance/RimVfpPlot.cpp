@@ -423,10 +423,10 @@ RiuPlotWidget* RimVfpPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
     auto wheelZoomer = new RiuQwtPlotWheelZoomer( qwtPlot );
 
     // Use lambda functions to connect signals to functions instead of slots
-    connect( wheelZoomer, &RiuQwtPlotWheelZoomer::zoomUpdated, [=]() { onPlotZoomed(); } );
-    connect( plotZoomer, &RiuQwtPlotZoomer::zoomed, [=]() { onPlotZoomed(); } );
-    connect( panner, &QwtPlotPanner::panned, [=]() { onPlotZoomed(); } );
-    connect( qwtPlotWidget, &RiuQwtPlotWidget::plotZoomed, [=]() { onPlotZoomed(); } );
+    connect( wheelZoomer, &RiuQwtPlotWheelZoomer::zoomUpdated, [=, this]() { onPlotZoomed(); } );
+    connect( plotZoomer, &RiuQwtPlotZoomer::zoomed, [=, this]() { onPlotZoomed(); } );
+    connect( panner, &QwtPlotPanner::panned, [=, this]() { onPlotZoomed(); } );
+    connect( qwtPlotWidget, &RiuQwtPlotWidget::plotZoomed, [=, this]() { onPlotZoomed(); } );
 
     // Remove event filter to disable unwanted highlighting on left click in plot.
     qwtPlotWidget->removeEventFilter();

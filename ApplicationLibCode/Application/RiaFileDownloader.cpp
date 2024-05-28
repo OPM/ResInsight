@@ -25,7 +25,7 @@ void RiaFileDownloader::downloadFile( const QUrl& url, const QString& filePath )
 
     connect( reply,
              &QNetworkReply::finished,
-             [=]()
+             [=, this]()
              {
                  if ( reply->error() )
                  {
