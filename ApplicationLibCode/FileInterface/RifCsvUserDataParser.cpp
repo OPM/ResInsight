@@ -88,7 +88,7 @@ bool RifCsvUserDataParser::parse( const RifAsciiDataParseOptions&               
                                   const std::map<QString, QString>&                    nameMapping,
                                   const std::map<QString, std::pair<QString, double>>& unitMapping )
 {
-    if ( determineCsvLayout() == LineBased ) return parseLineBasedData();
+    if ( determineCsvLayout() == LineBased ) return parseLineBasedData( parseOptions );
     return parseColumnBasedData( parseOptions, nameMapping, unitMapping );
 }
 
@@ -617,7 +617,7 @@ bool RifCsvUserDataParser::parseColumnBasedData( const RifAsciiDataParseOptions&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserDataParser::parseLineBasedData()
+bool RifCsvUserDataParser::parseLineBasedData( const RifAsciiDataParseOptions& parseOptions )
 {
     QTextStream* dataStream = openDataStream();
     if ( !dataStream )
@@ -682,54 +682,62 @@ bool RifCsvUserDataParser::parseLineBasedData()
                 }
             }
 
-            // DATE
-            QDateTime dateTime;
+            try
             {
-                auto dateText = dataItems[colIndexes[(size_t)CsvLineBasedColumnType::DATE]].toStdString();
-
-                dateTime = tryParseDateTime( dateText, ISO_DATE_FORMAT );
-                if ( !dateTime.isValid() )
+                // DATE
+                QDateTime dateTime;
                 {
-                    // Try to match date and time
-                    dateTime = tryParseDateTime( dateText, QString( ISO_DATE_FORMAT ) + " " + TIME_FORMAT );
+                    auto dateText = dataItems[colIndexes[(size_t)CsvLineBasedColumnType::DATE]].toStdString();
+
+                    const auto formats = { parseOptions.dateFormat, QString( ISO_DATE_FORMAT ), QString( ISO_DATE_FORMAT ) + " " + TIME_FORMAT };
+                    for ( const auto& format : formats )
+                    {
+                        dateTime = tryParseDateTime( dateText, format );
+                        if ( dateTime.isValid() ) break;
+                    }
+
+                    if ( !dateTime.isValid() )
+                    {
+                        if ( m_errorText )
+                            m_errorText->append(
+                                QString( "CSV import: Failed to parse date time value in line %1" ).arg( QString::number( lineCount ) ) );
+                        throw 0;
+                    }
                 }
 
-                if ( !dateTime.isValid() )
+                // VALUE
                 {
-                    if ( m_errorText )
-                        m_errorText->append(
-                            QString( "CSV import: Failed to parse date time value in line %1" ).arg( QString::number( lineCount ) ) );
-                    throw 0;
+                    bool   parseOk = true;
+                    double value   = QLocale::c().toDouble( dataItems[colIndexes[(size_t)CsvLineBasedColumnType::VALUE]], &parseOk );
+
+                    if ( !parseOk )
+                    {
+                        if ( m_errorText )
+                            m_errorText->append(
+                                QString( "CSV import: Failed to parse numeric value in line %1\n" ).arg( QString::number( lineCount ) ) );
+                        throw 0;
+                    }
+
+                    auto& samples = addressesAndData[addr];
+                    samples.push_back( std::make_pair( dateTime.toSecsSinceEpoch(), value ) );
+                }
+
+                // ERROR VALUE
+                if ( expectErrorValue )
+                {
+                    bool   parseOk = true;
+                    double value   = QLocale::c().toDouble( dataItems[colIndexes[(size_t)CsvLineBasedColumnType::ERROR_VALUE]], &parseOk );
+
+                    if ( !parseOk ) value = DOUBLE_INF;
+
+                    auto& samples = addressesAndData[errAddr];
+                    samples.push_back( std::make_pair( dateTime.toSecsSinceEpoch(), value ) );
                 }
             }
-
-            // VALUE
+            catch ( ... )
             {
-                bool   parseOk = true;
-                double value   = QLocale::c().toDouble( dataItems[colIndexes[(size_t)CsvLineBasedColumnType::VALUE]], &parseOk );
-
-                if ( !parseOk )
-                {
-                    if ( m_errorText )
-                        m_errorText->append(
-                            QString( "CSV import: Failed to parse numeric value in line %1\n" ).arg( QString::number( lineCount ) ) );
-                    throw 0;
-                }
-
-                auto& samples = addressesAndData[addr];
-                samples.push_back( std::make_pair( dateTime.toSecsSinceEpoch(), value ) );
-            }
-
-            // ERROR VALUE
-            if ( expectErrorValue )
-            {
-                bool   parseOk = true;
-                double value   = QLocale::c().toDouble( dataItems[colIndexes[(size_t)CsvLineBasedColumnType::ERROR_VALUE]], &parseOk );
-
-                if ( !parseOk ) value = DOUBLE_INF;
-
-                auto& samples = addressesAndData[errAddr];
-                samples.push_back( std::make_pair( dateTime.toSecsSinceEpoch(), value ) );
+                closeDataStream();
+                return false;
             }
         }
     }
