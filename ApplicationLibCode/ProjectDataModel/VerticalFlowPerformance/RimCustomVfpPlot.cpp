@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020- Equinor ASA
+//  Copyright (C) 2024 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,18 +16,16 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimVfpPlot.h"
+#include "RimCustomVfpPlot.h"
 
 #include "RiaColorTables.h"
 #include "RiaColorTools.h"
 #include "RiaEclipseUnitTools.h"
-#include "RiaOpmParserTools.h"
 
 #include "RigVfpTables.h"
 
 #include "RimPlotAxisProperties.h"
 #include "RimPlotCurve.h"
-#include "RimProject.h"
 #include "RimVfpDataCollection.h"
 #include "RimVfpDefines.h"
 #include "RimVfpTable.h"
@@ -36,6 +34,7 @@
 
 #include "RiuContextMenuLauncher.h"
 #include "RiuPlotCurve.h"
+#include "RiuPlotCurveInfoTextProvider.h"
 #include "RiuPlotWidget.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtPlotCurveDefines.h"
@@ -44,25 +43,22 @@
 #include "RiuQwtPlotZoomer.h"
 
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include "qwt_plot_panner.h"
 
-#include <QFileInfo>
-
-#include <memory>
-
 //==================================================================================================
 //
 //
 //
 //==================================================================================================
 
-CAF_PDM_SOURCE_INIT( RimVfpPlot, "VfpPlot" );
+CAF_PDM_SOURCE_INIT( RimCustomVfpPlot, "RimCustomVfpPlot" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimVfpPlot::RimVfpPlot()
+RimCustomVfpPlot::RimCustomVfpPlot()
 {
     // TODO: add icon
     CAF_PDM_InitObject( "VFP Plot", ":/VfpPlot.svg" );
@@ -70,10 +66,13 @@ RimVfpPlot::RimVfpPlot()
     CAF_PDM_InitField( &m_plotTitle, "PlotTitle", QString( "VFP Plot" ), "Plot Title" );
     m_plotTitle.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_filePath_OBSOLETE, "FilePath", "File Path" );
-    m_filePath_OBSOLETE.xmlCapability()->setIOWritable( false );
+    CAF_PDM_InitFieldNoDefault( &m_mainDataSource, "MainDataSouce", "Main VFP Data Source" );
 
-    CAF_PDM_InitFieldNoDefault( &m_vfpTable, "VfpTableData", "VFP Data Source" );
+    CAF_PDM_InitFieldNoDefault( &m_additionalDataSources, "AdditionalDataSources", "Additional Data Sources" );
+    m_additionalDataSources.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_curveOptionFiltering, "CurveOptionFiltering", "Curve Option Filtering" );
+    CAF_PDM_InitFieldNoDefault( &m_curveMatchingType, "CurveMatchingType", "Curve Matching Type" );
 
     caf::AppEnum<RimVfpDefines::TableType> defaultTableType = RimVfpDefines::TableType::INJECTION;
     CAF_PDM_InitField( &m_tableType, "TableType", defaultTableType, "Table Type" );
@@ -104,20 +103,23 @@ RimVfpPlot::RimVfpPlot()
     caf::AppEnum<RimVfpDefines::ProductionVariableType> defaultFamilyVariable = RimVfpDefines::ProductionVariableType::THP;
     CAF_PDM_InitField( &m_familyVariable, "FamilyVariable", defaultFamilyVariable, "Family Variable" );
 
-    CAF_PDM_InitField( &m_flowRateIdx, "LiquidFlowRateIdx", 0, "Flow Rate" );
+    CAF_PDM_InitField( &m_flowRateIdx, "LiquidFlowRateIdx", { 0 }, "Flow Rate" );
     m_flowRateIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_thpIdx, "THPIdx", 0, "THP" );
+    CAF_PDM_InitField( &m_thpIdx, "THPIdx", { 0 }, "THP" );
     m_thpIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_articifialLiftQuantityIdx, "ArtificialLiftQuantityIdx", 0, "Artificial Lift Quantity" );
+    CAF_PDM_InitField( &m_articifialLiftQuantityIdx, "ArtificialLiftQuantityIdx", { 0 }, "Artificial Lift Quantity" );
     m_articifialLiftQuantityIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_waterCutIdx, "WaterCutIdx", 0, "Water Cut" );
+    CAF_PDM_InitField( &m_waterCutIdx, "WaterCutIdx", { 0 }, "Water Cut" );
     m_waterCutIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_gasLiquidRatioIdx, "GasLiquidRatioIdx", 0, "Gas Liquid Ratio" );
+    CAF_PDM_InitField( &m_gasLiquidRatioIdx, "GasLiquidRatioIdx", { 0 }, "Gas Liquid Ratio" );
     m_gasLiquidRatioIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_familyValues, "FamilyValues", { 0 }, "Family Values" );
+    m_familyValues.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_xAxisProperties, "xAxisProperties", "X Axis" );
     m_xAxisProperties = new RimPlotAxisProperties;
@@ -133,10 +135,10 @@ RimVfpPlot::RimVfpPlot()
     connectAxisSignals( m_yAxisProperties() );
 
     CAF_PDM_InitFieldNoDefault( &m_plotCurves, "PlotCurves", "Curves" );
+    m_plotCurves.uiCapability()->setUiTreeChildrenHidden( true );
 
-    m_showWindow               = true;
-    m_showPlotLegends          = true;
-    m_dataIsImportedExternally = false;
+    m_showWindow      = true;
+    m_showPlotLegends = true;
 
     setAsPlotMdiWindow();
 
@@ -146,7 +148,7 @@ RimVfpPlot::RimVfpPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimVfpPlot::~RimVfpPlot()
+RimCustomVfpPlot::~RimCustomVfpPlot()
 {
     removeMdiWindowFromMdiArea();
     deleteViewWidget();
@@ -155,15 +157,17 @@ RimVfpPlot::~RimVfpPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::setDataSource( RimVfpTable* vfpTableData )
+void RimCustomVfpPlot::selectDataSource( RimVfpTable* mainDataSource, const std::vector<RimVfpTable*>& vfpTableData )
 {
-    m_vfpTable = vfpTableData;
+    m_mainDataSource = mainDataSource;
+
+    m_additionalDataSources.setValue( vfpTableData );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::setTableNumber( int tableNumber )
+void RimCustomVfpPlot::setTableNumber( int tableNumber )
 {
     m_tableNumber = tableNumber;
 }
@@ -171,33 +175,24 @@ void RimVfpPlot::setTableNumber( int tableNumber )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::initializeObject()
+void RimCustomVfpPlot::initializeObject()
 {
-    if ( !vfpTables() ) return;
+    if ( !m_mainDataSource || !m_mainDataSource->dataSource() || !m_mainDataSource->dataSource()->vfpTables() ) return;
 
-    auto tableNumber = m_vfpTable->tableNumber();
+    auto vfpTables   = m_mainDataSource->dataSource()->vfpTables();
+    auto tableNumber = m_mainDataSource->tableNumber();
 
-    // Always use the available table number if only one table is available
-    auto prodTableNumbers = vfpTables()->productionTableNumbers();
-    auto injTableNumbers  = vfpTables()->injectionTableNumbers();
-
-    if ( prodTableNumbers.size() == 1 && injTableNumbers.empty() )
-    {
-        tableNumber = prodTableNumbers.front();
-    }
-    else if ( injTableNumbers.size() == 1 && prodTableNumbers.empty() )
-    {
-        tableNumber = injTableNumbers.front();
-    }
-
-    auto table = vfpTables()->getTableInitialData( tableNumber );
+    auto table = vfpTables->getTableInitialData( tableNumber );
     initializeFromInitData( table );
+
+    auto values    = vfpTables->getProductionTableData( m_tableNumber(), m_familyVariable() );
+    m_familyValues = values;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotWidget* RimVfpPlot::plotWidget()
+RiuPlotWidget* RimCustomVfpPlot::plotWidget()
 {
     return m_plotWidget;
 }
@@ -205,7 +200,7 @@ RiuPlotWidget* RimVfpPlot::plotWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimVfpPlot::isCurveHighlightSupported() const
+bool RimCustomVfpPlot::isCurveHighlightSupported() const
 {
     return true;
 }
@@ -213,7 +208,7 @@ bool RimVfpPlot::isCurveHighlightSupported() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::setAutoScaleXEnabled( bool enabled )
+void RimCustomVfpPlot::setAutoScaleXEnabled( bool enabled )
 {
     m_xAxisProperties->setAutoZoom( enabled );
 }
@@ -221,7 +216,7 @@ void RimVfpPlot::setAutoScaleXEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::setAutoScaleYEnabled( bool enabled )
+void RimCustomVfpPlot::setAutoScaleYEnabled( bool enabled )
 {
     m_yAxisProperties->setAutoZoom( enabled );
 }
@@ -229,7 +224,7 @@ void RimVfpPlot::setAutoScaleYEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::updateAxes()
+void RimCustomVfpPlot::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
@@ -243,7 +238,7 @@ void RimVfpPlot::updateAxes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::updateLegend()
+void RimCustomVfpPlot::updateLegend()
 {
     if ( !m_plotWidget )
     {
@@ -270,8 +265,11 @@ void RimVfpPlot::updateLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimVfpPlot::asciiDataForPlotExport() const
+QString RimCustomVfpPlot::asciiDataForPlotExport() const
 {
+    return {};
+}
+/*
     if ( !vfpTables() ) return {};
 
     auto tableText = vfpTables()->asciiDataForTable( m_tableNumber(),
@@ -283,9 +281,9 @@ QString RimVfpPlot::asciiDataForPlotExport() const
 
     QString wellName;
 
-    if ( m_vfpTable )
+    if ( m_vfpTableData )
     {
-        wellName = m_vfpTable->name();
+        wellName = m_vfpTableData->name();
     }
     else
     {
@@ -301,12 +299,12 @@ QString RimVfpPlot::asciiDataForPlotExport() const
         generatePlotTitle( wellName, m_tableNumber(), m_tableType(), m_interpolatedVariable(), m_primaryVariable(), m_familyVariable() );
 
     return QString( "%1\n\n%2" ).arg( plotTitle ).arg( tableText );
-}
+*/
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::reattachAllCurves()
+void RimCustomVfpPlot::reattachAllCurves()
 {
     for ( auto curve : m_plotCurves() )
     {
@@ -320,7 +318,7 @@ void RimVfpPlot::reattachAllCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::detachAllCurves()
+void RimCustomVfpPlot::detachAllCurves()
 {
     for ( auto curve : m_plotCurves() )
     {
@@ -331,7 +329,7 @@ void RimVfpPlot::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimVfpPlot::description() const
+QString RimCustomVfpPlot::description() const
 {
     return uiName();
 }
@@ -339,7 +337,46 @@ QString RimVfpPlot::description() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RimVfpPlot::viewWidget()
+QString RimCustomVfpPlot::infoForCurve( RimPlotCurve* plotCurve ) const
+{
+    std::vector<RimVfpTable*> tables = m_additionalDataSources.ptrReferencedObjectsByType();
+    tables.push_back( m_mainDataSource );
+
+    auto index = m_plotCurves.indexOf( plotCurve );
+
+    size_t curveCount = 0;
+    for ( size_t i = 0; i < m_plotData.size(); i++ )
+    {
+        curveCount += m_plotData[i].size();
+        if ( index < curveCount )
+        {
+            auto tableIndex = i;
+
+            auto    table = tables[tableIndex];
+            QString info  = QString( "Table: %1" ).arg( table->tableNumber() );
+
+            auto curveIndex = index - ( curveCount - m_plotData[i].size() );
+            auto selection  = tableSelection( table );
+            if ( curveIndex < selection.familyValues.size() )
+            {
+                auto displayValue = convertToDisplayUnit( selection.familyValues[curveIndex], m_familyVariable() );
+                auto unitText     = getDisplayUnit( m_familyVariable() );
+                auto variableName = m_familyVariable().uiText();
+
+                info += QString( " - %1 %2 %3 " ).arg( variableName ).arg( displayValue ).arg( unitText );
+            }
+
+            return info;
+        }
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QWidget* RimCustomVfpPlot::viewWidget()
 {
     return m_plotWidget;
 }
@@ -347,7 +384,7 @@ QWidget* RimVfpPlot::viewWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimVfpPlot::snapshotWindowContent()
+QImage RimCustomVfpPlot::snapshotWindowContent()
 {
     QImage image;
 
@@ -363,7 +400,7 @@ QImage RimVfpPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::zoomAll()
+void RimCustomVfpPlot::zoomAll()
 {
     setAutoScaleXEnabled( true );
     setAutoScaleYEnabled( true );
@@ -374,23 +411,7 @@ void RimVfpPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::setDataIsImportedExternally( bool dataIsImportedExternally )
-{
-    m_dataIsImportedExternally = dataIsImportedExternally;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RimVfpPlot::tableNumber() const
-{
-    return m_tableNumber();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimVfpPlot::onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects )
+void RimCustomVfpPlot::onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects )
 {
     detachAllCurves();
     reattachAllCurves();
@@ -398,17 +419,44 @@ void RimVfpPlot::onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, s
     m_plotWidget->scheduleReplot();
 }
 
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
+class RimVfpCurveInfoTextProvider : public RiuPlotCurveInfoTextProvider
+{
+public:
+    QString curveInfoText( RiuPlotCurve* curve ) const override { return infoForCurve( curve ); };
+
+    QString additionalText( RiuPlotCurve* curve, int sampleIndex ) const override { return {}; }
+
+private:
+    QString infoForCurve( RiuPlotCurve* riuCurve ) const
+    {
+        if ( auto rimcurve = riuCurve->ownerRimCurve() )
+        {
+            if ( auto owner = rimcurve->firstAncestorOfType<RimCustomVfpPlot>() )
+            {
+                return owner->infoForCurve( rimcurve );
+            }
+        }
+
+        return {};
+    };
+};
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotWidget* RimVfpPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
+RiuPlotWidget* RimCustomVfpPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
 {
     // It seems we risk being called multiple times
     if ( m_plotWidget ) return m_plotWidget;
 
     auto qwtPlotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
     auto qwtPlot       = qwtPlotWidget->qwtPlot();
-    new RiuQwtCurvePointTracker( qwtPlot, true, nullptr );
+    new RiuQwtCurvePointTracker( qwtPlot, true, curveTextProvider() );
 
     // LeftButton for the zooming
     auto plotZoomer = new RiuQwtPlotZoomer( qwtPlot->canvas() );
@@ -443,7 +491,7 @@ RiuPlotWidget* RimVfpPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::deleteViewWidget()
+void RimCustomVfpPlot::deleteViewWidget()
 {
     if ( m_plotWidget )
     {
@@ -456,7 +504,7 @@ void RimVfpPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::onLoadDataAndUpdate()
+void RimCustomVfpPlot::onLoadDataAndUpdate()
 {
     if ( isMdiWindow() )
     {
@@ -474,24 +522,39 @@ void RimVfpPlot::onLoadDataAndUpdate()
 
     updateLegend();
 
-    QString wellName;
+    detachAllCurves();
+    m_plotCurves.deleteChildren();
 
-    if ( vfpTables() )
+    int colorIndex = 0;
+
+    std::vector<RimVfpTable*> tables = m_additionalDataSources.ptrReferencedObjectsByType();
+    tables.push_back( m_mainDataSource );
+
+    m_plotData.clear();
+
+    for ( const auto& table : tables )
     {
-        wellName = vfpTableData()->baseFileName();
+        if ( !table ) continue;
 
-        auto vfpPlotData = vfpTables()->populatePlotData( m_tableNumber(),
-                                                          m_primaryVariable(),
-                                                          m_familyVariable(),
-                                                          m_interpolatedVariable(),
-                                                          m_flowingPhase(),
-                                                          tableSelection() );
+        int  tableIndex = table->tableNumber();
+        auto vfpTables  = table->dataSource()->vfpTables();
 
-        populatePlotWidgetWithPlotData( m_plotWidget, vfpPlotData );
+        auto vfpPlotData = vfpTables->populatePlotData( tableIndex,
+                                                        m_primaryVariable(),
+                                                        m_familyVariable(),
+                                                        m_interpolatedVariable(),
+                                                        m_flowingPhase(),
+                                                        tableSelection( table ) );
+
+        m_plotData.push_back( vfpPlotData );
+
+        QColor curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledQColor( colorIndex++ );
+
+        populatePlotWidgetWithPlotData( m_plotWidget, vfpPlotData, curveColor );
     }
 
     updatePlotTitle(
-        generatePlotTitle( wellName, m_tableNumber(), m_tableType(), m_interpolatedVariable(), m_primaryVariable(), m_familyVariable() ) );
+        generatePlotTitle( "Custom", m_tableNumber(), m_tableType(), m_interpolatedVariable(), m_primaryVariable(), m_familyVariable() ) );
 
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
@@ -506,7 +569,7 @@ void RimVfpPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, const VfpPlotData& plotData )
+void RimCustomVfpPlot::populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, const VfpPlotData& plotData, const QColor& color )
 {
     plotWidget->setAxisScale( RiuPlotAxis::defaultBottom(), 0, 1 );
     plotWidget->setAxisScale( RiuPlotAxis::defaultLeft(), 0, 1 );
@@ -515,35 +578,15 @@ void RimVfpPlot::populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, cons
     plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), plotData.xAxisTitle() );
     plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), plotData.yAxisTitle() );
 
-    if ( m_plotCurves.size() != plotData.size() )
-    {
-        detachAllCurves();
-        m_plotCurves.deleteChildren();
-
-        for ( auto idx = 0u; idx < plotData.size(); idx++ )
-        {
-            QColor qtClr = RiaColorTables::summaryCurveDefaultPaletteColors().cycledQColor( idx );
-
-            auto curve = new RimPlotCurve();
-
-            curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
-            curve->setLineThickness( 2 );
-            curve->setColor( RiaColorTools::fromQColorTo3f( qtClr ) );
-            curve->setSymbol( RiuPlotCurveSymbol::SYMBOL_ELLIPSE );
-            curve->setSymbolSize( 6 );
-
-            m_plotCurves.push_back( curve );
-        }
-
-        updateConnectedEditors();
-    }
-
-    auto plotCurves = m_plotCurves.childrenByType();
-
     for ( auto idx = 0u; idx < plotData.size(); idx++ )
     {
-        auto curve = plotCurves[idx];
-        if ( !curve ) continue;
+        auto curve = new RimPlotCurve();
+
+        curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
+        curve->setLineThickness( 2 );
+        curve->setColor( RiaColorTools::fromQColorTo3f( color ) );
+        curve->setSymbol( RiuPlotCurveSymbol::SYMBOL_ELLIPSE );
+        curve->setSymbolSize( 6 );
 
         curve->setCustomName( plotData.curveTitle( idx ) );
         curve->setParentPlotNoReplot( plotWidget );
@@ -553,14 +596,18 @@ void RimVfpPlot::populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, cons
             curve->plotCurve()->setSamplesFromXValuesAndYValues( plotData.xData( idx ), plotData.yData( idx ), useLogarithmicScale );
         }
         curve->updateCurveAppearance();
-        curve->appearanceChanged.connect( this, &RimVfpPlot::curveAppearanceChanged );
+        curve->appearanceChanged.connect( this, &RimCustomVfpPlot::curveAppearanceChanged );
+
+        m_plotCurves.push_back( curve );
     }
+
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimVfpPlot::axisTitle( RimVfpDefines::ProductionVariableType variableType, RimVfpDefines::FlowingPhaseType flowingPhase )
+QString RimCustomVfpPlot::axisTitle( RimVfpDefines::ProductionVariableType variableType, RimVfpDefines::FlowingPhaseType flowingPhase )
 {
     QString title;
 
@@ -581,16 +628,16 @@ QString RimVfpPlot::axisTitle( RimVfpDefines::ProductionVariableType variableTyp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::connectAxisSignals( RimPlotAxisProperties* axis )
+void RimCustomVfpPlot::connectAxisSignals( RimPlotAxisProperties* axis )
 {
-    axis->settingsChanged.connect( this, &RimVfpPlot::axisSettingsChanged );
-    axis->logarithmicChanged.connect( this, &RimVfpPlot::axisLogarithmicChanged );
+    axis->settingsChanged.connect( this, &RimCustomVfpPlot::axisSettingsChanged );
+    axis->logarithmicChanged.connect( this, &RimCustomVfpPlot::axisLogarithmicChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::axisSettingsChanged( const caf::SignalEmitter* emitter )
+void RimCustomVfpPlot::axisSettingsChanged( const caf::SignalEmitter* emitter )
 {
     updateAxes();
 }
@@ -598,7 +645,7 @@ void RimVfpPlot::axisSettingsChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic )
+void RimCustomVfpPlot::axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic )
 {
     // Currently not supported
 }
@@ -606,7 +653,7 @@ void RimVfpPlot::axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::updatePlotWidgetFromAxisRanges()
+void RimCustomVfpPlot::updatePlotWidgetFromAxisRanges()
 {
     if ( m_plotWidget )
     {
@@ -625,7 +672,7 @@ void RimVfpPlot::updatePlotWidgetFromAxisRanges()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::updateAxisRangesFromPlotWidget()
+void RimCustomVfpPlot::updateAxisRangesFromPlotWidget()
 {
     RimPlotAxisTools::updateVisibleRangesFromPlotWidget( m_xAxisProperties(), RiuPlotAxis::defaultBottom(), m_plotWidget );
     RimPlotAxisTools::updateVisibleRangesFromPlotWidget( m_yAxisProperties(), RiuPlotAxis::defaultLeft(), m_plotWidget );
@@ -634,7 +681,7 @@ void RimVfpPlot::updateAxisRangesFromPlotWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::onPlotZoomed()
+void RimCustomVfpPlot::onPlotZoomed()
 {
     setAutoScaleXEnabled( false );
     setAutoScaleYEnabled( false );
@@ -644,7 +691,7 @@ void RimVfpPlot::onPlotZoomed()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::curveAppearanceChanged( const caf::SignalEmitter* emitter )
+void RimCustomVfpPlot::curveAppearanceChanged( const caf::SignalEmitter* emitter )
 {
     scheduleReplot();
 }
@@ -652,7 +699,43 @@ void RimVfpPlot::curveAppearanceChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::initializeFromInitData( const VfpTableInitialData& table )
+std::vector<double> RimCustomVfpPlot::availableValues( RimVfpDefines::ProductionVariableType variableType ) const
+{
+    if ( !m_mainDataSource || !m_mainDataSource->dataSource() || !m_mainDataSource->dataSource()->vfpTables() ) return {};
+
+    auto values = m_mainDataSource->dataSource()->vfpTables()->getProductionTableData( m_tableNumber(), variableType );
+
+    if ( m_curveOptionFiltering() == RimVfpDefines::CurveOptionValuesType::UNION_OF_SELECTED_TABLES )
+    {
+        std::vector<RimVfpTable*> tables = m_additionalDataSources.ptrReferencedObjectsByType();
+        for ( const auto& table : tables )
+        {
+            if ( !table ) continue;
+
+            auto additionalValues = table->dataSource()->vfpTables()->getProductionTableData( table->tableNumber(), variableType );
+            values.insert( values.end(), additionalValues.begin(), additionalValues.end() );
+        }
+
+        std::sort( values.begin(), values.end() );
+        values.erase( std::unique( values.begin(), values.end() ), values.end() );
+    }
+
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotCurveInfoTextProvider* RimCustomVfpPlot::curveTextProvider()
+{
+    static auto textProvider = RimVfpCurveInfoTextProvider();
+    return &textProvider;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCustomVfpPlot::initializeFromInitData( const VfpTableInitialData& table )
 {
     m_tableType            = table.isProductionTable ? RimVfpDefines::TableType::PRODUCTION : RimVfpDefines::TableType::INJECTION;
     m_tableNumber          = table.tableNumber;
@@ -665,31 +748,7 @@ void RimVfpPlot::initializeFromInitData( const VfpTableInitialData& table )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimVfpTableData* RimVfpPlot::vfpTableData() const
-{
-    if ( m_vfpTable ) return m_vfpTable->dataSource();
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const RigVfpTables* RimVfpPlot::vfpTables() const
-{
-    if ( vfpTableData() )
-    {
-        vfpTableData()->ensureDataIsImported();
-        return vfpTableData()->vfpTables();
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimVfpPlot::convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType )
+double RimCustomVfpPlot::convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType )
 {
     if ( variableType == RimVfpDefines::ProductionVariableType::THP )
     {
@@ -708,7 +767,7 @@ double RimVfpPlot::convertToDisplayUnit( double value, RimVfpDefines::Production
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::convertToDisplayUnit( std::vector<double>& values, RimVfpDefines::ProductionVariableType variableType )
+void RimCustomVfpPlot::convertToDisplayUnit( std::vector<double>& values, RimVfpDefines::ProductionVariableType variableType )
 {
     for ( double& value : values )
         value = convertToDisplayUnit( value, variableType );
@@ -717,7 +776,7 @@ void RimVfpPlot::convertToDisplayUnit( std::vector<double>& values, RimVfpDefine
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimVfpPlot::getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType variableType )
+QString RimCustomVfpPlot::getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType variableType )
 {
     QString unit = getDisplayUnit( variableType );
     if ( !unit.isEmpty() ) return QString( "[%1]" ).arg( unit );
@@ -728,7 +787,7 @@ QString RimVfpPlot::getDisplayUnitWithBracket( RimVfpDefines::ProductionVariable
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimVfpPlot::getDisplayUnit( RimVfpDefines::ProductionVariableType variableType )
+QString RimCustomVfpPlot::getDisplayUnit( RimVfpDefines::ProductionVariableType variableType )
 
 {
     if ( variableType == RimVfpDefines::ProductionVariableType::THP ) return "Bar";
@@ -741,9 +800,13 @@ QString RimVfpPlot::getDisplayUnit( RimVfpDefines::ProductionVariableType variab
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimCustomVfpPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_vfpTable );
+    uiOrdering.add( &m_mainDataSource );
+    uiOrdering.add( &m_additionalDataSources );
+
+    uiOrdering.add( &m_curveMatchingType );
+    uiOrdering.add( &m_curveOptionFiltering );
 
     uiOrdering.add( &m_tableType );
     uiOrdering.add( &m_tableNumber );
@@ -766,6 +829,8 @@ void RimVfpPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiO
         fixedVariablesGroup->add( &m_waterCutIdx );
         fixedVariablesGroup->add( &m_gasLiquidRatioIdx );
 
+        fixedVariablesGroup->add( &m_familyValues );
+
         // Disable the choices for variables as primary or family
         setFixedVariableUiEditability( m_flowRateIdx, RimVfpDefines::ProductionVariableType::FLOW_RATE );
         setFixedVariableUiEditability( m_thpIdx, RimVfpDefines::ProductionVariableType::THP );
@@ -780,15 +845,16 @@ void RimVfpPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiO
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::setFixedVariableUiEditability( caf::PdmField<int>& field, RimVfpDefines::ProductionVariableType variableType )
+void RimCustomVfpPlot::setFixedVariableUiEditability( caf::PdmFieldHandle& field, RimVfpDefines::ProductionVariableType variableType )
 {
-    field.uiCapability()->setUiReadOnly( variableType == m_primaryVariable.v() || variableType == m_familyVariable.v() );
+    field.uiCapability()->setUiReadOnly( variableType == m_primaryVariable.v() );
+    field.uiCapability()->setUiHidden( variableType == m_familyVariable.v() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimVfpPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimCustomVfpPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options = RimPlot::calculateValueOptions( fieldNeedingOptions );
 
@@ -817,7 +883,24 @@ QList<caf::PdmOptionItemInfo> RimVfpPlot::calculateValueOptions( const caf::PdmF
         calculateTableValueOptions( RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO, options );
     }
 
-    else if ( fieldNeedingOptions == &m_vfpTable )
+    else if ( fieldNeedingOptions == &m_familyValues )
+    {
+        calculateTableValueOptions( m_familyVariable(), options );
+    }
+
+    else if ( fieldNeedingOptions == &m_additionalDataSources )
+    {
+        RimVfpDataCollection* vfpDataCollection = RimVfpDataCollection::instance();
+        for ( auto table : vfpDataCollection->vfpTableData() )
+        {
+            // Exclude main table data object
+            if ( table == m_mainDataSource ) continue;
+
+            options.push_back( caf::PdmOptionItemInfo( table->name(), table ) );
+        }
+    }
+
+    else if ( fieldNeedingOptions == &m_mainDataSource )
     {
         RimVfpDataCollection* vfpDataCollection = RimVfpDataCollection::instance();
         for ( auto table : vfpDataCollection->vfpTableData() )
@@ -832,62 +915,51 @@ QList<caf::PdmOptionItemInfo> RimVfpPlot::calculateValueOptions( const caf::PdmF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::calculateTableValueOptions( RimVfpDefines::ProductionVariableType variableType, QList<caf::PdmOptionItemInfo>& options )
+void RimCustomVfpPlot::calculateTableValueOptions( RimVfpDefines::ProductionVariableType variableType, QList<caf::PdmOptionItemInfo>& options )
 {
-    if ( vfpTables() )
-    {
-        auto values = vfpTables()->getProductionTableData( m_tableNumber(), variableType );
+    auto values = availableValues( variableType );
 
-        for ( size_t i = 0; i < values.size(); i++ )
-        {
-            options.push_back(
-                caf::PdmOptionItemInfo( QString( "%1 %2" ).arg( convertToDisplayUnit( values[i], variableType ) ).arg( getDisplayUnit( variableType ) ),
-                                        static_cast<int>( i ) ) );
-        }
+    for ( size_t i = 0; i < values.size(); i++ )
+    {
+        options.push_back(
+            caf::PdmOptionItemInfo( QString( "%1 %2" ).arg( convertToDisplayUnit( values[i], variableType ) ).arg( getDisplayUnit( variableType ) ),
+                                    values[i] ) );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+void RimCustomVfpPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_vfpTable )
+    if ( changedField == &m_mainDataSource )
     {
         initializeObject();
     }
 
+    if ( changedField == &m_familyVariable || changedField == &m_curveOptionFiltering )
+    {
+        m_familyValues.v() = availableValues( m_familyVariable() );
+    }
+
     loadDataAndUpdate();
     updateLayout();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::initAfterRead()
+void RimCustomVfpPlot::initAfterRead()
 {
-    auto filePath = m_filePath_OBSOLETE.v().path();
-    if ( filePath.isEmpty() ) return;
-
-    QString fileName = RimProject::current()->updatedFilePathFromPathId( filePath );
-
-    auto vfpDataCollection = RimVfpDataCollection::instance();
-    if ( vfpDataCollection )
-    {
-        auto tableData = vfpDataCollection->appendTableDataObject( fileName );
-        if ( tableData )
-        {
-            setDataSource( tableData );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::updatePlotTitle( const QString& plotTitle )
+void RimCustomVfpPlot::updatePlotTitle( const QString& plotTitle )
 {
     m_plotTitle = plotTitle;
 
@@ -902,12 +974,12 @@ void RimVfpPlot::updatePlotTitle( const QString& plotTitle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimVfpPlot::generatePlotTitle( const QString&                          wellName,
-                                       int                                     tableNumber,
-                                       RimVfpDefines::TableType                tableType,
-                                       RimVfpDefines::InterpolatedVariableType interpolatedVariable,
-                                       RimVfpDefines::ProductionVariableType   primaryVariable,
-                                       RimVfpDefines::ProductionVariableType   familyVariable )
+QString RimCustomVfpPlot::generatePlotTitle( const QString&                          wellName,
+                                             int                                     tableNumber,
+                                             RimVfpDefines::TableType                tableType,
+                                             RimVfpDefines::InterpolatedVariableType interpolatedVariable,
+                                             RimVfpDefines::ProductionVariableType   primaryVariable,
+                                             RimVfpDefines::ProductionVariableType   familyVariable )
 {
     QString tableTypeText            = caf::AppEnum<RimVfpDefines::TableType>::uiText( tableType );
     QString interpolatedVariableText = caf::AppEnum<RimVfpDefines::InterpolatedVariableType>::uiText( interpolatedVariable );
@@ -921,7 +993,7 @@ QString RimVfpPlot::generatePlotTitle( const QString&                          w
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimVfpPlot::userDescriptionField()
+caf::PdmFieldHandle* RimCustomVfpPlot::userDescriptionField()
 {
     return &m_plotTitle;
 }
@@ -929,7 +1001,7 @@ caf::PdmFieldHandle* RimVfpPlot::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::scheduleReplot()
+void RimCustomVfpPlot::scheduleReplot()
 {
     if ( m_plotWidget )
     {
@@ -940,7 +1012,33 @@ void RimVfpPlot::scheduleReplot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-VfpTableSelection RimVfpPlot::tableSelection() const
+VfpValueSelection RimCustomVfpPlot::tableSelection( RimVfpTable* table ) const
 {
-    return { m_flowRateIdx(), m_thpIdx(), m_articifialLiftQuantityIdx(), m_waterCutIdx(), m_gasLiquidRatioIdx() };
+    VfpValueSelection selection;
+
+    selection.articifialLiftQuantityValues = m_articifialLiftQuantityIdx();
+    selection.flowRateValues               = m_flowRateIdx();
+    selection.gasLiquidRatioValues         = m_gasLiquidRatioIdx();
+    selection.thpValues                    = m_thpIdx();
+    selection.waterCutValues               = m_waterCutIdx();
+
+    if ( m_curveMatchingType() == RimVfpDefines::CurveMatchingType::EXACT )
+    {
+        selection.familyValues = m_familyValues();
+    }
+    else if ( m_curveMatchingType() == RimVfpDefines::CurveMatchingType::CLOSEST_MATCH_FAMILY )
+    {
+        auto familyValues = m_familyValues();
+        if ( table && table->dataSource() && table->dataSource()->vfpTables() )
+        {
+            auto valuesToMatch = table->dataSource()->vfpTables()->getProductionTableData( table->tableNumber(), m_familyVariable() );
+            auto indices       = RigVfpTables::uniqueClosestIndices( familyValues, valuesToMatch );
+            for ( const auto& i : indices )
+            {
+                selection.familyValues.push_back( valuesToMatch[i] );
+            }
+        }
+    }
+
+    return selection;
 }

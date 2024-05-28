@@ -65,4 +65,17 @@ enum class FlowingGasFractionType
     OGR,
     INVALID
 };
+
+enum class CurveMatchingType
+{
+    EXACT,
+    CLOSEST_MATCH_FAMILY,
+};
+
+enum class CurveOptionValuesType
+{
+    MAIN_TABLE,
+    UNION_OF_SELECTED_TABLES,
+};
+
 }; // namespace RimVfpDefines

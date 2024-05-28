@@ -24,7 +24,6 @@
 #include "RimMainPlotCollection.h"
 
 #include "VerticalFlowPerformance/RimVfpDataCollection.h"
-#include "VerticalFlowPerformance/RimVfpDeck.h"
 #include "VerticalFlowPerformance/RimVfpPlot.h"
 #include "VerticalFlowPerformance/RimVfpPlotCollection.h"
 
@@ -71,9 +70,6 @@ void RicImportVfpDataFeature::onActionTriggered( bool isChecked )
     if ( fileNames.isEmpty() ) return;
 
     app->setLastUsedDialogDirectory( vfpDataKey, QFileInfo( fileNames.last() ).absolutePath() );
-
-    std::vector<RimVfpPlot*> vfpPlots;
-    std::vector<RimVfpDeck*> vfpDecks;
 
     auto vfpDataColl = RimVfpDataCollection::instance();
 

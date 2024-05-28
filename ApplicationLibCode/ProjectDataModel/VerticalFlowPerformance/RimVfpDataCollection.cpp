@@ -46,22 +46,58 @@ RimVfpDataCollection* RimVfpDataCollection::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimVfpTableData* RimVfpDataCollection::appendTableDataObject( const QString& fileName )
+RimVfpTable* RimVfpDataCollection::appendTableDataObject( const QString& fileName )
 {
     auto* vfpTableData = new RimVfpTableData();
     vfpTableData->setFileName( fileName );
-
     m_vfpTableData.push_back( vfpTableData );
 
-    return vfpTableData;
+    vfpTableData->ensureDataIsImported();
+    auto dataSources = vfpTableData->tableDataSources();
+
+    if ( !dataSources.empty() )
+    {
+        return dataSources.front();
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimVfpTableData*> RimVfpDataCollection::vfpTableData() const
+std::vector<RimVfpTable*> RimVfpDataCollection::vfpTableData() const
 {
-    return m_vfpTableData.childrenByType();
+    std::vector<RimVfpTable*> tableDataSources;
+
+    for ( auto vfpTableData : m_vfpTableData.childrenByType() )
+    {
+        for ( auto table : vfpTableData->tableDataSources() )
+        {
+            tableDataSources.push_back( table );
+        }
+    }
+
+    return tableDataSources;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpDataCollection::loadDataAndUpdate()
+{
+    for ( auto vfpTableData : m_vfpTableData.childrenByType() )
+    {
+        vfpTableData->ensureDataIsImported();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpDataCollection::deleteAllData()
+{
+    m_vfpTableData.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

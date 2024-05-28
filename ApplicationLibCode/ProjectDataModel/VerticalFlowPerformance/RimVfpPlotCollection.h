@@ -23,7 +23,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
-class RimVfpDeck;
+class RimCustomVfpPlot;
 
 //==================================================================================================
 ///
@@ -36,8 +36,9 @@ class RimVfpPlotCollection : public caf::PdmObject, public RimTypedPlotCollectio
 public:
     RimVfpPlotCollection();
 
-    RimVfpPlot* createAndAppendPlots( RimVfpTableData* tableData );
-    RimVfpPlot* plotForTableNumber( int tableNumber ) const;
+    RimVfpPlot*       createAndAppendPlots( RimVfpTable* tableData );
+    RimVfpPlot*       plotForTableNumber( int tableNumber ) const;
+    RimCustomVfpPlot* createAndAppendPlots( RimVfpTable* mainDataSource, std::vector<RimVfpTable*> tableData );
 
     void                     addPlot( RimVfpPlot* newPlot ) override;
     std::vector<RimVfpPlot*> plots() const override;
@@ -55,9 +56,7 @@ private:
 
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
-    void addDeck( RimVfpDeck* deck );
-
 private:
-    caf::PdmChildArrayField<RimVfpPlot*> m_vfpPlots;
-    caf::PdmChildArrayField<RimVfpDeck*> m_vfpDecks;
+    caf::PdmChildArrayField<RimVfpPlot*>       m_vfpPlots;
+    caf::PdmChildArrayField<RimCustomVfpPlot*> m_customVfpPlots;
 };

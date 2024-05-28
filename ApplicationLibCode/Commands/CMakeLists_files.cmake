@@ -96,6 +96,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicImportWellLogCsvFileFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewViewForGridEnsembleFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewVfpPlotFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomVfpPlotFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -195,6 +196,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicImportWellLogCsvFileFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewViewForGridEnsembleFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewVfpPlotFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomVfpPlotFeature.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)

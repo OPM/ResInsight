@@ -20,12 +20,17 @@
 
 #include "cafCmdFeature.h"
 
+class RimVfpTable;
+
 //==================================================================================================
 ///
 //==================================================================================================
 class RicNewVfpPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static std::vector<RimVfpTable*> selectedTables();
 
 private:
     void onActionTriggered( bool isChecked ) override;

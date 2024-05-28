@@ -25,6 +25,7 @@
 #include <memory>
 
 class RigVfpTables;
+class RimVfpTable;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -40,6 +41,8 @@ public:
     QString baseFileName();
     void    ensureDataIsImported();
 
+    std::vector<RimVfpTable*> tableDataSources() const;
+
     size_t tableCount() const;
 
     const RigVfpTables* vfpTables() const;
@@ -49,7 +52,8 @@ private:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
-    caf::PdmField<caf::FilePath> m_filePath;
+    caf::PdmField<caf::FilePath>          m_filePath;
+    caf::PdmChildArrayField<RimVfpTable*> m_tables;
 
     std::unique_ptr<RigVfpTables> m_vfpTables;
 };

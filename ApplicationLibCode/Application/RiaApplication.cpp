@@ -92,6 +92,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
+#include "VerticalFlowPerformance/RimVfpDataCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuGuiTheme.h"
@@ -539,6 +540,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         // Initialize well paths
         oilField->wellPathCollection->loadDataAndUpdate();
         oilField->ensembleWellLogsCollection->loadDataAndUpdate();
+        oilField->vfpDataCollection->loadDataAndUpdate();
 
         // Initialize seismic data
         auto& seisDataColl = oilField->seismicDataCollection();
