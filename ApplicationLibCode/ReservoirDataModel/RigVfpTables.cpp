@@ -187,13 +187,13 @@ VfpPlotData RigVfpTables::populatePlotData( int                                 
     if ( prodTable.has_value() )
     {
         return populatePlotData( *prodTable, primaryVariable, familyVariable, interpolatedVariable, flowingPhase, valueSelection );
-    };
+    }
 
     auto injContainer = injectionTable( tableIndex );
     if ( injContainer.has_value() )
     {
         return populatePlotData( *injContainer, interpolatedVariable, flowingPhase );
-    };
+    }
 
     return {};
 }
@@ -333,22 +333,22 @@ std::vector<int> RigVfpTables::findClosestIndices( const std::vector<double>& so
     std::vector<int> result( sourceValues.size(), -1 );
 
     // Returns the indices of the closest values in valuesToMatch for each value in sourceValues.
-    for ( int i = 0; i < (int)sourceValues.size(); ++i )
+    for ( size_t i = 0; i < sourceValues.size(); ++i )
     {
         double minDistance  = std::numeric_limits<double>::max();
         int    closestIndex = -1;
 
-        for ( int j = 0; j < (int)valuesToMatch.size(); ++j )
+        for ( size_t j = 0; j < valuesToMatch.size(); ++j )
         {
             double distance = std::abs( sourceValues[i] - valuesToMatch[j] );
             if ( distance < minDistance )
             {
                 minDistance  = distance;
-                closestIndex = j;
+                closestIndex = static_cast<int>( j );
             }
         }
 
-        if ( closestIndex < (int)valuesToMatch.size() )
+        if ( closestIndex < static_cast<int>( valuesToMatch.size() ) )
         {
             result[i] = closestIndex;
         }
@@ -367,14 +367,12 @@ std::vector<int> RigVfpTables::uniqueClosestIndices( const std::vector<double>& 
 
     auto closestIndices = findClosestIndices( sourceValues, valuesToMatch );
 
-    for ( int i = 0; i < (int)sourceValues.size(); i++ )
+    for ( size_t i = 0; i < sourceValues.size(); i++ )
     {
-        if ( closestIndices[i] < 0 )
+        if ( closestIndices[i] >= 0 )
         {
-            continue;
+            distances[i] = std::abs( sourceValues[i] - valuesToMatch[closestIndices[i]] );
         }
-
-        distances[i] = std::abs( sourceValues[i] - valuesToMatch[closestIndices[i]] );
     }
 
     while ( std::any_of( distances.begin(), distances.end(), []( double val ) { return val != std::numeric_limits<double>::max(); } ) )
@@ -386,21 +384,19 @@ std::vector<int> RigVfpTables::uniqueClosestIndices( const std::vector<double>& 
             break;
         }
 
-        auto minDistanceIndex = (int)std::distance( distances.begin(), minDistanceIt );
+        auto minDistanceIndex = std::distance( distances.begin(), minDistanceIt );
         auto matchingIndex    = closestIndices[minDistanceIndex];
 
         if ( matchingIndex > -1 )
         {
             // Remove all references to the matching index
-            for ( int i = 0; i < (int)sourceValues.size(); i++ )
+            for ( size_t i = 0; i < sourceValues.size(); i++ )
             {
-                if ( i == minDistanceIndex )
+                if ( i == static_cast<size_t>( minDistanceIndex ) )
                 {
                     distances[i] = std::numeric_limits<double>::max();
-                    continue;
                 }
-
-                if ( closestIndices[i] == matchingIndex )
+                else if ( closestIndices[i] == matchingIndex )
                 {
                     distances[i]      = std::numeric_limits<double>::max();
                     closestIndices[i] = -1;
@@ -655,23 +651,23 @@ size_t RigVfpTables::getVariableIndexForValue( const Opm::VFPProdTable&         
     {
         case RimVfpDefines::ProductionVariableType::WATER_CUT:
         {
-            return findClosestIndexForVariable( targetVariable, valueSelection.waterCutValues, table );
+            return findClosestIndexForVariable( targetVariable, valueSelection.waterCutValue, table );
         }
         case RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO:
         {
-            return findClosestIndexForVariable( targetVariable, valueSelection.gasLiquidRatioValues, table );
+            return findClosestIndexForVariable( targetVariable, valueSelection.gasLiquidRatioValue, table );
         }
         case RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY:
         {
-            return findClosestIndexForVariable( targetVariable, valueSelection.articifialLiftQuantityValues, table );
+            return findClosestIndexForVariable( targetVariable, valueSelection.articifialLiftQuantityValue, table );
         }
         case RimVfpDefines::ProductionVariableType::FLOW_RATE:
         {
-            return findClosestIndexForVariable( targetVariable, valueSelection.flowRateValues, table );
+            return findClosestIndexForVariable( targetVariable, valueSelection.flowRateValue, table );
         }
         case RimVfpDefines::ProductionVariableType::THP:
         {
-            return findClosestIndexForVariable( targetVariable, valueSelection.thpValues, table );
+            return findClosestIndexForVariable( targetVariable, valueSelection.thpValue, table );
         }
         default:
             break;
