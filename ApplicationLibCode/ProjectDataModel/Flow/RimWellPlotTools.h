@@ -93,7 +93,7 @@ public:
     static RiaRftPltCurveDefinition                              curveDefFromCurve( const RimWellLogCurve* curve );
 
     // others
-    static bool hasFlowData( const RimWellLogFile* wellLogFile );
+    static bool hasFlowData( const RimWellLog* wellLog );
     static bool hasAssociatedWellPath( const QString& wellName );
 
     // Both
