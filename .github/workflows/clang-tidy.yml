@@ -46,10 +46,10 @@ jobs:
         uses: jurplel/install-qt-action@v3
         with:
           version: 5.12.12
-          modules: qtscript
           dir: "${{ github.workspace }}/Qt/"
           cache: true
-
+          modules: "qtnetworkauth"
+  
       - name: Run vcpkg
         uses: lukka/run-vcpkg@v7
         id: runvcpkg
