@@ -198,7 +198,6 @@ jobs:
           CXX: ${{ matrix.config.cxx }}
         run: |
           cmake -S . -B cmakebuild \
-            -DCMAKE_BUILD_TYPE=$ENV{BUILD_TYPE} \
             -DCMAKE_INSTALL_PREFIX=cmakebuild/install \
             -DRESINSIGHT_QT5_BUNDLE_LIBRARIES=true \
             -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true \
