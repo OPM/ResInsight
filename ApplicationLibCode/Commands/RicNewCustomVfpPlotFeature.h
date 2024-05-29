@@ -15,38 +15,19 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
-
-class RimVfpTable;
-class RimVfpTableData;
+#include "cafCmdFeature.h"
 
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RimVfpDataCollection : public caf::PdmObject
+class RicNewCustomVfpPlotFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
-
-public:
-    RimVfpDataCollection();
-
-    static RimVfpDataCollection* instance();
-
-    RimVfpTable* appendTableDataObject( const QString& fileName );
-
-    std::vector<RimVfpTable*> vfpTableData() const;
-
-    void loadDataAndUpdate();
-
-    void deleteAllData();
+    CAF_CMD_HEADER_INIT;
 
 private:
-    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
-
-private:
-    caf::PdmChildArrayField<RimVfpTableData*> m_vfpTableData;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

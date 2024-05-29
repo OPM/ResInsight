@@ -197,7 +197,11 @@ TEST( AdvancedObjectTest, FieldWrite )
 
             a->readObjectFromXmlString( serializedString, caf::PdmDefaultObjectFactory::instance() );
             a->xmlCapability()->resolveReferencesRecursively();
+            ASSERT_TRUE( a->m_pointerToItem() == container->m_items[1] );
 
+            // Set pointer to null. The reference string is still valid, and the resolving will restore the pointer.
+            a->m_pointerToItem = nullptr;
+            a->xmlCapability()->resolveReferencesRecursively();
             ASSERT_TRUE( a->m_pointerToItem() == container->m_items[1] );
         }
     }

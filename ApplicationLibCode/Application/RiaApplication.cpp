@@ -92,6 +92,8 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
+#include "VerticalFlowPerformance/RimVfpDataCollection.h"
+#include "VerticalFlowPerformance/RimVfpPlotCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuGuiTheme.h"
@@ -539,6 +541,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         // Initialize well paths
         oilField->wellPathCollection->loadDataAndUpdate();
         oilField->ensembleWellLogsCollection->loadDataAndUpdate();
+        oilField->vfpDataCollection->loadDataAndUpdate();
 
         // Initialize seismic data
         auto& seisDataColl = oilField->seismicDataCollection();
@@ -553,6 +556,10 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
     {
         RimMainPlotCollection* mainPlotColl = RimMainPlotCollection::current();
         mainPlotColl->ensureDefaultFlowPlotsAreCreated();
+
+        // RimVfpTable are not presisted in the project file, and are created in vfpDataCollection->loadDataAndUpdate(). Existing VFP
+        // plots will have references to RimVfpTables. Call resolveReferencesRecursively() to update the references to RimVfpTable objects.
+        mainPlotColl->vfpPlotCollection()->resolveReferencesRecursively();
     }
 
     for ( RimOilField* oilField : m_project->oilFields )

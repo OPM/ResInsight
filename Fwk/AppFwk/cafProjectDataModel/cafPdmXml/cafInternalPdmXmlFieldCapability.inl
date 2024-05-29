@@ -90,7 +90,6 @@ void caf::PdmFieldXmlCap<caf::PdmPtrField<DataType*>>::readFieldData( QXmlStream
     //
     // and then we need a traversal of the object hierarchy to resolve all references before initAfterRead.
 
-    m_isResolved      = false;
     m_referenceString = dataString;
     m_field->setRawPtr( NULL );
 }
@@ -117,12 +116,11 @@ void caf::PdmFieldXmlCap<caf::PdmPtrField<DataType*>>::writeFieldData( QXmlStrea
 template <typename DataType>
 bool caf::PdmFieldXmlCap<PdmPtrField<DataType*>>::resolveReferences()
 {
-    if ( m_isResolved ) return true;
+    if ( m_field->m_fieldValue.rawPtr() != nullptr ) return true;
     if ( m_referenceString.isEmpty() ) return true;
 
     PdmObjectHandle* objHandle = PdmReferenceHelper::objectFromFieldReference( this->fieldHandle(), m_referenceString );
     m_field->setRawPtr( objHandle );
-    m_isResolved = true;
 
     return objHandle != nullptr;
 }
@@ -163,7 +161,6 @@ void caf::PdmFieldXmlCap<caf::PdmPtrArrayField<DataType*>>::readFieldData( QXmlS
     // It must be done when we know that the complete hierarchy is read and created,
     // and then we need a traversal of the object hierarchy to resolve all references before initAfterRead.
 
-    m_isResolved      = false;
     m_referenceString = dataString;
     m_field->clearWithoutDelete();
 }
@@ -193,7 +190,6 @@ void caf::PdmFieldXmlCap<caf::PdmPtrArrayField<DataType*>>::writeFieldData( QXml
 template <typename DataType>
 bool caf::PdmFieldXmlCap<PdmPtrArrayField<DataType*>>::resolveReferences()
 {
-    if ( m_isResolved ) return true;
     if ( m_referenceString.isEmpty() ) return true;
     m_field->clearWithoutDelete();
 
@@ -210,8 +206,6 @@ bool caf::PdmFieldXmlCap<PdmPtrArrayField<DataType*>>::resolveReferences()
         m_field->m_pointers.push_back( NULL );
         m_field->m_pointers.back().setRawPtr( objHandle );
     }
-
-    m_isResolved = true;
 
     return foundValidObjectFromString;
 }

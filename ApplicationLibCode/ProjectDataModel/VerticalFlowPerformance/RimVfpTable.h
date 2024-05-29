@@ -20,34 +20,39 @@
 
 #include "RimNamedObject.h"
 
-#include "cafFilePath.h"
+#include "RimVfpDefines.h"
+#include "RimVfpTableData.h"
+
 #include "cafPdmPtrField.h"
 
-class RimVfpPlotCollection;
 class RimVfpTableData;
-class RimVfpPlot;
 
 //--------------------------------------------------------------------------------------------------
-/// RimVfpDeck parses a deck file (*.DATA) containing VFP data and creates a collection of VFP plots.
+///
 //--------------------------------------------------------------------------------------------------
-class RimVfpDeck : public RimNamedObject
+class RimVfpTable : public RimNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimVfpDeck();
+    RimVfpTable();
 
-    void setDataSource( RimVfpTableData* tableData );
-    void loadDataAndUpdate();
+    RimVfpTableData*         dataSource() const;
+    int                      tableNumber() const;
+    RimVfpDefines::TableType tableType() const;
 
-    std::vector<RimVfpPlot*> plots() const;
+    void setDataSource( RimVfpTableData* dataSource );
+    void setTableNumber( int tableNumber );
+    void setTableType( RimVfpDefines::TableType tableType );
+
+    void ensureDataIsImported();
 
 private:
-    void                          defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void                          updateObjectName();
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void updateObjectName();
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
-    caf::PdmPtrField<RimVfpTableData*>        m_vfpTableData;
-    caf::PdmChildField<RimVfpPlotCollection*> m_vfpPlotCollection;
+    caf::PdmPtrField<RimVfpTableData*>                    m_dataSource;
+    caf::PdmField<int>                                    m_tableNumber;
+    caf::PdmField<caf::AppEnum<RimVfpDefines::TableType>> m_tableType;
 };

@@ -54,7 +54,6 @@ public:
     {
         m_field           = field;
         m_dataTypeName    = DataType::classKeywordStatic();
-        m_isResolved      = false;
         m_referenceString = "";
     }
 
@@ -70,7 +69,6 @@ private:
 
     // Resolving
     QString m_referenceString;
-    bool    m_isResolved;
 };
 
 template <typename DataType>
@@ -87,7 +85,6 @@ public:
     {
         m_field           = field;
         m_dataTypeName    = DataType::classKeywordStatic();
-        m_isResolved      = false;
         m_referenceString = "";
     }
 
@@ -103,7 +100,6 @@ private:
 
     // Resolving
     QString m_referenceString;
-    bool    m_isResolved;
 };
 
 template <typename DataType>

@@ -16,10 +16,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include "RicNewCustomVfpPlotFeature.h"
+
 #include "RicNewVfpPlotFeature.h"
 
 #include "RimMainPlotCollection.h"
 
+#include "VerticalFlowPerformance/RimCustomVfpPlot.h"
 #include "VerticalFlowPerformance/RimVfpDataCollection.h"
 #include "VerticalFlowPerformance/RimVfpPlotCollection.h"
 #include "VerticalFlowPerformance/RimVfpTable.h"
@@ -31,45 +34,33 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicNewVfpPlotFeature, "RicNewVfpPlotFeature" );
+CAF_CMD_SOURCE_INIT( RicNewCustomVfpPlotFeature, "RicNewCustomVfpPlotFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimVfpTable*> RicNewVfpPlotFeature::selectedTables()
-{
-    auto tables            = caf::selectedObjectsByTypeStrict<RimVfpTable*>();
-    auto selectedTableData = caf::selectedObjectsByTypeStrict<RimVfpTableData*>();
-    for ( auto tableData : selectedTableData )
-    {
-        auto tableDataSources = tableData->tableDataSources();
-        tables.insert( tables.end(), tableDataSources.begin(), tableDataSources.end() );
-    }
-
-    return tables;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicNewVfpPlotFeature::onActionTriggered( bool isChecked )
+void RicNewCustomVfpPlotFeature::onActionTriggered( bool isChecked )
 {
     RimVfpPlotCollection* vfpPlotColl = RimMainPlotCollection::current()->vfpPlotCollection();
     if ( !vfpPlotColl ) return;
 
-    for ( auto table : selectedTables() )
-    {
-        RimVfpPlot* firstPlot = vfpPlotColl->createAndAppendPlots( table );
-        vfpPlotColl->updateConnectedEditors();
-        RiuPlotMainWindowTools::onObjectAppended( firstPlot, firstPlot );
-    }
+    auto selectedTables = RicNewVfpPlotFeature::selectedTables();
+    if ( selectedTables.empty() ) return;
+
+    auto                      mainDataSource = selectedTables.front();
+    std::vector<RimVfpTable*> additionalDataSources;
+    std::copy( selectedTables.begin() + 1, selectedTables.end(), std::back_inserter( additionalDataSources ) );
+
+    auto firstPlot = vfpPlotColl->createAndAppendPlots( mainDataSource, additionalDataSources );
+    vfpPlotColl->updateConnectedEditors();
+    RiuPlotMainWindowTools::onObjectAppended( firstPlot, firstPlot );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewVfpPlotFeature::setupActionLook( QAction* actionToSetup )
+void RicNewCustomVfpPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Create VFP Plot" );
+    actionToSetup->setText( "Create Custom VFP Plot" );
     actionToSetup->setIcon( QIcon( ":/VfpPlot.svg" ) );
 }

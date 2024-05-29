@@ -79,4 +79,20 @@ void caf::AppEnum<RimVfpDefines::FlowingGasFractionType>::setUp()
     addItem( RimVfpDefines::FlowingGasFractionType::INVALID, "INVALID", "Invalid" );
     setDefault( RimVfpDefines::FlowingGasFractionType::INVALID );
 }
+
+template <>
+void caf::AppEnum<RimVfpDefines::CurveMatchingType>::setUp()
+{
+    addItem( RimVfpDefines::CurveMatchingType::EXACT, "EXACT", "Exact" );
+    addItem( RimVfpDefines::CurveMatchingType::CLOSEST_MATCH_FAMILY, "CLOSEST_MATCH_FAMILY", "Family Closest Match" );
+    setDefault( RimVfpDefines::CurveMatchingType::EXACT );
+}
+
+template <>
+void caf::AppEnum<RimVfpDefines::CurveOptionValuesType>::setUp()
+{
+    addItem( RimVfpDefines::CurveOptionValuesType::MAIN_TABLE, "MAIN_TABLE", "Values from Main Table" );
+    addItem( RimVfpDefines::CurveOptionValuesType::UNION_OF_SELECTED_TABLES, "UNION_OF_SELECTED_TABLES", "Union of Selected Table Values" );
+    setDefault( RimVfpDefines::CurveOptionValuesType::MAIN_TABLE );
+}
 } // namespace caf

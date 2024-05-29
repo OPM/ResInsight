@@ -176,6 +176,130 @@ VfpPlotData RigVfpTables::populatePlotData( int                                 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+VfpPlotData RigVfpTables::populatePlotData( int                                     tableIndex,
+                                            RimVfpDefines::ProductionVariableType   primaryVariable,
+                                            RimVfpDefines::ProductionVariableType   familyVariable,
+                                            RimVfpDefines::InterpolatedVariableType interpolatedVariable,
+                                            RimVfpDefines::FlowingPhaseType         flowingPhase,
+                                            const VfpValueSelection&                valueSelection ) const
+{
+    auto prodTable = productionTable( tableIndex );
+    if ( prodTable.has_value() )
+    {
+        return populatePlotData( *prodTable, primaryVariable, familyVariable, interpolatedVariable, flowingPhase, valueSelection );
+    }
+
+    auto injContainer = injectionTable( tableIndex );
+    if ( injContainer.has_value() )
+    {
+        return populatePlotData( *injContainer, interpolatedVariable, flowingPhase );
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+VfpPlotData RigVfpTables::populatePlotData( const Opm::VFPProdTable&                table,
+                                            RimVfpDefines::ProductionVariableType   primaryVariable,
+                                            RimVfpDefines::ProductionVariableType   familyVariable,
+                                            RimVfpDefines::InterpolatedVariableType interpolatedVariable,
+                                            RimVfpDefines::FlowingPhaseType         flowingPhase,
+                                            const VfpValueSelection&                valueSelection )
+{
+    VfpPlotData plotData;
+
+    QString xAxisTitle = axisTitle( primaryVariable, flowingPhase );
+    plotData.setXAxisTitle( xAxisTitle );
+
+    QString yAxisTitle = QString( "%1 %2" ).arg( caf::AppEnum<RimVfpDefines::InterpolatedVariableType>::uiText( interpolatedVariable ),
+                                                 getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType::THP ) );
+    plotData.setYAxisTitle( yAxisTitle );
+
+    std::vector<double> familyFilterValues = valueSelection.familyValues;
+
+    size_t numFamilyValues = getProductionTableData( table, familyVariable ).size();
+    for ( size_t familyIdx = 0; familyIdx < numFamilyValues; familyIdx++ )
+    {
+        std::vector<double> primaryAxisValues    = getProductionTableData( table, primaryVariable );
+        std::vector<double> familyVariableValues = getProductionTableData( table, familyVariable );
+        std::vector<double> thpValues            = getProductionTableData( table, RimVfpDefines::ProductionVariableType::THP );
+
+        // Skip if the family value is not in the filter
+        auto currentFamilyValue = familyVariableValues[familyIdx];
+        auto it                 = std::find( familyFilterValues.begin(), familyFilterValues.end(), currentFamilyValue );
+        if ( it == familyFilterValues.end() ) continue;
+
+        size_t              numValues = primaryAxisValues.size();
+        std::vector<double> yVals( numValues, 0.0 );
+
+        for ( size_t y = 0; y < numValues; y++ )
+        {
+            auto currentPrimaryValue = primaryAxisValues[y];
+
+            size_t wfr_idx = getVariableIndexForValue( table,
+                                                       RimVfpDefines::ProductionVariableType::WATER_CUT,
+                                                       primaryVariable,
+                                                       currentPrimaryValue,
+                                                       familyVariable,
+                                                       currentFamilyValue,
+                                                       valueSelection );
+            size_t gfr_idx = getVariableIndexForValue( table,
+                                                       RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO,
+                                                       primaryVariable,
+                                                       currentPrimaryValue,
+                                                       familyVariable,
+                                                       currentFamilyValue,
+                                                       valueSelection );
+            size_t alq_idx = getVariableIndexForValue( table,
+                                                       RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY,
+                                                       primaryVariable,
+                                                       currentPrimaryValue,
+                                                       familyVariable,
+                                                       currentFamilyValue,
+                                                       valueSelection );
+            size_t flo_idx = getVariableIndexForValue( table,
+                                                       RimVfpDefines::ProductionVariableType::FLOW_RATE,
+                                                       primaryVariable,
+                                                       currentPrimaryValue,
+                                                       familyVariable,
+                                                       currentFamilyValue,
+                                                       valueSelection );
+            size_t thp_idx = getVariableIndexForValue( table,
+                                                       RimVfpDefines::ProductionVariableType::THP,
+                                                       primaryVariable,
+                                                       currentPrimaryValue,
+                                                       familyVariable,
+                                                       currentFamilyValue,
+                                                       valueSelection );
+
+            yVals[y] = table( thp_idx, wfr_idx, gfr_idx, alq_idx, flo_idx );
+            if ( interpolatedVariable == RimVfpDefines::InterpolatedVariableType::BHP_THP_DIFF )
+            {
+                yVals[y] -= thpValues[thp_idx];
+            }
+        }
+
+        double  familyValue = convertToDisplayUnit( currentFamilyValue, familyVariable );
+        QString familyUnit  = getDisplayUnit( familyVariable );
+        QString familyTitle = QString( "%1: %2 %3" )
+                                  .arg( caf::AppEnum<RimVfpDefines::ProductionVariableType>::uiText( familyVariable ) )
+                                  .arg( familyValue )
+                                  .arg( familyUnit );
+
+        convertToDisplayUnit( yVals, RimVfpDefines::ProductionVariableType::THP );
+        convertToDisplayUnit( primaryAxisValues, primaryVariable );
+
+        plotData.appendCurve( familyTitle, primaryAxisValues, yVals );
+    }
+
+    return plotData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RigVfpTables::asciiDataForTable( int                                     tableNumber,
                                          RimVfpDefines::ProductionVariableType   primaryVariable,
                                          RimVfpDefines::ProductionVariableType   familyVariable,
@@ -199,6 +323,89 @@ QString RigVfpTables::asciiDataForTable( int                                    
     }
 
     return textForPlotData( plotData );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RigVfpTables::findClosestIndices( const std::vector<double>& sourceValues, const std::vector<double>& valuesToMatch )
+{
+    std::vector<int> result( sourceValues.size(), -1 );
+
+    // Returns the indices of the closest values in valuesToMatch for each value in sourceValues.
+    for ( size_t i = 0; i < sourceValues.size(); ++i )
+    {
+        double minDistance  = std::numeric_limits<double>::max();
+        int    closestIndex = -1;
+
+        for ( size_t j = 0; j < valuesToMatch.size(); ++j )
+        {
+            double distance = std::abs( sourceValues[i] - valuesToMatch[j] );
+            if ( distance < minDistance )
+            {
+                minDistance  = distance;
+                closestIndex = static_cast<int>( j );
+            }
+        }
+
+        if ( closestIndex < static_cast<int>( valuesToMatch.size() ) )
+        {
+            result[i] = closestIndex;
+        }
+    }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RigVfpTables::uniqueClosestIndices( const std::vector<double>& sourceValues, const std::vector<double>& valuesToMatch )
+{
+    // Find the closest value in valuesForMatch for each value in sourceValues
+    std::vector<double> distances( sourceValues.size(), std::numeric_limits<double>::max() );
+
+    auto closestIndices = findClosestIndices( sourceValues, valuesToMatch );
+
+    for ( size_t i = 0; i < sourceValues.size(); i++ )
+    {
+        if ( closestIndices[i] >= 0 )
+        {
+            distances[i] = std::abs( sourceValues[i] - valuesToMatch[closestIndices[i]] );
+        }
+    }
+
+    while ( std::any_of( distances.begin(), distances.end(), []( double val ) { return val != std::numeric_limits<double>::max(); } ) )
+    {
+        // find the index of the smallest value in minDistance
+        auto minDistanceIt = std::min_element( distances.begin(), distances.end() );
+        if ( minDistanceIt == distances.end() )
+        {
+            break;
+        }
+
+        auto minDistanceIndex = std::distance( distances.begin(), minDistanceIt );
+        auto matchingIndex    = closestIndices[minDistanceIndex];
+
+        if ( matchingIndex > -1 )
+        {
+            // Remove all references to the matching index
+            for ( size_t i = 0; i < sourceValues.size(); i++ )
+            {
+                if ( i == static_cast<size_t>( minDistanceIndex ) )
+                {
+                    distances[i] = std::numeric_limits<double>::max();
+                }
+                else if ( closestIndices[i] == matchingIndex )
+                {
+                    distances[i]      = std::numeric_limits<double>::max();
+                    closestIndices[i] = -1;
+                }
+            }
+        }
+    }
+
+    return closestIndices;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -383,6 +590,90 @@ size_t RigVfpTables::getVariableIndex( const Opm::VFPProdTable&              tab
     if ( targetVariable == RimVfpDefines::ProductionVariableType::THP ) return tableSelection.thpIdx;
 
     return getProductionTableData( table, targetVariable ).size() - 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigVfpTables::getVariableIndexForValue( const Opm::VFPProdTable&              table,
+                                               RimVfpDefines::ProductionVariableType targetVariable,
+                                               RimVfpDefines::ProductionVariableType primaryVariable,
+                                               double                                primaryValue,
+                                               RimVfpDefines::ProductionVariableType familyVariable,
+                                               double                                familyValue,
+                                               const VfpValueSelection&              valueSelection )
+{
+    auto findClosestIndex = []( const std::vector<double>& values, const double value )
+    {
+        auto it = std::lower_bound( values.begin(), values.end(), value );
+        if ( it == values.begin() )
+        {
+            return (size_t)0;
+        }
+        if ( it == values.end() )
+        {
+            return values.size() - 1;
+        }
+        if ( *it == value )
+        {
+            return (size_t)std::distance( values.begin(), it );
+        }
+
+        auto prev = it - 1;
+        if ( std::abs( *prev - value ) < std::abs( *it - value ) )
+        {
+            return (size_t)std::distance( values.begin(), prev );
+        }
+
+        return (size_t)std::distance( values.begin(), it );
+    };
+
+    if ( targetVariable == primaryVariable )
+    {
+        const auto values = getProductionTableData( table, targetVariable );
+        return findClosestIndex( values, primaryValue );
+    }
+
+    if ( targetVariable == familyVariable )
+    {
+        const auto values = getProductionTableData( table, targetVariable );
+        return findClosestIndex( values, familyValue );
+    }
+
+    auto findClosestIndexForVariable =
+        [&]( RimVfpDefines::ProductionVariableType targetVariable, const double selectedValue, const Opm::VFPProdTable& table )
+    {
+        const auto values = getProductionTableData( table, targetVariable );
+        return findClosestIndex( values, selectedValue );
+    };
+
+    switch ( targetVariable )
+    {
+        case RimVfpDefines::ProductionVariableType::WATER_CUT:
+        {
+            return findClosestIndexForVariable( targetVariable, valueSelection.waterCutValue, table );
+        }
+        case RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO:
+        {
+            return findClosestIndexForVariable( targetVariable, valueSelection.gasLiquidRatioValue, table );
+        }
+        case RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY:
+        {
+            return findClosestIndexForVariable( targetVariable, valueSelection.articifialLiftQuantityValue, table );
+        }
+        case RimVfpDefines::ProductionVariableType::FLOW_RATE:
+        {
+            return findClosestIndexForVariable( targetVariable, valueSelection.flowRateValue, table );
+        }
+        case RimVfpDefines::ProductionVariableType::THP:
+        {
+            return findClosestIndexForVariable( targetVariable, valueSelection.thpValue, table );
+        }
+        default:
+            break;
+    }
+
+    return 0;
 }
 
 //--------------------------------------------------------------------------------------------------

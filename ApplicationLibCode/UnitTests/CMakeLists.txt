@@ -104,6 +104,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifPolygonReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifParquetReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifOsduWellPathReader-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigVfpTables-Test.cpp
 )
 
 if(RESINSIGHT_ENABLE_GRPC)

@@ -16,137 +16,130 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimVfpTableData.h"
-
-#include "RiaOpmParserTools.h"
-
-#include "RigVfpTables.h"
-
 #include "RimVfpTable.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 
-#include <QFileInfo>
-
-CAF_PDM_SOURCE_INIT( RimVfpTableData, "RimVfpTableData" );
+CAF_PDM_SOURCE_INIT( RimVfpTable, "RimVfpTable" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimVfpTableData::RimVfpTableData()
+RimVfpTable::RimVfpTable()
 {
-    CAF_PDM_InitObject( "VFP Plot", ":/VfpPlot.svg" );
+    CAF_PDM_InitObject( "VFP Table", ":/VfpPlot.svg" );
 
-    CAF_PDM_InitFieldNoDefault( &m_filePath, "FilePath", "File Path" );
-    CAF_PDM_InitFieldNoDefault( &m_tables, "Tables", "Tables" );
-    m_tables.xmlCapability()->disableIO();
-
-    setDeletable( true );
+    CAF_PDM_InitFieldNoDefault( &m_dataSource, "DataSource", "Data Source" );
+    CAF_PDM_InitFieldNoDefault( &m_tableNumber, "TableNumber", "Table Number" );
+    CAF_PDM_InitFieldNoDefault( &m_tableType, "TableType", "Table Type" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpTableData::setFileName( const QString& filename )
+void RimVfpTable::setDataSource( RimVfpTableData* dataSource )
 {
-    m_filePath = filename;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimVfpTableData::baseFileName()
-{
-    QFileInfo fileInfo( m_filePath().path() );
-    return fileInfo.baseName();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimVfpTableData::ensureDataIsImported()
-{
-    if ( m_vfpTables ) return;
+    m_dataSource = dataSource;
 
     updateObjectName();
-
-    m_tables.deleteChildren();
-
-    m_vfpTables = std::make_unique<RigVfpTables>();
-
-    const auto [vfpProdTables, vfpInjTables] = RiaOpmParserTools::extractVfpTablesFromDataFile( m_filePath().path().toStdString() );
-    for ( const auto& prod : vfpProdTables )
-    {
-        m_vfpTables->addProductionTable( prod );
-
-        auto table = new RimVfpTable;
-        table->setDataSource( this );
-        table->setTableNumber( prod.getTableNum() );
-        table->setTableType( RimVfpDefines::TableType::PRODUCTION );
-        m_tables.push_back( table );
-    }
-
-    for ( const auto& inj : vfpInjTables )
-    {
-        m_vfpTables->addInjectionTable( inj );
-
-        auto table = new RimVfpTable;
-        table->setDataSource( this );
-        table->setTableNumber( inj.getTableNum() );
-        table->setTableType( RimVfpDefines::TableType::INJECTION );
-        m_tables.push_back( table );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimVfpTable*> RimVfpTableData::tableDataSources() const
+void RimVfpTable::setTableNumber( int tableNumber )
 {
-    return m_tables.childrenByType();
+    m_tableNumber = tableNumber;
+
+    updateObjectName();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RimVfpTableData::tableCount() const
+void RimVfpTable::setTableType( RimVfpDefines::TableType tableType )
 {
-    if ( m_vfpTables )
+    m_tableType = tableType;
+
+    updateObjectName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpTable::ensureDataIsImported()
+{
+    if ( m_dataSource )
     {
-        return m_vfpTables->injectionTableNumbers().size() + m_vfpTables->productionTableNumbers().size();
+        m_dataSource->ensureDataIsImported();
     }
-
-    return 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigVfpTables* RimVfpTableData::vfpTables() const
+RimVfpTableData* RimVfpTable::dataSource() const
 {
-    return m_vfpTables.get();
+    return m_dataSource;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpTableData::updateObjectName()
+int RimVfpTable::tableNumber() const
 {
-    QString name = "VFP Plots";
+    return m_tableNumber;
+}
 
-    QFileInfo fileInfo( m_filePath().path() );
-    auto      fileName = fileInfo.fileName();
-    if ( !fileName.isEmpty() )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimVfpDefines::TableType RimVfpTable::tableType() const
+{
+    return m_tableType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpTable::updateObjectName()
+{
+    if ( m_dataSource )
     {
-        name = fileName;
+        QString name;
+
+        if ( m_tableNumber >= 0 )
+        {
+            if ( !name.isEmpty() ) name += " - ";
+            name += QString( "Table %1" ).arg( m_tableNumber );
+        }
+
+        if ( m_tableType() == RimVfpDefines::TableType::INJECTION )
+        {
+            if ( !name.isEmpty() ) name += " - ";
+            name += QString( "INJ" );
+        }
+        else
+        {
+            if ( !name.isEmpty() ) name += " - ";
+            name += QString( "PROD" );
+        }
+
+        if ( !name.isEmpty() ) name += " - ";
+        name += m_dataSource->name();
+
+        setName( name );
     }
-    setName( name );
+    else
+    {
+        setName( "VFP Table" );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpTableData::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+void RimVfpTable::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicNewVfpPlotFeature";
     menuBuilder << "RicNewCustomVfpPlotFeature";

@@ -73,6 +73,17 @@ struct VfpTableSelection
     int gasLiquidRatioIdx;
 };
 
+struct VfpValueSelection
+{
+    double flowRateValue;
+    double thpValue;
+    double articifialLiftQuantityValue;
+    double waterCutValue;
+    double gasLiquidRatioValue;
+
+    std::vector<double> familyValues;
+};
+
 struct VfpTableInitialData
 {
     bool                                    isProductionTable;
@@ -106,12 +117,23 @@ public:
                                   RimVfpDefines::FlowingPhaseType         flowingPhase,
                                   const VfpTableSelection&                tableSelection ) const;
 
+    VfpPlotData populatePlotData( int                                     tableIndex,
+                                  RimVfpDefines::ProductionVariableType   primaryVariable,
+                                  RimVfpDefines::ProductionVariableType   familyVariable,
+                                  RimVfpDefines::InterpolatedVariableType interpolatedVariable,
+                                  RimVfpDefines::FlowingPhaseType         flowingPhase,
+                                  const VfpValueSelection&                valueSelection ) const;
+
     QString asciiDataForTable( int                                     tableNumber,
                                RimVfpDefines::ProductionVariableType   primaryVariable,
                                RimVfpDefines::ProductionVariableType   familyVariable,
                                RimVfpDefines::InterpolatedVariableType interpolatedVariable,
                                RimVfpDefines::FlowingPhaseType         flowingPhase,
                                const VfpTableSelection&                tableSelection ) const;
+
+    // Returns the indices of the closest values in valuesToMatch for each value in sourceValues. Returned index value -1 indicates no
+    // match. A index value is only returned once.
+    static std::vector<int> uniqueClosestIndices( const std::vector<double>& sourceValues, const std::vector<double>& valuesToMatch );
 
 private:
     static VfpPlotData populatePlotData( const Opm::VFPInjTable&                 table,
@@ -124,6 +146,13 @@ private:
                                          RimVfpDefines::InterpolatedVariableType interpolatedVariable,
                                          RimVfpDefines::FlowingPhaseType         flowingPhase,
                                          const VfpTableSelection&                tableSelection );
+
+    static VfpPlotData populatePlotData( const Opm::VFPProdTable&                table,
+                                         RimVfpDefines::ProductionVariableType   primaryVariable,
+                                         RimVfpDefines::ProductionVariableType   familyVariable,
+                                         RimVfpDefines::InterpolatedVariableType interpolatedVariable,
+                                         RimVfpDefines::FlowingPhaseType         flowingPhase,
+                                         const VfpValueSelection&                valueSelection );
 
     static QString axisTitle( RimVfpDefines::ProductionVariableType variableType, RimVfpDefines::FlowingPhaseType flowingPhase );
     static QString getDisplayUnit( RimVfpDefines::ProductionVariableType variableType );
@@ -143,6 +172,14 @@ private:
                                                  size_t                                familyValue,
                                                  const VfpTableSelection&              tableSelection );
 
+    static size_t getVariableIndexForValue( const Opm::VFPProdTable&              table,
+                                            RimVfpDefines::ProductionVariableType targetVariable,
+                                            RimVfpDefines::ProductionVariableType primaryVariable,
+                                            double                                primaryValue,
+                                            RimVfpDefines::ProductionVariableType familyVariable,
+                                            double                                familyValue,
+                                            const VfpValueSelection&              valueSelection );
+
     std::optional<Opm::VFPInjTable>  injectionTable( int tableNumber ) const;
     std::optional<Opm::VFPProdTable> productionTable( int tableNumber ) const;
 
@@ -150,6 +187,9 @@ private:
     static RimVfpDefines::FlowingPhaseType         getFlowingPhaseType( const Opm::VFPInjTable& table );
     static RimVfpDefines::FlowingWaterFractionType getFlowingWaterFractionType( const Opm::VFPProdTable& table );
     static RimVfpDefines::FlowingGasFractionType   getFlowingGasFractionType( const Opm::VFPProdTable& table );
+
+    // Returns the indices of the closest values in valuesToMatch for each value in sourceValues. Returned index value -1 indicates no match.
+    static std::vector<int> findClosestIndices( const std::vector<double>& sourceValues, const std::vector<double>& valuesToMatch );
 
 private:
     std::vector<Opm::VFPInjTable>  m_injectionTables;

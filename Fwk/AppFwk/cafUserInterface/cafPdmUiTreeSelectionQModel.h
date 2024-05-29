@@ -63,6 +63,7 @@ public:
 
     void setCheckedStateForItems( const QModelIndexList& indices, bool checked );
     void invertCheckedStateForItems( const QModelIndexList& indices );
+    void unselectAllItems();
 
     void enableSingleSelectionMode( bool enable );
 

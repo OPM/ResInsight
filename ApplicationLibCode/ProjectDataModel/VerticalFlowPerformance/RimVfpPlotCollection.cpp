@@ -18,8 +18,8 @@
 
 #include "RimVfpPlotCollection.h"
 
-#include "RimVfpDeck.h"
-#include "RimVfpTableData.h"
+#include "RimCustomVfpPlot.h"
+#include "RimVfpTable.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 
@@ -33,49 +33,46 @@ RimVfpPlotCollection::RimVfpPlotCollection()
     CAF_PDM_InitObject( "VFP Plots", ":/VfpPlotCollection.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_vfpPlots, "VfpPlots", "Vertical Flow Performance Plots" );
-    CAF_PDM_InitFieldNoDefault( &m_vfpDecks, "VfpDecks", "Vertical Flow Performance Decks" );
+    CAF_PDM_InitFieldNoDefault( &m_customVfpPlots, "CustomVfpPlots", "Vertical Flow Performance Plots" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimVfpPlot* RimVfpPlotCollection::createAndAppendPlots( RimVfpTableData* tableData )
+RimVfpPlot* RimVfpPlotCollection::createAndAppendPlots( RimVfpTable* tableData )
 {
     if ( !tableData ) return nullptr;
 
     tableData->ensureDataIsImported();
 
-    if ( !tableData->vfpTables() ) return nullptr;
-
     RimVfpPlot* firstPlot = nullptr;
 
-    if ( tableData->tableCount() > 1 )
-    {
-        auto* deck = new RimVfpDeck();
-        deck->setDataSource( tableData );
-        addDeck( deck );
-        deck->loadDataAndUpdate();
-        deck->updateAllRequiredEditors();
+    auto vfpPlot = new RimVfpPlot();
+    vfpPlot->setDataSource( tableData );
+    vfpPlot->initializeObject();
 
-        auto plots = deck->plots();
-        if ( !plots.empty() )
-        {
-            firstPlot = plots.front();
-        }
-    }
-    else
-    {
-        auto vfpPlot = new RimVfpPlot();
-        vfpPlot->setDataSource( tableData );
-        vfpPlot->initializeObject();
+    addPlot( vfpPlot );
+    vfpPlot->loadDataAndUpdate();
 
-        addPlot( vfpPlot );
-        vfpPlot->loadDataAndUpdate();
-
-        firstPlot = vfpPlot;
-    }
+    firstPlot = vfpPlot;
 
     return firstPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCustomVfpPlot* RimVfpPlotCollection::createAndAppendPlots( RimVfpTable* mainDataSource, std::vector<RimVfpTable*> tableData )
+{
+    auto vfpPlot = new RimCustomVfpPlot();
+    vfpPlot->selectDataSource( mainDataSource, tableData );
+    vfpPlot->initializeObject();
+
+    m_customVfpPlots.push_back( vfpPlot );
+
+    vfpPlot->loadDataAndUpdate();
+
+    return vfpPlot;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -138,18 +135,10 @@ void RimVfpPlotCollection::removePlot( RimVfpPlot* vfpPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlotCollection::addDeck( RimVfpDeck* deck )
-{
-    m_vfpDecks.push_back( deck );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimVfpPlotCollection::deleteAllPlots()
 {
     m_vfpPlots.deleteChildren();
-    m_vfpDecks.deleteChildren();
+    m_customVfpPlots.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,9 +174,9 @@ void RimVfpPlotCollection::loadDataAndUpdateAllPlots()
         plot->loadDataAndUpdate();
     }
 
-    for ( auto deck : m_vfpDecks.childrenByType() )
+    for ( auto customPlot : m_customVfpPlots.childrenByType() )
     {
-        deck->loadDataAndUpdate();
+        customPlot->loadDataAndUpdate();
     }
 }
 
