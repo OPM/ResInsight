@@ -193,11 +193,12 @@ jobs:
           ThirdParty/vcpkg/${{ matrix.config.vcpkg-bootstrap }}
 
       - name: Configure
+        shell: bash
         env:
           CC: ${{ matrix.config.cc }}
           CXX: ${{ matrix.config.cxx }}
         run: >
-          cmake -B cmakebuild
+          cmake -S . -B cmakebuild
           -DCMAKE_INSTALL_PREFIX=cmakebuild/install
           -DRESINSIGHT_QT5_BUNDLE_LIBRARIES=true
           -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
@@ -211,7 +212,7 @@ jobs:
           -DRESINSIGHT_BUILD_LIBS_FROM_SOURCE=false
           -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
           -G Ninja
-          -S .
+
       - name: Build
         run: |
           cmake --build cmakebuild --target install
