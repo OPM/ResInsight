@@ -74,7 +74,7 @@ void RicImportWellLogCsvFileFeature::onActionTriggered( bool isChecked )
         QString errorMessage;
         if ( !wellLogCsvFile->readFile( &errorMessage ) )
         {
-            wellPath->deleteWellLogFile( wellLogCsvFile );
+            wellPath->deleteWellLog( wellLogCsvFile );
             QString displayMessage = "Errors opening the CSV file: \n" + errorMessage;
             RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "File open error", displayMessage );
             return;

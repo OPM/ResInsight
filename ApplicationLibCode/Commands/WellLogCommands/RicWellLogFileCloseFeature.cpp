@@ -59,7 +59,7 @@ void RicWellLogFileCloseFeature::onActionTriggered( bool isChecked )
         if ( parentWellPath )
         {
             std::set<RimViewWindow*> referringPlots = referringWellLogPlots( wellLogFile );
-            parentWellPath->deleteWellLogFile( wellLogFile );
+            parentWellPath->deleteWellLog( wellLogFile );
 
             for ( RimViewWindow* plot : referringPlots )
             {

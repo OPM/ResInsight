@@ -61,8 +61,8 @@ void RicMoveWellLogFilesFeature::onActionTriggered( bool isChecked )
 
         if ( !destWellPath || !wellLogFile || !sourceWellPath ) return;
 
-        sourceWellPath->detachWellLogFile( wellLogFile );
-        destWellPath->addWellLogFile( wellLogFile );
+        sourceWellPath->detachWellLog( wellLogFile );
+        destWellPath->addWellLog( wellLogFile );
 
         sourceWellPath->updateConnectedEditors();
         destWellPath->updateConnectedEditors();
