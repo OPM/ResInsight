@@ -48,7 +48,7 @@ bool RicNewWellLogFileCurveFeature::isCommandEnabled() const
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() ) return false;
     return ( caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellLogTrack>() != nullptr && wellLogFilesAvailable() ) ||
-           RicWellLogTools::selectedWellPathWithLogFile() != nullptr;
+           RicWellLogTools::selectedWellPathWithLog() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ void RicNewWellLogFileCurveFeature::onActionTriggered( bool isChecked )
     }
     else
     {
-        RimWellPath* wellPath = RicWellLogTools::selectedWellPathWithLogFile();
+        RimWellPath* wellPath = RicWellLogTools::selectedWellPathWithLog();
         if ( wellPath )
         {
             RimWellLogTrack*        newWellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();

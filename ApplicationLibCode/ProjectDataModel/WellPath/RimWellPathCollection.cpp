@@ -405,7 +405,7 @@ std::vector<RimWellLogLasFile*> RimWellPathCollection::addWellLogs( const QStrin
                 addWellPath( wellPath );
             }
 
-            wellPath->addWellLogFile( logFileInfo );
+            wellPath->addWellLog( logFileInfo );
             logFileInfos.push_back( logFileInfo );
         }
     }
@@ -421,7 +421,7 @@ std::vector<RimWellLogLasFile*> RimWellPathCollection::addWellLogs( const QStrin
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::addWellLog( RimWellLogFile* wellLogFile, RimWellPath* wellPath )
 {
-    wellPath->addWellLogFile( wellLogFile );
+    wellPath->addWellLog( wellLogFile );
     sortWellsByName();
     updateAllRequiredEditors();
 }

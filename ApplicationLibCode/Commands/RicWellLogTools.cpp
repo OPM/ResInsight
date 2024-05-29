@@ -160,14 +160,14 @@ void RicWellLogTools::addWellLogChannelsToPlotTrack( RimWellLogTrack* plotTrack,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPath* RicWellLogTools::selectedWellPathWithLogFile()
+RimWellPath* RicWellLogTools::selectedWellPathWithLog()
 {
     std::vector<RimWellPath*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
     if ( !selection.empty() )
     {
         RimWellPath* wellPath = selection[0];
-        if ( !wellPath->wellLogFiles().empty() )
+        if ( !wellPath->wellLogs().empty() )
         {
             return wellPath;
         }
@@ -179,10 +179,10 @@ RimWellPath* RicWellLogTools::selectedWellPathWithLogFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPath* RicWellLogTools::findWellPathWithLogFileFromSelection()
+RimWellPath* RicWellLogTools::findWellPathWithLogFromSelection()
 {
     RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
-    if ( wellPath && !wellPath->wellLogFiles().empty() )
+    if ( wellPath && !wellPath->wellLogs().empty() )
     {
         return wellPath;
     }

@@ -38,7 +38,7 @@ bool RicAdd3dWellLogFileCurveFeature::isCommandEnabled() const
     std::vector<RimCase*> cases = RimProject::current()->allGridCases();
     if ( cases.empty() ) return false;
 
-    return ( RicWellLogTools::findWellPathWithLogFileFromSelection() != nullptr );
+    return ( RicWellLogTools::findWellPathWithLogFromSelection() != nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ bool RicAdd3dWellLogFileCurveFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicAdd3dWellLogFileCurveFeature::onActionTriggered( bool isChecked )
 {
-    RimWellPath* selectedWellPath = RicWellLogTools::findWellPathWithLogFileFromSelection();
+    RimWellPath* selectedWellPath = RicWellLogTools::findWellPathWithLogFromSelection();
     if ( !selectedWellPath ) return;
 
     Rim3dWellLogFileCurve* rim3dWellLogFileCurve = new Rim3dWellLogFileCurve();
