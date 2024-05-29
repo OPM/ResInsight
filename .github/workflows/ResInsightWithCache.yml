@@ -198,7 +198,7 @@ jobs:
           CXX: ${{ matrix.config.cxx }}
         run: |
           cmake . -B cmakebuild -G Ninja \
-            -DCMAKE_INSTALL_PREFIX="cmakebuild/install" \
+            -DCMAKE_INSTALL_PREFIX=cmakebuild/install \
             -DRESINSIGHT_QT5_BUNDLE_LIBRARIES=true \
             -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true \
             -DRESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true \
@@ -209,7 +209,7 @@ jobs:
             -DRESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true \
             -DRESINSIGHT_ENABLE_HDF5=false \
             -DRESINSIGHT_BUILD_LIBS_FROM_SOURCE=false \
-            -DCMAKE_TOOLCHAIN_FILE="ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake"
+            -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
 
       - name: Build
         run: |
