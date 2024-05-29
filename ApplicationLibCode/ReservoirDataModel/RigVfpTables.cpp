@@ -348,7 +348,7 @@ std::vector<int> RigVfpTables::findClosestIndices( const std::vector<double>& so
             }
         }
 
-        if ( closestIndex < static_cast<int>(valuesToMatch.size()) )
+        if ( closestIndex < static_cast<int>( valuesToMatch.size() ) )
         {
             result[i] = closestIndex;
         }
@@ -392,7 +392,7 @@ std::vector<int> RigVfpTables::uniqueClosestIndices( const std::vector<double>& 
             // Remove all references to the matching index
             for ( size_t i = 0; i < sourceValues.size(); i++ )
             {
-                if ( i == static_cast<size_t>(minDistanceIndex))
+                if ( i == static_cast<size_t>( minDistanceIndex ) )
                 {
                     distances[i] = std::numeric_limits<double>::max();
                 }
