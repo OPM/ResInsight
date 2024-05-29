@@ -144,9 +144,9 @@ bool RimWellPlotTools::hasPressureData( RimEclipseResultCase* gridCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellPlotTools::hasFlowData( const RimWellLogFile* wellLogFile )
+bool RimWellPlotTools::hasFlowData( const RimWellLog* wellLog )
 {
-    for ( RimWellLogChannel* const wellLogChannel : wellLogFile->wellLogChannels() )
+    for ( RimWellLogChannel* const wellLogChannel : wellLog->wellLogChannels() )
     {
         if ( isFlowChannel( wellLogChannel ) ) return true;
     }
