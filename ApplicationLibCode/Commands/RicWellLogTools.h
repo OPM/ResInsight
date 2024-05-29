@@ -51,8 +51,8 @@ public:
     static bool              hasRftDataForWell( const QString& wellName );
     static bool              isWellPathOrSimWellSelectedInView();
     static void addWellLogChannelsToPlotTrack( RimWellLogTrack* plotTrack, const std::vector<RimWellLogChannel*>& wellLogFileChannels );
-    static RimWellPath*            selectedWellPathWithLogFile();
-    static RimWellPath*            findWellPathWithLogFileFromSelection();
+    static RimWellPath*            selectedWellPathWithLog();
+    static RimWellPath*            findWellPathWithLogFromSelection();
     static RimWellLogRftCurve*     addRftCurve( RimWellLogTrack* plotTrack, const RimSimWellInView* simWell, bool showPlotWindow = true );
     static RimWellLogLasFileCurve* addFileCurve( RimWellLogTrack* plotTrack, bool showPlotWindow = true );
 
