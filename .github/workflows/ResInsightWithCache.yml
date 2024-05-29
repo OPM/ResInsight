@@ -37,6 +37,7 @@ jobs:
               execute-pytests: true,
               unity-build: true,
               publish-to-pypi: false,
+              vcpkg-bootstrap: bootstrap-vcpkg.bat,
             }
           - {
               name: "Ubuntu 20.04 gcc",
@@ -50,6 +51,7 @@ jobs:
               execute-pytests: true,
               unity-build: false,
               publish-to-pypi: true,
+              vcpkg-bootstrap: bootstrap-vcpkg.sh,
             }
           - {
               name: "Ubuntu 22.04 clang-16",
@@ -63,6 +65,7 @@ jobs:
               execute-pytests: false,
               unity-build: false,
               publish-to-pypi: false,
+              vcpkg-bootstrap: bootstrap-vcpkg.sh,
             }
     steps:
       - name: Checkout
@@ -187,7 +190,7 @@ jobs:
 
       - name: vcpkg bootstrap
         run: |
-          ThirdParty/vcpkg/bootstrap-vcpkg
+          ThirdParty/vcpkg/${{ matrix.config.vcpkg-bootstrap }}
 
       - name: Configure
         env:
