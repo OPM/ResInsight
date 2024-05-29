@@ -1,7 +1,0 @@
-grpc
-boost-filesystem
-boost-spirit
-eigen3
-arrow
---triplet
-x64-windows
