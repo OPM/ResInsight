@@ -38,8 +38,8 @@ jobs:
               vcpkg-bootstrap: bootstrap-vcpkg.bat,
             }
           - {
-              name: "Ubuntu 20.04 gcc",
-              os: ubuntu-20.04,
+              name: "Ubuntu 22.04 gcc",
+              os: ubuntu-22.04,
               cc: "gcc",
               cxx: "g++",
               build-python-module: true,
