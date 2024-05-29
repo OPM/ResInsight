@@ -197,7 +197,7 @@ jobs:
           CC: ${{ matrix.config.cc }}
           CXX: ${{ matrix.config.cxx }}
         run: |
-          cmake "."" \
+          cmake "." \
             -B "cmakebuild" \
             -G "Ninja" \
             -DCMAKE_INSTALL_PREFIX="cmakebuild/install" \
