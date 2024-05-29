@@ -269,37 +269,6 @@ QString RimCustomVfpPlot::asciiDataForPlotExport() const
 {
     return {};
 }
-/*
-    if ( !vfpTables() ) return {};
-
-    auto tableText = vfpTables()->asciiDataForTable( m_tableNumber(),
-                                                     m_primaryVariable(),
-                                                     m_familyVariable(),
-                                                     m_interpolatedVariable(),
-                                                     m_flowingPhase(),
-                                                     tableSelection() );
-
-    QString wellName;
-
-    if ( m_vfpTableData )
-    {
-        wellName = m_vfpTableData->name();
-    }
-    else
-    {
-        QString filePath = m_filePath_OBSOLETE.v().path();
-        if ( !filePath.isEmpty() )
-        {
-            QFileInfo fi( filePath );
-            QString   wellName = fi.baseName();
-        }
-    }
-
-    QString plotTitle =
-        generatePlotTitle( wellName, m_tableNumber(), m_tableType(), m_interpolatedVariable(), m_primaryVariable(), m_familyVariable() );
-
-    return QString( "%1\n\n%2" ).arg( plotTitle ).arg( tableText );
-*/
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1016,11 +985,11 @@ VfpValueSelection RimCustomVfpPlot::tableSelection( RimVfpTable* table ) const
 {
     VfpValueSelection selection;
 
-    selection.articifialLiftQuantityValues = m_articifialLiftQuantityIdx();
-    selection.flowRateValues               = m_flowRateIdx();
-    selection.gasLiquidRatioValues         = m_gasLiquidRatioIdx();
-    selection.thpValues                    = m_thpIdx();
-    selection.waterCutValues               = m_waterCutIdx();
+    selection.articifialLiftQuantityValue = m_articifialLiftQuantityIdx();
+    selection.flowRateValue               = m_flowRateIdx();
+    selection.gasLiquidRatioValue         = m_gasLiquidRatioIdx();
+    selection.thpValue                    = m_thpIdx();
+    selection.waterCutValue               = m_waterCutIdx();
 
     if ( m_curveMatchingType() == RimVfpDefines::CurveMatchingType::EXACT )
     {

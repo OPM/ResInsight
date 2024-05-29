@@ -49,10 +49,7 @@ void RicNewCustomVfpPlotFeature::onActionTriggered( bool isChecked )
 
     auto                      mainDataSource = selectedTables.front();
     std::vector<RimVfpTable*> additionalDataSources;
-    for ( auto it = selectedTables.begin() + 1; it != selectedTables.end(); ++it )
-    {
-        additionalDataSources.push_back( *it );
-    }
+    std::copy( selectedTables.begin() + 1, selectedTables.end(), std::back_inserter( additionalDataSources ) );
 
     auto firstPlot = vfpPlotColl->createAndAppendPlots( mainDataSource, additionalDataSources );
     vfpPlotColl->updateConnectedEditors();

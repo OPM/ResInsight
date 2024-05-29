@@ -43,7 +43,7 @@ public:
 
     void setDataSource( RimVfpTableData* dataSource );
     void setTableNumber( int tableNumber );
-    void setIsProductionTable( bool isProduction );
+    void setTableType( RimVfpDefines::TableType tableType );
 
     void ensureDataIsImported();
 

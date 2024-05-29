@@ -57,12 +57,9 @@ void RimVfpTable::setTableNumber( int tableNumber )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpTable::setIsProductionTable( bool isProduction )
+void RimVfpTable::setTableType( RimVfpDefines::TableType tableType )
 {
-    if ( isProduction )
-        m_tableType = RimVfpDefines::TableType::PRODUCTION;
-    else
-        m_tableType = RimVfpDefines::TableType::INJECTION;
+    m_tableType = tableType;
 
     updateObjectName();
 }
