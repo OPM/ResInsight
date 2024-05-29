@@ -38,16 +38,6 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 option(RESINSIGHT_BUNDLE_TESTMODELS "Copy TestModels into the installation" OFF)
 mark_as_advanced(RESINSIGHT_BUNDLE_TESTMODELS)
 
-option(RESINSIGHT_VCPKG_AUTO_INSTALL
-       "Automatically download build pre-requisites with VCPKG" OFF
-)
-mark_as_advanced(RESINSIGHT_VCPKG_AUTO_INSTALL)
-
-if(RESINSIGHT_VCPKG_AUTO_INSTALL)
-  include(AutoVcpkg)
-  set(AUTO_VCPKG_ROOT "${CMAKE_SOURCE_DIR}/ThirdParty/vcpkg")
-endif()
-
 set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -435,12 +425,6 @@ endif() # MSVC
 # ##############################################################################
 # Opm
 # ##############################################################################
-
-if(RESINSIGHT_VCPKG_AUTO_INSTALL)
-  vcpkg_install(boost-filesystem)
-  vcpkg_install(boost-spirit)
-  include(${CMAKE_TOOLCHAIN_FILE})
-endif()
 
 add_subdirectory(ThirdParty/custom-opm-flowdiagnostics)
 add_subdirectory(ThirdParty/custom-opm-flowdiag-app)
