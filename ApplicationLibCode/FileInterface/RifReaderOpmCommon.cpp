@@ -189,7 +189,7 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
     mainGrid->globalCellArray().reserve( (size_t)totalCellCount );
     mainGrid->nodes().reserve( (size_t)totalCellCount * 8 );
 
-    caf::ProgressInfo progInfo( 3 + numLGRs, "" );
+    caf::ProgressInfo progInfo( 4 + numLGRs, "" );
 
     {
         auto task = progInfo.task( "Loading Main Grid Data", 3 );
@@ -228,7 +228,11 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
     activeCellInfo->computeDerivedData();
     fractureActiveCellInfo->computeDerivedData();
 
-    // TODO - cache egrid NNC data here
+    if ( isNNCsEnabled() )
+    {
+        auto task = progInfo.task( "Handling NNC data", 1 );
+        transferStaticNNCData( opmGrid, lgrGrids, mainGrid );
+    }
 
     auto opmMapAxes = opmGrid.get_mapaxes();
     if ( opmMapAxes.size() == 6 )
@@ -257,6 +261,48 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmCommon::transferStaticNNCData( Opm::EclIO::EGrid& opmMainGrid, std::vector<Opm::EclIO::EGrid>& lgrGrids, RigMainGrid* mainGrid )
+{
+    opmMainGrid.load_nnc_data();
+    for ( auto& lgr : lgrGrids )
+    {
+        lgr.load_nnc_data();
+    }
+
+    auto connections = opmMainGrid.nnc_connections( 0 );
+
+    for ( int i = 0; i < (int)lgrGrids.size(); i++ )
+    {
+        auto conn = lgrGrids[i].nnc_connections( i + 1 );
+        connections.insert( connections.end(), conn.begin(), conn.end() );
+    }
+
+    if ( connections.size() > 0 )
+    {
+        // Transform to our own data structures
+        RigConnectionContainer nncConnections;
+        std::vector<double>    transmissibilityValuesTemp;
+
+        for ( auto& c : connections )
+        {
+            RigGridBase* grid1 = mainGrid->gridByIndex( c.grid1_Id );
+            RigGridBase* grid2 = mainGrid->gridByIndex( c.grid2_Id );
+
+            RigConnection nncConnection( grid1->reservoirCellIndex( c.grid1_CellIdx ), grid2->reservoirCellIndex( c.grid2_CellIdx ) );
+
+            nncConnections.push_back( nncConnection );
+
+            transmissibilityValuesTemp.push_back( c.transValue );
+        }
+
+        mainGrid->nncData()->setEclipseConnections( nncConnections );
+        mainGrid->nncData()->makeScalarResultAndSetValues( RiaDefines::propertyNameCombTrans(), transmissibilityValuesTemp );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

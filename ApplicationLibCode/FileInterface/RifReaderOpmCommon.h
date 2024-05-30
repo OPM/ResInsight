@@ -64,6 +64,8 @@ private:
                            size_t              matrixActiveStartIndex,
                            size_t              fractureActiveStartIndex );
 
+    void transferStaticNNCData( Opm::EclIO::EGrid& opmMainGrid, std::vector<Opm::EclIO::EGrid>& lgrGrids, RigMainGrid* mainGrid );
+
     struct TimeDataFile
     {
         int    sequenceNumber;
