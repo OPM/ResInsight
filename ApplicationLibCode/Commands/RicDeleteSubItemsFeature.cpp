@@ -126,12 +126,7 @@ bool RicDeleteSubItemsFeature::hasDeletableSubItems( caf::PdmUiItem* uiItem )
         }
     }
 
-    if ( dynamic_cast<RimVfpDataCollection*>( uiItem ) )
-    {
-        return true;
-    }
-
-    return false;
+    return dynamic_cast<RimVfpDataCollection*>( uiItem ) != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
