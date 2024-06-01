@@ -28,6 +28,7 @@ if(Qt5Core_FOUND)
                Gui
                OpenGL
                Network
+               NetworkAuth
                Widgets
                Xml
                Concurrent
@@ -40,6 +41,7 @@ if(Qt5Core_FOUND)
       Qt5::Core
       Qt5::Gui
       Qt5::Network
+      Qt5::NetworkAuth
       Qt5::OpenGL
       Qt5::Widgets
       Qt5::Xml
