@@ -158,7 +158,7 @@ DEFUN_DLD (riGetActiveCellInfo, args, nargout,
             }
         }     
 
-        getActiveCellInfo(propertyFrames, "127.0.0.1", 40001, caseId, porosityModel);
+        getActiveCellInfo(propertyFrames, "127.0.0.1", riOctavePlugin::portNumber, caseId, porosityModel);
 
         return octave_value(propertyFrames);
     }

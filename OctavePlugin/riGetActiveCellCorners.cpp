@@ -143,7 +143,7 @@ DEFUN_DLD (riGetActiveCellCorners, args, nargout,
     }
 
     NDArray cellCornerValues;
-    getActiveCellCorners(cellCornerValues, "127.0.0.1", 40001, caseId, porosityModel.c_str());
+    getActiveCellCorners(cellCornerValues, "127.0.0.1", riOctavePlugin::portNumber, caseId, porosityModel.c_str());
 
     return octave_value(cellCornerValues);
 }

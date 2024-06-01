@@ -103,7 +103,7 @@ DEFUN_DLD (riGetCaseGroups, args, nargout,
     {
         std::vector<QString> groupNames;
         std::vector<int> groupIds;
-        getCaseGroups(groupNames, groupIds, "127.0.0.1", 40001);
+        getCaseGroups(groupNames, groupIds, "127.0.0.1", riOctavePlugin::portNumber);
 
         size_t groupCount = groupNames.size();
 

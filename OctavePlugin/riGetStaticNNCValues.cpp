@@ -128,7 +128,7 @@ DEFUN_DLD (riGetStaticNNCValues, args, nargout,
     if (argIndices[0] >= 0) caseId       = args(argIndices[0]).int_value();
     if (argIndices[1] >= 0) propertyName = args(argIndices[1]).char_matrix_value().row_as_string(0);
 
-    getStaticNNCValues(propertyValues, "127.0.0.1", 40001, caseId, propertyName.c_str());
+    getStaticNNCValues(propertyValues, "127.0.0.1", riOctavePlugin::portNumber, caseId, propertyName.c_str());
 
     dim_vector dv(2, 1);
     dv(0) = propertyValues.size();

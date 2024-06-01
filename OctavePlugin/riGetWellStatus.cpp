@@ -170,7 +170,7 @@ DEFUN_DLD (riGetWellStatus, args, nargout,
     std::vector<QString> wellType;
     std::vector<int> wellStatus;
 
-    getWellStatus(wellType, wellStatus, "127.0.0.1", 40001, caseId, QString::fromStdString(wellName), requestedTimeSteps);
+    getWellStatus(wellType, wellStatus, "127.0.0.1", riOctavePlugin::portNumber, caseId, QString::fromStdString(wellName), requestedTimeSteps);
 
     size_t caseCount = wellType.size();
 

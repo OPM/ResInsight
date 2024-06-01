@@ -93,7 +93,7 @@ DEFUN_DLD (riGetCurrentCase, args, nargout,
         QString caseType;
         qint64  caseGroupId = -1;
 
-        getCurrentCase(caseId, caseName, caseType, caseGroupId, "127.0.0.1", 40001);
+        getCurrentCase(caseId, caseName, caseType, caseGroupId, "127.0.0.1", riOctavePlugin::portNumber);
 
         octave_map fieldMap;
 

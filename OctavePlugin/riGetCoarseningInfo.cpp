@@ -115,7 +115,7 @@ DEFUN_DLD (riGetCoarseningInfo, args, nargout,
         }
 
         int32NDArray coarseningInfo;
-        getCoarseningInfo(coarseningInfo, "127.0.0.1", 40001, caseId);
+        getCoarseningInfo(coarseningInfo, "127.0.0.1", riOctavePlugin::portNumber, caseId);
 
         return octave_value(coarseningInfo);
     }

@@ -108,7 +108,7 @@ DEFUN_DLD (riGetTimeStepDays, args, nargout,
 
         std::vector<double> decimalDays;
 
-        getTimeStepDates(decimalDays, caseId, "127.0.0.1", 40001);
+        getTimeStepDates(decimalDays, caseId, "127.0.0.1", riOctavePlugin::portNumber);
 
         dim_vector dv(2, 1);
         dv(0) = decimalDays.size();
