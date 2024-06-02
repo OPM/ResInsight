@@ -126,7 +126,7 @@ DEFUN_DLD (riGetCellCenters, args, nargout,
             gridIndex = args(1).uint_value();
         }
 
-        getCellCenters(cellCenterValues, "127.0.0.1", riOctavePlugin::portNumber, caseId, gridIndex);
+        getCellCenters(cellCenterValues, "127.0.0.1", riOctavePlugin::activePortNumber(), caseId, gridIndex);
 
         return octave_value(cellCenterValues);
     }

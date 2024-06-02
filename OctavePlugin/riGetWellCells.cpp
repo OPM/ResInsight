@@ -209,7 +209,7 @@ DEFUN_DLD (riGetWellCells, args, nargout,
         cellStatuses,
         branchIds,
         segmentIds,
-        "127.0.0.1", riOctavePlugin::portNumber, 
+        "127.0.0.1", riOctavePlugin::activePortNumber(), 
         caseId, QString::fromStdString(wellName), requestedTimeStep);
 
     size_t cellCount = cellIs.size();

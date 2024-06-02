@@ -115,7 +115,7 @@ DEFUN_DLD (riGetNNCPropertyNames, args, nargout,
         std::vector<QString> propertyNames;
         std::vector<QString> propertyTypes;
 
-        getNNCPropertyNames(propertyNames, propertyTypes, "127.0.0.1", riOctavePlugin::portNumber, argCaseId);
+        getNNCPropertyNames(propertyNames, propertyTypes, "127.0.0.1", riOctavePlugin::activePortNumber(), argCaseId);
                 
         size_t caseCount = propertyNames.size();
 

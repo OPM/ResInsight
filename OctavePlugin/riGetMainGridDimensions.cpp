@@ -101,9 +101,9 @@ DEFUN_DLD (riGetMainGridDimensions, args, nargout,
         int32NDArray propertyFrames;
 
         if (nargin > 0)
-            getMainGridDimensions(propertyFrames, "127.0.0.1", riOctavePlugin::portNumber, args(0).char_matrix_value().row_as_string(0).c_str());
+            getMainGridDimensions(propertyFrames, "127.0.0.1", riOctavePlugin::activePortNumber(), args(0).char_matrix_value().row_as_string(0).c_str());
         else
-            getMainGridDimensions(propertyFrames, "127.0.0.1", riOctavePlugin::portNumber, "");
+            getMainGridDimensions(propertyFrames, "127.0.0.1", riOctavePlugin::activePortNumber(), "");
 
         return octave_value(propertyFrames);
     }

@@ -76,5 +76,16 @@ namespace riOctavePlugin
 #endif
     }
 
+    int activePortNumber()
+    {
+        QString portStr = getenv(riOctavePlugin::environmentPortVariableName().data());
+        if (portStr.isEmpty())
+        {
+            return riOctavePlugin::defaultPortNumber;
+        }
+
+        return portStr.toInt();
+    }
+
 }
 

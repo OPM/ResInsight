@@ -140,7 +140,7 @@ DEFUN_DLD (riGetTimeStepDates, args, nargout,
         std::vector<qint32> minuteValues;
         std::vector<qint32> secondValues;
 
-        getTimeStepDates(yearValues, monthValues, dayValues, hourValues, minuteValues, secondValues, caseId, "127.0.0.1", riOctavePlugin::portNumber);
+        getTimeStepDates(yearValues, monthValues, dayValues, hourValues, minuteValues, secondValues, caseId, "127.0.0.1", riOctavePlugin::activePortNumber());
 
         size_t timeStepDateCount = yearValues.size();
 

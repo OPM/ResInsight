@@ -106,7 +106,7 @@ DEFUN_DLD (riGetWellNames, args, nargout,
 
         std::vector<QString> wellNames;
 
-        getWellNames(wellNames, "127.0.0.1", riOctavePlugin::portNumber, argCaseId);
+        getWellNames(wellNames, "127.0.0.1", riOctavePlugin::activePortNumber(), argCaseId);
                 
         size_t caseCount = wellNames.size();
 

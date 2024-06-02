@@ -115,7 +115,7 @@ DEFUN_DLD (riGetCases, args, nargout,
             caseGroupId = argCaseId;
         }
 
-        getCases(caseIds, caseNames, caseTypes, caseGroupIds, caseGroupId, "127.0.0.1", riOctavePlugin::portNumber);
+        getCases(caseIds, caseNames, caseTypes, caseGroupIds, caseGroupId, "127.0.0.1", riOctavePlugin::activePortNumber());
 
         size_t caseCount = caseIds.size();
 

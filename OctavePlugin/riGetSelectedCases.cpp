@@ -105,7 +105,7 @@ DEFUN_DLD (riGetSelectedCases, args, nargout,
         std::vector<QString> caseTypes;
         std::vector<qint64>  caseGroupIds;
 
-        getSelectedCases(caseIds, caseNames, caseTypes, caseGroupIds, "127.0.0.1", riOctavePlugin::portNumber);
+        getSelectedCases(caseIds, caseNames, caseTypes, caseGroupIds, "127.0.0.1", riOctavePlugin::activePortNumber());
 
         size_t caseCount = caseIds.size();
 

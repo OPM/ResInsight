@@ -186,7 +186,7 @@ DEFUN_DLD (riSetNNCProperty, args, nargout,
         }
     }
 
-    setNNCProperty(propertyFrames, "127.0.0.1", riOctavePlugin::portNumber, caseId, propertyName.c_str(), requestedTimeSteps);
+    setNNCProperty(propertyFrames, "127.0.0.1", riOctavePlugin::activePortNumber(), caseId, propertyName.c_str(), requestedTimeSteps);
 
     return octave_value_list ();
 }

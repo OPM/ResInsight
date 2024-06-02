@@ -119,7 +119,7 @@ DEFUN_DLD (riGetGridDimensions, args, nargout,
         }
 
         int32NDArray gridDimensions;
-        getGridDimensions(gridDimensions, "127.0.0.1", riOctavePlugin::portNumber, caseId);
+        getGridDimensions(gridDimensions, "127.0.0.1", riOctavePlugin::activePortNumber(), caseId);
 
         return octave_value(gridDimensions);
     }

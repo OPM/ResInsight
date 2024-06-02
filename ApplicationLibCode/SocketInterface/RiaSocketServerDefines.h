@@ -26,7 +26,7 @@ const int qtDataStreamVersion = QDataStream::Qt_4_0;
 
 // https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers
 // Use a port number in the dynamic/private range (49152-65535)
-const int portNumber = 52025;
+const int defaultPortNumber = 52025;
 
 static std::string environmentPortVariableName()
 {

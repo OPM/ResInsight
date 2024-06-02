@@ -122,7 +122,7 @@ DEFUN_DLD(riGetNNCConnections, args, nargout,
             }
         }
 
-        getNNCConnections(connections, "127.0.0.1", riOctavePlugin::portNumber, caseId);
+        getNNCConnections(connections, "127.0.0.1", riOctavePlugin::activePortNumber(), caseId);
 
         Cell cellValuesGridIndex(connections.size(), 2);
         Cell cellValuesI(connections.size(), 2);

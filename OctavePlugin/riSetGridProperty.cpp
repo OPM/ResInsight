@@ -258,7 +258,7 @@ DEFUN_DLD (riSetGridProperty, args, nargout,
         return octave_value_list ();
     }
 
-    setEclipseProperty(propertyFrames, "127.0.0.1", riOctavePlugin::portNumber, caseId, gridIndex, propertyName.c_str(), timeStepIndices, porosityModel.c_str());
+    setEclipseProperty(propertyFrames, "127.0.0.1", riOctavePlugin::activePortNumber(), caseId, gridIndex, propertyName.c_str(), timeStepIndices, porosityModel.c_str());
 
     return octave_value_list ();
 }
