@@ -28,10 +28,9 @@ const int qtDataStreamVersion = QDataStream::Qt_4_0;
 // Use a port number in the dynamic/private range (49152-65535)
 const int defaultPortNumber = 52025;
 
-static std::string environmentPortVariableName()
+inline const std::string environmentPortVariableName()
 {
-    static const std::string name = "RESINSIGHT_OCTAVE_PORT_NUMBER";
-    return name;
+    return "RESINSIGHT_OCTAVE_PORT_NUMBER";
 }
 
 } // namespace riOctavePlugin
