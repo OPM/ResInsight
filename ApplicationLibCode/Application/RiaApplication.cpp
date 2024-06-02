@@ -1119,6 +1119,9 @@ QProcessEnvironment RiaApplication::octaveProcessEnvironment() const
     penv.insert( "LD_LIBRARY_PATH", ldPath );
 #endif
 
+    // Set the environment variable for the port number used by the ResInsight Octave plugin
+    // The plugins can access the port number using riOctavePlugin::activePortNumber()
+    // If the port number is not set in preferences, the plugin will use the default port number
     const QString key = QString::fromStdString( riOctavePlugin::environmentPortVariableName() );
     if ( !m_preferences->octavePortNumber().isEmpty() )
     {
