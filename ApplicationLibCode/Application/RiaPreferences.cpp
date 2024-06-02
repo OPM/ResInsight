@@ -118,11 +118,14 @@ RiaPreferences::RiaPreferences()
     m_octaveExecutable.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     m_octaveExecutable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitField( &octaveShowHeaderInfoWhenExecutingScripts,
+    CAF_PDM_InitField( &m_octaveShowHeaderInfoWhenExecutingScripts,
                        "octaveShowHeaderInfoWhenExecutingScripts",
                        false,
                        "Show Text Header When Executing Scripts" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &octaveShowHeaderInfoWhenExecutingScripts );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_octaveShowHeaderInfoWhenExecutingScripts );
+
+    CAF_PDM_InitFieldNoDefault( &m_octavePortNumber, "octavePortNumber", "Octave Port Number" );
+    m_octavePortNumber.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_pythonExecutable, "pythonExecutable", QString( "python" ), "Python Executable Location" );
     m_pythonExecutable.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
@@ -449,7 +452,8 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     {
         caf::PdmUiGroup* octaveGroup = uiOrdering.addNewGroup( "Octave" );
         octaveGroup->add( &m_octaveExecutable );
-        octaveGroup->add( &octaveShowHeaderInfoWhenExecutingScripts );
+        octaveGroup->add( &m_octaveShowHeaderInfoWhenExecutingScripts );
+        octaveGroup->add( &m_octavePortNumber );
 
 #ifdef ENABLE_GRPC
         caf::PdmUiGroup* pythonGroup = uiOrdering.addNewGroup( "Python" );
@@ -1006,6 +1010,24 @@ QString RiaPreferences::pythonExecutable() const
 QString RiaPreferences::octaveExecutable() const
 {
     return m_octaveExecutable().trimmed();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::octaveShowHeaderInfoWhenExecutingScripts() const
+{
+    return m_octaveShowHeaderInfoWhenExecutingScripts();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::octavePortNumber() const
+{
+    if ( m_octavePortNumber().first ) return m_octavePortNumber().second;
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
