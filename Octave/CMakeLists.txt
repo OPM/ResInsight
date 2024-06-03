@@ -23,3 +23,5 @@ else()
 endif()
 
 add_subdirectory(OctavePlugin)
+
+include(CPack)
