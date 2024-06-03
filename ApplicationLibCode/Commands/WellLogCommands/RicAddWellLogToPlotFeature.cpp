@@ -69,13 +69,12 @@ void RicAddWellLogToPlotFeature::onActionTriggered( bool isChecked )
 
     plot->loadDataAndUpdate();
 
-    for ( size_t wlIdx = 0; wlIdx < selection.size(); wlIdx++ )
+    bool isFirst = true;
+    for ( RimWellLogChannel* wellLogChannel : selection )
     {
-        RimWellLogChannel* wellLog = selection[wlIdx];
-
-        auto wellPath    = wellLog->firstAncestorOrThisOfType<RimWellPath>();
-        auto wellLogFile = wellLog->firstAncestorOrThisOfType<RimWellLogLasFile>();
-        if ( wellLogFile )
+        auto wellPath = wellLogChannel->firstAncestorOrThisOfType<RimWellPath>();
+        auto wellLog  = wellLogChannel->firstAncestorOrThisOfType<RimWellLog>();
+        if ( wellLog )
         {
             RimWellLogLasFileCurve* curve      = new RimWellLogLasFileCurve;
             cvf::Color3f            curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
@@ -83,18 +82,19 @@ void RicAddWellLogToPlotFeature::onActionTriggered( bool isChecked )
 
             plotTrack->addCurve( curve );
 
-            RigWellLogLasFile* wellLogDataFile = wellLogFile->wellLogData();
-            CVF_ASSERT( wellLogDataFile );
+            RigWellLogData* wellLogData = wellLog->wellLogData();
+            CVF_ASSERT( wellLogData );
 
-            if ( wlIdx == 0 )
+            if ( isFirst )
             {
                 // Initialize plot with depth unit from the first log file
-                plot->setDepthUnit( wellLogDataFile->depthUnit() );
+                plot->setDepthUnit( wellLogData->depthUnit() );
+                isFirst = false;
             }
 
             curve->setWellPath( wellPath );
-            curve->setWellLogChannelName( wellLog->name() );
-            curve->setWellLogFile( wellLogFile );
+            curve->setWellLogChannelName( wellLogChannel->name() );
+            curve->setWellLog( wellLog );
 
             curve->loadDataAndUpdate( true );
         }
