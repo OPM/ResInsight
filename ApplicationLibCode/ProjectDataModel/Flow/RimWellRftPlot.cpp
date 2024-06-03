@@ -692,7 +692,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
 
                 plotTrack->addCurve( curve );
                 curve->setWellPath( wellPath );
-                curve->setWellLogFile( wellLogFile );
+                curve->setWellLog( wellLogFile );
                 curve->setWellLogChannelName( pressureChannel->name() );
                 curve->setZOrder( 2 );
 

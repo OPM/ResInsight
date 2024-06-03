@@ -34,6 +34,7 @@
 #include "RimTools.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogExtractionCurve.h"
+#include "RimWellLogFile.h"
 #include "RimWellLogLasFileCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
@@ -528,7 +529,7 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
                 if ( !fileCurve->wellLogChannelUiName().isEmpty() )
                 {
                     RimWellLogFile* logFile = wellPathToApply()->firstWellLogFileMatchingChannelName( fileCurve->wellLogChannelUiName() );
-                    fileCurve->setWellLogFile( logFile );
+                    fileCurve->setWellLog( logFile );
                     auto parentPlot = fileCurve->firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
                     plots.insert( parentPlot );
                 }

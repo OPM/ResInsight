@@ -72,7 +72,7 @@ void RicNewWellLogFileCurveFeature::onActionTriggered( bool isChecked )
 
             if ( wellPath->wellLogFiles().size() == 1 )
             {
-                plotCurve->setWellLogFile( wellPath->wellLogFiles().front() );
+                plotCurve->setWellLog( wellPath->wellLogFiles().front() );
             }
             plotCurve->updateConnectedEditors();
         }

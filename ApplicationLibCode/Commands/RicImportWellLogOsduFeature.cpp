@@ -72,24 +72,30 @@ void RicImportWellLogOsduFeature::onActionTriggered( bool isChecked )
 
         if ( !oilField->wellPathCollection ) oilField->wellPathCollection = std::make_unique<RimWellPathCollection>();
 
-        RimOsduWellLog* osduWellLog = new RimOsduWellLog;
         // TODO: get from OSDU...
-        osduWellLog->setWellLogId( "npequinor-dev:work-product-component--WellLog:aeb5bd8b1de14138afe9f23cacbc7fe7" );
-        oilField->wellPathCollection->addWellLog( osduWellLog, wellPath );
+        std::vector<QString> wellLogIds = { "npequinor-dev:work-product-component--WellLog:aeb5bd8b1de14138afe9f23cacbc7fe7" };
 
-        auto osduConnector = makeOsduConnector( app );
-
-        auto [wellLogData, errorMessage] = RimWellPathCollection::loadWellLogFromOsdu( osduConnector.get(), osduWellLog->wellLogId() );
-        if ( wellLogData.notNull() )
+        for ( QString wellLogId : wellLogIds )
         {
-            osduWellLog->setWellLogData( wellLogData.p() );
-        }
-        else
-        {
-            RiaLogging::error( "Importing OSDU well log failed: " + errorMessage );
-        }
+            RimOsduWellLog* osduWellLog = new RimOsduWellLog;
+            osduWellLog->setName( wellLogId );
+            osduWellLog->setWellLogId( wellLogId );
+            oilField->wellPathCollection->addWellLog( osduWellLog, wellPath );
 
-        osduWellLog->updateConnectedEditors();
+            auto osduConnector = makeOsduConnector( app );
+
+            auto [wellLogData, errorMessage] = RimWellPathCollection::loadWellLogFromOsdu( osduConnector.get(), osduWellLog->wellLogId() );
+            if ( wellLogData.notNull() )
+            {
+                osduWellLog->setWellLogData( wellLogData.p() );
+            }
+            else
+            {
+                RiaLogging::error( "Importing OSDU well log failed: " + errorMessage );
+            }
+
+            osduWellLog->updateConnectedEditors();
+        }
     }
 }
 

@@ -147,7 +147,7 @@ void RicWellLogTools::addWellLogChannelsToPlotTrack( RimWellLogTrack* plotTrack,
 
         if ( wellPath )
         {
-            if ( wellLogFile ) plotCurve->setWellLogFile( wellLogFile );
+            if ( wellLogFile ) plotCurve->setWellLog( wellLogFile );
 
             plotCurve->setWellPath( wellPath );
             plotCurve->setWellLogChannelName( wellLogChannel->name() );

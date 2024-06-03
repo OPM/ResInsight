@@ -22,6 +22,12 @@ RimOsduWellPath::RimOsduWellPath()
 
     CAF_PDM_InitFieldNoDefault( &m_fileId, "FileId", "File Id" );
     m_fileId.uiCapability()->setUiReadOnly( true );
+
+    // Required, as these settings are set in RimWellPath()
+    m_name.uiCapability()->setUiReadOnly( false );
+    m_name.uiCapability()->setUiHidden( false );
+    m_name.xmlCapability()->setIOReadable( true );
+    m_name.xmlCapability()->setIOWritable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

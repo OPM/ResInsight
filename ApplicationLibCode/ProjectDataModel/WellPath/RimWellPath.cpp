@@ -25,6 +25,7 @@
 #include "RiaSimWellBranchTools.h"
 #include "RiaWellNameComparer.h"
 
+#include "RicImportWellLogOsduFeature.h"
 #include "RicfCommandObject.h"
 
 #include "RifWellPathFormationsImporter.h"
@@ -38,6 +39,7 @@
 #include "RimFishbonesCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimMswCompletionParameters.h"
+#include "RimOsduWellLog.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
 #include "RimStimPlanModelCollection.h"
@@ -934,7 +936,7 @@ void RimWellPath::addWellLog( RimWellLog* wellLog )
             }
         }
     }
-    else
+    else if ( RimOsduWellLog* osduWellLog = dynamic_cast<RimOsduWellLog*>( wellLog ) )
     {
         m_wellLogs.push_back( osduWellLog );
     }

@@ -48,7 +48,6 @@ RimOsduWellLog::RimOsduWellLog()
 
     CAF_PDM_InitFieldNoDefault( &m_name, "Name", "" );
     m_name.uiCapability()->setUiReadOnly( true );
-    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_name );
 
     m_date.uiCapability()->setUiReadOnly( true );
 
@@ -124,6 +123,14 @@ bool RimOsduWellLog::isDateValid( const QDateTime dateTime )
 caf::PdmFieldHandle* RimOsduWellLog::userDescriptionField()
 {
     return &m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOsduWellLog::setName( const QString& name )
+{
+    m_name = name;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -46,6 +46,7 @@ public:
     RimOsduWellLog();
     ~RimOsduWellLog() override;
 
+    void    setName( const QString& name );
     QString name() const override;
 
     QString wellName() const override;
