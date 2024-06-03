@@ -12,6 +12,8 @@ import logging
 import time
 import tempfile
 import signal
+import sys
+import json
 
 import grpc
 
@@ -30,6 +32,7 @@ from .generated.generated_classes import CommandRouter
 
 from typing import List, Optional, Tuple
 from typing_extensions import Self
+from pathlib import Path
 
 
 class Instance:
@@ -120,6 +123,16 @@ class Instance:
             requested_port = int(port_env)
         if launch_port != -1:
             requested_port = launch_port
+
+        if not resinsight_executable:
+            filename = Path(sys.prefix) / "share" / "rips" / "rips_config.json"
+            print("Looking for config file", filename)
+            if filename.is_file():
+                f = open(filename)
+                data = json.load(f)
+                resinsight_executable = data["resinsight_executable"]
+                if resinsight_executable:
+                    print("  Found resinsight_executable:", resinsight_executable)
 
         if not resinsight_executable:
             resinsight_executable_from_env = os.environ.get("RESINSIGHT_EXECUTABLE")
