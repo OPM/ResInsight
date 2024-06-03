@@ -115,7 +115,11 @@ public:
 
     // Script paths
     QString pythonExecutable() const;
+
+    // Octave
     QString octaveExecutable() const;
+    bool    octaveShowHeaderInfoWhenExecutingScripts() const;
+    QString octavePortNumber() const;
 
     QString loggerFilename() const;
     int     loggerFlushInterval() const;
@@ -131,7 +135,6 @@ public:
 
     caf::PdmField<QString> scriptDirectories;
     caf::PdmField<QString> scriptEditorExecutable;
-    caf::PdmField<bool>    octaveShowHeaderInfoWhenExecutingScripts;
     caf::PdmField<bool>    showPythonDebugInfo;
 
     caf::PdmField<QString> ssihubAddress;
@@ -203,8 +206,12 @@ private:
     caf::PdmField<caf::FilePath> m_gridCalculationExpressionFolder;
     caf::PdmField<caf::FilePath> m_summaryCalculationExpressionFolder;
 
-    // Script paths
-    caf::PdmField<QString> m_octaveExecutable;
+    // Octave
+    caf::PdmField<QString>                  m_octaveExecutable;
+    caf::PdmField<bool>                     m_octaveShowHeaderInfoWhenExecutingScripts;
+    caf::PdmField<std::pair<bool, QString>> m_octavePortNumber;
+
+    // Python
     caf::PdmField<QString> m_pythonExecutable;
 
     // Logging

@@ -125,7 +125,7 @@ DEFUN_DLD (riGetSelectedCells, args, nargout,
 
         int32NDArray propertyFrames;
 
-        getSelectedCells(propertyFrames, "127.0.0.1", 40001, caseId);
+        getSelectedCells(propertyFrames, "127.0.0.1", riOctavePlugin::portNumber(), caseId);
 
         return octave_value(propertyFrames);
     }
