@@ -211,7 +211,7 @@ DEFUN_DLD (riGetGridProperty, args, nargout,
         return octave_value_list ();
     }
 
-    getGridProperty(propertyFrames, "127.0.0.1", 40001, caseId, gridIdx, propertyName.c_str(), requestedTimeSteps, porosityModel.c_str());
+    getGridProperty(propertyFrames, "127.0.0.1", riOctavePlugin::portNumber(), caseId, gridIdx, propertyName.c_str(), requestedTimeSteps, porosityModel.c_str());
 
     return octave_value(propertyFrames);
 }
