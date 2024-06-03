@@ -1,0 +1,25 @@
+cmake_minimum_required(VERSION 3.15)
+
+project (OctavePlugins)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+find_package(Octave)
+
+if(CEE_USE_QT6)
+  find_package(
+    Qt6
+    COMPONENTS
+    REQUIRED Core Gui OpenGL Widgets
+  )
+  set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::OpenGL Qt6::Widgets)
+  qt_standard_project_setup()
+else()
+  find_package(
+    Qt5
+    COMPONENTS
+    REQUIRED Core Gui OpenGL Widgets
+  )
+  set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets)
+endif()
+
+add_subdirectory(OctavePlugin)
