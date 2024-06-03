@@ -9,17 +9,17 @@ if(CEE_USE_QT6)
   find_package(
     Qt6
     COMPONENTS
-    REQUIRED Core Gui OpenGL Widgets
+    REQUIRED Core Gui OpenGL Widgets Network
   )
-  set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::OpenGL Qt6::Widgets)
+  set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::OpenGL Qt6::Widgets Qt6::Network)
   qt_standard_project_setup()
 else()
   find_package(
     Qt5
     COMPONENTS
-    REQUIRED Core Gui OpenGL Widgets
+    REQUIRED Core Gui OpenGL Widgets Network
   )
-  set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets)
+  set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets Qt5::Network)
 endif()
 
 add_subdirectory(OctavePlugin)
