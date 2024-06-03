@@ -79,9 +79,6 @@ void RiuMessagePanel::addMessage( RILogLevel messageLevel, const QString& msg )
     m_textEdit->setCurrentCharFormat( form );
     m_textEdit->appendPlainText( msg );
 
-    m_textEdit->moveCursor( QTextCursor::End );
-    m_textEdit->ensureCursorVisible();
-
     if ( !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
     {
         if ( messageLevel == RILogLevel::RI_LL_ERROR || messageLevel == RILogLevel::RI_LL_WARNING )
