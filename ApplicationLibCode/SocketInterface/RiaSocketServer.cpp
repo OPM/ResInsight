@@ -56,14 +56,23 @@ RiaSocketServer::RiaSocketServer( QObject* parent )
     m_nextPendingConnectionTimer->setInterval( 100 );
     m_nextPendingConnectionTimer->setSingleShot( true );
 
-    if ( !m_tcpServer->listen( QHostAddress::LocalHost, 40001 ) )
+    int portNumber = riOctavePlugin::defaultPortNumber;
+    if ( !RiaPreferences::current()->octavePortNumber().isEmpty() )
     {
-        QString txt = "Disabled communication with Octave due to another ResInsight process running.";
+        portNumber = RiaPreferences::current()->octavePortNumber().toInt();
+    }
+
+    if ( !m_tcpServer->listen( QHostAddress::LocalHost, portNumber ) )
+    {
+        QString txt = QString( "Not able to communicate with Octave plugins. Failed to use port number : %1" ).arg( portNumber );
 
         RiaLogging::warning( txt );
 
         return;
     }
+
+    QString txt = QString( "Octave is using port: %1" ).arg( portNumber );
+    RiaLogging::info( txt );
 
     connect( m_nextPendingConnectionTimer, SIGNAL( timeout() ), this, SLOT( slotNewClientConnection() ) );
     connect( m_tcpServer, SIGNAL( newConnection() ), this, SLOT( slotNewClientConnection() ) );
