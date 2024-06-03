@@ -16,9 +16,21 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
+
 #include <QDataStream>
 
 namespace riOctavePlugin
 {
 const int qtDataStreamVersion = QDataStream::Qt_4_0;
+
+// https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers
+// Use a port number in the dynamic/private range (49152-65535)
+const int defaultPortNumber = 52025;
+
+inline const std::string portNumberKey()
+{
+    return "RESINSIGHT_OCTAVE_PORT_NUMBER";
 }
+
+} // namespace riOctavePlugin

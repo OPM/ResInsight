@@ -155,7 +155,7 @@ DEFUN_DLD (riGetDynamicNNCValues, args, nargout,
     if (argIndices[1] >= 0) propertyName       = args(argIndices[1]).char_matrix_value().row_as_string(0);
     if (argIndices[2] >= 0) requestedTimeSteps = args(argIndices[2]).int32_array_value();
 
-    getDynamicNNCValues(propertyFrames, "127.0.0.1", 40001, caseId, propertyName.c_str(), requestedTimeSteps);
+    getDynamicNNCValues(propertyFrames, "127.0.0.1", riOctavePlugin::portNumber(), caseId, propertyName.c_str(), requestedTimeSteps);
 
     return octave_value(propertyFrames);
 }
