@@ -291,7 +291,6 @@ std::map<int, std::pair<double, double>>
     if ( cellCount != riGrid->cellCount() ) return {};
 
     // Read out the corner coordinates from the EGRID file using radial coordinates.
-    // Prefix OPM structures with _opm_and ResInsight structures with _ri_
 
     // Compute the center of the LGR radial grid cells for each K layer
     std::map<int, std::pair<double, double>> radialGridCenterTopLayerOpm;

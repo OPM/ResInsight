@@ -359,10 +359,10 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
     const auto& hostCellGlobalIndices = opmGrid.hostCellsGlobalIndex();
 
     // Compute the center of the LGR radial grid cells for each K layer
-    std::map<int, std::pair<double, double>> radialGridCenterTopLayerOpm =
-        RifOpmRadialGridTools::computeXyCenterForTopOfCells( opmMainGrid, opmGrid, localGrid );
+    auto radialGridCenterTopLayerOpm = isRadialGrid ? RifOpmRadialGridTools::computeXyCenterForTopOfCells( opmMainGrid, opmGrid, localGrid )
+                                                    : std::map<int, std::pair<double, double>>();
 
-    // same mapping as libecl
+    // use same mapping as resdata
     const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 
 #pragma omp parallel for
@@ -428,7 +428,7 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
 
             cell.cornerIndices()[riCornerIndex] = riNodeIndex;
 
-            // First grid dimension is radius, check if cell has are at the outer-most slice
+            // First grid dimension is radius, check if cell are at the outer-most slice
             if ( isRadialGrid && !hostCellGlobalIndices.empty() && ( gridDimension[0] - 1 == opmIJK[0] ) )
             {
                 auto hostCellIndex = hostCellGlobalIndices[opmCellIndex];
@@ -545,7 +545,7 @@ bool RifReaderOpmCommon::dynamicResult( const QString&                result,
                 {
                     for ( auto& gridName : m_gridNames )
                     {
-                        if ( gridName == "global" ) // main grid
+                        if ( gridName == "global" ) // main grid, need to use separate method due to inner workings in opm_common
                         {
                             if ( kwType == EclIO::eclArrType::DOUB )
                             {
