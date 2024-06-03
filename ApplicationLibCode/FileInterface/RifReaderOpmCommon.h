@@ -65,7 +65,6 @@ private:
                            size_t              fractureActiveStartIndex );
 
     void transferStaticNNCData( Opm::EclIO::EGrid& opmMainGrid, std::vector<Opm::EclIO::EGrid>& lgrGrids, RigMainGrid* mainGrid );
-
     void transferDynamicNNCData( RigMainGrid* mainGrid );
 
     struct TimeDataFile
@@ -77,19 +76,7 @@ private:
         double simulationTimeFromStart;
     };
 
-    struct NNCInfo
-    {
-        int   gridId1;
-        int   cellId1;
-        int   gridId2;
-        int   cellId2;
-        float transValue;
-    };
-
     static std::vector<TimeDataFile> readTimeSteps( std::shared_ptr<Opm::EclIO::ERst> restartFile );
-    static void                      readWellCells( std::shared_ptr<Opm::EclIO::ERst> restartFile,
-                                                    RigEclipseCaseData*               eclipseCase,
-                                                    const std::vector<QDateTime>&     timeSteps );
 
 private:
     std::string         m_gridFileName;
