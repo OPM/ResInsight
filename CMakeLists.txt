@@ -987,7 +987,7 @@ add_subdirectory(ApplicationExeCode)
 if(OCTAVE_MKOCTFILE)
   message(STATUS "Adding OctavePlugin library")
 
-  add_subdirectory(OctavePlugin)
+  add_subdirectory(Octave/OctavePlugin)
 else(OCTAVE_MKOCTFILE)
   message(
     STATUS "Could not find OCTAVE_MKOCTFILE, skipping OctavePlugin library"

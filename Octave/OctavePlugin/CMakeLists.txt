@@ -194,15 +194,15 @@ if (OCTAVE_MKOCTFILE)
 
     endforeach()
 
-# Create depencedy string represeting the full path to all generated oct-files
-foreach (item ${CPP_SOURCES})
-  string( REPLACE ".cpp" ".oct" item ${item})
-    list (APPEND DEPENDENCY_STRING ${CMAKE_CURRENT_BINARY_DIR}/${item})
-endforeach (item)
+    # Create depencedy string represeting the full path to all generated oct-files
+    foreach (item ${CPP_SOURCES})
+    string( REPLACE ".cpp" ".oct" item ${item})
+        list (APPEND DEPENDENCY_STRING ${CMAKE_CURRENT_BINARY_DIR}/${item})
+    endforeach (item)
 
-#message("DEPENDENCY_STRING : ${DEPENDENCY_STRING}")
+    #message("DEPENDENCY_STRING : ${DEPENDENCY_STRING}")
     
-add_custom_target(octave_plugins ALL DEPENDS
+    add_custom_target(octave_plugins ALL DEPENDS
       ${DEPENDENCY_STRING}
       SOURCES
       ${CPP_SOURCES}
@@ -211,28 +211,53 @@ add_custom_target(octave_plugins ALL DEPENDS
 
     # Copy Octave generated *.oct files to application folder, will make it possible to use Octave functions
     # directly from the location of the ResInsight binaries
-    if (true)
-        foreach (oct_bin ${OCTAVE_BINARY_OCT_FILES})
+    if (TARGET ResInsight)
+        message(STATUS "Target ResInsight exists, add copy of Octave plugins to ApplicationExeCode folder")
+        
+        # Make ResInsight dependant on Octave, makes it easiser to debug Octave functionality by compiling ResInsight
+        add_dependencies(ResInsight octave_plugins)
 
+        foreach (oct_bin ${OCTAVE_BINARY_OCT_FILES})
             get_filename_component(Filename "${oct_bin}" NAME)
 
             if(MSVC)
                 add_custom_command(TARGET octave_plugins POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     "${oct_bin}"
-                    "${CMAKE_CURRENT_BINARY_DIR}/../ApplicationExeCode/$<CONFIGURATION>/${Filename}"
+                    "${CMAKE_CURRENT_BINARY_DIR}/../../ApplicationExeCode/$<CONFIGURATION>/${Filename}"
                 )
             else()
                 add_custom_command(TARGET octave_plugins POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     "${oct_bin}"
-                    "${CMAKE_CURRENT_BINARY_DIR}/../ApplicationExeCode/${Filename}"
+                    "${CMAKE_CURRENT_BINARY_DIR}/../../ApplicationExeCode/${Filename}"
                 )
-            endif()
+            endif(MSVC)
         endforeach( oct_bin )
-    endif()
 
-    install(FILES ${OCTAVE_BINARY_OCT_FILES} DESTINATION .)
+        if (RESINSIGHT_PRIVATE_INSTALL)
+            install(FILES ${OCTAVE_BINARY_OCT_FILES} DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+        else (RESINSIGHT_PRIVATE_INSTALL)
+            # probe for site location of .oct files
+            if (NOT OCTAVE_SITE_OCT_DIR)
+	            find_program (OCTAVE_CONFIG_COMMAND
+	                octave-config
+	                DOC "Path to Octave component and library information retrieval"
+	                )
+	            exec_program (${OCTAVE_CONFIG_COMMAND}
+	                ARGS --oct-site-dir
+	                OUTPUT_VARIABLE OCTAVE_SITE_OCT_DIR
+	            )
+	            set (OCTAVE_SITE_OCT_DIR "${OCTAVE_SITE_OCT_DIR}" CACHE LOCATION "Octave plugin directory")
+            endif (NOT OCTAVE_SITE_OCT_DIR)
+        
+            install (FILES ${OCTAVE_BINARY_OCT_FILES}
+	                 DESTINATION ${OCTAVE_SITE_OCT_DIR}
+	        )
+         endif (RESINSIGHT_PRIVATE_INSTALL)
+    else()
+        install(FILES ${OCTAVE_BINARY_OCT_FILES} DESTINATION .)
+    endif(TARGET ResInsight)
 
 endif (OCTAVE_MKOCTFILE)
     
