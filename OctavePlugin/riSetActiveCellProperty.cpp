@@ -219,7 +219,7 @@ DEFUN_DLD (riSetActiveCellProperty, args, nargout,
         return octave_value_list ();
     }
 
-    setEclipseProperty(propertyFrames, "127.0.0.1", 40001, caseId, propertyName.c_str(), requestedTimeSteps, porosityModel.c_str());
+    setEclipseProperty(propertyFrames, "127.0.0.1", riOctavePlugin::portNumber(), caseId, propertyName.c_str(), requestedTimeSteps, porosityModel.c_str());
 
     return octave_value_list ();
 }

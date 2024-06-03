@@ -135,7 +135,7 @@ DEFUN_DLD (riGetPropertyNames, args, nargout,
         std::vector<QString> propertyNames;
         std::vector<QString> propertyTypes;
 
-        getPropertyNames(propertyNames, propertyTypes, "127.0.0.1", 40001, argCaseId, porosityModel);
+        getPropertyNames(propertyNames, propertyTypes, "127.0.0.1", riOctavePlugin::portNumber(), argCaseId, porosityModel);
                 
         size_t caseCount = propertyNames.size();
 

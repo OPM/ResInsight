@@ -1076,7 +1076,7 @@ QStringList RiaApplication::octaveArguments() const
     arguments.append( "--path" );
     arguments << QApplication::applicationDirPath();
 
-    if ( !m_preferences->octaveShowHeaderInfoWhenExecutingScripts )
+    if ( !m_preferences->octaveShowHeaderInfoWhenExecutingScripts() )
     {
         // -q
         // Don't print the usual greeting and version message at startup.
@@ -1118,6 +1118,19 @@ QProcessEnvironment RiaApplication::octaveProcessEnvironment() const
 
     penv.insert( "LD_LIBRARY_PATH", ldPath );
 #endif
+
+    // Set the environment variable for the port number used by Octave plugins
+    // The plugins can access the port number using riOctavePlugin::portNumber()
+    // If the port number is not set in preferences, the plugins will use the default port number
+    const QString key = QString::fromStdString( riOctavePlugin::portNumberKey() );
+    if ( !m_preferences->octavePortNumber().isEmpty() )
+    {
+        penv.insert( key, m_preferences->octavePortNumber() );
+    }
+    else
+    {
+        penv.remove( key );
+    }
 
     return penv;
 }
