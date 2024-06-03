@@ -24,4 +24,10 @@ endif()
 
 add_subdirectory(OctavePlugin)
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  set(CPACK_GENERATOR TGZ)
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  set(CPACK_GENERATOR ZIP)
+endif()
+
 include(CPack)
