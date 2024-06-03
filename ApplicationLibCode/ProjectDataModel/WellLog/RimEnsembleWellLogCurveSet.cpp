@@ -645,7 +645,8 @@ RimSummaryCase* RimEnsembleWellLogCurveSet::findMatchingSummaryCase( RimWellLogL
     std::vector<RimSummaryCase*> sumCases              = summaryCaseCollection->allSummaryCases();
     for ( auto sumCase : sumCases )
     {
-        if ( isSameRealization( sumCase, wellLogCurve->wellLogFile() ) )
+        RimWellLogFile* wellLogFile = dynamic_cast<RimWellLogFile*>( wellLogCurve->wellLog() );
+        if ( wellLogFile && isSameRealization( sumCase, wellLogFile ) )
         {
             return sumCase;
         }
@@ -794,7 +795,7 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
 
                 curve->setWellPath( wellPath );
                 curve->setWellLogChannelName( wellLogChannelName );
-                curve->setWellLogFile( wellLogFile );
+                curve->setWellLog( wellLogFile );
 
                 curve->setSymbol( m_curveAppearance->symbol() );
                 curve->setSymbolSize( m_curveAppearance->symbolSize() );
