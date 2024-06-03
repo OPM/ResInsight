@@ -29,6 +29,7 @@
 #include "RifReaderEclipseWell.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultInfo.h"
 #include "RigMainGrid.h"
@@ -102,24 +103,18 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
             buildMetaData( eclipseCaseData, progress );
         }
 
-        auto task = progress.task( "Handling NCC data", 25 );
+        auto task = progress.task( "Handling NCC Result data", 25 );
         if ( isNNCsEnabled() )
         {
             caf::ProgressInfo nncProgress( 10, "" );
             RigMainGrid*      mainGrid = eclipseCaseData->mainGrid();
 
+            // This test should probably be improved to test more directly for presence of NNC data
+            if ( eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->hasFlowDiagUsableFluxes() )
             {
-                auto subNncTask = nncProgress.task( "Reading static NNC data" );
-                // transfer cached nnc data to mainGrid->nncData here
-                // transferStaticNNCData( mainEclGrid, m_ecl_init_file, mainGrid );
+                auto subNncTask = nncProgress.task( "Reading dynamic NNC data" );
+                transferDynamicNNCData( mainGrid );
             }
-
-            //// This test should probably be improved to test more directly for presence of NNC data
-            // if ( m_eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->hasFlowDiagUsableFluxes() )
-            //{
-            //     auto subNncTask = nncProgress.task( "Reading dynamic NNC data" );
-            //     transferDynamicNNCData( mainEclGrid, mainGrid );
-            // }
 
             RigActiveCellInfo* activeCellInfo = m_eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
@@ -286,7 +281,7 @@ void RifReaderOpmCommon::transferStaticNNCData( Opm::EclIO::EGrid& opmMainGrid, 
     {
         // Transform to our own data structures
         RigConnectionContainer nncConnections;
-        std::vector<double>    transmissibilityValuesTemp;
+        std::vector<double>    transmissibilityValues;
 
         for ( auto& c : connections )
         {
@@ -297,11 +292,35 @@ void RifReaderOpmCommon::transferStaticNNCData( Opm::EclIO::EGrid& opmMainGrid, 
 
             nncConnections.push_back( nncConnection );
 
-            transmissibilityValuesTemp.push_back( c.transValue );
+            transmissibilityValues.push_back( c.transValue );
         }
 
         mainGrid->nncData()->setEclipseConnections( nncConnections );
-        mainGrid->nncData()->makeScalarResultAndSetValues( RiaDefines::propertyNameCombTrans(), transmissibilityValuesTemp );
+        mainGrid->nncData()->makeScalarResultAndSetValues( RiaDefines::propertyNameCombTrans(), transmissibilityValues );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmCommon::transferDynamicNNCData( RigMainGrid* mainGrid )
+{
+    if ( !m_restartFile ) return;
+
+    const size_t timeStepCount = m_restartFile->numberOfReportSteps();
+
+    std::vector<std::vector<double>>& waterFluxData =
+        mainGrid->nncData()->makeDynamicConnectionScalarResult( RiaDefines::propertyNameFluxWat(), timeStepCount );
+    std::vector<std::vector<double>>& oilFluxData =
+        mainGrid->nncData()->makeDynamicConnectionScalarResult( RiaDefines::propertyNameFluxOil(), timeStepCount );
+    std::vector<std::vector<double>>& gasFluxData =
+        mainGrid->nncData()->makeDynamicConnectionScalarResult( RiaDefines::propertyNameFluxGas(), timeStepCount );
+
+    for ( size_t timeStep = 0; timeStep < timeStepCount; ++timeStep )
+    {
+        dynamicResult( "FLRWATN+", RiaDefines::PorosityModelType::MATRIX_MODEL, timeStep, &waterFluxData[timeStep] );
+        dynamicResult( "FLRGASN+", RiaDefines::PorosityModelType::MATRIX_MODEL, timeStep, &gasFluxData[timeStep] );
+        dynamicResult( "FLROILN+", RiaDefines::PorosityModelType::MATRIX_MODEL, timeStep, &oilFluxData[timeStep] );
     }
 }
 

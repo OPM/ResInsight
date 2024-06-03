@@ -66,6 +66,8 @@ private:
 
     void transferStaticNNCData( Opm::EclIO::EGrid& opmMainGrid, std::vector<Opm::EclIO::EGrid>& lgrGrids, RigMainGrid* mainGrid );
 
+    void transferDynamicNNCData( RigMainGrid* mainGrid );
+
     struct TimeDataFile
     {
         int    sequenceNumber;
