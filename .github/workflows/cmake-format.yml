@@ -23,6 +23,10 @@ jobs:
           find -name CMake*.txt | xargs ~/.local/bin/cmake-format -c ${{ github.workspace }}/cmake/cmake-format.py -i
           cd ..
 
+          cd Octave
+          find -name CMake*.txt | xargs ~/.local/bin/cmake-format -c ${{ github.workspace }}/cmake/cmake-format.py -i
+          cd ..
+
           cd Fwk/AppFwk
           find -name CMake*.txt | xargs ~/.local/bin/cmake-format -c ${{ github.workspace }}/cmake/cmake-format.py -i
           cd ..
