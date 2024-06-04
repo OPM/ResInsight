@@ -24,7 +24,7 @@
 
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseReportKeywords.h"
-#include "RifEclipseRestartDataAccess.h"
+#include "RifEclipseUnifiedRestartFileAccess.h"
 #include "RifOpmRadialGridTools.h"
 #include "RifReaderEclipseWell.h"
 
@@ -43,6 +43,8 @@
 #include "opm/io/eclipse/EInit.hpp"
 #include "opm/io/eclipse/ERst.hpp"
 #include "opm/output/eclipse/VectorItems/intehead.hpp"
+
+#include <QStringList>
 
 using namespace Opm;
 
@@ -74,6 +76,7 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
     try
     {
         m_gridFileName = fileName.toStdString();
+        locateAdditionalFiles( fileName );
 
         if ( !importGrid( eclipseCaseData->mainGrid(), eclipseCaseData ) )
         {
@@ -634,7 +637,7 @@ static std::vector<RifEclipseKeywordValueCount> createKeywordInfo( std::vector<E
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf::ProgressInfo& progress )
+void RifReaderOpmCommon::locateAdditionalFiles( QString gridFileName )
 {
     auto getFileNameForType = []( RiaEclipseFileNameTools::EclipseFileType fileType, const QString& candidate ) -> std::string
     {
@@ -643,25 +646,75 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
         return {};
     };
 
-    std::string initFileName;
-    std::string restartFileName;
-
-    QStringList fileSet;
-    RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( QString::fromStdString( m_gridFileName ), &fileSet );
-    for ( const auto& s : fileSet )
+    if ( m_initFileName.empty() || m_restartFileName.empty() )
     {
-        auto initCandidate    = getFileNameForType( RiaEclipseFileNameTools::EclipseFileType::ECLIPSE_INIT, s );
-        auto restartCandidate = getFileNameForType( RiaEclipseFileNameTools::EclipseFileType::ECLIPSE_UNRST, s );
+        QStringList fileSet;
+        RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( gridFileName, &fileSet );
+        for ( const auto& s : fileSet )
+        {
+            auto initCandidate    = getFileNameForType( RiaEclipseFileNameTools::EclipseFileType::ECLIPSE_INIT, s );
+            auto restartCandidate = getFileNameForType( RiaEclipseFileNameTools::EclipseFileType::ECLIPSE_UNRST, s );
 
-        if ( !initCandidate.empty() ) initFileName = initCandidate;
-        if ( !restartCandidate.empty() ) restartFileName = restartCandidate;
+            if ( !initCandidate.empty() ) m_initFileName = initCandidate;
+            if ( !restartCandidate.empty() ) m_restartFileName = restartCandidate;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmCommon::setupRestartAndInitAccess()
+{
+    if ( ( m_initFile == nullptr ) && !m_initFileName.empty() )
+    {
+        m_initFile = std::make_unique<EclIO::EInit>( m_initFileName );
     }
 
-    RigEclipseTimeStepInfo firstTimeStepInfo{ QDateTime(), 0, 0.0 };
-    if ( !restartFileName.empty() )
+    if ( ( m_restartFile == nullptr ) && !m_restartFileName.empty() )
     {
-        m_restartFile = std::make_shared<EclIO::ERst>( restartFileName );
+        m_restartFile = std::make_unique<EclIO::ERst>( m_restartFileName );
+    }
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigEclipseTimeStepInfo> RifReaderOpmCommon::createFilteredTimeStepInfos()
+{
+    std::vector<RigEclipseTimeStepInfo> timeStepInfos;
+
+    if ( m_restartFile == nullptr ) return timeStepInfos;
+
+    auto timeStepsOnFile = readTimeSteps();
+
+    for ( size_t i = 0; i < timeStepsOnFile.size(); i++ )
+    {
+        if ( isTimeStepIncludedByFilter( i ) )
+        {
+            QDate date( timeStepsOnFile[i].year, timeStepsOnFile[i].month, timeStepsOnFile[i].day );
+            auto  datetime = RiaQDateTimeTools::createDateTime( date, Qt::TimeSpec::UTC );
+
+            timeStepInfos.push_back(
+                RigEclipseTimeStepInfo( datetime, timeStepsOnFile[i].sequenceNumber, timeStepsOnFile[i].simulationTimeFromStart ) );
+        }
+    }
+
+    return timeStepInfos;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf::ProgressInfo& progress )
+{
+    setupRestartAndInitAccess();
+
+    std::vector<QDateTime> timeSteps;
+
+    RigEclipseTimeStepInfo firstTimeStepInfo{ QDateTime(), 0, 0.0 };
+    if ( m_restartFile != nullptr )
+    {
         std::vector<EclIO::EclFile::EclEntry> entries;
         for ( auto reportNumber : m_restartFile->listOfReportStepNumbers() )
         {
@@ -682,33 +735,20 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
             }
         }
 
-        auto timeStepsFromFile = readTimeSteps( m_restartFile );
-
-        std::vector<RigEclipseTimeStepInfo> timeStepInfos;
-        std::vector<QDateTime>              dateTimes;
-        for ( const auto& timeStep : timeStepsFromFile )
-        {
-            QDate     date( timeStep.year, timeStep.month, timeStep.day );
-            QDateTime dateTime = RiaQDateTimeTools::createDateTime( date, Qt::UTC );
-            dateTimes.push_back( dateTime );
-            timeStepInfos.emplace_back( dateTime, timeStep.sequenceNumber, timeStep.simulationTimeFromStart );
-        }
-        m_timeSteps = dateTimes;
-
         auto last = std::unique( entries.begin(), entries.end() );
         entries.erase( last, entries.end() );
 
         std::vector<RifEclipseKeywordValueCount> keywordInfo = createKeywordInfo( entries );
+
+        auto timeStepInfos = createFilteredTimeStepInfos();
 
         RifEclipseOutputFileTools::createResultEntries( keywordInfo, timeStepInfos, RiaDefines::ResultCatType::DYNAMIC_NATIVE, eclipseCaseData );
 
         firstTimeStepInfo = timeStepInfos.front();
     }
 
-    if ( !initFileName.empty() )
+    if ( m_initFile != nullptr )
     {
-        m_initFile = std::make_unique<EclIO::EInit>( initFileName );
-
         // entries from main grid
         auto entries = m_initFile->list_arrays();
         // add lgr entries, too
@@ -727,13 +767,58 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
                                                         eclipseCaseData );
     }
 
+    // Unit system
+    //{
+    //    // Default units type is METRIC
+    //    RiaDefines::EclipseUnitSystem unitsType = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
+    //    int                           unitsTypeValue;
+
+    //    if ( m_dynamicResultsAccess.notNull() )
+    //    {
+    //        unitsTypeValue = m_dynamicResultsAccess->readUnitsType();
+    //    }
+    //    else
+    //    {
+    //        if ( m_ecl_init_file )
+    //        {
+    //            unitsTypeValue = RifEclipseOutputFileTools::readUnitsType( m_ecl_init_file );
+    //        }
+    //        else
+    //        {
+    //            unitsTypeValue = ecl_grid_get_unit_system( grid );
+    //        }
+    //    }
+
+    //    if ( unitsTypeValue == 2 )
+    //    {
+    //        unitsType = RiaDefines::EclipseUnitSystem::UNITS_FIELD;
+    //    }
+    //    else if ( unitsTypeValue == 3 )
+    //    {
+    //        unitsType = RiaDefines::EclipseUnitSystem::UNITS_LAB;
+    //    }
+    //    m_eclipseCaseData->setUnitsType( unitsType );
+    //}
+
     auto task = progress.task( "Handling well information", 10 );
-    if ( !isSkipWellData() && !restartFileName.empty() )
+    if ( loadWellDataEnabled() && !m_restartFileName.empty() )
     {
-        auto restartAccess = RifEclipseOutputFileTools::createDynamicResultAccess( QString::fromStdString( m_gridFileName ) );
+        auto restartAccess = std::make_unique<RifEclipseUnifiedRestartFileAccess>();
+        restartAccess->setRestartFiles( QStringList( QString::fromStdString( m_restartFileName ) ) );
         restartAccess->open();
 
-        RifReaderEclipseWell::readWellCells( restartAccess.p(), eclipseCaseData, m_timeSteps, m_gridNames, isImportOfCompleteMswDataEnabled() );
+        std::vector<QDateTime>              filteredTimeSteps;
+        std::vector<RigEclipseTimeStepInfo> filteredTimeStepInfos = createFilteredTimeStepInfos();
+        for ( auto& a : filteredTimeStepInfos )
+        {
+            filteredTimeSteps.push_back( a.m_date );
+        }
+
+        RifReaderEclipseWell::readWellCells( restartAccess.get(),
+                                             eclipseCaseData,
+                                             filteredTimeSteps,
+                                             m_gridNames,
+                                             isImportOfCompleteMswDataEnabled() );
 
         restartAccess->close();
     }
@@ -746,30 +831,35 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifReaderOpmCommon::TimeDataFile> RifReaderOpmCommon::readTimeSteps( std::shared_ptr<EclIO::ERst> restartFile )
+std::vector<RifReaderOpmCommon::TimeDataFile> RifReaderOpmCommon::readTimeSteps()
 {
+    setupRestartAndInitAccess();
+
     std::vector<RifReaderOpmCommon::TimeDataFile> reportTimeData;
+
+    if ( m_restartFile == nullptr ) return reportTimeData;
+
     try
     {
         namespace VI = Opm::RestartIO::Helpers::VectorItems;
 
-        for ( auto seqNum : restartFile->listOfReportStepNumbers() )
+        for ( auto seqNum : m_restartFile->listOfReportStepNumbers() )
         {
             const std::string inteheadString = "INTEHEAD";
             const std::string doubheadString = "DOUBHEAD";
 
-            if ( restartFile->hasArray( inteheadString, seqNum ) )
+            if ( m_restartFile->hasArray( inteheadString, seqNum ) )
             {
-                const auto& intehead = restartFile->getRestartData<int>( inteheadString, seqNum );
+                const auto& intehead = m_restartFile->getRestartData<int>( inteheadString, seqNum );
                 auto        year     = intehead[VI::intehead::YEAR];
                 auto        month    = intehead[VI::intehead::MONTH];
                 auto        day      = intehead[VI::intehead::DAY];
 
                 double daySinceSimStart = 0.0;
 
-                if ( restartFile->hasArray( doubheadString, seqNum ) )
+                if ( m_restartFile->hasArray( doubheadString, seqNum ) )
                 {
-                    const auto& doubhead = restartFile->getRestartData<double>( doubheadString, seqNum );
+                    const auto& doubhead = m_restartFile->getRestartData<double>( doubheadString, seqNum );
                     if ( !doubhead.empty() )
                     {
                         // Read out the simulation time from start from DOUBHEAD. There is no enum defined to access this value.
@@ -790,4 +880,28 @@ std::vector<RifReaderOpmCommon::TimeDataFile> RifReaderOpmCommon::readTimeSteps(
     }
 
     return reportTimeData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RifReaderOpmCommon::timeStepsOnFile( QString gridFileName )
+{
+    locateAdditionalFiles( gridFileName );
+    setupRestartAndInitAccess();
+
+    if ( m_restartFile == nullptr ) return {};
+
+    auto timeStepsFromFile = readTimeSteps();
+
+    std::vector<QDateTime> dateTimes;
+
+    for ( const auto& timeStep : timeStepsFromFile )
+    {
+        QDate     date( timeStep.year, timeStep.month, timeStep.day );
+        QDateTime dateTime = RiaQDateTimeTools::createDateTime( date, Qt::UTC );
+        dateTimes.push_back( dateTime );
+    }
+
+    return dateTimes;
 }

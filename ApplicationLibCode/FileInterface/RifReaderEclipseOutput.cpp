@@ -450,7 +450,7 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
 
     {
         auto task = progress.task( "Handling well information", 10 );
-        if ( !isSkipWellData() )
+        if ( loadWellDataEnabled() )
         {
             std::vector<QDateTime>              filteredTimeSteps;
             std::vector<RigEclipseTimeStepInfo> filteredTimeStepInfos = createFilteredTimeStepInfos();

@@ -113,6 +113,28 @@ bool RimEclipseResultCase::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimEclipseResultCase::showTimeStepFilterGUI()
+{
+    caf::PdmUiPropertyViewDialog propertyDialog( nullptr, m_timeStepFilter, "Time Step Filter", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
+    propertyDialog.resize( QSize( 400, 400 ) );
+
+    // Push arrow cursor onto the cursor stack so it takes over from the wait cursor.
+    QApplication::setOverrideCursor( QCursor( Qt::ArrowCursor ) );
+    // Show GUI to select time steps
+    int dialogReturnValue = propertyDialog.exec();
+    // Pop arrow cursor off the cursor stack so that the previous (wait) cursor takes over.
+    QApplication::restoreOverrideCursor();
+
+    if ( dialogReturnValue != QDialog::Accepted ) return false;
+
+    m_timeStepFilter->updateFilteredTimeStepsFromUi();
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter )
 {
     // Early exit if data is already read
@@ -152,48 +174,34 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
 
             cvf::ref<RifEclipseRestartDataAccess> restartDataAccess = RifEclipseOutputFileTools::createDynamicResultAccess( gridFileName() );
 
+            std::vector<QDateTime> timeSteps;
+            std::vector<double>    daysSinceSimulationStart;
+
+            if ( restartDataAccess.notNull() )
             {
-                std::vector<QDateTime> timeSteps;
-                std::vector<double>    daysSinceSimulationStart;
-
-                if ( restartDataAccess.notNull() )
-                {
-                    restartDataAccess->timeSteps( &timeSteps, &daysSinceSimulationStart );
-                }
-                m_timeStepFilter->setTimeStepsFromFile( timeSteps );
+                restartDataAccess->timeSteps( &timeSteps, &daysSinceSimulationStart );
             }
-
-            if ( showTimeStepFilter )
-            {
-                caf::PdmUiPropertyViewDialog propertyDialog( nullptr,
-                                                             m_timeStepFilter,
-                                                             "Time Step Filter",
-                                                             "",
-                                                             QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
-                propertyDialog.resize( QSize( 400, 400 ) );
-
-                // Push arrow cursor onto the cursor stack so it takes over from the wait cursor.
-                QApplication::setOverrideCursor( QCursor( Qt::ArrowCursor ) );
-                // Show GUI to select time steps
-                int dialogReturnValue = propertyDialog.exec();
-                // Pop arrow cursor off the cursor stack so that the previous (wait) cursor takes over.
-                QApplication::restoreOverrideCursor();
-
-                if ( dialogReturnValue != QDialog::Accepted )
-                {
-                    return false;
-                }
-                m_timeStepFilter->updateFilteredTimeStepsFromUi();
-            }
+            m_timeStepFilter->setTimeStepsFromFile( timeSteps );
 
             readerEclipseOutput->setFileDataAccess( restartDataAccess.p() );
-            readerEclipseOutput->setTimeStepFilter( m_timeStepFilter->filteredTimeSteps() );
 
             readerInterface = readerEclipseOutput;
         }
         else
         {
-            readerInterface = new RifReaderOpmCommon;
+            auto readerOpmCommon = new RifReaderOpmCommon();
+
+            std::vector<QDateTime> timeSteps = readerOpmCommon->timeStepsOnFile( gridFileName() );
+            m_timeStepFilter->setTimeStepsFromFile( timeSteps );
+
+            readerInterface = readerOpmCommon;
+        }
+
+        if ( showTimeStepFilter )
+        {
+            if ( !showTimeStepFilterGUI() ) return false;
+
+            readerInterface->setTimeStepFilter( m_timeStepFilter->filteredTimeSteps() );
         }
 
         readerInterface->setFilenamesWithFaults( filesContainingFaults() );

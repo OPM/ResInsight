@@ -21,6 +21,8 @@
 #include "RifReaderInterface.h"
 
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace Opm::EclIO
 {
@@ -32,6 +34,7 @@ class EGrid;
 class RigMainGrid;
 class RigGridBase;
 class RigEclipseCaseData;
+class RigEclipseTimeStepInfo;
 
 namespace caf
 {
@@ -53,6 +56,8 @@ public:
     bool staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values ) override;
     bool dynamicResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values ) override;
 
+    std::vector<QDateTime> timeStepsOnFile( QString gridFileName );
+
 private:
     void buildMetaData( RigEclipseCaseData* caseData, caf::ProgressInfo& progress );
     bool importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* caseData );
@@ -67,6 +72,11 @@ private:
     void transferStaticNNCData( Opm::EclIO::EGrid& opmMainGrid, std::vector<Opm::EclIO::EGrid>& lgrGrids, RigMainGrid* mainGrid );
     void transferDynamicNNCData( RigMainGrid* mainGrid );
 
+    void locateAdditionalFiles( QString gridFileName );
+    void setupRestartAndInitAccess();
+
+    std::vector<RigEclipseTimeStepInfo> createFilteredTimeStepInfos();
+
     struct TimeDataFile
     {
         int    sequenceNumber;
@@ -76,15 +86,17 @@ private:
         double simulationTimeFromStart;
     };
 
-    static std::vector<TimeDataFile> readTimeSteps( std::shared_ptr<Opm::EclIO::ERst> restartFile );
+    std::vector<TimeDataFile> readTimeSteps();
 
 private:
-    std::string         m_gridFileName;
+    std::string m_gridFileName;
+    std::string m_initFileName;
+    std::string m_restartFileName;
+
     RigEclipseCaseData* m_eclipseCaseData;
 
-    std::shared_ptr<Opm::EclIO::ERst>  m_restartFile;
-    std::shared_ptr<Opm::EclIO::EInit> m_initFile;
+    std::unique_ptr<Opm::EclIO::ERst>  m_restartFile;
+    std::unique_ptr<Opm::EclIO::EInit> m_initFile;
 
-    std::vector<QDateTime>   m_timeSteps;
     std::vector<std::string> m_gridNames;
 };
