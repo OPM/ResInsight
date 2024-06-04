@@ -1007,15 +1007,32 @@ if(RESINSIGHT_ENABLE_GRPC)
 endif()
 add_subdirectory(ApplicationExeCode)
 
-if(OCTAVE_MKOCTFILE)
-  message(STATUS "Adding OctavePlugin library")
-
-  add_subdirectory(OctavePlugin)
-else(OCTAVE_MKOCTFILE)
-  message(
-    STATUS "Could not find OCTAVE_MKOCTFILE, skipping OctavePlugin library"
+option(RESINSIGHT_USE_EXTERNAL_OCTAVE_PLUGINS "Use external Octave plugins" OFF)
+if(RESINSIGHT_USE_EXTERNAL_OCTAVE_PLUGINS)
+  FetchContent_Declare(
+    external-octave_plugins
+    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/latest/download/OctavePlugins-0.1.1-Linux.tar.gz
   )
-endif(OCTAVE_MKOCTFILE)
+
+  FetchContent_Populate(external-octave_plugins)
+
+  file(GLOB FILE_AND_SYMLINKS ${external-octave_plugins_SOURCE_DIR}/*.oct)
+  install(
+    FILES ${FILE_AND_SYMLINKS}
+    DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+    OPTIONAL
+  )
+else(RESINSIGHT_USE_EXTERNAL_OCTAVE_PLUGINS)
+  if(OCTAVE_MKOCTFILE)
+    message(STATUS "Adding OctavePlugin library")
+
+    add_subdirectory(Octave/OctavePlugin)
+  else(OCTAVE_MKOCTFILE)
+    message(
+      STATUS "Could not find OCTAVE_MKOCTFILE, skipping OctavePlugin library"
+    )
+  endif(OCTAVE_MKOCTFILE)
+endif(RESINSIGHT_USE_EXTERNAL_OCTAVE_PLUGINS)
 
 # ##############################################################################
 # Visual Studio : Create the ruleset file to be used by Static Code Analysis
