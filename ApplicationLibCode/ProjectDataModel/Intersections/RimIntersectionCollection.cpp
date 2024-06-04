@@ -537,7 +537,7 @@ void RimIntersectionCollection::defineEditorAttribute( const caf::PdmFieldHandle
         {
             RimEclipseView* eclView = eclipseView();
 
-            if ( eclView )
+            if ( eclView && eclView->mainGrid() )
             {
                 const cvf::BoundingBox bb = eclView->mainGrid()->boundingBox();
 
