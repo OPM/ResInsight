@@ -16,21 +16,21 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaProjectFileVersionTools.h"
+#include "RiaProjectFileTools.h"
 
 #include <QStringList>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaProjectFileVersionTools::isCandidateVersionNewerThanOther( const QString& candidateProjectFileVersion, const QString& projectFileVersion )
+bool RiaProjectFileTools::isCandidateVersionNewerThanOther( const QString& candidateProjectFileVersion, const QString& projectFileVersion )
 {
     int candidateMajorVersion  = 0;
     int candidateMinorVersion  = 0;
     int candidatePatchNumber   = -1;
     int candidateDevelopmentId = -1;
 
-    RiaProjectFileVersionTools::decodeVersionString( candidateProjectFileVersion,
+    RiaProjectFileTools::decodeVersionString( candidateProjectFileVersion,
                                                      &candidateMajorVersion,
                                                      &candidateMinorVersion,
                                                      &candidatePatchNumber,
@@ -41,9 +41,9 @@ bool RiaProjectFileVersionTools::isCandidateVersionNewerThanOther( const QString
     int patchNumber   = -1;
     int developmentId = -1;
 
-    RiaProjectFileVersionTools::decodeVersionString( projectFileVersion, &majorVersion, &minorVersion, &patchNumber, &developmentId );
+    RiaProjectFileTools::decodeVersionString( projectFileVersion, &majorVersion, &minorVersion, &patchNumber, &developmentId );
 
-    return RiaProjectFileVersionTools::isCandidateNewerThanOther( candidateMajorVersion,
+    return RiaProjectFileTools::isCandidateNewerThanOther( candidateMajorVersion,
                                                                   candidateMinorVersion,
                                                                   candidatePatchNumber,
                                                                   candidateDevelopmentId,
@@ -56,7 +56,7 @@ bool RiaProjectFileVersionTools::isCandidateVersionNewerThanOther( const QString
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaProjectFileVersionTools::decodeVersionString( const QString& projectFileVersion,
+void RiaProjectFileTools::decodeVersionString( const QString& projectFileVersion,
                                                       int*           majorVersion,
                                                       int*           minorVersion,
                                                       int*           patch,
@@ -79,7 +79,7 @@ void RiaProjectFileVersionTools::decodeVersionString( const QString& projectFile
     if ( subStrings.size() > 2 )
     {
         QString candidate           = subStrings[2];
-        QString candidateDigitsOnly = RiaProjectFileVersionTools::stringOfDigits( candidate );
+        QString candidateDigitsOnly = RiaProjectFileTools::stringOfDigits( candidate );
 
         *patch = candidateDigitsOnly.toInt();
     }
@@ -87,7 +87,7 @@ void RiaProjectFileVersionTools::decodeVersionString( const QString& projectFile
     if ( subStrings.size() > 3 )
     {
         QString candidate           = subStrings.back();
-        QString candidateDigitsOnly = RiaProjectFileVersionTools::stringOfDigits( candidate );
+        QString candidateDigitsOnly = RiaProjectFileTools::stringOfDigits( candidate );
 
         *developmentId = candidateDigitsOnly.toInt();
     }
@@ -96,7 +96,7 @@ void RiaProjectFileVersionTools::decodeVersionString( const QString& projectFile
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaProjectFileVersionTools::isCandidateNewerThanOther( int candidateMajorVersion,
+bool RiaProjectFileTools::isCandidateNewerThanOther( int candidateMajorVersion,
                                                             int candidateMinorVersion,
                                                             int candidatePatchNumber,
                                                             int candidateDevelopmentId,
@@ -137,7 +137,7 @@ bool RiaProjectFileVersionTools::isCandidateNewerThanOther( int candidateMajorVe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaProjectFileVersionTools::stringOfDigits( const QString& string )
+QString RiaProjectFileTools::stringOfDigits( const QString& string )
 {
     QString digitsOnly;
 

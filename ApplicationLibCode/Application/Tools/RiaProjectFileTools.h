@@ -18,12 +18,17 @@
 
 #pragma once
 
+#include "cafPdmField.h"
+#include "cafPdmObjectHandle.h"
+
 #include <QString>
+
+#include <vector>
 
 //==================================================================================================
 //
 //==================================================================================================
-class RiaProjectFileVersionTools
+class RiaProjectFileTools
 {
 public:
     static bool isCandidateVersionNewerThanOther( const QString& candidateProjectFileVersion, const QString& otherProjectFileVersion );
