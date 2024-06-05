@@ -283,7 +283,7 @@ void RimProject::close()
     delete viewLinkerCollection->viewLinker();
     viewLinkerCollection->viewLinker = nullptr;
 
-    fileName = "";
+    setFileName( "" );
 
     m_globalPathList = "";
 
@@ -303,7 +303,7 @@ void RimProject::close()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProject::beforeInitAfterRead()
+void RimProject::updatesAfterProjectFileIsRead()
 {
     distributePathsFromGlobalPathList();
 
@@ -408,7 +408,7 @@ bool RimProject::writeProjectFile()
 {
     transferPathsToGlobalPathList();
 
-    QFile xmlFile( fileName );
+    QFile xmlFile( fileName() );
     if ( !xmlFile.open( QIODevice::WriteOnly | QIODevice::Text ) ) return false;
 
     QString content = documentAsString();
@@ -416,7 +416,7 @@ bool RimProject::writeProjectFile()
 
     if ( RiaPreferences::current()->storeBackupOfProjectFiles() )
     {
-        QString   backupFilename     = fileName + "db";
+        QString   backupFilename     = fileName() + "db";
         const int maximumRecordCount = 50;
         RiaProjectBackupTools::appendTextToDatabase( backupFilename, maximumRecordCount, content );
     }
@@ -488,9 +488,10 @@ bool RimProject::isProjectFileVersionEqualOrOlderThan( const QString& otherProje
 void RimProject::setProjectFileNameAndUpdateDependencies( const QString& projectFileName )
 {
     // Extract the filename of the project file when it was saved
-    QString oldProjectFileName = fileName;
+    QString oldProjectFileName = fileName();
+
     // Replace with the new actual filename
-    fileName = projectFileName;
+    setFileName( projectFileName );
 
     QFileInfo fileInfo( projectFileName );
     QString   newProjectPath = fileInfo.path();

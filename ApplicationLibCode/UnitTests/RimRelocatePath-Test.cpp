@@ -59,7 +59,7 @@ TEST( RimRelocatePathTest, findPathsInProjectFile )
 
     RimProject project;
 
-    project.fileName = fileName;
+    project.setFileName( fileName );
     project.readFile();
 
     std::vector<caf::FilePath*> filePaths;

@@ -54,23 +54,24 @@ class PdmDocument : public PdmObject
 public:
     PdmDocument();
 
-    PdmField<QString> fileName;
+    QString fileName() const;
+    void    setFileName( const QString& fileName );
 
     void readFile();
     bool writeFile();
 
-    QString documentAsString();
-
-    void readFile( QIODevice* device );
-    void writeFile( QIODevice* device );
-
     static void updateUiIconStateRecursively( PdmObjectHandle* root );
 
 protected:
-    virtual void beforeInitAfterRead();
+    QString documentAsString();
 
 private:
     void writeDocumentToXmlStream( QXmlStreamWriter& xmlStream );
+    void readFile( QIODevice* device );
+    void writeFile( QIODevice* device );
+
+private:
+    PdmField<QString> m_fileName;
 };
 
 } // End of namespace caf

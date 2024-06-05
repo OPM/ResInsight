@@ -476,6 +476,9 @@ TEST( BaseTest, ReadWrite )
 {
     QString xmlDocumentContentWithErrors;
 
+    QString fileName     = "PdmTestFil.xml";
+    QString fileNameCopy = "PdmTestFil_copy.xml";
+
     {
         MyPdmDocument xmlDoc;
 
@@ -524,7 +527,7 @@ TEST( BaseTest, ReadWrite )
         xmlDoc.objects.push_back( id2 );
 
         // Write file
-        xmlDoc.fileName = "PdmTestFil.xml";
+        xmlDoc.setFileName( fileName );
         xmlDoc.writeFile();
 
         caf::PdmObjectGroup pog;
@@ -557,8 +560,13 @@ TEST( BaseTest, ReadWrite )
         MyPdmDocument xmlDoc;
 
         // Read file
-        xmlDoc.fileName = "PdmTestFil.xml";
+        xmlDoc.setFileName( fileName );
         xmlDoc.readFile();
+
+        QFile f( fileNameCopy );
+        f.remove();
+
+        std::rename( fileName.toStdString().data(), fileNameCopy.toStdString().data() );
 
         caf::PdmObjectGroup pog;
         for ( size_t i = 0; i < xmlDoc.objects.size(); i++ )
@@ -578,16 +586,14 @@ TEST( BaseTest, ReadWrite )
         EXPECT_EQ( QString( "ÆØÅ Test text   end" ), ihDObjs[0]->m_textField() );
 
         // Write file
-        QFile xmlFile( "PdmTestFil2.xml" );
-        xmlFile.open( QIODevice::WriteOnly | QIODevice::Text );
-        xmlDoc.writeFile( &xmlFile );
-        xmlFile.close();
+        xmlDoc.setFileName( fileName );
+        xmlDoc.writeFile();
     }
 
     // Check that the files are identical
     {
-        QFile f1( "PdmTestFil.xml" );
-        QFile f2( "PdmTestFil2.xml" );
+        QFile f1( fileName );
+        QFile f2( fileNameCopy );
         f1.open( QIODevice::ReadOnly | QIODevice::Text );
         f2.open( QIODevice::ReadOnly | QIODevice::Text );
         QByteArray ba1   = f1.readAll();
@@ -677,7 +683,7 @@ TEST( BaseTest, ReadWrite )
         // Read the document containing errors
 
         MyPdmDocument xmlErrorDoc;
-        xmlErrorDoc.fileName = "PdmTestFilWithError.xml";
+        xmlErrorDoc.setFileName( "PdmTestFilWithError.xml" );
         xmlErrorDoc.readFile();
 
         caf::PdmObjectGroup pog;
