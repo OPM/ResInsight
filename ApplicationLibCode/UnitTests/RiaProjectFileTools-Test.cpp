@@ -1,10 +1,10 @@
 #include "gtest/gtest.h"
 
-#include "RiaProjectFileVersionTools.h"
+#include "RiaProjectFileTools.h"
 
 #include <QStringList>
 
-TEST( RiaProjectFileVersionTools, DecodeProjectVersionString )
+TEST( RiaProjectFileTools, DecodeProjectVersionString )
 {
     {
         int majorVersion  = -1;
@@ -13,7 +13,7 @@ TEST( RiaProjectFileVersionTools, DecodeProjectVersionString )
         int developmentId = -1;
 
         QString projectFileVersionString = "2017.05.1";
-        RiaProjectFileVersionTools::decodeVersionString( projectFileVersionString, &majorVersion, &minorVersion, &patchNumber, &developmentId );
+        RiaProjectFileTools::decodeVersionString( projectFileVersionString, &majorVersion, &minorVersion, &patchNumber, &developmentId );
 
         EXPECT_EQ( 2017, majorVersion );
         EXPECT_EQ( 5, minorVersion );
@@ -28,7 +28,7 @@ TEST( RiaProjectFileVersionTools, DecodeProjectVersionString )
         int developmentId = -1;
 
         QString projectFileVersionString = "";
-        RiaProjectFileVersionTools::decodeVersionString( projectFileVersionString, &majorVersion, &minorVersion, &patchNumber, &developmentId );
+        RiaProjectFileTools::decodeVersionString( projectFileVersionString, &majorVersion, &minorVersion, &patchNumber, &developmentId );
 
         EXPECT_EQ( -1, majorVersion );
         EXPECT_EQ( -1, minorVersion );
@@ -43,7 +43,7 @@ TEST( RiaProjectFileVersionTools, DecodeProjectVersionString )
         int developmentId = -1;
 
         QString projectFileVersionString = "2017.05.2-dev.23";
-        RiaProjectFileVersionTools::decodeVersionString( projectFileVersionString, &majorVersion, &minorVersion, &patchNumber, &developmentId );
+        RiaProjectFileTools::decodeVersionString( projectFileVersionString, &majorVersion, &minorVersion, &patchNumber, &developmentId );
 
         EXPECT_EQ( 2017, majorVersion );
         EXPECT_EQ( 5, minorVersion );
@@ -58,7 +58,7 @@ TEST( RiaProjectFileVersionTools, DecodeProjectVersionString )
         int developmentId = -1;
 
         QString projectFileVersionString = "2017.05.2-dev.long.text..23";
-        RiaProjectFileVersionTools::decodeVersionString( projectFileVersionString, &majorVersion, &minorVersion, &patchNumber, &developmentId );
+        RiaProjectFileTools::decodeVersionString( projectFileVersionString, &majorVersion, &minorVersion, &patchNumber, &developmentId );
 
         EXPECT_EQ( 2017, majorVersion );
         EXPECT_EQ( 5, minorVersion );
@@ -67,7 +67,7 @@ TEST( RiaProjectFileVersionTools, DecodeProjectVersionString )
     }
 }
 
-TEST( RiaProjectFileVersionTools, OrderKnownVersionStrings )
+TEST( RiaProjectFileTools, OrderKnownVersionStrings )
 {
     QStringList versionStrings;
     {
@@ -141,7 +141,7 @@ TEST( RiaProjectFileVersionTools, OrderKnownVersionStrings )
 
     QStringList sortedVersionList = versionStrings;
     {
-        std::sort( sortedVersionList.begin(), sortedVersionList.end(), RiaProjectFileVersionTools::isCandidateVersionNewerThanOther );
+        std::sort( sortedVersionList.begin(), sortedVersionList.end(), RiaProjectFileTools::isCandidateVersionNewerThanOther );
     }
 
     /*
