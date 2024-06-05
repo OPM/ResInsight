@@ -196,8 +196,9 @@ public:
     std::vector<caf::FilePath*> allFilePaths() const;
     QString                     updatedFilePathFromPathId( QString filePath, RiaVariableMapper* pathListMapper = nullptr ) const;
 
+    void updatesAfterProjectFileIsRead();
+
 protected:
-    void beforeInitAfterRead() override;
     void initAfterRead() override;
     void setupBeforeSave() override;
 

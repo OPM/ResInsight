@@ -1612,8 +1612,8 @@ void MainWindow::slotLoadProject()
         setPdmRoot( nullptr );
         releaseTestData();
 
-        m_testRoot           = new DemoPdmObjectGroup;
-        m_testRoot->fileName = fileName;
+        m_testRoot = new DemoPdmObjectGroup;
+        m_testRoot->setFileName( fileName );
         m_testRoot->readFile();
 
         setPdmRoot( m_testRoot );
@@ -1631,7 +1631,7 @@ void MainWindow::slotSaveProject()
                                                      "Project Files (*.proj);;All files(*.*)" );
     if ( !fileName.isEmpty() )
     {
-        m_testRoot->fileName = fileName;
+        m_testRoot->setFileName( fileName );
         m_testRoot->writeFile();
     }
 }

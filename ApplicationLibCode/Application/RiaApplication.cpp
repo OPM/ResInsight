@@ -461,8 +461,9 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         return false;
     }
 
-    m_project->fileName = fullPathProjectFileName;
+    m_project->setFileName( fullPathProjectFileName );
     m_project->readFile();
+    m_project->updatesAfterProjectFileIsRead();
 
     // Apply any modifications to the loaded project before we go ahead and load actual data
     if ( projectModifier )
@@ -492,6 +493,11 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 
         return true;
     }
+
+    // At this point, all the file paths variables are replaced and all file paths updated to the new location. This will enable use of file
+    // paths in initAfterRead().
+    m_project->resolveReferencesRecursively();
+    m_project->initAfterReadRecursively();
 
     // Migrate all RimGridCases to RimFileSummaryCase
     RimGridSummaryCase_obsolete::convertGridCasesToSummaryFileCases( m_project.get() );
@@ -802,7 +808,7 @@ bool RiaApplication::saveProjectAs( const QString& fileName, gsl::not_null<QStri
 {
     CAF_ASSERT( m_project );
     // Make sure we always store path with forward slash to avoid issues when opening the project file on Linux
-    m_project->fileName = RiaFilePathTools::toInternalSeparator( fileName );
+    m_project->setFileName( RiaFilePathTools::toInternalSeparator( fileName ) );
 
     onProjectBeingSaved();
 

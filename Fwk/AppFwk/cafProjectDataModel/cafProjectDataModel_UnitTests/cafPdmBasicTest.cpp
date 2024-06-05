@@ -524,7 +524,7 @@ TEST( BaseTest, ReadWrite )
         xmlDoc.objects.push_back( id2 );
 
         // Write file
-        xmlDoc.fileName = "PdmTestFil.xml";
+        xmlDoc.setFileName( "PdmTestFil.xml" );
         xmlDoc.writeFile();
 
         caf::PdmObjectGroup pog;
@@ -557,7 +557,7 @@ TEST( BaseTest, ReadWrite )
         MyPdmDocument xmlDoc;
 
         // Read file
-        xmlDoc.fileName = "PdmTestFil.xml";
+        xmlDoc.setFileName( "PdmTestFil.xml" );
         xmlDoc.readFile();
 
         caf::PdmObjectGroup pog;
@@ -578,10 +578,8 @@ TEST( BaseTest, ReadWrite )
         EXPECT_EQ( QString( "ÆØÅ Test text   end" ), ihDObjs[0]->m_textField() );
 
         // Write file
-        QFile xmlFile( "PdmTestFil2.xml" );
-        xmlFile.open( QIODevice::WriteOnly | QIODevice::Text );
-        xmlDoc.writeFile( &xmlFile );
-        xmlFile.close();
+        xmlDoc.setFileName( "PdmTestFil2.xml" );
+        xmlDoc.writeFile();
     }
 
     // Check that the files are identical
@@ -677,7 +675,7 @@ TEST( BaseTest, ReadWrite )
         // Read the document containing errors
 
         MyPdmDocument xmlErrorDoc;
-        xmlErrorDoc.fileName = "PdmTestFilWithError.xml";
+        xmlErrorDoc.setFileName( "PdmTestFilWithError.xml" );
         xmlErrorDoc.readFile();
 
         caf::PdmObjectGroup pog;

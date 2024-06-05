@@ -113,7 +113,7 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream( QTextStre
 
     if ( writeProjectInfo )
     {
-        formatter.comment( "Project: " + RimProject::current()->fileName );
+        formatter.comment( "Project: " + RimProject::current()->fileName() );
         stream << "\n";
     }
 
