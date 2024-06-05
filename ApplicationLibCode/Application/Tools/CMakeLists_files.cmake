@@ -18,7 +18,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaInterpolationTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryAddressAnalyzer.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaSimWellBranchTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaProjectFileVersionTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaProjectFileTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaStringEncodingTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaTextStringTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaTextFileCompare.h
@@ -77,7 +77,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaInterpolationTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryAddressAnalyzer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaSimWellBranchTools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaProjectFileVersionTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaProjectFileTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaStringEncodingTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaTextStringTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaTextFileCompare.cpp

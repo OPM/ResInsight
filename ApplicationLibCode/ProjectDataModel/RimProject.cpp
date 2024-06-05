@@ -26,7 +26,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 #include "RiaProjectBackupTools.h"
-#include "RiaProjectFileVersionTools.h"
+#include "RiaProjectFileTools.h"
 #include "RiaTextStringTools.h"
 #include "RiaVersionInfo.h"
 
@@ -479,7 +479,7 @@ bool RimProject::isProjectFileVersionEqualOrOlderThan( const QString& otherProje
 {
     QString candidateProjectFileVersion = projectFileVersionString();
 
-    return !RiaProjectFileVersionTools::isCandidateVersionNewerThanOther( candidateProjectFileVersion, otherProjectFileVersion );
+    return !RiaProjectFileTools::isCandidateVersionNewerThanOther( candidateProjectFileVersion, otherProjectFileVersion );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1336,7 +1336,7 @@ RimPlotTemplateFolderItem* RimProject::rootPlotTemplateItem() const
 std::vector<caf::FilePath*> RimProject::allFilePaths() const
 {
     std::vector<caf::FilePath*> filePaths;
-    fieldContentsByType( this, filePaths );
+    RiaProjectFileTools::fieldContentsByType( this, filePaths );
 
     return filePaths;
 }
