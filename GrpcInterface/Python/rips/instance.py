@@ -131,7 +131,10 @@ class Instance:
                 data = json.load(f)
                 resinsight_executable = data["resinsight_executable"]
                 if resinsight_executable:
-                    print("In './share/rips/rips_config.json', found resinsight_executable:", resinsight_executable)
+                    print(
+                        "In './share/rips/rips_config.json', found resinsight_executable:",
+                        resinsight_executable,
+                    )
 
         if not resinsight_executable:
             resinsight_executable_from_env = os.environ.get("RESINSIGHT_EXECUTABLE")
