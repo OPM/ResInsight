@@ -31,10 +31,10 @@ bool RiaProjectFileTools::isCandidateVersionNewerThanOther( const QString& candi
     int candidateDevelopmentId = -1;
 
     RiaProjectFileTools::decodeVersionString( candidateProjectFileVersion,
-                                                     &candidateMajorVersion,
-                                                     &candidateMinorVersion,
-                                                     &candidatePatchNumber,
-                                                     &candidateDevelopmentId );
+                                              &candidateMajorVersion,
+                                              &candidateMinorVersion,
+                                              &candidatePatchNumber,
+                                              &candidateDevelopmentId );
 
     int majorVersion  = 0;
     int minorVersion  = 0;
@@ -44,23 +44,19 @@ bool RiaProjectFileTools::isCandidateVersionNewerThanOther( const QString& candi
     RiaProjectFileTools::decodeVersionString( projectFileVersion, &majorVersion, &minorVersion, &patchNumber, &developmentId );
 
     return RiaProjectFileTools::isCandidateNewerThanOther( candidateMajorVersion,
-                                                                  candidateMinorVersion,
-                                                                  candidatePatchNumber,
-                                                                  candidateDevelopmentId,
-                                                                  majorVersion,
-                                                                  minorVersion,
-                                                                  patchNumber,
-                                                                  developmentId );
+                                                           candidateMinorVersion,
+                                                           candidatePatchNumber,
+                                                           candidateDevelopmentId,
+                                                           majorVersion,
+                                                           minorVersion,
+                                                           patchNumber,
+                                                           developmentId );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaProjectFileTools::decodeVersionString( const QString& projectFileVersion,
-                                                      int*           majorVersion,
-                                                      int*           minorVersion,
-                                                      int*           patch,
-                                                      int*           developmentId )
+void RiaProjectFileTools::decodeVersionString( const QString& projectFileVersion, int* majorVersion, int* minorVersion, int* patch, int* developmentId )
 {
     if ( projectFileVersion.isEmpty() ) return;
 
@@ -97,13 +93,13 @@ void RiaProjectFileTools::decodeVersionString( const QString& projectFileVersion
 ///
 //--------------------------------------------------------------------------------------------------
 bool RiaProjectFileTools::isCandidateNewerThanOther( int candidateMajorVersion,
-                                                            int candidateMinorVersion,
-                                                            int candidatePatchNumber,
-                                                            int candidateDevelopmentId,
-                                                            int otherMajorVersion,
-                                                            int otherMinorVersion,
-                                                            int otherPatchNumber,
-                                                            int otherDevelopmentId )
+                                                     int candidateMinorVersion,
+                                                     int candidatePatchNumber,
+                                                     int candidateDevelopmentId,
+                                                     int otherMajorVersion,
+                                                     int otherMinorVersion,
+                                                     int otherPatchNumber,
+                                                     int otherDevelopmentId )
 {
     if ( candidateMajorVersion != otherMajorVersion )
     {
