@@ -816,6 +816,7 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
 
     progInfo.setNextProgressIncrement( m_filesWithSameBaseName.size() );
 
+    const auto                          timeStepsOnFile = allTimeSteps();
     std::vector<RigEclipseTimeStepInfo> timeStepInfos;
 
     // Create access object for dynamic results
@@ -829,7 +830,11 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
         timeStepInfos    = createFilteredTimeStepInfos();
         auto keywordInfo = m_dynamicResultsAccess->keywordValueCounts();
 
-        RifEclipseOutputFileTools::createResultEntries( keywordInfo, timeStepInfos, RiaDefines::ResultCatType::DYNAMIC_NATIVE, m_eclipseCaseData );
+        RifEclipseOutputFileTools::createResultEntries( keywordInfo,
+                                                        timeStepInfos,
+                                                        RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                        m_eclipseCaseData,
+                                                        timeStepsOnFile.size() );
     }
 
     progInfo.incrementProgress();
@@ -887,7 +892,8 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
         RifEclipseOutputFileTools::createResultEntries( keywordInfo,
                                                         staticTimeStepInfo,
                                                         RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                        m_eclipseCaseData );
+                                                        m_eclipseCaseData,
+                                                        1 );
     }
 }
 

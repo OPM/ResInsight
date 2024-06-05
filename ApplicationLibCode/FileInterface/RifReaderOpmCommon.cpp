@@ -535,8 +535,10 @@ bool RifReaderOpmCommon::dynamicResult( const QString&                result,
         {
             auto resultName = result.toStdString();
 
+            size_t indexOnFile = timeStepIndexOnFile( stepIndex );
+
             const auto& stepNumbers = m_restartFile->listOfReportStepNumbers();
-            auto        stepNumber  = stepNumbers[stepIndex];
+            auto        stepNumber  = stepNumbers[indexOnFile];
 
             std::vector<double> combinedFileValues;
 
@@ -715,6 +717,8 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
     RigEclipseTimeStepInfo firstTimeStepInfo{ QDateTime(), 0, 0.0 };
     if ( m_restartFile != nullptr )
     {
+        auto timeStepsOnFile = readTimeSteps();
+
         std::vector<EclIO::EclFile::EclEntry> entries;
         for ( auto reportNumber : m_restartFile->listOfReportStepNumbers() )
         {
@@ -742,7 +746,11 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
 
         auto timeStepInfos = createFilteredTimeStepInfos();
 
-        RifEclipseOutputFileTools::createResultEntries( keywordInfo, timeStepInfos, RiaDefines::ResultCatType::DYNAMIC_NATIVE, eclipseCaseData );
+        RifEclipseOutputFileTools::createResultEntries( keywordInfo,
+                                                        timeStepInfos,
+                                                        RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                        eclipseCaseData,
+                                                        timeStepsOnFile.size() );
 
         firstTimeStepInfo = timeStepInfos.front();
     }
@@ -764,7 +772,8 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
         RifEclipseOutputFileTools::createResultEntries( keywordInfo,
                                                         { firstTimeStepInfo },
                                                         RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                        eclipseCaseData );
+                                                        eclipseCaseData,
+                                                        1 );
     }
 
     // Unit system

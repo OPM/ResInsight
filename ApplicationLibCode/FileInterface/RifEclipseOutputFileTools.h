@@ -62,7 +62,8 @@ public:
     static void createResultEntries( const std::vector<RifEclipseKeywordValueCount>& fileKeywordInfo,
                                      const std::vector<RigEclipseTimeStepInfo>&      timeStepInfo,
                                      RiaDefines::ResultCatType                       resultCategory,
-                                     RigEclipseCaseData*                             eclipseCaseData );
+                                     RigEclipseCaseData*                             eclipseCaseData,
+                                     size_t                                          totalTimeSteps );
 
     static bool keywordData( const ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<double>* values );
     static bool keywordData( const ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<int>* values );

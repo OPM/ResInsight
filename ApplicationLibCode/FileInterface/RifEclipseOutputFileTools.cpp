@@ -80,7 +80,8 @@ std::vector<RifEclipseKeywordValueCount> RifEclipseOutputFileTools::keywordValue
 void RifEclipseOutputFileTools::createResultEntries( const std::vector<RifEclipseKeywordValueCount>& fileKeywordInfo,
                                                      const std::vector<RigEclipseTimeStepInfo>&      timeStepInfo,
                                                      RiaDefines::ResultCatType                       resultCategory,
-                                                     RigEclipseCaseData*                             eclipseCaseData )
+                                                     RigEclipseCaseData*                             eclipseCaseData,
+                                                     size_t                                          totalTimeSteps )
 {
     if ( !eclipseCaseData ) return;
 
@@ -92,7 +93,7 @@ void RifEclipseOutputFileTools::createResultEntries( const std::vector<RifEclips
                                                             eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
                                                             eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
                                                             RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                            timeStepInfo.size() );
+                                                            totalTimeSteps );
 
         if ( resultCategory == RiaDefines::ResultCatType::STATIC_NATIVE )
         {
@@ -114,7 +115,7 @@ void RifEclipseOutputFileTools::createResultEntries( const std::vector<RifEclips
                                                             eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
                                                             eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
                                                             RiaDefines::PorosityModelType::FRACTURE_MODEL,
-                                                            timeStepInfo.size() );
+                                                            totalTimeSteps );
 
         if ( resultCategory == RiaDefines::ResultCatType::STATIC_NATIVE )
         {
