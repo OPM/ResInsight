@@ -194,7 +194,6 @@ public:
     RimPlotTemplateFolderItem* rootPlotTemplateItem() const;
 
     std::vector<caf::FilePath*> allFilePaths() const;
-    QString                     updatedFilePathFromPathId( QString filePath, RiaVariableMapper* pathListMapper = nullptr ) const;
 
 protected:
     void beforeInitAfterRead() override;
@@ -204,8 +203,9 @@ protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
 private:
-    void transferPathsToGlobalPathList();
-    void distributePathsFromGlobalPathList();
+    void    transferPathsToGlobalPathList();
+    void    distributePathsFromGlobalPathList();
+    QString updatedFilePathFromPathId( QString filePath, RiaVariableMapper* pathListMapper = nullptr ) const;
 
 private:
     caf::PdmChildField<RimMainPlotCollection*> m_mainPlotCollection;
