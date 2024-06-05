@@ -21,6 +21,7 @@
 #include "RiaEclipseFileNameTools.h"
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaStdStringTools.h"
 
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseReportKeywords.h"
@@ -53,6 +54,7 @@ using namespace Opm;
 //--------------------------------------------------------------------------------------------------
 RifReaderOpmCommon::RifReaderOpmCommon()
     : m_eclipseCaseData( nullptr )
+    , m_gridUnit( -1 )
 {
 }
 
@@ -150,6 +152,15 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
     mainGrid->setGridPointDimensions( cvf::Vec3st( dims[0] + 1, dims[1] + 1, dims[2] + 1 ) );
     mainGrid->setGridName( "Main grid" );
     mainGrid->setDualPorosity( opmGrid.porosity_mode() > 0 );
+
+    // assign grid unit, if found (1 = Metric, 2 = Field, 3 = Lab)
+    auto gridUnitStr = RiaStdStringTools::toUpper( opmGrid.grid_unit() );
+    if ( gridUnitStr.starts_with( 'M' ) )
+        m_gridUnit = 1;
+    else if ( gridUnitStr.starts_with( 'F' ) )
+        m_gridUnit = 2;
+    else if ( gridUnitStr.starts_with( 'C' ) )
+        m_gridUnit = 3;
 
     auto totalCellCount           = opmGrid.totalNumberOfCells();
     auto globalMatrixActiveSize   = opmGrid.activeCells();
@@ -777,37 +788,42 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
     }
 
     // Unit system
-    //{
-    //    // Default units type is METRIC
-    //    RiaDefines::EclipseUnitSystem unitsType = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
-    //    int                           unitsTypeValue;
+    {
+        // Default units type is METRIC, look in restart file, then init file and then grid file until we find something
+        RiaDefines::EclipseUnitSystem unitsType      = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
+        int                           unitsTypeValue = -1;
 
-    //    if ( m_dynamicResultsAccess.notNull() )
-    //    {
-    //        unitsTypeValue = m_dynamicResultsAccess->readUnitsType();
-    //    }
-    //    else
-    //    {
-    //        if ( m_ecl_init_file )
-    //        {
-    //            unitsTypeValue = RifEclipseOutputFileTools::readUnitsType( m_ecl_init_file );
-    //        }
-    //        else
-    //        {
-    //            unitsTypeValue = ecl_grid_get_unit_system( grid );
-    //        }
-    //    }
+        if ( m_restartFile != nullptr )
+        {
+            const auto& intHeader = m_restartFile->getRestartData<int>( "INTEHEAD", 0 );
 
-    //    if ( unitsTypeValue == 2 )
-    //    {
-    //        unitsType = RiaDefines::EclipseUnitSystem::UNITS_FIELD;
-    //    }
-    //    else if ( unitsTypeValue == 3 )
-    //    {
-    //        unitsType = RiaDefines::EclipseUnitSystem::UNITS_LAB;
-    //    }
-    //    m_eclipseCaseData->setUnitsType( unitsType );
-    //}
+            if ( intHeader.size() > 2 ) unitsTypeValue = intHeader[2];
+        }
+
+        if ( unitsTypeValue < 0 )
+        {
+            if ( m_initFile != nullptr )
+            {
+                const auto& intHeader = m_initFile->getInitData<int>( "INTEHEAD" );
+                if ( intHeader.size() > 2 ) unitsTypeValue = intHeader[2];
+            }
+        }
+
+        if ( unitsTypeValue < 0 )
+        {
+            unitsTypeValue = m_gridUnit;
+        }
+
+        if ( unitsTypeValue == 2 )
+        {
+            unitsType = RiaDefines::EclipseUnitSystem::UNITS_FIELD;
+        }
+        else if ( unitsTypeValue == 3 )
+        {
+            unitsType = RiaDefines::EclipseUnitSystem::UNITS_LAB;
+        }
+        m_eclipseCaseData->setUnitsType( unitsType );
+    }
 
     auto task = progress.task( "Handling well information", 10 );
     if ( loadWellDataEnabled() && !m_restartFileName.empty() )

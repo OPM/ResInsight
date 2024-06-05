@@ -92,6 +92,7 @@ private:
     std::string m_gridFileName;
     std::string m_initFileName;
     std::string m_restartFileName;
+    int         m_gridUnit;
 
     RigEclipseCaseData* m_eclipseCaseData;
 
