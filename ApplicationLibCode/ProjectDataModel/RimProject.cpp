@@ -1336,7 +1336,7 @@ RimPlotTemplateFolderItem* RimProject::rootPlotTemplateItem() const
 std::vector<caf::FilePath*> RimProject::allFilePaths() const
 {
     std::vector<caf::FilePath*> filePaths;
-    fieldContentsByType( this, filePaths );
+    RiaProjectFileVersionTools::fieldContentsByType( this, filePaths );
 
     return filePaths;
 }

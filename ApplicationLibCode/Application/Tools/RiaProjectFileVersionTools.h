@@ -31,6 +31,39 @@ public:
     // Public to be able to unit test function, not intended to be used
     static void decodeVersionString( const QString& projectFileVersion, int* majorVersion, int* minorVersion, int* patch, int* developmentId );
 
+    template <typename T>
+    static void fieldContentsByType( const caf::PdmObjectHandle* object, std::vector<T*>& fieldContents )
+    {
+        if ( !object ) return;
+
+        std::vector<caf::PdmFieldHandle*> allFieldsInObject = object->fields();
+
+        std::vector<caf::PdmObjectHandle*> children;
+
+        for ( const auto& field : allFieldsInObject )
+        {
+            caf::PdmField<T>* typedField = dynamic_cast<caf::PdmField<T>*>( field );
+            if ( typedField ) fieldContents.push_back( &typedField->v() );
+
+            caf::PdmField<std::vector<T>>* typedFieldInVector = dynamic_cast<caf::PdmField<std::vector<T>>*>( field );
+            if ( typedFieldInVector )
+            {
+                for ( T& typedFieldFromVector : typedFieldInVector->v() )
+                {
+                    fieldContents.push_back( &typedFieldFromVector );
+                }
+            }
+
+            auto other = field->children();
+            children.insert( children.end(), other.begin(), other.end() );
+        }
+
+        for ( const auto& child : children )
+        {
+            fieldContentsByType( child, fieldContents );
+        }
+    }
+
 private:
     static bool isCandidateNewerThanOther( int candidateMajorVersion,
                                            int candidateMinorVersion,
