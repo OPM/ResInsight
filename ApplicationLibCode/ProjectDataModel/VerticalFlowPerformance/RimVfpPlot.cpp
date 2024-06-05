@@ -871,12 +871,10 @@ void RimVfpPlot::initAfterRead()
     auto filePath = m_filePath_OBSOLETE.v().path();
     if ( filePath.isEmpty() ) return;
 
-    QString fileName = RimProject::current()->updatedFilePathFromPathId( filePath );
-
     auto vfpDataCollection = RimVfpDataCollection::instance();
     if ( vfpDataCollection )
     {
-        auto tableData = vfpDataCollection->appendTableDataObject( fileName );
+        auto tableData = vfpDataCollection->appendTableDataObject( filePath );
         if ( tableData )
         {
             setDataSource( tableData );

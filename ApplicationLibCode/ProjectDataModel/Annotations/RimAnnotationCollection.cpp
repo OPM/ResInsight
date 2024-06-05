@@ -111,8 +111,7 @@ void RimAnnotationCollection::initAfterRead()
         RimPolygonFile* newPoly = new RimPolygonFile();
         newPoly->setName( oldPoly->uiName() );
 
-        QString fileName = RimProject::current()->updatedFilePathFromPathId( oldPoly->fileName() );
-        newPoly->setFileName( fileName );
+        newPoly->setFileName( oldPoly->fileName() );
 
         polycoll->addPolygonFile( newPoly );
     }
