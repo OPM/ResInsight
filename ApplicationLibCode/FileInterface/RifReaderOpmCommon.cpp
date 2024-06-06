@@ -723,13 +723,12 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
 {
     setupRestartAndInitAccess();
 
-    std::vector<QDateTime> timeSteps;
+    std::vector<QDateTime>              timeSteps;
+    std::vector<RigEclipseTimeStepInfo> filteredTimeStepInfos;
 
     RigEclipseTimeStepInfo firstTimeStepInfo{ QDateTime(), 0, 0.0 };
     if ( m_restartFile != nullptr )
     {
-        auto timeStepsOnFile = readTimeSteps();
-
         std::vector<EclIO::EclFile::EclEntry> entries;
         for ( auto reportNumber : m_restartFile->listOfReportStepNumbers() )
         {
@@ -755,15 +754,15 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
 
         std::vector<RifEclipseKeywordValueCount> keywordInfo = createKeywordInfo( entries );
 
-        auto timeStepInfos = createFilteredTimeStepInfos();
+        filteredTimeStepInfos = createFilteredTimeStepInfos();
 
         RifEclipseOutputFileTools::createResultEntries( keywordInfo,
-                                                        timeStepInfos,
+                                                        filteredTimeStepInfos,
                                                         RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                         eclipseCaseData,
-                                                        timeStepsOnFile.size() );
+                                                        m_restartFile->numberOfReportSteps() );
 
-        firstTimeStepInfo = timeStepInfos.front();
+        if ( filteredTimeStepInfos.size() > 0 ) firstTimeStepInfo = filteredTimeStepInfos.front();
     }
 
     if ( m_initFile != nullptr )
@@ -835,8 +834,7 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
         restartAccess->setRestartFiles( QStringList( QString::fromStdString( m_restartFileName ) ) );
         restartAccess->open();
 
-        std::vector<QDateTime>              filteredTimeSteps;
-        std::vector<RigEclipseTimeStepInfo> filteredTimeStepInfos = createFilteredTimeStepInfos();
+        std::vector<QDateTime> filteredTimeSteps;
         for ( auto& a : filteredTimeStepInfos )
         {
             filteredTimeSteps.push_back( a.m_date );
