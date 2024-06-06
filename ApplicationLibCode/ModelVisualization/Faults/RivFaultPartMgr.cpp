@@ -516,6 +516,8 @@ void RivFaultPartMgr::updatePartEffect()
 
     cvf::ref<cvf::Effect>    eff;
     caf::MeshEffectGenerator faultEffGen( prefs->defaultFaultGridLineColors() );
+    faultEffGen.setLineWidth( m_rimFaultCollection->meshLineThickness() );
+
     eff = faultEffGen.generateCachedEffect();
 
     if ( m_nativeFaultGridLines.notNull() )

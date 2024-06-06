@@ -21,10 +21,8 @@
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmPointer.h"
 
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"
@@ -67,6 +65,7 @@ public:
     bool                               showOppositeFaultFaces() const;
     bool                               showNNCs() const;
     bool                               hideNNCsWhenNoResultIsAvailable() const;
+    int                                meshLineThickness() const;
 
     void setFaultResult( caf::AppEnum<FaultFaceCullingMode> resultType );
     void setShouldApplyCellFiltersToFaults( bool bEnabled );
@@ -86,6 +85,7 @@ public:
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     caf::PdmFieldHandle* objectToggleField() override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
@@ -103,6 +103,7 @@ private:
     caf::PdmField<bool>         m_showFaultCollection;
     caf::PdmField<bool>         m_showNNCs;
     caf::PdmField<bool>         m_hideNNCsWhenNoResultIsAvailable;
+    caf::PdmField<int>          m_meshLineThickness;
 
     caf::PdmField<caf::AppEnum<FaultFaceCullingMode>> m_faultResult;
 
