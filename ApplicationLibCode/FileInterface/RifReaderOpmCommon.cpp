@@ -795,9 +795,12 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
 
         if ( m_restartFile != nullptr )
         {
-            const auto& intHeader = m_restartFile->getRestartData<int>( "INTEHEAD", 0 );
+            if ( m_restartFile->hasArray( "INTEHEAD", 0 ) )
+            {
+                const auto& intHeader = m_restartFile->getRestartData<int>( "INTEHEAD", 0 );
 
-            if ( intHeader.size() > 2 ) unitsTypeValue = intHeader[2];
+                if ( intHeader.size() > 2 ) unitsTypeValue = intHeader[2];
+            }
         }
 
         if ( unitsTypeValue < 0 )
