@@ -156,6 +156,7 @@ void RicNewContourMapViewFeature::onActionTriggered( bool isChecked )
         oilField->eclipseContourMapCollection()->updateConnectedEditors();
 
         Riu3DMainWindowTools::setExpanded( eclipseContourMap );
+        Riu3DMainWindowTools::selectAsCurrentItem( eclipseContourMap );
     }
     else if ( geoMechContourMap )
     {
@@ -171,6 +172,7 @@ void RicNewContourMapViewFeature::onActionTriggered( bool isChecked )
             geoMechContourMap->createDisplayModelAndRedraw();
             geoMechContourMap->zoomAll();
             Riu3DMainWindowTools::setExpanded( geoMechContourMap );
+            Riu3DMainWindowTools::selectAsCurrentItem( geoMechContourMap );
         }
     }
 }

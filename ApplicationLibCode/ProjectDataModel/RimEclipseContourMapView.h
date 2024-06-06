@@ -19,7 +19,8 @@
 #pragma once
 
 #include "RimEclipseView.h"
-#include "RimNameConfig.h"
+
+#include "cafPdmProxyValueField.h"
 
 enum class RimLegendConfigChangeType;
 class RimEclipseContourMapProjection;
@@ -79,11 +80,17 @@ protected:
     void onLegendConfigChanged( const caf::SignalEmitter* emitter, RimLegendConfigChangeType changeType );
 
 private:
+    bool isFaultLinesVisible() const;
+    void setFaultLinesVisible( const bool& visible );
+
+private:
     cvf::ref<RivContourMapProjectionPartMgr>            m_contourMapProjectionPartMgr;
     caf::PdmChildField<RimEclipseContourMapProjection*> m_contourMapProjection;
-    caf::PdmField<bool>                                 m_showAxisLines;
-    caf::PdmField<bool>                                 m_showScaleLegend;
-    cvf::Vec3d                                          m_cameraPositionLastUpdate;
+
+    caf::PdmProxyValueField<bool> m_showFaultLines;
+    caf::PdmField<bool>           m_showAxisLines;
+    caf::PdmField<bool>           m_showScaleLegend;
+    cvf::Vec3d                    m_cameraPositionLastUpdate;
 
     const static cvf::Mat4d sm_defaultViewMatrix;
 };

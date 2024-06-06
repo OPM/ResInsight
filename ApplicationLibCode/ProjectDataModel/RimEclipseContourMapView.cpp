@@ -67,6 +67,12 @@ RimEclipseContourMapView::RimEclipseContourMapView()
     CAF_PDM_InitField( &m_showAxisLines, "ShowAxisLines", true, "Show Axis Lines" );
     CAF_PDM_InitField( &m_showScaleLegend, "ShowScaleLegend", true, "Show Scale Legend" );
 
+    CAF_PDM_InitFieldNoDefault( &m_showFaultLines, "ShowFaultLines", "Show Fault Lines" );
+    m_showFaultLines.registerGetMethod( this, &RimEclipseContourMapView::isFaultLinesVisible );
+    m_showFaultLines.registerSetMethod( this, &RimEclipseContourMapView::setFaultLinesVisible );
+
+    meshMode = RiaDefines::MeshModeType::FAULTS_MESH;
+
     setFaultVisParameters();
 
     setDefaultCustomName();
@@ -169,7 +175,6 @@ void RimEclipseContourMapView::initAfterRead()
 
     disablePerspectiveProjectionField();
     setShowGridBox( false );
-    meshMode.setValue( RiaDefines::MeshModeType::NO_MESH );
     surfaceMode.setValue( FAULTS );
     setFaultVisParameters();
     scheduleCreateDisplayModelAndRedraw();
@@ -207,13 +212,14 @@ void RimEclipseContourMapView::onCreateDisplayModel()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_eclipseCase );
+
     caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup( "Viewer" );
     viewGroup->add( userDescriptionField() );
     viewGroup->add( backgroundColorField() );
     viewGroup->add( &m_showAxisLines );
     viewGroup->add( &m_showScaleLegend );
-
-    uiOrdering.add( &m_eclipseCase );
+    viewGroup->add( &m_showFaultLines );
 
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Contour Map Name" );
     nameConfig()->uiOrdering( uiConfigName, *nameGroup );
@@ -492,6 +498,10 @@ void RimEclipseContourMapView::fieldChangedByUi( const caf::PdmFieldHandle* chan
         onUpdateLegends();
         scheduleCreateDisplayModelAndRedraw();
     }
+    else if ( changedField == &m_showFaultLines )
+    {
+        scheduleCreateDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -601,4 +611,20 @@ void RimEclipseContourMapView::zoomAll()
     updateViewWidgetAfterCreation();
 
     RimEclipseView::zoomAll();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseContourMapView::isFaultLinesVisible() const
+{
+    return meshMode() == RiaDefines::MeshModeType::FAULTS_MESH;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseContourMapView::setFaultLinesVisible( const bool& visible )
+{
+    meshMode.setValue( visible ? RiaDefines::MeshModeType::FAULTS_MESH : RiaDefines::MeshModeType::NO_MESH );
 }
