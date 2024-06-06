@@ -816,7 +816,6 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
 
     progInfo.setNextProgressIncrement( m_filesWithSameBaseName.size() );
 
-    const auto                          timeStepsOnFile = allTimeSteps();
     std::vector<RigEclipseTimeStepInfo> timeStepInfos;
 
     // Create access object for dynamic results
@@ -834,7 +833,7 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
                                                         timeStepInfos,
                                                         RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                         m_eclipseCaseData,
-                                                        timeStepsOnFile.size() );
+                                                        m_dynamicResultsAccess->timeStepCount() );
     }
 
     progInfo.incrementProgress();
