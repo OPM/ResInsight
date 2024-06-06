@@ -72,15 +72,16 @@ public:
     void updateWellMeasurements();
     void updateViewTreeItems( RiaDefines::ItemIn3dView itemType ) override;
 
-protected:
-    virtual void       updateViewFollowingCellFilterUpdates();
-    void               onClearReservoirCellVisibilitiesIfNecessary() override;
-    virtual void       calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStep ) = 0;
-    void               selectOverlayInfoConfig() override;
     RimGridCollection* gridCollection() const;
-    void               clearReservoirCellVisibilities();
-    void               addRequiredUiTreeObjects( caf::PdmUiTreeOrdering& uiTreeOrdering );
-    void               appendPolygonPartsToModel( caf::DisplayCoordTransform* scaleTransform, const cvf::BoundingBox& boundingBox );
+
+protected:
+    virtual void updateViewFollowingCellFilterUpdates();
+    void         onClearReservoirCellVisibilitiesIfNecessary() override;
+    virtual void calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStep ) = 0;
+    void         selectOverlayInfoConfig() override;
+    void         clearReservoirCellVisibilities();
+    void         addRequiredUiTreeObjects( caf::PdmUiTreeOrdering& uiTreeOrdering );
+    void         appendPolygonPartsToModel( caf::DisplayCoordTransform* scaleTransform, const cvf::BoundingBox& boundingBox );
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void initAfterRead() override;
