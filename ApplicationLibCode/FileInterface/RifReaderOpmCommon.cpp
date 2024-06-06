@@ -78,7 +78,7 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
     try
     {
         m_gridFileName = fileName.toStdString();
-        locateAdditionalFiles( fileName );
+        locateInitAndRestartFiles( fileName );
 
         if ( !importGrid( eclipseCaseData->mainGrid(), eclipseCaseData ) )
         {
@@ -650,7 +650,7 @@ static std::vector<RifEclipseKeywordValueCount> createKeywordInfo( std::vector<E
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderOpmCommon::locateAdditionalFiles( QString gridFileName )
+void RifReaderOpmCommon::locateInitAndRestartFiles( QString gridFileName )
 {
     auto getFileNameForType = []( RiaEclipseFileNameTools::EclipseFileType fileType, const QString& candidate ) -> std::string
     {
@@ -677,7 +677,7 @@ void RifReaderOpmCommon::locateAdditionalFiles( QString gridFileName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderOpmCommon::setupRestartAndInitAccess()
+void RifReaderOpmCommon::setupInitAndRestartAccess()
 {
     if ( ( m_initFile == nullptr ) && !m_initFileName.empty() )
     {
@@ -721,7 +721,7 @@ std::vector<RigEclipseTimeStepInfo> RifReaderOpmCommon::createFilteredTimeStepIn
 //--------------------------------------------------------------------------------------------------
 void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf::ProgressInfo& progress )
 {
-    setupRestartAndInitAccess();
+    setupInitAndRestartAccess();
 
     std::vector<QDateTime>              timeSteps;
     std::vector<RigEclipseTimeStepInfo> filteredTimeStepInfos;
@@ -859,7 +859,7 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
 //--------------------------------------------------------------------------------------------------
 std::vector<RifReaderOpmCommon::TimeDataFile> RifReaderOpmCommon::readTimeSteps()
 {
-    setupRestartAndInitAccess();
+    setupInitAndRestartAccess();
 
     std::vector<RifReaderOpmCommon::TimeDataFile> reportTimeData;
 
@@ -913,8 +913,8 @@ std::vector<RifReaderOpmCommon::TimeDataFile> RifReaderOpmCommon::readTimeSteps(
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RifReaderOpmCommon::timeStepsOnFile( QString gridFileName )
 {
-    locateAdditionalFiles( gridFileName );
-    setupRestartAndInitAccess();
+    locateInitAndRestartFiles( gridFileName );
+    setupInitAndRestartAccess();
 
     if ( m_restartFile == nullptr ) return {};
 

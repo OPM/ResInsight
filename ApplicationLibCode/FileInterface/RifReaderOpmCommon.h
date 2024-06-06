@@ -72,8 +72,8 @@ private:
     void transferStaticNNCData( Opm::EclIO::EGrid& opmMainGrid, std::vector<Opm::EclIO::EGrid>& lgrGrids, RigMainGrid* mainGrid );
     void transferDynamicNNCData( RigMainGrid* mainGrid );
 
-    void locateAdditionalFiles( QString gridFileName );
-    void setupRestartAndInitAccess();
+    void locateInitAndRestartFiles( QString gridFileName );
+    void setupInitAndRestartAccess();
 
     std::vector<RigEclipseTimeStepInfo> createFilteredTimeStepInfos();
 
