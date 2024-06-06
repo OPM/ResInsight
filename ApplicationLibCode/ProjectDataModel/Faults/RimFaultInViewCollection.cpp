@@ -20,15 +20,12 @@
 #include "RimFaultInViewCollection.h"
 
 #include "RiaColorTables.h"
-#include "RiaDefines.h"
 #include "RiaPreferences.h"
 #include "RiaResultNames.h"
 
 #include "RigMainGrid.h"
 
-#include "RimEclipseCase.h"
 #include "RimEclipseFaultColors.h"
-#include "RimEclipseInputCase.h"
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimIntersectionCollection.h"
@@ -38,8 +35,8 @@
 
 #include "cafAppEnum.h"
 #include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmUiCheckBoxEditor.h"
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 namespace caf
@@ -73,6 +70,7 @@ RimFaultInViewCollection::RimFaultInViewCollection()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showOppositeFaultFaces );
 
     CAF_PDM_InitField( &m_applyCellFilters, "ApplyCellFilters", true, "Use Cell Filters for Faults" );
+    CAF_PDM_InitField( &m_meshLineThickness, "MeshLineThickness", 2, "Mesh Line Thickness [1..10]" );
 
     CAF_PDM_InitField( &m_onlyShowWithNeighbor, "OnlyShowWithDefNeighbor", false, "Show Only Faces with Juxtaposition" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_onlyShowWithNeighbor );
@@ -187,6 +185,14 @@ bool RimFaultInViewCollection::hideNNCsWhenNoResultIsAvailable() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimFaultInViewCollection::meshLineThickness() const
+{
+    return m_meshLineThickness();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFaultInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     updateUiIconFromToggleField();
@@ -205,7 +211,7 @@ void RimFaultInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
     if ( &m_showFaultFaces == changedField || &m_showOppositeFaultFaces == changedField || &m_showFaultCollection == changedField ||
          &m_showFaultLabel == changedField || &m_applyCellFilters == changedField || &m_faultLabelColor == changedField ||
          &m_onlyShowWithNeighbor == changedField || &m_faultResult == changedField || &m_showNNCs == changedField ||
-         &m_hideNNCsWhenNoResultIsAvailable == changedField )
+         &m_hideNNCsWhenNoResultIsAvailable == changedField || changedField == &m_meshLineThickness )
     {
         parentView()->scheduleCreateDisplayModelAndRedraw();
         parentView()->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
@@ -223,6 +229,20 @@ void RimFaultInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
 caf::PdmFieldHandle* RimFaultInViewCollection::objectToggleField()
 {
     return &m_showFaultCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultInViewCollection::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_meshLineThickness )
+    {
+        if ( auto* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
+        {
+            lineEditorAttr->validator = new QIntValidator( 1, 10, nullptr );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -371,6 +391,7 @@ void RimFaultInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
 {
     caf::PdmUiGroup* general = uiOrdering.addNewGroup( "General" );
     general->add( &m_applyCellFilters );
+    general->add( &m_meshLineThickness );
 
     caf::PdmUiGroup* labs = uiOrdering.addNewGroup( "Fault Labels" );
     labs->add( &m_showFaultLabel );
