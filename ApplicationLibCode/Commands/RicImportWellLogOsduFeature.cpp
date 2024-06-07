@@ -52,17 +52,6 @@ bool RicImportWellLogOsduFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicImportWellLogOsduFeature::onActionTriggered( bool isChecked )
 {
-    auto makeOsduConnector = []( auto app )
-    {
-        RiaPreferencesOsdu* osduPreferences = app->preferences()->osduPreferences();
-        const QString       server          = osduPreferences->server();
-        const QString       dataPartitionId = osduPreferences->dataPartitionId();
-        const QString       authority       = osduPreferences->authority();
-        const QString       scopes          = osduPreferences->scopes();
-        const QString       clientId        = osduPreferences->clientId();
-        return std::make_unique<RiaOsduConnector>( RiuMainWindow::instance(), server, dataPartitionId, authority, scopes, clientId );
-    };
-
     if ( auto wellPath = caf::SelectionManager::instance()->selectedItemOfType<RimOsduWellPath>() )
     {
         RiaGuiApplication* app = RiaGuiApplication::instance();
@@ -72,19 +61,17 @@ void RicImportWellLogOsduFeature::onActionTriggered( bool isChecked )
 
         if ( !oilField->wellPathCollection ) oilField->wellPathCollection = std::make_unique<RimWellPathCollection>();
 
-        // TODO: get from OSDU...
-        std::vector<QString> wellLogIds = { "npequinor-dev:work-product-component--WellLog:aeb5bd8b1de14138afe9f23cacbc7fe7" };
+        auto                     osduConnector = app->makeOsduConnector();
+        std::vector<OsduWellLog> wellLogs      = osduConnector->requestWellLogsByWellboreIdBlocking( wellPath->wellboreId() );
 
-        for ( QString wellLogId : wellLogIds )
+        for ( OsduWellLog wellLog : wellLogs )
         {
             RimOsduWellLog* osduWellLog = new RimOsduWellLog;
-            osduWellLog->setName( wellLogId );
-            osduWellLog->setWellLogId( wellLogId );
+            osduWellLog->setName( wellLog.id );
+            osduWellLog->setWellLogId( wellLog.id );
             oilField->wellPathCollection->addWellLog( osduWellLog, wellPath );
 
-            auto osduConnector = makeOsduConnector( app );
-
-            auto [wellLogData, errorMessage] = RimWellPathCollection::loadWellLogFromOsdu( osduConnector.get(), osduWellLog->wellLogId() );
+            auto [wellLogData, errorMessage] = RimWellPathCollection::loadWellLogFromOsdu( osduConnector, osduWellLog->wellLogId() );
             if ( wellLogData.notNull() )
             {
                 osduWellLog->setWellLogData( wellLogData.p() );

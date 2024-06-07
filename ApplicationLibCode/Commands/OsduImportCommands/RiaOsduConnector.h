@@ -33,8 +33,13 @@ struct OsduWellboreTrajectory
 {
     QString id;
     QString kind;
-    QString description;
-    QString dataSetId;
+    QString wellboreId;
+};
+
+struct OsduWellLog
+{
+    QString id;
+    QString kind;
     QString wellboreId;
 };
 
@@ -53,17 +58,16 @@ public:
                       const QString& clientId );
     ~RiaOsduConnector() override;
 
-    void requestFieldsByName( const QString& token, const QString& fieldName );
-    void requestFieldsByName( const QString& fieldName );
-    void requestWellsByFieldId( const QString& fieldId );
-    void requestWellboresByWellId( const QString& wellId );
-    void requestWellboreTrajectoryByWellboreId( const QString& wellboreId );
-    void requestFileDownloadByFileId( const QString& fileId );
-    void requestWellLog( const QString& url, const QString& dataPartitionId, const QString& token );
-
-    std::pair<QString, QString> requestFileContentsById( const QString& fileId );
+    void                     requestFieldsByName( const QString& token, const QString& fieldName );
+    void                     requestFieldsByName( const QString& fieldName );
+    void                     requestWellsByFieldId( const QString& fieldId );
+    void                     requestWellboresByWellId( const QString& wellId );
+    void                     requestWellboreTrajectoryByWellboreId( const QString& wellboreId );
+    void                     requestWellLogsByWellboreId( const QString& wellboreId );
+    std::vector<OsduWellLog> requestWellLogsByWellboreIdBlocking( const QString& wellboreId );
 
     std::pair<QByteArray, QString> requestWellLogParquetDataById( const QString& wellLogId );
+    std::pair<QByteArray, QString> requestWellboreTrajectoryParquetDataById( const QString& wellboreTrajectoryId );
 
     QString wellIdForWellboreId( const QString& wellboreId ) const;
 
@@ -74,6 +78,7 @@ public:
     std::vector<OsduWell>               wells() const;
     std::vector<OsduWellbore>           wellbores( const QString& wellId ) const;
     std::vector<OsduWellboreTrajectory> wellboreTrajectories( const QString& wellboreId ) const;
+    std::vector<OsduWellLog>            wellLogs( const QString& wellboreId ) const;
 
 public slots:
     void requestToken();
@@ -81,21 +86,23 @@ public slots:
     void parseWells( QNetworkReply* reply );
     void parseWellbores( QNetworkReply* reply, const QString& wellId );
     void parseWellTrajectory( QNetworkReply* reply, const QString& wellboreId );
-    void saveFile( QNetworkReply* reply, const QString& fileId );
+    void parseWellLogs( QNetworkReply* reply, const QString& wellboreId );
+
     void accessGranted();
-    void fileDownloadComplete( const QString& fileId, const QString& filePath );
-    void wellLogDownloadComplete( const QByteArray&, const QString& url );
+    void parquetDownloadComplete( const QByteArray&, const QString& url );
 
 signals:
-    void fileDownloadFinished( const QString& fileId, const QString& filePath );
-    void wellLogDownloadFinished( const QByteArray& contents, const QString& url );
+    void parquetDownloadFinished( const QByteArray& contents, const QString& url );
     void fieldsFinished();
     void wellsFinished();
     void wellboresFinished( const QString& wellId );
     void wellboreTrajectoryFinished( const QString& wellboreId );
+    void wellLogsFinished( const QString& wellboreId );
     void tokenReady( const QString& token );
 
 private:
+    void requestParquetData( const QString& url, const QString& dataPartitionId, const QString& token );
+
     void addStandardHeader( QNetworkRequest& networkRequest, const QString& token, const QString& dataPartitionId, const QString& contentType );
 
     QNetworkReply* makeSearchRequest( const std::map<QString, QString>& parameters,
@@ -112,7 +119,7 @@ private:
                                                 const QString& dataPartitionId,
                                                 const QString& token,
                                                 const QString& wellboreId );
-    void requestFileDownloadByFileId( const QString& server, const QString& dataPartitionId, const QString& token, const QString& fileId );
+    void requestWellLogsByWellboreId( const QString& server, const QString& dataPartitionId, const QString& token, const QString& wellboreId );
 
     static QString generateRandomString( int length = 20 );
     static QString constructSearchUrl( const QString& server );
@@ -120,6 +127,11 @@ private:
     static QString constructAuthUrl( const QString& authority );
     static QString constructTokenUrl( const QString& authority );
     static QString constructWellLogDownloadUrl( const QString& server, const QString& wellLogId );
+    static QString constructWellboreTrajectoriesDownloadUrl( const QString& server, const QString& wellboreTrajectoryId );
+
+    std::pair<QByteArray, QString> requestParquetDataByUrl( const QString& url );
+
+    QString requestTokenBlocking();
 
     QOAuth2AuthorizationCodeFlow* m_osdu;
     QNetworkAccessManager*        m_networkAccessManager;
@@ -135,13 +147,14 @@ private:
     std::vector<OsduWell>                                  m_wells;
     std::map<QString, std::vector<OsduWellbore>>           m_wellbores;
     std::map<QString, std::vector<OsduWellboreTrajectory>> m_wellboreTrajectories;
-    QString                                                m_filePath;
-    QByteArray                                             m_wellLogContents;
+    std::map<QString, std::vector<OsduWellLog>>            m_wellLogs;
+    QByteArray                                             m_parquetData;
 
     static inline const QString FIELD_KIND               = "osdu:wks:master-data--Field:1.0.0";
     static inline const QString WELL_KIND                = "osdu:wks:master-data--Well:1.*.*";
     static inline const QString WELLBORE_KIND            = "osdu:wks:master-data--Wellbore:1.*.*";
     static inline const QString WELLBORE_TRAJECTORY_KIND = "osdu:wks:work-product-component--WellboreTrajectory:1.*.*";
+    static inline const QString WELL_LOG_KIND            = "osdu:wks:work-product-component--WellLog:1.*.*";
 
     static inline const QString CONTENT_TYPE_JSON    = "application/json";
     static inline const QString CONTENT_TYPE_PARQUET = "application/x-parquet";

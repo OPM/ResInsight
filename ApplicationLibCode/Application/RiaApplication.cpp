@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiaApplication.h"
 
+#include "OsduImportCommands/RiaOsduConnector.h"
 #include "RiaArgumentParser.h"
 #include "RiaBaseDefs.h"
 #include "RiaFilePathTools.h"
@@ -97,6 +98,7 @@
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuGuiTheme.h"
+#include "RiuMainWindow.h"
 #include "RiuViewer.h"
 #include "RiuViewerCommands.h"
 
@@ -170,6 +172,7 @@ RiaApplication::RiaApplication()
     setLastUsedDialogDirectory( "MULTICASEIMPORT", "/" );
 
     m_commandRouter = std::make_unique<RimCommandRouter>();
+    m_osduConnector = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1689,4 +1692,21 @@ bool RiaApplication::generateCode( const QString& fileName, gsl::not_null<QStrin
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaOsduConnector* RiaApplication::makeOsduConnector()
+{
+    if ( m_osduConnector ) return m_osduConnector;
+
+    RiaPreferencesOsdu* osduPreferences = preferences()->osduPreferences();
+    const QString       server          = osduPreferences->server();
+    const QString       dataPartitionId = osduPreferences->dataPartitionId();
+    const QString       authority       = osduPreferences->authority();
+    const QString       scopes          = osduPreferences->scopes();
+    const QString       clientId        = osduPreferences->clientId();
+    m_osduConnector = new RiaOsduConnector( RiuMainWindow::instance(), server, dataPartitionId, authority, scopes, clientId );
+    return m_osduConnector;
 }

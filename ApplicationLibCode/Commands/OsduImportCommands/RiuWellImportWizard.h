@@ -293,7 +293,6 @@ public:
 
 private slots:
     void wellboreTrajectoryFinished( const QString& wellId );
-    void fileDownloadFinished( const QString& fileId, const QString& filePath );
 
 private:
     RimWellPathImport* m_wellPathImportObject;
@@ -315,7 +314,6 @@ public:
         QString wellId;
         QString wellboreId;
         QString wellboreTrajectoryId;
-        QString fileId;
     };
 
     RiuWellImportWizard( const QString&     downloadFolder,

@@ -32,4 +32,5 @@ class RifOsduWellPathReader
 {
 public:
     static std::pair<cvf::ref<RigWellPath>, QString> parseCsv( const QString& content );
+    static std::pair<cvf::ref<RigWellPath>, QString> readWellPathData( const QByteArray& content );
 };
