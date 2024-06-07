@@ -20,6 +20,16 @@ caf::PdmObject::PdmObject()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* PdmObject::doCopyObject() const
+{
+    if ( !xmlCapability() ) return nullptr;
+
+    return xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void PdmObject::addFieldUiNoDefault( PdmFieldHandle* field, const QString& keyword, PdmUiItemInfo* fieldDescription )
 {
     addField( field, keyword );
