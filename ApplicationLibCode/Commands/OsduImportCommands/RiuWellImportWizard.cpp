@@ -77,7 +77,7 @@ RiuWellImportWizard::~RiuWellImportWizard()
 void RiuWellImportWizard::downloadFields()
 {
     // TODO: filter by user input
-    m_osduConnector->requestFieldsByName( "AZERI" );
+    m_osduConnector->requestFieldsByName( "CASTBERG" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -436,7 +436,6 @@ WellSummaryPage::WellSummaryPage( RimWellPathImport* wellPathImport, RiaOsduConn
     setButtonText( QWizard::FinishButton, "Import" );
 
     connect( m_osduConnector, SIGNAL( wellboreTrajectoryFinished( const QString& ) ), SLOT( wellboreTrajectoryFinished( const QString& ) ) );
-    connect( m_osduConnector, SIGNAL( fileDownloadFinished( const QString& ) ), SLOT( fileDownloadFinished( const QString& ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -448,17 +447,6 @@ void WellSummaryPage::initializePage()
 
     QString wellboreId = wiz->selectedWellboreId();
     wiz->downloadWellPaths( wellboreId );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void WellSummaryPage::fileDownloadFinished( const QString& fileId, const QString& filePath )
-{
-    m_textEdit->setText( "Summary of imported wells\n\n" );
-
-    m_textEdit->append( "FileId:" );
-    m_textEdit->append( fileId );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -482,11 +470,6 @@ void WellSummaryPage::wellboreTrajectoryFinished( const QString& wellboreId )
 
     for ( auto w : wellboreTrajectories )
     {
-        // TODO: remove hack. A lot of the data set IDs in OSDU has trailing ":" which should not be
-        // there (i.e. the real id is without it). Chop them off to make more data sets work.
-        QString fileId = w.dataSetId;
-        if ( fileId.endsWith( ":" ) ) fileId.truncate( fileId.lastIndexOf( QChar( ':' ) ) );
-
         QString                       wellId = m_osduConnector->wellIdForWellboreId( w.wellboreId );
         std::optional<const OsduWell> well   = findWellForWellId( wells, wellId );
 
@@ -496,8 +479,7 @@ void WellSummaryPage::wellboreTrajectoryFinished( const QString& wellboreId )
             wiz->addWellInfo( { .name                 = well.value().name,
                                 .wellId               = well.value().id,
                                 .wellboreId           = w.wellboreId,
-                                .wellboreTrajectoryId = wellboreTrajectoryId,
-                                .fileId               = fileId } );
+                                .wellboreTrajectoryId = wellboreTrajectoryId } );
         }
     }
 }

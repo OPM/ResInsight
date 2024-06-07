@@ -150,18 +150,9 @@ void RimWellPathCollection::loadDataAndUpdate()
 {
     caf::ProgressInfo progress( m_wellPaths.size(), "Reading well paths from file" );
 
-    auto makeOsduConnector = []( auto app )
-    {
-        RiaPreferencesOsdu* osduPreferences = app->preferences()->osduPreferences();
-        const QString       server          = osduPreferences->server();
-        const QString       dataPartitionId = osduPreferences->dataPartitionId();
-        const QString       authority       = osduPreferences->authority();
-        const QString       scopes          = osduPreferences->scopes();
-        const QString       clientId        = osduPreferences->clientId();
-        return std::make_unique<RiaOsduConnector>( RiuMainWindow::instance(), server, dataPartitionId, authority, scopes, clientId );
-    };
-
     readWellPathFormationFiles();
+
+    RiaApplication* app = RiaApplication::instance();
 
     for ( RimWellPath* wellPath : allWellPaths() )
     {
@@ -187,10 +178,8 @@ void RimWellPathCollection::loadDataAndUpdate()
         }
         else if ( oWPath )
         {
-            RiaApplication* app           = RiaApplication::instance();
-            auto            osduConnector = makeOsduConnector( app );
-
-            auto [wellPathGeometry, errorMessage] = loadWellPathGeometryFromOsdu( osduConnector.get(), oWPath->fileId() );
+            RiaOsduConnector* osduConnector       = app->makeOsduConnector();
+            auto [wellPathGeometry, errorMessage] = loadWellPathGeometryFromOsdu( osduConnector, oWPath->wellboreTrajectoryId() );
             if ( wellPathGeometry.notNull() )
             {
                 oWPath->setWellPathGeometry( wellPathGeometry.p() );
@@ -215,9 +204,8 @@ void RimWellPathCollection::loadDataAndUpdate()
                 }
                 else if ( RimOsduWellLog* osduWellLog = dynamic_cast<RimOsduWellLog*>( wellLog ) )
                 {
-                    RiaApplication* app              = RiaApplication::instance();
-                    auto            osduConnector    = makeOsduConnector( app );
-                    auto [wellLogData, errorMessage] = loadWellLogFromOsdu( osduConnector.get(), osduWellLog->wellLogId() );
+                    RiaOsduConnector* osduConnector  = app->makeOsduConnector();
+                    auto [wellLogData, errorMessage] = loadWellLogFromOsdu( osduConnector, osduWellLog->wellLogId() );
                     if ( wellLogData.notNull() )
                     {
                         osduWellLog->setWellLogData( wellLogData.p() );
@@ -1064,15 +1052,15 @@ void RimWellPathCollection::onChildAdded( caf::PdmFieldHandle* containerForNewOb
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<cvf::ref<RigWellPath>, QString> RimWellPathCollection::loadWellPathGeometryFromOsdu( RiaOsduConnector* osduConnector,
-                                                                                               const QString&    fileId )
+                                                                                               const QString&    wellboreTrajectoryId )
 {
-    auto [fileContents, errorMessage] = osduConnector->requestFileContentsById( fileId );
+    auto [fileContents, errorMessage] = osduConnector->requestWellboreTrajectoryParquetDataById( wellboreTrajectoryId );
     if ( !errorMessage.isEmpty() )
     {
         return { nullptr, errorMessage };
     }
 
-    return RifOsduWellPathReader::parseCsv( fileContents );
+    return RifOsduWellPathReader::readWellPathData( fileContents );
 }
 
 //--------------------------------------------------------------------------------------------------
