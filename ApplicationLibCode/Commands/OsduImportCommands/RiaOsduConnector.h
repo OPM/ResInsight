@@ -139,9 +139,9 @@ private:
     QByteArray                                             m_wellLogContents;
 
     static inline const QString FIELD_KIND               = "osdu:wks:master-data--Field:1.0.0";
-    static inline const QString WELL_KIND                = "osdu:wks:master-data--Well:1.2.0";
-    static inline const QString WELLBORE_KIND            = "osdu:wks:master-data--Wellbore:1.1.0";
-    static inline const QString WELLBORE_TRAJECTORY_KIND = "osdu:wks:work-product-component--WellboreTrajectory:1.1.0";
+    static inline const QString WELL_KIND                = "osdu:wks:master-data--Well:1.*.*";
+    static inline const QString WELLBORE_KIND            = "osdu:wks:master-data--Wellbore:1.*.*";
+    static inline const QString WELLBORE_TRAJECTORY_KIND = "osdu:wks:work-product-component--WellboreTrajectory:1.*.*";
 
     static inline const QString CONTENT_TYPE_JSON    = "application/json";
     static inline const QString CONTENT_TYPE_PARQUET = "application/x-parquet";
