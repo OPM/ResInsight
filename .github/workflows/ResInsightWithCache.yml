@@ -39,6 +39,18 @@ jobs:
               vcpkg-bootstrap: bootstrap-vcpkg.bat,
             }
           - {
+              name: "Windows 2019",
+              os: windows-2019,
+              cc: "cl",
+              cxx: "cl",
+              build-python-module: true,
+              execute-unit-tests: true,
+              execute-pytests: true,
+              unity-build: true,
+              publish-to-pypi: false,
+              vcpkg-bootstrap: bootstrap-vcpkg.bat,
+            }
+          - {
               name: "Ubuntu 22.04 gcc",
               os: ubuntu-22.04,
               cc: "gcc",
