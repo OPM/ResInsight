@@ -74,17 +74,9 @@ void RicWellPathsImportOsduFeature::onActionTriggered( bool isChecked )
     RimOilField* oilField = project->activeOilField();
     if ( !oilField ) return;
 
-    RiaPreferencesOsdu* osduPreferences = app->preferences()->osduPreferences();
+    RiaOsduConnector* osduConnector = app->makeOsduConnector();
 
-    const QString server         = osduPreferences->server();
-    const QString dataParitionId = osduPreferences->dataPartitionId();
-    const QString authority      = osduPreferences->authority();
-    const QString scopes         = osduPreferences->scopes();
-    const QString clientId       = osduPreferences->clientId();
-
-    RiaOsduConnector osduConnector( RiuMainWindow::instance(), server, dataParitionId, authority, scopes, clientId );
-
-    RiuWellImportWizard wellImportwizard( wellPathsFolderPath, &osduConnector, app->project()->wellPathImport(), RiuMainWindow::instance() );
+    RiuWellImportWizard wellImportwizard( wellPathsFolderPath, osduConnector, app->project()->wellPathImport(), RiuMainWindow::instance() );
 
     if ( QDialog::Accepted == wellImportwizard.exec() )
     {
@@ -96,11 +88,11 @@ void RicWellPathsImportOsduFeature::onActionTriggered( bool isChecked )
             wellPath->setWellId( w.wellId );
             wellPath->setWellboreId( w.wellboreId );
             wellPath->setWellboreTrajectoryId( w.wellboreTrajectoryId );
-            wellPath->setFileId( w.fileId );
 
             oilField->wellPathCollection->addWellPath( wellPath );
 
-            auto [wellPathGeometry, errorMessage] = RimWellPathCollection::loadWellPathGeometryFromOsdu( &osduConnector, w.fileId );
+            auto [wellPathGeometry, errorMessage] =
+                RimWellPathCollection::loadWellPathGeometryFromOsdu( osduConnector, w.wellboreTrajectoryId );
             if ( wellPathGeometry.notNull() )
             {
                 wellPath->setWellPathGeometry( wellPathGeometry.p() );
