@@ -64,8 +64,7 @@ void RicPasteAsciiDataCurveFeature::onActionTriggered( bool isChecked )
 
     for ( size_t i = 0; i < sourceObjects.size(); i++ )
     {
-        RimAsciiDataCurve* newObject = dynamic_cast<RimAsciiDataCurve*>(
-            sourceObjects[i]->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+        auto newObject = sourceObjects[i]->copyObject<RimAsciiDataCurve>();
         CVF_ASSERT( newObject );
 
         summaryPlot->addAsciiDataCruve( newObject );

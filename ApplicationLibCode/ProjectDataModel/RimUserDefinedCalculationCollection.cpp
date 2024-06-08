@@ -65,8 +65,7 @@ RimUserDefinedCalculation* RimUserDefinedCalculationCollection::addCalculation( 
 //--------------------------------------------------------------------------------------------------
 RimUserDefinedCalculation* RimUserDefinedCalculationCollection::addCalculationCopy( const RimUserDefinedCalculation* sourceCalculation )
 {
-    RimUserDefinedCalculation* calcCopy = dynamic_cast<RimUserDefinedCalculation*>(
-        sourceCalculation->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    auto calcCopy = sourceCalculation->copyObject<RimUserDefinedCalculation>();
     CVF_ASSERT( calcCopy );
 
     std::set<QString> calcNames;

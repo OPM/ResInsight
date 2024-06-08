@@ -86,9 +86,7 @@ bool RimEnsembleStatisticsSurface::onLoadData()
 //--------------------------------------------------------------------------------------------------
 RimSurface* RimEnsembleStatisticsSurface::createCopy()
 {
-    auto* newSurface =
-        dynamic_cast<RimEnsembleStatisticsSurface*>( xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-
+    auto newSurface = copyObject<RimEnsembleStatisticsSurface>();
     if ( !newSurface->onLoadData() )
     {
         delete newSurface;

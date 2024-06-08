@@ -33,7 +33,7 @@ public:
 
     // Function template to call the virtual copy function
     template <typename T>
-    [[nodiscard]] T* copyObject();
+    [[nodiscard]] T* copyObject() const;
 
     /// The registered fields contained in this PdmObject.
     [[nodiscard]] std::vector<PdmFieldHandle*> fields() const;
@@ -174,7 +174,7 @@ namespace caf
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-[[nodiscard]] T* PdmObjectHandle::copyObject()
+[[nodiscard]] T* PdmObjectHandle::copyObject() const
 {
     return dynamic_cast<T*>( doCopyObject() );
 }

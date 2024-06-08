@@ -159,8 +159,7 @@ void RimSummaryMultiPlotCollection::duplicatePlot( RimSummaryMultiPlot* plotToDu
 {
     if ( !plotToDuplicate ) return;
 
-    auto plotCopy = dynamic_cast<RimSummaryMultiPlot*>( plotToDuplicate->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-
+    auto plotCopy = plotToDuplicate->copyObject<RimSummaryMultiPlot>();
     addSummaryMultiPlot( plotCopy );
 
     plotCopy->resolveReferencesRecursively();
