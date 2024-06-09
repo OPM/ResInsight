@@ -37,6 +37,7 @@ jobs:
               unity-build: true,
               publish-to-pypi: false,
               vcpkg-bootstrap: bootstrap-vcpkg.bat,
+              vcpkg-triplet: x64-windows-release,
             }
           - {
               name: "Ubuntu 22.04 gcc",
@@ -49,6 +50,7 @@ jobs:
               unity-build: false,
               publish-to-pypi: true,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
+              vcpkg-triplet: x64-linux-release,
             }
           - {
               name: "Ubuntu 22.04 clang-16",
@@ -61,6 +63,7 @@ jobs:
               unity-build: false,
               publish-to-pypi: false,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
+              vcpkg-triplet: x64-linux-release,
             }
     steps:
       - name: Checkout
@@ -195,6 +198,7 @@ jobs:
         run: >
           cmake -S . -B cmakebuild
           -DVCPKG_BUILD_TYPE=release
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg-triplet }}
           -DCMAKE_INSTALL_PREFIX=cmakebuild/install
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DRESINSIGHT_QT5_BUNDLE_LIBRARIES=true
