@@ -412,6 +412,9 @@ set(UNITY_EXCLUDE_FILES
     ProjectDataModel/RimVfpTableExtractor.cpp
     ProjectDataModel/RimVfpPlot.cpp
     ProjectDataModel/RiaOpmParserTools.cpp
+    FileInterface/RifOsduWellPathReader.cpp
+    FileInterface/RifOsduWellLogReader.cpp
+    FileInterface/RifByteArrayArrowRandomAccessFile.cpp
 )
 
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
