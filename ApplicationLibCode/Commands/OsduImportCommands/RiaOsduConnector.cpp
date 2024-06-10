@@ -677,7 +677,9 @@ void RiaOsduConnector::requestParquetData( const QString& url, const QString& da
                  }
                  else
                  {
-                     RiaLogging::error( "Download failed: " + url + " failed." + reply->errorString() );
+                     QString errorMessage = "Download failed: " + url + " failed." + reply->errorString();
+                     RiaLogging::error( errorMessage );
+                     emit parquetDownloadFinished( QByteArray(), errorMessage );
                  }
              } );
 }
