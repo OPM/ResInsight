@@ -66,22 +66,21 @@ void RicImportWellLogOsduFeature::onActionTriggered( bool isChecked )
 
         for ( OsduWellLog wellLog : wellLogs )
         {
-            RimOsduWellLog* osduWellLog = new RimOsduWellLog;
-            osduWellLog->setName( wellLog.id );
-            osduWellLog->setWellLogId( wellLog.id );
-            oilField->wellPathCollection->addWellLog( osduWellLog, wellPath );
-
-            auto [wellLogData, errorMessage] = RimWellPathCollection::loadWellLogFromOsdu( osduConnector, osduWellLog->wellLogId() );
+            auto [wellLogData, errorMessage] = RimWellPathCollection::loadWellLogFromOsdu( osduConnector, wellLog.id );
             if ( wellLogData.notNull() )
             {
+                RimOsduWellLog* osduWellLog = new RimOsduWellLog;
+                osduWellLog->setName( wellLog.id );
+                osduWellLog->setWellLogId( wellLog.id );
+                oilField->wellPathCollection->addWellLog( osduWellLog, wellPath );
+
                 osduWellLog->setWellLogData( wellLogData.p() );
+                osduWellLog->updateConnectedEditors();
             }
             else
             {
                 RiaLogging::error( "Importing OSDU well log failed: " + errorMessage );
             }
-
-            osduWellLog->updateConnectedEditors();
         }
     }
 }

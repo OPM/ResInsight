@@ -83,18 +83,18 @@ void RicWellPathsImportOsduFeature::onActionTriggered( bool isChecked )
         std::vector<RiuWellImportWizard::WellInfo> importedWells = wellImportwizard.importedWells();
         for ( auto w : importedWells )
         {
-            auto wellPath = new RimOsduWellPath;
-            wellPath->setName( w.name );
-            wellPath->setWellId( w.wellId );
-            wellPath->setWellboreId( w.wellboreId );
-            wellPath->setWellboreTrajectoryId( w.wellboreTrajectoryId );
-
-            oilField->wellPathCollection->addWellPath( wellPath );
-
             auto [wellPathGeometry, errorMessage] =
                 RimWellPathCollection::loadWellPathGeometryFromOsdu( osduConnector, w.wellboreTrajectoryId );
             if ( wellPathGeometry.notNull() )
             {
+                auto wellPath = new RimOsduWellPath;
+                wellPath->setName( w.name );
+                wellPath->setWellId( w.wellId );
+                wellPath->setWellboreId( w.wellboreId );
+                wellPath->setWellboreTrajectoryId( w.wellboreTrajectoryId );
+
+                oilField->wellPathCollection->addWellPath( wellPath );
+
                 wellPath->setWellPathGeometry( wellPathGeometry.p() );
             }
             else
