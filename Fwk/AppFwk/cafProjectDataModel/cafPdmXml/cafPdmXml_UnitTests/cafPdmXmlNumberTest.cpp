@@ -110,3 +110,39 @@ TEST( SerializeNumbers, SimpleObjectWithFloatValues )
         EXPECT_TRUE( diffB < epsilon );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( SerializeNumbers, TestPresicion )
+{
+    double valueB = 0.1234567890123456789;
+
+    QString objectAsText;
+
+    {
+        SimpleObjectWithNumbers obj1;
+
+        obj1.m_valueB = valueB;
+
+        objectAsText = obj1.writeObjectToXmlString();
+    }
+
+    SimpleObjectWithNumbers obj1;
+    obj1.readObjectFromXmlString( objectAsText, caf::PdmDefaultObjectFactory::instance() );
+
+    // Test the precision of the value serialized to text
+    // See PdmFieldWriter::writeFieldData for the precision used when writing float values
+
+    {
+        const double epsilon = 1e-15;
+        auto         diff    = fabs( obj1.m_valueB - valueB );
+        EXPECT_FALSE( diff > epsilon );
+    }
+
+    {
+        const double epsilon = 1e-16;
+        auto         diff    = fabs( obj1.m_valueB - valueB );
+        EXPECT_TRUE( diff > epsilon );
+    }
+}

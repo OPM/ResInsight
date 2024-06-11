@@ -195,4 +195,46 @@ public:
     }
 };
 
+//==================================================================================================
+/// Partial specialization for float
+//==================================================================================================
+template <>
+class PdmValueFieldSpecialization<float>
+{
+public:
+    static QVariant convert( const float& value ) { return QVariant::fromValue( value ); }
+
+    static void setFromVariant( const QVariant& variantValue, float& value ) { value = variantValue.value<float>(); }
+
+    static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
+    {
+        // See PdmFieldWriter::writeFieldData for the precision used when writing float values
+        // This function is used when comparing values for field editors in PdmFieldUiCap<FieldType>::valueOptions()
+
+        const float epsilon = 1e-6f;
+        return qAbs( variantValue.value<float>() - variantValue2.value<float>() ) < epsilon;
+    }
+};
+
+//==================================================================================================
+/// Partial specialization for double
+//==================================================================================================
+template <>
+class PdmValueFieldSpecialization<double>
+{
+public:
+    static QVariant convert( const double& value ) { return QVariant::fromValue( value ); }
+
+    static void setFromVariant( const QVariant& variantValue, double& value ) { value = variantValue.value<double>(); }
+
+    static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
+    {
+        // See PdmFieldWriter::writeFieldData for the precision used when writing double values
+        // This function is used when comparing values for field editors in PdmFieldUiCap<FieldType>::valueOptions()
+
+        const double epsilon = 1e-8;
+        return qAbs( variantValue.value<double>() - variantValue2.value<double>() ) < epsilon;
+    }
+};
+
 } // End of namespace caf
