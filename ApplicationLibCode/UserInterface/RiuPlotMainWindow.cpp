@@ -218,6 +218,25 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
     }
 
     refreshToolbars();
+
+    // Find the project tree and reselect items to trigger the selectionChanged signal. This will make sure that the property view is
+    // updated based on the selection in the main project tree.
+    if ( auto dockWidget = RiuDockWidgetTools::findDockWidget( dockManager(), RiuDockWidgetTools::plotMainWindowPlotsTreeName() ) )
+    {
+        if ( auto tree = dynamic_cast<caf::PdmUiTreeView*>( dockWidget->widget() ) )
+        {
+            std::vector<caf::PdmUiItem*> uiItems;
+            tree->selectedUiItems( uiItems );
+
+            std::vector<const caf::PdmUiItem*> constSelectedItems;
+            for ( auto item : uiItems )
+            {
+                constSelectedItems.push_back( item );
+            }
+
+            tree->selectItems( constSelectedItems );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
