@@ -191,8 +191,10 @@ AuthenticationPage::AuthenticationPage( RiaOsduConnector* osduConnector, QWidget
     QFormLayout* formLayout = new QFormLayout;
     layout->addLayout( formLayout );
 
-    QLineEdit* serverLineEdit    = new QLineEdit( osduConnector->server(), this );
+    QLineEdit* serverLineEdit = new QLineEdit( osduConnector->server(), this );
+    serverLineEdit->setReadOnly( true );
     QLineEdit* partitionLineEdit = new QLineEdit( osduConnector->dataPartition(), this );
+    partitionLineEdit->setReadOnly( true );
 
     formLayout->addRow( "Server:", serverLineEdit );
     formLayout->addRow( "Data Partition:", partitionLineEdit );
