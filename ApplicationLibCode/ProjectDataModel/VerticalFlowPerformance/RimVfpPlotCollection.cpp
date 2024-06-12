@@ -67,6 +67,7 @@ RimCustomVfpPlot* RimVfpPlotCollection::createAndAppendPlots( RimVfpTable* mainD
     auto vfpPlot = new RimCustomVfpPlot();
     vfpPlot->selectDataSource( mainDataSource, tableData );
     vfpPlot->initializeObject();
+    vfpPlot->initializeSelection();
 
     m_customVfpPlots.push_back( vfpPlot );
 
