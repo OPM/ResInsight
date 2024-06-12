@@ -36,9 +36,6 @@ public:
     void    setWellboreTrajectoryId( const QString& wellboreTrajectoryId );
     QString wellboreTrajectoryId() const;
 
-    void    setFileId( const QString& fileId );
-    QString fileId() const;
-
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
@@ -46,5 +43,4 @@ private:
     caf::PdmField<QString> m_wellId;
     caf::PdmField<QString> m_wellboreId;
     caf::PdmField<QString> m_wellboreTrajectoryId;
-    caf::PdmField<QString> m_fileId;
 };

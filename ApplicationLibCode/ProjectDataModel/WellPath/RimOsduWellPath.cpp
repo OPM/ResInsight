@@ -20,9 +20,6 @@ RimOsduWellPath::RimOsduWellPath()
     CAF_PDM_InitFieldNoDefault( &m_wellboreTrajectoryId, "WellboreTrajectoryId", "Wellbore Trajectory Id" );
     m_wellboreTrajectoryId.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_fileId, "FileId", "File Id" );
-    m_fileId.uiCapability()->setUiReadOnly( true );
-
     // Required, as these settings are set in RimWellPath()
     m_name.uiCapability()->setUiReadOnly( false );
     m_name.uiCapability()->setUiHidden( false );
@@ -88,29 +85,12 @@ QString RimOsduWellPath::wellboreTrajectoryId() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimOsduWellPath::setFileId( const QString& fileId )
-{
-    m_fileId = fileId;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimOsduWellPath::fileId() const
-{
-    return m_fileId;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimOsduWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* osduGroup = uiOrdering.addNewGroup( "OSDU" );
     osduGroup->add( &m_wellId );
     osduGroup->add( &m_wellboreId );
     osduGroup->add( &m_wellboreTrajectoryId );
-    osduGroup->add( &m_fileId );
 
     RimWellPath::defineUiOrdering( uiConfigName, uiOrdering );
 }
