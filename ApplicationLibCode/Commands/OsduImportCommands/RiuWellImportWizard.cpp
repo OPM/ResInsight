@@ -74,10 +74,10 @@ RiuWellImportWizard::~RiuWellImportWizard()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellImportWizard::downloadFields()
+void RiuWellImportWizard::downloadFields( const QString& fieldName )
 {
     // TODO: filter by user input
-    m_osduConnector->requestFieldsByName( "CASTBERG" );
+    m_osduConnector->requestFieldsByName( fieldName );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -238,6 +238,16 @@ FieldSelectionPage::FieldSelectionPage( RimWellPathImport* wellPathImport, RiaOs
     QVBoxLayout* layout = new QVBoxLayout;
     setLayout( layout );
 
+    QHBoxLayout* searchLayout = new QHBoxLayout;
+    m_searchTextEdit          = new QLineEdit( this );
+    searchLayout->addWidget( m_searchTextEdit );
+
+    m_searchButton = new QPushButton( "Search", this );
+    m_searchButton->setEnabled( false );
+    searchLayout->addWidget( m_searchButton );
+
+    layout->addLayout( searchLayout );
+
     QLabel* label = new QLabel( "Select fields" );
     layout->addWidget( label );
 
@@ -259,6 +269,10 @@ FieldSelectionPage::FieldSelectionPage( RimWellPathImport* wellPathImport, RiaOs
     m_osduConnector = osduConnector;
     connect( m_osduConnector, SIGNAL( fieldsFinished() ), SLOT( fieldsFinished() ) );
 
+    connect( m_searchTextEdit, SIGNAL( textChanged( const QString& ) ), this, SLOT( onSearchTextChanged( const QString& ) ) );
+
+    connect( m_searchButton, SIGNAL( clicked() ), this, SLOT( searchForFields() ) );
+
     connect( m_tableView->selectionModel(),
              SIGNAL( selectionChanged( const QItemSelection&, const QItemSelection& ) ),
              SLOT( selectField( const QItemSelection&, const QItemSelection& ) ) );
@@ -271,10 +285,20 @@ FieldSelectionPage::FieldSelectionPage( RimWellPathImport* wellPathImport, RiaOs
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void FieldSelectionPage::initializePage()
+void FieldSelectionPage::onSearchTextChanged( const QString& text )
+{
+    m_searchButton->setEnabled( text.length() >= MINIMUM_CHARACTERS_FOR_SEARCH );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void FieldSelectionPage::searchForFields()
 {
     RiuWellImportWizard* wiz = dynamic_cast<RiuWellImportWizard*>( wizard() );
-    wiz->downloadFields();
+
+    QString text = m_searchTextEdit->text();
+    if ( text.length() >= MINIMUM_CHARACTERS_FOR_SEARCH ) wiz->downloadFields( text );
 }
 
 //--------------------------------------------------------------------------------------------------
