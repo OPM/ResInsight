@@ -19,6 +19,7 @@
 #pragma once
 
 #include <QItemSelection>
+#include <QLineEdit>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QString>
@@ -245,9 +246,15 @@ public:
 private slots:
     void fieldsFinished();
     void selectField( const QItemSelection& newSelection, const QItemSelection& oldSelection );
+    void onSearchTextChanged( const QString& );
+    void searchForFields();
 
 private:
+    static const int MINIMUM_CHARACTERS_FOR_SEARCH = 3;
+
     // caf::PdmUiPropertyView* m_propertyView;
+    QLineEdit*           m_searchTextEdit;
+    QPushButton*         m_searchButton;
     RiaOsduConnector*    m_osduConnector;
     QTableView*          m_tableView;
     OsduFieldTableModel* m_osduFieldsModel;
@@ -336,7 +343,7 @@ public:
 public slots:
     void downloadWellPaths( const QString& wellboreId );
     void downloadWells( const QString& fieldId );
-    void downloadFields();
+    void downloadFields( const QString& fieldName );
 
     void slotAuthenticationRequired( QNetworkReply* networkReply, QAuthenticator* authenticator );
 
