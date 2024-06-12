@@ -530,23 +530,6 @@ QNetworkReply*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaOsduConnector::generateRandomString( int randomStringLength )
-{
-    const QString possibleCharacters( "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" );
-    QString       randomString;
-    for ( int i = 0; i < randomStringLength; ++i )
-    {
-        quint32 value    = QRandomGenerator::global()->generate();
-        int     index    = value % possibleCharacters.length();
-        QChar   nextChar = possibleCharacters.at( index );
-        randomString.append( nextChar );
-    }
-    return randomString;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RiaOsduConnector::server() const
 {
     return m_server;

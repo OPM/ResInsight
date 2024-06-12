@@ -121,7 +121,6 @@ private:
                                                 const QString& wellboreId );
     void requestWellLogsByWellboreId( const QString& server, const QString& dataPartitionId, const QString& token, const QString& wellboreId );
 
-    static QString generateRandomString( int length = 20 );
     static QString constructSearchUrl( const QString& server );
     static QString constructFileDownloadUrl( const QString& server, const QString& fileId );
     static QString constructAuthUrl( const QString& authority );
