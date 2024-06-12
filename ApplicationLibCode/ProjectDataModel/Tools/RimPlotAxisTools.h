@@ -36,4 +36,7 @@ void updatePlotWidgetFromAxisProperties( RiuPlotWidget*                         
                                          const QString&                          axisTitle,
                                          const std::vector<const RimPlotCurve*>& plotCurves );
 
+void    applyAxisScaleDraw( RiuPlotWidget* plotWidget, RiuPlotAxis axis, const RimPlotAxisProperties* const axisProperties );
+QString scaleFactorText( const RimPlotAxisProperties* const axisProperties );
+
 }; // namespace RimPlotAxisTools

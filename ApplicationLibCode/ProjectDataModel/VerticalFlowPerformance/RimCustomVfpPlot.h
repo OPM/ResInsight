@@ -21,6 +21,8 @@
 #include "RimPlot.h"
 #include "RimVfpDefines.h"
 
+#include "RiuPlotCurveSymbol.h"
+
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
@@ -43,6 +45,11 @@ class VFPInjTable;
 class VFPProdTable;
 } // namespace Opm
 
+namespace caf
+{
+class ColorTable;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// Vertical Flow Performance Plot
 //--------------------------------------------------------------------------------------------------
@@ -57,6 +64,7 @@ public:
     void selectDataSource( RimVfpTable* mainDataSource, const std::vector<RimVfpTable*>& vfpTableData );
     void setTableNumber( int tableNumber );
     void initializeObject();
+    void initializeSelection();
 
     // RimPlot implementations
     RiuPlotWidget* plotWidget() override;
@@ -88,20 +96,18 @@ private:
 
     void scheduleReplot();
 
-private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void initAfterRead() override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
-    VfpValueSelection tableSelection( RimVfpTable* table ) const;
-    void              initializeFromInitData( const VfpTableInitialData& table );
+    std::vector<double> valuesForProductionType( RimVfpDefines::ProductionVariableType variableType ) const;
+    std::vector<double> familyValuesForTable( RimVfpTable* table ) const;
+    void                initializeFromInitData( const VfpTableInitialData& table );
 
     RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent ) override;
 
     void calculateTableValueOptions( RimVfpDefines::ProductionVariableType variableType, QList<caf::PdmOptionItemInfo>& options );
-
-    void setFixedVariableUiEditability( caf::PdmFieldHandle& field, RimVfpDefines::ProductionVariableType variableType );
 
     void           updatePlotTitle( const QString& plotTitle );
     static QString generatePlotTitle( const QString&                          wellName,
@@ -116,7 +122,25 @@ private:
     static QString getDisplayUnit( RimVfpDefines::ProductionVariableType variableType );
     static QString getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType variableType );
 
-    void populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, const VfpPlotData& plotData, const QColor& color );
+    struct CurveNameContent
+    {
+        bool defaultName            = false;
+        bool tableNumber            = false;
+        bool flowRate               = false;
+        bool thp                    = false;
+        bool artificialLiftQuantity = false;
+        bool waterCut               = false;
+        bool gasLiquidRatio         = false;
+    };
+
+    void populatePlotWidgetWithPlotData( RiuPlotWidget*                      plotWidget,
+                                         const VfpPlotData&                  plotData,
+                                         const VfpValueSelection&            valueSelection,
+                                         int                                 tableNumber,
+                                         const QColor&                       color,
+                                         RiuPlotCurveSymbol::PointSymbolEnum curveSymbol,
+                                         bool                                multipleCurveSets,
+                                         const CurveNameContent&             curveNameContent );
 
     static QString axisTitle( RimVfpDefines::ProductionVariableType variableType, RimVfpDefines::FlowingPhaseType flowingPhase );
 
@@ -133,6 +157,24 @@ private:
 
     static RiuPlotCurveInfoTextProvider* curveTextProvider();
 
+    std::vector<RimVfpDefines::ProductionVariableType> nonFamilyProductionVariables() const;
+    std::vector<VfpValueSelection>                     computeValueSelectionCombinations() const;
+
+    struct PlotCurveData
+    {
+        QString curveName;
+        int     tableNumber;
+        double  flowRateValue;
+        double  thpValue;
+        double  artificialLiftQuantityValue;
+        double  waterCutValue;
+        double  gasLiquidRatioValue;
+    };
+
+    static std::vector<RiuPlotCurveSymbol::PointSymbolEnum> curveSymbols();
+
+    static const caf::ColorTable curveColors();
+
 private:
     caf::PdmField<QString> m_plotTitle;
 
@@ -140,7 +182,7 @@ private:
     caf::PdmPtrArrayField<RimVfpTable*> m_additionalDataSources;
 
     caf::PdmField<caf::AppEnum<RimVfpDefines::CurveMatchingType>>     m_curveMatchingType;
-    caf::PdmField<caf::AppEnum<RimVfpDefines::CurveOptionValuesType>> m_curveOptionFiltering;
+    caf::PdmField<caf::AppEnum<RimVfpDefines::CurveOptionValuesType>> m_curveValueOptions;
 
     caf::PdmField<int>                                                   m_tableNumber;
     caf::PdmField<double>                                                m_referenceDepth;
@@ -153,20 +195,25 @@ private:
     caf::PdmField<caf::AppEnum<RimVfpDefines::ProductionVariableType>>   m_primaryVariable;
     caf::PdmField<caf::AppEnum<RimVfpDefines::ProductionVariableType>>   m_familyVariable;
 
-    caf::PdmField<double> m_flowRateIdx;
-    caf::PdmField<double> m_thpIdx;
-    caf::PdmField<double> m_articifialLiftQuantityIdx;
-    caf::PdmField<double> m_waterCutIdx;
-    caf::PdmField<double> m_gasLiquidRatioIdx;
-
-    caf::PdmField<std::vector<double>> m_familyValues;
+    caf::PdmField<std::vector<double>> m_flowRate;
+    caf::PdmField<std::vector<double>> m_thp;
+    caf::PdmField<std::vector<double>> m_artificialLiftQuantity;
+    caf::PdmField<std::vector<double>> m_waterCut;
+    caf::PdmField<std::vector<double>> m_gasLiquidRatio;
 
     caf::PdmChildField<RimPlotAxisProperties*> m_yAxisProperties;
     caf::PdmChildField<RimPlotAxisProperties*> m_xAxisProperties;
 
     caf::PdmChildArrayField<RimPlotCurve*> m_plotCurves;
 
-    std::vector<VfpPlotData> m_plotData;
+    caf::PdmField<int> m_curveSymbolSize;
+    caf::PdmField<int> m_curveThickness;
+
+    std::vector<VfpPlotData>   m_plotData;
+    std::vector<PlotCurveData> m_plotCurveMetaData;
+
+    QString m_xAxisTitle;
+    QString m_yAxisTitle;
 
     QPointer<RiuPlotWidget> m_plotWidget;
 };

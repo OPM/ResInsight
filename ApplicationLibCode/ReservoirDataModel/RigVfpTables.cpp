@@ -659,7 +659,7 @@ size_t RigVfpTables::getVariableIndexForValue( const Opm::VFPProdTable&         
         }
         case RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY:
         {
-            return findClosestIndexForVariable( targetVariable, valueSelection.articifialLiftQuantityValue, table );
+            return findClosestIndexForVariable( targetVariable, valueSelection.artificialLiftQuantityValue, table );
         }
         case RimVfpDefines::ProductionVariableType::FLOW_RATE:
         {
@@ -834,7 +834,7 @@ VfpTableInitialData RigVfpTables::getTableInitialData( int tableIndex ) const
     auto prodTable = productionTable( tableIndex );
     if ( prodTable.has_value() )
     {
-        VfpTableInitialData initialData;
+        VfpTableInitialData initialData{};
         initialData.isProductionTable = true;
         initialData.tableNumber       = prodTable->getTableNum();
         initialData.datumDepth        = prodTable->getDatumDepth();
@@ -848,7 +848,7 @@ VfpTableInitialData RigVfpTables::getTableInitialData( int tableIndex ) const
     auto injTable = injectionTable( tableIndex );
     if ( injTable.has_value() )
     {
-        VfpTableInitialData initialData;
+        VfpTableInitialData initialData{};
         initialData.isProductionTable = false;
         initialData.tableNumber       = injTable->getTableNum();
         initialData.datumDepth        = injTable->getDatumDepth();

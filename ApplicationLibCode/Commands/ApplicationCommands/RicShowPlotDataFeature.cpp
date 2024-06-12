@@ -37,6 +37,7 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
+#include "VerticalFlowPerformance/RimCustomVfpPlot.h"
 #include "VerticalFlowPerformance/RimVfpPlot.h"
 
 #include "RiuPlotMainWindow.h"
@@ -193,7 +194,7 @@ bool RicShowPlotDataFeature::isCommandEnabled() const
     for ( auto plot : selection )
     {
         if ( dynamic_cast<RimSummaryPlot*>( plot ) || dynamic_cast<RimWellLogPlot*>( plot ) || dynamic_cast<RimWellLogTrack*>( plot ) ||
-             dynamic_cast<RimGridCrossPlot*>( plot ) || dynamic_cast<RimVfpPlot*>( plot ) ||
+             dynamic_cast<RimGridCrossPlot*>( plot ) || dynamic_cast<RimVfpPlot*>( plot ) || dynamic_cast<RimCustomVfpPlot*>( plot ) ||
              dynamic_cast<RimWellAllocationOverTimePlot*>( plot ) || dynamic_cast<RimAnalysisPlot*>( plot ) ||
              dynamic_cast<RimCorrelationMatrixPlot*>( plot ) || dynamic_cast<RimAbstractCorrelationPlot*>( plot ) ||
              dynamic_cast<RimCorrelationReportPlot*>( plot ) )

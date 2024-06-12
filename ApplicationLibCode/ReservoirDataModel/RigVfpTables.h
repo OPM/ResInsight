@@ -77,7 +77,7 @@ struct VfpValueSelection
 {
     double flowRateValue;
     double thpValue;
-    double articifialLiftQuantityValue;
+    double artificialLiftQuantityValue;
     double waterCutValue;
     double gasLiquidRatioValue;
 

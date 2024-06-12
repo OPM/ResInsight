@@ -85,7 +85,7 @@ void caf::AppEnum<RimVfpDefines::CurveMatchingType>::setUp()
 {
     addItem( RimVfpDefines::CurveMatchingType::EXACT, "EXACT", "Exact" );
     addItem( RimVfpDefines::CurveMatchingType::CLOSEST_MATCH_FAMILY, "CLOSEST_MATCH_FAMILY", "Family Closest Match" );
-    setDefault( RimVfpDefines::CurveMatchingType::EXACT );
+    setDefault( RimVfpDefines::CurveMatchingType::CLOSEST_MATCH_FAMILY );
 }
 
 template <>
