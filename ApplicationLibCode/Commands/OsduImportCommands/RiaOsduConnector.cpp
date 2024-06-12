@@ -83,8 +83,16 @@ void RiaOsduConnector::accessGranted()
 //--------------------------------------------------------------------------------------------------
 void RiaOsduConnector::requestToken()
 {
-    RiaLogging::debug( "Requesting token." );
-    m_osdu->grant();
+    if ( m_token.isEmpty() )
+    {
+        RiaLogging::debug( "Requesting token." );
+        m_osdu->grant();
+    }
+    else
+    {
+        RiaLogging::debug( "Has token: skipping token request." );
+        emit accessGranted();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
