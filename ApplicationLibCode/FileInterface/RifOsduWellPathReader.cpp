@@ -28,6 +28,7 @@
 #include "RiaLogging.h"
 #include "RiaTextStringTools.h"
 
+#include "RifArrowTools.h"
 #include "RifAsciiDataParseOptions.h"
 #include "RifByteArrayArrowRandomAccessFile.h"
 #include "RifCsvUserDataParser.h"
@@ -107,38 +108,6 @@ std::pair<cvf::ref<RigWellPath>, QString> RifOsduWellPathReader::parseCsv( const
 //--------------------------------------------------------------------------------------------------
 std::pair<cvf::ref<RigWellPath>, QString> RifOsduWellPathReader::readWellPathData( const QByteArray& content )
 {
-    // Function to convert an entire column to std::vector<double>
-    auto convertColumnToVector = []( const std::shared_ptr<arrow::ChunkedArray>& column ) -> std::vector<double>
-    {
-        auto convertChunkToVector = []( const std::shared_ptr<arrow::Array>& array ) -> std::vector<double>
-        {
-            std::vector<double> result;
-
-            auto double_array = std::static_pointer_cast<arrow::DoubleArray>( array );
-            result.resize( double_array->length() );
-            for ( int64_t i = 0; i < double_array->length(); ++i )
-            {
-                result[i] = double_array->Value( i );
-            }
-
-            return result;
-        };
-
-        CAF_ASSERT( column->type()->id() == arrow::Type::DOUBLE );
-
-        std::vector<double> result;
-
-        // Iterate over each chunk in the column
-        for ( int i = 0; i < column->num_chunks(); ++i )
-        {
-            std::shared_ptr<arrow::Array> chunk        = column->chunk( i );
-            std::vector<double>           chunk_vector = convertChunkToVector( chunk );
-            result.insert( result.end(), chunk_vector.begin(), chunk_vector.end() );
-        }
-
-        return result;
-    };
-
     arrow::MemoryPool* pool = arrow::default_memory_pool();
 
     std::shared_ptr<arrow::io::RandomAccessFile> input = std::make_shared<RifByteArrayArrowRandomAccessFile>( content );
@@ -172,7 +141,7 @@ std::pair<cvf::ref<RigWellPath>, QString> RifOsduWellPathReader::readWellPathDat
 
         if ( column->type()->id() == arrow::Type::DOUBLE )
         {
-            std::vector<double> columnVector = convertColumnToVector( column );
+            std::vector<double> columnVector = RifArrowTools::convertChunkedArrayToStdVector( column );
             RiaLogging::debug( QString( "Column name: %1. Size: %2" ).arg( QString::fromStdString( columnName ) ).arg( columnVector.size() ) );
             readValues[columnName] = columnVector;
         }

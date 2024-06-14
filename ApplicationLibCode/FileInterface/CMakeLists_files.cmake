@@ -99,6 +99,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifOsduWellPathReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifAsciiDataParseOptions.h
     ${CMAKE_CURRENT_LIST_DIR}/RifByteArrayArrowRandomAccessFile.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifArrowTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -197,6 +198,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifOsduWellPathReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifOsduWellLogReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifByteArrayArrowRandomAccessFile.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifArrowTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
