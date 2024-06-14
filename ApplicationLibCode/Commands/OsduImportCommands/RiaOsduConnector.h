@@ -58,7 +58,6 @@ public:
                       const QString& clientId );
     ~RiaOsduConnector() override;
 
-    void                     requestFieldsByName( const QString& token, const QString& fieldName );
     void                     requestFieldsByName( const QString& fieldName );
     void                     requestWellsByFieldId( const QString& fieldId );
     void                     requestWellboresByWellId( const QString& wellId );
@@ -70,6 +69,8 @@ public:
     std::pair<QByteArray, QString> requestWellboreTrajectoryParquetDataById( const QString& wellboreTrajectoryId );
 
     QString wellIdForWellboreId( const QString& wellboreId ) const;
+
+    void clearCachedData();
 
     QString server() const;
     QString dataPartition() const;
@@ -96,7 +97,7 @@ signals:
     void fieldsFinished();
     void wellsFinished();
     void wellboresFinished( const QString& wellId );
-    void wellboreTrajectoryFinished( const QString& wellboreId );
+    void wellboreTrajectoryFinished( const QString& wellboreId, int numTrajectories, const QString& errorMessage );
     void wellLogsFinished( const QString& wellboreId );
     void tokenReady( const QString& token );
 
@@ -112,6 +113,7 @@ private:
 
     QNetworkReply* makeDownloadRequest( const QString& url, const QString& dataPartitionId, const QString& token, const QString& contentType );
 
+    void requestFieldsByName( const QString& token, const QString& fieldName );
     void requestFieldsByName( const QString& server, const QString& dataPartitionId, const QString& token, const QString& fieldName );
     void requestWellsByFieldId( const QString& server, const QString& dataPartitionId, const QString& token, const QString& fieldId );
     void requestWellboresByWellId( const QString& server, const QString& dataPartitionId, const QString& token, const QString& wellId );

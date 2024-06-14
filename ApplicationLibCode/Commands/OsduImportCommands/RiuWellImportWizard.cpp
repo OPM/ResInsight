@@ -106,6 +106,7 @@ void RiuWellImportWizard::slotAuthenticationRequired( QNetworkReply* networkRepl
 //--------------------------------------------------------------------------------------------------
 void RiuWellImportWizard::downloadWells( const QString& fieldId )
 {
+    m_osduConnector->clearCachedData();
     m_osduConnector->requestWellsByFieldId( fieldId );
 }
 
@@ -145,17 +146,17 @@ QString RiuWellImportWizard::selectedFieldId() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellImportWizard::setSelectedWellboreId( const QString& wellboreId )
+void RiuWellImportWizard::setSelectedWellboreIds( const std::vector<QString>& wellboreIds )
 {
-    m_selectedWellboreId = wellboreId;
+    m_selectedWellboreIds = wellboreIds;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuWellImportWizard::selectedWellboreId() const
+std::vector<QString> RiuWellImportWizard::selectedWellboreIds() const
 {
-    return m_selectedWellboreId;
+    return m_selectedWellboreIds;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -355,6 +356,7 @@ WellSelectionPage::WellSelectionPage( RimWellPathImport* wellPathImport, RiaOsdu
 
     m_tableView = new QTableView( this );
     m_tableView->setSelectionBehavior( QAbstractItemView::SelectRows );
+    m_tableView->setSelectionMode( QAbstractItemView::MultiSelection );
     QHeaderView* header = m_tableView->horizontalHeader();
     header->setSectionResizeMode( QHeaderView::Interactive );
     header->setStretchLastSection( true );
@@ -427,7 +429,7 @@ void WellSelectionPage::wellboresFinished( const QString& wellId )
 bool WellSelectionPage::isComplete() const
 {
     QItemSelectionModel* select = m_tableView->selectionModel();
-    return select->selectedRows().size() == 1;
+    return !select->selectedRows().empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -437,11 +439,21 @@ void WellSelectionPage::selectWellbore( const QItemSelection& newSelection, cons
 {
     if ( !newSelection.indexes().empty() )
     {
-        QModelIndex          index      = newSelection.indexes()[0];
-        int                  column     = 0;
-        QString              wellboreId = m_osduWellboresModel->data( index.siblingAtColumn( column ) ).toString();
-        RiuWellImportWizard* wiz        = dynamic_cast<RiuWellImportWizard*>( wizard() );
-        wiz->setSelectedWellboreId( wellboreId );
+        std::vector<QString> wellboreIds;
+        QModelIndexList      selection = m_tableView->selectionModel()->selectedRows();
+        for ( QModelIndex index : selection )
+        {
+            int idColumn = 0;
+
+            if ( index.column() == idColumn )
+            {
+                QString wellboreId = m_osduWellboresModel->data( index.siblingAtColumn( idColumn ) ).toString();
+                wellboreIds.push_back( wellboreId );
+            }
+        }
+
+        RiuWellImportWizard* wiz = dynamic_cast<RiuWellImportWizard*>( wizard() );
+        wiz->setSelectedWellboreIds( wellboreIds );
     }
 }
 
@@ -464,7 +476,9 @@ WellSummaryPage::WellSummaryPage( RimWellPathImport* wellPathImport, RiaOsduConn
 
     setButtonText( QWizard::FinishButton, "Import" );
 
-    connect( m_osduConnector, SIGNAL( wellboreTrajectoryFinished( const QString& ) ), SLOT( wellboreTrajectoryFinished( const QString& ) ) );
+    connect( m_osduConnector,
+             SIGNAL( wellboreTrajectoryFinished( const QString&, int, const QString& ) ),
+             SLOT( wellboreTrajectoryFinished( const QString&, int, const QString& ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -474,17 +488,35 @@ void WellSummaryPage::initializePage()
 {
     RiuWellImportWizard* wiz = dynamic_cast<RiuWellImportWizard*>( wizard() );
 
-    QString wellboreId = wiz->selectedWellboreId();
-    wiz->downloadWellPaths( wellboreId );
+    QMutexLocker lock( &m_mutex );
+    m_pendingWellboreIds.clear();
+    for ( const QString& wellboreId : wiz->selectedWellboreIds() )
+    {
+        m_pendingWellboreIds.insert( wellboreId );
+    }
+
+    for ( const QString& wellboreId : wiz->selectedWellboreIds() )
+    {
+        wiz->downloadWellPaths( wellboreId );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void WellSummaryPage::wellboreTrajectoryFinished( const QString& wellboreId )
+void WellSummaryPage::wellboreTrajectoryFinished( const QString& wellboreId, int numTrajectories, const QString& errorMessage )
 {
     std::vector<OsduWellboreTrajectory> wellboreTrajectories = m_osduConnector->wellboreTrajectories( wellboreId );
     std::vector<OsduWell>               wells                = m_osduConnector->wells();
+
+    auto findWellboreById = []( const std::vector<OsduWellbore>& wellbores, const QString& wellboreId ) -> std::optional<const OsduWellbore>
+    {
+        auto it = std::find_if( wellbores.begin(), wellbores.end(), [wellboreId]( const OsduWellbore& w ) { return w.id == wellboreId; } );
+        if ( it != wellbores.end() )
+            return std::optional<const OsduWellbore>( *it );
+        else
+            return {};
+    };
 
     auto findWellForWellId = []( const std::vector<OsduWell>& wells, const QString& wellId ) -> std::optional<const OsduWell>
     {
@@ -497,18 +529,47 @@ void WellSummaryPage::wellboreTrajectoryFinished( const QString& wellboreId )
 
     RiuWellImportWizard* wiz = dynamic_cast<RiuWellImportWizard*>( wizard() );
 
-    for ( auto w : wellboreTrajectories )
     {
-        QString                       wellId = m_osduConnector->wellIdForWellboreId( w.wellboreId );
+        QMutexLocker lock( &m_mutex );
+
+        QString                       wellId = m_osduConnector->wellIdForWellboreId( wellboreId );
         std::optional<const OsduWell> well   = findWellForWellId( wells, wellId );
 
-        if ( well.has_value() )
+        std::vector<OsduWellbore>         wellbores = m_osduConnector->wellbores( wellId );
+        std::optional<const OsduWellbore> wellbore  = findWellboreById( wellbores, wellboreId );
+
+        if ( well.has_value() && wellbore.has_value() )
         {
-            QString wellboreTrajectoryId = w.id;
-            wiz->addWellInfo( { .name                 = well.value().name,
-                                .wellId               = well.value().id,
-                                .wellboreId           = w.wellboreId,
-                                .wellboreTrajectoryId = wellboreTrajectoryId } );
+            if ( !errorMessage.isEmpty() )
+            {
+                m_textEdit->append( QString( "Wellbore '%1' download failed: %2." ).arg( wellbore.value().name ).arg( errorMessage ) );
+            }
+            else if ( numTrajectories == 0 )
+            {
+                m_textEdit->append( QString( "Wellbore '%1': No trajectory found." ).arg( wellbore.value().name ) );
+            }
+
+            for ( auto w : wellboreTrajectories )
+            {
+                QString wellboreTrajectoryId = w.id;
+                wiz->addWellInfo( { .name                 = wellbore.value().name,
+                                    .wellId               = well.value().id,
+                                    .wellboreId           = w.wellboreId,
+                                    .wellboreTrajectoryId = wellboreTrajectoryId } );
+            }
         }
+
+        m_pendingWellboreIds.erase( wellboreId );
     }
+
+    emit( completeChanged() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool WellSummaryPage::isComplete() const
+{
+    QMutexLocker lock( &m_mutex );
+    return m_pendingWellboreIds.empty();
 }

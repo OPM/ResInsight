@@ -38,6 +38,8 @@
 #include "RiuMainWindow.h"
 #include "RiuWellImportWizard.h"
 
+#include "cafProgressInfo.h"
+
 #include "cvfObject.h"
 
 #include <QAction>
@@ -81,8 +83,12 @@ void RicWellPathsImportOsduFeature::onActionTriggered( bool isChecked )
     if ( QDialog::Accepted == wellImportwizard.exec() )
     {
         std::vector<RiuWellImportWizard::WellInfo> importedWells = wellImportwizard.importedWells();
+
+        caf::ProgressInfo progress( importedWells.size(), "Importing wells from OSDU" );
         for ( auto w : importedWells )
         {
+            auto task = progress.task( QString( "Importing well: %1" ).arg( w.name ) );
+
             auto [wellPathGeometry, errorMessage] =
                 RimWellPathCollection::loadWellPathGeometryFromOsdu( osduConnector, w.wellboreTrajectoryId );
             if ( wellPathGeometry.notNull() )
