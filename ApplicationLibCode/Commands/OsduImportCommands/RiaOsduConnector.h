@@ -149,13 +149,4 @@ private:
     std::map<QString, std::vector<OsduWellboreTrajectory>> m_wellboreTrajectories;
     std::map<QString, std::vector<OsduWellLog>>            m_wellLogs;
     QByteArray                                             m_parquetData;
-
-    static inline const QString FIELD_KIND               = "osdu:wks:master-data--Field:1.0.0";
-    static inline const QString WELL_KIND                = "osdu:wks:master-data--Well:1.*.*";
-    static inline const QString WELLBORE_KIND            = "osdu:wks:master-data--Wellbore:1.*.*";
-    static inline const QString WELLBORE_TRAJECTORY_KIND = "osdu:wks:work-product-component--WellboreTrajectory:1.*.*";
-    static inline const QString WELL_LOG_KIND            = "osdu:wks:work-product-component--WellLog:1.*.*";
-
-    static inline const QString CONTENT_TYPE_JSON    = "application/json";
-    static inline const QString CONTENT_TYPE_PARQUET = "application/x-parquet";
 };
