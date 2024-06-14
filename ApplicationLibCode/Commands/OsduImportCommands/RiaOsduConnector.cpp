@@ -369,16 +369,19 @@ void RiaOsduConnector::parseFields( QNetworkReply* reply )
         QJsonObject   jsonObj      = doc.object();
         QJsonArray    resultsArray = jsonObj["results"].toArray();
 
-        m_fields.clear();
-
-        foreach ( const QJsonValue& value, resultsArray )
         {
-            QJsonObject resultObj = value.toObject();
+            QMutexLocker lock( &m_mutex );
+            m_fields.clear();
 
-            QString id        = resultObj["id"].toString();
-            QString kind      = resultObj["kind"].toString();
-            QString fieldName = resultObj["data"].toObject()["FieldName"].toString();
-            m_fields.push_back( OsduField{ id, kind, fieldName } );
+            foreach ( const QJsonValue& value, resultsArray )
+            {
+                QJsonObject resultObj = value.toObject();
+
+                QString id        = resultObj["id"].toString();
+                QString kind      = resultObj["kind"].toString();
+                QString fieldName = resultObj["data"].toObject()["FieldName"].toString();
+                m_fields.push_back( OsduField{ id, kind, fieldName } );
+            }
         }
 
         emit fieldsFinished();
@@ -399,16 +402,17 @@ void RiaOsduConnector::parseWells( QNetworkReply* reply )
         QJsonObject   jsonObj      = doc.object();
         QJsonArray    resultsArray = jsonObj["results"].toArray();
 
-        RiaLogging::info( QString( "Found %1 wells." ).arg( +resultsArray.size() ) );
-
-        m_wells.clear();
-        foreach ( const QJsonValue& value, resultsArray )
         {
-            QJsonObject resultObj = value.toObject();
-            QString     id        = resultObj["id"].toString();
-            QString     kind      = resultObj["kind"].toString();
-            QString     name      = resultObj["data"].toObject()["FacilityName"].toString();
-            m_wells.push_back( OsduWell{ id, kind, name } );
+            QMutexLocker lock( &m_mutex );
+            m_wells.clear();
+            foreach ( const QJsonValue& value, resultsArray )
+            {
+                QJsonObject resultObj = value.toObject();
+                QString     id        = resultObj["id"].toString();
+                QString     kind      = resultObj["kind"].toString();
+                QString     name      = resultObj["data"].toObject()["FacilityName"].toString();
+                m_wells.push_back( OsduWell{ id, kind, name } );
+            }
         }
 
         emit wellsFinished();
@@ -429,16 +433,17 @@ void RiaOsduConnector::parseWellbores( QNetworkReply* reply, const QString& well
         QJsonObject   jsonObj      = doc.object();
         QJsonArray    resultsArray = jsonObj["results"].toArray();
 
-        RiaLogging::info( QString( "Found %1 wellbores." ).arg( resultsArray.size() ) );
-
-        m_wellbores[wellId].clear();
-        foreach ( const QJsonValue& value, resultsArray )
         {
-            QJsonObject resultObj = value.toObject();
-            QString     id        = resultObj["id"].toString();
-            QString     kind      = resultObj["kind"].toString();
-            QString     name      = resultObj["data"].toObject()["FacilityName"].toString();
-            m_wellbores[wellId].push_back( OsduWellbore{ id, kind, name, wellId } );
+            QMutexLocker lock( &m_mutex );
+            m_wellbores[wellId].clear();
+            foreach ( const QJsonValue& value, resultsArray )
+            {
+                QJsonObject resultObj = value.toObject();
+                QString     id        = resultObj["id"].toString();
+                QString     kind      = resultObj["kind"].toString();
+                QString     name      = resultObj["data"].toObject()["FacilityName"].toString();
+                m_wellbores[wellId].push_back( OsduWellbore{ id, kind, name, wellId } );
+            }
         }
 
         emit wellboresFinished( wellId );
@@ -458,14 +463,18 @@ void RiaOsduConnector::parseWellTrajectory( QNetworkReply* reply, const QString&
         QJsonDocument doc          = QJsonDocument::fromJson( result );
         QJsonObject   jsonObj      = doc.object();
         QJsonArray    resultsArray = jsonObj["results"].toArray();
-        m_wellboreTrajectories.clear();
-        foreach ( const QJsonValue& value, resultsArray )
-        {
-            QJsonObject resultObj = value.toObject();
-            QString     id        = resultObj["id"].toString();
-            QString     kind      = resultObj["kind"].toString();
 
-            m_wellboreTrajectories[wellboreId].push_back( OsduWellboreTrajectory{ id, kind, wellboreId } );
+        {
+            QMutexLocker lock( &m_mutex );
+            m_wellboreTrajectories.clear();
+            foreach ( const QJsonValue& value, resultsArray )
+            {
+                QJsonObject resultObj = value.toObject();
+                QString     id        = resultObj["id"].toString();
+                QString     kind      = resultObj["kind"].toString();
+
+                m_wellboreTrajectories[wellboreId].push_back( OsduWellboreTrajectory{ id, kind, wellboreId } );
+            }
         }
 
         emit wellboreTrajectoryFinished( wellboreId );
@@ -485,14 +494,18 @@ void RiaOsduConnector::parseWellLogs( QNetworkReply* reply, const QString& wellb
         QJsonDocument doc          = QJsonDocument::fromJson( result );
         QJsonObject   jsonObj      = doc.object();
         QJsonArray    resultsArray = jsonObj["results"].toArray();
-        m_wellLogs.clear();
-        foreach ( const QJsonValue& value, resultsArray )
-        {
-            QJsonObject resultObj = value.toObject();
-            QString     id        = resultObj["id"].toString();
-            QString     kind      = resultObj["kind"].toString();
 
-            m_wellLogs[wellboreId].push_back( OsduWellLog{ id, kind, wellboreId } );
+        {
+            QMutexLocker lock( &m_mutex );
+            m_wellLogs.clear();
+            foreach ( const QJsonValue& value, resultsArray )
+            {
+                QJsonObject resultObj = value.toObject();
+                QString     id        = resultObj["id"].toString();
+                QString     kind      = resultObj["kind"].toString();
+
+                m_wellLogs[wellboreId].push_back( OsduWellLog{ id, kind, wellboreId } );
+            }
         }
 
         emit wellLogsFinished( wellboreId );
@@ -548,6 +561,7 @@ QString RiaOsduConnector::dataPartition() const
 //--------------------------------------------------------------------------------------------------
 std::vector<OsduField> RiaOsduConnector::fields() const
 {
+    QMutexLocker lock( &m_mutex );
     return m_fields;
 }
 
@@ -556,6 +570,7 @@ std::vector<OsduField> RiaOsduConnector::fields() const
 //--------------------------------------------------------------------------------------------------
 std::vector<OsduWell> RiaOsduConnector::wells() const
 {
+    QMutexLocker lock( &m_mutex );
     return m_wells;
 }
 
@@ -564,6 +579,8 @@ std::vector<OsduWell> RiaOsduConnector::wells() const
 //--------------------------------------------------------------------------------------------------
 std::vector<OsduWellbore> RiaOsduConnector::wellbores( const QString& wellId ) const
 {
+    QMutexLocker lock( &m_mutex );
+
     auto it = m_wellbores.find( wellId );
     if ( it != m_wellbores.end() )
         return it->second;
@@ -585,6 +602,7 @@ QString RiaOsduConnector::wellIdForWellboreId( const QString& wellboreId ) const
             return QString();
     };
 
+    QMutexLocker lock( &m_mutex );
     for ( auto [wellId, wellbores] : m_wellbores )
     {
         if ( auto res = findWellIdForWellboreId( wellbores, wellboreId ); !res.isEmpty() )
@@ -601,6 +619,8 @@ QString RiaOsduConnector::wellIdForWellboreId( const QString& wellboreId ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<OsduWellboreTrajectory> RiaOsduConnector::wellboreTrajectories( const QString& wellboreId ) const
 {
+    QMutexLocker lock( &m_mutex );
+
     auto it = m_wellboreTrajectories.find( wellboreId );
     if ( it != m_wellboreTrajectories.end() )
         return it->second;
