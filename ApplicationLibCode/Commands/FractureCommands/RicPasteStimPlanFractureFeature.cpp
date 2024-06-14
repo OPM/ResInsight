@@ -74,9 +74,7 @@ void RicPasteStimPlanFractureFeature::onActionTriggered( bool isChecked )
 
     for ( const auto& source : typedObjects )
     {
-        auto copyOfStimPlanTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(
-            source->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-
+        auto copyOfStimPlanTemplate = source->copyObject<RimStimPlanFractureTemplate>();
         fractureTemplateColl->addFractureTemplate( copyOfStimPlanTemplate );
 
         RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate( copyOfStimPlanTemplate );

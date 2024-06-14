@@ -87,8 +87,7 @@ void RicCreateSummaryCaseCollectionFeature::onActionTriggered( bool isChecked )
 
     for ( const auto sumCase : selection )
     {
-        auto copy = dynamic_cast<RimSummaryCase*>( sumCase->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-
+        auto copy = sumCase->copyObject<RimSummaryCase>();
         duplicates.push_back( copy );
     }
 

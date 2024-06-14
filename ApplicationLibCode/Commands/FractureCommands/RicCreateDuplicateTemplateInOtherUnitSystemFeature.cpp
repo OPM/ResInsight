@@ -54,8 +54,7 @@ void RicCreateDuplicateTemplateInOtherUnitSystemFeature::onActionTriggered( bool
     RimFractureTemplate* fractureTemplate = caf::firstAncestorOfTypeFromSelectedObject<RimFractureTemplate>();
     if ( !fractureTemplate ) return;
 
-    auto copyOfTemplate = dynamic_cast<RimFractureTemplate*>(
-        fractureTemplate->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    auto copyOfTemplate = fractureTemplate->copyObject<RimFractureTemplate>();
 
     RimFractureTemplateCollection* fractureTemplateCollection = caf::firstAncestorOfTypeFromSelectedObject<RimFractureTemplateCollection>();
     fractureTemplateCollection->addFractureTemplate( copyOfTemplate );

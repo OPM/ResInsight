@@ -2282,8 +2282,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet* RimEnsembleCurveSet::clone() const
 {
-    RimEnsembleCurveSet* copy =
-        dynamic_cast<RimEnsembleCurveSet*>( xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    auto copy = copyObject<RimEnsembleCurveSet>();
     copy->setSummaryCaseCollection( m_yValuesSummaryCaseCollection() );
 
     // Update summary case references

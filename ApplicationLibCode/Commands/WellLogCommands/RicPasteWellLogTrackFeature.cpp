@@ -73,8 +73,7 @@ void RicPasteWellLogTrackFeature::onActionTriggered( bool isChecked )
         RimWellLogTrack* fileCurve = sourceObjects[i];
         if ( fileCurve )
         {
-            RimWellLogTrack* newObject = dynamic_cast<RimWellLogTrack*>(
-                fileCurve->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+            auto newObject = fileCurve->copyObject<RimWellLogTrack>();
             CVF_ASSERT( newObject );
 
             wellLogPlot->addPlot( newObject );

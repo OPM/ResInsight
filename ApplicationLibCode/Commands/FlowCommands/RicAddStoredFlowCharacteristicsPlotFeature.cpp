@@ -63,8 +63,7 @@ void RicAddStoredFlowCharacteristicsPlotFeature::onActionTriggered( bool isCheck
         RimFlowCharacteristicsPlot* sourceObject =
             dynamic_cast<RimFlowCharacteristicsPlot*>( caf::SelectionManager::instance()->selectedItem() );
 
-        RimFlowCharacteristicsPlot* flowCharacteristicsPlot =
-            dynamic_cast<RimFlowCharacteristicsPlot*>( sourceObject->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+        auto flowCharacteristicsPlot = sourceObject->copyObject<RimFlowCharacteristicsPlot>();
         CVF_ASSERT( flowCharacteristicsPlot );
 
         flowPlotColl->addFlowCharacteristicsPlotToStoredPlots( flowCharacteristicsPlot );

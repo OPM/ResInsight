@@ -157,8 +157,7 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots( const QString& f
             RimGeoMechView* sourceGeoMechView = dynamic_cast<RimGeoMechView*>( sourceView );
             if ( geomCase && sourceGeoMechView )
             {
-                RimGeoMechView* copyOfGeoMechView = dynamic_cast<RimGeoMechView*>(
-                    sourceGeoMechView->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+                auto copyOfGeoMechView = sourceGeoMechView->copyObject<RimGeoMechView>();
                 CVF_ASSERT( copyOfGeoMechView );
 
                 geomCase->geoMechViews().push_back( copyOfGeoMechView );

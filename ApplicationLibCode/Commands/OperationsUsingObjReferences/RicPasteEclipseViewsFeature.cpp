@@ -86,8 +86,7 @@ void RicPasteEclipseViewsFeature::onActionTriggered( bool isChecked )
     // Add cases to case group
     for ( const auto& eclipseView : eclipseViews )
     {
-        auto* rimReservoirView =
-            dynamic_cast<RimEclipseView*>( eclipseView->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+        auto* rimReservoirView = eclipseView->copyObject<RimEclipseView>();
         CVF_ASSERT( rimReservoirView );
 
         QString nameOfCopy = QString( "Copy of " ) + rimReservoirView->name();

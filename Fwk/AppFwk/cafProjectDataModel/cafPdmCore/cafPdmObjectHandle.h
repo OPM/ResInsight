@@ -31,6 +31,10 @@ public:
     static QString classKeywordStatic(); // For PdmXmlFieldCap to be able to handle fields of PdmObjectHandle directly
     static std::vector<QString> classKeywordAliases();
 
+    // Function template to call the virtual copy function
+    template <typename T>
+    [[nodiscard]] T* copyObject() const;
+
     /// The registered fields contained in this PdmObject.
     [[nodiscard]] std::vector<PdmFieldHandle*> fields() const;
     [[nodiscard]] PdmFieldHandle*              findField( const QString& keyword ) const;
@@ -84,21 +88,10 @@ public:
     void prepareForDelete();
 
     // Object capabilities
-    void addCapability( PdmObjectCapability* capability, bool takeOwnership )
-    {
-        m_capabilities.push_back( std::make_pair( capability, takeOwnership ) );
-    }
+    void addCapability( PdmObjectCapability* capability, bool takeOwnership );
 
     template <typename CapabilityType>
-    CapabilityType* capability() const
-    {
-        for ( size_t i = 0; i < m_capabilities.size(); ++i )
-        {
-            CapabilityType* capability = dynamic_cast<CapabilityType*>( m_capabilities[i].first );
-            if ( capability ) return capability;
-        }
-        return nullptr;
-    }
+    CapabilityType* capability() const;
 
     PdmUiObjectHandle*  uiCapability() const; // Implementation is in cafPdmUiObjectHandle.cpp
     PdmXmlObjectHandle* xmlCapability() const; // Implementation is in cafPdmXmlObjectHandle.cpp
@@ -117,6 +110,9 @@ public:
 
 protected:
     void addField( PdmFieldHandle* field, const QString& keyword );
+
+    // Virtual method used to copy objects. The implementation is in PdmObject
+    [[nodiscard]] virtual PdmObjectHandle* doCopyObject() const;
 
 private:
     PDM_DISABLE_COPY_AND_ASSIGN( PdmObjectHandle );
@@ -173,6 +169,16 @@ private:
 
 namespace caf
 {
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+[[nodiscard]] T* PdmObjectHandle::copyObject() const
+{
+    return dynamic_cast<T*>( doCopyObject() );
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -336,6 +342,19 @@ template <typename T>
     }
 
     return objectsOfType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename CapabilityType>
+CapabilityType* PdmObjectHandle::capability() const
+{
+    for ( auto capability : m_capabilities )
+    {
+        if ( auto capabilityType = dynamic_cast<CapabilityType*>( capability.first ) ) return capabilityType;
+    }
+    return nullptr;
 }
 
 } // End of namespace caf

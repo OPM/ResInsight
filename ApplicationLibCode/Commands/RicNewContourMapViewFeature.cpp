@@ -210,10 +210,8 @@ RimEclipseContourMapView*
     RicNewContourMapViewFeature::createEclipseContourMapFromExistingContourMap( RimEclipseCase*           eclipseCase,
                                                                                 RimEclipseContourMapView* existingContourMap )
 {
-    RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>(
-        existingContourMap->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    auto contourMap = existingContourMap->copyObject<RimEclipseContourMapView>();
     CVF_ASSERT( contourMap );
-
     contourMap->setEclipseCase( eclipseCase );
 
     auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
@@ -358,10 +356,8 @@ RimGeoMechContourMapView*
     RicNewContourMapViewFeature::createGeoMechContourMapFromExistingContourMap( RimGeoMechCase*           geoMechCase,
                                                                                 RimGeoMechContourMapView* existingContourMap )
 {
-    RimGeoMechContourMapView* contourMap = dynamic_cast<RimGeoMechContourMapView*>(
-        existingContourMap->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    auto contourMap = existingContourMap->copyObject<RimGeoMechContourMapView>();
     CVF_ASSERT( contourMap );
-
     contourMap->setGeoMechCase( geoMechCase );
 
     auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );

@@ -121,8 +121,7 @@ void RimUserDefinedPolylinesAnnotation::appendTarget( const cvf::Vec3d& defaultP
     }
     else
     {
-        target = dynamic_cast<RimPolylineTarget*>(
-            targets.back()->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+        target = targets.back()->copyObject<RimPolylineTarget>();
     }
 
     if ( target )

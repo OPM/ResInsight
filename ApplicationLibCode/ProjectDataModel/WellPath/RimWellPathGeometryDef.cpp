@@ -427,8 +427,7 @@ RimWellPathTarget* RimWellPathGeometryDef::appendTarget()
     }
     else
     {
-        wellPathTarget = dynamic_cast<RimWellPathTarget*>(
-            targets.back()->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+        wellPathTarget = targets.back()->copyObject<RimWellPathTarget>();
     }
 
     if ( wellPathTarget )

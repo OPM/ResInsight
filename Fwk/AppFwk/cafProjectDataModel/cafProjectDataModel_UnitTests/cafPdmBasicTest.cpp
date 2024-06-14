@@ -991,3 +991,14 @@ TEST( BaseTest, PdmReferenceHelper )
         EXPECT_TRUE( fromRef == &( ihd1->m_simpleObjectsField ) );
     }
 }
+
+TEST( BaseTest, CopyObject )
+{
+    const double testValue = 123.345;
+
+    auto ihd1            = std::make_unique<SimpleObj>();
+    ihd1->m_doubleMember = testValue;
+
+    auto objectCopy = std::unique_ptr<SimpleObj>( ihd1->copyObject<SimpleObj>() );
+    EXPECT_EQ( testValue, objectCopy->m_doubleMember );
+}

@@ -81,9 +81,7 @@ bool RimFileSurface::onLoadData()
 //--------------------------------------------------------------------------------------------------
 RimSurface* RimFileSurface::createCopy()
 {
-    RimFileSurface* newSurface =
-        dynamic_cast<RimFileSurface*>( xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-
+    auto newSurface = copyObject<RimFileSurface>();
     if ( !newSurface->onLoadData() )
     {
         delete newSurface;

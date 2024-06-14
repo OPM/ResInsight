@@ -102,8 +102,7 @@ void RicCreateRftPlotsFeature::appendRftPlotForWell( const QString& wellName, Ri
 
     // Create a RFT plot based on wellName, and reuse the data source selection in sourcePlot
 
-    auto rftPlot =
-        dynamic_cast<RimWellRftPlot*>( sourcePlot->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    auto rftPlot = sourcePlot->copyObject<RimWellRftPlot>();
     if ( !rftPlot ) return;
 
     rftPlot->setSimWellOrWellPathName( wellName );

@@ -67,9 +67,7 @@ void RicPasteCellFiltersFeature::onActionTriggered( bool isChecked )
 
     for ( auto obj : objectGroup.objects )
     {
-        auto duplicatedObject =
-            dynamic_cast<RimCellFilter*>( obj->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-
+        auto duplicatedObject = obj->copyObject<RimCellFilter>();
         if ( duplicatedObject )
         {
             cellFilterCollection->addFilterAndNotifyChanges( duplicatedObject, eclipseCase );

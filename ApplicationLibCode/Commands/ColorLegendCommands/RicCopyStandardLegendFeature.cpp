@@ -49,9 +49,7 @@ void RicCopyStandardLegendFeature::onActionTriggered( bool isChecked )
     if ( standardLegend )
     {
         // perform deep copy of standard legend object via XML
-        RimColorLegend* customLegend = dynamic_cast<RimColorLegend*>(
-            standardLegend->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-
+        auto customLegend = standardLegend->copyObject<RimColorLegend>();
         customLegend->setColorLegendName( "Copy of " + standardLegend->colorLegendName() );
 
         RimColorLegendCollection* colorLegendCollection = RimProject::current()->colorLegendCollection;

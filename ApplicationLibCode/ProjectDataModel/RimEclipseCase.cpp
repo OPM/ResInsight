@@ -329,8 +329,7 @@ RimEclipseView* RimEclipseCase::createCopyAndAddView( const RimEclipseView* sour
 {
     CVF_ASSERT( sourceView );
 
-    RimEclipseView* rimEclipseView =
-        dynamic_cast<RimEclipseView*>( sourceView->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    auto rimEclipseView = sourceView->copyObject<RimEclipseView>();
     CVF_ASSERT( rimEclipseView );
     rimEclipseView->setEclipseCase( this );
 

@@ -278,8 +278,7 @@ std::vector<RimPlot*> RicSummaryPlotBuilder::duplicatePlots( const std::vector<R
 
     for ( auto plot : sourcePlots )
     {
-        auto copy = dynamic_cast<RimPlot*>( plot->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-
+        auto copy = plot->copyObject<RimPlot>();
         {
             // TODO: Workaround for fixing the PdmPointer in RimEclipseResultDefinition
             //    caf::PdmPointer<RimEclipseCase> m_eclipseCase;
@@ -308,8 +307,7 @@ std::vector<RimSummaryPlot*> RicSummaryPlotBuilder::duplicateSummaryPlots( const
 
     for ( auto plot : sourcePlots )
     {
-        auto copy = dynamic_cast<RimSummaryPlot*>( plot->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-
+        auto copy = plot->copyObject<RimSummaryPlot>();
         if ( copy )
         {
             plots.push_back( copy );

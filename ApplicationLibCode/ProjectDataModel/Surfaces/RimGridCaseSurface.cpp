@@ -89,7 +89,7 @@ bool RimGridCaseSurface::onLoadData()
 //--------------------------------------------------------------------------------------------------
 RimSurface* RimGridCaseSurface::createCopy()
 {
-    auto* newSurface = dynamic_cast<RimGridCaseSurface*>( xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    auto* newSurface = copyObject<RimGridCaseSurface>();
     newSurface->setCase( m_case.value() ); // TODO: case seems to get lost in the xml copy, investigate later
 
     if ( !newSurface->onLoadData() )

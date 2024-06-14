@@ -705,8 +705,7 @@ void RicSummaryPlotEditorUi::updateTargetPlot()
 //--------------------------------------------------------------------------------------------------
 void RicSummaryPlotEditorUi::copyCurveAndAddToPlot( const RimSummaryCurve* curve, RimSummaryPlot* plot, bool forceVisible )
 {
-    auto curveCopy =
-        dynamic_cast<RimSummaryCurve*>( curve->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    auto curveCopy = curve->copyObject<RimSummaryCurve>();
     CVF_ASSERT( curveCopy );
 
     if ( forceVisible )
@@ -728,8 +727,7 @@ void RicSummaryPlotEditorUi::copyCurveAndAddToPlot( const RimSummaryCurve* curve
 //--------------------------------------------------------------------------------------------------
 void RicSummaryPlotEditorUi::copyEnsembleCurveAndAddToCurveSet( const RimSummaryCurve* curve, RimEnsembleCurveSet* curveSet, bool forceVisible )
 {
-    RimSummaryCurve* curveCopy =
-        dynamic_cast<RimSummaryCurve*>( curve->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    auto curveCopy = curve->copyObject<RimSummaryCurve>();
     CVF_ASSERT( curveCopy );
 
     if ( forceVisible )

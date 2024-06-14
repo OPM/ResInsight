@@ -170,6 +170,14 @@ void PdmObjectHandle::prepareForDelete()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void PdmObjectHandle::addCapability( PdmObjectCapability* capability, bool takeOwnership )
+{
+    m_capabilities.push_back( std::make_pair( capability, takeOwnership ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void PdmObjectHandle::addField( PdmFieldHandle* field, const QString& keyword )
 {
     field->m_ownerObject = this;
@@ -179,6 +187,14 @@ void PdmObjectHandle::addField( PdmFieldHandle* field, const QString& keyword )
 
     field->setKeyword( keyword );
     m_fields.push_back( field );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* PdmObjectHandle::doCopyObject() const
+{
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
