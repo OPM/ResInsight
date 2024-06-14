@@ -141,6 +141,7 @@ private:
     const QString m_scopes;
     const QString m_clientId;
 
+    mutable QMutex                                         m_mutex;
     QString                                                m_token;
     std::vector<OsduField>                                 m_fields;
     std::vector<OsduWell>                                  m_wells;
