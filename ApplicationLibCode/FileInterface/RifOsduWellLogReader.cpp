@@ -25,6 +25,8 @@
 #include <iostream>
 #include <vector>
 
+#include "RifArrowTools.h"
+
 #include <arrow/array/array_primitive.h>
 #include <arrow/csv/api.h>
 #include <arrow/io/api.h>
@@ -36,38 +38,6 @@
 //--------------------------------------------------------------------------------------------------
 std::pair<cvf::ref<RigOsduWellLogData>, QString> RifOsduWellLogReader::readWellLogData( const QByteArray& contents )
 {
-    // Function to convert an entire column to std::vector<double>
-    auto convertColumnToVector = []( const std::shared_ptr<arrow::ChunkedArray>& column ) -> std::vector<double>
-    {
-        auto convertChunkToVector = []( const std::shared_ptr<arrow::Array>& array ) -> std::vector<double>
-        {
-            std::vector<double> result;
-
-            auto double_array = std::static_pointer_cast<arrow::DoubleArray>( array );
-            result.resize( double_array->length() );
-            for ( int64_t i = 0; i < double_array->length(); ++i )
-            {
-                result[i] = double_array->Value( i );
-            }
-
-            return result;
-        };
-
-        CAF_ASSERT( column->type()->id() == arrow::Type::DOUBLE );
-
-        std::vector<double> result;
-
-        // Iterate over each chunk in the column
-        for ( int i = 0; i < column->num_chunks(); ++i )
-        {
-            std::shared_ptr<arrow::Array> chunk        = column->chunk( i );
-            std::vector<double>           chunk_vector = convertChunkToVector( chunk );
-            result.insert( result.end(), chunk_vector.begin(), chunk_vector.end() );
-        }
-
-        return result;
-    };
-
     arrow::MemoryPool* pool = arrow::default_memory_pool();
 
     std::shared_ptr<arrow::io::RandomAccessFile> input = std::make_shared<RifByteArrayArrowRandomAccessFile>( contents );
@@ -93,7 +63,7 @@ std::pair<cvf::ref<RigOsduWellLogData>, QString> RifOsduWellLogReader::readWellL
 
         if ( column->type()->id() == arrow::Type::DOUBLE )
         {
-            std::vector<double> columnVector = convertColumnToVector( column );
+            std::vector<double> columnVector = RifArrowTools::convertChunkedArrayToStdVector( column );
             logData->setValues( QString::fromStdString( columnName ), columnVector );
         }
     }
