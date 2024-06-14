@@ -1,6 +1,7 @@
 #include "RiaOsduConnector.h"
 #include "RiaFileDownloader.h"
 #include "RiaLogging.h"
+#include "RiaOsduDefines.h"
 #include "RiaOsduOAuthHttpServerReplyHandler.h"
 
 #include <QAbstractOAuth>
@@ -124,7 +125,7 @@ void RiaOsduConnector::requestFieldsByName( const QString& fieldName )
 void RiaOsduConnector::requestFieldsByName( const QString& server, const QString& dataPartitionId, const QString& token, const QString& fieldName )
 {
     std::map<QString, QString> params;
-    params["kind"]  = FIELD_KIND;
+    params["kind"]  = RiaDefines::osduFieldKind();
     params["limit"] = "10000";
     params["query"] = "data.FieldName:" + fieldName;
 
@@ -154,7 +155,7 @@ void RiaOsduConnector::requestWellsByFieldId( const QString& fieldId )
 void RiaOsduConnector::requestWellsByFieldId( const QString& server, const QString& dataPartitionId, const QString& token, const QString& fieldId )
 {
     std::map<QString, QString> params;
-    params["kind"]  = WELL_KIND;
+    params["kind"]  = RiaDefines::osduWellKind();
     params["limit"] = "10000";
     params["query"] = QString( "nested(data.GeoContexts, (FieldID:\"%1\"))" ).arg( fieldId );
 
@@ -184,7 +185,7 @@ void RiaOsduConnector::requestWellboresByWellId( const QString& wellId )
 void RiaOsduConnector::requestWellboresByWellId( const QString& server, const QString& dataPartitionId, const QString& token, const QString& wellId )
 {
     std::map<QString, QString> params;
-    params["kind"]  = WELLBORE_KIND;
+    params["kind"]  = RiaDefines::osduWellboreKind();
     params["limit"] = "10000";
     params["query"] = "data.WellID: \"" + wellId + "\"";
 
@@ -232,7 +233,7 @@ void RiaOsduConnector::requestWellLogsByWellboreId( const QString& server,
                                                     const QString& wellboreId )
 {
     std::map<QString, QString> params;
-    params["kind"]  = WELL_LOG_KIND;
+    params["kind"]  = RiaDefines::osduWellLogKind();
     params["limit"] = "10000";
     params["query"] = "data.WellboreID: \"" + wellboreId + "\"";
 
@@ -265,7 +266,7 @@ void RiaOsduConnector::requestWellboreTrajectoryByWellboreId( const QString& ser
                                                               const QString& wellboreId )
 {
     std::map<QString, QString> params;
-    params["kind"]  = WELLBORE_TRAJECTORY_KIND;
+    params["kind"]  = RiaDefines::osduWellboreTrajectoryKind();
     params["limit"] = "10000";
     params["query"] = "data.WellboreID: \"" + wellboreId + "\"";
 
@@ -340,7 +341,7 @@ QNetworkReply* RiaOsduConnector::makeSearchRequest( const std::map<QString, QStr
     QNetworkRequest m_networkRequest;
     m_networkRequest.setUrl( QUrl( constructSearchUrl( server ) ) );
 
-    addStandardHeader( m_networkRequest, token, dataPartitionId, CONTENT_TYPE_JSON );
+    addStandardHeader( m_networkRequest, token, dataPartitionId, RiaDefines::contentTypeJson() );
 
     QJsonObject obj;
     for ( auto [key, value] : parameters )
@@ -675,7 +676,7 @@ void RiaOsduConnector::requestParquetData( const QString& url, const QString& da
 {
     RiaLogging::info( "Requesting download of parquet from: " + url );
 
-    auto reply = makeDownloadRequest( url, dataPartitionId, token, CONTENT_TYPE_PARQUET );
+    auto reply = makeDownloadRequest( url, dataPartitionId, token, RiaDefines::contentTypeParquet() );
     connect( reply,
              &QNetworkReply::finished,
              [this, reply, url]()
