@@ -242,7 +242,6 @@ public:
     FieldSelectionPage( RimWellPathImport* wellPathImport, RiaOsduConnector* m_osduConnector, QWidget* parent = nullptr );
     ~FieldSelectionPage() override;
 
-    void initializePage() override;
     bool isComplete() const override;
 private slots:
     void fieldsFinished();

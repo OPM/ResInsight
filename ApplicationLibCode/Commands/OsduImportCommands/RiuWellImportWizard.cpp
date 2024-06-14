@@ -265,12 +265,6 @@ FieldSelectionPage::FieldSelectionPage( RimWellPathImport* wellPathImport, RiaOs
     layout->addWidget( m_tableView );
     layout->setStretchFactor( m_tableView, 10 );
 
-    // Tree view
-    // caf::PdmUiTreeView* treeView = new caf::PdmUiTreeView( this );
-    // treeView->setPdmItem( wellPathImport );
-    // layout->addWidget( treeView );
-    // layout->setStretchFactor( treeView, 10 );
-
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
     m_osduConnector = osduConnector;

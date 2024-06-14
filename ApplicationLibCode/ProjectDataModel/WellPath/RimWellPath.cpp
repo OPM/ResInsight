@@ -163,10 +163,7 @@ RimWellPath::RimWellPath()
 //--------------------------------------------------------------------------------------------------
 RimWellPath::~RimWellPath()
 {
-    for ( const auto& wellLog : m_wellLogs() )
-    {
-        delete wellLog;
-    }
+    m_wellLogs.deleteChildren();
 
     RimWellLogPlotCollection* plotCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
     if ( plotCollection )
