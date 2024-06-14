@@ -113,9 +113,9 @@ public:
 
     void setOsduFields( const std::vector<OsduField>& osduFields )
     {
-        beginInsertRows( QModelIndex(), 0, static_cast<int>( osduFields.size() ) );
+        beginResetModel();
         m_osduFields = osduFields;
-        endInsertRows();
+        endResetModel();
     }
 
 private:
@@ -193,6 +193,7 @@ public:
 
     void setOsduWellbores( const QString& wellId, const std::vector<OsduWellbore>& osduWellbores )
     {
+        beginResetModel();
         m_map[wellId] = osduWellbores;
         m_osduWellbores.clear();
         for ( auto [name, values] : m_map )
@@ -201,8 +202,7 @@ public:
                 m_osduWellbores.push_back( v );
         }
 
-        beginInsertRows( QModelIndex(), 0, static_cast<int>( m_osduWellbores.size() ) );
-        endInsertRows();
+        endResetModel();
     }
 
 private:
@@ -227,7 +227,8 @@ private slots:
     void accessOk();
 
 private:
-    bool m_accessOk;
+    QLabel* m_connectionLabel;
+    bool    m_accessOk;
 };
 
 //--------------------------------------------------------------------------------------------------

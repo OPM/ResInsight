@@ -185,8 +185,8 @@ AuthenticationPage::AuthenticationPage( RiaOsduConnector* osduConnector, QWidget
 
     QVBoxLayout* layout = new QVBoxLayout;
 
-    QLabel* label = new QLabel( "Checking OSDU connection..." );
-    layout->addWidget( label );
+    m_connectionLabel = new QLabel( "Checking OSDU connection. You might need to login." );
+    layout->addWidget( m_connectionLabel );
 
     QFormLayout* formLayout = new QFormLayout;
     layout->addLayout( formLayout );
@@ -226,6 +226,7 @@ bool AuthenticationPage::isComplete() const
 //--------------------------------------------------------------------------------------------------
 void AuthenticationPage::accessOk()
 {
+    m_connectionLabel->setText( "Connection to OSDU: OK." );
     m_accessOk = true;
     emit( completeChanged() );
 }
