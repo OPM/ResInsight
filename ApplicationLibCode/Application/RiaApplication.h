@@ -257,6 +257,6 @@ protected:
     bool m_runningWorkerProcess;
 
 private:
-    static RiaApplication* s_riaApplication;
-    RiaOsduConnector*      m_osduConnector;
+    static RiaApplication*     s_riaApplication;
+    QPointer<RiaOsduConnector> m_osduConnector;
 };

@@ -18,11 +18,10 @@
 
 #include "RimOsduWellLog.h"
 
-#include "RiaGuiApplication.h"
-#include "RiaLogging.h"
-
 #include "RiaDateStringParser.h"
 #include "RiaFieldHandleTools.h"
+#include "RiaGuiApplication.h"
+#include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 
 #include "RimFileWellPath.h"
@@ -33,9 +32,7 @@
 
 #include "Riu3DMainWindowTools.h"
 
-#include <QFileInfo>
 #include <QString>
-#include <QStringList>
 
 CAF_PDM_SOURCE_INIT( RimOsduWellLog, "OsduWellLog" );
 
