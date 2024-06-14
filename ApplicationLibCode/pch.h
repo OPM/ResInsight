@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-// NOTE: This file must be included before any other Qt header files, as the keyword 'signals' is used as a parameter name in 
+// NOTE: This file must be included before any other Qt header files, as the keyword 'signals' is used as a parameter name in
 // RegisterCancellingSignalHandler(const std::vector<int>& signals);
 // Qt has special treatment of 'signals', and causes compiler issues using PCH
 #include <arrow/util/cancel.h>
