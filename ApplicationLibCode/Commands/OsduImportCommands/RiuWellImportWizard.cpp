@@ -255,6 +255,10 @@ FieldSelectionPage::FieldSelectionPage( RimWellPathImport* wellPathImport, RiaOs
 
     m_tableView = new QTableView( this );
     m_tableView->setSelectionBehavior( QAbstractItemView::SelectRows );
+    QHeaderView* header = m_tableView->horizontalHeader();
+    header->setSectionResizeMode( QHeaderView::Interactive );
+    header->setStretchLastSection( true );
+
     m_osduFieldsModel = new OsduFieldTableModel;
     m_tableView->setModel( m_osduFieldsModel );
     layout->addWidget( m_tableView );
@@ -363,6 +367,10 @@ WellSelectionPage::WellSelectionPage( RimWellPathImport* wellPathImport, RiaOsdu
 
     m_tableView = new QTableView( this );
     m_tableView->setSelectionBehavior( QAbstractItemView::SelectRows );
+    QHeaderView* header = m_tableView->horizontalHeader();
+    header->setSectionResizeMode( QHeaderView::Interactive );
+    header->setStretchLastSection( true );
+
     m_osduWellboresModel = new OsduWellboreTableModel;
     m_tableView->setModel( m_osduWellboresModel );
     layout->addWidget( m_tableView );
