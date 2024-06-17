@@ -1017,14 +1017,15 @@ install(TARGETS extract-projectfile-versions
 )
 
 if(MSVC)
-  # Install all the DLLs needed for the executable. System dependencies are not included
-  install(TARGETS ResInsight
-          DESTINATION ${RESINSIGHT_INSTALL_FOLDER} RUNTIME_DEPENDENCIES 
-           PRE_EXCLUDE_REGEXES "api-ms-" "ext-ms-"
-        POST_EXCLUDE_REGEXES ".*system32/.*\\.dll"
+  # Install all the DLLs needed for the executable. System dependencies are not
+  # included
+  install(
+    TARGETS ResInsight
+    DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+    RUNTIME_DEPENDENCIES PRE_EXCLUDE_REGEXES "api-ms-" "ext-ms-"
+    POST_EXCLUDE_REGEXES ".*system32/.*\\.dll"
   )
 endif(MSVC)
-
 
 # ##############################################################################
 # Visual Studio : Create the ruleset file to be used by Static Code Analysis
