@@ -60,7 +60,8 @@ RimWellLogLasFileCurve::RimWellLogLasFileCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogChannelName, "CurveWellLogChannel", "Well Log Channel" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLog, "WellLogFile", "Well Log File" );
+    CAF_PDM_InitFieldNoDefault( &m_wellLog, "WellLog", "Well Log" );
+    m_wellLog.registerKeywordAlias( "WellLogFile" );
 
     m_wellPath = nullptr;
 }

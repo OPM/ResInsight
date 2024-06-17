@@ -57,7 +57,7 @@ RimOsduWellLog::RimOsduWellLog()
 //--------------------------------------------------------------------------------------------------
 RimOsduWellLog::~RimOsduWellLog()
 {
-    m_wellLogChannelNames.deleteChildren();
+    m_wellLogChannels.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,13 +153,13 @@ void RimOsduWellLog::setWellLogData( RigOsduWellLogData* wellLogData )
 {
     m_wellLogData = wellLogData;
 
-    m_wellLogChannelNames.deleteChildren();
+    m_wellLogChannels.deleteChildren();
 
     for ( const QString& wellLogName : wellLogData->wellLogChannelNames() )
     {
         RimWellLogChannel* wellLog = new RimWellLogChannel();
         wellLog->setName( wellLogName );
-        m_wellLogChannelNames.push_back( wellLog );
+        m_wellLogChannels.push_back( wellLog );
     }
 }
 

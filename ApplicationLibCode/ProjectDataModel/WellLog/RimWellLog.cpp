@@ -45,8 +45,10 @@ RimWellLog::RimWellLog()
 
     CAF_PDM_InitFieldNoDefault( &m_date, "Date", "Date" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogChannelNames, "WellLogFileChannels", "" );
-    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_wellLogChannelNames );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogChannels, "WellLogChannels", "" );
+    m_wellLogChannels.registerKeywordAlias( "WellLogFileChannels" );
+
+    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_wellLogChannels );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,7 +56,7 @@ RimWellLog::RimWellLog()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellLogChannel*> RimWellLog::wellLogChannels() const
 {
-    return m_wellLogChannelNames.childrenByType();
+    return m_wellLogChannels.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

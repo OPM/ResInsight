@@ -58,6 +58,6 @@ protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    caf::PdmChildArrayField<RimWellLogChannel*> m_wellLogChannelNames;
+    caf::PdmChildArrayField<RimWellLogChannel*> m_wellLogChannels;
     caf::PdmField<QDateTime>                    m_date;
 };
