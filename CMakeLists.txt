@@ -1016,17 +1016,16 @@ install(TARGETS extract-projectfile-versions
         DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
 )
 
-if(TARGET Arrow::arrow_shared)
-  install(IMPORTED_RUNTIME_ARTIFACTS Arrow::arrow_shared RUNTIME DESTINATION
-          ${RESINSIGHT_INSTALL_FOLDER}
+if(MSVC)
+  # Install all the DLLs needed for the executable. System dependencies are not
+  # included
+  install(
+    TARGETS ResInsight
+    DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+    RUNTIME_DEPENDENCIES PRE_EXCLUDE_REGEXES "api-ms-" "ext-ms-"
+    POST_EXCLUDE_REGEXES ".*system32/.*\\.dll"
   )
-endif()
-
-if(TARGET Parquet::parquet_shared)
-  install(IMPORTED_RUNTIME_ARTIFACTS Parquet::parquet_shared RUNTIME
-          DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-  )
-endif()
+endif(MSVC)
 
 # ##############################################################################
 # Visual Studio : Create the ruleset file to be used by Static Code Analysis
