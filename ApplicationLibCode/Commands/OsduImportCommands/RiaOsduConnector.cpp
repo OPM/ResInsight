@@ -106,6 +106,20 @@ RiaOsduConnector::~RiaOsduConnector()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaOsduConnector::clearCachedData()
+{
+    QMutexLocker lock( &m_mutex );
+    m_fields.clear();
+    m_wells.clear();
+    m_wellbores.clear();
+    m_wellboreTrajectories.clear();
+    m_wellLogs.clear();
+    m_parquetData.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaOsduConnector::requestFieldsByName( const QString& token, const QString& fieldName )
 {
     requestFieldsByName( m_server, m_dataPartitionId, token, fieldName );
@@ -374,7 +388,7 @@ void RiaOsduConnector::parseFields( QNetworkReply* reply )
             QMutexLocker lock( &m_mutex );
             m_fields.clear();
 
-            foreach ( const QJsonValue& value, resultsArray )
+            for ( const QJsonValue& value : resultsArray )
             {
                 QJsonObject resultObj = value.toObject();
 
@@ -406,7 +420,7 @@ void RiaOsduConnector::parseWells( QNetworkReply* reply )
         {
             QMutexLocker lock( &m_mutex );
             m_wells.clear();
-            foreach ( const QJsonValue& value, resultsArray )
+            for ( const QJsonValue& value : resultsArray )
             {
                 QJsonObject resultObj = value.toObject();
                 QString     id        = resultObj["id"].toString();
@@ -437,7 +451,7 @@ void RiaOsduConnector::parseWellbores( QNetworkReply* reply, const QString& well
         {
             QMutexLocker lock( &m_mutex );
             m_wellbores[wellId].clear();
-            foreach ( const QJsonValue& value, resultsArray )
+            for ( const QJsonValue& value : resultsArray )
             {
                 QJsonObject resultObj = value.toObject();
                 QString     id        = resultObj["id"].toString();
@@ -448,6 +462,10 @@ void RiaOsduConnector::parseWellbores( QNetworkReply* reply, const QString& well
         }
 
         emit wellboresFinished( wellId );
+    }
+    else
+    {
+        RiaLogging::error( "Failed to download well with id " + wellId + ": " + reply->errorString() );
     }
 }
 
@@ -467,8 +485,8 @@ void RiaOsduConnector::parseWellTrajectory( QNetworkReply* reply, const QString&
 
         {
             QMutexLocker lock( &m_mutex );
-            m_wellboreTrajectories.clear();
-            foreach ( const QJsonValue& value, resultsArray )
+            m_wellboreTrajectories[wellboreId].clear();
+            for ( const QJsonValue& value : resultsArray )
             {
                 QJsonObject resultObj = value.toObject();
                 QString     id        = resultObj["id"].toString();
@@ -478,7 +496,11 @@ void RiaOsduConnector::parseWellTrajectory( QNetworkReply* reply, const QString&
             }
         }
 
-        emit wellboreTrajectoryFinished( wellboreId );
+        emit wellboreTrajectoryFinished( wellboreId, resultsArray.size(), "" );
+    }
+    else
+    {
+        emit wellboreTrajectoryFinished( wellboreId, 0, "Failed to download: " + reply->errorString() );
     }
 }
 
@@ -498,8 +520,8 @@ void RiaOsduConnector::parseWellLogs( QNetworkReply* reply, const QString& wellb
 
         {
             QMutexLocker lock( &m_mutex );
-            m_wellLogs.clear();
-            foreach ( const QJsonValue& value, resultsArray )
+            m_wellLogs[wellboreId].clear();
+            for ( const QJsonValue& value : resultsArray )
             {
                 QJsonObject resultObj = value.toObject();
                 QString     id        = resultObj["id"].toString();

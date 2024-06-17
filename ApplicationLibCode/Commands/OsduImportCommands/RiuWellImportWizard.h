@@ -28,6 +28,8 @@
 
 #include "RiaOsduConnector.h"
 
+#include <set>
+
 class QFile;
 class QLabel;
 class QTextEdit;
@@ -296,14 +298,17 @@ public:
     WellSummaryPage( RimWellPathImport* wellPathImport, RiaOsduConnector* osduConnector, QWidget* parent = nullptr );
 
     void initializePage() override;
+    bool isComplete() const override;
 
 private slots:
-    void wellboreTrajectoryFinished( const QString& wellId );
+    void wellboreTrajectoryFinished( const QString& wellboreId, int numTrajectories, const QString& errorMessage );
 
 private:
     RimWellPathImport* m_wellPathImportObject;
     RiaOsduConnector*  m_osduConnector;
     QTextEdit*         m_textEdit;
+    std::set<QString>  m_pendingWellboreIds;
+    mutable QMutex     m_mutex;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -331,10 +336,10 @@ public:
     // Methods used from the wizard pages
     void resetAuthenticationCount();
 
-    void    setSelectedFieldId( const QString& fieldId );
-    QString selectedFieldId() const;
-    void    setSelectedWellboreId( const QString& wellboreId );
-    QString selectedWellboreId() const;
+    void                 setSelectedFieldId( const QString& fieldId );
+    QString              selectedFieldId() const;
+    void                 setSelectedWellboreIds( const std::vector<QString>& wellboreIds );
+    std::vector<QString> selectedWellboreIds() const;
 
     void                                       addWellInfo( RiuWellImportWizard::WellInfo wellInfo );
     std::vector<RiuWellImportWizard::WellInfo> importedWells() const;
@@ -347,9 +352,9 @@ public slots:
     void slotAuthenticationRequired( QNetworkReply* networkReply, QAuthenticator* authenticator );
 
 private:
-    RiaOsduConnector* m_osduConnector;
-    QString           m_selectedFieldId;
-    QString           m_selectedWellboreId;
+    RiaOsduConnector*    m_osduConnector;
+    QString              m_selectedFieldId;
+    std::vector<QString> m_selectedWellboreIds;
 
     QString m_destinationFolder;
 
