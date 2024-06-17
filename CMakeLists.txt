@@ -690,6 +690,7 @@ if(MSVC)
     endforeach(HDF5_DLL_NAME)
   endif()
 
+
 else()
   # Linux
 
@@ -1015,6 +1016,14 @@ add_subdirectory(ThirdParty/extract-projectfile-versions)
 install(TARGETS extract-projectfile-versions
         DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
 )
+
+if (TARGET Arrow::arrow_shared)
+    install(IMPORTED_RUNTIME_ARTIFACTS Arrow::arrow_shared RUNTIME DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+endif()
+
+if (TARGET Parquet::parquet_shared)
+    install(IMPORTED_RUNTIME_ARTIFACTS Parquet::parquet_shared RUNTIME DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+endif()
 
 # ##############################################################################
 # Visual Studio : Create the ruleset file to be used by Static Code Analysis
