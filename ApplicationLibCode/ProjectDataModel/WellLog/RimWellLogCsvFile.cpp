@@ -56,7 +56,7 @@ RimWellLogCsvFile::RimWellLogCsvFile()
 //--------------------------------------------------------------------------------------------------
 RimWellLogCsvFile::~RimWellLogCsvFile()
 {
-    m_wellLogChannelNames.deleteChildren();
+    m_wellLogChannels.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,14 +86,14 @@ bool RimWellLogCsvFile::readFile( QString* errorMessage )
         return false;
     }
 
-    m_wellLogChannelNames.deleteChildren();
+    m_wellLogChannels.deleteChildren();
 
     QStringList wellLogNames = m_wellLogDataFile->wellLogChannelNames();
     for ( int logIdx = 0; logIdx < wellLogNames.size(); logIdx++ )
     {
         RimWellLogChannel* wellLog = new RimWellLogChannel();
         wellLog->setName( wellLogNames[logIdx] );
-        m_wellLogChannelNames.push_back( wellLog );
+        m_wellLogChannels.push_back( wellLog );
     }
 
     return true;

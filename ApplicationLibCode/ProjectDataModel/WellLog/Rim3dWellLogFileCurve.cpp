@@ -45,7 +45,8 @@ Rim3dWellLogFileCurve::Rim3dWellLogFileCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogChannelName, "CurveWellLogChannel", "Well Log Channel" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLog, "WellLogFile", "Well Log" );
+    CAF_PDM_InitFieldNoDefault( &m_wellLog, "WellLog", "Well Log" );
+    m_wellLog.registerKeywordAlias( "WellLogFile" );
 
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "" );
     m_nameConfig = new RimWellLogLasFileCurveNameConfig();

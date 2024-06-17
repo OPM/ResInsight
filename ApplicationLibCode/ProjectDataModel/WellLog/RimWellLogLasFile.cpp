@@ -87,7 +87,7 @@ RimWellLogLasFile::RimWellLogLasFile()
 //--------------------------------------------------------------------------------------------------
 RimWellLogLasFile::~RimWellLogLasFile()
 {
-    m_wellLogChannelNames.deleteChildren();
+    m_wellLogChannels.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,14 +150,14 @@ bool RimWellLogLasFile::readFile( QString* errorMessage )
         m_date = DEFAULT_DATE_TIME;
     }
 
-    m_wellLogChannelNames.deleteChildren();
+    m_wellLogChannels.deleteChildren();
 
     QStringList wellLogNames = m_wellLogDataFile->wellLogChannelNames();
     for ( int logIdx = 0; logIdx < wellLogNames.size(); logIdx++ )
     {
         RimWellLogChannel* wellLog = new RimWellLogChannel();
         wellLog->setName( wellLogNames[logIdx] );
-        m_wellLogChannelNames.push_back( wellLog );
+        m_wellLogChannels.push_back( wellLog );
     }
 
     auto wellPath = firstAncestorOrThisOfType<RimFileWellPath>();

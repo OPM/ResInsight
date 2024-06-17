@@ -21,14 +21,14 @@
 
 #include "RiaFieldHandleTools.h"
 
-CAF_PDM_SOURCE_INIT( RimWellLogChannel, "WellLogFileChannel" );
+CAF_PDM_SOURCE_INIT( RimWellLogChannel, "WellLogChannel", "WellLogFileChannel" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellLogChannel::RimWellLogChannel()
 {
-    CAF_PDM_InitObject( "Well Log File Channel" );
+    CAF_PDM_InitObject( "Well Log Channel" );
 
     RiaFieldHandleTools::disableWriteAndSetFieldHidden( nameField() );
 }
