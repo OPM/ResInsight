@@ -388,7 +388,7 @@ void RiaOsduConnector::parseFields( QNetworkReply* reply )
             QMutexLocker lock( &m_mutex );
             m_fields.clear();
 
-            foreach ( const QJsonValue& value, resultsArray )
+            for ( const QJsonValue& value : resultsArray )
             {
                 QJsonObject resultObj = value.toObject();
 
@@ -420,7 +420,7 @@ void RiaOsduConnector::parseWells( QNetworkReply* reply )
         {
             QMutexLocker lock( &m_mutex );
             m_wells.clear();
-            foreach ( const QJsonValue& value, resultsArray )
+            for ( const QJsonValue& value : resultsArray )
             {
                 QJsonObject resultObj = value.toObject();
                 QString     id        = resultObj["id"].toString();
@@ -451,7 +451,7 @@ void RiaOsduConnector::parseWellbores( QNetworkReply* reply, const QString& well
         {
             QMutexLocker lock( &m_mutex );
             m_wellbores[wellId].clear();
-            foreach ( const QJsonValue& value, resultsArray )
+            for ( const QJsonValue& value : resultsArray )
             {
                 QJsonObject resultObj = value.toObject();
                 QString     id        = resultObj["id"].toString();
@@ -486,7 +486,7 @@ void RiaOsduConnector::parseWellTrajectory( QNetworkReply* reply, const QString&
         {
             QMutexLocker lock( &m_mutex );
             m_wellboreTrajectories[wellboreId].clear();
-            foreach ( const QJsonValue& value, resultsArray )
+            for ( const QJsonValue& value : resultsArray )
             {
                 QJsonObject resultObj = value.toObject();
                 QString     id        = resultObj["id"].toString();
@@ -521,7 +521,7 @@ void RiaOsduConnector::parseWellLogs( QNetworkReply* reply, const QString& wellb
         {
             QMutexLocker lock( &m_mutex );
             m_wellLogs[wellboreId].clear();
-            foreach ( const QJsonValue& value, resultsArray )
+            for ( const QJsonValue& value : resultsArray )
             {
                 QJsonObject resultObj = value.toObject();
                 QString     id        = resultObj["id"].toString();
