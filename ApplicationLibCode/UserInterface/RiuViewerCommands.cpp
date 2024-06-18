@@ -1188,6 +1188,11 @@ void RiuViewerCommands::ijkFromCellIndex( Rim3dView* mainOrComparisonView, size_
 //--------------------------------------------------------------------------------------------------
 bool RiuViewerCommands::handleOverlayItemPicking( int winPosX, int winPosY )
 {
+    if ( dynamic_cast<Rim2dIntersectionView*>( m_reservoirView.p() ) )
+    {
+        return false;
+    }
+
     cvf::OverlayItem* pickedOverlayItem = m_viewer->overlayItem( winPosX, winPosY );
     if ( !pickedOverlayItem )
     {
@@ -1196,36 +1201,28 @@ bool RiuViewerCommands::handleOverlayItemPicking( int winPosX, int winPosY )
 
     if ( pickedOverlayItem )
     {
-        auto intersectionView = dynamic_cast<Rim2dIntersectionView*>( m_reservoirView.p() );
-        if ( intersectionView && intersectionView->handleOverlayItemPicked( pickedOverlayItem ) )
+        std::vector<RimLegendConfig*> legendConfigs = m_reservoirView->legendConfigs();
+        if ( m_reservoirView->activeComparisonView() )
         {
-            return true;
+            std::vector<RimLegendConfig*> compViewLegendConfigs = m_reservoirView->activeComparisonView()->legendConfigs();
+            legendConfigs.insert( legendConfigs.end(), compViewLegendConfigs.begin(), compViewLegendConfigs.end() );
         }
-        else
+
+        for ( const auto& legendConfig : legendConfigs )
         {
-            std::vector<RimLegendConfig*> legendConfigs = m_reservoirView->legendConfigs();
-            if ( m_reservoirView->activeComparisonView() )
+            if ( legendConfig && legendConfig->titledOverlayFrame() == pickedOverlayItem )
             {
-                std::vector<RimLegendConfig*> compViewLegendConfigs = m_reservoirView->activeComparisonView()->legendConfigs();
-                legendConfigs.insert( legendConfigs.end(), compViewLegendConfigs.begin(), compViewLegendConfigs.end() );
-            }
-
-            for ( const auto& legendConfig : legendConfigs )
-            {
-                if ( legendConfig && legendConfig->titledOverlayFrame() == pickedOverlayItem )
+                auto seisInterface = legendConfig->firstAncestorOfType<RimSeismicDataInterface>();
+                if ( seisInterface != nullptr )
                 {
-                    auto seisInterface = legendConfig->firstAncestorOfType<RimSeismicDataInterface>();
-                    if ( seisInterface != nullptr )
-                    {
-                        RiuMainWindow::instance()->selectAsCurrentItem( seisInterface );
-                    }
-                    else
-                    {
-                        RiuMainWindow::instance()->selectAsCurrentItem( legendConfig );
-                    }
-
-                    return true;
+                    RiuMainWindow::instance()->selectAsCurrentItem( seisInterface );
                 }
+                else
+                {
+                    RiuMainWindow::instance()->selectAsCurrentItem( legendConfig );
+                }
+
+                return true;
             }
         }
     }

@@ -404,26 +404,9 @@ bool Rim2dIntersectionView::showDefiningPoints() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimLegendConfig*> Rim2dIntersectionView::legendConfigs() const
 {
-    std::vector<RimLegendConfig*> legendsIn3dView;
-
     // Return empty list, as the intersection view has a copy of the legend items. Picking and selection of the
     // corresponding item is handeled by handleOverlayItemPicked()
-    return legendsIn3dView;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool Rim2dIntersectionView::handleOverlayItemPicked( const cvf::OverlayItem* pickedOverlayItem ) const
-{
-    if ( m_legendObjectToSelect )
-    {
-        if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( m_legendObjectToSelect );
-
-        return true;
-    }
-
-    return false;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -662,8 +645,6 @@ void Rim2dIntersectionView::onUpdateDisplayModelForCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::onUpdateLegends()
 {
-    m_legendObjectToSelect = nullptr;
-
     if ( !nativeOrOverrideViewer() || !m_intersection ) return;
 
     nativeOrOverrideViewer()->removeAllColorLegends();
@@ -724,15 +705,11 @@ void Rim2dIntersectionView::onUpdateLegends()
         {
             m_ternaryLegendConfig()->setTitle( "Cell Result:\n" );
             legend = m_ternaryLegendConfig()->titledOverlayFrame();
-
-            m_legendObjectToSelect = ternaryLegendConfig;
         }
         else
         {
             eclResDef->updateLegendTitle( m_legendConfig, "Cell Result:\n" );
             legend = m_legendConfig()->titledOverlayFrame();
-
-            m_legendObjectToSelect = regularLegendConfig;
         }
     }
 
@@ -740,8 +717,6 @@ void Rim2dIntersectionView::onUpdateLegends()
     {
         geomResDef->updateLegendTextAndRanges( m_legendConfig(), "Cell Result:\n", m_currentTimeStep() );
         legend = m_legendConfig()->titledOverlayFrame();
-
-        m_legendObjectToSelect = regularLegendConfig;
     }
 
     if ( legend )
