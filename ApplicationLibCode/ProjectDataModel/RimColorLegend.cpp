@@ -34,6 +34,7 @@ CAF_PDM_SOURCE_INIT( RimColorLegend, "ColorLegend" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimColorLegend::RimColorLegend()
+    : legendChanged( this )
 {
     CAF_PDM_InitScriptableObject( "ColorLegend", ":/Legend.png" );
 
@@ -120,6 +121,7 @@ caf::PdmFieldHandle* RimColorLegend::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimColorLegend::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    legendChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,6 +183,8 @@ caf::IconProvider RimColorLegend::paletteIconProvider() const
 //--------------------------------------------------------------------------------------------------
 void RimColorLegend::onColorLegendItemHasChanged()
 {
+    legendChanged.send();
+
     updateConnectedEditors();
 
     std::vector<caf::PdmObjectHandle*> referringObjects = objectsWithReferringPtrFields();
