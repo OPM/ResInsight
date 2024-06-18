@@ -1899,10 +1899,10 @@ const std::vector<RivCellSetEnum>& RimEclipseView::visibleGridParts() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    Rim3dView::defineUiOrdering( uiConfigName, uiOrdering );
-
     // Only show case option when not under a case in the project tree.
     if ( !firstAncestorOrThisOfType<RimEclipseCase>() ) uiOrdering.add( &m_eclipseCase );
+
+    Rim3dView::defineUiOrdering( uiConfigName, uiOrdering );
 
     caf::PdmUiGroup* cellGroup = uiOrdering.addNewGroup( "Cell Visibility" );
     cellGroup->add( &m_showInactiveCells );
