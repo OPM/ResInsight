@@ -141,6 +141,5 @@ void RimVfpTable::updateObjectName()
 //--------------------------------------------------------------------------------------------------
 void RimVfpTable::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
-    menuBuilder << "RicNewVfpPlotFeature";
     menuBuilder << "RicNewCustomVfpPlotFeature";
 }

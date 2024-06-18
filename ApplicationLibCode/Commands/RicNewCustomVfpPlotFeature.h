@@ -20,6 +20,8 @@
 
 #include "cafCmdFeature.h"
 
+class RimVfpTable;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -30,4 +32,6 @@ class RicNewCustomVfpPlotFeature : public caf::CmdFeature
 private:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+    static std::vector<RimVfpTable*> selectedTables();
 };

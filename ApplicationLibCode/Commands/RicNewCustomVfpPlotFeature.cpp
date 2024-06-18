@@ -18,8 +18,6 @@
 
 #include "RicNewCustomVfpPlotFeature.h"
 
-#include "RicNewVfpPlotFeature.h"
-
 #include "RimMainPlotCollection.h"
 
 #include "VerticalFlowPerformance/RimCustomVfpPlot.h"
@@ -44,7 +42,7 @@ void RicNewCustomVfpPlotFeature::onActionTriggered( bool isChecked )
     RimVfpPlotCollection* vfpPlotColl = RimMainPlotCollection::current()->vfpPlotCollection();
     if ( !vfpPlotColl ) return;
 
-    auto selectedTables = RicNewVfpPlotFeature::selectedTables();
+    auto selectedTables = RicNewCustomVfpPlotFeature::selectedTables();
     if ( selectedTables.empty() ) return;
 
     auto                      mainDataSource = selectedTables.front();
@@ -61,6 +59,22 @@ void RicNewCustomVfpPlotFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewCustomVfpPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Create Custom VFP Plot" );
+    actionToSetup->setText( "Create VFP Plot" );
     actionToSetup->setIcon( QIcon( ":/VfpPlot.svg" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimVfpTable*> RicNewCustomVfpPlotFeature::selectedTables()
+{
+    auto tables            = caf::selectedObjectsByTypeStrict<RimVfpTable*>();
+    auto selectedTableData = caf::selectedObjectsByTypeStrict<RimVfpTableData*>();
+    for ( auto tableData : selectedTableData )
+    {
+        auto tableDataSources = tableData->tableDataSources();
+        tables.insert( tables.end(), tableDataSources.begin(), tableDataSources.end() );
+    }
+
+    return tables;
 }

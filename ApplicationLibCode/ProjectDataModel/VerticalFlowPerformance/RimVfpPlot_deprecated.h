@@ -43,16 +43,19 @@ class VFPProdTable;
 } // namespace Opm
 
 //--------------------------------------------------------------------------------------------------
-/// Vertical Flow Performance Plot
+/// DEPRECATED: Vertical Flow Performance Plot
+/// This class is deprecated and will be removed in a future release.
+/// Use RimCustomVfpPlot instead.
 //--------------------------------------------------------------------------------------------------
-class RimVfpPlot : public RimPlot
+class RimVfpPlot_deprecated : public RimPlot
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimVfpPlot();
-    ~RimVfpPlot() override;
+    RimVfpPlot_deprecated();
+    ~RimVfpPlot_deprecated() override;
 
+private:
     void setDataSource( RimVfpTable* vfpTableData );
     void setTableNumber( int tableNumber );
     void initializeObject();

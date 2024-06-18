@@ -32,31 +32,8 @@ RimVfpPlotCollection::RimVfpPlotCollection()
 {
     CAF_PDM_InitObject( "VFP Plots", ":/VfpPlotCollection.svg" );
 
-    CAF_PDM_InitFieldNoDefault( &m_vfpPlots, "VfpPlots", "Vertical Flow Performance Plots" );
+    CAF_PDM_InitFieldNoDefault( &m_vfpPlots_deprecated, "VfpPlots", "Vertical Flow Performance Plots" );
     CAF_PDM_InitFieldNoDefault( &m_customVfpPlots, "CustomVfpPlots", "Vertical Flow Performance Plots" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimVfpPlot* RimVfpPlotCollection::createAndAppendPlots( RimVfpTable* tableData )
-{
-    if ( !tableData ) return nullptr;
-
-    tableData->ensureDataIsImported();
-
-    RimVfpPlot* firstPlot = nullptr;
-
-    auto vfpPlot = new RimVfpPlot();
-    vfpPlot->setDataSource( tableData );
-    vfpPlot->initializeObject();
-
-    addPlot( vfpPlot );
-    vfpPlot->loadDataAndUpdate();
-
-    firstPlot = vfpPlot;
-
-    return firstPlot;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,6 +45,7 @@ RimCustomVfpPlot* RimVfpPlotCollection::createAndAppendPlots( RimVfpTable* mainD
     vfpPlot->selectDataSource( mainDataSource, tableData );
     vfpPlot->initializeObject();
     vfpPlot->initializeSelection();
+    vfpPlot->createDefaultColors();
 
     m_customVfpPlots.push_back( vfpPlot );
 
@@ -79,41 +57,25 @@ RimCustomVfpPlot* RimVfpPlotCollection::createAndAppendPlots( RimVfpTable* mainD
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlotCollection::addPlot( RimVfpPlot* newPlot )
+void RimVfpPlotCollection::addPlot( RimVfpPlot_deprecated* newPlot )
 {
-    m_vfpPlots.push_back( newPlot );
+    m_vfpPlots_deprecated.push_back( newPlot );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlotCollection::insertPlot( RimVfpPlot* vfpPlot, size_t index )
+void RimVfpPlotCollection::insertPlot( RimVfpPlot_deprecated* vfpPlot, size_t index )
 {
-    m_vfpPlots.insert( index, vfpPlot );
+    m_vfpPlots_deprecated.insert( index, vfpPlot );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimVfpPlot*> RimVfpPlotCollection::plots() const
+std::vector<RimVfpPlot_deprecated*> RimVfpPlotCollection::plots() const
 {
-    return m_vfpPlots.childrenByType();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimVfpPlot* RimVfpPlotCollection::plotForTableNumber( int tableNumber ) const
-{
-    for ( auto plot : plots() )
-    {
-        if ( plot->tableNumber() == tableNumber )
-        {
-            return plot;
-        }
-    }
-
-    return nullptr;
+    return m_vfpPlots_deprecated.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,15 +83,15 @@ RimVfpPlot* RimVfpPlotCollection::plotForTableNumber( int tableNumber ) const
 //--------------------------------------------------------------------------------------------------
 size_t RimVfpPlotCollection::plotCount() const
 {
-    return m_vfpPlots.size();
+    return m_vfpPlots_deprecated.size() + m_customVfpPlots.size();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlotCollection::removePlot( RimVfpPlot* vfpPlot )
+void RimVfpPlotCollection::removePlot( RimVfpPlot_deprecated* vfpPlot )
 {
-    m_vfpPlots.removeChild( vfpPlot );
+    m_vfpPlots_deprecated.removeChild( vfpPlot );
     updateAllRequiredEditors();
 }
 
@@ -138,7 +100,7 @@ void RimVfpPlotCollection::removePlot( RimVfpPlot* vfpPlot )
 //--------------------------------------------------------------------------------------------------
 void RimVfpPlotCollection::deleteAllPlots()
 {
-    m_vfpPlots.deleteChildren();
+    m_vfpPlots_deprecated.deleteChildren();
     m_customVfpPlots.deleteChildren();
 }
 
