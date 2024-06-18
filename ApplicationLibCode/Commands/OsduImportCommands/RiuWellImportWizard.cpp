@@ -263,6 +263,10 @@ FieldSelectionPage::FieldSelectionPage( RimWellPathImport* wellPathImport, RiaOs
 
     m_osduFieldsModel = new OsduFieldTableModel;
     m_tableView->setModel( m_osduFieldsModel );
+    m_tableView->setSortingEnabled( true );
+    int nameColumn = 2;
+    m_tableView->sortByColumn( nameColumn, Qt::AscendingOrder );
+
     layout->addWidget( m_tableView );
     layout->setStretchFactor( m_tableView, 10 );
 
@@ -354,17 +358,37 @@ WellSelectionPage::WellSelectionPage( RimWellPathImport* wellPathImport, RiaOsdu
     QLabel* label = new QLabel( "Select wells" );
     layout->addWidget( label );
 
+    QHBoxLayout* filterLayout = new QHBoxLayout;
+    filterLayout->addWidget( new QLabel( "Filter:", this ) );
+    QLineEdit* filterLineEdit = new QLineEdit( this );
+    filterLayout->addWidget( filterLineEdit );
+
+    layout->addLayout( filterLayout );
+
     m_tableView = new QTableView( this );
     m_tableView->setSelectionBehavior( QAbstractItemView::SelectRows );
     m_tableView->setSelectionMode( QAbstractItemView::MultiSelection );
+    m_tableView->setSortingEnabled( true );
+    int nameColumn = 2;
+    m_tableView->sortByColumn( nameColumn, Qt::AscendingOrder );
+
     QHeaderView* header = m_tableView->horizontalHeader();
     header->setSectionResizeMode( QHeaderView::Interactive );
     header->setStretchLastSection( true );
 
     m_osduWellboresModel = new OsduWellboreTableModel;
-    m_tableView->setModel( m_osduWellboresModel );
     layout->addWidget( m_tableView );
     layout->setStretchFactor( m_tableView, 10 );
+
+    m_proxyModel = new QSortFilterProxyModel( this );
+    m_proxyModel->setSourceModel( m_osduWellboresModel );
+    m_proxyModel->setFilterKeyColumn( nameColumn );
+    m_proxyModel->setFilterCaseSensitivity( Qt::CaseInsensitive );
+
+    m_tableView->setModel( m_proxyModel );
+    m_tableView->setSortingEnabled( true );
+
+    QObject::connect( filterLineEdit, &QLineEdit::textChanged, m_proxyModel, &QSortFilterProxyModel::setFilterWildcard );
 
     m_wellPathImportObject = wellPathImport;
 
@@ -447,7 +471,7 @@ void WellSelectionPage::selectWellbore( const QItemSelection& newSelection, cons
 
             if ( index.column() == idColumn )
             {
-                QString wellboreId = m_osduWellboresModel->data( index.siblingAtColumn( idColumn ) ).toString();
+                QString wellboreId = m_proxyModel->data( index.siblingAtColumn( idColumn ) ).toString();
                 wellboreIds.push_back( wellboreId );
             }
         }

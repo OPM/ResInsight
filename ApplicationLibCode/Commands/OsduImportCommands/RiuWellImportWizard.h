@@ -120,6 +120,28 @@ public:
         endResetModel();
     }
 
+    void sort( int column, Qt::SortOrder order = Qt::AscendingOrder ) override
+    {
+        std::sort( m_osduFields.begin(),
+                   m_osduFields.end(),
+                   [column, order]( const OsduField& a, const OsduField& b )
+                   {
+                       switch ( column )
+                       {
+                           case 0:
+                               return ( order == Qt::AscendingOrder ) ? a.id < b.id : a.id > b.id;
+                           case 1:
+                               return ( order == Qt::AscendingOrder ) ? a.kind < b.kind : a.kind > b.kind;
+                           case 2:
+                               return ( order == Qt::AscendingOrder ) ? a.name < b.name : a.name > b.name;
+                           default:
+                               return false;
+                       }
+                   } );
+        emit dataChanged( index( 0, 0 ), index( rowCount() - 1, columnCount() - 1 ) );
+        emit layoutChanged();
+    }
+
 private:
     std::vector<OsduField> m_osduFields;
 };
@@ -207,6 +229,28 @@ public:
         endResetModel();
     }
 
+    void sort( int column, Qt::SortOrder order = Qt::AscendingOrder ) override
+    {
+        std::sort( m_osduWellbores.begin(),
+                   m_osduWellbores.end(),
+                   [column, order]( const OsduWellbore& a, const OsduWellbore& b )
+                   {
+                       switch ( column )
+                       {
+                           case 0:
+                               return ( order == Qt::AscendingOrder ) ? a.id < b.id : a.id > b.id;
+                           case 1:
+                               return ( order == Qt::AscendingOrder ) ? a.kind < b.kind : a.kind > b.kind;
+                           case 2:
+                               return ( order == Qt::AscendingOrder ) ? a.name < b.name : a.name > b.name;
+                           default:
+                               return false;
+                       }
+                   } );
+        emit dataChanged( index( 0, 0 ), index( rowCount() - 1, columnCount() - 1 ) );
+        emit layoutChanged();
+    }
+
 private:
     std::vector<OsduWellbore>                    m_osduWellbores;
     std::map<QString, std::vector<OsduWellbore>> m_map;
@@ -285,6 +329,7 @@ private:
     RiaOsduConnector*       m_osduConnector;
     QTableView*             m_tableView;
     OsduWellboreTableModel* m_osduWellboresModel;
+    QSortFilterProxyModel*  m_proxyModel;
 };
 
 //--------------------------------------------------------------------------------------------------
