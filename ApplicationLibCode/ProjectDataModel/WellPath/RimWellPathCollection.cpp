@@ -178,8 +178,9 @@ void RimWellPathCollection::loadDataAndUpdate()
         }
         else if ( oWPath )
         {
-            RiaOsduConnector* osduConnector       = app->makeOsduConnector();
-            auto [wellPathGeometry, errorMessage] = loadWellPathGeometryFromOsdu( osduConnector, oWPath->wellboreTrajectoryId() );
+            RiaOsduConnector* osduConnector = app->makeOsduConnector();
+            auto [wellPathGeometry, errorMessage] =
+                loadWellPathGeometryFromOsdu( osduConnector, oWPath->wellboreTrajectoryId(), oWPath->datumElevationFromOsdu() );
             if ( wellPathGeometry.notNull() )
             {
                 oWPath->setWellPathGeometry( wellPathGeometry.p() );
@@ -1052,7 +1053,8 @@ void RimWellPathCollection::onChildAdded( caf::PdmFieldHandle* containerForNewOb
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<cvf::ref<RigWellPath>, QString> RimWellPathCollection::loadWellPathGeometryFromOsdu( RiaOsduConnector* osduConnector,
-                                                                                               const QString&    wellboreTrajectoryId )
+                                                                                               const QString&    wellboreTrajectoryId,
+                                                                                               double            datumElevation )
 {
     auto [fileContents, errorMessage] = osduConnector->requestWellboreTrajectoryParquetDataById( wellboreTrajectoryId );
     if ( !errorMessage.isEmpty() )
@@ -1060,7 +1062,7 @@ std::pair<cvf::ref<RigWellPath>, QString> RimWellPathCollection::loadWellPathGeo
         return { nullptr, errorMessage };
     }
 
-    return RifOsduWellPathReader::readWellPathData( fileContents );
+    return RifOsduWellPathReader::readWellPathData( fileContents, datumElevation );
 }
 
 //--------------------------------------------------------------------------------------------------

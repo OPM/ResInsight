@@ -27,6 +27,7 @@ struct OsduWellbore
     QString kind;
     QString name;
     QString wellId;
+    double  datumElevation;
 };
 
 struct OsduWellboreTrajectory

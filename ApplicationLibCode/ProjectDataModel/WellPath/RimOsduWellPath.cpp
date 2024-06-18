@@ -1,5 +1,6 @@
 #include "RimOsduWellPath.h"
 
+#include "cafPdmObject.h"
 #include "cafPdmObjectScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RimOsduWellPath, "OsduWellPath" );
@@ -19,6 +20,9 @@ RimOsduWellPath::RimOsduWellPath()
 
     CAF_PDM_InitFieldNoDefault( &m_wellboreTrajectoryId, "WellboreTrajectoryId", "Wellbore Trajectory Id" );
     m_wellboreTrajectoryId.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_datumElevationFromOsdu, "DatumElevationFromOsdu", 0.0, "Datum Elevation From OSDU" );
+    m_datumElevationFromOsdu.uiCapability()->setUiReadOnly( true );
 
     // Required, as these settings are set in RimWellPath()
     m_name.uiCapability()->setUiReadOnly( false );
@@ -85,12 +89,29 @@ QString RimOsduWellPath::wellboreTrajectoryId() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimOsduWellPath::setDatumElevationFromOsdu( double datumElevation )
+{
+    m_datumElevationFromOsdu = datumElevation;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimOsduWellPath::datumElevationFromOsdu() const
+{
+    return m_datumElevationFromOsdu;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimOsduWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* osduGroup = uiOrdering.addNewGroup( "OSDU" );
     osduGroup->add( &m_wellId );
     osduGroup->add( &m_wellboreId );
     osduGroup->add( &m_wellboreTrajectoryId );
+    osduGroup->add( &m_datumElevationFromOsdu );
 
     RimWellPath::defineUiOrdering( uiConfigName, uiOrdering );
 }

@@ -135,7 +135,8 @@ public:
 
     void onChildAdded( caf::PdmFieldHandle* containerForNewObject ) override;
 
-    static std::pair<cvf::ref<RigWellPath>, QString> loadWellPathGeometryFromOsdu( RiaOsduConnector* osduConnector, const QString& fileId );
+    static std::pair<cvf::ref<RigWellPath>, QString>
+        loadWellPathGeometryFromOsdu( RiaOsduConnector* osduConnector, const QString& wellTrajectoryId, double datumElevation );
 
     static std::pair<cvf::ref<RigOsduWellLogData>, QString> loadWellLogFromOsdu( RiaOsduConnector* osduConnector, const QString& wellLogId );
 
