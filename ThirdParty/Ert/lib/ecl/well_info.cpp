@@ -182,9 +182,9 @@
 
 
 struct well_info_struct {
-  std::map<std::string, well_ts_type*> wells;      /* std::map of well_ts_type instances; indexed by well name. */
-  std::vector<std::string>   well_names;           /* A list of all the well names. */
-  const ecl_grid_type      * grid;
+    std::map<std::string, well_ts_type*> wells;      /* std::map of well_ts_type instances; indexed by well name. */
+    std::vector<std::string>   well_names;           /* A list of all the well names. */
+    std::vector<std::string> grid_names; /* A list of all grid names, main grid is at index 0, lgrs at 1 and above, if any */
 };
 
 
@@ -193,39 +193,39 @@ struct well_info_struct {
    it to resolve lgr names.
 */
 
-well_info_type * well_info_alloc( const ecl_grid_type * grid) {
-  well_info_type * well_info = new well_info_type();
-  well_info->grid       = grid;
-  return well_info;
+well_info_type* well_info_alloc(const std::vector<std::string> grid_names) {
+    well_info_type* well_info = new well_info_type();
+    well_info->grid_names = grid_names;
+    return well_info;
 }
 
 
-bool well_info_has_well( well_info_type * well_info , const char * well_name ) {
-  const auto it = well_info->wells.find(well_name);
-  if (it == well_info->wells.end())
-    return false;
-  return true;
+bool well_info_has_well(well_info_type* well_info, const char* well_name) {
+    const auto it = well_info->wells.find(well_name);
+    if (it == well_info->wells.end())
+        return false;
+    return true;
 }
 
-well_ts_type * well_info_get_ts( const well_info_type * well_info , const char *well_name) {
-  return well_info->wells.at( well_name );
+well_ts_type* well_info_get_ts(const well_info_type* well_info, const char* well_name) {
+    return well_info->wells.at(well_name);
 }
 
-static void well_info_add_new_ts( well_info_type * well_info , const char * well_name) {
-  well_ts_type * well_ts = well_ts_alloc( well_name ) ;
-  well_info->wells[well_name] = well_ts;
-  well_info->well_names.push_back( well_name );
+static void well_info_add_new_ts(well_info_type* well_info, const char* well_name) {
+    well_ts_type* well_ts = well_ts_alloc(well_name);
+    well_info->wells[well_name] = well_ts;
+    well_info->well_names.push_back(well_name);
 }
 
-static void well_info_add_state( well_info_type * well_info , well_state_type * well_state) {
-  const char * well_name = well_state_get_name( well_state );
-  if (!well_info_has_well( well_info , well_name))
-    well_info_add_new_ts( well_info , well_name );
+static void well_info_add_state(well_info_type* well_info, well_state_type* well_state) {
+    const char* well_name = well_state_get_name(well_state);
+    if (!well_info_has_well(well_info, well_name))
+        well_info_add_new_ts(well_info, well_name);
 
-  {
-    well_ts_type * well_ts = well_info_get_ts( well_info , well_name );
-    well_ts_add_well( well_ts , well_state );
-  }
+    {
+        well_ts_type* well_ts = well_info_get_ts(well_info, well_name);
+        well_ts_add_well(well_ts, well_state);
+    }
 }
 
 
@@ -278,23 +278,23 @@ static void well_info_add_state( well_info_type * well_info , well_state_type * 
  */
 
 
-void well_info_add_wells2( well_info_type * well_info , ecl_file_view_type * rst_view , int report_nr, bool load_segment_information) {
-  bool close_stream = ecl_file_view_drop_flag( rst_view , ECL_FILE_CLOSE_STREAM );
-  ecl_rsthead_type * global_header = ecl_rsthead_alloc( rst_view , report_nr );
-  int well_nr;
-  for (well_nr = 0; well_nr < global_header->nwells; well_nr++) {
-    well_state_type * well_state = well_state_alloc_from_file2( rst_view , well_info->grid , report_nr , well_nr , load_segment_information );
-    if (well_state != NULL)
-      well_info_add_state( well_info , well_state );
-  }
-  ecl_rsthead_free( global_header );
-  if (close_stream)
-    ecl_file_view_add_flag(rst_view, ECL_FILE_CLOSE_STREAM);
+void well_info_add_wells2(well_info_type* well_info, ecl_file_view_type* rst_view, int report_nr, bool load_segment_information) {
+    bool close_stream = ecl_file_view_drop_flag(rst_view, ECL_FILE_CLOSE_STREAM);
+    ecl_rsthead_type* global_header = ecl_rsthead_alloc(rst_view, report_nr);
+    int well_nr;
+    for (well_nr = 0; well_nr < global_header->nwells; well_nr++) {
+        well_state_type* well_state = well_state_alloc_from_file2(rst_view, well_info->grid_names, report_nr, well_nr, load_segment_information);
+        if (well_state != NULL)
+            well_info_add_state(well_info, well_state);
+    }
+    ecl_rsthead_free(global_header);
+    if (close_stream)
+        ecl_file_view_add_flag(rst_view, ECL_FILE_CLOSE_STREAM);
 }
 
 
-void well_info_add_wells( well_info_type * well_info , ecl_file_type * rst_file , int report_nr, bool load_segment_information) {
-  well_info_add_wells2( well_info , ecl_file_get_active_view( rst_file ) , report_nr , load_segment_information );
+void well_info_add_wells(well_info_type* well_info, ecl_file_type* rst_file, int report_nr, bool load_segment_information) {
+    well_info_add_wells2(well_info, ecl_file_get_active_view(rst_file), report_nr, load_segment_information);
 }
 
 /**
@@ -303,25 +303,25 @@ void well_info_add_wells( well_info_type * well_info , ecl_file_type * rst_file 
    not have the SEQNUM keyword.
 */
 
-void well_info_add_UNRST_wells2( well_info_type * well_info , ecl_file_view_type * rst_view, bool load_segment_information) {
-  int num_blocks = ecl_file_view_get_num_named_kw( rst_view , SEQNUM_KW );
-  int block_nr;
-  for (block_nr = 0; block_nr < num_blocks; block_nr++) {
+void well_info_add_UNRST_wells2(well_info_type* well_info, ecl_file_view_type* rst_view, bool load_segment_information) {
+    int num_blocks = ecl_file_view_get_num_named_kw(rst_view, SEQNUM_KW);
+    int block_nr;
+    for (block_nr = 0; block_nr < num_blocks; block_nr++) {
 
-    ecl_file_view_type * step_view = ecl_file_view_add_restart_view(rst_view, block_nr , -1 , -1 , -1 );
-    const ecl_kw_type * seqnum_kw = ecl_file_view_iget_named_kw( step_view , SEQNUM_KW , 0);
-    int report_nr = ecl_kw_iget_int( seqnum_kw , 0 );
+        ecl_file_view_type* step_view = ecl_file_view_add_restart_view(rst_view, block_nr, -1, -1, -1);
+        const ecl_kw_type* seqnum_kw = ecl_file_view_iget_named_kw(step_view, SEQNUM_KW, 0);
+        int report_nr = ecl_kw_iget_int(seqnum_kw, 0);
 
-    ecl_file_transaction_type * t = ecl_file_view_start_transaction(rst_view);
-      well_info_add_wells2( well_info , step_view , report_nr , load_segment_information );
-    ecl_file_view_end_transaction(rst_view, t);
-  }
+        ecl_file_transaction_type* t = ecl_file_view_start_transaction(rst_view);
+        well_info_add_wells2(well_info, step_view, report_nr, load_segment_information);
+        ecl_file_view_end_transaction(rst_view, t);
+    }
 }
 
 
 
-void well_info_add_UNRST_wells( well_info_type * well_info , ecl_file_type * rst_file, bool load_segment_information) {
-  well_info_add_UNRST_wells2( well_info , ecl_file_get_global_view( rst_file ) , load_segment_information);
+void well_info_add_UNRST_wells(well_info_type* well_info, ecl_file_type* rst_file, bool load_segment_information) {
+    well_info_add_UNRST_wells2(well_info, ecl_file_get_global_view(rst_file), load_segment_information);
 }
 
 
@@ -331,71 +331,72 @@ void well_info_add_UNRST_wells( well_info_type * well_info , ecl_file_type * rst
    have crash and burn.
 */
 
-void well_info_load_rstfile( well_info_type * well_info , const char * filename, bool load_segment_information) {
-  ecl_file_type * ecl_file = ecl_file_open( filename , 0);
-  well_info_load_rst_eclfile(well_info, ecl_file, load_segment_information);
-  ecl_file_close( ecl_file );
+void well_info_load_rstfile(well_info_type* well_info, const char* filename, bool load_segment_information) {
+    ecl_file_type* ecl_file = ecl_file_open(filename, 0);
+    well_info_load_rst_eclfile(well_info, ecl_file, load_segment_information);
+    ecl_file_close(ecl_file);
 }
 
 
-void well_info_load_rst_eclfile( well_info_type * well_info , ecl_file_type * ecl_file, bool load_segment_information) {
-  int report_nr;
-  const char* filename = ecl_file_get_src_file(ecl_file);
-  ecl_file_enum file_type = ecl_util_get_file_type( filename , NULL , &report_nr);
-  if ((file_type == ECL_RESTART_FILE) || (file_type == ECL_UNIFIED_RESTART_FILE))
-  {
-    if (file_type == ECL_RESTART_FILE)
-      well_info_add_wells( well_info , ecl_file , report_nr , load_segment_information );
+void well_info_load_rst_eclfile(well_info_type* well_info, ecl_file_type* ecl_file, bool load_segment_information) {
+    int report_nr;
+    const char* filename = ecl_file_get_src_file(ecl_file);
+    ecl_file_enum file_type = ecl_util_get_file_type(filename, NULL, &report_nr);
+    if ((file_type == ECL_RESTART_FILE) || (file_type == ECL_UNIFIED_RESTART_FILE))
+    {
+        if (file_type == ECL_RESTART_FILE)
+            well_info_add_wells(well_info, ecl_file, report_nr, load_segment_information);
+        else
+            well_info_add_UNRST_wells(well_info, ecl_file, load_segment_information);
+
+    }
     else
-      well_info_add_UNRST_wells( well_info , ecl_file , load_segment_information );
-
-  } else
-    util_abort("%s: invalid file type: %s - must be a restart file\n", __func__ , filename);
+        util_abort("%s: invalid file type: %s - must be a restart file\n", __func__, filename);
 
 }
 
-void well_info_free( well_info_type * well_info ) {
-  for (const auto& pair : well_info->wells)
-    well_ts_free(pair.second);
+void well_info_free(well_info_type* well_info) {
+    for (const auto& pair : well_info->wells)
+        well_ts_free(pair.second);
 
-  delete well_info;
+    delete well_info;
 }
 
-int well_info_get_well_size( const well_info_type * well_info , const char * well_name ) {
-  well_ts_type * well_ts = well_info_get_ts( well_info , well_name );
-  return well_ts_get_size( well_ts );
+int well_info_get_well_size(const well_info_type* well_info, const char* well_name) {
+    well_ts_type* well_ts = well_info_get_ts(well_info, well_name);
+    return well_ts_get_size(well_ts);
 }
 
 /*****************************************************************/
 
-well_state_type * well_info_get_state_from_time( const well_info_type * well_info , const char * well_name , time_t sim_time) {
-  well_ts_type * well_ts = well_info_get_ts( well_info , well_name );
-  return well_ts_get_state_from_sim_time( well_ts , sim_time );
+well_state_type* well_info_get_state_from_time(const well_info_type* well_info, const char* well_name, time_t sim_time) {
+    well_ts_type* well_ts = well_info_get_ts(well_info, well_name);
+    return well_ts_get_state_from_sim_time(well_ts, sim_time);
 }
 
 
-well_state_type * well_info_get_state_from_report( const well_info_type * well_info , const char * well_name , int report_step ) {
-  well_ts_type * well_ts = well_info_get_ts( well_info , well_name );
-  return well_ts_get_state_from_report( well_ts , report_step);
+well_state_type* well_info_get_state_from_report(const well_info_type* well_info, const char* well_name, int report_step) {
+    well_ts_type* well_ts = well_info_get_ts(well_info, well_name);
+    return well_ts_get_state_from_report(well_ts, report_step);
 }
 
-well_state_type * well_info_iget_state( const well_info_type * well_info , const char * well_name , int time_index) {
-  well_ts_type * well_ts = well_info_get_ts( well_info , well_name );
-  return well_ts_iget_state( well_ts , time_index);
+well_state_type* well_info_iget_state(const well_info_type* well_info, const char* well_name, int time_index) {
+    well_ts_type* well_ts = well_info_get_ts(well_info, well_name);
+    return well_ts_iget_state(well_ts, time_index);
 }
 
-well_state_type * well_info_iiget_state( const well_info_type * well_info , int well_index , int time_index) {
-  const std::string& well_name = well_info->well_names[well_index];
-  return well_info_iget_state( well_info , well_name.c_str() , time_index );
+well_state_type* well_info_iiget_state(const well_info_type* well_info, int well_index, int time_index) {
+    const std::string& well_name = well_info->well_names[well_index];
+    return well_info_iget_state(well_info, well_name.c_str(), time_index);
 }
 
 /*****************************************************************/
 
-int well_info_get_num_wells( const well_info_type * well_info ) {
-  return well_info->well_names.size();
+int well_info_get_num_wells(const well_info_type* well_info) {
+    return well_info->well_names.size();
 }
 
-const char * well_info_iget_well_name( const well_info_type * well_info, int well_index) {
-  const std::string& well_name = well_info->well_names[well_index];
-  return well_name.c_str();
+const char* well_info_iget_well_name(const well_info_type* well_info, int well_index) {
+    const std::string& well_name = well_info->well_names[well_index];
+    return well_name.c_str();
 }

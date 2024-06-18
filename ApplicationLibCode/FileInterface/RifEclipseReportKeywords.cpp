@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2024 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,32 +16,20 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RifEclipseRestartDataAccess.h"
-
-//--------------------------------------------------------------------------------------------------
-/// Constructor
-//--------------------------------------------------------------------------------------------------
-RifEclipseRestartDataAccess::RifEclipseRestartDataAccess()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Destructor
-//--------------------------------------------------------------------------------------------------
-RifEclipseRestartDataAccess::~RifEclipseRestartDataAccess()
-{
-}
+#include "RifEclipseReportKeywords.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifRestartReportKeywords::appendKeywordCount( const std::string& keyword, size_t valueCount, RifKeywordValueCount::KeywordDataType dataType )
+void RifEclipseReportKeywords::appendKeywordCount( const std::string&                           keyword,
+                                                   size_t                                       valueCount,
+                                                   RifEclipseKeywordValueCount::KeywordDataType dataType )
 {
     auto it = m_keywordValueCounts.find( keyword );
 
     if ( it == m_keywordValueCounts.end() )
     {
-        m_keywordValueCounts[keyword] = RifKeywordValueCount( keyword, valueCount, dataType );
+        m_keywordValueCounts[keyword] = RifEclipseKeywordValueCount( keyword, valueCount, dataType );
     }
     else
     {
@@ -52,7 +40,7 @@ void RifRestartReportKeywords::appendKeywordCount( const std::string& keyword, s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifRestartReportKeywords::appendKeywordCount( const RifRestartReportKeywords& other )
+void RifEclipseReportKeywords::appendKeywordCount( const RifEclipseReportKeywords& other )
 {
     for ( const auto& [keyword, keywordInfo] : other.m_keywordValueCounts )
     {
@@ -63,9 +51,9 @@ void RifRestartReportKeywords::appendKeywordCount( const RifRestartReportKeyword
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifKeywordValueCount> RifRestartReportKeywords::keywordValueCounts() const
+std::vector<RifEclipseKeywordValueCount> RifEclipseReportKeywords::keywordValueCounts() const
 {
-    std::vector<RifKeywordValueCount> tmp;
+    std::vector<RifEclipseKeywordValueCount> tmp;
     for ( const auto& [keyword, info] : m_keywordValueCounts )
     {
         tmp.push_back( info );

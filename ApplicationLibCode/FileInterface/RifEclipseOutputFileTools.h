@@ -20,8 +20,13 @@
 
 #pragma once
 
-#include "RifEclipseRestartDataAccess.h"
+#include "RifEclipseReportKeywords.h"
 
+#include "RiaDefines.h"
+#include "RiaPorosityModel.h"
+
+#include "ert/ecl/ecl_file_view.h"
+#include "ert/ecl/ecl_grid.h"
 #include "ert/ecl/ecl_util.h"
 
 #include "cvfObject.h"
@@ -37,6 +42,8 @@ using ecl_file_type = struct ecl_file_struct;
 class RifEclipseRestartDataAccess;
 class RigEclipseTimeStepInfo;
 class RigActiveCellInfo;
+class RigEclipseCaseData;
+
 class QByteArray;
 
 //==================================================================================================
@@ -50,12 +57,13 @@ public:
     RifEclipseOutputFileTools();
     virtual ~RifEclipseOutputFileTools();
 
-    static std::vector<RifKeywordValueCount> keywordValueCounts( const std::vector<ecl_file_type*>& ecl_files );
+    static std::vector<RifEclipseKeywordValueCount> keywordValueCounts( const std::vector<ecl_file_type*>& ecl_files );
 
-    static void createResultEntries( const std::vector<RifKeywordValueCount>&   fileKeywordInfo,
-                                     const std::vector<RigEclipseTimeStepInfo>& timeStepInfo,
-                                     RiaDefines::ResultCatType                  resultCategory,
-                                     RigEclipseCaseData*                        eclipseCaseData );
+    static void createResultEntries( const std::vector<RifEclipseKeywordValueCount>& fileKeywordInfo,
+                                     const std::vector<RigEclipseTimeStepInfo>&      timeStepInfo,
+                                     RiaDefines::ResultCatType                       resultCategory,
+                                     RigEclipseCaseData*                             eclipseCaseData,
+                                     size_t                                          totalTimeSteps );
 
     static bool keywordData( const ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<double>* values );
     static bool keywordData( const ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<int>* values );
@@ -94,11 +102,19 @@ public:
 
     static bool assignActiveCellData( std::vector<std::vector<int>>& actnumValuesPerGrid, RigEclipseCaseData* eclipseCaseData );
 
+    static std::vector<RifEclipseKeywordValueCount>
+        validKeywordsForPorosityModel( const std::vector<RifEclipseKeywordValueCount>& keywordItemCounts,
+                                       const RigActiveCellInfo*                        activeCellInfo,
+                                       const RigActiveCellInfo*                        fractureActiveCellInfo,
+                                       RiaDefines::PorosityModelType                   matrixOrFracture,
+                                       size_t                                          timeStepCount );
+
+    static void extractResultValuesBasedOnPorosityModel( RigEclipseCaseData*           eclipseCaseData,
+                                                         RiaDefines::PorosityModelType matrixOrFracture,
+                                                         std::vector<double>*          values,
+                                                         const std::vector<double>&    fileValues );
+
 private:
-    static RifRestartReportKeywords          createReportStepsMetaData( const std::vector<ecl_file_type*>& ecl_files );
-    static std::vector<RifKeywordValueCount> validKeywordsForPorosityModel( const std::vector<RifKeywordValueCount>& keywordItemCounts,
-                                                                            const RigActiveCellInfo*                 activeCellInfo,
-                                                                            const RigActiveCellInfo*                 fractureActiveCellInfo,
-                                                                            RiaDefines::PorosityModelType            matrixOrFracture,
-                                                                            size_t                                   timeStepCount );
+    static void                     getDayMonthYear( const ecl_kw_type* intehead_kw, int* day, int* month, int* year );
+    static RifEclipseReportKeywords createReportStepsMetaData( const std::vector<ecl_file_type*>& ecl_files );
 };

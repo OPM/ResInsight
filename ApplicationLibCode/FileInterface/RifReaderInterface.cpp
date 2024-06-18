@@ -51,9 +51,9 @@ bool RifReaderInterface::isNNCsEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderInterface::isSkipWellData()
+bool RifReaderInterface::loadWellDataEnabled()
 {
-    return readerSettings()->skipWellData;
+    return !readerSettings()->skipWellData;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -63,6 +63,7 @@ public:
     RigGridBase*       gridByIndex( size_t localGridIndex );
     const RigGridBase* gridByIndex( size_t localGridIndex ) const;
     RigGridBase*       gridById( int localGridId );
+    RigGridBase*       gridByName( const std::string& name );
 
     size_t totalTemporaryGridCellCount() const;
 

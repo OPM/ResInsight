@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RifOpmGridTools.h"
+#include "RifOpmRadialGridTools.h"
 
 #include "RiaLogging.h"
 #include "RiaWeightedMeanCalculator.h"
@@ -37,7 +37,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifOpmGridTools::importCoordinatesForRadialGrid( const std::string& gridFilePath, RigMainGrid* riMainGrid )
+void RifOpmRadialGridTools::importCoordinatesForRadialGrid( const std::string& gridFilePath, RigMainGrid* riMainGrid )
 {
     CAF_ASSERT( riMainGrid );
 
@@ -73,7 +73,7 @@ void RifOpmGridTools::importCoordinatesForRadialGrid( const std::string& gridFil
 
         if ( opmMainGrid.is_radial() )
         {
-            transferCoordinates( opmMainGrid, opmMainGrid, riMainGrid, riMainGrid );
+            transferCoordinatesRadial( opmMainGrid, opmMainGrid, riMainGrid, riMainGrid );
         }
 
         auto lgrNames = opmMainGrid.list_of_lgrs();
@@ -88,7 +88,7 @@ void RifOpmGridTools::importCoordinatesForRadialGrid( const std::string& gridFil
                     auto riLgrGrid = riMainGrid->gridByIndex( i );
                     if ( riLgrGrid->gridName() == lgrName )
                     {
-                        transferCoordinates( opmMainGrid, opmLgrGrid, riMainGrid, riLgrGrid );
+                        transferCoordinatesRadial( opmMainGrid, opmLgrGrid, riMainGrid, riLgrGrid );
                     }
                 }
             }
@@ -99,87 +99,6 @@ void RifOpmGridTools::importCoordinatesForRadialGrid( const std::string& gridFil
         RiaLogging::warning(
             QString( "Failed to open grid case for import of radial coordinates : %1" ).arg( QString::fromStdString( gridFilePath ) ) );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RifOpmGridTools::cellCount( const std::string& gridFilePath )
-{
-    Opm::EclIO::EGrid opmGrid( gridFilePath );
-
-    return opmGrid.totalNumberOfCells();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RifOpmGridTools::importGrid( const std::string& gridFilePath, RigMainGrid* mainGrid, RigEclipseCaseData* caseData )
-{
-    Opm::EclIO::EGrid opmGrid( gridFilePath );
-
-    auto dims = opmGrid.dimension();
-    mainGrid->setGridPointDimensions( cvf::Vec3st( dims[0] + 1, dims[1] + 1, dims[2] + 1 ) );
-
-    RigCell defaultCell;
-    defaultCell.setHostGrid( mainGrid );
-    auto cellCount = opmGrid.totalNumberOfCells();
-    mainGrid->globalCellArray().resize( cellCount, defaultCell );
-    mainGrid->nodes().resize( 8 * cellCount );
-
-    transferCoordinatesCartesian( opmGrid, opmGrid, mainGrid, mainGrid, caseData );
-
-    auto opmMapAxes = opmGrid.get_mapaxes();
-    if ( opmMapAxes.size() == 6 )
-    {
-        std::array<double, 6> mapAxes;
-        for ( size_t i = 0; i < opmMapAxes.size(); ++i )
-        {
-            mapAxes[i] = opmMapAxes[i];
-        }
-
-        // Set the map axes transformation matrix on the main grid
-        mainGrid->setMapAxes( mapAxes );
-        mainGrid->setUseMapAxes( true );
-
-        auto transform = mainGrid->mapAxisTransform();
-
-        // Invert the transformation matrix to convert from file coordinates to domain coordinates
-        transform.invert();
-
-#pragma omp parallel for
-        for ( long i = 0; i < static_cast<long>( mainGrid->nodes().size() ); i++ )
-        {
-            auto& n = mainGrid->nodes()[i];
-            n.transformPoint( transform );
-        }
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<std::vector<int>> RifOpmGridTools::activeCellsFromActnumKeyword( Opm::EclIO::EGrid& grid )
-{
-    auto arrayNames       = grid.arrayNames();
-    int  actnumArrayIndex = -1;
-
-    for ( size_t i = 0; i < arrayNames.size(); i++ )
-    {
-        if ( arrayNames[i] == "ACTNUM" )
-        {
-            actnumArrayIndex = static_cast<int>( i );
-            break;
-        }
-    }
-
-    if ( actnumArrayIndex < 0 ) return {};
-
-    auto actnumMainGrid = grid.get<int>( actnumArrayIndex );
-
-    return { actnumMainGrid };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -213,7 +132,10 @@ std::vector<std::vector<int>> RifOpmGridTools::activeCellsFromActnumKeyword( Opm
 // 3. Find the closest point on this pillar, and use this point as the adjusted coordinate for the node
 //
 //--------------------------------------------------------------------------------------------------
-void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid, Opm::EclIO::EGrid& opmGrid, RigMainGrid* riMainGrid, RigGridBase* riGrid )
+void RifOpmRadialGridTools::transferCoordinatesRadial( Opm::EclIO::EGrid& opmMainGrid,
+                                                       Opm::EclIO::EGrid& opmGrid,
+                                                       RigMainGrid*       riMainGrid,
+                                                       RigGridBase*       riGrid )
 {
     size_t cellCount = opmGrid.totalNumberOfCells();
     if ( cellCount != riGrid->cellCount() ) return;
@@ -266,153 +188,102 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid, Opm::
             // First grid dimension is radius, check if cell has are at the outer-most slice
             if ( !hostCellGlobalIndices.empty() && ( gridDimension[0] - 1 == ijkCell[0] ) )
             {
-                std::array<double, 8> cellRadius{};
-                std::array<double, 8> cellTheta{};
-                std::array<double, 8> cellZ{};
-                opmGrid.getRadialCellCorners( ijkCell, cellRadius, cellTheta, cellZ );
+                auto hostCellIndex = hostCellGlobalIndices[opmCellIndex];
 
-                double maxRadius = *std::max_element( cellRadius.begin(), cellRadius.end() );
-
-                // Check if the radius is at the outer surface of the radial grid
-                // Adjust the outer nodes to match the corner pillars of the host cell
-                const double epsilon = 0.15;
-                if ( fabs( maxRadius - cellRadius[opmNodeIndex] ) < epsilon * cellRadius[opmNodeIndex] )
-                {
-                    const auto hostCellIndex = hostCellGlobalIndices[opmCellIndex];
-
-                    double closestPillarDistance = std::numeric_limits<double>::max();
-                    int    closestPillarIndex    = -1;
-
-                    const auto cylinderCoordX = opmX[opmNodeIndex] + xCenterCoordOpm;
-                    const auto cylinderCoordY = opmY[opmNodeIndex] + yCenterCoordOpm;
-                    const auto cylinderCoordZ = opmZ[opmNodeIndex];
-
-                    const cvf::Vec3d coordinateOnCylinder = cvf::Vec3d( cylinderCoordX, cylinderCoordY, cylinderCoordZ );
-
-                    const auto candidates = computeSnapToCoordinates( opmMainGrid, opmGrid, hostCellIndex, opmCellIndex );
-                    for ( int pillarIndex = 0; pillarIndex < static_cast<int>( candidates.size() ); pillarIndex++ )
-                    {
-                        for ( const auto& c : candidates[pillarIndex] )
-                        {
-                            double distance = coordinateOnCylinder.pointDistance( c );
-                            if ( distance < closestPillarDistance )
-                            {
-                                closestPillarDistance = distance;
-                                closestPillarIndex    = pillarIndex;
-                            }
-                        }
-                    }
-
-                    if ( closestPillarDistance < std::numeric_limits<double>::max() )
-                    {
-                        const auto& pillarCordinates = candidates[closestPillarIndex];
-
-                        int layerCount               = static_cast<int>( pillarCordinates.size() / 2 );
-                        int layerIndexInMainGridCell = ijkCell[2] % layerCount;
-                        int localNodeIndex           = opmNodeIndex % 8;
-
-                        cvf::Vec3d closestPillarCoord;
-                        if ( localNodeIndex < 4 )
-                        {
-                            // Top of cell
-                            int pillarCoordIndex = layerIndexInMainGridCell * 2;
-                            closestPillarCoord   = pillarCordinates[pillarCoordIndex];
-                        }
-                        else
-                        {
-                            // Bottom of cell
-                            int pillarCoordIndex = layerIndexInMainGridCell * 2 + 1;
-                            closestPillarCoord   = pillarCordinates[pillarCoordIndex];
-                        }
-
-                        riNode.x() = closestPillarCoord.x();
-                        riNode.y() = closestPillarCoord.y();
-                        riNode.z() = -closestPillarCoord.z();
-                    }
-                }
+                lockToHostPillars( riNode, opmMainGrid, opmGrid, ijkCell, hostCellIndex, opmCellIndex, opmNodeIndex, xCenterCoordOpm, yCenterCoordOpm );
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+//
 //--------------------------------------------------------------------------------------------------
-void RifOpmGridTools::transferCoordinatesCartesian( Opm::EclIO::EGrid&  opmMainGrid,
-                                                    Opm::EclIO::EGrid&  opmGrid,
-                                                    RigMainGrid*        riMainGrid,
-                                                    RigGridBase*        riGrid,
-                                                    RigEclipseCaseData* caseData )
+void RifOpmRadialGridTools::lockToHostPillars( cvf::Vec3d&         riNode,
+                                               Opm::EclIO::EGrid&  opmMainGrid,
+                                               Opm::EclIO::EGrid&  opmGrid,
+                                               std::array<int, 3>& ijkCell,
+                                               int                 hostCellIndex,
+                                               int                 opmCellIndex,
+                                               size_t              opmNodeIndex,
+                                               double              xCenterCoordOpm,
+                                               double              yCenterCoordOpm )
 {
-    // Prefix OPM structures with _opm_and ResInsight structures with _ri_
+    std::array<double, 8> cellRadius{};
+    std::array<double, 8> cellTheta{};
+    std::array<double, 8> cellZ{};
+    opmGrid.getRadialCellCorners( ijkCell, cellRadius, cellTheta, cellZ );
 
-    auto& riNodes = riMainGrid->nodes();
+    double maxRadius = *std::max_element( cellRadius.begin(), cellRadius.end() );
 
-    opmGrid.loadData();
-    opmGrid.load_grid_data();
-
-    auto riActiveCells     = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    auto riActiveCellsFrac = caseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
-    riActiveCellsFrac->setGridCount( 1 );
-    riActiveCellsFrac->setGridActiveCellCounts( 0, 0 );
-
-    riActiveCells->setReservoirCellCount( riMainGrid->cellCount() );
-
-    // same mapping as resdata
-    const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
-
-#pragma omp parallel for
-    for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( riMainGrid->cellCount() ); opmCellIndex++ )
+    // Check if the radius is at the outer surface of the radial grid
+    // Adjust the outer nodes to match the corner pillars of the host cell
+    const double epsilon = 0.15;
+    if ( fabs( maxRadius - cellRadius[opmNodeIndex] ) < epsilon * cellRadius[opmNodeIndex] )
     {
-        auto opmIJK = opmGrid.ijk_from_global_index( opmCellIndex );
-
-        auto     riReservoirIndex = riGrid->cellIndexFromIJK( opmIJK[0], opmIJK[1], opmIJK[2] );
-        RigCell& cell             = riMainGrid->globalCellArray()[riReservoirIndex];
-        cell.setGridLocalCellIndex( riReservoirIndex );
-
         std::array<double, 8> opmX{};
         std::array<double, 8> opmY{};
         std::array<double, 8> opmZ{};
+
         opmGrid.getCellCorners( opmCellIndex, opmX, opmY, opmZ );
 
-        // Each cell has 8 nodes, use reservoir cell index and multiply to find first node index for cell
-        auto riNodeStartIndex = riReservoirIndex * 8;
+        double closestPillarDistance = std::numeric_limits<double>::max();
+        int    closestPillarIndex    = -1;
 
-        for ( size_t opmNodeIndex = 0; opmNodeIndex < 8; opmNodeIndex++ )
+        const auto cylinderCoordX = opmX[opmNodeIndex] + xCenterCoordOpm;
+        const auto cylinderCoordY = opmY[opmNodeIndex] + yCenterCoordOpm;
+        const auto cylinderCoordZ = opmZ[opmNodeIndex];
+
+        const cvf::Vec3d coordinateOnCylinder = cvf::Vec3d( cylinderCoordX, cylinderCoordY, cylinderCoordZ );
+
+        const auto candidates = computeSnapToCoordinates( opmMainGrid, opmGrid, hostCellIndex, opmCellIndex );
+        for ( int pillarIndex = 0; pillarIndex < static_cast<int>( candidates.size() ); pillarIndex++ )
         {
-            auto   riCornerIndex = cellMappingECLRi[opmNodeIndex];
-            size_t riNodeIndex   = riNodeStartIndex + riCornerIndex;
-
-            auto& riNode = riNodes[riNodeIndex];
-            riNode.x()   = opmX[opmNodeIndex];
-            riNode.y()   = opmY[opmNodeIndex];
-            riNode.z()   = -opmZ[opmNodeIndex];
-
-            cell.cornerIndices()[riCornerIndex] = riNodeIndex;
-        }
-
-        if ( riActiveCells )
-        {
-            auto activeIndex = opmGrid.active_index( opmIJK[0], opmIJK[1], opmIJK[2] );
-            if ( activeIndex > -1 )
+            for ( const auto& c : candidates[pillarIndex] )
             {
-                riActiveCells->setCellResultIndex( riReservoirIndex, activeIndex );
+                double distance = coordinateOnCylinder.pointDistance( c );
+                if ( distance < closestPillarDistance )
+                {
+                    closestPillarDistance = distance;
+                    closestPillarIndex    = pillarIndex;
+                }
             }
         }
+
+        if ( closestPillarDistance < std::numeric_limits<double>::max() )
+        {
+            const auto& pillarCordinates = candidates[closestPillarIndex];
+
+            int layerCount               = static_cast<int>( pillarCordinates.size() / 2 );
+            int layerIndexInMainGridCell = ijkCell[2] % layerCount;
+            int localNodeIndex           = opmNodeIndex % 8;
+
+            cvf::Vec3d closestPillarCoord;
+            if ( localNodeIndex < 4 )
+            {
+                // Top of cell
+                int pillarCoordIndex = layerIndexInMainGridCell * 2;
+                closestPillarCoord   = pillarCordinates[pillarCoordIndex];
+            }
+            else
+            {
+                // Bottom of cell
+                int pillarCoordIndex = layerIndexInMainGridCell * 2 + 1;
+                closestPillarCoord   = pillarCordinates[pillarCoordIndex];
+            }
+
+            riNode.x() = closestPillarCoord.x();
+            riNode.y() = closestPillarCoord.y();
+            riNode.z() = -closestPillarCoord.z();
+        }
     }
-
-    riActiveCells->setGridCount( 1 );
-    riActiveCells->setGridActiveCellCounts( 0, opmGrid.activeCells() );
-    riActiveCells->computeDerivedData();
-
-    riMainGrid->initAllSubGridsParentGridPointer();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::map<int, std::pair<double, double>>
-    RifOpmGridTools::computeXyCenterForTopOfCells( Opm::EclIO::EGrid& opmMainGrid, Opm::EclIO::EGrid& opmGrid, RigGridBase* riGrid )
+    RifOpmRadialGridTools::computeXyCenterForTopOfCells( Opm::EclIO::EGrid& opmMainGrid, Opm::EclIO::EGrid& opmGrid, RigGridBase* riGrid )
 {
     if ( !riGrid || riGrid->isMainGrid() ) return {};
 
@@ -420,7 +291,6 @@ std::map<int, std::pair<double, double>>
     if ( cellCount != riGrid->cellCount() ) return {};
 
     // Read out the corner coordinates from the EGRID file using radial coordinates.
-    // Prefix OPM structures with _opm_and ResInsight structures with _ri_
 
     // Compute the center of the LGR radial grid cells for each K layer
     std::map<int, std::pair<double, double>> radialGridCenterTopLayerOpm;
@@ -471,8 +341,10 @@ std::map<int, std::pair<double, double>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<cvf::Vec3d>>
-    RifOpmGridTools::computeSnapToCoordinates( Opm::EclIO::EGrid& opmMainGrid, Opm::EclIO::EGrid& opmGrid, int mainGridCellIndex, int lgrCellIndex )
+std::vector<std::vector<cvf::Vec3d>> RifOpmRadialGridTools::computeSnapToCoordinates( Opm::EclIO::EGrid& opmMainGrid,
+                                                                                      Opm::EclIO::EGrid& opmGrid,
+                                                                                      int                mainGridCellIndex,
+                                                                                      int                lgrCellIndex )
 {
     auto hostCellIndices = opmGrid.hostCellsGlobalIndex();
     auto lgrIjk          = opmGrid.ijk_from_global_index( lgrCellIndex );

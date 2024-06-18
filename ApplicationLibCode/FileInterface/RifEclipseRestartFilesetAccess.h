@@ -46,7 +46,7 @@ public:
     void             timeSteps( std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart ) override;
     std::vector<int> reportNumbers() override;
 
-    std::vector<RifKeywordValueCount> keywordValueCounts() override;
+    std::vector<RifEclipseKeywordValueCount> keywordValueCounts() override;
     bool results( const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values ) override;
 
     bool dynamicNNCResults( const ecl_grid_type* grid,

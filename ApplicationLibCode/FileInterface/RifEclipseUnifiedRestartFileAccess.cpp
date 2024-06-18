@@ -214,7 +214,7 @@ void RifEclipseUnifiedRestartFileAccess::timeSteps( std::vector<QDateTime>* time
 //--------------------------------------------------------------------------------------------------
 /// Get list of result names
 //--------------------------------------------------------------------------------------------------
-std::vector<RifKeywordValueCount> RifEclipseUnifiedRestartFileAccess::keywordValueCounts()
+std::vector<RifEclipseKeywordValueCount> RifEclipseUnifiedRestartFileAccess::keywordValueCounts()
 {
     if ( openFile() )
     {

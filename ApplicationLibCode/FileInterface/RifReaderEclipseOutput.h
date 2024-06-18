@@ -36,7 +36,7 @@ class RigEclipseTimeStepInfo;
 class RigGridBase;
 class RigMainGrid;
 class QDateTime;
-class RifKeywordValueCount;
+class RifEclipseKeywordValueCount;
 
 struct RigWellResultPoint;
 
@@ -91,43 +91,33 @@ public:
 private:
     bool readActiveCellInfo();
 
-    void buildMetaData( ecl_grid_type* grid );
-    void readWellCells( const ecl_grid_type* mainEclGrid, bool importCompleteMswData );
-
     std::string ertGridName( size_t gridNr );
 
-    RigWellResultPoint createWellResultPoint( const RigGridBase* grid, const well_conn_type* ert_connection, const char* wellName );
-
-    RigWellResultPoint createWellResultPoint( const RigGridBase*       grid,
-                                              const well_conn_type*    ert_connection,
-                                              const well_segment_type* segment,
-                                              const char*              wellName );
+    void buildMetaData( ecl_grid_type* grid );
 
     void openInitFile();
 
-    void extractResultValuesBasedOnPorosityModel( RiaDefines::PorosityModelType matrixOrFracture,
-                                                  std::vector<double>*          values,
-                                                  const std::vector<double>&    fileValues );
     void transferStaticNNCData( const ecl_grid_type* mainEclGrid, ecl_file_type* init_file, RigMainGrid* mainGrid );
     void transferDynamicNNCData( const ecl_grid_type* mainEclGrid, RigMainGrid* mainGrid );
 
     void ensureDynamicResultAccessIsPresent();
 
-    static std::vector<RifKeywordValueCount> validKeywordsForPorosityModel( const std::vector<RifKeywordValueCount>& keywordItemCounts,
-                                                                            const RigActiveCellInfo*                 activeCellInfo,
-                                                                            const RigActiveCellInfo*                 fractureActiveCellInfo,
-                                                                            RiaDefines::PorosityModelType            matrixOrFracture,
-                                                                            size_t                                   timeStepCount );
-
     std::vector<RigEclipseTimeStepInfo> createFilteredTimeStepInfos();
 
     static bool isEclipseAndSoursimTimeStepsEqual( const QDateTime& eclipseDateTime, const QDateTime& sourSimDateTime );
+    static bool transferGridCellData( RigMainGrid*         mainGrid,
+                                      RigActiveCellInfo*   activeCellInfo,
+                                      RigActiveCellInfo*   fractureActiveCellInfo,
+                                      RigGridBase*         localGrid,
+                                      const ecl_grid_type* localEclGrid,
+                                      size_t               matrixActiveStartIndex,
+                                      size_t               fractureActiveStartIndex );
 
 private:
     QString     m_fileName; // Name of file used to start accessing Eclipse output files
     QStringList m_filesWithSameBaseName; // Set of files in filename's path with same base name as filename
 
-    RigEclipseCaseData* m_eclipseCase;
+    RigEclipseCaseData* m_eclipseCaseData;
 
     ecl_file_type*                                m_ecl_init_file; // File access to static results
     mutable cvf::ref<RifEclipseRestartDataAccess> m_dynamicResultsAccess; // File access to dynamic results
