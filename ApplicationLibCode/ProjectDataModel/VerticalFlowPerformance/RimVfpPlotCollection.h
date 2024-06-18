@@ -18,7 +18,7 @@
 #pragma once
 
 #include "RimAbstractPlotCollection.h"
-#include "RimVfpPlot.h"
+#include "RimVfpPlot_deprecated.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
@@ -29,34 +29,36 @@ class RimCustomVfpPlot;
 ///
 ///
 //==================================================================================================
-class RimVfpPlotCollection : public caf::PdmObject, public RimTypedPlotCollection<RimVfpPlot>
+class RimVfpPlotCollection : public caf::PdmObject, public RimTypedPlotCollection<RimVfpPlot_deprecated>
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     RimVfpPlotCollection();
 
-    RimVfpPlot*       createAndAppendPlots( RimVfpTable* tableData );
-    RimVfpPlot*       plotForTableNumber( int tableNumber ) const;
     RimCustomVfpPlot* createAndAppendPlots( RimVfpTable* mainDataSource, std::vector<RimVfpTable*> tableData );
-
-    void                     addPlot( RimVfpPlot* newPlot ) override;
-    std::vector<RimVfpPlot*> plots() const override;
-
-    size_t plotCount() const final;
-    void   insertPlot( RimVfpPlot* vfpPlot, size_t index ) final;
-    void   removePlot( RimVfpPlot* vfpPlot ) final;
-    void   deleteAllPlots() override;
 
     static void addImportItems( caf::CmdFeatureMenuBuilder& menuBuilder );
 
 private:
+    void                                addPlot( RimVfpPlot_deprecated* newPlot ) override;
+    std::vector<RimVfpPlot_deprecated*> plots() const override;
+
+    size_t plotCount() const final;
+    void   insertPlot( RimVfpPlot_deprecated* vfpPlot, size_t index ) final;
+    void   removePlot( RimVfpPlot_deprecated* vfpPlot ) final;
+    void   deleteAllPlots() override;
+
     void loadDataAndUpdateAllPlots() override;
     void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
 
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
-    caf::PdmChildArrayField<RimVfpPlot*>       m_vfpPlots;
     caf::PdmChildArrayField<RimCustomVfpPlot*> m_customVfpPlots;
+
+    // To be removed in a future release.
+    // RimVfpPlotCollection can derive from RimTypedPlotCollection<RimCustomVfpPlot>
+    // Consider renaming RimCustomVfpPlot to RimVfpPlot
+    caf::PdmChildArrayField<RimVfpPlot_deprecated*> m_vfpPlots_deprecated;
 };

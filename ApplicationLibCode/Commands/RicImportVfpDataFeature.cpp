@@ -23,8 +23,8 @@
 
 #include "RimMainPlotCollection.h"
 
+#include "VerticalFlowPerformance/RimCustomVfpPlot.h"
 #include "VerticalFlowPerformance/RimVfpDataCollection.h"
-#include "VerticalFlowPerformance/RimVfpPlot.h"
 #include "VerticalFlowPerformance/RimVfpPlotCollection.h"
 
 #include "RiuFileDialogTools.h"
@@ -76,7 +76,7 @@ void RicImportVfpDataFeature::onActionTriggered( bool isChecked )
     for ( const auto& fileName : fileNames )
     {
         auto vfpDataSource = vfpDataColl->appendTableDataObject( fileName );
-        auto firstPlot     = vfpPlotColl->createAndAppendPlots( vfpDataSource );
+        auto firstPlot     = vfpPlotColl->createAndAppendPlots( vfpDataSource, {} );
         vfpDataColl->updateAllRequiredEditors();
         RiuPlotMainWindowTools::onObjectAppended( firstPlot, firstPlot );
     }
