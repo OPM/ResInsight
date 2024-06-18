@@ -72,7 +72,6 @@ public:
     bool showDefiningPoints() const;
 
     std::vector<RimLegendConfig*> legendConfigs() const override;
-    bool                          handleOverlayItemPicked( const cvf::OverlayItem* pickedOverlayItem ) const;
 
 protected:
     void onUpdateLegends() override;
@@ -117,8 +116,6 @@ private:
     caf::PdmProxyValueField<QString> m_nameProxy;
     caf::PdmField<bool>              m_showDefiningPoints;
     caf::PdmField<bool>              m_showAxisLines;
-
-    caf::PdmPointer<caf::PdmObject> m_legendObjectToSelect;
 
     const static cvf::Mat4d sm_defaultViewMatrix;
 };
