@@ -27,15 +27,20 @@
 
 #include "RigVfpTables.h"
 
+#include "RimColorLegend.h"
+#include "RimColorLegendItem.h"
 #include "RimPlotAxisProperties.h"
 #include "RimPlotCurve.h"
+#include "RimRegularLegendConfig.h"
 #include "RimVfpDataCollection.h"
 #include "RimVfpDefines.h"
 #include "RimVfpTable.h"
 #include "RimVfpTableData.h"
 #include "Tools/RimPlotAxisTools.h"
 
+#include "RiuAbstractLegendFrame.h"
 #include "RiuContextMenuLauncher.h"
+#include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotCurve.h"
 #include "RiuPlotCurveInfoTextProvider.h"
 #include "RiuPlotWidget.h"
@@ -45,6 +50,7 @@
 #include "RiuQwtPlotWidget.h"
 #include "RiuQwtPlotZoomer.h"
 
+#include "cafColorTable.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
@@ -71,8 +77,8 @@ RimCustomVfpPlot::RimCustomVfpPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_mainDataSource, "MainDataSouce", "Main VFP Data Source" );
 
-    CAF_PDM_InitFieldNoDefault( &m_additionalDataSources, "AdditionalDataSources", "Additional Data Sources" );
-    m_additionalDataSources.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    CAF_PDM_InitFieldNoDefault( &m_comparisonTables, "ComparisonTables", "Comparison Tables" );
+    m_comparisonTables.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_curveValueOptions, "CurveValueOptions", "Curve Value Options" );
     CAF_PDM_InitFieldNoDefault( &m_curveMatchingType, "CurveMatchingType", "Curve Matching Type" );
@@ -142,6 +148,17 @@ RimCustomVfpPlot::RimCustomVfpPlot()
     CAF_PDM_InitFieldNoDefault( &m_plotCurves, "PlotCurves", "Curves" );
     m_plotCurves.uiCapability()->setUiTreeChildrenHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_colorLegend, "ColorLegend", "" );
+    m_colorLegend = new RimColorLegend();
+    m_colorLegend->setColorLegendName( "Curve Colors" );
+    m_colorLegend->changed.connect( this, &RimCustomVfpPlot::legendColorsChanged );
+
+    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "" );
+    m_legendConfig = new RimRegularLegendConfig();
+    m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
+    m_legendConfig->setColorLegend( m_colorLegend );
+    m_legendConfig->uiCapability()->setUiTreeHidden( true );
+
     m_showWindow      = true;
     m_showPlotLegends = true;
 
@@ -166,7 +183,7 @@ void RimCustomVfpPlot::selectDataSource( RimVfpTable* mainDataSource, const std:
 {
     m_mainDataSource = mainDataSource;
 
-    m_additionalDataSources.setValue( vfpTableData );
+    m_comparisonTables.setValue( vfpTableData );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,6 +229,27 @@ void RimCustomVfpPlot::initializeSelection()
         else
             field->v() = {};
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCustomVfpPlot::createDefaultColors()
+{
+    auto colors = RiaColorTables::curveSetPaletteColors();
+
+    int colorIndex = 1;
+    for ( auto color : colors.color3fArray() )
+    {
+        auto* colorLegendItem = new RimColorLegendItem;
+        colorLegendItem->setValues( QString( "Color %1" ).arg( colorIndex ), colorIndex, color );
+
+        m_colorLegend->appendColorLegendItem( colorLegendItem );
+
+        colorIndex++;
+    }
+
+    m_legendConfig->setColorLegend( m_colorLegend );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -301,7 +339,7 @@ QString RimCustomVfpPlot::asciiDataForPlotExport() const
         {
             asciiData += curveData.curveTitle( curveIdx );
 
-            if ( !m_additionalDataSources.empty() && plotCurveIdx < m_plotCurveMetaData.size() )
+            if ( !m_comparisonTables.empty() && plotCurveIdx < m_plotCurveMetaData.size() )
             {
                 auto plotCurveData = m_plotCurveMetaData[plotCurveIdx];
                 asciiData += QString( " (Table: %1)" ).arg( plotCurveData.tableNumber );
@@ -589,11 +627,16 @@ void RimCustomVfpPlot::onLoadDataAndUpdate()
 
     int colorIndex = 0;
 
-    std::vector<RimVfpTable*> tables = m_additionalDataSources.ptrReferencedObjectsByType();
+    std::vector<RimVfpTable*> tables;
     tables.push_back( m_mainDataSource );
+    auto comparisonTables = m_comparisonTables.ptrReferencedObjectsByType();
+    std::copy( comparisonTables.begin(), comparisonTables.end(), std::back_inserter( tables ) );
 
     m_plotData.clear();
     m_plotCurveMetaData.clear();
+
+    size_t           curveSetCount = 0;
+    CurveNameContent curveNameContent;
 
     for ( const auto& table : tables )
     {
@@ -615,25 +658,24 @@ void RimCustomVfpPlot::onLoadDataAndUpdate()
 
             QColor curveColor = curveColors().cycledQColor( colorIndex );
 
-            auto symbols = curveSymbols();
-            auto symbol  = symbols[colorIndex % symbols.size()];
-
-            bool             multipleCurveSets = tables.size() > 1;
-            CurveNameContent curveNameContent;
             curveNameContent.defaultName = true;
-            populatePlotWidgetWithPlotData( m_plotWidget,
-                                            vfpPlotData,
-                                            VfpValueSelection(),
-                                            tableNumber,
-                                            curveColor,
-                                            symbol,
-                                            multipleCurveSets,
-                                            curveNameContent );
+            populatePlotWidgetWithPlotData( m_plotWidget, vfpPlotData, VfpValueSelection(), tableNumber, curveColor, curveNameContent );
             colorIndex++;
+
+            curveSetCount += 1;
         }
         else
         {
             auto valueSelections = computeValueSelectionCombinations();
+            curveSetCount += valueSelections.size();
+
+            if ( tables.size() > 1 ) curveNameContent.tableNumber = true;
+            if ( m_flowRate().size() > 1 ) curveNameContent.flowRate = true;
+            if ( m_thp().size() > 1 ) curveNameContent.thp = true;
+            if ( m_artificialLiftQuantity().size() > 1 ) curveNameContent.artificialLiftQuantity = true;
+            if ( m_waterCut().size() > 1 ) curveNameContent.waterCut = true;
+            if ( m_gasLiquidRatio().size() > 1 ) curveNameContent.gasLiquidRatio = true;
+
             for ( auto& valueSelection : valueSelections )
             {
                 valueSelection.familyValues = familyValuesForTable( table );
@@ -649,34 +691,16 @@ void RimCustomVfpPlot::onLoadDataAndUpdate()
 
                 QColor curveColor = curveColors().cycledQColor( colorIndex );
 
-                auto symbols = curveSymbols();
-                auto symbol  = symbols[colorIndex % symbols.size()];
-
-                bool multipleCurveSets = ( tables.size() > 1 || ( valueSelections.size() > 1 ) );
-
-                CurveNameContent curveNameContent;
-                if ( tables.size() > 1 ) curveNameContent.tableNumber = true;
-                if ( m_flowRate().size() > 1 ) curveNameContent.flowRate = true;
-                if ( m_thp().size() > 1 ) curveNameContent.thp = true;
-                if ( m_artificialLiftQuantity().size() > 1 ) curveNameContent.artificialLiftQuantity = true;
-                if ( m_waterCut().size() > 1 ) curveNameContent.waterCut = true;
-                if ( m_gasLiquidRatio().size() > 1 ) curveNameContent.gasLiquidRatio = true;
-
-                populatePlotWidgetWithPlotData( m_plotWidget,
-                                                vfpPlotData,
-                                                valueSelection,
-                                                tableNumber,
-                                                curveColor,
-                                                symbol,
-                                                multipleCurveSets,
-                                                curveNameContent );
+                populatePlotWidgetWithPlotData( m_plotWidget, vfpPlotData, valueSelection, tableNumber, curveColor, curveNameContent );
                 colorIndex++;
             }
         }
     }
 
     updatePlotTitle(
-        generatePlotTitle( "Custom", m_tableNumber(), m_tableType(), m_interpolatedVariable(), m_primaryVariable(), m_familyVariable() ) );
+        generatePlotTitle( "", m_tableNumber(), m_tableType(), m_interpolatedVariable(), m_primaryVariable(), m_familyVariable() ) );
+
+    updateLegendWidget( curveSetCount, curveNameContent );
 
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
@@ -691,14 +715,87 @@ void RimCustomVfpPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCustomVfpPlot::populatePlotWidgetWithPlotData( RiuPlotWidget*                      plotWidget,
-                                                       const VfpPlotData&                  plotData,
-                                                       const VfpValueSelection&            valueSelection,
-                                                       int                                 tableNumber,
-                                                       const QColor&                       color,
-                                                       RiuPlotCurveSymbol::PointSymbolEnum curveSymbol,
-                                                       bool                                multipleCurveSets,
-                                                       const CurveNameContent&             curveNameContent )
+void RimCustomVfpPlot::updateLegendWidget( size_t curveSetCount, CurveNameContent& curveNameContent )
+{
+    if ( !m_plotWidget ) return;
+
+    if ( !m_legendOverlayFrame )
+    {
+        m_legendOverlayFrame = new RiuDraggableOverlayFrame( m_plotWidget->getParentForOverlay(), m_plotWidget->overlayMargins() );
+    }
+
+    if ( curveSetCount > 1 )
+    {
+        size_t                                               plotCurveIdx = 0;
+        std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
+        for ( size_t i = 0; i < curveSetCount; i++ )
+        {
+            auto color = curveColors().cycledColor3f( i );
+
+            auto formatNamePart = [&]( RimVfpDefines::ProductionVariableType variableType, double selectionValue, const QString& namePart ) -> QString
+            {
+                double displayValue = convertToDisplayUnit( selectionValue, variableType );
+                return QString( " %1:%2" ).arg( namePart ).arg( displayValue );
+            };
+
+            if ( plotCurveIdx < m_plotCurveMetaData.size() )
+            {
+                auto plotData = m_plotCurveMetaData[plotCurveIdx];
+
+                QString curveSetName;
+                if ( curveNameContent.tableNumber ) curveSetName += QString( " Table:%1" ).arg( plotData.tableNumber );
+
+                using pvt = RimVfpDefines::ProductionVariableType;
+
+                if ( curveNameContent.thp && m_familyVariable() != pvt::THP )
+                {
+                    curveSetName += formatNamePart( pvt::THP, plotData.thpValue, "THP" );
+                }
+                if ( curveNameContent.gasLiquidRatio && m_familyVariable() != pvt::GAS_LIQUID_RATIO )
+                {
+                    curveSetName += formatNamePart( pvt::GAS_LIQUID_RATIO, plotData.gasLiquidRatioValue, "GLR" );
+                }
+                if ( curveNameContent.waterCut && m_familyVariable() != pvt::WATER_CUT )
+                {
+                    curveSetName += formatNamePart( pvt::WATER_CUT, plotData.waterCutValue, "WC" );
+                }
+                if ( curveNameContent.artificialLiftQuantity && m_familyVariable() != pvt::ARTIFICIAL_LIFT_QUANTITY )
+                {
+                    curveSetName += formatNamePart( pvt::ARTIFICIAL_LIFT_QUANTITY, plotData.artificialLiftQuantityValue, "Lift" );
+                }
+                if ( curveNameContent.flowRate && m_familyVariable() != pvt::FLOW_RATE )
+                {
+                    curveSetName += formatNamePart( pvt::FLOW_RATE, plotData.flowRateValue, "Rate" );
+                }
+
+                categories.push_back( std::make_tuple( curveSetName, static_cast<int>( i ), cvf::Color3ub( color ) ) );
+            }
+
+            plotCurveIdx += m_plotData[i].size();
+        }
+
+        // Reverse the categories to make the first curve the topmost in the legend
+        std::reverse( categories.begin(), categories.end() );
+        m_legendConfig->setCategoryItems( categories );
+
+        m_legendOverlayFrame->setContentFrame( m_legendConfig->makeLegendFrame() );
+        m_plotWidget->addOverlayFrame( m_legendOverlayFrame );
+    }
+    else
+    {
+        m_plotWidget->removeOverlayFrame( m_legendOverlayFrame );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCustomVfpPlot::populatePlotWidgetWithPlotData( RiuPlotWidget*           plotWidget,
+                                                       const VfpPlotData&       plotData,
+                                                       const VfpValueSelection& valueSelection,
+                                                       int                      tableNumber,
+                                                       const QColor&            color,
+                                                       const CurveNameContent&  curveNameContent )
 {
     if ( !plotWidget ) return;
 
@@ -725,48 +822,37 @@ void RimCustomVfpPlot::populatePlotWidgetWithPlotData( RiuPlotWidget*           
         curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
         curve->setLineThickness( m_curveThickness() );
 
-        if ( multipleCurveSets )
-        {
-            // Use the incoming color for all curves, and cycle the symbols
-            curve->setColor( RiaColorTools::fromQColorTo3f( color ) );
-            auto symbols      = curveSymbols();
-            auto customSymbol = symbols[curveIndex % symbols.size()];
-            curve->setSymbol( customSymbol );
-        }
-        else
-        {
-            // Use the incoming symbol for all curves, and cycle the colors
-            auto customColor = curveColors().cycledQColor( curveIndex );
-            curve->setColor( RiaColorTools::fromQColorTo3f( customColor ) );
-            curve->setSymbol( curveSymbol );
-        }
+        // Use the incoming color for all curves, and cycle the symbols
+        curve->setColor( RiaColorTools::fromQColorTo3f( color ) );
+        auto symbols      = curveSymbols();
+        auto customSymbol = symbols[curveIndex % symbols.size()];
+        curve->setSymbol( customSymbol );
         curve->setSymbolSize( m_curveSymbolSize() );
 
         QString curveName;
         if ( curveNameContent.defaultName ) curveName = plotData.curveTitle( curveIndex );
-        if ( curveNameContent.tableNumber ) curveName += QString( " Table:%1" ).arg( tableNumber );
 
         auto familyValue = ( curveIndex < valueSelection.familyValues.size() ) ? valueSelection.familyValues[curveIndex] : 0.0;
 
         using pvt = RimVfpDefines::ProductionVariableType;
 
-        if ( curveNameContent.thp || m_familyVariable() == pvt::THP )
+        if ( m_familyVariable() == pvt::THP )
         {
             curveName += formatCurveNamePart( pvt::THP, familyValue, valueSelection.thpValue, "THP" );
         }
-        if ( curveNameContent.gasLiquidRatio || m_familyVariable() == pvt::GAS_LIQUID_RATIO )
+        if ( m_familyVariable() == pvt::GAS_LIQUID_RATIO )
         {
             curveName += formatCurveNamePart( pvt::GAS_LIQUID_RATIO, familyValue, valueSelection.gasLiquidRatioValue, "GLR" );
         }
-        if ( curveNameContent.waterCut || m_familyVariable() == pvt::WATER_CUT )
+        if ( m_familyVariable() == pvt::WATER_CUT )
         {
             curveName += formatCurveNamePart( pvt::WATER_CUT, familyValue, valueSelection.waterCutValue, "WC" );
         }
-        if ( curveNameContent.artificialLiftQuantity || m_familyVariable() == pvt::ARTIFICIAL_LIFT_QUANTITY )
+        if ( m_familyVariable() == pvt::ARTIFICIAL_LIFT_QUANTITY )
         {
             curveName += formatCurveNamePart( pvt::ARTIFICIAL_LIFT_QUANTITY, familyValue, valueSelection.artificialLiftQuantityValue, "Lift" );
         }
-        if ( curveNameContent.flowRate || m_familyVariable() == pvt::FLOW_RATE )
+        if ( m_familyVariable() == pvt::FLOW_RATE )
         {
             curveName += formatCurveNamePart( pvt::FLOW_RATE, familyValue, valueSelection.flowRateValue, "Rate" );
         }
@@ -901,7 +987,7 @@ std::vector<double> RimCustomVfpPlot::availableValues( RimVfpDefines::Production
 
     if ( m_curveValueOptions() == RimVfpDefines::CurveOptionValuesType::UNION_OF_SELECTED_TABLES )
     {
-        std::vector<RimVfpTable*> tables = m_additionalDataSources.ptrReferencedObjectsByType();
+        std::vector<RimVfpTable*> tables = m_comparisonTables.ptrReferencedObjectsByType();
         for ( const auto& table : tables )
         {
             if ( !table ) continue;
@@ -1022,9 +1108,23 @@ std::vector<RiuPlotCurveSymbol::PointSymbolEnum> RimCustomVfpPlot::curveSymbols(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const caf::ColorTable RimCustomVfpPlot::curveColors()
+caf::ColorTable RimCustomVfpPlot::curveColors() const
 {
-    return RiaColorTables::summaryCurveDefaultPaletteColors().inverted();
+    if ( m_colorLegend->colorArray().size() == 0 )
+    {
+        return RiaColorTables::summaryCurveDefaultPaletteColors().inverted();
+    }
+
+    caf::ColorTable colors( m_colorLegend->colorArray() );
+    return colors;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCustomVfpPlot::legendColorsChanged( const caf::SignalEmitter* emitter )
+{
+    onLoadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1126,20 +1226,33 @@ void RimCustomVfpPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     }
 
     {
-        auto group = uiOrdering.addNewGroup( "Additional Tables" );
+        auto group = uiOrdering.addNewGroup( "Comparison Tables" );
         group->setCollapsedByDefault();
-        group->add( &m_additionalDataSources );
+        group->add( &m_comparisonTables );
     }
 
     if ( m_tableType == RimVfpDefines::TableType::PRODUCTION )
     {
         auto selectionDetailsGroup = uiOrdering.addNewGroup( "Selection Details" );
         selectionDetailsGroup->setCollapsedByDefault();
+
         selectionDetailsGroup->add( &m_flowRate );
+        m_flowRate.uiCapability()->setUiHidden( m_primaryVariable() == RimVfpDefines::ProductionVariableType::FLOW_RATE );
+
         selectionDetailsGroup->add( &m_thp );
-        selectionDetailsGroup->add( &m_artificialLiftQuantity );
+        m_thp.uiCapability()->setUiHidden( m_primaryVariable() == RimVfpDefines::ProductionVariableType::THP );
+
         selectionDetailsGroup->add( &m_waterCut );
+        m_waterCut.uiCapability()->setUiHidden( m_primaryVariable() == RimVfpDefines::ProductionVariableType::WATER_CUT );
+
         selectionDetailsGroup->add( &m_gasLiquidRatio );
+        m_gasLiquidRatio.uiCapability()->setUiHidden( m_primaryVariable() == RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO );
+
+        selectionDetailsGroup->add( &m_artificialLiftQuantity );
+        auto options                    = calculateValueOptions( &m_artificialLiftQuantity );
+        bool hideArtificialLiftQuantity = ( m_primaryVariable() == RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY ) ||
+                                          ( options.size() < 2 );
+        m_artificialLiftQuantity.uiCapability()->setUiHidden( hideArtificialLiftQuantity );
     }
 
     {
@@ -1183,13 +1296,15 @@ QList<caf::PdmOptionItemInfo> RimCustomVfpPlot::calculateValueOptions( const caf
         calculateTableValueOptions( RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO, options );
     }
 
-    else if ( fieldNeedingOptions == &m_additionalDataSources )
+    else if ( fieldNeedingOptions == &m_comparisonTables )
     {
         RimVfpDataCollection* vfpDataCollection = RimVfpDataCollection::instance();
         for ( auto table : vfpDataCollection->vfpTableData() )
         {
             // Exclude main table data object
             if ( table == m_mainDataSource ) continue;
+
+            if ( table->tableType() != m_tableType() ) continue;
 
             options.push_back( caf::PdmOptionItemInfo( table->name(), table ) );
         }
@@ -1287,7 +1402,7 @@ void RimCustomVfpPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         zoomAll();
     }
 
-    if ( changedField == &m_additionalDataSources || changedField == &m_curveMatchingType || changedField == &m_curveValueOptions ||
+    if ( changedField == &m_comparisonTables || changedField == &m_curveMatchingType || changedField == &m_curveValueOptions ||
          changedField == &m_primaryVariable || changedField == &m_familyVariable )
     {
         initializeSelection();

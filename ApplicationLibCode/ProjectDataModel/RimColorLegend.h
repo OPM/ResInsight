@@ -44,6 +44,9 @@ public:
     ~RimColorLegend() override;
 
 public:
+    caf::Signal<> changed;
+
+public:
     void    setColorLegendName( const QString& colorLegendName );
     QString colorLegendName();
 
