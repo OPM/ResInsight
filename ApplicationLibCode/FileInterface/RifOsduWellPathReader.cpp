@@ -106,7 +106,7 @@ std::pair<cvf::ref<RigWellPath>, QString> RifOsduWellPathReader::parseCsv( const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<cvf::ref<RigWellPath>, QString> RifOsduWellPathReader::readWellPathData( const QByteArray& content )
+std::pair<cvf::ref<RigWellPath>, QString> RifOsduWellPathReader::readWellPathData( const QByteArray& content, double datumElevation )
 {
     arrow::MemoryPool* pool = arrow::default_memory_pool();
 
@@ -155,14 +155,16 @@ std::pair<cvf::ref<RigWellPath>, QString> RifOsduWellPathReader::readWellPathDat
 
         for ( size_t i = 0; i < firstSize; i++ )
         {
-            cvf::Vec3d point( readValues[X][i], readValues[Y][i], -readValues[TVD][i] );
+            cvf::Vec3d point( readValues[X][i], readValues[Y][i], -readValues[TVD][i] + datumElevation );
             double     md = readValues[MD][i];
 
             wellPathPoints.push_back( point );
             measuredDepths.push_back( md );
         }
 
-        return { cvf::make_ref<RigWellPath>( wellPathPoints, measuredDepths ), "" };
+        auto wellPath = cvf::make_ref<RigWellPath>( wellPathPoints, measuredDepths );
+        wellPath->setDatumElevation( datumElevation );
+        return { wellPath, "" };
     }
 
     return { nullptr, "" };

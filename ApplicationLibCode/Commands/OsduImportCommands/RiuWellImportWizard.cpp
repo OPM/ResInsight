@@ -579,7 +579,8 @@ void WellSummaryPage::wellboreTrajectoryFinished( const QString& wellboreId, int
                 wiz->addWellInfo( { .name                 = wellbore.value().name,
                                     .wellId               = well.value().id,
                                     .wellboreId           = w.wellboreId,
-                                    .wellboreTrajectoryId = wellboreTrajectoryId } );
+                                    .wellboreTrajectoryId = wellboreTrajectoryId,
+                                    .datumElevation       = wellbore.value().datumElevation } );
             }
         }
 

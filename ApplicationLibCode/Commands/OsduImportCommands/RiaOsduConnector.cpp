@@ -19,6 +19,8 @@
 #include <QUrl>
 #include <QUrlQuery>
 
+#include <limits>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -457,7 +459,29 @@ void RiaOsduConnector::parseWellbores( QNetworkReply* reply, const QString& well
                 QString     id        = resultObj["id"].toString();
                 QString     kind      = resultObj["kind"].toString();
                 QString     name      = resultObj["data"].toObject()["FacilityName"].toString();
-                m_wellbores[wellId].push_back( OsduWellbore{ id, kind, name, wellId } );
+
+                // Extract datum elevation. The DefaultVerticalMeasurementID is probably the datum elevation needed.
+                // Default to 0.0 if nothing is found, but finding nothing is suspicious.
+                double     datumElevation               = std::numeric_limits<double>::infinity();
+                QString    defaultVerticalMeasurementId = resultObj["data"].toObject()["DefaultVerticalMeasurementID"].toString();
+                QJsonArray verticalMeasurementsArray    = resultObj["data"].toObject()["VerticalMeasurements"].toArray();
+                for ( const QJsonValue& vma : verticalMeasurementsArray )
+                {
+                    QString verticalMeasurementId = vma["VerticalMeasurementID"].toString();
+                    if ( verticalMeasurementId == defaultVerticalMeasurementId )
+                    {
+                        double verticalMeasurement = vma["VerticalMeasurement"].toDouble( 0.0 );
+                        datumElevation             = verticalMeasurement;
+                    }
+                }
+
+                if ( std::isinf( datumElevation ) )
+                {
+                    RiaLogging::warning( QString( "Missing datum elevation for well bore '%1'. Id: %2" ).arg( name ).arg( id ) );
+                    datumElevation = 0.0;
+                }
+
+                m_wellbores[wellId].push_back( OsduWellbore{ id, kind, name, wellId, datumElevation } );
             }
         }
 

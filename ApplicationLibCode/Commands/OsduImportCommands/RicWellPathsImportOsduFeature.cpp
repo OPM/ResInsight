@@ -90,7 +90,7 @@ void RicWellPathsImportOsduFeature::onActionTriggered( bool isChecked )
             auto task = progress.task( QString( "Importing well: %1" ).arg( w.name ) );
 
             auto [wellPathGeometry, errorMessage] =
-                RimWellPathCollection::loadWellPathGeometryFromOsdu( osduConnector, w.wellboreTrajectoryId );
+                RimWellPathCollection::loadWellPathGeometryFromOsdu( osduConnector, w.wellboreTrajectoryId, w.datumElevation );
             if ( wellPathGeometry.notNull() )
             {
                 auto wellPath = new RimOsduWellPath;
@@ -98,6 +98,7 @@ void RicWellPathsImportOsduFeature::onActionTriggered( bool isChecked )
                 wellPath->setWellId( w.wellId );
                 wellPath->setWellboreId( w.wellboreId );
                 wellPath->setWellboreTrajectoryId( w.wellboreTrajectoryId );
+                wellPath->setDatumElevationFromOsdu( w.datumElevation );
 
                 oilField->wellPathCollection->addWellPath( wellPath );
 
