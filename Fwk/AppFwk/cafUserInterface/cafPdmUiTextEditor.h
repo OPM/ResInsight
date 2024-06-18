@@ -100,6 +100,7 @@ public:
 
 protected:
     void focusOutEvent( QFocusEvent* e ) override;
+    void insertFromMimeData( const QMimeData* source ) override;
 
 signals:
     void editingFinished();

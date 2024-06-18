@@ -43,6 +43,7 @@
 
 #include <QIntValidator>
 #include <QLabel>
+#include <QMimeData>
 #include <QTextEdit>
 #include <QVBoxLayout>
 
@@ -90,6 +91,19 @@ void TextEdit::focusOutEvent( QFocusEvent* e )
     QTextEdit::focusOutEvent( e );
 
     emit editingFinished();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void TextEdit::insertFromMimeData( const QMimeData* source )
+{
+    if ( !source ) return;
+
+    // Insert as plain text and do not try to interpret HTML. https://github.com/OPM/ResInsight/issues/11522
+
+    auto text = source->text();
+    insertPlainText( text );
 }
 
 //--------------------------------------------------------------------------------------------------
