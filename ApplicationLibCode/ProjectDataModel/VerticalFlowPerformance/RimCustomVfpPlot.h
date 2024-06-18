@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RimPlot.h"
+
 #include "RimVfpDefines.h"
 
 #include "RiuPlotCurveSymbol.h"
@@ -35,6 +36,9 @@ class RigVfpTables;
 class RimVfpTableData;
 class RimVfpTable;
 class RiuPlotCurveInfoTextProvider;
+class RimRegularLegendConfig;
+class RiuDraggableOverlayFrame;
+class RimColorLegend;
 
 struct VfpValueSelection;
 struct VfpTableInitialData;
@@ -65,6 +69,7 @@ public:
     void setTableNumber( int tableNumber );
     void initializeObject();
     void initializeSelection();
+    void createDefaultColors();
 
     // RimPlot implementations
     RiuPlotWidget* plotWidget() override;
@@ -133,14 +138,14 @@ private:
         bool gasLiquidRatio         = false;
     };
 
-    void populatePlotWidgetWithPlotData( RiuPlotWidget*                      plotWidget,
-                                         const VfpPlotData&                  plotData,
-                                         const VfpValueSelection&            valueSelection,
-                                         int                                 tableNumber,
-                                         const QColor&                       color,
-                                         RiuPlotCurveSymbol::PointSymbolEnum curveSymbol,
-                                         bool                                multipleCurveSets,
-                                         const CurveNameContent&             curveNameContent );
+    void populatePlotWidgetWithPlotData( RiuPlotWidget*           plotWidget,
+                                         const VfpPlotData&       plotData,
+                                         const VfpValueSelection& valueSelection,
+                                         int                      tableNumber,
+                                         const QColor&            color,
+                                         const CurveNameContent&  curveNameContent );
+
+    void updateLegendWidget( size_t curveSetCount, CurveNameContent& curveNameContent );
 
     static QString axisTitle( RimVfpDefines::ProductionVariableType variableType, RimVfpDefines::FlowingPhaseType flowingPhase );
 
@@ -173,13 +178,14 @@ private:
 
     static std::vector<RiuPlotCurveSymbol::PointSymbolEnum> curveSymbols();
 
-    static const caf::ColorTable curveColors();
+    caf::ColorTable curveColors() const;
+    void            legendColorsChanged( const caf::SignalEmitter* emitter );
 
 private:
     caf::PdmField<QString> m_plotTitle;
 
     caf::PdmPtrField<RimVfpTable*>      m_mainDataSource;
-    caf::PdmPtrArrayField<RimVfpTable*> m_additionalDataSources;
+    caf::PdmPtrArrayField<RimVfpTable*> m_comparisonTables;
 
     caf::PdmField<caf::AppEnum<RimVfpDefines::CurveMatchingType>>     m_curveMatchingType;
     caf::PdmField<caf::AppEnum<RimVfpDefines::CurveOptionValuesType>> m_curveValueOptions;
@@ -205,6 +211,10 @@ private:
     caf::PdmChildField<RimPlotAxisProperties*> m_xAxisProperties;
 
     caf::PdmChildArrayField<RimPlotCurve*> m_plotCurves;
+
+    caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
+    QPointer<RiuDraggableOverlayFrame>          m_legendOverlayFrame;
+    caf::PdmChildField<RimColorLegend*>         m_colorLegend;
 
     caf::PdmField<int> m_curveSymbolSize;
     caf::PdmField<int> m_curveThickness;
