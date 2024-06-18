@@ -832,7 +832,8 @@ QList<caf::PdmOptionItemInfo> RimVfpPlot_deprecated::calculateValueOptions( cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot_deprecated::calculateTableValueOptions( RimVfpDefines::ProductionVariableType variableType, QList<caf::PdmOptionItemInfo>& options )
+void RimVfpPlot_deprecated::calculateTableValueOptions( RimVfpDefines::ProductionVariableType variableType,
+                                                        QList<caf::PdmOptionItemInfo>&        options )
 {
     if ( vfpTables() )
     {
@@ -901,11 +902,11 @@ void RimVfpPlot_deprecated::updatePlotTitle( const QString& plotTitle )
 ///
 //--------------------------------------------------------------------------------------------------
 QString RimVfpPlot_deprecated::generatePlotTitle( const QString&                          wellName,
-                                       int                                     tableNumber,
-                                       RimVfpDefines::TableType                tableType,
-                                       RimVfpDefines::InterpolatedVariableType interpolatedVariable,
-                                       RimVfpDefines::ProductionVariableType   primaryVariable,
-                                       RimVfpDefines::ProductionVariableType   familyVariable )
+                                                  int                                     tableNumber,
+                                                  RimVfpDefines::TableType                tableType,
+                                                  RimVfpDefines::InterpolatedVariableType interpolatedVariable,
+                                                  RimVfpDefines::ProductionVariableType   primaryVariable,
+                                                  RimVfpDefines::ProductionVariableType   familyVariable )
 {
     QString tableTypeText            = caf::AppEnum<RimVfpDefines::TableType>::uiText( tableType );
     QString interpolatedVariableText = caf::AppEnum<RimVfpDefines::InterpolatedVariableType>::uiText( interpolatedVariable );
