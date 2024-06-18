@@ -1,6 +1,6 @@
 set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimVfpDefines.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimVfpPlot.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimVfpPlot_deprecated.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomVfpPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RimVfpPlotCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimVfpTableData.h
@@ -10,7 +10,7 @@ set(SOURCE_GROUP_HEADER_FILES
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimVfpDefines.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimVfpPlot.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimVfpPlot_deprecated.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomVfpPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimVfpPlotCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimVfpTableData.cpp
