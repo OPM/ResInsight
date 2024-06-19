@@ -4620,12 +4620,10 @@ bool util_is_abs_path(const char * path) {
 }
 
 static int util_mkdir( const char * path ) {
-#ifdef HAVE_POSIX_MKDIR
-  return mkdir( path , UTIL_DEFAULT_MKDIR_MODE );
-#endif
-
 #ifdef HAVE_WINDOWS_MKDIR
-  return _mkdir( path );
+    return _mkdir(path);
+#elif HAVE_POSIX_MKDIR
+    return mkdir( path , UTIL_DEFAULT_MKDIR_MODE );
 #endif
 }
 
