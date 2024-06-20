@@ -96,6 +96,7 @@ private:
     void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
     void deleteViewWidget() override;
     void onLoadDataAndUpdate() override;
+    void initAfterRead() override;
 
     caf::PdmFieldHandle* userDescriptionField() override;
 
@@ -180,6 +181,7 @@ private:
 
     caf::ColorTable curveColors() const;
     void            legendColorsChanged( const caf::SignalEmitter* emitter );
+    void            setColorItemCategoryHidden();
 
 private:
     caf::PdmField<QString> m_plotTitle;
