@@ -250,6 +250,8 @@ void RimCustomVfpPlot::createDefaultColors()
     }
 
     m_legendConfig->setColorLegend( m_colorLegend );
+
+    setColorItemCategoryHidden();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -715,6 +717,14 @@ void RimCustomVfpPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCustomVfpPlot::initAfterRead()
+{
+    setColorItemCategoryHidden();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCustomVfpPlot::updateLegendWidget( size_t curveSetCount, CurveNameContent& curveNameContent )
 {
     if ( !m_plotWidget ) return;
@@ -1125,6 +1135,20 @@ caf::ColorTable RimCustomVfpPlot::curveColors() const
 void RimCustomVfpPlot::legendColorsChanged( const caf::SignalEmitter* emitter )
 {
     onLoadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCustomVfpPlot::setColorItemCategoryHidden()
+{
+    if ( m_colorLegend )
+    {
+        for ( auto item : m_colorLegend->colorLegendItems() )
+        {
+            item->setCategoryFieldsHidden( true );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

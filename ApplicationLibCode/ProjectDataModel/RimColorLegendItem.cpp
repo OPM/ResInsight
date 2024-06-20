@@ -61,6 +61,15 @@ RimColorLegendItem::~RimColorLegendItem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimColorLegendItem::setCategoryFieldsHidden( bool hidden )
+{
+    m_categoryName.uiCapability()->setUiHidden( hidden );
+    m_categoryValue.uiCapability()->setUiHidden( hidden );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimColorLegendItem::setValues( const QString& categoryName, int categoryValue, const cvf::Color3f& color )
 {
     m_categoryName  = categoryName;
