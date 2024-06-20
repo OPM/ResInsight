@@ -38,15 +38,12 @@ CAF_CMD_SOURCE_INIT( RicInsertColorLegendItemFeature, "RicInsertColorLegendItemF
 bool RicInsertColorLegendItemFeature::isCommandEnabled() const
 {
     RimColorLegend* legend = selectedColorLegend();
+    if ( !legend ) return false;
 
-    if ( legend )
-    {
-        RimColorLegendCollection* colorLegendCollection = legend->firstAncestorOrThisOfType<RimColorLegendCollection>();
+    RimColorLegendCollection* colorLegendCollection = legend->firstAncestorOrThisOfType<RimColorLegendCollection>();
+    if ( !colorLegendCollection ) return true;
 
-        if ( colorLegendCollection && !colorLegendCollection->isStandardColorLegend( legend ) ) return true;
-    }
-
-    return false;
+    return !colorLegendCollection->isStandardColorLegend( legend );
 }
 
 //--------------------------------------------------------------------------------------------------
