@@ -102,6 +102,10 @@ signals:
     void wellLogsFinished( const QString& wellboreId );
     void tokenReady( const QString& token );
 
+private slots:
+    void errorReceived( const QString& error, const QString& errorDescription, const QUrl& uri );
+    void authorizationCallbackReceived( const QVariantMap& data );
+
 private:
     void requestParquetData( const QString& url, const QString& dataPartitionId, const QString& token );
 
