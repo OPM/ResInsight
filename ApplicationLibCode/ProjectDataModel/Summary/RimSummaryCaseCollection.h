@@ -69,11 +69,9 @@ public:
     virtual std::set<RifEclipseSummaryAddress> ensembleSummaryAddresses() const;
     virtual std::set<time_t>                   ensembleTimeSteps() const;
 
-    std::set<QString>   wellsWithRftData() const;
-    std::set<QDateTime> rftTimeStepsForWell( const QString& wellName ) const;
-    void                setEnsembleId( int ensembleId );
-    int                 ensembleId() const;
-    bool                hasEnsembleParameters() const;
+    void setEnsembleId( int ensembleId );
+    int  ensembleId() const;
+    bool hasEnsembleParameters() const;
 
     std::vector<RigEnsembleParameter> variationSortedEnsembleParameters( bool excludeNoVariation = false ) const;
     std::vector<std::pair<RigEnsembleParameter, double>> correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address ) const;
@@ -87,11 +85,8 @@ public:
     std::vector<std::pair<RigEnsembleParameter, double>>
         parameterCorrelationsAllTimeSteps( const RifEclipseSummaryAddress& address, const std::vector<QString>& selectedParameters = {} ) const;
 
-    std::vector<RigEnsembleParameter> alphabeticEnsembleParameters() const;
-
     RigEnsembleParameter ensembleParameter( const QString& paramName ) const;
     void                 calculateEnsembleParametersIntersectionHash();
-    void                 clearEnsembleParametersHashes();
 
     void loadDataAndUpdate();
 
@@ -111,10 +106,6 @@ public:
     std::pair<double, double> minMax( const RifEclipseSummaryAddress& address );
 
 private:
-    RigEnsembleParameter createEnsembleParameter( const QString& paramName ) const;
-    static void          sortByBinnedVariation( std::vector<RigEnsembleParameter>& parameterVector );
-    friend class RimSummaryCaseCollection_TESTER;
-
     caf::PdmFieldHandle* userDescriptionField() override;
     QString              nameAndItemCount() const;
     void                 updateIcon();

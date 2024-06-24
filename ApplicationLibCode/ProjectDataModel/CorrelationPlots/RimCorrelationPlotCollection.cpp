@@ -26,6 +26,7 @@
 #include "RimParameterResultCrossPlot.h"
 #include "RimProject.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsembleTools.h"
 
 CAF_PDM_SOURCE_INIT( RimCorrelationPlotCollection, "CorrelationPlotCollection" );
 
@@ -247,7 +248,8 @@ void RimCorrelationPlotCollection::applyFirstEnsembleFieldAddressesToPlot( RimAb
         auto crossPlot = dynamic_cast<RimParameterResultCrossPlot*>( plot );
         if ( crossPlot )
         {
-            crossPlot->setEnsembleParameter( ensembles.front()->alphabeticEnsembleParameters().front().name );
+            crossPlot->setEnsembleParameter(
+                RimSummaryEnsembleTools::alphabeticEnsembleParameters( ensembles.front()->allSummaryCases() ).front().name );
         }
     }
 }

@@ -32,6 +32,7 @@
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsembleTools.h"
 
 #include "RiuContextMenuLauncher.h"
 #include "RiuPlotMainWindowTools.h"
@@ -465,7 +466,7 @@ std::set<RigEnsembleParameter> RimAbstractCorrelationPlot::ensembleParameters()
 
     for ( RimSummaryCaseCollection* ensemble : analyserOfSelectedCurveDefs->m_ensembles )
     {
-        std::vector<RigEnsembleParameter> parameters = ensemble->alphabeticEnsembleParameters();
+        std::vector<RigEnsembleParameter> parameters = RimSummaryEnsembleTools::alphabeticEnsembleParameters( ensemble->allSummaryCases() );
         ensembleParms.insert( parameters.begin(), parameters.end() );
     }
     return ensembleParms;

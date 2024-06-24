@@ -1,11 +1,9 @@
 #include "gtest/gtest.h"
 
 #include "RigEnsembleParameter.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsembleTools.h"
 
 #include <random>
-
-#include <QDebug>
 
 class RimSummaryCaseCollection_TESTER
 {
@@ -74,7 +72,7 @@ void RimSummaryCaseCollection_TESTER::test1()
     }
 
     size_t previousSize = parameters.size();
-    RimSummaryCaseCollection::sortByBinnedVariation( parameters );
+    RimSummaryEnsembleTools::sortByBinnedVariation( parameters );
     size_t currentSize = parameters.size();
     EXPECT_EQ( previousSize, currentSize );
 
