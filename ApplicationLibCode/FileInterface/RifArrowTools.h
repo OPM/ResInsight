@@ -20,6 +20,9 @@
 
 #include <arrow/array/array_primitive.h>
 
+#include <QByteArray>
+#include <QString>
+
 #include <memory>
 #include <vector>
 
