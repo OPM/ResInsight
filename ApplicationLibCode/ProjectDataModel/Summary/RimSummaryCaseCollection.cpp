@@ -24,7 +24,6 @@
 #include "RiaStatisticsTools.h"
 #include "RiaSummaryAddressAnalyzer.h"
 
-#include "RifReaderRftInterface.h"
 #include "RifSummaryReaderInterface.h"
 
 #include "RimDerivedEnsembleCaseCollection.h"
@@ -32,6 +31,7 @@
 #include "RimProject.h"
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryEnsembleTools.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -42,56 +42,6 @@
 #include <cmath>
 
 CAF_PDM_SOURCE_INIT( RimSummaryCaseCollection, "SummaryCaseSubCollection" );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::sortByBinnedVariation( std::vector<RigEnsembleParameter>& parameterVector )
-{
-    double minStdDev = std::numeric_limits<double>::infinity();
-    double maxStdDev = 0.0;
-    for ( const auto& paramPair : parameterVector )
-    {
-        double stdDev = paramPair.normalizedStdDeviation();
-        if ( stdDev != 0.0 )
-        {
-            minStdDev = std::min( minStdDev, stdDev );
-            maxStdDev = std::max( maxStdDev, stdDev );
-        }
-    }
-    if ( ( maxStdDev - minStdDev ) <= 0.0 )
-    {
-        return;
-    }
-
-    double delta = ( maxStdDev - minStdDev ) / (float)( RigEnsembleParameter::NR_OF_VARIATION_BINS );
-
-    std::vector<double> bins;
-    bins.push_back( 0.0 );
-    for ( int i = 0; i < RigEnsembleParameter::NR_OF_VARIATION_BINS - 1; ++i )
-    {
-        bins.push_back( minStdDev + ( i + 1 ) * delta );
-    }
-
-    for ( RigEnsembleParameter& nameParamPair : parameterVector )
-    {
-        int binNumber = -1;
-        for ( double bin : bins )
-        {
-            if ( nameParamPair.normalizedStdDeviation() > bin )
-            {
-                binNumber++;
-            }
-        }
-        nameParamPair.variationBin = binNumber;
-    }
-
-    // Sort by variation bin (highest first) but keep name as sorting parameter when parameters have the same variation
-    // index
-    std::stable_sort( parameterVector.begin(),
-                      parameterVector.end(),
-                      []( const RigEnsembleParameter& lhs, const RigEnsembleParameter& rhs ) { return lhs.variationBin > rhs.variationBin; } );
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -363,85 +313,28 @@ std::set<time_t> RimSummaryCaseCollection::ensembleTimeSteps() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QString> RimSummaryCaseCollection::wellsWithRftData() const
-{
-    std::set<QString> allWellNames;
-    for ( RimSummaryCase* summaryCase : m_cases )
-    {
-        RifReaderRftInterface* reader = summaryCase->rftReader();
-        if ( reader )
-        {
-            std::set<QString> wellNames = reader->wellNames();
-            allWellNames.insert( wellNames.begin(), wellNames.end() );
-        }
-    }
-    return allWellNames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::set<QDateTime> RimSummaryCaseCollection::rftTimeStepsForWell( const QString& wellName ) const
-{
-    std::set<QDateTime> allTimeSteps;
-    for ( RimSummaryCase* summaryCase : m_cases )
-    {
-        RifReaderRftInterface* reader = summaryCase->rftReader();
-        if ( reader )
-        {
-            std::set<QDateTime> timeStep = reader->availableTimeSteps( wellName );
-            allTimeSteps.insert( timeStep.begin(), timeStep.end() );
-        }
-    }
-    return allTimeSteps;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RigEnsembleParameter> RimSummaryCaseCollection::variationSortedEnsembleParameters( bool excludeNoVariation ) const
 {
     if ( m_cachedSortedEnsembleParameters.empty() )
     {
-        std::set<QString> paramSet;
-        for ( RimSummaryCase* rimCase : allSummaryCases() )
-        {
-            if ( rimCase->caseRealizationParameters() != nullptr )
-            {
-                auto ps = rimCase->caseRealizationParameters()->parameters();
-                for ( const auto& p : ps )
-                {
-                    paramSet.insert( p.first );
-                }
-            }
-        }
-
-        m_cachedSortedEnsembleParameters.reserve( paramSet.size() );
-        for ( const QString& parameterName : paramSet )
-        {
-            auto ensembleParameter = createEnsembleParameter( parameterName );
-            m_cachedSortedEnsembleParameters.push_back( ensembleParameter );
-        }
-        RimSummaryCaseCollection::sortByBinnedVariation( m_cachedSortedEnsembleParameters );
+        m_cachedSortedEnsembleParameters = RimSummaryEnsembleTools::createVariationSortedEnsembleParameters( allSummaryCases() );
     }
 
     if ( !excludeNoVariation )
     {
         return m_cachedSortedEnsembleParameters;
     }
-    else
+
+    const double                      epsilon = 1e-9;
+    std::vector<RigEnsembleParameter> parametersWithVariation;
+    for ( const auto& p : m_cachedSortedEnsembleParameters )
     {
-        const double                      epsilon = 1e-9;
-        std::vector<RigEnsembleParameter> parametersWithVariation;
-        for ( const auto& p : m_cachedSortedEnsembleParameters )
+        if ( std::abs( p.normalizedStdDeviation() ) > epsilon )
         {
-            if ( std::abs( p.normalizedStdDeviation() ) > epsilon )
-            {
-                parametersWithVariation.push_back( p );
-            }
+            parametersWithVariation.push_back( p );
         }
-        return parametersWithVariation;
     }
+    return parametersWithVariation;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -598,141 +491,16 @@ std::vector<std::pair<RigEnsembleParameter, double>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigEnsembleParameter> RimSummaryCaseCollection::alphabeticEnsembleParameters() const
-{
-    std::set<QString> paramSet;
-    for ( RimSummaryCase* rimCase : allSummaryCases() )
-    {
-        if ( rimCase->caseRealizationParameters() != nullptr )
-        {
-            auto ps = rimCase->caseRealizationParameters()->parameters();
-            for ( auto p : ps )
-            {
-                paramSet.insert( p.first );
-            }
-        }
-    }
-
-    std::vector<RigEnsembleParameter> sortedEnsembleParameters;
-    sortedEnsembleParameters.reserve( paramSet.size() );
-    for ( const QString& parameterName : paramSet )
-    {
-        sortedEnsembleParameters.push_back( createEnsembleParameter( parameterName ) );
-    }
-    return sortedEnsembleParameters;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RigEnsembleParameter RimSummaryCaseCollection::ensembleParameter( const QString& paramName ) const
 {
-    if ( !isEnsemble() || paramName.isEmpty() ) return RigEnsembleParameter();
+    if ( !isEnsemble() || paramName.isEmpty() ) return {};
 
-    const std::vector<RigEnsembleParameter>& ensembleParams = variationSortedEnsembleParameters();
-
-    for ( const RigEnsembleParameter& ensParam : ensembleParams )
+    for ( const RigEnsembleParameter& ensParam : variationSortedEnsembleParameters() )
     {
         if ( ensParam.name == paramName ) return ensParam;
     }
 
-    return RigEnsembleParameter();
-}
-
-RigEnsembleParameter RimSummaryCaseCollection::createEnsembleParameter( const QString& paramName ) const
-{
-    RigEnsembleParameter eParam;
-    eParam.name = paramName;
-
-    size_t numericValuesCount = 0;
-    size_t textValuesCount    = 0;
-
-    auto summaryCases = allSummaryCases();
-    // Make sure the values list exactly matches the case count
-    // And use an invalid value (infinity) for invalid cases.
-    eParam.values.resize( summaryCases.size(), std::numeric_limits<double>::infinity() );
-
-    // Prepare case realization params, and check types
-    for ( size_t caseIdx = 0; caseIdx < summaryCases.size(); ++caseIdx )
-    {
-        auto rimCase = summaryCases[caseIdx];
-
-        auto crp = rimCase->caseRealizationParameters();
-        if ( !crp ) continue;
-
-        auto value = crp->parameterValue( paramName );
-        if ( !value.isValid() ) continue;
-
-        if ( value.isNumeric() )
-        {
-            double numVal          = value.numericValue();
-            eParam.values[caseIdx] = QVariant( numVal );
-            if ( numVal < eParam.minValue ) eParam.minValue = numVal;
-            if ( numVal > eParam.maxValue ) eParam.maxValue = numVal;
-            numericValuesCount++;
-        }
-        else if ( value.isText() )
-        {
-            eParam.values[caseIdx] = QVariant( value.textValue() );
-            textValuesCount++;
-        }
-    }
-
-    if ( numericValuesCount && !textValuesCount )
-    {
-        eParam.type = RigEnsembleParameter::TYPE_NUMERIC;
-    }
-    else if ( textValuesCount && !numericValuesCount )
-    {
-        eParam.type = RigEnsembleParameter::TYPE_TEXT;
-    }
-    if ( numericValuesCount && textValuesCount )
-    {
-        // A mix of types have been added to parameter values
-        if ( numericValuesCount > textValuesCount )
-        {
-            // Use numeric type
-            for ( auto& val : eParam.values )
-            {
-                if ( val.type() == QVariant::String )
-                {
-                    val.setValue( std::numeric_limits<double>::infinity() );
-                }
-            }
-            eParam.type = RigEnsembleParameter::TYPE_NUMERIC;
-        }
-        else
-        {
-            // Use text type
-            for ( auto& val : eParam.values )
-            {
-                if ( val.type() == QVariant::Double )
-                {
-                    val.setValue( QString::number( val.value<double>() ) );
-                }
-            }
-            eParam.type     = RigEnsembleParameter::TYPE_TEXT;
-            eParam.minValue = std::numeric_limits<double>::infinity();
-            eParam.maxValue = -std::numeric_limits<double>::infinity();
-        }
-    }
-
-    if ( eParam.isText() )
-    {
-        // Remove duplicate texts
-        std::set<QString> valueSet;
-        for ( const auto& val : eParam.values )
-        {
-            valueSet.insert( val.toString() );
-        }
-        eParam.values.clear();
-        for ( const auto& val : valueSet )
-        {
-            eParam.values.push_back( QVariant( val ) );
-        }
-    }
-
-    return eParam;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -740,72 +508,7 @@ RigEnsembleParameter RimSummaryCaseCollection::createEnsembleParameter( const QS
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::calculateEnsembleParametersIntersectionHash()
 {
-    clearEnsembleParametersHashes();
-
-    // Find ensemble parameters intersection
-    std::set<QString> paramNames;
-    auto              sumCases = allSummaryCases();
-
-    for ( size_t i = 0; i < sumCases.size(); i++ )
-    {
-        auto crp = sumCases[i]->caseRealizationParameters();
-        if ( !crp ) continue;
-
-        auto caseParamNames = crp->parameterNames();
-
-        if ( i == 0 )
-            paramNames = caseParamNames;
-        else
-        {
-            std::set<QString> newIntersection;
-            std::set_intersection( paramNames.begin(),
-                                   paramNames.end(),
-                                   caseParamNames.begin(),
-                                   caseParamNames.end(),
-                                   std::inserter( newIntersection, newIntersection.end() ) );
-
-            if ( paramNames.size() != newIntersection.size() ) paramNames = newIntersection;
-        }
-    }
-
-    for ( auto sumCase : sumCases )
-    {
-        auto crp = sumCase->caseRealizationParameters();
-        if ( crp ) crp->calculateParametersHash( paramNames );
-    }
-
-    // Find common addess count
-    for ( const auto sumCase : sumCases )
-    {
-        const auto reader = sumCase->summaryReader();
-        if ( !reader ) continue;
-        auto currAddrCount = reader->allResultAddresses().size();
-
-        if ( m_commonAddressCount == 0 )
-        {
-            m_commonAddressCount = currAddrCount;
-        }
-        else
-        {
-            if ( currAddrCount != m_commonAddressCount )
-            {
-                m_commonAddressCount = 0;
-                break;
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::clearEnsembleParametersHashes()
-{
-    for ( auto sumCase : allSummaryCases() )
-    {
-        auto crp = sumCase->caseRealizationParameters();
-        if ( crp ) crp->clearParametersHash();
-    }
+    m_commonAddressCount = RimSummaryEnsembleTools::calculateEnsembleParametersIntersectionHash( allSummaryCases() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -997,8 +700,9 @@ std::pair<double, double> RimSummaryCaseCollection::minMax( const RifEclipseSumm
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCaseCollection::nameAndItemCount() const
 {
-    size_t itemCount = m_cases.size();
-    if ( itemCount > 20 )
+    size_t       itemCount          = m_cases.size();
+    const size_t itemCountThreshold = 20;
+    if ( itemCount > itemCountThreshold )
     {
         return QString( "%1 (%2)" ).arg( m_name() ).arg( itemCount );
     }

@@ -20,7 +20,6 @@
 
 #include "RiaColorTables.h"
 #include "RiaColorTools.h"
-#include "RiaDateStringParser.h"
 #include "RiaPlotDefines.h"
 #include "RiaSimWellBranchTools.h"
 #include "RiaSummaryTools.h"
@@ -29,22 +28,18 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RigSimWellData.h"
-#include "RigWellPath.h"
 
 #include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
 #include "RimEclipseResultCase.h"
-#include "RimEclipseResultDefinition.h"
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimObservedFmuRftData.h"
-#include "RimOilField.h"
 #include "RimPressureDepthData.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimReloadCaseTools.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsembleTools.h"
 #include "RimTools.h"
 #include "RimWellLogChannel.h"
 #include "RimWellLogExtractionCurve.h"
@@ -57,11 +52,9 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPlotTools.h"
-#include "RimWellPltPlot.h"
 #include "RimWellRftEnsembleCurveSet.h"
 
 #include "RiuAbstractLegendFrame.h"
-#include "RiuAbstractOverlayContentFrame.h"
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuQwtPlotCurveDefines.h"
 #include "RiuQwtPlotWidget.h"
@@ -1161,7 +1154,7 @@ std::map<QString, QStringList> RimWellRftPlot::findWellSources()
         {
             for ( RimSummaryCaseCollection* summaryCaseColl : rftEnsembles )
             {
-                std::set<QString> wellsWithRftData = summaryCaseColl->wellsWithRftData();
+                std::set<QString> wellsWithRftData = RimSummaryEnsembleTools::wellsWithRftData( summaryCaseColl->allSummaryCases() );
                 for ( const QString& wellName : wellsWithRftData )
                 {
                     wellNames[wellName].push_back( "Ensemble" );

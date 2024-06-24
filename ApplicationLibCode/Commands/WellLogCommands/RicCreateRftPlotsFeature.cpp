@@ -28,9 +28,9 @@
 #include "RimRftPlotCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsembleTools.h"
 #include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogTrack.h"
-#include "RimWellPlotTools.h"
 #include "RimWellRftPlot.h"
 
 #include "RiuPlotMainWindowTools.h"
@@ -58,7 +58,7 @@ void RicCreateRftPlotsFeature::onActionTriggered( bool isChecked )
     auto dataSource = sourcePlot->dataSource();
     if ( auto summaryCollection = std::get_if<RimSummaryCaseCollection*>( &dataSource ) )
     {
-        wellsWithRftData = ( *summaryCollection )->wellsWithRftData();
+        wellsWithRftData = RimSummaryEnsembleTools::wellsWithRftData( ( *summaryCollection )->allSummaryCases() );
     }
     else if ( auto summaryCase = std::get_if<RimSummaryCase*>( &dataSource ) )
     {
