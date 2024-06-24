@@ -416,6 +416,7 @@ set(UNITY_EXCLUDE_FILES
     FileInterface/RifOsduWellPathReader.cpp
     FileInterface/RifOsduWellLogReader.cpp
     FileInterface/RifByteArrayArrowRandomAccessFile.cpp
+    FileInterface/RifArrowTools.cpp
 )
 
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
