@@ -50,7 +50,7 @@ RiaOsduConnector::RiaOsduConnector( QObject*       parent,
              &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser,
              []( QUrl url )
              {
-                 RiaLogging::info( "Authorize with url: " + url.toString() );
+                 RiaLogging::debug( "Authorize with url: " + url.toString() );
                  QUrlQuery query( url );
                  url.setQuery( query );
                  QDesktopServices::openUrl( url );
@@ -68,8 +68,18 @@ RiaOsduConnector::RiaOsduConnector( QObject*       parent,
 
     auto replyHandler = new RiaOsduOAuthHttpServerReplyHandler( port, this );
     m_osdu->setReplyHandler( replyHandler );
+    RiaLogging::debug( "Osdu server callback: " + replyHandler->callback() );
 
     connect( m_osdu, SIGNAL( granted() ), this, SLOT( accessGranted() ) );
+    connect( m_osdu,
+             SIGNAL( error( const QString&, const QString&, const QUrl& ) ),
+             this,
+             SLOT( errorReceived( const QString&, const QString&, const QUrl& ) ) );
+
+    connect( m_osdu,
+             SIGNAL( authorizationCallbackReceived( const QVariantMap& ) ),
+             this,
+             SLOT( authorizationCallbackReceived( const QVariantMap& ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,8 +87,29 @@ RiaOsduConnector::RiaOsduConnector( QObject*       parent,
 //--------------------------------------------------------------------------------------------------
 void RiaOsduConnector::accessGranted()
 {
+    RiaLogging::debug( "Access granted." );
     m_token = m_osdu->token();
     emit tokenReady( m_token );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaOsduConnector::errorReceived( const QString& error, const QString& errorDescription, const QUrl& uri )
+{
+    RiaLogging::debug( "OSDU Error Received: " + error + ". Description: " + errorDescription );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaOsduConnector::authorizationCallbackReceived( const QVariantMap& data )
+{
+    RiaLogging::debug( "Authorization callback received:" );
+    for ( const auto& [key, value] : data.toStdMap() )
+    {
+        RiaLogging::debug( "  Key: " + key + " Value: " + value.toString() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
