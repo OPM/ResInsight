@@ -117,6 +117,7 @@ list(
   ProjectDataModel/Streamlines/CMakeLists_files.cmake
   ProjectDataModel/Seismic/CMakeLists_files.cmake
   ProjectDataModel/Surfaces/CMakeLists_files.cmake
+  ProjectDataModel/Sumo/CMakeLists_files.cmake
   ProjectDataModel/Intersections/CMakeLists_files.cmake
   ProjectDataModel/CellFilters/CMakeLists_files.cmake
   ProjectDataModel/ProcessControl/CMakeLists_files.cmake
