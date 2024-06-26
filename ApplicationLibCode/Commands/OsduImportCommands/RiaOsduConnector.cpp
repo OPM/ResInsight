@@ -44,6 +44,13 @@ RiaOsduConnector::RiaOsduConnector( QObject*       parent,
     RiaLogging::debug( "SSL BUILD VERSION: " + QSslSocket::sslLibraryBuildVersionString() );
     RiaLogging::debug( "SSL VERSION STRING: " + QSslSocket::sslLibraryVersionString() );
 
+    RiaLogging::debug( "OSDU config:" );
+    RiaLogging::debug( "  server: '" + server + "'" );
+    RiaLogging::debug( "  data partition id: '" + dataPartitionId + "'" );
+    RiaLogging::debug( "  authority: '" + authority + "'" );
+    RiaLogging::debug( "  scopes: '" + scopes + "'" );
+    RiaLogging::debug( "  client id: '" + clientId + "'" );
+
     int port = 35327;
 
     connect( m_osdu,
@@ -179,11 +186,17 @@ void RiaOsduConnector::requestFieldsByName( const QString& server, const QString
     auto reply = makeSearchRequest( params, server, dataPartitionId, token );
     connect( reply,
              &QNetworkReply::finished,
-             [this, reply]()
+             [this, reply, fieldName]()
              {
                  if ( reply->error() == QNetworkReply::NoError )
                  {
                      parseFields( reply );
+                 }
+                 else
+                 {
+                     QString errorMessage =
+                         QString( "Download failed for fields by name (%1). Error: %2" ).arg( fieldName ).arg( reply->errorString() );
+                     RiaLogging::error( errorMessage );
                  }
              } );
 }
@@ -215,6 +228,12 @@ void RiaOsduConnector::requestWellsByFieldId( const QString& server, const QStri
                  {
                      parseWells( reply );
                  }
+                 else
+                 {
+                     QString errorMessage =
+                         QString( "Request failed for wells for field (%1). Error: %2" ).arg( fieldId ).arg( reply->errorString() );
+                     RiaLogging::error( errorMessage );
+                 }
              } );
 }
 
@@ -244,6 +263,12 @@ void RiaOsduConnector::requestWellboresByWellId( const QString& server, const QS
                  if ( reply->error() == QNetworkReply::NoError )
                  {
                      parseWellbores( reply, wellId );
+                 }
+                 else
+                 {
+                     QString errorMessage =
+                         QString( "Request failed for wellbores for well (%1). Error: %2" ).arg( wellId ).arg( reply->errorString() );
+                     RiaLogging::error( errorMessage );
                  }
              } );
 }
@@ -293,6 +318,12 @@ void RiaOsduConnector::requestWellLogsByWellboreId( const QString& server,
                  {
                      parseWellLogs( reply, wellboreId );
                  }
+                 else
+                 {
+                     QString errorMessage =
+                         QString( "Request failed for well logs by wellbore (%1). Error: %2" ).arg( wellboreId ).arg( reply->errorString() );
+                     RiaLogging::error( errorMessage );
+                 }
              } );
 }
 
@@ -325,6 +356,12 @@ void RiaOsduConnector::requestWellboreTrajectoryByWellboreId( const QString& ser
                  if ( reply->error() == QNetworkReply::NoError )
                  {
                      parseWellTrajectory( reply, wellboreId );
+                 }
+                 else
+                 {
+                     QString errorMessage =
+                         QString( "Request failed for well trajectory by wellbore (%1). Error: %2" ).arg( wellboreId ).arg( reply->errorString() );
+                     RiaLogging::error( errorMessage );
                  }
              } );
 }
@@ -430,6 +467,8 @@ void RiaOsduConnector::parseFields( QNetworkReply* reply )
                 QString fieldName = resultObj["data"].toObject()["FieldName"].toString();
                 m_fields.push_back( OsduField{ id, kind, fieldName } );
             }
+
+            RiaLogging::debug( QString( "Found %1 fields." ).arg( m_fields.size() ) );
         }
 
         emit fieldsFinished();
@@ -766,7 +805,7 @@ void RiaOsduConnector::requestParquetData( const QString& url, const QString& da
                  }
                  else
                  {
-                     QString errorMessage = "Download failed: " + url + " failed." + reply->errorString();
+                     QString errorMessage = "Request failed: " + url + " failed." + reply->errorString();
                      RiaLogging::error( errorMessage );
                      emit parquetDownloadFinished( QByteArray(), errorMessage );
                  }
