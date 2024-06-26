@@ -143,6 +143,8 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
 //--------------------------------------------------------------------------------------------------
 bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* eclipseCaseData )
 {
+    caf::ProgressInfo progInfo( 5, "Importing Eclipse Grid" );
+
     Opm::EclIO::EGrid opmGrid( m_gridFileName );
 
     RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
@@ -198,25 +200,42 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
     mainGrid->globalCellArray().reserve( (size_t)totalCellCount );
     mainGrid->nodes().reserve( (size_t)totalCellCount * 8 );
 
-    caf::ProgressInfo progInfo( 4 + numLGRs, "" );
-
-    {
-        auto task = progInfo.task( "Loading Main Grid Data", 3 );
-        transferGeometry( opmGrid, opmGrid, mainGrid, mainGrid, eclipseCaseData, 0, 0 );
-    }
-
     activeCellInfo->setGridCount( 1 + numLGRs );
     fractureActiveCellInfo->setGridCount( 1 + numLGRs );
 
-    activeCellInfo->setGridActiveCellCounts( 0, globalMatrixActiveSize );
-    fractureActiveCellInfo->setGridActiveCellCounts( 0, globalFractureActiveSize );
+    {
+        auto task = progInfo.task( "Getting Active Cell Information", 1 );
+
+        for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
+        {
+            globalMatrixActiveSize += lgrGrids[lgrIdx].activeCells();
+            globalFractureActiveSize += lgrGrids[lgrIdx].activeFracCells();
+        }
+
+        // in case init file and grid file disagrees with number of active cells, read extra porv information from init file to correct this
+        if ( !verifyActiveCellInfo( globalMatrixActiveSize, globalFractureActiveSize ) )
+        {
+            updateActiveCellInfo( eclipseCaseData, opmGrid, lgrGrids, mainGrid );
+        }
+
+        globalMatrixActiveSize   = opmGrid.activeCells();
+        globalFractureActiveSize = opmGrid.activeFracCells();
+
+        activeCellInfo->setGridActiveCellCounts( 0, globalMatrixActiveSize );
+        fractureActiveCellInfo->setGridActiveCellCounts( 0, globalFractureActiveSize );
+    }
+
+    {
+        auto task = progInfo.task( "Loading Main Grid", 1 );
+        transferGeometry( opmGrid, opmGrid, mainGrid, mainGrid, eclipseCaseData, 0, 0 );
+    }
 
     bool hasParentInfo = ( lgr_parent_names.size() >= (size_t)numLGRs );
 
+    auto task = progInfo.task( "Loading LGRs ", 1 );
+
     for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
     {
-        auto task = progInfo.task( "LGR number " + QString::number( lgrIdx + 1 ), 1 );
-
         RigGridBase* parentGrid = hasParentInfo ? mainGrid->gridByName( lgr_parent_names[lgrIdx] ) : mainGrid;
 
         RigLocalGrid* localGrid = static_cast<RigLocalGrid*>( mainGrid->gridById( lgrIdx + 1 ) );
@@ -234,12 +253,13 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
     }
 
     mainGrid->initAllSubGridsParentGridPointer();
+
     activeCellInfo->computeDerivedData();
     fractureActiveCellInfo->computeDerivedData();
 
     if ( isNNCsEnabled() )
     {
-        auto task = progInfo.task( "Handling NNC data", 1 );
+        auto task = progInfo.task( "Loading NNC data", 1 );
         transferStaticNNCData( opmGrid, lgrGrids, mainGrid );
     }
 
@@ -930,4 +950,111 @@ std::vector<QDateTime> RifReaderOpmCommon::timeStepsOnFile( QString gridFileName
     }
 
     return dateTimes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifReaderOpmCommon::verifyActiveCellInfo( int activeSizeMat, int activeSizeFrac )
+{
+    if ( m_initFile == nullptr ) return true;
+
+    int activeCells = 0;
+
+    for ( const auto& name : m_gridNames )
+    {
+        activeCells += m_initFile->activeCells( name );
+    }
+
+    return activeCells == ( activeSizeFrac + activeSizeMat );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<int>> RifReaderOpmCommon::readActiveCellInfoFromPorv( RigEclipseCaseData* eclipseCaseData, bool isDualPorosity )
+{
+    if ( m_initFile == nullptr ) return {};
+
+    std::vector<std::vector<int>> activeCellsAllGrids;
+
+    bool divideCellCountByTwo = isDualPorosity;
+
+    const int nGrids = (int)m_gridNames.size();
+
+    for ( int gridIdx = 0; gridIdx < nGrids; gridIdx++ )
+    {
+        auto porvValues = m_initFile->getInitData<float>( "PORV", m_gridNames[gridIdx] );
+
+        int activeCellCount = (int)porvValues.size();
+        if ( divideCellCountByTwo )
+        {
+            activeCellCount /= 2;
+        }
+
+        std::vector<int> activeCellsOneGrid;
+        activeCellsOneGrid.resize( activeCellCount, 0 );
+
+        for ( int poreValueIndex = 0; poreValueIndex < static_cast<int>( porvValues.size() ); poreValueIndex++ )
+        {
+            int indexToCell = poreValueIndex;
+            if ( indexToCell >= activeCellCount )
+            {
+                indexToCell = poreValueIndex - activeCellCount;
+            }
+
+            if ( porvValues[poreValueIndex] > 0.0f )
+            {
+                if ( isDualPorosity )
+                {
+                    if ( poreValueIndex < activeCellCount )
+                    {
+                        activeCellsOneGrid[indexToCell] += (int)ActiveType::ACTIVE_MATRIX_VALUE;
+                    }
+                    else
+                    {
+                        activeCellsOneGrid[indexToCell] += (int)ActiveType::ACTIVE_FRACTURE_VALUE;
+                    }
+                }
+                else
+                {
+                    activeCellsOneGrid[indexToCell] += (int)ActiveType::ACTIVE_MATRIX_VALUE;
+                }
+            }
+        }
+
+        activeCellsAllGrids.push_back( activeCellsOneGrid );
+    }
+
+    return activeCellsAllGrids;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmCommon::updateActiveCellInfo( RigEclipseCaseData*             eclipseCaseData,
+                                               Opm::EclIO::EGrid&              opmGrid,
+                                               std::vector<Opm::EclIO::EGrid>& lgrGrids,
+                                               RigMainGrid*                    mainGrid )
+{
+    auto activeCellInfoPerGrid = readActiveCellInfoFromPorv( eclipseCaseData, opmGrid.porosity_mode() > 0 );
+
+    int nInfos = (int)activeCellInfoPerGrid.size();
+    if ( nInfos > 0 )
+    {
+        int gridIdx = 0;
+        opmGrid.set_active_cells( activeCellInfoPerGrid[gridIdx++] );
+
+        for ( auto& lgr : lgrGrids )
+        {
+            if ( gridIdx < nInfos ) lgr.set_active_cells( activeCellInfoPerGrid[gridIdx++] );
+        }
+    }
+
+    RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+
+    auto totalCellCount           = opmGrid.totalNumberOfCells();
+    auto globalMatrixActiveSize   = opmGrid.activeCells();
+    auto globalFractureActiveSize = opmGrid.activeFracCells();
 }
