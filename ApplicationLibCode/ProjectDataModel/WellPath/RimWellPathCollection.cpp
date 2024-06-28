@@ -22,6 +22,7 @@
 
 #include "Cloud/RiaOsduConnector.h"
 #include "RiaColorTables.h"
+#include "RiaDateStringParser.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
@@ -62,6 +63,8 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafDataLoadController.h"
+#include "cafDataLoader.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiEditorHandle.h"
@@ -154,73 +157,47 @@ void RimWellPathCollection::loadDataAndUpdate()
 
     RiaApplication* app = RiaApplication::instance();
 
+    caf::DataLoadController* dataLoadController = caf::DataLoadController::instance();
+
+    const QString wellPathGeometryKeyword = "WELL_PATH_GEOMETRY";
+
     for ( RimWellPath* wellPath : allWellPaths() )
     {
-        progress.setProgressDescription( QString( "Reading file %1" ).arg( wellPath->name() ) );
+        progress.setProgressDescription( QString( "Reading well %1" ).arg( wellPath->name() ) );
+        dataLoadController->loadData( *wellPath, wellPathGeometryKeyword, progress );
+    }
 
-        auto* fWPath = dynamic_cast<RimFileWellPath*>( wellPath );
-        auto* mWPath = dynamic_cast<RimModeledWellPath*>( wellPath );
-        auto* oWPath = dynamic_cast<RimOsduWellPath*>( wellPath );
-        if ( fWPath )
+    dataLoadController->blockUntilDone( wellPathGeometryKeyword );
+
+    for ( RimWellPath* wellPath : allWellPaths() )
+    {
+        for ( RimWellLog* wellLog : wellPath->wellLogs() )
         {
-            if ( !fWPath->filePath().isEmpty() )
+            if ( RimWellLogFile* wellLogFile = dynamic_cast<RimWellLogFile*>( wellLog ) )
             {
                 QString errorMessage;
-                if ( !fWPath->readWellPathFile( &errorMessage, m_wellPathImporter.get(), false ) )
+                if ( !wellLogFile->readFile( &errorMessage ) )
                 {
                     RiaLogging::warning( errorMessage );
                 }
             }
-        }
-        else if ( mWPath )
-        {
-            mWPath->createWellPathGeometry();
-        }
-        else if ( oWPath )
-        {
-            RiaOsduConnector* osduConnector = app->makeOsduConnector();
-            auto [wellPathGeometry, errorMessage] =
-                loadWellPathGeometryFromOsdu( osduConnector, oWPath->wellboreTrajectoryId(), oWPath->datumElevationFromOsdu() );
-            if ( wellPathGeometry.notNull() )
+            else if ( RimOsduWellLog* osduWellLog = dynamic_cast<RimOsduWellLog*>( wellLog ) )
             {
-                oWPath->setWellPathGeometry( wellPathGeometry.p() );
-            }
-            else
-            {
-                RiaLogging::warning( errorMessage );
+                RiaOsduConnector* osduConnector  = app->makeOsduConnector();
+                auto [wellLogData, errorMessage] = loadWellLogFromOsdu( osduConnector, osduWellLog->wellLogId() );
+                if ( wellLogData.notNull() )
+                {
+                    osduWellLog->setWellLogData( wellLogData.p() );
+                }
             }
         }
 
-        if ( wellPath )
+        RimStimPlanModelCollection* stimPlanModelCollection = wellPath->stimPlanModelCollection();
+        if ( stimPlanModelCollection )
         {
-            for ( RimWellLog* wellLog : wellPath->wellLogs() )
+            for ( RimStimPlanModel* stimPlanModel : stimPlanModelCollection->allStimPlanModels() )
             {
-                if ( RimWellLogFile* wellLogFile = dynamic_cast<RimWellLogFile*>( wellLog ) )
-                {
-                    QString errorMessage;
-                    if ( !wellLogFile->readFile( &errorMessage ) )
-                    {
-                        RiaLogging::warning( errorMessage );
-                    }
-                }
-                else if ( RimOsduWellLog* osduWellLog = dynamic_cast<RimOsduWellLog*>( wellLog ) )
-                {
-                    RiaOsduConnector* osduConnector  = app->makeOsduConnector();
-                    auto [wellLogData, errorMessage] = loadWellLogFromOsdu( osduConnector, osduWellLog->wellLogId() );
-                    if ( wellLogData.notNull() )
-                    {
-                        osduWellLog->setWellLogData( wellLogData.p() );
-                    }
-                }
-            }
-
-            RimStimPlanModelCollection* stimPlanModelCollection = wellPath->stimPlanModelCollection();
-            if ( stimPlanModelCollection )
-            {
-                for ( RimStimPlanModel* stimPlanModel : stimPlanModelCollection->allStimPlanModels() )
-                {
-                    stimPlanModel->loadDataAndUpdate();
-                }
+                stimPlanModel->loadDataAndUpdate();
             }
         }
         progress.incrementProgress();

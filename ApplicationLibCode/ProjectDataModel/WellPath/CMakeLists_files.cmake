@@ -16,6 +16,9 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellIAModelData.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellIADataAccess.h
     ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellPath.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellPathDataLoader.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFileWellPathDataLoader.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimModeledWellPathDataLoader.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -36,11 +39,17 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellIAModelData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellIADataAccess.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellPath.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellPathDataLoader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFileWellPathDataLoader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimModeledWellPathDataLoader.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
+
+list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellPathDataLoader.h)
+
 
 source_group(
   "ProjectDataModel\\WellPath"

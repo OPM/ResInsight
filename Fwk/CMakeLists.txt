@@ -58,6 +58,7 @@ add_subdirectory(AppFwk/cafCommand)
 add_subdirectory(AppFwk/cafCommandFeatures)
 add_subdirectory(AppFwk/cafUserInterface)
 add_subdirectory(AppFwk/cafPdmScripting)
+add_subdirectory(AppFwk/cafDataLoader)
 
 # Unit Tests
 add_subdirectory(AppFwk/cafProjectDataModel/cafProjectDataModel_UnitTests)
