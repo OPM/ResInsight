@@ -805,6 +805,7 @@ add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmCore)
 add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmUiCore)
 add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmXml)
 add_subdirectory(Fwk/AppFwk/cafProjectDataModel)
+add_subdirectory(Fwk/AppFwk/cafDataLoader)
 
 add_subdirectory(Fwk/AppFwk/cafCommand)
 add_subdirectory(Fwk/AppFwk/cafUserInterface)
@@ -864,6 +865,7 @@ list(
   cafCommand
   cafPdmCvf
   cafTensor
+  cafDataLoader
   CommonCode
   cafVizExtensions
   cafPdmScripting
