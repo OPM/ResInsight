@@ -45,6 +45,7 @@ add_subdirectory(cafCommand)
 add_subdirectory(cafCommandFeatures)
 add_subdirectory(cafUserInterface)
 add_subdirectory(cafPdmScripting)
+add_subdirectory(cafDataLoader)
 
 # executables
 add_subdirectory(cafTests/cafTestApplication)

@@ -22,6 +22,7 @@
 
 #include "OsduImportCommands/RiaOsduConnector.h"
 #include "RiaColorTables.h"
+#include "RiaDateStringParser.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
@@ -62,6 +63,8 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafDataLoadController.h"
+#include "cafDataLoader.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiEditorHandle.h"
@@ -143,6 +146,84 @@ void RimWellPathCollection::fieldChangedByUi( const caf::PdmFieldHandle* changed
     scheduleRedrawAffectedViews();
 }
 
+#include "cafDataLoader.h"
+
+class RifFileWellPathDataLoader : public caf::DataLoader
+{
+public:
+    RifFileWellPathDataLoader()
+        : caf::DataLoader()
+    {
+        m_wellPathImporter = std::make_unique<RifWellPathImporter>();
+    }
+
+    void loadData( caf::PdmObject& pdmObject, caf::ProgressInfo& progressInfo ) override
+    {
+        auto* fWPath = dynamic_cast<RimFileWellPath*>( &pdmObject );
+        if ( fWPath && !fWPath->filePath().isEmpty() )
+        {
+            QString errorMessage;
+            if ( !fWPath->readWellPathFile( &errorMessage, m_wellPathImporter.get(), false ) )
+            {
+                RiaLogging::warning( errorMessage );
+            }
+        }
+    }
+
+private:
+    std::unique_ptr<RifWellPathImporter> m_wellPathImporter;
+};
+
+class RifOsduWellPathDataLoader : public caf::DataLoader
+{
+public:
+    RifOsduWellPathDataLoader()
+        : caf::DataLoader()
+    {
+    }
+
+    void loadData( caf::PdmObject& pdmObject, caf::ProgressInfo& progressInfo ) override
+    {
+        RiaApplication*   app           = RiaApplication::instance();
+        RiaOsduConnector* osduConnector = app->makeOsduConnector();
+        auto*             oWPath        = dynamic_cast<RimOsduWellPath*>( &pdmObject );
+
+        if ( oWPath )
+        {
+            auto [wellPathGeometry, errorMessage] = RimWellPathCollection::loadWellPathGeometryFromOsdu( osduConnector,
+                                                                                                         oWPath->wellboreTrajectoryId(),
+                                                                                                         oWPath->datumElevationFromOsdu() );
+            if ( wellPathGeometry.notNull() )
+            {
+                oWPath->setWellPathGeometry( wellPathGeometry.p() );
+            }
+            else
+            {
+                RiaLogging::warning( errorMessage );
+            }
+        }
+    }
+};
+
+class RifModeledWellPathDataLoader : public caf::DataLoader
+{
+public:
+    RifModeledWellPathDataLoader()
+        : caf::DataLoader()
+    {
+    }
+
+    void loadData( caf::PdmObject& pdmObject, caf::ProgressInfo& progressInfo ) override
+    {
+        auto* mWPath = dynamic_cast<RimModeledWellPath*>( &pdmObject );
+
+        if ( mWPath )
+        {
+            mWPath->createWellPathGeometry();
+        }
+    }
+};
+
 //--------------------------------------------------------------------------------------------------
 /// Read files containing well path data, or create geometry based on the targets
 //--------------------------------------------------------------------------------------------------
@@ -154,43 +235,30 @@ void RimWellPathCollection::loadDataAndUpdate()
 
     RiaApplication* app = RiaApplication::instance();
 
+    caf::DataLoadController* dataLoadController = caf::DataLoadController::instance();
+
+    const QString wellPathGeometryKeyword = "WELL_PATH_GEOMETRY";
+    dataLoadController->registerDataLoader( RimFileWellPath::classKeywordStatic(),
+                                            wellPathGeometryKeyword,
+                                            std::make_shared<RifFileWellPathDataLoader>() );
+    dataLoadController->registerDataLoader( RimOsduWellPath::classKeywordStatic(),
+                                            wellPathGeometryKeyword,
+                                            std::make_shared<RifOsduWellPathDataLoader>() );
+    dataLoadController->registerDataLoader( RimModeledWellPath::classKeywordStatic(),
+                                            wellPathGeometryKeyword,
+                                            std::make_shared<RifModeledWellPathDataLoader>() );
+
     for ( RimWellPath* wellPath : allWellPaths() )
     {
-        progress.setProgressDescription( QString( "Reading file %1" ).arg( wellPath->name() ) );
+        progress.setProgressDescription( QString( "Reading well %1" ).arg( wellPath->name() ) );
 
-        auto* fWPath = dynamic_cast<RimFileWellPath*>( wellPath );
-        auto* mWPath = dynamic_cast<RimModeledWellPath*>( wellPath );
-        auto* oWPath = dynamic_cast<RimOsduWellPath*>( wellPath );
-        if ( fWPath )
-        {
-            if ( !fWPath->filePath().isEmpty() )
-            {
-                QString errorMessage;
-                if ( !fWPath->readWellPathFile( &errorMessage, m_wellPathImporter.get(), false ) )
-                {
-                    RiaLogging::warning( errorMessage );
-                }
-            }
-        }
-        else if ( mWPath )
-        {
-            mWPath->createWellPathGeometry();
-        }
-        else if ( oWPath )
-        {
-            RiaOsduConnector* osduConnector = app->makeOsduConnector();
-            auto [wellPathGeometry, errorMessage] =
-                loadWellPathGeometryFromOsdu( osduConnector, oWPath->wellboreTrajectoryId(), oWPath->datumElevationFromOsdu() );
-            if ( wellPathGeometry.notNull() )
-            {
-                oWPath->setWellPathGeometry( wellPathGeometry.p() );
-            }
-            else
-            {
-                RiaLogging::warning( errorMessage );
-            }
-        }
+        dataLoadController->loadData( *wellPath, wellPathGeometryKeyword, progress );
+    }
 
+    dataLoadController->blockUntilDone( wellPathGeometryKeyword );
+
+    for ( RimWellPath* wellPath : allWellPaths() )
+    {
         if ( wellPath )
         {
             for ( RimWellLog* wellLog : wellPath->wellLogs() )
