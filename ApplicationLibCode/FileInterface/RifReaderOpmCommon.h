@@ -65,9 +65,13 @@ private:
                            Opm::EclIO::EGrid&  opmGrid,
                            RigMainGrid*        riMainGrid,
                            RigGridBase*        riGrid,
-                           RigEclipseCaseData* caseData,
-                           size_t              matrixActiveStartIndex,
-                           size_t              fractureActiveStartIndex );
+                           RigEclipseCaseData* caseData );
+
+    void transferActiveCells( Opm::EclIO::EGrid&  opmGrid,
+                              size_t              cellStartIndex,
+                              RigEclipseCaseData* eclipseCaseData,
+                              size_t              matrixActiveStartIndex,
+                              size_t              fractureActiveStartIndex );
 
     void transferStaticNNCData( Opm::EclIO::EGrid& opmMainGrid, std::vector<Opm::EclIO::EGrid>& lgrGrids, RigMainGrid* mainGrid );
     void transferDynamicNNCData( RigMainGrid* mainGrid );
@@ -76,6 +80,13 @@ private:
     void setupInitAndRestartAccess();
 
     std::vector<RigEclipseTimeStepInfo> createFilteredTimeStepInfos();
+
+    bool                          verifyActiveCellInfo( int activeSizeMat, int activeSizeFrac );
+    std::vector<std::vector<int>> readActiveCellInfoFromPorv( RigEclipseCaseData* eclipseCaseData, bool isDualPorosity );
+    void                          updateActiveCellInfo( RigEclipseCaseData*             eclipseCaseData,
+                                                        Opm::EclIO::EGrid&              opmGrid,
+                                                        std::vector<Opm::EclIO::EGrid>& lgrGrids,
+                                                        RigMainGrid*                    mainGrid );
 
     struct TimeDataFile
     {
@@ -89,6 +100,12 @@ private:
     std::vector<TimeDataFile> readTimeSteps();
 
 private:
+    enum class ActiveType
+    {
+        ACTIVE_MATRIX_VALUE   = 1,
+        ACTIVE_FRACTURE_VALUE = 2
+    };
+
     std::string m_gridFileName;
     std::string m_initFileName;
     std::string m_restartFileName;
