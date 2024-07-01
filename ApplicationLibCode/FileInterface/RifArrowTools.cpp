@@ -18,40 +18,86 @@
 
 #include "RifArrowTools.h"
 
-#include "cafAssert.h"
+#include "RifByteArrayArrowRandomAccessFile.h"
+#include "RifCsvDataTableFormatter.h"
 
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RifArrowTools::convertChunkedArrayToStdVector( const std::shared_ptr<arrow::ChunkedArray>& column )
+QString RifArrowTools::readFirstRowsOfTable( const QByteArray& contents )
 {
-    auto convertChunkToVector = []( const std::shared_ptr<arrow::Array>& array ) -> std::vector<double>
+    arrow::MemoryPool* pool = arrow::default_memory_pool();
+
+    std::shared_ptr<arrow::io::RandomAccessFile> input = std::make_shared<RifByteArrayArrowRandomAccessFile>( contents );
+
+    // Open Parquet file reader
+    std::unique_ptr<parquet::arrow::FileReader> arrow_reader;
+    if ( !parquet::arrow::OpenFile( input, pool, &arrow_reader ).ok() )
     {
-        std::vector<double> result;
-
-        auto double_array = std::static_pointer_cast<arrow::DoubleArray>( array );
-        result.resize( double_array->length() );
-        for ( int64_t i = 0; i < double_array->length(); ++i )
-        {
-            result[i] = double_array->Value( i );
-        }
-
-        return result;
-    };
-
-    CAF_ASSERT( column->type()->id() == arrow::Type::DOUBLE );
-
-    std::vector<double> result;
-
-    // Iterate over each chunk in the column
-    for ( int i = 0; i < column->num_chunks(); ++i )
-    {
-        std::shared_ptr<arrow::Array> chunk        = column->chunk( i );
-        std::vector<double>           chunk_vector = convertChunkToVector( chunk );
-        result.insert( result.end(), chunk_vector.begin(), chunk_vector.end() );
+        return {};
     }
 
-    return result;
-};
+    // Read entire file as a single Arrow table
+    std::shared_ptr<arrow::Table> table;
+    if ( !arrow_reader->ReadTable( &table ).ok() )
+    {
+        return {};
+    }
+
+    QString                  tableText;
+    QTextStream              stream( &tableText );
+    RifCsvDataTableFormatter formatter( stream, ";" );
+
+    std::vector<RifTextDataTableColumn> header;
+    for ( std::string columnName : table->ColumnNames() )
+    {
+        header.push_back( RifTextDataTableColumn( QString::fromStdString( columnName ) ) );
+    }
+
+    formatter.header( header );
+
+    std::vector<std::vector<double>> columnVectors;
+
+    for ( std::string columnName : table->ColumnNames() )
+    {
+        std::shared_ptr<arrow::ChunkedArray> column = table->GetColumnByName( columnName );
+
+        auto columnType = column->type()->id();
+
+        if ( columnType == arrow::Type::DOUBLE )
+        {
+            std::vector<double> columnVector = RifArrowTools::chunkedArrayToVector<arrow::DoubleArray, double>( column );
+            columnVectors.push_back( columnVector );
+        }
+        else if ( columnType == arrow::Type::FLOAT )
+        {
+            auto columnVector = RifArrowTools::chunkedArrayToVector<arrow::FloatArray, double>( column );
+            columnVectors.push_back( columnVector );
+        }
+        else if ( columnType == arrow::Type::TIMESTAMP )
+        {
+            auto columnVector = RifArrowTools::chunkedArrayToVector<arrow::Int64Array, double>( column );
+            columnVectors.push_back( columnVector );
+        }
+    }
+
+    if ( columnVectors.empty() )
+    {
+        return {};
+    }
+
+    for ( int i = 0; i < std::min( 20, int( columnVectors[0].size() ) ); i++ )
+    {
+        for ( int j = 0; j < int( columnVectors.size() ); j++ )
+        {
+            formatter.add( columnVectors[j][i] );
+        }
+        formatter.rowCompleted();
+    }
+
+    formatter.tableCompleted();
+
+    return tableText;
+}

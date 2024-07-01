@@ -65,7 +65,7 @@ std::pair<cvf::ref<RigOsduWellLogData>, QString> RifOsduWellLogReader::readWellL
 
         if ( column->type()->id() == arrow::Type::DOUBLE )
         {
-            std::vector<double> columnVector = RifArrowTools::convertChunkedArrayToStdVector( column );
+            std::vector<double> columnVector = RifArrowTools::chunkedArrayToVector<arrow::DoubleArray, double>( column );
             logData->setValues( QString::fromStdString( columnName ), columnVector );
         }
     }
