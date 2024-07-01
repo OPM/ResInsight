@@ -2,10 +2,12 @@
 
 #include "RiaTestDataDirectory.h"
 
+#undef signals
 #include <arrow/csv/api.h>
 #include <arrow/io/api.h>
 #include <arrow/scalar.h>
 #include <parquet/arrow/reader.h>
+#define signals Q_SIGNALS
 
 #include <QDir>
 #include <QString>
