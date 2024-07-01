@@ -27,11 +27,13 @@
 
 #include "RifArrowTools.h"
 
+#undef signals
 #include <arrow/array/array_primitive.h>
 #include <arrow/csv/api.h>
 #include <arrow/io/api.h>
 #include <arrow/scalar.h>
 #include <parquet/arrow/reader.h>
+#define signals Q_SIGNALS
 
 //--------------------------------------------------------------------------------------------------
 ///
