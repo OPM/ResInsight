@@ -4,6 +4,7 @@
     "boost-filesystem",
     "boost-spirit",
     "eigen3",
-    "grpc"
+    "grpc",
+    "type-lite"
   ]
 }

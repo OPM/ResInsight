@@ -642,6 +642,12 @@ else()
 endif()
 
 # ##############################################################################
+# nonstd::type-lite
+# ##############################################################################
+find_package(type-lite CONFIG REQUIRED)
+list(APPEND THIRD_PARTY_LIBRARIES nonstd::type-lite)
+
+# ##############################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
 # ##############################################################################
 set_property(TARGET ${THIRD_PARTY_LIBRARIES} PROPERTY FOLDER "Thirdparty")
