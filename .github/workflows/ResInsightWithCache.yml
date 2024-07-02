@@ -9,7 +9,6 @@ on:
     - cron: '0 1 * * *'
 env:
   BUILD_TYPE: Release
-  BUILDCACHE_VERSION: 0.27.6
   BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
   BUILDCACHE_ACCURACY: SLOPPY
   VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
@@ -109,8 +108,7 @@ jobs:
             set(buildcache_suffix "linux.tar.gz")
           endif()
 
-          set(buildcache_version $ENV{BUILDCACHE_VERSION})
-          set(buildcache_url "https://github.com/mbitsnbites/buildcache/releases/download/v${buildcache_version}/buildcache-${buildcache_suffix}")
+          set(buildcache_url "https://gitlab.com/bits-n-bites/buildcache/-/releases/permalink/latest/downloads/buildcache-${buildcache_suffix}")
           file(DOWNLOAD "${buildcache_url}" ./buildcache.zip)
           execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./buildcache.zip)
 
