@@ -18,9 +18,11 @@
 
 #include "RiaConnectorTools.h"
 
+#include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QOAuth2AuthorizationCodeFlow>
+#include <QTextStream>
 
 //--------------------------------------------------------------------------------------------------
 ///
