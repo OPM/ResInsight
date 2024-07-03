@@ -34,14 +34,42 @@
 //
 //##################################################################################################
 
+#pragma once
+
+#include "cafDataLoadController.h"
 #include "cafDataLoader.h"
 
-using namespace caf;
+#include <QRunnable>
+#include <QString>
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-DataLoader::DataLoader()
-    : taskDone( this )
+namespace caf
 {
-}
+
+class ProgressInfo;
+class PdmObject;
+class DataLoadController;
+
+class DataLoadTask : public QRunnable
+{
+public:
+    DataLoadTask( DataLoadController& controller,
+                  DataLoader&         loader,
+                  caf::PdmObject&     object,
+                  const QString&      dataType,
+                  int                 taskId,
+                  ProgressInfo&       progressInfo );
+
+    ~DataLoadTask() override;
+
+    void run() override;
+
+private:
+    DataLoadController& m_dataLoadController;
+    DataLoader&         m_loader;
+    caf::PdmObject&     m_object;
+    QString             m_dataType;
+    int                 m_taskId;
+    ProgressInfo&       m_progressInfo;
+};
+
+} // end namespace caf

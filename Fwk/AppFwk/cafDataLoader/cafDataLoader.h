@@ -40,6 +40,8 @@
 
 #include <QString>
 
+#include "cafSignal.h"
+
 namespace caf
 {
 class ProgressInfo;
@@ -48,16 +50,16 @@ class PdmObject;
 //==================================================================================================
 ///
 //==================================================================================================
-class DataLoader
+class DataLoader : public SignalEmitter
 {
 public:
     DataLoader();
-    // void registerDataLoader( const QString& objectType, const QString& dataType, std::shared_ptr<DataLoader>
-    // dataLoader );
 
-    virtual void loadData( PdmObject& pdmObject, ProgressInfo& progressInfo ) = 0;
+    virtual void loadData( PdmObject& pdmObject, const QString& dataType, int taskId, ProgressInfo& progressInfo ) = 0;
 
-private:
+    virtual bool isRunnable() const = 0;
+
+    caf::Signal<QString, int> taskDone;
 };
 
 } // end namespace caf

@@ -36,21 +36,27 @@
 
 #pragma once
 
+#include "cafDataLoader.h"
+
 #include <map>
 #include <memory>
 
+#include <QMutex>
+#include <QObject>
+#include <QRunnable>
 #include <QString>
+#include <QWaitCondition>
 
 namespace caf
 {
-class DataLoader;
+
 class ProgressInfo;
 class PdmObject;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class DataLoadController
+class DataLoadController : public caf::SignalObserver
 {
 public:
     static DataLoadController* instance();
@@ -60,14 +66,21 @@ public:
 
     void registerDataLoader( const QString& objectType, const QString& dataType, std::shared_ptr<DataLoader> dataLoader );
 
-    void loadData( caf::PdmObject& object, const QString& dataType, ProgressInfo& progressInfo );
+    void loadData( caf::PdmObject& object, const QString& dateType, ProgressInfo& progressInfo );
 
     void blockUntilDone( const QString& dataType );
+
+    void onTaskFinished( const caf::SignalEmitter* emitter, QString dataType, int taskId );
 
 private:
     DataLoadController();
 
     std::map<std::pair<QString, QString>, std::shared_ptr<caf::DataLoader>> m_dataLoaders;
+    std::map<QString, int>                                                  m_pendingTasksByType;
+    int                                                                     m_taskId;
+
+    QMutex         m_mutex;
+    QWaitCondition m_waitCondition;
 };
 
 } // end namespace caf

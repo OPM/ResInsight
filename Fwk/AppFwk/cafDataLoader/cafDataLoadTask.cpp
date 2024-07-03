@@ -34,14 +34,34 @@
 //
 //##################################################################################################
 
+#include "cafDataLoadTask.h"
+
 #include "cafDataLoader.h"
+#include "cafPdmObject.h"
 
 using namespace caf;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-DataLoader::DataLoader()
-    : taskDone( this )
+DataLoadTask::DataLoadTask( DataLoadController& controller,
+                            DataLoader&         loader,
+                            caf::PdmObject&     object,
+                            const QString&      dataType,
+                            int                 taskId,
+                            ProgressInfo&       progressInfo )
+    : QRunnable()
+    , m_dataLoadController( controller )
+    , m_loader( loader )
+    , m_object( object )
+    , m_dataType( dataType )
+    , m_taskId( taskId )
+    , m_progressInfo( progressInfo )
 {
+}
+
+DataLoadTask::~DataLoadTask()
+{
+}
+
+void DataLoadTask::run()
+{
+    m_loader.loadData( m_object, m_dataType, m_taskId, m_progressInfo );
 }

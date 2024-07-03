@@ -87,6 +87,17 @@ RiaOsduConnector::RiaOsduConnector( QObject*       parent,
              SIGNAL( authorizationCallbackReceived( const QVariantMap& ) ),
              this,
              SLOT( authorizationCallbackReceived( const QVariantMap& ) ) );
+
+    // connect( this,
+    //          SIGNAL( parquetDownloadFinished( const QByteArray&, const QString&, const QString& ) ),
+    //          this,
+    //          SLOT( parquetDownloadComplete( const QByteArray&, const QString&, const QString& ) ),
+    //          Qt::QueuedConnection );
+    connect( this,
+             SIGNAL( triggerParquetDownload( const QString&, const QString&, const QString&, const QString& ) ),
+             this,
+             SLOT( requestParquetData( const QString&, const QString&, const QString&, const QString& ) ),
+             Qt::QueuedConnection );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -752,7 +763,7 @@ std::pair<QByteArray, QString> RiaOsduConnector::requestWellboreTrajectoryParque
 {
     QString url = constructWellboreTrajectoriesDownloadUrl( m_server, wellboreTrajectoryId );
     RiaLogging::debug( "Wellbore trajectory URL: " + url );
-    return requestParquetDataByUrl( url );
+    return requestParquetDataByUrl( url, wellboreTrajectoryId );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -762,60 +773,66 @@ std::pair<QByteArray, QString> RiaOsduConnector::requestWellLogParquetDataById( 
 {
     QString url = constructWellLogDownloadUrl( m_server, wellLogId );
     RiaLogging::debug( "Well log URL: " + url );
-    return requestParquetDataByUrl( url );
+    return requestParquetDataByUrl( url, wellLogId );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<QByteArray, QString> RiaOsduConnector::requestParquetDataByUrl( const QString& url )
+std::pair<QByteArray, QString> RiaOsduConnector::requestParquetDataByUrl( const QString& url, const QString& id )
 {
-    QString token = requestTokenBlocking();
+    QString token = m_token; // requestTokenBlocking();
 
-    QEventLoop loop;
-    connect( this,
-             SIGNAL( parquetDownloadFinished( const QByteArray&, const QString& ) ),
-             this,
-             SLOT( parquetDownloadComplete( const QByteArray&, const QString& ) ) );
-    connect( this, SIGNAL( parquetDownloadFinished( const QByteArray&, const QString& ) ), &loop, SLOT( quit() ) );
+    printf( "Triggering download: %s\n", id.toStdString().c_str() );
+    requestParquetData( url, m_dataPartitionId, token, id );
 
-    requestParquetData( url, m_dataPartitionId, token );
-    loop.exec();
-
+    // TODO: remove!!!
     return { m_parquetData, "" };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaOsduConnector::requestParquetData( const QString& url, const QString& dataPartitionId, const QString& token )
+void RiaOsduConnector::requestParquetData( const QString& url, const QString& dataPartitionId, const QString& token, const QString& id )
 {
-    RiaLogging::info( "Requesting download of parquet from: " + url );
+    // RiaLogging::info( "Requesting download of parquet from: " + url );
+
+    printf( "Requesting data: %s\n", id.toStdString().c_str() );
+    printf( "Request Parquet Data: %p\n", QThread::currentThreadId() );
+    printf( "Token: %s\n", token.toStdString().c_str() );
 
     auto reply = makeDownloadRequest( url, dataPartitionId, token, RiaDefines::contentTypeParquet() );
+    printf( "Reply object created:\n" );
+
     connect( reply,
              &QNetworkReply::finished,
-             [this, reply, url]()
+             [this, reply, url, id]()
              {
                  if ( reply->error() == QNetworkReply::NoError )
                  {
+                     printf( "OK!!!!\n" );
+
                      QByteArray contents = reply->readAll();
+                     printf( "Size of contents: %d\n", contents.size() );
+
                      RiaLogging::info( QString( "Download succeeded: %1 bytes." ).arg( contents.length() ) );
-                     emit parquetDownloadFinished( contents, "" );
+                     emit parquetDownloadFinished( contents, "", id );
                  }
                  else
                  {
+                     printf( "ERROR!!!!\n" );
                      QString errorMessage = "Request failed: " + url + " failed." + reply->errorString();
                      RiaLogging::error( errorMessage );
-                     emit parquetDownloadFinished( QByteArray(), errorMessage );
+                     emit parquetDownloadFinished( QByteArray(), errorMessage, id );
                  }
              } );
+    printf( "Here\n" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaOsduConnector::parquetDownloadComplete( const QByteArray& contents, const QString& url )
+void RiaOsduConnector::parquetDownloadComplete( const QByteArray& contents, const QString& url, const QString& id )
 {
     m_parquetData = contents;
 }

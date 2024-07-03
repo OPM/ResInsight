@@ -36,8 +36,13 @@
 
 #include "cafDataLoadController.h"
 
+#include "cafDataLoadTask.h"
 #include "cafDataLoader.h"
 #include "cafPdmObject.h"
+
+#include <QApplication>
+#include <QRunnable>
+#include <QThreadPool>
 
 using namespace caf;
 
@@ -45,6 +50,7 @@ using namespace caf;
 ///
 //--------------------------------------------------------------------------------------------------
 DataLoadController::DataLoadController()
+    : m_taskId( 0 )
 {
 }
 
@@ -66,6 +72,8 @@ void DataLoadController::registerDataLoader( const QString&              objectT
 {
     std::pair<QString, QString> key = { objectType, dataType };
     m_dataLoaders[key]              = dataLoader;
+
+    dataLoader->taskDone.connect( this, &DataLoadController::onTaskFinished );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,7 +86,21 @@ void DataLoadController::loadData( caf::PdmObject& object, const QString& dataTy
     if ( it != m_dataLoaders.end() )
     {
         std::shared_ptr<caf::DataLoader> dataLoader = it->second;
-        dataLoader->loadData( object, progressInfo );
+
+        QMutexLocker locker( &m_mutex );
+        m_pendingTasksByType[dataType]++;
+        locker.unlock();
+
+        if ( dataLoader->isRunnable() )
+        {
+            DataLoadTask* task = new DataLoadTask( *this, *dataLoader.get(), object, dataType, m_taskId++, progressInfo );
+            task->setAutoDelete( true );
+            QThreadPool::globalInstance()->start( task );
+        }
+        else
+        {
+            dataLoader->loadData( object, dataType, m_taskId++, progressInfo );
+        }
     }
 }
 
@@ -87,4 +109,28 @@ void DataLoadController::loadData( caf::PdmObject& object, const QString& dataTy
 //--------------------------------------------------------------------------------------------------
 void DataLoadController::blockUntilDone( const QString& dataType )
 {
+    int numPending = 0;
+    {
+        QMutexLocker locker( &m_mutex );
+        numPending = m_pendingTasksByType[dataType];
+    }
+    while ( numPending > 0 )
+    {
+        {
+            QMutexLocker locker( &m_mutex );
+            numPending = m_pendingTasksByType[dataType];
+        }
+
+        QApplication::processEvents();
+        QThread::msleep( 100 );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void DataLoadController::onTaskFinished( const caf::SignalEmitter* emitter, QString dataType, int taskId )
+{
+    QMutexLocker locker( &m_mutex );
+    m_pendingTasksByType[dataType]--;
 }

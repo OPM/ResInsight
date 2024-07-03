@@ -27,6 +27,8 @@ endif()
 set(PROJECT_FILES
     cafDataLoader.h
     cafDataLoader.cpp
+    cafDataLoadTask.h
+    cafDataLoadTask.cpp
     cafDataLoadController.h
     cafDataLoadController.cpp
 )

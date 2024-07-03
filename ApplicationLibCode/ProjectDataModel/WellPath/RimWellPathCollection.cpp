@@ -30,6 +30,7 @@
 #include "RiaWellNameComparer.h"
 
 #include "RifOsduWellLogReader.h"
+#include "RifOsduWellPathDataLoader.h"
 #include "RifOsduWellPathReader.h"
 #include "RifWellPathFormationsImporter.h"
 #include "RifWellPathImporter.h"
@@ -157,7 +158,7 @@ public:
         m_wellPathImporter = std::make_unique<RifWellPathImporter>();
     }
 
-    void loadData( caf::PdmObject& pdmObject, caf::ProgressInfo& progressInfo ) override
+    void loadData( caf::PdmObject& pdmObject, const QString& dataType, int taskId, caf::ProgressInfo& progressInfo ) override
     {
         auto* fWPath = dynamic_cast<RimFileWellPath*>( &pdmObject );
         if ( fWPath && !fWPath->filePath().isEmpty() )
@@ -168,41 +169,13 @@ public:
                 RiaLogging::warning( errorMessage );
             }
         }
+        taskDone.send( dataType, taskId );
     }
+
+    bool isRunnable() const override { return true; }
 
 private:
     std::unique_ptr<RifWellPathImporter> m_wellPathImporter;
-};
-
-class RifOsduWellPathDataLoader : public caf::DataLoader
-{
-public:
-    RifOsduWellPathDataLoader()
-        : caf::DataLoader()
-    {
-    }
-
-    void loadData( caf::PdmObject& pdmObject, caf::ProgressInfo& progressInfo ) override
-    {
-        RiaApplication*   app           = RiaApplication::instance();
-        RiaOsduConnector* osduConnector = app->makeOsduConnector();
-        auto*             oWPath        = dynamic_cast<RimOsduWellPath*>( &pdmObject );
-
-        if ( oWPath )
-        {
-            auto [wellPathGeometry, errorMessage] = RimWellPathCollection::loadWellPathGeometryFromOsdu( osduConnector,
-                                                                                                         oWPath->wellboreTrajectoryId(),
-                                                                                                         oWPath->datumElevationFromOsdu() );
-            if ( wellPathGeometry.notNull() )
-            {
-                oWPath->setWellPathGeometry( wellPathGeometry.p() );
-            }
-            else
-            {
-                RiaLogging::warning( errorMessage );
-            }
-        }
-    }
 };
 
 class RifModeledWellPathDataLoader : public caf::DataLoader
@@ -213,7 +186,7 @@ public:
     {
     }
 
-    void loadData( caf::PdmObject& pdmObject, caf::ProgressInfo& progressInfo ) override
+    void loadData( caf::PdmObject& pdmObject, const QString& dataType, int taskId, caf::ProgressInfo& progressInfo ) override
     {
         auto* mWPath = dynamic_cast<RimModeledWellPath*>( &pdmObject );
 
@@ -221,7 +194,11 @@ public:
         {
             mWPath->createWellPathGeometry();
         }
+
+        taskDone.send( dataType, taskId );
     }
+
+    bool isRunnable() const override { return true; }
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -251,7 +228,6 @@ void RimWellPathCollection::loadDataAndUpdate()
     for ( RimWellPath* wellPath : allWellPaths() )
     {
         progress.setProgressDescription( QString( "Reading well %1" ).arg( wellPath->name() ) );
-
         dataLoadController->loadData( *wellPath, wellPathGeometryKeyword, progress );
     }
 

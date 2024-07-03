@@ -91,24 +91,24 @@ public slots:
     void parseWellLogs( QNetworkReply* reply, const QString& wellboreId );
 
     void accessGranted();
-    void parquetDownloadComplete( const QByteArray&, const QString& url );
+    void parquetDownloadComplete( const QByteArray&, const QString& url, const QString& id );
 
 signals:
-    void parquetDownloadFinished( const QByteArray& contents, const QString& url );
+    void parquetDownloadFinished( const QByteArray& contents, const QString& url, const QString& id );
     void fieldsFinished();
     void wellsFinished();
     void wellboresFinished( const QString& wellId );
     void wellboreTrajectoryFinished( const QString& wellboreId, int numTrajectories, const QString& errorMessage );
     void wellLogsFinished( const QString& wellboreId );
     void tokenReady( const QString& token );
+    void triggerParquetDownload( const QString&, const QString&, const QString&, const QString& id );
 
 private slots:
     void errorReceived( const QString& error, const QString& errorDescription, const QUrl& uri );
     void authorizationCallbackReceived( const QVariantMap& data );
+    void requestParquetData( const QString& url, const QString& dataPartitionId, const QString& token, const QString& id );
 
 private:
-    void requestParquetData( const QString& url, const QString& dataPartitionId, const QString& token );
-
     void addStandardHeader( QNetworkRequest& networkRequest, const QString& token, const QString& dataPartitionId, const QString& contentType );
 
     QNetworkReply* makeSearchRequest( const std::map<QString, QString>& parameters,
@@ -135,7 +135,7 @@ private:
     static QString constructWellLogDownloadUrl( const QString& server, const QString& wellLogId );
     static QString constructWellboreTrajectoriesDownloadUrl( const QString& server, const QString& wellboreTrajectoryId );
 
-    std::pair<QByteArray, QString> requestParquetDataByUrl( const QString& url );
+    std::pair<QByteArray, QString> requestParquetDataByUrl( const QString& url, const QString& id );
 
     QString requestTokenBlocking();
 
