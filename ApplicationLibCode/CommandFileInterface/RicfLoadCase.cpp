@@ -21,9 +21,12 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesGrid.h"
+
 #include "RicImportGeneralDataFeature.h"
 
 #include "RifReaderSettings.h"
+
 #include "cafPdmFieldScriptingCapability.h"
 
 #include <QDir>
@@ -65,8 +68,8 @@ caf::PdmScriptResponse RicfLoadCase::execute()
         absolutePath = startDir.absoluteFilePath( m_path );
     }
 
-    std::shared_ptr<RifReaderSettings> readerSettings;
-    if ( m_gridOnly ) readerSettings = RifReaderSettings::createGridOnlyReaderSettings();
+    RifReaderSettings readerSettings = m_gridOnly ? RiaPreferencesGrid::current()->gridOnlyReaderSettings()
+                                                  : RiaPreferencesGrid::current()->readerSettings();
 
     bool createPlot = false;
     bool createView = false;

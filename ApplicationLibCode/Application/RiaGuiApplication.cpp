@@ -30,6 +30,7 @@
 #include "RiaLogging.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesGrid.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaProjectModifier.h"
 #include "RiaRegressionTestRunner.h"
@@ -525,7 +526,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
     {
         CVF_ASSERT( o.valueCount() == 1 );
         std::string readerName = o.value( 0 ).toLower().toStdString();
-        m_preferences->setGridModelReaderOverride( readerName );
+        m_preferences->gridPreferences()->setGridModelReaderOverride( readerName );
     }
 
     if ( cvf::Option o = progOpt->option( "size" ) )

@@ -25,6 +25,8 @@
 #include "RiaDefines.h"
 #include "RimCase.h"
 
+#include "RifReaderSettings.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -51,7 +53,6 @@ class RimEclipseView;
 class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
 class RimEclipseResultAddressCollection;
-class RifReaderSettings;
 class RimEclipseViewCollection;
 
 //==================================================================================================
@@ -126,7 +127,7 @@ public:
     void createDisplayModelAndUpdateAllViews();
     void computeActiveCellsBoundingBox();
 
-    void setReaderSettings( std::shared_ptr<RifReaderSettings> readerSettings );
+    void setReaderSettings( RifReaderSettings& readerSettings );
 
     void updateResultAddressCollection();
 
@@ -139,11 +140,10 @@ protected:
 
     // Internal methods
 protected:
-    void                                computeCachedData();
-    void                                setReservoirData( RigEclipseCaseData* eclipseCase );
-    std::vector<QString>                additionalFiles() const;
-    RimEclipseViewCollection*           globalViewCollection() const;
-    RimEclipseContourMapViewCollection* contourMapViewCollection() const;
+    void                      computeCachedData();
+    void                      setReservoirData( RigEclipseCaseData* eclipseCase );
+    std::vector<QString>      additionalFiles() const;
+    RimEclipseViewCollection* globalViewCollection() const;
     void addViewsFromViewCollection( std::vector<RimEclipseView*>& views, const RimEclipseViewCollection* viewColl ) const;
 
 private:
@@ -158,7 +158,7 @@ protected:
     caf::PdmField<bool>                                    m_flipYAxis;
     caf::PdmChildField<RimEclipseInputPropertyCollection*> m_inputPropertyCollection;
 
-    std::shared_ptr<RifReaderSettings> m_readerSettings;
+    RifReaderSettings m_readerSettings;
 
 private:
     caf::PdmField<bool> m_releaseResultMemory;

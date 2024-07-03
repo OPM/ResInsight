@@ -41,11 +41,11 @@
 #include <map>
 #include <string>
 
-class RifReaderSettings;
 class RiaPreferencesSummary;
 class RiaPreferencesGeoMech;
 class RiaPreferencesSystem;
 class RiaPreferencesOsdu;
+class RiaPreferencesGrid;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -58,7 +58,6 @@ public:
     using FontSizeEnum        = RiaFontCache::FontSizeEnum;
     using PageSizeEnum        = caf::AppEnum<QPageSize::PageSizeId>;
     using PageOrientationEnum = caf::AppEnum<QPageLayout::Orientation>;
-    using GridModelEnum       = caf::AppEnum<RiaDefines::GridModelReader>;
 
     bool enableFaultsByDefault() const;
 
@@ -69,10 +68,6 @@ public:
     static RiaPreferences* current();
 
     QStringList tabNames();
-
-    const RifReaderSettings*    readerSettings() const;
-    RiaDefines::GridModelReader gridModelReader() const;
-    void                        setGridModelReaderOverride( const std::string& readerName );
 
     bool useUndoRedo() const;
 
@@ -134,6 +129,7 @@ public:
     RiaPreferencesSummary* summaryPreferences() const;
     RiaPreferencesSystem*  systemPreferences() const;
     RiaPreferencesOsdu*    osduPreferences() const;
+    RiaPreferencesGrid*    gridPreferences() const;
 
 public:
     caf::PdmField<bool> enableGrpcServer;
@@ -156,9 +152,6 @@ public:
     caf::PdmField<FontSizeEnum> defaultPlotFontSize;
 
     caf::PdmField<QString> lastUsedProjectFileName;
-
-    caf::PdmField<bool> autocomputeDepthRelatedProperties;
-    caf::PdmField<bool> loadAndShowSoil;
 
     caf::PdmField<bool>    holoLensDisableCertificateVerification;
     caf::PdmField<QString> csvTextExportFieldSeparator;
@@ -184,10 +177,6 @@ private:
     static double defaultMarginSize( QPageSize::PageSizeId pageSizeId );
 
 private:
-    caf::PdmField<GridModelEnum>           m_gridModelReader;
-    RiaDefines::GridModelReader            m_gridModelReaderOverride;
-    caf::PdmChildField<RifReaderSettings*> m_readerSettings;
-
     caf::PdmField<QString> m_dateFormat;
     caf::PdmField<QString> m_timeFormat;
 
@@ -234,6 +223,9 @@ private:
 
     // Well Path Import
     caf::PdmField<QString> m_multiLateralWellPattern;
+
+    // Grid import
+    caf::PdmChildField<RiaPreferencesGrid*> m_gridPreferences;
 
     // GeoMech things
     caf::PdmChildField<RiaPreferencesGeoMech*> m_geoMechPreferences;

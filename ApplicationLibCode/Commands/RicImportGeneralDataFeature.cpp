@@ -22,6 +22,7 @@
 #include "RiaEclipseFileNameTools.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesGrid.h"
 
 #include "RicImportSummaryCasesFeature.h"
 
@@ -47,10 +48,19 @@ CAF_CMD_SOURCE_INIT( RicImportGeneralDataFeature, "RicImportGeneralDataFeature" 
 ///
 //--------------------------------------------------------------------------------------------------
 RicImportGeneralDataFeature::OpenCaseResults
-    RicImportGeneralDataFeature::openEclipseFilesFromFileNames( const QStringList&                 fileNames,
-                                                                bool                               doCreateDefaultPlot,
-                                                                bool                               createDefaultView,
-                                                                std::shared_ptr<RifReaderSettings> readerSettings )
+    RicImportGeneralDataFeature::openEclipseFilesFromFileNames( const QStringList& fileNames, bool doCreateDefaultPlot, bool createDefaultView )
+{
+    RifReaderSettings rs = RiaPreferencesGrid::current()->readerSettings();
+    return openEclipseFilesFromFileNames( fileNames, doCreateDefaultPlot, createDefaultView, rs );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicImportGeneralDataFeature::OpenCaseResults RicImportGeneralDataFeature::openEclipseFilesFromFileNames( const QStringList& fileNames,
+                                                                                                         bool doCreateDefaultPlot,
+                                                                                                         bool createDefaultView,
+                                                                                                         RifReaderSettings& readerSettings )
 {
     CVF_ASSERT( !fileNames.empty() );
 
@@ -303,7 +313,7 @@ void RicImportGeneralDataFeature::openFileDialog( ImportFileType fileTypes )
         RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::ANY_ECLIPSE_FILE ), fileNames.front() );
     }
 
-    if ( !openEclipseFilesFromFileNames( fileNames, true, true, nullptr ) )
+    if ( !openEclipseFilesFromFileNames( fileNames, true, true ) )
     {
         RiaLogging::error( QString( "Failed to open file names: %1" ).arg( fileNames.join( ", " ) ) );
     }
@@ -319,10 +329,10 @@ void RicImportGeneralDataFeature::openFileDialog( ImportFileType fileTypes )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportGeneralDataFeature::openEclipseCaseFromFileNames( const QStringList&                 fileNames,
-                                                                bool                               createDefaultView,
-                                                                std::vector<int>&                  createdCaseIds,
-                                                                std::shared_ptr<RifReaderSettings> readerSettings )
+bool RicImportGeneralDataFeature::openEclipseCaseFromFileNames( const QStringList& fileNames,
+                                                                bool               createDefaultView,
+                                                                std::vector<int>&  createdCaseIds,
+                                                                RifReaderSettings& readerSettings )
 {
     bool                                     noDialog = false;
     RiaImportEclipseCaseTools::FileCaseIdMap newCaseFiles;

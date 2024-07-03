@@ -24,7 +24,7 @@
 #include "RiaDefines.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
-#include "RiaPreferences.h"
+#include "RiaPreferencesGrid.h"
 #include "RiaResultNames.h"
 
 #include "RifReaderEclipseOutput.h"
@@ -795,8 +795,8 @@ RigEclipseResultAddress RigCaseCellResultsData::defaultResult() const
 
     if ( maxTimeStepCount() > 0 )
     {
-        auto prefs = RiaPreferences::current();
-        if ( prefs->loadAndShowSoil ) return RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() );
+        auto prefs = RiaPreferencesGrid::current();
+        if ( prefs->loadAndShowSoil() ) return RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() );
 
         auto dynamicResult = std::find_if( allResults.begin(),
                                            allResults.end(),

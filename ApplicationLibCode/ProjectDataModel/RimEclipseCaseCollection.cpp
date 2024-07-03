@@ -21,9 +21,6 @@
 #include "RimEclipseCaseCollection.h"
 
 #include "RiaApplication.h"
-#include "RiaPreferences.h"
-
-#include "RifReaderSettings.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigGridManager.h"

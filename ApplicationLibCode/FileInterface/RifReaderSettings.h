@@ -19,33 +19,20 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include <QString>
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RifReaderSettings : public caf::PdmObject
+struct RifReaderSettings
 {
-    CAF_PDM_HEADER_INIT;
-
-    friend class RiaPreferences;
-
-public:
-    RifReaderSettings();
-
-    caf::PdmField<bool>    importFaults;
-    caf::PdmField<bool>    importNNCs;
-    caf::PdmField<bool>    includeInactiveCellsInFaultGeometry;
-    caf::PdmField<bool>    importAdvancedMswData;
-    caf::PdmField<QString> includeFileAbsolutePathPrefix;
-    caf::PdmField<bool>    useResultIndexFile;
-    caf::PdmField<bool>    skipWellData;
-    caf::PdmField<bool>    importSummaryData;
-
-    static std::shared_ptr<RifReaderSettings> createGridOnlyReaderSettings();
-
-private:
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    bool    importFaults;
+    bool    importNNCs;
+    bool    includeInactiveCellsInFaultGeometry;
+    bool    importAdvancedMswData;
+    bool    useResultIndexFile;
+    bool    skipWellData;
+    bool    importSummaryData;
+    QString includeFileAbsolutePathPrefix;
 };

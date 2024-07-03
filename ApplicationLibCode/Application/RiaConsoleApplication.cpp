@@ -20,6 +20,7 @@
 #include "RiaArgumentParser.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesGrid.h"
 #include "RiaProjectModifier.h"
 #include "RiaSocketServer.h"
 #include "RiaVersionInfo.h"
@@ -165,7 +166,7 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( gsl::n
     {
         CVF_ASSERT( o.valueCount() == 1 );
         std::string readerName = o.value( 0 ).toLower().toStdString();
-        m_preferences->setGridModelReaderOverride( readerName );
+        m_preferences->gridPreferences()->setGridModelReaderOverride( readerName );
     }
 
     QString projectFileName;

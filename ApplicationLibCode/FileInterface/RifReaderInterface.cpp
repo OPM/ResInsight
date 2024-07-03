@@ -19,57 +19,65 @@
 
 #include "RifReaderInterface.h"
 
-#include "RiaPreferences.h"
+#include "RiaPreferencesGrid.h"
 
 #include "RifEclipseInputFileTools.h"
-#include "RifReaderSettings.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderInterface::isFaultImportEnabled()
+RifReaderInterface::RifReaderInterface()
 {
-    return readerSettings()->importFaults;
+    RiaPreferencesGrid* prefs = RiaPreferencesGrid::current();
+    m_readerSettings          = prefs->readerSettings();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderInterface::isImportOfCompleteMswDataEnabled()
+bool RifReaderInterface::isFaultImportEnabled() const
 {
-    return readerSettings()->importAdvancedMswData;
+    return m_readerSettings.importFaults;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderInterface::isNNCsEnabled()
+bool RifReaderInterface::isImportOfCompleteMswDataEnabled() const
 {
-    return readerSettings()->importNNCs;
+    return m_readerSettings.importAdvancedMswData;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderInterface::loadWellDataEnabled()
+bool RifReaderInterface::isNNCsEnabled() const
 {
-    return !readerSettings()->skipWellData;
+    return m_readerSettings.importNNCs;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderInterface::includeInactiveCellsInFaultGeometry()
+bool RifReaderInterface::loadWellDataEnabled() const
 {
-    return readerSettings()->includeInactiveCellsInFaultGeometry();
+    return m_readerSettings.skipWellData;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString RifReaderInterface::faultIncludeFileAbsolutePathPrefix()
+bool RifReaderInterface::includeInactiveCellsInFaultGeometry() const
 {
-    return readerSettings()->includeFileAbsolutePathPrefix;
+    return m_readerSettings.includeInactiveCellsInFaultGeometry;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QString RifReaderInterface::faultIncludeFileAbsolutePathPrefix() const
+{
+    return m_readerSettings.includeFileAbsolutePathPrefix;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,26 +130,7 @@ size_t RifReaderInterface::timeStepIndexOnFile( size_t timeStepIndex ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RifReaderSettings* RifReaderInterface::readerSettings() const
-{
-    if ( m_readerSettings )
-    {
-        return m_readerSettings.get();
-    }
-    else
-    {
-        RiaPreferences* prefs = RiaPreferences::current();
-
-        CVF_ASSERT( prefs->readerSettings() );
-
-        return prefs->readerSettings();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifReaderInterface::setReaderSettings( std::shared_ptr<RifReaderSettings> readerSettings )
+void RifReaderInterface::setReaderSettings( RifReaderSettings readerSettings )
 {
     m_readerSettings = readerSettings;
 }
