@@ -61,7 +61,7 @@ bool RifReaderInterface::isNNCsEnabled() const
 //--------------------------------------------------------------------------------------------------
 bool RifReaderInterface::loadWellDataEnabled() const
 {
-    return m_readerSettings.skipWellData;
+    return !m_readerSettings.skipWellData;
 }
 
 //--------------------------------------------------------------------------------------------------
