@@ -92,7 +92,7 @@ int caf::PdmUiTreeSelectionQModel::optionItemValueRole()
 //--------------------------------------------------------------------------------------------------
 void caf::PdmUiTreeSelectionQModel::setCheckedStateForItems( const QModelIndexList& sourceModelIndices, bool checked )
 {
-    if ( !m_uiFieldHandle || !m_uiFieldHandle->uiField() ) return;
+    if ( !m_uiFieldHandle || !m_uiFieldHandle->uiField() || m_uiFieldHandle->uiField()->isUiReadOnly() ) return;
 
     std::set<unsigned int> selectedIndices;
     {
@@ -142,7 +142,7 @@ void caf::PdmUiTreeSelectionQModel::setCheckedStateForItems( const QModelIndexLi
 //--------------------------------------------------------------------------------------------------
 void caf::PdmUiTreeSelectionQModel::invertCheckedStateForItems( const QModelIndexList& indices )
 {
-    if ( !m_uiFieldHandle || !m_uiFieldHandle->uiField() ) return;
+    if ( !m_uiFieldHandle || !m_uiFieldHandle->uiField() || m_uiFieldHandle->uiField()->isUiReadOnly() ) return;
 
     std::set<unsigned int> currentSelectedIndices;
     {
@@ -178,6 +178,8 @@ void caf::PdmUiTreeSelectionQModel::invertCheckedStateForItems( const QModelInde
 //--------------------------------------------------------------------------------------------------
 void caf::PdmUiTreeSelectionQModel::unselectAllItems()
 {
+    if ( m_uiFieldHandle->uiField()->isUiReadOnly() ) return;
+
     PdmUiCommandSystemProxy::instance()->setUiValueToField( m_uiFieldHandle->uiField(), {} );
 }
 
@@ -464,7 +466,7 @@ QVariant caf::PdmUiTreeSelectionQModel::data( const QModelIndex& index, int role
 //--------------------------------------------------------------------------------------------------
 bool caf::PdmUiTreeSelectionQModel::setData( const QModelIndex& index, const QVariant& value, int role /*= Qt::EditRole*/ )
 {
-    if ( !m_uiFieldHandle || !m_uiFieldHandle->uiField() ) return false;
+    if ( !m_uiFieldHandle || !m_uiFieldHandle->uiField() || m_uiFieldHandle->uiField()->isUiReadOnly() ) return false;
 
     if ( role == Qt::CheckStateRole )
     {
