@@ -181,6 +181,18 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
 
     QList<PdmOptionItemInfo> options = uiField()->valueOptions();
 
+    if ( options.empty() )
+    {
+        QVariant    fieldValue = uiField()->uiValue();
+        QStringList texts      = fieldValue.toStringList();
+
+        for ( const auto& text : texts )
+        {
+            PdmOptionItemInfo item( text, text );
+            options.push_back( item );
+        }
+    }
+
     bool itemCountHasChaged = false;
     if ( m_model->optionItemCount() != options.size() ) itemCountHasChaged = true;
 
