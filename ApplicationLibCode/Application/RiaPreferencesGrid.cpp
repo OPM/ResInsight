@@ -24,7 +24,7 @@
 
 #include "cafPdmUiCheckBoxEditor.h"
 
-CAF_PDM_SOURCE_INIT( RiaPreferencesGrid, "RiaPreferencesGrid", "RifReaderSettings" );
+CAF_PDM_SOURCE_INIT( RiaPreferencesGrid, "RifReaderSettings" );
 
 //--------------------------------------------------------------------------------------------------
 ///
