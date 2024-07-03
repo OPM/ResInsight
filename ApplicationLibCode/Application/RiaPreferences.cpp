@@ -280,7 +280,6 @@ RiaPreferences::RiaPreferences()
 //--------------------------------------------------------------------------------------------------
 RiaPreferences::~RiaPreferences()
 {
-    //    delete m_readerSettings;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -296,7 +295,6 @@ RiaPreferences* RiaPreferences::current()
 //--------------------------------------------------------------------------------------------------
 void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    //    m_readerSettings->defineEditorAttribute( field, uiConfigName, attribute );
     m_summaryPreferences->defineEditorAttribute( field, uiConfigName, attribute );
 
     {

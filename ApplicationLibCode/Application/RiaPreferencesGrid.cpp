@@ -34,7 +34,7 @@ RiaPreferencesGrid::RiaPreferencesGrid()
 {
     CAF_PDM_InitObject( "RiaPreferencesGrid" );
 
-    CAF_PDM_InitFieldNoDefault( &m_gridModelReader, "gridModelReader", "Grid Model Reader" );
+    CAF_PDM_InitFieldNoDefault( &m_gridModelReader, "gridModelReader", "Model Reader" );
     m_gridModelReader = RiaDefines::GridModelReader::RESDATA;
 
     CAF_PDM_InitField( &m_importFaults, "importFaults", true, "Import Faults" );
@@ -43,7 +43,10 @@ RiaPreferencesGrid::RiaPreferencesGrid()
     CAF_PDM_InitField( &m_importNNCs, "importSimulationNNCs", true, "Import NNCs" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_importNNCs );
 
-    CAF_PDM_InitField( &m_includeInactiveCellsInFaultGeometry, "includeInactiveCellsInFaultGeometry", false, "Include Inactive Cells" );
+    CAF_PDM_InitField( &m_includeInactiveCellsInFaultGeometry,
+                       "includeInactiveCellsInFaultGeometry",
+                       false,
+                       "Include Inactive Cells in Fault Geometry" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_includeInactiveCellsInFaultGeometry );
 
     CAF_PDM_InitField( &m_importAdvancedMswData, "importAdvancedMswData", true, "Import Advanced MSW Data" );
@@ -85,6 +88,9 @@ RiaPreferencesGrid::RiaPreferencesGrid()
 
     CAF_PDM_InitField( &m_loadAndShowSoil, "loadAndShowSoil", true, "Load and Show SOIL" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_loadAndShowSoil );
+
+    CAF_PDM_InitField( &m_onlyLoadActiveCells, "onlyLoadActiveCells", false, "Only Load Active Cell Geometry" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_onlyLoadActiveCells );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -115,12 +121,20 @@ void RiaPreferencesGrid::appendItems( caf::PdmUiOrdering& uiOrdering )
 
     auto wellGrp = uiOrdering.addNewGroup( "Well Import" );
 
-    wellGrp->add( &m_importAdvancedMswData );
     wellGrp->add( &m_skipWellData );
+    wellGrp->add( &m_importAdvancedMswData );
 
-    uiOrdering.add( &m_useResultIndexFile );
+    if ( m_gridModelReaderOverride == RiaDefines::GridModelReader::NOT_SET )
+    {
+        auto egridGrp = uiOrdering.addNewGroup( "EGRID Settings" );
+        egridGrp->add( &m_gridModelReader );
+    }
 
-    if ( m_gridModelReaderOverride == RiaDefines::GridModelReader::NOT_SET ) uiOrdering.add( &m_gridModelReader );
+    auto resdataGrp = uiOrdering.addNewGroup( "ResData Reader Settings" );
+    resdataGrp->add( &m_useResultIndexFile );
+
+    auto opmcGrp = uiOrdering.addNewGroup( "OPM Common Reader Settings" );
+    opmcGrp->add( &m_onlyLoadActiveCells );
 
     const bool setFaultImportSettingsReadOnly = !importFaults();
 
@@ -234,6 +248,14 @@ bool RiaPreferencesGrid::loadAndShowSoil() const
 bool RiaPreferencesGrid::autoComputeDepthRelatedProperties() const
 {
     return m_autoComputeDepthRelatedProperties;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesGrid::onlyLoadActiveCells() const
+{
+    return m_onlyLoadActiveCells;
 }
 
 //--------------------------------------------------------------------------------------------------

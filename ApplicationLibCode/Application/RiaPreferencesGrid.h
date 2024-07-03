@@ -54,6 +54,7 @@ public:
     bool    skipWellData() const;
     bool    loadAndShowSoil() const;
     bool    autoComputeDepthRelatedProperties() const;
+    bool    onlyLoadActiveCells() const;
 
     RiaDefines::GridModelReader gridModelReader() const;
     void                        setGridModelReaderOverride( const std::string& readerName );
@@ -73,4 +74,5 @@ private:
     caf::PdmField<bool>    m_skipWellData;
     caf::PdmField<bool>    m_autoComputeDepthRelatedProperties;
     caf::PdmField<bool>    m_loadAndShowSoil;
+    caf::PdmField<bool>    m_onlyLoadActiveCells;
 };
