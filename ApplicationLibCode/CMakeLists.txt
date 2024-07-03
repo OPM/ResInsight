@@ -93,6 +93,7 @@ list(
   Application/CMakeLists_files.cmake
   Application/Tools/CMakeLists_files.cmake
   Application/Tools/WellPathTools/CMakeLists_files.cmake
+  Application/Tools/Cloud/CMakeLists_files.cmake
   ReservoirDataModel/CMakeLists_files.cmake
   ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
   ReservoirDataModel/Completions/CMakeLists_files.cmake
@@ -415,6 +416,7 @@ set(UNITY_EXCLUDE_FILES
     FileInterface/RifOsduWellPathReader.cpp
     FileInterface/RifOsduWellLogReader.cpp
     FileInterface/RifByteArrayArrowRandomAccessFile.cpp
+    FileInterface/RifArrowTools.cpp
 )
 
 if(RESINSIGHT_ENABLE_UNITY_BUILD)

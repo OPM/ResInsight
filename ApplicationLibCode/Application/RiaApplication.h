@@ -69,6 +69,7 @@ class RiuPlotMainWindow;
 class RiuRecentFileActionProvider;
 class RiaArgumentParser;
 class RiaOsduConnector;
+class RiaSumoConnector;
 
 namespace caf
 {
@@ -202,6 +203,7 @@ public:
     virtual void              showFormattedTextInMessageBoxOrConsole( const QString& errMsg ) = 0;
 
     RiaOsduConnector* makeOsduConnector();
+    RiaSumoConnector* makeSumoConnector();
 
 protected:
     // Protected implementation specific overrides
@@ -259,4 +261,5 @@ protected:
 private:
     static RiaApplication*     s_riaApplication;
     QPointer<RiaOsduConnector> m_osduConnector;
+    QPointer<RiaSumoConnector> m_sumoConnector;
 };

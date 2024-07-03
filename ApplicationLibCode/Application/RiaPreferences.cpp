@@ -27,6 +27,7 @@
 #include "RiaPreferencesGeoMech.h"
 #include "RiaPreferencesGrid.h"
 #include "RiaPreferencesSummary.h"
+#include "RiaPreferencesSumo.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaValidRegExpValidator.h"
@@ -273,6 +274,9 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitFieldNoDefault( &m_osduPreferences, "osduPreferences", "osduPreferences" );
     m_osduPreferences = new RiaPreferencesOsdu;
+
+    CAF_PDM_InitFieldNoDefault( &m_sumoPreferences, "sumoPreferences", "sumoPreferences" );
+    m_sumoPreferences = new RiaPreferencesSumo;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -465,6 +469,9 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
         otherGroup->add( &m_gridCalculationExpressionFolder );
         otherGroup->add( &m_summaryCalculationExpressionFolder );
+
+        caf::PdmUiGroup* sumoGroup = uiOrdering.addNewGroup( "SUMO" );
+        m_sumoPreferences()->uiOrdering( uiConfigName, *sumoGroup );
 
         caf::PdmUiGroup* loggingGroup = uiOrdering.addNewGroup( "Logging and Backup" );
         loggingGroup->add( &m_storeBackupOfProjectFile );
@@ -1026,6 +1033,14 @@ RiaPreferencesGeoMech* RiaPreferences::geoMechPreferences() const
 RiaPreferencesOsdu* RiaPreferences::osduPreferences() const
 {
     return m_osduPreferences();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaPreferencesSumo* RiaPreferences::sumoPreferences() const
+{
+    return m_sumoPreferences();
 }
 
 //--------------------------------------------------------------------------------------------------

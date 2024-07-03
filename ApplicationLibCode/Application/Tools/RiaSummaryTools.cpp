@@ -393,3 +393,23 @@ void RiaSummaryTools::reloadSummaryCase( RimSummaryCase* summaryCase )
         multiPlot->updatePlotTitles();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryTools::reloadSummaryEnsemble( RimSummaryCaseCollection* ensemble )
+{
+    RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
+    for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
+    {
+        for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
+        {
+            summaryPlot->loadDataAndUpdate();
+
+            // Consider to make the zoom optional
+            summaryPlot->zoomAll();
+        }
+
+        multiPlot->updatePlotTitles();
+    }
+}
