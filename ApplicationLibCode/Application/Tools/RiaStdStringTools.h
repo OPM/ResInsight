@@ -68,6 +68,9 @@ public:
     // The input "-3,5-8,10-", min:1, max:12 will produce {1, 2, 3, 5, 6, 7, 8, 10, 11, 12}
     static std::set<int> valuesFromRangeSelection( const std::string& s, int minimumValue, int maximumValue );
 
+    // Create a string from a set of values. {1, 2, 3, 5, 6, 7, 8, 10, 11, 12} will be converted to "1, 2, 3, 5-8, 10-12"
+    static std::string formatRangeSelection( const std::vector<int>& values );
+
 private:
     template <class Container>
     static void   splitByDelimiter( const std::string& str, Container& cont, char delimiter = ' ' );
