@@ -25,14 +25,13 @@
 #include "RiaDefines.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
-#include "RiaPreferences.h"
+#include "RiaPreferencesGrid.h"
 #include "RiaQDateTimeTools.h"
 
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 
 #include "RicfCommandObject.h"
 #include "RifInputPropertyLoader.h"
-#include "RifReaderSettings.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -129,6 +128,8 @@ RimEclipseCase::RimEclipseCase()
     m_fractureModelResults.uiCapability()->setUiTreeChildrenHidden( true );
 
     setReservoirData( nullptr );
+
+    m_readerSettings = RiaPreferencesGrid::current()->readerSettings();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -184,15 +185,6 @@ void RimEclipseCase::ensureDeckIsParsedForEquilData()
 {
     if ( m_rigEclipseCase.notNull() )
     {
-        QString includeFileAbsolutePathPrefix;
-        {
-            RiaPreferences* prefs = RiaPreferences::current();
-            if ( prefs->readerSettings() )
-            {
-                includeFileAbsolutePathPrefix = prefs->readerSettings()->includeFileAbsolutePathPrefix();
-            }
-        }
-
         QString dataDeckFile;
         {
             QFileInfo fi( gridFileName() );
@@ -200,7 +192,7 @@ void RimEclipseCase::ensureDeckIsParsedForEquilData()
             dataDeckFile = caf::Utils::constructFullFileName( fi.absolutePath(), fi.baseName(), ".DATA" );
         }
 
-        m_rigEclipseCase->ensureDeckIsParsedForEquilData( dataDeckFile, includeFileAbsolutePathPrefix );
+        m_rigEclipseCase->ensureDeckIsParsedForEquilData( dataDeckFile, m_readerSettings.includeFileAbsolutePathPrefix );
     }
 }
 
@@ -730,9 +722,7 @@ void RimEclipseCase::ensureFaultDataIsComputed()
     RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
     if ( rigEclipseCase )
     {
-        bool computeFaults = ( m_readerSettings && m_readerSettings->importFaults() ) ||
-                             ( !m_readerSettings && RiaPreferences::current()->readerSettings()->importFaults() );
-        if ( computeFaults )
+        if ( m_readerSettings.importFaults )
         {
             RigActiveCellInfo* actCellInfo = rigEclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
             rigEclipseCase->mainGrid()->calculateFaults( actCellInfo );
@@ -1179,7 +1169,7 @@ bool RimEclipseCase::importAsciiInputProperties( const QStringList& fileNames )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCase::setReaderSettings( std::shared_ptr<RifReaderSettings> readerSettings )
+void RimEclipseCase::setReaderSettings( RifReaderSettings& readerSettings )
 {
     m_readerSettings = readerSettings;
 }

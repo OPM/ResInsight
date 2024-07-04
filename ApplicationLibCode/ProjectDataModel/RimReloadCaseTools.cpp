@@ -22,6 +22,7 @@
 #include "RiaFractureDefines.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesGrid.h"
 #include "RiaSummaryTools.h"
 
 #include "ApplicationCommands/RicShowMainWindowFeature.h"
@@ -213,8 +214,9 @@ bool RimReloadCaseTools::openOrImportGridModelFromSummaryCase( const RimSummaryC
 
     if ( QFileInfo::exists( candidateGridFileName ) )
     {
-        bool createView = true;
-        auto id         = RiaImportEclipseCaseTools::openEclipseCaseFromFile( candidateGridFileName, createView );
+        bool              createView = true;
+        RifReaderSettings rs         = RiaPreferencesGrid::current()->readerSettings();
+        auto              id         = RiaImportEclipseCaseTools::openEclipseCaseFromFile( candidateGridFileName, createView, rs );
         if ( id > -1 )
         {
             RiaLogging::info( QString( "Imported %1" ).arg( candidateGridFileName ) );

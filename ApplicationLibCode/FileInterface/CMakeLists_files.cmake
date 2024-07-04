@@ -128,7 +128,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifJsonEncodeDecode.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderInterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderMockModel.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RifReaderSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseSummaryAddress.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseRftAddress.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifWellPathImporter.cpp

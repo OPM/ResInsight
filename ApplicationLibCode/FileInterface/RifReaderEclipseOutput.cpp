@@ -32,7 +32,6 @@
 #include "RifHdf5ReaderInterface.h"
 #include "RifOpmRadialGridTools.h"
 #include "RifReaderEclipseWell.h"
-#include "RifReaderSettings.h"
 
 #ifdef USE_HDF5
 #include "RifHdf5Reader.h"

@@ -23,7 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
-#include "RiaPreferences.h"
+#include "RiaPreferencesGrid.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaResultNames.h"
 
@@ -37,7 +37,6 @@
 #include "RifReaderMockModel.h"
 #include "RifReaderOpmCommon.h"
 #include "RifReaderOpmRft.h"
-#include "RifReaderSettings.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -160,7 +159,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
             return false;
         }
 
-        auto readerType = RiaPreferences::current()->gridModelReader();
+        auto readerType = RiaPreferencesGrid::current()->gridModelReader();
 
         // opmcommon reader only reads EGRID
         if ( !gridFileName().toLower().endsWith( ".egrid" ) )
@@ -248,7 +247,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
         outReader->setHdf5FileName( m_sourSimFileName().path() );
     }
 
-    if ( RiaPreferences::current()->autocomputeDepthRelatedProperties )
+    if ( RiaPreferencesGrid::current()->autoComputeDepthRelatedProperties() )
     {
         results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeDepthRelatedResults();
         results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->computeDepthRelatedResults();

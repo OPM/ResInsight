@@ -23,14 +23,13 @@
 #include "RiaDefines.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
-#include "RiaPreferences.h"
+#include "RiaPreferencesGrid.h"
 
 #include "RifEclipseInputFileTools.h"
 #include "RifInputPropertyLoader.h"
 #include "RifReaderEclipseInput.h"
 #include "RifReaderInterface.h"
 #include "RifReaderMockModel.h"
-#include "RifReaderSettings.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -107,7 +106,7 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
         setReservoirData( new RigEclipseCaseData( this ) );
     }
 
-    bool importFaults = RiaPreferences::current()->readerSettings()->importFaults();
+    bool importFaults = RiaPreferencesGrid::current()->importFaults();
 
     std::vector<QString> allErrorMessages;
 
@@ -225,7 +224,7 @@ bool RimEclipseInputCase::openEclipseGridFile()
         computeCachedData();
     }
 
-    if ( RiaPreferences::current()->autocomputeDepthRelatedProperties )
+    if ( RiaPreferencesGrid::current()->autoComputeDepthRelatedProperties() )
     {
         results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeDepthRelatedResults();
         results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->computeDepthRelatedResults();

@@ -25,12 +25,12 @@
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesGeoMech.h"
+#include "RiaPreferencesGrid.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaValidRegExpValidator.h"
 
-#include "RifReaderSettings.h"
 #include "RiuGuiTheme.h"
 
 #include "cafPdmFieldCvfColor.h"
@@ -82,7 +82,6 @@ CAF_PDM_SOURCE_INIT( RiaPreferences, "RiaPreferences" );
 ///
 //--------------------------------------------------------------------------------------------------
 RiaPreferences::RiaPreferences()
-    : m_gridModelReaderOverride( RiaDefines::GridModelReader::NOT_SET )
 {
     CAF_PDM_InitField( &m_navigationPolicy,
                        "navigationPolicy",
@@ -194,18 +193,6 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitFieldNoDefault( &lastUsedProjectFileName, "lastUsedProjectFileName", "Last Used Project File" );
     lastUsedProjectFileName.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &autocomputeDepthRelatedProperties,
-                       "autocomputeDepth",
-                       true,
-                       "Compute DEPTH Related Properties",
-                       "",
-                       "DEPTH, DX, DY, DZ, TOP, BOTTOM",
-                       "" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &autocomputeDepthRelatedProperties );
-
-    CAF_PDM_InitField( &loadAndShowSoil, "loadAndShowSoil", true, "Load and Show SOIL" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &loadAndShowSoil );
-
     CAF_PDM_InitField( &holoLensDisableCertificateVerification,
                        "holoLensDisableCertificateVerification",
                        false,
@@ -214,10 +201,6 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitField( &csvTextExportFieldSeparator, "csvTextExportFieldSeparator", QString( "," ), "CSV Text Export Field Separator" );
 
-    CAF_PDM_InitFieldNoDefault( &m_gridModelReader, "gridModelReader", "Grid Model Reader" );
-
-    CAF_PDM_InitFieldNoDefault( &m_readerSettings, "readerSettings", "Reader Settings" );
-    m_readerSettings = new RifReaderSettings;
     CAF_PDM_InitFieldNoDefault( &m_dateFormat, "dateFormat", "Date Format" );
     m_dateFormat.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_dateFormat = RiaQDateTimeTools::supportedDateFormats().front();
@@ -279,6 +262,9 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitFieldNoDefault( &m_summaryPreferences, "summaryPreferences", "summaryPreferences" );
     m_summaryPreferences = new RiaPreferencesSummary;
 
+    CAF_PDM_InitFieldNoDefault( &m_gridPreferences, "gridPreferences", "gridPreferences" );
+    m_gridPreferences = new RiaPreferencesGrid();
+
     CAF_PDM_InitFieldNoDefault( &m_geoMechPreferences, "geoMechPreferences", "geoMechPreferences" );
     m_geoMechPreferences = new RiaPreferencesGeoMech;
 
@@ -294,7 +280,6 @@ RiaPreferences::RiaPreferences()
 //--------------------------------------------------------------------------------------------------
 RiaPreferences::~RiaPreferences()
 {
-    delete m_readerSettings;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -310,7 +295,6 @@ RiaPreferences* RiaPreferences::current()
 //--------------------------------------------------------------------------------------------------
 void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    m_readerSettings->defineEditorAttribute( field, uiConfigName, attribute );
     m_summaryPreferences->defineEditorAttribute( field, uiConfigName, attribute );
 
     {
@@ -393,13 +377,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     }
     else if ( uiConfigName == RiaPreferences::tabNameGrid() )
     {
-        if ( m_gridModelReaderOverride == RiaDefines::GridModelReader::NOT_SET ) uiOrdering.add( &m_gridModelReader );
-
-        caf::PdmUiGroup* newCaseBehaviourGroup = uiOrdering.addNewGroup( "Behavior When Loading Data" );
-        newCaseBehaviourGroup->add( &autocomputeDepthRelatedProperties );
-        newCaseBehaviourGroup->add( &loadAndShowSoil );
-
-        m_readerSettings->uiOrdering( uiConfigName, *newCaseBehaviourGroup );
+        m_gridPreferences()->appendItems( uiOrdering );
     }
     else if ( uiConfigName == RiaPreferences::tabNameSummary() )
     {
@@ -683,55 +661,6 @@ QStringList RiaPreferences::tabNames()
     }
 
     return names;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const RifReaderSettings* RiaPreferences::readerSettings() const
-{
-    return m_readerSettings;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiaDefines::GridModelReader RiaPreferences::gridModelReader() const
-{
-    if ( m_gridModelReaderOverride != RiaDefines::GridModelReader::NOT_SET )
-    {
-        return m_gridModelReaderOverride;
-    }
-
-    return m_gridModelReader();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaPreferences::setGridModelReaderOverride( const std::string& readerName )
-{
-    RiaDefines::GridModelReader readerType = RiaDefines::GridModelReader::NOT_SET;
-    if ( readerName == "opm_common" )
-    {
-        readerType = RiaDefines::GridModelReader::OPM_COMMON;
-    }
-    else if ( readerName == "resdata" )
-    {
-        readerType = RiaDefines::GridModelReader::RESDATA;
-    }
-    else
-    {
-        RiaLogging::warning( QString::fromStdString( "Unknown EGRID reader type specified on command line: " + readerName ) );
-        return;
-    }
-
-    if ( readerType != RiaDefines::GridModelReader::NOT_SET )
-    {
-        RiaLogging::info( QString::fromStdString( "Using EGRID reader: " + readerName ) );
-    }
-
-    m_gridModelReaderOverride = readerType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1105,4 +1034,12 @@ RiaPreferencesOsdu* RiaPreferences::osduPreferences() const
 bool RiaPreferences::enableFaultsByDefault() const
 {
     return m_enableFaultsByDefault;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaPreferencesGrid* RiaPreferences::gridPreferences() const
+{
+    return m_gridPreferences();
 }

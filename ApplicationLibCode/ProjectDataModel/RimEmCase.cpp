@@ -20,7 +20,7 @@
 
 #include "RiaDefines.h"
 #include "RiaLogging.h"
-#include "RiaPreferences.h"
+#include "RiaPreferencesGrid.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -95,7 +95,7 @@ bool RimEmCase::openEclipseGridFile()
 
     results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createPlaceholderResultEntries();
 
-    if ( RiaPreferences::current()->autocomputeDepthRelatedProperties )
+    if ( RiaPreferencesGrid::current()->autoComputeDepthRelatedProperties() )
     {
         results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeDepthRelatedResults();
         results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->computeDepthRelatedResults();

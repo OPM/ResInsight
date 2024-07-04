@@ -20,6 +20,7 @@
 #include "RicImportEclipseCaseFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaPreferencesGrid.h"
 
 #include "RimEclipseCaseCollection.h"
 
@@ -51,9 +52,9 @@ void RicImportEclipseCaseFeature::onActionTriggered( bool isChecked )
     defaultDir = QFileInfo( fileNames.last() ).absolutePath();
     app->setLastUsedDialogDirectory( "BINARY_GRID", defaultDir );
 
-    bool                               createDefaultView = true;
-    std::vector<int>                   caseIds;
-    std::shared_ptr<RifReaderSettings> readerSettings;
+    bool              createDefaultView = true;
+    std::vector<int>  caseIds;
+    RifReaderSettings readerSettings = RiaPreferencesGrid::current()->readerSettings();
     openEclipseCaseFromFileNames( fileNames, createDefaultView, caseIds, readerSettings );
 
     for ( const auto& f : fileNames )

@@ -22,6 +22,7 @@
 #include "RiaColorTables.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesGrid.h"
 
 #include "ExportCommands/RicExportToLasFileFeature.h"
 #include "RicCloseCaseFeature.h"
@@ -280,8 +281,8 @@ RimEclipseCase* RicCreateEnsembleWellLogFeature::loadEclipseCase( const QString&
     bool createView = false;
     bool createPlot = false;
 
-    std::shared_ptr<RifReaderSettings> readerSettings = RifReaderSettings::createGridOnlyReaderSettings();
-    auto                               openResult =
+    RifReaderSettings readerSettings = RiaPreferencesGrid::current()->gridOnlyReaderSettings();
+    auto              openResult =
         RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList( { absolutePath } ), createPlot, createView, readerSettings );
 
     if ( !openResult.createdCaseIds.empty() )

@@ -30,7 +30,6 @@
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"
 #include "RifReaderEclipseOutput.h"
-#include "RifReaderSettings.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RimEclipseResultCase.h"

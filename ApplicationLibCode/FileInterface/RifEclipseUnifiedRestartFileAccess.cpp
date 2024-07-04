@@ -21,11 +21,10 @@
 #include "RifEclipseUnifiedRestartFileAccess.h"
 
 #include "RiaLogging.h"
-#include "RiaPreferences.h"
+#include "RiaPreferencesGrid.h"
 
 #include "RiaStringEncodingTools.h"
 #include "RifEclipseOutputFileTools.h"
-#include "RifReaderSettings.h"
 
 #include "ert/ecl/ecl_file.h"
 #include "ert/ecl/ecl_kw_magic.h"
@@ -135,10 +134,8 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUnifiedRestartFileAccess::useResultIndexFile() const
 {
-    RiaPreferences*          prefs          = RiaPreferences::current();
-    const RifReaderSettings* readerSettings = prefs->readerSettings();
-
-    return readerSettings->useResultIndexFile();
+    RiaPreferencesGrid* prefs = RiaPreferencesGrid::current();
+    return prefs->useResultIndexFile();
 }
 
 //--------------------------------------------------------------------------------------------------

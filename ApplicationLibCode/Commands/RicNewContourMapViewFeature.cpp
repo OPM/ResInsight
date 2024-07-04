@@ -50,7 +50,7 @@
 
 #include "RiaColorTools.h"
 #include "RiaLogging.h"
-#include "RiaPreferences.h"
+#include "RiaPreferencesGrid.h"
 
 #include "cafPdmDocument.h"
 #include "cafSelectionManager.h"
@@ -438,7 +438,7 @@ void RicNewContourMapViewFeature::assignDefaultResultAndLegend( RimEclipseContou
     {
         contourMap->cellResult()->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
 
-        if ( RiaPreferences::current()->loadAndShowSoil )
+        if ( RiaPreferencesGrid::current()->loadAndShowSoil() )
         {
             contourMap->cellResult()->setResultVariable( "SOIL" );
         }
