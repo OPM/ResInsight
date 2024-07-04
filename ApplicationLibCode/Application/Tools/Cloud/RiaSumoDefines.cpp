@@ -28,3 +28,11 @@ QString RiaSumoDefines::tokenPath()
     QString homePath = QDir::homePath();
     return homePath + "/.resinsight/sumo_token.json";
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaSumoDefines::requestTimeoutMillis()
+{
+    return 500;
+}

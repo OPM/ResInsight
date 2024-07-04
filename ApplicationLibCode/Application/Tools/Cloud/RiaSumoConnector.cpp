@@ -226,10 +226,8 @@ void RiaSumoConnector::requestCasesForFieldBlocking( const QString& fieldName )
 
     requestCasesForField( fieldName );
 
-    // Start the timer
     timer.setSingleShot( true );
-    int timeout = 10000;
-    timer.start( timeout );
+    timer.start( RiaSumoDefines::requestTimeoutMillis() );
     loop.exec();
 }
 
@@ -269,10 +267,8 @@ void RiaSumoConnector::requestAssetsBlocking()
 
     requestAssets();
 
-    // Start the timer
     timer.setSingleShot( true );
-    int timeout = 10000;
-    timer.start( timeout );
+    timer.start( RiaSumoDefines::requestTimeoutMillis() );
     loop.exec();
 }
 
@@ -334,10 +330,8 @@ void RiaSumoConnector::requestEnsembleByCasesIdBlocking( const SumoCaseId& caseI
 
     requestEnsembleByCasesId( caseId );
 
-    // Start the timer
     timer.setSingleShot( true );
-    int timeout = 10000;
-    timer.start( timeout );
+    timer.start( RiaSumoDefines::requestTimeoutMillis() );
     loop.exec();
 }
 
@@ -409,10 +403,8 @@ void RiaSumoConnector::requestVectorNamesForEnsembleBlocking( const SumoCaseId& 
 
     requestVectorNamesForEnsemble( caseId, ensembleName );
 
-    // Start the timer
     timer.setSingleShot( true );
-    int timeout = 10000;
-    timer.start( timeout );
+    timer.start( RiaSumoDefines::requestTimeoutMillis() );
     loop.exec();
 }
 
@@ -480,10 +472,8 @@ void RiaSumoConnector::requestRealizationIdsForEnsembleBlocking( const SumoCaseI
 
     requestRealizationIdsForEnsemble( caseId, ensembleName );
 
-    // Start the timer
     timer.setSingleShot( true );
-    int timeout = 10000;
-    timer.start( timeout );
+    timer.start( RiaSumoDefines::requestTimeoutMillis() );
     loop.exec();
 }
 
@@ -545,10 +535,8 @@ void RiaSumoConnector::requestBlobIdForEnsembleBlocking( const SumoCaseId& caseI
 
     requestBlobIdForEnsemble( caseId, ensembleName, vectorName );
 
-    // Start the timer
     timer.setSingleShot( true );
-    int timeout = 10000;
-    timer.start( timeout );
+    timer.start( RiaSumoDefines::requestTimeoutMillis() );
     loop.exec();
 }
 
@@ -649,10 +637,8 @@ QByteArray RiaSumoConnector::requestParquetDataBlocking( const SumoCaseId& caseI
 
     requestBlobDownload( blobId );
 
-    // Start the timer
     timer.setSingleShot( true );
-    int timeout = 10000;
-    timer.start( timeout );
+    timer.start( RiaSumoDefines::requestTimeoutMillis() );
     loop.exec();
 
     for ( const auto& blobData : m_redirectInfo )
@@ -988,7 +974,7 @@ QString RiaSumoConnector::requestTokenBlocking()
     connect( this, SIGNAL( tokenReady( const QString& ) ), &loop, SLOT( quit() ) );
     connect( &timer, SIGNAL( timeout() ), &loop, SLOT( quit() ) );
     requestToken();
-    timer.start( 10000 );
+    timer.start( RiaSumoDefines::requestTimeoutMillis() );
     loop.exec();
     return m_token;
 }

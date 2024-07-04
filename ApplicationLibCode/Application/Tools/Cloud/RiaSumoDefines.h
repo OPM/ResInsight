@@ -28,4 +28,5 @@ using SumoCaseId  = nonstd::ordered<QString, struct sumo_case_tag>;
 namespace RiaSumoDefines
 {
 QString tokenPath();
-}
+int     requestTimeoutMillis();
+}; // namespace RiaSumoDefines
