@@ -419,3 +419,51 @@ std::set<int> RiaStdStringTools::valuesFromRangeSelection( const std::string& s,
 
     return {};
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RiaStdStringTools::formatRangeSelection( const std::vector<int>& values )
+{
+    if ( values.empty() ) return "";
+
+    std::vector<int> sortedNums = values;
+    std::sort( sortedNums.begin(), sortedNums.end() );
+
+    std::ostringstream result;
+    int                start = sortedNums[0];
+    int                end   = sortedNums[0];
+
+    for ( size_t i = 1; i < sortedNums.size(); ++i )
+    {
+        if ( sortedNums[i] == end + 1 )
+        {
+            end = sortedNums[i];
+        }
+        else
+        {
+            if ( start == end )
+            {
+                result << start;
+            }
+            else
+            {
+                result << start << "-" << end;
+            }
+            result << ", ";
+            start = sortedNums[i];
+            end   = sortedNums[i];
+        }
+    }
+
+    if ( start == end )
+    {
+        result << start;
+    }
+    else
+    {
+        result << start << "-" << end;
+    }
+
+    return result.str();
+}
