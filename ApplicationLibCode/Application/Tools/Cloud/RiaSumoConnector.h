@@ -153,11 +153,6 @@ private:
     static QString constructAuthUrl( const QString& authority );
     static QString constructTokenUrl( const QString& authority );
 
-    static QString tokenDataAsJson( QOAuth2AuthorizationCodeFlow* authCodeFlow );
-    static void    initializeTokenDataFromJson( QOAuth2AuthorizationCodeFlow* authCodeFlow, const QString& tokenDataJson );
-    static void    writeTokenData( const QString& filePath, const QString& tokenDataJson );
-    static QString readTokenData( const QString& filePath );
-
 private:
     QOAuth2AuthorizationCodeFlow* m_authCodeFlow;
     QNetworkAccessManager*        m_networkAccessManager;

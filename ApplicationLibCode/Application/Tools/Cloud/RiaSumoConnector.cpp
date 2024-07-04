@@ -18,6 +18,7 @@
 
 #include "RiaSumoConnector.h"
 
+#include "RiaConnectorTools.h"
 #include "RiaFileDownloader.h"
 #include "RiaLogging.h"
 #include "RiaOsduDefines.h"
@@ -95,8 +96,8 @@ void RiaSumoConnector::accessGranted()
 {
     m_token = m_authCodeFlow->token();
 
-    QString tokenDataJson = tokenDataAsJson( m_authCodeFlow );
-    writeTokenData( m_tokenDataFilePath, tokenDataJson );
+    QString tokenDataJson = RiaConnectorTools::tokenDataAsJson( m_authCodeFlow );
+    RiaConnectorTools::writeTokenData( m_tokenDataFilePath, tokenDataJson );
 
     emit tokenReady( m_token );
 }
@@ -120,69 +121,6 @@ void RiaSumoConnector::parquetDownloadComplete( const QString& blobId, const QBy
     obj.url      = url;
 
     m_redirectInfo.push_back( obj );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaSumoConnector::tokenDataAsJson( QOAuth2AuthorizationCodeFlow* authCodeFlow )
-{
-    QJsonObject obj;
-    obj.insert( "token", authCodeFlow->token() );
-    obj.insert( "refreshToken", authCodeFlow->refreshToken() );
-    obj.insert( "scope", authCodeFlow->scope() );
-    obj.insert( "clientIdentifier", authCodeFlow->clientIdentifier() );
-    obj.insert( "authorizationUrl", authCodeFlow->authorizationUrl().toString() );
-    obj.insert( "accessTokenUrl", authCodeFlow->accessTokenUrl().toString() );
-
-    QJsonDocument doc( obj );
-    return doc.toJson( QJsonDocument::Indented );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::initializeTokenDataFromJson( QOAuth2AuthorizationCodeFlow* authCodeFlow, const QString& tokenDataJson )
-{
-    QJsonDocument doc = QJsonDocument::fromJson( tokenDataJson.toUtf8() );
-    QJsonObject   obj = doc.object();
-
-    authCodeFlow->setToken( obj["token"].toString() );
-    authCodeFlow->setRefreshToken( obj["refreshToken"].toString() );
-    authCodeFlow->setScope( obj["scope"].toString() );
-    authCodeFlow->setClientIdentifier( obj["clientIdentifier"].toString() );
-    authCodeFlow->setAuthorizationUrl( QUrl( obj["authorizationUrl"].toString() ) );
-    authCodeFlow->setAccessTokenUrl( QUrl( obj["accessTokenUrl"].toString() ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::writeTokenData( const QString& filePath, const QString& tokenDataJson )
-{
-    QFile file( filePath );
-    if ( file.open( QIODevice::WriteOnly ) )
-    {
-        QTextStream stream( &file );
-        stream << tokenDataJson;
-        file.close();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaSumoConnector::readTokenData( const QString& filePath )
-{
-    QFile file( filePath );
-    if ( file.open( QIODevice::ReadOnly ) )
-    {
-        QTextStream stream( &file );
-        QString     result = stream.readAll();
-        file.close();
-        return result;
-    }
-    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -214,10 +152,10 @@ QString RiaSumoConnector::token() const
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::importTokenFromFile()
 {
-    auto tokenDataJson = readTokenData( m_tokenDataFilePath );
+    auto tokenDataJson = RiaConnectorTools::readTokenData( m_tokenDataFilePath );
     if ( !tokenDataJson.isEmpty() )
     {
-        initializeTokenDataFromJson( m_authCodeFlow, tokenDataJson );
+        RiaConnectorTools::initializeTokenDataFromJson( m_authCodeFlow, tokenDataJson );
         m_token = m_authCodeFlow->token();
     }
 }
