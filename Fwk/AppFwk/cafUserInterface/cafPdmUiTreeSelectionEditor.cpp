@@ -216,6 +216,8 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
     }
 
+    m_model->showCheckBoxes( m_attributes.showCheckBoxes );
+
     if ( PdmUiTreeSelectionQModel::isMultipleValueField( fieldValue ) )
     {
         m_useSingleSelectionMode = m_attributes.singleSelectionMode;
@@ -419,6 +421,8 @@ bool PdmUiTreeSelectionEditor::isMultiRowEditor() const
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::customMenuRequested( const QPoint& pos )
 {
+    if ( !m_attributes.showContextMenu ) return;
+
     QMenu menu;
 
     QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes();
