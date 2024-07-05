@@ -20,6 +20,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicShowPlotDataCtxFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicOpenInTextEditorFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicShowMemoryReportFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicSumoDataFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -44,13 +45,16 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicShowPlotDataCtxFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicOpenInTextEditorFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicShowMemoryReportFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicSumoDataFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
 list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 
-set(COMMAND_QT_MOC_HEADERS ${COMMAND_QT_MOC_HEADERS})
+list(APPEND COMMAND_QT_MOC_HEADERS
+     ${CMAKE_CURRENT_LIST_DIR}/RicSumoDataFeature.h
+)
 
 source_group(
   "CommandFeature\\Application"

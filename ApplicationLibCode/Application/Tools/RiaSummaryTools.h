@@ -86,6 +86,7 @@ public:
     static void copyCurveAxisData( RimSummaryCurve& curve, const RimSummaryCurve& otherCurve );
 
     static void reloadSummaryCase( RimSummaryCase* summaryCase );
+    static void reloadSummaryEnsemble( RimSummaryCaseCollection* ensemble );
 
 private:
     static void updateRequiredCalculatedCurves( RimSummaryCase* sourceSummaryCase );

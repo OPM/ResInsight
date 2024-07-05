@@ -114,7 +114,7 @@ QSize RiuPropertyViewTabWidget::sizeHint() const
         // qDebug() << "tab size hint" << w->sizeHint();
 
         QSize pageSize = w->sizeHint();
-        pageSize += QSize( 0, 100 );
+        pageSize += QSize( 60, 100 );
 
         maxSizeHint = maxSizeHint.expandedTo( pageSize );
     }

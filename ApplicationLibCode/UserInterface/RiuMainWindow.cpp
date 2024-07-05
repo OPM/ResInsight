@@ -684,6 +684,7 @@ void RiuMainWindow::createToolBars()
     {
         QToolBar* toolbar = addToolBar( tr( "Test" ) );
         toolbar->setObjectName( toolbar->windowTitle() );
+        toolbar->addAction( cmdFeatureMgr->action( "RicSumoDataFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicLaunchRegressionTestsFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicLaunchRegressionTestDialogFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicShowClassNamesFeature" ) );

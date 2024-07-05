@@ -46,6 +46,7 @@ class RiaPreferencesGeoMech;
 class RiaPreferencesSystem;
 class RiaPreferencesOsdu;
 class RiaPreferencesGrid;
+class RiaPreferencesSumo;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -129,6 +130,7 @@ public:
     RiaPreferencesSummary* summaryPreferences() const;
     RiaPreferencesSystem*  systemPreferences() const;
     RiaPreferencesOsdu*    osduPreferences() const;
+    RiaPreferencesSumo*    sumoPreferences() const;
     RiaPreferencesGrid*    gridPreferences() const;
 
 public:
@@ -138,8 +140,6 @@ public:
     caf::PdmField<QString> scriptDirectories;
     caf::PdmField<QString> scriptEditorExecutable;
     caf::PdmField<bool>    showPythonDebugInfo;
-
-    caf::PdmField<QString> ssihubAddress;
 
     caf::PdmField<cvf::Color3f> defaultGridLineColors;
     caf::PdmField<cvf::Color3f> defaultFaultGridLineColors;
@@ -171,7 +171,6 @@ private:
     static QString tabNamePlotting();
     static QString tabNameScripting();
     static QString tabNameSystem();
-    static QString tabNameOsdu();
     static QString tabNameImportExport();
 
     static double defaultMarginSize( QPageSize::PageSizeId pageSizeId );
@@ -238,6 +237,7 @@ private:
 
     // Osdu settings
     caf::PdmChildField<RiaPreferencesOsdu*> m_osduPreferences;
+    caf::PdmChildField<RiaPreferencesSumo*> m_sumoPreferences;
 
     // 3d view
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>       m_defaultMeshModeType;
