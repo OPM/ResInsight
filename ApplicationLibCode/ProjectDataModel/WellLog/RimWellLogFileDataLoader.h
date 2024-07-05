@@ -18,33 +18,23 @@
 
 #pragma once
 
-#include "RimOsduWellPath.h"
+#include "RimFileWellPath.h"
 
 #include "cafDataLoader.h"
 #include "cafProgressInfo.h"
 
-#include <QMutex>
-#include <QObject>
 #include <QString>
 
+#include <memory>
+
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimOsduWellPathDataLoader : public QObject, public caf::DataLoader
+class RimWellLogFileDataLoader : public caf::DataLoader
 {
-    Q_OBJECT
 public:
-    RimOsduWellPathDataLoader();
+    RimWellLogFileDataLoader();
     void loadData( caf::PdmObject& pdmObject, const QString& dataType, int taskId, caf::ProgressInfo& progressInfo ) override;
     bool isRunnable() const override;
-
-private slots:
-    void parquetDownloadComplete( const QByteArray& contents, const QString& url, const QString& id );
-
-private:
-    std::map<QString, RimOsduWellPath*> m_wellPaths;
-    std::map<QString, int>              m_taskIds;
-    QString                             m_dataType;
-    QMutex                              m_mutex;
 };

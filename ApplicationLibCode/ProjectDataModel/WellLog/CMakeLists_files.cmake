@@ -31,6 +31,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimRftTopologyCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveInfoTextProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCalculatedCurve.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileDataLoader.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellLogDataLoader.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -68,11 +70,15 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimRftTopologyCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveInfoTextProvider.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCalculatedCurve.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileDataLoader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellLogDataLoader.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
+
+list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellLogDataLoader.h)
 
 source_group(
   "ProjectDataModel\\WellLog"
