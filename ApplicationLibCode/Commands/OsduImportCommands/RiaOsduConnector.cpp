@@ -783,7 +783,6 @@ std::pair<QByteArray, QString> RiaOsduConnector::requestParquetDataByUrl( const 
 {
     QString token = m_token; // requestTokenBlocking();
 
-    printf( "Triggering download: %s\n", id.toStdString().c_str() );
     requestParquetData( url, m_dataPartitionId, token, id );
 
     // TODO: remove!!!
@@ -795,14 +794,9 @@ std::pair<QByteArray, QString> RiaOsduConnector::requestParquetDataByUrl( const 
 //--------------------------------------------------------------------------------------------------
 void RiaOsduConnector::requestParquetData( const QString& url, const QString& dataPartitionId, const QString& token, const QString& id )
 {
-    // RiaLogging::info( "Requesting download of parquet from: " + url );
-
-    printf( "Requesting data: %s\n", id.toStdString().c_str() );
-    printf( "Request Parquet Data: %p\n", QThread::currentThreadId() );
-    printf( "Token: %s\n", token.toStdString().c_str() );
+    RiaLogging::info( "Requesting download of parquet from: " + url );
 
     auto reply = makeDownloadRequest( url, dataPartitionId, token, RiaDefines::contentTypeParquet() );
-    printf( "Reply object created:\n" );
 
     connect( reply,
              &QNetworkReply::finished,
@@ -810,23 +804,17 @@ void RiaOsduConnector::requestParquetData( const QString& url, const QString& da
              {
                  if ( reply->error() == QNetworkReply::NoError )
                  {
-                     printf( "OK!!!!\n" );
-
                      QByteArray contents = reply->readAll();
-                     printf( "Size of contents: %d\n", contents.size() );
-
                      RiaLogging::info( QString( "Download succeeded: %1 bytes." ).arg( contents.length() ) );
                      emit parquetDownloadFinished( contents, "", id );
                  }
                  else
                  {
-                     printf( "ERROR!!!!\n" );
                      QString errorMessage = "Request failed: " + url + " failed." + reply->errorString();
                      RiaLogging::error( errorMessage );
                      emit parquetDownloadFinished( QByteArray(), errorMessage, id );
                  }
              } );
-    printf( "Here\n" );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -72,7 +72,7 @@ bool RimOsduWellPathDataLoader::isRunnable() const
 
 void RimOsduWellPathDataLoader::parquetDownloadComplete( const QByteArray& contents, const QString& url, const QString& id )
 {
-    printf( "PARQUT COMPELTE. ID: %s %d\n", id.toStdString().c_str(), contents.size() );
+    RiaLogging::info( QString( "Parquet download complete. Id: %1 Size: %2" ).arg( id ).arg( contents.size() ) );
 
     QMutexLocker lock( &m_mutex );
     int          taskId = m_taskIds[id];
