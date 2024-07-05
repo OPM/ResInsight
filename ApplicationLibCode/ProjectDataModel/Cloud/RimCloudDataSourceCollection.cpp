@@ -35,7 +35,7 @@ CAF_PDM_SOURCE_INIT( RimCloudDataSourceCollection, "RimCloudDataSourceCollection
 //--------------------------------------------------------------------------------------------------
 RimCloudDataSourceCollection::RimCloudDataSourceCollection()
 {
-    CAF_PDM_InitObject( "Cloud Data", ":/cloud-and-server.svg" );
+    CAF_PDM_InitObject( "Cloud Data", ":/Cloud.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_sumoFieldName, "SumoFieldId", "Field Id" );
     CAF_PDM_InitFieldNoDefault( &m_sumoCaseId, "SumoCaseId", "Case Id" );

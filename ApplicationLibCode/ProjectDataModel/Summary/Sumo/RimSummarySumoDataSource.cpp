@@ -30,7 +30,7 @@ CAF_PDM_SOURCE_INIT( RimSummarySumoDataSource, "RimSummarySumoDataSource" );
 //--------------------------------------------------------------------------------------------------
 RimSummarySumoDataSource::RimSummarySumoDataSource()
 {
-    CAF_PDM_InitObject( "Sumo Data Source", ":/SummaryCase.svg" );
+    CAF_PDM_InitObject( "Sumo Data Source", ":/CloudBlobs.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_caseId, "CaseId", "Case Id" );
     CAF_PDM_InitFieldNoDefault( &m_caseName, "CaseName", "Case Name" );
