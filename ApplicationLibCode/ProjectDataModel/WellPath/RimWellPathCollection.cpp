@@ -30,7 +30,6 @@
 #include "RiaWellNameComparer.h"
 
 #include "RifOsduWellLogReader.h"
-#include "RifOsduWellPathDataLoader.h"
 #include "RifOsduWellPathReader.h"
 #include "RifWellPathFormationsImporter.h"
 #include "RifWellPathImporter.h"
@@ -44,10 +43,13 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
 #include "RimFileWellPath.h"
+#include "RimFileWellPathDataLoader.h"
 #include "RimModeledWellPath.h"
+#include "RimModeledWellPathDataLoader.h"
 #include "RimOilField.h"
 #include "RimOsduWellLog.h"
 #include "RimOsduWellPath.h"
+#include "RimOsduWellPathDataLoader.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
 #include "RimStimPlanModel.h"
@@ -147,60 +149,6 @@ void RimWellPathCollection::fieldChangedByUi( const caf::PdmFieldHandle* changed
     scheduleRedrawAffectedViews();
 }
 
-#include "cafDataLoader.h"
-
-class RifFileWellPathDataLoader : public caf::DataLoader
-{
-public:
-    RifFileWellPathDataLoader()
-        : caf::DataLoader()
-    {
-        m_wellPathImporter = std::make_unique<RifWellPathImporter>();
-    }
-
-    void loadData( caf::PdmObject& pdmObject, const QString& dataType, int taskId, caf::ProgressInfo& progressInfo ) override
-    {
-        auto* fWPath = dynamic_cast<RimFileWellPath*>( &pdmObject );
-        if ( fWPath && !fWPath->filePath().isEmpty() )
-        {
-            QString errorMessage;
-            if ( !fWPath->readWellPathFile( &errorMessage, m_wellPathImporter.get(), false ) )
-            {
-                RiaLogging::warning( errorMessage );
-            }
-        }
-        taskDone.send( dataType, taskId );
-    }
-
-    bool isRunnable() const override { return true; }
-
-private:
-    std::unique_ptr<RifWellPathImporter> m_wellPathImporter;
-};
-
-class RifModeledWellPathDataLoader : public caf::DataLoader
-{
-public:
-    RifModeledWellPathDataLoader()
-        : caf::DataLoader()
-    {
-    }
-
-    void loadData( caf::PdmObject& pdmObject, const QString& dataType, int taskId, caf::ProgressInfo& progressInfo ) override
-    {
-        auto* mWPath = dynamic_cast<RimModeledWellPath*>( &pdmObject );
-
-        if ( mWPath )
-        {
-            mWPath->createWellPathGeometry();
-        }
-
-        taskDone.send( dataType, taskId );
-    }
-
-    bool isRunnable() const override { return true; }
-};
-
 //--------------------------------------------------------------------------------------------------
 /// Read files containing well path data, or create geometry based on the targets
 //--------------------------------------------------------------------------------------------------
@@ -217,13 +165,13 @@ void RimWellPathCollection::loadDataAndUpdate()
     const QString wellPathGeometryKeyword = "WELL_PATH_GEOMETRY";
     dataLoadController->registerDataLoader( RimFileWellPath::classKeywordStatic(),
                                             wellPathGeometryKeyword,
-                                            std::make_shared<RifFileWellPathDataLoader>() );
+                                            std::make_shared<RimFileWellPathDataLoader>() );
     dataLoadController->registerDataLoader( RimOsduWellPath::classKeywordStatic(),
                                             wellPathGeometryKeyword,
-                                            std::make_shared<RifOsduWellPathDataLoader>() );
+                                            std::make_shared<RimOsduWellPathDataLoader>() );
     dataLoadController->registerDataLoader( RimModeledWellPath::classKeywordStatic(),
                                             wellPathGeometryKeyword,
-                                            std::make_shared<RifModeledWellPathDataLoader>() );
+                                            std::make_shared<RimModeledWellPathDataLoader>() );
 
     for ( RimWellPath* wellPath : allWellPaths() )
     {
