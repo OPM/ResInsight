@@ -151,47 +151,37 @@ void RimWellPathCollection::fieldChangedByUi( const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::loadDataAndUpdate()
 {
-    caf::ProgressInfo progress( m_wellPaths.size(), "Reading well paths from file" );
+    caf::ProgressInfo progress( 3, "Reading well paths from file" );
 
     readWellPathFormationFiles();
-
-    RiaApplication* app = RiaApplication::instance();
 
     caf::DataLoadController* dataLoadController = caf::DataLoadController::instance();
 
     const QString wellPathGeometryKeyword = "WELL_PATH_GEOMETRY";
+    const QString wellLogKeyword          = "WELL_LOG";
 
+    progress.setProgressDescription( QString( "Reading well path geometry." ) );
     for ( RimWellPath* wellPath : allWellPaths() )
     {
-        progress.setProgressDescription( QString( "Reading well %1" ).arg( wellPath->name() ) );
         dataLoadController->loadData( *wellPath, wellPathGeometryKeyword, progress );
     }
-
     dataLoadController->blockUntilDone( wellPathGeometryKeyword );
+    progress.incrementProgress();
 
+    progress.setProgressDescription( QString( "Reading well logs." ) );
     for ( RimWellPath* wellPath : allWellPaths() )
     {
         for ( RimWellLog* wellLog : wellPath->wellLogs() )
         {
-            if ( RimWellLogFile* wellLogFile = dynamic_cast<RimWellLogFile*>( wellLog ) )
-            {
-                QString errorMessage;
-                if ( !wellLogFile->readFile( &errorMessage ) )
-                {
-                    RiaLogging::warning( errorMessage );
-                }
-            }
-            else if ( RimOsduWellLog* osduWellLog = dynamic_cast<RimOsduWellLog*>( wellLog ) )
-            {
-                RiaOsduConnector* osduConnector  = app->makeOsduConnector();
-                auto [wellLogData, errorMessage] = loadWellLogFromOsdu( osduConnector, osduWellLog->wellLogId() );
-                if ( wellLogData.notNull() )
-                {
-                    osduWellLog->setWellLogData( wellLogData.p() );
-                }
-            }
+            dataLoadController->loadData( *wellLog, wellLogKeyword, progress );
         }
+    }
+    dataLoadController->blockUntilDone( wellLogKeyword );
+    progress.incrementProgress();
 
+    progress.setProgressDescription( QString( "Reading additional data." ) );
+    for ( RimWellPath* wellPath : allWellPaths() )
+    {
         RimStimPlanModelCollection* stimPlanModelCollection = wellPath->stimPlanModelCollection();
         if ( stimPlanModelCollection )
         {
@@ -200,8 +190,8 @@ void RimWellPathCollection::loadDataAndUpdate()
                 stimPlanModel->loadDataAndUpdate();
             }
         }
-        progress.incrementProgress();
     }
+    progress.incrementProgress();
 
     rebuildWellPathNodes();
 

@@ -73,6 +73,8 @@
 #include "RimObservedFmuRftData.h"
 #include "RimObservedSummaryData.h"
 #include "RimOilField.h"
+#include "RimOsduWellLog.h"
+#include "RimOsduWellLogDataLoader.h"
 #include "RimOsduWellPath.h"
 #include "RimOsduWellPathDataLoader.h"
 #include "RimPlotWindow.h"
@@ -95,6 +97,8 @@
 #include "RimTextAnnotationInView.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
+#include "RimWellLogFile.h"
+#include "RimWellLogFileDataLoader.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -1737,4 +1741,8 @@ void RiaApplication::initializeDataLoadController()
     dataLoadController->registerDataLoader( RimModeledWellPath::classKeywordStatic(),
                                             wellPathGeometryKeyword,
                                             std::make_shared<RimModeledWellPathDataLoader>() );
+
+    const QString wellLogKeyword = "WELL_LOG";
+    dataLoadController->registerDataLoader( RimWellLogFile::classKeywordStatic(), wellLogKeyword, std::make_shared<RimWellLogFileDataLoader>() );
+    dataLoadController->registerDataLoader( RimOsduWellLog::classKeywordStatic(), wellLogKeyword, std::make_shared<RimOsduWellLogDataLoader>() );
 }
