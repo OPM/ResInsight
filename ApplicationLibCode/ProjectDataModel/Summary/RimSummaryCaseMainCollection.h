@@ -66,6 +66,7 @@ public:
                                                  bool                                       isEnsemble,
                                                  std::function<RimSummaryCaseCollection*()> allocator = defaultAllocator );
     void                      removeCaseCollection( RimSummaryCaseCollection* caseCollection );
+    void                      addEnsemble( RimSummaryCaseCollection* ensemble );
 
     void loadAllSummaryCaseData();
 

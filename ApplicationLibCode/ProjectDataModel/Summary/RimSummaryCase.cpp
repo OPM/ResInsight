@@ -104,7 +104,7 @@ bool RimSummaryCase::isObservedData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCase::showRealizationDataSources() const
+bool RimSummaryCase::showVectorItemsInProjectTree() const
 {
     return m_showSubNodesInTree();
 }
@@ -112,7 +112,7 @@ bool RimSummaryCase::showRealizationDataSources() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCase::setShowRealizationDataSource( bool enable )
+void RimSummaryCase::setShowVectorItemsInProjectTree( bool enable )
 {
     m_showSubNodesInTree = enable;
     updateConnectedEditors();

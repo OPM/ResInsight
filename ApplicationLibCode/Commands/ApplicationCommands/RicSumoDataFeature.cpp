@@ -124,7 +124,7 @@ void SimpleDialog::onAssetsClicked()
 {
     if ( !isTokenValid() ) return;
 
-    m_sumoConnector->requestAssets();
+    m_sumoConnector->requestAssetsBlocking();
     m_sumoConnector->assets();
 
     label->setText( "Requesting fields (see log for response" );

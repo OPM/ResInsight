@@ -46,7 +46,7 @@ bool RicShowDataSourcesForRealization::isCommandChecked() const
 
     if ( !selection.empty() )
     {
-        return selection.front()->showRealizationDataSources();
+        return selection.front()->showVectorItemsInProjectTree();
     }
 
     return false;
@@ -80,10 +80,10 @@ void RicShowDataSourcesForRealization::onActionTriggered( bool isChecked )
 
     if ( selection.empty() ) return;
 
-    bool enableDataSources = !selection.front()->showRealizationDataSources();
+    bool enableDataSources = !selection.front()->showVectorItemsInProjectTree();
 
     for ( auto summaryCase : selection )
     {
-        summaryCase->setShowRealizationDataSource( enableDataSources );
+        summaryCase->setShowVectorItemsInProjectTree( enableDataSources );
     }
 }

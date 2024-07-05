@@ -121,7 +121,7 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
 {
     summaryCase->nameChanged.connect( this, &RimSummaryCaseCollection::onCaseNameChanged );
 
-    summaryCase->setShowRealizationDataSource( m_cases.empty() );
+    summaryCase->setShowVectorItemsInProjectTree( m_cases.empty() );
 
     m_cases.push_back( summaryCase );
     m_cachedSortedEnsembleParameters.clear();

@@ -37,6 +37,7 @@
 #include "RimSurfaceCollection.h"
 #include "RimWellPathCollection.h"
 
+#include "Cloud/RimCloudDataSourceCollection.h"
 #include "Polygons/RimPolygonCollection.h"
 #include "VerticalFlowPerformance/RimVfpDataCollection.h"
 
@@ -96,6 +97,9 @@ RimOilField::RimOilField()
 
     CAF_PDM_InitFieldNoDefault( &vfpDataCollection, "VfpDataCollection", "VFP Data" );
     vfpDataCollection = new RimVfpDataCollection();
+
+    CAF_PDM_InitFieldNoDefault( &cloudDataCollection, "CloudDataCollection", "Cloud Data" );
+    cloudDataCollection = new RimCloudDataSourceCollection();
 
     m_fractureTemplateCollection_OBSOLETE = new RimFractureTemplateCollection;
     m_fractureTemplateCollection_OBSOLETE.xmlCapability()->setIOWritable( false );
