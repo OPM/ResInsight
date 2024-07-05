@@ -66,6 +66,7 @@ public:
     void unselectAllItems();
 
     void enableSingleSelectionMode( bool enable );
+    void showCheckBoxes( bool enable );
 
     int  optionItemCount() const;
     void setOptions( caf::PdmUiFieldEditorHandle* field, const QList<caf::PdmOptionItemInfo>& options );
@@ -111,6 +112,7 @@ private:
 
     bool        m_singleSelectionMode;
     QModelIndex m_indexForLastUncheckedItem;
+    bool        m_showCheckBoxes;
 };
 
 } // end namespace caf

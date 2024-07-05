@@ -56,6 +56,7 @@ caf::PdmUiTreeSelectionQModel::PdmUiTreeSelectionQModel( QObject* parent /*= 0*/
     , m_uiValueCache( nullptr )
     , m_tree( nullptr )
     , m_singleSelectionMode( false )
+    , m_showCheckBoxes( true )
     , m_indexForLastUncheckedItem( QModelIndex() )
 {
 }
@@ -189,6 +190,14 @@ void caf::PdmUiTreeSelectionQModel::unselectAllItems()
 void caf::PdmUiTreeSelectionQModel::enableSingleSelectionMode( bool enable )
 {
     m_singleSelectionMode = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void caf::PdmUiTreeSelectionQModel::showCheckBoxes( bool enable )
+{
+    m_showCheckBoxes = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -403,6 +412,8 @@ QVariant caf::PdmUiTreeSelectionQModel::data( const QModelIndex& index, int role
         }
         else if ( role == Qt::CheckStateRole && !optionItemInfo->isHeading() )
         {
+            if ( !m_showCheckBoxes ) return QVariant();
+
             if ( m_uiFieldHandle && m_uiFieldHandle->uiField() )
             {
                 // Avoid calling the seriously heavy uiValue method if we have a temporary valid cache.
