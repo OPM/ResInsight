@@ -79,8 +79,8 @@ public:
 
     bool isObservedData() const;
 
-    bool showRealizationDataSources() const;
-    void setShowRealizationDataSource( bool enable );
+    bool showVectorItemsInProjectTree() const;
+    void setShowVectorItemsInProjectTree( bool enable );
 
     void setCaseRealizationParameters( const std::shared_ptr<RigCaseRealizationParameters>& crlParameters );
     std::shared_ptr<RigCaseRealizationParameters> caseRealizationParameters() const;

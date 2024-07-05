@@ -62,7 +62,7 @@ void RimSummaryCalculationCollection::updateDataDependingOnCalculations()
         {
             reader->buildMetaData();
 
-            if ( summaryCase->showRealizationDataSources() )
+            if ( summaryCase->showVectorItemsInProjectTree() )
             {
                 summaryCase->onCalculationUpdated();
             }

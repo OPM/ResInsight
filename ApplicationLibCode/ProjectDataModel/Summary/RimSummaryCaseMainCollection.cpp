@@ -261,6 +261,24 @@ void RimSummaryCaseMainCollection::removeCaseCollection( RimSummaryCaseCollectio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::addEnsemble( RimSummaryCaseCollection* ensemble )
+{
+    CVF_ASSERT( ensemble );
+
+    m_caseCollections.push_back( ensemble );
+
+    if ( ensemble->ensembleId() == -1 )
+    {
+        RimProject* project = RimProject::current();
+        project->assignIdToEnsemble( ensemble );
+    }
+
+    dataSourceHasChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSummaryCase* RimSummaryCaseMainCollection::summaryCase( size_t idx )
 {
     return m_cases[idx];
