@@ -18,10 +18,10 @@
 
 #include "RimOsduWellPathDataLoader.h"
 
-#include "RiaApplication.h"
-
 #include "OsduImportCommands/RiaOsduConnector.h"
+#include "RiaApplication.h"
 #include "RiaLogging.h"
+
 #include "RimOsduWellPath.h"
 
 #include "RifOsduWellPathReader.h"
@@ -33,6 +33,9 @@
 #include <QApplication>
 #include <QObject>
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimOsduWellPathDataLoader::RimOsduWellPathDataLoader()
     : caf::DataLoader()
 {
@@ -46,6 +49,9 @@ RimOsduWellPathDataLoader::RimOsduWellPathDataLoader()
              Qt::QueuedConnection );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimOsduWellPathDataLoader::loadData( caf::PdmObject& pdmObject, const QString& dataType, int taskId, caf::ProgressInfo& progressInfo )
 {
     RiaApplication*   app           = RiaApplication::instance();
@@ -65,11 +71,17 @@ void RimOsduWellPathDataLoader::loadData( caf::PdmObject& pdmObject, const QStri
     QApplication::processEvents();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimOsduWellPathDataLoader::isRunnable() const
 {
     return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimOsduWellPathDataLoader::parquetDownloadComplete( const QByteArray& contents, const QString& url, const QString& id )
 {
     RiaLogging::info( QString( "Parquet download complete. Id: %1 Size: %2" ).arg( id ).arg( contents.size() ) );
