@@ -21,6 +21,8 @@
 
 #include <limits>
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -88,11 +90,11 @@ RiaOsduConnector::RiaOsduConnector( QObject*       parent,
              this,
              SLOT( authorizationCallbackReceived( const QVariantMap& ) ) );
 
-    // connect( this,
-    //          SIGNAL( parquetDownloadFinished( const QByteArray&, const QString&, const QString& ) ),
-    //          this,
-    //          SLOT( parquetDownloadComplete( const QByteArray&, const QString&, const QString& ) ),
-    //          Qt::QueuedConnection );
+    connect( this,
+             SIGNAL( parquetDownloadFinished( const QByteArray&, const QString&, const QString& ) ),
+             this,
+             SLOT( parquetDownloadComplete( const QByteArray&, const QString&, const QString& ) ) );
+
     connect( this,
              SIGNAL( triggerParquetDownload( const QString&, const QString&, const QString&, const QString& ) ),
              this,
@@ -166,6 +168,7 @@ void RiaOsduConnector::clearCachedData()
     m_wellboreTrajectories.clear();
     m_wellLogs.clear();
     m_parquetData.clear();
+    m_parquetErrors.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -759,34 +762,66 @@ std::vector<OsduWellboreTrajectory> RiaOsduConnector::wellboreTrajectories( cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<QByteArray, QString> RiaOsduConnector::requestWellboreTrajectoryParquetDataById( const QString& wellboreTrajectoryId )
+void RiaOsduConnector::requestWellboreTrajectoryParquetDataById( const QString& wellboreTrajectoryId )
 {
     QString url = constructWellboreTrajectoriesDownloadUrl( m_server, wellboreTrajectoryId );
     RiaLogging::debug( "Wellbore trajectory URL: " + url );
-    return requestParquetDataByUrl( url, wellboreTrajectoryId );
+    requestParquetDataByUrl( url, wellboreTrajectoryId );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<QByteArray, QString> RiaOsduConnector::requestWellLogParquetDataById( const QString& wellLogId )
+void RiaOsduConnector::requestWellLogParquetDataById( const QString& wellLogId )
 {
     QString url = constructWellLogDownloadUrl( m_server, wellLogId );
     RiaLogging::debug( "Well log URL: " + url );
-    return requestParquetDataByUrl( url, wellLogId );
+    requestParquetDataByUrl( url, wellLogId );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<QByteArray, QString> RiaOsduConnector::requestParquetDataByUrl( const QString& url, const QString& id )
+void RiaOsduConnector::requestParquetDataByUrl( const QString& url, const QString& id )
 {
     QString token = m_token; // requestTokenBlocking();
-
     requestParquetData( url, m_dataPartitionId, token, id );
+}
 
-    // TODO: remove!!!
-    return { m_parquetData, "" };
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<QByteArray, QString> RiaOsduConnector::requestWellboreTrajectoryParquetDataByIdBlocking( const QString& wellboreTrajectoryId )
+{
+    QString url = constructWellboreTrajectoriesDownloadUrl( m_server, wellboreTrajectoryId );
+    RiaLogging::debug( "Wellbore trajectory URL: " + url );
+    return requestParquetDataByUrlBlocking( url, wellboreTrajectoryId );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<QByteArray, QString> RiaOsduConnector::requestWellLogParquetDataByIdBlocking( const QString& wellLogId )
+{
+    QString url = constructWellLogDownloadUrl( m_server, wellLogId );
+    RiaLogging::debug( "Well log URL: " + url );
+    return requestParquetDataByUrlBlocking( url, wellLogId );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<QByteArray, QString> RiaOsduConnector::requestParquetDataByUrlBlocking( const QString& url, const QString& id )
+{
+    QString token = requestTokenBlocking();
+
+    QEventLoop loop;
+    connect( this, SIGNAL( parquetDownloadFinished( const QByteArray&, const QString&, const QString& ) ), &loop, SLOT( quit() ) );
+    requestParquetData( url, m_dataPartitionId, token, id );
+    loop.exec();
+
+    QMutexLocker lock( &m_mutex );
+    return { m_parquetData[id], m_parquetErrors[id] };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -820,9 +855,12 @@ void RiaOsduConnector::requestParquetData( const QString& url, const QString& da
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaOsduConnector::parquetDownloadComplete( const QByteArray& contents, const QString& url, const QString& id )
+void RiaOsduConnector::parquetDownloadComplete( const QByteArray& contents, const QString& errorMessage, const QString& id )
 {
-    m_parquetData = contents;
+    CAF_ASSERT( !id.isEmpty() );
+    QMutexLocker lock( &m_mutex );
+    m_parquetData[id]   = contents;
+    m_parquetErrors[id] = errorMessage;
 }
 
 //--------------------------------------------------------------------------------------------------

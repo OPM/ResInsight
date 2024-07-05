@@ -1048,7 +1048,7 @@ std::pair<cvf::ref<RigWellPath>, QString> RimWellPathCollection::loadWellPathGeo
                                                                                                const QString&    wellboreTrajectoryId,
                                                                                                double            datumElevation )
 {
-    auto [fileContents, errorMessage] = osduConnector->requestWellboreTrajectoryParquetDataById( wellboreTrajectoryId );
+    auto [fileContents, errorMessage] = osduConnector->requestWellboreTrajectoryParquetDataByIdBlocking( wellboreTrajectoryId );
     if ( !errorMessage.isEmpty() )
     {
         return { nullptr, errorMessage };
@@ -1063,7 +1063,7 @@ std::pair<cvf::ref<RigWellPath>, QString> RimWellPathCollection::loadWellPathGeo
 std::pair<cvf::ref<RigOsduWellLogData>, QString> RimWellPathCollection::loadWellLogFromOsdu( RiaOsduConnector* osduConnector,
                                                                                              const QString&    wellLogId )
 {
-    auto [fileContents, errorMessage] = osduConnector->requestWellLogParquetDataById( wellLogId );
+    auto [fileContents, errorMessage] = osduConnector->requestWellLogParquetDataByIdBlocking( wellLogId );
     if ( !errorMessage.isEmpty() )
     {
         return { nullptr, errorMessage };
