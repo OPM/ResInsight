@@ -48,8 +48,9 @@ list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 
-list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellPathDataLoader.h)
-
+list(APPEND QT_MOC_HEADERS
+     ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellPathDataLoader.h
+)
 
 source_group(
   "ProjectDataModel\\WellPath"

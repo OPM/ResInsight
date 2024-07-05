@@ -25,12 +25,8 @@ else()
 endif()
 
 set(PROJECT_FILES
-    cafDataLoader.h
-    cafDataLoader.cpp
-    cafDataLoadTask.h
-    cafDataLoadTask.cpp
-    cafDataLoadController.h
-    cafDataLoadController.cpp
+    cafDataLoader.h cafDataLoader.cpp cafDataLoadTask.h cafDataLoadTask.cpp
+    cafDataLoadController.h cafDataLoadController.cpp
 )
 
 add_library(${PROJECT_NAME} ${PROJECT_FILES})

@@ -16,17 +16,17 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimOsduWellPathDataLoader.h"
+#include "RimOsduWellLogDataLoader.h"
 
 #include "Cloud/RiaOsduConnector.h"
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
-#include "RimOsduWellPath.h"
+#include "RimOsduWellLog.h"
 
-#include "RifOsduWellPathReader.h"
+#include "RifOsduWellLogReader.h"
 
-#include "RigWellPath.h"
+#include "RigWellLogData.h"
 
 #include "cafProgressInfo.h"
 
@@ -36,7 +36,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimOsduWellPathDataLoader::RimOsduWellPathDataLoader()
+RimOsduWellLogDataLoader::RimOsduWellLogDataLoader()
     : caf::DataLoader()
 {
     RiaApplication*   app           = RiaApplication::instance();
@@ -52,7 +52,7 @@ RimOsduWellPathDataLoader::RimOsduWellPathDataLoader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimOsduWellPathDataLoader::loadData( caf::PdmObject& pdmObject, const QString& dataType, int taskId, caf::ProgressInfo& progressInfo )
+void RimOsduWellLogDataLoader::loadData( caf::PdmObject& pdmObject, const QString& dataType, int taskId, caf::ProgressInfo& progressInfo )
 {
     RiaApplication*   app           = RiaApplication::instance();
     RiaOsduConnector* osduConnector = app->makeOsduConnector();
@@ -60,13 +60,12 @@ void RimOsduWellPathDataLoader::loadData( caf::PdmObject& pdmObject, const QStri
     // TODO: this is weird?
     m_dataType = dataType;
 
-    auto oWPath = dynamic_cast<RimOsduWellPath*>( &pdmObject );
-    if ( oWPath )
+    if ( RimOsduWellLog* osduWellLog = dynamic_cast<RimOsduWellLog*>( &pdmObject ) )
     {
-        QString trajectoryId = oWPath->wellboreTrajectoryId();
-        osduConnector->requestWellboreTrajectoryParquetDataById( trajectoryId );
-        m_wellPaths[trajectoryId] = oWPath;
-        m_taskIds[trajectoryId]   = taskId;
+        QString wellLogId = osduWellLog->wellLogId();
+        osduConnector->requestWellLogParquetDataById( wellLogId );
+        m_wellLogs[wellLogId] = osduWellLog;
+        m_taskIds[wellLogId]  = taskId;
     }
     QApplication::processEvents();
 }
@@ -74,7 +73,7 @@ void RimOsduWellPathDataLoader::loadData( caf::PdmObject& pdmObject, const QStri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimOsduWellPathDataLoader::isRunnable() const
+bool RimOsduWellLogDataLoader::isRunnable() const
 {
     return false;
 }
@@ -82,22 +81,24 @@ bool RimOsduWellPathDataLoader::isRunnable() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimOsduWellPathDataLoader::parquetDownloadComplete( const QByteArray& contents, const QString& url, const QString& id )
+void RimOsduWellLogDataLoader::parquetDownloadComplete( const QByteArray& contents, const QString& url, const QString& id )
 {
     QMutexLocker lock( &m_mutex );
 
-    if ( m_wellPaths.find( id ) != m_wellPaths.end() )
+    if ( m_wellLogs.find( id ) != m_wellLogs.end() )
     {
-        RiaLogging::info( QString( "Parquet download complete. Id: %1 Size: %2" ).arg( id ).arg( contents.size() ) );
         int taskId = m_taskIds[id];
+
+        RiaLogging::info( QString( "Parquet download complete. Id: %1 Size: %2" ).arg( id ).arg( contents.size() ) );
 
         if ( !contents.isEmpty() )
         {
-            auto oWPath                           = m_wellPaths[id];
-            auto [wellPathGeometry, errorMessage] = RifOsduWellPathReader::readWellPathData( contents, oWPath->datumElevationFromOsdu() );
-            if ( wellPathGeometry.notNull() )
+            auto osduWellLog                 = m_wellLogs[id];
+            auto [wellLogData, errorMessage] = RifOsduWellLogReader::readWellLogData( contents );
+
+            if ( wellLogData.notNull() )
             {
-                oWPath->setWellPathGeometry( wellPathGeometry.p() );
+                osduWellLog->setWellLogData( wellLogData.p() );
             }
             else
             {
