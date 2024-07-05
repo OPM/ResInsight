@@ -43,13 +43,10 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
 #include "RimFileWellPath.h"
-#include "RimFileWellPathDataLoader.h"
 #include "RimModeledWellPath.h"
-#include "RimModeledWellPathDataLoader.h"
 #include "RimOilField.h"
 #include "RimOsduWellLog.h"
 #include "RimOsduWellPath.h"
-#include "RimOsduWellPathDataLoader.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
 #include "RimStimPlanModel.h"
@@ -163,15 +160,6 @@ void RimWellPathCollection::loadDataAndUpdate()
     caf::DataLoadController* dataLoadController = caf::DataLoadController::instance();
 
     const QString wellPathGeometryKeyword = "WELL_PATH_GEOMETRY";
-    dataLoadController->registerDataLoader( RimFileWellPath::classKeywordStatic(),
-                                            wellPathGeometryKeyword,
-                                            std::make_shared<RimFileWellPathDataLoader>() );
-    dataLoadController->registerDataLoader( RimOsduWellPath::classKeywordStatic(),
-                                            wellPathGeometryKeyword,
-                                            std::make_shared<RimOsduWellPathDataLoader>() );
-    dataLoadController->registerDataLoader( RimModeledWellPath::classKeywordStatic(),
-                                            wellPathGeometryKeyword,
-                                            std::make_shared<RimModeledWellPathDataLoader>() );
 
     for ( RimWellPath* wellPath : allWellPaths() )
     {
@@ -183,36 +171,33 @@ void RimWellPathCollection::loadDataAndUpdate()
 
     for ( RimWellPath* wellPath : allWellPaths() )
     {
-        if ( wellPath )
+        for ( RimWellLog* wellLog : wellPath->wellLogs() )
         {
-            for ( RimWellLog* wellLog : wellPath->wellLogs() )
+            if ( RimWellLogFile* wellLogFile = dynamic_cast<RimWellLogFile*>( wellLog ) )
             {
-                if ( RimWellLogFile* wellLogFile = dynamic_cast<RimWellLogFile*>( wellLog ) )
+                QString errorMessage;
+                if ( !wellLogFile->readFile( &errorMessage ) )
                 {
-                    QString errorMessage;
-                    if ( !wellLogFile->readFile( &errorMessage ) )
-                    {
-                        RiaLogging::warning( errorMessage );
-                    }
-                }
-                else if ( RimOsduWellLog* osduWellLog = dynamic_cast<RimOsduWellLog*>( wellLog ) )
-                {
-                    RiaOsduConnector* osduConnector  = app->makeOsduConnector();
-                    auto [wellLogData, errorMessage] = loadWellLogFromOsdu( osduConnector, osduWellLog->wellLogId() );
-                    if ( wellLogData.notNull() )
-                    {
-                        osduWellLog->setWellLogData( wellLogData.p() );
-                    }
+                    RiaLogging::warning( errorMessage );
                 }
             }
-
-            RimStimPlanModelCollection* stimPlanModelCollection = wellPath->stimPlanModelCollection();
-            if ( stimPlanModelCollection )
+            else if ( RimOsduWellLog* osduWellLog = dynamic_cast<RimOsduWellLog*>( wellLog ) )
             {
-                for ( RimStimPlanModel* stimPlanModel : stimPlanModelCollection->allStimPlanModels() )
+                RiaOsduConnector* osduConnector  = app->makeOsduConnector();
+                auto [wellLogData, errorMessage] = loadWellLogFromOsdu( osduConnector, osduWellLog->wellLogId() );
+                if ( wellLogData.notNull() )
                 {
-                    stimPlanModel->loadDataAndUpdate();
+                    osduWellLog->setWellLogData( wellLogData.p() );
                 }
+            }
+        }
+
+        RimStimPlanModelCollection* stimPlanModelCollection = wellPath->stimPlanModelCollection();
+        if ( stimPlanModelCollection )
+        {
+            for ( RimStimPlanModel* stimPlanModel : stimPlanModelCollection->allStimPlanModels() )
+            {
+                stimPlanModel->loadDataAndUpdate();
             }
         }
         progress.incrementProgress();

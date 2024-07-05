@@ -21,8 +21,6 @@
 #include "RiaLogging.h"
 #include "RimFileWellPath.h"
 
-#include "RifWellPathImporter.h"
-
 #include "RigWellPath.h"
 
 #include "cafProgressInfo.h"

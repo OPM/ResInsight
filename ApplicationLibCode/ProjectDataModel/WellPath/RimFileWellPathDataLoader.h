@@ -27,7 +27,7 @@
 
 #include <memory>
 
-class RifWellPathImporter;
+#include "RifWellPathImporter.h"
 
 //==================================================================================================
 ///

@@ -227,6 +227,8 @@ protected:
     bool generateCode( const QString& outputPath, gsl::not_null<QString*> errMsg );
 
 protected:
+    void initializeDataLoadController();
+
     cvf::ref<cvf::Font> m_defaultSceneFont;
     cvf::ref<cvf::Font> m_defaultAnnotationFont;
     cvf::ref<cvf::Font> m_defaultWellLabelFont;
