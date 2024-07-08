@@ -26,10 +26,13 @@ list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
 list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 
-list(APPEND COMMAND_QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RiaOsduConnector.h
-     ${CMAKE_CURRENT_LIST_DIR}/RiuWellImportWizard.h
-     ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogImportWizard.h
-     ${CMAKE_CURRENT_LIST_DIR}/RiaOsduOAuthHttpServerReplyHandler.h
+list(
+  APPEND
+  COMMAND_QT_MOC_HEADERS
+  ${CMAKE_CURRENT_LIST_DIR}/RiaOsduConnector.h
+  ${CMAKE_CURRENT_LIST_DIR}/RiuWellImportWizard.h
+  ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogImportWizard.h
+  ${CMAKE_CURRENT_LIST_DIR}/RiaOsduOAuthHttpServerReplyHandler.h
 )
 
 source_group(
