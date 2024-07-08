@@ -30,6 +30,7 @@
 #include "RiuMainWindow.h"
 
 #include "OsduImportCommands/RiaOsduConnector.h"
+#include "OsduImportCommands/RiuWellLogImportWizard.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
@@ -61,25 +62,31 @@ void RicImportWellLogOsduFeature::onActionTriggered( bool isChecked )
 
         if ( !oilField->wellPathCollection ) oilField->wellPathCollection = std::make_unique<RimWellPathCollection>();
 
-        auto                     osduConnector = app->makeOsduConnector();
-        std::vector<OsduWellLog> wellLogs      = osduConnector->requestWellLogsByWellboreIdBlocking( wellPath->wellboreId() );
+        auto osduConnector = app->makeOsduConnector();
 
-        for ( OsduWellLog wellLog : wellLogs )
+        RiuWellLogImportWizard wellLogImportWizard( osduConnector, wellPath->wellboreId(), RiuMainWindow::instance() );
+
+        if ( QDialog::Accepted == wellLogImportWizard.exec() )
         {
-            auto [wellLogData, errorMessage] = RimWellPathCollection::loadWellLogFromOsdu( osduConnector, wellLog.id );
-            if ( wellLogData.notNull() )
-            {
-                RimOsduWellLog* osduWellLog = new RimOsduWellLog;
-                osduWellLog->setName( wellLog.id );
-                osduWellLog->setWellLogId( wellLog.id );
-                oilField->wellPathCollection->addWellLog( osduWellLog, wellPath );
+            std::vector<RiuWellLogImportWizard::WellLogInfo> wellLogs = wellLogImportWizard.importedWellLogs();
 
-                osduWellLog->setWellLogData( wellLogData.p() );
-                osduWellLog->updateConnectedEditors();
-            }
-            else
+            for ( RiuWellLogImportWizard::WellLogInfo wellLog : wellLogs )
             {
-                RiaLogging::error( "Importing OSDU well log failed: " + errorMessage );
+                auto [wellLogData, errorMessage] = RimWellPathCollection::loadWellLogFromOsdu( osduConnector, wellLog.wellLog );
+                if ( wellLogData.notNull() )
+                {
+                    RimOsduWellLog* osduWellLog = new RimOsduWellLog;
+                    osduWellLog->setName( wellLog.name );
+                    osduWellLog->setWellLogId( wellLog.wellLog );
+                    oilField->wellPathCollection->addWellLog( osduWellLog, wellPath );
+
+                    osduWellLog->setWellLogData( wellLogData.p() );
+                    osduWellLog->updateConnectedEditors();
+                }
+                else
+                {
+                    RiaLogging::error( "Importing OSDU well log failed: " + errorMessage );
+                }
             }
         }
     }
