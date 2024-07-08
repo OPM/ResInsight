@@ -621,7 +621,24 @@ void RiaOsduConnector::parseWellLogs( QNetworkReply* reply, const QString& wellb
                 QString     id        = resultObj["id"].toString();
                 QString     kind      = resultObj["kind"].toString();
 
-                m_wellLogs[wellboreId].push_back( OsduWellLog{ id, kind, wellboreId } );
+                QJsonArray  curvesArray = resultObj["data"].toObject()["Curves"].toArray();
+                QStringList curveIds;
+                RiaLogging::debug( QString( "Curves for '%1':" ).arg( id ) );
+                for ( const QJsonValue& curve : curvesArray )
+                {
+                    QString curveId          = curve["CurveID"].toString();
+                    QString curveDescription = curve["CurveDescription"].toString();
+                    double  curveBaseDepth   = curve["BaseDepth"].toDouble( 0.0 );
+                    double  curveTopDepth    = curve["TopDepth"].toDouble( 0.0 );
+
+                    curveIds << curveId;
+                    RiaLogging::debug(
+                        QString( "%1: '%2' (%3 - %4)" ).arg( curveId ).arg( curveDescription ).arg( curveTopDepth ).arg( curveBaseDepth ) );
+                }
+
+                QString name = curveIds.join( ", " );
+
+                m_wellLogs[wellboreId].push_back( OsduWellLog{ id, kind, wellboreId, name } );
             }
         }
 
@@ -689,6 +706,20 @@ std::vector<OsduWell> RiaOsduConnector::wells() const
 {
     QMutexLocker lock( &m_mutex );
     return m_wells;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<OsduWellLog> RiaOsduConnector::wellLogs( const QString& wellboreId ) const
+{
+    QMutexLocker lock( &m_mutex );
+
+    auto it = m_wellLogs.find( wellboreId );
+    if ( it != m_wellLogs.end() )
+        return it->second;
+    else
+        return {};
 }
 
 //--------------------------------------------------------------------------------------------------

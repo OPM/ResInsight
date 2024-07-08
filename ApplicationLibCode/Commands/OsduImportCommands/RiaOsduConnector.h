@@ -42,6 +42,7 @@ struct OsduWellLog
     QString id;
     QString kind;
     QString wellboreId;
+    QString name;
 };
 
 //==================================================================================================
