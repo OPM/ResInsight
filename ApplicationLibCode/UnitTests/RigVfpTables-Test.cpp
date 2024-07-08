@@ -28,7 +28,7 @@ TEST( RigVfpTables, MatchingValues )
     std::vector<double> sourceValues   = { 1.0, 2.0, 3.0, 4.0, 5.0 };
     std::vector<double> valuesForMatch = { 1.0, 2.0, 3.0, 4.0, 5.0 };
     std::vector<int>    closestIndices = RigVfpTables::uniqueClosestIndices( sourceValues, valuesForMatch );
-    for ( int i = 0; i < sourceValues.size(); i++ )
+    for ( size_t i = 0; i < sourceValues.size(); i++ )
     {
         EXPECT_EQ( i, closestIndices[i] );
     }
@@ -42,7 +42,7 @@ TEST( RigVfpTables, MoreDestinationValues )
     std::vector<double> sourceValues   = { 1.0, 2.0, 3.0, 4.0, 5.0 };
     std::vector<double> valuesForMatch = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 };
     std::vector<int>    closestIndices = RigVfpTables::uniqueClosestIndices( sourceValues, valuesForMatch );
-    for ( int i = 0; i < sourceValues.size(); i++ )
+    for ( size_t i = 0; i < sourceValues.size(); i++ )
     {
         EXPECT_EQ( i, closestIndices[i] );
     }
