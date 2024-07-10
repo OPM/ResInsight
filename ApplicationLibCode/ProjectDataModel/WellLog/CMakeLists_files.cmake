@@ -23,7 +23,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLog.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFile.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileUtil.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogChannel.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellLogChannel.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogLasFileCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogWbsCurve.h
@@ -46,6 +46,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFile.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileUtil.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogChannel.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellLogChannel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogLasFileCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogWbsCurve.cpp

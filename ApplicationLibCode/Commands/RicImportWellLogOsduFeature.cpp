@@ -23,6 +23,7 @@
 
 #include "RimOilField.h"
 #include "RimOsduWellLog.h"
+#include "RimOsduWellLogChannel.h"
 #include "RimOsduWellPath.h"
 #include "RimProject.h"
 #include "RimWellPathCollection.h"
@@ -78,6 +79,21 @@ void RicImportWellLogOsduFeature::onActionTriggered( bool isChecked )
                     RimOsduWellLog* osduWellLog = new RimOsduWellLog;
                     osduWellLog->setName( wellLog.name );
                     osduWellLog->setWellLogId( wellLog.id );
+                    for ( OsduWellLogChannel c : wellLog.channels )
+                    {
+                        RimOsduWellLogChannel* osduWellLogChannel = new RimOsduWellLogChannel;
+                        osduWellLogChannel->setName( c.mnemonic );
+                        osduWellLogChannel->setDescription( c.description );
+                        osduWellLogChannel->setTopDepth( c.topDepth );
+                        osduWellLogChannel->setBaseDepth( c.baseDepth );
+                        osduWellLogChannel->setInterpreterName( c.interpreterName );
+                        osduWellLogChannel->setQuality( c.quality );
+                        osduWellLogChannel->setUnit( c.unit );
+                        osduWellLogChannel->setDepthUnit( c.depthUnit );
+
+                        osduWellLog->addWellLogChannel( osduWellLogChannel );
+                    }
+
                     oilField->wellPathCollection->addWellLog( osduWellLog, wellPath );
 
                     osduWellLog->setWellLogData( wellLogData.p() );

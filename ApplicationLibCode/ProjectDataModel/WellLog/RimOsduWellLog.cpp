@@ -20,8 +20,8 @@
 
 #include "RiaFieldHandleTools.h"
 
+#include "RimOsduWellLogChannel.h"
 #include "RimTools.h"
-#include "RimWellLogChannel.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPlotTools.h"
@@ -146,15 +146,6 @@ RigOsduWellLogData* RimOsduWellLog::wellLogData()
 void RimOsduWellLog::setWellLogData( RigOsduWellLogData* wellLogData )
 {
     m_wellLogData = wellLogData;
-
-    m_wellLogChannels.deleteChildren();
-
-    for ( const QString& wellLogName : wellLogData->wellLogChannelNames() )
-    {
-        RimWellLogChannel* wellLog = new RimWellLogChannel();
-        wellLog->setName( wellLogName );
-        m_wellLogChannels.push_back( wellLog );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -171,4 +162,12 @@ void RimOsduWellLog::setWellLogId( const QString& wellLogId )
 QString RimOsduWellLog::wellLogId() const
 {
     return m_wellLogId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOsduWellLog::addWellLogChannel( RimOsduWellLogChannel* channel )
+{
+    m_wellLogChannels.push_back( channel );
 }
