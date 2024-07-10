@@ -58,6 +58,11 @@ bool RifStimPlanModelDeviationFrkExporter::writeToFile( RimStimPlanModel* stimPl
     convertFromMeterToFeet( mdValues );
     convertFromMeterToFeet( tvdValues );
 
+    // Round to less precision. StimPlan does not handle high precision.
+    int numSignificantDigits = 2;
+    roundToPrecision( mdValues, numSignificantDigits );
+    roundToPrecision( tvdValues, numSignificantDigits );
+
     std::vector<double> exportTvdValues;
     std::vector<double> exportMdValues;
     fixupDepthValuesForExport( tvdValues, mdValues, exportTvdValues, exportMdValues );
@@ -83,7 +88,7 @@ void RifStimPlanModelDeviationFrkExporter::appendHeaderToStream( QTextStream& st
 //--------------------------------------------------------------------------------------------------
 void RifStimPlanModelDeviationFrkExporter::appendToStream( QTextStream& stream, const QString& label, const std::vector<double>& values )
 {
-    stream.setRealNumberPrecision( 20 );
+    stream.setRealNumberPrecision( 8 );
     stream << "<cNamedSet>" << '\n'
            << "<name>" << '\n'
            << label << '\n'
@@ -119,6 +124,23 @@ void RifStimPlanModelDeviationFrkExporter::convertFromMeterToFeet( std::vector<d
     for ( size_t i = 0; i < data.size(); i++ )
     {
         data[i] = RiaEclipseUnitTools::meterToFeet( data[i] );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifStimPlanModelDeviationFrkExporter::roundToPrecision( std::vector<double>& data, int numSignificantDigits )
+{
+    auto roundUp = []( double value, int decimalPlaces ) -> double
+    {
+        const double multiplier = std::pow( 10.0, decimalPlaces );
+        return std::ceil( value * multiplier ) / multiplier;
+    };
+
+    for ( size_t i = 0; i < data.size(); i++ )
+    {
+        data[i] = roundUp( data[i], numSignificantDigits );
     }
 }
 

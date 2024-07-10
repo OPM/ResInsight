@@ -42,4 +42,5 @@ private:
     static void appendToStream( QTextStream& stream, const QString& label, const std::vector<double>& values );
     static void appendFooterToStream( QTextStream& stream );
     static void convertFromMeterToFeet( std::vector<double>& data );
+    static void roundToPrecision( std::vector<double>& data, int numSignificantDigits );
 };
