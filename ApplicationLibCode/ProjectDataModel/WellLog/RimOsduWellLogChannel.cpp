@@ -49,6 +49,11 @@ RimOsduWellLogChannel::RimOsduWellLogChannel()
 
     CAF_PDM_InitFieldNoDefault( &m_depthUnit, "DepthUnit", "Depth Unit" );
     m_depthUnit.uiCapability()->setUiReadOnly( true );
+
+    // Need to save the name for Osdu well log channels.
+    // This reverts settings from RimWellLogChannel constructor.
+    nameField()->xmlCapability()->setIOReadable( true );
+    nameField()->xmlCapability()->setIOWritable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
