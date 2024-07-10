@@ -18,8 +18,10 @@
 
 #include "RicImportWellLogOsduFeature.h"
 
+#include "Cloud/RiaOsduConnector.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferences.h"
 
 #include "RimOilField.h"
 #include "RimOsduWellLog.h"
@@ -28,12 +30,8 @@
 #include "RimProject.h"
 #include "RimWellPathCollection.h"
 
-#include "RiuMainWindow.h"
-
-#include "OsduImportCommands/RiaOsduConnector.h"
 #include "OsduImportCommands/RiuWellLogImportWizard.h"
-#include "RiaLogging.h"
-#include "RiaPreferences.h"
+#include "RiuMainWindow.h"
 
 #include "cafSelectionManager.h"
 

@@ -19,7 +19,6 @@
 #include "RiuWellImportWizard.h"
 
 #include "RiaFeatureCommandContext.h"
-#include "RiaOsduConnector.h"
 
 #include "RimWellPathImport.h"
 

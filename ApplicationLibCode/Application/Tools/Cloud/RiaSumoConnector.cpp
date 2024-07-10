@@ -22,8 +22,7 @@
 #include "RiaFileDownloader.h"
 #include "RiaLogging.h"
 #include "RiaOsduDefines.h"
-
-#include "OsduImportCommands/RiaOsduOAuthHttpServerReplyHandler.h"
+#include "RiaOsduOAuthHttpServerReplyHandler.h"
 
 #include <QAbstractOAuth>
 #include <QDesktopServices>

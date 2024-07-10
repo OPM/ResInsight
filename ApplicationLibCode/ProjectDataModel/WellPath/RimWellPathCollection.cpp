@@ -20,7 +20,7 @@
 
 #include "RimWellPathCollection.h"
 
-#include "OsduImportCommands/RiaOsduConnector.h"
+#include "Cloud/RiaOsduConnector.h"
 #include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"

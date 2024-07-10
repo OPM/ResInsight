@@ -19,7 +19,6 @@
 #include "RiuWellLogImportWizard.h"
 
 #include "RiaFeatureCommandContext.h"
-#include "RiaOsduConnector.h"
 
 #include <QAbstractTableModel>
 #include <QObject>
