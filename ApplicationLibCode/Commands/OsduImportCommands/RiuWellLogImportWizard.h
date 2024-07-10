@@ -55,8 +55,7 @@ public:
     int columnCount( const QModelIndex& parent = QModelIndex() ) const override
     {
         Q_UNUSED( parent );
-        // Assuming you have three fields: id, kind, and name
-        return 3;
+        return 7;
     }
 
     QVariant data( const QModelIndex& index, int role = Qt::DisplayRole ) const override
@@ -64,6 +63,16 @@ public:
         if ( !index.isValid() ) return QVariant();
 
         if ( index.row() >= static_cast<int>( m_osduWellLogs.size() ) || index.row() < 0 ) return QVariant();
+
+        auto createChannelsText = []( const OsduWellLog& wellLog ) -> QString
+        {
+            QStringList channels;
+            for ( auto c : wellLog.channels )
+            {
+                channels.push_back( c.mnemonic );
+            }
+            return channels.join( ", " );
+        };
 
         if ( role == Qt::DisplayRole )
         {
@@ -76,6 +85,14 @@ public:
                     return field.kind;
                 case 2:
                     return field.name;
+                case 3:
+                    return createChannelsText( field );
+                case 4:
+                    return field.description;
+                case 5:
+                    return field.samplingStart;
+                case 6:
+                    return field.samplingStop;
                 default:
                     return QVariant();
             }
@@ -98,6 +115,14 @@ public:
                     return tr( "Kind" );
                 case 2:
                     return tr( "Name" );
+                case 3:
+                    return tr( "Channels" );
+                case 4:
+                    return tr( "Description" );
+                case 5:
+                    return tr( "Sampling Start" );
+                case 6:
+                    return tr( "Sampling Stop" );
                 default:
                     return QVariant();
             }
@@ -187,6 +212,7 @@ private:
     QTableView*            m_tableView;
     OsduWellLogTableModel* m_osduWellLogsModel;
     QSortFilterProxyModel* m_proxyModel;
+    QTextEdit*             m_detailText;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -197,20 +223,14 @@ class RiuWellLogImportWizard : public QWizard
     Q_OBJECT
 
 public:
-    struct WellLogInfo
-    {
-        QString name;
-        QString wellLog;
-    };
-
     RiuWellLogImportWizard( RiaOsduConnector* osduConnector, const QString& wellboreId, QWidget* parent = nullptr );
     ~RiuWellLogImportWizard() override;
 
     void                 setSelectedWellLogs( const std::vector<QString>& wellLogIds );
     std::vector<QString> selectedWellLogs() const;
 
-    void                                             addWellLogInfo( RiuWellLogImportWizard::WellLogInfo wellLogInfo );
-    std::vector<RiuWellLogImportWizard::WellLogInfo> importedWellLogs() const;
+    void                     addWellLog( OsduWellLog wellLogInfo );
+    std::vector<OsduWellLog> importedWellLogs() const;
 
     QString wellboreId() const;
 
@@ -221,6 +241,6 @@ private:
     RiaOsduConnector*    m_osduConnector;
     std::vector<QString> m_selectedWellLogs;
 
-    QString                                          m_wellboreId;
-    std::vector<RiuWellLogImportWizard::WellLogInfo> m_wellLogInfos;
+    QString                  m_wellboreId;
+    std::vector<OsduWellLog> m_wellLogs;
 };

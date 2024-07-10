@@ -68,16 +68,16 @@ void RicImportWellLogOsduFeature::onActionTriggered( bool isChecked )
 
         if ( QDialog::Accepted == wellLogImportWizard.exec() )
         {
-            std::vector<RiuWellLogImportWizard::WellLogInfo> wellLogs = wellLogImportWizard.importedWellLogs();
+            std::vector<OsduWellLog> wellLogs = wellLogImportWizard.importedWellLogs();
 
-            for ( RiuWellLogImportWizard::WellLogInfo wellLog : wellLogs )
+            for ( OsduWellLog wellLog : wellLogs )
             {
-                auto [wellLogData, errorMessage] = RimWellPathCollection::loadWellLogFromOsdu( osduConnector, wellLog.wellLog );
+                auto [wellLogData, errorMessage] = RimWellPathCollection::loadWellLogFromOsdu( osduConnector, wellLog.id );
                 if ( wellLogData.notNull() )
                 {
                     RimOsduWellLog* osduWellLog = new RimOsduWellLog;
                     osduWellLog->setName( wellLog.name );
-                    osduWellLog->setWellLogId( wellLog.wellLog );
+                    osduWellLog->setWellLogId( wellLog.id );
                     oilField->wellPathCollection->addWellLog( osduWellLog, wellPath );
 
                     osduWellLog->setWellLogData( wellLogData.p() );

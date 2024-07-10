@@ -629,24 +629,49 @@ void RiaOsduConnector::parseWellLogs( QNetworkReply* reply, const QString& wellb
                 QString     id        = resultObj["id"].toString();
                 QString     kind      = resultObj["kind"].toString();
 
-                QJsonArray  curvesArray = resultObj["data"].toObject()["Curves"].toArray();
-                QStringList curveIds;
+                QJsonObject dataObj       = resultObj["data"].toObject();
+                QString     name          = dataObj["Name"].toString();
+                QString     description   = dataObj["Description"].toString();
+                double      samplingStart = dataObj["SamplingStart"].toDouble( std::numeric_limits<double>::infinity() );
+                double      samplingStop  = dataObj["SamplingStop"].toDouble( std::numeric_limits<double>::infinity() );
+
+                QJsonArray  curvesArray = dataObj["Curves"].toArray();
+                QStringList curveMnemonics;
                 RiaLogging::debug( QString( "Curves for '%1':" ).arg( id ) );
+
+                std::vector<OsduWellLogChannel> channels;
                 for ( const QJsonValue& curve : curvesArray )
                 {
-                    QString curveId          = curve["CurveID"].toString();
+                    QString mnemonic         = curve["Mnemonic"].toString();
                     QString curveDescription = curve["CurveDescription"].toString();
-                    double  curveBaseDepth   = curve["BaseDepth"].toDouble( 0.0 );
-                    double  curveTopDepth    = curve["TopDepth"].toDouble( 0.0 );
+                    double  curveBaseDepth   = curve["BaseDepth"].toDouble( std::numeric_limits<double>::infinity() );
+                    double  curveTopDepth    = curve["TopDepth"].toDouble( std::numeric_limits<double>::infinity() );
+                    QString interpreterName  = curve["InterpreterName"].toString();
+                    QString quality          = curve["CurveQuality"].toString();
+                    QString unit             = curve["CurveUnit"].toString();
+                    QString depthUnit        = curve["DepthUnit"].toString();
 
-                    curveIds << curveId;
+                    curveMnemonics << mnemonic;
                     RiaLogging::debug(
-                        QString( "%1: '%2' (%3 - %4)" ).arg( curveId ).arg( curveDescription ).arg( curveTopDepth ).arg( curveBaseDepth ) );
+                        QString( "%1: '%2' (%3 - %4)" ).arg( mnemonic ).arg( curveDescription ).arg( curveTopDepth ).arg( curveBaseDepth ) );
+                    channels.push_back( OsduWellLogChannel{ .mnemonic        = mnemonic,
+                                                            .description     = curveDescription,
+                                                            .topDepth        = curveTopDepth,
+                                                            .baseDepth       = curveBaseDepth,
+                                                            .interpreterName = interpreterName,
+                                                            .quality         = quality,
+                                                            .unit            = unit,
+                                                            .depthUnit       = depthUnit } );
                 }
 
-                QString name = curveIds.join( ", " );
-
-                m_wellLogs[wellboreId].push_back( OsduWellLog{ id, kind, wellboreId, name } );
+                m_wellLogs[wellboreId].push_back( OsduWellLog{ .id            = id,
+                                                               .kind          = kind,
+                                                               .name          = name,
+                                                               .description   = description,
+                                                               .samplingStart = samplingStart,
+                                                               .samplingStop  = samplingStop,
+                                                               .wellboreId    = wellboreId,
+                                                               .channels      = channels } );
             }
         }
 
