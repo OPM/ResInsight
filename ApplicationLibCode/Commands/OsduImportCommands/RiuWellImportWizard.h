@@ -26,7 +26,7 @@
 #include <QUrl>
 #include <QWizard>
 
-#include "RiaOsduConnector.h"
+#include "Cloud/RiaOsduConnector.h"
 
 #include <set>
 

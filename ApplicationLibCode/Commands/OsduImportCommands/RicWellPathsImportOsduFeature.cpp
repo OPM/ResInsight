@@ -18,10 +18,10 @@
 
 #include "RicWellPathsImportOsduFeature.h"
 
+#include "Cloud/RiaOsduConnector.h"
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
-#include "RiaOsduConnector.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesOsdu.h"
 

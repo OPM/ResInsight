@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "Cloud/RiaOsduConnector.h"
+
 #include <QItemSelection>
 #include <QLineEdit>
 #include <QNetworkAccessManager>
@@ -25,8 +27,6 @@
 #include <QString>
 #include <QUrl>
 #include <QWizard>
-
-#include "RiaOsduConnector.h"
 
 #include <set>
 
