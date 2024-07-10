@@ -187,7 +187,6 @@ WellLogSelectionPage::WellLogSelectionPage( RiaOsduConnector* osduConnector, QWi
 
     QHeaderView* header = m_tableView->horizontalHeader();
     header->setSectionResizeMode( QHeaderView::Interactive );
-    header->setStretchLastSection( true );
 
     m_osduWellLogsModel = new OsduWellLogTableModel;
     layout->addWidget( m_tableView );
@@ -200,6 +199,10 @@ WellLogSelectionPage::WellLogSelectionPage( RiaOsduConnector* osduConnector, QWi
 
     m_tableView->setModel( m_proxyModel );
     m_tableView->setSortingEnabled( true );
+
+    // Hide the ID and kind columns
+    m_tableView->hideColumn( 0 );
+    m_tableView->hideColumn( 1 );
 
     m_detailText = new QTextEdit( this );
     m_detailText->setReadOnly( true );

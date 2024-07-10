@@ -29,7 +29,7 @@
 
 #include <QDateTime>
 
-class RimWellLogChannel;
+class RimOsduWellLogChannel;
 class RimWellPath;
 
 class QString;
@@ -53,6 +53,8 @@ public:
 
     RigOsduWellLogData* wellLogData() override;
     void                setWellLogData( RigOsduWellLogData* wellLogData );
+
+    void addWellLogChannel( RimOsduWellLogChannel* channel );
 
     void    setWellLogId( const QString& wellLogId );
     QString wellLogId() const;
