@@ -14,8 +14,9 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaOsduOAuthHttpServerReplyHandler.cpp
 )
 
-list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RiaSumoConnector.h ${CMAKE_CURRENT_LIST_DIR}/RiaOsduConnector.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiaOsduOAuthHttpServerReplyHandler.h
+list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RiaSumoConnector.h
+     ${CMAKE_CURRENT_LIST_DIR}/RiaOsduConnector.h
+     ${CMAKE_CURRENT_LIST_DIR}/RiaOsduOAuthHttpServerReplyHandler.h
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
