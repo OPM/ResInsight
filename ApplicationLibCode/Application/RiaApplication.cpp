@@ -17,9 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiaApplication.h"
 
+#include "Cloud/RiaOsduConnector.h"
 #include "Cloud/RiaSumoConnector.h"
 #include "Cloud/RiaSumoDefines.h"
-#include "OsduImportCommands/RiaOsduConnector.h"
 
 #include "RiaArgumentParser.h"
 #include "RiaBaseDefs.h"
