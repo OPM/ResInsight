@@ -44,6 +44,13 @@ RimOsduWellLog::RimOsduWellLog()
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogId, "WellLogId", "Well Log Id" );
     m_wellLogId.uiCapability()->setUiReadOnly( true );
+
+    // Need to save channels for Osdu well logs.
+    // This reverts settings from RimWellLog constructor.
+    m_wellLogChannels.xmlCapability()->setIOReadable( true );
+    m_wellLogChannels.xmlCapability()->setIOWritable( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
