@@ -24,6 +24,7 @@
 #include <QAbstractTableModel>
 #include <QObject>
 #include <QString>
+#include <QTextEdit>
 
 #include <QtNetwork>
 #include <QtWidgets>
@@ -43,6 +44,8 @@ RiuWellLogImportWizard::RiuWellLogImportWizard( RiaOsduConnector* osduConnector,
 
     addPage( new WellLogAuthenticationPage( m_osduConnector, this ) );
     addPage( new WellLogSelectionPage( m_osduConnector, this ) );
+
+    setMinimumSize( 800, 800 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,17 +90,17 @@ QString RiuWellLogImportWizard::wellboreId() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiuWellLogImportWizard::WellLogInfo> RiuWellLogImportWizard::importedWellLogs() const
+std::vector<OsduWellLog> RiuWellLogImportWizard::importedWellLogs() const
 {
-    return m_wellLogInfos;
+    return m_wellLogs;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogImportWizard::addWellLogInfo( RiuWellLogImportWizard::WellLogInfo wellLogInfo )
+void RiuWellLogImportWizard::addWellLog( OsduWellLog wellLog )
 {
-    m_wellLogInfos.push_back( wellLogInfo );
+    m_wellLogs.push_back( wellLog );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -198,6 +201,10 @@ WellLogSelectionPage::WellLogSelectionPage( RiaOsduConnector* osduConnector, QWi
     m_tableView->setModel( m_proxyModel );
     m_tableView->setSortingEnabled( true );
 
+    m_detailText = new QTextEdit( this );
+    m_detailText->setReadOnly( true );
+    layout->addWidget( m_detailText );
+
     QObject::connect( filterLineEdit, &QLineEdit::textChanged, m_proxyModel, &QSortFilterProxyModel::setFilterWildcard );
 
     m_osduConnector = osduConnector;
@@ -271,6 +278,37 @@ void WellLogSelectionPage::selectWellLogs( const QItemSelection& newSelection, c
                 return {};
         };
 
+        auto generateWellLogDetailsText = []( const OsduWellLog& wellLog ) -> QString
+        {
+            QString text = QString( "Name: %1\n" ).arg( wellLog.name );
+            if ( !wellLog.description.isEmpty() )
+            {
+                text.append( QString( "Description: %2\n" ).arg( wellLog.description ) );
+            }
+
+            for ( auto channel : wellLog.channels )
+            {
+                QString channelText = QString( "  %1: \"%2\". Depth: %3 - %4." )
+                                          .arg( channel.mnemonic )
+                                          .arg( channel.description )
+                                          .arg( channel.topDepth )
+                                          .arg( channel.baseDepth );
+                if ( !channel.interpreterName.isEmpty() )
+                {
+                    channelText.append( QString( " Interpreter: %1." ).arg( channel.interpreterName ) );
+                }
+
+                if ( !channel.quality.isEmpty() )
+                {
+                    channelText.append( QString( " Quality: %1." ).arg( channel.quality ) );
+                }
+
+                text.append( channelText + "\n" );
+            }
+
+            return text;
+        };
+
         QModelIndexList selection = m_tableView->selectionModel()->selectedRows();
         for ( QModelIndex index : selection )
         {
@@ -282,7 +320,8 @@ void WellLogSelectionPage::selectWellLogs( const QItemSelection& newSelection, c
                 std::optional<const OsduWellLog> wellLog   = findWellLogById( wellLogs, wellLogId );
                 if ( wellLog.has_value() )
                 {
-                    wiz->addWellLogInfo( { .name = wellLog->name, .wellLog = wellLogId } );
+                    wiz->addWellLog( wellLog.value() );
+                    m_detailText->setText( generateWellLogDetailsText( wellLog.value() ) );
                 }
             }
         }

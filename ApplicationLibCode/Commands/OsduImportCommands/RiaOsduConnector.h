@@ -37,12 +37,28 @@ struct OsduWellboreTrajectory
     QString wellboreId;
 };
 
+struct OsduWellLogChannel
+{
+    QString mnemonic;
+    QString description;
+    double  topDepth;
+    double  baseDepth;
+    QString interpreterName;
+    QString quality;
+    QString unit;
+    QString depthUnit;
+};
+
 struct OsduWellLog
 {
-    QString id;
-    QString kind;
-    QString wellboreId;
-    QString name;
+    QString                         id;
+    QString                         kind;
+    QString                         name;
+    QString                         description;
+    double                          samplingStart;
+    double                          samplingStop;
+    QString                         wellboreId;
+    std::vector<OsduWellLogChannel> channels;
 };
 
 //==================================================================================================

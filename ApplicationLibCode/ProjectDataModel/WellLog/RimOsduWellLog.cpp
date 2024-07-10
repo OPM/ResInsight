@@ -18,19 +18,13 @@
 
 #include "RimOsduWellLog.h"
 
-#include "RiaDateStringParser.h"
 #include "RiaFieldHandleTools.h"
-#include "RiaGuiApplication.h"
-#include "RiaLogging.h"
-#include "RiaQDateTimeTools.h"
 
-#include "RimFileWellPath.h"
 #include "RimTools.h"
 #include "RimWellLogChannel.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPlotTools.h"
-
-#include "Riu3DMainWindowTools.h"
 
 #include <QString>
 
