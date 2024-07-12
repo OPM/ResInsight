@@ -41,6 +41,7 @@ struct OsduWellboreTrajectory
 
 struct OsduWellLogChannel
 {
+    QString id;
     QString mnemonic;
     QString description;
     double  topDepth;

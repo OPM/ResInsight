@@ -69,7 +69,7 @@ public:
             QStringList channels;
             for ( auto c : wellLog.channels )
             {
-                channels.push_back( c.mnemonic );
+                channels.push_back( c.id );
             }
             return channels.join( ", " );
         };

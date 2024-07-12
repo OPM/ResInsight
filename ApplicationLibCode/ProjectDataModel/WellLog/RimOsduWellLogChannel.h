@@ -31,6 +31,7 @@ class RimOsduWellLogChannel : public RimWellLogChannel
 public:
     RimOsduWellLogChannel();
 
+    void setId( const QString& id );
     void setDescription( const QString& description );
     void setTopDepth( double topDepth );
     void setBaseDepth( double baseDepth );
@@ -40,6 +41,7 @@ public:
     void setDepthUnit( const QString& depthUnit );
 
 private:
+    caf::PdmField<QString> m_id;
     caf::PdmField<QString> m_description;
     caf::PdmField<double>  m_topDepth;
     caf::PdmField<double>  m_baseDepth;

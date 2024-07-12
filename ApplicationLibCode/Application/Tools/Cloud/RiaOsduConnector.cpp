@@ -518,14 +518,14 @@ void RiaOsduConnector::parseWellLogs( QNetworkReply* reply, const QString& wellb
                 double      samplingStart = dataObj["SamplingStart"].toDouble( std::numeric_limits<double>::infinity() );
                 double      samplingStop  = dataObj["SamplingStop"].toDouble( std::numeric_limits<double>::infinity() );
 
-                QJsonArray  curvesArray = dataObj["Curves"].toArray();
-                QStringList curveMnemonics;
+                QJsonArray curvesArray = dataObj["Curves"].toArray();
                 RiaLogging::debug( QString( "Curves for '%1':" ).arg( id ) );
 
                 std::vector<OsduWellLogChannel> channels;
                 for ( const QJsonValue& curve : curvesArray )
                 {
                     QString mnemonic         = curve["Mnemonic"].toString();
+                    QString curveId          = curve["CurveID"].toString();
                     QString curveDescription = curve["CurveDescription"].toString();
                     double  curveBaseDepth   = curve["BaseDepth"].toDouble( std::numeric_limits<double>::infinity() );
                     double  curveTopDepth    = curve["TopDepth"].toDouble( std::numeric_limits<double>::infinity() );
@@ -534,10 +534,10 @@ void RiaOsduConnector::parseWellLogs( QNetworkReply* reply, const QString& wellb
                     QString unit             = curve["CurveUnit"].toString();
                     QString depthUnit        = curve["DepthUnit"].toString();
 
-                    curveMnemonics << mnemonic;
                     RiaLogging::debug(
-                        QString( "%1: '%2' (%3 - %4)" ).arg( mnemonic ).arg( curveDescription ).arg( curveTopDepth ).arg( curveBaseDepth ) );
-                    channels.push_back( OsduWellLogChannel{ .mnemonic        = mnemonic,
+                        QString( "%1: '%2' (%3 - %4)" ).arg( curveId ).arg( curveDescription ).arg( curveTopDepth ).arg( curveBaseDepth ) );
+                    channels.push_back( OsduWellLogChannel{ .id              = curveId,
+                                                            .mnemonic        = mnemonic,
                                                             .description     = curveDescription,
                                                             .topDepth        = curveTopDepth,
                                                             .baseDepth       = curveBaseDepth,

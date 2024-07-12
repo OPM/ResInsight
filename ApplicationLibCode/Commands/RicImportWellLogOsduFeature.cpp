@@ -80,6 +80,7 @@ void RicImportWellLogOsduFeature::onActionTriggered( bool isChecked )
                     for ( OsduWellLogChannel c : wellLog.channels )
                     {
                         RimOsduWellLogChannel* osduWellLogChannel = new RimOsduWellLogChannel;
+                        osduWellLogChannel->setId( c.id );
                         osduWellLogChannel->setName( c.mnemonic );
                         osduWellLogChannel->setDescription( c.description );
                         osduWellLogChannel->setTopDepth( c.topDepth );
