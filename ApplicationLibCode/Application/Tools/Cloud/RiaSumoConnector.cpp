@@ -95,7 +95,7 @@ void RiaSumoConnector::requestCasesForField( const QString& fieldName )
     QNetworkRequest m_networkRequest;
     m_networkRequest.setUrl( QUrl( constructSearchUrl( m_server ) ) );
 
-    addStandardHeader( m_networkRequest, m_token, RiaDefines::contentTypeJson() );
+    addStandardHeader( m_networkRequest, token(), RiaDefines::contentTypeJson() );
 
     QString payloadTemplate = R"(
 {
@@ -156,7 +156,7 @@ void RiaSumoConnector::requestAssets()
     QNetworkRequest m_networkRequest;
     m_networkRequest.setUrl( QUrl( m_server + "/api/v1/userpermissions" ) );
 
-    addStandardHeader( m_networkRequest, m_token, RiaDefines::contentTypeJson() );
+    addStandardHeader( m_networkRequest, token(), RiaDefines::contentTypeJson() );
 
     auto reply = m_networkAccessManager->get( m_networkRequest );
 
@@ -218,7 +218,7 @@ void RiaSumoConnector::requestEnsembleByCasesId( const SumoCaseId& caseId )
     QNetworkRequest m_networkRequest;
     m_networkRequest.setUrl( QUrl( m_server + "/api/v1/search" ) );
 
-    addStandardHeader( m_networkRequest, m_token, RiaDefines::contentTypeJson() );
+    addStandardHeader( m_networkRequest, token(), RiaDefines::contentTypeJson() );
 
     auto payload = payloadTemplate.arg( caseId.get() );
     auto reply   = m_networkAccessManager->post( m_networkRequest, payload.toUtf8() );
@@ -291,7 +291,7 @@ void RiaSumoConnector::requestVectorNamesForEnsemble( const SumoCaseId& caseId, 
     QNetworkRequest m_networkRequest;
     m_networkRequest.setUrl( QUrl( m_server + "/api/v1/search" ) );
 
-    addStandardHeader( m_networkRequest, m_token, RiaDefines::contentTypeJson() );
+    addStandardHeader( m_networkRequest, token(), RiaDefines::contentTypeJson() );
 
     auto payload = payloadTemplate.arg( caseId.get() ).arg( ensembleName );
     auto reply   = m_networkAccessManager->post( m_networkRequest, payload.toUtf8() );
@@ -360,7 +360,7 @@ void RiaSumoConnector::requestRealizationIdsForEnsemble( const SumoCaseId& caseI
     QNetworkRequest m_networkRequest;
     m_networkRequest.setUrl( QUrl( m_server + "/api/v1/search" ) );
 
-    addStandardHeader( m_networkRequest, m_token, RiaDefines::contentTypeJson() );
+    addStandardHeader( m_networkRequest, token(), RiaDefines::contentTypeJson() );
 
     auto payload = payloadTemplate.arg( caseId.get() ).arg( ensembleName );
     auto reply   = m_networkAccessManager->post( m_networkRequest, payload.toUtf8() );
@@ -423,7 +423,7 @@ void RiaSumoConnector::requestBlobIdForEnsemble( const SumoCaseId& caseId, const
     QNetworkRequest m_networkRequest;
     m_networkRequest.setUrl( QUrl( m_server + "/api/v1/search" ) );
 
-    addStandardHeader( m_networkRequest, m_token, RiaDefines::contentTypeJson() );
+    addStandardHeader( m_networkRequest, token(), RiaDefines::contentTypeJson() );
 
     auto payload = payloadTemplate.arg( caseId.get() ).arg( ensembleName ).arg( vectorName );
     auto reply   = m_networkAccessManager->post( m_networkRequest, payload.toUtf8() );
@@ -469,7 +469,7 @@ void RiaSumoConnector::requestBlobDownload( const QString& blobId )
     // did not work. Use ManualRedirectPolicy instead, and inspect the reply for the redirection target.
     networkRequest.setAttribute( QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::ManualRedirectPolicy );
 
-    addStandardHeader( networkRequest, m_token, RiaDefines::contentTypeJson() );
+    addStandardHeader( networkRequest, token(), RiaDefines::contentTypeJson() );
 
     auto reply = m_networkAccessManager->get( networkRequest );
 
