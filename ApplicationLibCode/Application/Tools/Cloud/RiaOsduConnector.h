@@ -1,5 +1,7 @@
 #pragma once
 
+#include "RiaCloudConnector.h"
+
 #include <QtCore>
 
 #include <QNetworkAccessManager>
@@ -64,7 +66,7 @@ struct OsduWellLog
 //==================================================================================================
 ///
 //==================================================================================================
-class RiaOsduConnector : public QObject
+class RiaOsduConnector : public RiaCloudConnector
 {
     Q_OBJECT
 public:
@@ -73,7 +75,8 @@ public:
                       const QString& dataParitionId,
                       const QString& authority,
                       const QString& scopes,
-                      const QString& clientId );
+                      const QString& clientId,
+                      unsigned int   port );
     ~RiaOsduConnector() override;
 
     void                     requestFieldsByName( const QString& fieldName );
@@ -93,7 +96,6 @@ public:
 
     void clearCachedData();
 
-    QString server() const;
     QString dataPartition() const;
 
     std::vector<OsduField>              fields() const;
@@ -103,14 +105,11 @@ public:
     std::vector<OsduWellLog>            wellLogs( const QString& wellboreId ) const;
 
 public slots:
-    void requestToken();
     void parseFields( QNetworkReply* reply );
     void parseWells( QNetworkReply* reply );
     void parseWellbores( QNetworkReply* reply, const QString& wellId );
     void parseWellTrajectory( QNetworkReply* reply, const QString& wellboreId );
     void parseWellLogs( QNetworkReply* reply, const QString& wellboreId );
-
-    void accessGranted();
     void parquetDownloadComplete( const QByteArray&, const QString& url, const QString& id );
 
 signals:
@@ -120,11 +119,8 @@ signals:
     void wellboresFinished( const QString& wellId );
     void wellboreTrajectoryFinished( const QString& wellboreId, int numTrajectories, const QString& errorMessage );
     void wellLogsFinished( const QString& wellboreId );
-    void tokenReady( const QString& token );
 
 private slots:
-    void errorReceived( const QString& error, const QString& errorDescription, const QUrl& uri );
-    void authorizationCallbackReceived( const QVariantMap& data );
     void requestParquetData( const QString& url, const QString& dataPartitionId, const QString& token, const QString& id );
 
 private:
@@ -149,24 +145,13 @@ private:
 
     static QString constructSearchUrl( const QString& server );
     static QString constructFileDownloadUrl( const QString& server, const QString& fileId );
-    static QString constructAuthUrl( const QString& authority );
-    static QString constructTokenUrl( const QString& authority );
     static QString constructWellLogDownloadUrl( const QString& server, const QString& wellLogId );
     static QString constructWellboreTrajectoriesDownloadUrl( const QString& server, const QString& wellboreTrajectoryId );
 
     std::pair<QByteArray, QString> requestParquetDataByUrlBlocking( const QString& url, const QString& id );
     void                           requestParquetDataByUrl( const QString& url, const QString& id );
 
-    QString requestTokenBlocking();
-
-    QOAuth2AuthorizationCodeFlow* m_osdu;
-    QNetworkAccessManager*        m_networkAccessManager;
-
-    const QString m_server;
     const QString m_dataPartitionId;
-    const QString m_authority;
-    const QString m_scopes;
-    const QString m_clientId;
 
     mutable QMutex                                         m_mutex;
     QString                                                m_token;

@@ -1711,7 +1711,12 @@ RiaOsduConnector* RiaApplication::makeOsduConnector()
     const QString       authority       = osduPreferences->authority();
     const QString       scopes          = osduPreferences->scopes();
     const QString       clientId        = osduPreferences->clientId();
-    m_osduConnector = new RiaOsduConnector( RiuMainWindow::instance(), server, dataPartitionId, authority, scopes, clientId );
+    const unsigned int  port            = 35327;
+
+    m_osduConnector = new RiaOsduConnector( RiuMainWindow::instance(), server, dataPartitionId, authority, scopes, clientId, port );
+    m_osduConnector->setTokenDataFilePath( RiaSumoDefines::tokenPath() );
+    m_osduConnector->importTokenFromFile();
+
     return m_osduConnector;
 }
 
@@ -1722,13 +1727,14 @@ RiaSumoConnector* RiaApplication::makeSumoConnector()
 {
     if ( !m_sumoConnector )
     {
-        auto          sumoPrefs = preferences()->sumoPreferences();
-        const QString server    = sumoPrefs->server();
-        const QString authority = sumoPrefs->authority();
-        const QString scopes    = sumoPrefs->scopes();
-        const QString clientId  = sumoPrefs->clientId();
+        auto               sumoPrefs = preferences()->sumoPreferences();
+        const QString      server    = sumoPrefs->server();
+        const QString      authority = sumoPrefs->authority();
+        const QString      scopes    = sumoPrefs->scopes();
+        const QString      clientId  = sumoPrefs->clientId();
+        const unsigned int port      = 53527;
 
-        m_sumoConnector = new RiaSumoConnector( RiuMainWindow::instance(), server, authority, scopes, clientId );
+        m_sumoConnector = new RiaSumoConnector( RiuMainWindow::instance(), server, authority, scopes, clientId, port );
 
         m_sumoConnector->setTokenDataFilePath( RiaSumoDefines::tokenPath() );
         m_sumoConnector->importTokenFromFile();
