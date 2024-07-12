@@ -31,116 +31,15 @@ RiaOsduConnector::RiaOsduConnector( QObject*       parent,
                                     const QString& dataPartitionId,
                                     const QString& authority,
                                     const QString& scopes,
-                                    const QString& clientId )
-    : QObject( parent )
-    , m_server( server )
+                                    const QString& clientId,
+                                    unsigned int   port )
+    : RiaCloudConnector( parent, server, authority, scopes, clientId, port )
     , m_dataPartitionId( dataPartitionId )
-    , m_authority( authority )
-    , m_scopes( scopes )
-    , m_clientId( clientId )
 {
-    m_networkAccessManager = new QNetworkAccessManager( this );
-
-    m_osdu = new QOAuth2AuthorizationCodeFlow( this );
-
-    RiaLogging::debug( "SSL BUILD VERSION: " + QSslSocket::sslLibraryBuildVersionString() );
-    RiaLogging::debug( "SSL VERSION STRING: " + QSslSocket::sslLibraryVersionString() );
-
-    RiaLogging::debug( "OSDU config:" );
-    RiaLogging::debug( "  server: '" + server + "'" );
-    RiaLogging::debug( "  data partition id: '" + dataPartitionId + "'" );
-    RiaLogging::debug( "  authority: '" + authority + "'" );
-    RiaLogging::debug( "  scopes: '" + scopes + "'" );
-    RiaLogging::debug( "  client id: '" + clientId + "'" );
-
-    int port = 35327;
-
-    connect( m_osdu,
-             &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser,
-             []( QUrl url )
-             {
-                 RiaLogging::debug( "Authorize with url: " + url.toString() );
-                 QUrlQuery query( url );
-                 url.setQuery( query );
-                 QDesktopServices::openUrl( url );
-             } );
-
-    QString authUrl = constructAuthUrl( m_authority );
-    m_osdu->setAuthorizationUrl( QUrl( authUrl ) );
-
-    QString tokenUrl = constructTokenUrl( m_authority );
-    m_osdu->setAccessTokenUrl( QUrl( tokenUrl ) );
-
-    // App key
-    m_osdu->setClientIdentifier( m_clientId );
-    m_osdu->setScope( m_scopes );
-
-    auto replyHandler = new RiaOsduOAuthHttpServerReplyHandler( port, this );
-    m_osdu->setReplyHandler( replyHandler );
-    RiaLogging::debug( "Osdu server callback: " + replyHandler->callback() );
-
-    connect( m_osdu, SIGNAL( granted() ), this, SLOT( accessGranted() ) );
-    connect( m_osdu,
-             SIGNAL( error( const QString&, const QString&, const QUrl& ) ),
-             this,
-             SLOT( errorReceived( const QString&, const QString&, const QUrl& ) ) );
-
-    connect( m_osdu,
-             SIGNAL( authorizationCallbackReceived( const QVariantMap& ) ),
-             this,
-             SLOT( authorizationCallbackReceived( const QVariantMap& ) ) );
-
     connect( this,
              SIGNAL( parquetDownloadFinished( const QByteArray&, const QString&, const QString& ) ),
              this,
              SLOT( parquetDownloadComplete( const QByteArray&, const QString&, const QString& ) ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaOsduConnector::accessGranted()
-{
-    RiaLogging::debug( "Access granted." );
-    m_token = m_osdu->token();
-    emit tokenReady( m_token );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaOsduConnector::errorReceived( const QString& error, const QString& errorDescription, const QUrl& uri )
-{
-    RiaLogging::debug( "OSDU Error Received: " + error + ". Description: " + errorDescription );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaOsduConnector::authorizationCallbackReceived( const QVariantMap& data )
-{
-    RiaLogging::debug( "Authorization callback received:" );
-    for ( const auto& [key, value] : data.toStdMap() )
-    {
-        RiaLogging::debug( "  Key: " + key + " Value: " + value.toString() );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaOsduConnector::requestToken()
-{
-    if ( m_token.isEmpty() )
-    {
-        RiaLogging::debug( "Requesting token." );
-        m_osdu->grant();
-    }
-    else
-    {
-        RiaLogging::debug( "Has token: skipping token request." );
-        emit accessGranted();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -388,22 +287,6 @@ QString RiaOsduConnector::constructSearchUrl( const QString& server )
 QString RiaOsduConnector::constructFileDownloadUrl( const QString& server, const QString& fileId )
 {
     return server + "/api/file/v2/files/" + fileId + "/downloadURL";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaOsduConnector::constructAuthUrl( const QString& authority )
-{
-    return authority + "/oauth2/v2.0/authorize";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaOsduConnector::constructTokenUrl( const QString& authority )
-{
-    return authority + "/oauth2/v2.0/token";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -710,14 +593,6 @@ QNetworkReply*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaOsduConnector::server() const
-{
-    return m_server;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RiaOsduConnector::dataPartition() const
 {
     return m_dataPartitionId;
@@ -911,20 +786,4 @@ void RiaOsduConnector::parquetDownloadComplete( const QByteArray& contents, cons
     QMutexLocker lock( &m_mutex );
     m_parquetData[id]   = contents;
     m_parquetErrors[id] = errorMessage;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaOsduConnector::requestTokenBlocking()
-{
-    if ( m_token.isEmpty() )
-    {
-        QEventLoop loop;
-        connect( this, SIGNAL( tokenReady( const QString& ) ), &loop, SLOT( quit() ) );
-        requestToken();
-        loop.exec();
-    }
-
-    return m_token;
 }

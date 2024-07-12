@@ -45,60 +45,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSumoConnector::RiaSumoConnector( QObject* parent, const QString& server, const QString& authority, const QString& scopes, const QString& clientId )
-    : QObject( parent )
-    , m_server( server )
-    , m_authority( authority )
-    , m_scopes( scopes )
-    , m_clientId( clientId )
+RiaSumoConnector::RiaSumoConnector( QObject*       parent,
+                                    const QString& server,
+                                    const QString& authority,
+                                    const QString& scopes,
+                                    const QString& clientId,
+                                    unsigned int   port )
+    : RiaCloudConnector( parent, server, authority, scopes, clientId, port )
 {
-    m_authCodeFlow         = new QOAuth2AuthorizationCodeFlow( this );
-    m_networkAccessManager = new QNetworkAccessManager( this );
-    m_authCodeFlow->setNetworkAccessManager( m_networkAccessManager );
-
-    RiaLogging::debug( "SSL BUILD VERSION: " + QSslSocket::sslLibraryBuildVersionString() );
-    RiaLogging::debug( "SSL VERSION STRING: " + QSslSocket::sslLibraryVersionString() );
-
-    // NB: Make sure the port is not in use by another application
-    const unsigned int port = 53527;
-
-    connect( m_authCodeFlow,
-             &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser,
-             []( QUrl url )
-             {
-                 RiaLogging::info( "Authorize with url: " + url.toString() );
-                 QUrlQuery query( url );
-                 url.setQuery( query );
-                 QDesktopServices::openUrl( url );
-             } );
-
-    QString authUrl = constructAuthUrl( m_authority );
-    m_authCodeFlow->setAuthorizationUrl( QUrl( authUrl ) );
-
-    QString tokenUrl = constructTokenUrl( m_authority );
-    m_authCodeFlow->setAccessTokenUrl( QUrl( tokenUrl ) );
-
-    // App key
-    m_authCodeFlow->setClientIdentifier( m_clientId );
-    m_authCodeFlow->setScope( m_scopes );
-
-    auto replyHandler = new RiaOsduOAuthHttpServerReplyHandler( port, this );
-    m_authCodeFlow->setReplyHandler( replyHandler );
-
-    connect( m_authCodeFlow, SIGNAL( granted() ), this, SLOT( accessGranted() ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::accessGranted()
-{
-    m_token = m_authCodeFlow->token();
-
-    QString tokenDataJson = RiaConnectorTools::tokenDataAsJson( m_authCodeFlow );
-    RiaConnectorTools::writeTokenData( m_tokenDataFilePath, tokenDataJson );
-
-    emit tokenReady( m_token );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -125,46 +79,8 @@ void RiaSumoConnector::parquetDownloadComplete( const QString& blobId, const QBy
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::requestToken()
-{
-    RiaLogging::debug( "Requesting token." );
-    m_authCodeFlow->grant();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RiaSumoConnector::~RiaSumoConnector()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaSumoConnector::token() const
-{
-    return m_token;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::importTokenFromFile()
-{
-    auto tokenDataJson = RiaConnectorTools::readTokenData( m_tokenDataFilePath );
-    if ( !tokenDataJson.isEmpty() )
-    {
-        RiaConnectorTools::initializeTokenDataFromJson( m_authCodeFlow, tokenDataJson );
-        m_token = m_authCodeFlow->token();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::setTokenDataFilePath( const QString& filePath )
-{
-    m_tokenDataFilePath = filePath;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -671,22 +587,6 @@ QString RiaSumoConnector::constructDownloadUrl( const QString& server, const QSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaSumoConnector::constructAuthUrl( const QString& authority )
-{
-    return authority + "/oauth2/v2.0/authorize";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaSumoConnector::constructTokenUrl( const QString& authority )
-{
-    return authority + "/oauth2/v2.0/token";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QNetworkReply* RiaSumoConnector::makeRequest( const std::map<QString, QString>& parameters, const QString& server, const QString& token )
 {
     QNetworkRequest m_networkRequest;
@@ -914,68 +814,10 @@ void RiaSumoConnector::parseBlobIds( QNetworkReply* reply, const SumoCaseId& cas
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::saveFile( QNetworkReply* reply, const QString& fileId )
-{
-    QByteArray result = reply->readAll();
-    reply->deleteLater();
-
-    if ( reply->error() == QNetworkReply::NoError )
-    {
-        QEventLoop loop;
-
-        QJsonDocument doc     = QJsonDocument::fromJson( result );
-        QJsonObject   jsonObj = doc.object();
-
-        QString signedUrl = jsonObj["SignedUrl"].toString();
-
-        RiaFileDownloader* downloader = new RiaFileDownloader;
-        QUrl               url( signedUrl );
-        QString            filePath = "/tmp/" + generateRandomString( 30 ) + ".txt";
-
-        QString formattedJsonString = doc.toJson( QJsonDocument::Indented );
-
-        RiaLogging::info( QString( "File download: %1 => %2" ).arg( signedUrl ).arg( filePath ) );
-        connect( this, SIGNAL( fileDownloadFinished( const QString&, const QString& ) ), &loop, SLOT( quit() ) );
-        connect( downloader,
-                 &RiaFileDownloader::done,
-                 [this, fileId, filePath]()
-                 {
-                     RiaLogging::info( QString( "Download complete %1 => %2" ).arg( fileId ).arg( filePath ) );
-                     emit( fileDownloadFinished( fileId, filePath ) );
-                 } );
-        RiaLogging::info( "Starting download" );
-        downloader->downloadFile( url, filePath );
-
-        downloader->deleteLater();
-        loop.exec();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::addStandardHeader( QNetworkRequest& networkRequest, const QString& token, const QString& contentType )
 {
     networkRequest.setHeader( QNetworkRequest::ContentTypeHeader, contentType );
     networkRequest.setRawHeader( "Authorization", "Bearer " + token.toUtf8() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaSumoConnector::requestTokenBlocking()
-{
-    if ( !m_token.isEmpty() ) return m_token;
-
-    QTimer timer;
-    timer.setSingleShot( true );
-    QEventLoop loop;
-    connect( this, SIGNAL( tokenReady( const QString& ) ), &loop, SLOT( quit() ) );
-    connect( &timer, SIGNAL( timeout() ), &loop, SLOT( quit() ) );
-    requestToken();
-    timer.start( RiaSumoDefines::requestTimeoutMillis() );
-    loop.exec();
-    return m_token;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1017,31 +859,6 @@ void RiaSumoConnector::requestParquetData( const QString& url, const QString& to
                      emit parquetDownloadFinished( QByteArray(), errorMessage );
                  }
              } );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaSumoConnector::generateRandomString( int randomStringLength )
-{
-    const QString possibleCharacters( "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" );
-    QString       randomString;
-    for ( int i = 0; i < randomStringLength; ++i )
-    {
-        quint32 value    = QRandomGenerator::global()->generate();
-        int     index    = value % possibleCharacters.length();
-        QChar   nextChar = possibleCharacters.at( index );
-        randomString.append( nextChar );
-    }
-    return randomString;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaSumoConnector::server() const
-{
-    return m_server;
 }
 
 //--------------------------------------------------------------------------------------------------

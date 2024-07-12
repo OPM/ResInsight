@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RiaCloudConnector.h"
 #include "RiaSumoDefines.h"
 
 #include <QByteArray>
@@ -63,17 +64,17 @@ struct SumoEnsemble
 //==================================================================================================
 ///
 //==================================================================================================
-class RiaSumoConnector : public QObject
+class RiaSumoConnector : public RiaCloudConnector
 {
     Q_OBJECT
 public:
-    RiaSumoConnector( QObject* parent, const QString& server, const QString& authority, const QString& scopes, const QString& clientId );
+    RiaSumoConnector( QObject*       parent,
+                      const QString& server,
+                      const QString& authority,
+                      const QString& scopes,
+                      const QString& clientId,
+                      unsigned int   port );
     ~RiaSumoConnector() override;
-
-    QString token() const;
-
-    void importTokenFromFile();
-    void setTokenDataFilePath( const QString& filePath );
 
     void requestAssets();
     void requestAssetsBlocking();
@@ -98,8 +99,6 @@ public:
 
     QByteArray requestParquetDataBlocking( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
 
-    QString server() const;
-
     std::vector<SumoAsset>    assets() const;
     std::vector<SumoCase>     cases() const;
     std::vector<QString>      ensembleNamesForCase( const SumoCaseId& caseId ) const;
@@ -109,8 +108,6 @@ public:
     std::vector<SumoRedirect> blobContents() const;
 
 public slots:
-    void requestToken();
-
     void parseAssets( QNetworkReply* reply );
     void parseEnsembleNames( QNetworkReply* reply, const SumoCaseId& caseId );
     void parseCases( QNetworkReply* reply );
@@ -118,9 +115,6 @@ public slots:
     void parseRealizationNumbers( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName );
     void parseBlobIds( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
 
-    void saveFile( QNetworkReply* reply, const QString& fileId );
-
-    void accessGranted();
     void requestFailed( const QAbstractOAuth::Error error );
     void parquetDownloadComplete( const QString& blobId, const QByteArray&, const QString& url );
 
@@ -130,7 +124,6 @@ signals:
     void wellsFinished();
     void wellboresFinished( const QString& wellId );
     void wellboreTrajectoryFinished( const QString& wellboreId );
-    void tokenReady( const QString& token );
     void parquetDownloadFinished( const QByteArray& contents, const QString& url );
     void ensembleNamesFinished();
     void vectorNamesFinished();
@@ -141,29 +134,15 @@ signals:
 private:
     void addStandardHeader( QNetworkRequest& networkRequest, const QString& token, const QString& contentType );
 
-    QString requestTokenBlocking();
-
     QNetworkReply* makeRequest( const std::map<QString, QString>& parameters, const QString& server, const QString& token );
     QNetworkReply* makeDownloadRequest( const QString& url, const QString& token, const QString& contentType );
     void           requestParquetData( const QString& url, const QString& token );
 
-    static QString generateRandomString( int length = 20 );
+    //    static QString generateRandomString( int length = 20 );
     static QString constructSearchUrl( const QString& server );
     static QString constructDownloadUrl( const QString& server, const QString& blobId );
-    static QString constructAuthUrl( const QString& authority );
-    static QString constructTokenUrl( const QString& authority );
 
 private:
-    QOAuth2AuthorizationCodeFlow* m_authCodeFlow;
-    QNetworkAccessManager*        m_networkAccessManager;
-
-    const QString m_server;
-    const QString m_authority;
-    const QString m_scopes;
-    const QString m_clientId;
-
-    QString m_token;
-
     std::vector<SumoAsset>    m_assets;
     std::vector<SumoCase>     m_cases;
     std::vector<QString>      m_vectorNames;
@@ -177,6 +156,4 @@ private:
     std::vector<SumoRedirect> m_redirectInfo;
 
     QByteArray m_parquetData;
-
-    QString m_tokenDataFilePath;
 };
