@@ -29,6 +29,9 @@ RimOsduWellLogChannel::RimOsduWellLogChannel()
 {
     CAF_PDM_InitObject( "OSDU Well Log Channel" );
 
+    CAF_PDM_InitFieldNoDefault( &m_id, "Id", "Id" );
+    m_id.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitFieldNoDefault( &m_description, "Description", "Description" );
     m_description.uiCapability()->setUiReadOnly( true );
 
@@ -54,6 +57,14 @@ RimOsduWellLogChannel::RimOsduWellLogChannel()
     // This reverts settings from RimWellLogChannel constructor.
     nameField()->xmlCapability()->setIOReadable( true );
     nameField()->xmlCapability()->setIOWritable( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOsduWellLogChannel::setId( const QString& id )
+{
+    m_id = id;
 }
 
 //--------------------------------------------------------------------------------------------------
