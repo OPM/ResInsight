@@ -25,6 +25,7 @@
 #include "RiaSumoDefines.h"
 
 #include <QAbstractOAuth>
+#include <QDateTime>
 #include <QDesktopServices>
 #include <QEventLoop>
 #include <QNetworkAccessManager>
@@ -100,6 +101,30 @@ RiaCloudConnector::RiaCloudConnector( QObject*       parent,
              SIGNAL( authorizationCallbackReceived( const QVariantMap& ) ),
              this,
              SLOT( authorizationCallbackReceived( const QVariantMap& ) ) );
+
+    connect( m_authCodeFlow,
+             &QOAuth2AuthorizationCodeFlow::tokenChanged,
+             this,
+             [&]( const QString& token )
+             {
+                 RiaLogging::debug( "Access token changed." );
+                 exportTokenToFile();
+             } );
+
+    connect( m_authCodeFlow,
+             &QOAuth2AuthorizationCodeFlow::refreshTokenChanged,
+             this,
+             [&]( const QString& refreshToken )
+             {
+                 RiaLogging::debug( "Refresh token changed." );
+                 exportTokenToFile();
+             } );
+
+    connect( m_authCodeFlow,
+             &QOAuth2AuthorizationCodeFlow::expirationAtChanged,
+             this,
+             [&]( const QDateTime& expiration )
+             { RiaLogging::debug( QString( "Access token expiration changed: %1" ).arg( expiration.toString() ) ); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,12 +139,8 @@ RiaCloudConnector::~RiaCloudConnector()
 //--------------------------------------------------------------------------------------------------
 void RiaCloudConnector::accessGranted()
 {
-    m_token = m_authCodeFlow->token();
-
-    QString tokenDataJson = RiaConnectorTools::tokenDataAsJson( m_authCodeFlow );
-    RiaConnectorTools::writeTokenData( m_tokenDataFilePath, tokenDataJson );
-
-    emit tokenReady( m_token );
+    QString currentToken = m_authCodeFlow->token();
+    emit    tokenReady( currentToken );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -155,10 +176,19 @@ void RiaCloudConnector::requestFailed( const QAbstractOAuth::Error error )
 //--------------------------------------------------------------------------------------------------
 void RiaCloudConnector::requestToken()
 {
-    if ( m_token.isEmpty() )
+    if ( token().isEmpty() )
     {
-        RiaLogging::debug( "Requesting token." );
-        m_authCodeFlow->grant();
+        RiaLogging::debug( "No valid access token found." );
+        if ( !m_authCodeFlow->refreshToken().isEmpty() )
+        {
+            RiaLogging::info( "Refreshing access token with refresh token." );
+            m_authCodeFlow->refreshAccessToken();
+        }
+        else
+        {
+            RiaLogging::info( "Requesting token." );
+            m_authCodeFlow->grant();
+        }
     }
     else
     {
@@ -172,7 +202,25 @@ void RiaCloudConnector::requestToken()
 //--------------------------------------------------------------------------------------------------
 QString RiaCloudConnector::token() const
 {
-    return m_token;
+    QString   currentToken = m_authCodeFlow->token();
+    QDateTime expiration   = m_authCodeFlow->expirationAt();
+    if ( !currentToken.isEmpty() && expiration.isValid() && expiration > QDateTime::currentDateTime() )
+    {
+        return currentToken;
+    }
+    else
+    {
+        return QString();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaCloudConnector::exportTokenToFile()
+{
+    QString tokenDataJson = RiaConnectorTools::tokenDataAsJson( m_authCodeFlow );
+    RiaConnectorTools::writeTokenData( m_tokenDataFilePath, tokenDataJson );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -184,7 +232,6 @@ void RiaCloudConnector::importTokenFromFile()
     if ( !tokenDataJson.isEmpty() )
     {
         RiaConnectorTools::initializeTokenDataFromJson( m_authCodeFlow, tokenDataJson );
-        m_token = m_authCodeFlow->token();
     }
 }
 
@@ -217,7 +264,8 @@ QString RiaCloudConnector::constructTokenUrl( const QString& authority )
 //--------------------------------------------------------------------------------------------------
 QString RiaCloudConnector::requestTokenBlocking()
 {
-    if ( !m_token.isEmpty() ) return m_token;
+    QString currentToken = token();
+    if ( !currentToken.isEmpty() ) return currentToken;
 
     QTimer timer;
     timer.setSingleShot( true );
@@ -227,7 +275,7 @@ QString RiaCloudConnector::requestTokenBlocking()
     requestToken();
     timer.start( RiaSumoDefines::requestTimeoutMillis() );
     loop.exec();
-    return m_token;
+    return m_authCodeFlow->token();
 }
 
 //--------------------------------------------------------------------------------------------------

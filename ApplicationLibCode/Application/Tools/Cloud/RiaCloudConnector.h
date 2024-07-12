@@ -42,13 +42,14 @@ public:
     QString token() const;
 
     void importTokenFromFile();
+    void exportTokenToFile();
+
     void setTokenDataFilePath( const QString& filePath );
 
     QString server() const;
 
 public slots:
     void requestToken();
-    void accessGranted();
     void requestFailed( const QAbstractOAuth::Error error );
 
 signals:
@@ -57,6 +58,7 @@ signals:
 private slots:
     void errorReceived( const QString& error, const QString& errorDescription, const QUrl& uri );
     void authorizationCallbackReceived( const QVariantMap& data );
+    void accessGranted();
 
 protected:
     QString requestTokenBlocking();
@@ -71,8 +73,6 @@ protected:
     const QString m_authority;
     const QString m_scopes;
     const QString m_clientId;
-
-    QString m_token;
 
     QString m_tokenDataFilePath;
 };

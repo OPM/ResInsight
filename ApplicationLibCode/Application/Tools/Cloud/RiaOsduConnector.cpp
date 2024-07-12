@@ -77,7 +77,7 @@ void RiaOsduConnector::requestFieldsByName( const QString& token, const QString&
 //--------------------------------------------------------------------------------------------------
 void RiaOsduConnector::requestFieldsByName( const QString& fieldName )
 {
-    requestFieldsByName( m_token, fieldName );
+    requestFieldsByName( token(), fieldName );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ void RiaOsduConnector::requestFieldsByName( const QString& server, const QString
 //--------------------------------------------------------------------------------------------------
 void RiaOsduConnector::requestWellsByFieldId( const QString& fieldId )
 {
-    requestWellsByFieldId( m_server, m_dataPartitionId, m_token, fieldId );
+    requestWellsByFieldId( m_server, m_dataPartitionId, token(), fieldId );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,7 +149,7 @@ void RiaOsduConnector::requestWellsByFieldId( const QString& server, const QStri
 //--------------------------------------------------------------------------------------------------
 void RiaOsduConnector::requestWellboresByWellId( const QString& wellId )
 {
-    requestWellboresByWellId( m_server, m_dataPartitionId, m_token, wellId );
+    requestWellboresByWellId( m_server, m_dataPartitionId, token(), wellId );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -200,7 +200,7 @@ std::vector<OsduWellLog> RiaOsduConnector::requestWellLogsByWellboreIdBlocking( 
 //--------------------------------------------------------------------------------------------------
 void RiaOsduConnector::requestWellLogsByWellboreId( const QString& wellboreId )
 {
-    requestWellLogsByWellboreId( m_server, m_dataPartitionId, m_token, wellboreId );
+    requestWellLogsByWellboreId( m_server, m_dataPartitionId, token(), wellboreId );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -239,7 +239,7 @@ void RiaOsduConnector::requestWellLogsByWellboreId( const QString& server,
 //--------------------------------------------------------------------------------------------------
 void RiaOsduConnector::requestWellboreTrajectoryByWellboreId( const QString& wellboreId )
 {
-    requestWellboreTrajectoryByWellboreId( m_server, m_dataPartitionId, m_token, wellboreId );
+    requestWellboreTrajectoryByWellboreId( m_server, m_dataPartitionId, token(), wellboreId );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -709,8 +709,7 @@ void RiaOsduConnector::requestWellLogParquetDataById( const QString& wellLogId )
 //--------------------------------------------------------------------------------------------------
 void RiaOsduConnector::requestParquetDataByUrl( const QString& url, const QString& id )
 {
-    QString token = m_token;
-    requestParquetData( url, m_dataPartitionId, token, id );
+    requestParquetData( url, m_dataPartitionId, token(), id );
 }
 
 //--------------------------------------------------------------------------------------------------
