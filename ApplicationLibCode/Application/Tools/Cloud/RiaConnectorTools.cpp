@@ -18,7 +18,9 @@
 
 #include "RiaConnectorTools.h"
 
+#include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QOAuth2AuthorizationCodeFlow>
@@ -55,6 +57,15 @@ void RiaConnectorTools::initializeTokenDataFromJson( QOAuth2AuthorizationCodeFlo
 void RiaConnectorTools::writeTokenData( const QString& filePath, const QString& tokenDataJson )
 {
     QFile file( filePath );
+
+    // Ensure the directory exists (create it if it doesn't)
+    QString dirPath = QFileInfo( file ).absolutePath();
+    QDir    dir( dirPath );
+    if ( !dir.exists() )
+    {
+        dir.mkpath( dirPath );
+    }
+
     if ( file.open( QIODevice::WriteOnly ) )
     {
         QTextStream stream( &file );
