@@ -48,6 +48,8 @@ public:
 
     QString server() const;
 
+    QString requestTokenBlocking();
+
 public slots:
     void requestToken();
     void requestFailed( const QAbstractOAuth::Error error );
@@ -61,8 +63,6 @@ private slots:
     void accessGranted();
 
 protected:
-    QString requestTokenBlocking();
-
     static QString constructAuthUrl( const QString& authority );
     static QString constructTokenUrl( const QString& authority );
 
