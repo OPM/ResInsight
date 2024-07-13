@@ -18,10 +18,12 @@
 
 #include "RiaOsduDefines.h"
 
+#include <QDir>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::osduFieldKind()
+QString RiaOsduDefines::osduFieldKind()
 {
     return "osdu:wks:master-data--Field:1.0.0";
 }
@@ -29,7 +31,7 @@ QString RiaDefines::osduFieldKind()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::osduWellKind()
+QString RiaOsduDefines::osduWellKind()
 {
     return "osdu:wks:master-data--Well:1.*.*";
 }
@@ -37,7 +39,7 @@ QString RiaDefines::osduWellKind()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::osduWellboreKind()
+QString RiaOsduDefines::osduWellboreKind()
 {
     return "osdu:wks:master-data--Wellbore:1.*.*";
 }
@@ -45,7 +47,7 @@ QString RiaDefines::osduWellboreKind()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::osduWellboreTrajectoryKind()
+QString RiaOsduDefines::osduWellboreTrajectoryKind()
 {
     return "osdu:wks:work-product-component--WellboreTrajectory:1.*.*";
 }
@@ -53,7 +55,7 @@ QString RiaDefines::osduWellboreTrajectoryKind()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::osduWellLogKind()
+QString RiaOsduDefines::osduWellLogKind()
 {
     return "osdu:wks:work-product-component--WellLog:1.*.*";
 }
@@ -61,15 +63,8 @@ QString RiaDefines::osduWellLogKind()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::contentTypeJson()
+QString RiaOsduDefines::tokenPath()
 {
-    return "application/json";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaDefines::contentTypeParquet()
-{
-    return "application/x-parquet";
+    QString homePath = QDir::homePath();
+    return homePath + "/.resinsight/osdu_token.json";
 }

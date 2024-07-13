@@ -20,16 +20,8 @@
 
 #include <QString>
 
-namespace RiaOsduDefines
+namespace RiaCloudDefines
 {
-QString osduFieldKind();
-QString osduWellKind();
-QString osduWellboreKind();
-QString osduWellboreTrajectoryKind();
-QString osduWellLogKind();
 QString contentTypeJson();
 QString contentTypeParquet();
-
-QString tokenPath();
-
-}; // namespace RiaOsduDefines
+}; // namespace RiaCloudDefines

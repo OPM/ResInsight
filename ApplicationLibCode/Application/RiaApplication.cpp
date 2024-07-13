@@ -20,6 +20,7 @@
 #include "Cloud/RiaOsduConnector.h"
 #include "Cloud/RiaSumoConnector.h"
 #include "Cloud/RiaSumoDefines.h"
+#include "RiaOsduDefines.h"
 
 #include "RiaArgumentParser.h"
 #include "RiaBaseDefs.h"
@@ -1714,7 +1715,7 @@ RiaOsduConnector* RiaApplication::makeOsduConnector()
     const unsigned int  port            = 35327;
 
     m_osduConnector = new RiaOsduConnector( RiuMainWindow::instance(), server, dataPartitionId, authority, scopes, clientId, port );
-    m_osduConnector->setTokenDataFilePath( RiaSumoDefines::tokenPath() );
+    m_osduConnector->setTokenDataFilePath( RiaOsduDefines::tokenPath() );
     m_osduConnector->importTokenFromFile();
 
     return m_osduConnector;
@@ -1735,7 +1736,6 @@ RiaSumoConnector* RiaApplication::makeSumoConnector()
         const unsigned int port      = 53527;
 
         m_sumoConnector = new RiaSumoConnector( RiuMainWindow::instance(), server, authority, scopes, clientId, port );
-
         m_sumoConnector->setTokenDataFilePath( RiaSumoDefines::tokenPath() );
         m_sumoConnector->importTokenFromFile();
     }
