@@ -155,6 +155,25 @@ void RimWellPathCollection::loadDataAndUpdate()
 
     readWellPathFormationFiles();
 
+    auto hasOsduData = []( const std::vector<RimWellPath*>& wellPaths ) -> bool
+    {
+        for ( RimWellPath* wellPath : wellPaths )
+        {
+            if ( dynamic_cast<RimOsduWellPath*>( wellPath ) )
+            {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    if ( hasOsduData( allWellPaths() ) )
+    {
+        auto osduConnector = RiaApplication::instance()->makeOsduConnector();
+        osduConnector->requestTokenBlocking();
+    }
+
     caf::DataLoadController* dataLoadController = caf::DataLoadController::instance();
 
     const QString wellPathGeometryKeyword = "WELL_PATH_GEOMETRY";
