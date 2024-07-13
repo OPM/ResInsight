@@ -1,12 +1,10 @@
 #include "RiaOsduConnector.h"
 #include "RiaCloudDefines.h"
-#include "RiaFileDownloader.h"
 #include "RiaLogging.h"
 #include "RiaOsduDefines.h"
 #include "RiaOsduOAuthHttpServerReplyHandler.h"
 
 #include <QAbstractOAuth>
-#include <QDesktopServices>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QNetworkAccessManager>
