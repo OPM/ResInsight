@@ -124,7 +124,10 @@ RiaCloudConnector::RiaCloudConnector( QObject*       parent,
              &QOAuth2AuthorizationCodeFlow::expirationAtChanged,
              this,
              [&]( const QDateTime& expiration )
-             { RiaLogging::debug( QString( "Access token expiration changed: %1" ).arg( expiration.toString() ) ); } );
+             {
+                 RiaLogging::debug( QString( "Access token expiration changed: %1" ).arg( expiration.toString() ) );
+                 exportTokenToFile();
+             } );
 }
 
 //--------------------------------------------------------------------------------------------------
