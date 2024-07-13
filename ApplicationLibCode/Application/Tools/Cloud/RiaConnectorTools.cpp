@@ -34,6 +34,10 @@ QString RiaConnectorTools::tokenDataAsJson( QOAuth2AuthorizationCodeFlow* authCo
     QJsonObject obj;
     obj.insert( "token", authCodeFlow->token() );
     obj.insert( "refreshToken", authCodeFlow->refreshToken() );
+    if ( authCodeFlow->expirationAt().isValid() )
+    {
+        obj.insert( "expiration", authCodeFlow->expirationAt().toSecsSinceEpoch() );
+    }
 
     QJsonDocument doc( obj );
     return doc.toJson( QJsonDocument::Indented );
@@ -47,7 +51,16 @@ void RiaConnectorTools::initializeTokenDataFromJson( QOAuth2AuthorizationCodeFlo
     QJsonDocument doc = QJsonDocument::fromJson( tokenDataJson.toUtf8() );
     QJsonObject   obj = doc.object();
 
-    authCodeFlow->setToken( obj["token"].toString() );
+    if ( obj.contains( "expiration" ) && obj.contains( "token" ) )
+    {
+        quint64   secondsSinceEpoch = obj["expiration"].toVariant().toULongLong();
+        QDateTime expiration        = QDateTime::fromSecsSinceEpoch( secondsSinceEpoch );
+        if ( expiration.isValid() && expiration > QDateTime::currentDateTime() )
+        {
+            authCodeFlow->setToken( obj["token"].toString() );
+        }
+    }
+
     authCodeFlow->setRefreshToken( obj["refreshToken"].toString() );
 }
 
