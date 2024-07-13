@@ -16,20 +16,20 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#include "RiaCloudDefines.h"
 
-#include <QString>
-
-namespace RiaOsduDefines
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaCloudDefines::contentTypeJson()
 {
-QString osduFieldKind();
-QString osduWellKind();
-QString osduWellboreKind();
-QString osduWellboreTrajectoryKind();
-QString osduWellLogKind();
-QString contentTypeJson();
-QString contentTypeParquet();
+    return "application/json";
+}
 
-QString tokenPath();
-
-}; // namespace RiaOsduDefines
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaCloudDefines::contentTypeParquet()
+{
+    return "application/x-parquet";
+}
