@@ -18,11 +18,11 @@
 
 #pragma once
 
-#include <QByteArray>
-#include <QNetworkAccessManager>
-#include <QOAuth2AuthorizationCodeFlow>
+#include <QAbstractOAuth>
+#include <QObject>
 
-// #include <map>
+class QNetworkAccessManager;
+class QOAuth2AuthorizationCodeFlow;
 
 //==================================================================================================
 ///

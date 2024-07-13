@@ -20,7 +20,6 @@
 
 #include "RiaCloudDefines.h"
 #include "RiaConnectorTools.h"
-#include "RiaFileDownloader.h"
 #include "RiaLogging.h"
 #include "RiaOsduDefines.h"
 #include "RiaOsduOAuthHttpServerReplyHandler.h"

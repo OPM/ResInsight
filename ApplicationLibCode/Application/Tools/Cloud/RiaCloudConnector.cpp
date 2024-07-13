@@ -25,6 +25,7 @@
 #include "RiaSumoDefines.h"
 
 #include <QAbstractOAuth>
+#include <QByteArray>
 #include <QDateTime>
 #include <QDesktopServices>
 #include <QEventLoop>
