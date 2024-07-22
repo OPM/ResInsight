@@ -124,8 +124,10 @@ void RiaSumoConnector::requestCasesForField( const QString& fieldName )
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestCasesForFieldBlocking( const QString& fieldName )
 {
-    auto lambda = [this, fieldName] { requestCasesForField( fieldName ); };
-    wrapAndCallNetworkRequest( lambda, [this]() { casesFinished(); } );
+    auto requestCallable = [this, fieldName] { requestCasesForField( fieldName ); };
+    auto signalCallable  = [this]() { casesFinished(); };
+
+    wrapAndCallNetworkRequest( requestCallable, signalCallable );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,8 +160,9 @@ void RiaSumoConnector::requestAssets()
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestAssetsBlocking()
 {
-    auto lambda = [this] { requestAssets(); };
-    wrapAndCallNetworkRequest( lambda, [this]() { assetsFinished(); } );
+    auto requestCallable = [this] { requestAssets(); };
+    auto signalCallable  = [this]() { assetsFinished(); };
+    wrapAndCallNetworkRequest( requestCallable, signalCallable );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -216,8 +219,9 @@ void RiaSumoConnector::requestEnsembleByCasesId( const SumoCaseId& caseId )
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestEnsembleByCasesIdBlocking( const SumoCaseId& caseId )
 {
-    auto lambda = [this, caseId] { requestEnsembleByCasesId( caseId ); };
-    wrapAndCallNetworkRequest( lambda, [this]() { ensembleNamesFinished(); } );
+    auto requestCallable = [this, caseId] { requestEnsembleByCasesId( caseId ); };
+    auto signalCallable  = [this]() { ensembleNamesFinished(); };
+    wrapAndCallNetworkRequest( requestCallable, signalCallable );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -284,8 +288,10 @@ void RiaSumoConnector::requestVectorNamesForEnsemble( const SumoCaseId& caseId, 
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestVectorNamesForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName )
 {
-    auto lambda = [this, caseId, ensembleName] { requestVectorNamesForEnsemble( caseId, ensembleName ); };
-    wrapAndCallNetworkRequest( lambda, [this]() { vectorNamesFinished(); } );
+    auto requestCallable = [this, caseId, ensembleName] { requestVectorNamesForEnsemble( caseId, ensembleName ); };
+    auto signalCallable  = [this]() { vectorNamesFinished(); };
+
+    wrapAndCallNetworkRequest( requestCallable, signalCallable );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -346,8 +352,10 @@ void RiaSumoConnector::requestRealizationIdsForEnsemble( const SumoCaseId& caseI
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestRealizationIdsForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName )
 {
-    auto lambda = [this, caseId, ensembleName] { requestRealizationIdsForEnsemble( caseId, ensembleName ); };
-    wrapAndCallNetworkRequest( lambda, [this]() { realizationIdsFinished(); } );
+    auto requestCallable = [this, caseId, ensembleName] { requestRealizationIdsForEnsemble( caseId, ensembleName ); };
+    auto signalCallable  = [this]() { realizationIdsFinished(); };
+
+    wrapAndCallNetworkRequest( requestCallable, signalCallable );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -404,8 +412,9 @@ void RiaSumoConnector::requestBlobIdForEnsemble( const SumoCaseId& caseId, const
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestBlobIdForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName )
 {
-    auto lambda = [this, caseId, ensembleName, vectorName] { requestBlobIdForEnsemble( caseId, ensembleName, vectorName ); };
-    wrapAndCallNetworkRequest( lambda, [this]() { blobIdFinished(); } );
+    auto requestCallable = [this, caseId, ensembleName, vectorName] { requestBlobIdForEnsemble( caseId, ensembleName, vectorName ); };
+    auto signalCallable  = [this]() { blobIdFinished(); };
+    wrapAndCallNetworkRequest( requestCallable, signalCallable );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -545,17 +554,20 @@ QString RiaSumoConnector::constructDownloadUrl( const QString& server, const QSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::wrapAndCallNetworkRequest( std::function<void()> requestFunction, std::function<void()> signalFunction )
+void RiaSumoConnector::wrapAndCallNetworkRequest( std::function<void()> requestCallable, std::function<void()> signalCallable )
 {
     QEventLoop eventLoop;
 
     QTimer timer;
     timer.setSingleShot( true );
-    QObject::connect( &timer, SIGNAL( timeout() ), &eventLoop, SLOT( quit() ) );
-    QObject::connect( &timer, SIGNAL( signalFunction ), &eventLoop, SLOT( quit() ) );
+
+    QObject::connect( &timer, &QTimer::timeout, &eventLoop, &QEventLoop::quit );
+
+    // Not able to use the modern connect syntax here, as the signal is communicated as a std::function
+    QObject::connect( this, SIGNAL( signalCallable ), &eventLoop, SLOT( quit() ) );
 
     // Call the function that will execute the request
-    requestFunction();
+    requestCallable();
 
     timer.start( RiaSumoDefines::requestTimeoutMillis() );
     eventLoop.exec();
