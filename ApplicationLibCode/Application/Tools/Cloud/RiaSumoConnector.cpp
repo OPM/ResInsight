@@ -19,28 +19,17 @@
 #include "RiaSumoConnector.h"
 
 #include "RiaCloudDefines.h"
-#include "RiaConnectorTools.h"
 #include "RiaLogging.h"
 #include "RiaOAuthHttpServerReplyHandler.h"
 #include "RiaOsduDefines.h"
 
-#include <QAbstractOAuth>
-#include <QDesktopServices>
 #include <QEventLoop>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QNetworkRequest>
-#include <QOAuth2AuthorizationCodeFlow>
-#include <QOAuthHttpServerReplyHandler>
-#include <QObject>
-#include <QString>
 #include <QTimer>
-#include <QUrl>
-#include <QUrlQuery>
-#include <QtCore>
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -138,7 +138,6 @@ private:
     QNetworkReply* makeDownloadRequest( const QString& url, const QString& token, const QString& contentType );
     void           requestParquetData( const QString& url, const QString& token );
 
-    //    static QString generateRandomString( int length = 20 );
     static QString constructSearchUrl( const QString& server );
     static QString constructDownloadUrl( const QString& server, const QString& blobId );
 
