@@ -120,31 +120,12 @@ void RiaSumoConnector::requestCasesForField( const QString& fieldName )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Helper function to execute a lambda function with a function pointer as parameter. Adds a timeout to the lambda function, and waits for
-/// the lambda to finish.
-//--------------------------------------------------------------------------------------------------
-auto addTimerAndExecute = []( QEventLoop& eventLoop, std::function<void()> requestFunction )
-{
-    QTimer timer;
-    timer.setSingleShot( true );
-    QObject::connect( &timer, SIGNAL( timeout() ), &eventLoop, SLOT( quit() ) );
-
-    // Call the function that will execute the request
-    requestFunction();
-
-    timer.start( RiaSumoDefines::requestTimeoutMillis() );
-    eventLoop.exec();
-};
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestCasesForFieldBlocking( const QString& fieldName )
 {
-    QEventLoop loop;
-    connect( this, SIGNAL( casesFinished() ), &loop, SLOT( quit() ) );
-
-    addTimerAndExecute( loop, [this, fieldName] { requestCasesForField( fieldName ); } );
+    auto lambda = [this, fieldName] { requestCasesForField( fieldName ); };
+    wrapAndCallNetworkRequest( lambda, [this]() { casesFinished(); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,10 +158,8 @@ void RiaSumoConnector::requestAssets()
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestAssetsBlocking()
 {
-    QEventLoop loop;
-    connect( this, SIGNAL( assetsFinished() ), &loop, SLOT( quit() ) );
-
-    addTimerAndExecute( loop, [this] { requestAssets(); } );
+    auto lambda = [this] { requestAssets(); };
+    wrapAndCallNetworkRequest( lambda, [this]() { assetsFinished(); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -237,10 +216,8 @@ void RiaSumoConnector::requestEnsembleByCasesId( const SumoCaseId& caseId )
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestEnsembleByCasesIdBlocking( const SumoCaseId& caseId )
 {
-    QEventLoop loop;
-    connect( this, SIGNAL( ensembleNamesFinished() ), &loop, SLOT( quit() ) );
-
-    addTimerAndExecute( loop, [this, caseId] { requestEnsembleByCasesId( caseId ); } );
+    auto lambda = [this, caseId] { requestEnsembleByCasesId( caseId ); };
+    wrapAndCallNetworkRequest( lambda, [this]() { ensembleNamesFinished(); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -307,10 +284,8 @@ void RiaSumoConnector::requestVectorNamesForEnsemble( const SumoCaseId& caseId, 
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestVectorNamesForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName )
 {
-    QEventLoop loop;
-    connect( this, SIGNAL( vectorNamesFinished() ), &loop, SLOT( quit() ) );
-
-    addTimerAndExecute( loop, [this, caseId, ensembleName] { requestVectorNamesForEnsemble( caseId, ensembleName ); } );
+    auto lambda = [this, caseId, ensembleName] { requestVectorNamesForEnsemble( caseId, ensembleName ); };
+    wrapAndCallNetworkRequest( lambda, [this]() { vectorNamesFinished(); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -371,10 +346,8 @@ void RiaSumoConnector::requestRealizationIdsForEnsemble( const SumoCaseId& caseI
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestRealizationIdsForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName )
 {
-    QEventLoop loop;
-    connect( this, SIGNAL( realizationIdsFinished() ), &loop, SLOT( quit() ) );
-
-    addTimerAndExecute( loop, [this, caseId, ensembleName] { requestRealizationIdsForEnsemble( caseId, ensembleName ); } );
+    auto lambda = [this, caseId, ensembleName] { requestRealizationIdsForEnsemble( caseId, ensembleName ); };
+    wrapAndCallNetworkRequest( lambda, [this]() { realizationIdsFinished(); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -431,10 +404,8 @@ void RiaSumoConnector::requestBlobIdForEnsemble( const SumoCaseId& caseId, const
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestBlobIdForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName )
 {
-    QEventLoop loop;
-    connect( this, SIGNAL( blobIdFinished() ), &loop, SLOT( quit() ) );
-
-    addTimerAndExecute( loop, [this, caseId, ensembleName, vectorName] { requestBlobIdForEnsemble( caseId, ensembleName, vectorName ); } );
+    auto lambda = [this, caseId, ensembleName, vectorName] { requestBlobIdForEnsemble( caseId, ensembleName, vectorName ); };
+    wrapAndCallNetworkRequest( lambda, [this]() { blobIdFinished(); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -532,10 +503,16 @@ QByteArray RiaSumoConnector::requestParquetDataBlocking( const SumoCaseId& caseI
 
     auto blobId = m_blobUrl.back();
 
-    QEventLoop loop;
-    connect( this, SIGNAL( parquetDownloadFinished( const QByteArray&, const QString& ) ), &loop, SLOT( quit() ) );
+    QEventLoop eventLoop;
+    QTimer     timer;
+    timer.setSingleShot( true );
+    QObject::connect( &timer, SIGNAL( timeout() ), &eventLoop, SLOT( quit() ) );
+    QObject::connect( &timer, SIGNAL( parquetDownloadFinished( const QByteArray&, const QString& ) ), &eventLoop, SLOT( quit() ) );
 
-    addTimerAndExecute( loop, [this, blobId] { requestBlobDownload( blobId ); } );
+    requestBlobDownload( blobId );
+
+    timer.start( RiaSumoDefines::requestTimeoutMillis() );
+    eventLoop.exec();
 
     for ( const auto& blobData : m_redirectInfo )
     {
@@ -563,6 +540,25 @@ QString RiaSumoConnector::constructDownloadUrl( const QString& server, const QSt
 {
     return server + "/api/v1/objects('" + blobId + "')/blob";
     // https: // main-sumo-prod.radix.equinor.com/api/v1/objects('76d6d11f-2278-3fe2-f12f-77142ad163c6')/blob
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSumoConnector::wrapAndCallNetworkRequest( std::function<void()> requestFunction, std::function<void()> signalFunction )
+{
+    QEventLoop eventLoop;
+
+    QTimer timer;
+    timer.setSingleShot( true );
+    QObject::connect( &timer, SIGNAL( timeout() ), &eventLoop, SLOT( quit() ) );
+    QObject::connect( &timer, SIGNAL( signalFunction ), &eventLoop, SLOT( quit() ) );
+
+    // Call the function that will execute the request
+    requestFunction();
+
+    timer.start( RiaSumoDefines::requestTimeoutMillis() );
+    eventLoop.exec();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -27,6 +27,8 @@
 
 #include <map>
 
+class QEventLoop;
+
 using SumoObjectId = QString;
 
 struct SumoAsset
@@ -140,6 +142,8 @@ private:
 
     static QString constructSearchUrl( const QString& server );
     static QString constructDownloadUrl( const QString& server, const QString& blobId );
+
+    void wrapAndCallNetworkRequest( std::function<void()> requestFunction, std::function<void()> signalFunction );
 
 private:
     std::vector<SumoAsset>    m_assets;
