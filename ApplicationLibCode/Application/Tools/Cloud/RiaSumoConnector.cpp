@@ -120,19 +120,31 @@ void RiaSumoConnector::requestCasesForField( const QString& fieldName )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Helper function to execute a lambda function with a function pointer as parameter. Adds a timeout to the lambda function, and waits for
+/// the lambda to finish.
+//--------------------------------------------------------------------------------------------------
+auto addTimerAndExecute = []( QEventLoop& eventLoop, std::function<void()> requestFunction )
+{
+    QTimer timer;
+    timer.setSingleShot( true );
+    QObject::connect( &timer, SIGNAL( timeout() ), &eventLoop, SLOT( quit() ) );
+
+    // Call the function that will execute the request
+    requestFunction();
+
+    timer.start( RiaSumoDefines::requestTimeoutMillis() );
+    eventLoop.exec();
+};
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestCasesForFieldBlocking( const QString& fieldName )
 {
     QEventLoop loop;
     connect( this, SIGNAL( casesFinished() ), &loop, SLOT( quit() ) );
-    QTimer timer;
 
-    requestCasesForField( fieldName );
-
-    timer.setSingleShot( true );
-    timer.start( RiaSumoDefines::requestTimeoutMillis() );
-    loop.exec();
+    addTimerAndExecute( loop, [this, fieldName] { requestCasesForField( fieldName ); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,13 +179,8 @@ void RiaSumoConnector::requestAssetsBlocking()
 {
     QEventLoop loop;
     connect( this, SIGNAL( assetsFinished() ), &loop, SLOT( quit() ) );
-    QTimer timer;
 
-    requestAssets();
-
-    timer.setSingleShot( true );
-    timer.start( RiaSumoDefines::requestTimeoutMillis() );
-    loop.exec();
+    addTimerAndExecute( loop, [this] { requestAssets(); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,6 +188,8 @@ void RiaSumoConnector::requestAssetsBlocking()
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestEnsembleByCasesId( const SumoCaseId& caseId )
 {
+    requestTokenBlocking();
+
     QString payloadTemplate = R"(
 
 {
@@ -230,13 +239,8 @@ void RiaSumoConnector::requestEnsembleByCasesIdBlocking( const SumoCaseId& caseI
 {
     QEventLoop loop;
     connect( this, SIGNAL( ensembleNamesFinished() ), &loop, SLOT( quit() ) );
-    QTimer timer;
 
-    requestEnsembleByCasesId( caseId );
-
-    timer.setSingleShot( true );
-    timer.start( RiaSumoDefines::requestTimeoutMillis() );
-    loop.exec();
+    addTimerAndExecute( loop, [this, caseId] { requestEnsembleByCasesId( caseId ); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -244,6 +248,8 @@ void RiaSumoConnector::requestEnsembleByCasesIdBlocking( const SumoCaseId& caseI
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestVectorNamesForEnsemble( const SumoCaseId& caseId, const QString& ensembleName )
 {
+    requestTokenBlocking();
+
     QString payloadTemplate = R"(
 {
     "track_total_hits": true,
@@ -303,13 +309,8 @@ void RiaSumoConnector::requestVectorNamesForEnsembleBlocking( const SumoCaseId& 
 {
     QEventLoop loop;
     connect( this, SIGNAL( vectorNamesFinished() ), &loop, SLOT( quit() ) );
-    QTimer timer;
 
-    requestVectorNamesForEnsemble( caseId, ensembleName );
-
-    timer.setSingleShot( true );
-    timer.start( RiaSumoDefines::requestTimeoutMillis() );
-    loop.exec();
+    addTimerAndExecute( loop, [this, caseId, ensembleName] { requestVectorNamesForEnsemble( caseId, ensembleName ); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -372,13 +373,8 @@ void RiaSumoConnector::requestRealizationIdsForEnsembleBlocking( const SumoCaseI
 {
     QEventLoop loop;
     connect( this, SIGNAL( realizationIdsFinished() ), &loop, SLOT( quit() ) );
-    QTimer timer;
 
-    requestRealizationIdsForEnsemble( caseId, ensembleName );
-
-    timer.setSingleShot( true );
-    timer.start( RiaSumoDefines::requestTimeoutMillis() );
-    loop.exec();
+    addTimerAndExecute( loop, [this, caseId, ensembleName] { requestRealizationIdsForEnsemble( caseId, ensembleName ); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -386,6 +382,8 @@ void RiaSumoConnector::requestRealizationIdsForEnsembleBlocking( const SumoCaseI
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestBlobIdForEnsemble( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName )
 {
+    requestTokenBlocking();
+
     QString payloadTemplate = R"(
 {
     "track_total_hits": true,
@@ -435,13 +433,8 @@ void RiaSumoConnector::requestBlobIdForEnsembleBlocking( const SumoCaseId& caseI
 {
     QEventLoop loop;
     connect( this, SIGNAL( blobIdFinished() ), &loop, SLOT( quit() ) );
-    QTimer timer;
 
-    requestBlobIdForEnsemble( caseId, ensembleName, vectorName );
-
-    timer.setSingleShot( true );
-    timer.start( RiaSumoDefines::requestTimeoutMillis() );
-    loop.exec();
+    addTimerAndExecute( loop, [this, caseId, ensembleName, vectorName] { requestBlobIdForEnsemble( caseId, ensembleName, vectorName ); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -449,6 +442,8 @@ void RiaSumoConnector::requestBlobIdForEnsembleBlocking( const SumoCaseId& caseI
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestBlobDownload( const QString& blobId )
 {
+    requestTokenBlocking();
+
     QString url = constructDownloadUrl( m_server, blobId );
 
     QNetworkRequest networkRequest;
@@ -494,6 +489,8 @@ void RiaSumoConnector::requestBlobDownload( const QString& blobId )
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestBlobByRedirectUri( const QString& blobId, const QString& redirectUri )
 {
+    requestTokenBlocking();
+
     QNetworkRequest networkRequest;
     networkRequest.setUrl( redirectUri );
 
@@ -537,13 +534,8 @@ QByteArray RiaSumoConnector::requestParquetDataBlocking( const SumoCaseId& caseI
 
     QEventLoop loop;
     connect( this, SIGNAL( parquetDownloadFinished( const QByteArray&, const QString& ) ), &loop, SLOT( quit() ) );
-    QTimer timer;
 
-    requestBlobDownload( blobId );
-
-    timer.setSingleShot( true );
-    timer.start( RiaSumoDefines::requestTimeoutMillis() );
-    loop.exec();
+    addTimerAndExecute( loop, [this, blobId] { requestBlobDownload( blobId ); } );
 
     for ( const auto& blobData : m_redirectInfo )
     {
