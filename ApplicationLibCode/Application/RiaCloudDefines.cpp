@@ -37,7 +37,7 @@ QString RiaCloudDefines::contentTypeParquet()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiaCloudDefines::requestTimeoutMillis()
+int RiaCloudDefines::requestTokenTimeoutMillis()
 {
     return 120 * 1000;
 }

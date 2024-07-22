@@ -24,5 +24,5 @@ namespace RiaCloudDefines
 {
 QString contentTypeJson();
 QString contentTypeParquet();
-int     requestTimeoutMillis();
+int     requestTokenTimeoutMillis();
 }; // namespace RiaCloudDefines

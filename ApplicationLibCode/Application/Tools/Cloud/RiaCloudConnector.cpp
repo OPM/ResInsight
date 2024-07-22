@@ -270,7 +270,7 @@ QString RiaCloudConnector::requestTokenBlocking()
     connect( this, SIGNAL( tokenReady( const QString& ) ), &loop, SLOT( quit() ) );
     connect( &timer, SIGNAL( timeout() ), &loop, SLOT( quit() ) );
     requestToken();
-    timer.start( RiaCloudDefines::requestTimeoutMillis() );
+    timer.start( RiaCloudDefines::requestTokenTimeoutMillis() );
     loop.exec();
 
     return m_authCodeFlow->token();
