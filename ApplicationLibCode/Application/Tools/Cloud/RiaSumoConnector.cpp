@@ -22,7 +22,7 @@
 #include "RiaConnectorTools.h"
 #include "RiaLogging.h"
 #include "RiaOsduDefines.h"
-#include "RiaOsduOAuthHttpServerReplyHandler.h"
+#include "RiaOAuthHttpServerReplyHandler.h"
 
 #include <QAbstractOAuth>
 #include <QDesktopServices>

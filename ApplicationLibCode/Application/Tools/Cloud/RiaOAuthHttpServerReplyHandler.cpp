@@ -1,4 +1,4 @@
-#include "RiaOsduOAuthHttpServerReplyHandler.h"
+#include "RiaOAuthHttpServerReplyHandler.h"
 
 #include <QAbstractOAuth>
 #include <QOAuthHttpServerReplyHandler>
@@ -8,7 +8,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaOsduOAuthHttpServerReplyHandler::RiaOsduOAuthHttpServerReplyHandler( quint16 port, QObject* parent )
+RiaOAuthHttpServerReplyHandler::RiaOAuthHttpServerReplyHandler( quint16 port, QObject* parent )
     : QOAuthHttpServerReplyHandler( port, parent )
     , m_port( port )
 {
@@ -17,7 +17,7 @@ RiaOsduOAuthHttpServerReplyHandler::RiaOsduOAuthHttpServerReplyHandler( quint16 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaOsduOAuthHttpServerReplyHandler::callback() const
+QString RiaOAuthHttpServerReplyHandler::callback() const
 {
     const QUrl url( QString::fromLatin1( "http://localhost:%1/" ).arg( m_port ) );
     return url.toString( QUrl::EncodeDelimiters );

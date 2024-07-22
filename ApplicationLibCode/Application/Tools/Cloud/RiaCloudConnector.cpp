@@ -21,7 +21,7 @@
 #include "RiaCloudDefines.h"
 #include "RiaConnectorTools.h"
 #include "RiaLogging.h"
-#include "RiaOsduOAuthHttpServerReplyHandler.h"
+#include "RiaOAuthHttpServerReplyHandler.h"
 
 #include <QDateTime>
 #include <QDesktopServices>
@@ -80,7 +80,7 @@ RiaCloudConnector::RiaCloudConnector( QObject*       parent,
     m_authCodeFlow->setClientIdentifier( m_clientId );
     m_authCodeFlow->setScope( m_scopes );
 
-    auto replyHandler = new RiaOsduOAuthHttpServerReplyHandler( port, this );
+    auto replyHandler = new RiaOAuthHttpServerReplyHandler( port, this );
     m_authCodeFlow->setReplyHandler( replyHandler );
     RiaLogging::debug( "Server callback: " + replyHandler->callback() );
 
