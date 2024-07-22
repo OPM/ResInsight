@@ -21,8 +21,8 @@
 #include "RiaCloudDefines.h"
 #include "RiaConnectorTools.h"
 #include "RiaLogging.h"
-#include "RiaOsduDefines.h"
 #include "RiaOAuthHttpServerReplyHandler.h"
+#include "RiaOsduDefines.h"
 
 #include <QAbstractOAuth>
 #include <QDesktopServices>
