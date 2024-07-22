@@ -1071,7 +1071,7 @@ QStringList RiaApplication::octaveArguments() const
 
     QStringList arguments;
     arguments.append( "--path" );
-    arguments << QApplication::applicationDirPath();
+    arguments << QCoreApplication::applicationDirPath();
 
     if ( !m_preferences->octaveShowHeaderInfoWhenExecutingScripts() )
     {
@@ -1099,9 +1099,9 @@ QProcessEnvironment RiaApplication::octaveProcessEnvironment() const
     QString pathString = penv.value( "PATH", "" );
 
     if ( pathString == "" )
-        pathString = QApplication::applicationDirPath() + "\\octave_plugin_dependencies";
+        pathString = QCoreApplication::applicationDirPath() + "\\octave_plugin_dependencies";
     else
-        pathString = QApplication::applicationDirPath() + "\\octave_plugin_dependencies" + ";" + pathString;
+        pathString = QCoreApplication::applicationDirPath() + "\\octave_plugin_dependencies" + ";" + pathString;
 
     penv.insert( "PATH", pathString );
 #else
@@ -1109,9 +1109,9 @@ QProcessEnvironment RiaApplication::octaveProcessEnvironment() const
     QString ldPath = penv.value( "LD_LIBRARY_PATH", "" );
 
     if ( ldPath == "" )
-        ldPath = QApplication::applicationDirPath();
+        ldPath = QCoreApplication::applicationDirPath();
     else
-        ldPath = QApplication::applicationDirPath() + ":" + ldPath;
+        ldPath = QCoreApplication::applicationDirPath() + ":" + ldPath;
 
     penv.insert( "LD_LIBRARY_PATH", ldPath );
 #endif
