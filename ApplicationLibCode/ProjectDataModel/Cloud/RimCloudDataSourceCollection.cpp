@@ -73,6 +73,8 @@ std::vector<RimSummarySumoDataSource*> RimCloudDataSourceCollection::sumoDataSou
 //--------------------------------------------------------------------------------------------------
 void RimCloudDataSourceCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    if ( !m_sumoConnector ) return;
+
     if ( changedField == &m_sumoFieldName )
     {
         m_sumoCaseId = "";
@@ -97,6 +99,8 @@ void RimCloudDataSourceCollection::fieldChangedByUi( const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimCloudDataSourceCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
+    if ( !m_sumoConnector ) return {};
+
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_sumoFieldName )
     {
@@ -174,6 +178,8 @@ void RimCloudDataSourceCollection::defineEditorAttribute( const caf::PdmFieldHan
 //--------------------------------------------------------------------------------------------------
 void RimCloudDataSourceCollection::addEnsemble()
 {
+    if ( !m_sumoConnector ) return;
+
     RimSummarySumoDataSource* objectToSelect = nullptr;
     auto                      sumoCaseId     = SumoCaseId( m_sumoCaseId );
 

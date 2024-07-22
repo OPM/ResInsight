@@ -184,8 +184,6 @@ public:
     void executeCommandObjects();
     void waitUntilCommandObjectsHasBeenProcessed();
 
-    int launchUnitTests();
-
     const QString startDir() const;
     void          setStartDir( const QString& startDir );
 

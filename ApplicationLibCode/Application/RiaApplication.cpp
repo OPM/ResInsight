@@ -22,25 +22,22 @@
 #include "Cloud/RiaSumoDefines.h"
 #include "RiaOsduDefines.h"
 
-#include "RiaArgumentParser.h"
 #include "RiaBaseDefs.h"
 #include "RiaFilePathTools.h"
 #include "RiaFontCache.h"
-#include "RiaGuiApplication.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesSumo.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaProjectModifier.h"
+#include "RiaRegressionTestRunner.h"
 #include "RiaSocketServer.h"
 #include "RiaTextStringTools.h"
 #include "RiaVersionInfo.h"
 #include "RiaViewRedrawScheduler.h"
 #include "RiaWellNameComparer.h"
 
-#include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
-#include "HoloLensCommands/RicHoloLensSessionManager.h"
 #include "RicImportGeneralDataFeature.h"
 #include "RicfCommandFileExecutor.h"
 #include "RicfCommandObject.h"
@@ -49,9 +46,6 @@
 #include "Polygons/RimPolygonCollection.h"
 
 #include "Rim2dIntersectionViewCollection.h"
-#include "RimAnnotationCollection.h"
-#include "RimAnnotationInViewCollection.h"
-#include "RimAnnotationTextAppearance.h"
 #include "RimCellFilterCollection.h"
 #include "RimCommandObject.h"
 #include "RimCommandRouter.h"
@@ -63,7 +57,6 @@
 #include "RimFormationNamesCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
-#include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
 #include "RimGridCalculationCollection.h"
@@ -74,7 +67,6 @@
 #include "RimObservedFmuRftData.h"
 #include "RimObservedSummaryData.h"
 #include "RimOilField.h"
-#include "RimPlotWindow.h"
 #include "RimProject.h"
 #include "RimScriptCollection.h"
 #include "RimSeismicData.h"
@@ -90,8 +82,6 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSurfaceCollection.h"
-#include "RimTextAnnotation.h"
-#include "RimTextAnnotationInView.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogLasFile.h"
@@ -102,7 +92,6 @@
 #include "VerticalFlowPerformance/RimVfpPlotCollection.h"
 
 #include "Riu3DMainWindowTools.h"
-#include "RiuGuiTheme.h"
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
 #include "RiuViewerCommands.h"
@@ -120,14 +109,8 @@
 #include "cafUiProcess.h"
 #include "cafUtils.h"
 
-#include "cvfProgramOptions.h"
-#include "cvfqtUtils.h"
-
 #include <QCoreApplication>
-#include <QDir>
-#include <QFileInfo>
 
-#include <iostream>
 #include <memory>
 
 #ifdef WIN32
@@ -1088,7 +1071,7 @@ QStringList RiaApplication::octaveArguments() const
 
     QStringList arguments;
     arguments.append( "--path" );
-    arguments << QApplication::applicationDirPath();
+    arguments << QCoreApplication::applicationDirPath();
 
     if ( !m_preferences->octaveShowHeaderInfoWhenExecutingScripts() )
     {
@@ -1116,9 +1099,9 @@ QProcessEnvironment RiaApplication::octaveProcessEnvironment() const
     QString pathString = penv.value( "PATH", "" );
 
     if ( pathString == "" )
-        pathString = QApplication::applicationDirPath() + "\\octave_plugin_dependencies";
+        pathString = QCoreApplication::applicationDirPath() + "\\octave_plugin_dependencies";
     else
-        pathString = QApplication::applicationDirPath() + "\\octave_plugin_dependencies" + ";" + pathString;
+        pathString = QCoreApplication::applicationDirPath() + "\\octave_plugin_dependencies" + ";" + pathString;
 
     penv.insert( "PATH", pathString );
 #else
@@ -1126,9 +1109,9 @@ QProcessEnvironment RiaApplication::octaveProcessEnvironment() const
     QString ldPath = penv.value( "LD_LIBRARY_PATH", "" );
 
     if ( ldPath == "" )
-        ldPath = QApplication::applicationDirPath();
+        ldPath = QCoreApplication::applicationDirPath();
     else
-        ldPath = QApplication::applicationDirPath() + ":" + ldPath;
+        ldPath = QCoreApplication::applicationDirPath() + ":" + ldPath;
 
     penv.insert( "LD_LIBRARY_PATH", ldPath );
 #endif
@@ -1726,6 +1709,11 @@ RiaOsduConnector* RiaApplication::makeOsduConnector()
 //--------------------------------------------------------------------------------------------------
 RiaSumoConnector* RiaApplication::makeSumoConnector()
 {
+    if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
+    {
+        return nullptr;
+    }
+
     if ( !m_sumoConnector )
     {
         auto               sumoPrefs = preferences()->sumoPreferences();
