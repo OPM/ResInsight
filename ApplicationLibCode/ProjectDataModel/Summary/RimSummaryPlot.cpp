@@ -333,11 +333,17 @@ QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaDefines::DateTimePerio
 
     std::vector<RimSummaryCurve*> crossPlotCurves;
     std::vector<RimSummaryCurve*> curves;
+    std::vector<RimSummaryCurve*> observedCurves;
+
     for ( auto c : allCurves )
     {
         if ( c->axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
         {
             crossPlotCurves.push_back( c );
+        }
+        else if ( c->summaryCaseY() && c->summaryCaseY()->isObservedData() && !c->isRegressionCurve() )
+        {
+            observedCurves.push_back( c );
         }
         else
         {
@@ -348,7 +354,14 @@ QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaDefines::DateTimePerio
     auto gridCurves  = m_gridTimeHistoryCurves.childrenByType();
     auto asciiCurves = m_asciiDataCurves.childrenByType();
 
-    QString text = RimSummaryCurvesData::createTextForExport( curves, asciiCurves, gridCurves, resamplingPeriod, showTimeAsLongString );
+    QString text;
+    text += RimSummaryCurvesData::createTextForExport( curves, asciiCurves, gridCurves, resamplingPeriod, showTimeAsLongString );
+
+    if ( !observedCurves.empty() )
+    {
+        text += "\n\n------------ Observed Curves --------------";
+        text += RimSummaryCurvesData::createTextForExport( observedCurves, {}, {}, RiaDefines::DateTimePeriod::NONE, showTimeAsLongString );
+    }
 
     text += RimSummaryCurvesData::createTextForCrossPlotCurves( crossPlotCurves );
 
@@ -720,20 +733,6 @@ void RimSummaryPlot::updatePlotInfoLabel()
         }
     }
     showPlotInfoLabel( anyCurveSetFiltered );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimSummaryPlot::containsResamplableCurves() const
-{
-    std::vector<RimSummaryCurve*> summaryCurves = summaryAndEnsembleCurves();
-    size_t                        resamplableSummaryCurveCount =
-        std::count_if( summaryCurves.begin(),
-                       summaryCurves.end(),
-                       []( RimSummaryCurve* curve ) { return curve->summaryCaseY() ? !curve->summaryCaseY()->isObservedData() : false; } );
-
-    return !m_gridTimeHistoryCurves.empty() || resamplableSummaryCurveCount > 0;
 }
 
 //--------------------------------------------------------------------------------------------------

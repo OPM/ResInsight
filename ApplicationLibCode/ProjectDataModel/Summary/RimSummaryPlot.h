@@ -168,8 +168,6 @@ public:
     void showPlotInfoLabel( bool show );
     void updatePlotInfoLabel();
 
-    bool containsResamplableCurves() const;
-
     size_t singleColorCurveCount() const;
     void   applyDefaultCurveAppearances();
     void   applyDefaultCurveAppearances( std::vector<RimSummaryCurve*> curvesToUpdate );

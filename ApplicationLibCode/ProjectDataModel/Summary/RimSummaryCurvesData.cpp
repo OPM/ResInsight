@@ -234,6 +234,9 @@ void RimSummaryCurvesData::populateSummaryCurvesData( std::vector<RimSummaryCurv
     {
         bool isObservedCurve = curve->summaryCaseY() ? curve->summaryCaseY()->isObservedData() : false;
 
+        // Make sure a regression curve can be resampled https://github.com/OPM/ResInsight/issues/11372
+        if ( curve->isRegressionCurve() ) isObservedCurve = false;
+
         if ( !curve->isChecked() ) continue;
         if ( isObservedCurve && ( curveType != SummaryCurveType::CURVE_TYPE_OBSERVED ) ) continue;
         if ( !isObservedCurve && ( curveType != SummaryCurveType::CURVE_TYPE_GRID ) ) continue;
