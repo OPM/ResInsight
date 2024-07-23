@@ -87,15 +87,9 @@ public:
         CVF_ASSERT( m_summaryPlot.notNull() && "Need to check that provider is valid" );
 
         RiaDefines::DateTimePeriod timePeriod = indexToPeriod( tabIndex );
+        RiaPreferencesSummary*     prefs      = RiaPreferencesSummary::current();
 
-        if ( m_summaryPlot->containsResamplableCurves() )
-        {
-            RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
-
-            return m_summaryPlot->asciiDataForSummaryPlotExport( timePeriod, prefs->showSummaryTimeAsLongString() );
-        }
-
-        return m_summaryPlot->asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod::NONE, true );
+        return m_summaryPlot->asciiDataForSummaryPlotExport( timePeriod, prefs->showSummaryTimeAsLongString() );
     }
 
     int tabCount() const override { return (int)tabs().size(); }
