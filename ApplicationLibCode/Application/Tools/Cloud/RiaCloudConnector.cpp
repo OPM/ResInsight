@@ -18,28 +18,19 @@
 
 #include "RiaCloudConnector.h"
 
+#include "RiaCloudDefines.h"
 #include "RiaConnectorTools.h"
 #include "RiaLogging.h"
-#include "RiaOsduDefines.h"
-#include "RiaOsduOAuthHttpServerReplyHandler.h"
-#include "RiaSumoDefines.h"
+#include "RiaOAuthHttpServerReplyHandler.h"
 
-#include <QAbstractOAuth>
-#include <QByteArray>
 #include <QDateTime>
 #include <QDesktopServices>
 #include <QEventLoop>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QNetworkRequest>
 #include <QOAuth2AuthorizationCodeFlow>
-#include <QOAuthHttpServerReplyHandler>
-#include <QObject>
-#include <QString>
 #include <QTimer>
-#include <QUrl>
 #include <QUrlQuery>
-#include <QtCore>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -89,15 +80,17 @@ RiaCloudConnector::RiaCloudConnector( QObject*       parent,
     m_authCodeFlow->setClientIdentifier( m_clientId );
     m_authCodeFlow->setScope( m_scopes );
 
-    auto replyHandler = new RiaOsduOAuthHttpServerReplyHandler( port, this );
+    auto replyHandler = new RiaOAuthHttpServerReplyHandler( port, this );
     m_authCodeFlow->setReplyHandler( replyHandler );
     RiaLogging::debug( "Server callback: " + replyHandler->callback() );
 
     connect( m_authCodeFlow, SIGNAL( granted() ), this, SLOT( accessGranted() ) );
+
     connect( m_authCodeFlow,
              SIGNAL( error( const QString&, const QString&, const QUrl& ) ),
              this,
              SLOT( errorReceived( const QString&, const QString&, const QUrl& ) ) );
+
     connect( m_authCodeFlow,
              SIGNAL( authorizationCallbackReceived( const QVariantMap& ) ),
              this,
@@ -277,8 +270,9 @@ QString RiaCloudConnector::requestTokenBlocking()
     connect( this, SIGNAL( tokenReady( const QString& ) ), &loop, SLOT( quit() ) );
     connect( &timer, SIGNAL( timeout() ), &loop, SLOT( quit() ) );
     requestToken();
-    timer.start( RiaSumoDefines::requestTimeoutMillis() );
+    timer.start( RiaCloudDefines::requestTokenTimeoutMillis() );
     loop.exec();
+
     return m_authCodeFlow->token();
 }
 

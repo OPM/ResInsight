@@ -1,22 +1,30 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2024- Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
 #include "RiaOsduConnector.h"
 #include "RiaCloudDefines.h"
 #include "RiaLogging.h"
 #include "RiaOsduDefines.h"
-#include "RiaOsduOAuthHttpServerReplyHandler.h"
 
-#include <QAbstractOAuth>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QNetworkRequest>
-#include <QOAuth2AuthorizationCodeFlow>
-#include <QOAuthHttpServerReplyHandler>
-#include <QObject>
-#include <QString>
-#include <QTimer>
-#include <QUrl>
-#include <QUrlQuery>
 
 #include <limits>
 
@@ -312,10 +320,10 @@ QNetworkReply* RiaOsduConnector::makeSearchRequest( const std::map<QString, QStr
                                                     const QString&                    dataPartitionId,
                                                     const QString&                    token )
 {
-    QNetworkRequest m_networkRequest;
-    m_networkRequest.setUrl( QUrl( constructSearchUrl( server ) ) );
+    QNetworkRequest networkRequest;
+    networkRequest.setUrl( QUrl( constructSearchUrl( server ) ) );
 
-    addStandardHeader( m_networkRequest, token, dataPartitionId, RiaCloudDefines::contentTypeJson() );
+    addStandardHeader( networkRequest, token, dataPartitionId, RiaCloudDefines::contentTypeJson() );
 
     QJsonObject obj;
     for ( auto [key, value] : parameters )
@@ -326,7 +334,7 @@ QNetworkReply* RiaOsduConnector::makeSearchRequest( const std::map<QString, QStr
     QJsonDocument doc( obj );
     QString       strJson( doc.toJson( QJsonDocument::Compact ) );
 
-    auto reply = m_networkAccessManager->post( m_networkRequest, strJson.toUtf8() );
+    auto reply = m_networkAccessManager->post( networkRequest, strJson.toUtf8() );
     return reply;
 }
 
@@ -623,10 +631,9 @@ std::vector<OsduWellLog> RiaOsduConnector::wellLogs( const QString& wellboreId )
     QMutexLocker lock( &m_mutex );
 
     auto it = m_wellLogs.find( wellboreId );
-    if ( it != m_wellLogs.end() )
-        return it->second;
-    else
-        return {};
+    if ( it != m_wellLogs.end() ) return it->second;
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -637,10 +644,9 @@ std::vector<OsduWellbore> RiaOsduConnector::wellbores( const QString& wellId ) c
     QMutexLocker lock( &m_mutex );
 
     auto it = m_wellbores.find( wellId );
-    if ( it != m_wellbores.end() )
-        return it->second;
-    else
-        return {};
+    if ( it != m_wellbores.end() ) return it->second;
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -651,10 +657,9 @@ QString RiaOsduConnector::wellIdForWellboreId( const QString& wellboreId ) const
     auto findWellIdForWellboreId = []( const std::vector<OsduWellbore>& wellbores, const QString& wellboreId )
     {
         auto it = std::find_if( wellbores.begin(), wellbores.end(), [wellboreId]( const OsduWellbore& w ) { return w.id == wellboreId; } );
-        if ( it != wellbores.end() )
-            return it->wellId;
-        else
-            return QString();
+        if ( it != wellbores.end() ) return it->wellId;
+
+        return QString();
     };
 
     QMutexLocker lock( &m_mutex );
@@ -677,10 +682,9 @@ std::vector<OsduWellboreTrajectory> RiaOsduConnector::wellboreTrajectories( cons
     QMutexLocker lock( &m_mutex );
 
     auto it = m_wellboreTrajectories.find( wellboreId );
-    if ( it != m_wellboreTrajectories.end() )
-        return it->second;
-    else
-        return {};
+    if ( it != m_wellboreTrajectories.end() ) return it->second;
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -700,6 +704,7 @@ void RiaOsduConnector::requestWellLogParquetDataById( const QString& wellLogId )
 {
     QString url = constructWellLogDownloadUrl( m_server, wellLogId );
     RiaLogging::debug( "Well log URL: " + url );
+
     requestParquetDataByUrl( url, wellLogId );
 }
 
@@ -718,6 +723,7 @@ std::pair<QByteArray, QString> RiaOsduConnector::requestWellboreTrajectoryParque
 {
     QString url = constructWellboreTrajectoriesDownloadUrl( m_server, wellboreTrajectoryId );
     RiaLogging::debug( "Wellbore trajectory URL: " + url );
+
     return requestParquetDataByUrlBlocking( url, wellboreTrajectoryId );
 }
 
@@ -728,6 +734,7 @@ std::pair<QByteArray, QString> RiaOsduConnector::requestWellLogParquetDataByIdBl
 {
     QString url = constructWellLogDownloadUrl( m_server, wellLogId );
     RiaLogging::debug( "Well log URL: " + url );
+
     return requestParquetDataByUrlBlocking( url, wellLogId );
 }
 

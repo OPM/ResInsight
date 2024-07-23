@@ -25,11 +25,11 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RiaOsduOAuthHttpServerReplyHandler : public QOAuthHttpServerReplyHandler
+class RiaOAuthHttpServerReplyHandler : public QOAuthHttpServerReplyHandler
 {
     Q_OBJECT
 public:
-    RiaOsduOAuthHttpServerReplyHandler( quint16 port, QObject* parent );
+    RiaOAuthHttpServerReplyHandler( quint16 port, QObject* parent );
 
     QString callback() const override;
 

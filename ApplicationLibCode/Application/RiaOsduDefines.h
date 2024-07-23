@@ -27,8 +27,6 @@ QString osduWellKind();
 QString osduWellboreKind();
 QString osduWellboreTrajectoryKind();
 QString osduWellLogKind();
-QString contentTypeJson();
-QString contentTypeParquet();
 
 QString tokenPath();
 

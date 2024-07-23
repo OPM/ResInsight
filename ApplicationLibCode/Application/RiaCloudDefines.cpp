@@ -33,3 +33,11 @@ QString RiaCloudDefines::contentTypeParquet()
 {
     return "application/x-parquet";
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaCloudDefines::requestTokenTimeoutMillis()
+{
+    return 120 * 1000;
+}

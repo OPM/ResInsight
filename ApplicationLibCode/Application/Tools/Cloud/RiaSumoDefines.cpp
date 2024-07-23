@@ -34,5 +34,5 @@ QString RiaSumoDefines::tokenPath()
 //--------------------------------------------------------------------------------------------------
 int RiaSumoDefines::requestTimeoutMillis()
 {
-    return 120 * 1000;
+    return 1 * 1000;
 }
