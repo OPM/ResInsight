@@ -71,6 +71,7 @@ public:
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
+    void                 appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
     void orderChanged( const caf::SignalEmitter* emitter );
