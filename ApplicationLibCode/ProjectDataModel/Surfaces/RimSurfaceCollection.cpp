@@ -37,6 +37,7 @@
 
 #include "cafPdmFieldReorderCapability.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
@@ -272,6 +273,20 @@ std::vector<RimSurface*> RimSurfaceCollection::surfaces() const
 std::vector<RimSurfaceCollection*> RimSurfaceCollection::subCollections() const
 {
     return m_subCollections.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicImportSurfacesFeature";
+    menuBuilder << "RicNewGridSurfaceFeature";
+    menuBuilder << "RicNewDepthSurfaceFeature";
+    menuBuilder << "RicImportEnsembleSurfaceFeature";
+    menuBuilder << "RicCreateEnsembleSurfaceFeature";
+    menuBuilder.addSeparator();
+    menuBuilder << "RicNewSurfaceCollectionFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

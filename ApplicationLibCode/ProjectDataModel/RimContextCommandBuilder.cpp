@@ -146,7 +146,6 @@
 #include "RimSummaryTableCollection.h"
 #include "RimSummaryTimeAxisProperties.h"
 #include "RimSurface.h"
-#include "RimSurfaceCollection.h"
 #include "RimValveTemplate.h"
 #include "RimValveTemplateCollection.h"
 #include "RimViewController.h"
@@ -1022,15 +1021,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimElasticProperties*>( firstUiItem ) )
         {
             menuBuilder << "RicNewElasticPropertyScalingFeature";
-        }
-        else if ( dynamic_cast<RimSurfaceCollection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicImportSurfacesFeature";
-            menuBuilder << "RicNewGridSurfaceFeature";
-            menuBuilder << "RicImportEnsembleSurfaceFeature";
-            menuBuilder << "RicCreateEnsembleSurfaceFeature";
-            menuBuilder.addSeparator();
-            menuBuilder << "RicNewSurfaceCollectionFeature";
         }
         else if ( dynamic_cast<RimSurface*>( firstUiItem ) )
         {
