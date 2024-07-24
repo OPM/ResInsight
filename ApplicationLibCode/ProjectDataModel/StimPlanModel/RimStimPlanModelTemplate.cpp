@@ -307,12 +307,7 @@ void RimStimPlanModelTemplate::defineEditorAttribute( const caf::PdmFieldHandle*
 {
     if ( field == &m_stressDepth || field == &m_verticalStress )
     {
-        auto doubleAttr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
-        if ( doubleAttr )
-        {
-            doubleAttr->m_decimals     = 2;
-            doubleAttr->m_numberFormat = caf::PdmUiDoubleValueEditorAttribute::NumberFormat::FIXED;
-        }
+        caf::PdmUiDoubleValueEditorAttribute::testAndSetFixedWithTwoDecimals( attribute );
     }
 
     if ( field == &m_faciesInitialPressureConfigs )
