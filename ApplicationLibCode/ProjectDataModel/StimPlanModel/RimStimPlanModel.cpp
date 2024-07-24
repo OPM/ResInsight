@@ -896,12 +896,7 @@ void RimStimPlanModel::defineEditorAttribute( const caf::PdmFieldHandle* field, 
 {
     if ( field == &m_formationDip || field == &m_barrierDip || field == &m_distanceToBarrier )
     {
-        auto doubleAttr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
-        if ( doubleAttr )
-        {
-            doubleAttr->m_decimals     = 2;
-            doubleAttr->m_numberFormat = caf::PdmUiDoubleValueEditorAttribute::NumberFormat::FIXED;
-        }
+        caf::PdmUiDoubleValueEditorAttribute::testAndSetFixedWithTwoDecimals( attribute );
     }
 
     if ( field == &m_MD )

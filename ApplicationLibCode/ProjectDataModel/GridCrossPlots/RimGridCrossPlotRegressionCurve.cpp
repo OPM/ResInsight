@@ -392,12 +392,7 @@ void RimGridCrossPlotRegressionCurve::defineEditorAttribute( const caf::PdmField
     }
     else if ( field == &m_minExtrapolationRangeX || field == &m_maxExtrapolationRangeX )
     {
-        auto doubleAttr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
-        if ( doubleAttr )
-        {
-            doubleAttr->m_decimals     = 2;
-            doubleAttr->m_numberFormat = caf::PdmUiDoubleValueEditorAttribute::NumberFormat::FIXED;
-        }
+        caf::PdmUiDoubleValueEditorAttribute::testAndSetFixedWithTwoDecimals( attribute );
     }
 
     else if ( field == &m_expressionText )
