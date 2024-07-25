@@ -58,7 +58,6 @@ RimReservoirCellResultsStorage::RimReservoirCellResultsStorage()
     CAF_PDM_InitFieldNoDefault( &m_resultCacheMetaData, "ResultCacheEntries", "UiDummyname" );
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// This override populates the metainfo regarding the cell results data in the RigCaseCellResultsData
 /// object. This metainfo will then be written to the project file when saving, and thus read on project file open.
