@@ -217,7 +217,7 @@ std::string RifOpmCommonEclipseSummary::unitName( const RifEclipseSummaryAddress
         }
     }
 
-    return RiaStdStringTools::trimString( nameString );
+    return std::string( RiaStdStringTools::trimString( nameString ) );
 }
 
 //--------------------------------------------------------------------------------------------------
