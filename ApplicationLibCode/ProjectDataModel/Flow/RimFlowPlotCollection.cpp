@@ -57,8 +57,6 @@ RimFlowPlotCollection::RimFlowPlotCollection()
 RimFlowPlotCollection::~RimFlowPlotCollection()
 {
     delete m_defaultWellAllocPlot();
-
-    m_storedWellAllocPlots.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

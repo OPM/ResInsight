@@ -47,14 +47,6 @@ Rim3dWellLogCurveCollection::Rim3dWellLogCurveCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim3dWellLogCurveCollection::~Rim3dWellLogCurveCollection()
-{
-    m_3dWellLogCurves.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool Rim3dWellLogCurveCollection::has3dWellLogCurves() const
 {
     return !m_3dWellLogCurves.empty();

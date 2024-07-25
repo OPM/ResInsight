@@ -41,7 +41,6 @@ class RimWellLogCsvFile : public RimWellLogFile
 
 public:
     RimWellLogCsvFile();
-    ~RimWellLogCsvFile() override;
 
     QString name() const override { return m_name; }
 

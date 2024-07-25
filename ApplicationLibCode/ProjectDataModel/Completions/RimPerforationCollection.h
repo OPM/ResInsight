@@ -40,7 +40,6 @@ class RimPerforationCollection : public RimCheckableNamedObject
 
 public:
     RimPerforationCollection();
-    ~RimPerforationCollection() override;
 
     bool                                       hasPerforations() const;
     const RimNonDarcyPerforationParameters*    nonDarcyParameters() const;

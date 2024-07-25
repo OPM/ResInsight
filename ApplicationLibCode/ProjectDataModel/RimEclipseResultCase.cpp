@@ -510,8 +510,6 @@ RimEclipseResultCase::~RimEclipseResultCase()
     {
         if ( v ) v->setComparisonView( nullptr );
     }
-
-    m_flowDiagSolutions.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

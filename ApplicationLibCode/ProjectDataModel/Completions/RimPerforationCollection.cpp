@@ -55,13 +55,6 @@ RimPerforationCollection::RimPerforationCollection()
     m_nonDarcyParameters.uiCapability()->setUiTreeChildrenHidden( true );
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimPerforationCollection::~RimPerforationCollection()
-{
-    m_perforations.deleteChildren();
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

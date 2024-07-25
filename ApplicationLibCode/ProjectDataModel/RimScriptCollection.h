@@ -41,7 +41,6 @@ class RimScriptCollection : public caf::PdmObject
 
 public:
     RimScriptCollection();
-    ~RimScriptCollection() override;
 
 public:
     caf::PdmField<QString>                  directory;

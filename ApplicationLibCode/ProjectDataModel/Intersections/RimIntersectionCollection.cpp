@@ -82,15 +82,6 @@ RimIntersectionCollection::RimIntersectionCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersectionCollection::~RimIntersectionCollection()
-{
-    m_intersections.deleteChildren();
-    m_intersectionBoxes.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimIntersectionCollection::objectToggleField()
 {
     return &m_isActive;

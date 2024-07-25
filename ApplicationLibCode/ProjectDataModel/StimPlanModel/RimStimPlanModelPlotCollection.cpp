@@ -35,13 +35,6 @@ RimStimPlanModelPlotCollection::RimStimPlanModelPlotCollection()
     CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanModelPlots, "StimPlanModelPlots", "" );
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimStimPlanModelPlotCollection::~RimStimPlanModelPlotCollection()
-{
-    m_stimPlanModelPlots.deleteChildren();
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

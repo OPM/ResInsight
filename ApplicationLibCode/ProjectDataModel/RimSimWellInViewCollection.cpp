@@ -236,14 +236,6 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSimWellInViewCollection::~RimSimWellInViewCollection()
-{
-    wells.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSimWellInViewCollection::setShowWellCellsState( bool enable )
 {
     for ( RimSimWellInView* w : wells )

@@ -43,13 +43,6 @@ RimEclipsePropertyFilterCollection::RimEclipsePropertyFilterCollection()
     CAF_PDM_InitFieldNoDefault( &m_propertyFilters, "PropertyFilters", "Property Filters" );
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimEclipsePropertyFilterCollection::~RimEclipsePropertyFilterCollection()
-{
-    m_propertyFilters.deleteChildren();
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

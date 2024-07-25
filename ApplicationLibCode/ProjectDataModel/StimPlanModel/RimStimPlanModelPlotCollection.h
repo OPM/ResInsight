@@ -36,7 +36,6 @@ class RimStimPlanModelPlotCollection : public caf::PdmObject, public RimPlotColl
 
 public:
     RimStimPlanModelPlotCollection();
-    ~RimStimPlanModelPlotCollection() override;
 
     void addStimPlanModelPlot( RimStimPlanModelPlot* newPlot );
 

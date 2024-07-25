@@ -36,13 +36,6 @@ RimFormationNamesCollection::RimFormationNamesCollection()
     setDeletable( true );
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimFormationNamesCollection::~RimFormationNamesCollection()
-{
-    m_formationNamesList.deleteChildren();
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -103,11 +103,3 @@ void RimWellPathImport::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         updateFieldVisibility();
     }
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimWellPathImport::~RimWellPathImport()
-{
-    regions_OBSOLETE.deleteChildren();
-}

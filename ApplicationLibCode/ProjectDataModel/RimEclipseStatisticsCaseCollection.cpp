@@ -39,14 +39,6 @@ RimEclipseStatisticsCaseCollection::RimEclipseStatisticsCaseCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseStatisticsCaseCollection::~RimEclipseStatisticsCaseCollection()
-{
-    cases.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup* RimEclipseStatisticsCaseCollection::parentCaseGroup()
 {
     RimIdenticalGridCaseGroup* parentObject = dynamic_cast<RimIdenticalGridCaseGroup*>( parentField()->ownerObject() );

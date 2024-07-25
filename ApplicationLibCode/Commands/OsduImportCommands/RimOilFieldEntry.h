@@ -30,7 +30,6 @@ class RimOilFieldEntry : public caf::PdmObject
 
 public:
     RimOilFieldEntry();
-    ~RimOilFieldEntry() override;
 
     caf::PdmField<QString> name;
     caf::PdmField<QString> edmId;

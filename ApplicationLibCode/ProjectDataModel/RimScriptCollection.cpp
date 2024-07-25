@@ -48,15 +48,6 @@ RimScriptCollection::RimScriptCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimScriptCollection::~RimScriptCollection()
-{
-    calcScripts.deleteChildren();
-    subDirectories.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimScriptCollection::readContentFromDisc( int folderLevelsLeft )
 {
     calcScripts.deleteChildren();

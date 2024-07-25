@@ -30,7 +30,6 @@ class RimOilRegionEntry : public caf::PdmObject
 
 public:
     RimOilRegionEntry();
-    ~RimOilRegionEntry() override;
 
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;

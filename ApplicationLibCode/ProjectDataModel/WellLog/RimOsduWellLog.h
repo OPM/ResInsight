@@ -44,7 +44,6 @@ class RimOsduWellLog : public RimWellLog
 
 public:
     RimOsduWellLog();
-    ~RimOsduWellLog() override;
 
     void    setName( const QString& name );
     QString name() const override;

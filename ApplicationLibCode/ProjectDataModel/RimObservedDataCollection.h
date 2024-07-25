@@ -34,7 +34,6 @@ class RimObservedDataCollection : public caf::PdmObject
 
 public:
     RimObservedDataCollection();
-    ~RimObservedDataCollection() override;
 
     void                    removeObservedSummaryData( RimObservedSummaryData* observedSummaryData );
     void                    removeObservedFmuRftData( RimObservedFmuRftData* observedFmuRftData );

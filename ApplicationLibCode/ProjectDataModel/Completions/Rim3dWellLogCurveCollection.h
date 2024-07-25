@@ -37,7 +37,6 @@ class Rim3dWellLogCurveCollection : public caf::PdmObject
 
 public:
     Rim3dWellLogCurveCollection();
-    ~Rim3dWellLogCurveCollection() override;
 
     bool has3dWellLogCurves() const;
     void add3dWellLogCurve( Rim3dWellLogCurve* curve );

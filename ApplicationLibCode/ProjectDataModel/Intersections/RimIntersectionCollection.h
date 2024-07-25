@@ -53,7 +53,6 @@ class RimIntersectionCollection : public caf::PdmObject
 
 public:
     RimIntersectionCollection();
-    ~RimIntersectionCollection() override;
 
     void appendIntersectionAndUpdate( RimExtrudedCurveIntersection* intersection, bool allowActiveViewChange = true );
     void appendIntersectionNoUpdate( RimExtrudedCurveIntersection* intersection );

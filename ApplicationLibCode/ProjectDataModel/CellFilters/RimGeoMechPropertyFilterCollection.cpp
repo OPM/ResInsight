@@ -39,13 +39,6 @@ RimGeoMechPropertyFilterCollection::RimGeoMechPropertyFilterCollection()
     CAF_PDM_InitFieldNoDefault( &propertyFilters, "PropertyFilters", "Property Filters" );
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimGeoMechPropertyFilterCollection::~RimGeoMechPropertyFilterCollection()
-{
-    propertyFilters.deleteChildren();
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

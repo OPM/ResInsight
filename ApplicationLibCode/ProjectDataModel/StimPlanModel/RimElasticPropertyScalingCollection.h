@@ -36,7 +36,6 @@ class RimElasticPropertyScalingCollection : public caf::PdmObject
 
 public:
     RimElasticPropertyScalingCollection();
-    ~RimElasticPropertyScalingCollection() override;
 
     caf::Signal<> changed;
 

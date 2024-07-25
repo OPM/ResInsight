@@ -37,13 +37,6 @@ RimElasticPropertyScalingCollection::RimElasticPropertyScalingCollection()
     CAF_PDM_InitScriptableFieldNoDefault( &m_elasticPropertyScalings, "ElasticPropertyScalings", "Elastic Property Scalings" );
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimElasticPropertyScalingCollection::~RimElasticPropertyScalingCollection()
-{
-    m_elasticPropertyScalings.deleteChildren();
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

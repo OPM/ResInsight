@@ -47,14 +47,6 @@ RimStimPlanModelTemplateCollection::RimStimPlanModelTemplateCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStimPlanModelTemplateCollection::~RimStimPlanModelTemplateCollection()
-{
-    m_stimPlanModelTemplates.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimStimPlanModelTemplate* RimStimPlanModelTemplateCollection::stimPlanModelTemplate( int id ) const
 {
     for ( const auto& templ : m_stimPlanModelTemplates )

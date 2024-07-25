@@ -41,7 +41,6 @@ class RimReservoirCellResultsStorage : public caf::PdmObject
 
 public:
     RimReservoirCellResultsStorage();
-    ~RimReservoirCellResultsStorage() override;
 
     void setCellResults( RigCaseCellResultsData* cellResults );
 

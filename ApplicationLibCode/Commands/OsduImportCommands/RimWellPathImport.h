@@ -39,7 +39,6 @@ public:
 
 public:
     RimWellPathImport();
-    ~RimWellPathImport() override;
 
     caf::PdmField<caf::AppEnum<UtmFilterEnum>> utmFilterMode;
     caf::PdmField<double>                      north;

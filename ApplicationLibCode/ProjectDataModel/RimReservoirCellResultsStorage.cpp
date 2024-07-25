@@ -58,13 +58,6 @@ RimReservoirCellResultsStorage::RimReservoirCellResultsStorage()
     CAF_PDM_InitFieldNoDefault( &m_resultCacheMetaData, "ResultCacheEntries", "UiDummyname" );
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimReservoirCellResultsStorage::~RimReservoirCellResultsStorage()
-{
-    m_resultCacheMetaData.deleteChildren();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// This override populates the metainfo regarding the cell results data in the RigCaseCellResultsData

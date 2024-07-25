@@ -50,7 +50,6 @@ class RimRftPlotCollection : public caf::PdmObject, public RimPlotCollection
 
 public:
     RimRftPlotCollection();
-    ~RimRftPlotCollection() override;
 
     RigEclipseWellLogExtractor* findOrCreateSimWellExtractor( const QString&                           simWellName,
                                                               const QString&                           caseUserDescription,
