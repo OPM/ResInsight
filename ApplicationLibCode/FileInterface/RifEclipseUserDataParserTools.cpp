@@ -228,7 +228,8 @@ bool RifEclipseUserDataParserTools::hasOnlyValidDoubleValues( const std::vector<
         }
         else
         {
-            double doubleVal = RiaStdStringTools::toDouble( word );
+            double doubleVal = 0.0;
+            RiaStdStringTools::toDouble( word, doubleVal );
             doubleValues->push_back( doubleVal );
         }
     }

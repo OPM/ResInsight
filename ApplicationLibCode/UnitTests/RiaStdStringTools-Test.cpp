@@ -257,3 +257,75 @@ TEST( RiaStdStringToolsTest, TestInvalidRangeStrings )
         ASSERT_EQ( expectedValues, actualValues );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaStdStringToolsTest, TestToDouble )
+{
+    {
+        std::string text = "   0.123";
+
+        double resultValue = 0.0;
+        auto   isOk        = RiaStdStringTools::toDouble( text, resultValue );
+        EXPECT_TRUE( isOk );
+
+        EXPECT_DOUBLE_EQ( resultValue, 0.123 );
+    }
+
+    {
+        std::string text = "   0.123   2";
+
+        double resultValue = 0.0;
+        auto   isOk        = RiaStdStringTools::toDouble( text, resultValue );
+        EXPECT_TRUE( isOk );
+
+        EXPECT_DOUBLE_EQ( resultValue, 0.123 );
+    }
+
+    {
+        std::string text = "0.123  2";
+
+        double resultValue = 0.0;
+        auto   isOk        = RiaStdStringTools::toDouble( text, resultValue );
+        EXPECT_TRUE( isOk );
+
+        EXPECT_DOUBLE_EQ( resultValue, 0.123 );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaStdStringToolsTest, TestToInt )
+{
+    {
+        std::string text = "   12";
+
+        int  resultValue = -1;
+        auto isOk        = RiaStdStringTools::toInt( text, resultValue );
+        EXPECT_TRUE( isOk );
+
+        EXPECT_EQ( resultValue, 12 );
+    }
+
+    {
+        std::string text = "   12  ";
+
+        int  resultValue = -1;
+        auto isOk        = RiaStdStringTools::toInt( text, resultValue );
+        EXPECT_TRUE( isOk );
+
+        EXPECT_EQ( resultValue, 12 );
+    }
+
+    {
+        std::string text = "12";
+
+        int  resultValue = -1;
+        auto isOk        = RiaStdStringTools::toInt( text, resultValue );
+        EXPECT_TRUE( isOk );
+
+        EXPECT_EQ( resultValue, 12 );
+    }
+}

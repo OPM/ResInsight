@@ -89,9 +89,11 @@ void RifKeywordVectorParser::parseData( const QString& data )
         keywordBasedVector.header = RifEclipseUserDataParserTools::headerReader( streamData, line );
         if ( keywordBasedVector.header.empty() ) break;
 
+        double value = 0.0;
         while ( RifEclipseUserDataParserTools::isANumber( line ) )
         {
-            keywordBasedVector.values.push_back( RiaStdStringTools::toDouble( line ) );
+            RiaStdStringTools::toDouble( line, value );
+            keywordBasedVector.values.push_back( value );
             std::getline( streamData, line );
         }
 
