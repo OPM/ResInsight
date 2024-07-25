@@ -44,7 +44,6 @@ class RimWellLogLasFile : public RimWellLogFile
 
 public:
     RimWellLogLasFile();
-    ~RimWellLogLasFile() override;
 
     static RimWellLogLasFile* readWellLogFile( const QString& logFilePath, QString* errorMessage );
 

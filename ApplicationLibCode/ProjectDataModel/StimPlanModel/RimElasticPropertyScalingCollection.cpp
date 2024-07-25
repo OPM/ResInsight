@@ -40,14 +40,6 @@ RimElasticPropertyScalingCollection::RimElasticPropertyScalingCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimElasticPropertyScalingCollection::~RimElasticPropertyScalingCollection()
-{
-    m_elasticPropertyScalings.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RimElasticPropertyScaling*> RimElasticPropertyScalingCollection::elasticPropertyScalings() const
 {
     std::vector<RimElasticPropertyScaling*> templates;

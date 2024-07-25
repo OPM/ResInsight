@@ -37,14 +37,6 @@ RimEclipseInputPropertyCollection::RimEclipseInputPropertyCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimEclipseInputPropertyCollection::~RimEclipseInputPropertyCollection()
-{
-    inputProperties.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Returns the InputProperties pointing to the same file as \a fileName
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEclipseInputProperty*> RimEclipseInputPropertyCollection::findInputProperties( QString fileName )

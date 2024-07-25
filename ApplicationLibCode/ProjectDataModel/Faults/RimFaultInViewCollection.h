@@ -52,7 +52,6 @@ public:
 
 public:
     RimFaultInViewCollection();
-    ~RimFaultInViewCollection() override;
 
     bool isActive() const;
     void setActive( bool bActive );

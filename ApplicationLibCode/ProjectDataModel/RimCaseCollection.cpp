@@ -38,14 +38,6 @@ RimCaseCollection::RimCaseCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCaseCollection::~RimCaseCollection()
-{
-    reservoirs.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup* RimCaseCollection::parentCaseGroup()
 {
     return dynamic_cast<RimIdenticalGridCaseGroup*>( parentField()->ownerObject() );

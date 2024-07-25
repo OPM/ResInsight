@@ -193,8 +193,6 @@ public:
                                     "Whatsthis SimpleObjectsField" );
     }
 
-    ~InheritedDemoObj() { m_simpleObjectsField.deleteChildren(); }
-
     caf::PdmField<std::vector<QString>>       m_texts;
     caf::PdmField<caf::AppEnum<TestEnumType>> m_testEnumField;
     caf::PdmChildArrayField<SimpleObj*>       m_simpleObjectsField;
@@ -211,8 +209,6 @@ public:
         CAF_PDM_InitObject( "PdmObjectCollection" );
         CAF_PDM_InitFieldNoDefault( &objects, "PdmObjects", "", "", "", "" )
     }
-
-    ~MyPdmDocument() { objects.deleteChildren(); }
 
     caf::PdmChildArrayField<PdmObjectHandle*> objects;
 };

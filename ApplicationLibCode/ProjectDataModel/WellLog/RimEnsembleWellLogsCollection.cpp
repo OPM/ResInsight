@@ -37,14 +37,6 @@ RimEnsembleWellLogsCollection::RimEnsembleWellLogsCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEnsembleWellLogsCollection::~RimEnsembleWellLogsCollection()
-{
-    m_ensembleWellLogs.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogsCollection::addEnsembleWellLogs( RimEnsembleWellLogs* ensembleWellLogs )
 {
     m_ensembleWellLogs.push_back( ensembleWellLogs );

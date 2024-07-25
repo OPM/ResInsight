@@ -57,14 +57,6 @@ RimEnsembleCurveSetCollection::RimEnsembleCurveSetCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEnsembleCurveSetCollection::~RimEnsembleCurveSetCollection()
-{
-    m_curveSets.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimEnsembleCurveSetCollection::isCurveSetsVisible() const
 {
     return m_showCurves();

@@ -47,14 +47,6 @@ RimPltPlotCollection::RimPltPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPltPlotCollection::~RimPltPlotCollection()
-{
-    m_pltPlots.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RigEclipseWellLogExtractor* RimPltPlotCollection::findOrCreateSimWellExtractor( const QString&                    simWellName,
                                                                                 const QString&                    caseUserDescription,
                                                                                 gsl::not_null<const RigWellPath*> wellPathGeometry,

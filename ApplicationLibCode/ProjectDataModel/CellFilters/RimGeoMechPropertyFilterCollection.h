@@ -38,7 +38,6 @@ class RimGeoMechPropertyFilterCollection : public RimPropertyFilterCollection
 
 public:
     RimGeoMechPropertyFilterCollection();
-    ~RimGeoMechPropertyFilterCollection() override;
 
     RimGeoMechView* reservoirView();
 

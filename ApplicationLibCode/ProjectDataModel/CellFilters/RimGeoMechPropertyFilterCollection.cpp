@@ -42,14 +42,6 @@ RimGeoMechPropertyFilterCollection::RimGeoMechPropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechPropertyFilterCollection::~RimGeoMechPropertyFilterCollection()
-{
-    propertyFilters.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimGeoMechView* RimGeoMechPropertyFilterCollection::reservoirView()
 {
     return firstAncestorOrThisOfType<RimGeoMechView>();

@@ -34,7 +34,6 @@ class RimSimWellFractureCollection : public caf::PdmObject
 
 public:
     RimSimWellFractureCollection();
-    ~RimSimWellFractureCollection() override;
 
     caf::PdmChildArrayField<RimSimWellFracture*> simwellFractures;
 

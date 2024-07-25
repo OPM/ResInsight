@@ -53,7 +53,6 @@ public:
 
 public:
     RicExportToLasFileResampleUi();
-    ~RicExportToLasFileResampleUi() override;
 
     caf::PdmField<QString> exportFolder;
     caf::PdmField<QString> filePrefix;

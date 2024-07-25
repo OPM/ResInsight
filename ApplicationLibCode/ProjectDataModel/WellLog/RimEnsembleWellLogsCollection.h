@@ -31,7 +31,6 @@ class RimEnsembleWellLogsCollection : public caf::PdmObject
 
 public:
     RimEnsembleWellLogsCollection();
-    ~RimEnsembleWellLogsCollection() override;
 
     std::vector<RimEnsembleWellLogs*> ensembleWellLogs() const;
 

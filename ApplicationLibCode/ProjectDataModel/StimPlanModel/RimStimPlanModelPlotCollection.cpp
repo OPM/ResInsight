@@ -38,14 +38,6 @@ RimStimPlanModelPlotCollection::RimStimPlanModelPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStimPlanModelPlotCollection::~RimStimPlanModelPlotCollection()
-{
-    m_stimPlanModelPlots.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimStimPlanModelPlotCollection::loadDataAndUpdateAllPlots()
 {
     for ( const auto& w : m_stimPlanModelPlots() )

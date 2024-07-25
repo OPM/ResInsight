@@ -44,7 +44,6 @@ class RimSimWellInViewCollection : public caf::PdmObject
 
 public:
     RimSimWellInViewCollection();
-    ~RimSimWellInViewCollection() override;
 
     void setReservoirView( RimEclipseView* ownerReservoirView );
 

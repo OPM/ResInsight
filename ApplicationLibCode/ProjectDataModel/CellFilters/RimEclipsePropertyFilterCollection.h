@@ -37,7 +37,6 @@ class RimEclipsePropertyFilterCollection : public RimPropertyFilterCollection
 
 public:
     RimEclipsePropertyFilterCollection();
-    ~RimEclipsePropertyFilterCollection() override;
 
     RimEclipseView* reservoirView();
     void            setIsDuplicatedFromLinkedView();

@@ -85,14 +85,6 @@ RimWellLogLasFile::RimWellLogLasFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogLasFile::~RimWellLogLasFile()
-{
-    m_wellLogChannels.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimWellLogLasFile* RimWellLogLasFile::readWellLogFile( const QString& logFilePath, QString* errorMessage )
 {
     CAF_ASSERT( errorMessage );

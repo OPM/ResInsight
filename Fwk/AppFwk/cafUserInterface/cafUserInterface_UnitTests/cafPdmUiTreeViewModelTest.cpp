@@ -37,8 +37,6 @@ public:
         m_simpleObjPtrField.uiCapability()->setUiTreeHidden( false );
     }
 
-    ~DemoPdmObject() { m_simpleObjPtrField.deleteChildren(); }
-
     caf::PdmChildArrayField<caf::PdmObjectHandle*> m_simpleObjPtrField;
 };
 

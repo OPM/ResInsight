@@ -57,14 +57,6 @@ RimFractureTemplateCollection::RimFractureTemplateCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFractureTemplateCollection::~RimFractureTemplateCollection()
-{
-    m_fractureDefinitions.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimFractureTemplate* RimFractureTemplateCollection::fractureTemplate( int id ) const
 {
     for ( const auto& templ : m_fractureDefinitions )
