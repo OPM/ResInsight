@@ -88,11 +88,25 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
         {
             auto data = segment.topology();
 
+            std::vector<size_t> nonContinuousSegmentIndices;
+            if ( rftAddress.segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE )
+            {
+                nonContinuousSegmentIndices = segment.nonContinuousDeviceSegmentIndices( rftAddress.segmentBranchIndex() );
+            }
+
             auto indices = segment.segmentIndicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
             for ( const auto& i : indices )
             {
                 CAF_ASSERT( i < data.size() );
+
                 values->push_back( data[i].segNo() );
+
+                if ( std::find( nonContinuousSegmentIndices.begin(), nonContinuousSegmentIndices.end(), i ) !=
+                     nonContinuousSegmentIndices.end() )
+                {
+                    // Use the same segment number for the dummy segment as the previous segment
+                    values->push_back( values->back() );
+                }
             }
             return;
         }
@@ -123,6 +137,12 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                 auto key     = std::make_pair( wellName, RftDate{ y, m, d } );
                 auto segment = m_rftWellDateSegments[key];
 
+                std::vector<size_t> nonContinuousDeviceSegmentIndices;
+                if ( rftAddress.segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE )
+                {
+                    nonContinuousDeviceSegmentIndices = segment.nonContinuousDeviceSegmentIndices( rftAddress.segmentBranchIndex() );
+                }
+
                 if ( m_connectionResultItemCount.count( wellName ) && data.size() == m_connectionResultItemCount[wellName] )
                 {
                     // Connection results with size equal to length of result CONSEGNO. CONSEGNO defines the segment
@@ -138,6 +158,16 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                     size_t resultDataIndex = 0;
                     for ( int segmentNumber : segmentNumbers )
                     {
+                        auto segmentIndex = segment.segmentIndexFromSegmentNumber( segmentNumber );
+
+                        if ( std::find( nonContinuousDeviceSegmentIndices.begin(), nonContinuousDeviceSegmentIndices.end(), segmentIndex ) !=
+                             nonContinuousDeviceSegmentIndices.end() )
+                        {
+                            // Insert an extra infinity value for segments that are not continuous. The number of values in the values
+                            // vector must be equal to the number of x-values (measured depths)
+                            values->push_back( std::numeric_limits<double>::infinity() );
+                        }
+
                         if ( std::find( connnectionSegmentNumbers.begin(), connnectionSegmentNumbers.end(), segmentNumber ) !=
                              connnectionSegmentNumbers.end() )
                         {
@@ -157,7 +187,25 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                     for ( const auto& i : indices )
                     {
                         CAF_ASSERT( i < data.size() );
-                        values->push_back( data[i] );
+                        auto dataValue = data[i];
+
+                        if ( std::find( nonContinuousDeviceSegmentIndices.begin(), nonContinuousDeviceSegmentIndices.end(), i ) !=
+                             nonContinuousDeviceSegmentIndices.end() )
+                        {
+                            if ( rftAddress.segmentResultName() == RiaDefines::segmentEndDepthResultName() )
+                            {
+                                // Insert a depth value for segments that are not continuous. When infinity is assigned to this measured
+                                // depth, no curve is drawn for this segment
+                                values->push_back( dataValue - 0.1 );
+                            }
+                            else
+                            {
+                                // Use infinity to make sure no curve is drawn for this segment
+                                values->push_back( std::numeric_limits<double>::infinity() );
+                            }
+                        }
+
+                        values->push_back( dataValue );
                     }
                 }
 

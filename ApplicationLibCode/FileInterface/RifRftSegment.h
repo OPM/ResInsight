@@ -74,12 +74,12 @@ public:
     std::vector<size_t> segmentIndicesForBranchNumber( int branchNumber ) const;
     std::vector<size_t> segmentIndicesForBranchIndex( int branchIndex, RiaDefines::RftBranchType branchType ) const;
     std::vector<size_t> packerSegmentIndicesOnAnnulus( int branchIndex ) const;
+    std::vector<size_t> nonContinuousDeviceSegmentIndices( int branchIndex ) const;
 
     std::vector<int> segmentNumbersForBranchIndex( int oneBasedBranchIndex, RiaDefines::RftBranchType branchType ) const;
 
     std::set<int> uniqueOneBasedBranchIndices( RiaDefines::RftBranchType branchType ) const;
 
-private:
     int segmentIndexFromSegmentNumber( int segmentNumber ) const;
 
 private:
