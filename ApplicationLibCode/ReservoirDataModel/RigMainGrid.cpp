@@ -593,18 +593,18 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
 
             bool isNeighborCellActive = activeCellInfo->isActive( neighborReservoirCellIdx );
 
-            double tolerance = 1e-6;
-
+            const double threshold = 1e-6;
+            const double tol       = threshold * threshold;
             std::array<size_t, 4> faceIdxs;
             m_cells[gcIdx].faceIndices( face, &faceIdxs );
             std::array<size_t, 4> nbFaceIdxs;
             m_cells[neighborReservoirCellIdx].faceIndices( StructGridInterface::oppositeFace( face ), &nbFaceIdxs );
 
             bool sharedFaceVertices = true;
-            if ( sharedFaceVertices && vxs[faceIdxs[0]].pointDistance( vxs[nbFaceIdxs[0]] ) > tolerance ) sharedFaceVertices = false;
-            if ( sharedFaceVertices && vxs[faceIdxs[1]].pointDistance( vxs[nbFaceIdxs[3]] ) > tolerance ) sharedFaceVertices = false;
-            if ( sharedFaceVertices && vxs[faceIdxs[2]].pointDistance( vxs[nbFaceIdxs[2]] ) > tolerance ) sharedFaceVertices = false;
-            if ( sharedFaceVertices && vxs[faceIdxs[3]].pointDistance( vxs[nbFaceIdxs[1]] ) > tolerance ) sharedFaceVertices = false;
+            if ( sharedFaceVertices && vxs[faceIdxs[0]].pointDistanceSquared( vxs[nbFaceIdxs[0]] ) > tol ) sharedFaceVertices = false;
+            if ( sharedFaceVertices && vxs[faceIdxs[1]].pointDistanceSquared( vxs[nbFaceIdxs[3]] ) > tol ) sharedFaceVertices = false;
+            if ( sharedFaceVertices && vxs[faceIdxs[2]].pointDistanceSquared( vxs[nbFaceIdxs[2]] ) > tol ) sharedFaceVertices = false;
+            if ( sharedFaceVertices && vxs[faceIdxs[3]].pointDistanceSquared( vxs[nbFaceIdxs[1]] ) > tol ) sharedFaceVertices = false;
 
             if ( sharedFaceVertices )
             {
