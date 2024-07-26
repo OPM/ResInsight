@@ -18,11 +18,14 @@
 
 #pragma once
 
+#include <chrono>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
 
-class QString;
+#include <QString>
+
 class QWidget;
 
 enum class RILogLevel
@@ -54,6 +57,28 @@ public:
 
 //==================================================================================================
 //
+// Timing class for measuring time spent in a scope. Will create a debug log message and the time spent.
+//
+// Usage:
+//    {
+//        RiaScopeTimer timer( "Message" );
+//        // Code to measure
+//    }
+//
+//==================================================================================================
+class RiaScopeTimer
+{
+public:
+    RiaScopeTimer( const QString& message );
+    ~RiaScopeTimer();
+
+private:
+    std::chrono::time_point<std::chrono::high_resolution_clock> m_startTime;
+    QString                                                     m_message;
+};
+
+//==================================================================================================
+//
 //
 //
 //==================================================================================================
@@ -69,6 +94,8 @@ public:
     static void warning( const QString& message );
     static void info( const QString& message );
     static void debug( const QString& message );
+
+    static void debugTimer( const QString& message, std::function<void()> callable );
 
     static void errorInMessageBox( QWidget* parent, const QString& title, const QString& text );
 
