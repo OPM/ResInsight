@@ -479,6 +479,48 @@ void RigMainGrid::computeBoundingBox()
     }
 }
 
+namespace StructGridDefines
+{
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+consteval auto cubeFaceIndices()
+{
+    //
+    //     7---------6
+    //    /|        /|     |k
+    //   / |       / |     | /j
+    //  4---------5  |     |/
+    //  |  3------|--2     *---i
+    //  | /       | /
+    //  |/        |/
+    //  0---------1
+
+    return std::array<std::pair<cvf::StructGridInterface::FaceType, std::array<cvf::ubyte, 4>>, 6>{
+        { { cvf::StructGridInterface::FaceType::NEG_K, { 0, 3, 2, 1 } },
+          { cvf::StructGridInterface::FaceType::POS_K, { 4, 5, 6, 7 } },
+          { cvf::StructGridInterface::FaceType::NEG_J, { 0, 1, 5, 4 } },
+          { cvf::StructGridInterface::FaceType::POS_J, { 3, 7, 6, 2 } },
+          { cvf::StructGridInterface::FaceType::NEG_I, { 0, 4, 7, 3 } },
+          { cvf::StructGridInterface::FaceType::POS_I, { 1, 2, 6, 5 } } } };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+auto createFaceIndicesMap()
+{
+    std::map<cvf::StructGridInterface::FaceType, std::array<cvf::ubyte, 4>> faultFaceToFaceIdxs;
+
+    for ( const auto& [key, value] : cubeFaceIndices() )
+    {
+        faultFaceToFaceIdxs[key] = value;
+    }
+
+    return faultFaceToFaceIdxs;
+}
+}; // namespace StructGridDefines
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -515,6 +557,8 @@ void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
 
     const std::vector<cvf::Vec3d>& vxs = m_mainGrid->nodes();
 
+    auto faultFaceToFaceIdxs = StructGridDefines::createFaceIndicesMap();
+
     std::vector<RigFault::FaultFace>& unNamedFaultFaces         = unNamedFault->faultFaces();
     std::vector<RigFault::FaultFace>& unNamedFaultFacesInactive = unNamedFaultWithInactive->faultFaces();
     for ( int gcIdx = 0; gcIdx < static_cast<int>( m_cells.size() ); ++gcIdx )
@@ -526,7 +570,8 @@ void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
                               unNamedFaultWithInactiveIdx,
                               unNamedFaultFaces,
                               unNamedFaultFacesInactive,
-                              m_faultsPrCellAcc.p() );
+                              m_faultsPrCellAcc.p(),
+                              faultFaceToFaceIdxs );
     }
 }
 
@@ -540,7 +585,8 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
                                         int                               unNamedFaultWithInactiveIdx,
                                         std::vector<RigFault::FaultFace>& unNamedFaultFaces,
                                         std::vector<RigFault::FaultFace>& unNamedFaultFacesInactive,
-                                        RigFaultsPrCellAccumulator*       faultsPrCellAcc ) const
+                                        RigFaultsPrCellAccumulator*       faultsPrCellAcc,
+                                        const std::map<cvf::StructGridInterface::FaceType, std::array<cvf::ubyte, 4>>& faceMap ) const
 {
     if ( m_cells[gcIdx].isInvalid() )
     {
@@ -592,12 +638,32 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
 
             if ( nbCell.isInvalid() ) continue;
 
-            const double          threshold = 1e-6;
-            const double          tol       = threshold * threshold;
-            std::array<size_t, 4> faceIdxs;
-            m_cells[gcIdx].faceIndices( face, &faceIdxs );
-            std::array<size_t, 4> nbFaceIdxs;
-            m_cells[neighborReservoirCellIdx].faceIndices( StructGridInterface::oppositeFace( face ), &nbFaceIdxs );
+            const double threshold = 1e-6;
+            const double tol       = threshold * threshold;
+
+            // cvf::ubyte faceNodeIndices[4];
+            size_t faceIdxs[4];
+
+            // m_mainGrid->cellFaceVertexIndices( face, faceNodeIndices );
+            auto faceNodeIndices = faceMap.at( face );
+
+            const auto& cornerIndices = m_cells[gcIdx].cornerIndices();
+            faceIdxs[0]               = cornerIndices[faceNodeIndices[0]];
+            faceIdxs[1]               = cornerIndices[faceNodeIndices[1]];
+            faceIdxs[2]               = cornerIndices[faceNodeIndices[2]];
+            faceIdxs[3]               = cornerIndices[faceNodeIndices[3]];
+
+            // cvf::ubyte nbFaceNodeIndices[4];
+            size_t nbFaceIdxs[4];
+
+            // m_mainGrid->cellFaceVertexIndices( StructGridInterface::oppositeFace( face ), nbFaceNodeIndices );
+            auto nbFaceNodeIndices = faceMap.at( StructGridInterface::oppositeFace( face ) );
+
+            const auto& nbCornerIndices = m_cells[neighborReservoirCellIdx].cornerIndices();
+            nbFaceIdxs[0]               = nbCornerIndices[nbFaceNodeIndices[0]];
+            nbFaceIdxs[1]               = nbCornerIndices[nbFaceNodeIndices[1]];
+            nbFaceIdxs[2]               = nbCornerIndices[nbFaceNodeIndices[2]];
+            nbFaceIdxs[3]               = nbCornerIndices[nbFaceNodeIndices[3]];
 
             bool sharedFaceVertices = true;
             if ( sharedFaceVertices && vxs[faceIdxs[0]].pointDistanceSquared( vxs[nbFaceIdxs[0]] ) > tol ) sharedFaceVertices = false;
