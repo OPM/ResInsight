@@ -547,8 +547,6 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
         return;
     }
 
-    size_t neighborReservoirCellIdx;
-    size_t neighborGridCellIdx;
     size_t i = 0;
     size_t j = 0;
     size_t k = 0;
@@ -580,21 +578,22 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
                 firstNO_FAULTFaceForCell = false;
             }
 
-            if ( !hostGrid->cellIJKNeighbor( i, j, k, face, &neighborGridCellIdx ) )
+            size_t ni, nj, nk;
+            hostGrid->neighborIJKAtCellFace( i, j, k, face, &ni, &nj, &nk );
+
+            if ( ni >= m_cellCount.x() || nj >= m_cellCount.y() || nk >= m_cellCount.z() )
             {
                 continue;
             }
 
-            neighborReservoirCellIdx = hostGrid->reservoirCellIndex( neighborGridCellIdx );
-            if ( m_cells[neighborReservoirCellIdx].isInvalid() )
-            {
-                continue;
-            }
+            const size_t nbGridLocalCellIndex     = ni + nj * m_cellCount.x() + nk * m_cellCount.x() * m_cellCount.y();
+            const size_t neighborReservoirCellIdx = m_indexToStartOfCells + nbGridLocalCellIndex;
+            const auto&  nbCell                   = m_mainGrid->globalCellArray()[neighborReservoirCellIdx];
 
-            bool isNeighborCellActive = activeCellInfo->isActive( neighborReservoirCellIdx );
+            if ( nbCell.isInvalid() ) continue;
 
-            const double threshold = 1e-6;
-            const double tol       = threshold * threshold;
+            const double          threshold = 1e-6;
+            const double          tol       = threshold * threshold;
             std::array<size_t, 4> faceIdxs;
             m_cells[gcIdx].faceIndices( face, &faceIdxs );
             std::array<size_t, 4> nbFaceIdxs;
@@ -612,7 +611,8 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
             }
 
             // To avoid doing this calculation for the opposite face
-            int faultIdx = unNamedFaultIdx;
+            bool isNeighborCellActive = activeCellInfo->isActive( m_indexToStartOfCells + nbGridLocalCellIndex );
+            int  faultIdx             = unNamedFaultIdx;
             if ( !( isCellActive && isNeighborCellActive ) ) faultIdx = unNamedFaultWithInactiveIdx;
 
             faultsPrCellAcc->setFaultIdx( gcIdx, face, faultIdx );
