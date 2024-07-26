@@ -719,14 +719,14 @@ void RimEclipseCase::loadAndSynchronizeInputProperties( bool importGridOrFaultDa
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCase::ensureFaultDataIsComputed()
 {
-    RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
-    if ( rigEclipseCase )
+    if ( !m_readerSettings.importFaults ) return;
+
+    if ( RigEclipseCaseData* rigEclipseCase = eclipseCaseData() )
     {
-        if ( m_readerSettings.importFaults )
-        {
-            RigActiveCellInfo* actCellInfo = rigEclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-            rigEclipseCase->mainGrid()->calculateFaults( actCellInfo );
-        }
+        RiaScopeTimer timing( "Calculate faults" );
+
+        RigActiveCellInfo* actCellInfo = rigEclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        rigEclipseCase->mainGrid()->calculateFaults( actCellInfo );
     }
 }
 
