@@ -615,10 +615,13 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
             // Find neighbor cell
             if ( firstNO_FAULTFaceForCell ) // To avoid doing this for every face, and only when detecting a NO_FAULT
             {
-                size_t gridLocalCellIndex;
-                hostGrid = gridAndGridLocalIdxFromGlobalCellIdx( gcIdx, &gridLocalCellIndex );
+                size_t index = gcIdx;
 
-                hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
+                i = index % m_cellCount.x();
+                index /= m_cellCount.x();
+                j = index % m_cellCount.y();
+                k = index / m_cellCount.y();
+
                 isCellActive = activeCellInfo->isActive( gcIdx );
 
                 firstNO_FAULTFaceForCell = false;
