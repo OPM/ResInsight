@@ -561,6 +561,8 @@ void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
 
     std::vector<RigFault::FaultFace>& unNamedFaultFaces         = unNamedFault->faultFaces();
     std::vector<RigFault::FaultFace>& unNamedFaultFacesInactive = unNamedFaultWithInactive->faultFaces();
+
+#pragma omp parallel for
     for ( int gcIdx = 0; gcIdx < static_cast<int>( m_cells.size() ); ++gcIdx )
     {
         addUnNamedFaultFaces( gcIdx,
@@ -608,9 +610,14 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
     {
         cvf::StructGridInterface::FaceType face = cvf::StructGridInterface::FaceType( faceIdx );
 
-        // For faces that has no used defined Fault assigned:
+        int faultState = -1;
+        // #pragma omp critical
+        {
+            faultState = faultsPrCellAcc->faultIdx( gcIdx, face );
+        }
 
-        if ( m_faultsPrCellAcc->faultIdx( gcIdx, face ) == RigFaultsPrCellAccumulator::NO_FAULT )
+        // For faces that has no used defined Fault assigned:
+        if ( faultState == RigFaultsPrCellAccumulator::NO_FAULT )
         {
             // Find neighbor cell
             if ( firstNO_FAULTFaceForCell ) // To avoid doing this for every face, and only when detecting a NO_FAULT
@@ -684,14 +691,17 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
             int  faultIdx             = unNamedFaultIdx;
             if ( !( isCellActive && isNeighborCellActive ) ) faultIdx = unNamedFaultWithInactiveIdx;
 
-            faultsPrCellAcc->setFaultIdx( gcIdx, face, faultIdx );
-            faultsPrCellAcc->setFaultIdx( neighborReservoirCellIdx, StructGridInterface::oppositeFace( face ), faultIdx );
-
-            // Add as fault face only if the grid index is less than the neighbors
-
-            if ( static_cast<size_t>( gcIdx ) < neighborReservoirCellIdx )
+#pragma omp critical
             {
-                RigFault::FaultFace ff( gcIdx, cvf::StructGridInterface::FaceType( faceIdx ), neighborReservoirCellIdx );
+                faultsPrCellAcc->setFaultIdx( gcIdx, face, faultIdx );
+                faultsPrCellAcc->setFaultIdx( neighborReservoirCellIdx, StructGridInterface::oppositeFace( face ), faultIdx );
+
+                // Add as fault face only if the grid index is less than the neighbors
+
+                size_t cellIdxLow  = std::min( static_cast<size_t>( gcIdx ), neighborReservoirCellIdx );
+                size_t cellIdxHigh = std::max( static_cast<size_t>( gcIdx ), neighborReservoirCellIdx );
+
+                RigFault::FaultFace ff( cellIdxLow, cvf::StructGridInterface::FaceType( faceIdx ), cellIdxHigh );
                 if ( isCellActive && isNeighborCellActive )
                 {
                     unNamedFaultFaces.push_back( ff );
@@ -700,10 +710,6 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
                 {
                     unNamedFaultFacesInactive.push_back( ff );
                 }
-            }
-            else
-            {
-                CVF_FAIL_MSG( "Found fault with global neighbor index less than the native index. " );
             }
         }
     }
