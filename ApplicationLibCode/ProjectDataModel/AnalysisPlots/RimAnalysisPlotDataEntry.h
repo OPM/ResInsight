@@ -25,7 +25,7 @@
 
 class RimSummaryCase;
 class RimSummaryAddress;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RiaSummaryCurveDefinition;
 class RifEclipseSummaryAddress;
 
@@ -40,14 +40,14 @@ public:
     void                      setFromCurveDefinition( const RiaSummaryCurveDefinition& curveDef );
     RiaSummaryCurveDefinition curveDefinition() const;
 
-    RimSummaryCase*           summaryCase() const;
-    RimSummaryCaseCollection* ensemble() const;
-    RifEclipseSummaryAddress  summaryAddress() const;
-    bool                      isEnsembleCurve() const;
+    RimSummaryCase*          summaryCase() const;
+    RimSummaryEnsemble*      ensemble() const;
+    RifEclipseSummaryAddress summaryAddress() const;
+    bool                     isEnsembleCurve() const;
 
 private:
-    caf::PdmPtrField<RimSummaryCase*>           m_summaryCase;
-    caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
-    caf::PdmChildField<RimSummaryAddress*>      m_summaryAddress;
-    caf::PdmField<bool>                         m_isEnsembleCurve;
+    caf::PdmPtrField<RimSummaryCase*>      m_summaryCase;
+    caf::PdmPtrField<RimSummaryEnsemble*>  m_ensemble;
+    caf::PdmChildField<RimSummaryAddress*> m_summaryAddress;
+    caf::PdmField<bool>                    m_isEnsembleCurve;
 };

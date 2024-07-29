@@ -30,7 +30,7 @@
 
 class RimSummaryCase;
 class RimSummaryPlotCollection;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 
 //==================================================================================================
 ///
@@ -47,7 +47,7 @@ public:
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 
 private:
-    caf::PdmField<QString>                      m_addressString;
-    caf::PdmPtrArrayField<RimSummaryCase*>      m_summaryCases;
-    caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
+    caf::PdmField<QString>                 m_addressString;
+    caf::PdmPtrArrayField<RimSummaryCase*> m_summaryCases;
+    caf::PdmPtrField<RimSummaryEnsemble*>  m_ensemble;
 };

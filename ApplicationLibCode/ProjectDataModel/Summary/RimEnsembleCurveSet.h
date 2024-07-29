@@ -51,7 +51,7 @@
 #include <QPointer>
 
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RimSummaryCurve;
 class RimSummaryAddress;
 class RimSummaryPlotSourceStepping;
@@ -139,8 +139,8 @@ public:
 
     void onLegendDefinitionChanged();
 
-    void                      setSummaryCaseCollection( RimSummaryCaseCollection* sumCaseCollection );
-    RimSummaryCaseCollection* summaryCaseCollection() const;
+    void                setSummaryEnsemble( RimSummaryEnsemble* sumEnsemble );
+    RimSummaryEnsemble* summaryEnsemble() const;
 
     RimEnsembleCurveFilterCollection* filterCollection() const;
 
@@ -180,7 +180,7 @@ public:
 
     void appendColorGroup( caf::PdmUiOrdering& uiOrdering );
 
-    static void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options, RimSummaryCaseCollection* summaryCaseGroup );
+    static void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options, RimSummaryEnsemble* summaryCaseGroup );
 
     const RimEnsembleCurveFilterCollection* curveFilters() const;
 
@@ -252,7 +252,7 @@ private:
 
     caf::PdmPointer<RimSummaryCurve> m_currentSummaryCurve;
 
-    caf::PdmPtrField<RimSummaryCaseCollection*>   m_yValuesSummaryCaseCollection;
+    caf::PdmPtrField<RimSummaryEnsemble*>         m_yValuesSummaryEnsemble;
     caf::PdmChildField<RimSummaryAddress*>        m_yValuesSummaryAddress;
     caf::PdmField<RifEclipseSummaryAddress>       m_yValuesSummaryAddressUiField;
     caf::PdmField<bool>                           m_yPushButtonSelectSummaryAddress;

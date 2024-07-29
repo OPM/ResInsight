@@ -30,7 +30,7 @@ class PdmObject;
 
 class RimSummaryPlot;
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RifEclipseSummaryAddress;
 class RimSummaryMultiPlot;
 class RimSummaryAddressCollection;
@@ -45,7 +45,7 @@ public:
     static RimSummaryMultiPlot* create( const QString& fileName );
 
     static RimSummaryMultiPlot*
-        create( const QString& fileName, const std::vector<RimSummaryCase*>& cases, const std::vector<RimSummaryCaseCollection*>& ensembles );
+        create( const QString& fileName, const std::vector<RimSummaryCase*>& cases, const std::vector<RimSummaryEnsemble*>& ensembles );
 
     static QString              selectPlotTemplatePath();
     static std::vector<QString> selectDefaultPlotTemplates( std::vector<QString> currentSelection );
@@ -64,7 +64,7 @@ private:
     static RimSummaryMultiPlot* createMultiPlotFromTemplateFile( const QString& fileName );
 
     static std::vector<RimSummaryCase*>              selectedSummaryCases();
-    static std::vector<RimSummaryCaseCollection*>    selectedSummaryCaseCollections();
+    static std::vector<RimSummaryEnsemble*>          selectedSummaryEnsembles();
     static std::vector<RimSummaryAddressCollection*> selectedSummaryAddressCollections();
 
     static QString htmlTextFromPlotAndSelection( const RimSummaryPlot* templatePlot,
@@ -74,19 +74,19 @@ private:
 
     static QString htmlTextFromCount( const QString& itemText, size_t requiredItemCount, size_t selectionCount );
 
-    static void setValuesForPlaceholders( RimSummaryMultiPlot*                          summaryMultiPlot,
-                                          const std::vector<RimSummaryCase*>&           selectedSummaryCases,
-                                          const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
-                                          const std::vector<QString>&                   wellNames,
-                                          const std::vector<QString>&                   groupNames,
-                                          const std::vector<QString>&                   regions );
+    static void setValuesForPlaceholders( RimSummaryMultiPlot*                    summaryMultiPlot,
+                                          const std::vector<RimSummaryCase*>&     selectedSummaryCases,
+                                          const std::vector<RimSummaryEnsemble*>& selectedEnsembles,
+                                          const std::vector<QString>&             wellNames,
+                                          const std::vector<QString>&             groupNames,
+                                          const std::vector<QString>&             regions );
 
-    static void setValuesForPlaceholders( RimSummaryPlot*                               summaryPlot,
-                                          const std::vector<RimSummaryCase*>&           selectedSummaryCases,
-                                          const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
-                                          const std::vector<QString>&                   wellNames,
-                                          const std::vector<QString>&                   groupNames,
-                                          const std::vector<QString>&                   regions );
+    static void setValuesForPlaceholders( RimSummaryPlot*                         summaryPlot,
+                                          const std::vector<RimSummaryCase*>&     selectedSummaryCases,
+                                          const std::vector<RimSummaryEnsemble*>& selectedEnsembles,
+                                          const std::vector<QString>&             wellNames,
+                                          const std::vector<QString>&             groupNames,
+                                          const std::vector<QString>&             regions );
 
     static RifEclipseSummaryAddress firstAddressByQuantity( const RifEclipseSummaryAddress&           sourceAddress,
                                                             const std::set<RifEclipseSummaryAddress>& allAddresses );

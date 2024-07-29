@@ -33,8 +33,8 @@
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
@@ -59,7 +59,7 @@ bool RicOpenSummaryPlotEditorFeature::isCommandEnabled() const
     std::vector<RimSummaryCase*> selectedCases = caf::selectedObjectsByType<RimSummaryCase*>();
     if ( !selectedCases.empty() ) return true;
 
-    std::vector<RimSummaryCaseCollection*> selectedGroups = caf::selectedObjectsByType<RimSummaryCaseCollection*>();
+    std::vector<RimSummaryEnsemble*> selectedGroups = caf::selectedObjectsByType<RimSummaryEnsemble*>();
     if ( !selectedGroups.empty() ) return true;
 
     std::vector<RimSummaryMultiPlotCollection*> selectedPlotCollections = caf::selectedObjectsByType<RimSummaryMultiPlotCollection*>();
@@ -81,7 +81,7 @@ bool RicOpenSummaryPlotEditorFeature::isCommandEnabled() const
     if ( multiPlot ) return true;
 
     auto summaryCase     = dynamic_cast<RimSummaryCase*>( selObj );
-    auto summaryCaseColl = dynamic_cast<RimSummaryCaseCollection*>( selObj );
+    auto summaryCaseColl = dynamic_cast<RimSummaryEnsemble*>( selObj );
     auto obsColl         = dynamic_cast<RimObservedDataCollection*>( selObj );
 
     return summaryCase || summaryCaseColl || obsColl;
@@ -95,16 +95,16 @@ void RicOpenSummaryPlotEditorFeature::onActionTriggered( bool isChecked )
     RimProject* project = RimProject::current();
     CVF_ASSERT( project );
 
-    std::vector<RimSummaryCase*>           selectedCases  = caf::selectedObjectsByType<RimSummaryCase*>();
-    std::vector<RimSummaryCaseCollection*> selectedGroups = caf::selectedObjectsByType<RimSummaryCaseCollection*>();
+    std::vector<RimSummaryCase*>     selectedCases  = caf::selectedObjectsByType<RimSummaryCase*>();
+    std::vector<RimSummaryEnsemble*> selectedGroups = caf::selectedObjectsByType<RimSummaryEnsemble*>();
 
     std::vector<caf::PdmObject*> sourcesToSelect( selectedCases.begin(), selectedCases.end() );
 
     if ( sourcesToSelect.empty() && selectedGroups.empty() )
     {
-        const auto                             allSingleCases = project->firstSummaryCaseMainCollection()->topLevelSummaryCases();
-        const auto                             allGroups      = project->summaryGroups();
-        std::vector<RimSummaryCaseCollection*> allEnsembles;
+        const auto                       allSingleCases = project->firstSummaryCaseMainCollection()->topLevelSummaryCases();
+        const auto                       allGroups      = project->summaryGroups();
+        std::vector<RimSummaryEnsemble*> allEnsembles;
         for ( const auto group : allGroups )
             if ( group->isEnsemble() ) allEnsembles.push_back( group );
 

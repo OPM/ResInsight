@@ -36,7 +36,7 @@ class RigEclipseWellLogExtractor;
 class RimEclipseCase;
 class RimObservedFmuRftData;
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RimWellPath;
 class RimPressureDepthData;
 
@@ -77,8 +77,8 @@ public:
     void            setSummaryCase( RimSummaryCase* summaryCase );
     RimSummaryCase* summaryCase() const;
 
-    void                      setEnsemble( RimSummaryCaseCollection* ensemble );
-    RimSummaryCaseCollection* ensemble() const;
+    void                setEnsemble( RimSummaryEnsemble* ensemble );
+    RimSummaryEnsemble* ensemble() const;
 
     void                   setObservedFmuRftData( RimObservedFmuRftData* observedFmuRftData );
     RimObservedFmuRftData* observedFmuRftData() const;
@@ -134,16 +134,16 @@ private:
     static bool isSegmentResult( const QString& resultName );
 
 private:
-    caf::PdmPtrField<RimEclipseCase*>           m_eclipseCase;
-    caf::PdmPtrField<RimSummaryCase*>           m_summaryCase;
-    caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
-    caf::PdmPtrField<RimObservedFmuRftData*>    m_observedFmuRftData;
-    caf::PdmPtrField<RimPressureDepthData*>     m_pressureDepthData;
-    caf::PdmField<QDateTime>                    m_timeStep;
-    caf::PdmField<QString>                      m_wellName;
-    caf::PdmField<int>                          m_branchIndex;
-    caf::PdmField<bool>                         m_branchDetection;
-    caf::PdmField<bool>                         m_curveColorByPhase;
+    caf::PdmPtrField<RimEclipseCase*>        m_eclipseCase;
+    caf::PdmPtrField<RimSummaryCase*>        m_summaryCase;
+    caf::PdmPtrField<RimSummaryEnsemble*>    m_ensemble;
+    caf::PdmPtrField<RimObservedFmuRftData*> m_observedFmuRftData;
+    caf::PdmPtrField<RimPressureDepthData*>  m_pressureDepthData;
+    caf::PdmField<QDateTime>                 m_timeStep;
+    caf::PdmField<QString>                   m_wellName;
+    caf::PdmField<int>                       m_branchIndex;
+    caf::PdmField<bool>                      m_branchDetection;
+    caf::PdmField<bool>                      m_curveColorByPhase;
 
     caf::PdmField<double> m_scaleFactor;
 

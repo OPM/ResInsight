@@ -39,9 +39,9 @@
 #include "RimSummaryAddress.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurveAutoName.h"
 #include "RimSummaryCurveCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryTimeAxisProperties.h"
@@ -1021,7 +1021,7 @@ QString RimSummaryCurve::curveExportDescription( const RifEclipseSummaryAddress&
     RimEnsembleCurveSetCollection* coll = firstAncestorOrThisOfType<RimEnsembleCurveSetCollection>();
 
     auto curveSet = coll ? coll->findCurveSetFromPlotCurve( m_plotCurve ) : nullptr;
-    auto group    = curveSet ? curveSet->summaryCaseCollection() : nullptr;
+    auto group    = curveSet ? curveSet->summaryEnsemble() : nullptr;
 
     auto addressUiText = addr.uiText();
     if ( !m_yValuesSummaryCase() )

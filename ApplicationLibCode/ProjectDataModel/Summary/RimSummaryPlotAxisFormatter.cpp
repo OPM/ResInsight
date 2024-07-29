@@ -27,8 +27,8 @@
 #include "RimAsciiDataCurve.h"
 #include "RimPlotAxisProperties.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryEnsemble.h"
 #include "Tools/RimPlotAxisTools.h"
 
 #include "RiuQtChartsPlotWidget.h"

@@ -27,7 +27,7 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimEnsembleStatistics.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
 #include "RimTimeAxisAnnotation.h"
 
@@ -308,7 +308,7 @@ void RimSummaryRegressionAnalysisCurve::extractSourceCurveData()
             {
                 // Fallback to use time steps from summary case
                 // The time steps are used for reference, not used when computing the regression curve
-                auto summaryCase  = m_ensembleCurveSet->summaryCaseCollection()->allSummaryCases().back();
+                auto summaryCase  = m_ensembleCurveSet->summaryEnsemble()->allSummaryCases().back();
                 auto allTimeSteps = summaryCase->summaryReader()->timeSteps( {} );
                 yTimeSteps        = allTimeSteps;
 
@@ -826,7 +826,7 @@ std::vector<time_t> RimSummaryRegressionAnalysisCurve::getOutputTimeSteps( const
     {
         QDateTime firstTimeStepInData = RiaQDateTimeTools::fromTime_t( timeSteps.front() );
         QDateTime forecastStartTimeStep = RiaQDateTimeTools::subtractSpan( firstTimeStepInData, getTimeSpan( forecastBackward, forecastUnit ) );
-        auto forecastTimeSteps =
+        auto      forecastTimeSteps =
             RiaQDateTimeTools::createEvenlyDistributedDatesInInterval( forecastStartTimeStep, firstTimeStepInData, numDates );
         appendTimeSteps( outputTimeSteps, forecastTimeSteps );
     }

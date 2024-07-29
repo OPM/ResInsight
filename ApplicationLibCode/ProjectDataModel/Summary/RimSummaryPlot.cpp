@@ -55,10 +55,10 @@
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurvesData.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlotAxisFormatter.h"
 #include "RimSummaryPlotControls.h"
 #include "RimSummaryPlotNameHelper.h"
@@ -911,13 +911,13 @@ void RimSummaryPlot::updateNumericalAxis( RiaDefines::PlotAxis plotAxis )
                 {
                     if ( curveSet->axisY() == riuPlotAxis )
                     {
-                        RiaSummaryCurveDefinition def( curveSet->summaryCaseCollection(), curveSet->summaryAddressY() );
+                        RiaSummaryCurveDefinition def( curveSet->summaryEnsemble(), curveSet->summaryAddressY() );
                         curveDefs.push_back( def );
                     }
                     if ( curveSet->axisX() == riuPlotAxis )
                     {
                         RiaSummaryCurveDefinition def;
-                        def.setEnsemble( curveSet->summaryCaseCollection() );
+                        def.setEnsemble( curveSet->summaryEnsemble() );
                         def.setSummaryAddressX( curveSet->curveAddress().summaryAddressX() );
 
                         curveDefs.push_back( def );
@@ -2308,17 +2308,17 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryCaseDrop( RimSummaryCase*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot::CurveInfo RimSummaryPlot::handleEnsembleDrop( RimSummaryCaseCollection* ensemble )
+RimSummaryPlot::CurveInfo RimSummaryPlot::handleEnsembleDrop( RimSummaryEnsemble* ensemble )
 {
     int                               newCurves = 0;
     std::vector<RimEnsembleCurveSet*> curveSetsToUpdate;
 
-    std::map<RiaSummaryCurveAddress, std::set<RimSummaryCaseCollection*>> dataVectorMap;
+    std::map<RiaSummaryCurveAddress, std::set<RimSummaryEnsemble*>> dataVectorMap;
 
     for ( auto& curve : curveSets() )
     {
         const auto addr = curve->curveAddress();
-        dataVectorMap[addr].insert( curve->summaryCaseCollection() );
+        dataVectorMap[addr].insert( curve->summaryEnsemble() );
     }
 
     for ( const auto& [addr, ensembles] : dataVectorMap )
@@ -2474,12 +2474,12 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAd
 
     if ( summaryAddr->isEnsemble() )
     {
-        std::map<RifEclipseSummaryAddress, std::set<RimSummaryCaseCollection*>> dataVectorMap;
+        std::map<RifEclipseSummaryAddress, std::set<RimSummaryEnsemble*>> dataVectorMap;
 
         for ( auto& curve : curveSets() )
         {
             const auto addr = curve->summaryAddressY();
-            dataVectorMap[addr].insert( curve->summaryCaseCollection() );
+            dataVectorMap[addr].insert( curve->summaryEnsemble() );
         }
 
         auto ensemble = RiaSummaryTools::ensembleById( summaryAddr->ensembleId() );
@@ -2557,7 +2557,7 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
         {
             curveInfo.appendCurveInfo( handleSummaryCaseDrop( summaryCase ) );
         }
-        else if ( auto ensemble = dynamic_cast<RimSummaryCaseCollection*>( obj ) )
+        else if ( auto ensemble = dynamic_cast<RimSummaryEnsemble*>( obj ) )
         {
             curveInfo.appendCurveInfo( handleEnsembleDrop( ensemble ) );
         }
@@ -2833,9 +2833,9 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
     if ( !nameHelper ) return;
 
     nameHelper->clear();
-    std::vector<RiaSummaryCurveAddress>    addresses;
-    std::vector<RimSummaryCase*>           sumCases;
-    std::vector<RimSummaryCaseCollection*> ensembleCases;
+    std::vector<RiaSummaryCurveAddress> addresses;
+    std::vector<RimSummaryCase*>        sumCases;
+    std::vector<RimSummaryEnsemble*>    ensembleCases;
 
     if ( m_summaryCurveCollection && m_summaryCurveCollection->isCurvesVisible() )
     {
@@ -2854,7 +2854,7 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
     for ( auto curveSet : m_ensembleCurveSetCollection->curveSets() )
     {
         addresses.push_back( curveSet->curveAddress() );
-        ensembleCases.push_back( curveSet->summaryCaseCollection() );
+        ensembleCases.push_back( curveSet->summaryEnsemble() );
     }
 
     nameHelper->clear();

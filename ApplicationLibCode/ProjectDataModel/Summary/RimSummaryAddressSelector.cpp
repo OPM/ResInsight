@@ -28,7 +28,7 @@
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
 
 #include "RiuSummaryVectorSelectionDialog.h"
@@ -85,7 +85,7 @@ void RimSummaryAddressSelector::setSummaryCase( RimSummaryCase* summaryCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAddressSelector::setEnsemble( RimSummaryCaseCollection* ensemble )
+void RimSummaryAddressSelector::setEnsemble( RimSummaryEnsemble* ensemble )
 {
     m_summaryCaseCollection = ensemble;
 }
@@ -149,7 +149,7 @@ RimSummaryCase* RimSummaryAddressSelector::summaryCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RimSummaryAddressSelector::ensemble() const
+RimSummaryEnsemble* RimSummaryAddressSelector::ensemble() const
 {
     return m_summaryCaseCollection();
 }
@@ -245,10 +245,10 @@ auto createOptionsForEnsemble = []() -> QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    RimProject*                            proj   = RimProject::current();
-    std::vector<RimSummaryCaseCollection*> groups = proj->summaryGroups();
+    RimProject*                      proj   = RimProject::current();
+    std::vector<RimSummaryEnsemble*> groups = proj->summaryGroups();
 
-    for ( RimSummaryCaseCollection* group : groups )
+    for ( RimSummaryEnsemble* group : groups )
     {
         if ( group->isEnsemble() ) options.push_back( caf::PdmOptionItemInfo( group->name(), group ) );
     }

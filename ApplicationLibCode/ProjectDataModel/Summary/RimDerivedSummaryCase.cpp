@@ -25,7 +25,7 @@
 #include "RifDerivedEnsembleReader.h"
 
 #include "RimProject.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
 
 #include "cafPdmUiTreeSelectionEditor.h"

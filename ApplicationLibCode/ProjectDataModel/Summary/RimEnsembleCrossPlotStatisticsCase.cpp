@@ -28,7 +28,7 @@
 
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleStatisticsCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include <limits>
 #include <set>

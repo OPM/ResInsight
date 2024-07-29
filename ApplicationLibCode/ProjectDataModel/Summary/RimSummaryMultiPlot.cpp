@@ -44,8 +44,8 @@
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryAddressModifier.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotControls.h"
@@ -231,7 +231,7 @@ void RimSummaryMultiPlot::handleDroppedObjects( const std::vector<caf::PdmObject
     std::vector<RimSummaryAddress*>           addresses;
     std::vector<RimSummaryAddressCollection*> addressCollections;
     std::vector<RimSummaryCase*>              cases;
-    std::vector<RimSummaryCaseCollection*>    ensembles;
+    std::vector<RimSummaryEnsemble*>          ensembles;
 
     for ( auto o : objects )
     {
@@ -253,7 +253,7 @@ void RimSummaryMultiPlot::handleDroppedObjects( const std::vector<caf::PdmObject
 
         auto summaryCase = dynamic_cast<RimSummaryCase*>( o );
         if ( summaryCase ) cases.push_back( summaryCase );
-        auto ensemble = dynamic_cast<RimSummaryCaseCollection*>( o );
+        auto ensemble = dynamic_cast<RimSummaryEnsemble*>( o );
         if ( ensemble ) ensembles.push_back( ensemble );
     }
 
@@ -357,9 +357,9 @@ void RimSummaryMultiPlot::populateNameHelper( RimSummaryPlotNameHelper* nameHelp
 {
     nameHelper->clear();
 
-    std::vector<RiaSummaryCurveAddress>    addresses;
-    std::vector<RimSummaryCase*>           sumCases;
-    std::vector<RimSummaryCaseCollection*> ensembleCases;
+    std::vector<RiaSummaryCurveAddress> addresses;
+    std::vector<RimSummaryCase*>        sumCases;
+    std::vector<RimSummaryEnsemble*>    ensembleCases;
 
     for ( RimSummaryCurve* curve : allCurves() )
     {
@@ -370,7 +370,7 @@ void RimSummaryMultiPlot::populateNameHelper( RimSummaryPlotNameHelper* nameHelp
     for ( auto curveSet : curveSets() )
     {
         addresses.push_back( curveSet->curveAddress() );
-        ensembleCases.push_back( curveSet->summaryCaseCollection() );
+        ensembleCases.push_back( curveSet->summaryEnsemble() );
     }
 
     nameHelper->appendAddresses( addresses );
@@ -1104,7 +1104,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
 
             for ( auto curveSet : plot->curveSets() )
             {
-                if ( !curveSet->summaryCaseCollection() ) continue;
+                if ( !curveSet->summaryEnsemble() ) continue;
 
                 if ( curveSet->axisY() == axis->plotAxis() )
                 {
@@ -1122,7 +1122,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
 
                         for ( const auto& adr : addresses )
                         {
-                            auto [min, max] = curveSet->summaryCaseCollection()->minMax( adr );
+                            auto [min, max] = curveSet->summaryEnsemble()->minMax( adr );
 
                             minimum = std::min( min, minimum );
                             maximum = std::max( max, maximum );
@@ -1534,10 +1534,10 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
         }
         else if ( m_sourceStepping()->stepDimension() == RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE )
         {
-            RimSummaryCaseCollection* newEnsemble = m_sourceStepping()->stepEnsemble( direction );
+            RimSummaryEnsemble* newEnsemble = m_sourceStepping()->stepEnsemble( direction );
             for ( auto curveSet : newPlot->curveSets() )
             {
-                curveSet->setSummaryCaseCollection( newEnsemble );
+                curveSet->setSummaryEnsemble( newEnsemble );
             }
         }
         else
@@ -1594,7 +1594,7 @@ void RimSummaryMultiPlot::appendCurveByStepping( int direction )
         for ( auto curveSet : plot->curveSets() )
         {
             auto address  = curveSet->summaryAddressY();
-            auto sumEns   = curveSet->summaryCaseCollection();
+            auto sumEns   = curveSet->summaryEnsemble();
             int  sumEnsId = sumEns->ensembleId();
             if ( m_sourceStepping()->stepDimension() == RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE )
             {

@@ -36,8 +36,8 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
 
 #include "RiuMainWindow.h"
@@ -119,7 +119,7 @@ void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&         
 
     if ( !isOk || cases.empty() ) return;
 
-    RimSummaryCaseCollection* ensemble = RicCreateSummaryCaseCollectionFeature::groupSummaryCases( cases, ensembleName, true );
+    RimSummaryEnsemble* ensemble = RicCreateSummaryCaseCollectionFeature::groupSummaryCases( cases, ensembleName, true );
 
     if ( ensemble )
     {
@@ -152,11 +152,11 @@ void RicImportEnsembleFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 QString RicImportEnsembleFeature::askForEnsembleName( const QString& suggestion )
 {
-    RimProject*                            project                   = RimProject::current();
-    std::vector<RimSummaryCaseCollection*> groups                    = project->summaryGroups();
-    int                                    ensemblesStartingWithRoot = std::count_if( groups.begin(),
+    RimProject*                      project                   = RimProject::current();
+    std::vector<RimSummaryEnsemble*> groups                    = project->summaryGroups();
+    int                              ensemblesStartingWithRoot = std::count_if( groups.begin(),
                                                    groups.end(),
-                                                   [suggestion]( RimSummaryCaseCollection* group )
+                                                   [suggestion]( RimSummaryEnsemble* group )
                                                    { return group->isEnsemble() && group->name().startsWith( suggestion ); } );
 
     QInputDialog dialog;

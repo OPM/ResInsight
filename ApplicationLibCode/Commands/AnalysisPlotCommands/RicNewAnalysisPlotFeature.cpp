@@ -62,10 +62,10 @@ void RicNewAnalysisPlotFeature::onActionTriggered( bool isChecked )
             CAF_ASSERT( !correlationPlotCollections.empty() );
             analysisPlotColl = correlationPlotCollections.front();
 
-            EnsemblePlotParams        params       = userData.value<EnsemblePlotParams>();
-            RimSummaryCaseCollection* ensemble     = params.ensemble;
-            QString                   quantityName = params.mainQuantityName;
-            std::time_t               timeStep     = params.timeStep;
+            EnsemblePlotParams  params       = userData.value<EnsemblePlotParams>();
+            RimSummaryEnsemble* ensemble     = params.ensemble;
+            QString             quantityName = params.mainQuantityName;
+            std::time_t         timeStep     = params.timeStep;
 
             newPlot = analysisPlotColl->createAnalysisPlot( ensemble, quantityName, timeStep );
         }

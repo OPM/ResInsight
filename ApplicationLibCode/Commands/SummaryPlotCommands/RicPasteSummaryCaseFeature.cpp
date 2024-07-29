@@ -21,8 +21,8 @@
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
 
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
 
 #include "cafPdmDefaultObjectFactory.h"
@@ -44,7 +44,7 @@ bool RicPasteSummaryCaseFeature::isCommandEnabled() const
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return false;
 
-    RimSummaryCaseCollection*     summaryCaseCollection     = destinationObject->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+    RimSummaryEnsemble*           summaryCaseCollection     = destinationObject->firstAncestorOrThisOfType<RimSummaryEnsemble>();
     RimSummaryCaseMainCollection* summaryCaseMainCollection = destinationObject->firstAncestorOrThisOfType<RimSummaryCaseMainCollection>();
 
     if ( !( summaryCaseCollection || summaryCaseMainCollection ) )
@@ -79,7 +79,7 @@ void RicPasteSummaryCaseFeature::onActionTriggered( bool isChecked )
 
     std::vector<caf::PdmPointer<RimSummaryCase>> sourceObjects = RicPasteSummaryCaseFeature::summaryCases();
 
-    RimSummaryCaseCollection* summaryCaseCollection = destinationObject->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+    RimSummaryEnsemble* summaryCaseCollection = destinationObject->firstAncestorOrThisOfType<RimSummaryEnsemble>();
 
     if ( summaryCaseCollection )
     {
@@ -138,7 +138,7 @@ std::vector<caf::PdmPointer<RimSummaryCase>> RicPasteSummaryCaseFeature::summary
 //--------------------------------------------------------------------------------------------------
 void RicPasteSummaryCaseFeature::removeFromSourceCollection( RimSummaryCase* summaryCase )
 {
-    RimSummaryCaseCollection* sourceSummaryCaseCollection = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+    RimSummaryEnsemble* sourceSummaryCaseCollection = summaryCase->firstAncestorOrThisOfType<RimSummaryEnsemble>();
     if ( sourceSummaryCaseCollection )
     {
         sourceSummaryCaseCollection->removeCase( summaryCase );

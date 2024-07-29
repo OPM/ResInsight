@@ -29,7 +29,7 @@
 #include "RimObjectiveFunctionTools.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "RiuSummaryVectorSelectionDialog.h"
 
@@ -271,7 +271,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveFilter::calculateValueOptions( con
     else if ( fieldNeedingOptions == &m_categories )
     {
         auto curveSet = parentCurveSet();
-        auto ensemble = curveSet ? curveSet->summaryCaseCollection() : nullptr;
+        auto ensemble = curveSet ? curveSet->summaryEnsemble() : nullptr;
         auto eParam   = ensemble ? ensemble->ensembleParameter( m_ensembleParameterName ) : RigEnsembleParameter();
 
         if ( eParam.isText() )
@@ -378,7 +378,7 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
     {
         RiuSummaryVectorSelectionDialog dlg( nullptr );
         RimObjectiveFunctionTools::configureDialogForObjectiveFunctions( &dlg );
-        RimSummaryCaseCollection* candidateEnsemble = parentCurveSet()->summaryCaseCollection();
+        RimSummaryEnsemble* candidateEnsemble = parentCurveSet()->summaryEnsemble();
 
         std::vector<RifEclipseSummaryAddress> candidateAddresses;
         for ( auto address : m_objectiveValuesSummaryAddresses().childrenByType() )
@@ -516,7 +516,7 @@ void RimEnsembleCurveFilter::defineEditorAttribute( const caf::PdmFieldHandle* f
 std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vector<RimSummaryCase*>& allSumCases )
 {
     auto curveSet = parentCurveSet();
-    auto ensemble = curveSet ? curveSet->summaryCaseCollection() : nullptr;
+    auto ensemble = curveSet ? curveSet->summaryEnsemble() : nullptr;
     if ( !ensemble || !isActive() ) return allSumCases;
 
     bool          useIntegerSelection = false;
@@ -712,7 +712,7 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
             addresses.push_back( address->address() );
         }
         {
-            auto summaryCases = parentCurveSet()->summaryCaseCollection()->allSummaryCases();
+            auto summaryCases = parentCurveSet()->summaryEnsemble()->allSummaryCases();
 
             auto [minObjValue, maxObjValue] =
                 objectiveFunction->minMaxValues( summaryCases, addresses, parentCurveSet()->objectiveFunctionTimeConfig() );
@@ -751,6 +751,6 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
 RigEnsembleParameter RimEnsembleCurveFilter::selectedEnsembleParameter() const
 {
     auto curveSet = parentCurveSet();
-    auto ensemble = curveSet ? curveSet->summaryCaseCollection() : nullptr;
+    auto ensemble = curveSet ? curveSet->summaryEnsemble() : nullptr;
     return ensemble ? ensemble->ensembleParameter( m_ensembleParameterName ) : RigEnsembleParameter();
 }

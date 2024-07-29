@@ -21,7 +21,7 @@
 #include "RimObservedFmuRftData.h"
 #include "RimPressureDepthData.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimWellLogLasFile.h"
 
 #include "cafAppEnum.h"

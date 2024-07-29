@@ -24,8 +24,8 @@
 #include "RimObservedDataCollection.h"
 #include "RimObservedSummaryData.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "cafPdmObject.h"
 #include "cafSelectionManager.h"
@@ -84,7 +84,7 @@ std::vector<RimSummaryCase*> RicReloadSummaryCaseFeature::selectedSummaryCases()
     caf::SelectionManager::instance()->objectsByType( &caseSelection );
 
     {
-        std::vector<RimSummaryCaseCollection*> collectionSelection;
+        std::vector<RimSummaryEnsemble*> collectionSelection;
         caf::SelectionManager::instance()->objectsByType( &collectionSelection );
 
         for ( auto collection : collectionSelection )

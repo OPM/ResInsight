@@ -30,7 +30,7 @@
 
 class RimSummaryCurve;
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RiaSummaryAddressAnalyzer;
 class RifEclipseSummaryAddress;
 class RiaSummaryCurveAddress;
@@ -47,7 +47,7 @@ public:
 
     void appendAddresses( const std::vector<RiaSummaryCurveAddress>& addresses );
     void setSummaryCases( const std::vector<RimSummaryCase*>& summaryCases );
-    void setEnsembleCases( const std::vector<RimSummaryCaseCollection*>& ensembleCases );
+    void setEnsembleCases( const std::vector<RimSummaryEnsemble*>& ensembleCases );
 
     QString plotTitle() const override;
 
@@ -79,14 +79,14 @@ private:
     void clearTitleSubStrings();
     void extractPlotTitleSubStrings();
 
-    std::set<RimSummaryCase*>           setOfSummaryCases() const;
-    std::set<RimSummaryCaseCollection*> setOfEnsembleCases() const;
+    std::set<RimSummaryCase*>     setOfSummaryCases() const;
+    std::set<RimSummaryEnsemble*> setOfEnsembleCases() const;
 
 private:
     std::unique_ptr<RiaSummaryAddressAnalyzer> m_analyzer;
 
-    std::vector<caf::PdmPointer<RimSummaryCase>>           m_summaryCases;
-    std::vector<caf::PdmPointer<RimSummaryCaseCollection>> m_ensembleCases;
+    std::vector<caf::PdmPointer<RimSummaryCase>>     m_summaryCases;
+    std::vector<caf::PdmPointer<RimSummaryEnsemble>> m_ensembleCases;
 
     std::string m_titleQuantity;
     std::string m_titleWellName;

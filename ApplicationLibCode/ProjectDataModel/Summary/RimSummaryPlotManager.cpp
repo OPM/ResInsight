@@ -33,9 +33,9 @@
 #include "RimMultiPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 
@@ -387,8 +387,8 @@ void RimSummaryPlotManager::createNewPlot()
 {
     if ( m_filterText().trimmed().isEmpty() ) return;
 
-    std::vector<RimSummaryCase*>           summaryCases;
-    std::vector<RimSummaryCaseCollection*> ensembles;
+    std::vector<RimSummaryCase*>     summaryCases;
+    std::vector<RimSummaryEnsemble*> ensembles;
     findFilteredSummaryCasesAndEnsembles( summaryCases, ensembles );
 
     std::set<RifEclipseSummaryAddress> filteredAddressesFromSource;
@@ -484,8 +484,8 @@ void RimSummaryPlotManager::updateUiFromSelection()
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress> RimSummaryPlotManager::filteredAddresses()
 {
-    std::vector<RimSummaryCase*>           summaryCases;
-    std::vector<RimSummaryCaseCollection*> ensembles;
+    std::vector<RimSummaryCase*>     summaryCases;
+    std::vector<RimSummaryEnsemble*> ensembles;
     findFilteredSummaryCasesAndEnsembles( summaryCases, ensembles );
 
     std::set<RifEclipseSummaryAddress> nativeAddresses;
@@ -512,8 +512,8 @@ void RimSummaryPlotManager::appendCurvesToPlot( RimSummaryPlot* destinationPlot 
 {
     CAF_ASSERT( destinationPlot );
 
-    std::vector<RimSummaryCase*>           summaryCases;
-    std::vector<RimSummaryCaseCollection*> ensembles;
+    std::vector<RimSummaryCase*>     summaryCases;
+    std::vector<RimSummaryEnsemble*> ensembles;
     findFilteredSummaryCasesAndEnsembles( summaryCases, ensembles );
 
     std::set<RifEclipseSummaryAddress> filteredAddressesFromSource = filteredAddresses();
@@ -599,8 +599,8 @@ QStringList RimSummaryPlotManager::extractDataSourceFilters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotManager::findFilteredSummaryCasesAndEnsembles( std::vector<RimSummaryCase*>&           summaryCases,
-                                                                  std::vector<RimSummaryCaseCollection*>& ensembles ) const
+void RimSummaryPlotManager::findFilteredSummaryCasesAndEnsembles( std::vector<RimSummaryCase*>&     summaryCases,
+                                                                  std::vector<RimSummaryEnsemble*>& ensembles ) const
 {
     auto filteredDataSources = findDataSourceCandidates();
     for ( const auto& [dataSourceName, dataSource] : filteredDataSources )
@@ -616,7 +616,7 @@ void RimSummaryPlotManager::findFilteredSummaryCasesAndEnsembles( std::vector<Ri
             summaryCases.push_back( summaryCase );
         }
 
-        auto ensemble = dynamic_cast<RimSummaryCaseCollection*>( dataSource );
+        auto ensemble = dynamic_cast<RimSummaryEnsemble*>( dataSource );
         if ( ensemble )
         {
             ensembles.push_back( ensemble );

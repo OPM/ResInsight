@@ -32,7 +32,7 @@
 #define OBSERVED_DATA_AVALUE_POSTFIX "_OBSDATA"
 
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RimSummaryCurveAutoName;
 class RimSummaryPlot;
 class RiaSummaryCurveDefinition;

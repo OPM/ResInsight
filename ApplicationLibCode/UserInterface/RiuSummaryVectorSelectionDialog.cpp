@@ -20,7 +20,7 @@
 
 #include "RiaSummaryCurveDefinition.h"
 
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "RiuSummaryVectorSelectionUi.h"
 #include "RiuSummaryVectorSelectionWidgetCreator.h"
@@ -94,7 +94,7 @@ void RiuSummaryVectorSelectionDialog::setCaseAndAddress( RimSummaryCase* summary
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryVectorSelectionDialog::setEnsembleAndAddress( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& address )
+void RiuSummaryVectorSelectionDialog::setEnsembleAndAddress( RimSummaryEnsemble* ensemble, const RifEclipseSummaryAddress& address )
 {
     if ( ensemble )
     {
@@ -113,8 +113,7 @@ void RiuSummaryVectorSelectionDialog::setEnsembleAndAddress( RimSummaryCaseColle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryVectorSelectionDialog::setEnsembleAndAddresses( RimSummaryCaseCollection*             ensemble,
-                                                               std::vector<RifEclipseSummaryAddress> addresses )
+void RiuSummaryVectorSelectionDialog::setEnsembleAndAddresses( RimSummaryEnsemble* ensemble, std::vector<RifEclipseSummaryAddress> addresses )
 {
     if ( ensemble )
     {

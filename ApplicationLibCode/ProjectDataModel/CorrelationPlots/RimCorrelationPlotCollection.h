@@ -31,7 +31,7 @@ class RimCorrelationPlot;
 class RimCorrelationMatrixPlot;
 class RimCorrelationReportPlot;
 class RimParameterResultCrossPlot;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 
 //==================================================================================================
 ///
@@ -46,20 +46,20 @@ public:
     ~RimCorrelationPlotCollection() override;
 
     RimCorrelationPlot* createCorrelationPlot( bool defaultToFirstEnsembleFopt = true );
-    RimCorrelationPlot* createCorrelationPlot( RimSummaryCaseCollection* ensemble, const QString& quantityName, std::time_t timeStep );
+    RimCorrelationPlot* createCorrelationPlot( RimSummaryEnsemble* ensemble, const QString& quantityName, std::time_t timeStep );
 
     RimCorrelationMatrixPlot* createCorrelationMatrixPlot( bool defaultToFirstEnsembleField = true );
     RimCorrelationMatrixPlot*
-        createCorrelationMatrixPlot( RimSummaryCaseCollection* ensemble, const std::vector<QString>& quantityNames, std::time_t timeStep );
+        createCorrelationMatrixPlot( RimSummaryEnsemble* ensemble, const std::vector<QString>& quantityNames, std::time_t timeStep );
 
     RimParameterResultCrossPlot* createParameterResultCrossPlot( bool defaultToFirstEnsembleFopt = true );
-    RimParameterResultCrossPlot* createParameterResultCrossPlot( RimSummaryCaseCollection* ensemble,
-                                                                 const QString&            paramName,
-                                                                 const QString&            quantityName,
-                                                                 std::time_t               timeStep );
+    RimParameterResultCrossPlot* createParameterResultCrossPlot( RimSummaryEnsemble* ensemble,
+                                                                 const QString&      paramName,
+                                                                 const QString&      quantityName,
+                                                                 std::time_t         timeStep );
 
     RimCorrelationReportPlot* createCorrelationReportPlot( bool defaultToFirstEnsembleField = true );
-    RimCorrelationReportPlot* createCorrelationReportPlot( RimSummaryCaseCollection*   ensemble,
+    RimCorrelationReportPlot* createCorrelationReportPlot( RimSummaryEnsemble*         ensemble,
                                                            const std::vector<QString>& matrixQuantityNames,
                                                            const QString&              tornadoAndCrossPlotQuantityName,
                                                            std::time_t                 timeStep );
@@ -78,14 +78,14 @@ public:
 private:
     void applyFirstEnsembleFieldAddressesToPlot( RimAbstractCorrelationPlot* plot, const std::vector<QString>& quantityNames = {} );
     void applyEnsembleFieldAndTimeStepToPlot( RimAbstractCorrelationPlot* plot,
-                                              RimSummaryCaseCollection*   ensemble,
+                                              RimSummaryEnsemble*         ensemble,
                                               const std::vector<QString>& quantityNames,
                                               std::time_t                 timeStep );
     void applyFirstEnsembleFieldAddressesToReport( RimCorrelationReportPlot*   plot,
                                                    const std::vector<QString>& matrixQuantityNames,
                                                    const QString&              tornadoAndCrossPlotQuantityName );
     void applyEnsembleFieldAndTimeStepToReport( RimCorrelationReportPlot*   plot,
-                                                RimSummaryCaseCollection*   ensemble,
+                                                RimSummaryEnsemble*         ensemble,
                                                 const std::vector<QString>& matrixQuantityNames,
                                                 const QString&              tornadoAndCrossPlotQuantityName,
                                                 std::time_t                 timeStep );

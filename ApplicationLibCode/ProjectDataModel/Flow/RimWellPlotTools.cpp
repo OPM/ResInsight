@@ -33,7 +33,7 @@
 #include "RimPressureDepthData.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryEnsembleTools.h"
 #include "RimWellLogChannel.h"
 #include "RimWellLogExtractionCurve.h"
@@ -449,15 +449,15 @@ std::set<QDateTime> rftTimeStepsForWell( const std::vector<RimSummaryCase*>& sum
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCaseCollection*> rftEnsemblesForWell( const QString& simWellName )
+std::vector<RimSummaryEnsemble*> rftEnsemblesForWell( const QString& simWellName )
 {
     const RimProject* project = RimProject::current();
 
-    std::vector<RimSummaryCaseCollection*> allSummaryCaseCollections = project->summaryGroups();
+    std::vector<RimSummaryEnsemble*> allSummaryCaseCollections = project->summaryGroups();
 
-    std::vector<RimSummaryCaseCollection*> rftEnsembles;
+    std::vector<RimSummaryEnsemble*> rftEnsembles;
 
-    for ( RimSummaryCaseCollection* summaryCaseColl : allSummaryCaseCollections )
+    for ( RimSummaryEnsemble* summaryCaseColl : allSummaryCaseCollections )
     {
         if ( summaryCaseColl && summaryCaseColl->isEnsemble() &&
              !rftTimeStepsForWell( summaryCaseColl->allSummaryCases(), simWellName ).empty() )
@@ -471,15 +471,15 @@ std::vector<RimSummaryCaseCollection*> rftEnsemblesForWell( const QString& simWe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCaseCollection*> rftEnsembles()
+std::vector<RimSummaryEnsemble*> rftEnsembles()
 {
     const RimProject* project = RimProject::current();
 
-    std::vector<RimSummaryCaseCollection*> allSummaryCaseCollections = project->summaryGroups();
+    std::vector<RimSummaryEnsemble*> allSummaryCaseCollections = project->summaryGroups();
 
-    std::vector<RimSummaryCaseCollection*> rftEnsembles;
+    std::vector<RimSummaryEnsemble*> rftEnsembles;
 
-    for ( RimSummaryCaseCollection* summaryCaseColl : allSummaryCaseCollections )
+    for ( RimSummaryEnsemble* summaryCaseColl : allSummaryCaseCollections )
     {
         if ( summaryCaseColl && summaryCaseColl->isEnsemble() &&
              !RimSummaryEnsembleTools::wellsWithRftData( summaryCaseColl->allSummaryCases() ).empty() )
@@ -663,11 +663,11 @@ RiaRftPltCurveDefinition curveDefFromCurve( const RimWellLogCurve* curve )
 
     if ( rftCurve != nullptr )
     {
-        RimEclipseResultCase*     rftCase           = dynamic_cast<RimEclipseResultCase*>( rftCurve->eclipseCase() );
-        RimSummaryCase*           rftSummaryCase    = rftCurve->summaryCase();
-        RimSummaryCaseCollection* rftEnsemble       = rftCurve->ensemble();
-        RimObservedFmuRftData*    rftFmuData        = rftCurve->observedFmuRftData();
-        RimPressureDepthData*     pressureDepthData = rftCurve->pressureDepthData();
+        RimEclipseResultCase*  rftCase           = dynamic_cast<RimEclipseResultCase*>( rftCurve->eclipseCase() );
+        RimSummaryCase*        rftSummaryCase    = rftCurve->summaryCase();
+        RimSummaryEnsemble*    rftEnsemble       = rftCurve->ensemble();
+        RimObservedFmuRftData* rftFmuData        = rftCurve->observedFmuRftData();
+        RimPressureDepthData*  pressureDepthData = rftCurve->pressureDepthData();
 
         const RifEclipseRftAddress rftAddress = rftCurve->rftAddress();
         const QString&             wellName   = rftAddress.wellName();
@@ -678,7 +678,7 @@ RiaRftPltCurveDefinition curveDefFromCurve( const RimWellLogCurve* curve )
             // Presens of rftSummaryCase must be tested before rftCase because a rftSummaryCase can have a rftCase
             // The rftCase is used to extract TVD/MD from the grid model
 
-            RimSummaryCaseCollection* parentEnsemble = rftSummaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+            RimSummaryEnsemble* parentEnsemble = rftSummaryCase->firstAncestorOrThisOfType<RimSummaryEnsemble>();
             return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( rftSummaryCase, parentEnsemble, rftCase ), wellName, timeStep );
         }
         else if ( rftCase != nullptr )

@@ -25,7 +25,7 @@
 class QString;
 
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RifEclipseSummaryAddress;
 
 //==================================================================================================

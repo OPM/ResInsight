@@ -5,18 +5,18 @@
 
 #include <random>
 
-class RimSummaryCaseCollection_TESTER
+class RimSummaryEnsemble_TESTER
 {
 public:
     static void test1();
 };
 
-TEST( RimSummaryCaseCollection, RigEnsembleParameter )
+TEST( RimSummaryEnsemble, RigEnsembleParameter )
 {
-    RimSummaryCaseCollection_TESTER::test1();
+    RimSummaryEnsemble_TESTER::test1();
 }
 
-void RimSummaryCaseCollection_TESTER::test1()
+void RimSummaryEnsemble_TESTER::test1()
 {
     std::random_device                     rd;
     std::mt19937                           gen( rd() );

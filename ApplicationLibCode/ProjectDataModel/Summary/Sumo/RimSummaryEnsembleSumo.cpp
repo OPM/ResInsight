@@ -294,7 +294,7 @@ void RimSummaryEnsembleSumo::buildMetaData()
         summaryCase->summaryReader()->buildMetaData();
     }
 
-    RimSummaryCaseCollection::buildMetaData();
+    RimSummaryEnsemble::buildMetaData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -305,7 +305,7 @@ void RimSummaryEnsembleSumo::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     uiOrdering.add( &m_sumoDataSource );
 
     auto group = uiOrdering.addNewGroup( "General" );
-    RimSummaryCaseCollection::defineUiOrdering( uiConfigName, *group );
+    RimSummaryEnsemble::defineUiOrdering( uiConfigName, *group );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -417,5 +417,5 @@ void RimSummaryEnsembleSumo::onLoadDataAndUpdate()
     buildMetaData();
 
     // call the base class method after data has been loaded
-    RimSummaryCaseCollection::onLoadDataAndUpdate();
+    RimSummaryEnsemble::onLoadDataAndUpdate();
 }

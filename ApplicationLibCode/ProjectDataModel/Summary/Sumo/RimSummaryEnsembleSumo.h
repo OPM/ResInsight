@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "Cloud/RiaSumoConnector.h"
 
@@ -51,7 +51,7 @@ namespace arrow
 class Table;
 }
 
-class RimSummaryEnsembleSumo : public RimSummaryCaseCollection
+class RimSummaryEnsembleSumo : public RimSummaryEnsemble
 {
     CAF_PDM_HEADER_INIT;
 

@@ -49,10 +49,10 @@
 #include "RimProject.h"
 #include "RimRoffCase.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
 #include "RimWellLogRftCurve.h"
 
@@ -121,11 +121,11 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fil
 
             for ( RimSummaryCase* newSumCase : candidateCases )
             {
-                RimSummaryCaseCollection* existingCollection = nullptr;
+                RimSummaryEnsemble* existingCollection = nullptr;
                 auto existingSummaryCase = sumCaseColl->findTopLevelSummaryCaseFromFileName( newSumCase->summaryHeaderFilename() );
                 if ( existingSummaryCase )
                 {
-                    existingCollection = existingSummaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+                    existingCollection = existingSummaryCase->firstAncestorOrThisOfType<RimSummaryEnsemble>();
 
                     // Replace file summary case pointers in Rft Curves
                     auto rftCurves = existingSummaryCase->objectsWithReferringPtrFieldsOfType<RimWellLogRftCurve>();

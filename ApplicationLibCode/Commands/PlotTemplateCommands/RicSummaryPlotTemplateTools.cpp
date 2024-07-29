@@ -36,8 +36,8 @@
 #include "RimMainPlotCollection.h"
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
@@ -77,16 +77,16 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::createMultiPlotFromTemplateFil
 //--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString& fileName )
 {
-    auto sumCases           = RicSummaryPlotTemplateTools::selectedSummaryCases();
-    auto sumCaseCollections = RicSummaryPlotTemplateTools::selectedSummaryCaseCollections();
+    auto sumCases     = RicSummaryPlotTemplateTools::selectedSummaryCases();
+    auto sumEnsembles = RicSummaryPlotTemplateTools::selectedSummaryEnsembles();
 
     auto summaryAddressCollections = RicSummaryPlotTemplateTools::selectedSummaryAddressCollections();
 
-    std::vector<QString>                wellNames;
-    std::vector<QString>                groupNames;
-    std::vector<QString>                regions;
-    std::set<RimSummaryCase*>           caseSet;
-    std::set<RimSummaryCaseCollection*> caseCollectionSet;
+    std::vector<QString>          wellNames;
+    std::vector<QString>          groupNames;
+    std::vector<QString>          regions;
+    std::set<RimSummaryCase*>     caseSet;
+    std::set<RimSummaryEnsemble*> caseCollectionSet;
 
     if ( summaryAddressCollections.empty() )
     {
@@ -98,9 +98,9 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString& fileNam
 
             analyzer.appendAddresses( firstCase->summaryReader()->allResultAddresses() );
         }
-        else if ( !sumCaseCollections.empty() )
+        else if ( !sumEnsembles.empty() )
         {
-            auto caseCollection = sumCaseCollections.front();
+            auto caseCollection = sumEnsembles.front();
 
             auto firstCase = caseCollection->firstSummaryCase();
             if ( firstCase != nullptr )
@@ -145,7 +145,7 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString& fileNam
 
     for ( auto sumCaseCollection : caseCollectionSet )
     {
-        sumCaseCollections.push_back( sumCaseCollection );
+        sumEnsembles.push_back( sumCaseCollection );
     }
 
     auto collections = RimMainPlotCollection::current()->summaryMultiPlotCollection();
@@ -156,7 +156,7 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString& fileNam
     collections->addSummaryMultiPlot( newSummaryPlot );
     newSummaryPlot->resolveReferencesRecursively();
 
-    RicSummaryPlotTemplateTools::setValuesForPlaceholders( newSummaryPlot, sumCases, sumCaseCollections, wellNames, groupNames, regions );
+    RicSummaryPlotTemplateTools::setValuesForPlaceholders( newSummaryPlot, sumCases, sumEnsembles, wellNames, groupNames, regions );
     newSummaryPlot->initAfterReadRecursively();
     newSummaryPlot->loadDataAndUpdate();
 
@@ -168,9 +168,9 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString& fileNam
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString&                                fileName,
-                                                          const std::vector<RimSummaryCase*>&           sumCases,
-                                                          const std::vector<RimSummaryCaseCollection*>& ensembles )
+RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString&                          fileName,
+                                                          const std::vector<RimSummaryCase*>&     sumCases,
+                                                          const std::vector<RimSummaryEnsemble*>& ensembles )
 {
     std::vector<QString> wellNames;
     std::vector<QString> groupNames;
@@ -218,12 +218,12 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString&        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryMultiPlot*                          summaryMultiPlot,
-                                                            const std::vector<RimSummaryCase*>&           selectedSummaryCases,
-                                                            const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
-                                                            const std::vector<QString>&                   wellNames,
-                                                            const std::vector<QString>&                   groupNames,
-                                                            const std::vector<QString>&                   regions )
+void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryMultiPlot*                    summaryMultiPlot,
+                                                            const std::vector<RimSummaryCase*>&     selectedSummaryCases,
+                                                            const std::vector<RimSummaryEnsemble*>& selectedEnsembles,
+                                                            const std::vector<QString>&             wellNames,
+                                                            const std::vector<QString>&             groupNames,
+                                                            const std::vector<QString>&             regions )
 
 {
     auto plots = summaryMultiPlot->plots();
@@ -237,12 +237,12 @@ void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryMultiPlot*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryPlot*                               summaryPlot,
-                                                            const std::vector<RimSummaryCase*>&           selectedSummaryCases,
-                                                            const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
-                                                            const std::vector<QString>&                   wellNames,
-                                                            const std::vector<QString>&                   groupNames,
-                                                            const std::vector<QString>&                   regions )
+void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryPlot*                         summaryPlot,
+                                                            const std::vector<RimSummaryCase*>&     selectedSummaryCases,
+                                                            const std::vector<RimSummaryEnsemble*>& selectedEnsembles,
+                                                            const std::vector<QString>&             wellNames,
+                                                            const std::vector<QString>&             groupNames,
+                                                            const std::vector<QString>&             regions )
 {
     {
         // Replace single summary curves data sources
@@ -315,7 +315,7 @@ void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryPlot*     
                 if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( selectedEnsembles.size() ) )
                 {
                     auto ensembleCase = selectedEnsembles[static_cast<int>( indexValue )];
-                    curveSet->setSummaryCaseCollection( ensembleCase );
+                    curveSet->setSummaryEnsemble( ensembleCase );
                 }
             }
 
@@ -496,9 +496,9 @@ std::vector<RimSummaryCase*> RicSummaryPlotTemplateTools::selectedSummaryCases()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCaseCollection*> RicSummaryPlotTemplateTools::selectedSummaryCaseCollections()
+std::vector<RimSummaryEnsemble*> RicSummaryPlotTemplateTools::selectedSummaryEnsembles()
 {
-    std::vector<RimSummaryCaseCollection*> objects;
+    std::vector<RimSummaryEnsemble*> objects;
     caf::SelectionManager::instance()->objectsByType( &objects );
 
     return objects;
