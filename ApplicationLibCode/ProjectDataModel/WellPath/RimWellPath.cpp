@@ -736,18 +736,18 @@ void RimWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
         simWellGroup->add( &m_branchIndex );
     }
 
-    caf::PdmUiGroup* ssihubGroup = uiOrdering.addNewGroup( "Well Info" );
+    caf::PdmUiGroup* wellInfoGroup = uiOrdering.addNewGroup( "Well Info" );
 
     if ( m_wellPathGeometry.notNull() && m_wellPathGeometry->rkbDiff() > 0.0 )
     {
-        ssihubGroup->add( &m_airGap );
+        wellInfoGroup->add( &m_airGap );
     }
 
     if ( m_wellPathGeometry.notNull() && m_wellPathGeometry->hasDatumElevation() )
     {
-        ssihubGroup->add( &m_datumElevation );
+        wellInfoGroup->add( &m_datumElevation );
     }
-    ssihubGroup->add( &m_unitSystem );
+    wellInfoGroup->add( &m_unitSystem );
 
     caf::PdmUiGroup* formationFileInfoGroup = uiOrdering.addNewGroup( "Well Picks" );
     formationFileInfoGroup->add( &m_wellPathFormationFilePath );
