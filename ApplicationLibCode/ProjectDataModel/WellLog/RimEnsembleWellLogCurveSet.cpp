@@ -37,7 +37,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimWellLogChannel.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogLasFile.h"
@@ -641,7 +641,7 @@ void RimEnsembleWellLogCurveSet::updateFilterLegend()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase* RimEnsembleWellLogCurveSet::findMatchingSummaryCase( RimWellLogLasFileCurve* wellLogCurve ) const
 {
-    RimSummaryCaseCollection*    summaryCaseCollection = m_ensembleCurveSet->summaryCaseCollection();
+    RimSummaryEnsemble*          summaryCaseCollection = m_ensembleCurveSet->summaryEnsemble();
     std::vector<RimSummaryCase*> sumCases              = summaryCaseCollection->allSummaryCases();
     for ( auto sumCase : sumCases )
     {
@@ -994,7 +994,7 @@ std::vector<RimWellLogLasFile*> RimEnsembleWellLogCurveSet::filterEnsembleCases(
     if ( m_ensembleCurveSet != nullptr && m_statistics->basedOnFilteredCases() )
     {
         // Get the summary cases from the related ensemble summary curve set.
-        RimSummaryCaseCollection* summaryCaseCollection = m_ensembleCurveSet->summaryCaseCollection();
+        RimSummaryEnsemble* summaryCaseCollection = m_ensembleCurveSet->summaryEnsemble();
 
         //
         std::vector<RimSummaryCase*> sumCases = m_ensembleCurveSet->filterEnsembleCases( summaryCaseCollection->allSummaryCases() );

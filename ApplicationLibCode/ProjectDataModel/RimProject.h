@@ -57,7 +57,7 @@ class RimOilField;
 class RimColorLegendCollection;
 class RimScriptCollection;
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RimSummaryCaseMainCollection;
 class Rim3dView;
 class RimGridView;
@@ -129,13 +129,13 @@ public:
     void assignViewIdToView( Rim3dView* view );
     void assignPlotIdToPlotWindow( RimPlotWindow* plotWindow );
     void assignCaseIdToSummaryCase( RimSummaryCase* summaryCase );
-    void assignIdToEnsemble( RimSummaryCaseCollection* summaryCaseCollection );
+    void assignIdToEnsemble( RimSummaryEnsemble* summaryCaseCollection );
 
     [[nodiscard]] std::vector<RimCase*> allGridCases() const;
 
-    std::vector<RimSummaryCase*>           allSummaryCases() const;
-    std::vector<RimSummaryCaseCollection*> summaryGroups() const;
-    RimSummaryCaseMainCollection*          firstSummaryCaseMainCollection() const;
+    std::vector<RimSummaryCase*>     allSummaryCases() const;
+    std::vector<RimSummaryEnsemble*> summaryGroups() const;
+    RimSummaryCaseMainCollection*    firstSummaryCaseMainCollection() const;
 
     [[nodiscard]] std::vector<Rim3dView*>   allViews() const;
     [[nodiscard]] std::vector<Rim3dView*>   allVisibleViews() const;

@@ -35,8 +35,8 @@
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "RiuSummaryCurveDefinitionKeywords.h"
 #include "RiuSummaryQuantityNameInfoProvider.h"
@@ -372,7 +372,7 @@ std::vector<RiaCurveSetDefinition> RiuSummaryVectorSelectionUi::allCurveSetDefin
 
     for ( SummarySource* currSource : selectedSummarySources() )
     {
-        RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>( currSource );
+        RimSummaryEnsemble* ensemble = dynamic_cast<RimSummaryEnsemble*>( currSource );
         if ( !ensemble ) continue;
 
         std::set<RifEclipseSummaryAddress> addressesFromSource;
@@ -406,8 +406,8 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryVectorSelectionUi::selection() 
     std::set<RifEclipseSummaryAddress>     selectedAddressesFromUi = buildAddressListFromSelections();
     for ( SummarySource* currSource : selectedSummarySources() )
     {
-        RimSummaryCaseCollection* ensemble   = dynamic_cast<RimSummaryCaseCollection*>( currSource );
-        RimSummaryCase*           sourceCase = dynamic_cast<RimSummaryCase*>( currSource );
+        RimSummaryEnsemble* ensemble   = dynamic_cast<RimSummaryEnsemble*>( currSource );
+        RimSummaryCase*     sourceCase = dynamic_cast<RimSummaryCase*>( currSource );
 
         if ( ensemble )
         {
@@ -528,8 +528,8 @@ void RiuSummaryVectorSelectionUi::setDefaultSelection( const std::vector<Summary
         std::vector<RiaSummaryCurveDefinition> curveDefs;
         for ( SummarySource* s : selectTheseSources )
         {
-            RimSummaryCase*           sumCase  = dynamic_cast<RimSummaryCase*>( s );
-            RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>( s );
+            RimSummaryCase*     sumCase  = dynamic_cast<RimSummaryCase*>( s );
+            RimSummaryEnsemble* ensemble = dynamic_cast<RimSummaryEnsemble*>( s );
             if ( ensemble )
             {
                 curveDefs.push_back( RiaSummaryCurveDefinition( ensemble, defaultAddress ) );
@@ -983,8 +983,8 @@ std::set<RifEclipseSummaryAddress>
     std::vector<SummarySource*> sources;
     for ( const auto& source : m_selectedSources.value() )
     {
-        RimSummaryCase*           sumCase  = dynamic_cast<RimSummaryCase*>( source.p() );
-        RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>( source.p() );
+        RimSummaryCase*     sumCase  = dynamic_cast<RimSummaryCase*>( source.p() );
+        RimSummaryEnsemble* ensemble = dynamic_cast<RimSummaryEnsemble*>( source.p() );
 
         if ( sumCase )
         {
@@ -1040,8 +1040,8 @@ std::set<RifEclipseSummaryAddress>
     {
         std::set<RifEclipseSummaryAddress> allAddresses;
 
-        RimSummaryCase*           currCase     = dynamic_cast<RimSummaryCase*>( currSource );
-        RimSummaryCaseCollection* currEnsemble = dynamic_cast<RimSummaryCaseCollection*>( currSource );
+        RimSummaryCase*     currCase     = dynamic_cast<RimSummaryCase*>( currSource );
+        RimSummaryEnsemble* currEnsemble = dynamic_cast<RimSummaryEnsemble*>( currSource );
 
         if ( currCase )
         {

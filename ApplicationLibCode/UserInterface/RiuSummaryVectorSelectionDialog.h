@@ -25,7 +25,7 @@
 class RiaSummaryCurveDefinition;
 class RifEclipseSummaryAddress;
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RiuSummaryVectorSelectionUi;
 class RiuSummaryVectorSelectionWidgetCreator;
 
@@ -42,8 +42,8 @@ public:
     ~RiuSummaryVectorSelectionDialog() override;
 
     void setCaseAndAddress( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& address );
-    void setEnsembleAndAddress( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& address );
-    void setEnsembleAndAddresses( RimSummaryCaseCollection* ensemble, std::vector<RifEclipseSummaryAddress> addresses );
+    void setEnsembleAndAddress( RimSummaryEnsemble* ensemble, const RifEclipseSummaryAddress& address );
+    void setEnsembleAndAddresses( RimSummaryEnsemble* ensemble, std::vector<RifEclipseSummaryAddress> addresses );
     void setCurveSelection( const std::vector<RiaSummaryCurveDefinition>& selection );
     std::vector<RiaSummaryCurveDefinition> curveSelection() const;
 

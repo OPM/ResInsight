@@ -26,7 +26,7 @@
 
 #include <ctime>
 
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 
 //==================================================================================================
 ///
@@ -41,7 +41,7 @@ public:
     ~RimAnalysisPlotCollection() override;
 
     RimAnalysisPlot* createAnalysisPlot();
-    RimAnalysisPlot* createAnalysisPlot( RimSummaryCaseCollection* ensemble, const QString& quantityName, std::time_t timeStep );
+    RimAnalysisPlot* createAnalysisPlot( RimSummaryEnsemble* ensemble, const QString& quantityName, std::time_t timeStep );
 
     void updateSummaryNameHasChanged();
 
@@ -54,12 +54,12 @@ private:
     void applyFirstEnsembleFieldAddressesToPlot( RimAnalysisPlot* plot, const std::string& quantityName = "" );
     void applyFirstSummaryCaseCollectionAndFieldAddressesToPlot( RimAnalysisPlot* plot, const std::string& quantityName = "" );
     void applyAllSummaryCasesAndFieldAddressesToPlot( RimAnalysisPlot* plot, const std::string& quantityName = "" );
-    void applySummaryCaseCollectionAndFieldAddressToPlot( RimAnalysisPlot*          plot,
-                                                          RimSummaryCaseCollection* summaryCaseCollection,
-                                                          const std::string&        quantityName );
+    void applySummaryCaseCollectionAndFieldAddressToPlot( RimAnalysisPlot*    plot,
+                                                          RimSummaryEnsemble* summaryCaseCollection,
+                                                          const std::string&  quantityName );
 
-    RimSummaryCaseCollection* firstEnsemble() const;
-    RimSummaryCaseCollection* firstSummaryCaseCollection() const;
+    RimSummaryEnsemble* firstEnsemble() const;
+    RimSummaryEnsemble* firstSummaryCaseCollection() const;
 
 private:
     caf::PdmChildArrayField<RimAnalysisPlot*> m_analysisPlots;

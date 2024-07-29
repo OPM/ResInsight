@@ -22,7 +22,7 @@
 
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
@@ -46,8 +46,8 @@ bool RicNewSummaryMultiPlotFeature::isCommandEnabled() const
 
     if ( selectedCollection( selectedUiItems ) ) return true;
 
-    std::vector<RimSummaryCase*>           selectedIndividualSummaryCases;
-    std::vector<RimSummaryCaseCollection*> selectedEnsembles;
+    std::vector<RimSummaryCase*>     selectedIndividualSummaryCases;
+    std::vector<RimSummaryEnsemble*> selectedEnsembles;
     return selectedCases( &selectedIndividualSummaryCases, &selectedEnsembles );
 }
 
@@ -59,8 +59,8 @@ void RicNewSummaryMultiPlotFeature::onActionTriggered( bool isChecked )
     std::vector<caf::PdmUiItem*> selectedUiItems;
     caf::SelectionManager::instance()->selectedItems( selectedUiItems );
 
-    std::vector<RimSummaryCase*>           selectedIndividualSummaryCases;
-    std::vector<RimSummaryCaseCollection*> selectedEnsembles;
+    std::vector<RimSummaryCase*>     selectedIndividualSummaryCases;
+    std::vector<RimSummaryEnsemble*> selectedEnsembles;
 
     RimSummaryMultiPlotCollection* coll = selectedCollection( selectedUiItems );
     if ( coll )
@@ -110,8 +110,8 @@ RimSummaryMultiPlotCollection* RicNewSummaryMultiPlotFeature::selectedCollection
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSummaryMultiPlotFeature::selectedCases( std::vector<RimSummaryCase*>*           selectedIndividualSummaryCases,
-                                                   std::vector<RimSummaryCaseCollection*>* selectedEnsembles )
+bool RicNewSummaryMultiPlotFeature::selectedCases( std::vector<RimSummaryCase*>*     selectedIndividualSummaryCases,
+                                                   std::vector<RimSummaryEnsemble*>* selectedEnsembles )
 {
     CAF_ASSERT( selectedIndividualSummaryCases && selectedEnsembles );
 

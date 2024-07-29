@@ -34,8 +34,8 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 
@@ -240,11 +240,11 @@ void RicImportSummaryCasesFeature::addSummaryCases( const std::vector<RimSummary
 //--------------------------------------------------------------------------------------------------
 void RicImportSummaryCasesFeature::addCasesToGroupIfRelevant( const std::vector<RimSummaryCase*>& cases )
 {
-    std::vector<RimSummaryCaseCollection*> selectedColl = caf::selectedObjectsByTypeStrict<RimSummaryCaseCollection*>();
+    std::vector<RimSummaryEnsemble*> selectedColl = caf::selectedObjectsByTypeStrict<RimSummaryEnsemble*>();
 
     if ( selectedColl.size() == 1 )
     {
-        RimSummaryCaseCollection*     coll     = selectedColl.front();
+        RimSummaryEnsemble*           coll     = selectedColl.front();
         RimSummaryCaseMainCollection* mainColl = coll->firstAncestorOrThisOfType<RimSummaryCaseMainCollection>();
 
         if ( mainColl )

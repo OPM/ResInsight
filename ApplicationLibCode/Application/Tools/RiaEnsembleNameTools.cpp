@@ -25,7 +25,7 @@
 #include "RimCaseDisplayNameTools.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "cafAppEnum.h"
 

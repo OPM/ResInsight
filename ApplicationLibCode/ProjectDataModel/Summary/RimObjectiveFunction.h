@@ -28,7 +28,7 @@
 #include <vector>
 
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RifEclipseSummaryAddress;
 
 class ObjectiveFunctionTimeConfig

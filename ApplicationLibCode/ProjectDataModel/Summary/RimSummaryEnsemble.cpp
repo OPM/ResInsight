@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "RiaEnsembleNameTools.h"
 #include "RiaFieldHandleTools.h"
@@ -41,12 +41,12 @@
 
 #include <cmath>
 
-CAF_PDM_SOURCE_INIT( RimSummaryCaseCollection, "SummaryCaseSubCollection" );
+CAF_PDM_SOURCE_INIT( RimSummaryEnsemble, "SummaryCaseSubCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection::RimSummaryCaseCollection()
+RimSummaryEnsemble::RimSummaryEnsemble()
     : caseNameChanged( this )
     , caseRemoved( this )
 {
@@ -58,7 +58,7 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
     CAF_PDM_InitScriptableField( &m_autoName, "CreateAutoName", true, "Auto Name" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_nameAndItemCount, "NameCount", "Name" );
-    m_nameAndItemCount.registerGetMethod( this, &RimSummaryCaseCollection::nameAndItemCount );
+    m_nameAndItemCount.registerGetMethod( this, &RimSummaryEnsemble::nameAndItemCount );
     RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_nameAndItemCount );
 
     CAF_PDM_InitScriptableField( &m_isEnsemble, "IsEnsemble", false, "Is Ensemble" );
@@ -81,7 +81,7 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection::~RimSummaryCaseCollection()
+RimSummaryEnsemble::~RimSummaryEnsemble()
 {
     m_cases.deleteChildrenAsync();
     updateReferringCurveSets();
@@ -90,7 +90,7 @@ RimSummaryCaseCollection::~RimSummaryCaseCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase, bool notifyChange )
+void RimSummaryEnsemble::removeCase( RimSummaryCase* summaryCase, bool notifyChange )
 {
     size_t caseCountBeforeRemove = m_cases.size();
 
@@ -117,9 +117,9 @@ void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase, bool not
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
+void RimSummaryEnsemble::addCase( RimSummaryCase* summaryCase )
 {
-    summaryCase->nameChanged.connect( this, &RimSummaryCaseCollection::onCaseNameChanged );
+    summaryCase->nameChanged.connect( this, &RimSummaryEnsemble::onCaseNameChanged );
 
     summaryCase->setShowVectorItemsInProjectTree( m_cases.empty() );
 
@@ -151,7 +151,7 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RimSummaryCaseCollection::allSummaryCases() const
+std::vector<RimSummaryCase*> RimSummaryEnsemble::allSummaryCases() const
 {
     return m_cases.childrenByType();
 }
@@ -159,7 +159,7 @@ std::vector<RimSummaryCase*> RimSummaryCaseCollection::allSummaryCases() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryCaseCollection::firstSummaryCase() const
+RimSummaryCase* RimSummaryEnsemble::firstSummaryCase() const
 {
     if ( !m_cases.empty() ) return m_cases[0];
 
@@ -169,7 +169,7 @@ RimSummaryCase* RimSummaryCaseCollection::firstSummaryCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::setName( const QString& name )
+void RimSummaryEnsemble::setName( const QString& name )
 {
     m_name = name;
 }
@@ -177,7 +177,7 @@ void RimSummaryCaseCollection::setName( const QString& name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryCaseCollection::name() const
+QString RimSummaryEnsemble::name() const
 {
     return m_name;
 }
@@ -185,7 +185,7 @@ QString RimSummaryCaseCollection::name() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::ensureNameIsUpdated()
+void RimSummaryEnsemble::ensureNameIsUpdated()
 {
     if ( m_autoName )
     {
@@ -208,7 +208,7 @@ void RimSummaryCaseCollection::ensureNameIsUpdated()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCaseCollection::isEnsemble() const
+bool RimSummaryEnsemble::isEnsemble() const
 {
     return m_isEnsemble();
 }
@@ -216,7 +216,7 @@ bool RimSummaryCaseCollection::isEnsemble() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::setAsEnsemble( bool isEnsemble )
+void RimSummaryEnsemble::setAsEnsemble( bool isEnsemble )
 {
     if ( isEnsemble != m_isEnsemble )
     {
@@ -236,7 +236,7 @@ void RimSummaryCaseCollection::setAsEnsemble( bool isEnsemble )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RimSummaryCaseCollection::ensembleSummaryAddresses() const
+std::set<RifEclipseSummaryAddress> RimSummaryEnsemble::ensembleSummaryAddresses() const
 {
     std::set<RifEclipseSummaryAddress> addresses;
     size_t                             maxAddrCount = 0;
@@ -270,7 +270,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryCaseCollection::ensembleSummaryAddr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<time_t> RimSummaryCaseCollection::ensembleTimeSteps() const
+std::set<time_t> RimSummaryEnsemble::ensembleTimeSteps() const
 {
     std::set<time_t> allTimeSteps;
     size_t           maxAddrCount = 0;
@@ -313,7 +313,7 @@ std::set<time_t> RimSummaryCaseCollection::ensembleTimeSteps() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigEnsembleParameter> RimSummaryCaseCollection::variationSortedEnsembleParameters( bool excludeNoVariation ) const
+std::vector<RigEnsembleParameter> RimSummaryEnsemble::variationSortedEnsembleParameters( bool excludeNoVariation ) const
 {
     if ( m_cachedSortedEnsembleParameters.empty() )
     {
@@ -341,7 +341,7 @@ std::vector<RigEnsembleParameter> RimSummaryCaseCollection::variationSortedEnsem
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<RigEnsembleParameter, double>>
-    RimSummaryCaseCollection::correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address ) const
+    RimSummaryEnsemble::correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address ) const
 {
     auto parameters = parameterCorrelationsAllTimeSteps( address );
     std::sort( parameters.begin(),
@@ -355,7 +355,7 @@ std::vector<std::pair<RigEnsembleParameter, double>>
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<RigEnsembleParameter, double>>
-    RimSummaryCaseCollection::correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address, time_t selectedTimeStep ) const
+    RimSummaryEnsemble::correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address, time_t selectedTimeStep ) const
 {
     auto parameters = parameterCorrelations( address, selectedTimeStep );
     std::sort( parameters.begin(),
@@ -378,10 +378,10 @@ time_t timeDiff( time_t lhs, time_t rhs )
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<RigEnsembleParameter, double>>
-    RimSummaryCaseCollection::parameterCorrelations( const RifEclipseSummaryAddress&  address,
-                                                     time_t                           timeStep,
-                                                     const std::vector<QString>&      selectedParameters,
-                                                     const std::set<RimSummaryCase*>& selectedCases ) const
+    RimSummaryEnsemble::parameterCorrelations( const RifEclipseSummaryAddress&  address,
+                                               time_t                           timeStep,
+                                               const std::vector<QString>&      selectedParameters,
+                                               const std::set<RimSummaryCase*>& selectedCases ) const
 {
     auto parameters = variationSortedEnsembleParameters( true );
 
@@ -454,8 +454,8 @@ std::vector<std::pair<RigEnsembleParameter, double>>
 /// Returns a vector of the parameters and the average absolute values of correlations per time step
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<RigEnsembleParameter, double>>
-    RimSummaryCaseCollection::parameterCorrelationsAllTimeSteps( const RifEclipseSummaryAddress& address,
-                                                                 const std::vector<QString>&     selectedParameters ) const
+    RimSummaryEnsemble::parameterCorrelationsAllTimeSteps( const RifEclipseSummaryAddress& address,
+                                                           const std::vector<QString>&     selectedParameters ) const
 {
     const size_t     maxTimeStepCount = 10;
     std::set<time_t> timeSteps        = ensembleTimeSteps();
@@ -491,7 +491,7 @@ std::vector<std::pair<RigEnsembleParameter, double>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEnsembleParameter RimSummaryCaseCollection::ensembleParameter( const QString& paramName ) const
+RigEnsembleParameter RimSummaryEnsemble::ensembleParameter( const QString& paramName ) const
 {
     if ( !isEnsemble() || paramName.isEmpty() ) return {};
 
@@ -506,7 +506,7 @@ RigEnsembleParameter RimSummaryCaseCollection::ensembleParameter( const QString&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::calculateEnsembleParametersIntersectionHash()
+void RimSummaryEnsemble::calculateEnsembleParametersIntersectionHash()
 {
     m_commonAddressCount = RimSummaryEnsembleTools::calculateEnsembleParametersIntersectionHash( allSummaryCases() );
 }
@@ -514,7 +514,7 @@ void RimSummaryCaseCollection::calculateEnsembleParametersIntersectionHash()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::loadDataAndUpdate()
+void RimSummaryEnsemble::loadDataAndUpdate()
 {
     onLoadDataAndUpdate();
 }
@@ -522,7 +522,7 @@ void RimSummaryCaseCollection::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCaseCollection::validateEnsembleCases( const std::vector<RimSummaryCase*> cases )
+bool RimSummaryEnsemble::validateEnsembleCases( const std::vector<RimSummaryCase*> cases )
 {
     // Validate ensemble parameters
     QString                errors;
@@ -576,7 +576,7 @@ bool RimSummaryCaseCollection::validateEnsembleCases( const std::vector<RimSumma
 //--------------------------------------------------------------------------------------------------
 /// Sorting operator for sets and maps. Sorts by name.
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCaseCollection::operator<( const RimSummaryCaseCollection& rhs ) const
+bool RimSummaryEnsemble::operator<( const RimSummaryEnsemble& rhs ) const
 {
     return name() < rhs.name();
 }
@@ -584,7 +584,7 @@ bool RimSummaryCaseCollection::operator<( const RimSummaryCaseCollection& rhs ) 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::EclipseUnitSystem RimSummaryCaseCollection::unitSystem() const
+RiaDefines::EclipseUnitSystem RimSummaryEnsemble::unitSystem() const
 {
     if ( m_cases.empty() )
     {
@@ -596,7 +596,7 @@ RiaDefines::EclipseUnitSystem RimSummaryCaseCollection::unitSystem() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimSummaryCaseCollection::userDescriptionField()
+caf::PdmFieldHandle* RimSummaryEnsemble::userDescriptionField()
 {
     return &m_name;
 }
@@ -604,7 +604,7 @@ caf::PdmFieldHandle* RimSummaryCaseCollection::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::onLoadDataAndUpdate()
+void RimSummaryEnsemble::onLoadDataAndUpdate()
 {
     if ( m_isEnsemble )
     {
@@ -616,7 +616,7 @@ void RimSummaryCaseCollection::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::updateReferringCurveSets()
+void RimSummaryEnsemble::updateReferringCurveSets()
 {
     // Update curve set referring to this group
     std::vector<caf::PdmObject*> referringObjects = objectsWithReferringPtrFieldsOfType<PdmObject>();
@@ -636,7 +636,7 @@ void RimSummaryCaseCollection::updateReferringCurveSets()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSummaryAddressAnalyzer* RimSummaryCaseCollection::addressAnalyzer()
+RiaSummaryAddressAnalyzer* RimSummaryEnsemble::addressAnalyzer()
 {
     if ( !m_analyzer )
     {
@@ -651,7 +651,7 @@ RiaSummaryAddressAnalyzer* RimSummaryCaseCollection::addressAnalyzer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::computeMinMax( const RifEclipseSummaryAddress& address )
+void RimSummaryEnsemble::computeMinMax( const RifEclipseSummaryAddress& address )
 {
     if ( m_minMaxValues.count( address ) > 0 ) return;
 
@@ -680,7 +680,7 @@ void RimSummaryCaseCollection::computeMinMax( const RifEclipseSummaryAddress& ad
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::setMinMax( const RifEclipseSummaryAddress& address, double min, double max )
+void RimSummaryEnsemble::setMinMax( const RifEclipseSummaryAddress& address, double min, double max )
 {
     m_minMaxValues[address] = std::pair( min, max );
 }
@@ -688,7 +688,7 @@ void RimSummaryCaseCollection::setMinMax( const RifEclipseSummaryAddress& addres
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double> RimSummaryCaseCollection::minMax( const RifEclipseSummaryAddress& address )
+std::pair<double, double> RimSummaryEnsemble::minMax( const RifEclipseSummaryAddress& address )
 {
     computeMinMax( address );
 
@@ -698,7 +698,7 @@ std::pair<double, double> RimSummaryCaseCollection::minMax( const RifEclipseSumm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryCaseCollection::nameAndItemCount() const
+QString RimSummaryEnsemble::nameAndItemCount() const
 {
     size_t       itemCount          = m_cases.size();
     const size_t itemCountThreshold = 20;
@@ -713,7 +713,7 @@ QString RimSummaryCaseCollection::nameAndItemCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::updateIcon()
+void RimSummaryEnsemble::updateIcon()
 {
     if ( m_isEnsemble )
         setUiIconFromResourceString( ":/SummaryEnsemble.svg" );
@@ -724,7 +724,7 @@ void RimSummaryCaseCollection::updateIcon()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::initAfterRead()
+void RimSummaryEnsemble::initAfterRead()
 {
     if ( m_ensembleId() == -1 )
     {
@@ -736,7 +736,7 @@ void RimSummaryCaseCollection::initAfterRead()
 
     for ( const auto& summaryCase : m_cases )
     {
-        summaryCase->nameChanged.connect( this, &RimSummaryCaseCollection::onCaseNameChanged );
+        summaryCase->nameChanged.connect( this, &RimSummaryEnsemble::onCaseNameChanged );
     }
 
     if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2022.06.2" ) ) m_autoName = false;
@@ -745,7 +745,7 @@ void RimSummaryCaseCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+void RimSummaryEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_isEnsemble )
     {
@@ -765,7 +765,7 @@ void RimSummaryCaseCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::onCaseNameChanged( const SignalEmitter* emitter )
+void RimSummaryEnsemble::onCaseNameChanged( const SignalEmitter* emitter )
 {
     caseNameChanged.send();
 }
@@ -773,7 +773,7 @@ void RimSummaryCaseCollection::onCaseNameChanged( const SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimSummaryEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_autoName );
     uiOrdering.add( &m_name );
@@ -787,7 +787,7 @@ void RimSummaryCaseCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
+void RimSummaryEnsemble::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     if ( m_isEnsemble() )
     {
@@ -811,7 +811,7 @@ void RimSummaryCaseCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::setEnsembleId( int ensembleId )
+void RimSummaryEnsemble::setEnsembleId( int ensembleId )
 {
     m_ensembleId = ensembleId;
 }
@@ -819,7 +819,7 @@ void RimSummaryCaseCollection::setEnsembleId( int ensembleId )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimSummaryCaseCollection::ensembleId() const
+int RimSummaryEnsemble::ensembleId() const
 {
     return m_ensembleId();
 }
@@ -827,7 +827,7 @@ int RimSummaryCaseCollection::ensembleId() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCaseCollection::hasEnsembleParameters() const
+bool RimSummaryEnsemble::hasEnsembleParameters() const
 {
     for ( RimSummaryCase* rimCase : allSummaryCases() )
     {
@@ -843,7 +843,7 @@ bool RimSummaryCaseCollection::hasEnsembleParameters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::buildChildNodes()
+void RimSummaryEnsemble::buildChildNodes()
 {
     if ( m_dataVectorFolders->isEmpty() )
     {
@@ -854,7 +854,7 @@ void RimSummaryCaseCollection::buildChildNodes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::buildMetaData()
+void RimSummaryEnsemble::buildMetaData()
 {
     clearChildNodes();
     buildChildNodes();
@@ -864,7 +864,7 @@ void RimSummaryCaseCollection::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::onCalculationUpdated()
+void RimSummaryEnsemble::onCalculationUpdated()
 {
     m_dataVectorFolders->deleteCalculatedAddresses();
     m_dataVectorFolders->updateFolderStructure( ensembleSummaryAddresses(), -1, m_ensembleId );
@@ -877,7 +877,7 @@ void RimSummaryCaseCollection::onCalculationUpdated()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::clearChildNodes()
+void RimSummaryEnsemble::clearChildNodes()
 {
     m_dataVectorFolders->deleteChildren();
 }

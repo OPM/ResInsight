@@ -25,14 +25,14 @@
 
 #include "cvfObject.h"
 
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RimEclipseCase;
 class RigWellPath;
 
 class RifReaderEnsembleStatisticsRft : public RifReaderRftInterface
 {
 public:
-    RifReaderEnsembleStatisticsRft( const RimSummaryCaseCollection* summaryCaseCollection, RimEclipseCase* eclipseCase );
+    RifReaderEnsembleStatisticsRft( const RimSummaryEnsemble* summaryCaseCollection, RimEclipseCase* eclipseCase );
 
     std::set<RifEclipseRftAddress> eclipseRftAddresses() override;
     void                           values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;
@@ -58,8 +58,8 @@ private:
     void clearCache( const QString& wellName, const QDateTime& timeStep );
 
 private:
-    const RimSummaryCaseCollection* m_summaryCaseCollection;
-    RimEclipseCase*                 m_eclipseCase;
+    const RimSummaryEnsemble* m_summaryCaseCollection;
+    RimEclipseCase*           m_eclipseCase;
 
     std::map<RifEclipseRftAddress, std::vector<double>> m_cachedValues;
 };

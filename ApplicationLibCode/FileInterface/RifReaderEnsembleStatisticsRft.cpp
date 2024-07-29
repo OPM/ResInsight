@@ -25,7 +25,7 @@
 #include "RigWellPath.h"
 
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimTools.h"
 
 #include "cafAssert.h"
@@ -33,8 +33,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderEnsembleStatisticsRft::RifReaderEnsembleStatisticsRft( const RimSummaryCaseCollection* summaryCaseCollection,
-                                                                RimEclipseCase*                 eclipseCase )
+RifReaderEnsembleStatisticsRft::RifReaderEnsembleStatisticsRft( const RimSummaryEnsemble* summaryCaseCollection, RimEclipseCase* eclipseCase )
     : m_summaryCaseCollection( summaryCaseCollection )
     , m_eclipseCase( eclipseCase )
 {

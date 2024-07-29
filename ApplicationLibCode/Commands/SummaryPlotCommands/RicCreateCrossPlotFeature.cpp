@@ -28,7 +28,7 @@
 #include "RimSummaryAddress.h"
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "cafSelectionManagerTools.h"
 
@@ -110,7 +110,7 @@ void RicCreateCrossPlotFeature::onSubMenuActionTriggered( bool isChecked )
     RiaSummaryCurveAddress curveAddress( adrX, adrY );
 
     auto selectedCases     = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCase>();
-    auto selectedEnsembles = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCaseCollection>();
+    auto selectedEnsembles = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryEnsemble>();
 
     auto newPlot = RicSummaryPlotBuilder::createCrossPlot( { curveAddress }, { selectedCases }, { selectedEnsembles } );
 

@@ -21,8 +21,8 @@
 #include "RiaSummaryTools.h"
 
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -36,13 +36,13 @@ CAF_CMD_SOURCE_INIT( RicCreateSummaryCaseCollectionFeature, "RicCreateSummaryCas
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection*
+RimSummaryEnsemble*
     RicCreateSummaryCaseCollectionFeature::groupSummaryCases( std::vector<RimSummaryCase*> cases, const QString& groupName, bool isEnsemble )
 {
     RimSummaryCaseMainCollection* summaryCaseMainCollection = RiaSummaryTools::summaryCaseMainCollection();
     if ( !cases.empty() )
     {
-        auto newGroup = summaryCaseMainCollection->addCaseCollection( cases, groupName, isEnsemble );
+        auto newGroup = summaryCaseMainCollection->addEnsemble( cases, groupName, isEnsemble );
         summaryCaseMainCollection->updateConnectedEditors();
 
         RiuPlotMainWindowTools::showPlotMainWindow();

@@ -22,7 +22,7 @@
 
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
@@ -41,8 +41,8 @@ CAF_CMD_SOURCE_INIT( RicNewEmptySummaryMultiPlotFeature, "RicNewEmptySummaryMult
 //--------------------------------------------------------------------------------------------------
 void RicNewEmptySummaryMultiPlotFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimSummaryCase*>           selectedIndividualSummaryCases;
-    std::vector<RimSummaryCaseCollection*> selectedEnsembles;
+    std::vector<RimSummaryCase*>     selectedIndividualSummaryCases;
+    std::vector<RimSummaryEnsemble*> selectedEnsembles;
 
     bool skipCreationOfPlotBasedOnPreferences = false;
     RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( selectedIndividualSummaryCases,

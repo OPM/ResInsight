@@ -28,8 +28,8 @@
 #include "RimSummaryAddress.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryEnsemble.h"
 
 #include "RiuDragDrop.h"
 #include "RiuSummaryVectorSelectionDialog.h"

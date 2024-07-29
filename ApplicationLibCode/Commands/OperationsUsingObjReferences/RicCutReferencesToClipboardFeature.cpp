@@ -20,8 +20,8 @@
 
 #include "RimMimeData.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmUiItem.h"

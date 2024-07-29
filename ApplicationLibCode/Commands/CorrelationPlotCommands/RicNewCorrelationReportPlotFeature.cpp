@@ -61,9 +61,9 @@ void RicNewCorrelationReportPlotFeature::onActionTriggered( bool isChecked )
             CAF_ASSERT( !correlationPlotCollections.empty() );
             correlationPlotColl = correlationPlotCollections.front();
 
-            EnsemblePlotParams        params   = userData.value<EnsemblePlotParams>();
-            RimSummaryCaseCollection* ensemble = params.ensemble;
-            std::vector<QString>      includedQuantityNames =
+            EnsemblePlotParams   params   = userData.value<EnsemblePlotParams>();
+            RimSummaryEnsemble*  ensemble = params.ensemble;
+            std::vector<QString> includedQuantityNames =
                 std::vector<QString>( params.includedQuantityNames.begin(), params.includedQuantityNames.end() );
 
             QString     mainQuantityName = params.mainQuantityName;

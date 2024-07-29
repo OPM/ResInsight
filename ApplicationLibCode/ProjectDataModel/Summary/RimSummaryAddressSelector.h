@@ -31,7 +31,7 @@
 #include "cafPdmPtrField.h"
 
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RimSummaryAddress;
 class RimPlotAxisPropertiesInterface;
 
@@ -46,7 +46,7 @@ public:
     RimSummaryAddressSelector();
 
     void setSummaryCase( RimSummaryCase* summaryCase );
-    void setEnsemble( RimSummaryCaseCollection* ensemble );
+    void setEnsemble( RimSummaryEnsemble* ensemble );
     void setAddress( const RifEclipseSummaryAddress& address );
     void setResamplingPeriod( RiaDefines::DateTimePeriodEnum resampling );
     void setPlotAxisProperties( RimPlotAxisPropertiesInterface* plotAxisProperties );
@@ -56,7 +56,7 @@ public:
     void setShowResampling( bool enable );
 
     RimSummaryCase*                 summaryCase() const;
-    RimSummaryCaseCollection*       ensemble() const;
+    RimSummaryEnsemble*             ensemble() const;
     RifEclipseSummaryAddress        summaryAddress() const;
     RiaDefines::DateTimePeriodEnum  resamplingPeriod() const;
     RimPlotAxisPropertiesInterface* plotAxisProperties() const;
@@ -71,7 +71,7 @@ private:
 
 private:
     caf::PdmPtrField<RimSummaryCase*>                 m_summaryCase;
-    caf::PdmPtrField<RimSummaryCaseCollection*>       m_summaryCaseCollection;
+    caf::PdmPtrField<RimSummaryEnsemble*>             m_summaryCaseCollection;
     caf::PdmChildField<RimSummaryAddress*>            m_summaryAddress;
     caf::PdmField<RifEclipseSummaryAddress>           m_summaryAddressUiField;
     caf::PdmField<bool>                               m_pushButtonSelectSummaryAddress;

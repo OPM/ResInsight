@@ -34,7 +34,7 @@
 #include <QPointer>
 
 class RimObservedFmuRftData;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RimWellLogLasFile;
 class RimEclipseCase;
 
@@ -59,10 +59,10 @@ private:
 private:
     caf::PdmField<caf::AppEnum<RifDataSourceForRftPlt::SourceType>> m_sourceType;
 
-    caf::PdmPtrField<RimEclipseCase*>           m_eclCase;
-    caf::PdmPtrField<RimSummaryCase*>           m_summaryCase;
-    caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
-    caf::PdmPtrField<RimWellLogLasFile*>        m_wellLogFile;
-    caf::PdmPtrField<RimObservedFmuRftData*>    m_observedFmuRftData;
-    caf::PdmPtrField<RimPressureDepthData*>     m_pressureDepthData;
+    caf::PdmPtrField<RimEclipseCase*>        m_eclCase;
+    caf::PdmPtrField<RimSummaryCase*>        m_summaryCase;
+    caf::PdmPtrField<RimSummaryEnsemble*>    m_ensemble;
+    caf::PdmPtrField<RimWellLogLasFile*>     m_wellLogFile;
+    caf::PdmPtrField<RimObservedFmuRftData*> m_observedFmuRftData;
+    caf::PdmPtrField<RimPressureDepthData*>  m_pressureDepthData;
 };

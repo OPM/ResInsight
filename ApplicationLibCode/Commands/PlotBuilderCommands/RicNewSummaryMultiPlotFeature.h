@@ -26,7 +26,7 @@
 
 class RimSummaryMultiPlotCollection;
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 
 //==================================================================================================
 ///
@@ -43,6 +43,6 @@ protected:
 private:
     static RimSummaryMultiPlotCollection* selectedCollection( std::vector<caf::PdmUiItem*>& items );
 
-    static bool selectedCases( std::vector<RimSummaryCase*>*           selectedIndividualSummaryCases,
-                               std::vector<RimSummaryCaseCollection*>* selectedEnsembles );
+    static bool selectedCases( std::vector<RimSummaryCase*>*     selectedIndividualSummaryCases,
+                               std::vector<RimSummaryEnsemble*>* selectedEnsembles );
 };

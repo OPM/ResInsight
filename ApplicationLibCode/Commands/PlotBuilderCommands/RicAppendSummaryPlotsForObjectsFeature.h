@@ -30,7 +30,7 @@ class RimSummaryMultiPlot;
 class RifEclipseSummaryAddress;
 class RimSummaryPlot;
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 
 //==================================================================================================
 ///
@@ -50,9 +50,9 @@ public:
 
     static void appendPlots( RimSummaryMultiPlot* summaryMultiPlot, const std::vector<RimSummaryAddressCollection*>& selection );
 
-    static void appendPlots( RimSummaryMultiPlot*                          summaryMultiPlot,
-                             const std::vector<RimSummaryCase*>&           cases,
-                             const std::vector<RimSummaryCaseCollection*>& ensembles );
+    static void appendPlots( RimSummaryMultiPlot*                    summaryMultiPlot,
+                             const std::vector<RimSummaryCase*>&     cases,
+                             const std::vector<RimSummaryEnsemble*>& ensembles );
 
 protected:
     bool isCommandEnabled() const override;
@@ -60,6 +60,6 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static std::vector<RimSummaryAddressCollection*> createAddressCollections( const std::vector<RimSummaryCase*>&           cases,
-                                                                               const std::vector<RimSummaryCaseCollection*>& ensembles );
+    static std::vector<RimSummaryAddressCollection*> createAddressCollections( const std::vector<RimSummaryCase*>&     cases,
+                                                                               const std::vector<RimSummaryEnsemble*>& ensembles );
 };

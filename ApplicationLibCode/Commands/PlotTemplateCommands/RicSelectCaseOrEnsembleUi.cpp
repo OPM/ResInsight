@@ -22,7 +22,7 @@
 
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 CAF_PDM_SOURCE_INIT( RicSelectCaseOrEnsembleUi, "RicSelectCaseOrEnsembleUi" );
 
@@ -52,9 +52,9 @@ void RicSelectCaseOrEnsembleUi::setEnsembleSelectionMode( bool ensembleMode )
 
     if ( ensembleMode )
     {
-        std::vector<RimSummaryCaseCollection*> groups = proj->summaryGroups();
+        std::vector<RimSummaryEnsemble*> groups = proj->summaryGroups();
 
-        for ( RimSummaryCaseCollection* group : groups )
+        for ( RimSummaryEnsemble* group : groups )
         {
             if ( group->isEnsemble() )
             {
@@ -83,10 +83,10 @@ QList<caf::PdmOptionItemInfo> RicSelectCaseOrEnsembleUi::calculateValueOptions( 
     }
     else if ( fieldNeedingOptions == &m_selectedEnsemble )
     {
-        RimProject*                            proj   = RimProject::current();
-        std::vector<RimSummaryCaseCollection*> groups = proj->summaryGroups();
+        RimProject*                      proj   = RimProject::current();
+        std::vector<RimSummaryEnsemble*> groups = proj->summaryGroups();
 
-        for ( RimSummaryCaseCollection* group : groups )
+        for ( RimSummaryEnsemble* group : groups )
         {
             if ( group->isEnsemble() ) options.push_back( caf::PdmOptionItemInfo( group->name(), group ) );
         }
@@ -120,7 +120,7 @@ RimSummaryCase* RicSelectCaseOrEnsembleUi::selectedSummaryCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RicSelectCaseOrEnsembleUi::selectedEnsemble() const
+RimSummaryEnsemble* RicSelectCaseOrEnsembleUi::selectedEnsemble() const
 {
     if ( !m_useEnsembleMode ) return nullptr;
 

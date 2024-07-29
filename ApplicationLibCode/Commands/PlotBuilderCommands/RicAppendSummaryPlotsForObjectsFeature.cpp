@@ -30,8 +30,8 @@
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryAddressModifier.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
@@ -94,7 +94,7 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
                 {
                     for ( auto c : duplicatedPlot->curveSets() )
                     {
-                        c->setSummaryCaseCollection( ensemble );
+                        c->setSummaryEnsemble( ensemble );
                     }
                 }
             }
@@ -120,9 +120,9 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*                          summaryMultiPlot,
-                                                          const std::vector<RimSummaryCase*>&           cases,
-                                                          const std::vector<RimSummaryCaseCollection*>& ensembles )
+void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*                    summaryMultiPlot,
+                                                          const std::vector<RimSummaryCase*>&     cases,
+                                                          const std::vector<RimSummaryEnsemble*>& ensembles )
 {
     auto addressCollectionsToBeDeleted = RicAppendSummaryPlotsForObjectsFeature::createAddressCollections( cases, ensembles );
     RicAppendSummaryPlotsForObjectsFeature::appendPlots( summaryMultiPlot, addressCollectionsToBeDeleted );
@@ -137,8 +137,8 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryAddressCollection*>
-    RicAppendSummaryPlotsForObjectsFeature::createAddressCollections( const std::vector<RimSummaryCase*>&           cases,
-                                                                      const std::vector<RimSummaryCaseCollection*>& ensembles )
+    RicAppendSummaryPlotsForObjectsFeature::createAddressCollections( const std::vector<RimSummaryCase*>&     cases,
+                                                                      const std::vector<RimSummaryEnsemble*>& ensembles )
 {
     std::vector<RimSummaryAddressCollection*> addresses;
 
@@ -351,7 +351,7 @@ std::vector<RimSummaryPlot*>
             auto curveSets = sourcePlot->curveSets();
             for ( auto c : curveSets )
             {
-                if ( c->summaryCaseCollection()->ensembleId() == ensembleIdToMatch ) isMatching = true;
+                if ( c->summaryEnsemble()->ensembleId() == ensembleIdToMatch ) isMatching = true;
             }
         }
         else

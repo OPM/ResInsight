@@ -35,8 +35,8 @@
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 
@@ -50,8 +50,8 @@
 
 CAF_CMD_SOURCE_INIT( RicNewDefaultSummaryPlotFeature, "RicNewDefaultSummaryPlotFeature" );
 
-void extractPlotObjectsFromSelection( std::vector<RimSummaryCase*>*           selectedIndividualSummaryCases,
-                                      std::vector<RimSummaryCaseCollection*>* selectedEnsembles )
+void extractPlotObjectsFromSelection( std::vector<RimSummaryCase*>*     selectedIndividualSummaryCases,
+                                      std::vector<RimSummaryEnsemble*>* selectedEnsembles )
 {
     CAF_ASSERT( selectedIndividualSummaryCases && selectedEnsembles );
 
@@ -101,8 +101,8 @@ bool RicNewDefaultSummaryPlotFeature::isCommandEnabled() const
         return true;
     }
 
-    std::vector<RimSummaryCase*>           selectedIndividualSummaryCases;
-    std::vector<RimSummaryCaseCollection*> selectedEnsembles;
+    std::vector<RimSummaryCase*>     selectedIndividualSummaryCases;
+    std::vector<RimSummaryEnsemble*> selectedEnsembles;
 
     extractPlotObjectsFromSelection( &selectedIndividualSummaryCases, &selectedEnsembles );
 
@@ -135,8 +135,8 @@ void RicNewDefaultSummaryPlotFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    std::vector<RimSummaryCase*>           selectedIndividualSummaryCases;
-    std::vector<RimSummaryCaseCollection*> selectedEnsembles;
+    std::vector<RimSummaryCase*>     selectedIndividualSummaryCases;
+    std::vector<RimSummaryEnsemble*> selectedEnsembles;
     extractPlotObjectsFromSelection( &selectedIndividualSummaryCases, &selectedEnsembles );
 
     if ( !selectedIndividualSummaryCases.empty() )
@@ -155,8 +155,8 @@ void RicNewDefaultSummaryPlotFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewDefaultSummaryPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    std::vector<RimSummaryCase*>           selectedIndividualSummaryCases;
-    std::vector<RimSummaryCaseCollection*> selectedEnsembles;
+    std::vector<RimSummaryCase*>     selectedIndividualSummaryCases;
+    std::vector<RimSummaryEnsemble*> selectedEnsembles;
 
     extractPlotObjectsFromSelection( &selectedIndividualSummaryCases, &selectedEnsembles );
 

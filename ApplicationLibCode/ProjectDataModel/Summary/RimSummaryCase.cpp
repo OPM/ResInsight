@@ -25,7 +25,7 @@
 
 #include "RimProject.h"
 #include "RimSummaryAddressCollection.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiCheckBoxEditor.h"
@@ -145,9 +145,9 @@ bool RimSummaryCase::hasCaseRealizationParameters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RimSummaryCase::ensemble() const
+RimSummaryEnsemble* RimSummaryCase::ensemble() const
 {
-    RimSummaryCaseCollection* e = firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+    RimSummaryEnsemble* e = firstAncestorOrThisOfType<RimSummaryEnsemble>();
     return e && e->isEnsemble() ? e : nullptr;
 }
 

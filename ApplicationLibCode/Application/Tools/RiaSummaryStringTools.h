@@ -25,7 +25,7 @@
 
 class RimSummaryCase;
 class RifEclipseSummaryAddress;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 
 class QString;
 
@@ -42,14 +42,13 @@ public:
 
     static std::pair<QStringList, QStringList> splitIntoAddressAndDataSourceFilters( const QString& filter );
 
-    static std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>> allDataSourcesInProject();
-    static std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>>
+    static std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryEnsemble*>> allDataSourcesInProject();
+    static std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryEnsemble*>>
         dataSourcesMatchingFilters( const QStringList& dataSourceFilters );
 
     static QStringList splitIntoWords( const QString& text );
 
-    static QStringList dataSourceNames( const std::vector<RimSummaryCase*>&           summaryCases,
-                                        const std::vector<RimSummaryCaseCollection*>& ensembles );
+    static QStringList dataSourceNames( const std::vector<RimSummaryCase*>& summaryCases, const std::vector<RimSummaryEnsemble*>& ensembles );
 
     static std::set<RifEclipseSummaryAddress> computeFilteredAddresses( const QStringList&                        textFilters,
                                                                         const std::set<RifEclipseSummaryAddress>& sourceAddresses,

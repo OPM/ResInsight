@@ -45,7 +45,7 @@ class RimGridTimeHistoryCurve;
 class RimSummaryAddress;
 class RimSummaryAddressCollection;
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RimSummaryCurve;
 class RimSummaryCurveCollection;
 class RimEnsembleCurveSet;
@@ -311,7 +311,7 @@ private:
     struct CurveInfo;
 
     CurveInfo handleSummaryCaseDrop( RimSummaryCase* summaryCase );
-    CurveInfo handleEnsembleDrop( RimSummaryCaseCollection* ensemble );
+    CurveInfo handleEnsembleDrop( RimSummaryEnsemble* ensemble );
     CurveInfo handleAddressCollectionDrop( RimSummaryAddressCollection* addrColl );
     CurveInfo handleSummaryAddressDrop( RimSummaryAddress* summaryAddr );
 

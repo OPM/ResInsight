@@ -29,8 +29,8 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
@@ -47,7 +47,7 @@ CAF_CMD_SOURCE_INIT( RicConvertGroupToEnsembleFeature, "RicConvertGroupToEnsembl
 //--------------------------------------------------------------------------------------------------
 bool RicConvertGroupToEnsembleFeature::isCommandEnabled() const
 {
-    const auto& selGroups = caf::selectedObjectsByTypeStrict<RimSummaryCaseCollection*>();
+    const auto& selGroups = caf::selectedObjectsByTypeStrict<RimSummaryEnsemble*>();
     if ( selGroups.empty() ) return false;
 
     for ( const auto& group : selGroups )
@@ -62,7 +62,7 @@ bool RicConvertGroupToEnsembleFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicConvertGroupToEnsembleFeature::onActionTriggered( bool isChecked )
 {
-    const auto& selGroups = caf::selectedObjectsByTypeStrict<RimSummaryCaseCollection*>();
+    const auto& selGroups = caf::selectedObjectsByTypeStrict<RimSummaryEnsemble*>();
 
     for ( const auto& group : selGroups )
     {

@@ -26,7 +26,7 @@
 #include "RimCorrelationPlotCollection.h"
 #include "RimParameterResultCrossPlot.h"
 #include "RimRegularLegendConfig.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "RiuMultiPlotPage.h"
 #include "RiuPlotWidget.h"

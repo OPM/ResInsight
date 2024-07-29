@@ -27,7 +27,7 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimEnsembleStatistics.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
 #include "RimTimeAxisAnnotation.h"
 
@@ -308,7 +308,7 @@ void RimSummaryRegressionAnalysisCurve::extractSourceCurveData()
             {
                 // Fallback to use time steps from summary case
                 // The time steps are used for reference, not used when computing the regression curve
-                auto summaryCase  = m_ensembleCurveSet->summaryCaseCollection()->allSummaryCases().back();
+                auto summaryCase  = m_ensembleCurveSet->summaryEnsemble()->allSummaryCases().back();
                 auto allTimeSteps = summaryCase->summaryReader()->timeSteps( {} );
                 yTimeSteps        = allTimeSteps;
 

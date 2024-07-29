@@ -24,7 +24,7 @@
 
 class RimSummaryCase;
 class RimSummaryMultiPlot;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 
 //==================================================================================================
 ///
@@ -39,6 +39,6 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static std::vector<RimSummaryCase*>           selectedCases();
-    static std::vector<RimSummaryCaseCollection*> selectedEnsembles();
+    static std::vector<RimSummaryCase*>     selectedCases();
+    static std::vector<RimSummaryEnsemble*> selectedEnsembles();
 };

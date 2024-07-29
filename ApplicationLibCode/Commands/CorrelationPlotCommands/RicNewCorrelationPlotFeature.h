@@ -22,24 +22,24 @@
 
 #include <ctime>
 
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 
 class EnsemblePlotParams
 {
 public:
-    RimSummaryCaseCollection* ensemble;
-    QStringList               includedQuantityNames;
-    QString                   mainQuantityName;
-    QString                   ensembleParameter;
-    std::time_t               timeStep;
+    RimSummaryEnsemble* ensemble;
+    QStringList         includedQuantityNames;
+    QString             mainQuantityName;
+    QString             ensembleParameter;
+    std::time_t         timeStep;
 
     EnsemblePlotParams();
     EnsemblePlotParams( const EnsemblePlotParams& rhs ) = default;
 
-    EnsemblePlotParams( RimSummaryCaseCollection* ensemble,
-                        const QStringList&        includedQuantityNames,
-                        const QString&            mainQuantityName,
-                        const std::time_t&        timeStep );
+    EnsemblePlotParams( RimSummaryEnsemble* ensemble,
+                        const QStringList&  includedQuantityNames,
+                        const QString&      mainQuantityName,
+                        const std::time_t&  timeStep );
     ~EnsemblePlotParams() = default;
 };
 

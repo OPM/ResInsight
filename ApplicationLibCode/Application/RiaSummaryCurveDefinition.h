@@ -29,7 +29,7 @@
 #include <gsl/gsl>
 
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RiaSummaryCurveAddress;
 
 //==================================================================================================
@@ -40,12 +40,12 @@ class RiaSummaryCurveDefinition
 public:
     RiaSummaryCurveDefinition();
     explicit RiaSummaryCurveDefinition( RimSummaryCase* summaryCaseY, const RifEclipseSummaryAddress& summaryAddressY, bool isEnsembleCurve );
-    explicit RiaSummaryCurveDefinition( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& summaryAddressY );
-    explicit RiaSummaryCurveDefinition( RimSummaryCaseCollection* ensemble, const RiaSummaryCurveAddress& summaryCurveAddress );
+    explicit RiaSummaryCurveDefinition( RimSummaryEnsemble* ensemble, const RifEclipseSummaryAddress& summaryAddressY );
+    explicit RiaSummaryCurveDefinition( RimSummaryEnsemble* ensemble, const RiaSummaryCurveAddress& summaryCurveAddress );
 
     // X and Y Axis
-    RimSummaryCaseCollection* ensemble() const;
-    void                      setEnsemble( RimSummaryCaseCollection* ensemble );
+    RimSummaryEnsemble* ensemble() const;
+    void                setEnsemble( RimSummaryEnsemble* ensemble );
 
     // Y Axis
     RimSummaryCase*          summaryCaseY() const;
@@ -74,12 +74,12 @@ public:
     static QString curveDefinitionText( const QString& caseName, const RifEclipseSummaryAddress& summaryAddress );
 
 private:
-    RimSummaryCase*           m_summaryCaseY;
-    RifEclipseSummaryAddress  m_summaryAddressY;
-    RimSummaryCase*           m_summaryCaseX;
-    RifEclipseSummaryAddress  m_summaryAddressX;
-    RimSummaryCaseCollection* m_ensemble;
-    bool                      m_isEnsembleCurve;
+    RimSummaryCase*          m_summaryCaseY;
+    RifEclipseSummaryAddress m_summaryAddressY;
+    RimSummaryCase*          m_summaryCaseX;
+    RifEclipseSummaryAddress m_summaryAddressX;
+    RimSummaryEnsemble*      m_ensemble;
+    bool                     m_isEnsembleCurve;
 };
 
 class RiaSummaryCurveDefinitionAnalyser
@@ -88,8 +88,8 @@ public:
     RiaSummaryCurveDefinitionAnalyser() = default;
     void setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefs );
 
-    std::set<RimSummaryCase*>           m_singleSummaryCases; // All summary cases used
-    std::set<RimSummaryCaseCollection*> m_ensembles; // All the ensembles referenced by the summary cases
+    std::set<RimSummaryCase*>     m_singleSummaryCases; // All summary cases used
+    std::set<RimSummaryEnsemble*> m_ensembles; // All the ensembles referenced by the summary cases
 
     std::set<RifEclipseSummaryAddress> m_summaryAdresses;
     std::set<std::string>              m_vectorNames;

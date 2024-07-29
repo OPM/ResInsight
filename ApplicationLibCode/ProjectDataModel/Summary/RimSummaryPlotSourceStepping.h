@@ -33,7 +33,7 @@
 class RimSummaryCase;
 class RimSummaryCurve;
 class RifSummaryReaderInterface;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RifEclipseSummaryAddress;
 class RiaSummaryAddressAnalyzer;
 class RimSummaryPlot;
@@ -56,9 +56,9 @@ public:
 
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
-    RifEclipseSummaryAddress  stepAddress( RifEclipseSummaryAddress addr, int direction );
-    RimSummaryCase*           stepCase( int direction );
-    RimSummaryCaseCollection* stepEnsemble( int direction );
+    RifEclipseSummaryAddress stepAddress( RifEclipseSummaryAddress addr, int direction );
+    RimSummaryCase*          stepCase( int direction );
+    RimSummaryEnsemble*      stepEnsemble( int direction );
 
     void syncWithStepper( RimSummaryPlotSourceStepping* other );
     void setStep( QString stepIdentifier );
@@ -84,9 +84,9 @@ private:
 
     std::set<RifEclipseSummaryAddress> adressesForSourceStepping() const;
 
-    std::set<RifEclipseSummaryAddress>  addressesForCurvesInPlot() const;
-    std::set<RimSummaryCase*>           summaryCasesCurveCollection() const;
-    std::set<RimSummaryCaseCollection*> ensembleCollection() const;
+    std::set<RifEclipseSummaryAddress> addressesForCurvesInPlot() const;
+    std::set<RimSummaryCase*>          summaryCasesCurveCollection() const;
+    std::set<RimSummaryEnsemble*>      ensembleCollection() const;
 
     std::vector<caf::PdmFieldHandle*> activeFieldsForDataSourceStepping();
     std::vector<caf::PdmFieldHandle*> toolbarFieldsForDataSourceStepping();
@@ -109,8 +109,8 @@ private:
 
     caf::PdmField<caf::AppEnum<RimSummaryDataSourceStepping::SourceSteppingDimension>> m_stepDimension;
 
-    caf::PdmPtrField<RimSummaryCase*>           m_summaryCase;
-    caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
+    caf::PdmPtrField<RimSummaryCase*>     m_summaryCase;
+    caf::PdmPtrField<RimSummaryEnsemble*> m_ensemble;
 
     caf::PdmField<QString> m_wellName;
     caf::PdmField<QString> m_groupName;

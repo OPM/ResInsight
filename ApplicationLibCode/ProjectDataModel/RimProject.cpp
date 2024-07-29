@@ -84,8 +84,8 @@
 #include "RimStimPlanModelPlotCollection.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryTableCollection.h"
 #include "RimSurfaceCollection.h"
@@ -538,11 +538,11 @@ void RimProject::assignCaseIdToSummaryCase( RimSummaryCase* summaryCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProject::assignIdToEnsemble( RimSummaryCaseCollection* summaryCaseCollection )
+void RimProject::assignIdToEnsemble( RimSummaryEnsemble* summaryCaseCollection )
 {
     if ( summaryCaseCollection )
     {
-        for ( RimSummaryCaseCollection* s : RimProject::summaryGroups() )
+        for ( RimSummaryEnsemble* s : RimProject::summaryGroups() )
         {
             m_nextValidEnsembleId = std::max( m_nextValidEnsembleId, s->ensembleId() + 1 );
         }
@@ -715,9 +715,9 @@ std::vector<RimSummaryCase*> RimProject::allSummaryCases() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCaseCollection*> RimProject::summaryGroups() const
+std::vector<RimSummaryEnsemble*> RimProject::summaryGroups() const
 {
-    std::vector<RimSummaryCaseCollection*> groups;
+    std::vector<RimSummaryEnsemble*> groups;
 
     for ( RimOilField* oilField : oilFields )
     {
@@ -725,7 +725,7 @@ std::vector<RimSummaryCaseCollection*> RimProject::summaryGroups() const
         RimSummaryCaseMainCollection* sumCaseMainColl = oilField->summaryCaseMainCollection();
         if ( sumCaseMainColl )
         {
-            std::vector<RimSummaryCaseCollection*> g = sumCaseMainColl->summaryCaseCollections();
+            std::vector<RimSummaryEnsemble*> g = sumCaseMainColl->summaryCaseCollections();
             groups.insert( groups.end(), g.begin(), g.end() );
         }
     }

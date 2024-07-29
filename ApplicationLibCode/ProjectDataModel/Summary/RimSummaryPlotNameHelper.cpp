@@ -23,7 +23,7 @@
 
 #include "RimObjectiveFunctionTools.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -75,7 +75,7 @@ void RimSummaryPlotNameHelper::setSummaryCases( const std::vector<RimSummaryCase
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotNameHelper::setEnsembleCases( const std::vector<RimSummaryCaseCollection*>& ensembleCases )
+void RimSummaryPlotNameHelper::setEnsembleCases( const std::vector<RimSummaryEnsemble*>& ensembleCases )
 {
     m_ensembleCases.clear();
 
@@ -395,9 +395,9 @@ std::set<RimSummaryCase*> RimSummaryPlotNameHelper::setOfSummaryCases() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RimSummaryCaseCollection*> RimSummaryPlotNameHelper::setOfEnsembleCases() const
+std::set<RimSummaryEnsemble*> RimSummaryPlotNameHelper::setOfEnsembleCases() const
 {
-    std::set<RimSummaryCaseCollection*> ensembleCases;
+    std::set<RimSummaryEnsemble*> ensembleCases;
 
     for ( const auto& ensemble : m_ensembleCases )
     {

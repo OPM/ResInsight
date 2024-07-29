@@ -31,7 +31,7 @@
 #include <QPointer>
 
 class RiuCvfOverlayItemWidget;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RimEclipseCase;
 class RifReaderEnsembleStatisticsRft;
 class RifReaderRftInterface;
@@ -48,13 +48,13 @@ public:
     RimWellRftEnsembleCurveSet();
     ~RimWellRftEnsembleCurveSet() override;
 
-    RimSummaryCaseCollection* ensemble() const;
-    void                      setEnsemble( RimSummaryCaseCollection* ensemble );
-    ColorMode                 colorMode() const;
-    void                      setColorMode( ColorMode mode );
-    void                      initializeLegend();
-    cvf::Color3f              caseColor( const RimSummaryCase* summaryCase ) const;
-    QString                   currentEnsembleParameter() const;
+    RimSummaryEnsemble* ensemble() const;
+    void                setEnsemble( RimSummaryEnsemble* ensemble );
+    ColorMode           colorMode() const;
+    void                setColorMode( ColorMode mode );
+    void                initializeLegend();
+    cvf::Color3f        caseColor( const RimSummaryCase* summaryCase ) const;
+    QString             currentEnsembleParameter() const;
 
     void                       setEnsembleParameter( const QString& parameterName );
     RimRegularLegendConfig*    legendConfig();
@@ -81,7 +81,7 @@ private:
 
 private:
     caf::PdmPtrField<RimEclipseCase*>           m_eclipseCase;
-    caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
+    caf::PdmPtrField<RimSummaryEnsemble*>       m_ensemble;
     caf::PdmProxyValueField<QString>            m_ensembleName;
     caf::PdmField<ColorModeEnum>                m_ensembleColorMode;
     caf::PdmField<QString>                      m_ensembleParameter;

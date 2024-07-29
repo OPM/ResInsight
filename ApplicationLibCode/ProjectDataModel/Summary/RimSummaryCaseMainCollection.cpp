@@ -40,8 +40,8 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 
@@ -170,7 +170,7 @@ void RimSummaryCaseMainCollection::removeCase( RimSummaryCase* summaryCase, bool
 
     m_cases.removeChild( summaryCase );
 
-    for ( RimSummaryCaseCollection* summaryCaseCollection : m_caseCollections )
+    for ( RimSummaryEnsemble* summaryCaseCollection : m_caseCollections )
     {
         summaryCaseCollection->removeCase( summaryCase, notifyChange );
     }
@@ -194,7 +194,7 @@ void RimSummaryCaseMainCollection::removeCases( std::vector<RimSummaryCase*>& ca
         removeCase( sumCase, false );
     }
 
-    for ( RimSummaryCaseCollection* summaryCaseCollection : m_caseCollections )
+    for ( RimSummaryEnsemble* summaryCaseCollection : m_caseCollections )
     {
         summaryCaseCollection->updateReferringCurveSets();
     }
@@ -205,12 +205,12 @@ void RimSummaryCaseMainCollection::removeCases( std::vector<RimSummaryCase*>& ca
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RimSummaryCaseMainCollection::addCaseCollection( std::vector<RimSummaryCase*>               summaryCases,
-                                                                           const QString&                             collectionName,
-                                                                           bool                                       isEnsemble,
-                                                                           std::function<RimSummaryCaseCollection*()> allocator )
+RimSummaryEnsemble* RimSummaryCaseMainCollection::addEnsemble( const std::vector<RimSummaryCase*>&  summaryCases,
+                                                               const QString&                       collectionName,
+                                                               bool                                 isEnsemble,
+                                                               std::function<RimSummaryEnsemble*()> allocator )
 {
-    RimSummaryCaseCollection* summaryCaseCollection = allocator();
+    RimSummaryEnsemble* summaryCaseCollection = allocator();
     if ( !collectionName.isEmpty() ) summaryCaseCollection->setName( collectionName );
 
     if ( summaryCaseCollection->ensembleId() == -1 )
@@ -221,7 +221,7 @@ RimSummaryCaseCollection* RimSummaryCaseMainCollection::addCaseCollection( std::
 
     for ( RimSummaryCase* summaryCase : summaryCases )
     {
-        auto currentSummaryCaseCollection = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+        auto currentSummaryCaseCollection = summaryCase->firstAncestorOrThisOfType<RimSummaryEnsemble>();
         if ( currentSummaryCaseCollection )
         {
             currentSummaryCaseCollection->removeCase( summaryCase );
@@ -251,7 +251,7 @@ RimSummaryCaseCollection* RimSummaryCaseMainCollection::addCaseCollection( std::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseMainCollection::removeCaseCollection( RimSummaryCaseCollection* caseCollection )
+void RimSummaryCaseMainCollection::removeCaseCollection( RimSummaryEnsemble* caseCollection )
 {
     m_caseCollections.removeChild( caseCollection );
 
@@ -261,7 +261,7 @@ void RimSummaryCaseMainCollection::removeCaseCollection( RimSummaryCaseCollectio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseMainCollection::addEnsemble( RimSummaryCaseCollection* ensemble )
+void RimSummaryCaseMainCollection::addEnsemble( RimSummaryEnsemble* ensemble )
 {
     CVF_ASSERT( ensemble );
 
@@ -327,9 +327,9 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::topLevelSummaryCases(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCaseCollection*> RimSummaryCaseMainCollection::summaryCaseCollections() const
+std::vector<RimSummaryEnsemble*> RimSummaryCaseMainCollection::summaryCaseCollections() const
 {
-    std::vector<RimSummaryCaseCollection*> summaryCaseCollections;
+    std::vector<RimSummaryEnsemble*> summaryCaseCollections;
     for ( const auto& caseColl : m_caseCollections )
     {
         summaryCaseCollections.push_back( caseColl );
@@ -511,9 +511,9 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RimSummaryCaseMainCollection::defaultAllocator()
+RimSummaryEnsemble* RimSummaryCaseMainCollection::defaultAllocator()
 {
-    return new RimSummaryCaseCollection();
+    return new RimSummaryEnsemble();
 }
 
 //--------------------------------------------------------------------------------------------------

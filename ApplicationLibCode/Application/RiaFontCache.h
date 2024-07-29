@@ -31,7 +31,7 @@ template <typename T>
 class AppEnum;
 }
 
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 
 //==================================================================================================
 ///
