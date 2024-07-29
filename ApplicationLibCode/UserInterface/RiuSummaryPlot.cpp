@@ -23,8 +23,8 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimPlot.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
 
 #include "RiuPlotCurve.h"
@@ -85,9 +85,9 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
         {
             std::time_t timeStep = summaryCurve->timeStepsY()[closestCurvePoint];
 
-            RimSummaryCaseCollection* ensemble = nullptr;
-            QString                   clickedQuantityName;
-            QStringList               allQuantityNamesInPlot;
+            RimSummaryEnsemble* ensemble = nullptr;
+            QString             clickedQuantityName;
+            QStringList         allQuantityNamesInPlot;
 
             auto clickedEnsembleCurveSet = summaryCurve->firstAncestorOrThisOfType<RimEnsembleCurveSet>();
 
@@ -95,7 +95,7 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
 
             if ( clickedEnsembleCurveSet )
             {
-                ensemble = clickedEnsembleCurveSet->summaryCaseCollection();
+                ensemble = clickedEnsembleCurveSet->summaryEnsemble();
                 if ( ensemble && ensemble->isEnsemble() )
                 {
                     clickedQuantityName = QString::fromStdString( clickedEnsembleCurveSet->summaryAddressY().uiText() );

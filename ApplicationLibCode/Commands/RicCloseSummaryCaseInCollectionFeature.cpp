@@ -26,8 +26,8 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
 
 #include "RiuPlotMainWindow.h"
@@ -58,12 +58,12 @@ bool RicCloseSummaryCaseInCollectionFeature::isCommandEnabled() const
     std::vector<RimSummaryCaseMainCollection*> summaryCaseMainCollections;
     caf::SelectionManager::instance()->objectsByType( &summaryCaseMainCollections );
 
-    std::vector<RimSummaryCaseCollection*> summaryCaseCollections;
+    std::vector<RimSummaryEnsemble*> summaryCaseCollections;
     caf::SelectionManager::instance()->objectsByType( &summaryCaseCollections );
 
     summaryCaseCollections.erase( std::remove_if( summaryCaseCollections.begin(),
                                                   summaryCaseCollections.end(),
-                                                  []( RimSummaryCaseCollection* coll )
+                                                  []( RimSummaryEnsemble* coll )
                                                   { return dynamic_cast<RimDerivedEnsembleCaseCollection*>( coll ) != nullptr; } ),
                                   summaryCaseCollections.end() );
 
@@ -84,10 +84,10 @@ void RicCloseSummaryCaseInCollectionFeature::onActionTriggered( bool isChecked )
         RicCloseSummaryCaseFeature::deleteSummaryCases( allSummaryCases );
     }
 
-    std::vector<RimSummaryCaseCollection*> summaryCaseCollections;
+    std::vector<RimSummaryEnsemble*> summaryCaseCollections;
     caf::SelectionManager::instance()->objectsByType( &summaryCaseCollections );
 
-    for ( RimSummaryCaseCollection* summaryCaseCollection : summaryCaseCollections )
+    for ( RimSummaryEnsemble* summaryCaseCollection : summaryCaseCollections )
     {
         std::vector<RimSummaryCase*> collectionSummaryCases = summaryCaseCollection->allSummaryCases();
         RicCloseSummaryCaseFeature::deleteSummaryCases( collectionSummaryCases );

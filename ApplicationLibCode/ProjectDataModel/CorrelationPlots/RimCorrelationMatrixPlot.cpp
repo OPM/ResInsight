@@ -37,7 +37,7 @@
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlotAxisFormatter.h"
 
 #include "RiuPlotMainWindowTools.h"

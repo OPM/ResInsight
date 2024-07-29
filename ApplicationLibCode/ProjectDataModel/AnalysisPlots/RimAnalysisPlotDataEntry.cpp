@@ -21,7 +21,7 @@
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RifEclipseSummaryAddress.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
@@ -98,7 +98,7 @@ RimSummaryCase* RimAnalysisPlotDataEntry::summaryCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RimAnalysisPlotDataEntry::ensemble() const
+RimSummaryEnsemble* RimAnalysisPlotDataEntry::ensemble() const
 {
     return m_ensemble;
 }

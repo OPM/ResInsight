@@ -31,7 +31,7 @@
 class RimEclipseCase;
 class RimEclipseResultCase;
 class RimObservedFmuRftData;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RimWellLogCurve;
 class RimWellLogChannel;
 class RimWellLogPlot;
@@ -80,13 +80,13 @@ RiaRftPltCurveDefinition                              curveDefFromCurve( const R
 bool hasFlowData( const RimWellLog* wellLog );
 bool hasAssociatedWellPath( const QString& wellName );
 
-std::vector<RimEclipseResultCase*>     gridCasesForWell( const QString& simWellName );
-std::vector<RimEclipseResultCase*>     rftCasesForWell( const QString& simWellName );
-std::vector<RimSummaryCaseCollection*> rftEnsemblesForWell( const QString& simWellName );
-std::vector<RimSummaryCaseCollection*> rftEnsembles();
-std::vector<RimObservedFmuRftData*>    observedFmuRftDataForWell( const QString& simWellName );
-std::vector<RimObservedFmuRftData*>    observedFmuRftData();
-QString                                simWellName( const QString& wellPathNameOrSimWellName );
+std::vector<RimEclipseResultCase*>  gridCasesForWell( const QString& simWellName );
+std::vector<RimEclipseResultCase*>  rftCasesForWell( const QString& simWellName );
+std::vector<RimSummaryEnsemble*>    rftEnsemblesForWell( const QString& simWellName );
+std::vector<RimSummaryEnsemble*>    rftEnsembles();
+std::vector<RimObservedFmuRftData*> observedFmuRftDataForWell( const QString& simWellName );
+std::vector<RimObservedFmuRftData*> observedFmuRftData();
+QString                             simWellName( const QString& wellPathNameOrSimWellName );
 
 std::map<QDateTime, std::set<RifDataSourceForRftPlt>>
     calculateRelevantTimeStepsFromCases( const QString&                                               wellPathNameOrSimWellName,

@@ -22,7 +22,7 @@
 
 #include <vector>
 
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 
 //==================================================================================================
 ///
@@ -36,6 +36,6 @@ private:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    static void deleteSummaryCaseCollection( RimSummaryCaseCollection* caseCollection );
-    static void moveAllCasesToMainSummaryCollection( RimSummaryCaseCollection* summaryCaseCollection );
+    static void deleteSummaryCaseCollection( RimSummaryEnsemble* caseCollection );
+    static void moveAllCasesToMainSummaryCollection( RimSummaryEnsemble* summaryCaseCollection );
 };

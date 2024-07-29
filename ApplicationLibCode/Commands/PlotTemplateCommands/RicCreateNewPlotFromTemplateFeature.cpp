@@ -27,7 +27,7 @@
 #include "RicSummaryPlotTemplateTools.h"
 
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 
 #include "RiuPlotMainWindow.h"
@@ -126,7 +126,7 @@ RimSummaryCase* RicCreateNewPlotFromTemplateFeature::selectSummaryCase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RicCreateNewPlotFromTemplateFeature::selectEnsemble()
+RimSummaryEnsemble* RicCreateNewPlotFromTemplateFeature::selectEnsemble()
 {
     RiuPlotMainWindow*        plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
     RicSelectCaseOrEnsembleUi ui;

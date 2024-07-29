@@ -19,7 +19,7 @@
 #pragma once
 
 #include "RimDerivedSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -34,7 +34,7 @@ class RimSummaryCase;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimDerivedEnsembleCaseCollection : public RimSummaryCaseCollection
+class RimDerivedEnsembleCaseCollection : public RimSummaryEnsemble
 {
     CAF_PDM_HEADER_INIT;
 
@@ -50,13 +50,13 @@ public:
     RimDerivedEnsembleCaseCollection();
     ~RimDerivedEnsembleCaseCollection() override;
 
-    RimSummaryCaseCollection* ensemble1() const { return m_ensemble1; }
-    RimSummaryCaseCollection* ensemble2() const { return m_ensemble2; }
-    DerivedSummaryOperator    op() const { return m_operator(); }
-    bool                      isValid() const { return m_ensemble1 != nullptr && m_ensemble2 != nullptr; }
+    RimSummaryEnsemble*    ensemble1() const { return m_ensemble1; }
+    RimSummaryEnsemble*    ensemble2() const { return m_ensemble2; }
+    DerivedSummaryOperator op() const { return m_operator(); }
+    bool                   isValid() const { return m_ensemble1 != nullptr && m_ensemble2 != nullptr; }
 
-    void setEnsemble1( RimSummaryCaseCollection* ensemble );
-    void setEnsemble2( RimSummaryCaseCollection* ensemble );
+    void setEnsemble1( RimSummaryEnsemble* ensemble );
+    void setEnsemble2( RimSummaryEnsemble* ensemble );
 
     std::vector<RimSummaryCase*>       allSummaryCases() const override;
     std::set<RifEclipseSummaryAddress> ensembleSummaryAddresses() const override;
@@ -85,11 +85,11 @@ private:
     std::vector<RimDerivedEnsembleCaseCollection*> findReferringEnsembles() const;
 
 private:
-    std::vector<RimSummaryCaseCollection*> allEnsembles() const;
+    std::vector<RimSummaryEnsemble*> allEnsembles() const;
 
 private:
-    caf::PdmPtrField<RimSummaryCaseCollection*>         m_ensemble1;
-    caf::PdmPtrField<RimSummaryCaseCollection*>         m_ensemble2;
+    caf::PdmPtrField<RimSummaryEnsemble*>               m_ensemble1;
+    caf::PdmPtrField<RimSummaryEnsemble*>               m_ensemble2;
     caf::PdmField<caf::AppEnum<DerivedSummaryOperator>> m_operator;
     caf::PdmField<bool>                                 m_swapEnsemblesButton;
     caf::PdmField<QString>                              m_caseCount;

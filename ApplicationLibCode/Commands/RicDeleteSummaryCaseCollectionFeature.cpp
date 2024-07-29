@@ -24,8 +24,8 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
@@ -43,7 +43,7 @@ CAF_CMD_SOURCE_INIT( RicDeleteSummaryCaseCollectionFeature, "RicDeleteSummaryCas
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection( RimSummaryCaseCollection* caseCollection )
+void RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection( RimSummaryEnsemble* caseCollection )
 {
     RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
 
@@ -65,12 +65,12 @@ void RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection( RimSumm
 //--------------------------------------------------------------------------------------------------
 bool RicDeleteSummaryCaseCollectionFeature::isCommandEnabled() const
 {
-    std::vector<RimSummaryCaseCollection*> selection;
+    std::vector<RimSummaryEnsemble*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
 
     selection.erase( std::remove_if( selection.begin(),
                                      selection.end(),
-                                     []( RimSummaryCaseCollection* coll )
+                                     []( RimSummaryEnsemble* coll )
                                      { return dynamic_cast<RimDerivedEnsembleCaseCollection*>( coll ) != nullptr; } ),
                      selection.end() );
     return ( !selection.empty() );
@@ -81,7 +81,7 @@ bool RicDeleteSummaryCaseCollectionFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicDeleteSummaryCaseCollectionFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimSummaryCaseCollection*> selection;
+    std::vector<RimSummaryEnsemble*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
     if ( selection.empty() ) return;
 
@@ -103,14 +103,14 @@ void RicDeleteSummaryCaseCollectionFeature::onActionTriggered( bool isChecked )
 
     if ( ret == QMessageBox::Yes )
     {
-        for ( RimSummaryCaseCollection* summaryCaseCollection : selection )
+        for ( RimSummaryEnsemble* summaryCaseCollection : selection )
         {
             RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection( summaryCaseCollection );
         }
     }
     else if ( ret == QMessageBox::No )
     {
-        for ( RimSummaryCaseCollection* summaryCaseCollection : selection )
+        for ( RimSummaryEnsemble* summaryCaseCollection : selection )
         {
             RicDeleteSummaryCaseCollectionFeature::moveAllCasesToMainSummaryCollection( summaryCaseCollection );
         }
@@ -118,7 +118,7 @@ void RicDeleteSummaryCaseCollectionFeature::onActionTriggered( bool isChecked )
 
     RimSummaryCaseMainCollection* summaryCaseMainCollection = selection[0]->firstAncestorOrThisOfTypeAsserted<RimSummaryCaseMainCollection>();
 
-    for ( RimSummaryCaseCollection* caseCollection : selection )
+    for ( RimSummaryEnsemble* caseCollection : selection )
     {
         summaryCaseMainCollection->removeCaseCollection( caseCollection );
         delete caseCollection;
@@ -140,7 +140,7 @@ void RicDeleteSummaryCaseCollectionFeature::setupActionLook( QAction* actionToSe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteSummaryCaseCollectionFeature::moveAllCasesToMainSummaryCollection( RimSummaryCaseCollection* summaryCaseCollection )
+void RicDeleteSummaryCaseCollectionFeature::moveAllCasesToMainSummaryCollection( RimSummaryEnsemble* summaryCaseCollection )
 {
     std::vector<RimSummaryCase*> summaryCases = summaryCaseCollection->allSummaryCases();
     if ( summaryCases.empty() ) return;

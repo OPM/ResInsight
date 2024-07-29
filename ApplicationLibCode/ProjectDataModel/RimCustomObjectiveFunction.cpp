@@ -20,7 +20,7 @@
 
 #include "RimCustomObjectiveFunctionWeight.h"
 #include "RimEnsembleCurveSet.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include <cafPdmUiLineEditor.h>
 #include <cafPdmUiTreeOrdering.h>
@@ -90,7 +90,7 @@ std::vector<double> RimCustomObjectiveFunction::functionValueForAllCases() const
 {
     if ( m_weights.empty() ) return {};
 
-    RimSummaryCaseCollection* caseCollection = parentCurveSet()->summaryCaseCollection();
+    RimSummaryEnsemble* caseCollection = parentCurveSet()->summaryEnsemble();
     if ( !caseCollection || caseCollection->allSummaryCases().empty() ) return {};
 
     std::vector<double> values;

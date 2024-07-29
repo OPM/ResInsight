@@ -43,7 +43,7 @@ class RiaSummaryAddressAnalyzer;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimSummaryCaseCollection : public caf::PdmObject
+class RimSummaryEnsemble : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -52,8 +52,8 @@ public:
     caf::Signal<RimSummaryCase*> caseRemoved;
 
 public:
-    RimSummaryCaseCollection();
-    ~RimSummaryCaseCollection() override;
+    RimSummaryEnsemble();
+    ~RimSummaryEnsemble() override;
 
     void                                 removeCase( RimSummaryCase* summaryCase, bool notifyChange = true );
     void                                 addCase( RimSummaryCase* summaryCase );
@@ -91,7 +91,7 @@ public:
     void loadDataAndUpdate();
 
     static bool validateEnsembleCases( const std::vector<RimSummaryCase*> cases );
-    bool        operator<( const RimSummaryCaseCollection& rhs ) const;
+    bool        operator<( const RimSummaryEnsemble& rhs ) const;
 
     RiaDefines::EclipseUnitSystem unitSystem() const;
 

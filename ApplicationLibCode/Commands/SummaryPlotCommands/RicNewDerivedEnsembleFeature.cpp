@@ -63,7 +63,7 @@ bool RicNewDerivedEnsembleFeature::showWarningDialogWithQuestion()
 bool RicNewDerivedEnsembleFeature::isCommandEnabled() const
 {
     std::vector<RimSummaryCaseMainCollection*> mainColls = caf::selectedObjectsByTypeStrict<RimSummaryCaseMainCollection*>();
-    std::vector<RimSummaryCaseCollection*>     ensembles = caf::selectedObjectsByTypeStrict<RimSummaryCaseCollection*>();
+    std::vector<RimSummaryEnsemble*>           ensembles = caf::selectedObjectsByTypeStrict<RimSummaryEnsemble*>();
 
     return mainColls.size() == 1 || ensembles.size() == 1 || ensembles.size() == 2;
 }
@@ -78,11 +78,11 @@ void RicNewDerivedEnsembleFeature::onActionTriggered( bool isChecked )
         auto project  = RimProject::current();
         auto mainColl = project->firstSummaryCaseMainCollection();
 
-        auto newColl     = mainColl->addCaseCollection( {}, "", true, []() { return new RimDerivedEnsembleCaseCollection(); } );
+        auto newColl     = mainColl->addEnsemble( {}, "", true, []() { return new RimDerivedEnsembleCaseCollection(); } );
         auto newEnsemble = dynamic_cast<RimDerivedEnsembleCaseCollection*>( newColl );
 
         {
-            std::vector<RimSummaryCaseCollection*> ensembles = caf::selectedObjectsByType<RimSummaryCaseCollection*>();
+            std::vector<RimSummaryEnsemble*> ensembles = caf::selectedObjectsByType<RimSummaryEnsemble*>();
 
             if ( !ensembles.empty() ) newEnsemble->setEnsemble1( ensembles[0] );
             if ( ensembles.size() == 2 )

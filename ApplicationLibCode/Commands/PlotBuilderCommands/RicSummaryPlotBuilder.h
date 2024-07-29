@@ -22,7 +22,7 @@ class RimPlot;
 class RimMultiPlot;
 class RifEclipseSummaryAddress;
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RimSummaryPlot;
 class RimEnsembleCurveSet;
 class RimSummaryCurve;
@@ -54,7 +54,7 @@ public:
 public:
     RicSummaryPlotBuilder();
 
-    void setDataSources( const std::vector<RimSummaryCase*>& summaryCases, const std::vector<RimSummaryCaseCollection*>& ensembles );
+    void setDataSources( const std::vector<RimSummaryCase*>& summaryCases, const std::vector<RimSummaryEnsemble*>& ensembles );
 
     void setAddresses( const std::set<RifEclipseSummaryAddress>& addresses );
 
@@ -66,7 +66,7 @@ public:
     // Static helper functions
     static std::set<RifEclipseSummaryAddress> addressesForSource( caf::PdmObject* summarySource );
 
-    static RimEnsembleCurveSet* createCurveSet( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& addr );
+    static RimEnsembleCurveSet* createCurveSet( RimSummaryEnsemble* ensemble, const RifEclipseSummaryAddress& addr );
     static RimSummaryCurve*     createCurve( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& addr );
 
     static std::vector<RimPlot*>        duplicatePlots( const std::vector<RimPlot*>& plots );
@@ -75,8 +75,8 @@ public:
     static RimMultiPlot* createAndAppendMultiPlot( const std::vector<RimPlot*>& plots );
     static void          appendPlotsToMultiPlot( RimMultiPlot* multiPlot, const std::vector<RimPlot*>& plots );
 
-    static RimSummaryMultiPlot* createAndAppendDefaultSummaryMultiPlot( const std::vector<RimSummaryCase*>&           cases,
-                                                                        const std::vector<RimSummaryCaseCollection*>& ensembles,
+    static RimSummaryMultiPlot* createAndAppendDefaultSummaryMultiPlot( const std::vector<RimSummaryCase*>&     cases,
+                                                                        const std::vector<RimSummaryEnsemble*>& ensembles,
                                                                         bool skipCreationOfPlotBasedOnPreferences = true );
 
     static RimSummaryMultiPlot* createAndAppendSingleSummaryMultiPlotNoAutoSettings( RimSummaryPlot* plot );
@@ -87,29 +87,29 @@ public:
 
     static RimSummaryPlot* createPlot( const std::vector<RimSummaryCurve*>& summaryCurves );
 
-    static RimSummaryPlot* createPlot( const std::set<RifEclipseSummaryAddress>&     addresses,
-                                       const std::vector<RimSummaryCase*>&           summaryCases,
-                                       const std::vector<RimSummaryCaseCollection*>& ensembles );
+    static RimSummaryPlot* createPlot( const std::set<RifEclipseSummaryAddress>& addresses,
+                                       const std::vector<RimSummaryCase*>&       summaryCases,
+                                       const std::vector<RimSummaryEnsemble*>&   ensembles );
 
-    static RimSummaryPlot* createCrossPlot( const std::vector<RiaSummaryCurveAddress>&    addresses,
-                                            const std::vector<RimSummaryCase*>&           summaryCases,
-                                            const std::vector<RimSummaryCaseCollection*>& ensembles );
+    static RimSummaryPlot* createCrossPlot( const std::vector<RiaSummaryCurveAddress>& addresses,
+                                            const std::vector<RimSummaryCase*>&        summaryCases,
+                                            const std::vector<RimSummaryEnsemble*>&    ensembles );
 
-    static void appendCurvesToPlot( RimSummaryPlot*                               summaryPlot,
-                                    const std::set<RifEclipseSummaryAddress>&     addresses,
-                                    const std::vector<RimSummaryCase*>&           summaryCases,
-                                    const std::vector<RimSummaryCaseCollection*>& ensembles );
+    static void appendCurvesToPlot( RimSummaryPlot*                           summaryPlot,
+                                    const std::set<RifEclipseSummaryAddress>& addresses,
+                                    const std::vector<RimSummaryCase*>&       summaryCases,
+                                    const std::vector<RimSummaryEnsemble*>&   ensembles );
 
     static RimEnsembleCurveSet*
-        addNewEnsembleCurve( RimSummaryPlot* summaryPlot, const RiaSummaryCurveAddress& curveAddress, RimSummaryCaseCollection* ensemble );
+        addNewEnsembleCurve( RimSummaryPlot* summaryPlot, const RiaSummaryCurveAddress& curveAddress, RimSummaryEnsemble* ensemble );
 
     static RimSummaryCurve*
         addNewSummaryCurve( RimSummaryPlot* summaryPlot, const RiaSummaryCurveAddress& curveAddress, RimSummaryCase* summaryCase );
 
 private:
-    std::set<RifEclipseSummaryAddress>     m_addresses;
-    std::vector<RimSummaryCase*>           m_summaryCases;
-    std::vector<RimSummaryCaseCollection*> m_ensembles;
+    std::set<RifEclipseSummaryAddress> m_addresses;
+    std::vector<RimSummaryCase*>       m_summaryCases;
+    std::vector<RimSummaryEnsemble*>   m_ensembles;
 
     bool m_individualPlotPerDataSource;
 

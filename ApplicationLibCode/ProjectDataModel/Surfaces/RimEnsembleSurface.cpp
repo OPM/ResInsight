@@ -30,7 +30,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
 
@@ -171,10 +171,10 @@ std::vector<RimFileSurface*> RimEnsembleSurface::filterByEnsembleCurveSet( const
     if ( m_ensembleCurveSet != nullptr )
     {
         // Get the summary cases from the related ensemble summary curve set.
-        RimSummaryCaseCollection* summaryCaseCollection = m_ensembleCurveSet->summaryCaseCollection();
+        RimSummaryEnsemble* summaryEnsemble = m_ensembleCurveSet->summaryEnsemble();
 
         //
-        std::vector<RimSummaryCase*> sumCases = m_ensembleCurveSet->filterEnsembleCases( summaryCaseCollection->allSummaryCases() );
+        std::vector<RimSummaryCase*> sumCases = m_ensembleCurveSet->filterEnsembleCases( summaryEnsemble->allSummaryCases() );
         for ( auto sumCase : sumCases )
         {
             for ( auto fileSurface : fileSurfaces )

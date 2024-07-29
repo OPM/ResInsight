@@ -49,9 +49,9 @@
 #include "RimSummaryAddressSelector.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveAutoName.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimTimeStepFilter.h"
@@ -126,9 +126,9 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_showCurves.uiCapability()->setUiHidden( true );
 
     // Y Values
-    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryCaseCollection, "SummaryGroup", "Ensemble" );
-    m_yValuesSummaryCaseCollection.uiCapability()->setUiTreeChildrenHidden( true );
-    m_yValuesSummaryCaseCollection.uiCapability()->setAutoAddingOptionFromValue( false );
+    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryEnsemble, "SummaryGroup", "Ensemble" );
+    m_yValuesSummaryEnsemble.uiCapability()->setUiTreeChildrenHidden( true );
+    m_yValuesSummaryEnsemble.uiCapability()->setAutoAddingOptionFromValue( false );
 
     CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryAddressUiField, "SelectedVariableDisplayVar", "Vector" );
     m_yValuesSummaryAddressUiField.xmlCapability()->disableIO();
@@ -643,18 +643,18 @@ void RimEnsembleCurveSet::onLegendDefinitionChanged()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::setSummaryCaseCollection( RimSummaryCaseCollection* sumCaseCollection )
+void RimEnsembleCurveSet::setSummaryEnsemble( RimSummaryEnsemble* sumCaseCollection )
 {
-    m_yValuesSummaryCaseCollection = sumCaseCollection;
+    m_yValuesSummaryEnsemble = sumCaseCollection;
     m_xAddressSelector->setEnsemble( sumCaseCollection );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RimEnsembleCurveSet::summaryCaseCollection() const
+RimSummaryEnsemble* RimEnsembleCurveSet::summaryEnsemble() const
 {
-    return m_yValuesSummaryCaseCollection();
+    return m_yValuesSummaryEnsemble();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -696,8 +696,8 @@ RigEnsembleParameter::Type RimEnsembleCurveSet::currentEnsembleParameterType() c
 {
     if ( m_colorMode() == ColorMode::BY_ENSEMBLE_PARAM )
     {
-        RimSummaryCaseCollection* group         = m_yValuesSummaryCaseCollection();
-        QString                   parameterName = m_ensembleParameter();
+        RimSummaryEnsemble* group         = m_yValuesSummaryEnsemble();
+        QString             parameterName = m_ensembleParameter();
 
         if ( group && !parameterName.isEmpty() )
         {
@@ -713,8 +713,8 @@ RigEnsembleParameter::Type RimEnsembleCurveSet::currentEnsembleParameterType() c
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateAllCurves()
 {
-    RimSummaryCaseCollection* group = m_yValuesSummaryCaseCollection();
-    RimSummaryAddress*        addr  = m_yValuesSummaryAddress();
+    RimSummaryEnsemble* group = m_yValuesSummaryEnsemble();
+    RimSummaryAddress*  addr  = m_yValuesSummaryAddress();
 
     if ( group && addr->address().category() != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
     {
@@ -797,7 +797,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 
         updateTextInPlot = true;
     }
-    else if ( changedField == &m_yValuesSummaryCaseCollection )
+    else if ( changedField == &m_yValuesSummaryEnsemble )
     {
         updateAllCurves();
 
@@ -814,7 +814,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         {
             if ( !m_xAddressSelector->ensemble() )
             {
-                m_xAddressSelector->setEnsemble( summaryCaseCollection() );
+                m_xAddressSelector->setEnsemble( summaryEnsemble() );
             }
 
             if ( !m_xAddressSelector->summaryAddress().isValid() )
@@ -968,7 +968,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     else if ( changedField == &m_yPushButtonSelectSummaryAddress )
     {
         RiuSummaryVectorSelectionDialog dlg( nullptr );
-        RimSummaryCaseCollection*       candidateEnsemble = m_yValuesSummaryCaseCollection();
+        RimSummaryEnsemble*             candidateEnsemble = m_yValuesSummaryEnsemble();
         RifEclipseSummaryAddress        candicateAddress  = m_yValuesSummaryAddress->address();
 
         dlg.hideSummaryCases();
@@ -979,7 +979,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             auto curveSelection = dlg.curveSelection();
             if ( !curveSelection.empty() )
             {
-                m_yValuesSummaryCaseCollection = curveSelection[0].ensemble();
+                m_yValuesSummaryEnsemble = curveSelection[0].ensemble();
                 m_yValuesSummaryAddress->setAddress( curveSelection[0].summaryAddressY() );
 
                 loadDataAndUpdate( true );
@@ -999,7 +999,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         RiuSummaryVectorSelectionDialog dlg( nullptr );
         RimObjectiveFunctionTools::configureDialogForObjectiveFunctions( &dlg );
-        RimSummaryCaseCollection* candidateEnsemble = m_yValuesSummaryCaseCollection();
+        RimSummaryEnsemble* candidateEnsemble = m_yValuesSummaryEnsemble();
 
         std::vector<RifEclipseSummaryAddress> candidateAddresses;
         for ( auto address : m_objectiveValuesSummaryAddresses().childrenByType() )
@@ -1119,7 +1119,7 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 
     {
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
-        curveDataGroup->add( &m_yValuesSummaryCaseCollection );
+        curveDataGroup->add( &m_yValuesSummaryEnsemble );
         curveDataGroup->add( &m_yValuesSummaryAddressUiField );
         curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
 
@@ -1295,7 +1295,7 @@ void RimEnsembleCurveSet::onObjectiveFunctionChanged( const caf::SignalEmitter* 
 void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* colorsGroup = uiOrdering.addNewGroup( "Appearance" );
-    m_colorMode.uiCapability()->setUiReadOnly( !m_yValuesSummaryCaseCollection() );
+    m_colorMode.uiCapability()->setUiReadOnly( !m_yValuesSummaryEnsemble() );
     colorsGroup->add( &m_colorMode );
 
     if ( m_colorMode() == RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR )
@@ -1309,7 +1309,7 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
     }
     else if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
     {
-        m_ensembleParameter.uiCapability()->setUiReadOnly( !m_yValuesSummaryCaseCollection() );
+        m_ensembleParameter.uiCapability()->setUiReadOnly( !m_yValuesSummaryEnsemble() );
         colorsGroup->add( &m_ensembleParameterSorting );
         colorsGroup->add( &m_ensembleParameter );
     }
@@ -1461,12 +1461,12 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_yValuesSummaryCaseCollection )
+    if ( fieldNeedingOptions == &m_yValuesSummaryEnsemble )
     {
-        RimProject*                            proj   = RimProject::current();
-        std::vector<RimSummaryCaseCollection*> groups = proj->summaryGroups();
+        RimProject*                      proj   = RimProject::current();
+        std::vector<RimSummaryEnsemble*> groups = proj->summaryGroups();
 
-        for ( RimSummaryCaseCollection* group : groups )
+        for ( RimSummaryEnsemble* group : groups )
         {
             if ( group->isEnsemble() ) options.push_back( caf::PdmOptionItemInfo( group->name(), group ) );
         }
@@ -1484,7 +1484,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
         options.push_back( caf::PdmOptionItemInfo( singleColorOption.uiText(), ColorMode::SINGLE_COLOR ) );
         options.push_back( caf::PdmOptionItemInfo( singleColorWithAlphaOption.uiText(), ColorMode::SINGLE_COLOR_WITH_ALPHA ) );
 
-        RimSummaryCaseCollection* group = m_yValuesSummaryCaseCollection();
+        RimSummaryEnsemble* group = m_yValuesSummaryEnsemble();
         if ( group && group->hasEnsembleParameters() )
         {
             options.push_back( caf::PdmOptionItemInfo( byEnsParamOption.uiText(), ColorMode::BY_ENSEMBLE_PARAM ) );
@@ -1504,7 +1504,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
     }
     else if ( fieldNeedingOptions == &m_yValuesSummaryAddressUiField )
     {
-        appendOptionItemsForSummaryAddresses( &options, m_yValuesSummaryCaseCollection() );
+        appendOptionItemsForSummaryAddresses( &options, m_yValuesSummaryEnsemble() );
     }
     else if ( fieldNeedingOptions == &m_selectedTimeSteps )
     {
@@ -1591,7 +1591,7 @@ std::set<time_t> RimEnsembleCurveSet::allAvailableTimeSteps() const
 {
     std::set<time_t> timeStepUnion;
 
-    for ( RimSummaryCase* sumCase : summaryCaseCollection()->allSummaryCases() )
+    for ( RimSummaryCase* sumCase : summaryEnsemble()->allSummaryCases() )
     {
         if ( sumCase->summaryReader() )
         {
@@ -1659,8 +1659,7 @@ std::vector<RiaSummaryCurveDefinition> RimEnsembleCurveSet::curveDefinitions() c
 //--------------------------------------------------------------------------------------------------
 /// Optimization candidate
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
-                                                                RimSummaryCaseCollection*      summaryCaseGroup )
+void RimEnsembleCurveSet::appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options, RimSummaryEnsemble* summaryCaseGroup )
 {
     if ( !summaryCaseGroup ) return;
 
@@ -1837,7 +1836,7 @@ std::vector<cvf::Color3f> RimEnsembleCurveSet::generateColorsForCases( const std
 
     if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
     {
-        RimSummaryCaseCollection* group = m_yValuesSummaryCaseCollection();
+        RimSummaryEnsemble* group = m_yValuesSummaryEnsemble();
 
         QString parameterName = m_ensembleParameter();
 
@@ -1860,7 +1859,7 @@ std::vector<cvf::Color3f> RimEnsembleCurveSet::generateColorsForCases( const std
     }
     else if ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION )
     {
-        RimSummaryCaseCollection* group = m_yValuesSummaryCaseCollection();
+        RimSummaryEnsemble* group = m_yValuesSummaryEnsemble();
 
         if ( group && !group->allSummaryCases().empty() )
         {
@@ -1889,7 +1888,7 @@ std::vector<cvf::Color3f> RimEnsembleCurveSet::generateColorsForCases( const std
     }
     else if ( m_colorMode == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
     {
-        RimSummaryCaseCollection* group = m_yValuesSummaryCaseCollection();
+        RimSummaryEnsemble* group = m_yValuesSummaryEnsemble();
 
         if ( group && !group->allSummaryCases().empty() && m_customObjectiveFunction() && m_customObjectiveFunction->isValid() )
         {
@@ -1943,7 +1942,7 @@ void RimEnsembleCurveSet::updateCurveColors()
     auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
     if ( plot && plot->plotWidget() )
     {
-        if ( m_yValuesSummaryCaseCollection() && isCurvesVisible() &&
+        if ( m_yValuesSummaryEnsemble() && isCurvesVisible() &&
              !RimEnsembleCurveSetColorManager::hasSameColorForAllRealizationCurves( m_colorMode() ) && m_legendConfig->showLegend() )
         {
             if ( !m_legendOverlayFrame )
@@ -2120,8 +2119,8 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
 {
     using SAddr = RifEclipseSummaryAddress;
 
-    RimSummaryCaseCollection* group = m_yValuesSummaryCaseCollection();
-    RimSummaryAddress*        addr  = m_yValuesSummaryAddress();
+    RimSummaryEnsemble* group = m_yValuesSummaryEnsemble();
+    RimSummaryAddress*  addr  = m_yValuesSummaryAddress();
 
     if ( m_disableStatisticCurves || !group || addr->address().category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
         return;
@@ -2283,7 +2282,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves()
 RimEnsembleCurveSet* RimEnsembleCurveSet::clone() const
 {
     auto copy = copyObject<RimEnsembleCurveSet>();
-    copy->setSummaryCaseCollection( m_yValuesSummaryCaseCollection() );
+    copy->setSummaryEnsemble( m_yValuesSummaryEnsemble() );
 
     // Update summary case references
     for ( size_t i = 0; i < m_curves.size(); i++ )
@@ -2320,7 +2319,7 @@ void RimEnsembleCurveSet::updateAllTextInPlot()
 //--------------------------------------------------------------------------------------------------
 std::vector<RigEnsembleParameter> RimEnsembleCurveSet::variationSortedEnsembleParameters() const
 {
-    RimSummaryCaseCollection* ensemble = m_yValuesSummaryCaseCollection;
+    RimSummaryEnsemble* ensemble = m_yValuesSummaryEnsemble;
     if ( ensemble )
     {
         return ensemble->variationSortedEnsembleParameters();
@@ -2336,7 +2335,7 @@ std::vector<RigEnsembleParameter> RimEnsembleCurveSet::variationSortedEnsemblePa
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<RigEnsembleParameter, double>> RimEnsembleCurveSet::ensembleParameters( ParameterSorting sortingMode ) const
 {
-    RimSummaryCaseCollection* ensemble = m_yValuesSummaryCaseCollection;
+    RimSummaryEnsemble* ensemble = m_yValuesSummaryEnsemble;
     if ( ensemble )
     {
         if ( sortingMode == ParameterSorting::ABSOLUTE_VALUE )
@@ -2474,7 +2473,7 @@ void RimEnsembleCurveSet::updateEnsembleLegendItem()
 //--------------------------------------------------------------------------------------------------
 int RimEnsembleCurveSet::ensembleId() const
 {
-    if ( m_yValuesSummaryCaseCollection() != nullptr ) return m_yValuesSummaryCaseCollection()->ensembleId();
+    if ( m_yValuesSummaryEnsemble() != nullptr ) return m_yValuesSummaryEnsemble()->ensembleId();
 
     return -1;
 }

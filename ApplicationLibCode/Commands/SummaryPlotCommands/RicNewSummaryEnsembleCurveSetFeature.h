@@ -24,7 +24,7 @@
 
 class RimSummaryPlot;
 class RimEnsembleCurveSet;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 
 //==================================================================================================
 ///
@@ -34,8 +34,8 @@ class RicNewSummaryEnsembleCurveSetFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static RimSummaryPlot*                   createPlotForCurveSetsAndUpdate( std::vector<RimSummaryCaseCollection*> ensembles );
-    static std::vector<RimEnsembleCurveSet*> addDefaultCurveSets( RimSummaryPlot* plot, RimSummaryCaseCollection* ensemble );
+    static RimSummaryPlot*                   createPlotForCurveSetsAndUpdate( std::vector<RimSummaryEnsemble*> ensembles );
+    static std::vector<RimEnsembleCurveSet*> addDefaultCurveSets( RimSummaryPlot* plot, RimSummaryEnsemble* ensemble );
 
 protected:
     bool isCommandEnabled() const override;

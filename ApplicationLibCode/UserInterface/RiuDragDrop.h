@@ -32,7 +32,7 @@ class PdmUiTreeView;
 
 class RimMultiPlot;
 class RimIdenticalGridCaseGroup;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RimSummaryCaseMainCollection;
 class RimSummaryCurve;
 class RimSummaryPlot;
@@ -79,9 +79,7 @@ private:
     bool handleWellLogPlotDrop( Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogPlot* wellLogPlot, int insertAtPosition );
 
     bool handleMultiPlotDrop( Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimMultiPlot* multiPlot, int insertAtPosition );
-    bool handleSummaryCaseCollectionDrop( Qt::DropAction            action,
-                                          caf::PdmObjectGroup&      objectGroup,
-                                          RimSummaryCaseCollection* summaryCaseCollection );
+    bool handleSummaryCaseCollectionDrop( Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimSummaryEnsemble* summaryCaseCollection );
     bool handleSummaryCaseMainCollectionDrop( Qt::DropAction                action,
                                               caf::PdmObjectGroup&          objectGroup,
                                               RimSummaryCaseMainCollection* summaryCaseMainCollection );

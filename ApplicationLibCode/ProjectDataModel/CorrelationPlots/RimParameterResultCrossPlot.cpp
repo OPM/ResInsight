@@ -36,7 +36,7 @@
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlotAxisFormatter.h"
 
 #include "RiuPlotCurve.h"
@@ -203,7 +203,7 @@ void RimParameterResultCrossPlot::updateAxes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList caseNamesOfValidEnsembleCases( const RimSummaryCaseCollection* ensemble )
+QStringList caseNamesOfValidEnsembleCases( const RimSummaryEnsemble* ensemble )
 {
     QStringList caseNames;
     for ( auto summaryCase : ensemble->allSummaryCases() )

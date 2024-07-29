@@ -50,7 +50,7 @@
 #include "RimProject.h"
 #include "RimRftTools.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimTools.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
@@ -296,7 +296,7 @@ RimSummaryCase* RimWellLogRftCurve::summaryCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogRftCurve::setEnsemble( RimSummaryCaseCollection* ensemble )
+void RimWellLogRftCurve::setEnsemble( RimSummaryEnsemble* ensemble )
 {
     m_ensemble = ensemble;
 }
@@ -304,7 +304,7 @@ void RimWellLogRftCurve::setEnsemble( RimSummaryCaseCollection* ensemble )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RimWellLogRftCurve::ensemble() const
+RimSummaryEnsemble* RimWellLogRftCurve::ensemble() const
 {
     return m_ensemble;
 }

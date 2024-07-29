@@ -24,7 +24,7 @@
 
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 
 #include "cafSelectionManager.h"
@@ -86,9 +86,9 @@ std::vector<RimSummaryCase*> RicAppendSummaryPlotsForSummaryCasesFeature::select
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCaseCollection*> RicAppendSummaryPlotsForSummaryCasesFeature::selectedEnsembles()
+std::vector<RimSummaryEnsemble*> RicAppendSummaryPlotsForSummaryCasesFeature::selectedEnsembles()
 {
-    std::vector<RimSummaryCaseCollection*> objects;
+    std::vector<RimSummaryEnsemble*> objects;
     caf::SelectionManager::instance()->objectsByType( &objects );
 
     return objects;

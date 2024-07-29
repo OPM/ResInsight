@@ -32,9 +32,9 @@
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCalculationVariable.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
@@ -268,7 +268,7 @@ RimSummaryCase* RiaSummaryTools::summaryCaseById( int caseId )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RiaSummaryTools::ensembleById( int ensembleId )
+RimSummaryEnsemble* RiaSummaryTools::ensembleById( int ensembleId )
 {
     auto ensembles = RimProject::current()->summaryGroups();
 
@@ -397,7 +397,7 @@ void RiaSummaryTools::reloadSummaryCase( RimSummaryCase* summaryCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryTools::reloadSummaryEnsemble( RimSummaryCaseCollection* ensemble )
+void RiaSummaryTools::reloadSummaryEnsemble( RimSummaryEnsemble* ensemble )
 {
     RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
     for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
