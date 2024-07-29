@@ -826,7 +826,7 @@ std::vector<time_t> RimSummaryRegressionAnalysisCurve::getOutputTimeSteps( const
     {
         QDateTime firstTimeStepInData = RiaQDateTimeTools::fromTime_t( timeSteps.front() );
         QDateTime forecastStartTimeStep = RiaQDateTimeTools::subtractSpan( firstTimeStepInData, getTimeSpan( forecastBackward, forecastUnit ) );
-        auto      forecastTimeSteps =
+        auto forecastTimeSteps =
             RiaQDateTimeTools::createEvenlyDistributedDatesInInterval( forecastStartTimeStep, firstTimeStepInData, numDates );
         appendTimeSteps( outputTimeSteps, forecastTimeSteps );
     }
