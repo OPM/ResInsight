@@ -20,15 +20,7 @@
 
 #include "RiaFeatureCommandContext.h"
 
-#include "RimWellPathImport.h"
-
 #include "cafCmdFeatureMenuBuilder.h"
-#include "cafPdmUiListView.h"
-#include "cafPdmUiPropertyView.h"
-#include "cafPdmUiTreeAttributes.h"
-#include "cafPdmUiTreeView.h"
-#include "cafPdmUiTreeViewEditor.h"
-#include "cafUtils.h"
 
 #include <QAbstractTableModel>
 #include <QObject>
@@ -44,23 +36,17 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWellImportWizard::RiuWellImportWizard( const QString&     downloadFolder,
-                                          RiaOsduConnector*  osduConnector,
-                                          RimWellPathImport* wellPathImportObject,
-                                          QWidget*           parent /*= 0*/ )
+RiuWellImportWizard::RiuWellImportWizard( RiaOsduConnector* osduConnector, QWidget* parent /*= 0*/ )
     : QWizard( parent )
 {
-    m_wellPathImportObject = wellPathImportObject;
-
-    m_osduConnector     = osduConnector;
-    m_destinationFolder = downloadFolder;
+    m_osduConnector = osduConnector;
 
     m_firstTimeRequestingAuthentication = true;
 
     addPage( new AuthenticationPage( m_osduConnector, this ) );
-    addPage( new FieldSelectionPage( m_wellPathImportObject, m_osduConnector, this ) );
-    addPage( new WellSelectionPage( m_wellPathImportObject, m_osduConnector, this ) );
-    addPage( new WellSummaryPage( m_wellPathImportObject, m_osduConnector, this ) );
+    addPage( new FieldSelectionPage( m_osduConnector, this ) );
+    addPage( new WellSelectionPage( m_osduConnector, this ) );
+    addPage( new WellSummaryPage( m_osduConnector, this ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,7 +61,6 @@ RiuWellImportWizard::~RiuWellImportWizard()
 //--------------------------------------------------------------------------------------------------
 void RiuWellImportWizard::downloadFields( const QString& fieldName )
 {
-    // TODO: filter by user input
     m_osduConnector->requestFieldsByName( fieldName );
 }
 
@@ -234,7 +219,7 @@ void AuthenticationPage::accessOk()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-FieldSelectionPage::FieldSelectionPage( RimWellPathImport* wellPathImport, RiaOsduConnector* osduConnector, QWidget* parent /*= 0*/ )
+FieldSelectionPage::FieldSelectionPage( RiaOsduConnector* osduConnector, QWidget* parent /*= 0*/ )
 {
     setTitle( "Field Selection" );
 
@@ -349,7 +334,7 @@ FieldSelectionPage::~FieldSelectionPage()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-WellSelectionPage::WellSelectionPage( RimWellPathImport* wellPathImport, RiaOsduConnector* osduConnector, QWidget* parent /*= 0*/ )
+WellSelectionPage::WellSelectionPage( RiaOsduConnector* osduConnector, QWidget* parent /*= 0*/ )
 {
     QVBoxLayout* layout = new QVBoxLayout;
     setLayout( layout );
@@ -388,8 +373,6 @@ WellSelectionPage::WellSelectionPage( RimWellPathImport* wellPathImport, RiaOsdu
     m_tableView->setSortingEnabled( true );
 
     QObject::connect( filterLineEdit, &QLineEdit::textChanged, m_proxyModel, &QSortFilterProxyModel::setFilterWildcard );
-
-    m_wellPathImportObject = wellPathImport;
 
     m_osduConnector = osduConnector;
     connect( m_osduConnector, SIGNAL( wellsFinished() ), SLOT( wellsFinished() ) );
@@ -483,11 +466,8 @@ void WellSelectionPage::selectWellbore( const QItemSelection& newSelection, cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-WellSummaryPage::WellSummaryPage( RimWellPathImport* wellPathImport, RiaOsduConnector* osduConnector, QWidget* parent /*= 0*/ )
+WellSummaryPage::WellSummaryPage( RiaOsduConnector* osduConnector, QWidget* parent /*= 0*/ )
 {
-    m_wellPathImportObject = wellPathImport;
-    m_wellPathImportObject->setUiHidden( true );
-
     m_osduConnector = osduConnector;
 
     QVBoxLayout* layout = new QVBoxLayout;

@@ -35,15 +35,6 @@ class QLabel;
 class QTextEdit;
 class QTableView;
 
-class RimWellPathImport;
-
-namespace caf
-{
-class PdmUiTreeView;
-class PdmUiListView;
-class PdmUiPropertyView;
-} // namespace caf
-
 class OsduFieldTableModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -285,7 +276,7 @@ class FieldSelectionPage : public QWizardPage
     Q_OBJECT
 
 public:
-    FieldSelectionPage( RimWellPathImport* wellPathImport, RiaOsduConnector* m_osduConnector, QWidget* parent = nullptr );
+    FieldSelectionPage( RiaOsduConnector* m_osduConnector, QWidget* parent = nullptr );
     ~FieldSelectionPage() override;
 
     bool isComplete() const override;
@@ -313,7 +304,7 @@ class WellSelectionPage : public QWizardPage
     Q_OBJECT
 
 public:
-    WellSelectionPage( RimWellPathImport* wellPathImport, RiaOsduConnector* m_osduConnector, QWidget* parent = nullptr );
+    WellSelectionPage( RiaOsduConnector* m_osduConnector, QWidget* parent = nullptr );
     ~WellSelectionPage() override;
 
     void initializePage() override;
@@ -325,7 +316,6 @@ private slots:
     void selectWellbore( const QItemSelection& newSelection, const QItemSelection& oldSelection );
 
 private:
-    RimWellPathImport*      m_wellPathImportObject;
     RiaOsduConnector*       m_osduConnector;
     QTableView*             m_tableView;
     OsduWellboreTableModel* m_osduWellboresModel;
@@ -340,7 +330,7 @@ class WellSummaryPage : public QWizardPage
     Q_OBJECT
 
 public:
-    WellSummaryPage( RimWellPathImport* wellPathImport, RiaOsduConnector* osduConnector, QWidget* parent = nullptr );
+    WellSummaryPage( RiaOsduConnector* osduConnector, QWidget* parent = nullptr );
 
     void initializePage() override;
     bool isComplete() const override;
@@ -349,11 +339,10 @@ private slots:
     void wellboreTrajectoryFinished( const QString& wellboreId, int numTrajectories, const QString& errorMessage );
 
 private:
-    RimWellPathImport* m_wellPathImportObject;
-    RiaOsduConnector*  m_osduConnector;
-    QTextEdit*         m_textEdit;
-    std::set<QString>  m_pendingWellboreIds;
-    mutable QMutex     m_mutex;
+    RiaOsduConnector* m_osduConnector;
+    QTextEdit*        m_textEdit;
+    std::set<QString> m_pendingWellboreIds;
+    mutable QMutex    m_mutex;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -373,10 +362,7 @@ public:
         double  datumElevation;
     };
 
-    RiuWellImportWizard( const QString&     downloadFolder,
-                         RiaOsduConnector*  osduConnector,
-                         RimWellPathImport* wellPathImportObject,
-                         QWidget*           parent = nullptr );
+    RiuWellImportWizard( RiaOsduConnector* osduConnector, QWidget* parent = nullptr );
     ~RiuWellImportWizard() override;
 
     // Methods used from the wizard pages
@@ -401,11 +387,6 @@ private:
     RiaOsduConnector*    m_osduConnector;
     QString              m_selectedFieldId;
     std::vector<QString> m_selectedWellboreIds;
-
-    QString m_destinationFolder;
-
-    RimWellPathImport*  m_wellPathImportObject;
-    caf::PdmUiTreeView* m_pdmTreeView;
 
     bool m_firstTimeRequestingAuthentication;
 

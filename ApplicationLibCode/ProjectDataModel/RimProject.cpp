@@ -113,8 +113,6 @@
 #include "RimGridStatisticsPlotCollection.h"
 #endif
 
-#include "OsduImportCommands/RimWellPathImport.h"
-
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 
@@ -160,10 +158,6 @@ RimProject::RimProject()
 
     CAF_PDM_InitFieldNoDefault( &scriptCollection, "ScriptCollection", "Octave Scripts", ":/octave.png" );
     scriptCollection.xmlCapability()->disableIO();
-
-    CAF_PDM_InitFieldNoDefault( &wellPathImport, "WellPathImport", "WellPathImport" );
-    wellPathImport = new RimWellPathImport();
-    wellPathImport.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_mainPlotCollection, "MainPlotCollection", "Plots" );
 
@@ -912,46 +906,6 @@ const RimOilField* RimProject::activeOilField() const
     CVF_ASSERT( oilFields.size() == 1 );
 
     return oilFields[0];
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimProject::computeUtmAreaOfInterest()
-{
-    cvf::BoundingBox projectBB;
-    for ( RimCase* rimCase : allGridCases() )
-    {
-        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase );
-        if ( eclipseCase && eclipseCase->eclipseCaseData() )
-        {
-            for ( size_t gridIdx = 0; gridIdx < eclipseCase->eclipseCaseData()->gridCount(); gridIdx++ )
-            {
-                RigGridBase* rigGrid = eclipseCase->eclipseCaseData()->grid( gridIdx );
-                projectBB.add( rigGrid->boundingBox() );
-            }
-        }
-        else
-        {
-            // Todo : calculate BBox of GeoMechCase
-        }
-    }
-
-    if ( projectBB.isValid() )
-    {
-        double north, south, east, west;
-
-        north = projectBB.max().y();
-        south = projectBB.min().y();
-
-        west = projectBB.min().x();
-        east = projectBB.max().x();
-
-        wellPathImport->north = north;
-        wellPathImport->south = south;
-        wellPathImport->east  = east;
-        wellPathImport->west  = west;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

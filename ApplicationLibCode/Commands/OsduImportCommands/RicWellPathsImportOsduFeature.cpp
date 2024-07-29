@@ -33,7 +33,6 @@
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellPathCollection.h"
-#include "RimWellPathImport.h"
 
 #include "RiuMainWindow.h"
 #include "RiuWellImportWizard.h"
@@ -55,17 +54,6 @@ void RicWellPathsImportOsduFeature::onActionTriggered( bool isChecked )
     RiaApplication* app = RiaApplication::instance();
     if ( !app->project() ) return;
 
-    // Update the UTM bounding box from the reservoir
-    app->project()->computeUtmAreaOfInterest();
-
-    QString wellPathsFolderPath = QStandardPaths::writableLocation( QStandardPaths::CacheLocation ) + QString( "/wellpaths/" );
-    QDir::root().mkpath( wellPathsFolderPath );
-
-    if ( !app->project()->wellPathImport() ) return;
-
-    // Keep a copy of the import settings, and restore if cancel is pressed in the import wizard
-    QString copyOfOriginalObject = app->project()->wellPathImport()->writeObjectToXmlString();
-
     if ( !app->preferences() ) return;
 
     RimProject* project = RimProject::current();
@@ -78,7 +66,7 @@ void RicWellPathsImportOsduFeature::onActionTriggered( bool isChecked )
 
     RiaOsduConnector* osduConnector = app->makeOsduConnector();
 
-    RiuWellImportWizard wellImportwizard( wellPathsFolderPath, osduConnector, app->project()->wellPathImport(), RiuMainWindow::instance() );
+    RiuWellImportWizard wellImportwizard( osduConnector, RiuMainWindow::instance() );
 
     if ( QDialog::Accepted == wellImportwizard.exec() )
     {
@@ -114,10 +102,6 @@ void RicWellPathsImportOsduFeature::onActionTriggered( bool isChecked )
 
         project->updateConnectedEditors();
         app->project()->scheduleCreateDisplayModelAndRedrawAllViews();
-    }
-    else
-    {
-        app->project()->wellPathImport()->readObjectFromXmlString( copyOfOriginalObject, caf::PdmDefaultObjectFactory::instance() );
     }
 }
 
