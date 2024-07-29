@@ -28,7 +28,7 @@ list(APPEND COMMAND_QT_MOC_HEADERS
 )
 
 source_group(
-  "CommandFeature\\SsiHub"
+  "CommandFeature\\Osdu"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
         ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
 )
