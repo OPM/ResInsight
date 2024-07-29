@@ -66,7 +66,6 @@ class RimViewLinker;
 class RimViewLinkerCollection;
 class RimViewWindow;
 class RimWellPath;
-class RimWellPathImport;
 class RimFractureTemplateCollection;
 class RimFractureTemplate;
 class RimValveTemplateCollection;
@@ -99,7 +98,6 @@ public:
     caf::PdmChildArrayField<RimOilField*>                oilFields;
     caf::PdmChildField<RimColorLegendCollection*>        colorLegendCollection;
     caf::PdmChildField<RimScriptCollection*>             scriptCollection;
-    caf::PdmChildField<RimWellPathImport*>               wellPathImport;
     caf::PdmChildField<RimViewLinkerCollection*>         viewLinkerCollection;
     caf::PdmChildField<RimSummaryCalculationCollection*> calculationCollection;
     caf::PdmChildField<RimGridCalculationCollection*>    gridCalculationCollection;
@@ -145,8 +143,6 @@ public:
     [[nodiscard]] std::vector<Rim3dView*>   allNotLinkedViews() const;
 
     void scheduleCreateDisplayModelAndRedrawAllViews();
-
-    void computeUtmAreaOfInterest();
 
     [[nodiscard]] std::vector<RimOilField*> allOilFields() const;
     RimOilField*                            activeOilField();
