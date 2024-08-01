@@ -20,6 +20,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaRegressionTestRunner.h"
 
+#include <chrono>
 #include <iostream>
 #include <sstream>
 
@@ -264,6 +265,15 @@ void RiaLogging::debug( const QString& message )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Usage: RiaLogging::debugTimer( "Message", [&]() { code(); } );
+//--------------------------------------------------------------------------------------------------
+void RiaLogging::debugTimer( const QString& message, std::function<void()> callable )
+{
+    RiaScopeTimer timing( message );
+    callable();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiaLogging::errorInMessageBox( QWidget* parent, const QString& title, const QString& text )
@@ -403,4 +413,26 @@ void RiaThreadSafeLogger::debug( const QString& message )
 std::vector<QString> RiaThreadSafeLogger::messages() const
 {
     return m_messages;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaScopeTimer::RiaScopeTimer( const QString& message )
+    : m_startTime( std::chrono::high_resolution_clock::now() )
+    , m_message( message )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaScopeTimer::~RiaScopeTimer()
+{
+    auto end = std::chrono::high_resolution_clock::now();
+
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( end - m_startTime );
+    auto text     = m_message + QString( " (duration : %1 milliseconds)" ).arg( duration.count() );
+
+    RiaLogging::debug( text );
 }
