@@ -29,6 +29,7 @@
 #include "RifOpmRadialGridTools.h"
 #include "RifReaderEclipseWell.h"
 
+#include "RigActiveCellGrid.h"
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -79,6 +80,8 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
     {
         m_gridFileName = fileName.toStdString();
         locateInitAndRestartFiles( fileName );
+
+        if ( onlyLoadActiveCells() ) eclipseCaseData->setMainGrid( new RigActiveCellGrid() );
 
         if ( !importGrid( eclipseCaseData->mainGrid(), eclipseCaseData ) )
         {

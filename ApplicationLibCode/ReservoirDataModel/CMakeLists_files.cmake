@@ -22,6 +22,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseWellLogExtractor.h
     ${CMAKE_CURRENT_LIST_DIR}/RigLocalGrid.h
     ${CMAKE_CURRENT_LIST_DIR}/RigMainGrid.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigActiveCellGrid.h
     ${CMAKE_CURRENT_LIST_DIR}/RigReservoirBuilderMock.h
     ${CMAKE_CURRENT_LIST_DIR}/RigCaseCellResultsData.h
     ${CMAKE_CURRENT_LIST_DIR}/RigSimWellData.h
@@ -124,6 +125,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseWellLogExtractor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigLocalGrid.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigMainGrid.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigActiveCellGrid.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigReservoirBuilderMock.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigCaseCellResultsData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSimWellData.cpp

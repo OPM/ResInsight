@@ -43,20 +43,20 @@ public:
     RigMainGrid();
     ~RigMainGrid() override;
 
-public:
     std::vector<cvf::Vec3d>&       nodes();
     const std::vector<cvf::Vec3d>& nodes() const;
 
     std::vector<RigCell>&       globalCellArray();
     const std::vector<RigCell>& globalCellArray() const;
 
-    RigGridBase*       gridAndGridLocalIdxFromGlobalCellIdx( size_t globalCellIdx, size_t* gridLocalCellIdx );
-    const RigGridBase* gridAndGridLocalIdxFromGlobalCellIdx( size_t globalCellIdx, size_t* gridLocalCellIdx ) const;
+    virtual RigGridBase*       gridAndGridLocalIdxFromGlobalCellIdx( size_t globalCellIdx, size_t* gridLocalCellIdx );
+    virtual const RigGridBase* gridAndGridLocalIdxFromGlobalCellIdx( size_t globalCellIdx, size_t* gridLocalCellIdx ) const;
 
-    const RigCell& cellByGridAndGridLocalCellIdx( size_t gridIdx, size_t gridLocalCellIdx ) const;
-    size_t         reservoirCellIndexByGridAndGridLocalCellIndex( size_t gridIdx, size_t gridLocalCellIdx ) const;
-    size_t         findReservoirCellIndexFromPoint( const cvf::Vec3d& point ) const;
-    void           addLocalGrid( RigLocalGrid* localGrid );
+    virtual const RigCell& cellByGridAndGridLocalCellIdx( size_t gridIdx, size_t gridLocalCellIdx ) const;
+    virtual size_t         reservoirCellIndexByGridAndGridLocalCellIndex( size_t gridIdx, size_t gridLocalCellIdx ) const;
+    virtual size_t         findReservoirCellIndexFromPoint( const cvf::Vec3d& point ) const;
+
+    void addLocalGrid( RigLocalGrid* localGrid );
 
     size_t             gridCountOnFile() const;
     size_t             gridCount() const;
@@ -114,7 +114,7 @@ public:
     bool isDualPorosity() const;
     void setDualPorosity( bool enable );
 
-private:
+protected:
     void initAllSubCellsMainGridCellIndex();
     void buildCellSearchTree();
     void buildCellSearchTreeOptimized( size_t cellsPerBoundingBox );
@@ -123,7 +123,7 @@ private:
 
     static std::array<double, 6> defaultMapAxes();
 
-private:
+protected:
     std::vector<cvf::Vec3d>       m_nodes; ///< Global vertex table
     std::vector<RigCell>          m_cells; ///< Global array of all cells in the reservoir (including the ones in LGR's)
     cvf::Collection<RigLocalGrid> m_localGrids; ///< List of all the LGR's in this reservoir

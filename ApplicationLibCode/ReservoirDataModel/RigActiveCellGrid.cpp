@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA
-//  Copyright (C) Ceetron Solutions AS
+//  Copyright (C) 2024-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,23 +16,18 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#include "RigActiveCellGrid.h"
 
-#include <QString>
-
-//==================================================================================================
+//--------------------------------------------------------------------------------------------------
 ///
-///
-//==================================================================================================
-struct RifReaderSettings
+//--------------------------------------------------------------------------------------------------
+RigActiveCellGrid::RigActiveCellGrid()
 {
-    bool    importFaults;
-    bool    importNNCs;
-    bool    includeInactiveCellsInFaultGeometry;
-    bool    importAdvancedMswData;
-    bool    useResultIndexFile;
-    bool    skipWellData;
-    bool    importSummaryData;
-    QString includeFileAbsolutePathPrefix;
-    bool    onlyLoadActiveCells;
-};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigActiveCellGrid::~RigActiveCellGrid()
+{
+}

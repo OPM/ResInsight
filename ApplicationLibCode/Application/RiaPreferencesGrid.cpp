@@ -157,7 +157,8 @@ RifReaderSettings RiaPreferencesGrid::gridOnlyReaderSettings()
         false, // useResultIndexFile
         true, // skipWellData
         false, // import summary data
-        "" // include prefix
+        "", // include prefix,
+        false // only active cells
     };
     return rs;
 }
@@ -174,7 +175,8 @@ RifReaderSettings RiaPreferencesGrid::readerSettings()
                           m_useResultIndexFile,
                           m_skipWellData,
                           true, // import summary data
-                          m_includeFileAbsolutePathPrefix };
+                          m_includeFileAbsolutePathPrefix,
+                          m_onlyLoadActiveCells };
     return rs;
 }
 
