@@ -567,9 +567,6 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_compile_options(qt5advanceddocking PRIVATE -Wno-deprecated)
 endif()
 
-set(BUILD_STATIC ON FORCE)
-set(BUILD_EXAMPLES OFF FORCE)
-
 list(APPEND THIRD_PARTY_LIBRARIES qt5advanceddocking)
 
 # ##############################################################################
