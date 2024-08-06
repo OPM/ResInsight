@@ -61,11 +61,13 @@ public:
 private:
     void buildMetaData( RigEclipseCaseData* caseData, caf::ProgressInfo& progress );
     bool importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* caseData );
+    bool importActiveGrid( RigMainGrid* mainGrid, RigEclipseCaseData* caseData );
     void transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
                            Opm::EclIO::EGrid&  opmGrid,
                            RigMainGrid*        riMainGrid,
                            RigGridBase*        riGrid,
                            RigEclipseCaseData* caseData );
+    void transferActiveGeometry( Opm::EclIO::EGrid& opmMainGrid, RigMainGrid* riMainGrid, RigEclipseCaseData* caseData );
 
     void transferActiveCells( Opm::EclIO::EGrid&  opmGrid,
                               size_t              cellStartIndex,
