@@ -217,7 +217,11 @@ well_state_type* well_state_alloc(const char* well_name, int global_well_nr, boo
 
     /* See documentation of the 'IWEL_UNDOCUMENTED_ZERO' in well_const.h */
     if ((type == ECL_WELL_ZERO) && open)
-        util_abort("%s: Invalid type value for open wells.\n", __func__);
+    {
+        delete well_state;
+        //util_abort("%s: Invalid type value for open wells.\n", __func__);
+        return nullptr;
+    }
     return well_state;
 }
 
@@ -600,12 +604,14 @@ well_state_type* well_state_alloc_from_file2(ecl_file_view_type* file_view, std:
 
             well_state = well_state_alloc(name, global_well_nr, open, type, report_nr, global_header->sim_time);
             free(name);
+            if (well_state != nullptr)
+            {
+                well_state_add_connections2(well_state, grid_names, file_view, global_well_nr);
+                if (ecl_file_view_has_kw(file_view, ISEG_KW))
+                    well_state_add_MSW2(well_state, file_view, global_well_nr, load_segment_information);
 
-            well_state_add_connections2(well_state, grid_names, file_view, global_well_nr);
-            if (ecl_file_view_has_kw(file_view, ISEG_KW))
-                well_state_add_MSW2(well_state, file_view, global_well_nr, load_segment_information);
-
-            well_state_add_rates(well_state, file_view, global_well_nr);
+                well_state_add_rates(well_state, file_view, global_well_nr);
+            }
         }
         ecl_rsthead_free(global_header);
         return well_state;
