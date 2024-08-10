@@ -18,6 +18,9 @@
 
 #include "RigActiveCellGrid.h"
 
+#include "RigActiveCellInfo.h"
+#include "RigEclipseCaseData.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -40,13 +43,20 @@ RigActiveCellGrid::~RigActiveCellGrid()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellGrid::initializeActiveMapIndex( const std::vector<int> activeMatrixIndexes, const std::vector<int> activeFracIndexes )
+void RigActiveCellGrid::transferActiveInformation( RigEclipseCaseData*     eclipseCaseData,
+                                                   size_t                  totalActiveCells,
+                                                   size_t                  matrixActiveCells,
+                                                   size_t                  fractureActiveCells,
+                                                   const std::vector<int>& activeMatrixIndexes,
+                                                   const std::vector<int>& activeFracIndexes )
 {
-    m_globalToActiveMap.resize( activeMatrixIndexes.size() );
+    const auto totalCells = activeMatrixIndexes.size();
+
+    m_globalToActiveMap.resize( totalCells );
     size_t activeCells = 1; // first cell is our "invalid cell" used for all non-active cells to save space
     m_activeToGlobalMap.push_back( 0 );
 
-    for ( size_t i = 0; i < activeMatrixIndexes.size(); i++ )
+    for ( size_t i = 0; i < totalCells; i++ )
     {
         if ( ( activeMatrixIndexes[i] < 0 ) && ( activeFracIndexes[i] < 0 ) )
         {
@@ -56,6 +66,40 @@ void RigActiveCellGrid::initializeActiveMapIndex( const std::vector<int> activeM
         m_activeToGlobalMap.push_back( i );
         m_globalToActiveMap[i] = activeCells++;
     }
+
+    RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+
+    activeCellInfo->setReservoirCellCount( totalActiveCells + 1 );
+    fractureActiveCellInfo->setReservoirCellCount( totalActiveCells + 1 );
+
+    activeCellInfo->setGridCount( 1 );
+    fractureActiveCellInfo->setGridCount( 1 );
+
+    activeCellInfo->setGridActiveCellCounts( 0, matrixActiveCells );
+    fractureActiveCellInfo->setGridActiveCellCounts( 0, fractureActiveCells );
+
+#pragma omp parallel for
+    for ( int opmCellIndex = 0; opmCellIndex < (int)totalCells; opmCellIndex++ )
+    {
+        auto activeCellIndex = m_globalToActiveMap[opmCellIndex];
+
+        // active cell index
+        int matrixActiveIndex = activeMatrixIndexes[opmCellIndex];
+        if ( matrixActiveIndex != -1 )
+        {
+            activeCellInfo->setCellResultIndex( activeCellIndex, matrixActiveIndex );
+        }
+
+        int fractureActiveIndex = activeFracIndexes[opmCellIndex];
+        if ( fractureActiveIndex != -1 )
+        {
+            fractureActiveCellInfo->setCellResultIndex( activeCellIndex, fractureActiveIndex );
+        }
+    }
+
+    activeCellInfo->computeDerivedData();
+    fractureActiveCellInfo->computeDerivedData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,4 +154,12 @@ const RigCell& RigActiveCellGrid::cell( size_t gridLocalCellIndex ) const
 {
     auto index = m_globalToActiveMap[gridLocalCellIndex];
     return RigGridBase::cell( index );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigActiveCellGrid::cellCount() const
+{
+    return m_cells.size();
 }

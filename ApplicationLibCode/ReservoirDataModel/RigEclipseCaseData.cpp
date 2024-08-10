@@ -429,11 +429,12 @@ void RigEclipseCaseData::computeActiveCellIJKBBox()
         CellRangeBB matrixModelActiveBB;
         CellRangeBB fractureModelActiveBB;
 
-        size_t idx;
-        for ( idx = 0; idx < m_mainGrid->cellCount(); idx++ )
+        for ( size_t idx = 0; idx < m_mainGrid->cellCount(); idx++ )
         {
             size_t i, j, k;
             m_mainGrid->ijkFromCellIndex( idx, &i, &j, &k );
+
+            if ( !m_mainGrid->isCellValid( i, j, k ) ) continue;
 
             if ( m_activeCellInfo->isActive( idx ) )
             {

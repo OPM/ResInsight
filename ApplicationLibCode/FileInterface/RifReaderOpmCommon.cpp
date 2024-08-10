@@ -1099,9 +1099,6 @@ bool RifReaderOpmCommon::importActiveGrid( RigActiveCellGrid* activeGrid, RigEcl
 
     Opm::EclIO::EGrid opmGrid( m_gridFileName );
 
-    RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
-
     const auto& dims = opmGrid.dimension();
     activeGrid->setGridPointDimensions( cvf::Vec3st( dims[0] + 1, dims[1] + 1, dims[2] + 1 ) );
     activeGrid->setGridName( "Main grid" );
@@ -1124,17 +1121,12 @@ bool RifReaderOpmCommon::importActiveGrid( RigActiveCellGrid* activeGrid, RigEcl
     m_gridNames.clear();
     m_gridNames.push_back( "global" );
 
-    activeCellInfo->setReservoirCellCount( totalCellCount );
-    fractureActiveCellInfo->setReservoirCellCount( totalCellCount );
-
     activeGrid->globalCellArray().reserve( (size_t)totalActiveCount + 1 );
     activeGrid->nodes().reserve( (size_t)( totalActiveCount + 1 ) * 8 );
 
-    activeCellInfo->setGridCount( 1 );
-    fractureActiveCellInfo->setGridCount( 1 );
-
     std::vector<Opm::EclIO::EGrid> lgrGrids; // lgrs not supported here for now
 
+    // active cell information
     {
         auto task = progInfo.task( "Getting Active Cell Information", 1 );
 
@@ -1144,21 +1136,15 @@ bool RifReaderOpmCommon::importActiveGrid( RigActiveCellGrid* activeGrid, RigEcl
             updateActiveCellInfo( eclipseCaseData, opmGrid, lgrGrids, activeGrid );
         }
 
-        // reinit with updated information
-        globalMatrixActiveSize   = opmGrid.activeCells();
-        globalFractureActiveSize = opmGrid.activeFracCells();
-
-        activeCellInfo->setGridActiveCellCounts( 0, globalMatrixActiveSize );
-        fractureActiveCellInfo->setGridActiveCellCounts( 0, globalFractureActiveSize );
-
-        transferActiveCells( opmGrid, 0, eclipseCaseData, 0, 0 );
-
-        activeCellInfo->computeDerivedData();
-        fractureActiveCellInfo->computeDerivedData();
+        activeGrid->transferActiveInformation( eclipseCaseData,
+                                               opmGrid.totalActiveCells(),
+                                               opmGrid.activeCells(),
+                                               opmGrid.activeFracCells(),
+                                               opmGrid.active_indexes(),
+                                               opmGrid.active_frac_indexes() );
     }
 
-    activeGrid->initializeActiveMapIndex( opmGrid.active_indexes(), opmGrid.active_frac_indexes() );
-
+    // grid geometry
     {
         auto task = progInfo.task( "Loading Active Cell Main Grid Geometry", 1 );
         transferActiveGeometry( opmGrid, activeGrid, eclipseCaseData );
@@ -1208,7 +1194,7 @@ void RifReaderOpmCommon::transferActiveGeometry( Opm::EclIO::EGrid& opmMainGrid,
 {
     int    cellCount      = opmMainGrid.totalActiveCells();
     size_t cellStartIndex = activeGrid->globalCellArray().size();
-    size_t nodeStartIndex = activeGrid->nodes().size();
+    size_t nodeStartIndex = activeGrid->nodes().size() + 8;
 
     RigCell defaultCell;
     defaultCell.setHostGrid( activeGrid );
@@ -1235,10 +1221,14 @@ void RifReaderOpmCommon::transferActiveGeometry( Opm::EclIO::EGrid& opmMainGrid,
     // use same mapping as resdata
     const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 
-#pragma omp parallel for
+    int nFound = 0;
+
+    // #pragma omp parallel for
     for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( opmMainGrid.totalNumberOfCells() ); opmCellIndex++ )
     {
-        if ( ( activeMatIndexes[opmCellIndex] < 0 ) || ( activeFracIndexes[opmCellIndex] < 0 ) ) continue;
+        if ( ( activeMatIndexes[opmCellIndex] < 0 ) && ( activeFracIndexes[opmCellIndex] < 0 ) ) continue;
+
+        nFound++;
 
         auto opmIJK = opmMainGrid.ijk_from_global_index( opmCellIndex );
 
@@ -1253,7 +1243,7 @@ void RifReaderOpmCommon::transferActiveGeometry( Opm::EclIO::EGrid& opmMainGrid,
         }
 
         auto     riReservoirIndex = activeGrid->cellIndexFromIJK( opmIJK[0], opmIJK[1], opmIJK[2] );
-        RigCell& cell             = activeGrid->globalCellArray()[cellStartIndex + riReservoirIndex];
+        RigCell& cell             = activeGrid->globalCellArray()[riReservoirIndex];
         cell.setGridLocalCellIndex( riReservoirIndex );
         cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );
 
@@ -1264,7 +1254,7 @@ void RifReaderOpmCommon::transferActiveGeometry( Opm::EclIO::EGrid& opmMainGrid,
         opmMainGrid.getCellCorners( opmCellIndex, opmX, opmY, opmZ );
 
         // Each cell has 8 nodes, use reservoir cell index and multiply to find first node index for cell
-        auto riNodeStartIndex = nodeStartIndex + riReservoirIndex * 8;
+        auto riNodeStartIndex = riReservoirIndex * 8;
 
         for ( size_t opmNodeIndex = 0; opmNodeIndex < 8; opmNodeIndex++ )
         {

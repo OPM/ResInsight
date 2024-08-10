@@ -49,7 +49,7 @@ public:
     size_t cellCountJ() const override;
     size_t cellCountK() const override;
 
-    size_t                 cellCount() const;
+    virtual size_t         cellCount() const;
     virtual RigCell&       cell( size_t gridLocalCellIndex );
     virtual const RigCell& cell( size_t gridLocalCellIndex ) const;
 

@@ -208,7 +208,7 @@ void RigGridBase::cellMinMaxCordinates( size_t cellIndex, cvf::Vec3d* minCoordin
 //--------------------------------------------------------------------------------------------------
 bool RigGridBase::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const
 {
-    CVF_TIGHT_ASSERT( cellIndex < cellCount() );
+    CVF_TIGHT_ASSERT( cellIndex < RigGridBase::cellCount() );
 
     size_t index = cellIndex;
 
