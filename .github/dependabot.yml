@@ -9,5 +9,10 @@ updates:
     directory: "/"
     allow:
       - dependency-name: "ThirdParty/fast_float"
+      - dependency-name: "ThirdParty/qtadvanceddocking"
+      - dependency-name: "ThirdParty/regression-analysis"
+      - dependency-name: "ThirdParty/roff-cpp"
+      - dependency-name: "ThirdParty/spdlog"
+      - dependency-name: "ThirdParty/tomlplusplus"
     schedule:
       interval: "weekly"
