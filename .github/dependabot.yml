@@ -6,6 +6,8 @@
 version: 2
 updates:
   - package-ecosystem: gitsubmodule
-    directory: "/ThirdParty/fast_float"
+    directory: "/"
+    allow:
+      - dependency-name: "ThirdParty/fast_float"
     schedule:
       interval: "weekly"
