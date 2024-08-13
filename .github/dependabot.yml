@@ -5,14 +5,8 @@
 
 version: 2
 updates:
-  - package-ecosystem: gitsubmodule
+  - package-ecosystem: "github-actions"
     directory: "/"
-    allow:
-      - dependency-name: "ThirdParty/fast_float"
-      - dependency-name: "ThirdParty/qtadvanceddocking"
-      - dependency-name: "ThirdParty/regression-analysis"
-      - dependency-name: "ThirdParty/roff-cpp"
-      - dependency-name: "ThirdParty/spdlog"
-      - dependency-name: "ThirdParty/tomlplusplus"
     schedule:
+      # Check for updates to GitHub Actions every week
       interval: "weekly"
