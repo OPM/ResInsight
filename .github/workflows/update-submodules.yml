@@ -26,6 +26,8 @@ jobs:
       - name: Update submodules to latest release
         run: |
           cd ThirdParty
+
+          git fetch --all
           
           submodules=("fast_float" "spdlog" "tomlplusplus" )
           for submodule in "${submodules[@]}"; do
