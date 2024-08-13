@@ -1,0 +1,62 @@
+name: Update Submodules
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Runs every Sunday at midnight
+  workflow_dispatch: # Allows manual triggering of the workflow
+
+jobs:
+  update-submodules:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install GitHub CLI
+        run: sudo apt-get install -y gh
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Update submodules to latest release
+        run: |
+          cd ThirdParty
+          submodules=("fast_float" "qtadvanceddocking" "regression-analysis" "roff-cpp" "spdlog" "tomlplusplus" )
+          for submodule in "${submodules[@]}"; do
+            BRANCH_NAME=ci-update-$submodule
+            if git show-ref --verify --quiet refs/heads/$BRANCH_NAME; then
+              echo "Branch $BRANCH_NAME exists."
+              git checkout $BRANCH_NAME
+            else
+              echo "Branch $BRANCH_NAME does not exist. Creating branch."
+              git checkout -b $BRANCH_NAME
+            fi
+
+            cd $submodule
+            git fetch --tags
+            latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+            git checkout $latest_tag
+            cd ..
+            git add $submodule
+            git commit -m "Update $submodule to $latest_tag" || echo "No changes to commit"
+            git push origin $BRANCH_NAME
+            git checkout dev
+
+            git reset --hard origin/dev --recurse-submodule
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Pull Requests for each submodule
+        run: |
+          submodules=("fast_float" "qtadvanceddocking" "regression-analysis" "roff-cpp" "spdlog" "tomlplusplus" )
+          for submodule in "${submodules[@]}"; do
+            gh pr create --title "Update $submodule to latest release" --body "This PR updates the $submodule submodule to its latest release." --head ci-update-$submodule --base dev
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
