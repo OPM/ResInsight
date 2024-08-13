@@ -51,7 +51,7 @@ jobs:
           modules: "qtnetworkauth"
   
       - name: Run vcpkg
-        uses: lukka/run-vcpkg@v7
+        uses: lukka/run-vcpkg@v11
         id: runvcpkg
         with:
           vcpkgArguments: "@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}"
