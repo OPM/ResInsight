@@ -633,11 +633,12 @@ set_property(
 add_subdirectory(ThirdParty/tomlplusplus)
 
 # ##############################################################################
-# spdlog
+# spdlog and fast_float
 # ##############################################################################
 
-add_subdirectory(ThirdParty/spdlog)
-list(APPEND THIRD_PARTY_LIBRARIES spdlog)
+find_package(FastFloat CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
+list(APPEND THIRD_PARTY_LIBRARIES FastFloat::fast_float spdlog::spdlog)
 
 # ##############################################################################
 # Arrow

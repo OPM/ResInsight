@@ -5,6 +5,8 @@
     "boost-spirit",
     "eigen3",
     "grpc",
-    "type-lite"
+    "type-lite",
+    "fast-float",
+    "spdlog"
   ]
 }
