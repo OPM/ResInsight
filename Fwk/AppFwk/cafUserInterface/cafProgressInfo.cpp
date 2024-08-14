@@ -541,7 +541,7 @@ void ProgressInfoStatic::start( ProgressInfo&  progressInfo,
         dialog->setValue( static_cast<int>( currentTotalProgress() ) );
         dialog->setLabelText( currentComposedLabel() );
     }
-    QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+    //    QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
     // if (progressDialog()) progressDialog()->repaint();
 }
 
@@ -559,7 +559,7 @@ void ProgressInfoStatic::setProgressDescription( const QString& description )
     {
         dialog->setLabelText( currentComposedLabel() );
     }
-    QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+    //    QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
     // if (progressDialog()) progressDialog()->repaint();
 }
 
@@ -605,7 +605,7 @@ void ProgressInfoStatic::setProgress( size_t progressValue )
         dialog->setValue( totalProgress );
     }
 
-    QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+    //    QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
     // if (progressDialog()) progressDialog()->repaint();
 }
 
@@ -687,7 +687,7 @@ void ProgressInfoStatic::finished()
         dialog->setLabelText( currentComposedLabel() );
     }
 
-    QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+    //    QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
 
     // If we are finishing the last level, clean up
     if ( maxProgressStack_v.empty() )
