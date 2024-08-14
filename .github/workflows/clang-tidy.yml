@@ -51,7 +51,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake -DRESINSIGHT_USE_OPENMP=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+          cmake -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux-release -DRESINSIGHT_USE_OPENMP=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
           mv compile_commands.json compile_commands_original.json
           python ../scripts/fix_json_database.py compile_commands_original.json >> compile_commands.json
       - name: Run clang-tidy and apply fixes, clang-format after fixes
