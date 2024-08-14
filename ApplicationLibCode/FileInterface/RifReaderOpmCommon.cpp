@@ -1114,7 +1114,6 @@ bool RifReaderOpmCommon::importActiveGrid( RigActiveCellGrid* activeGrid, RigEcl
     else if ( gridUnitStr.starts_with( 'C' ) )
         m_gridUnit = 3;
 
-    auto totalActiveCount         = opmGrid.totalActiveCells();
     auto globalMatrixActiveSize   = opmGrid.activeCells();
     auto globalFractureActiveSize = opmGrid.activeFracCells();
 
