@@ -77,6 +77,7 @@ private:
 
     std::map<std::pair<QString, QString>, std::unique_ptr<caf::DataLoader>> m_dataLoaders;
     std::map<QString, int>                                                  m_pendingTasksByType;
+    std::map<QString, ProgressInfo*>                                        m_progressInfos;
     int                                                                     m_taskId;
 
     QMutex         m_mutex;

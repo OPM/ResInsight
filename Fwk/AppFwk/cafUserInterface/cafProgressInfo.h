@@ -38,6 +38,8 @@
 
 #include <cstddef>
 
+#include <atomic>
+
 class QString;
 
 namespace caf
@@ -57,15 +59,20 @@ private:
 class ProgressInfo
 {
 public:
-    ProgressInfo( size_t maxProgressValue, const QString& title, bool delayShowingProgress = true );
+    ProgressInfo( size_t maxProgressValue, const QString& title, bool delayShowingProgress = true, bool allowCancel = false );
 
     ~ProgressInfo();
     void setProgressDescription( const QString& description );
     void setProgress( size_t progressValue );
     void incrementProgress();
     void setNextProgressIncrement( size_t nextStepSize );
+    void cancel();
+    bool isCancelled() const;
 
     ProgressTask task( const QString& description, int stepSize = 1 );
+
+private:
+    std::atomic<bool> m_isCancelled;
 };
 
 class ProgressInfoBlocker
@@ -78,7 +85,11 @@ public:
 class ProgressInfoStatic
 {
 public:
-    static void start( size_t maxProgressValue, const QString& title, bool delayShowingProgress );
+    static void start( ProgressInfo&  progressInfo,
+                       size_t         maxProgressValue,
+                       const QString& title,
+                       bool           delayShowingProgress,
+                       bool           allowCance );
 
     static void setProgressDescription( const QString& description );
     static void setProgress( size_t progressValue );
@@ -95,6 +106,7 @@ private:
     friend class ProgressInfoBlocker;
     static bool s_running;
     static bool s_disabled;
+    static bool s_isButtonConnected;
 };
 
 } // namespace caf

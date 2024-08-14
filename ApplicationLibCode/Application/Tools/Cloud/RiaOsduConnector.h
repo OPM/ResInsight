@@ -113,6 +113,8 @@ public:
 
     QString wellIdForWellboreId( const QString& wellboreId ) const;
 
+    void cancelRequestForId( const QString& id );
+
     void clearCachedData();
 
     QString dataPartition() const;
@@ -173,6 +175,7 @@ private:
     const QString m_dataPartitionId;
 
     mutable QMutex                                         m_mutex;
+    mutable QMutex                                         m_repliesMutex;
     std::vector<OsduField>                                 m_fields;
     std::vector<OsduWell>                                  m_wells;
     std::map<QString, std::vector<OsduWellbore>>           m_wellbores;
@@ -180,4 +183,5 @@ private:
     std::map<QString, std::vector<OsduWellLog>>            m_wellLogs;
     std::map<QString, QByteArray>                          m_parquetData;
     std::map<QString, QString>                             m_parquetErrors;
+    std::map<QString, QPointer<QNetworkReply>>             m_replies;
 };
