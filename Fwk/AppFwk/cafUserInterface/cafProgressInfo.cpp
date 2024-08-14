@@ -47,6 +47,7 @@
 
 #include <QApplication>
 #include <QCoreApplication>
+#include <QObject>
 #include <QPointer>
 #include <QProgressDialog>
 #include <QThread>
@@ -71,6 +72,7 @@ ProgressTask::ProgressTask( ProgressInfo& parentTask )
     : m_parentTask( parentTask )
 {
 }
+
 ProgressTask::~ProgressTask()
 {
     m_parentTask.incrementProgress();
@@ -125,9 +127,11 @@ ProgressTask::~ProgressTask()
 /// If you do not need a title for a particular level, simply pass "" and it will be ignored.
 /// \sa setProgressDescription
 //--------------------------------------------------------------------------------------------------
-ProgressInfo::ProgressInfo( size_t maxProgressValue, const QString& title, bool delayShowingProgress )
+ProgressInfo::ProgressInfo( size_t maxProgressValue, const QString& title, bool delayShowingProgress, bool allowCancel )
 {
-    ProgressInfoStatic::start( maxProgressValue, title, delayShowingProgress );
+    m_isCancelled.store( false );
+
+    ProgressInfoStatic::start( *this, maxProgressValue, title, delayShowingProgress, allowCancel );
 
     if ( dynamic_cast<QApplication*>( QCoreApplication::instance() ) )
     {
@@ -193,6 +197,16 @@ void ProgressInfo::incrementProgress()
 void ProgressInfo::setNextProgressIncrement( size_t nextStepSize )
 {
     ProgressInfoStatic::setNextProgressIncrement( nextStepSize );
+}
+
+void ProgressInfo::cancel()
+{
+    m_isCancelled.store( true );
+}
+
+bool ProgressInfo::isCancelled() const
+{
+    return m_isCancelled;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -462,13 +476,18 @@ ProgressInfoBlocker::~ProgressInfoBlocker()
 ///
 //==================================================================================================
 
-bool ProgressInfoStatic::s_disabled = false;
-bool ProgressInfoStatic::s_running  = false;
+bool ProgressInfoStatic::s_disabled          = false;
+bool ProgressInfoStatic::s_running           = false;
+bool ProgressInfoStatic::s_isButtonConnected = false;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ProgressInfoStatic::start( size_t maxProgressValue, const QString& title, bool delayShowingProgress )
+void ProgressInfoStatic::start( ProgressInfo&  progressInfo,
+                                size_t         maxProgressValue,
+                                const QString& title,
+                                bool           delayShowingProgress,
+                                bool           allowCancel )
 {
     if ( !isUpdatePossible() ) return;
 
@@ -485,7 +504,20 @@ void ProgressInfoStatic::start( size_t maxProgressValue, const QString& title, b
         {
             dialog->setMinimum( 0 );
             dialog->setWindowTitle( title );
-            dialog->setCancelButton( nullptr );
+            if ( allowCancel )
+            {
+                dialog->setCancelButtonText( "Cancel" );
+                if ( !s_isButtonConnected )
+                {
+                    QObject::connect( dialog, &QProgressDialog::canceled, [&progressInfo]() { progressInfo.cancel(); } );
+                    s_isButtonConnected = true;
+                }
+            }
+            else
+            {
+                dialog->setCancelButton( nullptr );
+            }
+
             if ( delayShowingProgress )
             {
                 dialog->setMinimumDuration( 2000 );
@@ -548,7 +580,7 @@ void ProgressInfoStatic::setProgress( size_t progressValue )
     if ( progressValue > maxProgressStack_v.back() )
     {
         reportError( "setProgress() is called with a progressValue > max, progressValue == " +
-                     std::to_string( progressValue ) );
+                     std::to_string( progressValue ) + " max == " + std::to_string( maxProgressStack_v.back() ) );
         progressValue = maxProgressStack_v.back();
     }
 
@@ -662,6 +694,8 @@ void ProgressInfoStatic::finished()
     {
         if ( dialog )
         {
+            QObject::disconnect( dialog, &QProgressDialog::canceled, nullptr, nullptr );
+
             dialog->reset();
             dialog->close();
             s_running = false;

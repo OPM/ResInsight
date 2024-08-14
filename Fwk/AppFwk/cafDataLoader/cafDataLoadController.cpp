@@ -39,6 +39,7 @@
 #include "cafDataLoadTask.h"
 #include "cafDataLoader.h"
 #include "cafPdmObject.h"
+#include "cafProgressInfo.h"
 
 #include <QApplication>
 #include <QRunnable>
@@ -87,6 +88,7 @@ void DataLoadController::loadData( caf::PdmObject& object, const QString& dataTy
     {
         QMutexLocker locker( &m_mutex );
         m_pendingTasksByType[dataType]++;
+        m_progressInfos[dataType] = &progressInfo;
         locker.unlock();
 
         if ( it->second->isRunnable() )
@@ -131,4 +133,5 @@ void DataLoadController::onTaskFinished( const caf::SignalEmitter* emitter, QStr
 {
     QMutexLocker locker( &m_mutex );
     m_pendingTasksByType[dataType]--;
+    m_progressInfos[dataType]->incrementProgress();
 }

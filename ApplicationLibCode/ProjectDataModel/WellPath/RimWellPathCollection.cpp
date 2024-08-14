@@ -151,10 +151,6 @@ void RimWellPathCollection::fieldChangedByUi( const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::loadDataAndUpdate()
 {
-    caf::ProgressInfo progress( 3, "Reading well paths from file" );
-
-    readWellPathFormationFiles();
-
     auto hasOsduData = []( const std::vector<RimWellPath*>& wellPaths ) -> bool
     {
         for ( RimWellPath* wellPath : wellPaths )
@@ -167,6 +163,22 @@ void RimWellPathCollection::loadDataAndUpdate()
 
         return false;
     };
+
+    auto countWellLogs = []( const std::vector<RimWellPath*>& wellPaths ) -> bool
+    {
+        int count = 0;
+        for ( RimWellPath* wellPath : wellPaths )
+        {
+            count += wellPath->wellLogs().size();
+        }
+        return count;
+    };
+
+    caf::ProgressInfo progress( allWellPaths().size() + countWellLogs( allWellPaths() ) + 2, "Reading well paths from file", false, true );
+
+    readWellPathFormationFiles();
+
+    progress.incrementProgress();
 
     if ( hasOsduData( allWellPaths() ) )
     {
@@ -185,7 +197,11 @@ void RimWellPathCollection::loadDataAndUpdate()
         dataLoadController->loadData( *wellPath, wellPathGeometryKeyword, progress );
     }
     dataLoadController->blockUntilDone( wellPathGeometryKeyword );
-    progress.incrementProgress();
+
+    if ( progress.isCancelled() )
+    {
+        return;
+    }
 
     progress.setProgressDescription( QString( "Reading well logs." ) );
     for ( RimWellPath* wellPath : allWellPaths() )
@@ -196,7 +212,6 @@ void RimWellPathCollection::loadDataAndUpdate()
         }
     }
     dataLoadController->blockUntilDone( wellLogKeyword );
-    progress.incrementProgress();
 
     progress.setProgressDescription( QString( "Reading additional data." ) );
     for ( RimWellPath* wellPath : allWellPaths() )
@@ -692,15 +707,15 @@ void RimWellPathCollection::readWellPathFormationFiles()
 {
     caf::ProgressInfo progress( m_wellPaths.size(), "Reading well picks from file" );
 
-    for ( size_t wpIdx = 0; wpIdx < m_wellPaths.size(); wpIdx++ )
+    for ( const auto& wellPath : m_wellPaths )
     {
         QString errorMessage;
-        if ( !m_wellPaths[wpIdx]->readWellPathFormationsFile( &errorMessage, m_wellPathFormationsImporter.get() ) )
+        if ( !wellPath->readWellPathFormationsFile( &errorMessage, m_wellPathFormationsImporter.get() ) )
         {
             RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "File open error", errorMessage );
         }
 
-        progress.setProgressDescription( QString( "Reading formation file %1" ).arg( wpIdx ) );
+        progress.setProgressDescription( QString( "Reading formation file for %1" ).arg( wellPath->name() ) );
         progress.incrementProgress();
     }
 }
