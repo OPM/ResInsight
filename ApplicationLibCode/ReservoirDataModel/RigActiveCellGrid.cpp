@@ -26,11 +26,6 @@
 //--------------------------------------------------------------------------------------------------
 RigActiveCellGrid::RigActiveCellGrid()
 {
-    m_invalidCell.setInvalid( true );
-    for ( size_t i = 0; i < 8; i++ )
-        m_invalidCell.cornerIndices()[i] = 0;
-
-    m_cells.push_back( m_invalidCell );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,19 +48,21 @@ void RigActiveCellGrid::transferActiveInformation( RigEclipseCaseData*     eclip
     const auto totalCells = activeMatrixIndexes.size();
 
     m_globalToActiveMap.resize( totalCells );
-    size_t activeCells = 1; // first cell is our "invalid cell" used for all non-active cells to save space
-    m_activeToGlobalMap.push_back( 0 );
+    size_t activeCells       = 0;
+    size_t anInactiveCellIdx = 0;
 
     for ( size_t i = 0; i < totalCells; i++ )
     {
         if ( ( activeMatrixIndexes[i] < 0 ) && ( activeFracIndexes[i] < 0 ) )
         {
-            m_globalToActiveMap[i] = 0;
+            m_globalToActiveMap[i] = totalActiveCells;
+            anInactiveCellIdx      = i;
             continue;
         }
         m_activeToGlobalMap.push_back( i );
         m_globalToActiveMap[i] = activeCells++;
     }
+    m_activeToGlobalMap.push_back( anInactiveCellIdx );
 
     RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
     RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
@@ -125,6 +122,13 @@ size_t RigActiveCellGrid::cellIndexFromIJKUnguarded( size_t i, size_t j, size_t 
 //--------------------------------------------------------------------------------------------------
 bool RigActiveCellGrid::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const
 {
+    if ( cellIndex >= m_activeToGlobalMap.size() )
+    {
+        i = 0;
+        j = 0;
+        k = 0;
+        return false;
+    }
     auto index = m_activeToGlobalMap[cellIndex];
     return RigGridBase::ijkFromCellIndex( index, i, j, k );
 }
@@ -143,8 +147,7 @@ void RigActiveCellGrid::ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, 
 //--------------------------------------------------------------------------------------------------
 RigCell& RigActiveCellGrid::cell( size_t gridLocalCellIndex )
 {
-    auto index = m_globalToActiveMap[gridLocalCellIndex];
-    return RigGridBase::cell( index );
+    return m_cells[gridLocalCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -152,8 +155,7 @@ RigCell& RigActiveCellGrid::cell( size_t gridLocalCellIndex )
 //--------------------------------------------------------------------------------------------------
 const RigCell& RigActiveCellGrid::cell( size_t gridLocalCellIndex ) const
 {
-    auto index = m_globalToActiveMap[gridLocalCellIndex];
-    return RigGridBase::cell( index );
+    return m_cells[gridLocalCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------

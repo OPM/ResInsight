@@ -429,6 +429,7 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
 
     RigCell defaultCell;
     defaultCell.setHostGrid( localGrid );
+
     mainGrid->globalCellArray().resize( cellStartIndex + cellCount, defaultCell );
 
     mainGrid->nodes().resize( nodeStartIndex + cellCount * 8, cvf::Vec3d( 0, 0, 0 ) );
@@ -1113,16 +1114,12 @@ bool RifReaderOpmCommon::importActiveGrid( RigActiveCellGrid* activeGrid, RigEcl
     else if ( gridUnitStr.starts_with( 'C' ) )
         m_gridUnit = 3;
 
-    auto totalCellCount           = opmGrid.totalNumberOfCells();
     auto totalActiveCount         = opmGrid.totalActiveCells();
     auto globalMatrixActiveSize   = opmGrid.activeCells();
     auto globalFractureActiveSize = opmGrid.activeFracCells();
 
     m_gridNames.clear();
     m_gridNames.push_back( "global" );
-
-    activeGrid->globalCellArray().reserve( (size_t)totalActiveCount + 1 );
-    activeGrid->nodes().reserve( (size_t)( totalActiveCount + 1 ) * 8 );
 
     std::vector<Opm::EclIO::EGrid> lgrGrids; // lgrs not supported here for now
 
@@ -1192,24 +1189,24 @@ bool RifReaderOpmCommon::importActiveGrid( RigActiveCellGrid* activeGrid, RigEcl
 //--------------------------------------------------------------------------------------------------
 void RifReaderOpmCommon::transferActiveGeometry( Opm::EclIO::EGrid& opmMainGrid, RigActiveCellGrid* activeGrid, RigEclipseCaseData* eclipseCaseData )
 {
-    int    cellCount      = opmMainGrid.totalActiveCells();
-    size_t cellStartIndex = activeGrid->globalCellArray().size();
-    size_t nodeStartIndex = activeGrid->nodes().size() + 8;
+    int cellCount = opmMainGrid.totalActiveCells();
 
     RigCell defaultCell;
     defaultCell.setHostGrid( activeGrid );
-    activeGrid->globalCellArray().resize( cellStartIndex + cellCount, defaultCell );
+    for ( size_t i = 0; i < 8; i++ )
+        defaultCell.cornerIndices()[i] = 0;
 
-    activeGrid->nodes().resize( nodeStartIndex + cellCount * 8, cvf::Vec3d( 0, 0, 0 ) );
+    activeGrid->globalCellArray().resize( cellCount + 1, defaultCell );
+    activeGrid->globalCellArray()[cellCount].setInvalid( true );
+
+    activeGrid->nodes().resize( ( cellCount + 1 ) * 8, cvf::Vec3d( 0, 0, 0 ) );
 
     auto& riNodes = activeGrid->nodes();
 
     opmMainGrid.loadData();
     opmMainGrid.load_grid_data();
 
-    const bool  isRadialGrid  = opmMainGrid.is_radial();
-    const auto& gridDimension = opmMainGrid.dimension();
-
+    const bool  isRadialGrid      = opmMainGrid.is_radial();
     const auto& activeMatIndexes  = opmMainGrid.active_indexes();
     const auto& activeFracIndexes = opmMainGrid.active_frac_indexes();
 
@@ -1221,14 +1218,10 @@ void RifReaderOpmCommon::transferActiveGeometry( Opm::EclIO::EGrid& opmMainGrid,
     // use same mapping as resdata
     const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 
-    int nFound = 0;
-
-    // #pragma omp parallel for
+#pragma omp parallel for
     for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( opmMainGrid.totalNumberOfCells() ); opmCellIndex++ )
     {
         if ( ( activeMatIndexes[opmCellIndex] < 0 ) && ( activeFracIndexes[opmCellIndex] < 0 ) ) continue;
-
-        nFound++;
 
         auto opmIJK = opmMainGrid.ijk_from_global_index( opmCellIndex );
 
