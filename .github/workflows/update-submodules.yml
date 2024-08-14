@@ -29,7 +29,7 @@ jobs:
 
           git fetch --all
           
-          submodules=("fast_float" "spdlog" "tomlplusplus" )
+          submodules=("vcpkg" "tomlplusplus" )
           for submodule in "${submodules[@]}"; do
             BRANCH_NAME=ci-update-$submodule
             if git ls-remote --heads origin "$BRANCH_NAME" | grep -q "$BRANCH_NAME"; then
@@ -67,7 +67,7 @@ jobs:
 
       - name: Create Pull Requests for each submodule
         run: |
-          submodules=("fast_float" "spdlog" "tomlplusplus" )
+          submodules=("vcpkg" "tomlplusplus" )
           for submodule in "${submodules[@]}"; do
             gh pr create --title "Update $submodule to latest release" --body "This PR updates the $submodule submodule to its latest release." --head ci-update-$submodule --base dev
           done
