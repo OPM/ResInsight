@@ -35,6 +35,7 @@ jobs:
           fi
 
       - name: Create PR
+        # The generated PR does not have any tests. Close and reopen the PR to activate tests.
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
