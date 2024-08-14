@@ -4,9 +4,6 @@
 [submodule "ThirdParty/vcpkg"]
 	path = ThirdParty/vcpkg
 	url = https://github.com/microsoft/vcpkg
-[submodule "ThirdParty/fast_float"]
-	path = ThirdParty/fast_float
-	url = https://github.com/fastfloat/fast_float
 [submodule "ThirdParty/custom-opm-common/opm-common"]
 	path = ThirdParty/custom-opm-common/opm-common
 	url = https://github.com/CeetronSolutions/opm-common
@@ -25,6 +22,3 @@
 [submodule "ThirdParty/qtadvanceddocking"]
 	path = ThirdParty/qtadvanceddocking
 	url = https://github.com/CeetronSolutions/qtadvanceddocking.git
-[submodule "ThirdParty/spdlog"]
-	path = ThirdParty/spdlog
-	url = https://github.com/gabime/spdlog.git

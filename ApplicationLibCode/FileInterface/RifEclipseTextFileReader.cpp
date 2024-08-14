@@ -20,7 +20,7 @@
 #include "RifEclipseKeywordContent.h"
 
 // Utility class for fast conversion from string to float
-#include "fast_float/include/fast_float/fast_float.h"
+#include "fast_float/fast_float.h"
 
 // Utility class memory mapping of files
 #include "mio/mio.hpp"
