@@ -14,7 +14,7 @@ on:
 
 jobs:
   ResInsight-x64-buildcache:
-    runs-on: ${{ matrix.config.os }}
+    runs-on: ubuntu-22.04
     continue-on-error: true
     steps:
       - name: Checkout
