@@ -68,12 +68,12 @@ DataLoadController* DataLoadController::instance()
 //--------------------------------------------------------------------------------------------------
 void DataLoadController::registerDataLoader( const QString&              objectType,
                                              const QString&              dataType,
-                                             std::shared_ptr<DataLoader> dataLoader )
+                                             std::unique_ptr<DataLoader> dataLoader )
 {
-    std::pair<QString, QString> key = { objectType, dataType };
-    m_dataLoaders[key]              = dataLoader;
-
     dataLoader->taskDone.connect( this, &DataLoadController::onTaskFinished );
+
+    std::pair<QString, QString> key = { objectType, dataType };
+    m_dataLoaders[key]              = std::move( dataLoader );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,21 +85,19 @@ void DataLoadController::loadData( caf::PdmObject& object, const QString& dataTy
     auto                        it  = m_dataLoaders.find( key );
     if ( it != m_dataLoaders.end() )
     {
-        std::shared_ptr<caf::DataLoader> dataLoader = it->second;
-
         QMutexLocker locker( &m_mutex );
         m_pendingTasksByType[dataType]++;
         locker.unlock();
 
-        if ( dataLoader->isRunnable() )
+        if ( it->second->isRunnable() )
         {
-            DataLoadTask* task = new DataLoadTask( *this, *dataLoader.get(), object, dataType, m_taskId++, progressInfo );
+            DataLoadTask* task = new DataLoadTask( *this, *it->second.get(), object, dataType, m_taskId++, progressInfo );
             task->setAutoDelete( true );
             QThreadPool::globalInstance()->start( task );
         }
         else
         {
-            dataLoader->loadData( object, dataType, m_taskId++, progressInfo );
+            it->second->loadData( object, dataType, m_taskId++, progressInfo );
         }
     }
 }
