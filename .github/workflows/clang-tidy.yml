@@ -16,7 +16,7 @@ env:
   VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
 
 jobs:
-  ResInsight-x64-buildcache:
+  ResInsight-clang-tidy:
     runs-on: ubuntu-22.04
     continue-on-error: true
     steps:
