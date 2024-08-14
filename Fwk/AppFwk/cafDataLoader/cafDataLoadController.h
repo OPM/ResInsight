@@ -64,7 +64,7 @@ public:
     DataLoadController( const DataLoadController& )            = delete;
     DataLoadController& operator=( const DataLoadController& ) = delete;
 
-    void registerDataLoader( const QString& objectType, const QString& dataType, std::shared_ptr<DataLoader> dataLoader );
+    void registerDataLoader( const QString& objectType, const QString& dataType, std::unique_ptr<DataLoader> dataLoader );
 
     void loadData( caf::PdmObject& object, const QString& dateType, ProgressInfo& progressInfo );
 
@@ -75,7 +75,7 @@ public:
 private:
     DataLoadController();
 
-    std::map<std::pair<QString, QString>, std::shared_ptr<caf::DataLoader>> m_dataLoaders;
+    std::map<std::pair<QString, QString>, std::unique_ptr<caf::DataLoader>> m_dataLoaders;
     std::map<QString, int>                                                  m_pendingTasksByType;
     int                                                                     m_taskId;
 

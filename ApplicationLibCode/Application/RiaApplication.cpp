@@ -1755,15 +1755,15 @@ void RiaApplication::initializeDataLoadController()
     const QString wellPathGeometryKeyword = "WELL_PATH_GEOMETRY";
     dataLoadController->registerDataLoader( RimFileWellPath::classKeywordStatic(),
                                             wellPathGeometryKeyword,
-                                            std::make_shared<RimFileWellPathDataLoader>() );
+                                            std::make_unique<RimFileWellPathDataLoader>() );
     dataLoadController->registerDataLoader( RimOsduWellPath::classKeywordStatic(),
                                             wellPathGeometryKeyword,
-                                            std::make_shared<RimOsduWellPathDataLoader>() );
+                                            std::make_unique<RimOsduWellPathDataLoader>() );
     dataLoadController->registerDataLoader( RimModeledWellPath::classKeywordStatic(),
                                             wellPathGeometryKeyword,
-                                            std::make_shared<RimModeledWellPathDataLoader>() );
+                                            std::make_unique<RimModeledWellPathDataLoader>() );
 
     const QString wellLogKeyword = "WELL_LOG";
-    dataLoadController->registerDataLoader( RimWellLogFile::classKeywordStatic(), wellLogKeyword, std::make_shared<RimWellLogFileDataLoader>() );
-    dataLoadController->registerDataLoader( RimOsduWellLog::classKeywordStatic(), wellLogKeyword, std::make_shared<RimOsduWellLogDataLoader>() );
+    dataLoadController->registerDataLoader( RimWellLogFile::classKeywordStatic(), wellLogKeyword, std::make_unique<RimWellLogFileDataLoader>() );
+    dataLoadController->registerDataLoader( RimOsduWellLog::classKeywordStatic(), wellLogKeyword, std::make_unique<RimOsduWellLogDataLoader>() );
 }
