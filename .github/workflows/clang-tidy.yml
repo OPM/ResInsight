@@ -16,19 +16,6 @@ jobs:
   ResInsight-x64-buildcache:
     runs-on: ${{ matrix.config.os }}
     continue-on-error: true
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - {
-              name: "Ubuntu 22.04",
-              os: ubuntu-22.04,
-              cc: "gcc",
-              cxx: "g++",
-              vcpkg-response-file: vcpkg_x64-linux.txt,
-              vcpkg-triplet: x64-linux,
-              cmake-toolchain: "ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake",
-            }
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,7 +23,6 @@ jobs:
           submodules: true
 
       - name: Install Linux dependencies
-        if: ${{contains( matrix.config.os, 'ubuntu') }}
         run: |
           sudo apt-get update --option="APT::Acquire::Retries=3"
           sudo apt-get install --option="APT::Acquire::Retries=3" libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
@@ -49,20 +35,23 @@ jobs:
           dir: "${{ github.workspace }}/Qt/"
           cache: true
           modules: "qtnetworkauth"
-  
-      - name: Run vcpkg
-        uses: lukka/run-vcpkg@v7
-        id: runvcpkg
+
+      - name: Export GitHub Actions cache environment variables
+        uses: actions/github-script@v7
         with:
-          vcpkgArguments: "@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}"
-          vcpkgDirectory:
-            "${{ github.workspace }}/ThirdParty/vcpkg"
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+      - name: vcpkg bootstrap
+        run: ThirdParty/vcpkg/bootstrap-vcpkg.sh
+  
       - name: Create compile commands and run clang-tidy
         # https://clang.llvm.org/extra/doxygen/run-clang-tidy_8py_source.html
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }} -DRESINSIGHT_USE_OPENMP=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+          cmake -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake -DRESINSIGHT_USE_OPENMP=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
           mv compile_commands.json compile_commands_original.json
           python ../scripts/fix_json_database.py compile_commands_original.json >> compile_commands.json
       - name: Run clang-tidy and apply fixes, clang-format after fixes
