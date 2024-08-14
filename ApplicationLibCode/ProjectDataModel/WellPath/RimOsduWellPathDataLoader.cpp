@@ -82,6 +82,20 @@ bool RimOsduWellPathDataLoader::isRunnable() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimOsduWellPathDataLoader::cancel()
+{
+    RiaApplication*   app           = RiaApplication::instance();
+    RiaOsduConnector* osduConnector = app->makeOsduConnector();
+
+    for ( auto& [trajectoryId, taskId] : m_taskIds )
+    {
+        osduConnector->cancelRequestForId( trajectoryId );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimOsduWellPathDataLoader::parquetDownloadComplete( const QByteArray& contents, const QString& url, const QString& id )
 {
     QMutexLocker lock( &m_mutex );

@@ -59,6 +59,8 @@ public:
 
     virtual bool isRunnable() const = 0;
 
+    virtual void cancel();
+
     caf::Signal<QString, int> taskDone;
 };
 

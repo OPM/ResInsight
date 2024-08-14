@@ -762,6 +762,9 @@ void RiaOsduConnector::requestParquetData( const QString& url, const QString& da
     RiaLogging::info( "Requesting download of parquet from: " + url );
 
     auto reply = makeDownloadRequest( url, dataPartitionId, token, RiaCloudDefines::contentTypeParquet() );
+    m_repliesMutex.lock();
+    m_replies[id] = reply;
+    m_repliesMutex.unlock();
 
     connect( reply,
              &QNetworkReply::finished,
@@ -791,4 +794,20 @@ void RiaOsduConnector::parquetDownloadComplete( const QByteArray& contents, cons
     QMutexLocker lock( &m_mutex );
     m_parquetData[id]   = contents;
     m_parquetErrors[id] = errorMessage;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaOsduConnector::cancelRequestForId( const QString& id )
+{
+    QMutexLocker lock( &m_repliesMutex );
+    auto         it = m_replies.find( id );
+    if ( it != m_replies.end() )
+    {
+        if ( !it->second.isNull() )
+        {
+            it->second->abort();
+        }
+    }
 }

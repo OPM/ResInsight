@@ -38,6 +38,7 @@ public:
     RimOsduWellPathDataLoader();
     void loadData( caf::PdmObject& pdmObject, const QString& dataType, int taskId, caf::ProgressInfo& progressInfo ) override;
     bool isRunnable() const override;
+    void cancel() override;
 
 private slots:
     void parquetDownloadComplete( const QByteArray& contents, const QString& url, const QString& id );
