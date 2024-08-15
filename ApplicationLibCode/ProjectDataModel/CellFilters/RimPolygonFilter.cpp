@@ -834,6 +834,8 @@ void RimPolygonFilter::configurePolygonEditor()
 
     m_polygonEditor->setPolygon( polygon );
 
+    if ( polygon && polygon->isReadOnly() ) m_polygonEditor->enablePicking( false );
+
     // Must connect the signals after polygon is assigned to the polygon editor
     // When assigning an object to a ptr field, all signals are disconnected
     connectObjectSignals( polygon );
@@ -891,6 +893,12 @@ std::vector<RimPolylineTarget*> RimPolygonFilter::activeTargets() const
 //--------------------------------------------------------------------------------------------------
 bool RimPolygonFilter::pickingEnabled() const
 {
+    auto filterColl = firstAncestorOfType<RimCellFilterCollection>();
+    if ( filterColl && !filterColl->isActive() ) return false;
+
+    if ( !isActive() ) return false;
+    if ( !isPolygonDefinedLocally() && m_cellFilterPolygon && m_cellFilterPolygon()->isReadOnly() ) return false;
+
     return m_polygonEditor->pickingEnabled();
 }
 
@@ -899,12 +907,6 @@ bool RimPolygonFilter::pickingEnabled() const
 //--------------------------------------------------------------------------------------------------
 caf::PickEventHandler* RimPolygonFilter::pickEventHandler() const
 {
-    auto filterColl = firstAncestorOfType<RimCellFilterCollection>();
-    if ( filterColl && !filterColl->isActive() ) return nullptr;
-
-    if ( !isActive() ) return nullptr;
-    if ( !isPolygonDefinedLocally() && m_cellFilterPolygon && m_cellFilterPolygon()->isReadOnly() ) return nullptr;
-
     return m_pickTargetsEventHandler.get();
 }
 
