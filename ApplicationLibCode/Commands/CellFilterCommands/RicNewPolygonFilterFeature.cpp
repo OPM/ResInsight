@@ -42,6 +42,13 @@ CAF_CMD_SOURCE_INIT( RicNewPolygonFilterFeature, "RicNewPolygonFilterFeature" );
 //--------------------------------------------------------------------------------------------------
 void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
 {
+    RimPolygon* polygonDataSource = nullptr;
+    QVariant    userData          = this->userData();
+    if ( !userData.isNull() && userData.canConvert<void*>() )
+    {
+        polygonDataSource = static_cast<RimPolygon*>( userData.value<void*>() );
+    }
+
     auto cellFilterCollection = caf::SelectionManager::instance()->selectedItemOfType<RimCellFilterCollection>();
 
     if ( !cellFilterCollection )
@@ -55,19 +62,24 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
 
     if ( !cellFilterCollection ) return;
 
-    auto polygon = caf::SelectionManager::instance()->selectedItemOfType<RimPolygon>();
-    if ( !polygon )
+    if ( !polygonDataSource )
     {
-        if ( auto polygonInView = caf::SelectionManager::instance()->selectedItemOfType<RimPolygonInView>() )
+        auto selectedPolygon = caf::SelectionManager::instance()->selectedItemOfType<RimPolygon>();
+        if ( !selectedPolygon )
         {
-            polygon = polygonInView->polygon();
+            if ( auto polygonInView = caf::SelectionManager::instance()->selectedItemOfType<RimPolygonInView>() )
+            {
+                selectedPolygon = polygonInView->polygon();
+            }
         }
+
+        polygonDataSource = selectedPolygon;
     }
 
     auto sourceCase = cellFilterCollection->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
     if ( sourceCase )
     {
-        if ( auto lastCreatedOrUpdated = cellFilterCollection->addNewPolygonFilter( sourceCase, polygon ) )
+        if ( auto lastCreatedOrUpdated = cellFilterCollection->addNewPolygonFilter( sourceCase, polygonDataSource ) )
         {
             Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
         }
@@ -80,5 +92,5 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
 void RicNewPolygonFilterFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/CellFilter_Polygon.png" ) );
-    actionToSetup->setText( "New Polygon Filter" );
+    actionToSetup->setText( "New User Defined Polygon Filter" );
 }

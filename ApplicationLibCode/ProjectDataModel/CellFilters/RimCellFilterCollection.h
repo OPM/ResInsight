@@ -93,6 +93,8 @@ public:
 
     void setCase( RimCase* theCase );
 
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

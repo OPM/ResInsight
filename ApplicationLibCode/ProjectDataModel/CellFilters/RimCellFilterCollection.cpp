@@ -23,6 +23,7 @@
 #include "RimCellFilter.h"
 #include "RimCellIndexFilter.h"
 #include "RimCellRangeFilter.h"
+#include "RimOilField.h"
 #include "RimPolygonFilter.h"
 #include "RimProject.h"
 #include "RimUserDefinedFilter.h"
@@ -30,6 +31,10 @@
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
+#include "Polygons/RimPolygon.h"
+#include "Polygons/RimPolygonCollection.h"
+
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldReorderCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -124,6 +129,41 @@ void RimCellFilterCollection::setCase( RimCase* theCase )
     {
         filter->setCase( theCase );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicPasteCellFiltersFeature";
+    menuBuilder << "Separator";
+
+    menuBuilder.subMenuStart( "New Polygon Filter", QIcon( ":/CellFilter_Polygon.png" ) );
+    {
+        auto project           = RimProject::current();
+        auto polygonCollection = project->activeOilField()->polygonCollection();
+        for ( auto p : polygonCollection->allPolygons() )
+        {
+            if ( !p ) continue;
+
+            menuBuilder.addCmdFeatureWithUserData( "RicNewPolygonFilterFeature", p->name(), QVariant::fromValue( static_cast<void*>( p ) ) );
+        }
+    }
+    menuBuilder.subMenuEnd();
+
+    menuBuilder << "RicNewPolygonFilterFeature";
+    menuBuilder << "Separator";
+    menuBuilder.subMenuStart( "Slice Filters" );
+    menuBuilder << "RicNewRangeFilterSliceIFeature";
+    menuBuilder << "RicNewRangeFilterSliceJFeature";
+    menuBuilder << "RicNewRangeFilterSliceKFeature";
+    menuBuilder.subMenuEnd();
+    menuBuilder << "RicNewCellRangeFilterFeature";
+    menuBuilder << "RicNewCellIndexFilterFeature";
+    menuBuilder << "Separator";
+    menuBuilder << "RicNewUserDefinedFilterFeature";
+    menuBuilder << "RicNewUserDefinedIndexFilterFeature";
 }
 
 //--------------------------------------------------------------------------------------------------
