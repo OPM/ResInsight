@@ -34,7 +34,7 @@ class SimpleDialog : public QDialog
 
 public:
     SimpleDialog( QWidget* parent = nullptr );
-    ~SimpleDialog();
+    ~SimpleDialog() override;
 
     void createConnection();
 
