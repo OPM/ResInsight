@@ -250,8 +250,9 @@ void RimPolygon::onColorTagClicked( const SignalEmitter* emitter, size_t index )
 void RimPolygon::appendPolygonMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder )
 {
     menuBuilder << "RicNewPolygonIntersectionFeature";
-    menuBuilder << "RicNewPolygonFilterFeature";
+    menuBuilder.addCmdFeature( "RicNewPolygonFilterFeature", "New Polygon Filter" );
     menuBuilder << "Separator";
+
     menuBuilder << "RicDuplicatePolygonFeature";
     menuBuilder << "RicSimplifyPolygonFeature";
     menuBuilder << "Separator";

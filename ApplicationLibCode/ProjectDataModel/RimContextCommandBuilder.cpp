@@ -37,8 +37,6 @@
 #include "RimCalcScript.h"
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
-#include "RimCellFilterCollection.h"
-#include "RimCellRangeFilter.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
 #include "RimColorLegendItem.h"
@@ -51,14 +49,12 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseCellColors.h"
-#include "RimEclipseContourMapView.h"
 #include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultAddress.h"
-#include "RimEclipseResultCase.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
@@ -70,7 +66,6 @@
 #include "RimEnsembleFractureStatisticsCollection.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInView.h"
-#include "RimFaultInViewCollection.h"
 #include "RimFaultReactivationModel.h"
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
@@ -79,11 +74,9 @@
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
-#include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
-#include "RimGeoMechContourMapView.h"
 #include "RimGeoMechContourMapViewCollection.h"
 #include "RimGeoMechModels.h"
 #include "RimGeoMechPropertyFilter.h"
@@ -100,7 +93,6 @@
 #include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimModeledWellPath.h"
 #include "RimMultiPlot.h"
-#include "RimMultiPlotCollection.h"
 #include "RimObservedSummaryData.h"
 #include "RimOsduWellPath.h"
 #include "RimParameterResultCrossPlot.h"
@@ -128,7 +120,6 @@
 #include "RimStimPlanFractureTemplate.h"
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCollection.h"
-#include "RimStimPlanModelPlot.h"
 #include "RimStimPlanModelTemplate.h"
 #include "RimStimPlanModelTemplateCollection.h"
 #include "RimStreamlineInViewCollection.h"
@@ -1033,22 +1024,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicCopySurfaceFeature";
             menuBuilder << "RicReloadSurfaceFeature";
-        }
-        else if ( dynamic_cast<RimCellFilterCollection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicPasteCellFiltersFeature";
-            menuBuilder << "Separator";
-            menuBuilder << "RicNewPolygonFilterFeature";
-            menuBuilder << "RicNewCellRangeFilterFeature";
-            menuBuilder.subMenuStart( "Slice Filters" );
-            menuBuilder << "RicNewRangeFilterSliceIFeature";
-            menuBuilder << "RicNewRangeFilterSliceJFeature";
-            menuBuilder << "RicNewRangeFilterSliceKFeature";
-            menuBuilder.subMenuEnd();
-            menuBuilder << "RicNewCellIndexFilterFeature";
-            menuBuilder << "Separator";
-            menuBuilder << "RicNewUserDefinedFilterFeature";
-            menuBuilder << "RicNewUserDefinedIndexFilterFeature";
         }
         else if ( dynamic_cast<RimSeismicSectionCollection*>( firstUiItem ) )
         {
