@@ -317,7 +317,7 @@ void RifReaderOpmCommon::transferStaticNNCData( Opm::EclIO::EGrid& opmMainGrid, 
         connections.insert( connections.end(), conn.begin(), conn.end() );
     }
 
-    if ( connections.size() > 0 )
+    if ( !connections.empty() )
     {
         // Transform to our own data structures
         RigConnectionContainer nncConnections;
@@ -805,7 +805,7 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
                                                         eclipseCaseData,
                                                         m_restartFile->numberOfReportSteps() );
 
-        if ( filteredTimeStepInfos.size() > 0 ) firstTimeStepInfo = filteredTimeStepInfos.front();
+        if ( !filteredTimeStepInfos.empty() ) firstTimeStepInfo = filteredTimeStepInfos.front();
     }
 
     if ( m_initFile != nullptr )
