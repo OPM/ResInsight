@@ -18,6 +18,7 @@ endif()
 set(CMAKE_CXX_STANDARD 17)
 
 
+
 add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
 
 find_package(
@@ -65,7 +66,7 @@ set(SOURCE_GROUP_SOURCE_FILES
 # Find Protobuf installation Looks for protobuf-config.cmake file installed by
 # Protobuf's cmake installation.
 set(protobuf_MODULE_COMPATIBLE ON)
-find_package(Protobuf CONFIG 3.0 QUIET)
+find_package(Protobuf CONFIG QUIET)
 
 if(Protobuf_FOUND)
   message(STATUS "Using protobuf ${protobuf_VERSION}")

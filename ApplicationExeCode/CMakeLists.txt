@@ -83,7 +83,7 @@ if(RESINSIGHT_ENABLE_GRPC)
   # Find Protobuf installation Looks for protobuf-config.cmake file installed by
   # Protobuf's cmake installation.
   set(protobuf_MODULE_COMPATIBLE ON)
-  find_package(Protobuf CONFIG 3.0 QUIET)
+  find_package(Protobuf CONFIG QUIET)
 
   if(Protobuf_FOUND)
     # Find gRPC installation Looks for gRPCConfig.cmake file installed by gRPC's
