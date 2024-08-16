@@ -143,5 +143,5 @@ void DataLoadController::onTaskFinished( const caf::SignalEmitter* emitter, QStr
 {
     QMutexLocker locker( &m_mutex );
     m_pendingTasksByType[dataType]--;
-    m_progressInfos[dataType]->incrementProgress();
+    if ( m_progressInfos.find( dataType ) != m_progressInfos.end() ) m_progressInfos[dataType]->incrementProgress();
 }
