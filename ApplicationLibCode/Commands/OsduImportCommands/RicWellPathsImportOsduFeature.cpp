@@ -67,6 +67,11 @@ void RicWellPathsImportOsduFeature::onActionTriggered( bool isChecked )
     if ( !oilField ) return;
 
     RiaOsduConnector* osduConnector = app->makeOsduConnector();
+    if ( !osduConnector )
+    {
+        RiaLogging::error( "Failed to create OSDU connector" );
+        return;
+    }
 
     RiuWellImportWizard wellImportwizard( osduConnector, RiuMainWindow::instance() );
 

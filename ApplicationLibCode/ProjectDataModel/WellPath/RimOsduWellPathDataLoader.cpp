@@ -39,14 +39,6 @@
 RimOsduWellPathDataLoader::RimOsduWellPathDataLoader()
     : caf::DataLoader()
 {
-    RiaApplication*   app           = RiaApplication::instance();
-    RiaOsduConnector* osduConnector = app->makeOsduConnector();
-
-    connect( osduConnector,
-             SIGNAL( parquetDownloadFinished( const QByteArray&, const QString&, const QString& ) ),
-             this,
-             SLOT( parquetDownloadComplete( const QByteArray&, const QString&, const QString& ) ),
-             Qt::QueuedConnection );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,6 +48,11 @@ void RimOsduWellPathDataLoader::loadData( caf::PdmObject& pdmObject, const QStri
 {
     RiaApplication*   app           = RiaApplication::instance();
     RiaOsduConnector* osduConnector = app->makeOsduConnector();
+    if ( !osduConnector )
+    {
+        RiaLogging::error( "Failed to create OSDU connector" );
+        return;
+    }
 
     // TODO: this is weird?
     m_dataType = dataType;
@@ -63,6 +60,12 @@ void RimOsduWellPathDataLoader::loadData( caf::PdmObject& pdmObject, const QStri
     auto oWPath = dynamic_cast<RimOsduWellPath*>( &pdmObject );
     if ( oWPath )
     {
+        connect( osduConnector,
+                 SIGNAL( parquetDownloadFinished( const QByteArray&, const QString&, const QString& ) ),
+                 this,
+                 SLOT( parquetDownloadComplete( const QByteArray&, const QString&, const QString& ) ),
+                 Qt::ConnectionType( Qt::QueuedConnection | Qt::UniqueConnection ) );
+
         QString trajectoryId      = oWPath->wellboreTrajectoryId();
         m_wellPaths[trajectoryId] = oWPath;
         m_taskIds[trajectoryId]   = taskId;
