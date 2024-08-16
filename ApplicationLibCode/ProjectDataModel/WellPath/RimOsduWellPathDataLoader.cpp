@@ -63,10 +63,10 @@ void RimOsduWellPathDataLoader::loadData( caf::PdmObject& pdmObject, const QStri
     auto oWPath = dynamic_cast<RimOsduWellPath*>( &pdmObject );
     if ( oWPath )
     {
-        QString trajectoryId = oWPath->wellboreTrajectoryId();
-        osduConnector->requestWellboreTrajectoryParquetDataById( trajectoryId );
+        QString trajectoryId      = oWPath->wellboreTrajectoryId();
         m_wellPaths[trajectoryId] = oWPath;
         m_taskIds[trajectoryId]   = taskId;
+        osduConnector->requestWellboreTrajectoryParquetDataById( trajectoryId );
     }
     QApplication::processEvents();
 }
@@ -100,7 +100,7 @@ void RimOsduWellPathDataLoader::parquetDownloadComplete( const QByteArray& conte
 {
     QMutexLocker lock( &m_mutex );
 
-    if ( m_wellPaths.find( id ) != m_wellPaths.end() )
+    if ( m_wellPaths.find( id ) != m_wellPaths.end() && m_taskIds.find( id ) != m_taskIds.end() )
     {
         RiaLogging::info( QString( "Parquet download complete. Id: %1 Size: %2" ).arg( id ).arg( contents.size() ) );
         int taskId = m_taskIds[id];

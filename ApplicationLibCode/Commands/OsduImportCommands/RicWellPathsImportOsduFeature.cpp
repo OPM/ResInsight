@@ -20,6 +20,7 @@
 
 #include "Cloud/RiaOsduConnector.h"
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
@@ -37,6 +38,7 @@
 #include "RiuMainWindow.h"
 #include "RiuWellImportWizard.h"
 
+#include "cafDataLoadController.h"
 #include "cafProgressInfo.h"
 
 #include "cvfObject.h"
@@ -72,33 +74,34 @@ void RicWellPathsImportOsduFeature::onActionTriggered( bool isChecked )
     {
         std::vector<RiuWellImportWizard::WellInfo> importedWells = wellImportwizard.importedWells();
 
-        caf::ProgressInfo progress( importedWells.size(), "Importing wells from OSDU" );
+        caf::ProgressInfo             progress( importedWells.size(), "Importing wells from OSDU", false, true );
+        int                           colorIndex = 0;
+        std::vector<RimOsduWellPath*> newWells;
         for ( auto w : importedWells )
         {
-            auto task = progress.task( QString( "Importing well: %1" ).arg( w.name ) );
+            auto wellPath = new RimOsduWellPath;
+            wellPath->setName( w.name );
+            wellPath->setWellId( w.wellId );
+            wellPath->setWellboreId( w.wellboreId );
+            wellPath->setWellboreTrajectoryId( w.wellboreTrajectoryId );
+            wellPath->setDatumElevationFromOsdu( w.datumElevation );
+            wellPath->setWellPathColor( RiaColorTables::wellPathsPaletteColors().cycledColor3f( colorIndex++ ) );
 
-            auto [wellPathGeometry, errorMessage] =
-                RimWellPathCollection::loadWellPathGeometryFromOsdu( osduConnector, w.wellboreTrajectoryId, w.datumElevation );
-            if ( wellPathGeometry.notNull() )
-            {
-                auto wellPath = new RimOsduWellPath;
-                wellPath->setName( w.name );
-                wellPath->setWellId( w.wellId );
-                wellPath->setWellboreId( w.wellboreId );
-                wellPath->setWellboreTrajectoryId( w.wellboreTrajectoryId );
-                wellPath->setDatumElevationFromOsdu( w.datumElevation );
-
-                oilField->wellPathCollection->addWellPath( wellPath );
-
-                wellPath->setWellPathGeometry( wellPathGeometry.p() );
-            }
-            else
-            {
-                RiaLogging::error( "Importing OSDU well failed: " + errorMessage );
-            }
-
-            oilField->wellPathCollection->updateConnectedEditors();
+            newWells.push_back( wellPath );
+            oilField->wellPathCollection->addWellPath( wellPath );
         }
+
+        const QString wellPathGeometryKeyword = "WELL_PATH_GEOMETRY";
+
+        caf::DataLoadController* dataLoadController = caf::DataLoadController::instance();
+        progress.setProgressDescription( QString( "Reading well path geometry." ) );
+        for ( RimWellPath* wellPath : newWells )
+        {
+            dataLoadController->loadData( *wellPath, wellPathGeometryKeyword, progress );
+        }
+        dataLoadController->blockUntilDone( wellPathGeometryKeyword );
+
+        oilField->wellPathCollection->updateConnectedEditors();
 
         project->updateConnectedEditors();
         app->project()->scheduleCreateDisplayModelAndRedrawAllViews();
