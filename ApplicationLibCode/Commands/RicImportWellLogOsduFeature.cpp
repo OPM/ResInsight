@@ -62,6 +62,11 @@ void RicImportWellLogOsduFeature::onActionTriggered( bool isChecked )
         if ( !oilField->wellPathCollection ) oilField->wellPathCollection = std::make_unique<RimWellPathCollection>();
 
         auto osduConnector = app->makeOsduConnector();
+        if ( !osduConnector )
+        {
+            RiaLogging::error( "Failed to create OSDU connector" );
+            return;
+        }
 
         RiuWellLogImportWizard wellLogImportWizard( osduConnector, wellPath->wellboreId(), RiuMainWindow::instance() );
 

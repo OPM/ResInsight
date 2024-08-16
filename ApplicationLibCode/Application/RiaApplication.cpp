@@ -1711,6 +1711,18 @@ RiaOsduConnector* RiaApplication::makeOsduConnector()
 {
     if ( m_osduConnector ) return m_osduConnector;
 
+    if ( !QSslSocket::supportsSsl() )
+    {
+        QString errMsg = "SSL support is not available. ";
+#ifdef Q_OS_WIN
+        errMsg +=
+            "Make sure that the SSL libraries are available (on Windows platform, they are called 'libcrypto*.dll' and 'libssl*.dll').";
+#endif
+        RiaLogging::errorInMessageBox( nullptr, "OSDU Service Connection", errMsg );
+
+        return nullptr;
+    }
+
     RiaPreferencesOsdu* osduPreferences = preferences()->osduPreferences();
     const QString       server          = osduPreferences->server();
     const QString       dataPartitionId = osduPreferences->dataPartitionId();

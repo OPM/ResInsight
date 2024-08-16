@@ -39,14 +39,6 @@
 RimOsduWellLogDataLoader::RimOsduWellLogDataLoader()
     : caf::DataLoader()
 {
-    RiaApplication*   app           = RiaApplication::instance();
-    RiaOsduConnector* osduConnector = app->makeOsduConnector();
-
-    connect( osduConnector,
-             SIGNAL( parquetDownloadFinished( const QByteArray&, const QString&, const QString& ) ),
-             this,
-             SLOT( parquetDownloadComplete( const QByteArray&, const QString&, const QString& ) ),
-             Qt::QueuedConnection );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,12 +48,23 @@ void RimOsduWellLogDataLoader::loadData( caf::PdmObject& pdmObject, const QStrin
 {
     RiaApplication*   app           = RiaApplication::instance();
     RiaOsduConnector* osduConnector = app->makeOsduConnector();
+    if ( !osduConnector )
+    {
+        RiaLogging::error( "Failed to create OSDU connector" );
+        return;
+    }
 
     // TODO: this is weird?
     m_dataType = dataType;
 
     if ( RimOsduWellLog* osduWellLog = dynamic_cast<RimOsduWellLog*>( &pdmObject ) )
     {
+        connect( osduConnector,
+                 SIGNAL( parquetDownloadFinished( const QByteArray&, const QString&, const QString& ) ),
+                 this,
+                 SLOT( parquetDownloadComplete( const QByteArray&, const QString&, const QString& ) ),
+                 Qt::ConnectionType( Qt::QueuedConnection | Qt::UniqueConnection ) );
+
         QString wellLogId = osduWellLog->wellLogId();
         osduConnector->requestWellLogParquetDataById( wellLogId );
         m_wellLogs[wellLogId] = osduWellLog;

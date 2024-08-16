@@ -182,8 +182,10 @@ bool RimWellPathCollection::loadDataAndUpdate()
 
     if ( hasOsduData( allWellPaths() ) )
     {
-        auto osduConnector = RiaApplication::instance()->makeOsduConnector();
-        osduConnector->requestTokenBlocking();
+        if ( auto osduConnector = RiaApplication::instance()->makeOsduConnector() )
+        {
+            osduConnector->requestTokenBlocking();
+        }
     }
 
     caf::DataLoadController* dataLoadController = caf::DataLoadController::instance();
