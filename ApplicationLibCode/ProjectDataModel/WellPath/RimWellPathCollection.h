@@ -97,7 +97,7 @@ public:
     caf::PdmField<bool>               wellPathClip;
     caf::PdmField<int>                wellPathClipZDistance;
 
-    void                      loadDataAndUpdate();
+    bool                      loadDataAndUpdate();
     std::vector<RimWellPath*> addWellPaths( QStringList filePaths, QStringList* errorMessages );
     std::vector<RimWellPath*> allWellPaths() const;
     void                      removeWellPath( gsl::not_null<RimWellPath*> wellPath );

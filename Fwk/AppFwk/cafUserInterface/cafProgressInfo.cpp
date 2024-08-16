@@ -695,6 +695,7 @@ void ProgressInfoStatic::finished()
         if ( dialog )
         {
             QObject::disconnect( dialog, &QProgressDialog::canceled, nullptr, nullptr );
+            s_isButtonConnected = false;
 
             dialog->reset();
             dialog->close();
