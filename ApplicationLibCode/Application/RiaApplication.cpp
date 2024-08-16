@@ -548,7 +548,15 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         }
 
         // Initialize well paths
-        oilField->wellPathCollection->loadDataAndUpdate();
+        if ( !oilField->wellPathCollection->loadDataAndUpdate() )
+        {
+            // Opening well path was cancelled or failed: close project.
+            closeProject();
+            m_project = std::make_unique<RimProject>();
+            onProjectOpened();
+            return true;
+        }
+
         oilField->ensembleWellLogsCollection->loadDataAndUpdate();
         oilField->vfpDataCollection->loadDataAndUpdate();
 

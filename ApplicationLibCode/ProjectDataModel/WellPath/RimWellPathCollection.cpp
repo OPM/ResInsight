@@ -149,7 +149,7 @@ void RimWellPathCollection::fieldChangedByUi( const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 /// Read files containing well path data, or create geometry based on the targets
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::loadDataAndUpdate()
+bool RimWellPathCollection::loadDataAndUpdate()
 {
     auto hasOsduData = []( const std::vector<RimWellPath*>& wellPaths ) -> bool
     {
@@ -200,7 +200,7 @@ void RimWellPathCollection::loadDataAndUpdate()
 
     if ( progress.isCancelled() )
     {
-        return;
+        return false;
     }
 
     progress.setProgressDescription( QString( "Reading well logs." ) );
@@ -230,6 +230,8 @@ void RimWellPathCollection::loadDataAndUpdate()
     rebuildWellPathNodes();
 
     sortWellsByName();
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
