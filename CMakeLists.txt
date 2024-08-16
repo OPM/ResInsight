@@ -422,22 +422,24 @@ if(MSVC)
     )
   endif()
 else()
-  find_package(HDF5 COMPONENTS CXX)
-  if(HDF5_FOUND)
-    list(APPEND EXTERNAL_LINK_LIBRARIES ${HDF5_LIBRARIES})
+  if(RESINSIGHT_ENABLE_HDF5)
+    find_package(HDF5 COMPONENTS CXX)
+    if(HDF5_FOUND)
+      list(APPEND EXTERNAL_LINK_LIBRARIES ${HDF5_LIBRARIES})
 
-    set(RESINSIGHT_FOUND_HDF5 1)
-    message(STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}")
+      set(RESINSIGHT_FOUND_HDF5 1)
+      message(STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}")
 
-    option(RESINSIGHT_HDF5_BUNDLE_LIBRARIES "Bundle HDF5 libraries" OFF)
-    mark_as_advanced(FORCE RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
-    if(RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
-      message(STATUS "Bundling of HDF5 libraries is enabled")
-    endif() # RESINSIGHT_HDF5_BUNDLE_LIBRARIES
+      option(RESINSIGHT_HDF5_BUNDLE_LIBRARIES "Bundle HDF5 libraries" OFF)
+      mark_as_advanced(FORCE RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
+      if(RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
+        message(STATUS "Bundling of HDF5 libraries is enabled")
+      endif() # RESINSIGHT_HDF5_BUNDLE_LIBRARIES
 
-  else()
-    message(WARNING "Use of HDF5 is enabled, but no HDF5 is found.")
-  endif() # HDF5_FOUND
+    else()
+      message(WARNING "Use of HDF5 is enabled, but no HDF5 is found.")
+    endif() # HDF5_FOUND
+  endif()
 endif() # MSVC
 
 # ##############################################################################
