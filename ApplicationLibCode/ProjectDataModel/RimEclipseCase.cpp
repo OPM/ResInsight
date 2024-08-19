@@ -771,6 +771,12 @@ void RimEclipseCase::computeActiveCellsBoundingBox()
 
     bool useOptimizedVersion = true;
 
+    const auto gridPref = RiaPreferencesGrid::current();
+    if ( ( gridPref != nullptr ) && ( gridPref->gridModelReader() == RiaDefines::GridModelReader::OPM_COMMON ) )
+    {
+        useOptimizedVersion = !gridPref->onlyLoadActiveCells();
+    }
+
     if ( auto proj = RimProject::current() )
     {
         if ( proj->isProjectFileVersionEqualOrOlderThan( "2023.12.0" ) )

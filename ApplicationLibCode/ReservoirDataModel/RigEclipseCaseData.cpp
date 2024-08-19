@@ -725,13 +725,16 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxOptimized()
                 {
                     for ( size_t j = minBB.y(); j <= maxBB.y(); j++ )
                     {
-                        size_t cellIndex = m_mainGrid->cellIndexFromIJK( i, j, k );
-
-                        std::array<cvf::Vec3d, 8> hexCorners;
-                        m_mainGrid->cellCornerVertices( cellIndex, hexCorners.data() );
-                        for ( const auto& corner : hexCorners )
+                        if ( m_mainGrid->isCellValid( i, j, k ) )
                         {
-                            bb.add( corner );
+                            size_t cellIndex = m_mainGrid->cellIndexFromIJK( i, j, k );
+
+                            std::array<cvf::Vec3d, 8> hexCorners;
+                            m_mainGrid->cellCornerVertices( cellIndex, hexCorners.data() );
+                            for ( const auto& corner : hexCorners )
+                            {
+                                bb.add( corner );
+                            }
                         }
                     }
                 }

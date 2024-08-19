@@ -293,9 +293,11 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
             mapAxes[i] = opmMapAxes[i];
         }
 
+        double norm_denominator = mapAxes[2] * mapAxes[5] - mapAxes[4] * mapAxes[3];
+
         // Set the map axes transformation matrix on the main grid
         mainGrid->setMapAxes( mapAxes );
-        mainGrid->setUseMapAxes( true );
+        mainGrid->setUseMapAxes( norm_denominator != 0.0 );
 
         auto transform = mainGrid->mapAxisTransform();
 
@@ -1163,9 +1165,11 @@ bool RifReaderOpmCommon::importActiveGrid( RigActiveCellGrid* activeGrid, RigEcl
             mapAxes[i] = opmMapAxes[i];
         }
 
+        double norm_denominator = mapAxes[2] * mapAxes[5] - mapAxes[4] * mapAxes[3];
+
         // Set the map axes transformation matrix on the main grid
         activeGrid->setMapAxes( mapAxes );
-        activeGrid->setUseMapAxes( true );
+        activeGrid->setUseMapAxes( norm_denominator != 0.0 );
 
         auto transform = activeGrid->mapAxisTransform();
 
