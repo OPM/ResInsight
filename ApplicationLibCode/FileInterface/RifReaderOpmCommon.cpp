@@ -1144,6 +1144,9 @@ bool RifReaderOpmCommon::importActiveGrid( RigActiveCellGrid* activeGrid, RigEcl
 
     // grid geometry
     {
+        RiaLogging::info(
+            QString( "Loading %0 active of %1 total cells." ).arg( opmGrid.totalActiveCells() ).arg( opmGrid.totalNumberOfCells() ) );
+
         auto task = progInfo.task( "Loading Active Cell Main Grid Geometry", 1 );
         transferActiveGeometry( opmGrid, activeGrid, eclipseCaseData );
     }
