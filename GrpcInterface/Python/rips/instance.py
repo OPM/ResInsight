@@ -112,7 +112,7 @@ class Instance:
             launch_port(int): If 0, GRPC will find an available port.
                              If -1, use the default port 50051 or RESINSIGHT_GRPC_PORT
                              If anything else, ResInsight will try to launch with the specified portnumber.
-                             
+
             command_line_parameters(list): Additional parameters as string entries in the list.
         Returns:
             Instance: an instance object if it worked. None if not.
