@@ -36,6 +36,7 @@
 #include "RifReaderEclipseRft.h"
 #include "RifReaderMockModel.h"
 #include "RifReaderOpmCommon.h"
+#include "RifReaderOpmCommonActive.h"
 #include "RifReaderOpmRft.h"
 
 #include "RigCaseCellResultsData.h"
@@ -188,7 +189,16 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
         }
         else
         {
-            auto readerOpmCommon = new RifReaderOpmCommon();
+            RifReaderOpmCommon* readerOpmCommon = nullptr;
+
+            if ( RiaPreferencesGrid::current()->onlyLoadActiveCells() )
+            {
+                readerOpmCommon = new RifReaderOpmCommonActive();
+            }
+            else
+            {
+                readerOpmCommon = new RifReaderOpmCommon();
+            }
 
             std::vector<QDateTime> timeSteps = readerOpmCommon->timeStepsOnFile( gridFileName() );
             m_timeStepFilter->setTimeStepsFromFile( timeSteps );

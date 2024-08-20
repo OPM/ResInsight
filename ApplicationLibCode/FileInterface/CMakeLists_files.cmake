@@ -86,6 +86,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealCsvSectionSummaryReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanCsvSummaryReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmCommon.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmCommonActive.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseReportKeywords.h
     ${CMAKE_CURRENT_LIST_DIR}/RifInpExportTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RifFaultReactivationModelExporter.h
@@ -188,6 +189,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealCsvSectionSummaryReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanCsvSummaryReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmCommon.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmCommonActive.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifInpExportTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifFaultReactivationModelExporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifThermalToStimPlanFractureXmlOutput.cpp
