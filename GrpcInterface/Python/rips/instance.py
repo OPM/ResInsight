@@ -97,7 +97,7 @@ class Instance:
     def launch(
         resinsight_executable: str = "",
         console: bool = False,
-        launch_port: int = -1,
+        launch_port: int = 0,
         command_line_parameters: List[str] = [],
     ) -> Optional[Instance]:
         """Launch a new Instance of ResInsight. This requires the environment variable
@@ -109,9 +109,10 @@ class Instance:
                 will take precedence over what is provided in the RESINSIGHT_EXECUTABLE
                 environment variable.
             console (bool): If True, launch as console application, without GUI.
-            launch_port(int): If -1 will use the default port 50051 or RESINSIGHT_GRPC_PORT
-                             if anything else, ResInsight will try to launch with this port.
-                             If 0 a random port will be used.
+            launch_port(int): If 0, GRPC will find an available port.
+                             If -1, use the default port 50051 or RESINSIGHT_GRPC_PORT
+                             If anything else, ResInsight will try to launch with the specified portnumber.
+                             
             command_line_parameters(list): Additional parameters as string entries in the list.
         Returns:
             Instance: an instance object if it worked. None if not.
