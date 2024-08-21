@@ -26,6 +26,7 @@
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfRay.h"
 #include "cvfScalarMapper.h"
+#include "cvfViewport.h"
 #include "cvfqtUtils.h"
 
 #include <cmath>
@@ -398,7 +399,11 @@ std::vector<cvf::ref<cvf::Drawable>>
     labelBBoxes->clear();
     labelBBoxes->resize( m_contourLinePolygons.size() );
 
+    if ( !camera->viewport() || camera->viewport()->width() == 0 ) return labelDrawables;
+
     const cvf::ScalarMapper* mapper = m_contourMapProjection->legendConfig()->scalarMapper();
+    if ( mapper == nullptr ) return labelDrawables;
+
     if ( dynamic_cast<const caf::CategoryMapper*>( mapper ) != nullptr ) return labelDrawables;
 
     std::vector<double> tickValues;
