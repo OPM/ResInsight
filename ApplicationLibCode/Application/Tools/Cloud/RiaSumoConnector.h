@@ -155,5 +155,4 @@ private:
     std::vector<QString> m_blobUrl;
 
     std::vector<SumoRedirect> m_redirectInfo;
-
 };
