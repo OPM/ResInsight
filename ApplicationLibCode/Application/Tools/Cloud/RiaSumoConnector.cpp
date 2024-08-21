@@ -467,6 +467,8 @@ void RiaSumoConnector::requestBlobDownload( const QString& blobId )
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestBlobByRedirectUri( const QString& blobId, const QString& redirectUri )
 {
+    RiaLogging::debug( QString( "Requesting blob. Id: %1 Redirect URL: %2" ).arg( blobId ).arg( redirectUri ) );
+
     requestTokenBlocking();
 
     QNetworkRequest networkRequest;
@@ -700,9 +702,9 @@ void RiaSumoConnector::parseCases( QNetworkReply* reply )
             QString fieldName = fmuCase["name"].toString();
             m_cases.push_back( SumoCase{ SumoCaseId( id ), kind, fieldName } );
         }
-
-        emit casesFinished();
     }
+
+    emit casesFinished();
 }
 
 //--------------------------------------------------------------------------------------------------

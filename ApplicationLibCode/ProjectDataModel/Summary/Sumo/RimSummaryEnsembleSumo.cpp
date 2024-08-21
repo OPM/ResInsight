@@ -120,6 +120,7 @@ void RimSummaryEnsembleSumo::loadSummaryData( const RifEclipseSummaryAddress& re
     if ( m_parquetTable.find( key ) == m_parquetTable.end() )
     {
         auto contents = loadParquetData( key );
+        RiaLogging::debug( QString( "Load Summary Data. Contents size: %1" ).arg( contents.size() ) );
 
         arrow::MemoryPool* pool = arrow::default_memory_pool();
 
@@ -127,20 +128,22 @@ void RimSummaryEnsembleSumo::loadSummaryData( const RifEclipseSummaryAddress& re
 
         std::shared_ptr<arrow::Table>               table;
         std::unique_ptr<parquet::arrow::FileReader> arrow_reader;
-        if ( parquet::arrow::OpenFile( input, pool, &arrow_reader ).ok() )
+        if ( auto openResult = parquet::arrow::OpenFile( input, pool, &arrow_reader ); openResult.ok() )
         {
-            if ( arrow_reader->ReadTable( &table ).ok() )
+            if ( auto readResult = arrow_reader->ReadTable( &table ); readResult.ok() )
             {
-                RiaLogging::info( "Parquet: Read table" );
+                RiaLogging::info( QString( "Parquet: Read table sucessfully for %1" ).arg( QString::fromStdString( resultAddress.uiText() ) ) );
             }
             else
             {
-                RiaLogging::warning( "Parquet: Error detected during parsing of table" );
+                RiaLogging::warning( QString( "Parquet: Error detected during parsing of table. Message: %1" )
+                                         .arg( QString::fromStdString( readResult.ToString() ) ) );
             }
         }
         else
         {
-            RiaLogging::warning( "Parquet: Not able to open data stream" );
+            RiaLogging::warning(
+                QString( "Parquet: Not able to open data stream. Message: %1" ).arg( QString::fromStdString( openResult.ToString() ) ) );
         }
 
         m_parquetTable[key] = table;
