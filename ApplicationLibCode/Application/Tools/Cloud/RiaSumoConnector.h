@@ -143,7 +143,7 @@ private:
     static QString constructSearchUrl( const QString& server );
     static QString constructDownloadUrl( const QString& server, const QString& blobId );
 
-    void wrapAndCallNetworkRequest( std::function<void()> requestCallable, std::function<void()> signalCallable );
+    void wrapAndCallNetworkRequest( std::function<void()> requestCallable, const QMetaMethod& signalMethod );
 
 private:
     std::vector<SumoAsset>    m_assets;

@@ -27,6 +27,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMetaMethod>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QTimer>
@@ -124,10 +125,9 @@ void RiaSumoConnector::requestCasesForField( const QString& fieldName )
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestCasesForFieldBlocking( const QString& fieldName )
 {
-    auto requestCallable = [this, fieldName] { requestCasesForField( fieldName ); };
-    auto signalCallable  = [this]() { casesFinished(); };
-
-    wrapAndCallNetworkRequest( requestCallable, signalCallable );
+    auto        requestCallable = [this, fieldName] { requestCasesForField( fieldName ); };
+    QMetaMethod signalMethod    = QMetaMethod::fromSignal( &RiaSumoConnector::casesFinished );
+    wrapAndCallNetworkRequest( requestCallable, signalMethod );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -160,9 +160,9 @@ void RiaSumoConnector::requestAssets()
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestAssetsBlocking()
 {
-    auto requestCallable = [this] { requestAssets(); };
-    auto signalCallable  = [this]() { assetsFinished(); };
-    wrapAndCallNetworkRequest( requestCallable, signalCallable );
+    auto        requestCallable = [this] { requestAssets(); };
+    QMetaMethod signalMethod    = QMetaMethod::fromSignal( &RiaSumoConnector::assetsFinished );
+    wrapAndCallNetworkRequest( requestCallable, signalMethod );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -219,9 +219,9 @@ void RiaSumoConnector::requestEnsembleByCasesId( const SumoCaseId& caseId )
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestEnsembleByCasesIdBlocking( const SumoCaseId& caseId )
 {
-    auto requestCallable = [this, caseId] { requestEnsembleByCasesId( caseId ); };
-    auto signalCallable  = [this]() { ensembleNamesFinished(); };
-    wrapAndCallNetworkRequest( requestCallable, signalCallable );
+    auto        requestCallable = [this, caseId] { requestEnsembleByCasesId( caseId ); };
+    QMetaMethod signalMethod    = QMetaMethod::fromSignal( &RiaSumoConnector::ensembleNamesFinished );
+    wrapAndCallNetworkRequest( requestCallable, signalMethod );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -288,10 +288,9 @@ void RiaSumoConnector::requestVectorNamesForEnsemble( const SumoCaseId& caseId, 
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestVectorNamesForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName )
 {
-    auto requestCallable = [this, caseId, ensembleName] { requestVectorNamesForEnsemble( caseId, ensembleName ); };
-    auto signalCallable  = [this]() { vectorNamesFinished(); };
-
-    wrapAndCallNetworkRequest( requestCallable, signalCallable );
+    auto        requestCallable = [this, caseId, ensembleName] { requestVectorNamesForEnsemble( caseId, ensembleName ); };
+    QMetaMethod signalMethod    = QMetaMethod::fromSignal( &RiaSumoConnector::vectorNamesFinished );
+    wrapAndCallNetworkRequest( requestCallable, signalMethod );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -352,10 +351,9 @@ void RiaSumoConnector::requestRealizationIdsForEnsemble( const SumoCaseId& caseI
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestRealizationIdsForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName )
 {
-    auto requestCallable = [this, caseId, ensembleName] { requestRealizationIdsForEnsemble( caseId, ensembleName ); };
-    auto signalCallable  = [this]() { realizationIdsFinished(); };
-
-    wrapAndCallNetworkRequest( requestCallable, signalCallable );
+    auto        requestCallable = [this, caseId, ensembleName] { requestRealizationIdsForEnsemble( caseId, ensembleName ); };
+    QMetaMethod signalMethod    = QMetaMethod::fromSignal( &RiaSumoConnector::realizationIdsFinished );
+    wrapAndCallNetworkRequest( requestCallable, signalMethod );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -412,9 +410,9 @@ void RiaSumoConnector::requestBlobIdForEnsemble( const SumoCaseId& caseId, const
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestBlobIdForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName )
 {
-    auto requestCallable = [this, caseId, ensembleName, vectorName] { requestBlobIdForEnsemble( caseId, ensembleName, vectorName ); };
-    auto signalCallable  = [this]() { blobIdFinished(); };
-    wrapAndCallNetworkRequest( requestCallable, signalCallable );
+    auto requestCallable     = [this, caseId, ensembleName, vectorName] { requestBlobIdForEnsemble( caseId, ensembleName, vectorName ); };
+    QMetaMethod signalMethod = QMetaMethod::fromSignal( &RiaSumoConnector::blobIdFinished );
+    wrapAndCallNetworkRequest( requestCallable, signalMethod );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -554,17 +552,20 @@ QString RiaSumoConnector::constructDownloadUrl( const QString& server, const QSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::wrapAndCallNetworkRequest( std::function<void()> requestCallable, std::function<void()> signalCallable )
+void RiaSumoConnector::wrapAndCallNetworkRequest( std::function<void()> requestCallable, const QMetaMethod& signalMethod )
 {
     QEventLoop eventLoop;
 
     QTimer timer;
     timer.setSingleShot( true );
 
+    QObject::connect( &timer, &QTimer::timeout, [] { RiaLogging::error( "Sumo request timed out." ); } );
     QObject::connect( &timer, &QTimer::timeout, &eventLoop, &QEventLoop::quit );
 
-    // Not able to use the modern connect syntax here, as the signal is communicated as a std::function
-    QObject::connect( this, SIGNAL( signalCallable ), &eventLoop, SLOT( quit() ) );
+    // Not able to use the modern connect syntax here, as the signal is communicated as a QMetaMethod
+    int         methodIndex = eventLoop.metaObject()->indexOfMethod( "quit()" );
+    QMetaMethod quitMethod  = eventLoop.metaObject()->method( methodIndex );
+    QObject::connect( this, signalMethod, &eventLoop, quitMethod );
 
     // Call the function that will execute the request
     requestCallable();
