@@ -1540,7 +1540,6 @@ auto readConfigFiles = []( RiaPreferences* preferences )
     {
         QString osduConfigPath = QDir::homePath() + "/.resinsight/osdu_config.json";
         auto    keyValuePairs  = RiaConnectorTools::readKeyValuePairs( osduConfigPath );
-
         if ( !keyValuePairs.empty() )
         {
             preferences->osduPreferences()->setData( keyValuePairs );

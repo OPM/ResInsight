@@ -19,6 +19,7 @@
 #pragma once
 
 #include <QString>
+#include <map>
 
 class QOAuth2AuthorizationCodeFlow;
 
