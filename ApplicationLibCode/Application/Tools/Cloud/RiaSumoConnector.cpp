@@ -514,7 +514,7 @@ QByteArray RiaSumoConnector::requestParquetDataBlocking( const SumoCaseId& caseI
     QTimer     timer;
     timer.setSingleShot( true );
     QObject::connect( &timer, SIGNAL( timeout() ), &eventLoop, SLOT( quit() ) );
-    QObject::connect( &timer, SIGNAL( parquetDownloadFinished( const QByteArray&, const QString& ) ), &eventLoop, SLOT( quit() ) );
+    QObject::connect( this, SIGNAL( parquetDownloadFinished( const QByteArray&, const QString& ) ), &eventLoop, SLOT( quit() ) );
 
     requestBlobDownload( blobId );
 
