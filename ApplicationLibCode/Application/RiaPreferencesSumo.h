@@ -33,6 +33,9 @@ public:
 
     static RiaPreferencesSumo* current();
 
+    void setData( const std::map<QString, QString>& keyValuePairs );
+    void setFieldsReadOnly();
+
     QString server() const;
     QString authority() const;
     QString scopes() const;

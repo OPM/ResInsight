@@ -27,5 +27,7 @@ namespace RiaConnectorTools
 QString tokenDataAsJson( QOAuth2AuthorizationCodeFlow* authCodeFlow );
 void    initializeTokenDataFromJson( QOAuth2AuthorizationCodeFlow* authCodeFlow, const QString& tokenDataJson );
 void    writeTokenData( const QString& filePath, const QString& tokenDataJson );
-QString readTokenData( const QString& filePath );
+QString readStringFromFile( const QString& filePath );
+
+std::map<QString, QString> readKeyValuePairs( const QString& filePath );
 } // namespace RiaConnectorTools

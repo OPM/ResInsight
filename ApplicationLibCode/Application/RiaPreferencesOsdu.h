@@ -33,6 +33,9 @@ public:
 
     static RiaPreferencesOsdu* current();
 
+    void setData( const std::map<QString, QString>& keyValuePairs );
+    void setFieldsReadOnly();
+
     QString server() const;
     QString dataPartitionId() const;
     QString authority() const;

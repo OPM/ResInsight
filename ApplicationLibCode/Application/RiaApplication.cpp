@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiaApplication.h"
 
+#include "Cloud/RiaConnectorTools.h"
 #include "Cloud/RiaOsduConnector.h"
 #include "Cloud/RiaSumoConnector.h"
 #include "Cloud/RiaSumoDefines.h"
@@ -1532,6 +1533,35 @@ cvf::Font* RiaApplication::defaultWellLabelFont()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+auto readConfigFiles = []( RiaPreferences* preferences )
+{
+    if ( preferences == nullptr ) return;
+
+    {
+        QString osduConfigPath = QDir::homePath() + "/.resinsight/osdu_config.json";
+        auto    keyValuePairs  = RiaConnectorTools::readKeyValuePairs( osduConfigPath );
+
+        if ( !keyValuePairs.empty() )
+        {
+            preferences->osduPreferences()->setData( keyValuePairs );
+            preferences->osduPreferences()->setFieldsReadOnly();
+        }
+    }
+
+    {
+        QString sumoConfigPath = QDir::homePath() + "/.resinsight/sumo_config.json";
+        auto    keyValuePairs  = RiaConnectorTools::readKeyValuePairs( sumoConfigPath );
+        if ( !keyValuePairs.empty() )
+        {
+            preferences->sumoPreferences()->setData( keyValuePairs );
+            preferences->sumoPreferences()->setFieldsReadOnly();
+        }
+    }
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaApplication::initialize()
 {
     m_preferences = std::make_unique<RiaPreferences>();
@@ -1547,6 +1577,8 @@ void RiaApplication::initialize()
     caf::SelectionManager::instance()->setPdmRootObject( project() );
 
     initializeDataLoadController();
+
+    readConfigFiles( m_preferences.get() );
 }
 
 //--------------------------------------------------------------------------------------------------

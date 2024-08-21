@@ -90,7 +90,7 @@ void RiaConnectorTools::writeTokenData( const QString& filePath, const QString& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaConnectorTools::readTokenData( const QString& filePath )
+QString RiaConnectorTools::readStringFromFile( const QString& filePath )
 {
     QFile file( filePath );
     if ( file.open( QIODevice::ReadOnly ) )
@@ -101,4 +101,23 @@ QString RiaConnectorTools::readTokenData( const QString& filePath )
         return result;
     }
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<QString, QString> RiaConnectorTools::readKeyValuePairs( const QString& filePath )
+{
+    auto content = readStringFromFile( filePath );
+
+    QJsonDocument doc = QJsonDocument::fromJson( content.toUtf8() );
+    QJsonObject   obj = doc.object();
+
+    std::map<QString, QString> keyValuePairs;
+    for ( auto it = obj.begin(); it != obj.end(); ++it )
+    {
+        keyValuePairs[it.key()] = it.value().toString();
+    }
+
+    return keyValuePairs;
 }
