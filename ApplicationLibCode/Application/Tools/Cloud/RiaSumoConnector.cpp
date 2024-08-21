@@ -521,7 +521,7 @@ QByteArray RiaSumoConnector::requestParquetDataBlocking( const SumoCaseId& caseI
     requestBlobDownload( blobId );
 
     timer.start( RiaSumoDefines::requestTimeoutMillis() );
-    eventLoop.exec();
+    eventLoop.exec( QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents );
 
     for ( const auto& blobData : m_redirectInfo )
     {
@@ -573,7 +573,7 @@ void RiaSumoConnector::wrapAndCallNetworkRequest( std::function<void()> requestC
     requestCallable();
 
     timer.start( RiaSumoDefines::requestTimeoutMillis() );
-    eventLoop.exec();
+    eventLoop.exec( QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents );
 }
 
 //--------------------------------------------------------------------------------------------------
