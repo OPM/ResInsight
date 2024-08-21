@@ -154,9 +154,5 @@ private:
 
     std::vector<QString> m_blobUrl;
 
-    QString m_redirect;
-
     std::vector<SumoRedirect> m_redirectInfo;
-
-    QByteArray m_parquetData;
 };
