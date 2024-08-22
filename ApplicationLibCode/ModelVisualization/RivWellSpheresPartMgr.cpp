@@ -178,11 +178,14 @@ cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart( std::vector<std::pair<cvf
     {
         if ( m_rimReservoirView->viewer() )
         {
-            cvf::ref<cvf::OpenGLContext> oglContext      = m_rimReservoirView->viewer()->cvfOpenGLContext();
-            cvf::OpenGLResourceManager*  resourceManager = oglContext->resourceManager();
-            cvf::ref<cvf::ShaderProgram> vectorProgram   = resourceManager->getLinkedVectorDrawerShaderProgram( oglContext.p() );
+            cvf::ref<cvf::OpenGLContext> oglContext = m_rimReservoirView->viewer()->cvfOpenGLContext();
+            if ( oglContext.notNull() )
+            {
+                cvf::OpenGLResourceManager*  resourceManager = oglContext->resourceManager();
+                cvf::ref<cvf::ShaderProgram> vectorProgram   = resourceManager->getLinkedVectorDrawerShaderProgram( oglContext.p() );
 
-            eff->setShaderProgram( vectorProgram.p() );
+                eff->setShaderProgram( vectorProgram.p() );
+            }
         }
     }
 
