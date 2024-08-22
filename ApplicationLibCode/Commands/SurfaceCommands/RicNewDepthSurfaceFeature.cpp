@@ -54,9 +54,7 @@ void RicNewDepthSurfaceFeature::onActionTriggered( bool isChecked )
 
         bb.expand( 0.1 * bb.extent().z() );
 
-        auto lowerDepthLimit = -bb.max().z();
-        auto upperDepthLimit = -bb.min().z();
-        surface->setDepthSliderLimits( lowerDepthLimit, upperDepthLimit );
+        surface->setAreaOfInterest( bb.min(), bb.max() );
     }
     surface->loadDataIfRequired();
 

@@ -48,11 +48,14 @@ RimDepthSurface::RimDepthSurface()
     CAF_PDM_InitField( &m_depthUpperLimit, "DepthUpperLimit", 100000.0, "Upper Limit" );
     m_depthUpperLimit.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    m_minX.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
-    m_maxX.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
-    m_minY.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
-    m_maxY.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_minX.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_maxX.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_minY.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_maxY.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     m_depth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_areaOfInterestMin, "AreaOfInterestMin", "Area Of Interest Min" );
+    CAF_PDM_InitFieldNoDefault( &m_areaOfInterestMax, "AreaOfInterestMax", "Area Of Interest Max" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,6 +112,19 @@ void RimDepthSurface::setDepthSliderLimits( double lower, double upper )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimDepthSurface::setAreaOfInterest( cvf::Vec3d min, cvf::Vec3d max )
+{
+    m_areaOfInterestMin = min;
+    m_areaOfInterestMax = max;
+
+    auto lowerDepthLimit = -max.z();
+    auto upperDepthLimit = -min.z();
+    setDepthSliderLimits( lowerDepthLimit, upperDepthLimit );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimDepthSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimSurface::fieldChangedByUi( changedField, oldValue, newValue );
@@ -133,6 +149,24 @@ void RimDepthSurface::defineEditorAttribute( const caf::PdmFieldHandle* field, Q
         {
             attr->m_minimum = m_depthLowerLimit;
             attr->m_maximum = m_depthUpperLimit;
+        }
+    }
+
+    if ( field == &m_minX || field == &m_maxX )
+    {
+        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
+        {
+            attr->m_minimum = m_areaOfInterestMin().x();
+            attr->m_maximum = m_areaOfInterestMax().x();
+        }
+    }
+
+    if ( field == &m_minY || field == &m_maxY )
+    {
+        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
+        {
+            attr->m_minimum = m_areaOfInterestMin().y();
+            attr->m_maximum = m_areaOfInterestMax().y();
         }
     }
 }
