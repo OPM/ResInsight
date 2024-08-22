@@ -23,6 +23,7 @@
 #include "cafDataLoader.h"
 #include "cafProgressInfo.h"
 
+#include <QMutex>
 #include <QString>
 
 #include <memory>
@@ -42,4 +43,5 @@ public:
 
 private:
     std::unique_ptr<RifWellPathImporter> m_wellPathImporter;
+    QMutex                               m_mutex;
 };
