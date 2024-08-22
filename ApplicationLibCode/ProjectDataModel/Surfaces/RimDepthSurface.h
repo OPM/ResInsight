@@ -34,6 +34,7 @@ public:
     void setPlaneExtent( double minX, double minY, double maxX, double maxY );
     void setDepth( double depth );
     void setDepthSliderLimits( double lower, double upper );
+    void setAreaOfInterest( cvf::Vec3d min, cvf::Vec3d max );
 
 private:
     bool    updateSurfaceData() override;
@@ -53,6 +54,9 @@ private:
     caf::PdmField<double> m_depth;
     caf::PdmField<double> m_depthLowerLimit;
     caf::PdmField<double> m_depthUpperLimit;
+
+    caf::PdmField<cvf::Vec3d> m_areaOfInterestMin;
+    caf::PdmField<cvf::Vec3d> m_areaOfInterestMax;
 
     std::vector<unsigned>   m_triangleIndices;
     std::vector<cvf::Vec3d> m_vertices;
