@@ -46,6 +46,48 @@ RiaPreferencesOsdu* RiaPreferencesOsdu::current()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaPreferencesOsdu::setData( const std::map<QString, QString>& keyValuePairs )
+{
+    for ( const auto& [key, value] : keyValuePairs )
+    {
+        if ( key == "server" )
+        {
+            m_server = value;
+        }
+        else if ( key == "dataPartitionId" )
+        {
+            m_dataPartitionId = value;
+        }
+        else if ( key == "authority" )
+        {
+            m_authority = value;
+        }
+        else if ( key == "scopes" )
+        {
+            m_scopes = value;
+        }
+        else if ( key == "clientId" )
+        {
+            m_clientId = value;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPreferencesOsdu::setFieldsReadOnly()
+{
+    m_server.uiCapability()->setUiReadOnly( true );
+    m_dataPartitionId.uiCapability()->setUiReadOnly( true );
+    m_authority.uiCapability()->setUiReadOnly( true );
+    m_scopes.uiCapability()->setUiReadOnly( true );
+    m_clientId.uiCapability()->setUiReadOnly( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaPreferencesOsdu::server() const
 {
     return m_server;

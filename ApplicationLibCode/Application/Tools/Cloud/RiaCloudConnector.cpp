@@ -225,7 +225,7 @@ void RiaCloudConnector::exportTokenToFile()
 //--------------------------------------------------------------------------------------------------
 void RiaCloudConnector::importTokenFromFile()
 {
-    auto tokenDataJson = RiaConnectorTools::readTokenData( m_tokenDataFilePath );
+    auto tokenDataJson = RiaConnectorTools::readStringFromFile( m_tokenDataFilePath );
     if ( !tokenDataJson.isEmpty() )
     {
         RiaConnectorTools::initializeTokenDataFromJson( m_authCodeFlow, tokenDataJson );
