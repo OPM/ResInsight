@@ -45,7 +45,8 @@ void RimFileWellPathDataLoader::loadData( caf::PdmObject& pdmObject, const QStri
     auto* fWPath = dynamic_cast<RimFileWellPath*>( &pdmObject );
     if ( fWPath && !fWPath->filePath().isEmpty() )
     {
-        QString errorMessage;
+        QMutexLocker lock( &m_mutex );
+        QString      errorMessage;
         if ( !fWPath->readWellPathFile( &errorMessage, m_wellPathImporter.get(), false ) )
         {
             RiaLogging::warning( errorMessage );
