@@ -70,7 +70,7 @@ RimFaultInViewCollection::RimFaultInViewCollection()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showOppositeFaultFaces );
 
     CAF_PDM_InitField( &m_applyCellFilters, "ApplyCellFilters", true, "Use Cell Filters for Faults" );
-    CAF_PDM_InitField( &m_meshLineThickness, "MeshLineThickness", 2, "Mesh Line Thickness [1..10]" );
+    CAF_PDM_InitField( &m_meshLineThickness, "MeshLineThickness", 1, "Mesh Line Thickness [1..10]" );
 
     CAF_PDM_InitField( &m_onlyShowWithNeighbor, "OnlyShowWithDefNeighbor", false, "Show Only Faces with Juxtaposition" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_onlyShowWithNeighbor );
