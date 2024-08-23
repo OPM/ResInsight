@@ -152,10 +152,19 @@ bool RimWellLogLasFile::readFile( QString* errorMessage )
         m_wellLogChannels.push_back( wellLog );
     }
 
-    auto wellPath = firstAncestorOrThisOfType<RimFileWellPath>();
+    auto fileWellPath = firstAncestorOrThisOfType<RimFileWellPath>();
+    if ( fileWellPath )
+    {
+        if ( fileWellPath->filePath().isEmpty() ) // Has dummy wellpath
+        {
+            fileWellPath->setName( m_wellName );
+        }
+    }
+
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
     if ( wellPath )
     {
-        if ( wellPath->filePath().isEmpty() ) // Has dummy wellpath
+        if ( wellPath->name().isEmpty() )
         {
             wellPath->setName( m_wellName );
         }

@@ -1815,6 +1815,9 @@ void RiaApplication::initializeDataLoadController()
                                             std::make_unique<RimModeledWellPathDataLoader>() );
 
     const QString wellLogKeyword = "WELL_LOG";
+    dataLoadController->registerDataLoader( RimWellLogLasFile::classKeywordStatic(),
+                                            wellLogKeyword,
+                                            std::make_unique<RimWellLogFileDataLoader>() );
     dataLoadController->registerDataLoader( RimWellLogFile::classKeywordStatic(), wellLogKeyword, std::make_unique<RimWellLogFileDataLoader>() );
     dataLoadController->registerDataLoader( RimOsduWellLog::classKeywordStatic(), wellLogKeyword, std::make_unique<RimOsduWellLogDataLoader>() );
 }
