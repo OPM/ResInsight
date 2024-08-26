@@ -170,19 +170,19 @@ endif()
 # Version number
 # ##############################################################################
 if(UNIX AND NOT APPLE)
-    if(EXISTS "/etc/os-release")
-        # Read the contents of /etc/os-release
-        file(READ "/etc/os-release" OS_RELEASE_CONTENT)
+  if(EXISTS "/etc/os-release")
+    # Read the contents of /etc/os-release
+    file(READ "/etc/os-release" OS_RELEASE_CONTENT)
 
-        # Extract ID
-        string(REGEX MATCH "PRETTY_NAME=\"?([^\n\"]+)\"?" _ ${OS_RELEASE_CONTENT})
-        set(RESINSIGHT_BUILD_SYSTEM_ID ${CMAKE_MATCH_1})
+    # Extract ID
+    string(REGEX MATCH "PRETTY_NAME=\"?([^\n\"]+)\"?" _ ${OS_RELEASE_CONTENT})
+    set(RESINSIGHT_BUILD_SYSTEM_ID ${CMAKE_MATCH_1})
 
-        # Display the extracted values
-        message(STATUS "Operating System ID: ${RESINSIGHT_BUILD_SYSTEM_ID}")
-    else()
-        message(WARNING "/etc/os-release not found. Cannot determine OS details.")
-    endif()
+    # Display the extracted values
+    message(STATUS "Operating System ID: ${RESINSIGHT_BUILD_SYSTEM_ID}")
+  else()
+    message(WARNING "/etc/os-release not found. Cannot determine OS details.")
+  endif()
 endif()
 
 include(ResInsightVersion.cmake)
