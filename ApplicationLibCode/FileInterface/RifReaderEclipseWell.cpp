@@ -863,9 +863,15 @@ void RifReaderEclipseWell::readWellCells( RifEclipseRestartDataAccess* restartDa
                                 {
                                     prevResPoint = wellResFrame.wellHead();
                                 }
-                                else
+                                else if ( rpIdx > 0 )
                                 {
                                     prevResPoint = wellResultBranch.branchResultPoints()[rpIdx - 1];
+                                }
+
+                                if ( !prevResPoint.isCell() )
+                                {
+                                    // When importing only active cells, this situation can occur if the well head is a inactive cell.
+                                    continue;
                                 }
 
                                 cvf::Vec3d lastConnectionPos = grids[prevResPoint.gridIndex()]->cell( prevResPoint.cellIndex() ).center();
