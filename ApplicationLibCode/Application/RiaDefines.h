@@ -252,6 +252,8 @@ enum class ItemIn3dView
     ALL     = 0b00000011
 };
 
+QString betaFeaturePostfix();
+
 }; // namespace RiaDefines
 
 // Activate bit mask operators at global scope

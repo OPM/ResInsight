@@ -19,6 +19,7 @@
 #include "RicImportWellLogOsduFeature.h"
 
 #include "Cloud/RiaOsduConnector.h"
+#include "RiaDefines.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
@@ -118,5 +119,5 @@ void RicImportWellLogOsduFeature::onActionTriggered( bool isChecked )
 void RicImportWellLogOsduFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/LasFile16x16.png" ) );
-    actionToSetup->setText( "Import Well Log From OSDU" );
+    actionToSetup->setText( "Import Well Log From OSDU" + RiaDefines::betaFeaturePostfix() );
 }
