@@ -119,36 +119,25 @@ void RimSummaryEnsembleSumo::loadSummaryData( const RifEclipseSummaryAddress& re
 
     if ( m_parquetTable.find( key ) == m_parquetTable.end() )
     {
-        auto contents = loadParquetData( key );
-        RiaLogging::debug( QString( "Load Summary Data. Contents size: %1" ).arg( contents.size() ) );
-
-        arrow::MemoryPool* pool = arrow::default_memory_pool();
-
-        std::shared_ptr<arrow::io::RandomAccessFile> input = std::make_shared<RifByteArrayArrowRandomAccessFile>( contents );
-
-        std::shared_ptr<arrow::Table>               table;
-        std::unique_ptr<parquet::arrow::FileReader> arrow_reader;
-        if ( auto openResult = parquet::arrow::OpenFile( input, pool, &arrow_reader ); openResult.ok() )
         {
-            if ( auto readResult = arrow_reader->ReadTable( &table ); readResult.ok() )
-            {
-                RiaLogging::info( QString( "Parquet: Read table successfully for %1" ).arg( QString::fromStdString( resultAddress.uiText() ) ) );
-            }
-            else
-            {
-                RiaLogging::warning( QString( "Parquet: Error detected during parsing of table. Message: %1" )
-                                         .arg( QString::fromStdString( readResult.ToString() ) ) );
-            }
-        }
-        else
-        {
-            RiaLogging::warning(
-                QString( "Parquet: Not able to open data stream. Message: %1" ).arg( QString::fromStdString( openResult.ToString() ) ) );
+            auto contents = loadParquetData( key );
+            RiaLogging::debug( QString( "Load Summary Data. Contents size: %1" ).arg( contents.size() ) );
+
+            std::shared_ptr<arrow::Table> table = readParquetTable( contents, QString::fromStdString( resultAddress.uiText() ) );
+            m_parquetTable[key]                 = table;
+
+            distributeDataToRealizations( resultAddress, table );
         }
 
-        m_parquetTable[key] = table;
+        {
+            auto contents = m_sumoConnector->requestParametersParquetDataBlocking( sumoCaseId, sumoEnsembleName );
+            RiaLogging::debug( QString( "Load ensemble parameter sensitivities. Contents size: %1" ).arg( contents.size() ) );
 
-        distributeDataToRealizations( resultAddress, table );
+            std::shared_ptr<arrow::Table> table =
+                readParquetTable( contents, QString::fromStdString( resultAddress.uiText() + " parameter sensitivities" ) );
+
+            distributeParametersDataToRealizations( table );
+        }
     }
 }
 
@@ -160,6 +149,38 @@ QByteArray RimSummaryEnsembleSumo::loadParquetData( const ParquetKey& parquetKey
     if ( !m_sumoConnector ) return {};
 
     return m_sumoConnector->requestParquetDataBlocking( SumoCaseId( parquetKey.caseId ), parquetKey.ensembleId, parquetKey.vectorName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<arrow::Table> RimSummaryEnsembleSumo::readParquetTable( const QByteArray& contents, const QString& messageTag )
+{
+    arrow::MemoryPool* pool = arrow::default_memory_pool();
+
+    std::shared_ptr<arrow::io::RandomAccessFile> input = std::make_shared<RifByteArrayArrowRandomAccessFile>( contents );
+
+    std::shared_ptr<arrow::Table>               table;
+    std::unique_ptr<parquet::arrow::FileReader> arrow_reader;
+    if ( auto openResult = parquet::arrow::OpenFile( input, pool, &arrow_reader ); openResult.ok() )
+    {
+        if ( auto readResult = arrow_reader->ReadTable( &table ); readResult.ok() )
+        {
+            RiaLogging::info( QString( "Parquet: Read table successfully for %1" ).arg( messageTag ) );
+        }
+        else
+        {
+            RiaLogging::warning(
+                QString( "Parquet: Error detected during parsing of table. Message: %1" ).arg( QString::fromStdString( readResult.ToString() ) ) );
+        }
+    }
+    else
+    {
+        RiaLogging::warning(
+            QString( "Parquet: Not able to open data stream. Message: %1" ).arg( QString::fromStdString( openResult.ToString() ) ) );
+    }
+
+    return table;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -290,6 +311,122 @@ void RimSummaryEnsembleSumo::distributeDataToRealizations( const RifEclipseSumma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryEnsembleSumo::distributeParametersDataToRealizations( std::shared_ptr<arrow::Table> table )
+{
+    if ( !table )
+    {
+        RiaLogging::warning( "Failed to load table" );
+        return;
+    }
+
+    {
+        // print header information
+        QString txt = "Column Names: ";
+        for ( std::string columnName : table->ColumnNames() )
+        {
+            txt += QString::fromStdString( columnName ) + " (" +
+                   QString::fromStdString( table->GetColumnByName( columnName )->type()->ToString() + ") " );
+        }
+
+        RiaLogging::debug( txt );
+    }
+
+    std::vector<int64_t> realizations;
+
+    {
+        const std::string                    columnName = "REAL";
+        std::shared_ptr<arrow::ChunkedArray> column     = table->GetColumnByName( columnName );
+        if ( column && column->type()->id() == arrow::Type::INT64 )
+        {
+            realizations = RifArrowTools::chunkedArrayToVector<arrow::Int64Array, int64_t>( column );
+        }
+        else
+        {
+            RiaLogging::warning( "Failed to find realization column for parameter sensitivities." );
+            return;
+        }
+    }
+
+    std::map<std::string, std::vector<double>>  doubleValuesForRealizations;
+    std::map<std::string, std::vector<int64_t>> intValuesForRealizations;
+    for ( std::string columnName : table->ColumnNames() )
+    {
+        if ( columnName != "REAL" )
+        {
+            std::shared_ptr<arrow::ChunkedArray> column = table->GetColumnByName( columnName );
+
+            if ( column )
+            {
+                if ( column->type()->id() == arrow::Type::DOUBLE )
+                {
+                    std::vector<double> values              = RifArrowTools::chunkedArrayToVector<arrow::DoubleArray, double>( column );
+                    doubleValuesForRealizations[columnName] = values;
+                }
+                else if ( column->type()->id() == arrow::Type::INT64 )
+                {
+                    std::vector<int64_t> values          = RifArrowTools::chunkedArrayToVector<arrow::Int64Array, int64_t>( column );
+                    intValuesForRealizations[columnName] = values;
+                }
+            }
+            else
+            {
+                RiaLogging::warning( QString( "Failed to find values column for %1" ).arg( QString::fromStdString( columnName ) ) );
+                return;
+            }
+        }
+    }
+
+    // find unique realizations
+    std::set<int16_t> uniqueRealizations;
+    for ( auto realizationNumber : realizations )
+    {
+        uniqueRealizations.insert( realizationNumber );
+    }
+
+    auto findSummaryCase = [this]( int16_t realizationNumber ) -> RimSummaryCaseSumo*
+    {
+        for ( auto sumCase : allSummaryCases() )
+        {
+            auto sumCaseSumo = dynamic_cast<RimSummaryCaseSumo*>( sumCase );
+            if ( sumCaseSumo->realizationNumber() == realizationNumber ) return sumCaseSumo;
+        }
+
+        return nullptr;
+    };
+
+    for ( auto realizationNumber : uniqueRealizations )
+    {
+        if ( auto summaryCase = findSummaryCase( realizationNumber ) )
+        {
+            auto parameters = std::make_shared<RigCaseRealizationParameters>();
+            parameters->setRealizationNumber( realizationNumber );
+            parameters->addParameter( RiaDefines::summaryRealizationNumber(), realizationNumber );
+
+            for ( std::string columnName : table->ColumnNames() )
+            {
+                if ( columnName != "REAL" )
+                {
+                    if ( auto it = doubleValuesForRealizations.find( columnName ); it != doubleValuesForRealizations.end() )
+                    {
+                        double value = it->second[realizationNumber];
+                        parameters->addParameter( QString::fromStdString( columnName ), value );
+                    }
+                    else if ( auto it = intValuesForRealizations.find( columnName ); it != intValuesForRealizations.end() )
+                    {
+                        double value = it->second[realizationNumber];
+                        parameters->addParameter( QString::fromStdString( columnName ), value );
+                    }
+                }
+            }
+
+            summaryCase->setCaseRealizationParameters( parameters );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryEnsembleSumo::buildMetaData()
 {
     for ( auto summaryCase : allSummaryCases() )
@@ -398,16 +535,6 @@ void RimSummaryEnsembleSumo::onLoadDataAndUpdate()
                 realization->updateAutoShortName();
 
                 realization->setShowVectorItemsInProjectTree( m_cases.empty() );
-
-                // Create realization parameters, required to make derived ensemble cases work
-                // See RimDerivedEnsembleCaseCollection::createDerivedEnsembleCases()
-                auto parameters = std::shared_ptr<RigCaseRealizationParameters>( new RigCaseRealizationParameters() );
-
-                int realizationNumber = realId.toInt();
-                parameters->setRealizationNumber( realizationNumber );
-                parameters->addParameter( RiaDefines::summaryRealizationNumber(), realizationNumber );
-
-                realization->setCaseRealizationParameters( parameters );
 
                 m_cases.push_back( realization );
             }

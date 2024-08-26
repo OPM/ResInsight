@@ -93,6 +93,10 @@ public:
     void requestRealizationIdsForEnsemble( const SumoCaseId& caseId, const QString& ensembleName );
     void requestRealizationIdsForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName );
 
+    void       requestParametersBlobIdForEnsemble( const SumoCaseId& caseId, const QString& ensembleName );
+    void       requestParametersBlobIdForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName );
+    QByteArray requestParametersParquetDataBlocking( const SumoCaseId& caseId, const QString& ensembleName );
+
     void requestBlobIdForEnsemble( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
     void requestBlobIdForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
 

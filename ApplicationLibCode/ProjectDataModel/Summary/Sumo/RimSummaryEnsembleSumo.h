@@ -82,6 +82,10 @@ private:
     void distributeDataToRealizations( const RifEclipseSummaryAddress& resultAddress, std::shared_ptr<arrow::Table> table );
     void buildMetaData();
 
+    void distributeParametersDataToRealizations( std::shared_ptr<arrow::Table> table );
+
+    static std::shared_ptr<arrow::Table> readParquetTable( const QByteArray& contents, const QString& messageTag );
+
 private:
     caf::PdmPtrField<RimSummarySumoDataSource*> m_sumoDataSource;
 
