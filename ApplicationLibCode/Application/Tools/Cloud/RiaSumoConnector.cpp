@@ -359,6 +359,99 @@ void RiaSumoConnector::requestRealizationIdsForEnsembleBlocking( const SumoCaseI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QByteArray RiaSumoConnector::requestParametersParquetDataBlocking( const SumoCaseId& caseId, const QString& ensembleName )
+{
+    requestParametersBlobIdForEnsembleBlocking( caseId, ensembleName );
+
+    if ( m_blobUrl.empty() ) return {};
+
+    auto blobId = m_blobUrl.back();
+
+    QEventLoop eventLoop;
+    QTimer     timer;
+    timer.setSingleShot( true );
+    QObject::connect( &timer, SIGNAL( timeout() ), &eventLoop, SLOT( quit() ) );
+    QObject::connect( this, SIGNAL( parquetDownloadFinished( const QByteArray&, const QString& ) ), &eventLoop, SLOT( quit() ) );
+
+    requestBlobDownload( blobId );
+
+    timer.start( RiaSumoDefines::requestTimeoutMillis() );
+    eventLoop.exec( QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents );
+
+    for ( const auto& blobData : m_redirectInfo )
+    {
+        if ( blobData.objectId == blobId )
+        {
+            return blobData.contents;
+        }
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSumoConnector::requestParametersBlobIdForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName )
+{
+    auto        requestCallable = [this, caseId, ensembleName] { requestParametersBlobIdForEnsemble( caseId, ensembleName ); };
+    QMetaMethod signalMethod    = QMetaMethod::fromSignal( &RiaSumoConnector::blobIdFinished );
+    wrapAndCallNetworkRequest( requestCallable, signalMethod );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSumoConnector::requestParametersBlobIdForEnsemble( const SumoCaseId& caseId, const QString& ensembleName )
+{
+    requestTokenBlocking();
+
+    QString payloadTemplate = R"(
+{
+    "track_total_hits": true,
+    "query":  {   "bool": {
+            "must": [
+                {"term": {"class": "table"}},
+                {"term": {"_sumo.parent_object.keyword": "%1"}},
+                {"term": {"data.tagname.keyword": "all"}},
+                {"term": {"fmu.iteration.name.keyword": "%2"}},
+                {"term": {"fmu.aggregation.operation.keyword": "collection"}}
+            ]}
+        },
+         "fields": [
+            "data.name",
+            "_sumo.blob_name"
+        ],
+    "size": 1
+}
+)";
+
+    QNetworkRequest m_networkRequest;
+    m_networkRequest.setUrl( QUrl( m_server + "/api/v1/search" ) );
+
+    addStandardHeader( m_networkRequest, token(), RiaCloudDefines::contentTypeJson() );
+
+    auto payload = payloadTemplate.arg( caseId.get() ).arg( ensembleName );
+    auto reply   = m_networkAccessManager->post( m_networkRequest, payload.toUtf8() );
+
+    connect( reply,
+             &QNetworkReply::finished,
+             [this, reply, ensembleName, caseId, payload]()
+             {
+                 if ( reply->error() == QNetworkReply::NoError )
+                 {
+                     parseBlobIds( reply, caseId, ensembleName, "" );
+                 }
+                 else
+                 {
+                     RiaLogging::error( QString( "Request parameters failed: : '%s'" ).arg( reply->errorString() ) );
+                 }
+             } );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestBlobIdForEnsemble( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName )
 {
     requestTokenBlocking();

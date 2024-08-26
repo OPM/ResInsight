@@ -27,6 +27,7 @@
 #include "RifEclipseSummaryTools.h"
 #include "RifOpmCommonSummary.h"
 #include "RifSummaryCaseRestartSelector.h"
+#include "Sumo/RimSummaryCaseSumo.h"
 
 #ifdef USE_HDF5
 #include "RifHdf5SummaryExporter.h"
@@ -80,11 +81,14 @@ void addCaseRealizationParametersIfFound( RimSummaryCase& sumCase, const QString
         parameters = std::shared_ptr<RigCaseRealizationParameters>( new RigCaseRealizationParameters() );
     }
 
-    int realizationNumber = RifCaseRealizationParametersFileLocator::realizationNumber( modelFolderOrFile );
-    parameters->setRealizationNumber( realizationNumber );
-    parameters->addParameter( RiaDefines::summaryRealizationNumber(), realizationNumber );
+    if ( dynamic_cast<RimSummaryCaseSumo*>( &sumCase ) == nullptr )
+    {
+        int realizationNumber = RifCaseRealizationParametersFileLocator::realizationNumber( modelFolderOrFile );
+        parameters->setRealizationNumber( realizationNumber );
+        parameters->addParameter( RiaDefines::summaryRealizationNumber(), realizationNumber );
 
-    sumCase.setCaseRealizationParameters( parameters );
+        sumCase.setCaseRealizationParameters( parameters );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
