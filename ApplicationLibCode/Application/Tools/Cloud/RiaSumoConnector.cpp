@@ -440,7 +440,7 @@ void RiaSumoConnector::requestParametersBlobIdForEnsemble( const SumoCaseId& cas
              {
                  if ( reply->error() == QNetworkReply::NoError )
                  {
-                     parseBlobIds( reply, caseId, ensembleName, "" );
+                     parseBlobIds( reply, caseId, ensembleName, "", true );
                  }
                  else
                  {
@@ -493,7 +493,7 @@ void RiaSumoConnector::requestBlobIdForEnsemble( const SumoCaseId& caseId, const
              {
                  if ( reply->error() == QNetworkReply::NoError )
                  {
-                     parseBlobIds( reply, caseId, ensembleName, vectorName );
+                     parseBlobIds( reply, caseId, ensembleName, vectorName, false );
                  }
              } );
 }
@@ -862,7 +862,11 @@ void RiaSumoConnector::parseRealizationNumbers( QNetworkReply* reply, const Sumo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::parseBlobIds( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName )
+void RiaSumoConnector::parseBlobIds( QNetworkReply*    reply,
+                                     const SumoCaseId& caseId,
+                                     const QString&    ensembleName,
+                                     const QString&    vectorName,
+                                     bool              isParameters )
 {
     QByteArray result = reply->readAll();
     reply->deleteLater();
