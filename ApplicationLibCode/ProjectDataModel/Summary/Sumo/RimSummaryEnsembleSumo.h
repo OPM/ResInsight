@@ -39,10 +39,12 @@ struct ParquetKey
     SumoCaseId caseId;
     QString    ensembleId;
     QString    vectorName;
+    bool       isSensitivityParameters;
 
     auto operator<=>( const ParquetKey& other ) const
     {
-        return std::tie( caseId, ensembleId, vectorName ) <=> std::tie( other.caseId, other.ensembleId, other.vectorName );
+        return std::tie( caseId, ensembleId, vectorName, isSensitivityParameters ) <=>
+               std::tie( other.caseId, other.ensembleId, other.vectorName, other.isSensitivityParameters );
     }
 };
 
