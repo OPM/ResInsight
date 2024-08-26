@@ -18,6 +18,7 @@
 
 #include "RicCreateSumoEnsembleFeature.h"
 
+#include "RiaDefines.h"
 #include "RiaSummaryTools.h"
 
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
@@ -57,6 +58,6 @@ void RicCreateSumoEnsembleFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicCreateSumoEnsembleFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Create Sumo Ensemble" );
+    actionToSetup->setText( "Create Sumo Ensemble" + RiaDefines::betaFeaturePostfix() );
     actionToSetup->setIcon( QIcon( ":/SummaryEnsemble.svg" ) );
 }

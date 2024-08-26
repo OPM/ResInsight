@@ -1475,7 +1475,12 @@ int RimContextCommandBuilder::appendImportMenu( caf::CmdFeatureMenuBuilder& menu
     candidates << "RicImportWellLogCsvFileFeature";
     candidates << "RicReloadWellPathFormationNamesFeature";
 
-    if ( addOsduImportMenuItem ) candidates << "RicImportWellLogOsduFeature";
+    // Import of well logs from OSDU is disabled by default. The quality of well log data from OSDU is not sufficient for effective
+    // use. The environment variable RESINSIGHT_DEVEL must be set to enable this feature.
+    if ( addOsduImportMenuItem && RiaApplication::enableDevelopmentFeatures() )
+    {
+        candidates << "RicImportWellLogOsduFeature";
+    }
 
     return appendSubMenuWithCommands( menuBuilder, candidates, "Import", QIcon(), addSeparatorBeforeMenu );
 }

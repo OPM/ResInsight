@@ -21,6 +21,7 @@
 #include "Cloud/RiaOsduConnector.h"
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaDefines.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
@@ -82,7 +83,7 @@ void RicWellPathsImportOsduFeature::onActionTriggered( bool isChecked )
         caf::ProgressInfo             progress( importedWells.size(), "Importing wells from OSDU", false, true );
         int                           colorIndex = 0;
         std::vector<RimOsduWellPath*> newWells;
-        for ( auto w : importedWells )
+        for ( const auto& w : importedWells )
         {
             auto wellPath = new RimOsduWellPath;
             wellPath->setName( w.name );
@@ -118,6 +119,6 @@ void RicWellPathsImportOsduFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicWellPathsImportOsduFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Import Well Paths from &OSDU" );
+    actionToSetup->setText( "Import Well Paths from &OSDU" + RiaDefines::betaFeaturePostfix() );
     actionToSetup->setIcon( QIcon( ":/WellCollection.png" ) );
 }
