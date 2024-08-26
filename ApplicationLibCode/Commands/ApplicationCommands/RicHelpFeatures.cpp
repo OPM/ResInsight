@@ -148,6 +148,8 @@ void RicHelpAboutFeature::onActionTriggered( bool isChecked )
         dlg.addVersionEntry( " ", QString( "   " ) + vendor + " : " + render );
     }
 
+    dlg.addVersionEntry( " ", QString( "    Build Server : " ) + RESINSIGHT_BUILD_SYSTEM_ID );
+
     QString compiledUsingPythonVersion = RESINSIGHT_PYTHON_VERSION;
     if ( !compiledUsingPythonVersion.isEmpty() )
     {
