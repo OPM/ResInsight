@@ -101,3 +101,25 @@ QString RifArrowTools::readFirstRowsOfTable( const QByteArray& contents )
 
     return tableText;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RifArrowTools::chunkedArrayToStringVector( const std::shared_ptr<arrow::ChunkedArray>& chunkedArray )
+{
+    std::vector<std::string> result;
+
+    for ( int i = 0; i < chunkedArray->num_chunks(); ++i )
+    {
+        auto chunk = std::static_pointer_cast<arrow::StringArray>( chunkedArray->chunk( i ) );
+        for ( int j = 0; j < chunk->length(); ++j )
+        {
+            if ( !chunk->IsNull( j ) )
+            {
+                result.push_back( chunk->Value( j ).data() );
+            }
+        }
+    }
+
+    return result;
+}

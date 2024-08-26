@@ -19,7 +19,9 @@
 #pragma once
 
 #undef signals
+#include <arrow/array/array_binary.h>
 #include <arrow/array/array_primitive.h>
+
 #define signals Q_SIGNALS
 
 #include <limits>
@@ -67,5 +69,8 @@ std::vector<CType> chunkedArrayToVector( const std::shared_ptr<arrow::ChunkedArr
     return result;
 }
 
+std::vector<std::string> chunkedArrayToStringVector( const std::shared_ptr<arrow::ChunkedArray>& chunkedArray );
+
 QString readFirstRowsOfTable( const QByteArray& contents );
+
 }; // namespace RifArrowTools
