@@ -32,6 +32,8 @@
 #include "RimSummaryCaseSumo.h"
 #include "RimSummarySumoDataSource.h"
 
+#include <arrow/type_fwd.h>
+
 CAF_PDM_SOURCE_INIT( RimSummaryEnsembleSumo, "RimSummaryEnsembleSumo" );
 
 //--------------------------------------------------------------------------------------------------
@@ -347,8 +349,9 @@ void RimSummaryEnsembleSumo::distributeParametersDataToRealizations( std::shared
         }
     }
 
-    std::map<std::string, std::vector<double>>  doubleValuesForRealizations;
-    std::map<std::string, std::vector<int64_t>> intValuesForRealizations;
+    std::map<std::string, std::vector<double>>      doubleValuesForRealizations;
+    std::map<std::string, std::vector<int64_t>>     intValuesForRealizations;
+    std::map<std::string, std::vector<std::string>> stringValuesForRealizations;
     for ( std::string columnName : table->ColumnNames() )
     {
         if ( columnName != "REAL" )
@@ -366,6 +369,11 @@ void RimSummaryEnsembleSumo::distributeParametersDataToRealizations( std::shared
                 {
                     std::vector<int64_t> values          = RifArrowTools::chunkedArrayToVector<arrow::Int64Array, int64_t>( column );
                     intValuesForRealizations[columnName] = values;
+                }
+                else if ( column->type()->id() == arrow::Type::STRING )
+                {
+                    std::vector<std::string> values         = RifArrowTools::chunkedArrayToStringVector( column );
+                    stringValuesForRealizations[columnName] = values;
                 }
             }
             else
@@ -414,6 +422,11 @@ void RimSummaryEnsembleSumo::distributeParametersDataToRealizations( std::shared
                     else if ( auto it = intValuesForRealizations.find( columnName ); it != intValuesForRealizations.end() )
                     {
                         double value = it->second[realizationNumber];
+                        parameters->addParameter( QString::fromStdString( columnName ), value );
+                    }
+                    else if ( auto it = stringValuesForRealizations.find( columnName ); it != stringValuesForRealizations.end() )
+                    {
+                        QString value = QString::fromStdString( it->second[realizationNumber] );
                         parameters->addParameter( QString::fromStdString( columnName ), value );
                     }
                 }
