@@ -20,6 +20,8 @@
 
 #include "RimSurface.h"
 
+#include "cafPdmCoreVec3d.h"
+
 class RimDepthSurface : public RimSurface
 {
     CAF_PDM_HEADER_INIT;
@@ -30,6 +32,8 @@ public:
 
     bool        onLoadData() override;
     RimSurface* createCopy() override;
+
+    bool showIntersectionCellResults() override;
 
     void setPlaneExtent( double minX, double minY, double maxX, double maxY );
     void setDepth( double depth );
