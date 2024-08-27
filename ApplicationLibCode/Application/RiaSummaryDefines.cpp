@@ -28,6 +28,15 @@ void caf::AppEnum<RiaDefines::HorizontalAxisType>::setUp()
     addItem( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR, "SUMMARY_VECTOR", "Summary Vector" );
     setDefault( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
 }
+
+template <>
+void caf::AppEnum<RiaDefines::SummaryCurveType>::setUp()
+{
+    addItem( RiaDefines::SummaryCurveType::AUTO, "AUTO", "Auto" );
+    addItem( RiaDefines::SummaryCurveType::ACCUMULATED, "ACCUMULATED", "Accumulated" );
+    addItem( RiaDefines::SummaryCurveType::RATE, "RATE", "Rate" );
+    setDefault( RiaDefines::SummaryCurveType::AUTO );
+}
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------

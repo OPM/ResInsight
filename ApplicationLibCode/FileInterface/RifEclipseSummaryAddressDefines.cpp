@@ -32,6 +32,7 @@ void caf::AppEnum<RifEclipseSummaryAddressDefines::StatisticsType>::setUp()
     addItem( RifEclipseSummaryAddressDefines::StatisticsType::MEAN, "MEAN", "Mean" );
     setDefault( RifEclipseSummaryAddressDefines::StatisticsType::NONE );
 }
+
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------

@@ -90,7 +90,7 @@ std::vector<double> RimSummaryDeclineCurve::valuesY() const
                                      RimSummaryCurve::timeStepsY(),
                                      minTimeStep,
                                      maxTimeStep,
-                                     RiaSummaryTools::hasAccumulatedData( summaryAddressY() ) );
+                                     RiaSummaryTools::identifyCurveType( summaryAddressY() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ std::vector<double> RimSummaryDeclineCurve::valuesX() const
                                      RimSummaryCurve::timeStepsX(),
                                      minTimeStep,
                                      maxTimeStep,
-                                     RiaSummaryTools::hasAccumulatedData( summaryAddressX() ) );
+                                     RiaSummaryTools::identifyCurveType( summaryAddressX() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,11 +134,11 @@ std::vector<time_t> RimSummaryDeclineCurve::timeStepsX() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimSummaryDeclineCurve::createDeclineCurveValues( const std::vector<double>& values,
-                                                                      const std::vector<time_t>& timeSteps,
-                                                                      time_t                     minTimeStep,
-                                                                      time_t                     maxTimeStep,
-                                                                      bool                       isAccumulatedResult ) const
+std::vector<double> RimSummaryDeclineCurve::createDeclineCurveValues( const std::vector<double>&                 values,
+                                                                      const std::vector<time_t>&                 timeSteps,
+                                                                      time_t                                     minTimeStep,
+                                                                      time_t                                     maxTimeStep,
+                                                                      RifEclipseSummaryAddressDefines::CurveType accumulatedOrRate ) const
 {
     if ( values.empty() || timeSteps.empty() ) return values;
 
@@ -148,7 +148,7 @@ std::vector<double> RimSummaryDeclineCurve::createDeclineCurveValues( const std:
     if ( timeStepsInRange.empty() || valuesInRange.empty() ) return values;
 
     auto [initialProductionRate, initialDeclineRate] =
-        computeInitialProductionAndDeclineRate( valuesInRange, timeStepsInRange, isAccumulatedResult );
+        computeInitialProductionAndDeclineRate( valuesInRange, timeStepsInRange, accumulatedOrRate );
     if ( std::isinf( initialProductionRate ) || std::isnan( initialProductionRate ) || std::isinf( initialDeclineRate ) ||
          std::isnan( initialDeclineRate ) )
     {
@@ -162,8 +162,8 @@ std::vector<double> RimSummaryDeclineCurve::createDeclineCurveValues( const std:
     for ( const QDateTime& futureTime : futureTimeSteps )
     {
         double timeSinceStart = futureTime.toSecsSinceEpoch() - initialTime.toSecsSinceEpoch();
-        double predictedValue = computePredictedValue( initialProductionRate, initialDeclineRate, timeSinceStart, isAccumulatedResult );
-        if ( isAccumulatedResult ) predictedValue += valuesInRange.back();
+        double predictedValue = computePredictedValue( initialProductionRate, initialDeclineRate, timeSinceStart, accumulatedOrRate );
+        if ( accumulatedOrRate == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED ) predictedValue += valuesInRange.back();
         outValues.push_back( predictedValue );
     }
 
@@ -173,15 +173,16 @@ std::vector<double> RimSummaryDeclineCurve::createDeclineCurveValues( const std:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double> RimSummaryDeclineCurve::computeInitialProductionAndDeclineRate( const std::vector<double>& values,
-                                                                                          const std::vector<time_t>& timeSteps,
-                                                                                          bool                       isAccumulatedResult )
+std::pair<double, double>
+    RimSummaryDeclineCurve::computeInitialProductionAndDeclineRate( const std::vector<double>&                 values,
+                                                                    const std::vector<time_t>&                 timeSteps,
+                                                                    RifEclipseSummaryAddressDefines::CurveType accumulatedOrRate )
 {
     CAF_ASSERT( values.size() == timeSteps.size() );
 
     auto computeProductionRate = []( double t0, double v0, double t1, double v1 ) { return ( v1 - v0 ) / ( t1 - t0 ); };
 
-    if ( !isAccumulatedResult )
+    if ( accumulatedOrRate == RifEclipseSummaryAddressDefines::CurveType::RATE )
     {
         // Use the first (time step, value) pair as t0
         const size_t    idx0 = 0;
@@ -197,42 +198,40 @@ std::pair<double, double> RimSummaryDeclineCurve::computeInitialProductionAndDec
             RigDeclineCurveCalculator::computeDeclineRate( t0.toSecsSinceEpoch(), v0, initialTime.toSecsSinceEpoch(), initialProductionRate );
         return { initialProductionRate, initialDeclineRate };
     }
-    else
-    {
-        // Select a point (t0) 1/4 into the user-specified range
-        const double    historyStep = 0.25;
-        const size_t    idx0        = static_cast<size_t>( timeSteps.size() * historyStep );
-        const QDateTime t0          = RiaQDateTimeTools::fromTime_t( timeSteps[idx0] );
-        const double    v0          = values[idx0];
 
-        // For accumulated result: compute the initial production rate from the two points.
-        const QDateTime initialTime  = RiaQDateTimeTools::fromTime_t( timeSteps.back() );
-        double initialProductionRate = computeProductionRate( t0.toSecsSinceEpoch(), v0, initialTime.toSecsSinceEpoch(), values.back() );
+    // Select a point (t0) 1/4 into the user-specified range
+    const double    historyStep = 0.25;
+    const size_t    idx0        = static_cast<size_t>( timeSteps.size() * historyStep );
+    const QDateTime t0          = RiaQDateTimeTools::fromTime_t( timeSteps[idx0] );
+    const double    v0          = values[idx0];
 
-        // Compute the at production rate at time t0 by using a point even further back in the existing curve (tx).
-        size_t    idxX            = 0;
-        QDateTime tx              = RiaQDateTimeTools::fromTime_t( timeSteps[idxX] );
-        double    vx              = values[idxX];
-        double    productionRate0 = computeProductionRate( tx.toSecsSinceEpoch(), vx, t0.toSecsSinceEpoch(), v0 );
+    // For accumulated result: compute the initial production rate from the two points.
+    const QDateTime initialTime  = RiaQDateTimeTools::fromTime_t( timeSteps.back() );
+    double initialProductionRate = computeProductionRate( t0.toSecsSinceEpoch(), v0, initialTime.toSecsSinceEpoch(), values.back() );
 
-        // Compute the decline rate using the rates at the two points
-        double initialDeclineRate = RigDeclineCurveCalculator::computeDeclineRate( t0.toSecsSinceEpoch(),
-                                                                                   productionRate0,
-                                                                                   initialTime.toSecsSinceEpoch(),
-                                                                                   initialProductionRate );
-        return { initialProductionRate, initialDeclineRate };
-    }
+    // Compute the at production rate at time t0 by using a point even further back in the existing curve (tx).
+    size_t    idxX            = 0;
+    QDateTime tx              = RiaQDateTimeTools::fromTime_t( timeSteps[idxX] );
+    double    vx              = values[idxX];
+    double    productionRate0 = computeProductionRate( tx.toSecsSinceEpoch(), vx, t0.toSecsSinceEpoch(), v0 );
+
+    // Compute the decline rate using the rates at the two points
+    double initialDeclineRate = RigDeclineCurveCalculator::computeDeclineRate( t0.toSecsSinceEpoch(),
+                                                                               productionRate0,
+                                                                               initialTime.toSecsSinceEpoch(),
+                                                                               initialProductionRate );
+    return { initialProductionRate, initialDeclineRate };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimSummaryDeclineCurve::computePredictedValue( double initialProductionRate,
-                                                      double initialDeclineRate,
-                                                      double timeSinceStart,
-                                                      bool   isAccumulatedResult ) const
+double RimSummaryDeclineCurve::computePredictedValue( double                                     initialProductionRate,
+                                                      double                                     initialDeclineRate,
+                                                      double                                     timeSinceStart,
+                                                      RifEclipseSummaryAddressDefines::CurveType accumulatedOrRate ) const
 {
-    if ( isAccumulatedResult )
+    if ( accumulatedOrRate == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED )
     {
         if ( m_declineCurveType == RimSummaryDeclineCurve::DeclineCurveType::EXPONENTIAL )
         {

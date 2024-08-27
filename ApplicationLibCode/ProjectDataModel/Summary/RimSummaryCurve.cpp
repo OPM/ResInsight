@@ -87,6 +87,11 @@ RimSummaryCurve::RimSummaryCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_yValuesResampling, "Resampling", "Resampling" );
 
+    CAF_PDM_InitFieldNoDefault( &m_yAccumulatedOrRate, "AccumulatedOrRate", "Accumulated/Rate Curve Values" );
+    CAF_PDM_InitFieldNoDefault( &m_yAccumulatedOrRateText, "CurveType", "Curve Type" );
+    m_yAccumulatedOrRateText.registerGetMethod( this, &RimSummaryCurve::accumulatedOrRateText );
+    m_yAccumulatedOrRateText.uiCapability()->setUiReadOnly( true );
+
     // X Values
 
     CAF_PDM_InitField( &m_xAxisType,
@@ -417,6 +422,25 @@ double RimSummaryCurve::yValueAtTimeT( time_t time ) const
 void RimSummaryCurve::setOverrideCurveDataY( const std::vector<time_t>& dateTimes, const std::vector<double>& yValues )
 {
     setSamplesFromTimeTAndYValues( dateTimes, yValues, true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddressDefines::CurveType RimSummaryCurve::accumulatedOrRate() const
+{
+    switch ( m_yAccumulatedOrRate() )
+    {
+        case RiaDefines::SummaryCurveType::AUTO:
+            return RiaSummaryTools::identifyCurveType( m_yValuesSummaryAddress()->address() );
+        case RiaDefines::SummaryCurveType::ACCUMULATED:
+            return RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED;
+        case RiaDefines::SummaryCurveType::RATE:
+            return RifEclipseSummaryAddressDefines::CurveType::RATE;
+        default:
+            CAF_ASSERT( false );
+            return RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -899,9 +923,14 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         curveDataGroup->add( &m_yValuesSummaryCase, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
         curveDataGroup->add( &m_yValuesSummaryAddressUiField, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
         curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
-        curveDataGroup->add( &m_yValuesResampling, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
         curveDataGroup->add( &m_yPlotAxisProperties, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
-        curveDataGroup->add( &m_showErrorBars );
+
+        caf::PdmUiGroup* detailGroup = curveDataGroup->addNewGroup( "Advanced" );
+        detailGroup->setCollapsedByDefault();
+        detailGroup->add( &m_yValuesResampling, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
+        detailGroup->add( &m_showErrorBars );
+        detailGroup->add( &m_yAccumulatedOrRate );
+        detailGroup->add( &m_yAccumulatedOrRateText );
     }
 
     if ( m_showXAxisGroup )
@@ -1353,6 +1382,34 @@ RifSummaryReaderInterface* RimSummaryCurve::valuesSummaryReaderY() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimSummaryCurve::accumulatedOrRateText() const
+{
+    QString text;
+
+    if ( m_yAccumulatedOrRate() == RiaDefines::SummaryCurveType::AUTO )
+    {
+        text = "Auto : ";
+    }
+    else
+    {
+        text = "User Defined : ";
+    }
+
+    if ( accumulatedOrRate() == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED )
+    {
+        text += "Accumulated";
+    }
+    else
+    {
+        text += "Rate";
+    }
+
+    return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<time_t> RimSummaryCurve::timeStepsX() const
 {
     RifSummaryReaderInterface* reader = valuesSummaryReaderX();
@@ -1372,7 +1429,7 @@ void RimSummaryCurve::calculateCurveInterpolationFromAddress()
     if ( m_yValuesSummaryAddress() )
     {
         auto address = m_yValuesSummaryAddress()->address();
-        if ( RiaSummaryTools::hasAccumulatedData( address ) )
+        if ( RiaSummaryTools::identifyCurveType( address ) == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED )
         {
             m_curveAppearance->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT );
         }
