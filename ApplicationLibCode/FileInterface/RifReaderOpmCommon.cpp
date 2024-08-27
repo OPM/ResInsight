@@ -727,12 +727,26 @@ void RifReaderOpmCommon::setupInitAndRestartAccess()
 {
     if ( ( m_initFile == nullptr ) && !m_initFileName.empty() )
     {
-        m_initFile = std::make_unique<EclIO::EInit>( m_initFileName );
+        try
+        {
+            m_initFile = std::make_unique<EclIO::EInit>( m_initFileName );
+        }
+        catch ( ... )
+        {
+            m_initFile = nullptr;
+        }
     }
 
     if ( ( m_restartFile == nullptr ) && !m_restartFileName.empty() )
     {
-        m_restartFile = std::make_unique<EclIO::ERst>( m_restartFileName );
+        try
+        {
+            m_restartFile = std::make_unique<EclIO::ERst>( m_restartFileName );
+        }
+        catch ( ... )
+        {
+            m_restartFile = nullptr;
+        }
     }
 }
 
