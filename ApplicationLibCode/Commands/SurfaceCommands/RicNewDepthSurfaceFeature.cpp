@@ -44,6 +44,10 @@ void RicNewDepthSurfaceFeature::onActionTriggered( bool isChecked )
 
     auto surface = new RimDepthSurface;
 
+    // As this surface is usually a oil-water contact, we set the color to blue
+    surface->setColor( cvf::Color3f::BLUE );
+    surface->setOpacity( true, 0.6f );
+
     auto allCases = RimProject::current()->allGridCases();
     if ( !allCases.empty() )
     {

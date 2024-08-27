@@ -84,6 +84,15 @@ RimSurface* RimDepthSurface::createCopy()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimDepthSurface::showIntersectionCellResults()
+{
+    // Avoid use of cell intersection results color for depth surfaces
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimDepthSurface::setPlaneExtent( double minX, double minY, double maxX, double maxY )
 {
     m_minX = minX;
@@ -141,6 +150,8 @@ void RimDepthSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 void RimDepthSurface::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
+    RimSurface::defineEditorAttribute( field, uiConfigName, attribute );
+
     caf::PdmUiDoubleValueEditorAttribute::testAndSetFixedWithTwoDecimals( attribute );
 
     if ( field == &m_depth )
@@ -199,6 +210,9 @@ void RimDepthSurface::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         auto group = uiOrdering.addNewGroup( "Appearance" );
         group->add( &m_userDescription );
         group->add( &m_color );
+
+        group->add( &m_enableOpacity );
+        group->add( &m_opacity );
     }
 
     uiOrdering.skipRemainingFields();

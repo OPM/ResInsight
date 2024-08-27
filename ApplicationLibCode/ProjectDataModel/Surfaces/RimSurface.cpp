@@ -56,7 +56,11 @@ RimSurface::RimSurface()
     CAF_PDM_InitScriptableObject( "Surface", ":/ReservoirSurface16x16.png" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_userDescription, "SurfaceUserDecription", "Name" );
+
     CAF_PDM_InitField( &m_color, "SurfaceColor", cvf::Color3f( 0.5f, 0.3f, 0.2f ), "Color" );
+    CAF_PDM_InitField( &m_enableOpacity, "EnableOpacity", false, "Enable Opacity" );
+    CAF_PDM_InitField( &m_opacity, "Opacity", 0.6, "Opacity Value [0..1]" );
+    m_opacity.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitScriptableField( &m_depthOffset, "DepthOffset", 0.0, "Depth Offset" );
     m_depthOffset.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -92,6 +96,31 @@ void RimSurface::setColor( const cvf::Color3f& color )
 cvf::Color3f RimSurface::color() const
 {
     return m_color();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<bool, float> RimSurface::opacity() const
+{
+    return std::make_pair( m_enableOpacity(), m_opacity() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurface::setOpacity( bool useOpacity, float opacity )
+{
+    m_enableOpacity.setValue( useOpacity );
+    m_opacity.setValue( opacity );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSurface::showIntersectionCellResults()
+{
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -162,6 +191,9 @@ double RimSurface::depthOffset() const
     return m_depthOffset;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSurface::setDepthOffset( double depthoffset )
 {
     m_depthOffset.setValue( depthoffset );
@@ -271,6 +303,15 @@ void RimSurface::defineEditorAttribute( const caf::PdmFieldHandle* field, QStrin
 
             doubleSliderAttrib->m_minimum = -minimumExtent;
             doubleSliderAttrib->m_maximum = minimumExtent;
+        }
+    }
+
+    if ( field == &m_opacity )
+    {
+        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
+        {
+            attr->m_minimum = 0.0;
+            attr->m_maximum = 1.0;
         }
     }
 }

@@ -43,6 +43,7 @@
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
+#include "cvfRenderStateBlending.h"
 
 #include <limits>
 
@@ -121,7 +122,8 @@ void RivSurfacePartMgr::updateCellResultColor( int timeStepIndex )
 //--------------------------------------------------------------------------------------------------
 void RivSurfacePartMgr::appendIntersectionGeometryPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
 {
-    if ( !m_surfaceInView->surfaceResultDefinition()->isChecked() )
+    if ( m_surfaceInView->surface() && m_surfaceInView->surface()->showIntersectionCellResults() &&
+         !m_surfaceInView->surfaceResultDefinition()->isChecked() )
     {
         if ( m_intersectionFaces.isNull() )
         {
@@ -162,6 +164,9 @@ void RivSurfacePartMgr::appendIntersectionGeometryPartsToModel( cvf::ModelBasicL
 //--------------------------------------------------------------------------------------------------
 void RivSurfacePartMgr::updateNativeSurfaceColors()
 {
+    const auto [opacityEnabled, surfaceOpacityValue] = m_surfaceInView->surface()->opacity();
+    const auto opacityValueToUse                     = opacityEnabled ? surfaceOpacityValue : 1.0f;
+
     if ( m_surfaceInView->surfaceResultDefinition()->isChecked() )
     {
         if ( m_usedSurfaceData.isNull() ) generateNativePartGeometry();
@@ -199,19 +204,35 @@ void RivSurfacePartMgr::updateNativeSurfaceColors()
     }
     else
     {
-        caf::SurfaceEffectGenerator surfaceGenBehind( cvf::Color4f( m_surfaceInView->surface()->color() ), caf::PO_POS_LARGE );
+        const auto                  color = cvf::Color4f( m_surfaceInView->surface()->color(), opacityValueToUse );
+        caf::SurfaceEffectGenerator surfaceGenBehind( color, caf::PO_POS_LARGE );
 
         cvf::ref<cvf::Effect> effBehind = surfaceGenBehind.generateCachedEffect();
         if ( m_nativeTrianglesPart.notNull() )
         {
+            if ( opacityEnabled )
+            {
+                m_nativeTrianglesPart->setPriority( RivPartPriority::PartType::Transparent );
+                cvf::ref<cvf::RenderStateBlending> blending = new cvf::RenderStateBlending;
+                blending->configureTransparencyBlending();
+                effBehind->setRenderState( blending.p() );
+            }
+
             m_nativeTrianglesPart->setEffect( effBehind.p() );
         }
     }
 
     if ( m_intersectionFaces.notNull() )
     {
-        caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( m_surfaceInView->surface()->color() ), caf::PO_1 );
+        caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( m_surfaceInView->surface()->color(), opacityValueToUse ), caf::PO_1 );
         cvf::ref<cvf::Effect>       eff = surfaceGen.generateCachedEffect();
+        if ( opacityEnabled )
+        {
+            m_intersectionFaces->setPriority( RivPartPriority::PartType::Transparent );
+            cvf::ref<cvf::RenderStateBlending> blending = new cvf::RenderStateBlending;
+            blending->configureTransparencyBlending();
+            eff->setRenderState( blending.p() );
+        }
 
         m_intersectionFaces->setEffect( eff.p() );
     }
