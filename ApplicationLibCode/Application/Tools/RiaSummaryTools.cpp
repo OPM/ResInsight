@@ -241,9 +241,9 @@ std::pair<std::vector<time_t>, std::vector<double>> RiaSummaryTools::resampledVa
 //--------------------------------------------------------------------------------------------------
 std::pair<std::vector<time_t>, std::vector<double>>
     RiaSummaryTools::resampledValuesForPeriod( RifEclipseSummaryAddressDefines::CurveType accumulatedOrRate,
-                                               const std::vector<time_t>&                             timeSteps,
-                                               const std::vector<double>&                             values,
-                                               RiaDefines::DateTimePeriod                             period )
+                                               const std::vector<time_t>&                 timeSteps,
+                                               const std::vector<double>&                 values,
+                                               RiaDefines::DateTimePeriod                 period )
 {
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( values, timeSteps );

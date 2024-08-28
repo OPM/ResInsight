@@ -49,9 +49,7 @@ void RimSummaryCurvesData::populateTimeHistoryCurvesData( std::vector<RimGridTim
         if ( !curve->isChecked() ) continue;
         QString curveCaseName = curve->caseName();
 
-        CurveData curveData = { curve->curveExportDescription( {} ),
-                                RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED,
-                                curve->yValues() };
+        CurveData curveData = { curve->curveExportDescription( {} ), RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED, curve->yValues() };
 
         curvesData->addCurveData( curveCaseName, "", curve->timeStepValues(), curveData );
     }
@@ -70,9 +68,7 @@ void RimSummaryCurvesData::populateAsciiDataCurvesData( std::vector<RimAsciiData
     {
         if ( !curve->isChecked() ) continue;
 
-        CurveData curveData = { curve->curveExportDescription( {} ),
-                                RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED,
-                                curve->yValues() };
+        CurveData curveData = { curve->curveExportDescription( {} ), RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED, curve->yValues() };
 
         curvesData->addCurveDataNoSearch( "", "", curve->timeSteps(), { curveData } );
     }
