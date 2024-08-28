@@ -132,6 +132,11 @@ size_t RifReaderEclipseWell::localGridCellIndexFromErtConnection( const RigGridB
         return cvf::UNDEFINED_SIZE_T;
     }
 
+    if ( ( cellI < 0 ) || ( cellJ < 0 ) )
+    {
+        return cvf::UNDEFINED_SIZE_T;
+    }
+
     return grid->cellIndexFromIJK( cellI, cellJ, cellK );
 }
 
@@ -158,7 +163,7 @@ RigWellResultPoint RifReaderEclipseWell::createWellResultPoint( const RigEclipse
 
     RigWellResultPoint resultPoint;
 
-    if ( ( gridCellIndex == cvf::UNDEFINED_SIZE_T ) || ( gridCellIndex > grid->cellCount() - 1 ) )
+    if ( ( grid->cellCount() == 0 ) || ( gridCellIndex > grid->cellCount() - 1 ) )
     {
         return resultPoint;
     }

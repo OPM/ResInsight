@@ -416,6 +416,27 @@ double RigGridBase::characteristicIJCellSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigGridBase::characteristicCellSizes( double* iSize, double* jSize, double* kSize ) const
+{
+    CVF_ASSERT( iSize && jSize && kSize );
+
+    if ( !hasValidCharacteristicCellSizes() )
+    {
+        std::vector<size_t> reservoirCellIndices;
+        reservoirCellIndices.resize( cellCount() );
+        std::iota( reservoirCellIndices.begin(), reservoirCellIndices.end(), 0 );
+
+        computeCharacteristicCellSize( reservoirCellIndices );
+    }
+
+    *iSize = m_characteristicCellSizeI;
+    *jSize = m_characteristicCellSizeJ;
+    *kSize = m_characteristicCellSizeK;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 size_t RigGridBase::reservoirCellIndex( size_t gridLocalCellIndex ) const
 {
     return m_indexToStartOfCells + gridLocalCellIndex;

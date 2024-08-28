@@ -124,9 +124,6 @@ bool RigActiveCellGrid::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j
 {
     if ( cellIndex >= m_activeToGlobalMap.size() )
     {
-        i = 0;
-        j = 0;
-        k = 0;
         return false;
     }
     auto index = m_activeToGlobalMap[cellIndex];
