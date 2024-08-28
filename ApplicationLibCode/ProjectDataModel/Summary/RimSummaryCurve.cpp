@@ -925,7 +925,7 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
         curveDataGroup->add( &m_yPlotAxisProperties, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
 
-        caf::PdmUiGroup* detailGroup = curveDataGroup->addNewGroup( "Advanced" );
+        caf::PdmUiGroup* detailGroup = curveDataGroup->addNewGroup( "Advanced Curve Properties" );
         detailGroup->setCollapsedByDefault();
         detailGroup->add( &m_yValuesResampling, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
         detailGroup->add( &m_showErrorBars );
