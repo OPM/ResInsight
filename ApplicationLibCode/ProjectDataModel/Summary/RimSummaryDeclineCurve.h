@@ -72,11 +72,11 @@ private:
 
     void appendFutureTimeSteps( std::vector<time_t>& timeSteps ) const;
 
-    std::vector<double> createDeclineCurveValues( const std::vector<double>& values,
-                                                  const std::vector<time_t>& timeSteps,
-                                                  time_t                     minTimeStep,
-                                                  time_t                     maxTimeStep,
-                                                  bool                       isAccumulatedResult ) const;
+    std::vector<double> createDeclineCurveValues( const std::vector<double>&                 values,
+                                                  const std::vector<time_t>&                 timeSteps,
+                                                  time_t                                     minTimeStep,
+                                                  time_t                                     maxTimeStep,
+                                                  RifEclipseSummaryAddressDefines::CurveType curveType ) const;
 
     static std::pair<std::vector<time_t>, std::vector<double>>
         getInRangeValues( const std::vector<time_t>& timeSteps, const std::vector<double>& values, time_t minTimeStep, time_t maxTimeStep );
@@ -85,11 +85,14 @@ private:
     std::set<QDateTime> createFutureTimeSteps( const std::vector<time_t>& timeSteps ) const;
     static void         appendTimeSteps( std::vector<time_t>& timeSteps, const std::set<QDateTime>& moreTimeSteps );
 
-    static std::pair<double, double> computeInitialProductionAndDeclineRate( const std::vector<double>& values,
-                                                                             const std::vector<time_t>& timeSteps,
-                                                                             bool                       isAccumulatedResult );
+    static std::pair<double, double> computeInitialProductionAndDeclineRate( const std::vector<double>&                 values,
+                                                                             const std::vector<time_t>&                 timeSteps,
+                                                                             RifEclipseSummaryAddressDefines::CurveType curveType );
 
-    double computePredictedValue( double initialProductionRate, double initialDeclineRate, double timeSinceStart, bool isAccumulatedResult ) const;
+    double computePredictedValue( double                                     initialProductionRate,
+                                  double                                     initialDeclineRate,
+                                  double                                     timeSinceStart,
+                                  RifEclipseSummaryAddressDefines::CurveType curveType ) const;
 
     std::pair<time_t, time_t> fullTimeStepRange() const;
     std::pair<time_t, time_t> selectedTimeStepRange() const;

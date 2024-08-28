@@ -73,6 +73,12 @@ enum class StatisticsType
     MEAN
 };
 
+enum class CurveType
+{
+    ACCUMULATED,
+    RATE
+};
+
 std::string statisticsNameP10();
 std::string statisticsNameP50();
 std::string statisticsNameP90();

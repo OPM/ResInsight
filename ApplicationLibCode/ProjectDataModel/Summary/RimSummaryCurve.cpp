@@ -87,6 +87,9 @@ RimSummaryCurve::RimSummaryCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_yValuesResampling, "Resampling", "Resampling" );
 
+    CAF_PDM_InitFieldNoDefault( &m_yCurveTypeMode, "CurveTypeMode", "Curve Type" );
+    CAF_PDM_InitFieldNoDefault( &m_yCurveType, "CurveType", "" );
+
     // X Values
 
     CAF_PDM_InitField( &m_xAxisType,
@@ -417,6 +420,14 @@ double RimSummaryCurve::yValueAtTimeT( time_t time ) const
 void RimSummaryCurve::setOverrideCurveDataY( const std::vector<time_t>& dateTimes, const std::vector<double>& yValues )
 {
     setSamplesFromTimeTAndYValues( dateTimes, yValues, true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddressDefines::CurveType RimSummaryCurve::curveType() const
+{
+    return m_yCurveType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -899,9 +910,15 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         curveDataGroup->add( &m_yValuesSummaryCase, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
         curveDataGroup->add( &m_yValuesSummaryAddressUiField, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
         curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
-        curveDataGroup->add( &m_yValuesResampling, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
         curveDataGroup->add( &m_yPlotAxisProperties, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
-        curveDataGroup->add( &m_showErrorBars );
+
+        caf::PdmUiGroup* detailGroup = curveDataGroup->addNewGroup( "Advanced Properties" );
+        detailGroup->setCollapsedByDefault();
+        detailGroup->add( &m_yValuesResampling );
+        detailGroup->add( &m_showErrorBars );
+        detailGroup->add( &m_yCurveTypeMode );
+        detailGroup->add( &m_yCurveType );
+        m_yCurveType.uiCapability()->setUiReadOnly( m_yCurveTypeMode() == RiaDefines::SummaryCurveTypeMode::AUTO );
     }
 
     if ( m_showXAxisGroup )
@@ -1251,6 +1268,10 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         m_xPushButtonSelectSummaryAddress = false;
     }
+    else if ( changedField == &m_yCurveTypeMode )
+    {
+        calculateCurveTypeFromAddress();
+    }
 
     if ( crossPlotTestForMatchingTimeSteps )
     {
@@ -1369,17 +1390,30 @@ std::vector<time_t> RimSummaryCurve::timeStepsX() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::calculateCurveInterpolationFromAddress()
 {
-    if ( m_yValuesSummaryAddress() )
+    if ( !m_yValuesSummaryAddress() ) return;
+
+    calculateCurveTypeFromAddress();
+
+    if ( curveType() == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED )
     {
-        auto address = m_yValuesSummaryAddress()->address();
-        if ( RiaSummaryTools::hasAccumulatedData( address ) )
-        {
-            m_curveAppearance->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT );
-        }
-        else
-        {
-            m_curveAppearance->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT );
-        }
+        m_curveAppearance->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT );
+    }
+    else
+    {
+        m_curveAppearance->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::calculateCurveTypeFromAddress()
+{
+    if ( !m_yValuesSummaryAddress() ) return;
+
+    if ( m_yCurveTypeMode() == RiaDefines::SummaryCurveTypeMode::AUTO )
+    {
+        m_yCurveType = RiaSummaryTools::identifyCurveType( m_yValuesSummaryAddress()->address() );
     }
 }
 

@@ -32,6 +32,15 @@ void caf::AppEnum<RifEclipseSummaryAddressDefines::StatisticsType>::setUp()
     addItem( RifEclipseSummaryAddressDefines::StatisticsType::MEAN, "MEAN", "Mean" );
     setDefault( RifEclipseSummaryAddressDefines::StatisticsType::NONE );
 }
+
+template <>
+void caf::AppEnum<RifEclipseSummaryAddressDefines::CurveType>::setUp()
+{
+    addItem( RifEclipseSummaryAddressDefines::CurveType::RATE, "RATE", "Rate" );
+    addItem( RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED, "ACCUMULATED", "Accumulated" );
+    setDefault( RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED );
+}
+
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
