@@ -80,6 +80,6 @@ void RicShowSummaryCurveCalculatorFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicShowSummaryCurveCalculatorFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Curve Calculator" );
+    actionToSetup->setText( "Summary Curve Calculator" );
     actionToSetup->setIcon( QIcon( ":/Calculator.svg" ) );
 }
