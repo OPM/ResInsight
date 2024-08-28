@@ -1057,6 +1057,111 @@ QString RifEclipseInputFileTools::faultFaceText( cvf::StructGridInterface::FaceT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RifEclipseInputFileTools::parsePflotranInputFile( const QString& fileName, cvf::Collection<RigFault>* faults )
+{
+    QStringList gridSectionFilenames;
+
+    RiaLogging::info( "Looking for 'Pflotran' fault definitions in " + fileName );
+
+    {
+        // Find all referenced grdecl files in a pflotran input file, in the GRID section, example
+        /*
+            GRID
+                TYPE grdecl ../include/ccs_3df_kh.grdecl
+                TYPE grdecl ../include/ccs_3df_other.grdecl
+            END
+        */
+
+        QFile file( fileName );
+        if ( !file.open( QFile::ReadOnly ) ) return;
+
+        QString line;
+        bool    continueParsing  = true;
+        bool    foundGridKeyword = false;
+        bool    foundEndKeyword  = false;
+        do
+        {
+            line = file.readLine();
+            line = line.trimmed();
+
+            if ( line.startsWith( "GRID" ) ) foundGridKeyword = true;
+
+            if ( foundGridKeyword )
+            {
+                if ( line.startsWith( "TYPE" ) )
+                {
+                    auto words = RiaTextStringTools::splitSkipEmptyParts( line, " " );
+                    if ( words.size() == 3 && words[1].startsWith( "grdecl", Qt::CaseInsensitive ) )
+                    {
+                        QFileInfo fi( fileName );
+                        QDir      currentFileFolder = fi.absoluteDir();
+
+                        QString absoluteFilePath = currentFileFolder.absoluteFilePath( words.back() );
+                        gridSectionFilenames.push_back( absoluteFilePath );
+                    }
+                }
+
+                if ( line.startsWith( "END" ) ) foundEndKeyword = true;
+            }
+
+            if ( foundEndKeyword ) continueParsing = false;
+
+            if ( file.atEnd() )
+            {
+                continueParsing = false;
+            }
+
+        } while ( continueParsing );
+    }
+
+    // Find all grdecl files defined by the external_file keyword
+    // For all these files, search for the FAULTS keyword and create fault objects
+    /*
+        external_file ccs_3df_kh.grdecl
+        external_file ccs_3df_other.grdecl
+    */
+
+    for ( const auto& gridSectionFilename : gridSectionFilenames )
+    {
+        QFile file( gridSectionFilename );
+        if ( !file.open( QFile::ReadOnly ) ) continue;
+
+        QString line;
+        do
+        {
+            line = file.readLine();
+            line = line.trimmed();
+
+            if ( line.startsWith( "external_file", Qt::CaseInsensitive ) )
+            {
+                auto words = RiaTextStringTools::splitSkipEmptyParts( line, " " );
+                if ( words.size() == 2 )
+                {
+                    QFileInfo fi( gridSectionFilename );
+                    QDir      currentFileFolder = fi.absoluteDir();
+
+                    QString absoluteFilePath = currentFileFolder.absoluteFilePath( words.back() );
+                    QFile   grdeclFilename( absoluteFilePath );
+                    if ( !grdeclFilename.open( QFile::ReadOnly ) ) continue;
+
+                    auto currentFaultCount = faults->size();
+
+                    readFaults( grdeclFilename, 0, faults, nullptr );
+
+                    if ( currentFaultCount != faults->size() )
+                    {
+                        RiaLogging::info( "Imported faults from " + absoluteFilePath );
+                    }
+                }
+            }
+
+        } while ( !file.atEnd() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively( QFile& file,
                                                                                qint64 startPos,
                                                                                const std::vector<std::pair<QString, QString>>& pathAliasDefinitions,

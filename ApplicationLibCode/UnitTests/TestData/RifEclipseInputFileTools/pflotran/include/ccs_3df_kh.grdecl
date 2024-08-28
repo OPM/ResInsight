@@ -1,0 +1,27 @@
+DIMENS
+30 30 12 /
+
+external_file ccs_3df_geom_kh.grdecl
+
+external_file ccs_3df_prop.grdecl
+
+external_file Faults_test_KH.grdecl
+
+external_file multflt_test_KH.grdecl
+
+EQUALS
+ ACTNUM 0 7 7 15 15 1 1
+ ACTNUM 0 30 30 29 29 12 12
+/
+
+
+EQUALS
+FIPNUM    1     1 30    1 30    1  2  /  overburden
+FIPNUM    2     1 30    1 30    1  6  /  	       
+FIPNUM    3     1 30    1 30    1  4   / 
+/ 	    
+
+EQUALS
+SATNUM 1      /
+IMBNUM 2     /
+/
