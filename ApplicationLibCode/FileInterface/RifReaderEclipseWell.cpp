@@ -132,6 +132,11 @@ size_t RifReaderEclipseWell::localGridCellIndexFromErtConnection( const RigGridB
         return cvf::UNDEFINED_SIZE_T;
     }
 
+    if ( ( cellI < 0 ) || ( cellJ < 0 ) )
+    {
+        return cvf::UNDEFINED_SIZE_T;
+    }
+
     return grid->cellIndexFromIJK( cellI, cellJ, cellK );
 }
 
@@ -157,6 +162,17 @@ RigWellResultPoint RifReaderEclipseWell::createWellResultPoint( const RigEclipse
     double connectionFactor = well_conn_get_connection_factor( ert_connection );
 
     RigWellResultPoint resultPoint;
+
+    if ( ( grid->cellCount() == 0 ) || ( gridCellIndex > grid->cellCount() - 1 ) )
+    {
+        return resultPoint;
+    }
+
+    const RigCell& c = grid->cell( gridCellIndex );
+    if ( c.isInvalid() )
+    {
+        return resultPoint;
+    }
 
     if ( gridCellIndex != cvf::UNDEFINED_SIZE_T )
     {
@@ -857,9 +873,15 @@ void RifReaderEclipseWell::readWellCells( RifEclipseRestartDataAccess* restartDa
                                 {
                                     prevResPoint = wellResFrame.wellHead();
                                 }
-                                else
+                                else if ( rpIdx > 0 )
                                 {
                                     prevResPoint = wellResultBranch.branchResultPoints()[rpIdx - 1];
+                                }
+
+                                if ( !prevResPoint.isCell() )
+                                {
+                                    // When importing only active cells, this situation can occur if the well head is a inactive cell.
+                                    continue;
                                 }
 
                                 cvf::Vec3d lastConnectionPos = grids[prevResPoint.gridIndex()]->cell( prevResPoint.cellIndex() ).center();

@@ -333,12 +333,12 @@ const cvf::UIntArray* RigEclipseCaseData::gridCellToResultWellIndex( size_t grid
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigCell& RigEclipseCaseData::cellFromWellResultCell( const RigWellResultPoint& wellResultCell ) const
+const RigCell& RigEclipseCaseData::cellFromWellResultCell( const RigWellResultPoint& wellResultPoint ) const
 {
-    CVF_ASSERT( wellResultCell.isCell() );
+    CVF_ASSERT( wellResultPoint.isCell() );
 
-    size_t gridIndex     = wellResultCell.gridIndex();
-    size_t gridCellIndex = wellResultCell.cellIndex();
+    size_t gridIndex     = wellResultPoint.gridIndex();
+    size_t gridCellIndex = wellResultPoint.cellIndex();
 
     std::vector<const RigGridBase*> grids;
     allGrids( &grids );
@@ -429,11 +429,12 @@ void RigEclipseCaseData::computeActiveCellIJKBBox()
         CellRangeBB matrixModelActiveBB;
         CellRangeBB fractureModelActiveBB;
 
-        size_t idx;
-        for ( idx = 0; idx < m_mainGrid->cellCount(); idx++ )
+        for ( size_t idx = 0; idx < m_mainGrid->cellCount(); idx++ )
         {
             size_t i, j, k;
             m_mainGrid->ijkFromCellIndex( idx, &i, &j, &k );
+
+            if ( !m_mainGrid->isCellValid( i, j, k ) ) continue;
 
             if ( m_activeCellInfo->isActive( idx ) )
             {
@@ -724,13 +725,16 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxOptimized()
                 {
                     for ( size_t j = minBB.y(); j <= maxBB.y(); j++ )
                     {
-                        size_t cellIndex = m_mainGrid->cellIndexFromIJK( i, j, k );
-
-                        std::array<cvf::Vec3d, 8> hexCorners;
-                        m_mainGrid->cellCornerVertices( cellIndex, hexCorners.data() );
-                        for ( const auto& corner : hexCorners )
+                        if ( m_mainGrid->isCellValid( i, j, k ) )
                         {
-                            bb.add( corner );
+                            size_t cellIndex = m_mainGrid->cellIndexFromIJK( i, j, k );
+
+                            std::array<cvf::Vec3d, 8> hexCorners;
+                            m_mainGrid->cellCornerVertices( cellIndex, hexCorners.data() );
+                            for ( const auto& corner : hexCorners )
+                            {
+                                bb.add( corner );
+                            }
                         }
                     }
                 }

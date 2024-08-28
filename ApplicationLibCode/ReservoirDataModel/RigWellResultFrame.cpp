@@ -101,7 +101,7 @@ RigWellResultPoint RigWellResultFrame::wellHeadOrStartCell() const
         }
     }
 
-    return m_wellHead; // Nothing else to do
+    return RigWellResultPoint(); // Nothing else matters
 }
 
 //--------------------------------------------------------------------------------------------------

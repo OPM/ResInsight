@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA
-//  Copyright (C) Ceetron Solutions AS
+//  Copyright (C) 2024- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,21 +18,21 @@
 
 #pragma once
 
-#include <QString>
+#include "RifReaderOpmCommon.h"
+
+class RigActiveCellGrid;
 
 //==================================================================================================
-///
-///
+//
+//
 //==================================================================================================
-struct RifReaderSettings
+class RifReaderOpmCommonActive : public RifReaderOpmCommon
 {
-    bool    importFaults;
-    bool    importNNCs;
-    bool    includeInactiveCellsInFaultGeometry;
-    bool    importAdvancedMswData;
-    bool    useResultIndexFile;
-    bool    skipWellData;
-    bool    importSummaryData;
-    QString includeFileAbsolutePathPrefix;
-    bool    onlyLoadActiveCells;
+public:
+    RifReaderOpmCommonActive();
+    ~RifReaderOpmCommonActive() override;
+
+protected:
+    bool importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* caseData ) override;
+    void transferActiveGeometry( Opm::EclIO::EGrid& opmMainGrid, RigActiveCellGrid* riMainGrid, RigEclipseCaseData* caseData );
 };

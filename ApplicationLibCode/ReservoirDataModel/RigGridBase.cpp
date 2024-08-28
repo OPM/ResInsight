@@ -208,7 +208,7 @@ void RigGridBase::cellMinMaxCordinates( size_t cellIndex, cvf::Vec3d* minCoordin
 //--------------------------------------------------------------------------------------------------
 bool RigGridBase::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const
 {
-    CVF_TIGHT_ASSERT( cellIndex < cellCount() );
+    CVF_TIGHT_ASSERT( cellIndex < RigGridBase::cellCount() );
 
     size_t index = cellIndex;
 
@@ -411,6 +411,27 @@ double RigGridBase::characteristicIJCellSize() const
     if ( cellSizeJ < characteristicCellSize ) characteristicCellSize = cellSizeJ;
 
     return characteristicCellSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGridBase::characteristicCellSizes( double* iSize, double* jSize, double* kSize ) const
+{
+    CVF_ASSERT( iSize && jSize && kSize );
+
+    if ( !hasValidCharacteristicCellSizes() )
+    {
+        std::vector<size_t> reservoirCellIndices;
+        reservoirCellIndices.resize( cellCount() );
+        std::iota( reservoirCellIndices.begin(), reservoirCellIndices.end(), 0 );
+
+        computeCharacteristicCellSize( reservoirCellIndices );
+    }
+
+    *iSize = m_characteristicCellSizeI;
+    *jSize = m_characteristicCellSizeJ;
+    *kSize = m_characteristicCellSizeK;
 }
 
 //--------------------------------------------------------------------------------------------------

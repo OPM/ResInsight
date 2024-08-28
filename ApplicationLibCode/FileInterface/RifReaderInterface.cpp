@@ -83,6 +83,14 @@ const QString RifReaderInterface::faultIncludeFileAbsolutePathPrefix() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifReaderInterface::onlyLoadActiveCells() const
+{
+    return m_readerSettings.onlyLoadActiveCells;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifReaderInterface::setTimeStepFilter( const std::vector<size_t>& fileTimeStepIndices )
 {
     m_fileTimeStepIndices = fileTimeStepIndices;

@@ -29,6 +29,7 @@
 #include "RifOpmRadialGridTools.h"
 #include "RifReaderEclipseWell.h"
 
+#include "RigActiveCellGrid.h"
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -87,18 +88,16 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
             return false;
         }
 
+        if ( isFaultImportEnabled() )
         {
             auto task = progress.task( "Reading faults", 25 );
 
-            if ( isFaultImportEnabled() )
-            {
-                cvf::Collection<RigFault> faults;
+            cvf::Collection<RigFault> faults;
 
-                importFaults( fileSet, &faults );
+            importFaults( fileSet, &faults );
 
-                RigMainGrid* mainGrid = eclipseCaseData->mainGrid();
-                mainGrid->setFaults( faults );
-            }
+            RigMainGrid* mainGrid = eclipseCaseData->mainGrid();
+            mainGrid->setFaults( faults );
         }
 
         m_eclipseCaseData = eclipseCaseData;
@@ -108,9 +107,10 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
             buildMetaData( eclipseCaseData, progress );
         }
 
-        auto task = progress.task( "Handling NCC Result data", 25 );
         if ( isNNCsEnabled() )
         {
+            auto task = progress.task( "Handling NCC Result data", 25 );
+
             caf::ProgressInfo nncProgress( 10, "" );
             RigMainGrid*      mainGrid = eclipseCaseData->mainGrid();
 
@@ -278,9 +278,11 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
             mapAxes[i] = opmMapAxes[i];
         }
 
+        double norm_denominator = mapAxes[2] * mapAxes[5] - mapAxes[4] * mapAxes[3];
+
         // Set the map axes transformation matrix on the main grid
         mainGrid->setMapAxes( mapAxes );
-        mainGrid->setUseMapAxes( true );
+        mainGrid->setUseMapAxes( norm_denominator != 0.0 );
 
         auto transform = mainGrid->mapAxisTransform();
 
@@ -414,6 +416,7 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
 
     RigCell defaultCell;
     defaultCell.setHostGrid( localGrid );
+
     mainGrid->globalCellArray().resize( cellStartIndex + cellCount, defaultCell );
 
     mainGrid->nodes().resize( nodeStartIndex + cellCount * 8, cvf::Vec3d( 0, 0, 0 ) );
@@ -724,12 +727,26 @@ void RifReaderOpmCommon::setupInitAndRestartAccess()
 {
     if ( ( m_initFile == nullptr ) && !m_initFileName.empty() )
     {
-        m_initFile = std::make_unique<EclIO::EInit>( m_initFileName );
+        try
+        {
+            m_initFile = std::make_unique<EclIO::EInit>( m_initFileName );
+        }
+        catch ( ... )
+        {
+            m_initFile = nullptr;
+        }
     }
 
     if ( ( m_restartFile == nullptr ) && !m_restartFileName.empty() )
     {
-        m_restartFile = std::make_unique<EclIO::ERst>( m_restartFileName );
+        try
+        {
+            m_restartFile = std::make_unique<EclIO::ERst>( m_restartFileName );
+        }
+        catch ( ... )
+        {
+            m_restartFile = nullptr;
+        }
     }
 }
 

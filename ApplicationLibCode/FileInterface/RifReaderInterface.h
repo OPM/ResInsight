@@ -57,6 +57,7 @@ public:
     bool          includeInactiveCellsInFaultGeometry() const;
     bool          loadWellDataEnabled() const;
     const QString faultIncludeFileAbsolutePathPrefix() const;
+    bool          onlyLoadActiveCells() const;
 
     void setReaderSettings( RifReaderSettings readerSettings );
 
