@@ -244,7 +244,7 @@ void RimSummaryCurvesData::populateSummaryCurvesData( std::vector<RimSummaryCurv
             ensembleName = curve->curveDefinition().ensemble()->name();
         }
 
-        CurveData curveData = { curve->curveExportDescription( {} ), curve->accumulatedOrRate(), curve->valuesY() };
+        CurveData curveData = { curve->curveExportDescription( {} ), curve->curveType(), curve->valuesY() };
         CurveData errorCurveData;
 
         // Error data
@@ -253,9 +253,9 @@ void RimSummaryCurvesData::populateSummaryCurvesData( std::vector<RimSummaryCurv
 
         if ( hasErrorData )
         {
-            errorCurveData.name              = curve->curveExportDescription( curve->errorSummaryAddressY() );
-            errorCurveData.accumulatedOrRate = curve->accumulatedOrRate();
-            errorCurveData.values            = errorValues;
+            errorCurveData.name      = curve->curveExportDescription( curve->errorSummaryAddressY() );
+            errorCurveData.curveType = curve->curveType();
+            errorCurveData.values    = errorValues;
         }
 
         auto curveDataList = std::vector<CurveData>( { curveData } );
@@ -302,7 +302,7 @@ void RimSummaryCurvesData::prepareCaseCurvesForExport( RiaDefines::DateTimePerio
             for ( auto& curveDataItem : caseCurveData )
             {
                 const auto [resampledTime, resampledValues] =
-                    RiaSummaryTools::resampledValuesForPeriod( curveDataItem.accumulatedOrRate, caseTimeSteps, curveDataItem.values, period );
+                    RiaSummaryTools::resampledValuesForPeriod( curveDataItem.curveType, caseTimeSteps, curveDataItem.values, period );
 
                 auto cd   = curveDataItem;
                 cd.values = resampledValues;

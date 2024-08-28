@@ -30,7 +30,7 @@ class RimAsciiDataCurve;
 struct CurveData
 {
     QString                                    name;
-    RifEclipseSummaryAddressDefines::CurveType accumulatedOrRate;
+    RifEclipseSummaryAddressDefines::CurveType curveType;
     std::vector<double>                        values;
 };
 

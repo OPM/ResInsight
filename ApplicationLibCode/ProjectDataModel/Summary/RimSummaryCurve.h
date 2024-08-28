@@ -35,7 +35,6 @@
 #include "RimStackablePlotCurve.h"
 
 #include "cafAppEnum.h"
-#include "cafPdmProxyValueField.h"
 #include "cafTristate.h"
 
 class RifSummaryReaderInterface;
@@ -79,7 +78,7 @@ public:
     double                      yValueAtTimeT( time_t time ) const;
     void                        setOverrideCurveDataY( const std::vector<time_t>& xValues, const std::vector<double>& yValues );
 
-    RifEclipseSummaryAddressDefines::CurveType accumulatedOrRate() const;
+    RifEclipseSummaryAddressDefines::CurveType curveType() const;
 
     // X Axis functions
     void                           setAxisTypeX( RiaDefines::HorizontalAxisType axisType );
@@ -147,6 +146,7 @@ private:
     QString accumulatedOrRateText() const;
 
     void calculateCurveInterpolationFromAddress();
+    void calculateCurveTypeFromAddress();
 
     static void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options, RimSummaryCase* summaryCase );
 
@@ -159,8 +159,8 @@ private:
     caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_yPlotAxisProperties;
     caf::PdmField<RiaDefines::DateTimePeriodEnum>     m_yValuesResampling;
 
-    caf::PdmField<caf::AppEnum<RiaDefines::SummaryCurveType>> m_yAccumulatedOrRate;
-    caf::PdmProxyValueField<QString>                          m_yAccumulatedOrRateText;
+    caf::PdmField<caf::AppEnum<RiaDefines::SummaryCurveTypeMode>>           m_yCurveTypeMode;
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::CurveType>> m_yCurveType;
 
     // X values
     caf::PdmField<caf::AppEnum<RiaDefines::HorizontalAxisType>> m_xAxisType;

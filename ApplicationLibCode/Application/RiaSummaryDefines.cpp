@@ -30,13 +30,13 @@ void caf::AppEnum<RiaDefines::HorizontalAxisType>::setUp()
 }
 
 template <>
-void caf::AppEnum<RiaDefines::SummaryCurveType>::setUp()
+void caf::AppEnum<RiaDefines::SummaryCurveTypeMode>::setUp()
 {
-    addItem( RiaDefines::SummaryCurveType::AUTO, "AUTO", "Auto" );
-    addItem( RiaDefines::SummaryCurveType::ACCUMULATED, "ACCUMULATED", "Accumulated" );
-    addItem( RiaDefines::SummaryCurveType::RATE, "RATE", "Rate" );
-    setDefault( RiaDefines::SummaryCurveType::AUTO );
+    addItem( RiaDefines::SummaryCurveTypeMode::AUTO, "AUTO", "Auto" );
+    addItem( RiaDefines::SummaryCurveTypeMode::CUSTOM, "CUSTOM", "Custom" );
+    setDefault( RiaDefines::SummaryCurveTypeMode::AUTO );
 }
+
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------

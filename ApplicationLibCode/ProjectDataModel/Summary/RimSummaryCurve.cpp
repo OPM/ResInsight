@@ -87,10 +87,8 @@ RimSummaryCurve::RimSummaryCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_yValuesResampling, "Resampling", "Resampling" );
 
-    CAF_PDM_InitFieldNoDefault( &m_yAccumulatedOrRate, "AccumulatedOrRate", "Accumulated/Rate Curve Values" );
-    CAF_PDM_InitFieldNoDefault( &m_yAccumulatedOrRateText, "CurveType", "Curve Type" );
-    m_yAccumulatedOrRateText.registerGetMethod( this, &RimSummaryCurve::accumulatedOrRateText );
-    m_yAccumulatedOrRateText.uiCapability()->setUiReadOnly( true );
+    CAF_PDM_InitFieldNoDefault( &m_yCurveTypeMode, "CurveTypeMode", "Curve Type" );
+    CAF_PDM_InitFieldNoDefault( &m_yCurveType, "CurveType", "" );
 
     // X Values
 
@@ -427,20 +425,9 @@ void RimSummaryCurve::setOverrideCurveDataY( const std::vector<time_t>& dateTime
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddressDefines::CurveType RimSummaryCurve::accumulatedOrRate() const
+RifEclipseSummaryAddressDefines::CurveType RimSummaryCurve::curveType() const
 {
-    switch ( m_yAccumulatedOrRate() )
-    {
-        case RiaDefines::SummaryCurveType::AUTO:
-            return RiaSummaryTools::identifyCurveType( m_yValuesSummaryAddress()->address() );
-        case RiaDefines::SummaryCurveType::ACCUMULATED:
-            return RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED;
-        case RiaDefines::SummaryCurveType::RATE:
-            return RifEclipseSummaryAddressDefines::CurveType::RATE;
-        default:
-            CAF_ASSERT( false );
-            return RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED;
-    }
+    return m_yCurveType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -925,12 +912,13 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
         curveDataGroup->add( &m_yPlotAxisProperties, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
 
-        caf::PdmUiGroup* detailGroup = curveDataGroup->addNewGroup( "Advanced Curve Properties" );
+        caf::PdmUiGroup* detailGroup = curveDataGroup->addNewGroup( "Advanced Properties" );
         detailGroup->setCollapsedByDefault();
-        detailGroup->add( &m_yValuesResampling, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
+        detailGroup->add( &m_yValuesResampling );
         detailGroup->add( &m_showErrorBars );
-        detailGroup->add( &m_yAccumulatedOrRate );
-        detailGroup->add( &m_yAccumulatedOrRateText );
+        detailGroup->add( &m_yCurveTypeMode );
+        detailGroup->add( &m_yCurveType );
+        m_yCurveType.uiCapability()->setUiReadOnly( m_yCurveTypeMode() == RiaDefines::SummaryCurveTypeMode::AUTO );
     }
 
     if ( m_showXAxisGroup )
@@ -1280,6 +1268,10 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         m_xPushButtonSelectSummaryAddress = false;
     }
+    else if ( changedField == &m_yCurveTypeMode )
+    {
+        calculateCurveTypeFromAddress();
+    }
 
     if ( crossPlotTestForMatchingTimeSteps )
     {
@@ -1386,23 +1378,25 @@ QString RimSummaryCurve::accumulatedOrRateText() const
 {
     QString text;
 
-    if ( m_yAccumulatedOrRate() == RiaDefines::SummaryCurveType::AUTO )
-    {
-        text = "Auto : ";
-    }
-    else
-    {
-        text = "User Defined : ";
-    }
+    /*
+        if ( m_yAccumulatedOrRate() == RiaDefines::SummaryCurveType::AUTO )
+        {
+            text = "Auto : ";
+        }
+        else
+        {
+            text = "User Defined : ";
+        }
 
-    if ( accumulatedOrRate() == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED )
-    {
-        text += "Accumulated";
-    }
-    else
-    {
-        text += "Rate";
-    }
+        if ( accumulatedOrRate() == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED )
+        {
+            text += "Accumulated";
+        }
+        else
+        {
+            text += "Rate";
+        }
+    */
 
     return text;
 }
@@ -1426,17 +1420,31 @@ std::vector<time_t> RimSummaryCurve::timeStepsX() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::calculateCurveInterpolationFromAddress()
 {
-    if ( m_yValuesSummaryAddress() )
+    if ( !m_yValuesSummaryAddress() ) return;
+
+    auto address = m_yValuesSummaryAddress()->address();
+    if ( RiaSummaryTools::identifyCurveType( address ) == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED )
     {
-        auto address = m_yValuesSummaryAddress()->address();
-        if ( RiaSummaryTools::identifyCurveType( address ) == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED )
-        {
-            m_curveAppearance->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT );
-        }
-        else
-        {
-            m_curveAppearance->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT );
-        }
+        m_curveAppearance->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT );
+    }
+    else
+    {
+        m_curveAppearance->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT );
+    }
+
+    calculateCurveTypeFromAddress();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::calculateCurveTypeFromAddress()
+{
+    if ( !m_yValuesSummaryAddress() ) return;
+
+    if ( m_yCurveTypeMode() == RiaDefines::SummaryCurveTypeMode::AUTO )
+    {
+        m_yCurveType = RiaSummaryTools::identifyCurveType( m_yValuesSummaryAddress()->address() );
     }
 }
 
