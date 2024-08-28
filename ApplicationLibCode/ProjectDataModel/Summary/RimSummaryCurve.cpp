@@ -1422,8 +1422,9 @@ void RimSummaryCurve::calculateCurveInterpolationFromAddress()
 {
     if ( !m_yValuesSummaryAddress() ) return;
 
-    auto address = m_yValuesSummaryAddress()->address();
-    if ( RiaSummaryTools::identifyCurveType( address ) == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED )
+    calculateCurveTypeFromAddress();
+
+    if ( curveType() == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED )
     {
         m_curveAppearance->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT );
     }
@@ -1431,8 +1432,6 @@ void RimSummaryCurve::calculateCurveInterpolationFromAddress()
     {
         m_curveAppearance->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT );
     }
-
-    calculateCurveTypeFromAddress();
 }
 
 //--------------------------------------------------------------------------------------------------

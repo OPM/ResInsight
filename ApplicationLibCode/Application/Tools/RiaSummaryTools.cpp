@@ -233,6 +233,10 @@ std::pair<std::vector<time_t>, std::vector<double>> RiaSummaryTools::resampledVa
                                                                                                const std::vector<double>&      values,
                                                                                                RiaDefines::DateTimePeriod      period )
 {
+    // NB! The curve type can be overridden by the user, so there might be a discrepancy between the curve type and the curve type derived
+    // from the address
+    // See RimSummaryCurve::curveType()
+
     return resampledValuesForPeriod( RiaSummaryTools::identifyCurveType( address ), timeSteps, values, period );
 }
 

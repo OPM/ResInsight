@@ -86,11 +86,7 @@ std::vector<double> RimSummaryDeclineCurve::valuesY() const
 {
     auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
 
-    return createDeclineCurveValues( RimSummaryCurve::valuesY(),
-                                     RimSummaryCurve::timeStepsY(),
-                                     minTimeStep,
-                                     maxTimeStep,
-                                     RiaSummaryTools::identifyCurveType( summaryAddressY() ) );
+    return createDeclineCurveValues( RimSummaryCurve::valuesY(), RimSummaryCurve::timeStepsY(), minTimeStep, maxTimeStep, curveType() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,11 +96,7 @@ std::vector<double> RimSummaryDeclineCurve::valuesX() const
 {
     auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
 
-    return createDeclineCurveValues( RimSummaryCurve::valuesX(),
-                                     RimSummaryCurve::timeStepsX(),
-                                     minTimeStep,
-                                     maxTimeStep,
-                                     RiaSummaryTools::identifyCurveType( summaryAddressX() ) );
+    return createDeclineCurveValues( RimSummaryCurve::valuesX(), RimSummaryCurve::timeStepsX(), minTimeStep, maxTimeStep, curveType() );
 }
 
 //--------------------------------------------------------------------------------------------------
