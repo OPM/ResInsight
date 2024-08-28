@@ -19,7 +19,9 @@
 #pragma once
 
 #include "RiaDateTimeDefines.h"
+
 #include "RifEclipseSummaryAddressDefines.h"
+
 #include "RimObservedDataCollection.h"
 
 #include <QString>

@@ -143,8 +143,6 @@ private:
     RifSummaryReaderInterface* valuesSummaryReaderX() const;
     RifSummaryReaderInterface* valuesSummaryReaderY() const;
 
-    QString accumulatedOrRateText() const;
-
     void calculateCurveInterpolationFromAddress();
     void calculateCurveTypeFromAddress();
 

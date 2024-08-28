@@ -130,7 +130,7 @@ std::vector<double> RimSummaryDeclineCurve::createDeclineCurveValues( const std:
                                                                       const std::vector<time_t>&                 timeSteps,
                                                                       time_t                                     minTimeStep,
                                                                       time_t                                     maxTimeStep,
-                                                                      RifEclipseSummaryAddressDefines::CurveType accumulatedOrRate ) const
+                                                                      RifEclipseSummaryAddressDefines::CurveType curveType ) const
 {
     if ( values.empty() || timeSteps.empty() ) return values;
 
@@ -139,8 +139,7 @@ std::vector<double> RimSummaryDeclineCurve::createDeclineCurveValues( const std:
 
     if ( timeStepsInRange.empty() || valuesInRange.empty() ) return values;
 
-    auto [initialProductionRate, initialDeclineRate] =
-        computeInitialProductionAndDeclineRate( valuesInRange, timeStepsInRange, accumulatedOrRate );
+    auto [initialProductionRate, initialDeclineRate] = computeInitialProductionAndDeclineRate( valuesInRange, timeStepsInRange, curveType );
     if ( std::isinf( initialProductionRate ) || std::isnan( initialProductionRate ) || std::isinf( initialDeclineRate ) ||
          std::isnan( initialDeclineRate ) )
     {
@@ -154,8 +153,8 @@ std::vector<double> RimSummaryDeclineCurve::createDeclineCurveValues( const std:
     for ( const QDateTime& futureTime : futureTimeSteps )
     {
         double timeSinceStart = futureTime.toSecsSinceEpoch() - initialTime.toSecsSinceEpoch();
-        double predictedValue = computePredictedValue( initialProductionRate, initialDeclineRate, timeSinceStart, accumulatedOrRate );
-        if ( accumulatedOrRate == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED ) predictedValue += valuesInRange.back();
+        double predictedValue = computePredictedValue( initialProductionRate, initialDeclineRate, timeSinceStart, curveType );
+        if ( curveType == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED ) predictedValue += valuesInRange.back();
         outValues.push_back( predictedValue );
     }
 
@@ -165,16 +164,15 @@ std::vector<double> RimSummaryDeclineCurve::createDeclineCurveValues( const std:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double>
-    RimSummaryDeclineCurve::computeInitialProductionAndDeclineRate( const std::vector<double>&                 values,
-                                                                    const std::vector<time_t>&                 timeSteps,
-                                                                    RifEclipseSummaryAddressDefines::CurveType accumulatedOrRate )
+std::pair<double, double> RimSummaryDeclineCurve::computeInitialProductionAndDeclineRate( const std::vector<double>& values,
+                                                                                          const std::vector<time_t>& timeSteps,
+                                                                                          RifEclipseSummaryAddressDefines::CurveType curveType )
 {
     CAF_ASSERT( values.size() == timeSteps.size() );
 
     auto computeProductionRate = []( double t0, double v0, double t1, double v1 ) { return ( v1 - v0 ) / ( t1 - t0 ); };
 
-    if ( accumulatedOrRate == RifEclipseSummaryAddressDefines::CurveType::RATE )
+    if ( curveType == RifEclipseSummaryAddressDefines::CurveType::RATE )
     {
         // Use the first (time step, value) pair as t0
         const size_t    idx0 = 0;
@@ -221,9 +219,9 @@ std::pair<double, double>
 double RimSummaryDeclineCurve::computePredictedValue( double                                     initialProductionRate,
                                                       double                                     initialDeclineRate,
                                                       double                                     timeSinceStart,
-                                                      RifEclipseSummaryAddressDefines::CurveType accumulatedOrRate ) const
+                                                      RifEclipseSummaryAddressDefines::CurveType curveType ) const
 {
-    if ( accumulatedOrRate == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED )
+    if ( curveType == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED )
     {
         if ( m_declineCurveType == RimSummaryDeclineCurve::DeclineCurveType::EXPONENTIAL )
         {

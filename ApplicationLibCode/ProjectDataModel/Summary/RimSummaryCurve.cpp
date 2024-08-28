@@ -1374,36 +1374,6 @@ RifSummaryReaderInterface* RimSummaryCurve::valuesSummaryReaderY() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryCurve::accumulatedOrRateText() const
-{
-    QString text;
-
-    /*
-        if ( m_yAccumulatedOrRate() == RiaDefines::SummaryCurveType::AUTO )
-        {
-            text = "Auto : ";
-        }
-        else
-        {
-            text = "User Defined : ";
-        }
-
-        if ( accumulatedOrRate() == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED )
-        {
-            text += "Accumulated";
-        }
-        else
-        {
-            text += "Rate";
-        }
-    */
-
-    return text;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<time_t> RimSummaryCurve::timeStepsX() const
 {
     RifSummaryReaderInterface* reader = valuesSummaryReaderX();
