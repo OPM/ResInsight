@@ -475,9 +475,11 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         otherGroup->add( &m_summaryCalculationExpressionFolder );
 
         caf::PdmUiGroup* osduGroup = uiOrdering.addNewGroup( "OSDU" );
+        osduGroup->setCollapsedByDefault();
         m_osduPreferences()->uiOrdering( uiConfigName, *osduGroup );
 
         caf::PdmUiGroup* sumoGroup = uiOrdering.addNewGroup( "SUMO" );
+        sumoGroup->setCollapsedByDefault();
         m_sumoPreferences()->uiOrdering( uiConfigName, *sumoGroup );
     }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
