@@ -19,6 +19,7 @@
 
 #include "RifReaderInterface.h"
 
+#include "RiaLogging.h"
 #include "RiaPreferencesGrid.h"
 
 #include "RifEclipseInputFileTools.h"
@@ -159,18 +160,35 @@ void RifReaderInterface::importFaults( const QStringList& fileSet, cvf::Collecti
     }
     else
     {
-        foreach ( QString fname, fileSet )
+        bool isDataFileFound = false;
+
+        for ( const auto& filename : fileSet )
         {
-            if ( fname.endsWith( ".DATA" ) )
+            if ( filename.endsWith( ".DATA" ) )
             {
+                isDataFileFound = true;
+
                 std::vector<QString> filenamesWithFaults;
-                RifEclipseInputFileTools::readFaultsInGridSection( fname, faults, &filenamesWithFaults, faultIncludeFileAbsolutePathPrefix() );
+                RifEclipseInputFileTools::readFaultsInGridSection( filename, faults, &filenamesWithFaults, faultIncludeFileAbsolutePathPrefix() );
 
                 std::sort( filenamesWithFaults.begin(), filenamesWithFaults.end() );
                 std::vector<QString>::iterator last = std::unique( filenamesWithFaults.begin(), filenamesWithFaults.end() );
                 filenamesWithFaults.erase( last, filenamesWithFaults.end() );
 
                 setFilenamesWithFaults( filenamesWithFaults );
+            }
+        }
+
+        if ( !isDataFileFound )
+        {
+            RiaLogging::info( "No *.DATA file is found" );
+
+            for ( const auto& filename : fileSet )
+            {
+                if ( filename.endsWith( ".IN", Qt::CaseInsensitive ) )
+                {
+                    RifEclipseInputFileTools::parsePflotranInputFile( filename, faults );
+                }
             }
         }
     }

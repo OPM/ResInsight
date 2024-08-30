@@ -254,6 +254,24 @@ TEST( RifEclipseInputFileToolsTest, FaultData )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( RifEclipseInputFileToolsTest, FaultDataPflotran )
+{
+    static const QString testDataRootFolder = QString( "%1/RifEclipseInputFileTools/pflotran" ).arg( TEST_DATA_DIR );
+
+    {
+        QString fileName = testDataRootFolder + "/model/P_FLT_TEST_NO-KH.in";
+
+        cvf::Collection<RigFault> faults;
+
+        RifEclipseInputFileTools::parsePflotranInputFile( fileName, &faults );
+
+        EXPECT_EQ( (size_t)4, faults.size() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( RifEclipseInputFileToolsTest, StopAtKeyword )
 {
     static const QString testDataRootFolder = QString( "%1/ParsingOfDataKeywords/" ).arg( TEST_DATA_DIR );
