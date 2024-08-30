@@ -35,6 +35,7 @@
 
 #include "cvfColor3.h"
 
+#include "qwt_axis_id.h"
 #include "qwt_date_scale_draw.h"
 #include "qwt_date_scale_engine.h"
 #include "qwt_legend.h"
@@ -54,6 +55,7 @@ RiuResultQwtPlot::RiuResultQwtPlot( QWidget* parent )
 {
     setAutoFillBackground( true );
     setDefaults();
+    setAxisVisible( QwtAxis::XBottom, false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,6 +92,8 @@ void RiuResultQwtPlot::addCurve( const RimCase*                rimCase,
 
     setAxisScale( QwtAxis::XTop, QwtDate::toDouble( dateTimes.front() ), QwtDate::toDouble( dateTimes.back() ) );
     applyFontSizes( false );
+
+    setAxisVisible( QwtAxis::XBottom, true );
 
     replot();
 
