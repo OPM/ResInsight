@@ -1075,14 +1075,13 @@ void RifEclipseInputFileTools::parsePflotranInputFile( const QString& fileName, 
         QFile file( fileName );
         if ( !file.open( QFile::ReadOnly ) ) return;
 
-        QString line;
-        bool    continueParsing  = true;
-        bool    foundGridKeyword = false;
-        bool    foundEndKeyword  = false;
+        bool continueParsing  = true;
+        bool foundGridKeyword = false;
+        bool foundEndKeyword  = false;
         do
         {
-            line = file.readLine();
-            line = line.trimmed();
+            QString line;
+            line = file.readLine().trimmed();
 
             if ( line.startsWith( "GRID" ) ) foundGridKeyword = true;
 
@@ -1104,9 +1103,7 @@ void RifEclipseInputFileTools::parsePflotranInputFile( const QString& fileName, 
                 if ( line.startsWith( "END" ) ) foundEndKeyword = true;
             }
 
-            if ( foundEndKeyword ) continueParsing = false;
-
-            if ( file.atEnd() )
+            if ( foundEndKeyword || file.atEnd() )
             {
                 continueParsing = false;
             }
@@ -1126,11 +1123,10 @@ void RifEclipseInputFileTools::parsePflotranInputFile( const QString& fileName, 
         QFile file( gridSectionFilename );
         if ( !file.open( QFile::ReadOnly ) ) continue;
 
-        QString line;
         do
         {
-            line = file.readLine();
-            line = line.trimmed();
+            QString line;
+            line = file.readLine().trimmed();
 
             if ( line.startsWith( "external_file", Qt::CaseInsensitive ) )
             {
