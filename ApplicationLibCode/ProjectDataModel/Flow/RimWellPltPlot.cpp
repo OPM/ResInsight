@@ -67,6 +67,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <memory>
 #include <tuple>
 
 CAF_PDM_SOURCE_INIT( RimWellPltPlot, "WellPltPlot" );
@@ -507,11 +508,11 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
         if ( sourceDef.sourceType() == RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA )
         {
-            resultPointCalc.reset( new RigRftResultPointCalculator( m_wellPathName, rimEclipseResultCase, timeStep ) );
+            resultPointCalc = std::make_unique<RigRftResultPointCalculator>( m_wellPathName, rimEclipseResultCase, timeStep );
         }
         else if ( sourceDef.sourceType() == RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA )
         {
-            resultPointCalc.reset( new RigSimWellResultPointCalculator( m_wellPathName, rimEclipseResultCase, timeStep ) );
+            resultPointCalc = std::make_unique<RigSimWellResultPointCalculator>( m_wellPathName, rimEclipseResultCase, timeStep );
         }
 
         RiaDefines::EclipseUnitSystem unitSet = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;

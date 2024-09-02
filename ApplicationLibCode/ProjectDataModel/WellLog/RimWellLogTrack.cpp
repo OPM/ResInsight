@@ -102,6 +102,7 @@
 #include <QWheelEvent>
 
 #include <algorithm>
+#include <memory>
 #include <set>
 
 #define RI_LOGPLOTTRACK_MINX_DEFAULT -10.0
@@ -2842,7 +2843,7 @@ void RimWellLogTrack::updateRegionAnnotationsOnPlot()
 
     if ( m_annotationTool == nullptr )
     {
-        m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>( new RiuPlotAnnotationTool() );
+        m_annotationTool = std::make_unique<RiuPlotAnnotationTool>();
     }
 
     if ( m_regionAnnotationType == RiaDefines::RegionAnnotationType::FORMATION_ANNOTATIONS )
@@ -3280,8 +3281,7 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
 
         if ( wellPathAttributeSource()->wellPathGeometry() && ( m_showWellPathAttributes || m_showWellPathCompletions ) )
         {
-            m_wellPathAttributePlotObjects.push_back(
-                std::unique_ptr<RiuWellPathComponentPlotItem>( new RiuWellPathComponentPlotItem( wellPathAttributeSource() ) ) );
+            m_wellPathAttributePlotObjects.push_back( std::make_unique<RiuWellPathComponentPlotItem>( wellPathAttributeSource() ) );
         }
 
         if ( m_showWellPathAttributes )

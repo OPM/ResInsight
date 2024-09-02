@@ -259,7 +259,7 @@ void addToPathTree( PathNode* node, QStringList pathComponents, const QString& f
             }
         }
 
-        node->children.push_back( std::unique_ptr<PathNode>( new PathNode( pathComponent, node ) ) );
+        node->children.push_back( std::make_unique<PathNode>( pathComponent, node ) );
         addToPathTree( node->children.back().get(), pathComponents, fileName );
     }
     else
@@ -335,7 +335,7 @@ std::map<QString, QStringList> RiaFilePathTools::keyPathComponentsForEachFilePat
         allComponents[fileName]           = pathComponentsForFile;
     }
 
-    auto topNode = std::unique_ptr<PathNode>( new PathNode( "", nullptr ) );
+    auto topNode = std::make_unique<PathNode>( "", nullptr );
 
     for ( auto keyComponentsPair : allComponents )
     {

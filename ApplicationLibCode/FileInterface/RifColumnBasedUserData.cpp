@@ -31,6 +31,7 @@
 #include <QDateTime>
 #include <QFile>
 #include <QTextStream>
+#include <memory>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -56,7 +57,7 @@ bool RifColumnBasedUserData::parse( const QString& data, QString* errorText )
     m_mapFromAddressToTimeStepIndex.clear();
     m_mapFromAddressToResultIndex.clear();
 
-    m_parser = std::unique_ptr<RifColumnBasedUserDataParser>( new RifColumnBasedUserDataParser( data, errorText ) );
+    m_parser = std::make_unique<RifColumnBasedUserDataParser>( data, errorText );
     if ( !m_parser )
     {
         RiaLogging::error( QString( "Failed to parse file" ) );

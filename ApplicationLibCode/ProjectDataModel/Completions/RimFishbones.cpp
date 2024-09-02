@@ -40,6 +40,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
+#include <memory>
 #include <random>
 
 CAF_PDM_SOURCE_INIT( RimFishbones, "FishbonesMultipleSubs" );
@@ -126,7 +127,7 @@ RimFishbones::RimFishbones()
 
     m_pipeProperties = new RimFishbonesPipeProperties;
 
-    m_rigFishbonesGeometry = std::unique_ptr<RigFisbonesGeometry>( new RigFisbonesGeometry( this ) );
+    m_rigFishbonesGeometry = std::make_unique<RigFisbonesGeometry>( this );
     setDeletable( true );
 }
 

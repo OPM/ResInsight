@@ -66,6 +66,7 @@
 #include <algorithm>
 
 #include <QLabel>
+#include <memory>
 
 using cvf::ManipulatorTrackball;
 
@@ -1321,7 +1322,7 @@ void RiuViewer::showScaleLegend( bool show )
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::setHoverCursor( const QCursor& cursor )
 {
-    s_hoverCursor.reset( new QCursor( cursor ) );
+    s_hoverCursor = std::make_unique<QCursor>( cursor );
 }
 
 //--------------------------------------------------------------------------------------------------

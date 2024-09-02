@@ -18,6 +18,8 @@
 
 #include "RicGridCalculatorDialog.h"
 
+#include <memory>
+
 #include "RicCalculatorWidgetCreator.h"
 #include "RicGridCalculatorUi.h"
 
@@ -75,7 +77,7 @@ QWidget* RicGridCalculatorDialog::getCalculatorWidget()
 {
     if ( !m_calcEditor )
     {
-        m_calcEditor = std::unique_ptr<RicCalculatorWidgetCreator>( new RicCalculatorWidgetCreator( std::make_unique<RicGridCalculatorUi>() ) );
+        m_calcEditor = std::make_unique<RicCalculatorWidgetCreator>( std::make_unique<RicGridCalculatorUi>() );
     }
 
     return m_calcEditor->getOrCreateWidget( this );

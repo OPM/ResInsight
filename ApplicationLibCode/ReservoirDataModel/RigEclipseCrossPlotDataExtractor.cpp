@@ -110,7 +110,8 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract( RigEclipseC
             if ( catValuesForAllSteps )
             {
                 int catIndex = timeStep >= (int)catValuesForAllSteps->size() ? 0 : timeStep;
-                catAccessor.reset( new RigActiveCellsResultAccessor( mainGrid, &( catValuesForAllSteps->at( catIndex ) ), activeCellInfo ) );
+                catAccessor =
+                    std::make_unique<RigActiveCellsResultAccessor>( mainGrid, &( catValuesForAllSteps->at( catIndex ) ), activeCellInfo );
             }
 
             for ( size_t globalCellIdx = 0; globalCellIdx < activeCellInfo->reservoirCellCount(); ++globalCellIdx )
