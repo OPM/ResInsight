@@ -1320,11 +1320,6 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
     {
         if ( m_mainPlotCollection )
         {
-            if ( activeOilField()->cloudDataCollection() )
-            {
-                uiTreeOrdering.add( activeOilField()->cloudDataCollection() );
-            }
-
             if ( m_mainPlotCollection->summaryMultiPlotCollection() )
             {
                 uiTreeOrdering.add( m_mainPlotCollection->summaryMultiPlotCollection() );
@@ -1432,6 +1427,16 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
     else if ( uiConfigName == "PlotWindow.Templates" )
     {
         uiTreeOrdering.add( m_plotTemplateTopFolder );
+    }
+    else if ( uiConfigName == "PlotWindow.Cloud" )
+    {
+        if ( m_mainPlotCollection )
+        {
+            if ( activeOilField()->cloudDataCollection() )
+            {
+                uiTreeOrdering.add( activeOilField()->cloudDataCollection() );
+            }
+        }
     }
     else if ( uiConfigName == "MainWindow.DataSources" )
     {
