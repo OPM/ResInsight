@@ -35,6 +35,7 @@
 #include "cafPdmUiTextEditor.h"
 
 #include <algorithm>
+#include <memory>
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimUserDefinedCalculation, "RimUserDefinedCalculation" );
 
@@ -77,7 +78,7 @@ RimUserDefinedCalculation::RimUserDefinedCalculation()
     CAF_PDM_InitField( &m_id, "Id", -1, "Id" );
     m_id.uiCapability()->setUiHidden( true );
 
-    m_exprContextMenuMgr = std::unique_ptr<RiuExpressionContextMenuManager>( new RiuExpressionContextMenuManager() );
+    m_exprContextMenuMgr = std::make_unique<RiuExpressionContextMenuManager>();
 
     m_isDirty = false;
 }

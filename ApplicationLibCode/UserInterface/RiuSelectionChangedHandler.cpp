@@ -58,6 +58,7 @@
 #include <cafDisplayCoordTransform.h>
 
 #include <cassert>
+#include <memory>
 
 //==================================================================================================
 //
@@ -206,24 +207,22 @@ void RiuSelectionChangedHandler::addResultCurveFromSelectionItem( const RiuGeoMe
 
         if ( geomSelectionItem->m_hasIntersectionTriangle )
         {
-            timeHistResultAccessor = std::unique_ptr<RiuFemTimeHistoryResultAccessor>(
-                new RiuFemTimeHistoryResultAccessor( geomResDef->geoMechCase()->geoMechData(),
-                                                     geomResDef->resultAddress(),
-                                                     geomSelectionItem->m_gridIndex,
-                                                     static_cast<int>( geomSelectionItem->m_cellIndex ),
-                                                     geomSelectionItem->m_elementFace,
-                                                     intersectionPointInDomain,
-                                                     geomSelectionItem->m_intersectionTriangle ) );
+            timeHistResultAccessor = std::make_unique<RiuFemTimeHistoryResultAccessor>( geomResDef->geoMechCase()->geoMechData(),
+                                                                                        geomResDef->resultAddress(),
+                                                                                        geomSelectionItem->m_gridIndex,
+                                                                                        static_cast<int>( geomSelectionItem->m_cellIndex ),
+                                                                                        geomSelectionItem->m_elementFace,
+                                                                                        intersectionPointInDomain,
+                                                                                        geomSelectionItem->m_intersectionTriangle );
         }
         else
         {
-            timeHistResultAccessor = std::unique_ptr<RiuFemTimeHistoryResultAccessor>(
-                new RiuFemTimeHistoryResultAccessor( geomResDef->geoMechCase()->geoMechData(),
-                                                     geomResDef->resultAddress(),
-                                                     geomSelectionItem->m_gridIndex,
-                                                     static_cast<int>( geomSelectionItem->m_cellIndex ),
-                                                     geomSelectionItem->m_elementFace,
-                                                     intersectionPointInDomain ) );
+            timeHistResultAccessor = std::make_unique<RiuFemTimeHistoryResultAccessor>( geomResDef->geoMechCase()->geoMechData(),
+                                                                                        geomResDef->resultAddress(),
+                                                                                        geomSelectionItem->m_gridIndex,
+                                                                                        static_cast<int>( geomSelectionItem->m_cellIndex ),
+                                                                                        geomSelectionItem->m_elementFace,
+                                                                                        intersectionPointInDomain );
         }
 
         QString curveName;

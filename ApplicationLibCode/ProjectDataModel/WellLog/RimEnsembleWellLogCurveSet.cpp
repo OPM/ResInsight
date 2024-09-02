@@ -68,6 +68,7 @@
 #include "qwt_symbol.h"
 
 #include <algorithm>
+#include <memory>
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
@@ -143,7 +144,7 @@ RimEnsembleWellLogCurveSet::RimEnsembleWellLogCurveSet()
     m_qwtPlotCurveForLegendText = new QwtPlotCurve;
     m_qwtPlotCurveForLegendText->setLegendAttribute( QwtPlotCurve::LegendShowSymbol, true );
 
-    m_ensembleWellLogStatistics.reset( new RimEnsembleWellLogStatistics );
+    m_ensembleWellLogStatistics = std::make_unique<RimEnsembleWellLogStatistics>();
 
     m_disableStatisticCurves = false;
     m_isCurveSetFiltered     = false;

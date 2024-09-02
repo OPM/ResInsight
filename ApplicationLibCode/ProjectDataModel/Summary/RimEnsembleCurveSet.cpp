@@ -79,6 +79,7 @@
 #include "cafTitledOverlayFrame.h"
 
 #include <algorithm>
+#include <memory>
 #include <utility>
 
 //--------------------------------------------------------------------------------------------------
@@ -254,8 +255,8 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     m_summaryAddressNameTools = new RimSummaryCurveAutoName;
 
-    m_ensembleStatCaseY.reset( new RimEnsembleStatisticsCase() );
-    m_ensembleStatCaseXY.reset( new RimEnsembleCrossPlotStatisticsCase() );
+    m_ensembleStatCaseY  = std::make_unique<RimEnsembleStatisticsCase>();
+    m_ensembleStatCaseXY = std::make_unique<RimEnsembleCrossPlotStatisticsCase>();
 
     m_disableStatisticCurves = false;
     m_isCurveSetFiltered     = false;
@@ -1636,7 +1637,7 @@ RiaSummaryCurveDefinitionAnalyser* RimEnsembleCurveSet::getOrCreateSelectedCurve
 {
     if ( !m_analyserOfSelectedCurveDefs )
     {
-        m_analyserOfSelectedCurveDefs = std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>( new RiaSummaryCurveDefinitionAnalyser );
+        m_analyserOfSelectedCurveDefs = std::make_unique<RiaSummaryCurveDefinitionAnalyser>();
     }
     m_analyserOfSelectedCurveDefs->setCurveDefinitions( curveDefinitions() );
     return m_analyserOfSelectedCurveDefs.get();

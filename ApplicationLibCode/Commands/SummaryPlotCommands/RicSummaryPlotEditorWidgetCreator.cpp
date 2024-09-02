@@ -38,6 +38,7 @@
 #include <QFrame>
 #include <QSplitter>
 #include <QTreeView>
+#include <memory>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -46,7 +47,7 @@ RicSummaryPlotEditorWidgetCreator::RicSummaryPlotEditorWidgetCreator( QWidget* p
 {
     m_parentWidget = parent;
 
-    m_summaryCurveCreator.reset( new RicSummaryPlotEditorUi() );
+    m_summaryCurveCreator = std::make_unique<RicSummaryPlotEditorUi>();
 
     setPdmObject( m_summaryCurveCreator.get() );
 }

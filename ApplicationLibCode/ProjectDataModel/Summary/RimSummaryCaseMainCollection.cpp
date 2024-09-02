@@ -50,6 +50,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <memory>
 
 CAF_PDM_SOURCE_INIT( RimSummaryCaseMainCollection, "SummaryCaseCollection" );
 
@@ -78,7 +79,7 @@ void addCaseRealizationParametersIfFound( RimSummaryCase& sumCase, const QString
     }
     else
     {
-        parameters = std::shared_ptr<RigCaseRealizationParameters>( new RigCaseRealizationParameters() );
+        parameters = std::make_shared<RigCaseRealizationParameters>();
     }
 
     if ( dynamic_cast<RimSummaryCaseSumo*>( &sumCase ) == nullptr )
@@ -548,7 +549,7 @@ std::vector<RimSummaryCase*>
 
         if ( showProgress )
         {
-            progress.reset( new caf::ProgressInfo( summaryHeaderFileInfos.size(), "Creating summary cases" ) );
+            progress = std::make_unique<caf::ProgressInfo>( summaryHeaderFileInfos.size(), "Creating summary cases" );
         }
 
         for ( const RifSummaryCaseFileResultInfo& fileInfo : summaryHeaderFileInfos )

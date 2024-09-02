@@ -168,7 +168,7 @@ QFilePtr RicExportSelectedWellPathsFeature::openFileForExport( const QString& fo
 //--------------------------------------------------------------------------------------------------
 QTextStreamPtr RicExportSelectedWellPathsFeature::createOutputFileStream( QFile& file )
 {
-    auto stream = QTextStreamPtr( new QTextStream( &file ) );
+    auto stream = std::make_shared<QTextStream>( &file );
     stream->setRealNumberNotation( QTextStream::FixedNotation );
     stream->setRealNumberPrecision( 2 );
     return stream;
