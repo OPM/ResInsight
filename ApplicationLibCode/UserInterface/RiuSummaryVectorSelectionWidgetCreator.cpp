@@ -29,13 +29,14 @@
 #include <QBoxLayout>
 #include <QFrame>
 #include <QSplitter>
+#include <memory>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RiuSummaryVectorSelectionWidgetCreator::RiuSummaryVectorSelectionWidgetCreator()
 {
-    m_summaryAddressSelection = std::unique_ptr<RiuSummaryVectorSelectionUi>( new RiuSummaryVectorSelectionUi() );
+    m_summaryAddressSelection = std::make_unique<RiuSummaryVectorSelectionUi>();
 
     setPdmObject( m_summaryAddressSelection.get() );
 }

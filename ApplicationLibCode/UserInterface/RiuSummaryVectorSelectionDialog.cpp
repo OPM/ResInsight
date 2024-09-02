@@ -30,6 +30,7 @@
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <memory>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -37,7 +38,7 @@
 RiuSummaryVectorSelectionDialog::RiuSummaryVectorSelectionDialog( QWidget* parent )
     : QDialog( parent, RiuTools::defaultDialogFlags() )
 {
-    m_addrSelWidget     = std::unique_ptr<RiuSummaryVectorSelectionWidgetCreator>( new RiuSummaryVectorSelectionWidgetCreator() );
+    m_addrSelWidget     = std::make_unique<RiuSummaryVectorSelectionWidgetCreator>();
     QWidget* addrWidget = m_addrSelWidget->getOrCreateWidget( this );
 
     QVBoxLayout* mainLayout = new QVBoxLayout( this );

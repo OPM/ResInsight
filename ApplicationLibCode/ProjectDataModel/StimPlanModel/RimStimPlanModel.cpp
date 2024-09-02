@@ -78,6 +78,7 @@
 
 #include <cmath>
 #include <limits>
+#include <memory>
 
 CAF_PDM_SOURCE_INIT( RimStimPlanModel, "StimPlanModel" );
 
@@ -240,7 +241,7 @@ RimStimPlanModel::RimStimPlanModel()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_perforationInterval, "PerforationInterval", "Perforation Interval" );
 
-    m_calculator = std::shared_ptr<RimStimPlanModelCalculator>( new RimStimPlanModelCalculator );
+    m_calculator = std::make_shared<RimStimPlanModelCalculator>();
     m_calculator->setStimPlanModel( this );
 
     setDeletable( true );

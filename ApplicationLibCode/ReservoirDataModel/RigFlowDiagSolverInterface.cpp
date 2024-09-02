@@ -18,6 +18,8 @@
 
 #include "RigFlowDiagSolverInterface.h"
 
+#include <memory>
+
 #include "RiaLogging.h"
 
 #include "RifEclipseOutputFileTools.h"
@@ -122,12 +124,12 @@ public:
 
         try
         {
-            m_eclGraph.reset( new Opm::ECLGraph( Opm::ECLGraph::load( mainGrid, initData ) ) );
+            m_eclGraph = std::make_unique<Opm::ECLGraph>( Opm::ECLGraph::load( mainGrid, initData ) );
 
             m_hasUnifiedRestartFile = false;
             m_poreVolume            = m_eclGraph->poreVolume();
 
-            m_eclSaturationFunc.reset( new Opm::ECLSaturationFunc( *m_eclGraph, initData ) );
+            m_eclSaturationFunc = std::make_unique<Opm::ECLSaturationFunc>( *m_eclGraph, initData );
         }
         catch ( ... )
         {
@@ -137,7 +139,7 @@ public:
 
         try
         {
-            m_eclPvtCurveCollection.reset( new Opm::ECLPVT::ECLPvtCurveCollection( *m_eclGraph, initData ) );
+            m_eclPvtCurveCollection = std::make_unique<Opm::ECLPVT::ECLPvtCurveCollection>( *m_eclGraph, initData );
         }
         catch ( ... )
         {
@@ -256,7 +258,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
 
         // Create the Toolbox.
 
-        m_opmFlowDiagStaticData->m_fldToolbox.reset( new Opm::FlowDiagnostics::Toolbox{ connGraph } );
+        m_opmFlowDiagStaticData->m_fldToolbox = std::make_unique<Opm::FlowDiagnostics::Toolbox>( connGraph );
 
         // Look for unified restart file
         QStringList m_filesWithSameBaseName;
@@ -267,8 +269,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
         QString firstRestartFileName = RifEclipseOutputFileTools::firstFileNameOfType( m_filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE );
         if ( !firstRestartFileName.isEmpty() )
         {
-            m_opmFlowDiagStaticData->m_unifiedRestartData.reset(
-                new Opm::ECLRestartData( Opm::ECLRestartData( firstRestartFileName.toStdString() ) ) );
+            m_opmFlowDiagStaticData->m_unifiedRestartData =
+                std::make_unique<Opm::ECLRestartData>( Opm::ECLRestartData( firstRestartFileName.toStdString() ) );
             m_opmFlowDiagStaticData->m_hasUnifiedRestartFile = true;
         }
         else
@@ -400,8 +402,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
                 injectorCellSets.push_back( CellSet( CellSetID( tracerName ), tIt.second ) );
             }
 
-            injectorSolution.reset(
-                new Toolbox::Forward( m_opmFlowDiagStaticData->m_fldToolbox->computeInjectionDiagnostics( injectorCellSets ) ) );
+            injectorSolution =
+                std::make_unique<Toolbox::Forward>( m_opmFlowDiagStaticData->m_fldToolbox->computeInjectionDiagnostics( injectorCellSets ) );
 
             for ( const CellSetID& tracerId : injectorSolution->fd.startPoints() )
             {
@@ -434,8 +436,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
                 prodjCellSets.push_back( CellSet( CellSetID( tracerName ), tIt.second ) );
             }
 
-            producerSolution.reset(
-                new Toolbox::Reverse( m_opmFlowDiagStaticData->m_fldToolbox->computeProductionDiagnostics( prodjCellSets ) ) );
+            producerSolution =
+                std::make_unique<Toolbox::Reverse>( m_opmFlowDiagStaticData->m_fldToolbox->computeProductionDiagnostics( prodjCellSets ) );
 
             for ( const CellSetID& tracerId : producerSolution->fd.startPoints() )
             {

@@ -67,6 +67,7 @@
 #include <QWheelEvent>
 
 #include <limits>
+#include <memory>
 
 static RimEnsembleCurveInfoTextProvider ensembleCurveInfoTextProvider;
 
@@ -105,7 +106,7 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
     // Do not set internal legends visible, as this will cause a performance hit.
     m_plotWidget->clearLegend();
 
-    m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>( new RiuPlotAnnotationTool() );
+    m_annotationTool = std::make_unique<RiuPlotAnnotationTool>();
 }
 
 //--------------------------------------------------------------------------------------------------

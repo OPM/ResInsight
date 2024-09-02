@@ -129,6 +129,7 @@
 #include <QMenu>
 
 #include <algorithm>
+#include <memory>
 
 CAF_PDM_SOURCE_INIT( RimProject, "ResInsightProject" );
 //--------------------------------------------------------------------------------------------------
@@ -1545,7 +1546,7 @@ QString RimProject::updatedFilePathFromPathId( QString filePath, RiaVariableMapp
 
     if ( pathListMapper == nullptr )
     {
-        internalMapper.reset( new RiaVariableMapper( m_globalPathList ) );
+        internalMapper = std::make_unique<RiaVariableMapper>( m_globalPathList );
         pathListMapper = internalMapper.get();
     }
 
