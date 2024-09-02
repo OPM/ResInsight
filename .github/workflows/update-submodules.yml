@@ -12,7 +12,6 @@ jobs:
       matrix:
         submodule: 
           - tomlplusplus
-          - vcpkg
 
     steps:
       - name: Checkout repository
