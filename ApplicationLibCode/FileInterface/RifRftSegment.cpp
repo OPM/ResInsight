@@ -361,7 +361,7 @@ std::set<int> RifRftSegment::uniqueOneBasedBranchIndices( RiaDefines::RftBranchT
 {
     std::set<int> indices;
 
-    for ( const auto [branchId, branchIndex] : m_oneBasedBranchIndexMap )
+    for ( const auto& [branchId, branchIndex] : m_oneBasedBranchIndexMap )
     {
         indices.insert( branchIndex );
     }
