@@ -67,8 +67,10 @@ public:
     static QString plotMainWindowPlotsTreeName();
     static QString plotMainWindowTemplateTreeName();
     static QString plotMainWindowScriptsTreeName();
+    static QString plotMainWindowCloudTreeName();
 
     static QString plotMainWindowPropertyEditorName();
+    static QString plotMainWindowPropertyEditorRightName();
     static QString plotMainWindowMessagesName();
     static QString plotMainWindowUndoStackName();
     static QString plotMainWindowPlotManagerName();
