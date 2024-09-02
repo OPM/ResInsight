@@ -18,7 +18,7 @@
 RiuWellLogPlot::RiuWellLogPlot( RimDepthTrackPlot* plotDefinition, QWidget* parent )
     : RiuMultiPlotPage( plotDefinition, parent )
 {
-    m_verticalTrackScrollBar = new QScrollBar( nullptr );
+    m_verticalTrackScrollBar = new QScrollBar( this );
     m_verticalTrackScrollBar->setOrientation( Qt::Vertical );
     m_verticalTrackScrollBar->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
 
@@ -27,7 +27,7 @@ RiuWellLogPlot::RiuWellLogPlot( RimDepthTrackPlot* plotDefinition, QWidget* pare
 
     connect( m_verticalTrackScrollBar, SIGNAL( valueChanged( int ) ), this, SLOT( slotSetMinDepth( int ) ) );
 
-    m_horizontalTrackScrollBar = new QScrollBar( nullptr );
+    m_horizontalTrackScrollBar = new QScrollBar( this );
     m_horizontalTrackScrollBar->setOrientation( Qt::Horizontal );
     m_horizontalTrackScrollBar->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
 
@@ -35,6 +35,15 @@ RiuWellLogPlot::RiuWellLogPlot( RimDepthTrackPlot* plotDefinition, QWidget* pare
     m_horizontalTrackScrollBarLayout->addWidget( m_horizontalTrackScrollBar, 0 );
 
     connect( m_horizontalTrackScrollBar, SIGNAL( valueChanged( int ) ), this, SLOT( slotSetMinDepth( int ) ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuWellLogPlot::~RiuWellLogPlot()
+{
+    delete m_horizontalTrackScrollBarLayout.data();
+    delete m_verticalTrackScrollBarLayout.data();
 }
 
 //--------------------------------------------------------------------------------------------------

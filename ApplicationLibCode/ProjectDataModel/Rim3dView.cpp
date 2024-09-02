@@ -180,7 +180,7 @@ Rim3dView::Rim3dView()
     // Every timer tick, send a signal for updating animations.
     // Any animation is supposed to connect to this signal
     // in order to having only one central animation driver.
-    m_animationTimer = std::make_unique<QTimer>( new QTimer() );
+    m_animationTimer = std::make_unique<QTimer>();
     m_animationTimer->setInterval( m_animationIntervalMillisec );
     QObject::connect( m_animationTimer.get(), &QTimer::timeout, [this]() { updateAnimations.send(); } );
 }

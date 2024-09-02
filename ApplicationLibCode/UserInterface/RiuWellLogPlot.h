@@ -28,6 +28,7 @@ class RiuWellLogPlot : public RiuMultiPlotPage
     Q_OBJECT
 public:
     RiuWellLogPlot( RimDepthTrackPlot* plotDefinition, QWidget* parent );
+    ~RiuWellLogPlot() override;
 
     RimViewWindow* ownerViewWindow() const override;
 

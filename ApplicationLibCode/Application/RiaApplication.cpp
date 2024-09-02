@@ -174,6 +174,7 @@ RiaApplication::RiaApplication()
 
     m_commandRouter = std::make_unique<RimCommandRouter>();
     m_osduConnector = nullptr;
+    m_sumoConnector = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -184,6 +185,16 @@ RiaApplication::~RiaApplication()
     RiaFontCache::clear();
 
     caf::SelectionManager::instance()->setPdmRootObject( nullptr );
+
+    m_project.reset();
+
+    delete m_osduConnector.data();
+    m_osduConnector.clear();
+    m_osduConnector = nullptr;
+
+    delete m_sumoConnector.data();
+    m_sumoConnector.clear();
+    m_sumoConnector = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
