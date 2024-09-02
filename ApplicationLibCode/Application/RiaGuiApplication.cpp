@@ -190,7 +190,10 @@ RiaGuiApplication::RiaGuiApplication( int& argc, char** argv )
 //--------------------------------------------------------------------------------------------------
 RiaGuiApplication::~RiaGuiApplication()
 {
+    delete m_mainWindow.data();
     m_mainWindow.clear();
+
+    m_mainPlotWindow.reset();
 }
 
 //--------------------------------------------------------------------------------------------------
