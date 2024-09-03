@@ -117,6 +117,8 @@ std::vector<RigCompletionData>
         {
             if ( fracture->isChecked() && static_cast<size_t>( fracture->branchIndex() ) == branchIndex )
             {
+                fracture->ensureValidNonDarcyProperties();
+
                 fractures.push_back( fracture );
             }
         }
