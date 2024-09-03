@@ -28,7 +28,8 @@ public:
     RigActiveCellGrid();
     ~RigActiveCellGrid() override;
 
-    void transferActiveInformation( RigEclipseCaseData*     eclipseCaseData,
+    void transferActiveInformation( int                     gridIndex, // 0 - main grid, 1 - first LGR...
+                                    RigEclipseCaseData*     eclipseCaseData,
                                     size_t                  totalActiveCells,
                                     size_t                  matrixActiveCells,
                                     size_t                  fractureActiveCells,

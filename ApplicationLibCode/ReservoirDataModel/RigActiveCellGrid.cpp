@@ -38,28 +38,37 @@ RigActiveCellGrid::~RigActiveCellGrid()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellGrid::transferActiveInformation( RigEclipseCaseData*     eclipseCaseData,
+void RigActiveCellGrid::transferActiveInformation( int                     gridIndex,
+                                                   RigEclipseCaseData*     eclipseCaseData,
                                                    size_t                  totalActiveCells,
                                                    size_t                  matrixActiveCells,
                                                    size_t                  fractureActiveCells,
                                                    const std::vector<int>& activeMatrixIndexes,
                                                    const std::vector<int>& activeFracIndexes )
 {
+    if ( gridIndex == 0 )
+    {
+        m_globalToActiveMap.clear();
+    }
+
     const auto totalCells = activeMatrixIndexes.size();
 
-    m_globalToActiveMap.resize( totalCells );
-    size_t activeCells       = 0;
-    size_t anInactiveCellIdx = 0;
+    const auto cellStartIndex = m_globalToActiveMap.size();
+
+    m_globalToActiveMap.resize( cellStartIndex + totalCells );
+    size_t activeCells       = cellStartIndex;
+    size_t anInactiveCellIdx = cellStartIndex;
 
     for ( size_t i = 0; i < totalCells; i++ )
     {
+        const auto globalCellIndex = cellStartIndex + i;
         if ( ( activeMatrixIndexes[i] < 0 ) && ( activeFracIndexes[i] < 0 ) )
         {
-            m_globalToActiveMap[i] = totalActiveCells;
-            anInactiveCellIdx      = i;
+            m_globalToActiveMap[globalCellIndex] = totalActiveCells;
+            anInactiveCellIdx                    = globalCellIndex;
             continue;
         }
-        m_activeToGlobalMap.push_back( i );
+        m_activeToGlobalMap.push_back( globalCellIndex );
         m_globalToActiveMap[i] = activeCells++;
     }
     m_activeToGlobalMap.push_back( anInactiveCellIdx );
@@ -67,19 +76,21 @@ void RigActiveCellGrid::transferActiveInformation( RigEclipseCaseData*     eclip
     RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
     RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
 
-    activeCellInfo->setReservoirCellCount( totalActiveCells + 1 );
-    fractureActiveCellInfo->setReservoirCellCount( totalActiveCells + 1 );
+    activeCellInfo->setReservoirCellCount( activeCellInfo->reservoirCellCount() + totalActiveCells + 1 );
+    fractureActiveCellInfo->setReservoirCellCount( fractureActiveCellInfo->reservoirCellCount() + totalActiveCells + 1 );
 
-    activeCellInfo->setGridCount( 1 );
-    fractureActiveCellInfo->setGridCount( 1 );
+    activeCellInfo->setGridCount( gridIndex + 1 );
+    fractureActiveCellInfo->setGridCount( gridIndex + 1 );
 
-    activeCellInfo->setGridActiveCellCounts( 0, matrixActiveCells );
-    fractureActiveCellInfo->setGridActiveCellCounts( 0, fractureActiveCells );
+    activeCellInfo->setGridActiveCellCounts( gridIndex, matrixActiveCells );
+    fractureActiveCellInfo->setGridActiveCellCounts( gridIndex, fractureActiveCells );
+
+    // TODO - update indexes here
 
 #pragma omp parallel for
     for ( int opmCellIndex = 0; opmCellIndex < (int)totalCells; opmCellIndex++ )
     {
-        auto activeCellIndex = m_globalToActiveMap[opmCellIndex];
+        auto activeCellIndex = m_globalToActiveMap[cellStartIndex + opmCellIndex];
 
         // active cell index
         int matrixActiveIndex = activeMatrixIndexes[opmCellIndex];

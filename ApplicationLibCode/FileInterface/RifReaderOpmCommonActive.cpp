@@ -75,23 +75,53 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
     else if ( gridUnitStr.starts_with( 'C' ) )
         m_gridUnit = 3;
 
+    auto totalCellCount           = opmGrid.totalActiveCells() + 1; // add one inactive cell used as placeholder for all inactive cells
     auto globalMatrixActiveSize   = opmGrid.activeCells();
     auto globalFractureActiveSize = opmGrid.activeFracCells();
 
+    const auto& lgr_names = opmGrid.list_of_lgrs();
     m_gridNames.clear();
     m_gridNames.push_back( "global" );
+    m_gridNames.insert( m_gridNames.end(), lgr_names.begin(), lgr_names.end() );
+    const auto& lgr_parent_names = opmGrid.list_of_lgr_parents();
+    const int   numLGRs          = (int)lgr_names.size();
 
-    std::vector<Opm::EclIO::EGrid> lgrGrids; // lgrs not supported here for now
+    std::vector<Opm::EclIO::EGrid> lgrGrids;
+
+    // init LGR grids
+    for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
+    {
+        lgrGrids.emplace_back( Opm::EclIO::EGrid( m_gridFileName, lgr_names[lgrIdx] ) );
+        RigLocalGrid* localGrid = new RigLocalGrid( activeGrid );
+
+        const auto& lgrDims = lgrGrids[lgrIdx].dimension();
+        localGrid->setGridPointDimensions( cvf::Vec3st( lgrDims[0] + 1, lgrDims[1] + 1, lgrDims[2] + 1 ) );
+        localGrid->setGridId( lgrIdx + 1 );
+        localGrid->setGridName( lgr_names[lgrIdx] );
+        activeGrid->addLocalGrid( localGrid );
+
+        localGrid->setIndexToStartOfCells( totalCellCount );
+
+        totalCellCount += lgrGrids[lgrIdx].totalActiveCells();
+    }
 
     // active cell information
     {
         auto task = progInfo.task( "Getting Active Cell Information", 1 );
+
+        for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
+        {
+            globalMatrixActiveSize += lgrGrids[lgrIdx].activeCells();
+            globalFractureActiveSize += lgrGrids[lgrIdx].activeFracCells();
+        }
 
         // in case init file and grid file disagrees with number of active cells, read extra porv information from init file to correct this
         if ( !verifyActiveCellInfo( globalMatrixActiveSize, globalFractureActiveSize ) )
         {
             updateActiveCellInfo( eclipseCaseData, opmGrid, lgrGrids, activeGrid );
         }
+
+        // TODO - loop over all grids
 
         activeGrid->transferActiveInformation( eclipseCaseData,
                                                opmGrid.totalActiveCells(),
