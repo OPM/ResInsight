@@ -78,7 +78,11 @@ class Instance:
                 return int(value)
 
         if retry_count == max_attempts:
-            print("Waiting for port number file timed out after {} seconds. File: {}".format(max_attempts, file_path))
+            print(
+                "Waiting for port number file timed out after {} seconds. File: {}".format(
+                    max_attempts, file_path
+                )
+            )
 
         return -1
 
@@ -170,7 +174,9 @@ class Instance:
 
             pid = os.spawnv(os.P_NOWAIT, resinsight_executable, parameters)
             if pid:
-                port = Instance.__read_port_number_from_file(port_number_file, init_timeout)
+                port = Instance.__read_port_number_from_file(
+                    port_number_file, init_timeout
+                )
                 if port == -1:
                     print("Unable to read port number. Launch failed.")
                     # Need to kill the process using PID since there is no  GRPC connection to use.
