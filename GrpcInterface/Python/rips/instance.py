@@ -66,20 +66,25 @@ class Instance:
         return True
 
     @staticmethod
-    def __read_port_number_from_file(file_path: str) -> int:
+    def __read_port_number_from_file(file_path: str, max_attempts: int) -> int:
         retry_count = 0
-        while not os.path.exists(file_path) and retry_count < 60:
+        while not os.path.exists(file_path) and retry_count < max_attempts:
             time.sleep(1)
             retry_count = retry_count + 1
-
-        print("Portnumber file retry count : ", retry_count)
 
         if os.path.isfile(file_path):
             with open(file_path) as f:
                 value = f.readline()
                 return int(value)
-        else:
-            return -1
+
+        if retry_count == max_attempts:
+            print(
+                "Waiting for port number file timed out after {} seconds. File: {}".format(
+                    max_attempts, file_path
+                )
+            )
+
+        return -1
 
     @staticmethod
     def __kill_process(pid: int) -> None:
@@ -98,6 +103,7 @@ class Instance:
         resinsight_executable: str = "",
         console: bool = False,
         launch_port: int = 0,
+        init_timeout: int = 300,
         command_line_parameters: List[str] = [],
     ) -> Optional[Instance]:
         """Launch a new Instance of ResInsight. This requires the environment variable
@@ -112,7 +118,7 @@ class Instance:
             launch_port(int): If 0, GRPC will find an available port.
                              If -1, use the default port 50051 or RESINSIGHT_GRPC_PORT
                              If anything else, ResInsight will try to launch with the specified portnumber.
-
+            init_timeout: Number of seconds to wait for initialization before timing out.
             command_line_parameters(list): Additional parameters as string entries in the list.
         Returns:
             Instance: an instance object if it worked. None if not.
@@ -168,7 +174,9 @@ class Instance:
 
             pid = os.spawnv(os.P_NOWAIT, resinsight_executable, parameters)
             if pid:
-                port = Instance.__read_port_number_from_file(port_number_file)
+                port = Instance.__read_port_number_from_file(
+                    port_number_file, init_timeout
+                )
                 if port == -1:
                     print("Unable to read port number. Launch failed.")
                     # Need to kill the process using PID since there is no  GRPC connection to use.
