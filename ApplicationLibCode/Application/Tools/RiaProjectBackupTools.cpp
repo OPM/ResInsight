@@ -20,10 +20,10 @@
 #include "RiaLogging.h"
 
 #include <QDateTime>
-#include <QSqlDatabase>
-#include <QSqlError>
-#include <QSqlQuery>
 #include <QVariant>
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlError>
+#include <QtSql/QSqlQuery>
 
 namespace RiaProjectBackupTools
 {
