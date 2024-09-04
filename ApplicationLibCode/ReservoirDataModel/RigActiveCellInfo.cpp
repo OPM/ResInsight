@@ -56,7 +56,7 @@ bool RigActiveCellInfo::isActive( size_t reservoirCellIndex ) const
         return true;
     }
 
-    CVF_TIGHT_ASSERT( reservoirCellIndex < m_cellIndexToResultIndex.size() );
+    if ( reservoirCellIndex >= m_cellIndexToResultIndex.size() ) return false;
 
     return m_cellIndexToResultIndex[reservoirCellIndex] != cvf::UNDEFINED_SIZE_T;
 }

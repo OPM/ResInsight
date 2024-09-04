@@ -668,7 +668,7 @@ bool RifEclipseOutputFileTools::assignActiveCellData( std::vector<std::vector<in
     }
 
     // Check if number of cells is matching
-    if ( eclipseCaseData->mainGrid()->globalCellArray().size() != reservoirCellCount )
+    if ( eclipseCaseData->mainGrid()->cellCount() != reservoirCellCount )
     {
         return false;
     }

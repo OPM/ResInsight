@@ -161,12 +161,12 @@ bool RifReaderEclipseOutput::transferGridCellData( RigMainGrid*         mainGrid
     CVF_ASSERT( activeCellInfo && fractureActiveCellInfo );
 
     int    cellCount      = ecl_grid_get_global_size( localEclGrid );
-    size_t cellStartIndex = mainGrid->globalCellArray().size();
+    size_t cellStartIndex = mainGrid->reservoirCells().size();
     size_t nodeStartIndex = mainGrid->nodes().size();
 
     RigCell defaultCell;
     defaultCell.setHostGrid( localGrid );
-    mainGrid->globalCellArray().resize( cellStartIndex + cellCount, defaultCell );
+    mainGrid->reservoirCells().resize( cellStartIndex + cellCount, defaultCell );
 
     mainGrid->nodes().resize( nodeStartIndex + cellCount * 8, cvf::Vec3d( 0, 0, 0 ) );
 
@@ -175,7 +175,7 @@ bool RifReaderEclipseOutput::transferGridCellData( RigMainGrid*         mainGrid
 #pragma omp parallel for
     for ( int gridLocalCellIndex = 0; gridLocalCellIndex < cellCount; ++gridLocalCellIndex )
     {
-        RigCell& cell = mainGrid->globalCellArray()[cellStartIndex + gridLocalCellIndex];
+        RigCell& cell = mainGrid->reservoirCells()[cellStartIndex + gridLocalCellIndex];
 
         cell.setGridLocalCellIndex( gridLocalCellIndex );
 
@@ -303,7 +303,7 @@ bool RifReaderEclipseOutput::transferGeometry( const ecl_grid_type* mainEclGrid,
 
     // Reserve room for the cells and nodes and fill them with data
 
-    mainGrid->globalCellArray().reserve( totalCellCount );
+    mainGrid->reservoirCells().reserve( totalCellCount );
     mainGrid->nodes().reserve( 8 * totalCellCount );
 
     caf::ProgressInfo progInfo( 3 + numLGRs, "" );

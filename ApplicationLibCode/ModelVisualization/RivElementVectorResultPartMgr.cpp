@@ -150,17 +150,19 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
 
     RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-    const std::vector<RigCell>& cells = eclipseCase->mainGrid()->globalCellArray();
+    const auto grid = eclipseCase->mainGrid();
 
-    auto getFaceCenterAndNormal = [cells, arrowScaling, displayCordXf]( size_t                             globalCellIdx,
-                                                                        cvf::StructGridInterface::FaceType faceType,
-                                                                        cvf::Vec3d&                        faceCenter,
-                                                                        cvf::Vec3d&                        faceNormal )
+    auto getFaceCenterAndNormal = [arrowScaling, displayCordXf, grid]( size_t                             globalCellIdx,
+                                                                       cvf::StructGridInterface::FaceType faceType,
+                                                                       cvf::Vec3d&                        faceCenter,
+                                                                       cvf::Vec3d&                        faceNormal )
     {
-        faceCenter            = displayCordXf->transformToDisplayCoord( cells[globalCellIdx].faceCenter( faceType ) );
-        cvf::Vec3d cellCenter = displayCordXf->transformToDisplayCoord( cells[globalCellIdx].center() );
+        faceCenter            = displayCordXf->transformToDisplayCoord( grid->cell( globalCellIdx ).faceCenter( faceType ) );
+        cvf::Vec3d cellCenter = displayCordXf->transformToDisplayCoord( grid->cell( globalCellIdx ).center() );
         faceNormal            = ( faceCenter - cellCenter ).getNormalized() * arrowScaling;
     };
+
+    const std::vector<RigCell>& cells = eclipseCase->mainGrid()->reservoirCells();
 
     if ( !resultAddresses.empty() && !directions.empty() )
     {

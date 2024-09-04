@@ -276,7 +276,7 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
         {
             // Use main grid cell to evaluate if a cell is active or not.
             // All cells in temporary grids are active
-            const RigCell& cell                   = mainGrid->globalCellArray()[reservoirCellIndex];
+            const RigCell& cell                   = mainGrid->cell( reservoirCellIndex );
             size_t         mainGridReservoirIndex = cell.mainGridCellIndex();
 
             if ( !activeCellInfo->isActive( mainGridReservoirIndex ) )
@@ -358,7 +358,7 @@ std::vector<size_t>
     std::vector<size_t> cellIndicesToLeafCells;
     for ( const size_t& index : cellIndices )
     {
-        const RigCell& cell = mainGrid->globalCellArray()[index];
+        const RigCell& cell = mainGrid->cell( index );
         if ( !cell.subGrid() )
         {
             cellIndicesToLeafCells.push_back( index );

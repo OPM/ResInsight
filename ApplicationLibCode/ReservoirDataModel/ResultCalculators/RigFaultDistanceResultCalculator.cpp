@@ -79,8 +79,9 @@ void RigFaultDistanceResultCalculator::calculate( const RigEclipseResultAddress&
     if ( !shouldCompute ) return;
 
     const std::vector<RigCell>& globalCellArray = m_resultsData->m_ownerMainGrid->globalCellArray();
+    const auto                  grid            = m_resultsData->m_ownerMainGrid;
 
-    long long numCells = static_cast<long long>( globalCellArray.size() );
+    long long numCells = static_cast<long long>( m_resultsData->m_ownerMainGrid->cellCount() );
 
     std::vector<cvf::StructGridInterface::FaceType> faceTypes = cvf::StructGridInterface::validFaceTypes();
 

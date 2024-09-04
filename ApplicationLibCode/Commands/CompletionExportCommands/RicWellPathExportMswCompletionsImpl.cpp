@@ -694,7 +694,7 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo( const 
                     for ( auto intersectionIndex : indices )
                     {
                         auto intersection = filteredIntersections[intersectionIndex];
-                        if ( intersection.globCellIndex >= mainGrid->globalCellArray().size() ) continue;
+                        // if ( intersection.globCellIndex >= mainGrid->globalCellArray().size() ) continue;
 
                         size_t             localGridCellIndex = 0u;
                         const RigGridBase* localGrid =

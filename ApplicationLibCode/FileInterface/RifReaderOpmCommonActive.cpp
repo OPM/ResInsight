@@ -123,7 +123,8 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
 
         // TODO - loop over all grids
 
-        activeGrid->transferActiveInformation( eclipseCaseData,
+        activeGrid->transferActiveInformation( 0,
+                                               eclipseCaseData,
                                                opmGrid.totalActiveCells(),
                                                opmGrid.activeCells(),
                                                opmGrid.activeFracCells(),
@@ -194,8 +195,8 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
     for ( size_t i = 0; i < 8; i++ )
         defaultCell.cornerIndices()[i] = 0;
 
-    activeGrid->globalCellArray().resize( cellCount + 1, defaultCell );
-    activeGrid->globalCellArray()[cellCount].setInvalid( true );
+    activeGrid->reservoirCells().resize( cellCount + 1, defaultCell );
+    activeGrid->reservoirCells()[cellCount].setInvalid( true );
 
     activeGrid->nodes().resize( ( cellCount + 1 ) * 8, cvf::Vec3d( 0, 0, 0 ) );
 
@@ -236,7 +237,8 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
         }
 
         auto     riReservoirIndex = activeGrid->cellIndexFromIJK( opmIJK[0], opmIJK[1], opmIJK[2] );
-        RigCell& cell             = activeGrid->globalCellArray()[riReservoirIndex];
+        RigCell& cell             = activeGrid->cell( riReservoirIndex );
+        auto     actualIndex      = activeGrid->globalToActualCellIndex( riReservoirIndex );
         cell.setGridLocalCellIndex( riReservoirIndex );
         cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );
 
@@ -246,8 +248,8 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
         std::array<double, 8> opmZ{};
         opmMainGrid.getCellCorners( opmCellIndex, opmX, opmY, opmZ );
 
-        // Each cell has 8 nodes, use reservoir cell index and multiply to find first node index for cell
-        auto riNodeStartIndex = riReservoirIndex * 8;
+        // Each cell has 8 nodes, use active cell index and multiply to find first node index for cell
+        auto riNodeStartIndex = actualIndex * 8;
 
         for ( size_t opmNodeIndex = 0; opmNodeIndex < 8; opmNodeIndex++ )
         {
@@ -267,4 +269,6 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
             cell.setInvalid( cell.isLongPyramidCell() );
         }
     }
+
+    if ( riNodes.size() > 1 ) riNodes[riNodes.size() - 1] = riNodes[0];
 }

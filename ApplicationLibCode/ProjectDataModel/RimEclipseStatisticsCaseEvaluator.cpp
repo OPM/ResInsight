@@ -401,7 +401,7 @@ RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator( const std:
 {
     if ( !sourceCases.empty() )
     {
-        m_reservoirCellCount = sourceCases[0]->eclipseCaseData()->mainGrid()->globalCellArray().size();
+        m_reservoirCellCount = sourceCases[0]->eclipseCaseData()->mainGrid()->cellCount();
     }
 
     CVF_ASSERT( m_destinationCase );

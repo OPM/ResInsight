@@ -110,52 +110,53 @@ void RigActiveCellGrid::transferActiveInformation( int                     gridI
     fractureActiveCellInfo->computeDerivedData();
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RigActiveCellGrid::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
-{
-    auto index = RigGridBase::cellIndexFromIJK( i, j, k );
-    return m_globalToActiveMap[index];
-}
+////--------------------------------------------------------------------------------------------------
+/////
+////--------------------------------------------------------------------------------------------------
+// size_t RigActiveCellGrid::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
+//{
+//     auto index = RigGridBase::cellIndexFromIJK( i, j, k );
+//     return m_globalToActiveMap[index];
+// }
+//
+////--------------------------------------------------------------------------------------------------
+/////
+////--------------------------------------------------------------------------------------------------
+// size_t RigActiveCellGrid::cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const
+//{
+//     auto index = RigGridBase::cellIndexFromIJKUnguarded( i, j, k );
+//     return m_globalToActiveMap[index];
+// }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RigActiveCellGrid::cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const
-{
-    auto index = RigGridBase::cellIndexFromIJKUnguarded( i, j, k );
-    return m_globalToActiveMap[index];
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RigActiveCellGrid::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const
-{
-    if ( cellIndex >= m_activeToGlobalMap.size() )
-    {
-        return false;
-    }
-    auto index = m_activeToGlobalMap[cellIndex];
-    return RigGridBase::ijkFromCellIndex( index, i, j, k );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigActiveCellGrid::ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const
-{
-    auto index = m_activeToGlobalMap[cellIndex];
-    RigGridBase::ijkFromCellIndexUnguarded( index, i, j, k );
-}
+////--------------------------------------------------------------------------------------------------
+/////
+////--------------------------------------------------------------------------------------------------
+// bool RigActiveCellGrid::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const
+//{
+//     if ( cellIndex >= m_activeToGlobalMap.size() )
+//     {
+//         return false;
+//     }
+//     auto index = m_activeToGlobalMap[cellIndex];
+//     return RigGridBase::ijkFromCellIndex( index, i, j, k );
+// }
+//
+////--------------------------------------------------------------------------------------------------
+/////
+////--------------------------------------------------------------------------------------------------
+// void RigActiveCellGrid::ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const
+//{
+//     auto index = m_activeToGlobalMap[cellIndex];
+//     RigGridBase::ijkFromCellIndexUnguarded( index, i, j, k );
+// }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RigCell& RigActiveCellGrid::cell( size_t gridLocalCellIndex )
 {
-    return m_cells[gridLocalCellIndex];
+    const auto index = m_globalToActiveMap[gridLocalCellIndex];
+    return m_cells[index];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,7 +164,24 @@ RigCell& RigActiveCellGrid::cell( size_t gridLocalCellIndex )
 //--------------------------------------------------------------------------------------------------
 const RigCell& RigActiveCellGrid::cell( size_t gridLocalCellIndex ) const
 {
-    return m_cells[gridLocalCellIndex];
+    const auto index = m_globalToActiveMap[gridLocalCellIndex];
+    return m_cells[index];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigActiveCellGrid::globalToActualCellIndex( size_t globalCellIndex ) const
+{
+    return m_globalToActiveMap[globalCellIndex];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigActiveCellGrid::actualToGlobalCellIndex( size_t actualCellIndex ) const
+{
+    return m_activeToGlobalMap[actualCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------

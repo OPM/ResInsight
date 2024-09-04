@@ -214,7 +214,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fil
 
         // Call process events to clear the queue. This make sure that we are able raise the 3D window on top of the
         // plot window. Otherwise the event processing ends up with the plot window on top.
-        QApplication::processEvents();
+        // QApplication::processEvents();
         RiuMainWindow::instance()->activateWindow();
     }
 

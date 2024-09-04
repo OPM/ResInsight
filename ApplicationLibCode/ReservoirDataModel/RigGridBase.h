@@ -37,6 +37,9 @@ class RigMainGrid;
 class RigCell;
 class RigActiveCellInfo;
 
+// global cell index is index in full I,J,K grid
+// actual cell index is the index into the m_cells array, will be differenc
+
 class RigGridBase : public cvf::StructGridInterface
 {
 public:
@@ -50,8 +53,11 @@ public:
     size_t cellCountK() const override;
 
     virtual size_t         cellCount() const;
-    virtual RigCell&       cell( size_t gridLocalCellIndex );
-    virtual const RigCell& cell( size_t gridLocalCellIndex ) const;
+    virtual RigCell&       cell( size_t actualCellIndex );
+    virtual const RigCell& cell( size_t actualCellIndex ) const;
+
+    virtual size_t globalToActualCellIndex( size_t globalCellIndex ) const;
+    virtual size_t actualToGlobalCellIndex( size_t actualCellIndex ) const;
 
     void characteristicCellSizes( double* iSize, double* jSize, double* kSize ) const override;
 

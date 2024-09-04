@@ -332,8 +332,7 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimEclipseView* eclipseView )
         }
         else if ( eclipseView->mainGrid() )
         {
-            QString totCellCount =
-                localeWithSpaceAsGroupSeparator.toString( static_cast<int>( eclipseView->mainGrid()->globalCellArray().size() ) );
+            QString totCellCount = localeWithSpaceAsGroupSeparator.toString( static_cast<int>( eclipseView->mainGrid()->cellCount() ) );
 
             size_t mxActCellCount =
                 eclipseView->eclipseCase()->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->reservoirActiveCellCount();
