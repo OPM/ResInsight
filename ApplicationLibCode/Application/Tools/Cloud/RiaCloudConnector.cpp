@@ -28,9 +28,9 @@
 #include <QEventLoop>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QtNetworkAuth/QOAuth2AuthorizationCodeFlow>
 #include <QTimer>
 #include <QUrlQuery>
+#include <QtNetworkAuth/QOAuth2AuthorizationCodeFlow>
 
 //--------------------------------------------------------------------------------------------------
 ///
