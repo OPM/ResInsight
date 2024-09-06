@@ -18,9 +18,9 @@
 
 #pragma once
 
-#include <QtNetworkAuth/QOAuthHttpServerReplyHandler>
 #include <QObject>
 #include <QString>
+#include <QtNetworkAuth/QOAuthHttpServerReplyHandler>
 
 //==================================================================================================
 ///

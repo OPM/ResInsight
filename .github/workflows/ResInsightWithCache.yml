@@ -37,6 +37,7 @@ jobs:
               publish-to-pypi: false,
               vcpkg-bootstrap: bootstrap-vcpkg.bat,
               vcpkg-triplet: x64-windows-release,
+              qt-version: 5.12.12,
             }
           - {
               name: "Ubuntu 22.04 gcc",
@@ -50,6 +51,7 @@ jobs:
               publish-to-pypi: true,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
               vcpkg-triplet: x64-linux-release,
+              qt-version: 5.12.12,
             }
           - {
               name: "Ubuntu 22.04 clang-16",
@@ -63,6 +65,7 @@ jobs:
               publish-to-pypi: false,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
               vcpkg-triplet: x64-linux-release,
+              qt-version: 5.12.12,
             }
     steps:
       - name: Checkout
@@ -172,7 +175,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: 5.12.12
+          version: ${{ matrix.config.qt-version }}
           dir: "${{ github.workspace }}/Qt/"
           cache: true
           modules: "qtnetworkauth"
