@@ -1065,6 +1065,7 @@ void RifEclipseInputFileTools::parsePflotranInputFile( const QString& fileName, 
 
     {
         // Find all referenced grdecl files in a pflotran input file, in the GRID section, example
+        // The line can optionally contain a '/' at the end, which is ignored
         /*
             GRID
                 TYPE grdecl ../include/ccs_3df_kh.grdecl
@@ -1090,12 +1091,12 @@ void RifEclipseInputFileTools::parsePflotranInputFile( const QString& fileName, 
                 if ( line.startsWith( "TYPE" ) )
                 {
                     auto words = RiaTextStringTools::splitSkipEmptyParts( line, " " );
-                    if ( words.size() == 3 && words[1].startsWith( "grdecl", Qt::CaseInsensitive ) )
+                    if ( words.size() > 2 && words[1].startsWith( "grdecl", Qt::CaseInsensitive ) )
                     {
                         QFileInfo fi( fileName );
                         QDir      currentFileFolder = fi.absoluteDir();
 
-                        QString absoluteFilePath = currentFileFolder.absoluteFilePath( words.back() );
+                        QString absoluteFilePath = currentFileFolder.absoluteFilePath( words[2] );
                         gridSectionFilenames.push_back( absoluteFilePath );
                     }
                 }
@@ -1113,6 +1114,7 @@ void RifEclipseInputFileTools::parsePflotranInputFile( const QString& fileName, 
 
     // Find all grdecl files defined by the external_file keyword
     // For all these files, search for the FAULTS keyword and create fault objects
+    // The line can optionally contain a '/' at the end, which is ignored
     /*
         external_file ccs_3df_kh.grdecl
         external_file ccs_3df_other.grdecl
@@ -1131,12 +1133,12 @@ void RifEclipseInputFileTools::parsePflotranInputFile( const QString& fileName, 
             if ( line.startsWith( "external_file", Qt::CaseInsensitive ) )
             {
                 auto words = RiaTextStringTools::splitSkipEmptyParts( line, " " );
-                if ( words.size() == 2 )
+                if ( words.size() > 1 )
                 {
                     QFileInfo fi( gridSectionFilename );
                     QDir      currentFileFolder = fi.absoluteDir();
 
-                    QString absoluteFilePath = currentFileFolder.absoluteFilePath( words.back() );
+                    QString absoluteFilePath = currentFileFolder.absoluteFilePath( words[1] );
                     QFile   grdeclFilename( absoluteFilePath );
                     if ( !grdeclFilename.open( QFile::ReadOnly ) ) continue;
 

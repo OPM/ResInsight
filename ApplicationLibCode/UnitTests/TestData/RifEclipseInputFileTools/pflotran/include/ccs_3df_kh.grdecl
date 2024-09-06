@@ -5,7 +5,7 @@ external_file ccs_3df_geom_kh.grdecl
 
 external_file ccs_3df_prop.grdecl
 
-external_file Faults_test_KH.grdecl
+external_file Faults_test_KH.grdecl /
 
 external_file multflt_test_KH.grdecl
 
