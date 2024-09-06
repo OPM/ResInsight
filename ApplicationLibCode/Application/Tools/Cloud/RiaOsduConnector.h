@@ -23,7 +23,7 @@
 #include <QtCore>
 
 #include <QNetworkAccessManager>
-#include <QOAuth2AuthorizationCodeFlow>
+#include <QtNetworkAuth/QOAuth2AuthorizationCodeFlow>
 
 #include <map>
 
