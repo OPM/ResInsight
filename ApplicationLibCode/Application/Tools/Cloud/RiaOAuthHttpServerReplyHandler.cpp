@@ -1,9 +1,9 @@
 #include "RiaOAuthHttpServerReplyHandler.h"
 
-#include <QAbstractOAuth>
-#include <QOAuthHttpServerReplyHandler>
 #include <QString>
 #include <QUrl>
+#include <QtNetworkAuth/QAbstractOAuth>
+#include <QtNetworkAuth/QOAuthHttpServerReplyHandler>
 
 //--------------------------------------------------------------------------------------------------
 ///

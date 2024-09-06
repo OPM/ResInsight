@@ -23,8 +23,8 @@
 #include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QOAuth2AuthorizationCodeFlow>
 #include <QTextStream>
+#include <QtNetworkAuth/QOAuth2AuthorizationCodeFlow>
 
 //--------------------------------------------------------------------------------------------------
 ///

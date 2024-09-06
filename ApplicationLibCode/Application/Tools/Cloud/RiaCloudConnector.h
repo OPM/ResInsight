@@ -18,8 +18,8 @@
 
 #pragma once
 
-#include <QAbstractOAuth>
 #include <QObject>
+#include <QtNetworkAuth/QAbstractOAuth>
 
 class QNetworkAccessManager;
 class QOAuth2AuthorizationCodeFlow;
