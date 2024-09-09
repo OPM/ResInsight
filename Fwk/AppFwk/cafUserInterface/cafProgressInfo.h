@@ -59,7 +59,11 @@ private:
 class ProgressInfo
 {
 public:
-    ProgressInfo( size_t maxProgressValue, const QString& title, bool delayShowingProgress = true, bool allowCancel = false );
+    ProgressInfo( size_t         maxProgressValue,
+                  const QString& title,
+                  bool           delayShowingProgress = true,
+                  bool           allowCancel          = false,
+                  bool           shouldProcessEvents  = true );
 
     ~ProgressInfo();
     void setProgressDescription( const QString& description );
@@ -89,7 +93,8 @@ public:
                        size_t         maxProgressValue,
                        const QString& title,
                        bool           delayShowingProgress,
-                       bool           allowCance );
+                       bool           allowCancel,
+                       bool           shouldProcessEvents );
 
     static void setProgressDescription( const QString& description );
     static void setProgress( size_t progressValue );
@@ -107,6 +112,7 @@ private:
     static bool s_running;
     static bool s_disabled;
     static bool s_isButtonConnected;
+    static bool s_shouldProcessEvents;
 };
 
 } // namespace caf
