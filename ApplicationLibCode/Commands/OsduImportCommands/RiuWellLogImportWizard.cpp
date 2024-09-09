@@ -179,7 +179,7 @@ WellLogSelectionPage::WellLogSelectionPage( RiaOsduConnector* osduConnector, QWi
 
     m_tableView = new QTableView( this );
     m_tableView->setSelectionBehavior( QAbstractItemView::SelectRows );
-    m_tableView->setSelectionMode( QAbstractItemView::MultiSelection );
+    m_tableView->setSelectionMode( QAbstractItemView::ExtendedSelection );
     m_tableView->setSortingEnabled( true );
     int nameColumn = 2;
     m_tableView->sortByColumn( nameColumn, Qt::AscendingOrder );
