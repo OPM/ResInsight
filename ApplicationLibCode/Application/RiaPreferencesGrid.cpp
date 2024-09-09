@@ -89,7 +89,7 @@ RiaPreferencesGrid::RiaPreferencesGrid()
     CAF_PDM_InitField( &m_loadAndShowSoil, "loadAndShowSoil", true, "Load and Show SOIL" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_loadAndShowSoil );
 
-    CAF_PDM_InitField( &m_onlyLoadActiveCells, "onlyLoadActiveCells", false, "Only Load Active Cell Geometry" );
+    CAF_PDM_InitField( &m_onlyLoadActiveCells, "onlyLoadActiveCells", false, "Only Load Active Cell Geometry (Experimental)" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_onlyLoadActiveCells );
 }
 
