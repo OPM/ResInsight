@@ -239,17 +239,20 @@ FieldSelectionPage::FieldSelectionPage( RiaOsduConnector* osduConnector, QWidget
     QLabel* label = new QLabel( "Select fields" );
     layout->addWidget( label );
 
+    int nameColumn = OsduFieldTableModel::Column::Name;
+
     m_tableView = new QTableView( this );
     m_tableView->setSelectionBehavior( QAbstractItemView::SelectRows );
-    QHeaderView* header = m_tableView->horizontalHeader();
-    header->setSectionResizeMode( QHeaderView::Interactive );
-    header->setStretchLastSection( true );
 
     m_osduFieldsModel = new OsduFieldTableModel;
     m_tableView->setModel( m_osduFieldsModel );
     m_tableView->setSortingEnabled( true );
-    int nameColumn = OsduFieldTableModel::Column::Name;
     m_tableView->sortByColumn( nameColumn, Qt::AscendingOrder );
+
+    QHeaderView* header = m_tableView->horizontalHeader();
+    header->setSectionResizeMode( QHeaderView::Interactive );
+    header->setSectionResizeMode( nameColumn, QHeaderView::ResizeToContents );
+    header->setStretchLastSection( true );
 
     layout->addWidget( m_tableView );
     layout->setStretchFactor( m_tableView, 10 );
@@ -356,10 +359,6 @@ WellSelectionPage::WellSelectionPage( RiaOsduConnector* osduConnector, QWidget* 
     int nameColumn = OsduWellboreTableModel::Column::Name;
     m_tableView->sortByColumn( nameColumn, Qt::AscendingOrder );
 
-    QHeaderView* header = m_tableView->horizontalHeader();
-    header->setSectionResizeMode( QHeaderView::Interactive );
-    header->setStretchLastSection( true );
-
     m_osduWellboresModel = new OsduWellboreTableModel;
     layout->addWidget( m_tableView );
     layout->setStretchFactor( m_tableView, 10 );
@@ -371,6 +370,11 @@ WellSelectionPage::WellSelectionPage( RiaOsduConnector* osduConnector, QWidget* 
 
     m_tableView->setModel( m_proxyModel );
     m_tableView->setSortingEnabled( true );
+
+    QHeaderView* header = m_tableView->horizontalHeader();
+    header->setSectionResizeMode( QHeaderView::Interactive );
+    header->setSectionResizeMode( nameColumn, QHeaderView::ResizeToContents );
+    header->setStretchLastSection( true );
 
     QObject::connect( filterLineEdit, &QLineEdit::textChanged, m_proxyModel, &QSortFilterProxyModel::setFilterWildcard );
 
@@ -449,12 +453,9 @@ void WellSelectionPage::selectWellbore( const QItemSelection& newSelection, cons
         QModelIndexList      selection = m_tableView->selectionModel()->selectedRows();
         for ( QModelIndex index : selection )
         {
-            int idColumn = OsduWellboreTableModel::Column::Id;
-            if ( index.column() == idColumn )
-            {
-                QString wellboreId = m_proxyModel->data( index.siblingAtColumn( idColumn ) ).toString();
-                wellboreIds.push_back( wellboreId );
-            }
+            int     idColumn   = OsduWellboreTableModel::Column::Id;
+            QString wellboreId = m_proxyModel->data( index.siblingAtColumn( idColumn ) ).toString();
+            wellboreIds.push_back( wellboreId );
         }
 
         RiuWellImportWizard* wiz = dynamic_cast<RiuWellImportWizard*>( wizard() );
