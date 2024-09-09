@@ -46,9 +46,9 @@ public:
 
     enum Column
     {
-        Id,
-        Kind,
         Name,
+        Kind,
+        Id,
         ColumnCount
     };
 
@@ -155,9 +155,9 @@ public:
 
     enum Column
     {
-        Id,
-        Kind,
         Name,
+        Kind,
+        Id,
         ColumnCount
     };
 
