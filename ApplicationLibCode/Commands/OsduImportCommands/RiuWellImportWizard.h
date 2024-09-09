@@ -34,7 +34,6 @@ class QFile;
 class QLabel;
 class QTextEdit;
 class QTableView;
-
 class OsduFieldTableModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -45,6 +44,14 @@ public:
     {
     }
 
+    enum Column
+    {
+        Id,
+        Kind,
+        Name,
+        ColumnCount
+    };
+
     int rowCount( const QModelIndex& parent = QModelIndex() ) const override
     {
         Q_UNUSED( parent );
@@ -54,8 +61,7 @@ public:
     int columnCount( const QModelIndex& parent = QModelIndex() ) const override
     {
         Q_UNUSED( parent );
-        // Assuming you have three fields: id, kind, and name
-        return 3;
+        return ColumnCount;
     }
 
     QVariant data( const QModelIndex& index, int role = Qt::DisplayRole ) const override
@@ -67,13 +73,13 @@ public:
         if ( role == Qt::DisplayRole )
         {
             const OsduField& field = m_osduFields.at( index.row() );
-            switch ( index.column() )
+            switch ( static_cast<Column>( index.column() ) )
             {
-                case 0:
+                case Id:
                     return field.id;
-                case 1:
+                case Kind:
                     return field.kind;
-                case 2:
+                case Name:
                     return field.name;
                 default:
                     return QVariant();
@@ -89,13 +95,13 @@ public:
 
         if ( orientation == Qt::Horizontal )
         {
-            switch ( section )
+            switch ( static_cast<Column>( section ) )
             {
-                case 0:
+                case Id:
                     return tr( "ID" );
-                case 1:
+                case Kind:
                     return tr( "Kind" );
-                case 2:
+                case Name:
                     return tr( "Name" );
                 default:
                     return QVariant();
@@ -117,13 +123,13 @@ public:
                    m_osduFields.end(),
                    [column, order]( const OsduField& a, const OsduField& b )
                    {
-                       switch ( column )
+                       switch ( static_cast<Column>( column ) )
                        {
-                           case 0:
+                           case Id:
                                return ( order == Qt::AscendingOrder ) ? a.id < b.id : a.id > b.id;
-                           case 1:
+                           case Kind:
                                return ( order == Qt::AscendingOrder ) ? a.kind < b.kind : a.kind > b.kind;
-                           case 2:
+                           case Name:
                                return ( order == Qt::AscendingOrder ) ? a.name < b.name : a.name > b.name;
                            default:
                                return false;
@@ -147,6 +153,14 @@ public:
     {
     }
 
+    enum Column
+    {
+        Id,
+        Kind,
+        Name,
+        ColumnCount
+    };
+
     int rowCount( const QModelIndex& parent = QModelIndex() ) const override
     {
         Q_UNUSED( parent );
@@ -156,8 +170,7 @@ public:
     int columnCount( const QModelIndex& parent = QModelIndex() ) const override
     {
         Q_UNUSED( parent );
-        // Assuming you have three fields: id, kind, and name
-        return 3;
+        return ColumnCount;
     }
 
     QVariant data( const QModelIndex& index, int role = Qt::DisplayRole ) const override
@@ -169,13 +182,13 @@ public:
         if ( role == Qt::DisplayRole )
         {
             const OsduWellbore& field = m_osduWellbores.at( index.row() );
-            switch ( index.column() )
+            switch ( static_cast<Column>( index.column() ) )
             {
-                case 0:
+                case Id:
                     return field.id;
-                case 1:
+                case Kind:
                     return field.kind;
-                case 2:
+                case Name:
                     return field.name;
                 default:
                     return QVariant();
@@ -191,13 +204,13 @@ public:
 
         if ( orientation == Qt::Horizontal )
         {
-            switch ( section )
+            switch ( static_cast<Column>( section ) )
             {
-                case 0:
+                case Id:
                     return tr( "ID" );
-                case 1:
+                case Kind:
                     return tr( "Kind" );
-                case 2:
+                case Name:
                     return tr( "Name" );
                 default:
                     return QVariant();
@@ -216,7 +229,6 @@ public:
             for ( auto v : values )
                 m_osduWellbores.push_back( v );
         }
-
         endResetModel();
     }
 
@@ -226,13 +238,13 @@ public:
                    m_osduWellbores.end(),
                    [column, order]( const OsduWellbore& a, const OsduWellbore& b )
                    {
-                       switch ( column )
+                       switch ( static_cast<Column>( column ) )
                        {
-                           case 0:
+                           case Id:
                                return ( order == Qt::AscendingOrder ) ? a.id < b.id : a.id > b.id;
-                           case 1:
+                           case Kind:
                                return ( order == Qt::AscendingOrder ) ? a.kind < b.kind : a.kind > b.kind;
-                           case 2:
+                           case Name:
                                return ( order == Qt::AscendingOrder ) ? a.name < b.name : a.name > b.name;
                            default:
                                return false;
