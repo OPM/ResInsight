@@ -248,7 +248,7 @@ FieldSelectionPage::FieldSelectionPage( RiaOsduConnector* osduConnector, QWidget
     m_osduFieldsModel = new OsduFieldTableModel;
     m_tableView->setModel( m_osduFieldsModel );
     m_tableView->setSortingEnabled( true );
-    int nameColumn = 2;
+    int nameColumn = OsduFieldTableModel::Column::Name;
     m_tableView->sortByColumn( nameColumn, Qt::AscendingOrder );
 
     layout->addWidget( m_tableView );
@@ -308,7 +308,7 @@ void FieldSelectionPage::selectField( const QItemSelection& newSelection, const 
     if ( !newSelection.indexes().empty() )
     {
         QModelIndex          index   = newSelection.indexes()[0];
-        int                  column  = 0;
+        int                  column  = OsduFieldTableModel::Column::Id;
         QString              fieldId = m_osduFieldsModel->data( index.siblingAtColumn( column ) ).toString();
         RiuWellImportWizard* wiz     = dynamic_cast<RiuWellImportWizard*>( wizard() );
         wiz->setSelectedFieldId( fieldId );
@@ -353,7 +353,7 @@ WellSelectionPage::WellSelectionPage( RiaOsduConnector* osduConnector, QWidget* 
     m_tableView->setSelectionBehavior( QAbstractItemView::SelectRows );
     m_tableView->setSelectionMode( QAbstractItemView::ExtendedSelection );
     m_tableView->setSortingEnabled( true );
-    int nameColumn = 2;
+    int nameColumn = OsduWellboreTableModel::Column::Name;
     m_tableView->sortByColumn( nameColumn, Qt::AscendingOrder );
 
     QHeaderView* header = m_tableView->horizontalHeader();
@@ -449,8 +449,7 @@ void WellSelectionPage::selectWellbore( const QItemSelection& newSelection, cons
         QModelIndexList      selection = m_tableView->selectionModel()->selectedRows();
         for ( QModelIndex index : selection )
         {
-            int idColumn = 0;
-
+            int idColumn = OsduWellboreTableModel::Column::Id;
             if ( index.column() == idColumn )
             {
                 QString wellboreId = m_proxyModel->data( index.siblingAtColumn( idColumn ) ).toString();
