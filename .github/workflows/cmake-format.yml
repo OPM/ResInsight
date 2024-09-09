@@ -32,7 +32,7 @@ jobs:
           cd ..
 
           git diff
-      - uses: peter-evans/create-pull-request@v6
+      - uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Fixes by cmake-format"
