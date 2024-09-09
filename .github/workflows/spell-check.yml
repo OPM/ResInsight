@@ -11,7 +11,7 @@ jobs:
       - uses: sobolevn/misspell-fixer-action@master
         with:
           options: "-rsvnuR ApplicationLibCode/"
-      - uses: peter-evans/create-pull-request@v6
+      - uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Fixes by misspell-fixer"
