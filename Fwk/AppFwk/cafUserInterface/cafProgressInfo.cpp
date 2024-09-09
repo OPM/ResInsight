@@ -127,11 +127,15 @@ ProgressTask::~ProgressTask()
 /// If you do not need a title for a particular level, simply pass "" and it will be ignored.
 /// \sa setProgressDescription
 //--------------------------------------------------------------------------------------------------
-ProgressInfo::ProgressInfo( size_t maxProgressValue, const QString& title, bool delayShowingProgress, bool allowCancel )
+ProgressInfo::ProgressInfo( size_t         maxProgressValue,
+                            const QString& title,
+                            bool           delayShowingProgress,
+                            bool           allowCancel,
+                            bool           shouldProcessEvents )
 {
     m_isCancelled.store( false );
 
-    ProgressInfoStatic::start( *this, maxProgressValue, title, delayShowingProgress, allowCancel );
+    ProgressInfoStatic::start( *this, maxProgressValue, title, delayShowingProgress, allowCancel, shouldProcessEvents );
 
     if ( dynamic_cast<QApplication*>( QCoreApplication::instance() ) )
     {
@@ -476,9 +480,10 @@ ProgressInfoBlocker::~ProgressInfoBlocker()
 ///
 //==================================================================================================
 
-bool ProgressInfoStatic::s_disabled          = false;
-bool ProgressInfoStatic::s_running           = false;
-bool ProgressInfoStatic::s_isButtonConnected = false;
+bool ProgressInfoStatic::s_disabled            = false;
+bool ProgressInfoStatic::s_running             = false;
+bool ProgressInfoStatic::s_isButtonConnected   = false;
+bool ProgressInfoStatic::s_shouldProcessEvents = true;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -487,8 +492,11 @@ void ProgressInfoStatic::start( ProgressInfo&  progressInfo,
                                 size_t         maxProgressValue,
                                 const QString& title,
                                 bool           delayShowingProgress,
-                                bool           allowCancel )
+                                bool           allowCancel,
+                                bool           shouldProcessEvents )
 {
+    s_shouldProcessEvents = shouldProcessEvents;
+
     if ( !isUpdatePossible() ) return;
 
     std::vector<size_t>& progressStack_v     = progressStack();
@@ -541,8 +549,8 @@ void ProgressInfoStatic::start( ProgressInfo&  progressInfo,
         dialog->setValue( static_cast<int>( currentTotalProgress() ) );
         dialog->setLabelText( currentComposedLabel() );
     }
-    //    QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
-    // if (progressDialog()) progressDialog()->repaint();
+
+    if ( s_shouldProcessEvents ) QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -559,8 +567,8 @@ void ProgressInfoStatic::setProgressDescription( const QString& description )
     {
         dialog->setLabelText( currentComposedLabel() );
     }
-    //    QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
-    // if (progressDialog()) progressDialog()->repaint();
+
+    if ( s_shouldProcessEvents ) QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -605,8 +613,7 @@ void ProgressInfoStatic::setProgress( size_t progressValue )
         dialog->setValue( totalProgress );
     }
 
-    //    QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
-    // if (progressDialog()) progressDialog()->repaint();
+    if ( s_shouldProcessEvents ) QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -686,8 +693,6 @@ void ProgressInfoStatic::finished()
     {
         dialog->setLabelText( currentComposedLabel() );
     }
-
-    //    QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
 
     // If we are finishing the last level, clean up
     if ( maxProgressStack_v.empty() )
