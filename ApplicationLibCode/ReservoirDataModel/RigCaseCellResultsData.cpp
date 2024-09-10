@@ -1441,8 +1441,6 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
         // Add one more result to result container
         size_t timeStepCount = infoForEachResultIndex()[scalarResultIndex].timeStepInfos().size();
 
-        bool resultLoadingSuccess = true;
-
         size_t tempGridCellCount = m_ownerMainGrid->totalTemporaryGridCellCount();
 
         if ( type == RiaDefines::ResultCatType::DYNAMIC_NATIVE && timeStepCount > 0 )
@@ -1455,7 +1453,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
                 std::vector<double>& values = m_cellScalarResults[scalarResultIndex][i];
                 if ( !m_readerInterface->dynamicResult( resultName, m_porosityModel, i, &values ) )
                 {
-                    resultLoadingSuccess = false;
+                    values.clear();
                 }
                 else if ( tempGridCellCount > 0 )
                 {
@@ -1475,7 +1473,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
             std::vector<double>& values = m_cellScalarResults[scalarResultIndex][0];
             if ( !m_readerInterface->staticResult( resultName, m_porosityModel, &values ) )
             {
-                resultLoadingSuccess = false;
+                values.clear();
             }
             else if ( tempGridCellCount > 0 )
             {
@@ -1486,12 +1484,6 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
                     assignValuesToTemporaryLgrs( resultName, values );
                 }
             }
-        }
-
-        if ( !resultLoadingSuccess )
-        {
-            // Remove last scalar result because loading of result failed
-            m_cellScalarResults[scalarResultIndex].clear();
         }
     }
 
