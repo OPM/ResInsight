@@ -45,6 +45,7 @@
 #include "RigMainGrid.h"
 #include "RigMobilePoreVolumeResultCalculator.h"
 #include "RigOilVolumeResultCalculator.h"
+#include "RigPorvSoilSgasResultCalculator.h"
 #include "RigSoilResultCalculator.h"
 #include "RigStatisticsDataCache.h"
 #include "RigStatisticsMath.h"
@@ -1140,6 +1141,30 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
         findOrCreateScalarResultIndex( RiaResultNames::staticIntegerAddress( RiaResultNames::indexKResultName() ), needsToBeStored );
     }
 
+    if ( hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORV" ) ) )
+    {
+        bool hasSgas = hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ) );
+        bool hasSoil = hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ) );
+        if ( hasSoil )
+        {
+            findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::riPorvSoil() ),
+                                           needsToBeStored );
+        }
+
+        if ( hasSgas )
+        {
+            findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::riPorvSgas() ),
+                                           needsToBeStored );
+        }
+
+        if ( hasSoil && hasSgas )
+        {
+            findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                    RiaResultNames::riPorvSoilSgas() ),
+                                           needsToBeStored );
+        }
+    }
+
     // Fault distance
     {
         findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::faultDistanceName() ),
@@ -1496,6 +1521,11 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
         computeCellVolumes();
         computeOilVolumes();
     }
+    else if ( resultName == RiaResultNames::riPorvSoil() || resultName == RiaResultNames::riPorvSgas() ||
+              resultName == RiaResultNames::riPorvSoilSgas() )
+    {
+        computePorvSoilSgas();
+    }
 
     // Allan results
     if ( resultName == RiaResultNames::formationAllanResultName() || resultName == RiaResultNames::formationBinaryAllanResultName() )
@@ -1535,7 +1565,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::findOrLoadKnownScalarResultByResultTypeOrder( const RigEclipseResultAddress& resVarAddr,
+size_t RigCaseCellResultsData::findOrLoadKnownScalarResultByResultTypeOrder( const RigEclipseResultAddress&                resVarAddr,
                                                                              const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder )
 {
     std::set<RiaDefines::ResultCatType> otherResultTypesToSearch = { RiaDefines::ResultCatType::STATIC_NATIVE,
@@ -2724,6 +2754,24 @@ void RigCaseCellResultsData::computeOilVolumes()
     RigOilVolumeResultCalculator calculator( *this );
     // Computes for all time steps
     calculator.calculate( addr, -1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::computePorvSoilSgas()
+{
+    std::vector<QString> results = { RiaResultNames::riPorvSoil(), RiaResultNames::riPorvSgas(), RiaResultNames::riPorvSoilSgas() };
+
+    RigPorvSoilSgasResultCalculator calculator( *this );
+
+    for ( QString resultName : results )
+    {
+        RigEclipseResultAddress addr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, resultName );
+
+        // Computes for all time steps
+        calculator.calculate( addr, -1 );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
