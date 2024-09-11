@@ -45,5 +45,5 @@ private:
     void calculate( const RigEclipseResultAddress&          in1Addr,
                     const RigEclipseResultAddress&          in2Addr,
                     const RigEclipseResultAddress&          outAddr,
-                    std::function<double( double, double )> op );
+                    std::function<double( double, double )> operation );
 };
