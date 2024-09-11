@@ -181,8 +181,6 @@ void RifReaderInterface::importFaults( const QStringList& fileSet, cvf::Collecti
 
         if ( !isDataFileFound )
         {
-            RiaLogging::info( "No *.DATA file is found" );
-
             for ( const auto& filename : fileSet )
             {
                 if ( filename.endsWith( ".IN", Qt::CaseInsensitive ) )
