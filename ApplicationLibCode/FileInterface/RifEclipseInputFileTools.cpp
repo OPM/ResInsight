@@ -1061,7 +1061,7 @@ void RifEclipseInputFileTools::parsePflotranInputFile( const QString& fileName, 
 {
     QStringList gridSectionFilenames;
 
-    RiaLogging::info( "Looking for 'Pflotran' fault definitions in " + fileName );
+    RiaLogging::info( "Looking for faults in 'PFLOTRAN' file: " + fileName );
 
     {
         // Find all referenced grdecl files in a pflotran input file, in the GRID section, example
@@ -1137,15 +1137,9 @@ void RifEclipseInputFileTools::parsePflotranInputFile( const QString& fileName, 
                 {
                     QFileInfo fi( gridSectionFilename );
                     QDir      currentFileFolder = fi.absoluteDir();
-
-                    QString absoluteFilePath = currentFileFolder.absoluteFilePath( words[1] );
-                    QFile   grdeclFilename( absoluteFilePath );
-                    if ( !grdeclFilename.open( QFile::ReadOnly ) ) continue;
-
-                    auto currentFaultCount = faults->size();
-
-                    readFaults( grdeclFilename, 0, faults, nullptr );
-
+                    auto      currentFaultCount = faults->size();
+                    QString   absoluteFilePath  = currentFileFolder.absoluteFilePath( words[1] );
+                    parseAndReadFaults( absoluteFilePath, faults );
                     if ( currentFaultCount != faults->size() )
                     {
                         RiaLogging::info( "Imported faults from " + absoluteFilePath );
