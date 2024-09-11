@@ -67,6 +67,9 @@ QString combinedRiAreaNormTranResultName();
 QString riCellVolumeResultName();
 QString riOilVolumeResultName();
 QString mobilePoreVolumeName();
+QString riPorvSoil();
+QString riPorvSgas();
+QString riPorvSoilSgas();
 
 QString faultReactAssessmentPrefix();
 
