@@ -476,9 +476,10 @@ ProgressInfoBlocker::~ProgressInfoBlocker()
 ///
 //==================================================================================================
 
-bool ProgressInfoStatic::s_disabled          = false;
-bool ProgressInfoStatic::s_running           = false;
-bool ProgressInfoStatic::s_isButtonConnected = false;
+bool ProgressInfoStatic::s_disabled            = false;
+bool ProgressInfoStatic::s_running             = false;
+bool ProgressInfoStatic::s_isButtonConnected   = false;
+bool ProgressInfoStatic::s_shouldProcessEvents = true;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -541,8 +542,8 @@ void ProgressInfoStatic::start( ProgressInfo&  progressInfo,
         dialog->setValue( static_cast<int>( currentTotalProgress() ) );
         dialog->setLabelText( currentComposedLabel() );
     }
-    //    QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
-    // if (progressDialog()) progressDialog()->repaint();
+
+    if ( s_shouldProcessEvents ) QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -559,8 +560,8 @@ void ProgressInfoStatic::setProgressDescription( const QString& description )
     {
         dialog->setLabelText( currentComposedLabel() );
     }
-    //    QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
-    // if (progressDialog()) progressDialog()->repaint();
+
+    if ( s_shouldProcessEvents ) QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -605,8 +606,7 @@ void ProgressInfoStatic::setProgress( size_t progressValue )
         dialog->setValue( totalProgress );
     }
 
-    //    QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
-    // if (progressDialog()) progressDialog()->repaint();
+    if ( s_shouldProcessEvents ) QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -687,8 +687,6 @@ void ProgressInfoStatic::finished()
         dialog->setLabelText( currentComposedLabel() );
     }
 
-    //    QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
-
     // If we are finishing the last level, clean up
     if ( maxProgressStack_v.empty() )
     {
@@ -728,6 +726,22 @@ bool ProgressInfoStatic::isUpdatePossible()
         }
     }
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+ProgressInfoEventProcessingBlocker::ProgressInfoEventProcessingBlocker()
+{
+    ProgressInfoStatic::s_shouldProcessEvents = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+ProgressInfoEventProcessingBlocker::~ProgressInfoEventProcessingBlocker()
+{
+    ProgressInfoStatic::s_shouldProcessEvents = true;
 }
 
 } // namespace caf
