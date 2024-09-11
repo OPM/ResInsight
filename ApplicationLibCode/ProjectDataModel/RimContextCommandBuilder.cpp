@@ -267,6 +267,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimEclipseCaseEnsemble*>( firstUiItem ) )
         {
             menuBuilder << "RicNewViewForGridEnsembleFeature";
+            menuBuilder << "RicNewWellTargetCandidatesGeneratorFeature";
         }
         else if ( dynamic_cast<RimGeoMechModels*>( firstUiItem ) )
         {

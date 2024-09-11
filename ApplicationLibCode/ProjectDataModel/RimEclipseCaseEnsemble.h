@@ -29,6 +29,7 @@ class RimCaseCollection;
 class RimEclipseCase;
 class RimEclipseView;
 class RimEclipseViewCollection;
+class RimWellTargetCandidatesGenerator;
 
 //==================================================================================================
 //
@@ -54,13 +55,16 @@ public:
 
     RimEclipseViewCollection* viewCollection() const;
 
+    void addWellTargetsGenerator( RimWellTargetCandidatesGenerator* generator );
+
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    caf::PdmField<int>                            m_groupId;
-    caf::PdmChildField<RimCaseCollection*>        m_caseCollection;
-    caf::PdmChildField<RimEclipseViewCollection*> m_viewCollection;
-    caf::PdmPtrField<RimEclipseCase*>             m_selectedCase;
+    caf::PdmField<int>                                         m_groupId;
+    caf::PdmChildField<RimCaseCollection*>                     m_caseCollection;
+    caf::PdmChildField<RimEclipseViewCollection*>              m_viewCollection;
+    caf::PdmChildArrayField<RimWellTargetCandidatesGenerator*> m_wellTargetGenerators;
+    caf::PdmPtrField<RimEclipseCase*>                          m_selectedCase;
 };

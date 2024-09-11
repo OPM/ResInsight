@@ -22,6 +22,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
+#include "RimWellTargetCandidatesGenerator.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -48,6 +49,8 @@ RimEclipseCaseEnsemble::RimEclipseCaseEnsemble()
 
     CAF_PDM_InitFieldNoDefault( &m_viewCollection, "ViewCollection", "Views" );
     m_viewCollection = new RimEclipseViewCollection;
+
+    CAF_PDM_InitFieldNoDefault( &m_wellTargetGenerators, "WellTargetGenerators", "Well Target Candidates Generators" );
 
     setDeletable( true );
 }
@@ -166,4 +169,12 @@ void RimEclipseCaseEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* change
 RimEclipseViewCollection* RimEclipseCaseEnsemble::viewCollection() const
 {
     return m_viewCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCaseEnsemble::addWellTargetsGenerator( RimWellTargetCandidatesGenerator* generator )
+{
+    m_wellTargetGenerators.push_back( generator );
 }
