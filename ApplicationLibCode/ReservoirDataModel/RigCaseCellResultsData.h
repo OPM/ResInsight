@@ -170,6 +170,7 @@ private:
     friend class RigOilVolumeResultCalculator;
     friend class RigCellVolumeResultCalculator;
     friend class RigCellsWithNncsCalculator;
+    friend class RigPorvSoilSgasResultCalculator;
 
     size_t findOrCreateScalarResultIndex( const RigEclipseResultAddress& resVarAddr, bool needsToBeStored );
 
@@ -199,6 +200,7 @@ private:
 
     void computeOilVolumes();
     void computeMobilePV();
+    void computePorvSoilSgas();
 
     void computeIndexResults();
     void computeFaultDistance();
