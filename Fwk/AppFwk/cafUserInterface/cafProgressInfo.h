@@ -75,6 +75,15 @@ private:
     std::atomic<bool> m_isCancelled;
 };
 
+// This class is used to block the processing of events while a progress info dialog is shown. This is required when the
+// progress info dialog is shown from a non-GUI thread.
+class ProgressInfoEventProcessingBlocker
+{
+public:
+    ProgressInfoEventProcessingBlocker();
+    ~ProgressInfoEventProcessingBlocker();
+};
+
 class ProgressInfoBlocker
 {
 public:
@@ -89,7 +98,7 @@ public:
                        size_t         maxProgressValue,
                        const QString& title,
                        bool           delayShowingProgress,
-                       bool           allowCance );
+                       bool           allowCancel );
 
     static void setProgressDescription( const QString& description );
     static void setProgress( size_t progressValue );
@@ -104,9 +113,11 @@ private:
 
 private:
     friend class ProgressInfoBlocker;
+    friend class ProgressInfoEventProcessingBlocker;
     static bool s_running;
     static bool s_disabled;
     static bool s_isButtonConnected;
+    static bool s_shouldProcessEvents;
 };
 
 } // namespace caf

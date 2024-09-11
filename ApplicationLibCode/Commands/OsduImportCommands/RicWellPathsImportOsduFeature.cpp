@@ -80,9 +80,10 @@ void RicWellPathsImportOsduFeature::onActionTriggered( bool isChecked )
     {
         std::vector<RiuWellImportWizard::WellInfo> importedWells = wellImportwizard.importedWells();
 
-        caf::ProgressInfo             progress( importedWells.size(), "Importing wells from OSDU", false, true );
-        int                           colorIndex = 0;
-        std::vector<RimOsduWellPath*> newWells;
+        caf::ProgressInfoEventProcessingBlocker blocker;
+        caf::ProgressInfo                       progress( importedWells.size(), "Importing wells from OSDU", false, true );
+        int                                     colorIndex = 0;
+        std::vector<RimOsduWellPath*>           newWells;
         for ( const auto& w : importedWells )
         {
             auto wellPath = new RimOsduWellPath;

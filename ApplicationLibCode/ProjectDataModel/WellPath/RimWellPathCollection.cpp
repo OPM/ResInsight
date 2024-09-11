@@ -174,6 +174,7 @@ bool RimWellPathCollection::loadDataAndUpdate()
         return count;
     };
 
+    caf::ProgressInfoEventProcessingBlocker blocker;
     caf::ProgressInfo progress( allWellPaths().size() + countWellLogs( allWellPaths() ) + 2, "Reading well paths from file", false, true );
 
     readWellPathFormationFiles();
