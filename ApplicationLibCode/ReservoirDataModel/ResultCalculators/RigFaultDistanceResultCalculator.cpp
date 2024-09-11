@@ -78,10 +78,9 @@ void RigFaultDistanceResultCalculator::calculate( const RigEclipseResultAddress&
 
     if ( !shouldCompute ) return;
 
-    const std::vector<RigCell>& globalCellArray = m_resultsData->m_ownerMainGrid->globalCellArray();
-    const auto                  grid            = m_resultsData->m_ownerMainGrid;
+    const auto grid = m_resultsData->m_ownerMainGrid;
 
-    long long numCells = static_cast<long long>( m_resultsData->m_ownerMainGrid->cellCount() );
+    long long numCells = static_cast<long long>( grid->cellCount() );
 
     std::vector<cvf::StructGridInterface::FaceType> faceTypes = cvf::StructGridInterface::validFaceTypes();
 
@@ -91,7 +90,7 @@ void RigFaultDistanceResultCalculator::calculate( const RigEclipseResultAddress&
     {
         if ( m_resultsData->activeCellInfo()->isActive( cellIdx ) )
         {
-            const RigCell& cell = globalCellArray[cellIdx];
+            const RigCell& cell = grid->cell( cellIdx );
             for ( auto faceType : faceTypes )
             {
                 if ( m_resultsData->m_ownerMainGrid->findFaultFromCellIndexAndCellFace( cellIdx, faceType ) )
@@ -119,13 +118,13 @@ void RigFaultDistanceResultCalculator::calculate( const RigEclipseResultAddress&
         searchTree->buildTreeFromBoundingBoxes( faceBBs, &faceIndicesForBoundingBoxes );
     }
 
-    const auto nodes      = m_resultsData->m_ownerMainGrid->nodes();
-    const auto mainGridBB = m_resultsData->m_ownerMainGrid->boundingBox();
+    const auto& nodes      = m_resultsData->m_ownerMainGrid->nodes();
+    const auto  mainGridBB = m_resultsData->m_ownerMainGrid->boundingBox();
 
 #pragma omp parallel for
     for ( long long cellIdx = 0; cellIdx < numCells; cellIdx++ )
     {
-        const RigCell& cell = globalCellArray[cellIdx];
+        const RigCell& cell = grid->nativeCell( cellIdx );
 
         size_t resultIndex = cellIdx;
         if ( resultIndex == cvf::UNDEFINED_SIZE_T || !m_resultsData->activeCellInfo()->isActive( cellIdx ) ) continue;

@@ -114,7 +114,7 @@ bool RigReservoirBuilderMock::inputProperty( RigEclipseCaseData* eclipseCase, co
     /* generate secret number: */
     int iSecret = rand() % 20 + 1;
 
-    for ( k = 0; k < eclipseCase->mainGrid()->globalCellArray().size(); k++ )
+    for ( k = 0; k < eclipseCase->mainGrid()->cellCount(); k++ )
     {
         values->push_back( k * iSecret );
     }
@@ -127,12 +127,12 @@ bool RigReservoirBuilderMock::inputProperty( RigEclipseCaseData* eclipseCase, co
 //--------------------------------------------------------------------------------------------------
 bool RigReservoirBuilderMock::staticResult( RigEclipseCaseData* eclipseCase, const QString& result, std::vector<double>* values )
 {
-    values->resize( eclipseCase->mainGrid()->globalCellArray().size() );
+    values->resize( eclipseCase->mainGrid()->cellCount() );
 
 #pragma omp parallel for
-    for ( long long k = 0; k < static_cast<long long>( eclipseCase->mainGrid()->globalCellArray().size() ); k++ )
+    for ( long long k = 0; k < static_cast<long long>( eclipseCase->mainGrid()->cellCount() ); k++ )
     {
-        values->at( k ) = ( k * 2 ) % eclipseCase->mainGrid()->globalCellArray().size();
+        values->at( k ) = ( k * 2 ) % eclipseCase->mainGrid()->cellCount();
     }
 
     return false;
@@ -155,12 +155,12 @@ bool RigReservoirBuilderMock::dynamicResult( RigEclipseCaseData* eclipseCase, co
     double scaleValue  = 1.0 + resultIndex * 0.1;
     double offsetValue = 100 * resultIndex;
 
-    values->resize( eclipseCase->mainGrid()->globalCellArray().size() );
+    values->resize( eclipseCase->mainGrid()->cellCount() );
 
 #pragma omp parallel for
-    for ( long long k = 0; k < static_cast<long long>( eclipseCase->mainGrid()->globalCellArray().size() ); k++ )
+    for ( long long k = 0; k < static_cast<long long>( eclipseCase->mainGrid()->cellCount() ); k++ )
     {
-        double val      = offsetValue + scaleValue * ( ( stepIndex * 1000 + k ) % eclipseCase->mainGrid()->globalCellArray().size() );
+        double val      = offsetValue + scaleValue * ( ( stepIndex * 1000 + k ) % eclipseCase->mainGrid()->cellCount() );
         values->at( k ) = val;
     }
 

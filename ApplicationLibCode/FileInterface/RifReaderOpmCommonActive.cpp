@@ -238,7 +238,7 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
 
         auto     riReservoirIndex = activeGrid->cellIndexFromIJK( opmIJK[0], opmIJK[1], opmIJK[2] );
         RigCell& cell             = activeGrid->cell( riReservoirIndex );
-        auto     actualIndex      = activeGrid->globalToActualCellIndex( riReservoirIndex );
+        auto     nativeIndex      = activeGrid->globalCellIndexToNative( riReservoirIndex );
         cell.setGridLocalCellIndex( riReservoirIndex );
         cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );
 
@@ -249,7 +249,7 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
         opmMainGrid.getCellCorners( opmCellIndex, opmX, opmY, opmZ );
 
         // Each cell has 8 nodes, use active cell index and multiply to find first node index for cell
-        auto riNodeStartIndex = actualIndex * 8;
+        auto riNodeStartIndex = nativeIndex * 8;
 
         for ( size_t opmNodeIndex = 0; opmNodeIndex < 8; opmNodeIndex++ )
         {

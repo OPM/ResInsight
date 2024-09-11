@@ -66,6 +66,8 @@ void RigOilVolumeResultCalculator::calculate( const RigEclipseResultAddress& res
                                                                      false );
     m_resultsData->m_cellScalarResults[oilVolIdx].resize( m_resultsData->maxTimeStepCount() );
 
+    auto mainGrid = m_resultsData->m_ownerMainGrid;
+
     size_t cellResultCount = m_resultsData->m_activeCellInfo->reservoirActiveCellCount();
     for ( size_t timeStepIdx = 0; timeStepIdx < m_resultsData->maxTimeStepCount(); timeStepIdx++ )
     {
@@ -74,8 +76,7 @@ void RigOilVolumeResultCalculator::calculate( const RigEclipseResultAddress& res
         oilVolumeResults.resize( cellResultCount, 0u );
 
 #pragma omp parallel for
-        for ( int nativeResvCellIndex = 0; nativeResvCellIndex < static_cast<int>( m_resultsData->m_ownerMainGrid->globalCellArray().size() );
-              nativeResvCellIndex++ )
+        for ( int nativeResvCellIndex = 0; nativeResvCellIndex < (int)mainGrid->cellCount(); nativeResvCellIndex++ )
         {
             size_t resultIndex = m_resultsData->activeCellInfo()->cellResultIndex( nativeResvCellIndex );
             if ( resultIndex != cvf::UNDEFINED_SIZE_T )

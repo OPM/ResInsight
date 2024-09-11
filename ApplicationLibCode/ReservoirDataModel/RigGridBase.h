@@ -52,12 +52,23 @@ public:
     size_t cellCountJ() const override;
     size_t cellCountK() const override;
 
-    virtual size_t         cellCount() const;
-    virtual RigCell&       cell( size_t actualCellIndex );
-    virtual const RigCell& cell( size_t actualCellIndex ) const;
+    virtual size_t cellCount() const; // number of cells in the cell array, could be different from countI x countJ x countK
 
-    virtual size_t globalToActualCellIndex( size_t globalCellIndex ) const;
-    virtual size_t actualToGlobalCellIndex( size_t actualCellIndex ) const;
+    virtual size_t globalCellCount() const; // number of cells in the global grid (countI x countJ x countK)
+
+    // Cell index naming:
+    // - global cell index is the cell index in the IJK global grid
+    // - native cell index is the cell index in the cell array, which is the same index if all cells are present,
+    //    but could be different if i.e. only active cells are loaded
+
+    virtual RigCell&       cell( size_t globalCellIndex );
+    virtual const RigCell& cell( size_t globalCellIndex ) const;
+
+    virtual RigCell&       nativeCell( size_t nativeCellIndex ) { return cell( nativeCellIndex ); };
+    virtual const RigCell& nativeCell( size_t nativeCellIndex ) const { return cell( nativeCellIndex ); };
+
+    virtual size_t globalCellIndexToNative( size_t globalCellIndex ) const { return globalCellIndex; };
+    virtual size_t nativeCellIndexToGlobal( size_t nativeIndex ) const { return nativeIndex; };
 
     void characteristicCellSizes( double* iSize, double* jSize, double* kSize ) const override;
 

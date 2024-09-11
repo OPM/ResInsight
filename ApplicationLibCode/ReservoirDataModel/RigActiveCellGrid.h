@@ -44,8 +44,11 @@ public:
     RigCell&       cell( size_t gridLocalCellIndex ) override;
     const RigCell& cell( size_t gridLocalCellIndex ) const override;
 
-    size_t globalToActualCellIndex( size_t globalCellIndex ) const override;
-    size_t actualToGlobalCellIndex( size_t actualCellIndex ) const override;
+    RigCell&       nativeCell( size_t nativeCellIndex ) override;
+    const RigCell& nativeCell( size_t nativeCellIndex ) const override;
+
+    size_t globalCellIndexToNative( size_t globalCellIndex ) const override;
+    size_t nativeCellIndexToGlobal( size_t nativeCellIndex ) const override;
 
     size_t cellCount() const override;
 

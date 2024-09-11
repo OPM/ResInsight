@@ -45,10 +45,10 @@ TEST( RigEclipseWellLogExtractor, ShortWellPathInsideOneCell )
         reservoir->mainGrid()->computeCachedData();
     }
 
-    auto cells = reservoir->mainGrid()->globalCellArray();
+    auto cells = reservoir->mainGrid()->reservoirCells();
     EXPECT_FALSE( cells.empty() );
 
-    auto firstCell = reservoir->mainGrid()->globalCellArray()[0];
+    auto firstCell = reservoir->mainGrid()->cell( 0 );
     auto center    = firstCell.center();
 
     cvf::ref<RigWellPath> wellPathGeometry = new RigWellPath;

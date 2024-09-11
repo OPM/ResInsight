@@ -197,7 +197,6 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate( RigMainGrid*           
                                                          std::vector<const std::vector<double>*> flowrateNNCatAllTimeSteps,
                                                          std::vector<std::vector<double>>        summedTracersAtAllTimesteps )
 {
-    // size_t totalNumberOfCells = mainGrid->globalCellArray().size();
     RigActiveCellInfo* actCellInfo     = caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
     size_t             resultCellCount = actCellInfo->reservoirActiveCellCount();
 
@@ -330,15 +329,15 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow( RigMa
 {
     RigActiveCellInfo* actCellInfo = caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-    for ( size_t globalCellIndex = 0; globalCellIndex < mainGrid->globalCellArray().size(); globalCellIndex++ )
+    for ( size_t nativeCellIndex = 0; nativeCellIndex < mainGrid->cellCount(); nativeCellIndex++ )
     {
-        if ( !actCellInfo->isActive( globalCellIndex ) ) continue;
+        if ( !actCellInfo->isActive( nativeCellIndex ) ) continue;
 
-        const RigCell& cell               = mainGrid->globalCellArray()[globalCellIndex];
+        const RigCell& cell               = mainGrid->nativeCell( nativeCellIndex );
         RigGridBase*   hostGrid           = cell.hostGrid();
         size_t         gridLocalCellIndex = cell.gridLocalCellIndex();
 
-        size_t cellResultIndex = actCellInfo->cellResultIndex( globalCellIndex );
+        size_t cellResultIndex = actCellInfo->cellResultIndex( nativeCellIndex );
 
         size_t i, j, k;
         hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );

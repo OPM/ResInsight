@@ -84,9 +84,9 @@ RigCell& RigGridBase::cell( size_t gridLocalCellIndex )
 {
     CVF_ASSERT( m_mainGrid );
 
-    CVF_ASSERT( m_indexToStartOfCells + gridLocalCellIndex < m_mainGrid->globalCellArray().size() );
+    CVF_ASSERT( m_indexToStartOfCells + gridLocalCellIndex < m_mainGrid->globalCellCount() );
 
-    return m_mainGrid->globalCellArray()[m_indexToStartOfCells + gridLocalCellIndex];
+    return m_mainGrid->reservoirCells()[m_indexToStartOfCells + gridLocalCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,23 +96,9 @@ const RigCell& RigGridBase::cell( size_t gridLocalCellIndex ) const
 {
     CVF_ASSERT( m_mainGrid );
 
-    return m_mainGrid->globalCellArray()[m_indexToStartOfCells + gridLocalCellIndex];
-}
+    CVF_ASSERT( m_indexToStartOfCells + gridLocalCellIndex < m_mainGrid->globalCellCount() );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RigGridBase::globalToActualCellIndex( size_t globalCellIndex ) const
-{
-    return globalCellIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RigGridBase::actualToGlobalCellIndex( size_t actualCellIndex ) const
-{
-    return actualCellIndex;
+    return m_mainGrid->reservoirCells()[m_indexToStartOfCells + gridLocalCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -564,6 +550,14 @@ size_t RigGridBase::cellCountK() const
 //--------------------------------------------------------------------------------------------------
 size_t RigGridBase::cellCount() const
 {
+    return globalCellCount();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigGridBase::globalCellCount() const
+{
     return cellCountI() * cellCountJ() * cellCountK();
 }
 
@@ -612,8 +606,9 @@ bool RigGridCellFaceVisibilityFilter::isFaceVisible( size_t                     
         return false;
     }
 
+    auto nativeCellIndex = m_grid->globalCellIndexToNative( neighborCellIndex );
     // If the neighbour cell is invisible, we need to draw the face
-    if ( ( cellVisibility != nullptr ) && !( *cellVisibility )[neighborCellIndex] )
+    if ( ( cellVisibility != nullptr ) && !( *cellVisibility )[nativeCellIndex] )
     {
         return true;
     }

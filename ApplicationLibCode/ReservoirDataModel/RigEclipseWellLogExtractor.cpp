@@ -77,7 +77,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
         cvf::Vec3d hexCorners[8];
         for ( const auto& globalCellIndex : closeCellIndices )
         {
-            const RigCell& cell = m_caseData->mainGrid()->globalCellArray()[globalCellIndex];
+            const RigCell& cell = m_caseData->mainGrid()->cell( globalCellIndex );
 
             if ( cell.isInvalid() || cell.subGrid() != nullptr ) continue;
 
@@ -123,7 +123,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
             cvf::Vec3d hexCorners[8];
             for ( const auto& globalCellIndex : closeCellIndices )
             {
-                const RigCell& cell = m_caseData->mainGrid()->globalCellArray()[globalCellIndex];
+                const RigCell& cell = m_caseData->mainGrid()->cell( globalCellIndex );
 
                 if ( cell.isInvalid() ) continue;
 

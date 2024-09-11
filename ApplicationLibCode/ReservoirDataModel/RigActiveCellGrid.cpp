@@ -21,6 +21,8 @@
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
 
+#include "cvfAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -155,6 +157,8 @@ void RigActiveCellGrid::transferActiveInformation( int                     gridI
 //--------------------------------------------------------------------------------------------------
 RigCell& RigActiveCellGrid::cell( size_t gridLocalCellIndex )
 {
+    CVF_ASSERT( gridLocalCellIndex < m_globalToActiveMap.size() );
+
     const auto index = m_globalToActiveMap[gridLocalCellIndex];
     return m_cells[index];
 }
@@ -164,6 +168,8 @@ RigCell& RigActiveCellGrid::cell( size_t gridLocalCellIndex )
 //--------------------------------------------------------------------------------------------------
 const RigCell& RigActiveCellGrid::cell( size_t gridLocalCellIndex ) const
 {
+    CVF_ASSERT( gridLocalCellIndex < m_globalToActiveMap.size() );
+
     const auto index = m_globalToActiveMap[gridLocalCellIndex];
     return m_cells[index];
 }
@@ -171,17 +177,41 @@ const RigCell& RigActiveCellGrid::cell( size_t gridLocalCellIndex ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigActiveCellGrid::globalToActualCellIndex( size_t globalCellIndex ) const
+RigCell& RigActiveCellGrid::nativeCell( size_t nativeCellIndex )
 {
+    CVF_ASSERT( nativeCellIndex < m_cells.size() );
+
+    return m_cells[nativeCellIndex];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RigCell& RigActiveCellGrid::nativeCell( size_t nativeCellIndex ) const
+{
+    CVF_ASSERT( nativeCellIndex < m_cells.size() );
+
+    return m_cells[nativeCellIndex];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigActiveCellGrid::globalCellIndexToNative( size_t globalCellIndex ) const
+{
+    CVF_ASSERT( globalCellIndex < m_globalToActiveMap.size() );
+
     return m_globalToActiveMap[globalCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigActiveCellGrid::actualToGlobalCellIndex( size_t actualCellIndex ) const
+size_t RigActiveCellGrid::nativeCellIndexToGlobal( size_t nativeCellIndex ) const
 {
-    return m_activeToGlobalMap[actualCellIndex];
+    CVF_ASSERT( nativeCellIndex < m_globalToActiveMap.size() );
+
+    return m_activeToGlobalMap[nativeCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------

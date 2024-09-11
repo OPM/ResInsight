@@ -75,7 +75,7 @@ void RigReservoirBuilder::createGridsAndCells( RigEclipseCaseData* eclipseCase )
     size_t mainGridCellCount = mainGridNodeCount / 8;
 
     // Must create cells in main grid here, as this information is used when creating LGRs
-    appendCells( 0, mainGridCellCount, eclipseCase->mainGrid(), eclipseCase->mainGrid()->globalCellArray() );
+    appendCells( 0, mainGridCellCount, eclipseCase->mainGrid(), eclipseCase->mainGrid()->reservoirCells() );
 
     size_t totalCellCount = mainGridCellCount;
 
@@ -125,7 +125,7 @@ void RigReservoirBuilder::createGridsAndCells( RigEclipseCaseData* eclipseCase )
         size_t           cellIdx;
         for ( cellIdx = 0; cellIdx < mainGridIndicesWithSubGrid.size(); cellIdx++ )
         {
-            RigCell& cell = eclipseCase->mainGrid()->globalCellArray()[mainGridIndicesWithSubGrid[cellIdx]];
+            RigCell& cell = eclipseCase->mainGrid()->cell( mainGridIndicesWithSubGrid[cellIdx] );
 
             std::array<size_t, 8>& indices = cell.cornerIndices();
             int                    nodeIdx;
@@ -141,7 +141,7 @@ void RigReservoirBuilder::createGridsAndCells( RigEclipseCaseData* eclipseCase )
         appendNodes( bb.min(), bb.max(), lgrCellDimensions, mainGridNodes );
 
         size_t subGridCellCount = ( mainGridNodes.size() / 8 ) - totalCellCount;
-        appendCells( totalCellCount * 8, subGridCellCount, localGrid, eclipseCase->mainGrid()->globalCellArray() );
+        appendCells( totalCellCount * 8, subGridCellCount, localGrid, eclipseCase->mainGrid()->reservoirCells() );
         totalCellCount += subGridCellCount;
     }
 
@@ -149,14 +149,14 @@ void RigReservoirBuilder::createGridsAndCells( RigEclipseCaseData* eclipseCase )
 
     // Set all cells active
     RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    activeCellInfo->setReservoirCellCount( eclipseCase->mainGrid()->globalCellArray().size() );
-    for ( size_t i = 0; i < eclipseCase->mainGrid()->globalCellArray().size(); i++ )
+    activeCellInfo->setReservoirCellCount( eclipseCase->mainGrid()->cellCount() );
+    for ( size_t i = 0; i < eclipseCase->mainGrid()->cellCount(); i++ )
     {
         activeCellInfo->setCellResultIndex( i, i );
     }
 
     activeCellInfo->setGridCount( 1 );
-    activeCellInfo->setGridActiveCellCounts( 0, eclipseCase->mainGrid()->globalCellArray().size() );
+    activeCellInfo->setGridActiveCellCounts( 0, eclipseCase->mainGrid()->cellCount() );
     activeCellInfo->computeDerivedData();
 
     bool useOptimizedVersion = false; // workaround, optimized version causes assert in debug builds

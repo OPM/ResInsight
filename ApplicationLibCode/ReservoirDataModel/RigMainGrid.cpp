@@ -87,22 +87,6 @@ const std::vector<RigCell>& RigMainGrid::reservoirCells() const
     return m_cells;
 }
 
-////--------------------------------------------------------------------------------------------------
-/////
-////--------------------------------------------------------------------------------------------------
-// std::vector<RigCell>& RigMainGrid::globalCellArray()
-//{
-//     return m_cells;
-// }
-//
-////--------------------------------------------------------------------------------------------------
-/////
-////--------------------------------------------------------------------------------------------------
-// const std::vector<RigCell>& RigMainGrid::globalCellArray() const
-//{
-//     return m_cells;
-// }
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -535,7 +519,7 @@ void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
     std::vector<RigFault::FaultFace>& unNamedFaultFacesInactive = unNamedFaultWithInactive->faultFaces();
     for ( size_t i = 0; i < cellCount(); i++ )
     {
-        const auto globIndex = actualToGlobalCellIndex( i );
+        const auto globIndex = nativeCellIndexToGlobal( i );
         addUnNamedFaultFaces( (int)globIndex,
                               activeCellInfo,
                               vxs,
@@ -608,7 +592,7 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
                 continue;
             }
 
-            auto activeNeighborCellIndex = hostGrid->globalToActualCellIndex( neighborGridCellIdx );
+            auto activeNeighborCellIndex = hostGrid->globalCellIndexToNative( neighborGridCellIdx );
             bool isNeighborCellActive    = activeCellInfo->isActive( activeNeighborCellIndex );
 
             double tolerance = 1e-6;

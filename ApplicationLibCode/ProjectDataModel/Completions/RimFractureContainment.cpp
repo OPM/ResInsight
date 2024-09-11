@@ -93,10 +93,10 @@ bool RimFractureContainment::isEclipseCellOpenForFlow( const RigMainGrid*      m
     {
         CVF_ASSERT( mainGrid );
 
-        // if ( globalCellIndex >= mainGrid->globalCellArray().size() ) return false;
+        if ( globalCellIndex >= mainGrid->globalCellCount() ) return false;
 
-        auto cell              = mainGrid->cell( globalCellIndex );
-        auto mainGridCellIndex = cell.mainGridCellIndex();
+        auto& cell              = mainGrid->cell( globalCellIndex );
+        auto  mainGridCellIndex = cell.mainGridCellIndex();
 
         size_t i, j, k;
         mainGrid->ijkFromCellIndex( mainGridCellIndex, &i, &j, &k );
