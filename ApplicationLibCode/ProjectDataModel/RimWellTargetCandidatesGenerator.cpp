@@ -18,14 +18,20 @@
 
 #include "RimWellTargetCandidatesGenerator.h"
 
-// #include "RimEclipseCase.h"
-// #include "RimEclipseCellColors.h"
-// #include "RimEclipseView.h"
-// #include "RimFaultInViewCollection.h"
+#include "RiaLogging.h"
 
-// #include "RiuMainWindow.h"
+#include "RiaPorosityModel.h"
+#include "RigActiveCellInfo.h"
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseResultAddress.h"
+#include "RigMainGrid.h"
 
-// #include "cafPdmUiTreeOrdering.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCaseEnsemble.h"
+
+#include "cafPdmUiPushButtonEditor.h"
+#include "cafVecIjk.h"
+#include <limits>
 
 CAF_PDM_SOURCE_INIT( RimWellTargetCandidatesGenerator, "RimWellTargetCandidatesGenerator" );
 
@@ -40,6 +46,10 @@ RimWellTargetCandidatesGenerator::RimWellTargetCandidatesGenerator()
     CAF_PDM_InitField( &m_pressure, "Pressure", 0.0, "Pressure" );
     CAF_PDM_InitField( &m_permeability, "Permeability", 0.0, "Permeability" );
     CAF_PDM_InitField( &m_transmissibility, "Transmissibility", 0.0, "Transmissibility" );
+
+    CAF_PDM_InitField( &m_generateButton, "Generate", false, "Generate" );
+    m_generateButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    m_generateButton.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,91 +62,92 @@ RimWellTargetCandidatesGenerator::~RimWellTargetCandidatesGenerator()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// void RimWellTargetCandidatesGenerator::setReservoirView( RimEclipseView* ownerReservoirView )
-// {
-//     m_reservoirView = ownerReservoirView;
-//     m_customFaultResultColors->setReservoirView( ownerReservoirView );
-// }
+void RimWellTargetCandidatesGenerator::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    if ( changedField == &m_generateButton )
+    {
+        m_generateButton = false;
 
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RimWellTargetCandidatesGenerator::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const
-// QVariant& newValue )
-// {
-//     updateUiIconFromToggleField();
+        generateCandidates();
+    }
+}
 
-//     if ( m_reservoirView ) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-// }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellTargetCandidatesGenerator::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                              QString                    uiConfigName,
+                                                              caf::PdmUiEditorAttribute* attribute )
 
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RimWellTargetCandidatesGenerator::initAfterRead()
-// {
-//     m_customFaultResultColors->initAfterRead();
+{
+    if ( field == &m_generateButton )
+    {
+        auto myAttr          = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        myAttr->m_buttonText = "Generate";
+    }
+}
 
-//     updateUiIconFromToggleField();
-// }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellTargetCandidatesGenerator::generateCandidates()
+{
+    auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
+    if ( !ensemble ) return;
 
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// RimEclipseCellColors* RimWellTargetCandidatesGenerator::customFaultResult()
-// {
-//     return m_customFaultResultColors();
-// }
+    if ( ensemble->cases().empty() ) return;
 
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RimWellTargetCandidatesGenerator::updateUiFieldsFromActiveResult()
-// {
-//     m_customFaultResultColors->updateUiFieldsFromActiveResult();
-// }
+    RimEclipseCase* eclipseCase = ensemble->cases().front();
 
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// caf::PdmFieldHandle* RimWellTargetCandidatesGenerator::objectToggleField()
-// {
-//     return &showCustomFaultResult;
-// }
+    std::optional<caf::VecIjk> startCell = findStartCell( eclipseCase );
 
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RimWellTargetCandidatesGenerator::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
-// {
-//     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup( "Result" );
-//     m_customFaultResultColors->uiOrdering( uiConfigName, *group1 );
-//     auto eclipseView = firstAncestorOfType<RimEclipseView>();
-//     if ( eclipseView )
-//     {
-//         eclipseView->faultCollection()->uiOrderingFaults( uiConfigName, uiOrdering );
-//     }
-// }
+    if ( startCell.has_value() )
+    {
+        RiaLogging::info(
+            QString( "Found start cell: [%1 %2 %3]" ).arg( startCell->i() + 1 ).arg( startCell->j() + 1 ).arg( startCell->k() + 1 ) );
+    }
+    else
+    {
+        RiaLogging::error( "No suitable starting cell found" );
+    }
+}
 
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// bool RimWellTargetCandidatesGenerator::hasValidCustomResult()
-// {
-//     if ( showCustomFaultResult() )
-//     {
-//         if ( m_customFaultResultColors->hasResult() || m_customFaultResultColors->isTernarySaturationSelected() )
-//         {
-//             return true;
-//         }
-//     }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<caf::VecIjk> RimWellTargetCandidatesGenerator::findStartCell( RimEclipseCase* eclipseCase )
+{
+    // TODO: let user choose timestep
+    size_t timeStepIdx = 0;
 
-//     return false;
-// }
+    auto resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    if ( !resultsData )
+    {
+        RiaLogging::error( "No results data found for eclipse case" );
+        return {};
+    }
 
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RimWellTargetCandidatesGenerator::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
-// {
-//     m_customFaultResultColors()->defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
-// }
+    RigEclipseResultAddress soilAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::riPorvSoil() );
+
+    resultsData->ensureKnownResultLoaded( soilAddress );
+    const std::vector<double>& porvSoil = resultsData->cellScalarResults( soilAddress, timeStepIdx );
+
+    size_t startCell         = std::numeric_limits<size_t>::max();
+    double maxValue          = -std::numeric_limits<double>::max();
+    size_t numReservoirCells = resultsData->activeCellInfo()->reservoirCellCount();
+    for ( size_t reservoirCellIdx = 0; reservoirCellIdx < numReservoirCells; reservoirCellIdx++ )
+    {
+        size_t resultIndex = resultsData->activeCellInfo()->cellResultIndex( reservoirCellIdx );
+        if ( resultIndex != cvf::UNDEFINED_SIZE_T )
+        {
+            double value = porvSoil[resultIndex];
+            if ( value > maxValue )
+            {
+                maxValue  = value;
+                startCell = reservoirCellIdx;
+            }
+        }
+    }
+
+    return eclipseCase->mainGrid()->ijkFromCellIndex( startCell );
+}

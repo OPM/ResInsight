@@ -22,6 +22,11 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafVecIjk.h"
+
+#include "RimEclipseCase.h"
+
+#include <optional>
 
 //==================================================================================================
 ///
@@ -36,9 +41,12 @@ public:
     ~RimWellTargetCandidatesGenerator() override;
 
 protected:
-    // void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    // void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    // void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+
+    void generateCandidates();
+
+    std::optional<caf::VecIjk> findStartCell( RimEclipseCase* eclipseCase );
 
 private:
     caf::PdmField<double> m_volume;
@@ -46,6 +54,5 @@ private:
     caf::PdmField<double> m_permeability;
     caf::PdmField<double> m_transmissibility;
 
-    // caf::PdmChildField<RimEclipseCellColors*> m_customFaultResultColors;
-    // caf::PdmPointer<RimEclipseView>           m_reservoirView;
+    caf::PdmField<bool> m_generateButton;
 };
