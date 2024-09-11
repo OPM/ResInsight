@@ -101,7 +101,7 @@ void RigPorvSoilSgasResultCalculator::calculateSum( const RigEclipseResultAddres
 void RigPorvSoilSgasResultCalculator::calculate( const RigEclipseResultAddress&          in1Addr,
                                                  const RigEclipseResultAddress&          in2Addr,
                                                  const RigEclipseResultAddress&          outAddr,
-                                                 std::function<double( double, double )> op )
+                                                 std::function<double( double, double )> operation )
 {
     size_t in1Idx = m_resultsData->findOrLoadKnownScalarResult( in1Addr );
     size_t in2Idx = m_resultsData->findOrLoadKnownScalarResult( in2Addr );
@@ -132,7 +132,7 @@ void RigPorvSoilSgasResultCalculator::calculate( const RigEclipseResultAddress& 
             {
                 size_t idx1             = res1ActiveOnly ? resultIndex : nativeResvCellIndex;
                 size_t idx2             = res2ActiveOnly ? resultIndex : nativeResvCellIndex;
-                outResults[resultIndex] = op( in1Results[idx1], in2Results[idx2] );
+                outResults[resultIndex] = operation( in1Results[idx1], in2Results[idx2] );
             }
         }
     }

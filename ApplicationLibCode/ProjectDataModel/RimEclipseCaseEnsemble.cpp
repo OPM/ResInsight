@@ -22,6 +22,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
+#include "RimWellTargetCandidatesGenerator.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -49,6 +50,8 @@ RimEclipseCaseEnsemble::RimEclipseCaseEnsemble()
 
     CAF_PDM_InitFieldNoDefault( &m_viewCollection, "ViewCollection", "Views" );
     m_viewCollection = new RimEclipseViewCollection;
+
+    CAF_PDM_InitFieldNoDefault( &m_wellTargetGenerators, "WellTargetGenerators", "Well Target Candidates Generators" );
 
     setDeletable( true );
 }
@@ -169,6 +172,7 @@ void RimEclipseCaseEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* change
 void RimEclipseCaseEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicNewViewForGridEnsembleFeature";
+    menuBuilder << "RicNewWellTargetCandidatesGeneratorFeature";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,4 +181,12 @@ void RimEclipseCaseEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBu
 RimEclipseViewCollection* RimEclipseCaseEnsemble::viewCollection() const
 {
     return m_viewCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCaseEnsemble::addWellTargetsGenerator( RimWellTargetCandidatesGenerator* generator )
+{
+    m_wellTargetGenerators.push_back( generator );
 }
