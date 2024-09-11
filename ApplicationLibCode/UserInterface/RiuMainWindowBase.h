@@ -117,6 +117,8 @@ protected:
 
     virtual QStringList windowsMenuFeatureNames() = 0;
 
+    void showEvent( QShowEvent* event ) override;
+
 protected slots:
     void slotDockWidgetToggleViewActionTriggered();
     void slotRefreshHelpActions();
@@ -156,6 +158,7 @@ private:
     bool                                                      m_showFirstVisibleWindowMaximized;
     bool                                                      m_blockSubWindowActivation;
     bool                                                      m_blockSubWindowProjectTreeSelection;
+    bool                                                      m_hasBeenVisible;
 
     ads::CDockManager* m_dockManager;
 };
