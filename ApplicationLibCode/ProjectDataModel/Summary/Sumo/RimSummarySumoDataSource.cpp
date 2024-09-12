@@ -175,15 +175,36 @@ void RimSummarySumoDataSource::defineEditorAttribute( const caf::PdmFieldHandle*
 void RimSummarySumoDataSource::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     auto group = uiOrdering.addNewGroup( "General" );
+
     group->add( nameField() );
+    nameField()->uiCapability()->setUiReadOnly( true );
+
     group->add( &m_caseId );
+    m_caseId.uiCapability()->setUiReadOnly( true );
+
     group->add( &m_caseName );
+    m_caseName.uiCapability()->setUiReadOnly( true );
+
     group->add( &m_ensembleName );
+    m_ensembleName.uiCapability()->setUiReadOnly( true );
+
     group->add( &m_customName );
 
     auto summaryInfo = uiOrdering.addNewGroup( "Info" );
+    summaryInfo->setCollapsedByDefault();
     summaryInfo->add( &m_realizationInfo );
     summaryInfo->add( &m_vectorNames );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummarySumoDataSource::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    if ( changedField == &m_customName )
+    {
+        updateName();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
