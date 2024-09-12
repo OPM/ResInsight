@@ -579,7 +579,7 @@ void RiuPlotMainWindow::createDockPanels()
 
     auto leftPropertyView = createPropertyView( "Property Editor", RiuDockWidgetTools::plotMainWindowPropertyEditorName(), leftArea );
     auto rightPropertyView =
-        createPropertyView( "Property Editor (Right)", RiuDockWidgetTools::plotMainWindowPropertyEditorRightName(), rightArea );
+        createPropertyView( "Data Source Property Editor", RiuDockWidgetTools::plotMainWindowPropertyEditorRightName(), rightArea );
 
     // Connect project trees with property views
     for ( int i = 0; i < nTreeViews; i++ )
