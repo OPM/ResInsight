@@ -153,6 +153,10 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
                 QString highlightColor = UiAppearanceSettings::instance()->autoValueEditorColor();
                 m_lineEdit->setStyleSheet( QString( "QLineEdit {background-color: %1;}" ).arg( highlightColor ) );
             }
+            else if ( uiField()->isUiReadOnly() )
+            {
+                m_lineEdit->setStyleSheet( "QLineEdit:read-only{background: palette(window);}" );
+            }
             else
             {
                 m_lineEdit->setStyleSheet( "" );
