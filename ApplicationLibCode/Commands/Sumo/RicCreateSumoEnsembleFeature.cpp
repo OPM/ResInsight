@@ -19,12 +19,10 @@
 #include "RicCreateSumoEnsembleFeature.h"
 
 #include "RiaDefines.h"
-#include "RiaSummaryTools.h"
 
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
-#include "RimSummaryCaseMainCollection.h"
-#include "Sumo/RimSummaryEnsembleSumo.h"
+#include "Cloud/RimCloudDataSourceCollection.h"
 #include "Sumo/RimSummarySumoDataSource.h"
 
 #include "cafSelectionManagerTools.h"
@@ -39,18 +37,8 @@ CAF_CMD_SOURCE_INIT( RicCreateSumoEnsembleFeature, "RicCreateSumoEnsembleFeature
 void RicCreateSumoEnsembleFeature::onActionTriggered( bool isChecked )
 {
     auto dataSources = caf::selectedObjectsByType<RimSummarySumoDataSource*>();
-    for ( auto dataSource : dataSources )
-    {
-        RimSummaryEnsembleSumo* ensemble = new RimSummaryEnsembleSumo();
-        ensemble->setSumoDataSource( dataSource );
-        ensemble->updateName();
-        RiaSummaryTools::summaryCaseMainCollection()->addEnsemble( ensemble );
-        ensemble->loadDataAndUpdate();
 
-        RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( {}, { ensemble } );
-    }
-
-    RiaSummaryTools::summaryCaseMainCollection()->updateAllRequiredEditors();
+    RimCloudDataSourceCollection::createEnsemblesFromSelectedDataSources( dataSources );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,6 +46,6 @@ void RicCreateSumoEnsembleFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicCreateSumoEnsembleFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Create Sumo Ensemble" + RiaDefines::betaFeaturePostfix() );
+    actionToSetup->setText( "Create Ensemble Plot" + RiaDefines::betaFeaturePostfix() );
     actionToSetup->setIcon( QIcon( ":/SummaryEnsemble.svg" ) );
 }

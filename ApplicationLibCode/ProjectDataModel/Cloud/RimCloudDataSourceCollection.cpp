@@ -19,9 +19,14 @@
 #include "RimCloudDataSourceCollection.h"
 
 #include "RiaApplication.h"
+#include "RiaSummaryTools.h"
+
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimSummaryCaseMainCollection.h"
+#include "Sumo/RimSummaryEnsembleSumo.h"
 #include "Sumo/RimSummarySumoDataSource.h"
 
 #include "RiuPlotMainWindowTools.h"
@@ -44,7 +49,10 @@ RimCloudDataSourceCollection::RimCloudDataSourceCollection()
     CAF_PDM_InitFieldNoDefault( &m_sumoEnsembleNames, "SumoEnsembleNames", "Ensembles" );
     m_sumoEnsembleNames.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_addEnsembles, "AddEnsembles", "" );
+    CAF_PDM_InitFieldNoDefault( &m_addDataSources, "AddDataSources", "", "", "Add Data Sources without Ensembles" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_addDataSources );
+
+    CAF_PDM_InitFieldNoDefault( &m_addEnsembles, "AddEnsembles", "", "", "Add Data Sources and Create Summary Ensemble Plots" );
     caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_addEnsembles );
 
     CAF_PDM_InitFieldNoDefault( &m_sumoDataSources, "SumoDataSources", "Sumo Data Sources" );
@@ -71,6 +79,25 @@ std::vector<RimSummarySumoDataSource*> RimCloudDataSourceCollection::sumoDataSou
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCloudDataSourceCollection::createEnsemblesFromSelectedDataSources( const std::vector<RimSummarySumoDataSource*>& dataSources )
+{
+    for ( auto dataSource : dataSources )
+    {
+        RimSummaryEnsembleSumo* ensemble = new RimSummaryEnsembleSumo();
+        ensemble->setSumoDataSource( dataSource );
+        ensemble->updateName();
+        RiaSummaryTools::summaryCaseMainCollection()->addEnsemble( ensemble );
+        ensemble->loadDataAndUpdate();
+
+        RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( {}, { ensemble } );
+    }
+
+    RiaSummaryTools::summaryCaseMainCollection()->updateAllRequiredEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCloudDataSourceCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( !m_sumoConnector ) return;
@@ -88,9 +115,15 @@ void RimCloudDataSourceCollection::fieldChangedByUi( const caf::PdmFieldHandle* 
     }
     if ( changedField == &m_addEnsembles )
     {
-        addEnsemble();
+        addEnsembles();
 
         m_addEnsembles = false;
+    }
+    if ( changedField == &m_addDataSources )
+    {
+        addDataSources();
+
+        m_addDataSources = false;
     }
 }
 
@@ -152,9 +185,13 @@ QList<caf::PdmOptionItemInfo> RimCloudDataSourceCollection::calculateValueOption
 //--------------------------------------------------------------------------------------------------
 void RimCloudDataSourceCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_sumoFieldName );
-    uiOrdering.add( &m_sumoCaseId );
-    uiOrdering.add( &m_sumoEnsembleNames );
+    caf::PdmUiOrdering::LayoutOptions layout = { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 };
+    uiOrdering.add( &m_sumoFieldName, layout );
+    uiOrdering.add( &m_sumoCaseId, layout );
+    uiOrdering.add( &m_sumoEnsembleNames, layout );
+
+    uiOrdering.add( &m_addDataSources, { .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
+    uiOrdering.add( &m_addEnsembles, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,6 +201,13 @@ void RimCloudDataSourceCollection::defineEditorAttribute( const caf::PdmFieldHan
                                                           QString                    uiConfigName,
                                                           caf::PdmUiEditorAttribute* attribute )
 {
+    if ( field == &m_addDataSources )
+    {
+        if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
+        {
+            attrib->m_buttonText = "Add Data Sources(s)";
+        }
+    }
     if ( field == &m_addEnsembles )
     {
         if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
@@ -176,9 +220,11 @@ void RimCloudDataSourceCollection::defineEditorAttribute( const caf::PdmFieldHan
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCloudDataSourceCollection::addEnsemble()
+std::vector<RimSummarySumoDataSource*> RimCloudDataSourceCollection::addDataSources()
 {
-    if ( !m_sumoConnector ) return;
+    if ( !m_sumoConnector ) return {};
+
+    std::vector<RimSummarySumoDataSource*> dataSources;
 
     RimSummarySumoDataSource* objectToSelect = nullptr;
     auto                      sumoCaseId     = SumoCaseId( m_sumoCaseId );
@@ -227,6 +273,7 @@ void RimCloudDataSourceCollection::addEnsemble()
         objectToSelect = dataSource;
 
         m_sumoDataSources.push_back( dataSource );
+        dataSources.push_back( dataSource );
     }
 
     uiCapability()->updateAllRequiredEditors();
@@ -236,4 +283,15 @@ void RimCloudDataSourceCollection::addEnsemble()
         RiuPlotMainWindowTools::setExpanded( objectToSelect );
         RiuPlotMainWindowTools::selectAsCurrentItem( objectToSelect );
     }
+
+    return dataSources;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCloudDataSourceCollection::addEnsembles()
+{
+    auto dataSources = addDataSources();
+    createEnsemblesFromSelectedDataSources( dataSources );
 }

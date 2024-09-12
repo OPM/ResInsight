@@ -44,6 +44,8 @@ public:
 
     std::vector<RimSummarySumoDataSource*> sumoDataSources() const;
 
+    static void createEnsemblesFromSelectedDataSources( const std::vector<RimSummarySumoDataSource*>& dataSources );
+
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
@@ -51,13 +53,15 @@ private:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
-    void addEnsemble();
+    std::vector<RimSummarySumoDataSource*> addDataSources();
+    void                                   addEnsembles();
 
 private:
     caf::PdmField<QString>              m_sumoFieldName;
     caf::PdmField<QString>              m_sumoCaseId;
     caf::PdmField<std::vector<QString>> m_sumoEnsembleNames;
 
+    caf::PdmField<bool>                                m_addDataSources;
     caf::PdmField<bool>                                m_addEnsembles;
     caf::PdmChildArrayField<RimSummarySumoDataSource*> m_sumoDataSources;
 
