@@ -17,7 +17,7 @@ def test_Launch(rips_instance, initialize_test):
 
 def test_EmptyProject(rips_instance, initialize_test):
     cases = rips_instance.project.cases()
-    assert len(cases) is 0
+    assert len(cases) == 0
 
 
 def test_OneCase(rips_instance, initialize_test):
@@ -27,7 +27,7 @@ def test_OneCase(rips_instance, initialize_test):
     assert case.name == "TEST10K_FLT_LGR_NNC"
     assert case.id == 0
     cases = rips_instance.project.cases()
-    assert len(cases) is 1
+    assert len(cases) == 1
 
 
 def test_BoundingBox(rips_instance, initialize_test):
@@ -136,7 +136,7 @@ def test_PdmObject(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=case_path)
     assert case.id == 0
-    assert case.address() is not 0
+    assert case.address() != 0
     assert case.__class__.__name__ == "EclipseCase"
 
 
@@ -163,7 +163,7 @@ def test_replaceCase(rips_instance, initialize_test):
     assert case.name == "TEST10K_FLT_LGR_NNC"
     assert case.id == 0
     cases = rips_instance.project.cases()
-    assert len(cases) is 1
+    assert len(cases) == 1
 
     case.replace(new_grid_file=case_path)
     # Check that the case object has been changed
@@ -171,7 +171,7 @@ def test_replaceCase(rips_instance, initialize_test):
     assert case.id == 0
 
     cases = rips_instance.project.cases()
-    assert len(cases) is 1
+    assert len(cases) == 1
     # Check that retrieving the case object again will yield the changed object
     case = project.case(case_id=0)
     assert case.name == "BRUGGE_0000"

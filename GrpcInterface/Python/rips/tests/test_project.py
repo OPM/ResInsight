@@ -19,7 +19,7 @@ def test_loadProject(rips_instance, initialize_test):
     assert case.name == "TEST10K_FLT_LGR_NNC"
     assert case.id == 0
     cases = rips_instance.project.cases()
-    assert len(cases) is 1
+    assert len(cases) == 1
 
 
 def test_well_log_plots(rips_instance, initialize_test):
