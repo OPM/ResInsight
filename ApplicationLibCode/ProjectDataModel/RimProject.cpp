@@ -52,6 +52,7 @@
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseViewCollection.h"
 #include "RimEnsembleWellLogsCollection.h"
@@ -570,6 +571,7 @@ std::vector<RimCase*> RimProject::allGridCases() const
             {
                 cases.push_back( eclipseCase );
             }
+
             for ( RimIdenticalGridCaseGroup* cg : analysisModels->caseGroups )
             {
                 // Load the Main case of each IdenticalGridCaseGroup
@@ -590,14 +592,22 @@ std::vector<RimCase*> RimProject::allGridCases() const
                     }
                 }
             }
-        }
 
-        RimGeoMechModels* geomModels = oilField->geoMechModels();
-        if ( geomModels )
-        {
-            for ( auto acase : geomModels->cases() )
+            for ( RimEclipseCaseEnsemble* ensemble : analysisModels->caseEnsembles() )
             {
-                cases.push_back( acase );
+                for ( RimEclipseCase* acase : ensemble->cases() )
+                {
+                    cases.push_back( acase );
+                }
+            }
+
+            RimGeoMechModels* geomModels = oilField->geoMechModels();
+            if ( geomModels )
+            {
+                for ( auto acase : geomModels->cases() )
+                {
+                    cases.push_back( acase );
+                }
             }
         }
     }
