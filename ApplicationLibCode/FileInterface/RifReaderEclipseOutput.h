@@ -72,7 +72,7 @@ public:
 
     std::vector<QDateTime> allTimeSteps() const;
 
-    static bool transferGeometry( const ecl_grid_type* mainEclGrid, RigEclipseCaseData* eclipseCase );
+    static bool transferGeometry( const ecl_grid_type* mainEclGrid, RigEclipseCaseData* eclipseCase, bool invalidateLongThinCells );
     static void transferCoarseningInfo( const ecl_grid_type* eclGrid, RigGridBase* grid );
     static void
         importEquilData( const QString& deckFileName, const QString& includeStatementAbsolutePathPrefix, RigEclipseCaseData* eclipseCase );
@@ -111,7 +111,8 @@ private:
                                       RigGridBase*         localGrid,
                                       const ecl_grid_type* localEclGrid,
                                       size_t               matrixActiveStartIndex,
-                                      size_t               fractureActiveStartIndex );
+                                      size_t               fractureActiveStartIndex,
+                                      bool                 invalidateLongPyramidCells );
 
 private:
     QString     m_fileName; // Name of file used to start accessing Eclipse output files

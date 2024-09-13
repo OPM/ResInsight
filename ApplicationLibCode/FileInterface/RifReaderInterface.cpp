@@ -92,6 +92,14 @@ bool RifReaderInterface::onlyLoadActiveCells() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifReaderInterface::invalidateLongThinCells() const
+{
+    return m_readerSettings.invalidateLongThinCells;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifReaderInterface::setTimeStepFilter( const std::vector<size_t>& fileTimeStepIndices )
 {
     m_fileTimeStepIndices = fileTimeStepIndices;

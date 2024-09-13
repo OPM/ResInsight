@@ -55,6 +55,7 @@ public:
     bool    loadAndShowSoil() const;
     bool    autoComputeDepthRelatedProperties() const;
     bool    onlyLoadActiveCells() const;
+    bool    invalidateLongThinCells() const;
 
     RiaDefines::GridModelReader gridModelReader() const;
     void                        setGridModelReaderOverride( const std::string& readerName );
@@ -75,4 +76,5 @@ private:
     caf::PdmField<bool>    m_autoComputeDepthRelatedProperties;
     caf::PdmField<bool>    m_loadAndShowSoil;
     caf::PdmField<bool>    m_onlyLoadActiveCells;
+    caf::PdmField<bool>    m_invalidateLongThinCells;
 };

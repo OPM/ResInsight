@@ -161,7 +161,7 @@ bool RifEclipseInputFileTools::openGridFile( const QString& fileName, RigEclipse
 
         ecl_grid_type* inputGrid = ecl_grid_alloc_GRDECL_kw( nx, ny, nz, zCornKw, coordKw, actNumKw, mapAxesKw );
 
-        RifReaderEclipseOutput::transferGeometry( inputGrid, eclipseCase );
+        RifReaderEclipseOutput::transferGeometry( inputGrid, eclipseCase, false );
 
         if ( readFaultData )
         {

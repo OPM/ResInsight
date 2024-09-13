@@ -36,4 +36,5 @@ struct RifReaderSettings
     bool    importSummaryData;
     QString includeFileAbsolutePathPrefix;
     bool    onlyLoadActiveCells;
+    bool    invalidateLongThinCells;
 };
