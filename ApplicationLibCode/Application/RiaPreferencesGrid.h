@@ -76,5 +76,5 @@ private:
     caf::PdmField<bool>    m_autoComputeDepthRelatedProperties;
     caf::PdmField<bool>    m_loadAndShowSoil;
     caf::PdmField<bool>    m_onlyLoadActiveCells;
-    caf::PdmField<bool>    m_ignoreLongThinCells;
+    caf::PdmField<bool>    m_invalidateLongThinCells;
 };

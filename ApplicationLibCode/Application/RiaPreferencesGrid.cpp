@@ -92,8 +92,8 @@ RiaPreferencesGrid::RiaPreferencesGrid()
     CAF_PDM_InitField( &m_onlyLoadActiveCells, "onlyLoadActiveCells", false, "Only Load Active Cell Geometry (Experimental)" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_onlyLoadActiveCells );
 
-    CAF_PDM_InitField( &m_ignoreLongThinCells, "ignoreLongThinCells", false, "Skip Long, Thin Cells" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_ignoreLongThinCells );
+    CAF_PDM_InitField( &m_invalidateLongThinCells, "invalidateLongThinCells", false, "Skip Long, Thin Cells" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_invalidateLongThinCells );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,7 +112,7 @@ void RiaPreferencesGrid::appendItems( caf::PdmUiOrdering& uiOrdering )
     auto newCBGroup = uiOrdering.addNewGroup( "Behavior When Loading Data" );
     newCBGroup->add( &m_autoComputeDepthRelatedProperties );
     newCBGroup->add( &m_loadAndShowSoil );
-    newCBGroup->add( &m_ignoreLongThinCells );
+    newCBGroup->add( &m_invalidateLongThinCells );
 
     auto faultGrp = uiOrdering.addNewGroup( "Fault Import" );
 
@@ -182,7 +182,7 @@ RifReaderSettings RiaPreferencesGrid::readerSettings()
                           true, // import summary data
                           m_includeFileAbsolutePathPrefix,
                           m_onlyLoadActiveCells,
-                          m_ignoreLongThinCells };
+                          m_invalidateLongThinCells };
     return rs;
 }
 
@@ -271,7 +271,7 @@ bool RiaPreferencesGrid::onlyLoadActiveCells() const
 //--------------------------------------------------------------------------------------------------
 bool RiaPreferencesGrid::invalidateLongThinCells() const
 {
-    return m_ignoreLongThinCells;
+    return m_invalidateLongThinCells;
 }
 
 //--------------------------------------------------------------------------------------------------
