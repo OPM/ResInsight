@@ -266,6 +266,7 @@ protected:
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
 
     void setCameraPosition( const cvf::Mat4d& cameraPosition ) override;
+    void setCameraPointOfInterest( const cvf::Vec3d& cameraPointOfInterest ) override;
 
 protected:
     // Timestep Field. Children clamps this differently
@@ -294,9 +295,6 @@ private:
 
     // Implementation of RimNameConfigHolderInterface
     void performAutoNameUpdate() final;
-
-    // Implementation of RiuViewerToViewInterface
-    void setCameraPointOfInterest( const cvf::Vec3d& cameraPointOfInterest ) override;
 
     void endAnimation() override;
 

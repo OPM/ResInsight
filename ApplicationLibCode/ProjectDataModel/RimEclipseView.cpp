@@ -47,6 +47,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
+#include "RimCameraPosition.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
@@ -147,6 +148,7 @@ RimEclipseView::RimEclipseView()
     CAF_PDM_InitFieldNoDefault( &m_customEclipseCase_OBSOLETE, "CustomEclipseCase", "Custom Case" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
+    CAF_PDM_InitField( &m_storeViewSettingsPerCase, "StoreViewSettingsPerCase", false, "Store View Settings for Case" );
 
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_cellResult, "GridCellResult", "CellResult", "Cell Result", ":/CellResult.png" );
     m_cellResult = new RimEclipseCellColors();
@@ -217,6 +219,8 @@ RimEclipseView::RimEclipseView()
     m_additionalResultsForResultInfo->setEclipseView( this );
 
     m_cellResult()->setAdditionalUiTreeObjects( { m_additionalResultsForResultInfo() } );
+
+    CAF_PDM_InitFieldNoDefault( &m_cameraPositions, "CameraPositions", "Camera Positions for Cases" );
 
     setDeletable( true );
 
@@ -397,6 +401,55 @@ void RimEclipseView::propagateEclipseCaseToChildObjects()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseView::storeCurrentAndApplyNewCameraPosition( RimEclipseCase* currentCase, RimEclipseCase* newCase )
+{
+    auto settingsForCases = m_cameraPositions.childrenByType();
+
+    // Propagate viewer UI settings to RimEclipseView before accessing camera positions
+    setupBeforeSave();
+
+    auto findSettingsForCase = [&]( RimEclipseCase* eclipseCase ) -> RimCameraPosition*
+    {
+        for ( auto settingsForCase : settingsForCases )
+        {
+            if ( settingsForCase->eclipseCase() == eclipseCase )
+            {
+                return settingsForCase;
+            }
+        }
+        return nullptr;
+    };
+
+    if ( currentCase )
+    {
+        RimCameraPosition* settingsForCurrentCase = findSettingsForCase( currentCase );
+        if ( !settingsForCurrentCase )
+        {
+            settingsForCurrentCase = new RimCameraPosition;
+            settingsForCurrentCase->setEclipseCase( currentCase );
+            m_cameraPositions.push_back( settingsForCurrentCase );
+        }
+
+        settingsForCurrentCase->setCameraPosition( cameraPosition() );
+        settingsForCurrentCase->setCameraPointOfInterest( cameraPointOfInterest() );
+    }
+
+    if ( newCase )
+    {
+        if ( RimCameraPosition* settingsForNewCase = findSettingsForCase( newCase ) )
+        {
+            viewer()->mainCamera()->setViewMatrix( settingsForNewCase->cameraPosition() );
+            viewer()->setPointOfInterest( settingsForNewCase->cameraPointOfInterest() );
+            return;
+        }
+    }
+
+    zoomAll();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimGridView::fieldChangedByUi( changedField, oldValue, newValue );
@@ -410,7 +463,15 @@ void RimEclipseView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
         updateGridBoxData();
         updateAnnotationItems();
 
-        zoomAll();
+        if ( m_storeViewSettingsPerCase() )
+        {
+            auto currentEclipseCase = dynamic_cast<RimEclipseCase*>( oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr() );
+            storeCurrentAndApplyNewCameraPosition( currentEclipseCase, m_eclipseCase );
+        }
+        else
+        {
+            zoomAll();
+        }
 
         return;
     }
@@ -1564,6 +1625,8 @@ void RimEclipseView::updateLegendRangesTextAndVisibility( RimRegularLegendConfig
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::setEclipseCase( RimEclipseCase* reservoir )
 {
+    // TODO: How should we manage the view settings? See storeCurrentAndApplyNewCameraPosition()
+
     m_eclipseCase = reservoir;
 
     propagateEclipseCaseToChildObjects();
@@ -1900,7 +1963,13 @@ const std::vector<RivCellSetEnum>& RimEclipseView::visibleGridParts() const
 void RimEclipseView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     // Only show case option when not under a case in the project tree.
-    if ( !firstAncestorOrThisOfType<RimEclipseCase>() ) uiOrdering.add( &m_eclipseCase );
+    if ( !firstAncestorOrThisOfType<RimEclipseCase>() )
+    {
+        caf::PdmUiGroup* dataSourceGroup = uiOrdering.addNewGroup( "Data Source" );
+
+        dataSourceGroup->add( &m_eclipseCase );
+        dataSourceGroup->add( &m_storeViewSettingsPerCase );
+    }
 
     Rim3dView::defineUiOrdering( uiConfigName, uiOrdering );
 
