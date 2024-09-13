@@ -183,6 +183,8 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
                                            ? RifOpmRadialGridTools::computeXyCenterForTopOfCells( opmMainGrid, opmMainGrid, activeGrid )
                                            : std::map<int, std::pair<double, double>>();
 
+    const bool invalidateLongPyramidCells = invalidateLongThinCells();
+
     // use same mapping as resdata
     const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 
@@ -230,6 +232,9 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
             cell.cornerIndices()[riCornerIndex] = riNodeIndex;
         }
 
-        cell.setInvalid( cell.isLongPyramidCell() );
+        if ( invalidateLongPyramidCells )
+        {
+            cell.setInvalid( cell.isLongPyramidCell() );
+        }
     }
 }

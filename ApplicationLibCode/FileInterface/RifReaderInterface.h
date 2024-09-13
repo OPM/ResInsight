@@ -58,6 +58,7 @@ public:
     bool          loadWellDataEnabled() const;
     const QString faultIncludeFileAbsolutePathPrefix() const;
     bool          onlyLoadActiveCells() const;
+    bool          invalidateLongThinCells() const;
 
     void setReaderSettings( RifReaderSettings readerSettings );
 

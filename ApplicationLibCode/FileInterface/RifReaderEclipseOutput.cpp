@@ -155,7 +155,8 @@ bool RifReaderEclipseOutput::transferGridCellData( RigMainGrid*         mainGrid
                                                    RigGridBase*         localGrid,
                                                    const ecl_grid_type* localEclGrid,
                                                    size_t               matrixActiveStartIndex,
-                                                   size_t               fractureActiveStartIndex )
+                                                   size_t               fractureActiveStartIndex,
+                                                   bool                 invalidateLongPyramidCells )
 {
     CVF_ASSERT( activeCellInfo && fractureActiveCellInfo );
 
@@ -225,7 +226,10 @@ bool RifReaderEclipseOutput::transferGridCellData( RigMainGrid*         mainGrid
         // Forslag
         // if (!invalid && (cell.isInCoarseCell() || (!cell.isActiveInMatrixModel() &&
         // !cell.isActiveInFractureModel()) ) )
-        cell.setInvalid( cell.isLongPyramidCell() );
+        if ( invalidateLongPyramidCells )
+        {
+            cell.setInvalid( cell.isLongPyramidCell() );
+        }
     }
 
     return true;
@@ -234,7 +238,7 @@ bool RifReaderEclipseOutput::transferGridCellData( RigMainGrid*         mainGrid
 //--------------------------------------------------------------------------------------------------
 /// Read geometry from file given by name into given reservoir object
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::transferGeometry( const ecl_grid_type* mainEclGrid, RigEclipseCaseData* eclipseCase )
+bool RifReaderEclipseOutput::transferGeometry( const ecl_grid_type* mainEclGrid, RigEclipseCaseData* eclipseCase, bool invalidateLongThinCells )
 {
     CVF_ASSERT( eclipseCase );
 
@@ -306,7 +310,7 @@ bool RifReaderEclipseOutput::transferGeometry( const ecl_grid_type* mainEclGrid,
 
     {
         auto task = progInfo.task( "Loading Main Grid Data", 3 );
-        transferGridCellData( mainGrid, activeCellInfo, fractureActiveCellInfo, mainGrid, mainEclGrid, 0, 0 );
+        transferGridCellData( mainGrid, activeCellInfo, fractureActiveCellInfo, mainGrid, mainEclGrid, 0, 0, invalidateLongThinCells );
     }
 
     size_t globalMatrixActiveSize   = ecl_grid_get_nactive( mainEclGrid );
@@ -327,7 +331,14 @@ bool RifReaderEclipseOutput::transferGeometry( const ecl_grid_type* mainEclGrid,
         ecl_grid_type* localEclGrid = ecl_grid_iget_lgr( mainEclGrid, lgrIdx );
         RigLocalGrid*  localGrid    = static_cast<RigLocalGrid*>( mainGrid->gridByIndex( lgrIdx + 1 ) );
 
-        transferGridCellData( mainGrid, activeCellInfo, fractureActiveCellInfo, localGrid, localEclGrid, globalMatrixActiveSize, globalFractureActiveSize );
+        transferGridCellData( mainGrid,
+                              activeCellInfo,
+                              fractureActiveCellInfo,
+                              localGrid,
+                              localEclGrid,
+                              globalMatrixActiveSize,
+                              globalFractureActiveSize,
+                              invalidateLongThinCells );
 
         int matrixActiveCellCount = ecl_grid_get_nactive( localEclGrid );
         globalMatrixActiveSize += matrixActiveCellCount;
@@ -395,7 +406,7 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
 
     {
         auto task = progress.task( "Transferring grid geometry", 10 );
-        if ( !transferGeometry( mainEclGrid, eclipseCaseData ) ) return false;
+        if ( !transferGeometry( mainEclGrid, eclipseCaseData, invalidateLongThinCells() ) ) return false;
 
         RifOpmRadialGridTools::importCoordinatesForRadialGrid( fileName.toStdString(), eclipseCaseData->mainGrid() );
     }

@@ -91,6 +91,9 @@ RiaPreferencesGrid::RiaPreferencesGrid()
 
     CAF_PDM_InitField( &m_onlyLoadActiveCells, "onlyLoadActiveCells", false, "Only Load Active Cell Geometry (Experimental)" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_onlyLoadActiveCells );
+
+    CAF_PDM_InitField( &m_ignoreLongThinCells, "ignoreLongThinCells", false, "Skip Long, Thin Cells" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_ignoreLongThinCells );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,6 +112,7 @@ void RiaPreferencesGrid::appendItems( caf::PdmUiOrdering& uiOrdering )
     auto newCBGroup = uiOrdering.addNewGroup( "Behavior When Loading Data" );
     newCBGroup->add( &m_autoComputeDepthRelatedProperties );
     newCBGroup->add( &m_loadAndShowSoil );
+    newCBGroup->add( &m_ignoreLongThinCells );
 
     auto faultGrp = uiOrdering.addNewGroup( "Fault Import" );
 
@@ -158,7 +162,8 @@ RifReaderSettings RiaPreferencesGrid::gridOnlyReaderSettings()
         true, // skipWellData
         false, // import summary data
         "", // include prefix,
-        false // only active cells
+        false, // only active cells
+        true // ignore long thin cells
     };
     return rs;
 }
@@ -176,7 +181,8 @@ RifReaderSettings RiaPreferencesGrid::readerSettings()
                           m_skipWellData,
                           true, // import summary data
                           m_includeFileAbsolutePathPrefix,
-                          m_onlyLoadActiveCells };
+                          m_onlyLoadActiveCells,
+                          m_ignoreLongThinCells };
     return rs;
 }
 
@@ -258,6 +264,14 @@ bool RiaPreferencesGrid::autoComputeDepthRelatedProperties() const
 bool RiaPreferencesGrid::onlyLoadActiveCells() const
 {
     return m_onlyLoadActiveCells;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesGrid::invalidateLongThinCells() const
+{
+    return m_ignoreLongThinCells;
 }
 
 //--------------------------------------------------------------------------------------------------

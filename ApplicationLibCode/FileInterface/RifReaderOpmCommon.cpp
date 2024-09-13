@@ -414,6 +414,8 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
     size_t cellStartIndex = mainGrid->globalCellArray().size();
     size_t nodeStartIndex = mainGrid->nodes().size();
 
+    const bool invalidateLongPyramidCells = invalidateLongThinCells();
+
     RigCell defaultCell;
     defaultCell.setHostGrid( localGrid );
 
@@ -504,8 +506,10 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
                                                           yCenterCoordOpm );
             }
         }
-
-        cell.setInvalid( cell.isLongPyramidCell() );
+        if ( invalidateLongPyramidCells )
+        {
+            cell.setInvalid( cell.isLongPyramidCell() );
+        }
     }
 
     // subgrid pointers
