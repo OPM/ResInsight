@@ -69,6 +69,7 @@ class RimStreamlineInViewCollection;
 class RimMultipleEclipseResults;
 class RigEclipseResultAddress;
 class RimFaultReactivationModelCollection;
+class RimCameraPosition;
 
 namespace cvf
 {
@@ -220,10 +221,13 @@ private:
     void setVisibleGridPartsWatertight();
 
     void propagateEclipseCaseToChildObjects();
+    void storeCurrentAndApplyNewCameraPosition( RimEclipseCase* previousCase, RimEclipseCase* newCase );
 
 protected:
-    cvf::ref<cvf::ModelBasicList>     m_faultReactVizModel;
+    cvf::ref<cvf::ModelBasicList> m_faultReactVizModel;
+
     caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
+    caf::PdmField<bool>               m_storeViewSettingsPerCase;
 
 private:
     caf::PdmField<bool> m_showInvalidCells;
@@ -255,4 +259,5 @@ private:
     std::vector<RivCellSetEnum> m_visibleGridParts;
 
     caf::PdmChildField<RimMultipleEclipseResults*> m_additionalResultsForResultInfo;
+    caf::PdmChildArrayField<RimCameraPosition*>    m_cameraPositions;
 };
