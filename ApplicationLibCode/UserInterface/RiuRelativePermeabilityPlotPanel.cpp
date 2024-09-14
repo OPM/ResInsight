@@ -164,6 +164,12 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QWidget* par
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuRelativePermeabilityPlotPanel::~RiuRelativePermeabilityPlotPanel()
+{
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuRelativePermeabilityPlotPanel::setPlotDefaults( QwtPlot* plot )
 {
     RiuQwtPlotTools::setCommonPlotBehaviour( plot );

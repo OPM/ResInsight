@@ -46,6 +46,7 @@ class RiuRelativePermeabilityPlotPanel : public QWidget
 
 public:
     RiuRelativePermeabilityPlotPanel( QWidget* parent );
+    ~RiuRelativePermeabilityPlotPanel() override;
 
     void                                setPlotData( RiaDefines::EclipseUnitSystem                                unitSystem,
                                                      const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& relPermCurves,
