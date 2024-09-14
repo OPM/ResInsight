@@ -62,7 +62,9 @@ protected:
     void updateViewWidgetAfterCreation() override;
     void updateViewFollowingCellFilterUpdates() override;
     void onLoadDataAndUpdate() override;
+
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
 
     bool isTimeStepDependentDataVisible() const override;
 

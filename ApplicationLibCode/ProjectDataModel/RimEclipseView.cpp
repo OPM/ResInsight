@@ -516,6 +516,17 @@ void RimEclipseView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseView::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    if ( changedChildField == &m_cellResult )
+    {
+        updateMdiWindowTitle();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseView::onUpdateScaleTransform()
 {
     cvf::Mat4d scale = cvf::Mat4d::IDENTITY;

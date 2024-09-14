@@ -507,6 +507,17 @@ void RimEclipseContourMapView::fieldChangedByUi( const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseContourMapView::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    if ( changedChildField == &m_contourMapProjection )
+    {
+        updateMdiWindowTitle();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimEclipseContourMapView::userDescriptionField()
 {
     return nameConfig()->nameField();
