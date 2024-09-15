@@ -105,6 +105,8 @@ bool RimEclipseCaseEnsemble::contains( RimEclipseCase* reservoir ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEclipseCase*> RimEclipseCaseEnsemble::cases() const
 {
+    if ( !m_caseCollection ) return {};
+
     return m_caseCollection->reservoirs.childrenByType();
 }
 
