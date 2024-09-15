@@ -52,7 +52,9 @@
 #include "RimCommandRouter.h"
 #include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseView.h"
+#include "RimEclipseViewCollection.h"
 #include "RimEnsembleWellLogsCollection.h"
 #include "RimFaultReactivationModelCollection.h"
 #include "RimFileWellPath.h"
@@ -710,6 +712,20 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
                 }
             }
             caseProgress.incrementProgress();
+        }
+    }
+
+    // Load all grid ensemble views
+    {
+        auto gridCaseEnsembles = m_project->activeOilField()->analysisModels()->caseEnsembles.childrenByType();
+
+        for ( auto gridCaseEnsemble : gridCaseEnsembles )
+        {
+            auto views = gridCaseEnsemble->viewCollection()->views();
+            for ( auto view : views )
+            {
+                view->loadDataAndUpdate();
+            }
         }
     }
 
