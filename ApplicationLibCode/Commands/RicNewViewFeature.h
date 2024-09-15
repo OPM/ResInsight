@@ -37,7 +37,7 @@ class RicNewViewFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void addReservoirView( RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase, RimEclipseViewCollection* viewColl );
+    static Rim3dView* addReservoirView( RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase, RimEclipseViewCollection* viewColl );
 
 protected:
     bool isCommandEnabled() const override;

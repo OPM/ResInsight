@@ -24,6 +24,8 @@
 
 #include <vector>
 
+class RimEclipseCaseEnsemble;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -32,7 +34,8 @@ class RicCreateGridCaseEnsemblesFromFilesFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
     RicCreateGridCaseEnsemblesFromFilesFeature()
-        : m_pathFilter( "*" )
+        : caf::CmdFeature()
+        , m_pathFilter( "*" )
         , m_fileNameFilter( "*" )
     {
     }
@@ -41,7 +44,7 @@ protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    void                                                               importSingleGridCaseEnsemble( const QStringList& fileNames );
+    RimEclipseCaseEnsemble*                                            importSingleGridCaseEnsemble( const QStringList& fileNames );
     std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode> runRecursiveFileSearchDialog( const QString& dialogTitle,
                                                                                                      const QString& pathCacheName );
 
