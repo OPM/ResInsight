@@ -46,8 +46,6 @@
 #include "RimCustomObjectiveFunction.h"
 #include "RimCustomObjectiveFunctionCollection.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseFaultColors.h"
@@ -211,18 +209,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
     if ( uiItems.size() == 1 )
     {
-        if ( dynamic_cast<RimEclipseCaseCollection*>( firstUiItem ) )
-        {
-            menuBuilder.subMenuStart( "Import" );
-            menuBuilder << "RicImportEclipseCaseFeature";
-            menuBuilder << "RicImportEclipseCasesFeature";
-            menuBuilder << "RicImportInputEclipseCaseFeature";
-            menuBuilder << "RicCreateGridCaseGroupFromFilesFeature";
-            menuBuilder << "RicCreateGridCaseEnsemblesFromFilesFeature";
-            menuBuilder.subMenuEnd();
-            menuBuilder << "RicEclipseCaseNewGroupFeature";
-        }
-        else if ( dynamic_cast<RimGeoMechView*>( firstUiItem ) )
+        if ( dynamic_cast<RimGeoMechView*>( firstUiItem ) )
         {
             menuBuilder << "RicPasteGeoMechViewsFeature";
             menuBuilder << "Separator";
@@ -263,10 +250,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteEclipseCasesFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewStatisticsCaseFeature";
-        }
-        else if ( dynamic_cast<RimEclipseCaseEnsemble*>( firstUiItem ) )
-        {
-            menuBuilder << "RicNewViewForGridEnsembleFeature";
         }
         else if ( dynamic_cast<RimGeoMechModels*>( firstUiItem ) )
         {

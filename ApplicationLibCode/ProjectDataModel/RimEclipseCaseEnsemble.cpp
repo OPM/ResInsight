@@ -23,6 +23,7 @@
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
@@ -158,6 +159,14 @@ void RimEclipseCaseEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* change
             view->updateAnnotationItems();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCaseEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicNewViewForGridEnsembleFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

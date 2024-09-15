@@ -33,6 +33,8 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimProject.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
+
 CAF_PDM_SOURCE_INIT( RimEclipseCaseCollection, "ResInsightAnalysisModels" );
 //--------------------------------------------------------------------------------------------------
 ///
@@ -108,6 +110,21 @@ void RimEclipseCaseCollection::removeCaseFromAllGroups( RimEclipseCase* reservoi
     }
 
     cases().removeChild( reservoir );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCaseCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder.subMenuStart( "Import" );
+    menuBuilder << "RicImportEclipseCaseFeature";
+    menuBuilder << "RicImportEclipseCasesFeature";
+    menuBuilder << "RicImportInputEclipseCaseFeature";
+    menuBuilder << "RicCreateGridCaseGroupFromFilesFeature";
+    menuBuilder << "RicCreateGridCaseEnsemblesFromFilesFeature";
+    menuBuilder.subMenuEnd();
+    menuBuilder << "RicEclipseCaseNewGroupFeature";
 }
 
 //--------------------------------------------------------------------------------------------------
