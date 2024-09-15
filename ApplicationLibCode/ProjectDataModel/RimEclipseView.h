@@ -187,6 +187,7 @@ protected:
     virtual std::set<RivCellSetEnum> allVisibleFaultGeometryTypes() const;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     QString createAutoName() const override;

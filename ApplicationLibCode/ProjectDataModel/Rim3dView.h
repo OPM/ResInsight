@@ -114,9 +114,10 @@ public:
     virtual RimCase* ownerCase() const = 0;
     RiuViewer*       viewer() const;
 
-    void    setName( const QString& name );
-    QString name() const;
-    QString autoName() const;
+    void               setName( const QString& name );
+    QString            name() const;
+    QString            autoName() const;
+    RimViewNameConfig* nameConfig() const;
 
     virtual RiaDefines::View3dContent viewContent() const = 0;
 
@@ -200,10 +201,9 @@ public:
 protected:
     static void removeModelByName( cvf::Scene* scene, const cvf::String& modelName );
 
-    virtual void       setDefaultView();
-    cvf::Mat4d         cameraPosition() const;
-    cvf::Vec3d         cameraPointOfInterest() const;
-    RimViewNameConfig* nameConfig() const;
+    virtual void setDefaultView();
+    cvf::Mat4d   cameraPosition() const;
+    cvf::Vec3d   cameraPointOfInterest() const;
 
     void disableGridBoxField();
     void disablePerspectiveProjectionField();

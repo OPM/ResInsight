@@ -22,13 +22,16 @@
 #include "RiaImportEclipseCaseTools.h"
 
 #include "RicCreateGridCaseGroupFromFilesFeature.h"
+#include "RicNewViewFeature.h"
 #include "RicRecursiveFileSearchDialog.h"
 
+#include "Rim3dView.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseResultCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimViewNameConfig.h"
 
 #include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
@@ -46,17 +49,34 @@ void RicCreateGridCaseEnsemblesFromFilesFeature::onActionTriggered( bool isCheck
     QString pathCacheName             = "INPUT_FILES";
     auto [fileNames, groupByEnsemble] = runRecursiveFileSearchDialog( "Import Grid Ensembles", pathCacheName );
 
+    std::vector<RimEclipseCaseEnsemble*> gridEnsembles;
+
     if ( groupByEnsemble == RiaEnsembleNameTools::EnsembleGroupingMode::NONE )
     {
-        importSingleGridCaseEnsemble( fileNames );
+        gridEnsembles.push_back( importSingleGridCaseEnsemble( fileNames ) );
     }
     else
     {
         std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( fileNames, groupByEnsemble );
         for ( const QStringList& groupedFileNames : groupedByEnsemble )
         {
-            importSingleGridCaseEnsemble( groupedFileNames );
+            gridEnsembles.push_back( importSingleGridCaseEnsemble( groupedFileNames ) );
         }
+    }
+
+    if ( gridEnsembles.empty() ) return;
+
+    auto firstEnsemble = gridEnsembles.front();
+    if ( firstEnsemble->cases().empty() ) return;
+
+    auto firstCase = firstEnsemble->cases().front();
+    if ( !firstCase ) return;
+
+    auto view = RicNewViewFeature::addReservoirView( firstCase, nullptr, firstEnsemble->viewCollection() );
+    if ( view )
+    {
+        // Show the case name in the view title, as this is useful information for a grid case ensemble
+        view->nameConfig()->setAddCaseName( true );
     }
 }
 
@@ -66,26 +86,26 @@ void RicCreateGridCaseEnsemblesFromFilesFeature::onActionTriggered( bool isCheck
 void RicCreateGridCaseEnsemblesFromFilesFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/CreateGridCaseGroup16x16.png" ) );
-    actionToSetup->setText( "&Create Grid Case Ensembles" );
+    actionToSetup->setText( "&Create Grid Case Ensemble" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateGridCaseEnsemblesFromFilesFeature::importSingleGridCaseEnsemble( const QStringList& fileNames )
+RimEclipseCaseEnsemble* RicCreateGridCaseEnsemblesFromFilesFeature::importSingleGridCaseEnsemble( const QStringList& fileNames )
 {
+    RimProject* project = RimProject::current();
+    CVF_ASSERT( project );
+
+    RimOilField* oilfield = project->activeOilField();
+    if ( !oilfield ) return nullptr;
+
     auto    eclipseCaseEnsemble = new RimEclipseCaseEnsemble;
     QString ensembleNameSuggestion =
         RiaEnsembleNameTools::findSuitableEnsembleName( fileNames, RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
     eclipseCaseEnsemble->setName( ensembleNameSuggestion );
 
     caf::ProgressInfo progInfo( fileNames.size() + 1, "Creating Grid Ensembles" );
-
-    RimProject* project = RimProject::current();
-    CVF_ASSERT( project );
-
-    RimOilField* oilfield = project->activeOilField();
-    if ( !oilfield ) return;
 
     for ( auto caseFileName : fileNames )
     {
@@ -102,6 +122,8 @@ void RicCreateGridCaseEnsemblesFromFilesFeature::importSingleGridCaseEnsemble( c
 
     oilfield->analysisModels()->caseEnsembles.push_back( eclipseCaseEnsemble );
     oilfield->analysisModels()->updateConnectedEditors();
+
+    return eclipseCaseEnsemble;
 }
 
 //--------------------------------------------------------------------------------------------------
