@@ -18,12 +18,15 @@
 
 #include "RiuMenuBarBuildTools.h"
 
-#include "cafCmdFeatureManager.h"
-
-#include "cvfAssert.h"
+#include "RimEclipseCaseCollection.h"
 
 #include "RiuToolTipMenu.h"
 #include "RiuTools.h"
+
+#include "cafCmdFeatureManager.h"
+#include "cafCmdFeatureMenuBuilder.h"
+
+#include "cvfAssert.h"
 
 #include <QMainWindow>
 #include <QMenu>
@@ -113,11 +116,7 @@ void RiuMenuBarBuildTools::addImportMenuWithActions( QObject* parent, QMenu* men
     QMenu* importMenu = menu->addMenu( "&Import" );
 
     QMenu* importEclipseMenu = importMenu->addMenu( QIcon( ":/Case48x48.png" ), "Eclipse Cases" );
-    importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCaseFeature" ) );
-    importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCasesFeature" ) );
-    importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCaseTimeStepFilterFeature" ) );
-    importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportInputEclipseCaseFeature" ) );
-    importEclipseMenu->addAction( cmdFeatureMgr->action( "RicCreateGridCaseGroupFromFilesFeature" ) );
+    caf::CmdFeatureMenuBuilder::appendToMenu( importEclipseMenu, RimEclipseCaseCollection::importMenuFeatureNames() );
 
     QMenu* importRoffMenu = importMenu->addMenu( QIcon( ":/Case48x48.png" ), "Roff Grid Models" );
     importRoffMenu->addAction( cmdFeatureMgr->action( "RicImportRoffCaseFeature" ) );

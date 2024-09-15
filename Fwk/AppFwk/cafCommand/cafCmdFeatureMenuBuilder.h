@@ -58,6 +58,7 @@ public:
     virtual ~CmdFeatureMenuBuilder();
 
     CmdFeatureMenuBuilder& operator<<( const QString& commandIdOrSeparator );
+    CmdFeatureMenuBuilder& operator<<( const QStringList& commandIdOrSeparators );
     CmdFeatureMenuBuilder& addCmdFeature( const QString commandId, const QString& customUiText = "" );
     CmdFeatureMenuBuilder&
         addCmdFeatureWithUserData( const QString commandId, const QString& customUiText, const QVariant& userData );
@@ -68,6 +69,8 @@ public:
     CmdFeatureMenuBuilder& subMenuEnd();
 
     void appendToMenu( QMenu* menu );
+
+    static void appendToMenu( QMenu* menu, const QStringList& commandIds );
 
     bool   isCmdFeatureAdded( const QString& commandId );
     size_t itemCount() const;

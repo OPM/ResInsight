@@ -80,6 +80,19 @@ CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::operator<<( const QString& command
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::operator<<( const QStringList& commandIds )
+{
+    for ( const QString& commandId : commandIds )
+    {
+        *this << commandId;
+    }
+
+    return *this;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::addCmdFeature( const QString commandId, const QString& uiText )
 {
     CAF_ASSERT( !commandId.isEmpty() );
@@ -226,6 +239,16 @@ void CmdFeatureMenuBuilder::appendToMenu( QMenu* menu )
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void CmdFeatureMenuBuilder::appendToMenu( QMenu* menu, const QStringList& commandIds )
+{
+    CmdFeatureMenuBuilder builder;
+    builder << commandIds;
+    builder.appendToMenu( menu );
 }
 
 //--------------------------------------------------------------------------------------------------

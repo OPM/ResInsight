@@ -59,6 +59,8 @@ public:
 
     void recomputeStatisticsForAllCaseGroups();
 
+    static QStringList importMenuFeatureNames();
+
 private:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 

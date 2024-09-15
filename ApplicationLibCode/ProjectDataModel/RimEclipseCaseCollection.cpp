@@ -118,11 +118,7 @@ void RimEclipseCaseCollection::removeCaseFromAllGroups( RimEclipseCase* reservoi
 void RimEclipseCaseCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder.subMenuStart( "Import" );
-    menuBuilder << "RicImportEclipseCaseFeature";
-    menuBuilder << "RicImportEclipseCasesFeature";
-    menuBuilder << "RicImportInputEclipseCaseFeature";
-    menuBuilder << "RicCreateGridCaseGroupFromFilesFeature";
-    menuBuilder << "RicCreateGridCaseEnsemblesFromFilesFeature";
+    menuBuilder << importMenuFeatureNames();
     menuBuilder.subMenuEnd();
     menuBuilder << "RicEclipseCaseNewGroupFeature";
 }
@@ -190,4 +186,18 @@ void RimEclipseCaseCollection::recomputeStatisticsForAllCaseGroups()
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimEclipseCaseCollection::importMenuFeatureNames()
+{
+    return { "RicImportEclipseCaseFeature",
+             "RicImportEclipseCasesFeature",
+             "RicImportEclipseCaseTimeStepFilterFeature",
+             "RicImportInputEclipseCaseFeature",
+             "Separator",
+             "RicCreateGridCaseGroupFromFilesFeature",
+             "RicCreateGridCaseEnsemblesFromFilesFeature" };
 }
