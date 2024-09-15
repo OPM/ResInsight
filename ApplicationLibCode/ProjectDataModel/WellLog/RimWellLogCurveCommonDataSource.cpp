@@ -45,6 +45,8 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
+#include "RiuTools.h"
+
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiCheckBoxTristateEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
@@ -1083,9 +1085,7 @@ void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmField
         if ( field == &m_case || field == &m_summaryCase || field == &m_simWellName || field == &m_wellPath || field == &m_timeStep ||
              field == &m_rftTimeStep || field == &m_rftSegmentBranchIndex || field == &m_rftWellName )
         {
-            myAttr->showPreviousAndNextButtons = true;
-            myAttr->nextIcon                   = QIcon( ":/ComboBoxDown.svg" );
-            myAttr->previousIcon               = QIcon( ":/ComboBoxUp.svg" );
+            RiuTools::enableUpDownArrowsForComboBox( attribute );
         }
 
         QString modifierText;

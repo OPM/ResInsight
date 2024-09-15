@@ -23,8 +23,14 @@
 class QMenu;
 class QObject;
 
+namespace caf
+{
+class PdmUiEditorAttribute;
+}
+
 namespace RiuTools
 {
 Qt::WindowFlags defaultDialogFlags();
 void            enableAllActionsOnShow( QObject* object, QMenu* menu );
+void            enableUpDownArrowsForComboBox( caf::PdmUiEditorAttribute* attribute );
 } // end namespace RiuTools
