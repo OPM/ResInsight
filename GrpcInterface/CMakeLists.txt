@@ -250,7 +250,7 @@ if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE)
   message(STATUS "Installing Python modules (dev-requirements.txt)")
   add_custom_command(
     TARGET PipInstall
-    COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m pip install -r ${GRPC_PYTHON_SOURCE_PATH}/dev-requirements.txt --user )
+    COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m pip install -r ${GRPC_PYTHON_SOURCE_PATH}/dev-requirements.txt )
 endif()
 
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)
