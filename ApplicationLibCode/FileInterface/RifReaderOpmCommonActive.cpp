@@ -236,10 +236,10 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
             yCenterCoordOpm                = yCenter;
         }
 
-        auto     riReservoirIndex = activeGrid->cellIndexFromIJK( opmIJK[0], opmIJK[1], opmIJK[2] );
-        RigCell& cell             = activeGrid->cell( riReservoirIndex );
-        auto     nativeIndex      = activeGrid->globalCellIndexToNative( riReservoirIndex );
-        cell.setGridLocalCellIndex( riReservoirIndex );
+        auto     nativeIndex = activeGrid->cellIndexFromIJK( opmIJK[0], opmIJK[1], opmIJK[2] );
+        RigCell& cell        = activeGrid->nativeCell( nativeIndex );
+        // auto     globalIndex = activeGrid->nativeCellIndexToGlobal( nativeIndex );
+        cell.setGridLocalCellIndex( nativeIndex );
         cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );
 
         // corner coordinates

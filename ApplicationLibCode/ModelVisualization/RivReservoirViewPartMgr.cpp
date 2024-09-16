@@ -604,7 +604,7 @@ void RivReservoirViewPartMgr::computeNativeVisibility( cvf::UByteArray*         
 #pragma omp parallel for
     for ( int cellIndex = 0; cellIndex < static_cast<int>( grid->cellCount() ); cellIndex++ )
     {
-        const RigCell& cell               = grid->cell( cellIndex );
+        const RigCell& cell               = grid->nativeCell( cellIndex );
         size_t         reservoirCellIndex = grid->reservoirCellIndex( cellIndex );
         bool           isCellActive       = activeCellInfo->isActive( reservoirCellIndex );
 
