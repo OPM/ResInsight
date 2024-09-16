@@ -61,5 +61,5 @@ void RicNewUserDefinedIndexFilterFeature::onActionTriggered( bool isChecked )
 void RicNewUserDefinedIndexFilterFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/CellFilter_UserDefined.png" ) );
-    actionToSetup->setText( "New User Defined Index Filter" );
+    actionToSetup->setText( "User Defined Index Filter" );
 }

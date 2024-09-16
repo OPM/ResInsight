@@ -18,10 +18,13 @@
 
 #include "RicNewRangeFilterSliceFeature.h"
 
+#include "RiaApplication.h"
+
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
 #include "RimCellRangeFilter.h"
+#include "RimGridView.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -41,18 +44,31 @@ RicNewRangeFilterSliceFeature::RicNewRangeFilterSliceFeature( QString cmdText, i
 //--------------------------------------------------------------------------------------------------
 void RicNewRangeFilterSliceFeature::onActionTriggered( bool isChecked )
 {
-    // Find the selected Cell Filter Collection
+    RimCellFilterCollection* filterCollection = nullptr;
+    RimCase*                 sourceCase       = nullptr;
+
     std::vector<RimCellFilterCollection*> colls = caf::selectedObjectsByTypeStrict<RimCellFilterCollection*>();
-    if ( colls.empty() ) return;
-    RimCellFilterCollection* filtColl = colls[0];
+    if ( !colls.empty() )
+    {
+        filterCollection = colls.front();
+        sourceCase       = filterCollection->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
+    }
 
-    // and the case to use
-    RimCase* sourceCase = filtColl->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
+    if ( !filterCollection )
+    {
+        // Find filter collection for active view
 
-    if ( sourceCase )
+        RimGridView* viewOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
+        if ( !viewOrComparisonView ) return;
+
+        filterCollection = viewOrComparisonView->cellFilterCollection();
+        sourceCase       = viewOrComparisonView->ownerCase();
+    }
+
+    if ( sourceCase && filterCollection )
     {
         int            gridIndex            = 0;
-        RimCellFilter* lastCreatedOrUpdated = filtColl->addNewCellRangeFilter( sourceCase, gridIndex, m_sliceDirection );
+        RimCellFilter* lastCreatedOrUpdated = filterCollection->addNewCellRangeFilter( sourceCase, gridIndex, m_sliceDirection );
         if ( lastCreatedOrUpdated )
         {
             Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );

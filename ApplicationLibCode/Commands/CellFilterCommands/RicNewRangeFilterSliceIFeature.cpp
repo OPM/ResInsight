@@ -26,6 +26,6 @@ CAF_CMD_SOURCE_INIT( RicNewRangeFilterSliceIFeature, "RicNewRangeFilterSliceIFea
 ///
 //--------------------------------------------------------------------------------------------------
 RicNewRangeFilterSliceIFeature::RicNewRangeFilterSliceIFeature()
-    : RicNewRangeFilterSliceFeature( "New Range Filter - I slice", 0 )
+    : RicNewRangeFilterSliceFeature( "I Slice", 0 )
 {
 }
