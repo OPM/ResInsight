@@ -44,6 +44,7 @@
 #include "RimWellPlotTools.h"
 
 #include "RiuMatrixPlotWidget.h"
+#include "RiuTools.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -530,13 +531,7 @@ void RimWellConnectivityTable::defineEditorAttribute( const caf::PdmFieldHandle*
     }
     if ( field == &m_selectedTimeStep || field == &m_selectedFromTimeStep || field == &m_selectedToTimeStep )
     {
-        auto* attrib = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->nextIcon                   = QIcon( ":/ComboBoxDown.svg" );
-            attrib->previousIcon               = QIcon( ":/ComboBoxUp.svg" );
-            attrib->showPreviousAndNextButtons = true;
-        }
+        RiuTools::enableUpDownArrowsForComboBox( attribute );
     }
 }
 

@@ -49,6 +49,7 @@
 #include "RiuQwtPlotWheelZoomer.h"
 #include "RiuQwtPlotWidget.h"
 #include "RiuQwtPlotZoomer.h"
+#include "RiuTools.h"
 
 #include "cafColorTable.h"
 #include "cafPdmUiComboBoxEditor.h"
@@ -1366,12 +1367,7 @@ void RimCustomVfpPlot::defineEditorAttribute( const caf::PdmFieldHandle* field, 
 
     if ( field == &m_mainDataSource )
     {
-        if ( auto* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute ) )
-        {
-            myAttr->showPreviousAndNextButtons = true;
-            myAttr->nextIcon                   = QIcon( ":/ComboBoxDown.svg" );
-            myAttr->previousIcon               = QIcon( ":/ComboBoxUp.svg" );
-        }
+        RiuTools::enableUpDownArrowsForComboBox( attribute );
     }
 }
 

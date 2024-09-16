@@ -101,6 +101,7 @@
 
 #include "Riu3dSelectionManager.h"
 #include "RiuMainWindow.h"
+#include "RiuTools.h"
 #include "RiuViewer.h"
 
 #include "RivReservoirSimWellsPartMgr.h"
@@ -118,6 +119,7 @@
 #include "cafOverlayScalarMapperLegend.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cvfDrawable.h"
@@ -2082,6 +2084,17 @@ QList<caf::PdmOptionItemInfo> RimEclipseView::calculateValueOptions( const caf::
     }
 
     return RimGridView::calculateValueOptions( fieldNeedingOptions );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_eclipseCase )
+    {
+        RiuTools::enableUpDownArrowsForComboBox( attribute );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -40,6 +40,7 @@
 #include "RimSummaryPlotControls.h"
 
 #include "RiuPlotMainWindow.h"
+#include "RiuTools.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiItem.h"
@@ -955,15 +956,12 @@ void RimSummaryPlotSourceStepping::defineEditorAttribute( const caf::PdmFieldHan
         }
         else
         {
+            RiuTools::enableUpDownArrowsForComboBox( attribute );
+
             QString nextText       = RimSummaryPlotControls::nextStepKeyText();
             QString prevText       = RimSummaryPlotControls::prevStepKeyText();
             myAttr->nextButtonText = "Next (" + nextText + ")";
             myAttr->prevButtonText = "Previous (" + prevText + ")";
-
-            myAttr->nextIcon     = QIcon( ":/ComboBoxDown.svg" );
-            myAttr->previousIcon = QIcon( ":/ComboBoxUp.svg" );
-
-            myAttr->showPreviousAndNextButtons = true;
         }
     }
 

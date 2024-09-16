@@ -59,6 +59,11 @@ public:
 
     void recomputeStatisticsForAllCaseGroups();
 
+    static QStringList importMenuFeatureNames();
+
+private:
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
 private:
     RigMainGrid*             registerCaseInGridCollection( RimEclipseCase* rimEclipseCase );
     cvf::ref<RigGridManager> m_gridCollection;

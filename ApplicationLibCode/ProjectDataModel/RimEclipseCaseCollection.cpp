@@ -33,6 +33,8 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimProject.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
+
 CAF_PDM_SOURCE_INIT( RimEclipseCaseCollection, "ResInsightAnalysisModels" );
 //--------------------------------------------------------------------------------------------------
 ///
@@ -113,6 +115,17 @@ void RimEclipseCaseCollection::removeCaseFromAllGroups( RimEclipseCase* reservoi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseCaseCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder.subMenuStart( "Import" );
+    menuBuilder << importMenuFeatureNames();
+    menuBuilder.subMenuEnd();
+    menuBuilder << "RicEclipseCaseNewGroupFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection( RimEclipseCase* rimEclipseCase )
 {
     CVF_ASSERT( rimEclipseCase && rimEclipseCase->eclipseCaseData() );
@@ -173,4 +186,18 @@ void RimEclipseCaseCollection::recomputeStatisticsForAllCaseGroups()
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimEclipseCaseCollection::importMenuFeatureNames()
+{
+    return { "RicImportEclipseCaseFeature",
+             "RicImportEclipseCasesFeature",
+             "RicImportEclipseCaseTimeStepFilterFeature",
+             "RicImportInputEclipseCaseFeature",
+             "Separator",
+             "RicCreateGridCaseGroupFromFilesFeature",
+             "RicCreateGridCaseEnsemblesFromFilesFeature" };
 }

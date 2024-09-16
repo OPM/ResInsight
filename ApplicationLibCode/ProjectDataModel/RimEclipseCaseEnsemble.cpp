@@ -23,6 +23,7 @@
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
@@ -104,6 +105,8 @@ bool RimEclipseCaseEnsemble::contains( RimEclipseCase* reservoir ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEclipseCase*> RimEclipseCaseEnsemble::cases() const
 {
+    if ( !m_caseCollection ) return {};
+
     return m_caseCollection->reservoirs.childrenByType();
 }
 
@@ -158,6 +161,14 @@ void RimEclipseCaseEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* change
             view->updateAnnotationItems();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCaseEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicNewViewForGridEnsembleFeature";
 }
 
 //--------------------------------------------------------------------------------------------------
