@@ -162,6 +162,9 @@ void RiuViewerCommands::setOwnerView( Rim3dView* owner )
     m_reservoirView = owner;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuViewerCommands::addCompareToViewMenu( caf::CmdFeatureMenuBuilder* menuBuilder )
 {
     auto* mainGridView = m_reservoirView.p();
@@ -266,18 +269,11 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 
     if ( firstHitPart && firstPartTriangleIndex != cvf::UNDEFINED_UINT )
     {
-        const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>( firstHitPart->sourceInfo() );
-
-        const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>( firstHitPart->sourceInfo() );
-
-        const RivReservoirSurfaceIntersectionSourceInfo* surfIntersectSourceInfo =
-            dynamic_cast<const RivReservoirSurfaceIntersectionSourceInfo*>( firstHitPart->sourceInfo() );
-
-        const RivExtrudedCurveIntersectionSourceInfo* crossSectionSourceInfo =
-            dynamic_cast<const RivExtrudedCurveIntersectionSourceInfo*>( firstHitPart->sourceInfo() );
-
-        const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo =
-            dynamic_cast<const RivBoxIntersectionSourceInfo*>( firstHitPart->sourceInfo() );
+        const auto* rivSourceInfo           = dynamic_cast<const RivSourceInfo*>( firstHitPart->sourceInfo() );
+        const auto* femSourceInfo           = dynamic_cast<const RivFemPickSourceInfo*>( firstHitPart->sourceInfo() );
+        const auto* surfIntersectSourceInfo = dynamic_cast<const RivReservoirSurfaceIntersectionSourceInfo*>( firstHitPart->sourceInfo() );
+        const auto* crossSectionSourceInfo  = dynamic_cast<const RivExtrudedCurveIntersectionSourceInfo*>( firstHitPart->sourceInfo() );
+        const auto* intersectionBoxSourceInfo = dynamic_cast<const RivBoxIntersectionSourceInfo*>( firstHitPart->sourceInfo() );
 
         if ( rivSourceInfo || femSourceInfo || crossSectionSourceInfo || intersectionBoxSourceInfo || surfIntersectSourceInfo )
         {
@@ -308,12 +304,6 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 
                 RiuSelectionItem* selItem = new RiuGeneralSelectionItem( surfIntersectSourceInfo->intersection() );
                 Riu3dSelectionManager::instance()->setSelectedItem( selItem, Riu3dSelectionManager::RUI_TEMPORARY );
-
-                if ( gridView )
-                {
-                    // menuBuilder << "RicHideSurfaceFeature"; // Not yet created...
-                    // menuBuilder.addSeparator();
-                }
             }
             else if ( crossSectionSourceInfo )
             {
@@ -383,20 +373,22 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                     kSliceList.push_back( std::max( static_cast<int>( k + 1 ), 1 ) );
                     kSliceList.push_back( static_cast<int>( m_currentGridIdx ) );
 
-                    menuBuilder.subMenuStart( "Range Filter Slice", QIcon( ":/CellFilter_Range.png" ) );
+                    menuBuilder.subMenuStart( "Range Filter", QIcon( ":/CellFilter_Range.png" ) );
 
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "I-slice Range Filter", iSliceList );
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "J-slice Range Filter", jSliceList );
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "K-slice Range Filter", kSliceList );
+                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "I Slice", iSliceList );
+                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "J Slice", jSliceList );
+                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "K Slice", kSliceList );
+                    menuBuilder.addCmdFeature( "RicNewCellRangeFilterFeature", "IJK Filter" );
 
                     menuBuilder.subMenuEnd();
                 }
 
-                menuBuilder << "RicNewPolygonFilter3dviewFeature";
-                menuBuilder.addCmdFeature( "RicCreatePolygonFeature", "Polygon" );
-
+                // Property filter commands
                 menuBuilder << "RicEclipsePropertyFilterNewInViewFeature";
                 menuBuilder << "RicGeoMechPropertyFilterNewInViewFeature";
+
+                // Polygon commands
+                menuBuilder << "RicNewPolygonFilter3dviewFeature";
 
                 menuBuilder.addSeparator();
 
@@ -446,14 +438,15 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 
             menuBuilder << "RicToggleMeasurementModeFeature";
             menuBuilder << "RicTogglePolyMeasurementModeFeature";
+            menuBuilder.addCmdFeature( "RicCreatePolygonFeature", "Polygon" );
         }
     }
 
     // Well log curve creation commands
     if ( firstHitPart && firstHitPart->sourceInfo() )
     {
-        RimWellPath*                 wellPath           = nullptr;
-        const RivWellPathSourceInfo* wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>( firstHitPart->sourceInfo() );
+        RimWellPath* wellPath           = nullptr;
+        const auto*  wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>( firstHitPart->sourceInfo() );
         if ( wellPathSourceInfo )
         {
             wellPath = wellPathSourceInfo->wellPath();
@@ -540,7 +533,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder << "RicDuplicateWellPathFeature";
         }
 
-        const RivSimWellPipeSourceInfo* eclipseWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>( firstHitPart->sourceInfo() );
+        const auto* eclipseWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>( firstHitPart->sourceInfo() );
         if ( eclipseWellSourceInfo )
         {
             RimSimWellInView* well = eclipseWellSourceInfo->well();
@@ -597,11 +590,6 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder << "RicSelectColorResult";
         }
     }
-    else
-    {
-        menuBuilder.addSeparator();
-        menuBuilder << "RicCreateTextAnnotationIn3dViewFeature";
-    }
 
     if ( gridView )
     {
@@ -613,19 +601,27 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder << "RicCreateGridCrossPlotFeature";
         }
         menuBuilder.addSeparator();
+        menuBuilder.subMenuStart( "Export" );
         menuBuilder << "RicExportEclipseInputGridFeature";
         menuBuilder << "RicSaveEclipseInputActiveVisibleCellsFeature";
         menuBuilder << "RicSaveEclipseResultAsInputPropertyFeature";
+        menuBuilder << "RicExportContourMapToTextFeature";
+        menuBuilder.subMenuEnd();
+        menuBuilder.addSeparator();
 
 #ifdef USE_QTCHARTS
         menuBuilder << "RicCreateGridStatisticsPlotFeature";
 #endif
         menuBuilder << "RicShowGridStatisticsFeature";
-        menuBuilder << "RicSelectColorResult";
         menuBuilder << "RicCopyGridStatisticsToClipboardFeature";
+        menuBuilder << "RicSelectColorResult";
     }
 
-    menuBuilder << "RicExportContourMapToTextFeature";
+    if ( firstHitPart )
+    {
+        menuBuilder.addSeparator();
+        menuBuilder << "RicCreateTextAnnotationIn3dViewFeature";
+    }
 
     menuBuilder.appendToMenu( &menu );
 
@@ -719,12 +715,10 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
 
         if ( firstHitPart && firstHitPart->sourceInfo() )
         {
-            // clang-format off
-            const RivObjectSourceInfo* rivObjectSourceInfo                = dynamic_cast<const RivObjectSourceInfo*>( firstHitPart->sourceInfo() );
-            const RivSimWellPipeSourceInfo* eclipseWellSourceInfo         = dynamic_cast<const RivSimWellPipeSourceInfo*>( firstHitPart->sourceInfo() );
-            const RivWellConnectionSourceInfo* wellConnectionSourceInfo   = dynamic_cast<const RivWellConnectionSourceInfo*>( firstHitPart->sourceInfo() );
-            const RivSeismicSectionSourceInfo* seismicSourceInfo          = dynamic_cast<const RivSeismicSectionSourceInfo*>(firstHitPart->sourceInfo());
-            // clang-format on
+            const auto* rivObjectSourceInfo      = dynamic_cast<const RivObjectSourceInfo*>( firstHitPart->sourceInfo() );
+            const auto* eclipseWellSourceInfo    = dynamic_cast<const RivSimWellPipeSourceInfo*>( firstHitPart->sourceInfo() );
+            const auto* wellConnectionSourceInfo = dynamic_cast<const RivWellConnectionSourceInfo*>( firstHitPart->sourceInfo() );
+            const auto* seismicSourceInfo        = dynamic_cast<const RivSeismicSectionSourceInfo*>( firstHitPart->sourceInfo() );
 
             if ( rivObjectSourceInfo )
             {
@@ -813,21 +807,20 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                     RiuMainWindow::instance()->setResultInfo( resultInfoText );
                 }
             }
-            else if ( const RivReservoirSurfaceIntersectionSourceInfo* surfIntersectSourceInfo =
+            else if ( const auto* surfIntersectSourceInfo =
                           dynamic_cast<const RivReservoirSurfaceIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
             {
                 RiuMainWindow::instance()->selectAsCurrentItem( surfIntersectSourceInfo->intersection() );
             }
 
-            else if ( const RivExtrudedCurveIntersectionSourceInfo* crossSectionSourceInfo =
+            else if ( const auto* crossSectionSourceInfo =
                           dynamic_cast<const RivExtrudedCurveIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
             {
                 bool allowActiveViewChange = dynamic_cast<Rim2dIntersectionView*>( m_viewer->ownerViewWindow() ) == nullptr;
 
                 RiuMainWindow::instance()->selectAsCurrentItem( crossSectionSourceInfo->intersection(), allowActiveViewChange );
             }
-            else if ( const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo =
-                          dynamic_cast<const RivBoxIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
+            else if ( const auto* intersectionBoxSourceInfo = dynamic_cast<const RivBoxIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
             {
                 RiuMainWindow::instance()->selectAsCurrentItem( intersectionBoxSourceInfo->intersectionBox() );
             }

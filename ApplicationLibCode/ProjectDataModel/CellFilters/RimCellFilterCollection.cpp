@@ -139,7 +139,7 @@ void RimCellFilterCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuB
     menuBuilder << "RicPasteCellFiltersFeature";
     menuBuilder << "Separator";
 
-    menuBuilder.subMenuStart( "New Polygon Filter", QIcon( ":/CellFilter_Polygon.png" ) );
+    menuBuilder.subMenuStart( "Polygon Filter", QIcon( ":/CellFilter_Polygon.png" ) );
     {
         auto project           = RimProject::current();
         auto polygonCollection = project->activeOilField()->polygonCollection();
@@ -154,12 +154,12 @@ void RimCellFilterCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuB
 
     menuBuilder << "RicNewPolygonFilterFeature";
     menuBuilder << "Separator";
-    menuBuilder.subMenuStart( "Slice Filters" );
+    menuBuilder.subMenuStart( "Range Filter" );
     menuBuilder << "RicNewRangeFilterSliceIFeature";
     menuBuilder << "RicNewRangeFilterSliceJFeature";
     menuBuilder << "RicNewRangeFilterSliceKFeature";
-    menuBuilder.subMenuEnd();
     menuBuilder << "RicNewCellRangeFilterFeature";
+    menuBuilder.subMenuEnd();
     menuBuilder << "RicNewCellIndexFilterFeature";
     menuBuilder << "Separator";
     menuBuilder << "RicNewUserDefinedFilterFeature";

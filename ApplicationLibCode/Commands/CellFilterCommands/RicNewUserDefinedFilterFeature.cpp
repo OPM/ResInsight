@@ -61,5 +61,5 @@ void RicNewUserDefinedFilterFeature::onActionTriggered( bool isChecked )
 void RicNewUserDefinedFilterFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/CellFilter_UserDefined.png" ) );
-    actionToSetup->setText( "New User Defined IJK Filter" );
+    actionToSetup->setText( "User Defined IJK Filter" );
 }

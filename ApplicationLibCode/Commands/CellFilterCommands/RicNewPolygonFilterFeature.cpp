@@ -92,5 +92,5 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
 void RicNewPolygonFilterFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/CellFilter_Polygon.png" ) );
-    actionToSetup->setText( "New User Defined Polygon Filter" );
+    actionToSetup->setText( "User Defined Polygon Filter" );
 }
