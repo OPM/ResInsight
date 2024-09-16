@@ -1152,6 +1152,11 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues( QString& prefixText
         {
             prefixText = "SEGMENT/";
 
+            if ( m_segmentResultName().startsWith( "CON" ) )
+            {
+                return RimRftTools::segmentConnectionEndMdValues( reader, m_wellName(), m_timeStep, segmentBranchIndex(), m_segmentBranchType() );
+            }
+
             // Always use segment end MD values for segment data, as the curve is plotted as step left
             return RimRftTools::segmentEndMdValues( reader, m_wellName(), m_timeStep, segmentBranchIndex(), m_segmentBranchType() );
         }

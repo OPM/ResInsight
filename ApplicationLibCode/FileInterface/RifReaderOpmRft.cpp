@@ -145,39 +145,24 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
 
                 if ( m_connectionResultItemCount.count( wellName ) && data.size() == m_connectionResultItemCount[wellName] )
                 {
-                    // Connection results with size equal to length of result CONSEGNO. CONSEGNO defines the segment
-                    // numbers the connection is connected to.
+                    const std::string conbrnoResultName        = "CONBRNO";
+                    auto              connnectionBranchNumbers = m_opm_rft->getRft<int>( conbrnoResultName, wellName, y, m, d );
 
-                    const std::string consegResultName          = "CONSEGNO";
-                    auto              connnectionSegmentNumbers = m_opm_rft->getRft<int>( consegResultName, wellName, y, m, d );
-                    if ( connnectionSegmentNumbers.empty() ) return;
-
-                    auto segmentNumbers =
-                        segment.segmentNumbersForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
-
-                    size_t resultDataIndex = 0;
-                    for ( int segmentNumber : segmentNumbers )
+                    if ( data.size() == connnectionBranchNumbers.size() )
                     {
-                        auto segmentIndex = segment.segmentIndexFromSegmentNumber( segmentNumber );
+                        auto branchIdIndex = segment.branchIdsAndOneBasedBranchIndices( rftAddress.segmentBranchType() );
 
-                        if ( std::find( nonContinuousDeviceSegmentIndices.begin(), nonContinuousDeviceSegmentIndices.end(), segmentIndex ) !=
-                             nonContinuousDeviceSegmentIndices.end() )
+                        // Extract values for the branch numbers that the connection is connected to
+                        for ( size_t i = 0; i < connnectionBranchNumbers.size(); i++ )
                         {
-                            // Insert an extra infinity value for segments that are not continuous. The number of values in the values
-                            // vector must be equal to the number of x-values (measured depths)
-                            values->push_back( std::numeric_limits<double>::infinity() );
-                        }
-
-                        if ( std::find( connnectionSegmentNumbers.begin(), connnectionSegmentNumbers.end(), segmentNumber ) !=
-                             connnectionSegmentNumbers.end() )
-                        {
-                            values->push_back( data[resultDataIndex++] );
-                        }
-                        else
-                        {
-                            // The number of values must be equal to the number of segments, use infinity for segments
-                            // with no data
-                            values->push_back( std::numeric_limits<double>::infinity() );
+                            if ( branchIdIndex.count( connnectionBranchNumbers[i] ) )
+                            {
+                                auto branchIndex = branchIdIndex[connnectionBranchNumbers[i]];
+                                if ( branchIndex == rftAddress.segmentBranchIndex() )
+                                {
+                                    values->push_back( data[i] );
+                                }
+                            }
                         }
                     }
                 }

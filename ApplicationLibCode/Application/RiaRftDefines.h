@@ -27,6 +27,8 @@ QString segmentEndDepthResultName();
 QString segmentTvdDepthResultName();
 QString segmentNumberResultName();
 
+QString segmentConnectionEndDepthResultName();
+
 QString allBranches();
 QString segmentBranchNumberResultName();
 

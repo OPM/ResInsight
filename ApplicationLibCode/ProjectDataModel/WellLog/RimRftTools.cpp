@@ -223,3 +223,24 @@ std::vector<double> RimRftTools::segmentEndMdValues( RifReaderRftInterface*    r
 
     return values;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimRftTools::segmentConnectionEndMdValues( RifReaderRftInterface*    readerRft,
+                                                               const QString&            wellName,
+                                                               const QDateTime&          dateTime,
+                                                               int                       segmentBranchIndex,
+                                                               RiaDefines::RftBranchType segmentBranchType )
+{
+    std::vector<double> values;
+
+    auto resultNameSeglenst = RifEclipseRftAddress::createBranchSegmentAddress( wellName,
+                                                                                dateTime,
+                                                                                RiaDefines::segmentConnectionEndDepthResultName(),
+                                                                                segmentBranchIndex,
+                                                                                segmentBranchType );
+    readerRft->values( resultNameSeglenst, &values );
+
+    return values;
+}
