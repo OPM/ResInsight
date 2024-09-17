@@ -29,7 +29,7 @@ QString segmentTvdDepthResultName();
 QString segmentNumberResultName();
 
 bool        isSegmentConnectionResult( const QString& resultName );
-QString segmentConnectionTvdDepthResultName();
+QString     segmentConnectionTvdDepthResultName();
 std::string segmentConnectionEndDepthResultName();
 std::string segmentConnectionStartDepthResultName();
 std::string segmentConnectionBranchNoResultName();
