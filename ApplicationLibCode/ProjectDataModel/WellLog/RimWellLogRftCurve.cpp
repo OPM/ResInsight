@@ -33,6 +33,7 @@
 
 #include "RifEclipseRftAddress.h"
 #include "RifReaderEclipseRft.h"
+#include "RifReaderOpmRft.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
@@ -911,7 +912,8 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions( const c
     }
     else if ( fieldNeedingOptions == &m_segmentBranchIndex )
     {
-        options = RimRftTools::segmentBranchIndexOptions( reader, m_wellName(), m_timeStep(), m_segmentBranchType() );
+        options =
+            RimRftTools::segmentBranchIndexOptions( dynamic_cast<RifReaderOpmRft*>( reader ), m_wellName(), m_timeStep(), m_segmentBranchType() );
     }
     else if ( fieldNeedingOptions == &m_scaleFactor )
     {
@@ -1147,17 +1149,21 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues( QString& prefixText
 {
     if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
     {
-        if ( RifReaderRftInterface* reader = rftReader() )
+        if ( auto opmRftReader = dynamic_cast<RifReaderOpmRft*>( rftReader() ) )
         {
             prefixText = "SEGMENT/";
 
             if ( RiaDefines::isSegmentConnectionResult( m_segmentResultName() ) )
             {
-                return RimRftTools::segmentConnectionEndMdValues( reader, m_wellName(), m_timeStep, segmentBranchIndex(), m_segmentBranchType() );
+                return RimRftTools::segmentConnectionEndMdValues( opmRftReader,
+                                                                  m_wellName(),
+                                                                  m_timeStep,
+                                                                  segmentBranchIndex(),
+                                                                  m_segmentBranchType() );
             }
 
             // Always use segment end MD values for segment data, as the curve is plotted as step left
-            return RimRftTools::segmentEndMdValues( reader, m_wellName(), m_timeStep, segmentBranchIndex(), m_segmentBranchType() );
+            return RimRftTools::segmentEndMdValues( opmRftReader, m_wellName(), m_timeStep, segmentBranchIndex(), m_segmentBranchType() );
         }
 
         return {};
