@@ -56,6 +56,9 @@ public:
 
     RifRftSegment segmentForWell( const QString& wellName, const QDateTime& timeStep );
 
+    using SegmentConnectionStartEnd = std::tuple<float, float, bool>;
+    std::vector<SegmentConnectionStartEnd> segmentConnectionStartEndMeasuredDepth( const RifEclipseRftAddress& rftAddress );
+
 private:
     // Segment data
     // RftDate must be synced with definition in Opm::EclIO::ERft::RftDate

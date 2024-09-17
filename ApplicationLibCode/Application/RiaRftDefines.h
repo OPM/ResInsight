@@ -30,6 +30,7 @@ QString segmentNumberResultName();
 
 bool    isSegmentConnectionResult( const QString& resultName );
 QString segmentConnectionEndDepthResultName();
+QString segmentConnectionMeasuredDepthResultName();
 
 QString allBranches();
 QString segmentBranchNumberResultName();

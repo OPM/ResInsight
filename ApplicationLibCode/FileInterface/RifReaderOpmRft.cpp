@@ -119,6 +119,17 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
             }
             return;
         }
+        else if ( rftAddress.segmentResultName() == RiaDefines::segmentConnectionMeasuredDepthResultName() )
+        {
+            auto segmentConnectionValues = segmentConnectionStartEndMeasuredDepth( rftAddress );
+            for ( const auto& [startMD, endMD, isValidSegment] : segmentConnectionValues )
+            {
+                values->push_back( startMD );
+                values->push_back( endMD );
+            }
+
+            return;
+        }
     }
 
     if ( resultName.empty() )
@@ -139,26 +150,54 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
 
                 if ( m_connectionResultItemCount.count( wellName ) && data.size() == m_connectionResultItemCount[wellName] )
                 {
-                    const std::string conbrnoResultName        = "CONBRNO";
-                    const auto        connnectionBranchNumbers = m_opm_rft->getRft<int>( conbrnoResultName, wellName, y, m, d );
+                    std::vector<float> branchValues;
 
-                    if ( data.size() == connnectionBranchNumbers.size() )
                     {
-                        auto branchIdIndex = segment.branchIdsAndOneBasedBranchIndices( rftAddress.segmentBranchType() );
+                        const std::string conbrnoResultName        = "CONBRNO";
+                        const auto        connnectionBranchNumbers = m_opm_rft->getRft<int>( conbrnoResultName, wellName, y, m, d );
 
-                        // Convert the branch number to the branch index
-                        // Filter data based on branch index
-                        for ( size_t i = 0; i < connnectionBranchNumbers.size(); i++ )
+                        if ( data.size() == connnectionBranchNumbers.size() )
                         {
-                            if ( branchIdIndex.count( connnectionBranchNumbers[i] ) )
+                            auto branchIdIndex = segment.branchIdsAndOneBasedBranchIndices( rftAddress.segmentBranchType() );
+
+                            // Convert the branch number to the branch index
+                            // Filter data based on branch index
+                            for ( size_t i = 0; i < connnectionBranchNumbers.size(); i++ )
                             {
-                                auto branchIndex = branchIdIndex[connnectionBranchNumbers[i]];
-                                if ( branchIndex == rftAddress.segmentBranchIndex() )
+                                if ( branchIdIndex.count( connnectionBranchNumbers[i] ) )
                                 {
-                                    values->push_back( data[i] );
+                                    auto branchIndex = branchIdIndex[connnectionBranchNumbers[i]];
+                                    if ( branchIndex == rftAddress.segmentBranchIndex() )
+                                    {
+                                        branchValues.push_back( data[i] );
+                                    }
                                 }
                             }
                         }
+                    }
+
+                    auto segmentConnectionValues = segmentConnectionStartEndMeasuredDepth( rftAddress );
+
+                    size_t connectionIndex = 0;
+                    for ( auto branchValue : branchValues )
+                    {
+                        if ( connectionIndex < segmentConnectionValues.size() )
+                        {
+                            auto [startMD, endMD, isValidSegment] = segmentConnectionValues[connectionIndex];
+
+                            if ( !isValidSegment )
+                            {
+                                // Use infinity to make sure no curve is drawn for this segment
+                                values->push_back( std::numeric_limits<double>::infinity() );
+                                values->push_back( std::numeric_limits<double>::infinity() );
+
+                                connectionIndex++;
+                            }
+                            values->push_back( branchValue );
+                            values->push_back( branchValue );
+                        }
+
+                        connectionIndex++;
                     }
                 }
                 else
@@ -438,6 +477,66 @@ void RifReaderOpmRft::openFiles( const QString& fileName, const QString& dataDec
     }
 
     m_detectedErrorWhenOpeningRftFile = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RifReaderOpmRft::SegmentConnectionStartEnd>
+    RifReaderOpmRft::segmentConnectionStartEndMeasuredDepth( const RifEclipseRftAddress& rftAddress )
+{
+    std::vector<RifReaderOpmRft::SegmentConnectionStartEnd> startEndValues;
+
+    if ( !isOpen() ) return startEndValues;
+
+    const int y = rftAddress.timeStep().date().year();
+    const int m = rftAddress.timeStep().date().month();
+    const int d = rftAddress.timeStep().date().day();
+
+    const std::string wellName = rftAddress.wellName().toStdString();
+
+    const std::string conbrnoResultName        = "CONBRNO";
+    const auto        connnectionBranchNumbers = m_opm_rft->getRft<int>( conbrnoResultName, wellName, y, m, d );
+
+    const std::string conlenstResultName = "CONLENST";
+    const auto        startMD            = m_opm_rft->getRft<float>( conlenstResultName, wellName, y, m, d );
+
+    const std::string conlenenResultName = "CONLENEN";
+    const auto        endMD              = m_opm_rft->getRft<float>( conlenenResultName, wellName, y, m, d );
+
+    const size_t size = connnectionBranchNumbers.size();
+    if ( size == startMD.size() && size == endMD.size() )
+    {
+        auto segment = segmentForWell( rftAddress.wellName(), rftAddress.timeStep() );
+
+        auto branchIdIndex = segment.branchIdsAndOneBasedBranchIndices( rftAddress.segmentBranchType() );
+
+        // Convert the branch number to the branch index
+        // Filter data based on branch index
+
+        bool isFirstSegment = true;
+
+        for ( size_t i = 0; i < connnectionBranchNumbers.size(); i++ )
+        {
+            if ( branchIdIndex.count( connnectionBranchNumbers[i] ) )
+            {
+                auto branchIndex = branchIdIndex[connnectionBranchNumbers[i]];
+                if ( branchIndex == rftAddress.segmentBranchIndex() )
+                {
+                    if ( !isFirstSegment && std::fabs( startMD[i] - endMD[i - 1] ) > 0.1 )
+                    {
+                        // Insert a segment representing the connection between the segments. Assign infinity as value to this segment to
+                        // allow discontinuous plotting.
+                        startEndValues.emplace_back( endMD[i - 1], startMD[i], false );
+                    }
+                    startEndValues.emplace_back( startMD[i], endMD[i], true );
+                    isFirstSegment = false;
+                }
+            }
+        }
+    }
+
+    return startEndValues;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -236,7 +236,7 @@ std::vector<double> RimRftTools::segmentConnectionEndMdValues( RifReaderOpmRft* 
     std::vector<double> values;
     auto                resultNameSeglenst = RifEclipseRftAddress::createBranchSegmentAddress( wellName,
                                                                                 dateTime,
-                                                                                RiaDefines::segmentConnectionEndDepthResultName(),
+                                                                                RiaDefines::segmentConnectionMeasuredDepthResultName(),
                                                                                 segmentBranchIndex,
                                                                                 segmentBranchType );
     readerRft->values( resultNameSeglenst, &values );

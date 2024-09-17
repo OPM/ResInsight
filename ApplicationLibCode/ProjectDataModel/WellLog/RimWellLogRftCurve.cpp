@@ -1130,11 +1130,23 @@ std::vector<double> RimWellLogRftCurve::tvDepthValues()
 
     if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
     {
-        depthAddress = RifEclipseRftAddress::createBranchSegmentAddress( m_wellName(),
-                                                                         m_timeStep,
-                                                                         RiaDefines::segmentTvdDepthResultName(),
-                                                                         segmentBranchIndex(),
-                                                                         m_segmentBranchType() );
+        if ( RiaDefines::isSegmentConnectionResult( m_segmentResultName ) )
+
+        {
+            depthAddress = RifEclipseRftAddress::createBranchSegmentAddress( m_wellName(),
+                                                                             m_timeStep,
+                                                                             "CONDEPTH",
+                                                                             segmentBranchIndex(),
+                                                                             m_segmentBranchType() );
+        }
+        else
+        {
+            depthAddress = RifEclipseRftAddress::createBranchSegmentAddress( m_wellName(),
+                                                                             m_timeStep,
+                                                                             RiaDefines::segmentTvdDepthResultName(),
+                                                                             segmentBranchIndex(),
+                                                                             m_segmentBranchType() );
+        }
     }
 
     reader->values( depthAddress, &values );
