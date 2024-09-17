@@ -61,8 +61,8 @@ public:
                                                    RiaDefines::RftBranchType segmentBranchType );
 
     static std::vector<double> segmentConnectionMdValues( RifReaderOpmRft*          readerRft,
-                                                             const QString&            wellName,
-                                                             const QDateTime&          dateTime,
-                                                             int                       segmentBranchIndex,
-                                                             RiaDefines::RftBranchType segmentBranchType );
+                                                          const QString&            wellName,
+                                                          const QDateTime&          dateTime,
+                                                          int                       segmentBranchIndex,
+                                                          RiaDefines::RftBranchType segmentBranchType );
 };

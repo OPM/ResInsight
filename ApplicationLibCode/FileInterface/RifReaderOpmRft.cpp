@@ -149,53 +149,8 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
 
                 if ( m_connectionResultItemCount.count( wellName ) && data.size() == m_connectionResultItemCount[wellName] )
                 {
-                    std::vector<float> branchValues;
-
-                    {
-                        const std::string conbrnoResultName        = RiaDefines::segmentConnectionBranchNoResultName();
-                        const auto        connnectionBranchNumbers = m_opm_rft->getRft<int>( conbrnoResultName, wellName, y, m, d );
-
-                        if ( data.size() == connnectionBranchNumbers.size() )
-                        {
-                            auto branchIdIndex = segment.branchIdsAndOneBasedBranchIndices( rftAddress.segmentBranchType() );
-
-                            // Convert the branch number to the branch index
-                            // Filter data based on branch index
-                            for ( size_t i = 0; i < connnectionBranchNumbers.size(); i++ )
-                            {
-                                if ( branchIdIndex.count( connnectionBranchNumbers[i] ) )
-                                {
-                                    auto branchIndex = branchIdIndex[connnectionBranchNumbers[i]];
-                                    if ( branchIndex == rftAddress.segmentBranchIndex() )
-                                    {
-                                        branchValues.push_back( data[i] );
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    auto segmentConnectionValues = segmentConnectionStartEndMeasuredDepth( rftAddress );
-
-                    size_t connectionIndex = 0;
-                    for ( auto branchValue : branchValues )
-                    {
-                        if ( connectionIndex < segmentConnectionValues.size() )
-                        {
-                            auto [startMD, endMD, isValidSegment] = segmentConnectionValues[connectionIndex];
-
-                            if ( !isValidSegment )
-                            {
-                                // Use infinity to make sure no curve is drawn for this segment
-                                values->push_back( std::numeric_limits<double>::infinity() );
-
-                                connectionIndex++;
-                            }
-                            values->push_back( branchValue );
-                        }
-
-                        connectionIndex++;
-                    }
+                    auto connectionValues = segmentConnectionValues( rftAddress, segment, data );
+                    values->insert( values->end(), connectionValues.begin(), connectionValues.end() );
                 }
                 else
                 {
@@ -357,14 +312,9 @@ std::vector<caf::VecIjk> RifReaderOpmRft::cellIndices( const QString& wellName, 
 
     try
     {
-        auto resultNameI = "CONIPOS";
-        auto dataI       = m_opm_rft->getRft<int>( resultNameI, stdWellName, y, m, d );
-
-        auto resultNameJ = "CONJPOS";
-        auto dataJ       = m_opm_rft->getRft<int>( resultNameJ, stdWellName, y, m, d );
-
-        auto resultNameK = "CONKPOS";
-        auto dataK       = m_opm_rft->getRft<int>( resultNameK, stdWellName, y, m, d );
+        auto dataI = m_opm_rft->getRft<int>( RiaDefines::segmentConnectionIPos(), stdWellName, y, m, d );
+        auto dataJ = m_opm_rft->getRft<int>( RiaDefines::segmentConnectionJPos(), stdWellName, y, m, d );
+        auto dataK = m_opm_rft->getRft<int>( RiaDefines::segmentConnectionKPos(), stdWellName, y, m, d );
 
         if ( !dataI.empty() && ( dataI.size() == dataJ.size() ) && ( dataI.size() == dataK.size() ) )
         {
@@ -541,6 +491,69 @@ std::vector<RifReaderOpmRft::SegmentConnectionStartEnd>
     }
 
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<float> RifReaderOpmRft::segmentConnectionValues( const RifEclipseRftAddress& rftAddress,
+                                                             const RifRftSegment&        segment,
+                                                             const std::vector<float>&   nativeValues )
+{
+    std::vector<float> branchValues;
+
+    {
+        const std::string conbrnoResultName = RiaDefines::segmentConnectionBranchNoResultName();
+
+        const int  y                        = rftAddress.timeStep().date().year();
+        const int  m                        = rftAddress.timeStep().date().month();
+        const int  d                        = rftAddress.timeStep().date().day();
+        const auto connnectionBranchNumbers = m_opm_rft->getRft<int>( conbrnoResultName, rftAddress.wellName().toStdString(), y, m, d );
+
+        if ( nativeValues.size() == connnectionBranchNumbers.size() )
+        {
+            auto branchIdIndex = segment.branchIdsAndOneBasedBranchIndices( rftAddress.segmentBranchType() );
+
+            // Convert the branch number to the branch index
+            // Filter data based on branch index
+            for ( size_t i = 0; i < connnectionBranchNumbers.size(); i++ )
+            {
+                if ( branchIdIndex.count( connnectionBranchNumbers[i] ) )
+                {
+                    auto branchIndex = branchIdIndex[connnectionBranchNumbers[i]];
+                    if ( branchIndex == rftAddress.segmentBranchIndex() )
+                    {
+                        branchValues.push_back( nativeValues[i] );
+                    }
+                }
+            }
+        }
+    }
+
+    std::vector<float> valuesWithInfinity;
+
+    auto   segmentConnectionValues = segmentConnectionStartEndMeasuredDepth( rftAddress );
+    size_t segmentConnectionIndex  = 0;
+    for ( auto branchValue : branchValues )
+    {
+        if ( segmentConnectionIndex < segmentConnectionValues.size() )
+        {
+            auto [startMD, endMD, isValidSegment] = segmentConnectionValues[segmentConnectionIndex];
+
+            if ( !isValidSegment )
+            {
+                // Use infinity to make sure no curve is drawn for this segment
+                valuesWithInfinity.push_back( std::numeric_limits<double>::infinity() );
+
+                segmentConnectionIndex++;
+            }
+            valuesWithInfinity.push_back( branchValue );
+        }
+
+        segmentConnectionIndex++;
+    }
+
+    return valuesWithInfinity;
 }
 
 //--------------------------------------------------------------------------------------------------

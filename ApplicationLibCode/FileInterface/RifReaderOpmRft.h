@@ -56,9 +56,6 @@ public:
 
     RifRftSegment segmentForWell( const QString& wellName, const QDateTime& timeStep );
 
-    using SegmentConnectionStartEnd = std::tuple<float, float, bool>;
-    std::vector<SegmentConnectionStartEnd> segmentConnectionStartEndMeasuredDepth( const RifEclipseRftAddress& rftAddress );
-
 private:
     // Segment data
     // RftDate must be synced with definition in Opm::EclIO::ERft::RftDate
@@ -92,6 +89,13 @@ private:
     std::vector<float> resultAsFloat( const std::string& resultName, const std::string& wellName, int year, int month, int day ) const;
 
     bool openFiles();
+
+    using SegmentConnectionStartEnd = std::tuple<float, float, bool>;
+    std::vector<SegmentConnectionStartEnd> segmentConnectionStartEndMeasuredDepth( const RifEclipseRftAddress& rftAddress );
+
+    std::vector<float> segmentConnectionValues( const RifEclipseRftAddress& rftAddress,
+                                                const RifRftSegment&        rftSegment,
+                                                const std::vector<float>&   nativeResult );
 
 private:
     std::unique_ptr<Opm::EclIO::ERft> m_opm_rft;
