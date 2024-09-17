@@ -152,7 +152,7 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                     std::vector<float> branchValues;
 
                     {
-                        const std::string conbrnoResultName        = "CONBRNO";
+                        const std::string conbrnoResultName        = RiaDefines::segmentConnectionBranchNoResultName();
                         const auto        connnectionBranchNumbers = m_opm_rft->getRft<int>( conbrnoResultName, wellName, y, m, d );
 
                         if ( data.size() == connnectionBranchNumbers.size() )
@@ -494,9 +494,9 @@ std::vector<RifReaderOpmRft::SegmentConnectionStartEnd>
 
         const std::string wellName = rftAddress.wellName().toStdString();
 
-        const std::string conbrnoResultName  = "CONBRNO";
-        const std::string conlenstResultName = "CONLENST";
-        const std::string conlenenResultName = "CONLENEN";
+        const std::string conbrnoResultName  = RiaDefines::segmentConnectionBranchNoResultName();
+        const std::string conlenstResultName = RiaDefines::segmentConnectionStartDepthResultName();
+        const std::string conlenenResultName = RiaDefines::segmentConnectionEndDepthResultName();
 
         const auto connnectionBranchNumbers = m_opm_rft->getRft<int>( conbrnoResultName, wellName, y, m, d );
         const auto startMD                  = m_opm_rft->getRft<float>( conlenstResultName, wellName, y, m, d );

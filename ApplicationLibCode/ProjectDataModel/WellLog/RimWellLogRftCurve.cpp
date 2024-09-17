@@ -1135,7 +1135,7 @@ std::vector<double> RimWellLogRftCurve::tvDepthValues()
         {
             depthAddress = RifEclipseRftAddress::createBranchSegmentAddress( m_wellName(),
                                                                              m_timeStep,
-                                                                             "CONDEPTH",
+                                                                             RiaDefines::segmentConnectionTvdDepthResultName(),
                                                                              segmentBranchIndex(),
                                                                              m_segmentBranchType() );
         }
@@ -1167,11 +1167,7 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues( QString& prefixText
 
             if ( RiaDefines::isSegmentConnectionResult( m_segmentResultName() ) )
             {
-                return RimRftTools::segmentConnectionEndMdValues( opmRftReader,
-                                                                  m_wellName(),
-                                                                  m_timeStep,
-                                                                  segmentBranchIndex(),
-                                                                  m_segmentBranchType() );
+                return RimRftTools::segmentConnectionMdValues( opmRftReader, m_wellName(), m_timeStep, segmentBranchIndex(), m_segmentBranchType() );
             }
 
             // Always use segment end MD values for segment data, as the curve is plotted as step left

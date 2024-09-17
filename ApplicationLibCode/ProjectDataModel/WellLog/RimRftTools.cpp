@@ -225,11 +225,11 @@ std::vector<double> RimRftTools::segmentEndMdValues( RifReaderOpmRft*          r
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimRftTools::segmentConnectionEndMdValues( RifReaderOpmRft*          readerRft,
-                                                               const QString&            wellName,
-                                                               const QDateTime&          dateTime,
-                                                               int                       segmentBranchIndex,
-                                                               RiaDefines::RftBranchType segmentBranchType )
+std::vector<double> RimRftTools::segmentConnectionMdValues( RifReaderOpmRft*          readerRft,
+                                                            const QString&            wellName,
+                                                            const QDateTime&          dateTime,
+                                                            int                       segmentBranchIndex,
+                                                            RiaDefines::RftBranchType segmentBranchType )
 {
     if ( !readerRft ) return {};
 
