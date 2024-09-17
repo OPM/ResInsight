@@ -124,7 +124,6 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
             auto segmentConnectionValues = segmentConnectionStartEndMeasuredDepth( rftAddress );
             for ( const auto& [startMD, endMD, isValidSegment] : segmentConnectionValues )
             {
-                values->push_back( startMD );
                 values->push_back( endMD );
             }
 
@@ -189,11 +188,9 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                             {
                                 // Use infinity to make sure no curve is drawn for this segment
                                 values->push_back( std::numeric_limits<double>::infinity() );
-                                values->push_back( std::numeric_limits<double>::infinity() );
 
                                 connectionIndex++;
                             }
-                            values->push_back( branchValue );
                             values->push_back( branchValue );
                         }
 
@@ -485,58 +482,65 @@ void RifReaderOpmRft::openFiles( const QString& fileName, const QString& dataDec
 std::vector<RifReaderOpmRft::SegmentConnectionStartEnd>
     RifReaderOpmRft::segmentConnectionStartEndMeasuredDepth( const RifEclipseRftAddress& rftAddress )
 {
-    std::vector<RifReaderOpmRft::SegmentConnectionStartEnd> startEndValues;
-
-    if ( !isOpen() ) return startEndValues;
-
-    const int y = rftAddress.timeStep().date().year();
-    const int m = rftAddress.timeStep().date().month();
-    const int d = rftAddress.timeStep().date().day();
-
-    const std::string wellName = rftAddress.wellName().toStdString();
-
-    const std::string conbrnoResultName        = "CONBRNO";
-    const auto        connnectionBranchNumbers = m_opm_rft->getRft<int>( conbrnoResultName, wellName, y, m, d );
-
-    const std::string conlenstResultName = "CONLENST";
-    const auto        startMD            = m_opm_rft->getRft<float>( conlenstResultName, wellName, y, m, d );
-
-    const std::string conlenenResultName = "CONLENEN";
-    const auto        endMD              = m_opm_rft->getRft<float>( conlenenResultName, wellName, y, m, d );
-
-    const size_t size = connnectionBranchNumbers.size();
-    if ( size == startMD.size() && size == endMD.size() )
+    try
     {
-        auto segment = segmentForWell( rftAddress.wellName(), rftAddress.timeStep() );
+        std::vector<RifReaderOpmRft::SegmentConnectionStartEnd> startEndValues;
 
-        auto branchIdIndex = segment.branchIdsAndOneBasedBranchIndices( rftAddress.segmentBranchType() );
+        if ( !isOpen() ) return startEndValues;
 
-        // Convert the branch number to the branch index
-        // Filter data based on branch index
+        const int y = rftAddress.timeStep().date().year();
+        const int m = rftAddress.timeStep().date().month();
+        const int d = rftAddress.timeStep().date().day();
 
-        bool isFirstSegment = true;
+        const std::string wellName = rftAddress.wellName().toStdString();
 
-        for ( size_t i = 0; i < connnectionBranchNumbers.size(); i++ )
+        const std::string conbrnoResultName  = "CONBRNO";
+        const std::string conlenstResultName = "CONLENST";
+        const std::string conlenenResultName = "CONLENEN";
+
+        const auto connnectionBranchNumbers = m_opm_rft->getRft<int>( conbrnoResultName, wellName, y, m, d );
+        const auto startMD                  = m_opm_rft->getRft<float>( conlenstResultName, wellName, y, m, d );
+        const auto endMD                    = m_opm_rft->getRft<float>( conlenenResultName, wellName, y, m, d );
+
+        const size_t size = connnectionBranchNumbers.size();
+        if ( size == startMD.size() && size == endMD.size() )
         {
-            if ( branchIdIndex.count( connnectionBranchNumbers[i] ) )
+            auto segment = segmentForWell( rftAddress.wellName(), rftAddress.timeStep() );
+
+            auto branchIdIndex = segment.branchIdsAndOneBasedBranchIndices( rftAddress.segmentBranchType() );
+
+            // Convert the branch number to the branch index
+            // Filter data based on branch index
+
+            bool isFirstSegment = true;
+
+            for ( size_t i = 0; i < connnectionBranchNumbers.size(); i++ )
             {
-                auto branchIndex = branchIdIndex[connnectionBranchNumbers[i]];
-                if ( branchIndex == rftAddress.segmentBranchIndex() )
+                if ( branchIdIndex.count( connnectionBranchNumbers[i] ) )
                 {
-                    if ( !isFirstSegment && std::fabs( startMD[i] - endMD[i - 1] ) > 0.1 )
+                    auto branchIndex = branchIdIndex[connnectionBranchNumbers[i]];
+                    if ( branchIndex == rftAddress.segmentBranchIndex() )
                     {
-                        // Insert a segment representing the connection between the segments. Assign infinity as value to this segment to
-                        // allow discontinuous plotting.
-                        startEndValues.emplace_back( endMD[i - 1], startMD[i], false );
+                        if ( !isFirstSegment && std::fabs( startMD[i] - endMD[i - 1] ) > 0.1 )
+                        {
+                            // Insert a segment representing the connection between the segments. Assign infinity as value to this segment
+                            // to allow discontinuous plotting.
+                            startEndValues.emplace_back( endMD[i - 1], startMD[i], false );
+                        }
+                        startEndValues.emplace_back( startMD[i], endMD[i], true );
+                        isFirstSegment = false;
                     }
-                    startEndValues.emplace_back( startMD[i], endMD[i], true );
-                    isFirstSegment = false;
                 }
             }
         }
+
+        return startEndValues;
+    }
+    catch ( ... )
+    {
     }
 
-    return startEndValues;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
