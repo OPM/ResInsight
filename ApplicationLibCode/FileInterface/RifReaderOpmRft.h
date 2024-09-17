@@ -90,6 +90,13 @@ private:
 
     bool openFiles();
 
+    using SegmentConnectionStartEnd = std::tuple<float, float, bool>;
+    std::vector<SegmentConnectionStartEnd> segmentConnectionStartEndMeasuredDepth( const RifEclipseRftAddress& rftAddress );
+
+    std::vector<float> segmentConnectionValues( const RifEclipseRftAddress& rftAddress,
+                                                const RifRftSegment&        rftSegment,
+                                                const std::vector<float>&   nativeValues );
+
 private:
     std::unique_ptr<Opm::EclIO::ERft> m_opm_rft;
 

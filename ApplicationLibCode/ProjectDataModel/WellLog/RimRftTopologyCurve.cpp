@@ -267,7 +267,10 @@ QList<caf::PdmOptionItemInfo> RimRftTopologyCurve::calculateValueOptions( const 
     }
     else if ( fieldNeedingOptions == &m_segmentBranchIndex )
     {
-        options = RimRftTools::segmentBranchIndexOptions( reader, m_wellName(), m_timeStep(), RiaDefines::RftBranchType::RFT_UNKNOWN );
+        options = RimRftTools::segmentBranchIndexOptions( dynamic_cast<RifReaderOpmRft*>( reader ),
+                                                          m_wellName(),
+                                                          m_timeStep(),
+                                                          RiaDefines::RftBranchType::RFT_UNKNOWN );
     }
 
     return options;

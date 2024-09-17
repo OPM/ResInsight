@@ -131,8 +131,6 @@ private:
 
     int segmentBranchIndex() const;
 
-    static bool isSegmentResult( const QString& resultName );
-
 private:
     caf::PdmPtrField<RimEclipseCase*>        m_eclipseCase;
     caf::PdmPtrField<RimSummaryCase*>        m_summaryCase;
