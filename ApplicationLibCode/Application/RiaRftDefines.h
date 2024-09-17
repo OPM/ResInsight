@@ -38,7 +38,6 @@ std::string segmentConnectionIPos();
 std::string segmentConnectionJPos();
 std::string segmentConnectionKPos();
 
-
 QString allBranches();
 QString segmentBranchNumberResultName();
 
