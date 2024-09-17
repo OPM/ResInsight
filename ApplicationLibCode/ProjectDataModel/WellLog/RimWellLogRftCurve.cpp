@@ -572,7 +572,7 @@ std::map<QString, QString> RimWellLogRftCurve::createCurveNameKeyValueMap() cons
 
         variableValueMap[RiaDefines::namingVariableWellBranch()] = branchText;
 
-        if ( isSegmentResult( m_segmentResultName() ) )
+        if ( RiaDefines::isSegmentResult( m_segmentResultName() ) )
         {
             variableValueMap[RiaDefines::namingVariableResultType()] = m_segmentBranchType().uiText();
         }
@@ -1147,12 +1147,11 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues( QString& prefixText
 {
     if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
     {
-        RifReaderRftInterface* reader = rftReader();
-        if ( reader )
+        if ( RifReaderRftInterface* reader = rftReader() )
         {
             prefixText = "SEGMENT/";
 
-            if ( m_segmentResultName().startsWith( "CON" ) )
+            if ( RiaDefines::isSegmentConnectionResult( m_segmentResultName() ) )
             {
                 return RimRftTools::segmentConnectionEndMdValues( reader, m_wellName(), m_timeStep, segmentBranchIndex(), m_segmentBranchType() );
             }
@@ -1160,6 +1159,7 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues( QString& prefixText
             // Always use segment end MD values for segment data, as the curve is plotted as step left
             return RimRftTools::segmentEndMdValues( reader, m_wellName(), m_timeStep, segmentBranchIndex(), m_segmentBranchType() );
         }
+
         return {};
     }
 
@@ -1242,12 +1242,4 @@ bool RimWellLogRftCurve::deriveMeasuredDepthFromObservedData( const std::vector<
 int RimWellLogRftCurve::segmentBranchIndex() const
 {
     return m_segmentBranchIndex();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimWellLogRftCurve::isSegmentResult( const QString& resultName )
-{
-    return resultName.startsWith( "SEG" );
 }

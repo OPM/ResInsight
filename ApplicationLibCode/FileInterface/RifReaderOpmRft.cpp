@@ -137,22 +137,17 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                 auto key     = std::make_pair( wellName, RftDate{ y, m, d } );
                 auto segment = m_rftWellDateSegments[key];
 
-                std::vector<size_t> nonContinuousDeviceSegmentIndices;
-                if ( rftAddress.segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE )
-                {
-                    nonContinuousDeviceSegmentIndices = segment.nonContinuousDeviceSegmentIndices( rftAddress.segmentBranchIndex() );
-                }
-
                 if ( m_connectionResultItemCount.count( wellName ) && data.size() == m_connectionResultItemCount[wellName] )
                 {
                     const std::string conbrnoResultName        = "CONBRNO";
-                    auto              connnectionBranchNumbers = m_opm_rft->getRft<int>( conbrnoResultName, wellName, y, m, d );
+                    const auto        connnectionBranchNumbers = m_opm_rft->getRft<int>( conbrnoResultName, wellName, y, m, d );
 
                     if ( data.size() == connnectionBranchNumbers.size() )
                     {
                         auto branchIdIndex = segment.branchIdsAndOneBasedBranchIndices( rftAddress.segmentBranchType() );
 
-                        // Extract values for the branch numbers that the connection is connected to
+                        // Convert the branch number to the branch index
+                        // Filter data based on branch index
                         for ( size_t i = 0; i < connnectionBranchNumbers.size(); i++ )
                         {
                             if ( branchIdIndex.count( connnectionBranchNumbers[i] ) )
@@ -168,6 +163,12 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                 }
                 else
                 {
+                    std::vector<size_t> nonContinuousDeviceSegmentIndices;
+                    if ( rftAddress.segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE )
+                    {
+                        nonContinuousDeviceSegmentIndices = segment.nonContinuousDeviceSegmentIndices( rftAddress.segmentBranchIndex() );
+                    }
+
                     auto indices = segment.segmentIndicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
                     for ( const auto& i : indices )
                     {
@@ -197,7 +198,7 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                 if ( resultName == "CONFAC" || resultName == "CONKH" )
                 {
                     // Replace undefined values with zero to improve readability of plots
-                    std::replace( values->begin(), values->end(), std::numeric_limits<double>::infinity(), 0.0 );
+                    std::replace( data.begin(), data.end(), std::numeric_limits<double>::infinity(), 0.0 );
                 }
             }
             else
@@ -557,11 +558,12 @@ void RifReaderOpmRft::buildSegmentData()
 
             for ( const auto& [name, arrayType, size] : results )
             {
-                if ( ( name.find( "SEG" ) == 0 ) && m_segmentResultItemCount.count( wellName ) == 0 )
+                if ( ( RiaDefines::isSegmentResult( QString::fromStdString( name ) ) ) && m_segmentResultItemCount.count( wellName ) == 0 )
                 {
                     m_segmentResultItemCount[wellName] = size;
                 }
-                if ( name.find( "CON" ) == 0 && m_connectionResultItemCount.count( wellName ) == 0 )
+                if ( RiaDefines::isSegmentConnectionResult( QString::fromStdString( name ) ) &&
+                     m_connectionResultItemCount.count( wellName ) == 0 )
                 {
                     m_connectionResultItemCount[wellName] = size;
                 }

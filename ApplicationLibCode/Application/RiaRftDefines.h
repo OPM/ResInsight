@@ -22,11 +22,13 @@
 
 namespace RiaDefines
 {
+bool    isSegmentResult( const QString& resultName );
 QString segmentStartDepthResultName();
 QString segmentEndDepthResultName();
 QString segmentTvdDepthResultName();
 QString segmentNumberResultName();
 
+bool    isSegmentConnectionResult( const QString& resultName );
 QString segmentConnectionEndDepthResultName();
 
 QString allBranches();
