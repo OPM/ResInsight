@@ -756,11 +756,12 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
         const bool useAndOperation = cellFilterColl->useAndOperation();
 
 #pragma omp parallel for
-        for ( int cellIndex = 0; cellIndex < static_cast<int>( grid->cellCount() ); cellIndex++ )
+        for ( int nativeCellIndex = 0; nativeCellIndex < static_cast<int>( grid->cellCount() ); nativeCellIndex++ )
         {
-            if ( ( *nativeVisibility )[cellIndex] )
+            if ( ( *nativeVisibility )[nativeCellIndex] )
             {
-                const RigCell& cell                   = grid->cell( cellIndex );
+                const RigCell& cell                   = grid->nativeCell( nativeCellIndex );
+                const auto     globalCellIndex        = grid->nativeCellIndexToGlobal( nativeCellIndex );
                 bool           visibleDueToParentGrid = false;
                 if ( lgr )
                 {
@@ -774,7 +775,7 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
                 size_t mainGridK;
 
                 const bool isInSubGridArea = cell.subGrid() != nullptr;
-                grid->ijkFromCellIndex( cellIndex, &mainGridI, &mainGridJ, &mainGridK );
+                grid->ijkFromCellIndex( globalCellIndex, &mainGridI, &mainGridJ, &mainGridK );
 
                 bool nativeRangeVisibility = false;
 
@@ -784,12 +785,12 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
                     {
                         if ( useAndOperation )
                         {
-                            nativeRangeVisibility = indexIncludeVisibility[cellIndex] &&
+                            nativeRangeVisibility = indexIncludeVisibility[nativeCellIndex] &&
                                                     gridCellRangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, isInSubGridArea );
                         }
                         else
                         {
-                            nativeRangeVisibility = indexIncludeVisibility[cellIndex] ||
+                            nativeRangeVisibility = indexIncludeVisibility[nativeCellIndex] ||
                                                     gridCellRangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, isInSubGridArea );
                         }
                     }
@@ -800,12 +801,12 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
                 }
                 else
                 {
-                    nativeRangeVisibility = indexIncludeVisibility[cellIndex];
+                    nativeRangeVisibility = indexIncludeVisibility[nativeCellIndex];
                 }
 
-                ( *cellVisibility )[cellIndex] = ( visibleDueToParentGrid || nativeRangeVisibility ) &&
-                                                 !gridCellRangeFilter.isCellExcluded( mainGridI, mainGridJ, mainGridK, isInSubGridArea ) &&
-                                                 indexExcludeVisibility[cellIndex];
+                ( *cellVisibility )[nativeCellIndex] = ( visibleDueToParentGrid || nativeRangeVisibility ) &&
+                                                       !gridCellRangeFilter.isCellExcluded( mainGridI, mainGridJ, mainGridK, isInSubGridArea ) &&
+                                                       indexExcludeVisibility[nativeCellIndex];
             }
         }
     }
