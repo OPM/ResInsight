@@ -22,6 +22,7 @@
 #include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimGeoMechCellColors.h"
@@ -516,17 +517,6 @@ void Rim2dIntersectionView::onCreateDisplayModel()
         nativeOrOverrideViewer()->addFrame( new cvf::Scene(), isUsingOverrideViewer() );
     }
 
-    m_flatIntersectionPartMgr = new RivExtrudedCurveIntersectionPartMgr( m_intersection(), true );
-
-    m_intersectionVizModel->removeAllParts();
-
-    m_flatIntersectionPartMgr->generatePartGeometry( nullptr, scaleTransform() );
-    m_flatIntersectionPartMgr->appendIntersectionFacesToModel( m_intersectionVizModel.p(), scaleTransform() );
-    m_flatIntersectionPartMgr->appendMeshLinePartsToModel( m_intersectionVizModel.p(), scaleTransform() );
-    m_flatIntersectionPartMgr->appendPolylinePartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
-
-    m_flatIntersectionPartMgr->applySingleColorEffect();
-
     m_flatSimWellPipePartMgr = nullptr;
     m_flatWellHeadPartMgr    = nullptr;
 
@@ -627,6 +617,11 @@ void Rim2dIntersectionView::onUpdateDisplayModelForCurrentTimeStep()
 
     if ( m_flatIntersectionPartMgr.notNull() )
     {
+        RimEclipseView* eclView = m_intersection->firstAncestorOrThisOfType<RimEclipseView>();
+        if ( eclView && ( eclView->eclipsePropertyFilterCollection()->hasActiveFilters() ) )
+        {
+        }
+
         if ( hasResults() )
         {
             m_flatIntersectionPartMgr->updateCellResultColor( m_currentTimeStep,
@@ -830,4 +825,55 @@ void Rim2dIntersectionView::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 void Rim2dIntersectionView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     uiTreeOrdering.skipRemainingChildren( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim2dIntersectionView::appendIntersectionToModel( bool cellFiltersActive, bool propertyFiltersActive )
+{
+    m_intersectionVizModel->removeAllParts();
+    m_intersection->clearGeometry();
+
+    if ( shouldApplyCellFiltersToIntersections() && ( cellFiltersActive || propertyFiltersActive ) )
+    {
+        if ( !propertyFiltersActive )
+        {
+            cvf::UByteArray visibleCells;
+            calculateCellVisibility( &visibleCells, { RANGE_FILTERED_WELL_CELLS, RANGE_FILTERED } );
+            appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), &visibleCells );
+        }
+
+        // NB! Geometry objects are recreated in appendDynamicPartsToModel(), always call
+        // appendPartsToModel() after appendDynamicPartsToModel()
+        appendPartsToModel( m_intersectionVizModel.p(), scaleTransform() );
+    }
+    else
+    {
+        appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), nullptr );
+
+        // NB! Geometry objects are recreated in appendDynamicPartsToModel(), always call
+        // appendPartsToModel() after appendDynamicPartsToModel()
+        appendPartsToModel( m_intersectionVizModel.p(), scaleTransform() );
+    }
+    m_intersectionVizModel->updateBoundingBoxesRecursive();
+    nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim2dIntersectionView::appendPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
+{
+    m_flatIntersectionPartMgr->appendPolylinePartsToModel( *this, model, scaleTransform );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim2dIntersectionView::appendDynamicPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform, cvf::UByteArray* visibleCells )
+{
+    m_flatIntersectionPartMgr->generatePartGeometry( visibleCells, scaleTransform );
+    m_flatIntersectionPartMgr->appendIntersectionFacesToModel( m_intersectionVizModel.p(), scaleTransform );
+    m_flatIntersectionPartMgr->appendMeshLinePartsToModel( m_intersectionVizModel.p(), scaleTransform );
 }
