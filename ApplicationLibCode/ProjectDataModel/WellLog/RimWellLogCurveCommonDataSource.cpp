@@ -21,6 +21,8 @@
 #include "RiaSimWellBranchTools.h"
 #include "RiaSummaryTools.h"
 
+#include "RifReaderOpmRft.h"
+
 #include "RimCase.h"
 #include "RimDataSourceSteppingTools.h"
 #include "RimEclipseCase.h"
@@ -1005,7 +1007,10 @@ QList<caf::PdmOptionItemInfo> RimWellLogCurveCommonDataSource::calculateValueOpt
     }
     else if ( fieldNeedingOptions == &m_rftSegmentBranchIndex )
     {
-        options = RimRftTools::segmentBranchIndexOptions( rftReader(), m_rftWellName(), m_rftTimeStep(), m_rftSegmentBranchType() );
+        options = RimRftTools::segmentBranchIndexOptions( dynamic_cast<RifReaderOpmRft*>( rftReader() ),
+                                                          m_rftWellName(),
+                                                          m_rftTimeStep(),
+                                                          m_rftSegmentBranchType() );
     }
 
     return options;
