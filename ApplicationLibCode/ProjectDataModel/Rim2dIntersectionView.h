@@ -21,6 +21,7 @@
 #include "Rim3dView.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
+#include "cvfArray.h"
 
 class RimExtrudedCurveIntersection;
 class RimRegularLegendConfig;
@@ -72,6 +73,8 @@ public:
     bool showDefiningPoints() const;
 
     std::vector<RimLegendConfig*> legendConfigs() const override;
+
+    void onCellVisibilityChanged( const SignalEmitter* emitter );
 
 protected:
     void onUpdateLegends() override;
