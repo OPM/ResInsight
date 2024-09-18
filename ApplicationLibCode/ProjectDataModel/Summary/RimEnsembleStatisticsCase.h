@@ -49,9 +49,6 @@ public:
     std::pair<bool, std::vector<double>> values( const RifEclipseSummaryAddress& resultAddress ) const override;
     std::string                          unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
 
-    static std::vector<RimSummaryCase*> validSummaryCases( const std::vector<RimSummaryCase*>& allSumCases,
-                                                           const RifEclipseSummaryAddress&     inputAddress,
-                                                           bool                                includeIncompleteCurves );
     static std::pair<time_t, time_t>    findMinMaxTimeStep( const std::vector<RimSummaryCase*>& sumCases,
                                                             const RifEclipseSummaryAddress&     inputAddress );
     static RiaDefines::DateTimePeriod   findBestResamplingPeriod( time_t minTimeStep, time_t maxTimeStep );
