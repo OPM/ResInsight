@@ -129,7 +129,23 @@
 #include "cvfViewport.h"
 #include "cvfqtUtils.h"
 
+#include <QApplication>
+
 #include <climits>
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RimEclipseView::RimCaseChangeBehaviour>::setUp()
+{
+    addItem( RimEclipseView::RimCaseChangeBehaviour::KEEP_CURRENT_SETTINGS, "KEEP_CURRENT_SETTINGS", "Keep Current View Settings" );
+    addItem( RimEclipseView::RimCaseChangeBehaviour::STORE_VIEW_SETTINGS_FOR_CASE,
+             "STORE_VIEW_SETTINGS_FOR_CASE",
+             "Store View Settings for Case" );
+    addItem( RimEclipseView::RimCaseChangeBehaviour::ZOOM_TO_FIT, "ZOOM_TO_FIT", "Zoom to Fit" );
+    setDefault( RimEclipseView::RimCaseChangeBehaviour::KEEP_CURRENT_SETTINGS );
+}
+} // namespace caf
 
 CAF_PDM_XML_SOURCE_INIT( RimEclipseView, "ReservoirView" );
 //--------------------------------------------------------------------------------------------------
@@ -150,7 +166,7 @@ RimEclipseView::RimEclipseView()
     CAF_PDM_InitFieldNoDefault( &m_customEclipseCase_OBSOLETE, "CustomEclipseCase", "Custom Case" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
-    CAF_PDM_InitField( &m_storeViewSettingsPerCase, "StoreViewSettingsPerCase", false, "Store View Settings for Case" );
+    CAF_PDM_InitFieldNoDefault( &m_caseChangeBehaviour, "CaseChangeBehaviour", "Zoom Operation When Changing Case" );
 
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_cellResult, "GridCellResult", "CellResult", "Cell Result", ":/CellResult.png" );
     m_cellResult = new RimEclipseCellColors();
@@ -465,13 +481,16 @@ void RimEclipseView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
         updateGridBoxData();
         updateAnnotationItems();
 
-        if ( m_storeViewSettingsPerCase() )
+        if ( m_caseChangeBehaviour() == RimEclipseView::RimCaseChangeBehaviour::STORE_VIEW_SETTINGS_FOR_CASE )
         {
             auto currentEclipseCase = dynamic_cast<RimEclipseCase*>( oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr() );
             storeCurrentAndApplyNewCameraPosition( currentEclipseCase, m_eclipseCase );
         }
-        else
+        else if ( m_caseChangeBehaviour() == RimEclipseView::RimCaseChangeBehaviour::ZOOM_TO_FIT )
         {
+            // Required to update the view after the case change. zoomAll() is not working without this.
+            QApplication::processEvents();
+
             zoomAll();
         }
 
@@ -1981,7 +2000,7 @@ void RimEclipseView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         caf::PdmUiGroup* dataSourceGroup = uiOrdering.addNewGroup( "Data Source" );
 
         dataSourceGroup->add( &m_eclipseCase );
-        dataSourceGroup->add( &m_storeViewSettingsPerCase );
+        dataSourceGroup->add( &m_caseChangeBehaviour );
     }
 
     Rim3dView::defineUiOrdering( uiConfigName, uiOrdering );
@@ -2072,8 +2091,6 @@ QList<caf::PdmOptionItemInfo> RimEclipseView::calculateValueOptions( const caf::
     if ( fieldNeedingOptions == &m_eclipseCase )
     {
         QList<caf::PdmOptionItemInfo> options;
-
-        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
 
         for ( auto eclCase : RimEclipseCaseTools::allEclipseGridCases() )
         {
