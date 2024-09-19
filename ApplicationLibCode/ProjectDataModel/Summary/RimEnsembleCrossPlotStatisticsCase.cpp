@@ -130,7 +130,7 @@ void RimEnsembleCrossPlotStatisticsCase::calculate( const std::vector<RimSummary
 
     std::vector<SampleData> sampleData;
 
-    auto [minTimeStep, maxTimeStep]   = RimEnsembleStatisticsCase::findMinMaxTimeStep( sumCases, inputAddressX );
+    auto [minTimeStep, maxTimeStep]   = RimEnsembleStatisticsCase::findMinMaxTime( sumCases, inputAddressX );
     RiaDefines::DateTimePeriod period = RimEnsembleStatisticsCase::findBestResamplingPeriod( minTimeStep, maxTimeStep );
 
     for ( const auto& sumCase : sumCases )
