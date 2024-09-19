@@ -1022,42 +1022,54 @@ int RimPolygonFilter::findEclipseKLayer( const std::vector<cvf::Vec3d>& points, 
         }
     }
 
-    auto findKLayerBelowPoint = []( const cvf::Vec3d& point, RigMainGrid* mainGrid )
+    auto findClosestKLayer = []( const cvf::Vec3d& point, RigMainGrid* mainGrid )
     {
-        // Create a bounding box (ie a ray) from the point down to minimum of grid
-        cvf::Vec3d lowestPoint( point.x(), point.y(), mainGrid->boundingBox().min().z() );
-
-        cvf::BoundingBox rayBBox;
-        rayBBox.add( point );
-        rayBBox.add( lowestPoint );
-
-        // Find the cells intersecting the ray
-        std::vector<size_t> allCellIndices = mainGrid->findIntersectingCells( rayBBox );
-
-        // Get the minimum K layer index
-        int  minK    = std::numeric_limits<int>::max();
-        bool anyHits = false;
-        for ( size_t cIdx : allCellIndices )
+        auto findKLayerForBoundingBox = []( const cvf::BoundingBox& bb, RigMainGrid* mainGrid )
         {
-            if ( cIdx != cvf::UNDEFINED_SIZE_T )
+            // Find the cells intersecting the ray
+            std::vector<size_t> allCellIndices = mainGrid->findIntersectingCells( bb );
+
+            // Get the minimum K layer index
+            int  minK    = std::numeric_limits<int>::max();
+            bool anyHits = false;
+            for ( size_t cIdx : allCellIndices )
             {
-                size_t ni, nj, nk;
-                mainGrid->ijkFromCellIndexUnguarded( cIdx, &ni, &nj, &nk );
-                if ( mainGrid->isCellValid( ni, nj, nk ) )
+                if ( cIdx != cvf::UNDEFINED_SIZE_T )
                 {
-                    anyHits = true;
-                    minK    = std::min( minK, static_cast<int>( nk ) );
+                    size_t ni, nj, nk;
+                    mainGrid->ijkFromCellIndexUnguarded( cIdx, &ni, &nj, &nk );
+                    if ( mainGrid->isCellValid( ni, nj, nk ) )
+                    {
+                        anyHits = true;
+                        minK    = std::min( minK, static_cast<int>( nk ) );
+                    }
                 }
             }
-        }
 
-        return anyHits ? minK : -1;
+            return anyHits ? minK : -1;
+        };
+
+        // Create a bounding box from the point down to minimum of grid
+        cvf::Vec3d lowestPoint( point.x(), point.y(), mainGrid->boundingBox().min().z() );
+
+        cvf::BoundingBox bb;
+        bb.add( point );
+        bb.add( lowestPoint );
+
+        auto kForBB = findKLayerForBoundingBox( bb, mainGrid );
+        if ( kForBB != -1 ) return kForBB;
+
+        // Add the highest point to the bounding box
+        cvf::Vec3d highestPoint( point.x(), point.y(), mainGrid->boundingBox().max().z() );
+        bb.add( highestPoint );
+
+        return findKLayerForBoundingBox( bb, mainGrid );
     };
 
-    // shoot a ray down from each point to try to find a valid hit there
+    // shoot a ray up and down from each point to try to find a valid hit there
     for ( size_t p = 0; p < points.size(); p++ )
     {
-        int k = findKLayerBelowPoint( points[p], data->mainGrid() );
+        int k = findClosestKLayer( points[p], data->mainGrid() );
         if ( k != -1 ) return k;
     }
 
