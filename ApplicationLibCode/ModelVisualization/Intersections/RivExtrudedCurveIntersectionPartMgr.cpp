@@ -842,52 +842,58 @@ void RivExtrudedCurveIntersectionPartMgr::appendMeshLinePartsToModel( cvf::Model
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivExtrudedCurveIntersectionPartMgr::appendPolylinePartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
+void RivExtrudedCurveIntersectionPartMgr::appendPolylinePartsToModel( Rim3dView&           view,
+                                                                      cvf::ModelBasicList* model,
+                                                                      cvf::Transform*      scaleTransform,
+                                                                      bool                 annotationOnly )
 {
     auto* curr2dView = dynamic_cast<Rim2dIntersectionView*>( &view );
 
-    if ( m_rimIntersection->inputPolyLineFromViewerEnabled() || ( curr2dView && curr2dView->showDefiningPoints() ) )
+    if ( !annotationOnly )
     {
-        if ( m_highlightLineAlongPolyline.notNull() )
+        if ( m_rimIntersection->inputPolyLineFromViewerEnabled() || ( curr2dView && curr2dView->showDefiningPoints() ) )
         {
-            m_highlightLineAlongPolyline->setTransform( scaleTransform );
-            model->addPart( m_highlightLineAlongPolyline.p() );
+            if ( m_highlightLineAlongPolyline.notNull() )
+            {
+                m_highlightLineAlongPolyline->setTransform( scaleTransform );
+                model->addPart( m_highlightLineAlongPolyline.p() );
+            }
+
+            if ( m_highlightPointsForPolyline.notNull() )
+            {
+                m_highlightPointsForPolyline->setTransform( scaleTransform );
+                model->addPart( m_highlightPointsForPolyline.p() );
+            }
         }
 
-        if ( m_highlightPointsForPolyline.notNull() )
+        if ( m_rimIntersection->inputExtrusionPointsFromViewerEnabled() )
         {
-            m_highlightPointsForPolyline->setTransform( scaleTransform );
-            model->addPart( m_highlightPointsForPolyline.p() );
-        }
-    }
+            if ( m_highlightLineAlongExtrusionDir.notNull() )
+            {
+                m_highlightLineAlongExtrusionDir->setTransform( scaleTransform );
+                model->addPart( m_highlightLineAlongExtrusionDir.p() );
+            }
 
-    if ( m_rimIntersection->inputExtrusionPointsFromViewerEnabled() )
-    {
-        if ( m_highlightLineAlongExtrusionDir.notNull() )
-        {
-            m_highlightLineAlongExtrusionDir->setTransform( scaleTransform );
-            model->addPart( m_highlightLineAlongExtrusionDir.p() );
-        }
-
-        if ( m_highlightPointsForExtrusionDir.notNull() )
-        {
-            m_highlightPointsForExtrusionDir->setTransform( scaleTransform );
-            model->addPart( m_highlightPointsForExtrusionDir.p() );
-        }
-    }
-
-    if ( m_rimIntersection->inputTwoAzimuthPointsFromViewerEnabled() || ( curr2dView && curr2dView->showDefiningPoints() ) )
-    {
-        if ( m_highlightLineAlongPolyline.notNull() )
-        {
-            m_highlightLineAlongPolyline->setTransform( scaleTransform );
-            model->addPart( m_highlightLineAlongPolyline.p() );
+            if ( m_highlightPointsForExtrusionDir.notNull() )
+            {
+                m_highlightPointsForExtrusionDir->setTransform( scaleTransform );
+                model->addPart( m_highlightPointsForExtrusionDir.p() );
+            }
         }
 
-        if ( m_highlightPointsForPolyline.notNull() )
+        if ( m_rimIntersection->inputTwoAzimuthPointsFromViewerEnabled() || ( curr2dView && curr2dView->showDefiningPoints() ) )
         {
-            m_highlightPointsForPolyline->setTransform( scaleTransform );
-            model->addPart( m_highlightPointsForPolyline.p() );
+            if ( m_highlightLineAlongPolyline.notNull() )
+            {
+                m_highlightLineAlongPolyline->setTransform( scaleTransform );
+                model->addPart( m_highlightLineAlongPolyline.p() );
+            }
+
+            if ( m_highlightPointsForPolyline.notNull() )
+            {
+                m_highlightPointsForPolyline->setTransform( scaleTransform );
+                model->addPart( m_highlightPointsForPolyline.p() );
+            }
         }
     }
 

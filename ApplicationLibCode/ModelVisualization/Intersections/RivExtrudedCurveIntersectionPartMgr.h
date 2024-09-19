@@ -75,7 +75,7 @@ public:
 
     void appendIntersectionFacesToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
-    void appendPolylinePartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
+    void appendPolylinePartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform, bool annotationOnly = false );
 
     cvf::Mat4d unflattenTransformMatrix( const cvf::Vec3d& intersectionPointFlat ) const;
 

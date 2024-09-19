@@ -21,6 +21,7 @@
 #include "Rim3dView.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
+#include "cvfArray.h"
 
 class RimExtrudedCurveIntersection;
 class RimRegularLegendConfig;
@@ -73,6 +74,8 @@ public:
 
     std::vector<RimLegendConfig*> legendConfigs() const override;
 
+    void onCellVisibilityChanged( const SignalEmitter* emitter );
+
 protected:
     void onUpdateLegends() override;
 
@@ -96,10 +99,16 @@ protected:
 
     size_t onTimeStepCountRequested() override;
 
+    void appendIntersectionForCurrentTimeStep();
+    void appendIntersectionToModel( bool cellFiltersActive, bool propertyFiltersActive );
+
 private:
     QString createAutoName() const override;
     QString getName() const;
     void    setName( const QString& name );
+
+    void appendPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
+    void appendDynamicPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform, cvf::UByteArray* visibleCells );
 
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
     caf::PdmChildField<RimTernaryLegendConfig*> m_ternaryLegendConfig;
