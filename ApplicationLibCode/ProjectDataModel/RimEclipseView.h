@@ -88,6 +88,14 @@ class RimEclipseView : public RimGridView
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class RimCaseChangeBehaviour
+    {
+        ZOOM_TO_FIT,
+        KEEP_CURRENT_SETTINGS,
+        STORE_VIEW_SETTINGS_FOR_CASE
+    };
+
+public:
     RimEclipseView();
     ~RimEclipseView() override;
 
@@ -228,8 +236,8 @@ private:
 protected:
     cvf::ref<cvf::ModelBasicList> m_faultReactVizModel;
 
-    caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
-    caf::PdmField<bool>               m_storeViewSettingsPerCase;
+    caf::PdmPtrField<RimEclipseCase*>                   m_eclipseCase;
+    caf::PdmField<caf::AppEnum<RimCaseChangeBehaviour>> m_caseChangeBehaviour;
 
 private:
     caf::PdmField<bool> m_showInvalidCells;
