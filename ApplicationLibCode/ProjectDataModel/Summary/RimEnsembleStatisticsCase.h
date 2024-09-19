@@ -43,18 +43,15 @@ public:
     RifSummaryReaderInterface*    summaryReader() override;
     RiaDefines::EclipseUnitSystem unitSystem() const override;
 
-    void calculate( const std::vector<RimSummaryCase*>& sumCases, const RifEclipseSummaryAddress& inputAddress, bool includeIncompleteCurves );
+    void calculate( const std::vector<RimSummaryCase*>& summaryCases, const RifEclipseSummaryAddress& inputAddress, bool includeIncompleteCurves );
 
     std::vector<time_t>                  timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
     std::pair<bool, std::vector<double>> values( const RifEclipseSummaryAddress& resultAddress ) const override;
     std::string                          unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
 
-    static std::vector<RimSummaryCase*> validSummaryCases( const std::vector<RimSummaryCase*>& allSumCases,
-                                                           const RifEclipseSummaryAddress&     inputAddress,
-                                                           bool                                includeIncompleteCurves );
-    static std::pair<time_t, time_t>    findMinMaxTimeStep( const std::vector<RimSummaryCase*>& sumCases,
-                                                            const RifEclipseSummaryAddress&     inputAddress );
-    static RiaDefines::DateTimePeriod   findBestResamplingPeriod( time_t minTimeStep, time_t maxTimeStep );
+    static std::pair<time_t, time_t>  findMinMaxTime( const std::vector<RimSummaryCase*>& sumCases,
+                                                      const RifEclipseSummaryAddress&     inputAddress );
+    static RiaDefines::DateTimePeriod findBestResamplingPeriod( time_t minTimeStep, time_t maxTimeStep );
 
 private:
     void clearData();

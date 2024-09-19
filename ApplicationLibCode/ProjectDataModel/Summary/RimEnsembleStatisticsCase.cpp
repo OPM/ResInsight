@@ -18,17 +18,13 @@
 
 #include "RimEnsembleStatisticsCase.h"
 
+#include "RiaCurveMerger.h"
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 
 #include "RigStatisticsMath.h"
 
-#include "RimEnsembleCurveSet.h"
-#include "RimSummaryEnsemble.h"
-
 #include <limits>
-#include <set>
-#include <vector>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -129,55 +125,62 @@ RifSummaryReaderInterface* RimEnsembleStatisticsCase::summaryReader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& sumCases,
+void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& summaryCases,
                                            const RifEclipseSummaryAddress&     inputAddress,
                                            bool                                includeIncompleteCurves )
 {
     clearData();
+
     if ( !inputAddress.isValid() ) return;
-    if ( sumCases.empty() ) return;
+    if ( summaryCases.empty() ) return;
 
     // Use first summary case to get unit system and other meta data
-    m_firstSummaryCase = sumCases.front();
+    m_firstSummaryCase = summaryCases.front();
 
-    auto [minTimeStep, maxTimeStep]   = findMinMaxTimeStep( sumCases, inputAddress );
-    RiaDefines::DateTimePeriod period = findBestResamplingPeriod( minTimeStep, maxTimeStep );
+    const auto [minTime, maxTime]     = findMinMaxTime( summaryCases, inputAddress );
+    RiaDefines::DateTimePeriod period = findBestResamplingPeriod( minTime, maxTime );
 
-    std::vector<time_t>              allTimeSteps;
-    std::vector<std::vector<double>> caseAndTimeStepValues;
-    caseAndTimeStepValues.reserve( sumCases.size() );
-    for ( const auto& sumCase : sumCases )
+    // The last time step for the individual realizations in an ensemble is usually identical. Add a small threshold to improve robustness.
+    const auto timeThreshold = maxTime - ( maxTime - minTime ) * 0.01;
+
+    RiaTimeHistoryCurveMerger curveMerger;
+
+    for ( const auto& sumCase : summaryCases )
     {
         const auto& reader = sumCase->summaryReader();
         if ( reader )
         {
             const std::vector<time_t>& timeSteps = reader->timeSteps( inputAddress );
-            auto [isOk, values]                  = reader->values( inputAddress );
+            const auto [isOk, values]            = reader->values( inputAddress );
 
-            if ( values.empty() ) continue;
+            if ( values.empty() || timeSteps.empty() ) continue;
 
-            if ( !includeIncompleteCurves && timeSteps.size() != values.size() ) continue;
+            if ( !includeIncompleteCurves && ( timeSteps.back() < timeThreshold ) ) continue;
 
-            auto [resampledTimeSteps, resampledValues] = RiaSummaryTools::resampledValuesForPeriod( inputAddress, timeSteps, values, period );
-
-            if ( allTimeSteps.empty() ) allTimeSteps = resampledTimeSteps;
-            caseAndTimeStepValues.push_back( resampledValues );
+            const auto [resampledTimeSteps, resampledValues] =
+                RiaSummaryTools::resampledValuesForPeriod( inputAddress, timeSteps, values, period );
+            curveMerger.addCurveData( resampledTimeSteps, resampledValues );
         }
     }
 
-    m_timeSteps = allTimeSteps;
+    curveMerger.computeInterpolatedValues();
 
-    for ( size_t timeStepIndex = 0; timeStepIndex < allTimeSteps.size(); timeStepIndex++ )
+    std::vector<std::vector<double>> curveValues;
+    for ( size_t i = 0; i < curveMerger.curveCount(); i++ )
+    {
+        curveValues.push_back( curveMerger.interpolatedYValuesForAllXValues( i ) );
+    }
+
+    m_timeSteps = curveMerger.allXValues();
+
+    for ( size_t timeStepIndex = 0; timeStepIndex < m_timeSteps.size(); timeStepIndex++ )
     {
         std::vector<double> valuesAtTimeStep;
-        valuesAtTimeStep.reserve( sumCases.size() );
+        valuesAtTimeStep.reserve( curveMerger.curveCount() );
 
-        for ( const std::vector<double>& caseValues : caseAndTimeStepValues )
+        for ( size_t curveIdx = 0; curveIdx < curveMerger.curveCount(); curveIdx++ )
         {
-            if ( timeStepIndex < caseValues.size() )
-            {
-                valuesAtTimeStep.push_back( caseValues[timeStepIndex] );
-            }
+            valuesAtTimeStep.push_back( curveValues[curveIdx][timeStepIndex] );
         }
 
         double p10, p50, p90, mean;
@@ -218,57 +221,11 @@ void RimEnsembleStatisticsCase::clearData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RimEnsembleStatisticsCase::validSummaryCases( const std::vector<RimSummaryCase*>& allSumCases,
-                                                                           const RifEclipseSummaryAddress&     inputAddress,
-                                                                           bool                                includeIncompleteCurves )
+std::pair<time_t, time_t> RimEnsembleStatisticsCase::findMinMaxTime( const std::vector<RimSummaryCase*>& sumCases,
+                                                                     const RifEclipseSummaryAddress&     inputAddress )
 {
-    std::vector<RimSummaryCase*>                    validCases;
-    std::vector<std::pair<RimSummaryCase*, time_t>> times;
-
-    time_t maxTimeStep = 0;
-
-    for ( auto& sumCase : allSumCases )
-    {
-        const auto& reader = sumCase->summaryReader();
-        if ( reader )
-        {
-            const std::vector<time_t>& timeSteps = reader->timeSteps( inputAddress );
-            if ( !timeSteps.empty() )
-            {
-                time_t lastTimeStep = timeSteps.back();
-
-                maxTimeStep = std::max( lastTimeStep, maxTimeStep );
-                times.push_back( std::make_pair( sumCase, lastTimeStep ) );
-            }
-        }
-    }
-
-    for ( const auto& [sumCase, lastTimeStep] : times )
-    {
-        // Previous versions tested on identical first time step, this test is now removed. For large simulations with
-        // numerical issues the first time step can be slightly different
-        //
-        // https://github.com/OPM/ResInsight/issues/7774
-        //
-        if ( !includeIncompleteCurves && lastTimeStep != maxTimeStep )
-        {
-            continue;
-        }
-
-        validCases.push_back( sumCase );
-    }
-
-    return validCases;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::pair<time_t, time_t> RimEnsembleStatisticsCase::findMinMaxTimeStep( const std::vector<RimSummaryCase*>& sumCases,
-                                                                         const RifEclipseSummaryAddress&     inputAddress )
-{
-    time_t minTimeStep = std::numeric_limits<time_t>::max();
-    time_t maxTimeStep = 0;
+    time_t minTime = std::numeric_limits<time_t>::max();
+    time_t maxTime = 0;
 
     for ( const auto& sumCase : sumCases )
     {
@@ -278,13 +235,13 @@ std::pair<time_t, time_t> RimEnsembleStatisticsCase::findMinMaxTimeStep( const s
             const std::vector<time_t>& timeSteps = reader->timeSteps( inputAddress );
             if ( !timeSteps.empty() )
             {
-                minTimeStep = std::min( timeSteps.front(), minTimeStep );
-                maxTimeStep = std::max( timeSteps.back(), maxTimeStep );
+                minTime = std::min( timeSteps.front(), minTime );
+                maxTime = std::max( timeSteps.back(), maxTime );
             }
         }
     }
 
-    return std::make_pair( minTimeStep, maxTimeStep );
+    return std::make_pair( minTime, maxTime );
 }
 
 //--------------------------------------------------------------------------------------------------
