@@ -70,7 +70,6 @@ inline Object::~Object()
 //--------------------------------------------------------------------------------------------------
 inline int Object::addRef() const
 {
-    CVF_TIGHT_ASSERT(this);
     return ++m_refCount;
 }
 
@@ -103,7 +102,6 @@ inline int Object::release() const
 //--------------------------------------------------------------------------------------------------
 inline int Object::refCount() const
 {
-    CVF_TIGHT_ASSERT(this);
     return m_refCount;
 }
 
