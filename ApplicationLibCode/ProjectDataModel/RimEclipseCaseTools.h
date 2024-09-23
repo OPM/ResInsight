@@ -35,6 +35,9 @@ public:
     // Result cases based on RimEclipseCaseTools::elipseCases()
     static std::vector<RimEclipseResultCase*> eclipseResultCases();
 
-    // All Eclipse cases including grid case group source cases, excluding statistics cases
+    // All native Eclipse cases including grid case group source cases, excluding statistics cases
+    static std::vector<RimEclipseCase*> nativeEclipseGridCases();
+
+    // All Eclipse cases including statistics cases
     static std::vector<RimEclipseCase*> allEclipseGridCases();
 };

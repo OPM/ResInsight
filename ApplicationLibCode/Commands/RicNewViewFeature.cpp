@@ -101,7 +101,7 @@ void RicNewViewFeature::onActionTriggered( bool isChecked )
         {
             // Use cases from grid ensemble if applicable
             auto gridEnsemble = viewCollection->firstAncestorOfType<RimEclipseCaseEnsemble>();
-            auto eclipseCases = gridEnsemble ? gridEnsemble->cases() : RimEclipseCaseTools::allEclipseGridCases();
+            auto eclipseCases = gridEnsemble ? gridEnsemble->cases() : RimEclipseCaseTools::nativeEclipseGridCases();
 
             if ( !eclipseCases.empty() )
             {
