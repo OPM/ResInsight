@@ -71,7 +71,7 @@ void RicImportGridCalculationExpressionsFeature::onActionTriggered( bool isCheck
     auto calcColl = proj->gridCalculationCollection();
 
     RimEclipseCase* firstCase = nullptr;
-    auto            eclCases  = RimEclipseCaseTools::allEclipseGridCases();
+    auto            eclCases  = RimEclipseCaseTools::nativeEclipseGridCases();
     if ( !eclCases.empty() ) firstCase = eclCases.front();
 
     for ( auto calc : calculations )
