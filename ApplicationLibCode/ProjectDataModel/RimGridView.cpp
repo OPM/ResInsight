@@ -571,9 +571,21 @@ void RimGridView::appendIntersectionsToModel( bool cellFiltersActive, bool prope
     {
         m_intersectionCollection->clearGeometry();
 
+        bool addStaticModel = true;
+
         if ( m_intersectionCollection->shouldApplyCellFiltersToIntersections() && ( cellFiltersActive || propertyFiltersActive ) )
         {
-            if ( !propertyFiltersActive )
+            if ( propertyFiltersActive )
+            {
+                cvf::UByteArray visibleCells;
+                calculateCellVisibility( &visibleCells, { PROPERTY_FILTERED, PROPERTY_FILTERED_WELL_CELLS } );
+                m_intersectionCollection->appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), currentTimeStep(), &visibleCells );
+
+                // If property filters are active, we do not want to add the static model as the static parts can cover the dynamic parts in
+                // some cases
+                addStaticModel = false;
+            }
+            else
             {
                 cvf::UByteArray visibleCells;
                 calculateCellVisibility( &visibleCells, { RANGE_FILTERED_WELL_CELLS, RANGE_FILTERED } );
@@ -592,7 +604,16 @@ void RimGridView::appendIntersectionsToModel( bool cellFiltersActive, bool prope
             // appendPartsToModel() after appendDynamicPartsToModel()
             m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
         }
+
+        if ( addStaticModel )
+        {
+            nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
+        }
+        else
+        {
+            nativeOrOverrideViewer()->removeStaticModel( m_intersectionVizModel.p() );
+        }
+
         m_intersectionVizModel->updateBoundingBoxesRecursive();
-        nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
     }
 }
