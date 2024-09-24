@@ -102,10 +102,12 @@ bool RiaResultNames::isFlowResultWithBothPosAndNegValues( const QString& resultN
 //--------------------------------------------------------------------------------------------------
 bool RiaResultNames::isCategoryResult( const QString& resultName )
 {
-    // Check for special FIP* results. This will also match statistics results FIPOIL_MEAN, FIPOIL_P90, ...
-    if ( resultName.startsWith( "FIPOIL", Qt::CaseInsensitive ) ) return false;
-    if ( resultName.startsWith( "FIPGAS", Qt::CaseInsensitive ) ) return false;
-    if ( resultName.startsWith( "FIPWAT", Qt::CaseInsensitive ) ) return false;
+    // Identify and mark some FIP-results as non-category result.
+    // This includes statistics results FIPOIL_MEAN, FIPOIL_P90, SFIP* and RFIP*.
+
+    if ( resultName.contains( "FIPOIL", Qt::CaseInsensitive ) ) return false;
+    if ( resultName.contains( "FIPGAS", Qt::CaseInsensitive ) ) return false;
+    if ( resultName.contains( "FIPWAT", Qt::CaseInsensitive ) ) return false;
 
     if ( resultName.endsWith( "NUM", Qt::CaseInsensitive ) ) return true;
     if ( resultName.startsWith( "FIP", Qt::CaseInsensitive ) ) return true;
