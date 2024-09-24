@@ -1632,12 +1632,6 @@ void RimEclipseView::updateLegendRangesTextAndVisibility( RimRegularLegendConfig
                                                           RimEclipseResultDefinition* eclResultDef,
                                                           int                         timeStepIndex )
 {
-    // Call appendIntersectionsForCurrentTimeStep() is required to get the intersected cells. If the legend to update should list visible
-    // categories, the intersection geometry defines the intersected cells. These cells are then used to extract all category values, and
-    // find unique values. appendIntersectionsForCurrentTimeStep() is now called twice, and this could potentially be a performance issue
-    // for very large models.
-    appendIntersectionsForCurrentTimeStep();
-
     eclResultDef->updateRangesForExplicitLegends( legendConfig, ternaryLegendConfig, timeStepIndex );
 
     if ( eclResultDef->hasResult() && legendConfig->showLegend() )
