@@ -826,6 +826,11 @@ void RimSummaryCurve::initAfterRead()
     {
         m_isEnsembleCurve.v() = ( summaryCaseY() && summaryCaseY()->ensemble() ) ? caf::Tristate::State::True : caf::Tristate::State::False;
     }
+
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2024.3" ) )
+    {
+        calculateCurveInterpolationFromAddress();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
