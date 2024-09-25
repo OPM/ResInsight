@@ -20,8 +20,6 @@
 
 #include "RifSummaryReaderInterface.h"
 
-#include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
-
 #include <map>
 #include <memory>
 #include <vector>
@@ -30,6 +28,7 @@ class QString;
 
 class RifCsvUserDataParser;
 class RifEclipseSummaryAddress;
+class RifAsciiDataParseOptions;
 class TableData;
 
 //==================================================================================================
@@ -42,7 +41,7 @@ public:
     RifCsvUserData();
     ~RifCsvUserData() override;
 
-    bool parse( const QString& fileName, const AsciiDataParseOptions& parseOptions, QString* errorText = nullptr );
+    bool parse( const QString& fileName, const RifAsciiDataParseOptions& parseOptions, QString* errorText = nullptr );
 
     std::vector<time_t> timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
 

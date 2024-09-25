@@ -319,8 +319,7 @@ QDateTime RimSummaryTimeAxisProperties::fromDisplayTimeToDate( double displayTim
     time_t          startOfSimulation = rimSummaryPlot->firstTimeStepOfFirstCurve();
 
     time_t    secsSinceSimulationStart = displayTime / fromTimeTToDisplayUnitScale();
-    QDateTime date;
-    date.setTime_t( startOfSimulation + secsSinceSimulationStart );
+    QDateTime date                     = RiaQDateTimeTools::fromTime_t( startOfSimulation + secsSinceSimulationStart );
 
     return date;
 }

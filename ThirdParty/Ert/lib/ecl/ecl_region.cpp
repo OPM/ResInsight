@@ -428,7 +428,7 @@ void ecl_region_deselect_in_interval( ecl_region_type * region , const ecl_kw_ty
 /*****************************************************************/
 
 /**
-   This is waaaay to fucking large:
+   This is waaaay to large:
 
    Float / Int / double *  Active / Global  *  More / Less ==> In total 12 code blocks written out ...
 */

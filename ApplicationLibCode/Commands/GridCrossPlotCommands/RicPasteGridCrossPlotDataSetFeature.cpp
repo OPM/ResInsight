@@ -59,9 +59,7 @@ void RicPasteGridCrossPlotDataSetFeature::onActionTriggered( bool isChecked )
 
             for ( RimGridCrossPlotDataSet* dataSet : gridCrossPlotDataSetsOnClipboard() )
             {
-                RimGridCrossPlotDataSet* newDataSet = dynamic_cast<RimGridCrossPlotDataSet*>(
-                    dataSet->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-
+                auto newDataSet = dataSet->copyObject<RimGridCrossPlotDataSet>();
                 crossPlot->addDataSet( newDataSet );
                 newDataSet->resolveReferencesRecursively();
                 newDataSet->initAfterReadRecursively();

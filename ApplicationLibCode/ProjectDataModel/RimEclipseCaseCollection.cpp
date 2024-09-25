@@ -21,9 +21,6 @@
 #include "RimEclipseCaseCollection.h"
 
 #include "RiaApplication.h"
-#include "RiaPreferences.h"
-
-#include "RifReaderSettings.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigGridManager.h"
@@ -31,9 +28,12 @@
 
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimProject.h"
+
+#include "cafCmdFeatureMenuBuilder.h"
 
 CAF_PDM_SOURCE_INIT( RimEclipseCaseCollection, "ResInsightAnalysisModels" );
 //--------------------------------------------------------------------------------------------------
@@ -46,6 +46,8 @@ RimEclipseCaseCollection::RimEclipseCaseCollection()
     CAF_PDM_InitFieldNoDefault( &cases, "Reservoirs", "" );
 
     CAF_PDM_InitFieldNoDefault( &caseGroups, "CaseGroups", "" );
+
+    CAF_PDM_InitFieldNoDefault( &caseEnsembles, "CaseEnsembles", "" );
 
     m_gridCollection = new RigGridManager;
 }
@@ -67,6 +69,7 @@ void RimEclipseCaseCollection::close()
 
     cases.deleteChildren();
     caseGroups.deleteChildren();
+    caseEnsembles.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,6 +110,17 @@ void RimEclipseCaseCollection::removeCaseFromAllGroups( RimEclipseCase* reservoi
     }
 
     cases().removeChild( reservoir );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCaseCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder.subMenuStart( "Import" );
+    menuBuilder << importMenuFeatureNames();
+    menuBuilder.subMenuEnd();
+    menuBuilder << "RicEclipseCaseNewGroupFeature";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,4 +186,18 @@ void RimEclipseCaseCollection::recomputeStatisticsForAllCaseGroups()
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimEclipseCaseCollection::importMenuFeatureNames()
+{
+    return { "RicImportEclipseCaseFeature",
+             "RicImportEclipseCasesFeature",
+             "RicImportEclipseCaseTimeStepFilterFeature",
+             "RicImportInputEclipseCaseFeature",
+             "Separator",
+             "RicCreateGridCaseGroupFromFilesFeature",
+             "RicCreateGridCaseEnsemblesFromFilesFeature" };
 }

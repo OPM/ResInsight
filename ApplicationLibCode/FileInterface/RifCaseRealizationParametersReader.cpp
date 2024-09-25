@@ -27,13 +27,14 @@
 #include <QStringList>
 
 #include <functional>
+#include <memory>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RifCaseRealizationReader::RifCaseRealizationReader( const QString& fileName )
 {
-    m_parameters = std::shared_ptr<RigCaseRealizationParameters>( new RigCaseRealizationParameters() );
+    m_parameters = std::make_shared<RigCaseRealizationParameters>();
     m_fileName   = fileName;
 }
 

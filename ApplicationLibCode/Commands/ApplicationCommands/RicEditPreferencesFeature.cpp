@@ -64,7 +64,6 @@ void RicEditPreferencesFeature::onActionTriggered( bool isChecked )
     std::unique_ptr<RiaPreferences> oldPreferences = clonePreferences( app->preferences() );
 
     RiuPropertyViewTabWidget propertyDialog( nullptr, app->preferences(), "Preferences", tabNames );
-    propertyDialog.setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
 
     auto pushButton = propertyDialog.dialogButtonBox()->addButton( "Help", QDialogButtonBox::HelpRole );
     connect( pushButton, &QPushButton::clicked, this, &RicEditPreferencesFeature::showHelp );
@@ -103,9 +102,7 @@ void RicEditPreferencesFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 std::unique_ptr<RiaPreferences> RicEditPreferencesFeature::clonePreferences( const RiaPreferences* preferences )
 {
-    caf::PdmObjectHandle* pdmClone = preferences->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() );
-
-    return std::unique_ptr<RiaPreferences>( dynamic_cast<RiaPreferences*>( pdmClone ) );
+    return std::unique_ptr<RiaPreferences>( preferences->copyObject<RiaPreferences>() );
 }
 
 //--------------------------------------------------------------------------------------------------

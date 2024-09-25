@@ -69,6 +69,7 @@ class RimStreamlineInViewCollection;
 class RimMultipleEclipseResults;
 class RigEclipseResultAddress;
 class RimFaultReactivationModelCollection;
+class RimCameraPosition;
 
 namespace cvf
 {
@@ -85,6 +86,14 @@ class OverlayItem;
 class RimEclipseView : public RimGridView
 {
     CAF_PDM_HEADER_INIT;
+
+public:
+    enum class RimCaseChangeBehaviour
+    {
+        ZOOM_TO_FIT,
+        KEEP_CURRENT_SETTINGS,
+        STORE_VIEW_SETTINGS_FOR_CASE
+    };
 
 public:
     RimEclipseView();
@@ -149,6 +158,7 @@ public:
 
     // Overridden PDM methods:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
     void updateIconStateForFilterCollections();
 
     void defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
@@ -185,6 +195,7 @@ protected:
     virtual std::set<RivCellSetEnum> allVisibleFaultGeometryTypes() const;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     QString createAutoName() const override;
@@ -209,7 +220,7 @@ private:
 
     void updateFaultColors();
 
-    void syncronizeWellsWithResults();
+    void synchronizeWellsWithResults();
 
     void   onClampCurrentTimestep() override;
     size_t onTimeStepCountRequested() override;
@@ -220,9 +231,13 @@ private:
     void setVisibleGridPartsWatertight();
 
     void propagateEclipseCaseToChildObjects();
+    void storeCurrentAndApplyNewCameraPosition( RimEclipseCase* previousCase, RimEclipseCase* newCase );
 
 protected:
     cvf::ref<cvf::ModelBasicList> m_faultReactVizModel;
+
+    caf::PdmPtrField<RimEclipseCase*>                   m_eclipseCase;
+    caf::PdmField<caf::AppEnum<RimCaseChangeBehaviour>> m_caseChangeBehaviour;
 
 private:
     caf::PdmField<bool> m_showInvalidCells;
@@ -245,8 +260,7 @@ private:
     caf::PdmChildField<RimEclipsePropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimEclipsePropertyFilterCollection>     m_overridePropertyFilterCollection;
 
-    caf::PdmPointer<RimEclipseCase>   m_eclipseCase;
-    caf::PdmPtrField<RimEclipseCase*> m_customEclipseCase;
+    caf::PdmPtrField<RimEclipseCase*> m_customEclipseCase_OBSOLETE;
 
     cvf::ref<RivReservoirViewPartMgr>     m_reservoirGridPartManager;
     cvf::ref<RivReservoirSimWellsPartMgr> m_simWellsPartManager;
@@ -255,4 +269,5 @@ private:
     std::vector<RivCellSetEnum> m_visibleGridParts;
 
     caf::PdmChildField<RimMultipleEclipseResults*> m_additionalResultsForResultInfo;
+    caf::PdmChildArrayField<RimCameraPosition*>    m_cameraPositions;
 };

@@ -25,11 +25,14 @@
 #include "cafPdmUiItem.h"
 #include "cafUtils.h"
 
+#include "opm/common/utility/OpmInputError.hpp"
 #include "opm/input/eclipse/Deck/Deck.hpp"
 #include "opm/input/eclipse/Parser/ParseContext.hpp"
 #include "opm/input/eclipse/Parser/Parser.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/G.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/I.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/P.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/T.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/V.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
 
@@ -37,105 +40,124 @@
 
 #include <set>
 
+namespace RiaOpmParserTools
+{
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<Opm::VFPInjTable> RiaOpmParserTools::extractVfpInjectionTables( const std::string& filename )
+Opm::VFPInjTable createInjectionTable( const Opm::DeckKeyword& keyword )
 {
-    std::vector<Opm::VFPInjTable> tables;
-
-    try
+    Opm::UnitSystem unitSystem;
     {
-        Opm::Parser                           parser( false );
-        const ::Opm::ParserKeywords::VFPINJ   kw1;
-        const ::Opm::ParserKeywords::VFPIDIMS kw2;
+        const auto& header = keyword.getRecord( 0 );
 
-        parser.addParserKeyword( kw1 );
-        parser.addParserKeyword( kw2 );
-
-        auto deck = parser.parseFile( filename );
-
-        std::string myKeyword   = "VFPINJ";
-        auto        keywordList = deck.getKeywordList( myKeyword );
-
-        for ( auto kw : keywordList )
+        if ( header.getItem<Opm::ParserKeywords::VFPINJ::UNITS>().hasValue( 0 ) )
         {
-            auto name = kw->name();
-
-            Opm::UnitSystem unitSystem;
-            {
-                const auto& header = kw->getRecord( 0 );
-
-                if ( header.getItem<Opm::ParserKeywords::VFPINJ::UNITS>().hasValue( 0 ) )
-                {
-                    std::string units_string;
-                    units_string = header.getItem<Opm::ParserKeywords::VFPINJ::UNITS>().get<std::string>( 0 );
-                    unitSystem   = Opm::UnitSystem( units_string );
-                }
-            }
-
-            Opm::VFPInjTable table( *kw, unitSystem );
-            tables.push_back( table );
+            std::string unitString;
+            unitString = header.getItem<Opm::ParserKeywords::VFPINJ::UNITS>().get<std::string>( 0 );
+            unitSystem = Opm::UnitSystem( unitString );
         }
     }
-    catch ( ... )
-    {
-    }
 
-    return tables;
+    return { keyword, unitSystem };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<Opm::VFPProdTable> RiaOpmParserTools::extractVfpProductionTables( const std::string& filename )
+Opm::VFPProdTable createProductionTable( const Opm::DeckKeyword& keyword )
 {
-    std::vector<Opm::VFPProdTable> tables;
-
-    try
+    Opm::UnitSystem unitSystem;
     {
-        Opm::Parser                          parser( false );
-        const ::Opm::ParserKeywords::VFPPROD kw1;
+        const auto& header = keyword.getRecord( 0 );
 
-        parser.addParserKeyword( kw1 );
-
-        auto deck = parser.parseFile( filename );
-
-        std::string myKeyword   = "VFPPROD";
-        auto        keywordList = deck.getKeywordList( myKeyword );
-
-        for ( auto kw : keywordList )
+        if ( header.getItem<Opm::ParserKeywords::VFPPROD::UNITS>().hasValue( 0 ) )
         {
-            auto name = kw->name();
-
-            Opm::UnitSystem unitSystem;
-            {
-                const auto& header = kw->getRecord( 0 );
-
-                if ( header.getItem<Opm::ParserKeywords::VFPPROD::UNITS>().hasValue( 0 ) )
-                {
-                    std::string units_string;
-                    units_string = header.getItem<Opm::ParserKeywords::VFPPROD::UNITS>().get<std::string>( 0 );
-                    unitSystem   = Opm::UnitSystem( units_string );
-                }
-            }
-
-            bool              gaslift_opt_active = false;
-            Opm::VFPProdTable table( *kw, gaslift_opt_active, unitSystem );
-            tables.push_back( table );
+            std::string unitString;
+            unitString = header.getItem<Opm::ParserKeywords::VFPPROD::UNITS>().get<std::string>( 0 );
+            unitSystem = Opm::UnitSystem( unitString );
         }
     }
-    catch ( ... )
-    {
-    }
 
-    return tables;
+    bool gaslift_opt_active = false;
+
+    return { keyword, gaslift_opt_active, unitSystem };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<std::string, std::vector<std::pair<int, int>>> RiaOpmParserTools::extractWseglink( const std::string& filename )
+std::pair<std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>> extractVfpTablesFromDataFile( const std::string& dataDeckFilename )
+{
+    if ( !std::filesystem::exists( dataDeckFilename ) ) return {};
+
+    std::vector<Opm::VFPProdTable> prodTables;
+    std::vector<Opm::VFPInjTable>  injTables;
+
+    try
+    {
+        Opm::Parser parser( false );
+
+        // Required to include the some keywords not related or required for VFP data to avoid paring errors causing data to be skipped.
+        // TUNING caused error in a Norne model
+        // GRUPTREE, WELSPECS caused error in an unknown models
+        std::vector<Opm::ParserKeyword> parserKeywords = { Opm::ParserKeywords::VFPPROD(),
+                                                           Opm::ParserKeywords::VFPINJ(),
+                                                           Opm::ParserKeywords::INCLUDE(),
+                                                           Opm::ParserKeywords::TUNING(),
+                                                           Opm::ParserKeywords::GRUPTREE(),
+                                                           Opm::ParserKeywords::WELSPECS() };
+        for ( const auto& kw : parserKeywords )
+        {
+            parser.addParserKeyword( kw );
+        }
+
+        Opm::ParseContext parseContext( Opm::InputError::Action::WARN );
+        auto              deck = parser.parseFile( dataDeckFilename, parseContext );
+
+        {
+            std::string prodKeyword = "VFPPROD";
+            auto        keywordList = deck.getKeywordList( prodKeyword );
+            for ( auto kw : keywordList )
+            {
+                auto table = createProductionTable( *kw );
+                prodTables.push_back( table );
+            }
+        }
+        {
+            std::string injKeyword  = "VFPINJ";
+            auto        keywordList = deck.getKeywordList( injKeyword );
+            for ( auto kw : keywordList )
+            {
+                auto table = createInjectionTable( *kw );
+                injTables.push_back( table );
+            }
+        }
+    }
+    catch ( Opm::OpmInputError& e )
+    {
+        QString text = QString( "Error detected when parsing '%1'. Imported data might be missing or incomplete.\n%2" )
+                           .arg( QString::fromStdString( dataDeckFilename ) )
+                           .arg( QString::fromStdString( e.what() ) );
+
+        RiaLogging::warning( text );
+    }
+    catch ( ... )
+    {
+        QString text = QString( "Error detected when parsing '%1'. Imported data might be missing or incomplete." )
+                           .arg( QString::fromStdString( dataDeckFilename ) );
+
+        RiaLogging::warning( text );
+    }
+
+    return { prodTables, injTables };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<std::string, std::vector<std::pair<int, int>>> extractWseglink( const std::string& filename )
 {
     if ( !std::filesystem::exists( filename ) ) return {};
 
@@ -205,7 +227,7 @@ std::map<std::string, std::vector<std::pair<int, int>>> RiaOpmParserTools::extra
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaOpmParserTools::AicdTemplateValues> RiaOpmParserTools::extractWsegAicd( const std::string& filename )
+std::vector<RiaOpmParserTools::AicdTemplateValues> extractWsegAicd( const std::string& filename )
 {
     if ( !std::filesystem::exists( filename ) ) return {};
 
@@ -291,7 +313,7 @@ std::vector<RiaOpmParserTools::AicdTemplateValues> RiaOpmParserTools::extractWse
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaOpmParserTools::AicdTemplateValues> RiaOpmParserTools::extractWsegAicdCompletor( const std::string& filename )
+std::vector<RiaOpmParserTools::AicdTemplateValues> extractWsegAicdCompletor( const std::string& filename )
 {
     QFile file( QString::fromStdString( filename ) );
     if ( !file.open( QFile::ReadOnly ) ) return {};
@@ -346,7 +368,9 @@ std::vector<RiaOpmParserTools::AicdTemplateValues> RiaOpmParserTools::extractWse
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RiaOpmParserTools::aicdTemplateId()
+std::string aicdTemplateId()
 {
     return "ID_NUMBER";
 }
+
+} // namespace RiaOpmParserTools

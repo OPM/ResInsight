@@ -63,8 +63,7 @@ void RicDuplicateSummaryTableFeature::copyTableAndAddToCollection( RimSummaryTab
     RimSummaryTableCollection* summaryTableColl = RimMainPlotCollection::current()->summaryTableCollection();
     if ( !summaryTableColl ) return;
 
-    RimSummaryTable* newSummaryTable =
-        dynamic_cast<RimSummaryTable*>( sourceTable->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    auto newSummaryTable = sourceTable->copyObject<RimSummaryTable>();
     CVF_ASSERT( newSummaryTable );
 
     // Add table to collection

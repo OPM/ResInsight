@@ -25,7 +25,7 @@
 #include "RimObservedFmuRftData.h"
 #include "RimPressureDepthData.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimWellLogLasFile.h"
 
 #include "cafAppEnum.h"
@@ -83,7 +83,7 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimWellLogLasFile* wellLogFile )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimSummaryCaseCollection* ensemble )
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimSummaryEnsemble* ensemble )
 {
     m_sourceType = SourceType::ENSEMBLE_RFT;
     m_ensemble   = ensemble;
@@ -92,7 +92,7 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimSummaryCaseCollection* ensemb
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimSummaryCase* summaryCase, RimSummaryCaseCollection* ensemble, RimEclipseCase* eclipseCase )
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimSummaryCase* summaryCase, RimSummaryEnsemble* ensemble, RimEclipseCase* eclipseCase )
 {
     m_sourceType  = SourceType::SUMMARY_RFT;
     m_summaryCase = summaryCase;
@@ -146,9 +146,9 @@ std::vector<RiaDefines::EclipseUnitSystem> RifDataSourceForRftPlt::availableUnit
         systems.push_back( m_eclCase->eclipseCaseData()->unitsType() );
     }
 
-    if ( m_wellLogFile && m_wellLogFile->wellLogFileData() )
+    if ( m_wellLogFile && m_wellLogFile->wellLogData() )
     {
-        auto eclipseUnit = RiaDefines::fromDepthUnit( m_wellLogFile->wellLogFileData()->depthUnit() );
+        auto eclipseUnit = RiaDefines::fromDepthUnit( m_wellLogFile->wellLogData()->depthUnit() );
         systems.push_back( eclipseUnit );
     }
 
@@ -232,7 +232,7 @@ auto RifDataSourceForRftPlt::operator<=>( const RifDataSourceForRftPlt& addr2 ) 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RifDataSourceForRftPlt::ensemble() const
+RimSummaryEnsemble* RifDataSourceForRftPlt::ensemble() const
 {
     return m_ensemble;
 }

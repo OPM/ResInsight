@@ -52,10 +52,10 @@ void RicNewParameterResultCrossPlotFeature::onActionTriggered( bool isChecked )
 {
     RimCorrelationPlotCollection* correlationPlotColl = caf::firstAncestorOfTypeFromSelectedObject<RimCorrelationPlotCollection>();
 
-    RimSummaryCaseCollection* ensemble = nullptr;
-    QString                   quantityName;
-    QString                   ensembleParameter;
-    std::time_t               timeStep = 0;
+    RimSummaryEnsemble* ensemble = nullptr;
+    QString             quantityName;
+    QString             ensembleParameter;
+    std::time_t         timeStep = 0;
 
     RimParameterResultCrossPlot* newPlot = nullptr;
     if ( !correlationPlotColl )

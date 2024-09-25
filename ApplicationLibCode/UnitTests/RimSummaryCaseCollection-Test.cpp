@@ -1,24 +1,22 @@
 #include "gtest/gtest.h"
 
 #include "RigEnsembleParameter.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsembleTools.h"
 
 #include <random>
 
-#include <QDebug>
-
-class RimSummaryCaseCollection_TESTER
+class RimSummaryEnsemble_TESTER
 {
 public:
     static void test1();
 };
 
-TEST( RimSummaryCaseCollection, RigEnsembleParameter )
+TEST( RimSummaryEnsemble, RigEnsembleParameter )
 {
-    RimSummaryCaseCollection_TESTER::test1();
+    RimSummaryEnsemble_TESTER::test1();
 }
 
-void RimSummaryCaseCollection_TESTER::test1()
+void RimSummaryEnsemble_TESTER::test1()
 {
     std::random_device                     rd;
     std::mt19937                           gen( rd() );
@@ -74,7 +72,7 @@ void RimSummaryCaseCollection_TESTER::test1()
     }
 
     size_t previousSize = parameters.size();
-    RimSummaryCaseCollection::sortByBinnedVariation( parameters );
+    RimSummaryEnsembleTools::sortByBinnedVariation( parameters );
     size_t currentSize = parameters.size();
     EXPECT_EQ( previousSize, currentSize );
 

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RigWellLogFile.h"
+#include "RigWellLogData.h"
 
 #include "RiaDefines.h"
 
@@ -32,7 +32,7 @@ class RigWellPath;
 //==================================================================================================
 ///
 //==================================================================================================
-class RigWellLogCsvFile : public RigWellLogFile
+class RigWellLogCsvFile : public RigWellLogData
 {
 public:
     RigWellLogCsvFile();
@@ -59,6 +59,9 @@ public:
 private:
     void    close();
     QString depthUnitString() const override;
+
+    static RigWellPath*        resampleWellPath( const RigWellPath& wellPath, double samplingInterval );
+    static std::vector<double> resampleMeasuredDepths( const std::vector<double>& measuredDepths, double samplingInterval );
 
     QStringList                            m_wellLogChannelNames;
     QString                                m_depthLogName;

@@ -29,14 +29,14 @@ class RimAsciiDataCurve;
 
 struct CurveData
 {
-    QString                  name;
-    RifEclipseSummaryAddress address;
-    std::vector<double>      values;
+    QString                                    name;
+    RifEclipseSummaryAddressDefines::CurveType curveType;
+    std::vector<double>                        values;
 };
 
 enum class SummaryCurveType
 {
-    CURVE_TYPE_GRID     = 0x1,
+    CURVE_TYPE_SUMMARY  = 0x1,
     CURVE_TYPE_OBSERVED = 0x2
 };
 

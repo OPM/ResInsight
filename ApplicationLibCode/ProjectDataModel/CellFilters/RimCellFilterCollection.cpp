@@ -23,6 +23,7 @@
 #include "RimCellFilter.h"
 #include "RimCellIndexFilter.h"
 #include "RimCellRangeFilter.h"
+#include "RimOilField.h"
 #include "RimPolygonFilter.h"
 #include "RimProject.h"
 #include "RimUserDefinedFilter.h"
@@ -30,6 +31,10 @@
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
+#include "Polygons/RimPolygon.h"
+#include "Polygons/RimPolygonCollection.h"
+
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldReorderCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -129,6 +134,41 @@ void RimCellFilterCollection::setCase( RimCase* theCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicPasteCellFiltersFeature";
+    menuBuilder << "Separator";
+
+    menuBuilder.subMenuStart( "Polygon Filter", QIcon( ":/CellFilter_Polygon.png" ) );
+    {
+        auto project           = RimProject::current();
+        auto polygonCollection = project->activeOilField()->polygonCollection();
+        for ( auto p : polygonCollection->allPolygons() )
+        {
+            if ( !p ) continue;
+
+            menuBuilder.addCmdFeatureWithUserData( "RicNewPolygonFilterFeature", p->name(), QVariant::fromValue( static_cast<void*>( p ) ) );
+        }
+    }
+    menuBuilder.subMenuEnd();
+
+    menuBuilder << "RicNewPolygonFilterFeature";
+    menuBuilder << "Separator";
+    menuBuilder.subMenuStart( "Range Filter" );
+    menuBuilder << "RicNewRangeFilterSliceIFeature";
+    menuBuilder << "RicNewRangeFilterSliceJFeature";
+    menuBuilder << "RicNewRangeFilterSliceKFeature";
+    menuBuilder << "RicNewCellRangeFilterFeature";
+    menuBuilder.subMenuEnd();
+    menuBuilder << "RicNewCellIndexFilterFeature";
+    menuBuilder << "Separator";
+    menuBuilder << "RicNewUserDefinedFilterFeature";
+    menuBuilder << "RicNewUserDefinedIndexFilterFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimCellFilter*> RimCellFilterCollection::filters() const
 {
     return m_cellFilters.childrenByType();
@@ -160,7 +200,10 @@ void RimCellFilterCollection::initAfterRead()
 
     // Copy by xml serialization does not give a RimCase parent the first time initAfterRead is called here when creating a new a contour
     // view from a 3d view. The second time we get called it is ok, so just skip setting up the filter connections if we have no case.
-    auto rimCase = firstAncestorOrThisOfType<RimCase>();
+    auto rimView = firstAncestorOrThisOfType<Rim3dView>();
+    if ( rimView == nullptr ) return;
+
+    auto rimCase = rimView->ownerCase();
     if ( rimCase == nullptr ) return;
 
     for ( const auto& filter : m_cellFilters )

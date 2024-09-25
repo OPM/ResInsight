@@ -120,6 +120,19 @@ TEST( RiaInterpolationToolsTest, ValidIntervalValueTooLowExtrapolationTrend )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( RiaInterpolationToolsTest, ValidIntervalValueTooHighExtrapolationTrend )
+{
+    std::vector<double> x = { 0.0, 1.0, 2.0, 3.0 };
+    std::vector<double> y = { 0.0, 1.0, 10.0, 20.0 };
+
+    // Outside interval on low side
+    double res = RiaInterpolationTools::linear( x, y, 4.0, RiaInterpolationTools::ExtrapolationMode::TREND );
+    EXPECT_DOUBLE_EQ( 30.0, res );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( RiaInterpolationToolsTest, InterpolateMissingValuesStraightLine )
 {
     double              inf = std::numeric_limits<double>::infinity();

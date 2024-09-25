@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RigWellLogFile.h"
+#include "RigWellLogData.h"
 
 #include "RiaDefines.h"
 
@@ -36,7 +36,7 @@ class RimWellLogCurve;
 //==================================================================================================
 ///
 //==================================================================================================
-class RigWellLogLasFile : public RigWellLogFile
+class RigWellLogLasFile : public RigWellLogData
 {
 public:
     RigWellLogLasFile();

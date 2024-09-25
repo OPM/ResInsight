@@ -226,7 +226,7 @@ static bool ecl_sum_fread(ecl_sum_type * ecl_sum , const char *header_file , con
     else if (file_type == ECL_UNIFIED_SUMMARY_FILE)
       ecl_sum_set_unified( ecl_sum , true);
     else
-      util_abort("%s: what the fuck? \n",__func__);
+      util_abort("%s: error \n",__func__);
   } else
     return false;
 

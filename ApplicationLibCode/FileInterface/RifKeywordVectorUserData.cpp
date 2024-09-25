@@ -31,6 +31,7 @@
 #include <QFile>
 #include <QStringList>
 #include <QTextStream>
+#include <memory>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -54,7 +55,7 @@ bool RifKeywordVectorUserData::parse( const QString& data, const QString& custom
     m_allResultAddresses.clear();
     m_timeSteps.clear();
 
-    m_parser = std::unique_ptr<RifKeywordVectorParser>( new RifKeywordVectorParser( data ) );
+    m_parser = std::make_unique<RifKeywordVectorParser>( data );
     if ( !m_parser )
     {
         RiaLogging::error( QString( "Failed to parse file" ) );

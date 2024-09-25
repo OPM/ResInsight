@@ -32,9 +32,9 @@
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCalculationVariable.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
@@ -175,7 +175,7 @@ RimSummaryTableCollection* RiaSummaryTools::parentSummaryTableCollection( caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaSummaryTools::hasAccumulatedData( const RifEclipseSummaryAddress& address )
+RifEclipseSummaryAddressDefines::CurveType RiaSummaryTools::identifyCurveType( const RifEclipseSummaryAddress& address )
 {
     if ( address.isCalculated() )
     {
@@ -187,15 +187,16 @@ bool RiaSummaryTools::hasAccumulatedData( const RifEclipseSummaryAddress& addres
         {
             if ( !variableAddress.hasAccumulatedData() )
             {
-                return false;
+                return RifEclipseSummaryAddressDefines::CurveType::RATE;
             }
         }
 
         // All the variables are accumulated
-        return true;
+        return RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED;
     }
 
-    return address.hasAccumulatedData();
+    return address.hasAccumulatedData() ? RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED
+                                        : RifEclipseSummaryAddressDefines::CurveType::RATE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -232,10 +233,26 @@ std::pair<std::vector<time_t>, std::vector<double>> RiaSummaryTools::resampledVa
                                                                                                const std::vector<double>&      values,
                                                                                                RiaDefines::DateTimePeriod      period )
 {
+    // NB! The curve type can be overridden by the user, so there might be a discrepancy between the curve type and the curve type derived
+    // from the address
+    // See RimSummaryCurve::curveType()
+
+    return resampledValuesForPeriod( RiaSummaryTools::identifyCurveType( address ), timeSteps, values, period );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::vector<time_t>, std::vector<double>>
+    RiaSummaryTools::resampledValuesForPeriod( RifEclipseSummaryAddressDefines::CurveType accumulatedOrRate,
+                                               const std::vector<time_t>&                 timeSteps,
+                                               const std::vector<double>&                 values,
+                                               RiaDefines::DateTimePeriod                 period )
+{
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( values, timeSteps );
 
-    if ( RiaSummaryTools::hasAccumulatedData( address ) )
+    if ( accumulatedOrRate == CurveType::ACCUMULATED )
     {
         resampler.resampleAndComputePeriodEndValues( period );
     }
@@ -268,7 +285,7 @@ RimSummaryCase* RiaSummaryTools::summaryCaseById( int caseId )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RiaSummaryTools::ensembleById( int ensembleId )
+RimSummaryEnsemble* RiaSummaryTools::ensembleById( int ensembleId )
 {
     auto ensembles = RimProject::current()->summaryGroups();
 
@@ -379,6 +396,26 @@ void RiaSummaryTools::reloadSummaryCase( RimSummaryCase* summaryCase )
 
     RiaSummaryTools::updateRequiredCalculatedCurves( summaryCase );
 
+    RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
+    for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
+    {
+        for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
+        {
+            summaryPlot->loadDataAndUpdate();
+
+            // Consider to make the zoom optional
+            summaryPlot->zoomAll();
+        }
+
+        multiPlot->updatePlotTitles();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryTools::reloadSummaryEnsemble( RimSummaryEnsemble* ensemble )
+{
     RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
     for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
     {

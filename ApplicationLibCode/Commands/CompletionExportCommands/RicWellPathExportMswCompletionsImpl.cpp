@@ -789,6 +789,8 @@ bool RicWellPathExportMswCompletionsImpl::generateFracturesMswExportInfo( RimEcl
     // Check if fractures are to be assigned to current main bore segment
     for ( RimWellPathFracture* fracture : fractures )
     {
+        fracture->ensureValidNonDarcyProperties();
+
         double fractureStartMD = fracture->fractureMD();
         if ( fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
         {

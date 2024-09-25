@@ -19,7 +19,7 @@
 #include "RimObjectiveFunction.h"
 
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "RifReaderEclipseSummary.h"
 

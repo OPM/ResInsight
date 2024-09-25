@@ -48,7 +48,23 @@ CAF_PDM_SOURCE_INIT( PdmDocument, "PdmDocument" );
 //--------------------------------------------------------------------------------------------------
 PdmDocument::PdmDocument()
 {
-    CAF_PDM_InitFieldNoDefault( &fileName, "DocumentFileName", "File Name" );
+    CAF_PDM_InitFieldNoDefault( &m_fileName, "DocumentFileName", "File Name" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString PdmDocument::fileName() const
+{
+    return m_fileName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmDocument::setFileName( const QString& fileName )
+{
+    m_fileName = fileName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,7 +72,7 @@ PdmDocument::PdmDocument()
 //--------------------------------------------------------------------------------------------------
 void PdmDocument::readFile()
 {
-    QFile xmlFile( fileName );
+    QFile xmlFile( m_fileName );
     if ( !xmlFile.open( QIODevice::ReadOnly | QIODevice::Text ) ) return;
 
     readFile( &xmlFile );
@@ -76,19 +92,11 @@ void PdmDocument::readFile( QIODevice* xmlFile )
         {
             if ( !matchesClassKeyword( xmlStream.name().toString() ) )
             {
-                // Error: This is not a Ceetron Pdm based xml document
                 return;
             }
             readFields( xmlStream, PdmDefaultObjectFactory::instance(), false );
         }
     }
-
-    // Ask all objects to initialize and set up internal datastructure and pointers
-    // after everything is read from file
-
-    resolveReferencesRecursively();
-    beforeInitAfterRead();
-    initAfterReadRecursively();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,7 +104,7 @@ void PdmDocument::readFile( QIODevice* xmlFile )
 //--------------------------------------------------------------------------------------------------
 bool PdmDocument::writeFile()
 {
-    QFile xmlFile( fileName );
+    QFile xmlFile( m_fileName );
     if ( !xmlFile.open( QIODevice::WriteOnly | QIODevice::Text ) ) return false;
 
     writeFile( &xmlFile );
@@ -113,16 +121,22 @@ void PdmDocument::writeFile( QIODevice* xmlFile )
     setupBeforeSaveRecursively();
 
     QXmlStreamWriter xmlStream( xmlFile );
-    xmlStream.setAutoFormatting( true );
+    writeDocumentToXmlStream( xmlStream );
+}
 
-    xmlStream.writeStartDocument();
-    QString className = classKeyword();
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString PdmDocument::documentAsString()
+{
+    // Ask all objects to make them ready to write themselves to file
+    setupBeforeSaveRecursively();
 
-    xmlStream.writeStartElement( "", className );
-    writeFields( xmlStream );
-    xmlStream.writeEndElement();
+    QString          content;
+    QXmlStreamWriter xmlStream( &content );
+    writeDocumentToXmlStream( xmlStream );
 
-    xmlStream.writeEndDocument();
+    return content;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,8 +172,18 @@ void PdmDocument::updateUiIconStateRecursively( PdmObjectHandle* object )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmDocument::beforeInitAfterRead()
+void PdmDocument::writeDocumentToXmlStream( QXmlStreamWriter& xmlStream )
 {
+    xmlStream.setAutoFormatting( true );
+
+    xmlStream.writeStartDocument();
+    QString className = classKeyword();
+
+    xmlStream.writeStartElement( "", className );
+    writeFields( xmlStream );
+    xmlStream.writeEndElement();
+
+    xmlStream.writeEndDocument();
 }
 
 } // End of namespace caf

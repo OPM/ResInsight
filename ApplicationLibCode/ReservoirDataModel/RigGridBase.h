@@ -49,9 +49,11 @@ public:
     size_t cellCountJ() const override;
     size_t cellCountK() const override;
 
-    size_t         cellCount() const;
-    RigCell&       cell( size_t gridLocalCellIndex );
-    const RigCell& cell( size_t gridLocalCellIndex ) const;
+    virtual size_t         cellCount() const;
+    virtual RigCell&       cell( size_t gridLocalCellIndex );
+    virtual const RigCell& cell( size_t gridLocalCellIndex ) const;
+
+    void characteristicCellSizes( double* iSize, double* jSize, double* kSize ) const override;
 
     size_t reservoirCellIndex( size_t gridLocalCellIndex ) const;
     void   setIndexToStartOfCells( size_t indexToStartOfCells ) { m_indexToStartOfCells = indexToStartOfCells; }
@@ -91,19 +93,19 @@ public:
     cvf::Vec3d maxCoordinate() const override;
     cvf::Vec3d displayModelOffset() const override;
 
-    size_t cellIndexFromIJK( size_t i, size_t j, size_t k ) const override;
-    size_t cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const;
-    bool   ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const override;
-    void   ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const;
+    size_t         cellIndexFromIJK( size_t i, size_t j, size_t k ) const override;
+    virtual size_t cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const;
+    bool           ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const override;
+    virtual void   ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const;
 
     std::optional<caf::VecIjk> ijkFromCellIndex( size_t cellIndex ) const;
     std::optional<caf::VecIjk> ijkFromCellIndexOneBased( size_t cellIndex ) const;
 
-    bool       cellIJKFromCoordinate( const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k ) const override;
+    bool cellIJKFromCoordinate( const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k ) const override; // unused
+    void cellMinMaxCordinates( size_t cellIndex, cvf::Vec3d* minCoordinate, cvf::Vec3d* maxCoordinate ) const override; // unused
+
     void       cellCornerVertices( size_t cellIndex, cvf::Vec3d vertices[8] ) const override;
     cvf::Vec3d cellCentroid( size_t cellIndex ) const override;
-
-    void cellMinMaxCordinates( size_t cellIndex, cvf::Vec3d* minCoordinate, cvf::Vec3d* maxCoordinate ) const override;
 
     size_t     gridPointIndexFromIJK( size_t i, size_t j, size_t k ) const override;
     cvf::Vec3d gridPointCoordinate( size_t i, size_t j, size_t k ) const override;

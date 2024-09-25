@@ -59,14 +59,6 @@ RimReservoirCellResultsStorage::RimReservoirCellResultsStorage()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimReservoirCellResultsStorage::~RimReservoirCellResultsStorage()
-{
-    m_resultCacheMetaData.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
 /// This override populates the metainfo regarding the cell results data in the RigCaseCellResultsData
 /// object. This metainfo will then be written to the project file when saving, and thus read on project file open.
 /// This method then writes the actual double arrays to the data file in a simple format:

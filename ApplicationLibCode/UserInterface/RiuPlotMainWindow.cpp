@@ -218,6 +218,25 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
     }
 
     refreshToolbars();
+
+    // Find the project tree and reselect items to trigger the selectionChanged signal. This will make sure that the property view is
+    // updated based on the selection in the main project tree.
+    if ( auto dockWidget = RiuDockWidgetTools::findDockWidget( dockManager(), RiuDockWidgetTools::plotMainWindowPlotsTreeName() ) )
+    {
+        if ( auto tree = dynamic_cast<caf::PdmUiTreeView*>( dockWidget->widget() ) )
+        {
+            std::vector<caf::PdmUiItem*> uiItems;
+            tree->selectedUiItems( uiItems );
+
+            std::vector<const caf::PdmUiItem*> constSelectedItems;
+            for ( auto item : uiItems )
+            {
+                constSelectedItems.push_back( item );
+            }
+
+            tree->selectItems( constSelectedItems );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -227,9 +246,9 @@ void RiuPlotMainWindow::cleanupGuiBeforeProjectClose()
 {
     setPdmRoot( nullptr );
 
-    if ( m_pdmUiPropertyView )
+    for ( auto pdmUiPropertyView : m_propertyViews )
     {
-        m_pdmUiPropertyView->showProperties( nullptr );
+        pdmUiPropertyView->showProperties( nullptr );
     }
 
     cleanUpTemporaryWidgets();
@@ -447,18 +466,24 @@ void RiuPlotMainWindow::refreshToolbars()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::createDockPanels()
 {
-    const int                  nTreeViews     = 4;
-    const std::vector<QString> treeViewTitles = { "Plots", "Data Sources", "Templates", "Scripts" };
-    const std::vector<QString> treeViewConfigs = { "PlotWindow.Plots", "PlotWindow.DataSources", "PlotWindow.Templates", "PlotWindow.Scripts" };
+    const std::vector<QString> treeViewTitles    = { "Plots", "Data Sources", "Templates", "Scripts", "Cloud" };
+    const std::vector<QString> treeViewConfigs   = { "PlotWindow.Plots",
+                                                     "PlotWindow.DataSources",
+                                                     "PlotWindow.Templates",
+                                                     "PlotWindow.Scripts",
+                                                     "PlotWindow.Cloud" };
     const std::vector<QString> treeViewDockNames = { RiuDockWidgetTools::plotMainWindowPlotsTreeName(),
                                                      RiuDockWidgetTools::plotMainWindowDataSourceTreeName(),
                                                      RiuDockWidgetTools::plotMainWindowTemplateTreeName(),
-                                                     RiuDockWidgetTools::plotMainWindowScriptsTreeName() };
+                                                     RiuDockWidgetTools::plotMainWindowScriptsTreeName(),
+                                                     RiuDockWidgetTools::plotMainWindowCloudTreeName() };
+    const int                  nTreeViews        = static_cast<int>( treeViewConfigs.size() );
 
     const std::vector<ads::DockWidgetArea> defaultDockWidgetArea{ ads::DockWidgetArea::LeftDockWidgetArea,
                                                                   ads::DockWidgetArea::RightDockWidgetArea,
                                                                   ads::DockWidgetArea::LeftDockWidgetArea,
-                                                                  ads::DockWidgetArea::LeftDockWidgetArea };
+                                                                  ads::DockWidgetArea::LeftDockWidgetArea,
+                                                                  ads::DockWidgetArea::RightDockWidgetArea };
 
     createTreeViews( nTreeViews );
 
@@ -495,7 +520,6 @@ void RiuPlotMainWindow::createDockPanels()
         if ( defaultDockWidgetArea[i] == ads::DockWidgetArea::RightDockWidgetArea ) rightWidgets.push_back( dockWidget );
 
         connect( dockWidget, SIGNAL( visibilityChanged( bool ) ), projectTree, SLOT( treeVisibilityChanged( bool ) ) );
-        connect( projectTree, SIGNAL( selectionChanged() ), this, SLOT( selectedObjectsChanged() ) );
 
         projectTree->treeView()->setContextMenuPolicy( Qt::CustomContextMenu );
         connect( projectTree->treeView(), SIGNAL( customContextMenuRequested( const QPoint& ) ), SLOT( customMenuRequested( const QPoint& ) ) );
@@ -535,16 +559,6 @@ void RiuPlotMainWindow::createDockPanels()
     ads::CDockAreaWidget* bottomArea =
         addTabbedWidgets( bottomWidgets, ads::DockWidgetArea::BottomDockWidgetArea, dockManager()->centralWidget()->dockAreaWidget() );
 
-    // the property editor
-    {
-        auto dockWidget =
-            RiuDockWidgetTools::createDockWidget( "Property Editor", RiuDockWidgetTools::plotMainWindowPropertyEditorName(), dockManager() );
-
-        m_pdmUiPropertyView = std::make_unique<caf::PdmUiPropertyView>( dockWidget );
-        dockWidget->setWidget( m_pdmUiPropertyView.get() );
-        dockManager()->addDockWidget( ads::DockWidgetArea::BottomDockWidgetArea, dockWidget, leftArea );
-    }
-
     // the log message view
     {
         auto dockWidget = RiuDockWidgetTools::createDockWidget( "Messages", RiuDockWidgetTools::plotMainWindowMessagesName(), dockManager() );
@@ -552,6 +566,33 @@ void RiuPlotMainWindow::createDockPanels()
         m_messagePanel = new RiuMessagePanel( dockWidget );
         dockWidget->setWidget( m_messagePanel );
         dockManager()->addDockWidget( ads::DockWidgetArea::BottomDockWidgetArea, dockWidget, rightArea );
+    }
+
+    auto createPropertyView = [this]( const QString& displayName, const QString& internalName, ads::CDockAreaWidget* dockArea )
+    {
+        auto dockWidget        = RiuDockWidgetTools::createDockWidget( displayName, internalName, dockManager() );
+        auto pdmUiPropertyView = std::make_shared<caf::PdmUiPropertyView>( dockWidget );
+        dockWidget->setWidget( pdmUiPropertyView.get() );
+        dockManager()->addDockWidget( ads::DockWidgetArea::BottomDockWidgetArea, dockWidget, dockArea );
+        return pdmUiPropertyView;
+    };
+
+    auto leftPropertyView = createPropertyView( "Property Editor", RiuDockWidgetTools::plotMainWindowPropertyEditorName(), leftArea );
+    auto rightPropertyView =
+        createPropertyView( "Data Source Property Editor", RiuDockWidgetTools::plotMainWindowPropertyEditorRightName(), rightArea );
+
+    // Connect project trees with property views
+    for ( int i = 0; i < nTreeViews; i++ )
+    {
+        caf::PdmUiTreeView* projectTree = projectTreeView( i );
+
+        auto pdmUiPropertyView = defaultDockWidgetArea[i] == ads::DockWidgetArea::LeftDockWidgetArea ? leftPropertyView : rightPropertyView;
+
+        connect( projectTree,
+                 &caf::PdmUiTreeView::selectionChanged,
+                 [this, projectTree, pdmUiPropertyView]() { selectedObjectsChanged( projectTree, pdmUiPropertyView.get() ); } );
+
+        m_propertyViews.push_back( pdmUiPropertyView );
     }
 
     if ( leftArea ) leftArea->setCurrentIndex( 0 );
@@ -878,11 +919,8 @@ void RiuPlotMainWindow::slotBuildWindowActions()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::selectedObjectsChanged()
+void RiuPlotMainWindow::selectedObjectsChanged( caf::PdmUiTreeView* projectTree, caf::PdmUiPropertyView* propertyView )
 {
-    caf::PdmUiTreeView* projectTree = dynamic_cast<caf::PdmUiTreeView*>( sender() );
-    if ( !projectTree ) return;
-
     std::vector<caf::PdmUiItem*> uiItems;
     projectTree->selectedUiItems( uiItems );
 
@@ -892,12 +930,11 @@ void RiuPlotMainWindow::selectedObjectsChanged()
         firstSelectedObject = dynamic_cast<caf::PdmObjectHandle*>( uiItems.front() );
     }
 
-    m_pdmUiPropertyView->showProperties( firstSelectedObject );
+    propertyView->showProperties( firstSelectedObject );
 
     if ( uiItems.size() == 1 && m_allowActiveViewChangeFromSelection )
     {
         // Find the reservoir view or the Plot that the selected item is within
-
         if ( !firstSelectedObject )
         {
             caf::PdmFieldHandle* selectedField = dynamic_cast<caf::PdmFieldHandle*>( uiItems.front() );

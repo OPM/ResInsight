@@ -206,9 +206,25 @@ QString RiuDockWidgetTools::plotMainWindowScriptsTreeName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::plotMainWindowCloudTreeName()
+{
+    return "dockCloudTree_plotMainWindow";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiuDockWidgetTools::plotMainWindowPropertyEditorName()
 {
     return "dockPropertyEditor_plotMainWindow";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::plotMainWindowPropertyEditorRightName()
+{
+    return "dockPropertyEditorRight_plotMainWindow";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -325,6 +341,8 @@ QIcon RiuDockWidgetTools::dockIcon( const QString dockWidgetName )
         return QIcon( ":/scripts.svg" );
     else if ( dockWidgetName == plotMainWindowPropertyEditorName() )
         return QIcon( ":/property-editor.svg" );
+    else if ( dockWidgetName == plotMainWindowPropertyEditorRightName() )
+        return QIcon( ":/property-editor.svg" );
     else if ( dockWidgetName == plotMainWindowMessagesName() )
         return QIcon( ":/messages.svg" );
     else if ( dockWidgetName == plotMainWindowUndoStackName() )
@@ -363,6 +381,8 @@ QIcon RiuDockWidgetTools::dockIcon( const QString dockWidgetName )
         return QIcon( ":/window-management.svg" );
     else if ( dockWidgetName == mainWindowSeismicHistogramName() )
         return QIcon( ":/graph.svg" );
+    else if ( dockWidgetName == plotMainWindowCloudTreeName() )
+        return QIcon( ":/Cloud.svg" );
 
     return QIcon( ":/view.svg" );
 }
@@ -487,30 +507,31 @@ QByteArray RiuDockWidgetTools::defaultPlotDockState()
     // start paste
 
     static const char stateData[] =
-        { '\x00', '\x00', '\x04', '\xbd', '\x78', '\xda', '\x9d', '\x54', '\x51', '\x6f', '\x82', '\x30', '\x10', '\x7e', '\xdf', '\xaf',
-          '\x68', '\xfa', '\xee', '\x50', '\xc1', '\x89', '\x09', '\x62', '\x8c', '\xce', '\x37', '\x37', '\x17', '\x70', '\x3e', '\x9a',
-          '\x8e', '\x5e', '\x48', '\x33', '\x68', '\x49', '\x5b', '\xdd', '\x5c', '\xf6', '\xe3', '\x57', '\x60', '\x61', '\x9b', '\x01',
-          '\xc4', '\x3d', '\xd1', '\xbb', '\xfb', '\xbe', '\xde', '\x77', '\xf9', '\xae', '\x78', '\xb3', '\xf7', '\x34', '\x41', '\x47',
-          '\x90', '\x8a', '\x09', '\x3e', '\xc5', '\x83', '\xdb', '\x3e', '\x46', '\xc0', '\x23', '\x41', '\x19', '\x8f', '\xa7', '\x78',
-          '\x1b', '\xae', '\x7a', '\x2e', '\x9e', '\xf9', '\xde', '\x93', '\x9e', '\xd3', '\x23', '\xe1', '\x11', '\xd0', '\xa5', '\x88',
-          '\x5e', '\x4d', '\x2d', '\x38', '\x29', '\x0d', '\x29', '\x7a', '\xae', '\x88', '\x18', '\x6d', '\x15', '\xc8', '\x2a', '\xb6',
-          '\x31', '\x5a', '\x08', '\xae', '\x09', '\xe3', '\x26', '\x53', '\x94', '\x17', '\xc0', '\xb5', '\x24', '\xc9', '\x8e', '\xd1',
-          '\x18', '\xf4', '\x14', '\x53', '\x73', '\xcf', '\x26', '\x11', '\x7a', '\xc7', '\x38', '\x15', '\x6f', '\xfb', '\xd4', '\x20',
-          '\x7f', '\x42', '\xec', '\x7b', '\x15', '\x1b', '\xad', '\x12', '\x41', '\x74', '\x21', '\xa7', '\x6f', '\xf2', '\x41', '\x96',
-          '\x30', '\xad', '\x4d', '\xfa', '\x51', '\x32', '\x73', '\xa3', '\xa9', '\xe4', '\xed', '\x3e', '\xf3', '\x76', '\x07', '\xae',
-          '\xf3', '\xc6', '\x4d', '\x98', '\x5e', '\x85', '\x19', '\x1a', '\xcc', '\x5c', '\x02', '\x41', '\x21', '\x79', '\x51', '\xa5',
-          '\xd6', '\x83', '\x94', '\xc0', '\x7f', '\xc9', '\x52', '\xa1', '\x04', '\xd8', '\x67', '\xe6', '\xb4', '\x36', '\x2a', '\x2a',
-          '\x55', '\xa5', '\x7a', '\xf4', '\x40', '\x52', '\xb8', '\x80', '\x45', '\x8b', '\x44', '\x28', '\xa0', '\xb9', '\x68', '\xab',
-          '\x86', '\x17', '\x42', '\x9a', '\x25', '\x44', '\xc3', '\x7f', '\xb8', '\x41', '\x24', '\x59', '\xd6', '\xa5', '\xab', '\x95',
-          '\x0f', '\xf9', '\x67', '\xd4', '\xc1', '\xf9', '\xa8', '\x52', '\x64', '\x20', '\xf5', '\xe9', '\x9e', '\x32', '\x2d', '\x64',
-          '\x97', '\x79', '\x5b', '\x09', '\xb5', '\xed', '\x03', '\xf6', '\x01', '\xca', '\x1f', '\x4f', '\x5c', '\xe4', '\x8c', '\x27',
-          '\xc8', '\xb3', '\xca', '\xd8', '\x7c', '\xbf', '\x5d', '\x6a', '\x17', '\xd8', '\xb8', '\x22', '\x66', '\x2f', '\x48', '\x5c',
-          '\x30', '\x1a', '\x6c', '\x69', '\xa0', '\xd5', '\x4a', '\xbc', '\x6e', '\x61', '\x86', '\x67', '\x22', '\x97', '\x44', '\x93',
-          '\x40', '\x1c', '\x64', '\x04', '\x1d', '\xb7', '\xa6', '\x9d', '\x70', '\xc9', '\xfe', '\x43', '\x9a', '\x12', '\x79', '\xda',
-          '\x14', '\x24', '\x4e', '\x62', '\x90', '\x57', '\xdb', '\xbe', '\x06', '\xa5', '\x0c', '\x51', '\x75', '\x90', '\xda', '\x04',
-          '\x6d', '\xb1', '\xda', '\x9d', '\xd8', '\xc8', '\x76', '\x9d', '\x5a', '\xab', '\xcb', '\x8c', '\x3d', '\x72', '\xd0', '\x60',
-          '\x3c', '\xba', '\x43', '\x8e', '\xed', '\xd6', '\xc2', '\xac', '\xea', '\xf9', '\x9b', '\x73', '\xc3', '\xcf', '\xc7', '\xbf',
-          '\xf9', '\x02', '\x51', '\x97', '\xa4', '\x18' };
+        { '\x00', '\x00', '\x05', '\x83', '\x78', '\xda', '\xa5', '\x54', '\x5d', '\x6f', '\x82', '\x30', '\x14', '\x7d', '\xdf', '\xaf',
+          '\x68', '\xfa', '\xee', '\x00', '\x75', '\x8e', '\x25', '\xa8', '\x31', '\x3a', '\xdf', '\xdc', '\x17', '\x38', '\x1f', '\x4d',
+          '\x47', '\x6f', '\x58', '\x33', '\x68', '\x49', '\x5b', '\xdc', '\x5c', '\xf6', '\xe3', '\x57', '\x60', '\x61', '\x1f', '\x01',
+          '\x44', '\xf7', '\x40', '\x68', '\xef', '\x3d', '\xa7', '\xe7', '\xdc', '\xf4', '\xa4', '\xde', '\xf4', '\x2d', '\x89', '\xd1',
+          '\x0e', '\xa4', '\x62', '\x82', '\x8f', '\xb1', '\x73', '\x6e', '\x63', '\x04', '\x3c', '\x14', '\x94', '\xf1', '\x68', '\x8c',
+          '\xd7', '\xc1', '\xb2', '\xe7', '\xe2', '\xe9', '\xc4', '\xbb', '\xd7', '\x33', '\xba', '\x23', '\x3c', '\x04', '\xba', '\x10',
+          '\xe1', '\x8b', '\xe9', '\xf9', '\x7b', '\xa5', '\x21', '\x41', '\x8f', '\x15', '\x11', '\xa3', '\xb5', '\x02', '\x59', '\xed',
+          '\x07', '\x18', '\xcd', '\x05', '\xd7', '\x84', '\x71', '\x53', '\x29', '\xda', '\x73', '\xe0', '\x5a', '\x92', '\x78', '\xc3',
+          '\x68', '\x04', '\x7a', '\x8c', '\xa9', '\x39', '\xe7', '\x2e', '\x16', '\x7a', '\xc3', '\x38', '\x15', '\xaf', '\xdb', '\xc4',
+          '\x20', '\xbf', '\xb7', '\x78', '\xe2', '\x55', '\x6c', '\xb4', '\x8c', '\x05', '\xd1', '\x85', '\x1d', '\xdb', '\xd4', '\xfd',
+          '\x34', '\x66', '\x5a', '\x9b', '\xf2', '\xad', '\x64', '\xe6', '\x44', '\xd3', '\xc9', '\xe5', '\x3e', '\x72', '\xb9', '\x8c',
+          '\xeb', '\x5c', '\xb8', '\x09', '\xd3', '\xab', '\x30', '\x7d', '\x83', '\x99', '\x49', '\x20', '\x28', '\x20', '\x4f', '\xaa',
+          '\xf4', '\x9a', '\x49', '\x09', '\xfc', '\x87', '\x2d', '\x15', '\x48', '\x80', '\x6d', '\x6a', '\x56', '\x2b', '\xe3', '\xa2',
+          '\x72', '\x55', '\xba', '\x47', '\x37', '\x24', '\x81', '\x03', '\x58', '\x34', '\x8f', '\x85', '\x02', '\x9a', '\x9b', '\xb6',
+          '\x6a', '\x78', '\x01', '\x24', '\x69', '\x4c', '\x34', '\x9c', '\xc2', '\xf5', '\x43', '\xc9', '\xd2', '\x2e', '\xaa', '\x56',
+          '\x3e', '\xe4', '\xaf', '\x51', '\x9d', '\xbf', '\xa3', '\x4a', '\x91', '\x82', '\xd4', '\xfb', '\x6b', '\xca', '\xb4', '\x90',
+          '\x5d', '\xe6', '\x6d', '\x25', '\xd4', '\xca', '\xfb', '\xec', '\x1d', '\xd4', '\xc4', '\xb1', '\xed', '\x0b', '\x34', '\x18',
+          '\x5d', '\x22', '\xcf', '\x2a', '\x0b', '\xe6', '\xff', '\x75', '\x4d', '\xed', '\x0e', '\x1b', '\x33', '\x62', '\x82', '\x41',
+          '\xa2', '\x82', '\xd1', '\x70', '\x2f', '\x0d', '\xb4', '\x5a', '\x8f', '\x07', '\x12', '\x33', '\x68', '\x4f', '\xcc', '\x82',
+          '\x68', '\xe2', '\x8b', '\x4c', '\x86', '\xd0', '\x31', '\x36', '\xed', '\x84', '\x03', '\xf7', '\x6f', '\xba', '\x19', '\x3d',
+          '\x25', '\x37', '\x59', '\x92', '\x10', '\xb9', '\xbf', '\x2b', '\x48', '\x9c', '\x44', '\x20', '\xff', '\x99', '\x97', '\x07',
+          '\x16', '\x3d', '\xeb', '\xa3', '\x43', '\x53', '\xcb', '\x3a', '\xd6', '\xc8', '\x0a', '\x94', '\x32', '\x13', '\xa8', '\x0e',
+          '\xea', '\x4d', '\xd0', '\x96', '\xb0', '\xba', '\xb6', '\x8d', '\xfa', '\x6e', '\xfe', '\xb9', '\xb5', '\x79', '\x2d', '\x2b',
+          '\x43', '\xdb', '\x41', '\xce', '\x68', '\x74', '\x85', '\x86', '\x6e', '\xbf', '\x16', '\x66', '\x55', '\x8f', '\x98', '\x59',
+          '\x37', '\x3c', '\xa1', '\x93', '\xb3', '\x4f', '\x33', '\x96', '\xe9', '\xd8' };
 
     // end paste
 

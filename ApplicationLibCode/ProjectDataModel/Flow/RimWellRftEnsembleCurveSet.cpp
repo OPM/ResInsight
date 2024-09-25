@@ -24,7 +24,7 @@
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimTools.h"
 #include "RimWellRftPlot.h"
 
@@ -77,7 +77,7 @@ RimWellRftEnsembleCurveSet::~RimWellRftEnsembleCurveSet()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RimWellRftEnsembleCurveSet::ensemble() const
+RimSummaryEnsemble* RimWellRftEnsembleCurveSet::ensemble() const
 {
     return m_ensemble;
 }
@@ -85,7 +85,7 @@ RimSummaryCaseCollection* RimWellRftEnsembleCurveSet::ensemble() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellRftEnsembleCurveSet::setEnsemble( RimSummaryCaseCollection* ensemble )
+void RimWellRftEnsembleCurveSet::setEnsemble( RimSummaryEnsemble* ensemble )
 {
     m_ensemble = ensemble;
 
@@ -148,8 +148,8 @@ void RimWellRftEnsembleCurveSet::setEnsembleParameter( const QString& parameterN
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RimWellRftEnsembleCurveSet::parametersWithVariation() const
 {
-    std::set<QString>         paramSet;
-    RimSummaryCaseCollection* group = m_ensemble;
+    std::set<QString>   paramSet;
+    RimSummaryEnsemble* group = m_ensemble;
     if ( group )
     {
         auto parameters = group->variationSortedEnsembleParameters( true );
@@ -192,8 +192,8 @@ RigEnsembleParameter::Type RimWellRftEnsembleCurveSet::currentEnsembleParameterT
 {
     if ( m_ensembleColorMode() == ColorMode::BY_ENSEMBLE_PARAM )
     {
-        RimSummaryCaseCollection* group         = m_ensemble();
-        QString                   parameterName = m_ensembleParameter();
+        RimSummaryEnsemble* group         = m_ensemble();
+        QString             parameterName = m_ensembleParameter();
 
         if ( group && !parameterName.isEmpty() )
         {

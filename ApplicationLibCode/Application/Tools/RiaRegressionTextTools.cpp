@@ -49,7 +49,7 @@ QString RiaRegressionTextTools::generateRegressionText( const regression::Polyno
     bool                isFirst = true;
     std::vector<double> coeffs  = reg.coeffisients();
     QStringList         parts;
-    for ( size_t i = 0; i < coeffs.size(); i++ )
+    for ( int i = static_cast<int>( coeffs.size() ) - 1; i >= 0; i-- )
     {
         double coeff = coeffs[i];
         // Skip zero coeffs

@@ -45,7 +45,7 @@ class RimGridTimeHistoryCurve;
 class RimSummaryAddress;
 class RimSummaryAddressCollection;
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RimSummaryCurve;
 class RimSummaryCurveCollection;
 class RimEnsembleCurveSet;
@@ -168,8 +168,6 @@ public:
     void showPlotInfoLabel( bool show );
     void updatePlotInfoLabel();
 
-    bool containsResamplableCurves() const;
-
     size_t singleColorCurveCount() const;
     void   applyDefaultCurveAppearances();
     void   applyDefaultCurveAppearances( std::vector<RimSummaryCurve*> curvesToUpdate );
@@ -184,8 +182,8 @@ public:
     void           setAutoScaleYEnabled( bool enabled ) override;
     RiuPlotWidget* plotWidget() override;
     void           zoomAll() override;
-    void           updateZoomInParentPlot() override;
-    void           updateZoomFromParentPlot() override;
+    void           updatePlotWidgetFromAxisRanges() override;
+    void           updateAxisRangesFromPlotWidget() override;
 
     caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const override;
 
@@ -313,7 +311,7 @@ private:
     struct CurveInfo;
 
     CurveInfo handleSummaryCaseDrop( RimSummaryCase* summaryCase );
-    CurveInfo handleEnsembleDrop( RimSummaryCaseCollection* ensemble );
+    CurveInfo handleEnsembleDrop( RimSummaryEnsemble* ensemble );
     CurveInfo handleAddressCollectionDrop( RimSummaryAddressCollection* addrColl );
     CurveInfo handleSummaryAddressDrop( RimSummaryAddress* summaryAddr );
 

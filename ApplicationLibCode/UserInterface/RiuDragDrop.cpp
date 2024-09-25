@@ -36,13 +36,13 @@
 #include "RimSummaryAddress.h"
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
 #include "RimWellAllocationPlot.h"
+#include "RimWellLogChannel.h"
 #include "RimWellLogCurve.h"
-#include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
@@ -216,7 +216,7 @@ Qt::DropActions RiuDragDrop::supportedDropActions() const
     {
         return Qt::CopyAction | Qt::MoveAction;
     }
-    else if ( RiuTypedPdmObjects<RimWellLogFileChannel>::containsTypedObjects( m_dragItems ) )
+    else if ( RiuTypedPdmObjects<RimWellLogChannel>::containsTypedObjects( m_dragItems ) )
     {
         return Qt::CopyAction;
     }
@@ -247,8 +247,8 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
         }
 
         if ( dynamic_cast<RimEclipseCase*>( uiItem ) || dynamic_cast<RimWellLogCurve*>( uiItem ) ||
-             dynamic_cast<RimWellLogFileChannel*>( uiItem ) || dynamic_cast<RimPlot*>( uiItem ) || dynamic_cast<RimSummaryCase*>( uiItem ) ||
-             dynamic_cast<RimSummaryCaseCollection*>( uiItem ) || dynamic_cast<RimSurface*>( uiItem ) )
+             dynamic_cast<RimWellLogChannel*>( uiItem ) || dynamic_cast<RimPlot*>( uiItem ) || dynamic_cast<RimSummaryCase*>( uiItem ) ||
+             dynamic_cast<RimSummaryEnsemble*>( uiItem ) || dynamic_cast<RimSurface*>( uiItem ) )
         {
             itemflags |= Qt::ItemIsDragEnabled;
         }
@@ -316,7 +316,7 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
                     }
                 }
             }
-            else if ( dynamic_cast<RimSummaryCaseCollection*>( uiItem ) )
+            else if ( dynamic_cast<RimSummaryEnsemble*>( uiItem ) )
             {
                 if ( RiuTypedPdmObjects<RimSummaryCase>::containsTypedObjects( m_dragItems ) )
                 {
@@ -342,14 +342,14 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
         {
             if ( dynamic_cast<RimWellLogTrack*>( uiItem ) )
             {
-                if ( RiuTypedPdmObjects<RimWellLogFileChannel>::containsTypedObjects( m_dragItems ) )
+                if ( RiuTypedPdmObjects<RimWellLogChannel>::containsTypedObjects( m_dragItems ) )
                 {
                     itemflags |= Qt::ItemIsDropEnabled;
                 }
             }
             else if ( dynamic_cast<RimWellLogCurve*>( uiItem ) )
             {
-                if ( RiuTypedPdmObjects<RimWellLogFileChannel>::containsTypedObjects( m_dragItems ) )
+                if ( RiuTypedPdmObjects<RimWellLogChannel>::containsTypedObjects( m_dragItems ) )
                 {
                     itemflags |= Qt::ItemIsDropEnabled;
                 }
@@ -411,7 +411,7 @@ bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, in
             return handleMultiPlotDrop( action, draggedObjects, multiPlot, row );
         }
 
-        auto summaryCaseCollection = dropTarget->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+        auto summaryCaseCollection = dropTarget->firstAncestorOrThisOfType<RimSummaryEnsemble>();
         if ( summaryCaseCollection )
         {
             return handleSummaryCaseCollectionDrop( action, draggedObjects, summaryCaseCollection );
@@ -523,13 +523,12 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop( Qt::DropAction       action,
                                               RimWellLogTrack*     trackTarget,
                                               int                  insertAtPosition )
 {
-    std::vector<RimWellLogFileChannel*> wellLogFileChannels =
-        RiuTypedPdmObjects<RimWellLogFileChannel>::typedObjectsFromGroup( draggedObjects );
-    if ( !wellLogFileChannels.empty() )
+    std::vector<RimWellLogChannel*> wellLogChannels = RiuTypedPdmObjects<RimWellLogChannel>::typedObjectsFromGroup( draggedObjects );
+    if ( !wellLogChannels.empty() )
     {
         if ( action == Qt::CopyAction )
         {
-            RicWellLogTools::addWellLogChannelsToPlotTrack( trackTarget, wellLogFileChannels );
+            RicWellLogTools::addWellLogChannelsToPlotTrack( trackTarget, wellLogChannels );
             return true;
         }
     }
@@ -571,9 +570,9 @@ bool RiuDragDrop::handleWellLogPlotDrop( Qt::DropAction       action,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuDragDrop::handleSummaryCaseCollectionDrop( Qt::DropAction            action,
-                                                   caf::PdmObjectGroup&      draggedObjects,
-                                                   RimSummaryCaseCollection* summaryCaseDropTarget )
+bool RiuDragDrop::handleSummaryCaseCollectionDrop( Qt::DropAction       action,
+                                                   caf::PdmObjectGroup& draggedObjects,
+                                                   RimSummaryEnsemble*  summaryCaseDropTarget )
 {
     std::vector<RimSummaryCase*> summaryCases = RiuTypedPdmObjects<RimSummaryCase>::typedObjectsFromGroup( draggedObjects );
 
@@ -581,7 +580,7 @@ bool RiuDragDrop::handleSummaryCaseCollectionDrop( Qt::DropAction            act
 
     for ( RimSummaryCase* summaryCase : summaryCases )
     {
-        auto summaryCaseCollection = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+        auto summaryCaseCollection = summaryCase->firstAncestorOrThisOfType<RimSummaryEnsemble>();
 
         if ( summaryCaseCollection )
         {
@@ -616,7 +615,7 @@ bool RiuDragDrop::handleSummaryCaseMainCollectionDrop( Qt::DropAction           
 
     for ( RimSummaryCase* summaryCase : summaryCases )
     {
-        auto summaryCaseCollection = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+        auto summaryCaseCollection = summaryCase->firstAncestorOrThisOfType<RimSummaryEnsemble>();
 
         if ( summaryCaseCollection )
         {

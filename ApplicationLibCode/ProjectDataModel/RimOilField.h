@@ -42,6 +42,10 @@ class RimSeismicViewCollection;
 class RimSurfaceCollection;
 class RimEnsembleWellLogsCollection;
 class RimPolygonCollection;
+class RimEclipseViewCollection;
+class RimEclipseContourMapViewCollection;
+class RimVfpDataCollection;
+class RimCloudDataSourceCollection;
 
 //==================================================================================================
 ///
@@ -61,20 +65,24 @@ public:
     RimValveTemplateCollection*       valveTemplateCollection();
     const RimValveTemplateCollection* valveTemplateCollection() const;
 
-    caf::PdmChildField<RimEclipseCaseCollection*>        analysisModels;
-    caf::PdmChildField<RimGeoMechModels*>                geoMechModels;
-    caf::PdmChildField<RimWellPathCollection*>           wellPathCollection;
-    caf::PdmChildField<RimCompletionTemplateCollection*> completionTemplateCollection;
-    caf::PdmChildField<RimSummaryCaseMainCollection*>    summaryCaseMainCollection;
-    caf::PdmChildField<RimObservedDataCollection*>       observedDataCollection;
-    caf::PdmChildField<RimFormationNamesCollection*>     formationNamesCollection;
-    caf::PdmChildField<RimAnnotationCollection*>         annotationCollection;
-    caf::PdmChildField<RimMeasurement*>                  measurement;
-    caf::PdmChildField<RimSurfaceCollection*>            surfaceCollection;
-    caf::PdmChildField<RimSeismicDataCollection*>        seismicDataCollection;
-    caf::PdmChildField<RimSeismicViewCollection*>        seismicViewCollection;
-    caf::PdmChildField<RimEnsembleWellLogsCollection*>   ensembleWellLogsCollection;
-    caf::PdmChildField<RimPolygonCollection*>            polygonCollection;
+    caf::PdmChildField<RimEclipseCaseCollection*>           analysisModels;
+    caf::PdmChildField<RimGeoMechModels*>                   geoMechModels;
+    caf::PdmChildField<RimWellPathCollection*>              wellPathCollection;
+    caf::PdmChildField<RimCompletionTemplateCollection*>    completionTemplateCollection;
+    caf::PdmChildField<RimSummaryCaseMainCollection*>       summaryCaseMainCollection;
+    caf::PdmChildField<RimObservedDataCollection*>          observedDataCollection;
+    caf::PdmChildField<RimFormationNamesCollection*>        formationNamesCollection;
+    caf::PdmChildField<RimAnnotationCollection*>            annotationCollection;
+    caf::PdmChildField<RimMeasurement*>                     measurement;
+    caf::PdmChildField<RimSurfaceCollection*>               surfaceCollection;
+    caf::PdmChildField<RimSeismicDataCollection*>           seismicDataCollection;
+    caf::PdmChildField<RimSeismicViewCollection*>           seismicViewCollection;
+    caf::PdmChildField<RimEclipseViewCollection*>           eclipseViewCollection;
+    caf::PdmChildField<RimEnsembleWellLogsCollection*>      ensembleWellLogsCollection;
+    caf::PdmChildField<RimPolygonCollection*>               polygonCollection;
+    caf::PdmChildField<RimEclipseContourMapViewCollection*> eclipseContourMapCollection;
+    caf::PdmChildField<RimVfpDataCollection*>               vfpDataCollection;
+    caf::PdmChildField<RimCloudDataSourceCollection*>       cloudDataCollection;
 
 protected:
     void initAfterRead() override;

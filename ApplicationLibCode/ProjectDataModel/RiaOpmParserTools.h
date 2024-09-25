@@ -28,17 +28,16 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class RiaOpmParserTools
+namespace RiaOpmParserTools
 {
-public:
-    static std::vector<Opm::VFPInjTable>  extractVfpInjectionTables( const std::string& filename );
-    static std::vector<Opm::VFPProdTable> extractVfpProductionTables( const std::string& filename );
 
-    static std::map<std::string, std::vector<std::pair<int, int>>> extractWseglink( const std::string& filename );
+std::pair<std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>> extractVfpTablesFromDataFile( const std::string& dataDeckFilename );
 
-    using AicdTemplateValues = std::map<std::string, double>;
-    static std::vector<AicdTemplateValues> extractWsegAicd( const std::string& filename );
-    static std::vector<AicdTemplateValues> extractWsegAicdCompletor( const std::string& filename );
+std::map<std::string, std::vector<std::pair<int, int>>> extractWseglink( const std::string& filename );
 
-    static std::string aicdTemplateId();
-};
+using AicdTemplateValues = std::map<std::string, double>;
+std::vector<AicdTemplateValues> extractWsegAicd( const std::string& filename );
+std::vector<AicdTemplateValues> extractWsegAicdCompletor( const std::string& filename );
+
+std::string aicdTemplateId();
+}; // namespace RiaOpmParserTools

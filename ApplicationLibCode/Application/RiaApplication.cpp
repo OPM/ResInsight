@@ -17,24 +17,28 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiaApplication.h"
 
-#include "RiaArgumentParser.h"
+#include "Cloud/RiaConnectorTools.h"
+#include "Cloud/RiaOsduConnector.h"
+#include "Cloud/RiaSumoConnector.h"
+#include "Cloud/RiaSumoDefines.h"
+#include "RiaOsduDefines.h"
+
 #include "RiaBaseDefs.h"
 #include "RiaFilePathTools.h"
 #include "RiaFontCache.h"
-#include "RiaGuiApplication.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesSumo.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaProjectModifier.h"
+#include "RiaRegressionTestRunner.h"
 #include "RiaSocketServer.h"
 #include "RiaTextStringTools.h"
 #include "RiaVersionInfo.h"
 #include "RiaViewRedrawScheduler.h"
 #include "RiaWellNameComparer.h"
 
-#include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
-#include "HoloLensCommands/RicHoloLensSessionManager.h"
 #include "RicImportGeneralDataFeature.h"
 #include "RicfCommandFileExecutor.h"
 #include "RicfCommandObject.h"
@@ -43,31 +47,37 @@
 #include "Polygons/RimPolygonCollection.h"
 
 #include "Rim2dIntersectionViewCollection.h"
-#include "RimAnnotationCollection.h"
-#include "RimAnnotationInViewCollection.h"
-#include "RimAnnotationTextAppearance.h"
 #include "RimCellFilterCollection.h"
 #include "RimCommandObject.h"
 #include "RimCommandRouter.h"
 #include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseView.h"
+#include "RimEclipseViewCollection.h"
 #include "RimEnsembleWellLogsCollection.h"
 #include "RimFaultReactivationModelCollection.h"
+#include "RimFileWellPath.h"
+#include "RimFileWellPathDataLoader.h"
 #include "RimFormationNamesCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
-#include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
 #include "RimGridCalculationCollection.h"
 #include "RimGridSummaryCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
+#include "RimModeledWellPath.h"
+#include "RimModeledWellPathDataLoader.h"
 #include "RimObservedDataCollection.h"
 #include "RimObservedFmuRftData.h"
 #include "RimObservedSummaryData.h"
 #include "RimOilField.h"
+#include "RimOsduWellLog.h"
+#include "RimOsduWellLogDataLoader.h"
+#include "RimOsduWellPath.h"
+#include "RimOsduWellPathDataLoader.h"
 #include "RimPlotWindow.h"
 #include "RimProject.h"
 #include "RimScriptCollection.h"
@@ -81,23 +91,26 @@
 #include "RimStimPlanModelCollection.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSurfaceCollection.h"
-#include "RimTextAnnotation.h"
-#include "RimTextAnnotationInView.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
+#include "RimWellLogFile.h"
+#include "RimWellLogFileDataLoader.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
+#include "VerticalFlowPerformance/RimVfpDataCollection.h"
+#include "VerticalFlowPerformance/RimVfpPlotCollection.h"
 
 #include "Riu3DMainWindowTools.h"
-#include "RiuGuiTheme.h"
+#include "RiuMainWindow.h"
 #include "RiuViewer.h"
 #include "RiuViewerCommands.h"
 
+#include "cafDataLoadController.h"
 #include "cafPdmCodeGenerator.h"
 #include "cafPdmDataValueField.h"
 #include "cafPdmDefaultObjectFactory.h"
@@ -111,14 +124,8 @@
 #include "cafUiProcess.h"
 #include "cafUtils.h"
 
-#include "cvfProgramOptions.h"
-#include "cvfqtUtils.h"
-
 #include <QCoreApplication>
-#include <QDir>
-#include <QFileInfo>
 
-#include <iostream>
 #include <memory>
 
 #ifdef WIN32
@@ -168,6 +175,8 @@ RiaApplication::RiaApplication()
     setLastUsedDialogDirectory( "MULTICASEIMPORT", "/" );
 
     m_commandRouter = std::make_unique<RimCommandRouter>();
+    m_osduConnector = nullptr;
+    m_sumoConnector = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -178,6 +187,16 @@ RiaApplication::~RiaApplication()
     RiaFontCache::clear();
 
     caf::SelectionManager::instance()->setPdmRootObject( nullptr );
+
+    m_project.reset();
+
+    delete m_osduConnector.data();
+    m_osduConnector.clear();
+    m_osduConnector = nullptr;
+
+    delete m_sumoConnector.data();
+    m_sumoConnector.clear();
+    m_sumoConnector = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -459,8 +478,9 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         return false;
     }
 
-    m_project->fileName = fullPathProjectFileName;
+    m_project->setFileName( fullPathProjectFileName );
     m_project->readFile();
+    m_project->updatesAfterProjectFileIsRead();
 
     // Apply any modifications to the loaded project before we go ahead and load actual data
     if ( projectModifier )
@@ -490,6 +510,11 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 
         return true;
     }
+
+    // At this point, all the file paths variables are replaced and all file paths updated to the new location. This will enable use of file
+    // paths in initAfterRead().
+    m_project->resolveReferencesRecursively();
+    m_project->initAfterReadRecursively();
 
     // Migrate all RimGridCases to RimFileSummaryCase
     RimGridSummaryCase_obsolete::convertGridCasesToSummaryFileCases( m_project.get() );
@@ -537,8 +562,17 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         }
 
         // Initialize well paths
-        oilField->wellPathCollection->loadDataAndUpdate();
+        if ( !oilField->wellPathCollection->loadDataAndUpdate() )
+        {
+            // Opening well path was cancelled or failed: close project.
+            closeProject();
+            m_project = std::make_unique<RimProject>();
+            onProjectOpened();
+            return true;
+        }
+
         oilField->ensembleWellLogsCollection->loadDataAndUpdate();
+        oilField->vfpDataCollection->loadDataAndUpdate();
 
         // Initialize seismic data
         auto& seisDataColl = oilField->seismicDataCollection();
@@ -553,6 +587,10 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
     {
         RimMainPlotCollection* mainPlotColl = RimMainPlotCollection::current();
         mainPlotColl->ensureDefaultFlowPlotsAreCreated();
+
+        // RimVfpTable are not presisted in the project file, and are created in vfpDataCollection->loadDataAndUpdate(). Existing VFP
+        // plots will have references to RimVfpTables. Call resolveReferencesRecursively() to update the references to RimVfpTable objects.
+        mainPlotColl->vfpPlotCollection()->resolveReferencesRecursively();
     }
 
     for ( RimOilField* oilField : m_project->oilFields )
@@ -677,6 +715,20 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         }
     }
 
+    // Load all grid ensemble views
+    {
+        auto gridCaseEnsembles = m_project->activeOilField()->analysisModels()->caseEnsembles.childrenByType();
+
+        for ( auto gridCaseEnsemble : gridCaseEnsembles )
+        {
+            auto views = gridCaseEnsemble->viewCollection()->views();
+            for ( auto view : views )
+            {
+                view->loadDataAndUpdate();
+            }
+        }
+    }
+
     if ( m_project->viewLinkerCollection() && m_project->viewLinkerCollection()->viewLinker() )
     {
         m_project->viewLinkerCollection()->viewLinker()->updateOverrides();
@@ -690,10 +742,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
     }
 
     {
-        std::vector<Rim3dView*> views;
-        m_project->allViews( views );
-
-        for ( auto view : views )
+        for ( auto view : m_project->allViews() )
         {
             if ( auto eclipseView = dynamic_cast<RimEclipseView*>( view ) )
             {
@@ -722,8 +771,6 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
             sumCaseGroup->ensureNameIsUpdated();
             sumCaseGroup->loadDataAndUpdate();
         }
-
-        oilField->annotationCollection()->loadDataAndUpdate();
 
         for ( auto well : oilField->wellPathCollection()->allWellPaths() )
         {
@@ -800,7 +847,7 @@ bool RiaApplication::saveProjectAs( const QString& fileName, gsl::not_null<QStri
 {
     CAF_ASSERT( m_project );
     // Make sure we always store path with forward slash to avoid issues when opening the project file on Linux
-    m_project->fileName = RiaFilePathTools::toInternalSeparator( fileName );
+    m_project->setFileName( RiaFilePathTools::toInternalSeparator( fileName ) );
 
     onProjectBeingSaved();
 
@@ -1072,7 +1119,7 @@ QStringList RiaApplication::octaveArguments() const
 
     QStringList arguments;
     arguments.append( "--path" );
-    arguments << QApplication::applicationDirPath();
+    arguments << QCoreApplication::applicationDirPath();
 
     if ( !m_preferences->octaveShowHeaderInfoWhenExecutingScripts() )
     {
@@ -1100,9 +1147,9 @@ QProcessEnvironment RiaApplication::octaveProcessEnvironment() const
     QString pathString = penv.value( "PATH", "" );
 
     if ( pathString == "" )
-        pathString = QApplication::applicationDirPath() + "\\octave_plugin_dependencies";
+        pathString = QCoreApplication::applicationDirPath() + "\\octave_plugin_dependencies";
     else
-        pathString = QApplication::applicationDirPath() + "\\octave_plugin_dependencies" + ";" + pathString;
+        pathString = QCoreApplication::applicationDirPath() + "\\octave_plugin_dependencies" + ";" + pathString;
 
     penv.insert( "PATH", pathString );
 #else
@@ -1110,9 +1157,9 @@ QProcessEnvironment RiaApplication::octaveProcessEnvironment() const
     QString ldPath = penv.value( "LD_LIBRARY_PATH", "" );
 
     if ( ldPath == "" )
-        ldPath = QApplication::applicationDirPath();
+        ldPath = QCoreApplication::applicationDirPath();
     else
-        ldPath = QApplication::applicationDirPath() + ":" + ldPath;
+        ldPath = QCoreApplication::applicationDirPath() + ":" + ldPath;
 
     penv.insert( "LD_LIBRARY_PATH", ldPath );
 #endif
@@ -1513,6 +1560,59 @@ cvf::Font* RiaApplication::defaultWellLabelFont()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+auto readCloudConfigFiles = []( RiaPreferences* preferences )
+{
+    if ( preferences == nullptr ) return;
+
+    // Check multiple locations for configuration files. The first valid configuration file is used. Currently, using Qt5 the ResInsight
+    // binary file is stored at the root of the installation folder. When moving to Qt6, we will probably use sub folders /bin /lib and
+    // others. Support both one and two search levels to support Qt6.
+    //
+    // home_folder/.resinsight/*_config.json
+    // location_of_resinsight_executable/../share/cloud_services/*_config.json
+    // location_of_resinsight_executable/../../share/cloud_services/*_config.json
+    //
+
+    {
+        QStringList osduFilePathCandidates;
+        osduFilePathCandidates << QDir::homePath() + "/.resinsight/osdu_config.json";
+        osduFilePathCandidates << QCoreApplication::applicationDirPath() + "/../share/cloud_services/osdu_config.json";
+        osduFilePathCandidates << QCoreApplication::applicationDirPath() + "/../../share/cloud_services/osdu_config.json";
+
+        for ( const auto& osduFileCandidate : osduFilePathCandidates )
+        {
+            auto keyValuePairs = RiaConnectorTools::readKeyValuePairs( osduFileCandidate );
+            if ( !keyValuePairs.empty() )
+            {
+                preferences->osduPreferences()->setData( keyValuePairs );
+                preferences->osduPreferences()->setFieldsReadOnly();
+                break;
+            }
+        }
+    }
+
+    {
+        QStringList sumoFilePathCandidates;
+        sumoFilePathCandidates << QDir::homePath() + "/.resinsight/sumo_config.json";
+        sumoFilePathCandidates << QCoreApplication::applicationDirPath() + "/../share/cloud_services/sumo_config.json";
+        sumoFilePathCandidates << QCoreApplication::applicationDirPath() + "/../../share/cloud_services/sumo_config.json";
+
+        for ( const auto& sumoFileCandidate : sumoFilePathCandidates )
+        {
+            auto keyValuePairs = RiaConnectorTools::readKeyValuePairs( sumoFileCandidate );
+            if ( !keyValuePairs.empty() )
+            {
+                preferences->sumoPreferences()->setData( keyValuePairs );
+                preferences->sumoPreferences()->setFieldsReadOnly();
+                break;
+            }
+        }
+    }
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaApplication::initialize()
 {
     m_preferences = std::make_unique<RiaPreferences>();
@@ -1526,6 +1626,10 @@ void RiaApplication::initialize()
     m_project->setPlotTemplateFolders( m_preferences->plotTemplateFolders() );
 
     caf::SelectionManager::instance()->setPdmRootObject( project() );
+
+    initializeDataLoadController();
+
+    readCloudConfigFiles( m_preferences.get() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1681,4 +1785,91 @@ bool RiaApplication::generateCode( const QString& fileName, gsl::not_null<QStrin
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaOsduConnector* RiaApplication::makeOsduConnector()
+{
+    if ( m_osduConnector ) return m_osduConnector;
+
+    if ( !QSslSocket::supportsSsl() )
+    {
+        QString errMsg = "SSL support is not available. ";
+#ifdef Q_OS_WIN
+        errMsg +=
+            "Make sure that the SSL libraries are available (on Windows platform, they are called 'libcrypto*.dll' and 'libssl*.dll').";
+#endif
+        RiaLogging::errorInMessageBox( nullptr, "OSDU Service Connection", errMsg );
+
+        return nullptr;
+    }
+
+    RiaPreferencesOsdu* osduPreferences = preferences()->osduPreferences();
+    const QString       server          = osduPreferences->server();
+    const QString       dataPartitionId = osduPreferences->dataPartitionId();
+    const QString       authority       = osduPreferences->authority();
+    const QString       scopes          = osduPreferences->scopes();
+    const QString       clientId        = osduPreferences->clientId();
+    const unsigned int  port            = 35327;
+
+    m_osduConnector = new RiaOsduConnector( RiuMainWindow::instance(), server, dataPartitionId, authority, scopes, clientId, port );
+    m_osduConnector->setTokenDataFilePath( RiaOsduDefines::tokenPath() );
+    m_osduConnector->importTokenFromFile();
+
+    return m_osduConnector;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaSumoConnector* RiaApplication::makeSumoConnector()
+{
+    if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
+    {
+        return nullptr;
+    }
+
+    if ( !m_sumoConnector )
+    {
+        auto               sumoPrefs = preferences()->sumoPreferences();
+        const QString      server    = sumoPrefs->server();
+        const QString      authority = sumoPrefs->authority();
+        const QString      scopes    = sumoPrefs->scopes();
+        const QString      clientId  = sumoPrefs->clientId();
+        const unsigned int port      = 53527;
+
+        m_sumoConnector = new RiaSumoConnector( RiuMainWindow::instance(), server, authority, scopes, clientId, port );
+        m_sumoConnector->setTokenDataFilePath( RiaSumoDefines::tokenPath() );
+        m_sumoConnector->importTokenFromFile();
+    }
+
+    return m_sumoConnector;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::initializeDataLoadController()
+{
+    caf::DataLoadController* dataLoadController = caf::DataLoadController::instance();
+
+    const QString wellPathGeometryKeyword = "WELL_PATH_GEOMETRY";
+    dataLoadController->registerDataLoader( RimFileWellPath::classKeywordStatic(),
+                                            wellPathGeometryKeyword,
+                                            std::make_unique<RimFileWellPathDataLoader>() );
+    dataLoadController->registerDataLoader( RimOsduWellPath::classKeywordStatic(),
+                                            wellPathGeometryKeyword,
+                                            std::make_unique<RimOsduWellPathDataLoader>() );
+    dataLoadController->registerDataLoader( RimModeledWellPath::classKeywordStatic(),
+                                            wellPathGeometryKeyword,
+                                            std::make_unique<RimModeledWellPathDataLoader>() );
+
+    const QString wellLogKeyword = "WELL_LOG";
+    dataLoadController->registerDataLoader( RimWellLogLasFile::classKeywordStatic(),
+                                            wellLogKeyword,
+                                            std::make_unique<RimWellLogFileDataLoader>() );
+    dataLoadController->registerDataLoader( RimWellLogFile::classKeywordStatic(), wellLogKeyword, std::make_unique<RimWellLogFileDataLoader>() );
+    dataLoadController->registerDataLoader( RimOsduWellLog::classKeywordStatic(), wellLogKeyword, std::make_unique<RimOsduWellLogDataLoader>() );
 }

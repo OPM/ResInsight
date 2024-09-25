@@ -181,7 +181,7 @@ int main( int argc, char* argv[] )
                         if ( file.open( QIODevice::WriteOnly | QIODevice::Text ) )
                         {
                             QTextStream out( &file );
-                            out << portNumber << endl;
+                            out << portNumber << "\n";
                         }
                         file.close();
 

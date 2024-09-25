@@ -20,9 +20,10 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogExtractionCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogLasFile.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCsvFile.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellLog.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFile.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileUtil.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogChannel.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellLogChannel.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogLasFileCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogWbsCurve.h
@@ -30,6 +31,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimRftTopologyCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveInfoTextProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCalculatedCurve.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileDataLoader.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellLogDataLoader.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -40,9 +43,12 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogExtractionCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogLasFile.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCsvFile.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellLog.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellLog.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFile.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileUtil.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileChannel.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogChannel.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellLogChannel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogLasFileCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogWbsCurve.cpp
@@ -64,11 +70,15 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimRftTopologyCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveInfoTextProvider.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCalculatedCurve.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileDataLoader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellLogDataLoader.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
+
+list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellLogDataLoader.h)
 
 source_group(
   "ProjectDataModel\\WellLog"

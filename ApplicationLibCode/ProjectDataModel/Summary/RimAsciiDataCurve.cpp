@@ -118,7 +118,7 @@ void RimAsciiDataCurve::updateZoomInParentPlot()
 {
     auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
 
-    plot->updateZoomInParentPlot();
+    plot->updatePlotWidgetFromAxisRanges();
 }
 
 //--------------------------------------------------------------------------------------------------

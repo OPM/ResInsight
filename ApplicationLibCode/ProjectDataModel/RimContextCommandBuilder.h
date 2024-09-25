@@ -20,6 +20,8 @@
 #pragma once
 
 #include <QIcon>
+#include <QStringList>
+
 #include <vector>
 
 namespace caf
@@ -28,7 +30,6 @@ class CmdFeatureMenuBuilder;
 }
 
 class QString;
-class QStringList;
 class QMenu;
 class RimWellPath;
 class RimScriptCollection;
@@ -50,7 +51,7 @@ private:
     static void appendScriptItems( caf::CmdFeatureMenuBuilder& menuBuilder, RimScriptCollection* scriptCollection );
     static void appendPlotTemplateItems( caf::CmdFeatureMenuBuilder& menuBuilder, RimPlotTemplateFolderItem* plotTemplateRoot );
 
-    static int appendImportMenu( caf::CmdFeatureMenuBuilder& menuBuilder, bool addSeparatorBeforeMenu = false );
+    static int appendImportMenu( caf::CmdFeatureMenuBuilder& menuBuilder, bool addSeparatorBeforeMenu = false, bool addOsduMenuItem = false );
     static int appendCreateCompletions( caf::CmdFeatureMenuBuilder& menuBuilder, bool addSeparatorBeforeMenu = false );
     static int appendExportCompletions( caf::CmdFeatureMenuBuilder& menuBuilder, bool addSeparatorBeforeMenu = false );
     static int appendExportWellPaths( caf::CmdFeatureMenuBuilder& menuBuilder, bool addSeparatorBeforeMenu = false );

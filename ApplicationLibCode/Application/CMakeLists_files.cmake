@@ -8,7 +8,10 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferences.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesSummary.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesGeoMech.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesGrid.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesSystem.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesOsdu.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesSumo.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaPorosityModel.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveDefinition.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaCurveSetDefinition.h
@@ -33,6 +36,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaSeismicDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaLasDefines.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaOsduDefines.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaCloudDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaWellFlowDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveAddress.h
 )
@@ -47,7 +52,10 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferences.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesSummary.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesGeoMech.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesGrid.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesSystem.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesOsdu.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesSumo.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPorosityModel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveDefinition.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaCurveSetDefinition.cpp
@@ -72,6 +80,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaSeismicDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaLasDefines.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaOsduDefines.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaCloudDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaWellFlowDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveAddress.cpp
 )

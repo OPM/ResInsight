@@ -20,7 +20,7 @@
 
 #include "RiaTextStringTools.h"
 
-#include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
+#include "RifAsciiDataParseOptions.h"
 
 #include "RifCsvUserDataParser.h"
 
@@ -133,7 +133,7 @@ std::vector<std::pair<int, std::vector<cvf::Vec3d>>> RifPolygonReader::parseText
 {
     RifCsvUserDataPastedTextParser parser( content, errorMessage );
 
-    AsciiDataParseOptions parseOptions;
+    RifAsciiDataParseOptions parseOptions;
     parseOptions.cellSeparator    = ",";
     parseOptions.decimalSeparator = ".";
 

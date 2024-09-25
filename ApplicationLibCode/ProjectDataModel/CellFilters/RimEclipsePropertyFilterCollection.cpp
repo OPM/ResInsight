@@ -46,14 +46,6 @@ RimEclipsePropertyFilterCollection::RimEclipsePropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipsePropertyFilterCollection::~RimEclipsePropertyFilterCollection()
-{
-    m_propertyFilters.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimEclipseView* RimEclipsePropertyFilterCollection::reservoirView()
 {
     return firstAncestorOrThisOfType<RimEclipseView>();

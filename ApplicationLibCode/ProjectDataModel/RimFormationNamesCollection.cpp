@@ -39,14 +39,6 @@ RimFormationNamesCollection::RimFormationNamesCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFormationNamesCollection::~RimFormationNamesCollection()
-{
-    m_formationNamesList.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimFormationNamesCollection::readAllFormationNames()
 {
     for ( RimFormationNames* fmNames : m_formationNamesList )

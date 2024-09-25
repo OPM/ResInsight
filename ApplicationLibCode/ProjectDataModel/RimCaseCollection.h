@@ -36,11 +36,8 @@ class RimCaseCollection : public caf::PdmObject
 
 public:
     RimCaseCollection();
-    ~RimCaseCollection() override;
     caf::PdmChildArrayField<RimEclipseCase*> reservoirs;
 
     RimIdenticalGridCaseGroup* parentCaseGroup();
     RimEclipseCase*            findByDescription( const QString& caseDescription ) const;
-
-private:
 };

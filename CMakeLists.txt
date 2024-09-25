@@ -38,16 +38,6 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 option(RESINSIGHT_BUNDLE_TESTMODELS "Copy TestModels into the installation" OFF)
 mark_as_advanced(RESINSIGHT_BUNDLE_TESTMODELS)
 
-option(RESINSIGHT_VCPKG_AUTO_INSTALL
-       "Automatically download build pre-requisites with VCPKG" OFF
-)
-mark_as_advanced(RESINSIGHT_VCPKG_AUTO_INSTALL)
-
-if(RESINSIGHT_VCPKG_AUTO_INSTALL)
-  include(AutoVcpkg)
-  set(AUTO_VCPKG_ROOT "${CMAKE_SOURCE_DIR}/ThirdParty/vcpkg")
-endif()
-
 set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -134,33 +124,67 @@ set(RESINSIGHT_ODB_API_DIR
       "Optional path to the ABAQUS ODB API from Simulia. Needed for support of geomechanical models"
 )
 
-if(MSVC)
-  option(RESINSIGHT_DONWLOAD_ODB_FROM_SERVER
-         "Download ODB library from inhouse build server" OFF
-  )
-  mark_as_advanced(FORCE RESINSIGHT_DONWLOAD_ODB_FROM_SERVER)
+option(RESINSIGHT_DOWNLOAD_ODB_FROM_SERVER
+       "Download ODB library from private repository" OFF
+)
+mark_as_advanced(FORCE RESINSIGHT_DOWNLOAD_ODB_FROM_SERVER)
+set(RESINSIGHT_ODB_VERSION
+    "2020"
+    CACHE STRING "Abaqus API version to use, 2020 or 2024"
+)
+mark_as_advanced(FORCE RESINSIGHT_ODB_VERSION)
 
-  if(RESINSIGHT_DONWLOAD_ODB_FROM_SERVER)
+if(RESINSIGHT_DOWNLOAD_ODB_FROM_SERVER)
+
+  if(MSVC)
     FetchContent_Declare(
       odb-library-from-server
-      URL http://10.10.0.26:8080/job/resinsight-dependencies/ws/odb-api-2020.zip
+      URL http://10.10.0.26:8080/job/resinsight-dependencies/ws/${RESINSIGHT_ODB_VERSION}/odb_api_win64.zip
     )
-
-    FetchContent_Populate(odb-library-from-server)
-
-    set(RESINSIGHT_ODB_API_DIR ${odb-library-from-server_SOURCE_DIR})
+  else()
+    FetchContent_Declare(
+      odb-library-from-server
+      URL http://10.10.0.26:8080/job/resinsight-dependencies/ws/${RESINSIGHT_ODB_VERSION}/odb_api_linux.zip
+    )
   endif()
+
+  FetchContent_Populate(odb-library-from-server)
+  set(RESINSIGHT_ODB_API_DIR ${odb-library-from-server_SOURCE_DIR})
 endif()
 
 if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
   add_definitions(-DUSE_ODB_API)
   set(RESINSIGHT_USE_ODB_API 1)
-  message(STATUS "Using ODB-Api from : ${RESINSIGHT_ODB_API_DIR}")
+  message(
+    STATUS
+      "Using ODB-Api ${RESINSIGHT_ODB_VERSION} from : ${RESINSIGHT_ODB_API_DIR}"
+  )
+  if(MSVC)
+    add_definitions(-D_WINDOWS_SOURCE)
+  else()
+    add_definitions(-D_LINUX_SOURCE)
+  endif()
 endif()
 
 # ##############################################################################
 # Version number
 # ##############################################################################
+if(UNIX AND NOT APPLE)
+  if(EXISTS "/etc/os-release")
+    # Read the contents of /etc/os-release
+    file(READ "/etc/os-release" OS_RELEASE_CONTENT)
+
+    # Extract ID
+    string(REGEX MATCH "PRETTY_NAME=\"?([^\n\"]+)\"?" _ ${OS_RELEASE_CONTENT})
+    set(RESINSIGHT_BUILD_SYSTEM_ID ${CMAKE_MATCH_1})
+
+    # Display the extracted values
+    message(STATUS "Operating System ID: ${RESINSIGHT_BUILD_SYSTEM_ID}")
+  else()
+    message(WARNING "/etc/os-release not found. Cannot determine OS details.")
+  endif()
+endif()
+
 include(ResInsightVersion.cmake)
 
 # ##############################################################################
@@ -199,10 +223,10 @@ if(RESINSIGHT_ENABLE_UNITY_BUILD)
 endif()
 
 # ##############################################################################
-# ERT
+# resdata
 # ##############################################################################
 
-# Use of CMAKE_CXX_COMPILER_LAUNCHER is not working with libecl. Disable by
+# Use of CMAKE_CXX_COMPILER_LAUNCHER is not working with resdata. Disable by
 # temporarily setting compiler launcher to nothing
 set(TEMP_CMAKE_CXX_COMPILER_LAUNCHER ${CMAKE_CXX_COMPILER_LAUNCHER})
 set(CMAKE_CXX_COMPILER_LAUNCHER)
@@ -237,7 +261,7 @@ if(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
   list(APPEND ERT_INCLUDE_DIRS ${RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT})
 
-  list(APPEND ERT_LIBRARIES ${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl.so)
+  list(APPEND ERT_LIBRARIES ${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/resdata.so)
 
 else()
 
@@ -279,35 +303,35 @@ else()
   endif()
 
   if(MSVC)
-    # libecl : Disable some warnings
+    # resdata : Disable some warnings
     set_target_properties(
-      ecl
+      resdata
       PROPERTIES
         COMPILE_FLAGS
         "/wd4244 /wd4267 /wd4013 /wd4190 /wd4018 /wd4477 /wd4098 /wd4293 /wd4305 /wd4020 /wd4028 /wd4715 /wd4245 /wd4804 /wd4100 /wd4456 /wd4458 /wd4090 /wd4297 /wd4701 /wd4101 /wd4702 /wd4457"
     )
   elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set_target_properties(
-      ecl
+      resdata
       PROPERTIES
         COMPILE_FLAGS
         "-Wno-deprecated -Wno-deprecated-declarations -Wno-sign-compare"
     )
   else()
     set_target_properties(
-      ecl
+      resdata
       PROPERTIES
         COMPILE_FLAGS
         "-Wno-deprecated -Wno-deprecated-declarations -Wno-clobbered -Wno-int-in-bool-context"
     )
 
     target_compile_options(
-      ecl PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-Wno-class-memaccess>
+      resdata PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-Wno-class-memaccess>
     )
 
   endif()
 
-  list(APPEND THIRD_PARTY_LIBRARIES ecl)
+  list(APPEND THIRD_PARTY_LIBRARIES resdata)
 
   set_property(TARGET catch2 PROPERTY FOLDER "Thirdparty")
 
@@ -316,7 +340,7 @@ else()
 
 endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
-# restore buildcache when libecl has been configured
+# restore buildcache when resdata has been configured
 set(CMAKE_CXX_COMPILER_LAUNCHER ${TEMP_CMAKE_CXX_COMPILER_LAUNCHER})
 
 # ##############################################################################
@@ -414,33 +438,29 @@ if(MSVC)
     )
   endif()
 else()
-  find_package(HDF5 COMPONENTS CXX)
-  if(HDF5_FOUND)
-    list(APPEND EXTERNAL_LINK_LIBRARIES ${HDF5_LIBRARIES})
+  if(RESINSIGHT_ENABLE_HDF5)
+    find_package(HDF5 COMPONENTS CXX)
+    if(HDF5_FOUND)
+      list(APPEND EXTERNAL_LINK_LIBRARIES ${HDF5_LIBRARIES})
 
-    set(RESINSIGHT_FOUND_HDF5 1)
-    message(STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}")
+      set(RESINSIGHT_FOUND_HDF5 1)
+      message(STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}")
 
-    option(RESINSIGHT_HDF5_BUNDLE_LIBRARIES "Bundle HDF5 libraries" OFF)
-    mark_as_advanced(FORCE RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
-    if(RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
-      message(STATUS "Bundling of HDF5 libraries is enabled")
-    endif() # RESINSIGHT_HDF5_BUNDLE_LIBRARIES
+      option(RESINSIGHT_HDF5_BUNDLE_LIBRARIES "Bundle HDF5 libraries" OFF)
+      mark_as_advanced(FORCE RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
+      if(RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
+        message(STATUS "Bundling of HDF5 libraries is enabled")
+      endif() # RESINSIGHT_HDF5_BUNDLE_LIBRARIES
 
-  else()
-    message(WARNING "Use of HDF5 is enabled, but no HDF5 is found.")
-  endif() # HDF5_FOUND
+    else()
+      message(WARNING "Use of HDF5 is enabled, but no HDF5 is found.")
+    endif() # HDF5_FOUND
+  endif()
 endif() # MSVC
 
 # ##############################################################################
 # Opm
 # ##############################################################################
-
-if(RESINSIGHT_VCPKG_AUTO_INSTALL)
-  vcpkg_install(boost-filesystem)
-  vcpkg_install(boost-spirit)
-  include(${CMAKE_TOOLCHAIN_FILE})
-endif()
 
 add_subdirectory(ThirdParty/custom-opm-flowdiagnostics)
 add_subdirectory(ThirdParty/custom-opm-flowdiag-app)
@@ -508,7 +528,8 @@ endif()
 set(RI_QT_MINIMUM_VERSION 5.12)
 
 find_package(
-  Qt5 ${RI_QT_MINIMUM_VERSION} COMPONENTS Core Gui OpenGL Network Widgets
+  Qt5 ${RI_QT_MINIMUM_VERSION} COMPONENTS Core Gui OpenGL Network NetworkAuth
+                                          Widgets
 )
 
 # Open GL
@@ -630,11 +651,38 @@ set_property(
 add_subdirectory(ThirdParty/tomlplusplus)
 
 # ##############################################################################
-# spdlog
+# spdlog and fast_float
 # ##############################################################################
 
-add_subdirectory(ThirdParty/spdlog)
-list(APPEND THIRD_PARTY_LIBRARIES spdlog)
+find_package(FastFloat CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
+list(APPEND THIRD_PARTY_LIBRARIES FastFloat::fast_float spdlog::spdlog)
+
+# ##############################################################################
+# Arrow
+# ##############################################################################
+find_package(Arrow CONFIG REQUIRED)
+if(MSVC)
+  list(APPEND THIRD_PARTY_LIBRARIES Arrow::arrow_shared)
+else()
+  list(APPEND THIRD_PARTY_LIBRARIES Arrow::arrow_static)
+endif()
+
+# ##############################################################################
+# Parquet
+# ##############################################################################
+find_package(Parquet CONFIG REQUIRED)
+if(MSVC)
+  list(APPEND THIRD_PARTY_LIBRARIES Parquet::parquet_shared)
+else()
+  list(APPEND THIRD_PARTY_LIBRARIES Parquet::parquet_static)
+endif()
+
+# ##############################################################################
+# nonstd::type-lite
+# ##############################################################################
+find_package(type-lite CONFIG REQUIRED)
+list(APPEND THIRD_PARTY_LIBRARIES nonstd::type-lite)
 
 # ##############################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
@@ -725,34 +773,6 @@ endif()
 # Vizualization Framework
 # ##############################################################################
 
-# Allow use of non-threadsafe reference counter in cvf::Object on systems with
-# no atomics support
-if(CMAKE_COMPILER_IS_GNUCC)
-
-  if(NOT DEFINED HAVE_GCC_SYNC_FUNCTIONS)
-    check_c_source_compiles(
-      "int main(int argc, char **argv) {
-            int a;
-            __sync_add_and_fetch(&a, 1);
-            __sync_fetch_and_add(&a, 1);
-            __sync_sub_and_fetch(&a, 1);
-            __sync_fetch_and_sub(&a, 1); }"
-      HAVE_GCC_SYNC_FUNCTIONS
-    )
-  endif()
-
-  if(HAVE_GCC_SYNC_FUNCTIONS)
-    message(STATUS "GCC synchronization functions detected")
-  else()
-    message(
-      STATUS
-        "GCC synchronization functions NOT detected, fallback to non threadsafe reference counting"
-    )
-    add_definitions(-DCVF_USE_NON_THREADSAFE_REFERENCE_COUNT)
-  endif()
-
-endif()
-
 # !!! For now, we force Qt to version 5
 message(STATUS "Forcing setting of CEE_USE_QT5 to ON")
 set(CEE_USE_QT5
@@ -804,6 +824,7 @@ add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmCore)
 add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmUiCore)
 add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmXml)
 add_subdirectory(Fwk/AppFwk/cafProjectDataModel)
+add_subdirectory(Fwk/AppFwk/cafDataLoader)
 
 add_subdirectory(Fwk/AppFwk/cafCommand)
 add_subdirectory(Fwk/AppFwk/cafUserInterface)
@@ -863,6 +884,7 @@ list(
   cafCommand
   cafPdmCvf
   cafTensor
+  cafDataLoader
   CommonCode
   cafVizExtensions
   cafPdmScripting
@@ -912,7 +934,7 @@ set(RESINSIGHT_INSTALL_FOLDER ".")
 
 # override system install prefix if private installation chosen
 option(RESINSIGHT_PRIVATE_INSTALL
-       "Linux only: Install the libecl shared libraries along the executable"
+       "Linux only: Install the resdata shared libraries along the executable"
        ON
 )
 mark_as_advanced(FORCE RESINSIGHT_PRIVATE_INSTALL)
@@ -926,9 +948,9 @@ if(RESINSIGHT_PRIVATE_INSTALL)
 
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(ERT_SHARED_LIB_FILES
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2.4
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libresdata.so
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libresdata.so.2
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libresdata.so.2.4
     )
     install(FILES ${ERT_SHARED_LIB_FILES}
             DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
@@ -937,9 +959,9 @@ if(RESINSIGHT_PRIVATE_INSTALL)
 
   if(APPLE)
     set(ERT_SHARED_LIB_FILES
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.dylib
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.2.dylib
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.2.4.dylib
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libresdata.dylib
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libresdata.2.dylib
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libresdata.2.4.dylib
     )
     install(
       FILES ${ERT_SHARED_LIB_FILES}
@@ -1033,6 +1055,52 @@ else(RESINSIGHT_USE_EXTERNAL_OCTAVE_PLUGINS)
     )
   endif(OCTAVE_MKOCTFILE)
 endif(RESINSIGHT_USE_EXTERNAL_OCTAVE_PLUGINS)
+
+add_subdirectory(ThirdParty/extract-projectfile-versions)
+install(TARGETS extract-projectfile-versions
+        DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+)
+
+if(MSVC)
+  # Install all the DLLs needed for the executable. System dependencies are not
+  # included
+  install(
+    TARGETS ResInsight
+    DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+    RUNTIME_DEPENDENCIES PRE_EXCLUDE_REGEXES "api-ms-" "ext-ms-"
+    POST_EXCLUDE_REGEXES ".*system32/.*\\.dll"
+  )
+endif(MSVC)
+
+# ##############################################################################
+# Add OpenSSL 1.1.1 libraries The OpenSSL libraries are needed for the
+# NetworkAuth module in Qt 5 Installed by adding openssl-windows in vcpkg.json
+# Required to use fully specified path to the dlls, as it is not trivial to find
+# the path. OpenSSL 3 is installed and used by other modules
+# ##############################################################################
+
+if(MSVC)
+  FetchContent_Declare(
+    openssl_1_1_1
+    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2024.05/openssl_1_1_1.zip
+  )
+  FetchContent_Populate(openssl_1_1_1)
+
+  set(FILE_PATH_LIBCRYPTO_1_1
+      "${openssl_1_1_1_SOURCE_DIR}/libcrypto-1_1-x64.dll"
+  )
+  set(FILE_PATH_LIBOPENSSL_1_1 "${openssl_1_1_1_SOURCE_DIR}/libssl-1_1-x64.dll")
+
+  message(STATUS "FILE_PATH_LIBCRYPTO_1_1: ${FILE_PATH_LIBCRYPTO_1_1}")
+  message(STATUS "FILE_PATH_LIBOPENSSL_1_1: ${FILE_PATH_LIBOPENSSL_1_1}")
+
+  install(
+    FILES ${FILE_PATH_LIBCRYPTO_1_1} ${FILE_PATH_LIBOPENSSL_1_1}
+    DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+    OPTIONAL
+  )
+
+endif() # MSVC
 
 # ##############################################################################
 # Visual Studio : Create the ruleset file to be used by Static Code Analysis

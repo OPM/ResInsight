@@ -26,13 +26,14 @@
 #include "RifEclipseUserDataKeywordTools.h"
 #include "RifEclipseUserDataParserTools.h"
 
-#include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
+#include "RifAsciiDataParseOptions.h"
 
 #include "cafUtils.h"
 
 #include <QDateTime>
 #include <QFile>
 #include <QTextStream>
+#include <memory>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -68,7 +69,7 @@ std::pair<bool, QString> RifStimPlanCsvSummaryReader::parse( const QString& file
     // Split files on strange header line (starts with ",Date").
     QString fileContents = in.readAll();
 
-    AsciiDataParseOptions parseOptions;
+    RifAsciiDataParseOptions parseOptions;
     parseOptions.useCustomDateTimeFormat = true;
     parseOptions.dateTimeFormat          = "m.zzz";
     parseOptions.cellSeparator           = ",";
@@ -76,7 +77,7 @@ std::pair<bool, QString> RifStimPlanCsvSummaryReader::parse( const QString& file
     parseOptions.timeSeriesColumnName    = "Time";
     parseOptions.startDateTime           = startDateTime;
 
-    m_parser = std::unique_ptr<RifCsvUserDataPastedTextParser>( new RifCsvUserDataPastedTextParser( fileContents, errorText ) );
+    m_parser = std::make_unique<RifCsvUserDataPastedTextParser>( fileContents, errorText );
 
     if ( !m_parser->parse( parseOptions ) )
     {

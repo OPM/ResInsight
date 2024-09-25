@@ -26,7 +26,10 @@
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 
+#include "VerticalFlowPerformance/RimVfpDataCollection.h"
+
 #include "cafPdmUiItem.h"
+#include "cafPdmUiObjectHandle.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -115,7 +118,15 @@ bool RicDeleteSubItemsFeature::hasDeletableSubItems( caf::PdmUiItem* uiItem )
         }
     }
 
-    return false;
+    {
+        auto collection = dynamic_cast<RimPlotCollection*>( uiItem );
+        if ( collection && collection->plotCount() > 0 )
+        {
+            return true;
+        }
+    }
+
+    return dynamic_cast<RimVfpDataCollection*>( uiItem ) != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,99 +143,107 @@ void RicDeleteSubItemsFeature::deleteSubItems( bool onlyDeleteUnchecked )
     {
         if ( !RicDeleteSubItemsFeature::hasDeletableSubItems( item ) ) continue;
 
+        if ( auto multiPlot = dynamic_cast<RimSummaryMultiPlot*>( item ) )
         {
-            auto multiPlot = dynamic_cast<RimSummaryMultiPlot*>( item );
-            if ( multiPlot )
+            if ( onlyDeleteUnchecked )
             {
-                if ( onlyDeleteUnchecked )
+                auto plots = multiPlot->plots();
+                for ( auto plot : plots )
                 {
-                    auto plots = multiPlot->plots();
-                    for ( auto plot : plots )
-                    {
-                        if ( plot->showWindow() ) continue;
-                        multiPlot->removePlotNoUpdate( plot );
-                        delete plot;
-                    }
+                    if ( plot->showWindow() ) continue;
+                    multiPlot->removePlotNoUpdate( plot );
+                    delete plot;
                 }
-                else
-                {
-                    multiPlot->deleteAllPlots();
-                }
+            }
+            else
+            {
+                multiPlot->deleteAllPlots();
+            }
 
-                multiPlot->updateConnectedEditors();
+            multiPlot->updateConnectedEditors();
+        }
+
+        if ( auto collection = dynamic_cast<RimSummaryMultiPlotCollection*>( item ) )
+        {
+            if ( onlyDeleteUnchecked )
+            {
+                auto plots = collection->multiPlots();
+                for ( auto plot : plots )
+                {
+                    if ( plot->showWindow() ) continue;
+                    collection->removePlotNoUpdate( plot );
+                    delete plot;
+                }
+            }
+            else
+            {
+                collection->deleteAllPlots();
+            }
+
+            collection->updateConnectedEditors();
+        }
+
+        if ( auto collection = dynamic_cast<RimWellPathCollection*>( item ) )
+        {
+            if ( onlyDeleteUnchecked )
+            {
+                auto paths = collection->allWellPaths();
+                for ( auto path : paths )
+                {
+                    if ( path->showWellPath() ) continue;
+                    collection->removeWellPath( path );
+                    delete path;
+                }
+            }
+            else
+            {
+                collection->deleteAllWellPaths();
+            }
+
+            collection->updateConnectedEditors();
+            collection->scheduleRedrawAffectedViews();
+        }
+
+        if ( auto collection = dynamic_cast<RimWellPathFractureCollection*>( item ) )
+        {
+            if ( onlyDeleteUnchecked )
+            {
+                auto items = collection->allFractures();
+                for ( auto item : items )
+                {
+                    if ( item->isChecked() ) continue;
+                    collection->removeFracture( item );
+                    delete item;
+                }
+            }
+            else
+            {
+                collection->deleteFractures();
+            }
+
+            collection->updateConnectedEditors();
+
+            RimProject* proj = RimProject::current();
+            if ( proj ) proj->reloadCompletionTypeResultsInAllViews();
+        }
+
+        if ( auto collection = dynamic_cast<RimPlotCollection*>( item ) )
+        {
+            collection->deleteAllPlots();
+
+            if ( auto objHandle = dynamic_cast<caf::PdmUiObjectHandle*>( item ) )
+            {
+                objHandle->updateConnectedEditors();
             }
         }
 
+        if ( auto collection = dynamic_cast<RimVfpDataCollection*>( item ) )
         {
-            auto collection = dynamic_cast<RimSummaryMultiPlotCollection*>( item );
-            if ( collection )
+            collection->deleteAllData();
+
+            if ( auto objHandle = dynamic_cast<caf::PdmUiObjectHandle*>( item ) )
             {
-                if ( onlyDeleteUnchecked )
-                {
-                    auto plots = collection->multiPlots();
-                    for ( auto plot : plots )
-                    {
-                        if ( plot->showWindow() ) continue;
-                        collection->removePlotNoUpdate( plot );
-                        delete plot;
-                    }
-                }
-                else
-                {
-                    collection->deleteAllPlots();
-                }
-
-                collection->updateConnectedEditors();
-            }
-        }
-
-        {
-            auto collection = dynamic_cast<RimWellPathCollection*>( item );
-            if ( collection )
-            {
-                if ( onlyDeleteUnchecked )
-                {
-                    auto paths = collection->allWellPaths();
-                    for ( auto path : paths )
-                    {
-                        if ( path->showWellPath() ) continue;
-                        collection->removeWellPath( path );
-                        delete path;
-                    }
-                }
-                else
-                {
-                    collection->deleteAllWellPaths();
-                }
-
-                collection->updateConnectedEditors();
-                collection->scheduleRedrawAffectedViews();
-            }
-        }
-
-        {
-            auto collection = dynamic_cast<RimWellPathFractureCollection*>( item );
-            if ( collection )
-            {
-                if ( onlyDeleteUnchecked )
-                {
-                    auto items = collection->allFractures();
-                    for ( auto item : items )
-                    {
-                        if ( item->isChecked() ) continue;
-                        collection->removeFracture( item );
-                        delete item;
-                    }
-                }
-                else
-                {
-                    collection->deleteFractures();
-                }
-
-                collection->updateConnectedEditors();
-
-                RimProject* proj = RimProject::current();
-                if ( proj ) proj->reloadCompletionTypeResultsInAllViews();
+                objHandle->updateConnectedEditors();
             }
         }
     }

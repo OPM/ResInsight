@@ -100,7 +100,7 @@ QString RimFileSummaryCase::caseName() const
 void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLogger* threadSafeLogger )
 {
     // RimFileSummaryCase::findRelatedFilesAndCreateReader is a performance bottleneck. The function
-    // RifEclipseSummaryTools::getRestartFile() should be refactored to use opm-common instead of libecl.
+    // RifEclipseSummaryTools::getRestartFile() should be refactored to use opm-common instead of resdata.
     // It is not possible to use restart files in ESMRY file format, see see ESmry::make_esmry_file()
     //
     // https://github.com/OPM/ResInsight/issues/11342

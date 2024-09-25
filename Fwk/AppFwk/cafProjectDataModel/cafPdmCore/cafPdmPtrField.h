@@ -39,10 +39,7 @@ class PdmPtrField<DataType*> : public PdmValueField
 public:
     typedef PdmPointer<DataType> FieldDataType;
 
-    PdmPtrField()
-        : m_isResolved( false )
-    {
-    }
+    PdmPtrField() {}
     explicit PdmPtrField( const DataTypePtr& fieldValue );
     ~PdmPtrField() override;
 
@@ -81,7 +78,6 @@ private:
 
     // Resolving
     QString m_referenceString;
-    bool    m_isResolved;
 };
 
 } // End of namespace caf

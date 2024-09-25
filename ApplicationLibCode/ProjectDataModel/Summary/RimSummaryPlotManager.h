@@ -26,7 +26,7 @@
 class RifEclipseSummaryAddress;
 class RimSummaryPlot;
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RimEnsembleCurveSet;
 class RimSummaryCurve;
 class RimMultiPlot;
@@ -77,8 +77,7 @@ private:
 
     QStringList extractDataSourceFilters() const;
 
-    void findFilteredSummaryCasesAndEnsembles( std::vector<RimSummaryCase*>&           summaryCases,
-                                               std::vector<RimSummaryCaseCollection*>& ensembles ) const;
+    void findFilteredSummaryCasesAndEnsembles( std::vector<RimSummaryCase*>& summaryCases, std::vector<RimSummaryEnsemble*>& ensembles ) const;
 
     static void    setFocusToEditorWidget( caf::PdmUiFieldHandle* uiFieldHandle );
     static QString curveFilterRecentlyUsedRegistryKey();

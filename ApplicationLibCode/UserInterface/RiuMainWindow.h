@@ -69,11 +69,6 @@ class PdmUiPropertyView;
 class PdmUiItem;
 } // namespace caf
 
-namespace ssihub
-{
-class Interface;
-}
-
 namespace ads
 {
 class CDockWidget;

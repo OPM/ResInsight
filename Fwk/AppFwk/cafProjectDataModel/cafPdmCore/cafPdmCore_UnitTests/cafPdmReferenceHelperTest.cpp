@@ -53,11 +53,7 @@ public:
         this->addField( &m_simpleObjPtrField, "m_simpleObjPtrField" );
     }
 
-    ~ReferenceSimpleObj()
-    {
-        delete m_pointersField();
-        m_simpleObjPtrField.deleteChildren();
-    }
+    ~ReferenceSimpleObj() { delete m_pointersField(); }
 
     // Fields
     caf::PdmChildField<PdmObjectHandle*> m_pointersField;

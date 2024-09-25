@@ -64,6 +64,8 @@ public:
     bool showToggleAllCheckbox;
     bool singleSelectionMode;
     bool setCurrentIndexWhenItemIsChecked;
+    bool showCheckBoxes;
+    bool showContextMenu;
     int  heightHint;
 
     /// currentIndexFieldHandle is used to communicate the value of current item in the tree view
@@ -79,6 +81,8 @@ public:
         showToggleAllCheckbox            = true;
         singleSelectionMode              = false;
         setCurrentIndexWhenItemIsChecked = false;
+        showCheckBoxes                   = true;
+        showContextMenu                  = true;
         heightHint                       = -1;
 
         currentIndexFieldHandle = nullptr;
@@ -127,8 +131,8 @@ private:
 
     void setCheckedStateOfSelected( bool checked );
     void setCheckedStateForSubItemsOfSelected( bool checked );
-    void checkAllItems();
-    void unCheckAllItems();
+    void checkAllItemsMatchingFilter();
+    void unCheckAllItemsMatchingFilter();
     void setCheckedStateForIntegerItemsMatchingFilter();
 
     QModelIndexList allVisibleSourceModelIndices() const;

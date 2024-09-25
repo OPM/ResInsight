@@ -30,6 +30,7 @@
 #include "RiaLogging.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesGrid.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaProjectModifier.h"
 #include "RiaRegressionTestRunner.h"
@@ -76,8 +77,8 @@
 #include "RimSimWellInViewCollection.h"
 #include "RimStimPlanColors.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
 #include "RimTextAnnotation.h"
 #include "RimTextAnnotationInView.h"
@@ -189,7 +190,10 @@ RiaGuiApplication::RiaGuiApplication( int& argc, char** argv )
 //--------------------------------------------------------------------------------------------------
 RiaGuiApplication::~RiaGuiApplication()
 {
+    delete m_mainWindow.data();
     m_mainWindow.clear();
+
+    m_mainPlotWindow.reset();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -519,6 +523,13 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
     {
         CVF_ASSERT( o.valueCount() == 1 );
         setStartDir( cvfqt::Utils::toQString( o.value( 0 ) ) );
+    }
+
+    if ( cvf::Option o = progOpt->option( "egridReader" ) )
+    {
+        CVF_ASSERT( o.valueCount() == 1 );
+        std::string readerName = o.value( 0 ).toLower().toStdString();
+        m_preferences->gridPreferences()->setGridModelReaderOverride( readerName );
     }
 
     if ( cvf::Option o = progOpt->option( "size" ) )

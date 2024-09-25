@@ -341,7 +341,7 @@ void RimDepthTrackPlot::updateZoom()
     for ( RimPlot* plot : plots() )
     {
         static_cast<RimWellLogTrack*>( plot )->setVisibleDepthRange( m_minVisibleDepth(), m_maxVisibleDepth() );
-        plot->updateZoomInParentPlot();
+        plot->updatePlotWidgetFromAxisRanges();
     }
 
     if ( m_viewer )
@@ -1228,12 +1228,7 @@ void RimDepthTrackPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
 {
     if ( field == &m_minVisibleDepth || field == &m_maxVisibleDepth )
     {
-        auto doubleAttr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
-        if ( doubleAttr )
-        {
-            doubleAttr->m_decimals     = 2;
-            doubleAttr->m_numberFormat = caf::PdmUiDoubleValueEditorAttribute::NumberFormat::FIXED;
-        }
+        caf::PdmUiDoubleValueEditorAttribute::testAndSetFixedWithTwoDecimals( attribute );
     }
 }
 

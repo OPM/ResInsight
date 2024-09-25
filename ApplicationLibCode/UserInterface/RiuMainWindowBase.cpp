@@ -63,6 +63,7 @@ RiuMainWindowBase::RiuMainWindowBase()
     , m_showFirstVisibleWindowMaximized( true )
     , m_blockSubWindowActivation( false )
     , m_blockSubWindowProjectTreeSelection( false )
+    , m_hasBeenVisible( false )
     , m_windowMenu( nullptr )
     , m_mdiArea( nullptr )
 {
@@ -214,6 +215,10 @@ QString mainWindowDockWidgetSettingsKey( const QString& settingsFolderName )
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::saveWinGeoAndDockToolBarLayout()
 {
+    // Do not save the state if the window never has been visible. This will write out a state that is not valid.
+    // https://github.com/OPM/ResInsight/issues/9935
+    if ( !m_hasBeenVisible ) return;
+
     // Company and appname set through QCoreApplication
     QSettings settings;
 
@@ -786,4 +791,14 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
 
     m_windowMenu->addAction( cascadeWindowsAction );
     m_windowMenu->addAction( closeAllSubWindowsAction );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::showEvent( QShowEvent* event )
+{
+    m_hasBeenVisible = true;
+
+    QMainWindow::showEvent( event );
 }

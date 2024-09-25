@@ -3,10 +3,6 @@ project(GrpcInterface)
 message(STATUS "GRPC enabled")
 add_definitions(-DENABLE_GRPC)
 
-if(RESINSIGHT_VCPKG_AUTO_INSTALL)
-  vcpkg_install(grpc)
-endif()
-
 set(CMAKE_UNITY_BUILD false)
 set(RESINSIGHT_GRPC_PYTHON_EXECUTABLE
     ""

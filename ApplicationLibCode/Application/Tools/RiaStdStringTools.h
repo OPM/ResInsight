@@ -31,26 +31,25 @@
 class RiaStdStringTools
 {
 public:
-    static std::string trimString( const std::string& s );
-    static std::string rightTrimString( const std::string& s );
-    static std::string leftTrimString( const std::string& s );
-    static std::string removeWhitespace( const std::string& line );
+    static std::string_view trimString( std::string_view s );
+    static std::string_view rightTrimString( std::string_view s );
+    static std::string_view leftTrimString( std::string_view s );
+    static std::string      removeWhitespace( const std::string& line );
 
     static bool isNumber( const std::string& s, char decimalPoint );
 
-    static int16_t toInt16( const std::string& s );
-    static int     toInt( const std::string& s );
-    static double  toDouble( const std::string& s );
+    static int16_t toInt16( std::string_view s );
+    static int     toInt( std::string_view s );
     static bool    containsAlphabetic( const std::string& s );
     static bool    startsWithAlphabetic( const std::string& s );
 
     static std::string formatThousandGrouping( long value );
 
     // Conversion using fastest known approach
-    static bool toDouble( const std::string_view& s, double& value );
-    static bool toInt( const std::string_view& s, int& value );
+    static bool toDouble( std::string_view s, double& value );
+    static bool toInt( std::string_view s, int& value );
 
-    static std::string toUpper( const std::string& s );
+    static std::string toUpper( std::string_view s );
 
     static bool endsWith( const std::string& mainStr, const std::string& toMatch );
 
@@ -67,6 +66,9 @@ public:
     // Convert the range string with support for open ended expressions. minimum and maximum value will be used to limit the ranges.
     // The input "-3,5-8,10-", min:1, max:12 will produce {1, 2, 3, 5, 6, 7, 8, 10, 11, 12}
     static std::set<int> valuesFromRangeSelection( const std::string& s, int minimumValue, int maximumValue );
+
+    // Create a string from a set of values. {1, 2, 3, 5, 6, 7, 8, 10, 11, 12} will be converted to "1, 2, 3, 5-8, 10-12"
+    static std::string formatRangeSelection( const std::vector<int>& values );
 
 private:
     template <class Container>

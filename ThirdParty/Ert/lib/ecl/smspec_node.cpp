@@ -51,7 +51,7 @@
 
    For instance the keyword 'NEWTON' starts with 'N' and is
    classified as a NETWORK type variable. However it should rather
-   be classified as a MISC type variable. (What a fucking mess).
+   be classified as a MISC type variable.
 
    The special_vars list is used in the functions
    ecl_smspec_identify_special_var() and ecl_smspec_identify_var_type().

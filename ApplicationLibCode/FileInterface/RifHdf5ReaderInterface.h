@@ -18,12 +18,13 @@
 
 #pragma once
 
-class QString;
-class QDateTime;
-class QStringList;
+#include <QStringList>
 
 #include <cstddef>
 #include <vector>
+
+class QString;
+class QDateTime;
 
 //==================================================================================================
 //

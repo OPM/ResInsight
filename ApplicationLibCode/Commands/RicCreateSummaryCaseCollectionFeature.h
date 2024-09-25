@@ -23,7 +23,7 @@
 #include <vector>
 
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 
 //==================================================================================================
 ///
@@ -32,7 +32,7 @@ class RicCreateSummaryCaseCollectionFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-    static RimSummaryCaseCollection* groupSummaryCases( std::vector<RimSummaryCase*> cases, const QString& groupName, bool isEnsemble = false );
+    static RimSummaryEnsemble* groupSummaryCases( std::vector<RimSummaryCase*> cases, const QString& groupName, bool isEnsemble = false );
 
 private:
     bool isCommandEnabled() const override;

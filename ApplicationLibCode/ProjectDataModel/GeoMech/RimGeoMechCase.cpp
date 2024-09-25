@@ -247,8 +247,7 @@ RimGeoMechView* RimGeoMechCase::createAndAddReservoirView()
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView* RimGeoMechCase::createCopyAndAddView( const RimGeoMechView* sourceView )
 {
-    RimGeoMechView* rimGeoMechView =
-        dynamic_cast<RimGeoMechView*>( sourceView->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    auto rimGeoMechView = sourceView->copyObject<RimGeoMechView>();
     CVF_ASSERT( rimGeoMechView );
 
     rimGeoMechView->setGeoMechCase( this );
@@ -268,8 +267,7 @@ RimGeoMechCase* RimGeoMechCase::createCopy( const QString& newInputFileName )
 {
     RimProject* project = RimProject::current();
 
-    RimGeoMechCase* copycase =
-        dynamic_cast<RimGeoMechCase*>( xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    auto copycase = copyObject<RimGeoMechCase>();
     CVF_ASSERT( copycase );
 
     QFileInfo filenameInfo( newInputFileName );

@@ -62,7 +62,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicStackSelectedCurvesFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicUnstackSelectedCurvesFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicThemeColorEditorFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewVfpPlotFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportVfpDataFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomObjectiveFunctionFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomObjectiveFunctionWeightFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewPressureTableItemFeature.h
@@ -94,6 +94,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicExportSummaryCalculationExpressionsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCalculationExpressionsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportWellLogCsvFileFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewViewForGridEnsembleFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomVfpPlotFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -159,7 +161,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicStackSelectedCurvesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicUnstackSelectedCurvesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicThemeColorEditorFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewVfpPlotFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportVfpDataFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomObjectiveFunctionFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomObjectiveFunctionWeightFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewPressureTableItemFeature.cpp
@@ -191,6 +193,9 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicExportSummaryCalculationExpressionsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCalculationExpressionsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportWellLogCsvFileFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportWellLogOsduFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewViewForGridEnsembleFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomVfpPlotFeature.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)

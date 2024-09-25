@@ -48,9 +48,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimMainPlotCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimRftPlotCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPltPlotCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimVfpPlotCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimVfpPlot.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimVfpDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.h
     ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlot.h
@@ -134,6 +131,9 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimResultSelectionUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotRectAnnotation.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEmCase.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseViewCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseEnsemble.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimCameraPosition.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -186,9 +186,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimMainPlotCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimRftPlotCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPltPlotCollection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimVfpPlotCollection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimVfpPlot.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimVfpDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlot.cpp
@@ -268,6 +265,9 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotRectAnnotation.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEmCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPolylinePickerInterface.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseViewCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseEnsemble.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCameraPosition.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)

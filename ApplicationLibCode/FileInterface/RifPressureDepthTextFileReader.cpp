@@ -58,12 +58,19 @@ std::pair<std::vector<RigPressureDepthData>, QString> RifPressureDepthTextFileRe
     while ( !in.atEnd() )
     {
         QString line = in.readLine();
+
+        // Replace tab with space to be able to split the string using space as separator
+        line.replace( "\t", " " );
+
         if ( isHeaderLine( line ) )
         {
             bool                 skipEmptyParts = true;
-            QStringList          headerValues   = RifFileParseTools::splitLineAndTrim( line, separator, skipEmptyParts );
             RigPressureDepthData data;
-            data.setWellName( headerValues[1].replace( "'", "" ) );
+            QStringList          headerValues = RifFileParseTools::splitLineAndTrim( line, separator, skipEmptyParts );
+            if ( headerValues.size() > 1 )
+            {
+                data.setWellName( headerValues[1].replace( "'", "" ) );
+            }
             items.push_back( data );
         }
         else if ( isDateLine( line ) )

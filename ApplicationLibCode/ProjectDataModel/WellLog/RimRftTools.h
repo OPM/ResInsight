@@ -28,6 +28,7 @@ namespace caf
 class PdmOptionItemInfo;
 }
 class RifReaderRftInterface;
+class RifReaderOpmRft;
 
 class RimRftTools
 {
@@ -41,20 +42,27 @@ public:
 
     static QList<caf::PdmOptionItemInfo>
         segmentResultNameOptions( RifReaderRftInterface* readerRft, const QString& wellName, const QDateTime& timeStep );
-    static QList<caf::PdmOptionItemInfo> segmentBranchIndexOptions( RifReaderRftInterface*    readerRft,
+
+    static QList<caf::PdmOptionItemInfo> segmentBranchIndexOptions( RifReaderOpmRft*          readerRft,
                                                                     const QString&            wellName,
                                                                     const QDateTime&          timeStep,
                                                                     RiaDefines::RftBranchType branchType );
 
-    static std::vector<double> segmentStartMdValues( RifReaderRftInterface*    readerRft,
+    static std::vector<double> segmentStartMdValues( RifReaderOpmRft*          readerRft,
                                                      const QString&            wellName,
                                                      const QDateTime&          dateTime,
                                                      int                       segmentBranchIndex,
                                                      RiaDefines::RftBranchType segmentBranchType );
 
-    static std::vector<double> segmentEndMdValues( RifReaderRftInterface*    readerRft,
+    static std::vector<double> segmentEndMdValues( RifReaderOpmRft*          readerRft,
                                                    const QString&            wellName,
                                                    const QDateTime&          dateTime,
                                                    int                       segmentBranchIndex,
                                                    RiaDefines::RftBranchType segmentBranchType );
+
+    static std::vector<double> segmentConnectionMdValues( RifReaderOpmRft*          readerRft,
+                                                          const QString&            wellName,
+                                                          const QDateTime&          dateTime,
+                                                          int                       segmentBranchIndex,
+                                                          RiaDefines::RftBranchType segmentBranchType );
 };

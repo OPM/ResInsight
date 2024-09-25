@@ -39,7 +39,7 @@
 /*
 Interpolating inside a general 8 node hexahedral element
 Calculating an interpolated value at a position inside the element from values at each corner.
-Author Jacob Støren
+Author Jacob Storen
 
                   | v1 |
 Vectors:    [v] = | v2 | = { v1, v2, v3 }

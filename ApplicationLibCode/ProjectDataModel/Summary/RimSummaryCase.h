@@ -31,7 +31,7 @@
 
 class RifReaderRftInterface;
 class RifSummaryReaderInterface;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RimSummaryAddressCollection;
 
 //==================================================================================================
@@ -79,13 +79,13 @@ public:
 
     bool isObservedData() const;
 
-    bool showRealizationDataSources() const;
-    void setShowRealizationDataSource( bool enable );
+    bool showVectorItemsInProjectTree() const;
+    void setShowVectorItemsInProjectTree( bool enable );
 
     void setCaseRealizationParameters( const std::shared_ptr<RigCaseRealizationParameters>& crlParameters );
     std::shared_ptr<RigCaseRealizationParameters> caseRealizationParameters() const;
     bool                                          hasCaseRealizationParameters() const;
-    RimSummaryCaseCollection*                     ensemble() const;
+    RimSummaryEnsemble*                           ensemble() const;
     void                                          copyFrom( const RimSummaryCase& rhs );
     bool                                          operator<( const RimSummaryCase& rhs ) const;
 

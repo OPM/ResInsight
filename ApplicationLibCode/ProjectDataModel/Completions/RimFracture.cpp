@@ -316,6 +316,10 @@ const NonDarcyData& RimFracture::nonDarcyProperties() const
 //--------------------------------------------------------------------------------------------------
 void RimFracture::ensureValidNonDarcyProperties()
 {
+    // The computation of non-Darcy properties is expensive, so we cache the results.
+    // Make sure that the calling function calls this function before using the properties.
+    // https://github.com/OPM/ResInsight/issues/11663
+
     if ( m_cachedFractureProperties.isDirty() )
     {
         NonDarcyData props;

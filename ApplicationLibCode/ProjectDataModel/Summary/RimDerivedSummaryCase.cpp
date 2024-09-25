@@ -25,7 +25,7 @@
 #include "RifDerivedEnsembleReader.h"
 
 #include "RimProject.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
 
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -33,6 +33,7 @@
 #include <QDateTime>
 
 #include <algorithm>
+#include <memory>
 
 namespace caf
 {
@@ -297,7 +298,7 @@ void RimDerivedSummaryCase::createSummaryReaderInterface()
         summaryCase1Reader2 = m_summaryCase2->summaryReader();
     }
 
-    m_reader.reset( new RifDerivedEnsembleReader( this, summaryCase1Reader1, summaryCase1Reader2 ) );
+    m_reader = std::make_unique<RifDerivedEnsembleReader>( this, summaryCase1Reader1, summaryCase1Reader2 );
 }
 
 //--------------------------------------------------------------------------------------------------

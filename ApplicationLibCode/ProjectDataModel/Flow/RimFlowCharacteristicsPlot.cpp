@@ -145,7 +145,7 @@ void RimFlowCharacteristicsPlot::setFromFlowSolution( RimFlowDiagSolution* flowS
     {
         auto eclCase = flowSolution->firstAncestorOrThisOfType<RimEclipseResultCase>();
         m_case       = eclCase;
-        if ( !eclCase->reservoirViews.empty() )
+        if ( !eclCase->reservoirViews().empty() )
         {
             m_cellFilterView = eclCase->reservoirViews()[0];
         }
@@ -399,7 +399,7 @@ void RimFlowCharacteristicsPlot::defineUiOrdering( QString uiConfigName, caf::Pd
         {
             m_case             = defaultCase;
             m_flowDiagSolution = m_case->defaultFlowDiagSolution();
-            if ( !m_case()->reservoirViews.empty() )
+            if ( !m_case()->reservoirViews().empty() )
             {
                 m_cellFilterView = m_case()->reservoirViews()[0];
             }
@@ -506,7 +506,7 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
     {
         m_flowDiagSolution = m_case->defaultFlowDiagSolution();
         m_currentlyPlottedTimeSteps.clear();
-        if ( !m_case()->reservoirViews.empty() )
+        if ( !m_case()->reservoirViews().empty() )
         {
             m_cellFilterView = m_case()->reservoirViews()[0];
         }
@@ -819,14 +819,17 @@ QString RimFlowCharacteristicsPlot::curveDataAsText() const
             auto storageCapacityValues = a->second.m_storageCapFlowCapCurve.first;
             auto flowCapacityValues    = a->second.m_storageCapFlowCapCurve.second;
 
+            if ( storageCapacityValues.size() < 2 || flowCapacityValues.size() < 2 )
+            {
+                continue;
+            }
+
             bool                extrapolate = false;
             std::vector<double> flowCapacitySamplingValues;
             for ( const auto storageCapacity : storageCapacitySamplingValues )
             {
-                {
-                    double flowCapacity = interpolate( storageCapacityValues, flowCapacityValues, storageCapacity, extrapolate );
-                    flowCapacitySamplingValues.push_back( flowCapacity );
-                }
+                double flowCapacity = interpolate( storageCapacityValues, flowCapacityValues, storageCapacity, extrapolate );
+                flowCapacitySamplingValues.push_back( flowCapacity );
             }
 
             auto dimensionLessTimeValues = a->second.m_dimensionlessTimeSweepEfficiencyCurve.first;

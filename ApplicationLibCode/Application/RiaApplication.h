@@ -68,6 +68,8 @@ class RiuMainWindowBase;
 class RiuPlotMainWindow;
 class RiuRecentFileActionProvider;
 class RiaArgumentParser;
+class RiaOsduConnector;
+class RiaSumoConnector;
 
 namespace caf
 {
@@ -182,8 +184,6 @@ public:
     void executeCommandObjects();
     void waitUntilCommandObjectsHasBeenProcessed();
 
-    int launchUnitTests();
-
     const QString startDir() const;
     void          setStartDir( const QString& startDir );
 
@@ -199,6 +199,9 @@ public:
     virtual ApplicationStatus handleArguments( gsl::not_null<cvf::ProgramOptions*> progOpt ) = 0;
     virtual void              addToRecentFiles( const QString& fileName ) {}
     virtual void              showFormattedTextInMessageBoxOrConsole( const QString& errMsg ) = 0;
+
+    RiaOsduConnector* makeOsduConnector();
+    RiaSumoConnector* makeSumoConnector();
 
 protected:
     // Protected implementation specific overrides
@@ -224,6 +227,8 @@ protected:
     bool generateCode( const QString& outputPath, gsl::not_null<QString*> errMsg );
 
 protected:
+    void initializeDataLoadController();
+
     cvf::ref<cvf::Font> m_defaultSceneFont;
     cvf::ref<cvf::Font> m_defaultAnnotationFont;
     cvf::ref<cvf::Font> m_defaultWellLabelFont;
@@ -254,5 +259,7 @@ protected:
     bool m_runningWorkerProcess;
 
 private:
-    static RiaApplication* s_riaApplication;
+    static RiaApplication*     s_riaApplication;
+    QPointer<RiaOsduConnector> m_osduConnector;
+    QPointer<RiaSumoConnector> m_sumoConnector;
 };

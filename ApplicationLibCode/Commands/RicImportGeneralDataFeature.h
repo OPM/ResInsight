@@ -27,7 +27,7 @@
 #include <memory>
 #include <vector>
 
-class RifReaderSettings;
+#include "RifReaderSettings.h"
 
 //==================================================================================================
 ///
@@ -52,10 +52,11 @@ public:
         }
     };
 
-    static OpenCaseResults openEclipseFilesFromFileNames( const QStringList&                 fileNames,
-                                                          bool                               doCreateDefaultPlot,
-                                                          bool                               createDefaultView,
-                                                          std::shared_ptr<RifReaderSettings> readerSettings = nullptr );
+    static OpenCaseResults openEclipseFilesFromFileNames( const QStringList& fileNames, bool doCreateDefaultPlot, bool createDefaultView );
+    static OpenCaseResults openEclipseFilesFromFileNames( const QStringList& fileNames,
+                                                          bool               doCreateDefaultPlot,
+                                                          bool               createDefaultView,
+                                                          RifReaderSettings& readerSettings );
     static QStringList     fileNamesFromCaseNames( const QStringList& caseNames );
     static QStringList     getEclipseFileNamesWithDialog( RiaDefines::ImportFileType fileTypes );
 
@@ -69,10 +70,10 @@ protected:
 
     static void openFileDialog( RiaDefines::ImportFileType fileTypes );
 
-    static bool openEclipseCaseFromFileNames( const QStringList&                 fileNames,
-                                              bool                               createDefaultView,
-                                              std::vector<int>&                  createdCaseIds,
-                                              std::shared_ptr<RifReaderSettings> readerSettings );
+    static bool openEclipseCaseFromFileNames( const QStringList& fileNames,
+                                              bool               createDefaultView,
+                                              std::vector<int>&  createdCaseIds,
+                                              RifReaderSettings& readerSettings );
 
     static bool openSummaryCaseFromFileNames( const QStringList& fileNames, bool doCreateDefaultPlot = true );
 

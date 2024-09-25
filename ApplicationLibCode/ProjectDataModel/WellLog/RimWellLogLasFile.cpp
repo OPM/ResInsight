@@ -30,7 +30,7 @@
 
 #include "RimFileWellPath.h"
 #include "RimTools.h"
-#include "RimWellLogFileChannel.h"
+#include "RimWellLogChannel.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPlotTools.h"
 
@@ -80,14 +80,6 @@ RimWellLogLasFile::RimWellLogLasFile()
 
     m_wellLogDataFile     = nullptr;
     m_lasFileHasValidDate = false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimWellLogLasFile::~RimWellLogLasFile()
-{
-    m_wellLogChannelNames.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,20 +142,29 @@ bool RimWellLogLasFile::readFile( QString* errorMessage )
         m_date = DEFAULT_DATE_TIME;
     }
 
-    m_wellLogChannelNames.deleteChildren();
+    m_wellLogChannels.deleteChildren();
 
     QStringList wellLogNames = m_wellLogDataFile->wellLogChannelNames();
     for ( int logIdx = 0; logIdx < wellLogNames.size(); logIdx++ )
     {
-        RimWellLogFileChannel* wellLog = new RimWellLogFileChannel();
+        RimWellLogChannel* wellLog = new RimWellLogChannel();
         wellLog->setName( wellLogNames[logIdx] );
-        m_wellLogChannelNames.push_back( wellLog );
+        m_wellLogChannels.push_back( wellLog );
     }
 
-    auto wellPath = firstAncestorOrThisOfType<RimFileWellPath>();
+    auto fileWellPath = firstAncestorOrThisOfType<RimFileWellPath>();
+    if ( fileWellPath )
+    {
+        if ( fileWellPath->filePath().isEmpty() ) // Has dummy wellpath
+        {
+            fileWellPath->setName( m_wellName );
+        }
+    }
+
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
     if ( wellPath )
     {
-        if ( wellPath->filePath().isEmpty() ) // Has dummy wellpath
+        if ( wellPath->name().isEmpty() )
         {
             wellPath->setName( m_wellName );
         }
@@ -198,7 +199,7 @@ std::vector<std::pair<double, double>> RimWellLogLasFile::findMdAndChannelValues
     std::vector<RimWellLogLasFile*> wellLogFiles = wellPath.descendantsIncludingThisOfType<RimWellLogLasFile>();
     for ( RimWellLogLasFile* wellLogFile : wellLogFiles )
     {
-        RigWellLogLasFile*  fileData      = wellLogFile->wellLogFileData();
+        RigWellLogLasFile*  fileData      = wellLogFile->wellLogData();
         std::vector<double> channelValues = fileData->values( channelName );
         if ( !channelValues.empty() )
         {
@@ -255,4 +256,36 @@ void RimWellLogLasFile::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 bool RimWellLogLasFile::isDateValid( const QDateTime dateTime )
 {
     return dateTime.isValid() && dateTime != DEFAULT_DATE_TIME;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimWellLogLasFile::userDescriptionField()
+{
+    return &m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogLasFile::name() const
+{
+    return m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigWellLogLasFile* RimWellLogLasFile::wellLogData()
+{
+    return m_wellLogDataFile.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogLasFile::WellFlowCondition RimWellLogLasFile::wellFlowRateCondition() const
+{
+    return m_wellFlowCondition();
 }

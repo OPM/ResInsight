@@ -312,7 +312,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
     if ( !summaryAddressFilters.empty() )
     {
-        RimSummaryCaseCollection* ensemble = nullptr;
+        RimSummaryEnsemble* ensemble = nullptr;
 
         if ( isEnsembleMode )
         {
@@ -510,7 +510,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 }
 
 RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotForEnsemble( const std::vector<RimSummaryCase*>& summaryCasesToUse,
-                                                                         RimSummaryCaseCollection*           ensemble,
+                                                                         RimSummaryEnsemble*                 ensemble,
                                                                          QStringList                         summaryAddressFilters,
                                                                          bool                                addHistoryCurves,
                                                                          EnsembleColoringType                ensembleColoringStyle,
@@ -545,14 +545,14 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotForEnsemble( const s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEnsembleCurveSet* RicSummaryPlotFeatureImpl::createCurveSet( RimSummaryCaseCollection*       ensemble,
+RimEnsembleCurveSet* RicSummaryPlotFeatureImpl::createCurveSet( RimSummaryEnsemble*             ensemble,
                                                                 const RifEclipseSummaryAddress& addr,
                                                                 EnsembleColoringType            ensembleColoringStyle,
                                                                 QString                         ensembleColoringParameter )
 {
     auto curveSet = new RimEnsembleCurveSet();
 
-    curveSet->setSummaryCaseCollection( ensemble );
+    curveSet->setSummaryEnsemble( ensemble );
     curveSet->setSummaryAddressYAndStatisticsFlag( addr );
 
     if ( ensembleColoringStyle == EnsembleColoringType::PARAMETER || ensembleColoringStyle == EnsembleColoringType::LOG_PARAMETER )
@@ -594,7 +594,7 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotForCases( const std:
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryPlot*> RicSummaryPlotFeatureImpl::createMultipleSummaryPlotsFromAddresses(
     const std::vector<RimSummaryCase*>& summaryCasesToUse,
-    RimSummaryCaseCollection*           ensemble,
+    RimSummaryEnsemble*                 ensemble,
     QStringList                         summaryAddressFilters,
     bool                                addHistoryCurves,
     EnsembleColoringType                ensembleColoringStyle /*= EnsembleColoringType::NONE*/,

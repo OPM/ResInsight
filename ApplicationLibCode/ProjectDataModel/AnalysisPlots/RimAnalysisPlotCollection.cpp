@@ -24,7 +24,7 @@
 #include "RimPlotDataFilterCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 CAF_PDM_SOURCE_INIT( RimAnalysisPlotCollection, "AnalysisPlotCollection" );
 
@@ -83,8 +83,7 @@ RimAnalysisPlot* RimAnalysisPlotCollection::createAnalysisPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimAnalysisPlot*
-    RimAnalysisPlotCollection::createAnalysisPlot( RimSummaryCaseCollection* ensemble, const QString& quantityName, std::time_t timeStep )
+RimAnalysisPlot* RimAnalysisPlotCollection::createAnalysisPlot( RimSummaryEnsemble* ensemble, const QString& quantityName, std::time_t timeStep )
 {
     RimAnalysisPlot* plot = new RimAnalysisPlot();
     plot->setAsPlotMdiWindow();
@@ -181,9 +180,9 @@ void RimAnalysisPlotCollection::applyAllSummaryCasesAndFieldAddressesToPlot( Rim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlotCollection::applySummaryCaseCollectionAndFieldAddressToPlot( RimAnalysisPlot*          plot,
-                                                                                 RimSummaryCaseCollection* summaryCaseCollection,
-                                                                                 const std::string&        quantityName )
+void RimAnalysisPlotCollection::applySummaryCaseCollectionAndFieldAddressToPlot( RimAnalysisPlot*    plot,
+                                                                                 RimSummaryEnsemble* summaryCaseCollection,
+                                                                                 const std::string&  quantityName )
 {
     if ( summaryCaseCollection )
     {
@@ -219,9 +218,9 @@ void RimAnalysisPlotCollection::applySummaryCaseCollectionAndFieldAddressToPlot(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RimAnalysisPlotCollection::firstEnsemble() const
+RimSummaryEnsemble* RimAnalysisPlotCollection::firstEnsemble() const
 {
-    std::vector<RimSummaryCaseCollection*> allSummaryCaseCollections = RimProject::current()->descendantsOfType<RimSummaryCaseCollection>();
+    std::vector<RimSummaryEnsemble*> allSummaryCaseCollections = RimProject::current()->descendantsOfType<RimSummaryEnsemble>();
     for ( auto summaryCaseCollection : allSummaryCaseCollections )
     {
         if ( summaryCaseCollection->isEnsemble() ) return summaryCaseCollection;
@@ -232,9 +231,9 @@ RimSummaryCaseCollection* RimAnalysisPlotCollection::firstEnsemble() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RimAnalysisPlotCollection::firstSummaryCaseCollection() const
+RimSummaryEnsemble* RimAnalysisPlotCollection::firstSummaryCaseCollection() const
 {
-    std::vector<RimSummaryCaseCollection*> allSummaryCaseCollections = RimProject::current()->descendantsOfType<RimSummaryCaseCollection>();
+    std::vector<RimSummaryEnsemble*> allSummaryCaseCollections = RimProject::current()->descendantsOfType<RimSummaryEnsemble>();
 
     if ( !allSummaryCaseCollections.empty() ) return allSummaryCaseCollections.front();
 

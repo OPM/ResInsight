@@ -20,7 +20,7 @@
 
 #include "RiaSummaryCurveDefinition.h"
 
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "RiuSummaryVectorSelectionUi.h"
 #include "RiuSummaryVectorSelectionWidgetCreator.h"
@@ -30,6 +30,7 @@
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <memory>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -37,7 +38,7 @@
 RiuSummaryVectorSelectionDialog::RiuSummaryVectorSelectionDialog( QWidget* parent )
     : QDialog( parent, RiuTools::defaultDialogFlags() )
 {
-    m_addrSelWidget     = std::unique_ptr<RiuSummaryVectorSelectionWidgetCreator>( new RiuSummaryVectorSelectionWidgetCreator() );
+    m_addrSelWidget     = std::make_unique<RiuSummaryVectorSelectionWidgetCreator>();
     QWidget* addrWidget = m_addrSelWidget->getOrCreateWidget( this );
 
     QVBoxLayout* mainLayout = new QVBoxLayout( this );
@@ -94,7 +95,7 @@ void RiuSummaryVectorSelectionDialog::setCaseAndAddress( RimSummaryCase* summary
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryVectorSelectionDialog::setEnsembleAndAddress( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& address )
+void RiuSummaryVectorSelectionDialog::setEnsembleAndAddress( RimSummaryEnsemble* ensemble, const RifEclipseSummaryAddress& address )
 {
     if ( ensemble )
     {
@@ -113,8 +114,7 @@ void RiuSummaryVectorSelectionDialog::setEnsembleAndAddress( RimSummaryCaseColle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryVectorSelectionDialog::setEnsembleAndAddresses( RimSummaryCaseCollection*             ensemble,
-                                                               std::vector<RifEclipseSummaryAddress> addresses )
+void RiuSummaryVectorSelectionDialog::setEnsembleAndAddresses( RimSummaryEnsemble* ensemble, std::vector<RifEclipseSummaryAddress> addresses )
 {
     if ( ensemble )
     {

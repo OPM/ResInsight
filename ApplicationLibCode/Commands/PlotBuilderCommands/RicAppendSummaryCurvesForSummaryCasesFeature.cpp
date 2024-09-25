@@ -24,7 +24,7 @@
 
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 
@@ -88,7 +88,7 @@ std::vector<caf::PdmObjectHandle*> RicAppendSummaryCurvesForSummaryCasesFeature:
         generalObjects.insert( generalObjects.begin(), objects.begin(), objects.end() );
     }
     {
-        std::vector<RimSummaryCaseCollection*> objects;
+        std::vector<RimSummaryEnsemble*> objects;
         caf::SelectionManager::instance()->objectsByType( &objects );
 
         generalObjects.insert( generalObjects.begin(), objects.begin(), objects.end() );

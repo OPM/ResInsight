@@ -119,8 +119,7 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionsToOtherViews(
             {
                 RimIntersectionCollection* destCollection = currGridView->intersectionCollection();
 
-                RimExtrudedCurveIntersection* copy = dynamic_cast<RimExtrudedCurveIntersection*>(
-                    intersection->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+                auto copy = intersection->copyObject<RimExtrudedCurveIntersection>();
                 CVF_ASSERT( copy );
 
                 destCollection->appendIntersectionAndUpdate( copy, false );
@@ -150,8 +149,7 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionBoxesToOtherVi
             {
                 RimIntersectionCollection* destCollection = currGridView->intersectionCollection();
 
-                RimBoxIntersection* copy = dynamic_cast<RimBoxIntersection*>(
-                    intersectionBox->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+                auto copy = intersectionBox->copyObject<RimBoxIntersection>();
                 CVF_ASSERT( copy );
 
                 destCollection->appendIntersectionBoxAndUpdate( copy );

@@ -113,7 +113,7 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream( QTextStre
 
     if ( writeProjectInfo )
     {
-        formatter.comment( "Project: " + RimProject::current()->fileName );
+        formatter.comment( "Project: " + RimProject::current()->fileName() );
         stream << "\n";
     }
 
@@ -168,7 +168,7 @@ QFilePtr RicExportSelectedWellPathsFeature::openFileForExport( const QString& fo
 //--------------------------------------------------------------------------------------------------
 QTextStreamPtr RicExportSelectedWellPathsFeature::createOutputFileStream( QFile& file )
 {
-    auto stream = QTextStreamPtr( new QTextStream( &file ) );
+    auto stream = std::make_shared<QTextStream>( &file );
     stream->setRealNumberNotation( QTextStream::FixedNotation );
     stream->setRealNumberPrecision( 2 );
     return stream;

@@ -45,6 +45,7 @@ namespace caf
 class PdmObject;
 class PdmUiTreeView;
 class PdmUiItem;
+class PdmUiPropertyView;
 } // namespace caf
 
 class QAction;
@@ -116,6 +117,8 @@ protected:
 
     virtual QStringList windowsMenuFeatureNames() = 0;
 
+    void showEvent( QShowEvent* event ) override;
+
 protected slots:
     void slotDockWidgetToggleViewActionTriggered();
     void slotRefreshHelpActions();
@@ -145,16 +148,17 @@ protected:
 
     QByteArray m_lastDockState;
 
+    std::vector<caf::PdmUiTreeView*>                     m_projectTreeViews;
+    std::vector<std::shared_ptr<caf::PdmUiPropertyView>> m_propertyViews;
+
 private:
     QString registryFolderName();
 
-private:
-    std::vector<caf::PdmUiTreeView*>                          m_projectTreeViews;
     std::vector<std::unique_ptr<caf::PdmUiDragDropInterface>> m_dragDropInterfaces;
-
-    bool m_showFirstVisibleWindowMaximized;
-    bool m_blockSubWindowActivation;
-    bool m_blockSubWindowProjectTreeSelection;
+    bool                                                      m_showFirstVisibleWindowMaximized;
+    bool                                                      m_blockSubWindowActivation;
+    bool                                                      m_blockSubWindowProjectTreeSelection;
+    bool                                                      m_hasBeenVisible;
 
     ads::CDockManager* m_dockManager;
 };

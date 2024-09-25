@@ -38,7 +38,7 @@ class RigEclipseWellLogExtractor;
 class RimFaultReactivationDataAccessorTemperature : public RimFaultReactivationDataAccessor
 {
 public:
-    RimFaultReactivationDataAccessorTemperature( RimEclipseCase* eclipseCase, double seabedTemperature, double seabedDepth );
+    RimFaultReactivationDataAccessorTemperature( RimEclipseCase* eclipseCase, double seabedTemperature, double seabedDepth, size_t firstTimeStep );
     ~RimFaultReactivationDataAccessorTemperature();
 
     bool isMatching( RimFaultReactivation::Property property ) const override;
@@ -60,7 +60,9 @@ private:
     double              m_seabedTemperature;
     double              m_seabedDepth;
     double              m_gradient;
+    size_t              m_firstTimeStep;
 
+    cvf::ref<RigResultAccessor> m_resultAccessor0;
     cvf::ref<RigResultAccessor> m_resultAccessor;
 
     std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>                m_wellPaths;

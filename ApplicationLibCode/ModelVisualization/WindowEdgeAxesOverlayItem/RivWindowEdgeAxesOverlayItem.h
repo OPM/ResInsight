@@ -122,7 +122,7 @@ private:
     std::array<Vec3f, 8> frameVertexArray();
 
 private:
-    cvf::cref<caf::DisplayCoordTransform> m_dispalyCoordsTransform;
+    cvf::cref<caf::DisplayCoordTransform> m_displayCoordsTransform;
 
     Vec2ui         m_windowSize; // Pixel size of the window
     Vec2ui         m_textSize;

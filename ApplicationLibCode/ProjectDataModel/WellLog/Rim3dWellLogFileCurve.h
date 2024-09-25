@@ -24,6 +24,7 @@
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
+class RimWellLog;
 class RimWellLogFile;
 class RimWellLogLasFileCurveNameConfig;
 
@@ -55,7 +56,7 @@ private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    caf::PdmPtrField<RimWellLogFile*>                     m_wellLogFile;
+    caf::PdmPtrField<RimWellLog*>                         m_wellLog;
     caf::PdmField<QString>                                m_wellLogChannelName;
     caf::PdmChildField<RimWellLogLasFileCurveNameConfig*> m_nameConfig;
 };

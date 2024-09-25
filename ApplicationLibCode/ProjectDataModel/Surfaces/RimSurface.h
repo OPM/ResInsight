@@ -51,6 +51,11 @@ public:
     void         setColor( const cvf::Color3f& color );
     cvf::Color3f color() const;
 
+    std::pair<bool, float> opacity() const;
+    void                   setOpacity( bool useOpacity, float opacity );
+
+    virtual bool showIntersectionCellResults();
+
     RigSurface* surfaceData();
     QString     userDescription();
     void        setUserDescription( const QString& description );
@@ -80,11 +85,15 @@ protected:
     virtual void clearCachedNativeData() = 0;
 
 protected:
+    caf::PdmField<QString> m_userDescription;
+
+    caf::PdmField<cvf::Color3f> m_color;
+    caf::PdmField<bool>         m_enableOpacity;
+    caf::PdmField<double>       m_opacity;
+
     cvf::ref<RigSurface> m_surfaceData;
 
 private:
-    caf::PdmField<QString>           m_userDescription;
-    caf::PdmField<cvf::Color3f>      m_color;
-    caf::PdmField<double>            m_depthOffset;
     caf::PdmProxyValueField<QString> m_nameProxy;
+    caf::PdmField<double>            m_depthOffset;
 };

@@ -37,6 +37,7 @@
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWheelZoomer.h"
 #include "RiuQwtPlotZoomer.h"
+#include "RiuQwtSymbol.h"
 #include "RiuWidgetDragger.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -57,6 +58,7 @@
 #include <QMenu>
 #include <QResizeEvent>
 #include <QVBoxLayout>
+#include <memory>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -82,7 +84,7 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimGridCrossPlot* plot, QWidget* paren
              SIGNAL( plotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int ) ),
              SLOT( onPlotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int ) ) );
 
-    m_annotationTool      = std::unique_ptr<RiuPlotAnnotationTool>( new RiuPlotAnnotationTool() );
+    m_annotationTool      = std::make_unique<RiuPlotAnnotationTool>();
     m_selectedPointMarker = new QwtPlotMarker;
 
     // QwtPlotMarker takes ownership of the symbol, it is deleted in destructor of QwtPlotMarker

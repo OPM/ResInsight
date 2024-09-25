@@ -25,6 +25,7 @@
 #include <QAction>
 #include <QDir>
 #include <QFileInfo>
+#include <QTextStream>
 
 CAF_CMD_SOURCE_INIT( RicRunCommandFileFeature, "RicRunCommandFileFeature" );
 

@@ -27,13 +27,14 @@
 #include "RifEclipseUserDataKeywordTools.h"
 #include "RifEclipseUserDataParserTools.h"
 
-#include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
+#include "RifAsciiDataParseOptions.h"
 
 #include "cafUtils.h"
 
 #include <QDateTime>
 #include <QFile>
 #include <QTextStream>
+#include <memory>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -59,7 +60,7 @@ bool RifRevealCsvSectionSummaryReader::parse( const QString&                    
     m_allResultAddresses.clear();
     m_mapFromAddressToResultIndex.clear();
 
-    AsciiDataParseOptions parseOptions;
+    RifAsciiDataParseOptions parseOptions;
     parseOptions.useCustomDateTimeFormat = true;
     parseOptions.dateTimeFormat          = "dd.MM.yyyy hh:mm:ss";
     parseOptions.fallbackDateTimeFormat  = "dd.MM.yyyy";
@@ -68,7 +69,7 @@ bool RifRevealCsvSectionSummaryReader::parse( const QString&                    
     parseOptions.timeSeriesColumnName    = "Date";
     parseOptions.defaultCategory         = defaultCategory;
 
-    m_parser = std::unique_ptr<RifCsvUserDataPastedTextParser>( new RifCsvUserDataPastedTextParser( text, errorText ) );
+    m_parser                                                  = std::make_unique<RifCsvUserDataPastedTextParser>( text, errorText );
     std::map<QString, std::pair<QString, double>> unitMapping = { { "Sm3", { "SM3", 1.0 } },
                                                                   { "Sm3/day", { "SM3/DAY", 1.0 } },
                                                                   { "Sm3/day/bar", { "SM3/DAY/BAR", 1.0 } },

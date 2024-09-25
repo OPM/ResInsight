@@ -27,74 +27,17 @@
 #include "RimAsciiDataCurve.h"
 #include "RimPlotAxisProperties.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryEnsemble.h"
+#include "Tools/RimPlotAxisTools.h"
 
 #include "RiuQtChartsPlotWidget.h"
-#include "RiuQwtPlotTools.h"
 #include "RiuSummaryQuantityNameInfoProvider.h"
 #include "RiuSummaryQwtPlot.h"
-
-#include "qwt_date_scale_engine.h"
-#include "qwt_plot.h"
-#include "qwt_plot_curve.h"
-#include "qwt_scale_draw.h"
-#include "qwt_text.h"
 
 #include <cmath>
 #include <set>
 #include <string>
-
-//--------------------------------------------------------------------------------------------------
-// e    format as [-]9.9e[+|-]999
-// E    format as[-]9.9E[+| -]999
-// f    format as[-]9.9
-// g    use e or f format, whichever is the most concise
-// G    use E or f format, whichever is the most concise
-
-//--------------------------------------------------------------------------------------------------
-class SummaryScaleDraw : public QwtScaleDraw
-{
-public:
-    SummaryScaleDraw( double                                  scaleFactor,
-                      int                                     numberOfDecimals,
-                      RimPlotAxisProperties::NumberFormatType numberFormat = RimPlotAxisProperties::NUMBER_FORMAT_AUTO )
-    {
-        m_scaleFactor      = scaleFactor;
-        m_numberOfDecimals = numberOfDecimals;
-        m_numberFormat     = numberFormat;
-    }
-
-    QwtText label( double value ) const override
-    {
-        if ( qFuzzyCompare( scaledValue( value ) + 1.0, 1.0 ) ) value = 0.0;
-
-        return QString::number( scaledValue( value ), numberFormat(), m_numberOfDecimals );
-    }
-
-private:
-    char numberFormat() const
-    {
-        switch ( m_numberFormat )
-        {
-            case RimPlotAxisProperties::NUMBER_FORMAT_AUTO:
-                return 'g';
-            case RimPlotAxisProperties::NUMBER_FORMAT_DECIMAL:
-                return 'f';
-            case RimPlotAxisProperties::NUMBER_FORMAT_SCIENTIFIC:
-                return 'e';
-            default:
-                return 'g';
-        }
-    }
-
-    double scaledValue( double value ) const { return value / m_scaleFactor; }
-
-private:
-    double                                  m_scaleFactor;
-    int                                     m_numberOfDecimals;
-    RimPlotAxisProperties::NumberFormatType m_numberFormat;
-};
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -139,24 +82,7 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
         plotWidget->setAxisTitleEnabled( axis, true );
     }
 
-    auto qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
-    if ( qwtPlotWidget )
-    {
-        auto qwtAxisId = qwtPlotWidget->toQwtPlotAxis( axis );
-
-        if ( m_axisProperties->numberFormat() == RimPlotAxisProperties::NUMBER_FORMAT_AUTO && m_axisProperties->scaleFactor() == 1.0 )
-        {
-            // Default to Qwt's own scale draw to avoid changing too much for default values
-            qwtPlotWidget->qwtPlot()->setAxisScaleDraw( qwtAxisId, new QwtScaleDraw );
-        }
-        else
-        {
-            qwtPlotWidget->qwtPlot()->setAxisScaleDraw( qwtAxisId,
-                                                        new SummaryScaleDraw( m_axisProperties->scaleFactor(),
-                                                                              m_axisProperties->decimalCount(),
-                                                                              m_axisProperties->numberFormat() ) );
-        }
-    }
+    RimPlotAxisTools::applyAxisScaleDraw( plotWidget, axis, m_axisProperties );
 
 #ifdef USE_QTCHARTS
     auto qtChartsPlotWidget = dynamic_cast<RiuQtChartsPlotWidget*>( plotWidget );
@@ -307,13 +233,7 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
     }
 
     QString assembledYAxisText;
-    QString scaleFactorText = "";
-
-    if ( m_axisProperties->scaleFactor() != 1.0 )
-    {
-        int exponent    = std::log10( m_axisProperties->scaleFactor() );
-        scaleFactorText = QString( " x 10<sup>%1</sup> " ).arg( QString::number( exponent ) );
-    }
+    QString scaleFactorText = RimPlotAxisTools::scaleFactorText( m_axisProperties );
 
     for ( const auto& unitIt : unitToQuantityNameMap )
     {

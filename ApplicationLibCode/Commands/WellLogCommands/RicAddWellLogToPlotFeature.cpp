@@ -24,7 +24,7 @@
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
-#include "RimWellLogFileChannel.h"
+#include "RimWellLogChannel.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellLogLasFileCurve.h"
 #include "RimWellLogPlot.h"
@@ -49,7 +49,7 @@ CAF_CMD_SOURCE_INIT( RicAddWellLogToPlotFeature, "RicAddWellLogToPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicAddWellLogToPlotFeature::isCommandEnabled() const
 {
-    std::vector<RimWellLogFileChannel*> selection = selectedWellLogs();
+    std::vector<RimWellLogChannel*> selection = selectedWellLogs();
     return !selection.empty();
 }
 
@@ -58,7 +58,7 @@ bool RicAddWellLogToPlotFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicAddWellLogToPlotFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimWellLogFileChannel*> selection = selectedWellLogs();
+    std::vector<RimWellLogChannel*> selection = selectedWellLogs();
     if ( selection.empty() ) return;
 
     RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot();
@@ -69,13 +69,12 @@ void RicAddWellLogToPlotFeature::onActionTriggered( bool isChecked )
 
     plot->loadDataAndUpdate();
 
-    for ( size_t wlIdx = 0; wlIdx < selection.size(); wlIdx++ )
+    bool isFirst = true;
+    for ( RimWellLogChannel* wellLogChannel : selection )
     {
-        RimWellLogFileChannel* wellLog = selection[wlIdx];
-
-        auto wellPath    = wellLog->firstAncestorOrThisOfType<RimWellPath>();
-        auto wellLogFile = wellLog->firstAncestorOrThisOfType<RimWellLogLasFile>();
-        if ( wellLogFile )
+        auto wellPath = wellLogChannel->firstAncestorOrThisOfType<RimWellPath>();
+        auto wellLog  = wellLogChannel->firstAncestorOrThisOfType<RimWellLog>();
+        if ( wellLog )
         {
             RimWellLogLasFileCurve* curve      = new RimWellLogLasFileCurve;
             cvf::Color3f            curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
@@ -83,18 +82,19 @@ void RicAddWellLogToPlotFeature::onActionTriggered( bool isChecked )
 
             plotTrack->addCurve( curve );
 
-            RigWellLogLasFile* wellLogDataFile = wellLogFile->wellLogFileData();
-            CVF_ASSERT( wellLogDataFile );
+            RigWellLogData* wellLogData = wellLog->wellLogData();
+            CVF_ASSERT( wellLogData );
 
-            if ( wlIdx == 0 )
+            if ( isFirst )
             {
                 // Initialize plot with depth unit from the first log file
-                plot->setDepthUnit( wellLogDataFile->depthUnit() );
+                plot->setDepthUnit( wellLogData->depthUnit() );
+                isFirst = false;
             }
 
             curve->setWellPath( wellPath );
-            curve->setWellLogChannelName( wellLog->name() );
-            curve->setWellLogFile( wellLogFile );
+            curve->setWellLogChannelName( wellLogChannel->name() );
+            curve->setWellLog( wellLog );
 
             curve->loadDataAndUpdate( true );
         }
@@ -116,9 +116,9 @@ void RicAddWellLogToPlotFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFileChannel*> RicAddWellLogToPlotFeature::selectedWellLogs()
+std::vector<RimWellLogChannel*> RicAddWellLogToPlotFeature::selectedWellLogs()
 {
-    std::vector<RimWellLogFileChannel*> selection;
+    std::vector<RimWellLogChannel*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
     return selection;
 }

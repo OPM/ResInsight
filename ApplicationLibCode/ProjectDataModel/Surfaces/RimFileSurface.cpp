@@ -30,6 +30,7 @@
 #include "cafPdmObjectScriptingCapability.h"
 
 #include <QFileInfo>
+#include <memory>
 
 CAF_PDM_SOURCE_INIT( RimFileSurface, "Surface", "FileSurface" );
 
@@ -81,9 +82,7 @@ bool RimFileSurface::onLoadData()
 //--------------------------------------------------------------------------------------------------
 RimSurface* RimFileSurface::createCopy()
 {
-    RimFileSurface* newSurface =
-        dynamic_cast<RimFileSurface*>( xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-
+    auto newSurface = copyObject<RimFileSurface>();
     if ( !newSurface->onLoadData() )
     {
         delete newSurface;
@@ -172,7 +171,7 @@ bool RimFileSurface::loadDataFromFile()
     }
     else if ( filePath.endsWith( "ts", Qt::CaseInsensitive ) )
     {
-        m_gocadData.reset( new RigGocadData );
+        m_gocadData = std::make_unique<RigGocadData>();
 
         RifSurfaceImporter::readGocadFile( filePath, m_gocadData.get() );
 

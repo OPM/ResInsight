@@ -42,8 +42,6 @@ add_library(
   cafNavigationPolicy.cpp
   cafNavigationPolicy.h
   cafPointOfInterestVisualizer.h
-  cafOpenGLWidget.cpp
-  cafOpenGLWidget.h
   cafViewer.cpp
   cafViewer.h
   ${MOC_SOURCE_FILES}

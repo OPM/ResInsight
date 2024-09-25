@@ -26,6 +26,7 @@
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseView.h"
+#include "RimEclipseViewCollection.h"
 #include "RimSimWellInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -86,8 +87,7 @@ void RicPasteEclipseViewsFeature::onActionTriggered( bool isChecked )
     // Add cases to case group
     for ( const auto& eclipseView : eclipseViews )
     {
-        auto* rimReservoirView =
-            dynamic_cast<RimEclipseView*>( eclipseView->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+        auto* rimReservoirView = eclipseView->copyObject<RimEclipseView>();
         CVF_ASSERT( rimReservoirView );
 
         QString nameOfCopy = QString( "Copy of " ) + rimReservoirView->name();
@@ -98,11 +98,15 @@ void RicPasteEclipseViewsFeature::onActionTriggered( bool isChecked )
             auto contourMapView = dynamic_cast<RimEclipseContourMapView*>( rimReservoirView );
             CVF_ASSERT( contourMapView );
 
-            eclipseCase->contourMapCollection()->push_back( contourMapView );
+            eclipseCase->contourMapCollection()->addView( contourMapView );
+        }
+        else if ( auto viewCollection = dynamic_cast<RimEclipseViewCollection*>( destinationObject ) )
+        {
+            viewCollection->addView( rimReservoirView );
         }
         else
         {
-            eclipseCase->reservoirViews().push_back( rimReservoirView );
+            eclipseCase->viewCollection()->addView( rimReservoirView );
         }
 
         rimReservoirView->setEclipseCase( eclipseCase );

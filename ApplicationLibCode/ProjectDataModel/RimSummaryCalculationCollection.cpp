@@ -25,8 +25,8 @@
 #include "RimObservedSummaryData.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 
 CAF_PDM_SOURCE_INIT( RimSummaryCalculationCollection, "RimSummaryCalculationCollection" );
 //--------------------------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ void RimSummaryCalculationCollection::updateDataDependingOnCalculations()
         {
             reader->buildMetaData();
 
-            if ( summaryCase->showRealizationDataSources() )
+            if ( summaryCase->showVectorItemsInProjectTree() )
             {
                 summaryCase->onCalculationUpdated();
             }
@@ -83,7 +83,7 @@ void RimSummaryCalculationCollection::updateDataDependingOnCalculations()
     }
 
     auto summaryCaseCollections = summaryCaseCollection->summaryCaseCollections();
-    for ( RimSummaryCaseCollection* summaryCaseCollection : summaryCaseCollections )
+    for ( RimSummaryEnsemble* summaryCaseCollection : summaryCaseCollections )
     {
         summaryCaseCollection->onCalculationUpdated();
     }

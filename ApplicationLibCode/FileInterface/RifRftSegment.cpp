@@ -361,7 +361,7 @@ std::set<int> RifRftSegment::uniqueOneBasedBranchIndices( RiaDefines::RftBranchT
 {
     std::set<int> indices;
 
-    for ( const auto [branchId, branchIndex] : m_oneBasedBranchIndexMap )
+    for ( const auto& [branchId, branchIndex] : m_oneBasedBranchIndexMap )
     {
         indices.insert( branchIndex );
     }
@@ -382,4 +382,47 @@ int RifRftSegment::segmentIndexFromSegmentNumber( int segmentNumber ) const
     }
 
     return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RifRftSegment::nonContinuousDeviceSegmentIndices( int branchIndex ) const
+{
+    auto deviceSegmentNumbers = segmentNumbersForBranchIndex( branchIndex, RiaDefines::RftBranchType::RFT_DEVICE );
+    if ( deviceSegmentNumbers.size() < 2 ) return {};
+
+    // Find all device segments that are connected to a tubing segment with a upstream tubing segment that is not connected to a device
+    // segment.
+    //
+    // Device numbers :  50  51          52  53
+    //                    |   |           |   |
+    // Tubing numbers :   1 - 2 - 3 - 4 - 5 - 6
+    //
+    // Device 53 is connected to tubing 5. There are tubing segments between device 52 and 51. We mark device 52 as non-continuous
+    // device segment.
+
+    std::vector<size_t> deviceSegmentIndices;
+    size_t              i = deviceSegmentNumbers.size() - 1;
+    while ( i > 1 )
+    {
+        auto currentDeviceSegment = segmentData( deviceSegmentNumbers[i] );
+        if ( !currentDeviceSegment ) continue;
+
+        auto upstreamDeviceSegment = segmentData( deviceSegmentNumbers[i - 1] );
+        if ( !upstreamDeviceSegment ) continue;
+
+        auto tubingSegData = segmentData( currentDeviceSegment->segNext() );
+        if ( !tubingSegData ) continue;
+
+        auto upstreamTubingSegmentNumber = tubingSegData->segNext();
+        if ( upstreamDeviceSegment->segNext() != upstreamTubingSegmentNumber )
+        {
+            deviceSegmentIndices.push_back( segmentIndexFromSegmentNumber( deviceSegmentNumbers[i] ) );
+        }
+
+        i--;
+    }
+
+    return deviceSegmentIndices;
 }

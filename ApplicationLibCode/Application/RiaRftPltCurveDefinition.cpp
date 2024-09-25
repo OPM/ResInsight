@@ -57,8 +57,8 @@ const QDateTime& RiaRftPltCurveDefinition::timeStep() const
 //--------------------------------------------------------------------------------------------------
 auto RiaRftPltCurveDefinition::operator<=>( const RiaRftPltCurveDefinition& other ) const -> std::strong_ordering
 {
-    RimSummaryCaseCollection* thisEnsemble  = m_curveAddress.ensemble();
-    RimSummaryCaseCollection* otherEnsemble = other.m_curveAddress.ensemble();
+    RimSummaryEnsemble* thisEnsemble  = m_curveAddress.ensemble();
+    RimSummaryEnsemble* otherEnsemble = other.m_curveAddress.ensemble();
 
     if ( ( thisEnsemble && !otherEnsemble ) || ( !thisEnsemble && otherEnsemble ) )
     {
@@ -72,7 +72,7 @@ auto RiaRftPltCurveDefinition::operator<=>( const RiaRftPltCurveDefinition& othe
     {
         if ( m_wellName == other.m_wellName )
         {
-            return m_timeStep.toTime_t() <=> other.m_timeStep.toTime_t();
+            return m_timeStep.toMSecsSinceEpoch() <=> other.m_timeStep.toMSecsSinceEpoch();
         }
         return m_wellName.toStdString() <=> other.m_wellName.toStdString();
     }

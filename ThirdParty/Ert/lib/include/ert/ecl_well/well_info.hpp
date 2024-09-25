@@ -30,26 +30,26 @@
 extern "C" {
 #endif
 
-  typedef struct well_info_struct well_info_type;
+    typedef struct well_info_struct well_info_type;
 
-  well_info_type *  well_info_alloc(const ecl_grid_type * grid);
-  void              well_info_add_UNRST_wells2( well_info_type * well_info , ecl_file_view_type * rst_view, bool load_segment_information);
-  void              well_info_add_UNRST_wells( well_info_type * well_info , ecl_file_type * rst_file, bool load_segment_information);
-  void              well_info_add_wells( well_info_type * well_info , ecl_file_type * rst_file , int report_nr , bool load_segment_information);
-  void              well_info_add_wells2( well_info_type * well_info , ecl_file_view_type * rst_view , int report_nr, bool load_segment_information);
-  void              well_info_load_rstfile( well_info_type * well_info , const char * filename, bool load_segment_information);
-  void              well_info_load_rst_eclfile( well_info_type * well_info , ecl_file_type * rst_file , bool load_segment_information);
-  void              well_info_free( well_info_type * well_info );
+    well_info_type* well_info_alloc(std::vector<std::string> grid_names);
+    void              well_info_add_UNRST_wells2(well_info_type* well_info, ecl_file_view_type* rst_view, bool load_segment_information);
+    void              well_info_add_UNRST_wells(well_info_type* well_info, ecl_file_type* rst_file, bool load_segment_information);
+    void              well_info_add_wells(well_info_type* well_info, ecl_file_type* rst_file, int report_nr, bool load_segment_information);
+    void              well_info_add_wells2(well_info_type* well_info, ecl_file_view_type* rst_view, int report_nr, bool load_segment_information);
+    void              well_info_load_rstfile(well_info_type* well_info, const char* filename, bool load_segment_information);
+    void              well_info_load_rst_eclfile(well_info_type* well_info, ecl_file_type* rst_file, bool load_segment_information);
+    void              well_info_free(well_info_type* well_info);
 
-  well_ts_type    * well_info_get_ts( const well_info_type * well_info , const char *well_name);
-  int               well_info_get_num_wells( const well_info_type * well_info );
-  const char      * well_info_iget_well_name( const well_info_type * well_info, int well_index);
-  bool              well_info_has_well( well_info_type * well_info , const char * well_name );
+    well_ts_type* well_info_get_ts(const well_info_type* well_info, const char* well_name);
+    int               well_info_get_num_wells(const well_info_type* well_info);
+    const char* well_info_iget_well_name(const well_info_type* well_info, int well_index);
+    bool              well_info_has_well(well_info_type* well_info, const char* well_name);
 
-  well_state_type * well_info_get_state_from_time( const well_info_type * well_info , const char * well_name , time_t sim_time);
-  well_state_type * well_info_get_state_from_report( const well_info_type * well_info , const char * well_name , int report_step );
-  well_state_type * well_info_iget_state( const well_info_type * well_info , const char * well_name , int time_index);
-  well_state_type * well_info_iiget_state( const well_info_type * well_info , int well_index , int time_index);
+    well_state_type* well_info_get_state_from_time(const well_info_type* well_info, const char* well_name, time_t sim_time);
+    well_state_type* well_info_get_state_from_report(const well_info_type* well_info, const char* well_name, int report_step);
+    well_state_type* well_info_iget_state(const well_info_type* well_info, const char* well_name, int time_index);
+    well_state_type* well_info_iiget_state(const well_info_type* well_info, int well_index, int time_index);
 
 #ifdef __cplusplus
 }

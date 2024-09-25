@@ -23,6 +23,7 @@
 #include "RigCaseRealizationParameters.h"
 
 #include <QString>
+#include <QStringList>
 #include <QTextStream>
 
 #include <map>
@@ -30,7 +31,6 @@
 #include <string>
 #include <vector>
 
-class QStringList;
 class QTextStream;
 class QXmlStreamReader;
 class QFile;

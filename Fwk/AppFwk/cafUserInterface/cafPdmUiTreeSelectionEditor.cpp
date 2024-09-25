@@ -181,6 +181,18 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
 
     QList<PdmOptionItemInfo> options = uiField()->valueOptions();
 
+    if ( options.empty() )
+    {
+        QVariant    fieldValue = uiField()->uiValue();
+        QStringList texts      = fieldValue.toStringList();
+
+        for ( const auto& text : texts )
+        {
+            PdmOptionItemInfo item( text, text );
+            options.push_back( item );
+        }
+    }
+
     bool itemCountHasChaged = false;
     if ( m_model->optionItemCount() != options.size() ) itemCountHasChaged = true;
 
@@ -203,6 +215,8 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
     }
+
+    m_model->showCheckBoxes( m_attributes.showCheckBoxes );
 
     if ( PdmUiTreeSelectionQModel::isMultipleValueField( fieldValue ) )
     {
@@ -407,6 +421,8 @@ bool PdmUiTreeSelectionEditor::isMultiRowEditor() const
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::customMenuRequested( const QPoint& pos )
 {
+    if ( !m_attributes.showContextMenu ) return;
+
     QMenu menu;
 
     QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes();
@@ -551,11 +567,18 @@ void PdmUiTreeSelectionEditor::slotToggleAll()
 {
     if ( m_toggleAllCheckBox->isChecked() )
     {
-        checkAllItems();
+        checkAllItemsMatchingFilter();
         return;
     }
 
-    unCheckAllItems();
+    if ( m_textFilterLineEdit->text().isEmpty() )
+    {
+        m_model->unselectAllItems();
+    }
+    else
+    {
+        unCheckAllItemsMatchingFilter();
+    }
 
     // Apply integer filtering if the model contains only integers
     if ( hasOnlyIntegers( m_model ) )
@@ -788,7 +811,7 @@ void PdmUiTreeSelectionEditor::currentChanged( const QModelIndex& current )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::checkAllItems()
+void PdmUiTreeSelectionEditor::checkAllItemsMatchingFilter()
 {
     QModelIndexList indices = allVisibleSourceModelIndices();
 
@@ -798,7 +821,7 @@ void PdmUiTreeSelectionEditor::checkAllItems()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::unCheckAllItems()
+void PdmUiTreeSelectionEditor::unCheckAllItemsMatchingFilter()
 {
     QModelIndexList indices = allVisibleSourceModelIndices();
 

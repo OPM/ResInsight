@@ -22,6 +22,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseWellLogExtractor.h
     ${CMAKE_CURRENT_LIST_DIR}/RigLocalGrid.h
     ${CMAKE_CURRENT_LIST_DIR}/RigMainGrid.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigActiveCellGrid.h
     ${CMAKE_CURRENT_LIST_DIR}/RigReservoirBuilderMock.h
     ${CMAKE_CURRENT_LIST_DIR}/RigCaseCellResultsData.h
     ${CMAKE_CURRENT_LIST_DIR}/RigSimWellData.h
@@ -98,6 +99,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigWellResultBranch.h
     ${CMAKE_CURRENT_LIST_DIR}/RigWellResultFrame.h
     ${CMAKE_CURRENT_LIST_DIR}/RigReservoirBuilder.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigVfpTables.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigOsduWellLogData.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -122,6 +125,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseWellLogExtractor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigLocalGrid.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigMainGrid.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigActiveCellGrid.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigReservoirBuilderMock.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigCaseCellResultsData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSimWellData.cpp
@@ -194,6 +198,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigWellResultFrame.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigDeclineCurveCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigReservoirBuilder.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigVfpTables.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigOsduWellLogData.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

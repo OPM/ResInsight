@@ -20,8 +20,6 @@
 
 #include "RimObservedSummaryData.h"
 
-#include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
-
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -30,6 +28,7 @@
 class RifSummaryReaderInterface;
 class RifCalculatedSummaryCurveReader;
 class RifMultipleSummaryReaders;
+class RicPasteAsciiDataToSummaryPlotFeatureUi;
 
 //==================================================================================================
 //

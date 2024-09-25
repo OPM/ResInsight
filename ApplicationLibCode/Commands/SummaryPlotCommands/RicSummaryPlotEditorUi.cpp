@@ -36,11 +36,11 @@
 #include "RimProject.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveAutoName.h"
 #include "RimSummaryCurveCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 
@@ -400,7 +400,7 @@ void RicSummaryPlotEditorUi::syncPreviewCurvesFromUiSelection()
 
             for ( const auto& curveSet : currentCurveSetsInPreviewPlot )
             {
-                RimSummaryCaseCollection* ensemble = curveSet->summaryCaseCollection();
+                RimSummaryEnsemble* ensemble = curveSet->summaryEnsemble();
                 currentCurveSetDefs.insert( RiaCurveSetDefinition( ensemble, curveSet->summaryAddressY() ) );
             }
 
@@ -416,8 +416,8 @@ void RicSummaryPlotEditorUi::syncPreviewCurvesFromUiSelection()
 
                 for ( const auto& curveSet : currentCurveSetsInPreviewPlot )
                 {
-                    RimSummaryCaseCollection* ensemble    = curveSet->summaryCaseCollection();
-                    RiaCurveSetDefinition     curveSetDef = RiaCurveSetDefinition( ensemble, curveSet->summaryAddressY() );
+                    RimSummaryEnsemble*   ensemble    = curveSet->summaryEnsemble();
+                    RiaCurveSetDefinition curveSetDef = RiaCurveSetDefinition( ensemble, curveSet->summaryAddressY() );
                     if ( deleteCurveSetDefs.count( curveSetDef ) > 0 ) curveSetsToDelete.insert( curveSet );
                 }
             }
@@ -478,7 +478,7 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions( const std:
             RimEnsembleCurveSet* curveSet = nullptr;
             for ( const auto& cs : m_previewPlot->ensembleCurveSetCollection()->curveSets() )
             {
-                if ( cs->summaryCaseCollection() == curveDef.ensemble() && cs->summaryAddressY() == curveDef.summaryAddressY() )
+                if ( cs->summaryEnsemble() == curveDef.ensemble() && cs->summaryAddressY() == curveDef.summaryAddressY() )
                 {
                     curveSet = cs;
                     break;
@@ -488,7 +488,7 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions( const std:
             {
                 curveSet = new RimEnsembleCurveSet();
                 curveSet->disableStatisticCurves();
-                curveSet->setSummaryCaseCollection( curveDef.ensemble() );
+                curveSet->setSummaryEnsemble( curveDef.ensemble() );
 
                 // Do not call setSummaryAddressAndStatisticsFlag() here, as the call to m_statistics->updateAllRequiredEditors(); causes a
                 // crash in updateUiOrdering. The statistics curves will be created when the curve set is added to the plot.
@@ -632,7 +632,7 @@ void RicSummaryPlotEditorUi::populateCurveCreator( const RimSummaryPlot& sourceS
         newCurveSet->disableStatisticCurves();
         previewCurveSetColl->addCurveSet( newCurveSet );
 
-        RimSummaryCaseCollection* ensemble = curveSet->summaryCaseCollection();
+        RimSummaryEnsemble* ensemble = curveSet->summaryEnsemble();
         curveDefs.emplace_back( ensemble, curveSet->summaryAddressY() );
     }
 
@@ -705,8 +705,7 @@ void RicSummaryPlotEditorUi::updateTargetPlot()
 //--------------------------------------------------------------------------------------------------
 void RicSummaryPlotEditorUi::copyCurveAndAddToPlot( const RimSummaryCurve* curve, RimSummaryPlot* plot, bool forceVisible )
 {
-    auto curveCopy =
-        dynamic_cast<RimSummaryCurve*>( curve->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    auto curveCopy = curve->copyObject<RimSummaryCurve>();
     CVF_ASSERT( curveCopy );
 
     if ( forceVisible )
@@ -728,8 +727,7 @@ void RicSummaryPlotEditorUi::copyCurveAndAddToPlot( const RimSummaryCurve* curve
 //--------------------------------------------------------------------------------------------------
 void RicSummaryPlotEditorUi::copyEnsembleCurveAndAddToCurveSet( const RimSummaryCurve* curve, RimEnsembleCurveSet* curveSet, bool forceVisible )
 {
-    RimSummaryCurve* curveCopy =
-        dynamic_cast<RimSummaryCurve*>( curve->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    auto curveCopy = curve->copyObject<RimSummaryCurve>();
     CVF_ASSERT( curveCopy );
 
     if ( forceVisible )
@@ -923,15 +921,15 @@ void RicSummaryPlotEditorUi::setInitialCurveVisibility( const RimSummaryPlot* ta
         }
     }
 
-    std::set<std::pair<RimSummaryCaseCollection*, RifEclipseSummaryAddress>> sourceCurveSetDefs;
+    std::set<std::pair<RimSummaryEnsemble*, RifEclipseSummaryAddress>> sourceCurveSetDefs;
     for ( const auto& curveSet : targetPlot->ensembleCurveSetCollection()->curveSets() )
     {
-        sourceCurveSetDefs.insert( std::make_pair( curveSet->summaryCaseCollection(), curveSet->summaryAddressY() ) );
+        sourceCurveSetDefs.insert( std::make_pair( curveSet->summaryEnsemble(), curveSet->summaryAddressY() ) );
     }
 
     for ( const auto& curveSet : m_previewPlot->ensembleCurveSetCollection()->curveSets() )
     {
-        auto curveDef = std::make_pair( curveSet->summaryCaseCollection(), curveSet->summaryAddressY() );
+        auto curveDef = std::make_pair( curveSet->summaryEnsemble(), curveSet->summaryAddressY() );
         if ( sourceCurveSetDefs.count( curveDef ) == 0 )
         {
             curveSet->showCurves( false );

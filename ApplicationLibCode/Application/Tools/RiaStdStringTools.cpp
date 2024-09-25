@@ -19,7 +19,7 @@
 #include "RiaStdStringTools.h"
 #include "RiaLogging.h"
 
-#include "fast_float/include/fast_float/fast_float.h"
+#include "fast_float/fast_float.h"
 
 #include <QString>
 
@@ -32,7 +32,7 @@ const std::string WHITESPACE = " \n\r\t\f\v";
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RiaStdStringTools::leftTrimString( const std::string& s )
+std::string_view RiaStdStringTools::leftTrimString( std::string_view s )
 {
     size_t start = s.find_first_not_of( WHITESPACE );
     return ( start == std::string::npos ) ? "" : s.substr( start );
@@ -41,7 +41,7 @@ std::string RiaStdStringTools::leftTrimString( const std::string& s )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RiaStdStringTools::rightTrimString( const std::string& s )
+std::string_view RiaStdStringTools::rightTrimString( std::string_view s )
 {
     size_t end = s.find_last_not_of( WHITESPACE );
     return ( end == std::string::npos ) ? "" : s.substr( 0, end + 1 );
@@ -50,7 +50,7 @@ std::string RiaStdStringTools::rightTrimString( const std::string& s )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RiaStdStringTools::trimString( const std::string& s )
+std::string_view RiaStdStringTools::trimString( std::string_view s )
 {
     return rightTrimString( leftTrimString( s ) );
 }
@@ -87,40 +87,22 @@ bool RiaStdStringTools::isNumber( const std::string& s, char decimalPoint )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int16_t RiaStdStringTools::toInt16( const std::string& s )
+int16_t RiaStdStringTools::toInt16( std::string_view s )
 {
     return (int16_t)toInt( s );
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Convert a string to an integer. If the string is not a valid integer, the function returns -1.
+/// For best performance, use toInt( const std::string_view& s, int& value );
 //--------------------------------------------------------------------------------------------------
-int RiaStdStringTools::toInt( const std::string& s )
+int RiaStdStringTools::toInt( std::string_view s )
 {
     int intValue = -1;
 
-    try
-    {
-        intValue = std::stoi( s );
-    }
-    catch ( ... )
-    {
-    }
+    toInt( s, intValue );
 
     return intValue;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RiaStdStringTools::toDouble( const std::string& s )
-{
-    double doubleValue = -1.0;
-
-    char* end;
-    doubleValue = std::strtod( s.data(), &end );
-
-    return doubleValue;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,8 +146,11 @@ std::string RiaStdStringTools::formatThousandGrouping( long value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaStdStringTools::toDouble( const std::string_view& s, double& value )
+bool RiaStdStringTools::toDouble( std::string_view s, double& value )
 {
+    s.remove_prefix( std::min( s.find_first_not_of( " " ), s.size() ) );
+
+    // NB! Note that we use fast_float:: here, and not std::
     auto resultObject = fast_float::from_chars( s.data(), s.data() + s.size(), value );
 
     return ( resultObject.ec == std::errc() );
@@ -174,8 +159,10 @@ bool RiaStdStringTools::toDouble( const std::string_view& s, double& value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaStdStringTools::toInt( const std::string_view& s, int& value )
+bool RiaStdStringTools::toInt( std::string_view s, int& value )
 {
+    s.remove_prefix( std::min( s.find_first_not_of( " " ), s.size() ) );
+
     auto resultObject = std::from_chars( s.data(), s.data() + s.size(), value );
 
     return ( resultObject.ec == std::errc() );
@@ -184,9 +171,9 @@ bool RiaStdStringTools::toInt( const std::string_view& s, int& value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RiaStdStringTools::toUpper( const std::string& s )
+std::string RiaStdStringTools::toUpper( std::string_view s )
 {
-    auto strCopy( s );
+    std::string strCopy( s );
     std::transform( strCopy.begin(), strCopy.end(), strCopy.begin(), []( unsigned char c ) { return std::toupper( c ); } );
 
     return strCopy;
@@ -418,4 +405,52 @@ std::set<int> RiaStdStringTools::valuesFromRangeSelection( const std::string& s,
     }
 
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RiaStdStringTools::formatRangeSelection( const std::vector<int>& values )
+{
+    if ( values.empty() ) return "";
+
+    std::vector<int> sortedNums = values;
+    std::sort( sortedNums.begin(), sortedNums.end() );
+
+    std::ostringstream result;
+    int                start = sortedNums[0];
+    int                end   = sortedNums[0];
+
+    for ( size_t i = 1; i < sortedNums.size(); ++i )
+    {
+        if ( sortedNums[i] == end + 1 )
+        {
+            end = sortedNums[i];
+        }
+        else
+        {
+            if ( start == end )
+            {
+                result << start;
+            }
+            else
+            {
+                result << start << "-" << end;
+            }
+            result << ", ";
+            start = sortedNums[i];
+            end   = sortedNums[i];
+        }
+    }
+
+    if ( start == end )
+    {
+        result << start;
+    }
+    else
+    {
+        result << start << "-" << end;
+    }
+
+    return result.str();
 }

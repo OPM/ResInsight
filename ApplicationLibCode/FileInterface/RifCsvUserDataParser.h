@@ -31,7 +31,7 @@
 #include <vector>
 
 class Column;
-class AsciiDataParseOptions;
+class RifAsciiDataParseOptions;
 
 //==================================================================================================
 ///
@@ -49,7 +49,7 @@ public:
     RifCsvUserDataParser( QString* errorText = nullptr );
     virtual ~RifCsvUserDataParser();
 
-    bool             parse( const AsciiDataParseOptions&                         parseOptions,
+    bool             parse( const RifAsciiDataParseOptions&                      parseOptions,
                             const std::map<QString, QString>&                    nameMapping = {},
                             const std::map<QString, std::pair<QString, double>>& unitMapping = {} );
     const TableData& tableData() const;
@@ -57,9 +57,9 @@ public:
     const Column* columnInfo( size_t columnIndex ) const;
     const Column* dateTimeColumn() const;
 
-    bool        parseColumnInfo( const AsciiDataParseOptions& parseOptions );
-    QString     previewText( int lineCount, const AsciiDataParseOptions& parseOptions );
-    QStringList timeColumnPreviewData( int lineCount, const AsciiDataParseOptions& parseOptions );
+    bool        parseColumnInfo( const RifAsciiDataParseOptions& parseOptions );
+    QString     previewText( int lineCount, const RifAsciiDataParseOptions& parseOptions );
+    QStringList timeColumnPreviewData( int lineCount, const RifAsciiDataParseOptions& parseOptions );
 
     CsvLayout determineCsvLayout();
 
@@ -76,14 +76,14 @@ private:
     std::vector<int> parseLineBasedHeader( QStringList headerCols );
 
     bool             parseColumnInfo( QTextStream*                                         dataStream,
-                                      const AsciiDataParseOptions&                         parseOptions,
+                                      const RifAsciiDataParseOptions&                      parseOptions,
                                       std::vector<Column>*                                 columnInfoList,
                                       const std::map<QString, QString>&                    nameMapping = {},
                                       const std::map<QString, std::pair<QString, double>>& unitMapping = {} );
-    bool             parseColumnBasedData( const AsciiDataParseOptions&                         parseOptions,
+    bool             parseColumnBasedData( const RifAsciiDataParseOptions&                      parseOptions,
                                            const std::map<QString, QString>&                    nameMapping = {},
                                            const std::map<QString, std::pair<QString, double>>& unitMapping = {} );
-    bool             parseLineBasedData();
+    bool             parseLineBasedData( const RifAsciiDataParseOptions& parseOptions );
     static QDateTime tryParseDateTime( const std::string& colData, const QString& format );
 
 private:

@@ -110,6 +110,20 @@ RimPlotAxisProperties::RimPlotAxisProperties()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::configureForBasicUse()
+{
+    setEnableTitleTextSettings( false );
+
+    m_isLogarithmicScaleEnabled.uiCapability()->setUiHidden( true );
+    m_isAxisInverted.uiCapability()->setUiHidden( true );
+    m_showNumbers.uiCapability()->setUiHidden( true );
+    m_majorTickmarkCount.uiCapability()->setUiHidden( true );
+    m_plotAxis.uiCapability()->setUiHidden( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::setAlwaysRequired( bool enable )
 {
     m_isAlwaysRequired = enable;

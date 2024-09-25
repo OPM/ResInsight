@@ -23,6 +23,8 @@
 #include "RimAnnotationCollection.h"
 #include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimEclipseContourMapViewCollection.h"
+#include "RimEclipseViewCollection.h"
 #include "RimEnsembleWellLogsCollection.h"
 #include "RimFormationNamesCollection.h"
 #include "RimFractureTemplateCollection.h"
@@ -35,7 +37,9 @@
 #include "RimSurfaceCollection.h"
 #include "RimWellPathCollection.h"
 
+#include "Cloud/RimCloudDataSourceCollection.h"
 #include "Polygons/RimPolygonCollection.h"
+#include "VerticalFlowPerformance/RimVfpDataCollection.h"
 
 CAF_PDM_SOURCE_INIT( RimOilField, "ResInsightOilField" );
 //--------------------------------------------------------------------------------------------------
@@ -75,6 +79,12 @@ RimOilField::RimOilField()
     CAF_PDM_InitFieldNoDefault( &seismicViewCollection, "SeismicViewCollection", "Seismic Views" );
     seismicViewCollection = new RimSeismicViewCollection();
 
+    CAF_PDM_InitFieldNoDefault( &eclipseViewCollection, "EclipseViewCollection", "Eclipse Views", ":/3DView16x16.png" );
+    eclipseViewCollection = new RimEclipseViewCollection();
+
+    CAF_PDM_InitFieldNoDefault( &eclipseContourMapCollection, "ContourMaps", "2d Contour Maps" );
+    eclipseContourMapCollection = new RimEclipseContourMapViewCollection;
+
     completionTemplateCollection = new RimCompletionTemplateCollection;
     analysisModels               = new RimEclipseCaseCollection();
     wellPathCollection           = new RimWellPathCollection();
@@ -84,6 +94,12 @@ RimOilField::RimOilField()
     annotationCollection         = new RimAnnotationCollection();
     ensembleWellLogsCollection   = new RimEnsembleWellLogsCollection();
     polygonCollection            = new RimPolygonCollection();
+
+    CAF_PDM_InitFieldNoDefault( &vfpDataCollection, "VfpDataCollection", "VFP Data" );
+    vfpDataCollection = new RimVfpDataCollection();
+
+    CAF_PDM_InitFieldNoDefault( &cloudDataCollection, "CloudDataCollection", "Cloud Data" );
+    cloudDataCollection = new RimCloudDataSourceCollection();
 
     m_fractureTemplateCollection_OBSOLETE = new RimFractureTemplateCollection;
     m_fractureTemplateCollection_OBSOLETE.xmlCapability()->setIOWritable( false );

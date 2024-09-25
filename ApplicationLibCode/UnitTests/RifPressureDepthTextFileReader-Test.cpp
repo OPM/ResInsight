@@ -92,3 +92,18 @@ PSIA FEET
     EXPECT_NEAR( 12008.0, values0[0].first, delta );
     EXPECT_NEAR( 22640.66, values0[0].second, delta );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifPressureDepthTextFileReaderTest, LoadFileWithTabs )
+{
+    QString fileName = CASE_REAL_TEST_DATA_DIRECTORY_04 + "example_file_tabs.txt";
+
+    auto [items, errorMessage] = RifPressureDepthTextFileReader::readFile( fileName );
+
+    EXPECT_TRUE( errorMessage.isEmpty() );
+    ASSERT_EQ( 3u, items.size() );
+
+    EXPECT_EQ( "G-14", items[0].wellName().toStdString() );
+}

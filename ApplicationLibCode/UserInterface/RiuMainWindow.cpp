@@ -92,6 +92,7 @@
 #include "DockManager.h"
 
 #include <QAction>
+#include <QActionGroup>
 #include <QCloseEvent>
 #include <QComboBox>
 #include <QDir>
@@ -251,6 +252,25 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
         if ( w && w->mdiWindowGeometry().isMaximized )
         {
             activeSubWindow->showMaximized();
+        }
+    }
+
+    // Find the project tree and reselect items to trigger the selectionChanged signal. This will make sure that the property view is
+    // updated based on the selection in the main project tree.
+    if ( auto dockWidget = RiuDockWidgetTools::findDockWidget( dockManager(), RiuDockWidgetTools::mainWindowProjectTreeName() ) )
+    {
+        if ( auto tree = dynamic_cast<caf::PdmUiTreeView*>( dockWidget->widget() ) )
+        {
+            std::vector<caf::PdmUiItem*> uiItems;
+            tree->selectedUiItems( uiItems );
+
+            std::vector<const caf::PdmUiItem*> constSelectedItems;
+            for ( auto item : uiItems )
+            {
+                constSelectedItems.push_back( item );
+            }
+
+            tree->selectItems( constSelectedItems );
         }
     }
 }
@@ -664,6 +684,7 @@ void RiuMainWindow::createToolBars()
     {
         QToolBar* toolbar = addToolBar( tr( "Test" ) );
         toolbar->setObjectName( toolbar->windowTitle() );
+        toolbar->addAction( cmdFeatureMgr->action( "RicSumoDataFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicLaunchRegressionTestsFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicLaunchRegressionTestDialogFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicShowClassNamesFeature" ) );

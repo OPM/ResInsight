@@ -61,7 +61,8 @@ public:
     {
         if ( input.isEmpty() ) return State::Intermediate;
 
-        double val = RiaStdStringTools::toDouble( input.toStdString() );
+        double val = 0.0;
+        RiaStdStringTools::toDouble( input.toStdString(), val );
         if ( val > 0.001 && val <= 2.0 )
             return State::Acceptable;
         else

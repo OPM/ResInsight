@@ -37,9 +37,9 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
+#include "RimWellLogChannel.h"
 #include "RimWellLogCurve.h"
-#include "RimWellLogFileChannel.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellLogLasFileCurve.h"
 #include "RimWellLogPlot.h"
@@ -68,6 +68,7 @@
 #include "qwt_symbol.h"
 
 #include <algorithm>
+#include <memory>
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
@@ -143,7 +144,7 @@ RimEnsembleWellLogCurveSet::RimEnsembleWellLogCurveSet()
     m_qwtPlotCurveForLegendText = new QwtPlotCurve;
     m_qwtPlotCurveForLegendText->setLegendAttribute( QwtPlotCurve::LegendShowSymbol, true );
 
-    m_ensembleWellLogStatistics.reset( new RimEnsembleWellLogStatistics );
+    m_ensembleWellLogStatistics = std::make_unique<RimEnsembleWellLogStatistics>();
 
     m_disableStatisticCurves = false;
     m_isCurveSetFiltered     = false;
@@ -567,7 +568,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleWellLogCurveSet::calculateValueOptions(
             std::set<QString> wellLogChannelNames;
             for ( auto wellLogFile : m_ensembleWellLogs->wellLogFiles() )
             {
-                std::vector<RimWellLogFileChannel*> fileLogs = wellLogFile->wellLogChannels();
+                std::vector<RimWellLogChannel*> fileLogs = wellLogFile->wellLogChannels();
                 for ( size_t i = 0; i < fileLogs.size(); i++ )
                 {
                     QString wellLogChannelName = fileLogs[i]->name();
@@ -641,11 +642,12 @@ void RimEnsembleWellLogCurveSet::updateFilterLegend()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase* RimEnsembleWellLogCurveSet::findMatchingSummaryCase( RimWellLogLasFileCurve* wellLogCurve ) const
 {
-    RimSummaryCaseCollection*    summaryCaseCollection = m_ensembleCurveSet->summaryCaseCollection();
+    RimSummaryEnsemble*          summaryCaseCollection = m_ensembleCurveSet->summaryEnsemble();
     std::vector<RimSummaryCase*> sumCases              = summaryCaseCollection->allSummaryCases();
     for ( auto sumCase : sumCases )
     {
-        if ( isSameRealization( sumCase, wellLogCurve->wellLogFile() ) )
+        RimWellLogFile* wellLogFile = dynamic_cast<RimWellLogFile*>( wellLogCurve->wellLog() );
+        if ( wellLogFile && isSameRealization( sumCase, wellLogFile ) )
         {
             return sumCase;
         }
@@ -774,7 +776,7 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
                 QString errorMessage;
                 if ( wellLogFile->readFile( &errorMessage ) )
                 {
-                    RigWellLogLasFile* wellLogDataFile = wellLogFile->wellLogFileData();
+                    RigWellLogLasFile* wellLogDataFile = wellLogFile->wellLogData();
                     CVF_ASSERT( wellLogDataFile );
 
                     if ( isFirst )
@@ -794,7 +796,7 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
 
                 curve->setWellPath( wellPath );
                 curve->setWellLogChannelName( wellLogChannelName );
-                curve->setWellLogFile( wellLogFile );
+                curve->setWellLog( wellLogFile );
 
                 curve->setSymbol( m_curveAppearance->symbol() );
                 curve->setSymbolSize( m_curveAppearance->symbolSize() );
@@ -993,7 +995,7 @@ std::vector<RimWellLogLasFile*> RimEnsembleWellLogCurveSet::filterEnsembleCases(
     if ( m_ensembleCurveSet != nullptr && m_statistics->basedOnFilteredCases() )
     {
         // Get the summary cases from the related ensemble summary curve set.
-        RimSummaryCaseCollection* summaryCaseCollection = m_ensembleCurveSet->summaryCaseCollection();
+        RimSummaryEnsemble* summaryCaseCollection = m_ensembleCurveSet->summaryEnsemble();
 
         //
         std::vector<RimSummaryCase*> sumCases = m_ensembleCurveSet->filterEnsembleCases( summaryCaseCollection->allSummaryCases() );
@@ -1264,7 +1266,7 @@ bool RimEnsembleWellLogCurveSet::hasPropertyInFile( const QString& property ) co
         QString errorMessage;
         if ( !wellLogFile->readFile( &errorMessage ) ) return false;
 
-        RigWellLogLasFile* wellLogDataFile = wellLogFile->wellLogFileData();
+        RigWellLogLasFile* wellLogDataFile = wellLogFile->wellLogData();
         CVF_ASSERT( wellLogDataFile );
 
         std::vector<double> values = wellLogDataFile->values( RiaResultNames::indexKResultName() );

@@ -55,10 +55,10 @@
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurvesData.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlotAxisFormatter.h"
 #include "RimSummaryPlotControls.h"
 #include "RimSummaryPlotNameHelper.h"
@@ -236,7 +236,7 @@ void RimSummaryPlot::updateAxes()
     updateNumericalAxis( RiaDefines::PlotAxis::PLOT_AXIS_TOP );
     updateTimeAxis( timeAxisProperties() );
 
-    updateZoomInParentPlot();
+    updatePlotWidgetFromAxisRanges();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -333,11 +333,17 @@ QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaDefines::DateTimePerio
 
     std::vector<RimSummaryCurve*> crossPlotCurves;
     std::vector<RimSummaryCurve*> curves;
+    std::vector<RimSummaryCurve*> observedCurves;
+
     for ( auto c : allCurves )
     {
         if ( c->axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
         {
             crossPlotCurves.push_back( c );
+        }
+        else if ( c->summaryCaseY() && c->summaryCaseY()->isObservedData() && !c->isRegressionCurve() )
+        {
+            observedCurves.push_back( c );
         }
         else
         {
@@ -348,7 +354,14 @@ QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaDefines::DateTimePerio
     auto gridCurves  = m_gridTimeHistoryCurves.childrenByType();
     auto asciiCurves = m_asciiDataCurves.childrenByType();
 
-    QString text = RimSummaryCurvesData::createTextForExport( curves, asciiCurves, gridCurves, resamplingPeriod, showTimeAsLongString );
+    QString text;
+    text += RimSummaryCurvesData::createTextForExport( curves, asciiCurves, gridCurves, resamplingPeriod, showTimeAsLongString );
+
+    if ( !observedCurves.empty() )
+    {
+        text += "\n\n------------ Observed Curves --------------";
+        text += RimSummaryCurvesData::createTextForExport( observedCurves, {}, {}, RiaDefines::DateTimePeriod::NONE, showTimeAsLongString );
+    }
 
     text += RimSummaryCurvesData::createTextForCrossPlotCurves( crossPlotCurves );
 
@@ -725,20 +738,6 @@ void RimSummaryPlot::updatePlotInfoLabel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryPlot::containsResamplableCurves() const
-{
-    std::vector<RimSummaryCurve*> summaryCurves = summaryAndEnsembleCurves();
-    size_t                        resamplableSummaryCurveCount =
-        std::count_if( summaryCurves.begin(),
-                       summaryCurves.end(),
-                       []( RimSummaryCurve* curve ) { return curve->summaryCaseY() ? !curve->summaryCaseY()->isObservedData() : false; } );
-
-    return !m_gridTimeHistoryCurves.empty() || resamplableSummaryCurveCount > 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 size_t RimSummaryPlot::singleColorCurveCount() const
 {
     auto allCurveSets = ensembleCurveSetCollection()->curveSets();
@@ -912,13 +911,13 @@ void RimSummaryPlot::updateNumericalAxis( RiaDefines::PlotAxis plotAxis )
                 {
                     if ( curveSet->axisY() == riuPlotAxis )
                     {
-                        RiaSummaryCurveDefinition def( curveSet->summaryCaseCollection(), curveSet->summaryAddressY() );
+                        RiaSummaryCurveDefinition def( curveSet->summaryEnsemble(), curveSet->summaryAddressY() );
                         curveDefs.push_back( def );
                     }
                     if ( curveSet->axisX() == riuPlotAxis )
                     {
                         RiaSummaryCurveDefinition def;
-                        def.setEnsemble( curveSet->summaryCaseCollection() );
+                        def.setEnsemble( curveSet->summaryEnsemble() );
                         def.setSummaryAddressX( curveSet->curveAddress().summaryAddressX() );
 
                         curveDefs.push_back( def );
@@ -1442,7 +1441,7 @@ void RimSummaryPlot::zoomAll()
 {
     setAutoScaleXEnabled( true );
     setAutoScaleYEnabled( true );
-    updateZoomInParentPlot();
+    updatePlotWidgetFromAxisRanges();
 
     axisChanged.send( this );
 }
@@ -1929,7 +1928,7 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateZoomInParentPlot()
+void RimSummaryPlot::updatePlotWidgetFromAxisRanges()
 {
     if ( !plotWidget() ) return;
 
@@ -1939,7 +1938,7 @@ void RimSummaryPlot::updateZoomInParentPlot()
     }
 
     plotWidget()->updateAxes();
-    updateZoomFromParentPlot();
+    updateAxisRangesFromPlotWidget();
     plotWidget()->updateZoomDependentCurveProperties();
 
     // Must create and set new custom tickmarks for time axis after zoom update
@@ -1960,7 +1959,7 @@ void RimSummaryPlot::updateZoomInParentPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateZoomFromParentPlot()
+void RimSummaryPlot::updateAxisRangesFromPlotWidget()
 {
     if ( !plotWidget() ) return;
 
@@ -2309,17 +2308,17 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryCaseDrop( RimSummaryCase*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot::CurveInfo RimSummaryPlot::handleEnsembleDrop( RimSummaryCaseCollection* ensemble )
+RimSummaryPlot::CurveInfo RimSummaryPlot::handleEnsembleDrop( RimSummaryEnsemble* ensemble )
 {
     int                               newCurves = 0;
     std::vector<RimEnsembleCurveSet*> curveSetsToUpdate;
 
-    std::map<RiaSummaryCurveAddress, std::set<RimSummaryCaseCollection*>> dataVectorMap;
+    std::map<RiaSummaryCurveAddress, std::set<RimSummaryEnsemble*>> dataVectorMap;
 
     for ( auto& curve : curveSets() )
     {
         const auto addr = curve->curveAddress();
-        dataVectorMap[addr].insert( curve->summaryCaseCollection() );
+        dataVectorMap[addr].insert( curve->summaryEnsemble() );
     }
 
     for ( const auto& [addr, ensembles] : dataVectorMap )
@@ -2475,12 +2474,12 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAd
 
     if ( summaryAddr->isEnsemble() )
     {
-        std::map<RifEclipseSummaryAddress, std::set<RimSummaryCaseCollection*>> dataVectorMap;
+        std::map<RifEclipseSummaryAddress, std::set<RimSummaryEnsemble*>> dataVectorMap;
 
         for ( auto& curve : curveSets() )
         {
             const auto addr = curve->summaryAddressY();
-            dataVectorMap[addr].insert( curve->summaryCaseCollection() );
+            dataVectorMap[addr].insert( curve->summaryEnsemble() );
         }
 
         auto ensemble = RiaSummaryTools::ensembleById( summaryAddr->ensembleId() );
@@ -2558,7 +2557,7 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
         {
             curveInfo.appendCurveInfo( handleSummaryCaseDrop( summaryCase ) );
         }
-        else if ( auto ensemble = dynamic_cast<RimSummaryCaseCollection*>( obj ) )
+        else if ( auto ensemble = dynamic_cast<RimSummaryEnsemble*>( obj ) )
         {
             curveInfo.appendCurveInfo( handleEnsembleDrop( ensemble ) );
         }
@@ -2641,7 +2640,7 @@ void RimSummaryPlot::onPlotZoomed()
 
     plotZoomedByUser.send();
 
-    updateZoomFromParentPlot();
+    updateAxisRangesFromPlotWidget();
 
     timeAxisSettingsChanged( nullptr );
 
@@ -2834,9 +2833,9 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
     if ( !nameHelper ) return;
 
     nameHelper->clear();
-    std::vector<RiaSummaryCurveAddress>    addresses;
-    std::vector<RimSummaryCase*>           sumCases;
-    std::vector<RimSummaryCaseCollection*> ensembleCases;
+    std::vector<RiaSummaryCurveAddress> addresses;
+    std::vector<RimSummaryCase*>        sumCases;
+    std::vector<RimSummaryEnsemble*>    ensembleCases;
 
     if ( m_summaryCurveCollection && m_summaryCurveCollection->isCurvesVisible() )
     {
@@ -2855,7 +2854,7 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
     for ( auto curveSet : m_ensembleCurveSetCollection->curveSets() )
     {
         addresses.push_back( curveSet->curveAddress() );
-        ensembleCases.push_back( curveSet->summaryCaseCollection() );
+        ensembleCases.push_back( curveSet->summaryEnsemble() );
     }
 
     nameHelper->clear();

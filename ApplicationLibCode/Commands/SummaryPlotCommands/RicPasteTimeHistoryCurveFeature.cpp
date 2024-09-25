@@ -72,8 +72,7 @@ void RicPasteTimeHistoryCurveFeature::onActionTriggered( bool isChecked )
 
     for ( size_t i = 0; i < sourceObjects.size(); i++ )
     {
-        RimGridTimeHistoryCurve* newObject = dynamic_cast<RimGridTimeHistoryCurve*>(
-            sourceObjects[i]->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+        auto newObject = sourceObjects[i]->copyObject<RimGridTimeHistoryCurve>();
         CVF_ASSERT( newObject );
 
         summaryPlot->addGridTimeHistoryCurve( newObject );

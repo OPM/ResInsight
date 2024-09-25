@@ -20,7 +20,6 @@
 
 #include "RiaColorTables.h"
 #include "RiaColorTools.h"
-#include "RiaDateStringParser.h"
 #include "RiaPlotDefines.h"
 #include "RiaSimWellBranchTools.h"
 #include "RiaSummaryTools.h"
@@ -29,25 +28,21 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RigSimWellData.h"
-#include "RigWellPath.h"
 
 #include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
 #include "RimEclipseResultCase.h"
-#include "RimEclipseResultDefinition.h"
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimObservedFmuRftData.h"
-#include "RimOilField.h"
 #include "RimPressureDepthData.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimReloadCaseTools.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
+#include "RimSummaryEnsembleTools.h"
 #include "RimTools.h"
+#include "RimWellLogChannel.h"
 #include "RimWellLogExtractionCurve.h"
-#include "RimWellLogFileChannel.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellLogLasFileCurve.h"
 #include "RimWellLogPlot.h"
@@ -57,11 +52,9 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPlotTools.h"
-#include "RimWellPltPlot.h"
 #include "RimWellRftEnsembleCurveSet.h"
 
 #include "RiuAbstractLegendFrame.h"
-#include "RiuAbstractOverlayContentFrame.h"
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuQwtPlotCurveDefines.h"
 #include "RiuQwtPlotWidget.h"
@@ -240,7 +233,7 @@ QString RimWellRftPlot::associatedSimWellName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::applyInitialSelections( std::variant<RimSummaryCase*, RimSummaryCaseCollection*> dataSource )
+void RimWellRftPlot::applyInitialSelections( std::variant<RimSummaryCase*, RimSummaryEnsemble*> dataSource )
 {
     std::map<QString, QStringList> wellSources = findWellSources();
     if ( m_wellPathNameOrSimWellName() == "None" && !wellSources.empty() )
@@ -248,10 +241,10 @@ void RimWellRftPlot::applyInitialSelections( std::variant<RimSummaryCase*, RimSu
         m_wellPathNameOrSimWellName = wellSources.begin()->first;
     }
 
-    RimSummaryCaseCollection* ensemble    = nullptr;
-    RimSummaryCase*           summaryCase = nullptr;
+    RimSummaryEnsemble* ensemble    = nullptr;
+    RimSummaryCase*     summaryCase = nullptr;
 
-    if ( auto summaryCollection = std::get_if<RimSummaryCaseCollection*>( &dataSource ) )
+    if ( auto summaryCollection = std::get_if<RimSummaryEnsemble*>( &dataSource ) )
     {
         ensemble = *summaryCollection;
     }
@@ -277,7 +270,7 @@ void RimWellRftPlot::applyInitialSelections( std::variant<RimSummaryCase*, RimSu
             sourcesToSelect.push_back( RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA, gridCase ) );
         }
 
-        for ( RimSummaryCaseCollection* const ensemble : RimWellPlotTools::rftEnsemblesForWell( simWellName ) )
+        for ( RimSummaryEnsemble* const ensemble : RimWellPlotTools::rftEnsemblesForWell( simWellName ) )
         {
             sourcesToSelect.push_back( RifDataSourceForRftPlt( ensemble ) );
         }
@@ -516,7 +509,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
 
     defineCurveColorsAndSymbols( allCurveDefs );
 
-    std::set<RimSummaryCaseCollection*> ensemblesWithSummaryCurves;
+    std::set<RimSummaryEnsemble*> ensemblesWithSummaryCurves;
 
     // Add new curves
     for ( const RiaRftPltCurveDefinition& curveDefToAdd : allCurveDefs )
@@ -602,8 +595,8 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
         }
         else if ( m_showStatisticsCurves && curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT )
         {
-            RimSummaryCaseCollection* ensemble = curveDefToAdd.address().ensemble();
-            auto                      curveSet = findEnsembleCurveSet( ensemble );
+            RimSummaryEnsemble* ensemble = curveDefToAdd.address().ensemble();
+            auto                curveSet = findEnsembleCurveSet( ensemble );
 
             std::set<RifEclipseRftAddress> rftAddresses =
                 curveSet->statisticsEclipseRftReader()->eclipseRftAddresses( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() );
@@ -687,12 +680,12 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             RimWellPath* const       wellPath    = RimWellPlotTools::wellPathFromWellLogFile( wellLogFile );
             if ( wellLogFile != nullptr )
             {
-                RimWellLogFileChannel* pressureChannel = RimWellPlotTools::getPressureChannelFromWellFile( wellLogFile );
-                auto                   curve           = new RimWellLogLasFileCurve();
+                RimWellLogChannel* pressureChannel = RimWellPlotTools::getPressureChannelFromWellFile( wellLogFile );
+                auto               curve           = new RimWellLogLasFileCurve();
 
                 plotTrack->addCurve( curve );
                 curve->setWellPath( wellPath );
-                curve->setWellLogFile( wellLogFile );
+                curve->setWellLog( wellLogFile );
                 curve->setWellLogChannelName( pressureChannel->name() );
                 curve->setZOrder( 2 );
 
@@ -874,14 +867,14 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptionsForSources() 
         }
     }
 
-    const std::vector<RimSummaryCaseCollection*> rftEnsembles = RimWellPlotTools::rftEnsemblesForWell( m_wellPathNameOrSimWellName );
+    const std::vector<RimSummaryEnsemble*> rftEnsembles = RimWellPlotTools::rftEnsemblesForWell( m_wellPathNameOrSimWellName );
     if ( !rftEnsembles.empty() )
     {
         options.push_back(
             caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText( RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT ),
                                                   true ) );
 
-        for ( RimSummaryCaseCollection* rftEnsemble : rftEnsembles )
+        for ( RimSummaryEnsemble* rftEnsemble : rftEnsembles )
         {
             auto addr = RifDataSourceForRftPlt( rftEnsemble );
             auto item = caf::PdmOptionItemInfo( rftEnsemble->name(), QVariant::fromValue( addr ) );
@@ -901,7 +894,7 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptionsForSources() 
             if ( summaryCase->rftReader() && summaryCase->rftReader()->wellNames().contains( m_wellPathNameOrSimWellName ) )
             {
                 auto eclipeGridModel = RimReloadCaseTools::gridModelFromSummaryCase( summaryCase );
-                auto parentEnsemble  = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+                auto parentEnsemble  = summaryCase->firstAncestorOrThisOfType<RimSummaryEnsemble>();
                 auto addr            = RifDataSourceForRftPlt( summaryCase, parentEnsemble, eclipeGridModel );
 
                 auto item = caf::PdmOptionItemInfo( summaryCase->displayCaseName(), QVariant::fromValue( addr ) );
@@ -1043,7 +1036,7 @@ void RimWellRftPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     for ( RimWellRftEnsembleCurveSet* curveSet : m_ensembleCurveSets() )
     {
         bool isSelected = false;
-        for ( RimSummaryCaseCollection* selectedCurveSet : selectedEnsembles() )
+        for ( RimSummaryEnsemble* selectedCurveSet : selectedEnsembles() )
         {
             if ( curveSet->ensemble() == selectedCurveSet )
             {
@@ -1156,12 +1149,12 @@ std::map<QString, QStringList> RimWellRftPlot::findWellSources()
             }
         }
 
-        const std::vector<RimSummaryCaseCollection*> rftEnsembles = RimWellPlotTools::rftEnsembles();
+        const std::vector<RimSummaryEnsemble*> rftEnsembles = RimWellPlotTools::rftEnsembles();
         // Ensemble RFT wells
         {
-            for ( RimSummaryCaseCollection* summaryCaseColl : rftEnsembles )
+            for ( RimSummaryEnsemble* summaryCaseColl : rftEnsembles )
             {
-                std::set<QString> wellsWithRftData = summaryCaseColl->wellsWithRftData();
+                std::set<QString> wellsWithRftData = RimSummaryEnsembleTools::wellsWithRftData( summaryCaseColl->allSummaryCases() );
                 for ( const QString& wellName : wellsWithRftData )
                 {
                     wellNames[wellName].push_back( "Ensemble" );
@@ -1419,7 +1412,7 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
         CAF_ASSERT( curveSet );
         auto ensemble_it = std::find_if( ensembles.begin(),
                                          ensembles.end(),
-                                         [&curveSet]( const RimSummaryCaseCollection* ensemble ) { return curveSet->ensemble() == ensemble; } );
+                                         [&curveSet]( const RimSummaryEnsemble* ensemble ) { return curveSet->ensemble() == ensemble; } );
         if ( ensemble_it != ensembles.end() )
         {
             curveSet->initializeLegend();
@@ -1482,9 +1475,9 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCaseCollection*> RimWellRftPlot::selectedEnsembles() const
+std::vector<RimSummaryEnsemble*> RimWellRftPlot::selectedEnsembles() const
 {
-    std::vector<RimSummaryCaseCollection*> ensembleSets;
+    std::vector<RimSummaryEnsemble*> ensembleSets;
     for ( const RifDataSourceForRftPlt& dataSource : m_selectedSources() )
     {
         if ( dataSource.ensemble() != nullptr )
@@ -1500,7 +1493,7 @@ std::vector<RimSummaryCaseCollection*> RimWellRftPlot::selectedEnsembles() const
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::createEnsembleCurveSets()
 {
-    const std::vector<RimSummaryCaseCollection*> rftEnsembles = RimWellPlotTools::rftEnsemblesForWell( m_wellPathNameOrSimWellName );
+    const std::vector<RimSummaryEnsemble*> rftEnsembles = RimWellPlotTools::rftEnsemblesForWell( m_wellPathNameOrSimWellName );
 
     // First delete any curve sets not belonging to the given rftEnsembles
     std::vector<RimWellRftEnsembleCurveSet*> curveSetsToDelete;
@@ -1519,7 +1512,7 @@ void RimWellRftPlot::createEnsembleCurveSets()
     }
 
     // Then add curve set for any ensembles we haven't already added
-    for ( RimSummaryCaseCollection* ensemble : rftEnsembles )
+    for ( RimSummaryEnsemble* ensemble : rftEnsembles )
     {
         auto it = std::find_if( m_ensembleCurveSets.begin(),
                                 m_ensembleCurveSets.end(),
@@ -1536,7 +1529,7 @@ void RimWellRftPlot::createEnsembleCurveSets()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellRftEnsembleCurveSet* RimWellRftPlot::findEnsembleCurveSet( RimSummaryCaseCollection* ensemble ) const
+RimWellRftEnsembleCurveSet* RimWellRftPlot::findEnsembleCurveSet( RimSummaryEnsemble* ensemble ) const
 {
     for ( RimWellRftEnsembleCurveSet* curveSet : m_ensembleCurveSets() )
     {
@@ -1551,7 +1544,7 @@ RimWellRftEnsembleCurveSet* RimWellRftPlot::findEnsembleCurveSet( RimSummaryCase
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::variant<RimSummaryCase*, RimSummaryCaseCollection*> RimWellRftPlot::dataSource() const
+std::variant<RimSummaryCase*, RimSummaryEnsemble*> RimWellRftPlot::dataSource() const
 {
     // Return the first selected ensemble, if any
     // If no ensemble is selected, return the first selected summary case, if any

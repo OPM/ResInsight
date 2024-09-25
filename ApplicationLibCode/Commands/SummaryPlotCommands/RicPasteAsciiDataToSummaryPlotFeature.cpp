@@ -153,7 +153,7 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
                                                                                     const RicPasteAsciiDataToSummaryPlotFeatureUi& settings )
 {
     std::vector<RimAsciiDataCurve*> curves;
-    const AsciiDataParseOptions&    parseOptions = settings.parseOptions();
+    const RifAsciiDataParseOptions& parseOptions = settings.parseOptions();
     RifCsvUserDataPastedTextParser  parser       = RifCsvUserDataPastedTextParser( data );
 
     if ( !parser.parse( parseOptions ) )

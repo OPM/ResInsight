@@ -28,23 +28,27 @@ if(Qt5Core_FOUND)
                Gui
                OpenGL
                Network
+               NetworkAuth
                Widgets
                Xml
                Concurrent
                PrintSupport
                Svg
+               Sql
     OPTIONAL_COMPONENTS Charts
   )
   set(QT_LIBRARIES
       Qt5::Core
       Qt5::Gui
       Qt5::Network
+      Qt5::NetworkAuth
       Qt5::OpenGL
       Qt5::Widgets
       Qt5::Xml
       Qt5::Concurrent
       Qt5::PrintSupport
       Qt5::Svg
+      Qt5::Sql
   )
   if(Qt5Charts_FOUND)
     list(APPEND QT_LIBRARIES Qt5::Charts)
@@ -298,12 +302,7 @@ set(UNITY_EXCLUDE_FILES
     # forever is used as variable name, and this symbol is defined by Qt and
     # used in precompiled headers
     ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc
-    qrc_cafAnimControl.cpp
-    qrc_ResInsight.cpp
-    qrc_cafCommandFeatures.cpp
-    # Exclude files including opm-common
-    ProjectDataModel/RimVfpTableExtractor.cpp
-    ProjectDataModel/RimVfpPlot.cpp
+    qrc_cafAnimControl.cpp qrc_ResInsight.cpp qrc_cafCommandFeatures.cpp
 )
 
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
@@ -481,6 +480,13 @@ if(RESINSIGHT_PRIVATE_INSTALL)
       install(
         FILES ${QT_PLUGIN_PATH}/xcbglintegrations/libqxcb-glx-integration.so
         DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/plugins/xcbglintegrations/
+        OPTIONAL
+      )
+
+      # Required sql driver
+      install(
+        FILES ${QT_PLUGIN_PATH}/sqldrivers/libqsqlite.so
+        DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/sqldrivers/
         OPTIONAL
       )
 
@@ -662,50 +668,6 @@ else(RESINSIGHT_PRIVATE_INSTALL)
   )
 endif(RESINSIGHT_PRIVATE_INSTALL)
 
-# OpenSSL
-option(RESINSIGHT_BUNDLE_OPENSSL "Bundle the OpenSSL binary library files" OFF)
-mark_as_advanced(FORCE RESINSIGHT_BUNDLE_OPENSSL)
-
-if(RESINSIGHT_BUNDLE_OPENSSL)
-  if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    find_package(OpenSSL)
-
-    if(OPENSSL_FOUND)
-      message("OpenSSL include dir: ${OPENSSL_INCLUDE_DIR}")
-      set(OPENSSL_BIN_DIR ${OPENSSL_INCLUDE_DIR})
-      string(REPLACE "include" "bin" OPENSSL_BIN_DIR ${OPENSSL_BIN_DIR})
-      message("OpenSSL binary dir: ${OPENSSL_BIN_DIR}")
-
-      install(FILES ${OPENSSL_BIN_DIR}/libcrypto-3-x64.dll
-              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-      )
-      install(FILES ${OPENSSL_BIN_DIR}/libssl-3-x64.dll
-              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-      )
-    endif(OPENSSL_FOUND)
-  elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    # Assumes that OpenSSL is installed by ./vcpkg install
-    # --overlay-triplets=custom-triplets --triplet x64-linux-dynamic openssl
-    set(OPENSSL_BIN_DIR
-        ${CMAKE_SOURCE_DIR}/ThirdParty/vcpkg/installed/x64-linux-dynamic/lib
-    )
-    message("OpenSSL binary dir: ${OPENSSL_BIN_DIR}")
-
-    install(FILES ${OPENSSL_BIN_DIR}/libcrypto.so
-            DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-    )
-    install(FILES ${OPENSSL_BIN_DIR}/libcrypto.so.3
-            DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-    )
-    install(FILES ${OPENSSL_BIN_DIR}/libssl.so
-            DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-    )
-    install(FILES ${OPENSSL_BIN_DIR}/libssl.so.3
-            DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-    )
-  endif()
-endif(RESINSIGHT_BUNDLE_OPENSSL)
-
 # ##############################################################################
 # Installation packaging
 # ##############################################################################
@@ -740,10 +702,6 @@ if(NOT ${OCTAVE_VERSION_STRING} EQUAL "")
   set(RESINSIGHT_PACKAGE_NAME
       "${RESINSIGHT_PACKAGE_NAME}_oct-${OCTAVE_VERSION_STRING}"
   )
-endif()
-
-if(RESINSIGHT_BUNDLE_OPENSSL AND OPENSSL_FOUND)
-  set(RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_openssl")
 endif()
 
 # Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6

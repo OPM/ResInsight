@@ -88,11 +88,25 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
         {
             auto data = segment.topology();
 
+            std::vector<size_t> nonContinuousSegmentIndices;
+            if ( rftAddress.segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE )
+            {
+                nonContinuousSegmentIndices = segment.nonContinuousDeviceSegmentIndices( rftAddress.segmentBranchIndex() );
+            }
+
             auto indices = segment.segmentIndicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
             for ( const auto& i : indices )
             {
                 CAF_ASSERT( i < data.size() );
+
                 values->push_back( data[i].segNo() );
+
+                if ( std::find( nonContinuousSegmentIndices.begin(), nonContinuousSegmentIndices.end(), i ) !=
+                     nonContinuousSegmentIndices.end() )
+                {
+                    // Use the same segment number for the dummy segment as the previous segment
+                    values->push_back( values->back() );
+                }
             }
             return;
         }
@@ -103,6 +117,16 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
             {
                 values->push_back( branchNumber );
             }
+            return;
+        }
+        else if ( rftAddress.segmentResultName() == RiaDefines::segmentConnectionMeasuredDepthResultName() )
+        {
+            auto segmentConnectionValues = segmentConnectionStartEndMeasuredDepth( rftAddress );
+            for ( const auto& [startMD, endMD, isValidSegment] : segmentConnectionValues )
+            {
+                values->push_back( endMD );
+            }
+
             return;
         }
     }
@@ -125,46 +149,47 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
 
                 if ( m_connectionResultItemCount.count( wellName ) && data.size() == m_connectionResultItemCount[wellName] )
                 {
-                    // Connection results with size equal to length of result CONSEGNO. CONSEGNO defines the segment
-                    // numbers the connection is connected to.
-
-                    const std::string consegResultName          = "CONSEGNO";
-                    auto              connnectionSegmentNumbers = m_opm_rft->getRft<int>( consegResultName, wellName, y, m, d );
-                    if ( connnectionSegmentNumbers.empty() ) return;
-
-                    auto segmentNumbers =
-                        segment.segmentNumbersForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
-
-                    size_t resultDataIndex = 0;
-                    for ( int segmentNumber : segmentNumbers )
-                    {
-                        if ( std::find( connnectionSegmentNumbers.begin(), connnectionSegmentNumbers.end(), segmentNumber ) !=
-                             connnectionSegmentNumbers.end() )
-                        {
-                            values->push_back( data[resultDataIndex++] );
-                        }
-                        else
-                        {
-                            // The number of values must be equal to the number of segments, use infinity for segments
-                            // with no data
-                            values->push_back( std::numeric_limits<double>::infinity() );
-                        }
-                    }
+                    auto connectionValues = segmentConnectionValues( rftAddress, segment, data );
+                    values->insert( values->end(), connectionValues.begin(), connectionValues.end() );
                 }
                 else
                 {
+                    std::vector<size_t> nonContinuousDeviceSegmentIndices;
+                    if ( rftAddress.segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE )
+                    {
+                        nonContinuousDeviceSegmentIndices = segment.nonContinuousDeviceSegmentIndices( rftAddress.segmentBranchIndex() );
+                    }
+
                     auto indices = segment.segmentIndicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
                     for ( const auto& i : indices )
                     {
                         CAF_ASSERT( i < data.size() );
-                        values->push_back( data[i] );
+                        auto dataValue = data[i];
+
+                        if ( std::find( nonContinuousDeviceSegmentIndices.begin(), nonContinuousDeviceSegmentIndices.end(), i ) !=
+                             nonContinuousDeviceSegmentIndices.end() )
+                        {
+                            if ( rftAddress.segmentResultName() == RiaDefines::segmentEndDepthResultName() )
+                            {
+                                // Insert a depth value for segments that are not continuous. When infinity is assigned to this measured
+                                // depth, no curve is drawn for this segment
+                                values->push_back( dataValue - 0.1 );
+                            }
+                            else
+                            {
+                                // Use infinity to make sure no curve is drawn for this segment
+                                values->push_back( std::numeric_limits<double>::infinity() );
+                            }
+                        }
+
+                        values->push_back( dataValue );
                     }
                 }
 
                 if ( resultName == "CONFAC" || resultName == "CONKH" )
                 {
                     // Replace undefined values with zero to improve readability of plots
-                    std::replace( values->begin(), values->end(), std::numeric_limits<double>::infinity(), 0.0 );
+                    std::replace( data.begin(), data.end(), std::numeric_limits<double>::infinity(), 0.0 );
                 }
             }
             else
@@ -287,14 +312,9 @@ std::vector<caf::VecIjk> RifReaderOpmRft::cellIndices( const QString& wellName, 
 
     try
     {
-        auto resultNameI = "CONIPOS";
-        auto dataI       = m_opm_rft->getRft<int>( resultNameI, stdWellName, y, m, d );
-
-        auto resultNameJ = "CONJPOS";
-        auto dataJ       = m_opm_rft->getRft<int>( resultNameJ, stdWellName, y, m, d );
-
-        auto resultNameK = "CONKPOS";
-        auto dataK       = m_opm_rft->getRft<int>( resultNameK, stdWellName, y, m, d );
+        auto dataI = m_opm_rft->getRft<int>( RiaDefines::segmentConnectionIPos(), stdWellName, y, m, d );
+        auto dataJ = m_opm_rft->getRft<int>( RiaDefines::segmentConnectionJPos(), stdWellName, y, m, d );
+        auto dataK = m_opm_rft->getRft<int>( RiaDefines::segmentConnectionKPos(), stdWellName, y, m, d );
 
         if ( !dataI.empty() && ( dataI.size() == dataJ.size() ) && ( dataI.size() == dataK.size() ) )
         {
@@ -404,6 +424,134 @@ void RifReaderOpmRft::openFiles( const QString& fileName, const QString& dataDec
     }
 
     m_detectedErrorWhenOpeningRftFile = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RifReaderOpmRft::SegmentConnectionStartEnd>
+    RifReaderOpmRft::segmentConnectionStartEndMeasuredDepth( const RifEclipseRftAddress& rftAddress )
+{
+    try
+    {
+        std::vector<RifReaderOpmRft::SegmentConnectionStartEnd> startEndValues;
+
+        if ( !isOpen() ) return startEndValues;
+
+        const int y = rftAddress.timeStep().date().year();
+        const int m = rftAddress.timeStep().date().month();
+        const int d = rftAddress.timeStep().date().day();
+
+        const std::string wellName = rftAddress.wellName().toStdString();
+
+        const std::string conbrnoResultName  = RiaDefines::segmentConnectionBranchNoResultName();
+        const std::string conlenstResultName = RiaDefines::segmentConnectionStartDepthResultName();
+        const std::string conlenenResultName = RiaDefines::segmentConnectionEndDepthResultName();
+
+        const auto connnectionBranchNumbers = m_opm_rft->getRft<int>( conbrnoResultName, wellName, y, m, d );
+        const auto startMD                  = m_opm_rft->getRft<float>( conlenstResultName, wellName, y, m, d );
+        const auto endMD                    = m_opm_rft->getRft<float>( conlenenResultName, wellName, y, m, d );
+
+        const size_t size = connnectionBranchNumbers.size();
+        if ( size == startMD.size() && size == endMD.size() )
+        {
+            auto segment = segmentForWell( rftAddress.wellName(), rftAddress.timeStep() );
+
+            auto branchIdIndex = segment.branchIdsAndOneBasedBranchIndices( rftAddress.segmentBranchType() );
+
+            // Convert the branch number to the branch index
+            // Filter data based on branch index
+
+            bool isFirstSegment = true;
+
+            for ( size_t i = 0; i < connnectionBranchNumbers.size(); i++ )
+            {
+                if ( branchIdIndex.count( connnectionBranchNumbers[i] ) )
+                {
+                    auto branchIndex = branchIdIndex[connnectionBranchNumbers[i]];
+                    if ( branchIndex == rftAddress.segmentBranchIndex() )
+                    {
+                        if ( !isFirstSegment && std::fabs( startMD[i] - endMD[i - 1] ) > 0.1 )
+                        {
+                            // Insert a segment representing the connection between the segments. Assign infinity as value to this segment
+                            // to allow discontinuous plotting.
+                            startEndValues.emplace_back( endMD[i - 1], startMD[i], false );
+                        }
+                        startEndValues.emplace_back( startMD[i], endMD[i], true );
+                        isFirstSegment = false;
+                    }
+                }
+            }
+        }
+
+        return startEndValues;
+    }
+    catch ( ... )
+    {
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<float> RifReaderOpmRft::segmentConnectionValues( const RifEclipseRftAddress& rftAddress,
+                                                             const RifRftSegment&        rftSegment,
+                                                             const std::vector<float>&   nativeValues )
+{
+    std::vector<float> branchValues;
+
+    const int y = rftAddress.timeStep().date().year();
+    const int m = rftAddress.timeStep().date().month();
+    const int d = rftAddress.timeStep().date().day();
+
+    const auto connnectionBranchNumbers =
+        m_opm_rft->getRft<int>( RiaDefines::segmentConnectionBranchNoResultName(), rftAddress.wellName().toStdString(), y, m, d );
+
+    if ( nativeValues.size() == connnectionBranchNumbers.size() )
+    {
+        auto branchIdIndex = rftSegment.branchIdsAndOneBasedBranchIndices( rftAddress.segmentBranchType() );
+
+        // Convert the branch number to the branch index
+        // Filter data based on branch index
+        for ( size_t i = 0; i < connnectionBranchNumbers.size(); i++ )
+        {
+            if ( branchIdIndex.count( connnectionBranchNumbers[i] ) )
+            {
+                auto branchIndex = branchIdIndex[connnectionBranchNumbers[i]];
+                if ( branchIndex == rftAddress.segmentBranchIndex() )
+                {
+                    branchValues.push_back( nativeValues[i] );
+                }
+            }
+        }
+    }
+
+    std::vector<float> allResultValues;
+
+    auto   segmentConnectionValues = segmentConnectionStartEndMeasuredDepth( rftAddress );
+    size_t segmentConnectionIndex  = 0;
+    for ( auto branchValue : branchValues )
+    {
+        if ( segmentConnectionIndex < segmentConnectionValues.size() )
+        {
+            auto [startMD, endMD, isValidSegment] = segmentConnectionValues[segmentConnectionIndex];
+
+            if ( !isValidSegment )
+            {
+                // Use infinity to make sure no curve is drawn for this segment
+                allResultValues.push_back( std::numeric_limits<double>::infinity() );
+
+                segmentConnectionIndex++;
+            }
+            allResultValues.push_back( branchValue );
+        }
+
+        segmentConnectionIndex++;
+    }
+
+    return allResultValues;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -524,11 +672,12 @@ void RifReaderOpmRft::buildSegmentData()
 
             for ( const auto& [name, arrayType, size] : results )
             {
-                if ( ( name.find( "SEG" ) == 0 ) && m_segmentResultItemCount.count( wellName ) == 0 )
+                if ( ( RiaDefines::isSegmentResult( QString::fromStdString( name ) ) ) && m_segmentResultItemCount.count( wellName ) == 0 )
                 {
                     m_segmentResultItemCount[wellName] = size;
                 }
-                if ( name.find( "CON" ) == 0 && m_connectionResultItemCount.count( wellName ) == 0 )
+                if ( RiaDefines::isSegmentConnectionResult( QString::fromStdString( name ) ) &&
+                     m_connectionResultItemCount.count( wellName ) == 0 )
                 {
                     m_connectionResultItemCount[wellName] = size;
                 }

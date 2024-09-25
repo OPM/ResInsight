@@ -656,7 +656,7 @@ void RimBoxIntersection::switchSingelPlaneState()
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RimBoxIntersection::currentCellBoundingBox()
 {
-    auto rimCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
+    auto rimCase = firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
 
     return rimCase->activeCellsBoundingBox();
 }

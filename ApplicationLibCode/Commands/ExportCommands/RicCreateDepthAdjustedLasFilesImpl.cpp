@@ -123,7 +123,7 @@ void RicCreateDepthAdjustedLasFilesImpl::createDestinationWellsLasFiles( RimCase
 {
     if ( !selectedCase || !sourceWell || !soureWellLogFile || destinationWells.empty() ) return;
 
-    auto*      sourceWellLogData  = soureWellLogFile->wellLogFileData();
+    auto*      sourceWellLogData  = soureWellLogFile->wellLogData();
     const auto defaultPropertyMap = createDefaultPropertyMap( selectedResultProperties, sourceWellLogData );
 
     // NOTE: map createIndexKDepthDataMapFromCase is created using well extractor, while sourceWellLogData depth

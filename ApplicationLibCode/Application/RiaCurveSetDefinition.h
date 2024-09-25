@@ -25,7 +25,7 @@
 #include <utility>
 #include <vector>
 
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 
 //==================================================================================================
 ///
@@ -34,14 +34,14 @@ class RiaCurveSetDefinition
 {
 public:
     RiaCurveSetDefinition();
-    explicit RiaCurveSetDefinition( RimSummaryCaseCollection* emsemble, const RifEclipseSummaryAddress& summaryAddress );
+    explicit RiaCurveSetDefinition( RimSummaryEnsemble* emsemble, const RifEclipseSummaryAddress& summaryAddress );
 
-    RimSummaryCaseCollection*       ensemble() const;
+    RimSummaryEnsemble*             ensemble() const;
     const RifEclipseSummaryAddress& summaryAddress() const;
 
     bool operator<( const RiaCurveSetDefinition& other ) const;
 
 private:
-    RimSummaryCaseCollection* m_ensemble;
-    RifEclipseSummaryAddress  m_summaryAddress;
+    RimSummaryEnsemble*      m_ensemble;
+    RifEclipseSummaryAddress m_summaryAddress;
 };

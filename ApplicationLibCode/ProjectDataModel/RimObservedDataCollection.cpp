@@ -61,16 +61,6 @@ RimObservedDataCollection::RimObservedDataCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimObservedDataCollection::~RimObservedDataCollection()
-{
-    m_observedDataArray.deleteChildren();
-    m_observedFmuRftArray.deleteChildren();
-    m_observedPressureDepthArray.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimObservedDataCollection::removeObservedSummaryData( RimObservedSummaryData* observedData )
 {
     m_observedDataArray.removeChild( observedData );

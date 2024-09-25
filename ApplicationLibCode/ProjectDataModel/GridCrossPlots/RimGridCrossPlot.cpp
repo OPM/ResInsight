@@ -15,11 +15,8 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#include "RimGridCrossPlot.h"
 
-#include "RiaDefines.h"
-#include "RiaFontCache.h"
-#include "RiaPreferences.h"
+#include "RimGridCrossPlot.h"
 
 #include "RifTextDataTableFormatter.h"
 #include "RiuDraggableOverlayFrame.h"
@@ -27,24 +24,14 @@
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotTools.h"
 
-#include "RimGridCrossPlotCollection.h"
 #include "RimGridCrossPlotCurve.h"
 #include "RimGridCrossPlotDataSet.h"
 #include "RimMultiPlot.h"
-#include "RimPlotAxisLogRangeCalculator.h"
 #include "RimPlotAxisProperties.h"
 
-#include "cafPdmUiCheckBoxEditor.h"
+#include "Tools/RimPlotAxisTools.h"
+
 #include "cafPdmUiTreeOrdering.h"
-
-#include "cafProgressInfo.h"
-#include "cvfAssert.h"
-
-#include "qwt_legend.h"
-#include "qwt_plot.h"
-#include "qwt_plot_curve.h"
-
-#include <QDebug>
 
 CAF_PDM_SOURCE_INIT( RimGridCrossPlot, "RimGridCrossPlot" );
 
@@ -182,7 +169,7 @@ void RimGridCrossPlot::zoomAll()
     setAutoScaleXEnabled( true );
     setAutoScaleYEnabled( true );
 
-    updateZoomInParentPlot();
+    updatePlotWidgetFromAxisRanges();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -215,7 +202,7 @@ void RimGridCrossPlot::reattachAllCurves()
         }
         updateCurveNamesAndPlotTitle();
         updateLegend();
-        updateZoomInParentPlot();
+        updatePlotWidgetFromAxisRanges();
     }
 }
 
@@ -450,11 +437,31 @@ void RimGridCrossPlot::axisLogarithmicChanged( const caf::SignalEmitter* emitter
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::applyPropertiesOnPlotAxes()
+{
+    auto curves = visibleCurves();
+
+    RimPlotAxisTools::updatePlotWidgetFromAxisProperties( m_plotWidget,
+                                                          RiuPlotAxis::defaultBottom(),
+                                                          m_xAxisProperties(),
+                                                          xAxisParameterString(),
+                                                          curves );
+
+    RimPlotAxisTools::updatePlotWidgetFromAxisProperties( m_plotWidget,
+                                                          RiuPlotAxis::defaultLeft(),
+                                                          m_yAxisProperties(),
+                                                          yAxisParameterString(),
+                                                          curves );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::onPlotZoomed()
 {
     setAutoScaleXEnabled( false );
     setAutoScaleYEnabled( false );
-    updateZoomFromParentPlot();
+    updateAxisRangesFromPlotWidget();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -574,8 +581,7 @@ void RimGridCrossPlot::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
-    updateAxisInQwt( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
-    updateAxisInQwt( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+    applyPropertiesOnPlotAxes();
 
     m_plotWidget->updateAnnotationObjects( m_xAxisProperties );
     m_plotWidget->updateAnnotationObjects( m_yAxisProperties );
@@ -766,14 +772,14 @@ void RimGridCrossPlot::updateLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::updateZoomInParentPlot()
+void RimGridCrossPlot::updatePlotWidgetFromAxisRanges()
 {
     if ( m_plotWidget )
     {
-        updateAxisInQwt( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
-        updateAxisInQwt( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+        applyPropertiesOnPlotAxes();
+
         m_plotWidget->qwtPlot()->updateAxes();
-        updateZoomFromParentPlot();
+        updateAxisRangesFromPlotWidget();
         m_plotWidget->scheduleReplot();
     }
 }
@@ -781,10 +787,10 @@ void RimGridCrossPlot::updateZoomInParentPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::updateZoomFromParentPlot()
+void RimGridCrossPlot::updateAxisRangesFromPlotWidget()
 {
-    updateAxisFromQwt( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
-    updateAxisFromQwt( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+    RimPlotAxisTools::updateVisibleRangesFromPlotWidget( m_xAxisProperties(), RiuPlotAxis::defaultBottom(), m_plotWidget );
+    RimPlotAxisTools::updateVisibleRangesFromPlotWidget( m_yAxisProperties(), RiuPlotAxis::defaultLeft(), m_plotWidget );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -833,125 +839,6 @@ QString RimGridCrossPlot::yAxisParameterString() const
     }
 
     return yAxisParams.join( ", " );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
-{
-    if ( !m_plotWidget ) return;
-
-    RimPlotAxisProperties* axisProperties      = m_xAxisProperties();
-    QString                axisParameterString = xAxisParameterString();
-
-    if ( axisType == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
-    {
-        axisProperties      = m_yAxisProperties();
-        axisParameterString = yAxisParameterString();
-    }
-
-    RiuPlotAxis axis = axisProperties->plotAxis();
-    if ( axisProperties->isActive() )
-    {
-        m_plotWidget->enableAxis( axis, true );
-
-        Qt::AlignmentFlag alignment = Qt::AlignCenter;
-        if ( axisProperties->titlePosition() == RimPlotAxisPropertiesInterface::AXIS_TITLE_END )
-        {
-            alignment = Qt::AlignRight;
-        }
-        m_plotWidget->setAxisFontsAndAlignment( axis,
-                                                caf::FontTools::pointSizeToPixelSize( axisProperties->titleFontSize() ),
-                                                caf::FontTools::pointSizeToPixelSize( axisProperties->valuesFontSize() ),
-                                                true,
-                                                alignment );
-        m_plotWidget->setAxisTitleText( axis, axisParameterString );
-        m_plotWidget->setAxisTitleEnabled( axis, true );
-
-        if ( axisProperties->isLogarithmicScaleEnabled() )
-        {
-            bool isLogScale = m_plotWidget->axisScaleType( axis ) == RiuQwtPlotWidget::AxisScaleType::LOGARITHMIC;
-            if ( !isLogScale )
-            {
-                m_plotWidget->setAxisScaleType( axis, RiuQwtPlotWidget::AxisScaleType::LOGARITHMIC );
-                m_plotWidget->setAxisMaxMinor( axis, 5 );
-            }
-
-            double min = axisProperties->visibleRangeMin();
-            double max = axisProperties->visibleRangeMax();
-            if ( axisProperties->isAutoZoom() )
-            {
-                std::vector<const RimPlotCurve*> plotCurves = visibleCurves();
-                RimPlotAxisLogRangeCalculator    logRangeCalculator( axis.axis(), plotCurves );
-                logRangeCalculator.computeAxisRange( &min, &max );
-            }
-
-            if ( axisProperties->isAxisInverted() )
-            {
-                std::swap( min, max );
-            }
-            m_plotWidget->setAxisScale( axis, min, max );
-        }
-        else
-        {
-            bool isLinearScale = m_plotWidget->axisScaleType( axis ) == RiuQwtPlotWidget::AxisScaleType::LINEAR;
-            if ( !isLinearScale )
-            {
-                m_plotWidget->setAxisScaleType( axis, RiuQwtPlotWidget::AxisScaleType::LINEAR );
-                m_plotWidget->setAxisMaxMinor( axis, 3 );
-            }
-
-            if ( axisProperties->isAutoZoom() )
-            {
-                m_plotWidget->setAxisAutoScale( axis, true );
-                m_plotWidget->setAxisInverted( axis, axisProperties->isAxisInverted() );
-            }
-            else
-            {
-                double min = axisProperties->visibleRangeMin();
-                double max = axisProperties->visibleRangeMax();
-                if ( axisProperties->isAxisInverted() )
-                {
-                    std::swap( min, max );
-                }
-
-                m_plotWidget->setAxisScale( axis, min, max );
-            }
-        }
-    }
-    else
-    {
-        m_plotWidget->enableAxis( axis, false );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::updateAxisFromQwt( RiaDefines::PlotAxis axisType )
-{
-    if ( !m_plotWidget ) return;
-
-    auto [xAxisRangeMin, xAxisRangeMax] = m_plotWidget->axisRange( RiuPlotAxis::defaultBottom() );
-
-    RimPlotAxisProperties* axisProperties = m_xAxisProperties();
-    double                 axisRangeMin   = xAxisRangeMin;
-    double                 axisRangeMax   = xAxisRangeMax;
-
-    if ( axisType == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
-    {
-        axisProperties                      = m_yAxisProperties();
-        auto [yAxisRangeMin, yAxisRangeMax] = m_plotWidget->axisRange( RiuPlotAxis::defaultLeft() );
-
-        axisRangeMin = yAxisRangeMin;
-        axisRangeMax = yAxisRangeMax;
-    }
-
-    axisProperties->setVisibleRangeMin( std::min( axisRangeMin, axisRangeMax ) );
-    axisProperties->setVisibleRangeMax( std::max( axisRangeMin, axisRangeMax ) );
-
-    axisProperties->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

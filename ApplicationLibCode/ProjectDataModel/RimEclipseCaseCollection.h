@@ -33,6 +33,7 @@ class RigMainGrid;
 class RimEclipseCase;
 class RimIdenticalGridCaseGroup;
 class RimWellPathCollection;
+class RimEclipseCaseEnsemble;
 
 //==================================================================================================
 ///
@@ -48,6 +49,7 @@ public:
 
     caf::PdmChildArrayField<RimEclipseCase*>            cases;
     caf::PdmChildArrayField<RimIdenticalGridCaseGroup*> caseGroups;
+    caf::PdmChildArrayField<RimEclipseCaseEnsemble*>    caseEnsembles;
 
     void close();
 
@@ -56,6 +58,11 @@ public:
     void                       removeCaseFromAllGroups( RimEclipseCase* rimReservoir );
 
     void recomputeStatisticsForAllCaseGroups();
+
+    static QStringList importMenuFeatureNames();
+
+private:
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
     RigMainGrid*             registerCaseInGridCollection( RimEclipseCase* rimEclipseCase );

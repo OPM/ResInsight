@@ -21,12 +21,26 @@
 #include "RifReaderInterface.h"
 
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace Opm::EclIO
 {
 class EInit;
 class ERst;
+class EGrid;
 } // namespace Opm::EclIO
+
+class RigMainGrid;
+class RigActiveCellGrid;
+class RigGridBase;
+class RigEclipseCaseData;
+class RigEclipseTimeStepInfo;
+
+namespace caf
+{
+class ProgressInfo;
+}
 
 //==================================================================================================
 //
@@ -38,13 +52,44 @@ public:
     RifReaderOpmCommon();
     ~RifReaderOpmCommon() override;
 
-    bool open( const QString& fileName, RigEclipseCaseData* eclipseCase ) override;
+    bool open( const QString& fileName, RigEclipseCaseData* caseData ) override;
 
     bool staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values ) override;
     bool dynamicResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values ) override;
 
+    std::vector<QDateTime> timeStepsOnFile( QString gridFileName );
+
+protected:
+    virtual bool importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* caseData );
+
+    void transferActiveCells( Opm::EclIO::EGrid&  opmGrid,
+                              size_t              cellStartIndex,
+                              RigEclipseCaseData* eclipseCaseData,
+                              size_t              matrixActiveStartIndex,
+                              size_t              fractureActiveStartIndex );
+    void transferStaticNNCData( Opm::EclIO::EGrid& opmMainGrid, std::vector<Opm::EclIO::EGrid>& lgrGrids, RigMainGrid* mainGrid );
+
+    bool verifyActiveCellInfo( int activeSizeMat, int activeSizeFrac );
+    void updateActiveCellInfo( RigEclipseCaseData*             eclipseCaseData,
+                               Opm::EclIO::EGrid&              opmGrid,
+                               std::vector<Opm::EclIO::EGrid>& lgrGrids,
+                               RigMainGrid*                    mainGrid );
+
 private:
-    void buildMetaData( RigEclipseCaseData* eclipseCase );
+    void buildMetaData( RigEclipseCaseData* caseData, caf::ProgressInfo& progress );
+
+    std::vector<RigEclipseTimeStepInfo> createFilteredTimeStepInfos();
+    std::vector<std::vector<int>>       readActiveCellInfoFromPorv( RigEclipseCaseData* eclipseCaseData, bool isDualPorosity );
+
+    void transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
+                           Opm::EclIO::EGrid&  opmGrid,
+                           RigMainGrid*        riMainGrid,
+                           RigGridBase*        riGrid,
+                           RigEclipseCaseData* caseData );
+    void transferDynamicNNCData( RigMainGrid* mainGrid );
+
+    void locateInitAndRestartFiles( QString gridFileName );
+    void setupInitAndRestartAccess();
 
     struct TimeDataFile
     {
@@ -55,16 +100,24 @@ private:
         double simulationTimeFromStart;
     };
 
-    static std::vector<TimeDataFile> readTimeSteps( std::shared_ptr<Opm::EclIO::ERst> restartFile );
-    static void                      readWellCells( std::shared_ptr<Opm::EclIO::ERst> restartFile,
-                                                    RigEclipseCaseData*               eclipseCase,
-                                                    const std::vector<QDateTime>&     timeSteps );
+    std::vector<TimeDataFile> readTimeSteps();
+
+protected:
+    enum class ActiveType
+    {
+        ACTIVE_MATRIX_VALUE   = 1,
+        ACTIVE_FRACTURE_VALUE = 2
+    };
+
+    std::string              m_gridFileName;
+    int                      m_gridUnit;
+    std::vector<std::string> m_gridNames;
+
+    RigEclipseCaseData* m_eclipseCaseData;
 
 private:
-    std::string m_gridFileName;
-
-    std::shared_ptr<Opm::EclIO::ERst>  m_restartFile;
-    std::shared_ptr<Opm::EclIO::EInit> m_initFile;
-
-    std::vector<QDateTime> m_timeSteps;
+    std::string                        m_initFileName;
+    std::string                        m_restartFileName;
+    std::unique_ptr<Opm::EclIO::ERst>  m_restartFile;
+    std::unique_ptr<Opm::EclIO::EInit> m_initFile;
 };

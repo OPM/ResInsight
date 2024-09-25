@@ -26,8 +26,8 @@
 #include "RimAsciiDataCurve.h"
 #include "RimGridTimeHistoryCurve.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
 
 #include "cvfAssert.h"
@@ -49,7 +49,7 @@ void RimSummaryCurvesData::populateTimeHistoryCurvesData( std::vector<RimGridTim
         if ( !curve->isChecked() ) continue;
         QString curveCaseName = curve->caseName();
 
-        CurveData curveData = { curve->curveExportDescription( {} ), RifEclipseSummaryAddress(), curve->yValues() };
+        CurveData curveData = { curve->curveExportDescription( {} ), RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED, curve->yValues() };
 
         curvesData->addCurveData( curveCaseName, "", curve->timeStepValues(), curveData );
     }
@@ -68,7 +68,7 @@ void RimSummaryCurvesData::populateAsciiDataCurvesData( std::vector<RimAsciiData
     {
         if ( !curve->isChecked() ) continue;
 
-        CurveData curveData = { curve->curveExportDescription( {} ), RifEclipseSummaryAddress(), curve->yValues() };
+        CurveData curveData = { curve->curveExportDescription( {} ), RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED, curve->yValues() };
 
         curvesData->addCurveDataNoSearch( "", "", curve->timeSteps(), { curveData } );
     }
@@ -145,30 +145,25 @@ QString RimSummaryCurvesData::createTextForExport( const std::vector<RimSummaryC
 
     QString out;
 
-    RimSummaryCurvesData summaryCurvesGridData;
+    RimSummaryCurvesData summaryCurvesData;
     RimSummaryCurvesData summaryCurvesObsData;
-    RimSummaryCurvesData::populateSummaryCurvesData( curves, SummaryCurveType::CURVE_TYPE_GRID, &summaryCurvesGridData );
+    RimSummaryCurvesData gridCurvesData;
+    RimSummaryCurvesData::populateSummaryCurvesData( curves, SummaryCurveType::CURVE_TYPE_SUMMARY, &summaryCurvesData );
     RimSummaryCurvesData::populateSummaryCurvesData( curves, SummaryCurveType::CURVE_TYPE_OBSERVED, &summaryCurvesObsData );
+    RimSummaryCurvesData::populateTimeHistoryCurvesData( gridCurves, &gridCurvesData );
 
-    RimSummaryCurvesData timeHistoryCurvesData;
-    RimSummaryCurvesData::populateTimeHistoryCurvesData( gridCurves, &timeHistoryCurvesData );
-
-    // Export observed data
     RimSummaryCurvesData::appendToExportData( out, { summaryCurvesObsData }, showTimeAsLongString );
 
     std::vector<RimSummaryCurvesData> exportData( 2 );
 
-    // Summary grid data for export
-    RimSummaryCurvesData::prepareCaseCurvesForExport( resamplingPeriod, ResampleAlgorithm::DATA_DECIDES, summaryCurvesGridData, &exportData[0] );
+    RimSummaryCurvesData::prepareCaseCurvesForExport( resamplingPeriod, ResampleAlgorithm::DATA_DECIDES, summaryCurvesData, &exportData[0] );
+    RimSummaryCurvesData::prepareCaseCurvesForExport( resamplingPeriod, ResampleAlgorithm::PERIOD_END, gridCurvesData, &exportData[1] );
 
-    // Time history data for export
-    RimSummaryCurvesData::prepareCaseCurvesForExport( resamplingPeriod, ResampleAlgorithm::PERIOD_END, timeHistoryCurvesData, &exportData[1] );
-
-    // Export resampled summary and time history data
     RimSummaryCurvesData::appendToExportData( out, exportData, showTimeAsLongString );
 
-    // Pasted observed data
     {
+        // Handle observed data pasted into plot from clipboard
+
         RimSummaryCurvesData asciiCurvesData;
         RimSummaryCurvesData::populateAsciiDataCurvesData( asciiCurves, &asciiCurvesData );
 
@@ -234,9 +229,12 @@ void RimSummaryCurvesData::populateSummaryCurvesData( std::vector<RimSummaryCurv
     {
         bool isObservedCurve = curve->summaryCaseY() ? curve->summaryCaseY()->isObservedData() : false;
 
+        // Make sure a regression curve can be resampled https://github.com/OPM/ResInsight/issues/11372
+        if ( curve->isRegressionCurve() ) isObservedCurve = false;
+
         if ( !curve->isChecked() ) continue;
         if ( isObservedCurve && ( curveType != SummaryCurveType::CURVE_TYPE_OBSERVED ) ) continue;
-        if ( !isObservedCurve && ( curveType != SummaryCurveType::CURVE_TYPE_GRID ) ) continue;
+        if ( !isObservedCurve && ( curveType != SummaryCurveType::CURVE_TYPE_SUMMARY ) ) continue;
         if ( !curve->summaryCaseY() ) continue;
 
         QString curveCaseName = curve->summaryCaseY()->displayCaseName();
@@ -246,7 +244,7 @@ void RimSummaryCurvesData::populateSummaryCurvesData( std::vector<RimSummaryCurv
             ensembleName = curve->curveDefinition().ensemble()->name();
         }
 
-        CurveData curveData = { curve->curveExportDescription( {} ), curve->summaryAddressY(), curve->valuesY() };
+        CurveData curveData = { curve->curveExportDescription( {} ), curve->curveType(), curve->valuesY() };
         CurveData errorCurveData;
 
         // Error data
@@ -255,9 +253,9 @@ void RimSummaryCurvesData::populateSummaryCurvesData( std::vector<RimSummaryCurv
 
         if ( hasErrorData )
         {
-            errorCurveData.name    = curve->curveExportDescription( curve->errorSummaryAddressY() );
-            errorCurveData.address = curve->errorSummaryAddressY();
-            errorCurveData.values  = errorValues;
+            errorCurveData.name      = curve->curveExportDescription( curve->errorSummaryAddressY() );
+            errorCurveData.curveType = curve->curveType();
+            errorCurveData.values    = errorValues;
         }
 
         auto curveDataList = std::vector<CurveData>( { curveData } );
@@ -304,7 +302,7 @@ void RimSummaryCurvesData::prepareCaseCurvesForExport( RiaDefines::DateTimePerio
             for ( auto& curveDataItem : caseCurveData )
             {
                 const auto [resampledTime, resampledValues] =
-                    RiaSummaryTools::resampledValuesForPeriod( curveDataItem.address, caseTimeSteps, curveDataItem.values, period );
+                    RiaSummaryTools::resampledValuesForPeriod( curveDataItem.curveType, caseTimeSteps, curveDataItem.values, period );
 
                 auto cd   = curveDataItem;
                 cd.values = resampledValues;

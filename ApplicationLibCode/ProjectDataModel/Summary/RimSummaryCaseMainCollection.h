@@ -27,7 +27,7 @@
 class RimSummaryCase;
 class RimFileSummaryCase;
 class RimEclipseResultCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RifSummaryCaseFileResultInfo;
 
 //==================================================================================================
@@ -47,9 +47,9 @@ public:
     RimSummaryCase* summaryCase( size_t idx );
     size_t          summaryCaseCount() const;
 
-    std::vector<RimSummaryCase*>           allSummaryCases() const;
-    std::vector<RimSummaryCase*>           topLevelSummaryCases() const;
-    std::vector<RimSummaryCaseCollection*> summaryCaseCollections() const;
+    std::vector<RimSummaryCase*>     allSummaryCases() const;
+    std::vector<RimSummaryCase*>     topLevelSummaryCases() const;
+    std::vector<RimSummaryEnsemble*> summaryCaseCollections() const;
 
     std::vector<RimSummaryCase*> createSummaryCasesFromFileInfos( const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos,
                                                                   bool                                             showProgress = false );
@@ -61,11 +61,12 @@ public:
     void removeCase( RimSummaryCase* summaryCase, bool notifyChange = true );
     void removeCases( std::vector<RimSummaryCase*>& cases );
 
-    RimSummaryCaseCollection* addCaseCollection( std::vector<RimSummaryCase*>               summaryCases,
-                                                 const QString&                             coolectionName,
-                                                 bool                                       isEnsemble,
-                                                 std::function<RimSummaryCaseCollection*()> allocator = defaultAllocator );
-    void                      removeCaseCollection( RimSummaryCaseCollection* caseCollection );
+    RimSummaryEnsemble* addEnsemble( const std::vector<RimSummaryCase*>&  summaryCases,
+                                     const QString&                       coolectionName,
+                                     bool                                 isEnsemble,
+                                     std::function<RimSummaryEnsemble*()> allocator = defaultAllocator );
+    void                removeCaseCollection( RimSummaryEnsemble* caseCollection );
+    void                addEnsemble( RimSummaryEnsemble* ensemble );
 
     void loadAllSummaryCaseData();
 
@@ -77,13 +78,13 @@ public:
 private:
     void initAfterRead() override;
 
-    static void                      loadSummaryCaseData( std::vector<RimSummaryCase*> summaryCases );
-    static void                      loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases );
-    static RimSummaryCaseCollection* defaultAllocator();
+    static void                loadSummaryCaseData( std::vector<RimSummaryCase*> summaryCases );
+    static void                loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases );
+    static RimSummaryEnsemble* defaultAllocator();
 
     void onCaseNameChanged( const SignalEmitter* emitter );
 
 private:
-    caf::PdmChildArrayField<RimSummaryCase*>           m_cases;
-    caf::PdmChildArrayField<RimSummaryCaseCollection*> m_caseCollections;
+    caf::PdmChildArrayField<RimSummaryCase*>     m_cases;
+    caf::PdmChildArrayField<RimSummaryEnsemble*> m_caseCollections;
 };

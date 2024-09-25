@@ -63,6 +63,7 @@ public:
     static const caf::ColorTable& waterAndRockPaletteColors();
     static const caf::ColorTable& correlationPaletteColors();
     static const caf::ColorTable& heatMapPaletteColors();
+    static const caf::ColorTable& curveSetPaletteColors();
 
     static cvf::Color3f undefinedCellColor();
 

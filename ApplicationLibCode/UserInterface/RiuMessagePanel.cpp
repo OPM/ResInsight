@@ -44,7 +44,10 @@ RiuMessagePanel::RiuMessagePanel( QWidget* parent )
     : QWidget( parent )
 {
     QVBoxLayout* layout = new QVBoxLayout( this );
-    layout->setMargin( caf::StyleSheetTools::smallContentMargin() );
+    layout->setContentsMargins( caf::StyleSheetTools::smallContentMargin(),
+                                caf::StyleSheetTools::smallContentMargin(),
+                                caf::StyleSheetTools::smallContentMargin(),
+                                caf::StyleSheetTools::smallContentMargin() );
 
     m_textEdit = new QPlainTextEdit;
     m_textEdit->setReadOnly( true );
@@ -75,9 +78,6 @@ void RiuMessagePanel::addMessage( RILogLevel messageLevel, const QString& msg )
     form.setFontItalic( messageLevel == RILogLevel::RI_LL_DEBUG );
     m_textEdit->setCurrentCharFormat( form );
     m_textEdit->appendPlainText( msg );
-
-    m_textEdit->moveCursor( QTextCursor::End );
-    m_textEdit->ensureCursorVisible();
 
     if ( !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
     {

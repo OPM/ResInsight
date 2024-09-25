@@ -35,6 +35,7 @@
 
 class RigEclipseCaseData;
 class QFile;
+class QTextStream;
 
 //--------------------------------------------------------------------------------------------------
 /// Structure used to cache file position of keywords
@@ -124,6 +125,8 @@ public:
     static cvf::StructGridInterface::FaceEnum faceEnumFromText( const QString& faceString );
 
     static bool hasGridData( const QString& fileName );
+
+    static void parsePflotranInputFile( const QString& fileName, cvf::Collection<RigFault>* faults );
 
 private:
     static void readFaults( QFile& data, qint64 filePos, cvf::Collection<RigFault>* faults, bool* isEditKeywordDetected );

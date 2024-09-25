@@ -125,7 +125,7 @@ std::string RifOpmHdf5Summary::unitName( const RifEclipseSummaryAddress& resultA
             auto keyword              = it->second;
             auto stringFromFileReader = m_eSmry->get_unit( keyword );
 
-            return RiaStdStringTools::trimString( stringFromFileReader );
+            return std::string( RiaStdStringTools::trimString( stringFromFileReader ) );
         }
     }
 

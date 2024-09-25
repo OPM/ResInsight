@@ -32,23 +32,27 @@ if(Qt5Core_FOUND)
                Gui
                OpenGL
                Network
+               NetworkAuth
                Widgets
                Xml
                Concurrent
                PrintSupport
                Svg
+               Sql
     OPTIONAL_COMPONENTS Charts
   )
   set(QT_LIBRARIES
       Qt5::Core
       Qt5::Gui
       Qt5::Network
+      Qt5::NetworkAuth
       Qt5::OpenGL
       Qt5::Widgets
       Qt5::Xml
       Qt5::Concurrent
       Qt5::PrintSupport
       Qt5::Svg
+      Qt5::Sql
   )
   if(Qt5Charts_FOUND)
     list(APPEND QT_LIBRARIES Qt5::Charts)
@@ -77,13 +81,6 @@ if(MSVC)
   add_definitions(-D_USE_MATH_DEFINES)
 endif()
 
-# ##############################################################################
-# Eigen
-# ##############################################################################
-if(RESINSIGHT_VCPKG_AUTO_INSTALL)
-  vcpkg_install(eigen3)
-endif()
-
 find_package(Eigen3 REQUIRED)
 
 # ##############################################################################
@@ -96,6 +93,7 @@ list(
   Application/CMakeLists_files.cmake
   Application/Tools/CMakeLists_files.cmake
   Application/Tools/WellPathTools/CMakeLists_files.cmake
+  Application/Tools/Cloud/CMakeLists_files.cmake
   ReservoirDataModel/CMakeLists_files.cmake
   ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
   ReservoirDataModel/Completions/CMakeLists_files.cmake
@@ -105,11 +103,13 @@ list(
   ProjectDataModel/CMakeLists_files.cmake
   ProjectDataModel/AnalysisPlots/CMakeLists_files.cmake
   ProjectDataModel/CorrelationPlots/CMakeLists_files.cmake
+  ProjectDataModel/Cloud/CMakeLists_files.cmake
   ProjectDataModel/Faults/CMakeLists_files.cmake
   ProjectDataModel/GeoMech/CMakeLists_files.cmake
   ProjectDataModel/GridCrossPlots/CMakeLists_files.cmake
   ProjectDataModel/GridCrossPlots/CellFilters/CMakeLists_files.cmake
   ProjectDataModel/Summary/CMakeLists_files.cmake
+  ProjectDataModel/Summary/Sumo/CMakeLists_files.cmake
   ProjectDataModel/Flow/CMakeLists_files.cmake
   ProjectDataModel/Annotations/CMakeLists_files.cmake
   ProjectDataModel/Completions/CMakeLists_files.cmake
@@ -130,6 +130,7 @@ list(
   ProjectDataModel/Tools/CMakeLists_files.cmake
   ProjectDataModelCommands/CMakeLists_files.cmake
   ProjectDataModelCommands/CommandRouter/CMakeLists_files.cmake
+  ProjectDataModel/VerticalFlowPerformance/CMakeLists_files.cmake
   GeoMech/GeoMechVisualization/CMakeLists_files.cmake
   ModelVisualization/CMakeLists_files.cmake
   ModelVisualization/Faults/CMakeLists_files.cmake
@@ -413,6 +414,11 @@ set(UNITY_EXCLUDE_FILES
     # Exclude files including opm-common
     ProjectDataModel/RimVfpTableExtractor.cpp
     ProjectDataModel/RimVfpPlot.cpp
+    ProjectDataModel/RiaOpmParserTools.cpp
+    FileInterface/RifOsduWellPathReader.cpp
+    FileInterface/RifOsduWellLogReader.cpp
+    FileInterface/RifByteArrayArrowRandomAccessFile.cpp
+    FileInterface/RifArrowTools.cpp
 )
 
 if(RESINSIGHT_ENABLE_UNITY_BUILD)

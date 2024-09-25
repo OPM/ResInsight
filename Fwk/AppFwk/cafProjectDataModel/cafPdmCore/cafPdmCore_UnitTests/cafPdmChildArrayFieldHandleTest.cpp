@@ -66,12 +66,6 @@ public:
         this->addField( &derivedOtherObjs, "derivedOtherObjs" );
     }
 
-    ~ContainerObj()
-    {
-        derivedObjs.deleteChildren();
-        derivedOtherObjs.deleteChildren();
-    }
-
     caf::PdmChildArrayField<SimpleObjDerived*>      derivedObjs;
     caf::PdmChildArrayField<SimpleObjDerivedOther*> derivedOtherObjs;
 };

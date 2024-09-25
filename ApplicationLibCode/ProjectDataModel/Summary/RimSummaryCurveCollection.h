@@ -45,7 +45,6 @@ private:
 
 public:
     RimSummaryCurveCollection();
-    ~RimSummaryCurveCollection() override;
 
     bool isCurvesVisible();
 

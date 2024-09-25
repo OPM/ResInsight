@@ -26,6 +26,7 @@
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesGrid.h"
 
 #include "RifEclipseSummaryTools.h"
 #include "RifReaderSettings.h"
@@ -48,10 +49,10 @@
 #include "RimProject.h"
 #include "RimRoffCase.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
 #include "RimWellLogRftCurve.h"
 
@@ -68,11 +69,20 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&                 fileNames,
-                                                          bool                               createView,
-                                                          FileCaseIdMap*                     openedFilesOut,
-                                                          bool                               noDialog,
-                                                          std::shared_ptr<RifReaderSettings> readerSettings )
+bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fileNames, bool createView, FileCaseIdMap* openedFilesOut, bool noDialog )
+{
+    RifReaderSettings rs = RiaPreferencesGrid::current()->readerSettings();
+    return openEclipseCasesFromFile( fileNames, createView, openedFilesOut, noDialog, rs );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fileNames,
+                                                          bool               createView,
+                                                          FileCaseIdMap*     openedFilesOut,
+                                                          bool               noDialog,
+                                                          RifReaderSettings& readerSettings )
 {
     RimProject* project = RimProject::current();
     if ( !project ) return false;
@@ -100,16 +110,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
         RimMainPlotCollection::current()->ensureDefaultFlowPlotsAreCreated();
     }
 
-    // The default value for summary case import is true, but we use the state from RifReaderSettings if defined
-    //
-    // TODO:
-    // Refactor RifReaderSettings, separate the data structure sent to reader from the data structure in
-    // preferences. See RifReaderSettings::createGridOnlyReaderSettings() for the only use of importSummaryData flag
-    //
-    bool importSummaryCases = true;
-    if ( readerSettings ) importSummaryCases = readerSettings->importSummaryData;
-
-    if ( importSummaryCases && !summaryFileInfos.empty() )
+    if ( readerSettings.importSummaryData && !summaryFileInfos.empty() )
     {
         RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection()
                                                                               : nullptr;
@@ -120,11 +121,11 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
 
             for ( RimSummaryCase* newSumCase : candidateCases )
             {
-                RimSummaryCaseCollection* existingCollection = nullptr;
+                RimSummaryEnsemble* existingCollection = nullptr;
                 auto existingSummaryCase = sumCaseColl->findTopLevelSummaryCaseFromFileName( newSumCase->summaryHeaderFilename() );
                 if ( existingSummaryCase )
                 {
-                    existingCollection = existingSummaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+                    existingCollection = existingSummaryCase->firstAncestorOrThisOfType<RimSummaryEnsemble>();
 
                     // Replace file summary case pointers in Rft Curves
                     auto rftCurves = existingSummaryCase->objectsWithReferringPtrFieldsOfType<RimWellLogRftCurve>();
@@ -228,7 +229,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiaImportEclipseCaseTools::openEclipseCaseFromFile( const QString& fileName, bool createView, std::shared_ptr<RifReaderSettings> readerSettings )
+int RiaImportEclipseCaseTools::openEclipseCaseFromFile( const QString& fileName, bool createView, RifReaderSettings& readerSettings )
 {
     if ( !caf::Utils::fileExists( fileName ) ) return -1;
 
@@ -243,9 +244,10 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilter( const QString
 {
     if ( !caf::Utils::fileExists( fileName ) ) return false;
 
-    bool showTimeStepFilter = true;
-    bool createView         = true;
-    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( fileName, showTimeStepFilter, createView, nullptr ) >= 0;
+    bool              showTimeStepFilter = true;
+    bool              createView         = true;
+    RifReaderSettings rs                 = RiaPreferencesGrid::current()->readerSettings();
+    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( fileName, showTimeStepFilter, createView, rs ) >= 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -318,18 +320,19 @@ std::vector<int> RiaImportEclipseCaseTools::openEclipseInputCasesFromFileNames( 
 //--------------------------------------------------------------------------------------------------
 bool RiaImportEclipseCaseTools::openMockModel( const QString& name )
 {
-    bool showTimeStepFilter = false;
-    bool createView         = true;
-    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( name, showTimeStepFilter, createView, nullptr );
+    bool              showTimeStepFilter = false;
+    bool              createView         = true;
+    RifReaderSettings rs                 = RiaPreferencesGrid::current()->readerSettings();
+    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( name, showTimeStepFilter, createView, rs );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( const QString&                     fileName,
-                                                                      bool                               showTimeStepFilter,
-                                                                      bool                               createView,
-                                                                      std::shared_ptr<RifReaderSettings> readerSettings )
+int RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( const QString&     fileName,
+                                                                      bool               showTimeStepFilter,
+                                                                      bool               createView,
+                                                                      RifReaderSettings& readerSettings )
 {
     RimProject* project = RimProject::current();
     if ( !project ) return -1;

@@ -21,7 +21,7 @@
 #include "cafCmdFeature.h"
 
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 
 //==================================================================================================
 ///
@@ -36,6 +36,6 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    RimSummaryCase*           selectSummaryCase();
-    RimSummaryCaseCollection* selectEnsemble();
+    RimSummaryCase*     selectSummaryCase();
+    RimSummaryEnsemble* selectEnsemble();
 };

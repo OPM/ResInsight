@@ -34,7 +34,7 @@
 #include "RimPlotDataFilterCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlotAxisFormatter.h"
 
 #include "RiuContextMenuLauncher.h"
@@ -259,7 +259,7 @@ std::set<RigEnsembleParameter> RimAnalysisPlot::ensembleParameters() const
 
     RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = updateAndGetCurveAnalyzer();
 
-    std::set<RimSummaryCaseCollection*> ensembles;
+    std::set<RimSummaryEnsemble*> ensembles;
 
     for ( RimSummaryCase* sumCase : analyserOfSelectedCurveDefs->m_singleSummaryCases )
     {
@@ -269,7 +269,7 @@ std::set<RigEnsembleParameter> RimAnalysisPlot::ensembleParameters() const
         }
     }
 
-    for ( RimSummaryCaseCollection* ensemble : ensembles )
+    for ( RimSummaryEnsemble* ensemble : ensembles )
     {
         std::vector<RigEnsembleParameter> parameters = ensemble->variationSortedEnsembleParameters();
         ensembleParms.insert( parameters.begin(), parameters.end() );
@@ -671,7 +671,7 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
         for ( auto sumCase : allSummaryCases )
         {
             QString displayName = sumCase->displayCaseName();
-            auto    caseColl    = dynamic_cast<RimSummaryCaseCollection*>( sumCase->parentField()->ownerObject() );
+            auto    caseColl    = dynamic_cast<RimSummaryEnsemble*>( sumCase->parentField()->ownerObject() );
             if ( caseColl )
             {
                 displayName = caseColl->name() + "/" + displayName;

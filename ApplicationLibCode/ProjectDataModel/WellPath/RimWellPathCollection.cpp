@@ -20,18 +20,23 @@
 
 #include "RimWellPathCollection.h"
 
+#include "Cloud/RiaOsduConnector.h"
 #include "RiaColorTables.h"
+#include "RiaDateStringParser.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaTextStringTools.h"
 #include "RiaWellNameComparer.h"
 
+#include "RifOsduWellLogReader.h"
+#include "RifOsduWellPathReader.h"
 #include "RifWellPathFormationsImporter.h"
 #include "RifWellPathImporter.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigOsduWellLogData.h"
 #include "RigWellPath.h"
 
 #include "RimEclipseCase.h"
@@ -40,6 +45,8 @@
 #include "RimFileWellPath.h"
 #include "RimModeledWellPath.h"
 #include "RimOilField.h"
+#include "RimOsduWellLog.h"
+#include "RimOsduWellPath.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
 #include "RimStimPlanModel.h"
@@ -50,10 +57,14 @@
 #include "RimWellPathCompletionSettings.h"
 #include "RimWellPathTieIn.h"
 
+#include "RiuMainWindow.h"
+
 #include "cafTreeNode.h" // TODO: Move to caf
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafDataLoadController.h"
+#include "cafDataLoader.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiEditorHandle.h"
@@ -67,6 +78,7 @@
 
 #include <cmath>
 #include <fstream>
+#include <memory>
 
 namespace caf
 {
@@ -137,63 +149,92 @@ void RimWellPathCollection::fieldChangedByUi( const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 /// Read files containing well path data, or create geometry based on the targets
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::loadDataAndUpdate()
+bool RimWellPathCollection::loadDataAndUpdate()
 {
-    caf::ProgressInfo progress( m_wellPaths.size(), "Reading well paths from file" );
+    auto hasOsduData = []( const std::vector<RimWellPath*>& wellPaths ) -> bool
+    {
+        for ( RimWellPath* wellPath : wellPaths )
+        {
+            if ( dynamic_cast<RimOsduWellPath*>( wellPath ) )
+            {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    auto countWellLogs = []( const std::vector<RimWellPath*>& wellPaths ) -> bool
+    {
+        size_t count = 0;
+        for ( RimWellPath* wellPath : wellPaths )
+        {
+            count += wellPath->wellLogs().size();
+        }
+        return count;
+    };
+
+    caf::ProgressInfoEventProcessingBlocker blocker;
+    caf::ProgressInfo progress( allWellPaths().size() + countWellLogs( allWellPaths() ) + 2, "Reading well paths from file", false, true );
 
     readWellPathFormationFiles();
 
+    progress.incrementProgress();
+
+    if ( hasOsduData( allWellPaths() ) )
+    {
+        if ( auto osduConnector = RiaApplication::instance()->makeOsduConnector() )
+        {
+            osduConnector->requestTokenBlocking();
+        }
+    }
+
+    caf::DataLoadController* dataLoadController = caf::DataLoadController::instance();
+
+    const QString wellPathGeometryKeyword = "WELL_PATH_GEOMETRY";
+    const QString wellLogKeyword          = "WELL_LOG";
+
+    progress.setProgressDescription( QString( "Reading well path geometry." ) );
     for ( RimWellPath* wellPath : allWellPaths() )
     {
-        progress.setProgressDescription( QString( "Reading file %1" ).arg( wellPath->name() ) );
-
-        auto* fWPath = dynamic_cast<RimFileWellPath*>( wellPath );
-        auto* mWPath = dynamic_cast<RimModeledWellPath*>( wellPath );
-        if ( fWPath )
-        {
-            if ( !fWPath->filePath().isEmpty() )
-            {
-                QString errorMessage;
-                if ( !fWPath->readWellPathFile( &errorMessage, m_wellPathImporter.get(), false ) )
-                {
-                    RiaLogging::warning( errorMessage );
-                }
-            }
-        }
-        else if ( mWPath )
-        {
-            mWPath->createWellPathGeometry();
-        }
-
-        if ( wellPath )
-        {
-            for ( RimWellLogFile* const wellLogFile : wellPath->wellLogFiles() )
-            {
-                if ( wellLogFile )
-                {
-                    QString errorMessage;
-                    if ( !wellLogFile->readFile( &errorMessage ) )
-                    {
-                        RiaLogging::warning( errorMessage );
-                    }
-                }
-            }
-
-            RimStimPlanModelCollection* stimPlanModelCollection = wellPath->stimPlanModelCollection();
-            if ( stimPlanModelCollection )
-            {
-                for ( RimStimPlanModel* stimPlanModel : stimPlanModelCollection->allStimPlanModels() )
-                {
-                    stimPlanModel->loadDataAndUpdate();
-                }
-            }
-        }
-        progress.incrementProgress();
+        dataLoadController->loadData( *wellPath, wellPathGeometryKeyword, progress );
     }
+    dataLoadController->blockUntilDone( wellPathGeometryKeyword );
+
+    if ( progress.isCancelled() )
+    {
+        return false;
+    }
+
+    progress.setProgressDescription( QString( "Reading well logs." ) );
+    for ( RimWellPath* wellPath : allWellPaths() )
+    {
+        for ( RimWellLog* wellLog : wellPath->wellLogs() )
+        {
+            dataLoadController->loadData( *wellLog, wellLogKeyword, progress );
+        }
+    }
+    dataLoadController->blockUntilDone( wellLogKeyword );
+
+    progress.setProgressDescription( QString( "Reading additional data." ) );
+    for ( RimWellPath* wellPath : allWellPaths() )
+    {
+        RimStimPlanModelCollection* stimPlanModelCollection = wellPath->stimPlanModelCollection();
+        if ( stimPlanModelCollection )
+        {
+            for ( RimStimPlanModel* stimPlanModel : stimPlanModelCollection->allStimPlanModels() )
+            {
+                stimPlanModel->loadDataAndUpdate();
+            }
+        }
+    }
+    progress.incrementProgress();
 
     rebuildWellPathNodes();
 
     sortWellsByName();
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -373,7 +414,7 @@ std::vector<RimWellLogLasFile*> RimWellPathCollection::addWellLogs( const QStrin
                 addWellPath( wellPath );
             }
 
-            wellPath->addWellLogFile( logFileInfo );
+            wellPath->addWellLog( logFileInfo );
             logFileInfos.push_back( logFileInfo );
         }
     }
@@ -387,9 +428,9 @@ std::vector<RimWellLogLasFile*> RimWellPathCollection::addWellLogs( const QStrin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::addWellLog( RimWellLogFile* wellLogFile, RimWellPath* wellPath )
+void RimWellPathCollection::addWellLog( RimWellLog* wellLog, RimWellPath* wellPath )
 {
-    wellPath->addWellLogFile( wellLogFile );
+    wellPath->addWellLog( wellLog );
     sortWellsByName();
     updateAllRequiredEditors();
 }
@@ -671,15 +712,15 @@ void RimWellPathCollection::readWellPathFormationFiles()
 {
     caf::ProgressInfo progress( m_wellPaths.size(), "Reading well picks from file" );
 
-    for ( size_t wpIdx = 0; wpIdx < m_wellPaths.size(); wpIdx++ )
+    for ( const auto& wellPath : m_wellPaths )
     {
         QString errorMessage;
-        if ( !m_wellPaths[wpIdx]->readWellPathFormationsFile( &errorMessage, m_wellPathFormationsImporter.get() ) )
+        if ( !wellPath->readWellPathFormationsFile( &errorMessage, m_wellPathFormationsImporter.get() ) )
         {
             RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "File open error", errorMessage );
         }
 
-        progress.setProgressDescription( QString( "Reading formation file %1" ).arg( wpIdx ) );
+        progress.setProgressDescription( QString( "Reading formation file for %1" ).arg( wellPath->name() ) );
         progress.incrementProgress();
     }
 }
@@ -1012,4 +1053,35 @@ void RimWellPathCollection::onChildAdded( caf::PdmFieldHandle* containerForNewOb
 
     scheduleRedrawAffectedViews();
     uiCapability()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<cvf::ref<RigWellPath>, QString> RimWellPathCollection::loadWellPathGeometryFromOsdu( RiaOsduConnector* osduConnector,
+                                                                                               const QString&    wellboreTrajectoryId,
+                                                                                               double            datumElevation )
+{
+    auto [fileContents, errorMessage] = osduConnector->requestWellboreTrajectoryParquetDataByIdBlocking( wellboreTrajectoryId );
+    if ( !errorMessage.isEmpty() )
+    {
+        return { nullptr, errorMessage };
+    }
+
+    return RifOsduWellPathReader::readWellPathData( fileContents, datumElevation );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<cvf::ref<RigOsduWellLogData>, QString> RimWellPathCollection::loadWellLogFromOsdu( RiaOsduConnector* osduConnector,
+                                                                                             const QString&    wellLogId )
+{
+    auto [fileContents, errorMessage] = osduConnector->requestWellLogParquetDataByIdBlocking( wellLogId );
+    if ( !errorMessage.isEmpty() )
+    {
+        return { nullptr, errorMessage };
+    }
+
+    return RifOsduWellLogReader::readWellLogData( fileContents );
 }

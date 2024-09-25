@@ -54,8 +54,8 @@ public:
     void            setAutoScaleYEnabled( bool enabled ) override;
     void            updateAxes() override;
     void            updateLegend() override;
-    void            updateZoomInParentPlot() override;
-    void            updateZoomFromParentPlot() override;
+    void            updatePlotWidgetFromAxisRanges() override;
+    void            updateAxisRangesFromPlotWidget() override;
     QString         asciiDataForPlotExport() const override;
     void            reattachAllCurves() override;
     void            detachAllCurves() override;

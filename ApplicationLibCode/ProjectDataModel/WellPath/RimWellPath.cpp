@@ -25,6 +25,7 @@
 #include "RiaSimWellBranchTools.h"
 #include "RiaWellNameComparer.h"
 
+#include "RicImportWellLogOsduFeature.h"
 #include "RicfCommandObject.h"
 
 #include "RifWellPathFormationsImporter.h"
@@ -38,12 +39,13 @@
 #include "RimFishbonesCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimMswCompletionParameters.h"
+#include "RimOsduWellLog.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
 #include "RimStimPlanModelCollection.h"
 #include "RimTools.h"
 #include "RimWellIASettingsCollection.h"
-#include "RimWellLogFileChannel.h"
+#include "RimWellLogChannel.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPathAttributeCollection.h"
@@ -131,7 +133,8 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitScriptableFieldNoDefault( &m_completionSettings, "CompletionSettings", "Completion Settings" );
     m_completionSettings = new RimWellPathCompletionSettings;
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogFiles, "WellLogFiles", "Well Log Files" );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogs, "WellLogs", "Well Logs" );
+    m_wellLogs.registerKeywordAlias( "WellLogFiles" );
 
     CAF_PDM_InitFieldNoDefault( &m_3dWellLogCurves, "CollectionOf3dWellLogCurves", "3D Track" );
     m_3dWellLogCurves = new Rim3dWellLogCurveCollection;
@@ -161,10 +164,7 @@ RimWellPath::RimWellPath()
 //--------------------------------------------------------------------------------------------------
 RimWellPath::~RimWellPath()
 {
-    for ( const auto& file : m_wellLogFiles() )
-    {
-        delete file;
-    }
+    m_wellLogs.deleteChildren();
 
     RimWellLogPlotCollection* plotCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
     if ( plotCollection )
@@ -577,7 +577,24 @@ void RimWellPath::setNameNoUpdateOfExportName( const QString& name )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellLogFile*> RimWellPath::wellLogFiles() const
 {
-    return std::vector<RimWellLogFile*>( m_wellLogFiles.begin(), m_wellLogFiles.end() );
+    std::vector<RimWellLogFile*> wellLogFiles;
+    for ( RimWellLog* wellLog : m_wellLogs )
+    {
+        if ( auto wellLogFile = dynamic_cast<RimWellLogFile*>( wellLog ) )
+        {
+            wellLogFiles.push_back( wellLogFile );
+        }
+    }
+
+    return wellLogFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellLog*> RimWellPath::wellLogs() const
+{
+    return m_wellLogs.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -585,11 +602,9 @@ std::vector<RimWellLogFile*> RimWellPath::wellLogFiles() const
 //--------------------------------------------------------------------------------------------------
 RimWellLogFile* RimWellPath::firstWellLogFileMatchingChannelName( const QString& channelName ) const
 {
-    std::vector<RimWellLogFile*> allWellLogFiles = wellLogFiles();
-    for ( RimWellLogFile* logFile : allWellLogFiles )
+    for ( RimWellLogFile* logFile : wellLogFiles() )
     {
-        std::vector<RimWellLogFileChannel*> channels = logFile->wellLogChannels();
-        for ( RimWellLogFileChannel* channel : channels )
+        for ( RimWellLogChannel* channel : logFile->wellLogChannels() )
         {
             if ( channel->name() == channelName )
             {
@@ -597,6 +612,7 @@ RimWellLogFile* RimWellPath::firstWellLogFileMatchingChannelName( const QString&
             }
         }
     }
+
     return nullptr;
 }
 
@@ -720,18 +736,18 @@ void RimWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
         simWellGroup->add( &m_branchIndex );
     }
 
-    caf::PdmUiGroup* ssihubGroup = uiOrdering.addNewGroup( "Well Info" );
+    caf::PdmUiGroup* wellInfoGroup = uiOrdering.addNewGroup( "Well Info" );
 
     if ( m_wellPathGeometry.notNull() && m_wellPathGeometry->rkbDiff() > 0.0 )
     {
-        ssihubGroup->add( &m_airGap );
+        wellInfoGroup->add( &m_airGap );
     }
 
     if ( m_wellPathGeometry.notNull() && m_wellPathGeometry->hasDatumElevation() )
     {
-        ssihubGroup->add( &m_datumElevation );
+        wellInfoGroup->add( &m_datumElevation );
     }
-    ssihubGroup->add( &m_unitSystem );
+    wellInfoGroup->add( &m_unitSystem );
 
     caf::PdmUiGroup* formationFileInfoGroup = uiOrdering.addNewGroup( "Well Picks" );
     formationFileInfoGroup->add( &m_wellPathFormationFilePath );
@@ -745,7 +761,7 @@ void RimWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
-    uiTreeOrdering.add( &m_wellLogFiles );
+    uiTreeOrdering.add( &m_wellLogs );
 
     if ( m_wellIASettingsCollection()->isEnabled() && m_wellIASettingsCollection()->hasSettings() )
     {
@@ -892,47 +908,58 @@ double RimWellPath::datumElevation() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::addWellLogFile( RimWellLogFile* logFileInfo )
+void RimWellPath::addWellLog( RimWellLog* wellLog )
 {
-    // Prevent the same file from being loaded more than once
-    auto itr = std::find_if( m_wellLogFiles.begin(),
-                             m_wellLogFiles.end(),
-                             [&]( const RimWellLogFile* file )
-                             { return QString::compare( file->fileName(), logFileInfo->fileName(), Qt::CaseInsensitive ) == 0; } );
-
-    // Todo: Verify well name to ensure all well log files having the same well name
-
-    if ( itr == m_wellLogFiles.end() )
+    if ( RimWellLogFile* wellLogFile = dynamic_cast<RimWellLogFile*>( wellLog ) )
     {
-        m_wellLogFiles.push_back( logFileInfo );
+        // Prevent the same file from being loaded more than once
+        auto itr =
+            std::find_if( m_wellLogs.begin(),
+                          m_wellLogs.end(),
+                          [&]( const RimWellLog* existingWellLog )
+                          {
+                              auto existingWellLogFile = dynamic_cast<const RimWellLogFile*>( existingWellLog );
+                              return existingWellLogFile &&
+                                     QString::compare( existingWellLogFile->fileName(), wellLogFile->fileName(), Qt::CaseInsensitive ) == 0;
+                          } );
 
-        if ( m_wellLogFiles.size() == 1 && name().isEmpty() )
+        // Todo: Verify well name to ensure all well log files having the same well name
+        if ( itr == m_wellLogs.end() )
         {
-            setName( m_wellLogFiles[0]->wellName() );
+            m_wellLogs.push_back( wellLog );
+
+            if ( m_wellLogs.size() == 1 && name().isEmpty() )
+            {
+                setName( m_wellLogs[0]->wellName() );
+            }
         }
+    }
+    else if ( RimOsduWellLog* osduWellLog = dynamic_cast<RimOsduWellLog*>( wellLog ) )
+    {
+        m_wellLogs.push_back( osduWellLog );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::deleteWellLogFile( RimWellLogFile* logFileInfo )
+void RimWellPath::deleteWellLog( RimWellLog* wellLog )
 {
-    detachWellLogFile( logFileInfo );
-    delete logFileInfo;
+    detachWellLog( wellLog );
+    delete wellLog;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::detachWellLogFile( RimWellLogFile* logFileInfo )
+void RimWellPath::detachWellLog( RimWellLog* wellLog )
 {
-    auto pdmObject = dynamic_cast<caf::PdmObjectHandle*>( logFileInfo );
-    for ( size_t i = 0; i < m_wellLogFiles.size(); i++ )
+    auto pdmObject = dynamic_cast<caf::PdmObjectHandle*>( wellLog );
+    for ( size_t i = 0; i < m_wellLogs.size(); i++ )
     {
-        if ( m_wellLogFiles[i] == pdmObject )
+        if ( m_wellLogs[i] == pdmObject )
         {
-            m_wellLogFiles.removeChild( pdmObject );
+            m_wellLogs.removeChild( pdmObject );
             break;
         }
     }

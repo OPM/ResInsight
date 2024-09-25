@@ -30,8 +30,6 @@ class QString;
 class RimAnnotationGroupCollection;
 class RimTextAnnotation;
 class RimReachCircleAnnotation;
-class RimUserDefinedPolylinesAnnotation;
-class RimPolylinesFromFileAnnotation;
 class RimGridView;
 
 //==================================================================================================
@@ -46,17 +44,9 @@ public:
     RimAnnotationCollection();
     ~RimAnnotationCollection() override;
 
-    void loadDataAndUpdate();
-
     void addAnnotation( RimReachCircleAnnotation* annotation );
-    void addAnnotation( RimUserDefinedPolylinesAnnotation* annotation );
-    void addAnnotation( RimPolylinesFromFileAnnotation* annotation );
 
-    std::vector<RimReachCircleAnnotation*>          reachCircleAnnotations() const;
-    std::vector<RimUserDefinedPolylinesAnnotation*> userDefinedPolylineAnnotations() const;
-    std::vector<RimPolylinesFromFileAnnotation*>    polylinesFromFileAnnotations() const;
-
-    RimPolylinesFromFileAnnotation* importOrUpdatePolylinesFromFile( const QStringList& fileNames );
+    std::vector<RimReachCircleAnnotation*> reachCircleAnnotations() const;
 
     size_t lineBasedAnnotationsCount() const;
 
@@ -68,10 +58,12 @@ public:
 
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
-private:
-    void reloadPolylinesFromFile( const std::vector<RimPolylinesFromFileAnnotation*>& polyLinesObjsToReload );
+protected:
+    void initAfterRead() override;
 
+private:
     caf::PdmChildField<RimAnnotationGroupCollection*> m_reachCircleAnnotations;
-    caf::PdmChildField<RimAnnotationGroupCollection*> m_userDefinedPolylineAnnotations;
-    caf::PdmChildField<RimAnnotationGroupCollection*> m_polylineFromFileAnnotations;
+
+    caf::PdmChildField<RimAnnotationGroupCollection*> m_userDefinedPolylineAnnotations_OBSOLETE;
+    caf::PdmChildField<RimAnnotationGroupCollection*> m_polylineFromFileAnnotations_OBSOLETE;
 };

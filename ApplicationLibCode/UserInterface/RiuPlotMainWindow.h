@@ -125,7 +125,7 @@ private slots:
 
     void slotSubWindowActivated( QMdiSubWindow* subWindow );
 
-    void selectedObjectsChanged();
+    void selectedObjectsChanged( caf::PdmUiTreeView* projectTree, caf::PdmUiPropertyView* propertyView );
     void customMenuRequested( const QPoint& pos );
 
 private:
@@ -136,7 +136,6 @@ private:
     std::unique_ptr<caf::PdmUiToolBarEditor> m_multiPlotToolBarEditor;
     std::unique_ptr<caf::PdmUiToolBarEditor> m_multiPlotLayoutToolBarEditor;
 
-    std::unique_ptr<caf::PdmUiPropertyView> m_pdmUiPropertyView;
     std::unique_ptr<caf::PdmUiPropertyView> m_summaryPlotManagerView;
 
     std::unique_ptr<RicSummaryPlotEditorDialog>      m_summaryCurveCreatorDialog;

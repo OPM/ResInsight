@@ -395,7 +395,7 @@ void RimWellDistributionPlotCollection::updatePlots()
         for ( RimPlot* plot : m_plots() )
         {
             plot->loadDataAndUpdate();
-            plot->updateZoomInParentPlot();
+            plot->updatePlotWidgetFromAxisRanges();
         }
     }
 }

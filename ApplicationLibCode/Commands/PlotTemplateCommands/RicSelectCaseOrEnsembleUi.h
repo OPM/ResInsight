@@ -26,7 +26,7 @@
 #include <vector>
 
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 
 //==================================================================================================
 ///
@@ -40,8 +40,8 @@ public:
 
     void setEnsembleSelectionMode( bool selectEnsemble );
 
-    RimSummaryCase*           selectedSummaryCase() const;
-    RimSummaryCaseCollection* selectedEnsemble() const;
+    RimSummaryCase*     selectedSummaryCase() const;
+    RimSummaryEnsemble* selectedEnsemble() const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -49,8 +49,8 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
-    caf::PdmPtrField<RimSummaryCase*>           m_selectedSummaryCase;
-    caf::PdmPtrField<RimSummaryCaseCollection*> m_selectedEnsemble;
+    caf::PdmPtrField<RimSummaryCase*>     m_selectedSummaryCase;
+    caf::PdmPtrField<RimSummaryEnsemble*> m_selectedEnsemble;
 
     bool m_useEnsembleMode;
 };

@@ -105,8 +105,7 @@ void RicPasteWellLogCurveFeature::onActionTriggered( bool isChecked )
         auto* rftCurve         = dynamic_cast<RimWellLogRftCurve*>( sourceObject.p() );
         if ( fileCurve || measurementCurve || extractionCurve || rftCurve )
         {
-            auto* newObject = dynamic_cast<RimWellLogCurve*>(
-                sourceObject->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+            auto* newObject = sourceObject->copyObject<RimWellLogCurve>();
             CVF_ASSERT( newObject );
 
             wellLogTrack->addCurve( newObject );

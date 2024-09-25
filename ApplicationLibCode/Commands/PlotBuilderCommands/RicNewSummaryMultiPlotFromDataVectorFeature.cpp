@@ -23,7 +23,7 @@
 
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
 
 #include "RicSummaryPlotBuilder.h"
@@ -70,12 +70,12 @@ bool RicNewSummaryMultiPlotFromDataVectorFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryMultiPlotFromDataVectorFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimSummaryAddress*>        selectedAddressItems = caf::selectedObjectsByType<RimSummaryAddress*>();
-    std::set<int>                          caseIds;
-    std::set<int>                          ensembleIds;
-    std::vector<RimSummaryCase*>           selectedCases;
-    std::set<RifEclipseSummaryAddress>     eclipseAddresses;
-    std::vector<RimSummaryCaseCollection*> selectedEnsembles;
+    std::vector<RimSummaryAddress*>    selectedAddressItems = caf::selectedObjectsByType<RimSummaryAddress*>();
+    std::set<int>                      caseIds;
+    std::set<int>                      ensembleIds;
+    std::vector<RimSummaryCase*>       selectedCases;
+    std::set<RifEclipseSummaryAddress> eclipseAddresses;
+    std::vector<RimSummaryEnsemble*>   selectedEnsembles;
 
     bool isEnsemble = false;
 

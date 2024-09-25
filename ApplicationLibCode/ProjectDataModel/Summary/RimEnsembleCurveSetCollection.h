@@ -38,7 +38,6 @@ class RimEnsembleCurveSetCollection : public caf::PdmObject
 
 public:
     RimEnsembleCurveSetCollection();
-    ~RimEnsembleCurveSetCollection() override;
 
     bool isCurveSetsVisible() const;
 

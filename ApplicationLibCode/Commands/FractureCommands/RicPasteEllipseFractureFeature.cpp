@@ -74,9 +74,7 @@ void RicPasteEllipseFractureFeature::onActionTriggered( bool isChecked )
 
     for ( const auto& source : typedObjects )
     {
-        auto templ = dynamic_cast<RimEllipseFractureTemplate*>(
-            source->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-
+        auto templ = source->copyObject<RimEllipseFractureTemplate>();
         fractureTemplateColl->addFractureTemplate( templ );
 
         RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate( templ );

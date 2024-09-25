@@ -14,6 +14,7 @@ set(MOC_HEADER_FILES MainWindow.h WidgetLayoutTest.h CustomObjectEditor.h
 
 # Resource file
 set(QRC_FILES ${QRC_FILES} textedit.qrc)
+message("QRC_FILES: ${QRC_FILES}")
 
 if(CEE_USE_QT6)
   find_package(
@@ -23,6 +24,7 @@ if(CEE_USE_QT6)
   )
   set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets Qt6::OpenGL Qt6::Svg)
   qt_standard_project_setup()
+  set(CMAKE_AUTORCC ON)
 else()
   find_package(
     Qt5
@@ -64,7 +66,7 @@ if(CEE_USE_QT6)
     ${PROJECT_NAME}
     ${PROJECT_FILES}
     ${MOC_SOURCE_FILES}
-    ${QRC_FILES_CPP}
+    ${QRC_FILES}
     $<TARGET_OBJECTS:cafCommandFeatures> # Needed for cmake version < 3.12.
                                          # Remove
     # when we can use target_link_libraries with OBJECT libraries

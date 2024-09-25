@@ -266,7 +266,7 @@ std::vector<RimEclipseCase*> RimGridCalculation::outputEclipseCases() const
     {
         // Find all Eclipse cases suitable for grid calculations. This includes all single grid cases and source cases in a grid case group.
         // Exclude the statistics cases, as it is not possible to use them in a grid calculations.
-        return RimEclipseCaseTools::allEclipseGridCases();
+        return RimEclipseCaseTools::nativeEclipseGridCases();
     }
 
     if ( m_additionalCasesType() == RimGridCalculation::AdditionalCasesType::GRID_CASE_GROUP )
@@ -368,9 +368,6 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
     {
         options.push_back( caf::PdmOptionItemInfo( "Disabled", nullptr ) );
 
-        std::vector<Rim3dView*> views;
-        RimProject::current()->allViews( views );
-
         RimEclipseCase* firstEclipseCase = nullptr;
         if ( !inputCases().empty() )
         {
@@ -385,6 +382,7 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
 
         if ( firstEclipseCase )
         {
+            std::vector<Rim3dView*> views = RimProject::current()->allViews();
             for ( auto* view : views )
             {
                 auto eclipseView = dynamic_cast<RimEclipseView*>( view );
@@ -404,7 +402,7 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
             firstInputCase = inputCases()[0];
         }
 
-        for ( auto eclipseCase : RimEclipseCaseTools::allEclipseGridCases() )
+        for ( auto eclipseCase : RimEclipseCaseTools::nativeEclipseGridCases() )
         {
             if ( !eclipseCase ) continue;
             if ( firstInputCase && !firstInputCase->isGridSizeEqualTo( eclipseCase ) ) continue;

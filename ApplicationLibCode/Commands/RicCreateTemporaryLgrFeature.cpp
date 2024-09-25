@@ -19,53 +19,34 @@
 #include "RicCreateTemporaryLgrFeature.h"
 
 #include "RiaCellDividingTools.h"
-#include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
-#include "CompletionExportCommands/RicWellPathExportCompletionDataFeature.h"
 #include "ExportCommands/RicExportLgrFeature.h"
 #include "ExportCommands/RicExportLgrUi.h"
 #include "RicDeleteTemporaryLgrsFeature.h"
 
-#include "RifTextDataTableFormatter.h"
-
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCell.h"
-#include "RigCellGeometryTools.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
-#include "RigResultAccessor.h"
-#include "RigResultAccessorFactory.h"
-#include "RigVirtualPerforationTransmissibilities.h"
 
-#include "RimDialogData.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimGridCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
-#include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
-
-#include "Riu3dSelectionManager.h"
-#include "RiuPlotMainWindow.h"
 
 #include <QAction>
 #include <QDir>
-#include <QFile>
-#include <QFileInfo>
-#include <QTextStream>
 
-#include <cafPdmUiPropertyViewDialog.h>
-#include <cafSelectionManager.h>
 #include <cafSelectionManagerTools.h>
 #include <cafUtils.h>
 #include <cafVecIjk.h>
 
-#include <algorithm>
-#include <limits>
 #include <set>
 
 CAF_CMD_SOURCE_INIT( RicCreateTemporaryLgrFeature, "RicCreateTemporaryLgrFeature" );
@@ -123,6 +104,14 @@ void RicCreateTemporaryLgrFeature::updateViews( RimEclipseCase* eclipseCase )
     deleteAllCachedData( eclipseCase );
     RimMainPlotCollection::current()->deleteAllCachedData();
     computeCachedData( eclipseCase );
+
+    for ( auto view : eclipseCase->reservoirViews() )
+    {
+        if ( view && view->gridCollection() )
+        {
+            view->gridCollection()->syncFromMainEclipseGrid();
+        }
+    }
 
     RimMainPlotCollection::current()->wellLogPlotCollection()->loadDataAndUpdateAllPlots();
 

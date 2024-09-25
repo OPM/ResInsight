@@ -22,6 +22,8 @@
 #include "RimEclipseStatisticsCase.h"
 #include "RimProject.h"
 
+#include "GeoMech/RimGeoMechCase.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -58,7 +60,7 @@ std::vector<RimEclipseResultCase*> RimEclipseCaseTools::eclipseResultCases()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimEclipseCase*> RimEclipseCaseTools::allEclipseGridCases()
+std::vector<RimEclipseCase*> RimEclipseCaseTools::nativeEclipseGridCases()
 {
     // Find all Eclipse cases, including all single grid cases and source cases in a grid case group. Statistics cases are excluded.
 
@@ -70,6 +72,29 @@ std::vector<RimEclipseCase*> RimEclipseCaseTools::allEclipseGridCases()
         {
             if ( dynamic_cast<RimEclipseStatisticsCase*>( c ) ) continue;
 
+            if ( auto ec = dynamic_cast<RimEclipseCase*>( c ) )
+            {
+                eclipseCases.push_back( ec );
+            }
+        }
+
+        return eclipseCases;
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseCase*> RimEclipseCaseTools::allEclipseGridCases()
+{
+    RimProject* proj = RimProject::current();
+    if ( proj )
+    {
+        std::vector<RimEclipseCase*> eclipseCases;
+        for ( auto c : proj->allGridCases() )
+        {
             if ( auto ec = dynamic_cast<RimEclipseCase*>( c ) )
             {
                 eclipseCases.push_back( ec );

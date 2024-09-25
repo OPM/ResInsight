@@ -29,8 +29,8 @@
 
 #include "RimMainPlotCollection.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
@@ -142,7 +142,7 @@ void RiaSummaryStringTools::splitUsingDataSourceNames( const QStringList& filter
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>> RiaSummaryStringTools::allDataSourcesInProject()
+std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryEnsemble*>> RiaSummaryStringTools::allDataSourcesInProject()
 {
     auto sumCaseMainColl = RiaSummaryTools::summaryCaseMainCollection();
     if ( !sumCaseMainColl ) return { {}, {} };
@@ -156,11 +156,11 @@ std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>> 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>>
+std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryEnsemble*>>
     RiaSummaryStringTools::dataSourcesMatchingFilters( const QStringList& dataSourceFilters )
 {
-    std::vector<RimSummaryCase*>           matchingSummaryCases;
-    std::vector<RimSummaryCaseCollection*> matchingEnsembles;
+    std::vector<RimSummaryCase*>     matchingSummaryCases;
+    std::vector<RimSummaryEnsemble*> matchingEnsembles;
 
     auto [allSummaryCases, allEnsembles] = allDataSourcesInProject();
 
@@ -223,8 +223,8 @@ QStringList RiaSummaryStringTools::splitIntoWords( const QString& text )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RiaSummaryStringTools::dataSourceNames( const std::vector<RimSummaryCase*>&           summaryCases,
-                                                    const std::vector<RimSummaryCaseCollection*>& ensembles )
+QStringList RiaSummaryStringTools::dataSourceNames( const std::vector<RimSummaryCase*>&     summaryCases,
+                                                    const std::vector<RimSummaryEnsemble*>& ensembles )
 {
     QStringList names;
     for ( const auto& summaryCase : summaryCases )

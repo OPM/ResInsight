@@ -21,6 +21,8 @@
 #include "RiaSimWellBranchTools.h"
 #include "RiaSummaryTools.h"
 
+#include "RifReaderOpmRft.h"
+
 #include "RimCase.h"
 #include "RimDataSourceSteppingTools.h"
 #include "RimEclipseCase.h"
@@ -34,6 +36,7 @@
 #include "RimTools.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogExtractionCurve.h"
+#include "RimWellLogFile.h"
 #include "RimWellLogLasFileCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
@@ -43,6 +46,8 @@
 #include "RimWellMeasurementCurve.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+
+#include "RiuTools.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiCheckBoxTristateEditor.h"
@@ -528,7 +533,7 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
                 if ( !fileCurve->wellLogChannelUiName().isEmpty() )
                 {
                     RimWellLogFile* logFile = wellPathToApply()->firstWellLogFileMatchingChannelName( fileCurve->wellLogChannelUiName() );
-                    fileCurve->setWellLogFile( logFile );
+                    fileCurve->setWellLog( logFile );
                     auto parentPlot = fileCurve->firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
                     plots.insert( parentPlot );
                 }
@@ -1002,7 +1007,10 @@ QList<caf::PdmOptionItemInfo> RimWellLogCurveCommonDataSource::calculateValueOpt
     }
     else if ( fieldNeedingOptions == &m_rftSegmentBranchIndex )
     {
-        options = RimRftTools::segmentBranchIndexOptions( rftReader(), m_rftWellName(), m_rftTimeStep(), m_rftSegmentBranchType() );
+        options = RimRftTools::segmentBranchIndexOptions( dynamic_cast<RifReaderOpmRft*>( rftReader() ),
+                                                          m_rftWellName(),
+                                                          m_rftTimeStep(),
+                                                          m_rftSegmentBranchType() );
     }
 
     return options;
@@ -1082,9 +1090,7 @@ void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmField
         if ( field == &m_case || field == &m_summaryCase || field == &m_simWellName || field == &m_wellPath || field == &m_timeStep ||
              field == &m_rftTimeStep || field == &m_rftSegmentBranchIndex || field == &m_rftWellName )
         {
-            myAttr->showPreviousAndNextButtons = true;
-            myAttr->nextIcon                   = QIcon( ":/ComboBoxDown.svg" );
-            myAttr->previousIcon               = QIcon( ":/ComboBoxUp.svg" );
+            RiuTools::enableUpDownArrowsForComboBox( attribute );
         }
 
         QString modifierText;

@@ -31,6 +31,7 @@
 #include <QDateTime>
 #include <QFile>
 #include <QTextStream>
+#include <memory>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -49,12 +50,12 @@ RifCsvUserData::~RifCsvUserData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserData::parse( const QString& fileName, const AsciiDataParseOptions& parseOptions, QString* errorText )
+bool RifCsvUserData::parse( const QString& fileName, const RifAsciiDataParseOptions& parseOptions, QString* errorText )
 {
     m_allResultAddresses.clear();
     m_mapFromAddressToResultIndex.clear();
 
-    m_parser = std::unique_ptr<RifCsvUserDataFileParser>( new RifCsvUserDataFileParser( fileName, errorText ) );
+    m_parser = std::make_unique<RifCsvUserDataFileParser>( fileName, errorText );
     if ( !m_parser->parse( parseOptions ) )
     {
         RiaLogging::error( QString( "Failed to parse file" ) );

@@ -27,6 +27,8 @@
 #include "cvfStructGrid.h"
 #include "cvfVector3.h"
 
+#include <QStringList>
+
 #include <cmath> // Needed for HUGE_VAL on Linux
 #include <deque>
 #include <map>
@@ -36,7 +38,6 @@ class RigActiveCellInfo;
 class RigMainGrid;
 class RigCell;
 class RigEclipseResultAddress;
-class QStringList;
 
 class RigNNCData : public cvf::Object
 {

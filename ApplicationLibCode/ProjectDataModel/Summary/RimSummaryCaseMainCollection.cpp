@@ -27,6 +27,7 @@
 #include "RifEclipseSummaryTools.h"
 #include "RifOpmCommonSummary.h"
 #include "RifSummaryCaseRestartSelector.h"
+#include "Sumo/RimSummaryCaseSumo.h"
 
 #ifdef USE_HDF5
 #include "RifHdf5SummaryExporter.h"
@@ -40,8 +41,8 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 
@@ -49,6 +50,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <memory>
 
 CAF_PDM_SOURCE_INIT( RimSummaryCaseMainCollection, "SummaryCaseCollection" );
 
@@ -77,14 +79,17 @@ void addCaseRealizationParametersIfFound( RimSummaryCase& sumCase, const QString
     }
     else
     {
-        parameters = std::shared_ptr<RigCaseRealizationParameters>( new RigCaseRealizationParameters() );
+        parameters = std::make_shared<RigCaseRealizationParameters>();
     }
 
-    int realizationNumber = RifCaseRealizationParametersFileLocator::realizationNumber( modelFolderOrFile );
-    parameters->setRealizationNumber( realizationNumber );
-    parameters->addParameter( RiaDefines::summaryRealizationNumber(), realizationNumber );
+    if ( dynamic_cast<RimSummaryCaseSumo*>( &sumCase ) == nullptr )
+    {
+        int realizationNumber = RifCaseRealizationParametersFileLocator::realizationNumber( modelFolderOrFile );
+        parameters->setRealizationNumber( realizationNumber );
+        parameters->addParameter( RiaDefines::summaryRealizationNumber(), realizationNumber );
 
-    sumCase.setCaseRealizationParameters( parameters );
+        sumCase.setCaseRealizationParameters( parameters );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -170,7 +175,7 @@ void RimSummaryCaseMainCollection::removeCase( RimSummaryCase* summaryCase, bool
 
     m_cases.removeChild( summaryCase );
 
-    for ( RimSummaryCaseCollection* summaryCaseCollection : m_caseCollections )
+    for ( RimSummaryEnsemble* summaryCaseCollection : m_caseCollections )
     {
         summaryCaseCollection->removeCase( summaryCase, notifyChange );
     }
@@ -194,7 +199,7 @@ void RimSummaryCaseMainCollection::removeCases( std::vector<RimSummaryCase*>& ca
         removeCase( sumCase, false );
     }
 
-    for ( RimSummaryCaseCollection* summaryCaseCollection : m_caseCollections )
+    for ( RimSummaryEnsemble* summaryCaseCollection : m_caseCollections )
     {
         summaryCaseCollection->updateReferringCurveSets();
     }
@@ -205,12 +210,12 @@ void RimSummaryCaseMainCollection::removeCases( std::vector<RimSummaryCase*>& ca
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RimSummaryCaseMainCollection::addCaseCollection( std::vector<RimSummaryCase*>               summaryCases,
-                                                                           const QString&                             collectionName,
-                                                                           bool                                       isEnsemble,
-                                                                           std::function<RimSummaryCaseCollection*()> allocator )
+RimSummaryEnsemble* RimSummaryCaseMainCollection::addEnsemble( const std::vector<RimSummaryCase*>&  summaryCases,
+                                                               const QString&                       collectionName,
+                                                               bool                                 isEnsemble,
+                                                               std::function<RimSummaryEnsemble*()> allocator )
 {
-    RimSummaryCaseCollection* summaryCaseCollection = allocator();
+    RimSummaryEnsemble* summaryCaseCollection = allocator();
     if ( !collectionName.isEmpty() ) summaryCaseCollection->setName( collectionName );
 
     if ( summaryCaseCollection->ensembleId() == -1 )
@@ -221,7 +226,7 @@ RimSummaryCaseCollection* RimSummaryCaseMainCollection::addCaseCollection( std::
 
     for ( RimSummaryCase* summaryCase : summaryCases )
     {
-        auto currentSummaryCaseCollection = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+        auto currentSummaryCaseCollection = summaryCase->firstAncestorOrThisOfType<RimSummaryEnsemble>();
         if ( currentSummaryCaseCollection )
         {
             currentSummaryCaseCollection->removeCase( summaryCase );
@@ -251,9 +256,27 @@ RimSummaryCaseCollection* RimSummaryCaseMainCollection::addCaseCollection( std::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseMainCollection::removeCaseCollection( RimSummaryCaseCollection* caseCollection )
+void RimSummaryCaseMainCollection::removeCaseCollection( RimSummaryEnsemble* caseCollection )
 {
     m_caseCollections.removeChild( caseCollection );
+
+    dataSourceHasChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::addEnsemble( RimSummaryEnsemble* ensemble )
+{
+    CVF_ASSERT( ensemble );
+
+    m_caseCollections.push_back( ensemble );
+
+    if ( ensemble->ensembleId() == -1 )
+    {
+        RimProject* project = RimProject::current();
+        project->assignIdToEnsemble( ensemble );
+    }
 
     dataSourceHasChanged.send();
 }
@@ -309,9 +332,9 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::topLevelSummaryCases(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCaseCollection*> RimSummaryCaseMainCollection::summaryCaseCollections() const
+std::vector<RimSummaryEnsemble*> RimSummaryCaseMainCollection::summaryCaseCollections() const
 {
-    std::vector<RimSummaryCaseCollection*> summaryCaseCollections;
+    std::vector<RimSummaryEnsemble*> summaryCaseCollections;
     for ( const auto& caseColl : m_caseCollections )
     {
         summaryCaseCollections.push_back( caseColl );
@@ -493,9 +516,9 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RimSummaryCaseMainCollection::defaultAllocator()
+RimSummaryEnsemble* RimSummaryCaseMainCollection::defaultAllocator()
 {
-    return new RimSummaryCaseCollection();
+    return new RimSummaryEnsemble();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -526,7 +549,7 @@ std::vector<RimSummaryCase*>
 
         if ( showProgress )
         {
-            progress.reset( new caf::ProgressInfo( summaryHeaderFileInfos.size(), "Creating summary cases" ) );
+            progress = std::make_unique<caf::ProgressInfo>( summaryHeaderFileInfos.size(), "Creating summary cases" );
         }
 
         for ( const RifSummaryCaseFileResultInfo& fileInfo : summaryHeaderFileInfos )

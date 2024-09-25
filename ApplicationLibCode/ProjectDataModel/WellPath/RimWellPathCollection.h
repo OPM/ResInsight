@@ -22,6 +22,7 @@
 
 #include "RiaDefines.h"
 
+#include "RigOsduWellLogData.h"
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -38,8 +39,10 @@
 
 #include <memory>
 
+class RiaOsduConnector;
 class RifWellPathImporter;
 class RigWellPath;
+class RigOsduWellLogData;
 class RimFileWellPath;
 class RimEclipseView;
 class RimProject;
@@ -48,6 +51,7 @@ class RimWellLogFile;
 class RimWellPath;
 class RifWellPathFormationsImporter;
 class RimWellMeasurementCollection;
+class RimWellLog;
 class cafTreeNode;
 class QString;
 
@@ -93,7 +97,7 @@ public:
     caf::PdmField<bool>               wellPathClip;
     caf::PdmField<int>                wellPathClipZDistance;
 
-    void                      loadDataAndUpdate();
+    bool                      loadDataAndUpdate();
     std::vector<RimWellPath*> addWellPaths( QStringList filePaths, QStringList* errorMessages );
     std::vector<RimWellPath*> allWellPaths() const;
     void                      removeWellPath( gsl::not_null<RimWellPath*> wellPath );
@@ -117,7 +121,7 @@ public:
 
     std::vector<RimWellLogLasFile*> addWellLogs( const QStringList& filePaths, QStringList* errorMessages );
     void                            addWellPathFormations( const QStringList& filePaths );
-    void                            addWellLog( RimWellLogFile* wellLogFile, RimWellPath* wellPath );
+    void                            addWellLog( RimWellLog* wellLog, RimWellPath* wellPath );
 
     void scheduleRedrawAffectedViews();
 
@@ -130,6 +134,11 @@ public:
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     void onChildAdded( caf::PdmFieldHandle* containerForNewObject ) override;
+
+    static std::pair<cvf::ref<RigWellPath>, QString>
+        loadWellPathGeometryFromOsdu( RiaOsduConnector* osduConnector, const QString& wellTrajectoryId, double datumElevation );
+
+    static std::pair<cvf::ref<RigOsduWellLogData>, QString> loadWellLogFromOsdu( RiaOsduConnector* osduConnector, const QString& wellLogId );
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

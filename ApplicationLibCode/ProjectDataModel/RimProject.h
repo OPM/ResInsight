@@ -30,6 +30,8 @@
 
 #include <vector>
 
+class RiaVariableMapper;
+
 class RigEclipseCaseData;
 class RigGridManager;
 class RigMainGrid;
@@ -55,7 +57,7 @@ class RimOilField;
 class RimColorLegendCollection;
 class RimScriptCollection;
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RimSummaryCaseMainCollection;
 class Rim3dView;
 class RimGridView;
@@ -64,7 +66,6 @@ class RimViewLinker;
 class RimViewLinkerCollection;
 class RimViewWindow;
 class RimWellPath;
-class RimWellPathImport;
 class RimFractureTemplateCollection;
 class RimFractureTemplate;
 class RimValveTemplateCollection;
@@ -97,7 +98,6 @@ public:
     caf::PdmChildArrayField<RimOilField*>                oilFields;
     caf::PdmChildField<RimColorLegendCollection*>        colorLegendCollection;
     caf::PdmChildField<RimScriptCollection*>             scriptCollection;
-    caf::PdmChildField<RimWellPathImport*>               wellPathImport;
     caf::PdmChildField<RimViewLinkerCollection*>         viewLinkerCollection;
     caf::PdmChildField<RimSummaryCalculationCollection*> calculationCollection;
     caf::PdmChildField<RimGridCalculationCollection*>    gridCalculationCollection;
@@ -129,26 +129,24 @@ public:
     void assignViewIdToView( Rim3dView* view );
     void assignPlotIdToPlotWindow( RimPlotWindow* plotWindow );
     void assignCaseIdToSummaryCase( RimSummaryCase* summaryCase );
-    void assignIdToEnsemble( RimSummaryCaseCollection* summaryCaseCollection );
+    void assignIdToEnsemble( RimSummaryEnsemble* summaryCaseCollection );
 
     [[nodiscard]] std::vector<RimCase*> allGridCases() const;
 
-    std::vector<RimSummaryCase*>           allSummaryCases() const;
-    std::vector<RimSummaryCaseCollection*> summaryGroups() const;
-    RimSummaryCaseMainCollection*          firstSummaryCaseMainCollection() const;
+    std::vector<RimSummaryCase*>     allSummaryCases() const;
+    std::vector<RimSummaryEnsemble*> summaryGroups() const;
+    RimSummaryCaseMainCollection*    firstSummaryCaseMainCollection() const;
 
-    void allViews( std::vector<Rim3dView*>& views ) const;
-    void allVisibleViews( std::vector<Rim3dView*>& views ) const;
-    void allVisibleGridViews( std::vector<RimGridView*>& views ) const;
-    void allNotLinkedViews( std::vector<Rim3dView*>& views );
+    [[nodiscard]] std::vector<Rim3dView*>   allViews() const;
+    [[nodiscard]] std::vector<Rim3dView*>   allVisibleViews() const;
+    [[nodiscard]] std::vector<RimGridView*> allVisibleGridViews() const;
+    [[nodiscard]] std::vector<Rim3dView*>   allNotLinkedViews() const;
 
     void scheduleCreateDisplayModelAndRedrawAllViews();
 
-    void computeUtmAreaOfInterest();
-
-    void               allOilFields( std::vector<RimOilField*>& allOilFields ) const;
-    RimOilField*       activeOilField();
-    const RimOilField* activeOilField() const;
+    [[nodiscard]] std::vector<RimOilField*> allOilFields() const;
+    RimOilField*                            activeOilField();
+    const RimOilField*                      activeOilField() const;
 
     void actionsBasedOnSelection( QMenu& contextMenu );
 
@@ -177,7 +175,6 @@ public:
     std::vector<RimWellPath*>              allWellPaths() const;
     std::vector<RimTextAnnotation*>        textAnnotations() const;
     std::vector<RimReachCircleAnnotation*> reachCircleAnnotations() const;
-    std::vector<RimPolylinesAnnotation*>   polylineAnnotations() const;
 
     std::vector<RimGeoMechCase*> geoMechCases() const;
 
@@ -194,19 +191,18 @@ public:
 
     std::vector<caf::FilePath*> allFilePaths() const;
 
+    void updatesAfterProjectFileIsRead();
+
 protected:
-    void beforeInitAfterRead() override;
     void initAfterRead() override;
     void setupBeforeSave() override;
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
 private:
-    template <typename T>
-    static void fieldContentsByType( const caf::PdmObjectHandle* object, std::vector<T*>& fieldContents );
-
-    void transferPathsToGlobalPathList();
-    void distributePathsFromGlobalPathList();
+    void    transferPathsToGlobalPathList();
+    void    distributePathsFromGlobalPathList();
+    QString updatedFilePathFromPathId( QString filePath, RiaVariableMapper* pathListMapper = nullptr ) const;
 
 private:
     caf::PdmChildField<RimMainPlotCollection*> m_mainPlotCollection;
@@ -237,42 +233,3 @@ private:
     caf::PdmChildArrayField<RimEclipseCase*>            casesObsolete; // obsolete
     caf::PdmChildArrayField<RimIdenticalGridCaseGroup*> caseGroupsObsolete; // obsolete
 };
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename T>
-void RimProject::fieldContentsByType( const caf::PdmObjectHandle* object, std::vector<T*>& fieldContents )
-{
-    if ( !object ) return;
-
-    std::vector<caf::PdmFieldHandle*> allFieldsInObject = object->fields();
-
-    std::vector<caf::PdmObjectHandle*> children;
-
-    for ( const auto& field : allFieldsInObject )
-    {
-        auto xmlFieldCapability = field->xmlCapability();
-        if ( xmlFieldCapability && !xmlFieldCapability->isIOWritable() ) continue;
-
-        caf::PdmField<T>* typedField = dynamic_cast<caf::PdmField<T>*>( field );
-        if ( typedField ) fieldContents.push_back( &typedField->v() );
-
-        caf::PdmField<std::vector<T>>* typedFieldInVector = dynamic_cast<caf::PdmField<std::vector<T>>*>( field );
-        if ( typedFieldInVector )
-        {
-            for ( T& typedFieldFromVector : typedFieldInVector->v() )
-            {
-                fieldContents.push_back( &typedFieldFromVector );
-            }
-        }
-
-        auto other = field->children();
-        children.insert( children.end(), other.begin(), other.end() );
-    }
-
-    for ( const auto& child : children )
-    {
-        fieldContentsByType( child, fieldContents );
-    }
-}

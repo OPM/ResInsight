@@ -35,6 +35,12 @@ enum class HorizontalAxisType
     SUMMARY_VECTOR
 };
 
+enum class SummaryCurveTypeMode
+{
+    AUTO,
+    CUSTOM
+};
+
 QString summaryField();
 QString summaryAquifer();
 QString summaryNetwork();

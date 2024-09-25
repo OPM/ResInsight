@@ -25,6 +25,8 @@
 #include "RiaDefines.h"
 #include "RimCase.h"
 
+#include "RifReaderSettings.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -51,7 +53,7 @@ class RimEclipseView;
 class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
 class RimEclipseResultAddressCollection;
-class RifReaderSettings;
+class RimEclipseViewCollection;
 
 //==================================================================================================
 //
@@ -66,8 +68,8 @@ public:
     RimEclipseCase();
     ~RimEclipseCase() override;
 
-    // Fields:
-    caf::PdmChildArrayField<RimEclipseView*> reservoirViews;
+    std::vector<RimEclipseView*> reservoirViews() const;
+    RimEclipseViewCollection*    viewCollection() const;
 
     std::vector<QString> filesContainingFaults() const;
     void                 setFilesContainingFaults( const std::vector<QString>& val );
@@ -91,7 +93,8 @@ public:
     RimReservoirCellResultsStorage*       resultsStorage( RiaDefines::PorosityModelType porosityModel );
     const RimReservoirCellResultsStorage* resultsStorage( RiaDefines::PorosityModelType porosityModel ) const;
 
-    RimEclipseView* createAndAddReservoirView();
+    RimEclipseView* createAndAddReservoirView( bool useGlobalViewCollection = false );
+    RimEclipseView* createAndAddReservoirView( RimEclipseViewCollection* viewColl );
     RimEclipseView* createCopyAndAddView( const RimEclipseView* sourceView );
 
     const RigVirtualPerforationTransmissibilities* computeAndGetVirtualPerforationTransmissibilities();
@@ -99,7 +102,7 @@ public:
     virtual QString locationOnDisc() const { return QString(); }
 
     RimCaseCollection*                  parentCaseCollection();
-    RimEclipseContourMapViewCollection* contourMapCollection();
+    RimEclipseContourMapViewCollection* contourMapCollection() const;
     RimEclipseInputPropertyCollection*  inputPropertyCollection() const;
 
     QStringList            timeStepStrings() const override;
@@ -124,7 +127,7 @@ public:
     void createDisplayModelAndUpdateAllViews();
     void computeActiveCellsBoundingBox();
 
-    void setReaderSettings( std::shared_ptr<RifReaderSettings> readerSettings );
+    void setReaderSettings( RifReaderSettings& readerSettings );
 
     void updateResultAddressCollection();
 
@@ -137,26 +140,28 @@ protected:
 
     // Internal methods
 protected:
-    void                 computeCachedData();
-    void                 setReservoirData( RigEclipseCaseData* eclipseCase );
-    std::vector<QString> additionalFiles() const;
+    void                      computeCachedData();
+    void                      setReservoirData( RigEclipseCaseData* eclipseCase );
+    std::vector<QString>      additionalFiles() const;
+    RimEclipseViewCollection* globalViewCollection() const;
+    void addViewsFromViewCollection( std::vector<RimEclipseView*>& views, const RimEclipseViewCollection* viewColl ) const;
 
 private:
-    void                    createTimeStepFormatString();
-    std::vector<Rim3dView*> allSpecialViews() const override;
-    void                    buildResultChildNodes();
+    void                                   createTimeStepFormatString();
+    std::vector<Rim3dView*>                allSpecialViews() const override;
+    std::vector<RimEclipseContourMapView*> contourMapViews() const;
+
+    void buildResultChildNodes();
 
 protected:
     caf::PdmField<bool>                                    m_flipXAxis;
     caf::PdmField<bool>                                    m_flipYAxis;
     caf::PdmChildField<RimEclipseInputPropertyCollection*> m_inputPropertyCollection;
 
-    std::shared_ptr<RifReaderSettings> m_readerSettings;
+    RifReaderSettings m_readerSettings;
 
 private:
     caf::PdmField<bool> m_releaseResultMemory;
-
-    caf::PdmChildField<RimEclipseContourMapViewCollection*> m_contourMapCollection;
 
     cvf::ref<RigEclipseCaseData>    m_rigEclipseCase;
     QString                         m_timeStepFormatString;
@@ -166,6 +171,11 @@ private:
 
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;
+    caf::PdmChildField<RimEclipseViewCollection*>       m_viewCollection;
 
     caf::PdmField<std::vector<caf::FilePath>> m_filesContainingFaults;
+
+    // Obsolete fields:
+    caf::PdmChildArrayField<RimEclipseView*>                m_reservoirViews_OBSOLETE;
+    caf::PdmChildField<RimEclipseContourMapViewCollection*> m_contourMapCollection_OBSOLETE;
 };

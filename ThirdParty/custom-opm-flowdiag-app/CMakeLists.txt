@@ -1,5 +1,3 @@
-cmake_minimum_required (VERSION 2.8.12)
-
 project (custom-opm-flowdiag-app)
 
 if (CMAKE_COMPILER_IS_GNUCXX)
@@ -35,7 +33,7 @@ add_library(custom-opm-flowdiag-app
 find_package(Boost REQUIRED filesystem system)
 
 target_link_libraries(custom-opm-flowdiag-app 
-  ecl
+  resdata
   Boost::filesystem
 )
 

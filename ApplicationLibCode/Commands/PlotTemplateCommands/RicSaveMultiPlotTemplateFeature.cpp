@@ -33,8 +33,8 @@
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 
@@ -214,7 +214,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
                 auto fieldHandle = curveSet->findField( summaryGroupFieldKeyword );
                 if ( fieldHandle )
                 {
-                    auto reference = caf::PdmReferenceHelper::referenceFromFieldToObject( fieldHandle, curveSet->summaryCaseCollection() );
+                    auto reference = caf::PdmReferenceHelper::referenceFromFieldToObject( fieldHandle, curveSet->summaryEnsemble() );
                     ensembleReferenceStrings.insert( reference );
                 }
 

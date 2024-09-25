@@ -54,7 +54,11 @@ class PdmUiTreeEditorHandle : public PdmUiEditorHandle
 {
 public:
     PdmUiTreeEditorHandle() {}
-    ~PdmUiTreeEditorHandle() override {}
+    ~PdmUiTreeEditorHandle() override
+    {
+        delete m_widget.data();
+        m_widget.clear();
+    }
 
     QWidget* getOrCreateWidget( QWidget* parent );
     QWidget* widget() { return m_widget; }

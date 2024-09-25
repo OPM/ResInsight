@@ -31,7 +31,6 @@ class RimFormationNamesCollection : public caf::PdmObject
 
 public:
     RimFormationNamesCollection();
-    ~RimFormationNamesCollection() override;
 
     const caf::PdmChildArrayField<RimFormationNames*>& formationNamesList() const { return m_formationNamesList; }
 

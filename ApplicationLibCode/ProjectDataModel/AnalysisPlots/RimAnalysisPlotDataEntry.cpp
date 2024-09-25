@@ -21,7 +21,7 @@
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RifEclipseSummaryAddress.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
@@ -80,11 +80,12 @@ RiaSummaryCurveDefinition RimAnalysisPlotDataEntry::curveDefinition() const
     {
         return RiaSummaryCurveDefinition( m_summaryCase(), m_summaryAddress->address(), m_isEnsembleCurve );
     }
-    else
+    else if ( m_ensemble() )
     {
-        CAF_ASSERT( m_ensemble() );
         return RiaSummaryCurveDefinition( m_ensemble(), m_summaryAddress->address() );
     }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,7 +99,7 @@ RimSummaryCase* RimAnalysisPlotDataEntry::summaryCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RimAnalysisPlotDataEntry::ensemble() const
+RimSummaryEnsemble* RimAnalysisPlotDataEntry::ensemble() const
 {
     return m_ensemble;
 }

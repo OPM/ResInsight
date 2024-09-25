@@ -24,7 +24,7 @@
 #include "RicWellLogTools.h"
 
 #include "RimTools.h"
-#include "RimWellLogFileChannel.h"
+#include "RimWellLogChannel.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellLogLasFileCurve.h"
 #include "RimWellLogTrack.h"
@@ -47,8 +47,8 @@ CAF_CMD_SOURCE_INIT( RicNewWellLogFileCurveFeature, "RicNewWellLogFileCurveFeatu
 bool RicNewWellLogFileCurveFeature::isCommandEnabled() const
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() ) return false;
-    return ( caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellLogTrack>() != nullptr && wellLogFilesAvailable() ) ||
-           RicWellLogTools::selectedWellPathWithLogFile() != nullptr;
+    return ( caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellLogTrack>() != nullptr && wellLogsAvailable() ) ||
+           RicWellLogTools::selectedWellPathWithLog() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ void RicNewWellLogFileCurveFeature::onActionTriggered( bool isChecked )
     }
     else
     {
-        RimWellPath* wellPath = RicWellLogTools::selectedWellPathWithLogFile();
+        RimWellPath* wellPath = RicWellLogTools::selectedWellPathWithLog();
         if ( wellPath )
         {
             RimWellLogTrack*        newWellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
@@ -72,7 +72,7 @@ void RicNewWellLogFileCurveFeature::onActionTriggered( bool isChecked )
 
             if ( wellPath->wellLogFiles().size() == 1 )
             {
-                plotCurve->setWellLogFile( wellPath->wellLogFiles().front() );
+                plotCurve->setWellLog( wellPath->wellLogFiles().front() );
             }
             plotCurve->updateConnectedEditors();
         }
@@ -91,14 +91,14 @@ void RicNewWellLogFileCurveFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellLogFileCurveFeature::wellLogFilesAvailable()
+bool RicNewWellLogFileCurveFeature::wellLogsAvailable()
 {
     auto wellPathCollection = RimTools::wellPathCollection();
     if ( wellPathCollection )
     {
         for ( auto wellPath : wellPathCollection->allWellPaths() )
         {
-            if ( !wellPath->wellLogFiles().empty() )
+            if ( !wellPath->wellLogs().empty() )
             {
                 return true;
             }

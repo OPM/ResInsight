@@ -27,10 +27,10 @@
 #include "RimMainPlotCollection.h"
 #include "RimRftPlotCollection.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
+#include "RimSummaryEnsembleTools.h"
 #include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogTrack.h"
-#include "RimWellPlotTools.h"
 #include "RimWellRftPlot.h"
 
 #include "RiuPlotMainWindowTools.h"
@@ -56,9 +56,9 @@ void RicCreateRftPlotsFeature::onActionTriggered( bool isChecked )
     std::set<QString> wellsWithRftData;
 
     auto dataSource = sourcePlot->dataSource();
-    if ( auto summaryCollection = std::get_if<RimSummaryCaseCollection*>( &dataSource ) )
+    if ( auto summaryCollection = std::get_if<RimSummaryEnsemble*>( &dataSource ) )
     {
-        wellsWithRftData = ( *summaryCollection )->wellsWithRftData();
+        wellsWithRftData = RimSummaryEnsembleTools::wellsWithRftData( ( *summaryCollection )->allSummaryCases() );
     }
     else if ( auto summaryCase = std::get_if<RimSummaryCase*>( &dataSource ) )
     {
@@ -102,8 +102,7 @@ void RicCreateRftPlotsFeature::appendRftPlotForWell( const QString& wellName, Ri
 
     // Create a RFT plot based on wellName, and reuse the data source selection in sourcePlot
 
-    auto rftPlot =
-        dynamic_cast<RimWellRftPlot*>( sourcePlot->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    auto rftPlot = sourcePlot->copyObject<RimWellRftPlot>();
     if ( !rftPlot ) return;
 
     rftPlot->setSimWellOrWellPathName( wellName );

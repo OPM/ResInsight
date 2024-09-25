@@ -452,7 +452,7 @@ std::vector<size_t> RifInpReader::readElementSet( std::istream& stream )
         auto parts = RiaStdStringTools::splitString( line, ',' );
         for ( auto part : parts )
         {
-            std::string trimmedPart = RiaStdStringTools::trimString( part );
+            auto trimmedPart = RiaStdStringTools::trimString( part );
 
             if ( !trimmedPart.empty() )
             {

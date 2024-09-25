@@ -25,7 +25,7 @@
 #include "RiaTextStringTools.h"
 
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 

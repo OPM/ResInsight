@@ -19,7 +19,7 @@
 #include "RiaCurveSetDefinition.h"
 
 #include "RifSummaryReaderInterface.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -32,7 +32,7 @@ RiaCurveSetDefinition::RiaCurveSetDefinition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaCurveSetDefinition::RiaCurveSetDefinition( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& summaryAddress )
+RiaCurveSetDefinition::RiaCurveSetDefinition( RimSummaryEnsemble* ensemble, const RifEclipseSummaryAddress& summaryAddress )
     : m_ensemble( ensemble )
     , m_summaryAddress( summaryAddress )
 {
@@ -41,7 +41,7 @@ RiaCurveSetDefinition::RiaCurveSetDefinition( RimSummaryCaseCollection* ensemble
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RiaCurveSetDefinition::ensemble() const
+RimSummaryEnsemble* RiaCurveSetDefinition::ensemble() const
 {
     return m_ensemble;
 }

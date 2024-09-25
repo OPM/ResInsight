@@ -23,6 +23,8 @@
 #include "RiaDefines.h"
 #include "RiaPorosityModel.h"
 
+#include "RifReaderSettings.h"
+
 #include "cvfCollection.h"
 #include "cvfObject.h"
 
@@ -36,7 +38,6 @@
 #include <vector>
 
 class RigEclipseCaseData;
-class RifReaderSettings;
 class RigFault;
 
 //==================================================================================================
@@ -47,17 +48,19 @@ class RigFault;
 class RifReaderInterface : public cvf::Object
 {
 public:
-    RifReaderInterface() {}
+    RifReaderInterface();
     ~RifReaderInterface() override {}
 
-    void setReaderSettings( std::shared_ptr<RifReaderSettings> readerSettings );
+    bool          isFaultImportEnabled() const;
+    bool          isImportOfCompleteMswDataEnabled() const;
+    bool          isNNCsEnabled() const;
+    bool          includeInactiveCellsInFaultGeometry() const;
+    bool          loadWellDataEnabled() const;
+    const QString faultIncludeFileAbsolutePathPrefix() const;
+    bool          onlyLoadActiveCells() const;
+    bool          invalidateLongThinCells() const;
 
-    bool          isFaultImportEnabled();
-    bool          isImportOfCompleteMswDataEnabled();
-    bool          isNNCsEnabled();
-    bool          includeInactiveCellsInFaultGeometry();
-    bool          isSkipWellData();
-    const QString faultIncludeFileAbsolutePathPrefix();
+    void setReaderSettings( RifReaderSettings readerSettings );
 
     virtual bool open( const QString& fileName, RigEclipseCaseData* eclipseCase ) = 0;
 
@@ -82,12 +85,9 @@ protected:
     void   importFaults( const QStringList& fileSet, cvf::Collection<RigFault>* faults );
 
 private:
-    const RifReaderSettings* readerSettings() const;
-
-private:
     std::vector<QString> m_filenamesWithFaults;
 
     std::vector<size_t> m_fileTimeStepIndices;
 
-    std::shared_ptr<RifReaderSettings> m_readerSettings;
+    RifReaderSettings m_readerSettings;
 };

@@ -39,4 +39,5 @@ protected:
 
 private:
     void getSelection( std::vector<RimPlot*>& selection ) const;
+    bool isAnyDeletablePlotSelected() const;
 };

@@ -60,36 +60,28 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
 
     for ( const QString& fileName : fileNames )
     {
-        bool retryImport = false;
+        QString errorText;
 
-        do
+        if ( fileName.endsWith( ".rsm", Qt::CaseInsensitive ) )
         {
-            QString errorText;
+            observedData = observedDataCollection->createAndAddRsmObservedSummaryDataFromFile( fileName, &errorText );
+        }
+        else if ( fileName.endsWith( ".txt", Qt::CaseInsensitive ) || fileName.endsWith( ".csv", Qt::CaseInsensitive ) )
+        {
+            bool useSavedFieldValuesInDialog = false;
+            observedData =
+                observedDataCollection->createAndAddCvsObservedSummaryDataFromFile( fileName, useSavedFieldValuesInDialog, &errorText );
+        }
+        else
+        {
+            errorText = "Not able to import file. Make sure '*.rsm' is used as extension if data is in RMS format "
+                        "or '*.txt' or '*.csv' if data is in CSV format.";
+        }
 
-            if ( fileName.endsWith( ".rsm", Qt::CaseInsensitive ) )
-            {
-                observedData = observedDataCollection->createAndAddRsmObservedSummaryDataFromFile( fileName, &errorText );
-                retryImport  = false;
-            }
-            else if ( fileName.endsWith( ".txt", Qt::CaseInsensitive ) || fileName.endsWith( ".csv", Qt::CaseInsensitive ) )
-            {
-                bool useSavedFieldValuesInDialog = retryImport;
-                observedData =
-                    observedDataCollection->createAndAddCvsObservedSummaryDataFromFile( fileName, useSavedFieldValuesInDialog, &errorText );
-                retryImport = !errorText.isEmpty();
-            }
-            else
-            {
-                errorText   = "Not able to import file. Make sure '*.rsm' is used as extension if data is in RMS format "
-                              "or '*.txt' or '*.csv' if data is in CSV format.";
-                retryImport = false;
-            }
-
-            if ( !errorText.isEmpty() )
-            {
-                RiaLogging::errorInMessageBox( nullptr, "Errors detected during import", errorText );
-            }
-        } while ( retryImport );
+        if ( !errorText.isEmpty() )
+        {
+            RiaLogging::errorInMessageBox( nullptr, "Errors detected during import", errorText );
+        }
     }
 
     RiuPlotMainWindowTools::showPlotMainWindow();

@@ -18,6 +18,8 @@
 
 #include "RimGridTimeHistoryCurve.h"
 
+#include <memory>
+
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFemResultAddress.h"
@@ -368,7 +370,7 @@ void RimGridTimeHistoryCurve::updateZoomInParentPlot()
 {
     auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
 
-    plot->updateZoomInParentPlot();
+    plot->updatePlotWidgetFromAxisRanges();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -714,24 +716,22 @@ std::unique_ptr<RiuFemTimeHistoryResultAccessor> RimGridTimeHistoryCurve::femTim
             intersectionTriangle[1] = cvf::Vec3f( geoMechTopItem->m_intersectionTriangle_1() );
             intersectionTriangle[2] = cvf::Vec3f( geoMechTopItem->m_intersectionTriangle_2() );
 
-            timeHistResultAccessor = std::unique_ptr<RiuFemTimeHistoryResultAccessor>(
-                new RiuFemTimeHistoryResultAccessor( geoMechTopItem->geoMechCase()->geoMechData(),
-                                                     m_geoMechResultDefinition()->resultAddress(),
-                                                     geoMechTopItem->m_gridIndex,
-                                                     static_cast<int>( geoMechTopItem->m_cellIndex ),
-                                                     geoMechTopItem->m_elementFace,
-                                                     geoMechTopItem->m_localIntersectionPoint,
-                                                     intersectionTriangle ) );
+            timeHistResultAccessor = std::make_unique<RiuFemTimeHistoryResultAccessor>( geoMechTopItem->geoMechCase()->geoMechData(),
+                                                                                        m_geoMechResultDefinition()->resultAddress(),
+                                                                                        geoMechTopItem->m_gridIndex,
+                                                                                        static_cast<int>( geoMechTopItem->m_cellIndex ),
+                                                                                        geoMechTopItem->m_elementFace,
+                                                                                        geoMechTopItem->m_localIntersectionPoint,
+                                                                                        intersectionTriangle );
         }
         else
         {
-            timeHistResultAccessor = std::unique_ptr<RiuFemTimeHistoryResultAccessor>(
-                new RiuFemTimeHistoryResultAccessor( geoMechTopItem->geoMechCase()->geoMechData(),
-                                                     m_geoMechResultDefinition()->resultAddress(),
-                                                     geoMechTopItem->m_gridIndex,
-                                                     static_cast<int>( geoMechTopItem->m_cellIndex ),
-                                                     geoMechTopItem->m_elementFace,
-                                                     geoMechTopItem->m_localIntersectionPoint ) );
+            timeHistResultAccessor = std::make_unique<RiuFemTimeHistoryResultAccessor>( geoMechTopItem->geoMechCase()->geoMechData(),
+                                                                                        m_geoMechResultDefinition()->resultAddress(),
+                                                                                        geoMechTopItem->m_gridIndex,
+                                                                                        static_cast<int>( geoMechTopItem->m_cellIndex ),
+                                                                                        geoMechTopItem->m_elementFace,
+                                                                                        geoMechTopItem->m_localIntersectionPoint );
         }
     }
 

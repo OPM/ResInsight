@@ -1,0 +1,44 @@
+name: Update Submodules
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Runs every Sunday at midnight
+  workflow_dispatch: # Allows manual triggering of the workflow
+
+jobs:
+  update-submodules:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        submodule: 
+          - tomlplusplus
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Update submodules to latest release
+        id: git-change-job
+        run: |
+          cd ThirdParty/${{ matrix.submodule }}
+          git fetch --tags
+          latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+
+          if [ -n "$latest_tag" ]; then
+            git checkout $latest_tag
+            echo "LATEST_TAG=$latest_tag" >> "$GITHUB_OUTPUT"
+          else
+            echo "Empty tag detected in ${{ matrix.submodule }}. Nothing to do."
+          fi
+
+      - name: Create PR
+        # The generated PR does not have any tests. Close and reopen the PR to activate tests.
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Update ${{ matrix.submodule }} to ${{ steps.git-change-job.outputs.LATEST_TAG }}"
+          title: "Update ${{ matrix.submodule }} to ${{ steps.git-change-job.outputs.LATEST_TAG }}"
+          branch: ci-update-${{ matrix.submodule }}
+          branch-suffix: random

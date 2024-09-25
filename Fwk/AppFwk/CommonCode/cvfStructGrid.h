@@ -85,7 +85,7 @@ public:
 
     virtual cvf::Vec3d minCoordinate() const = 0;
     virtual cvf::Vec3d maxCoordinate() const = 0;
-    void               characteristicCellSizes( double* iSize, double* jSize, double* kSize ) const;
+    virtual void       characteristicCellSizes( double* iSize, double* jSize, double* kSize ) const;
 
     bool hasValidCharacteristicCellSizes() const;
     void computeCharacteristicCellSize( const std::vector<size_t>& globalCellIndices ) const;
@@ -123,7 +123,7 @@ public:
                                                       cvf::StructGridInterface::FaceType face2 );
     static std::vector<FaceType>   validFaceTypes();
 
-private:
+protected:
     mutable double m_characteristicCellSizeI;
     mutable double m_characteristicCellSizeJ;
     mutable double m_characteristicCellSizeK;

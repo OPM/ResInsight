@@ -180,7 +180,7 @@ Rim3dView::Rim3dView()
     // Every timer tick, send a signal for updating animations.
     // Any animation is supposed to connect to this signal
     // in order to having only one central animation driver.
-    m_animationTimer = std::make_unique<QTimer>( new QTimer() );
+    m_animationTimer = std::make_unique<QTimer>();
     m_animationTimer->setInterval( m_animationIntervalMillisec );
     QObject::connect( m_animationTimer.get(), &QTimer::timeout, [this]() { updateAnimations.send(); } );
 }
@@ -197,10 +197,7 @@ Rim3dView::~Rim3dView()
 
     if ( auto proj = RimProject::current() )
     {
-        std::vector<Rim3dView*> allViews;
-        proj->allViews( allViews );
-
-        for ( auto v : allViews )
+        for ( auto v : proj->allViews() )
         {
             if ( v->activeComparisonView() == this )
             {
@@ -591,11 +588,8 @@ std::vector<Rim3dView*> Rim3dView::validComparisonViews() const
 {
     auto isIntersectionView = []( const Rim3dView* view ) { return dynamic_cast<const Rim2dIntersectionView*>( view ) != nullptr; };
 
-    std::vector<Rim3dView*> views;
-    RimProject::current()->allViews( views );
-
     std::vector<Rim3dView*> validComparisonViews;
-    for ( auto view : views )
+    for ( auto view : RimProject::current()->allViews() )
     {
         if ( dynamic_cast<RimSeismicView*>( view ) ) continue;
 
@@ -1851,7 +1845,7 @@ RimAnnotationInViewCollection* Rim3dView::annotationCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::syncronizeLocalAnnotationsFromGlobal()
+void Rim3dView::synchronizeLocalAnnotationsFromGlobal()
 {
     RimProject* proj = RimProject::current();
     if ( proj && proj->activeOilField() )

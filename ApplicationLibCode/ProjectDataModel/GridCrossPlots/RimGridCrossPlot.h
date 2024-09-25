@@ -21,7 +21,6 @@
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 
-#include "RiaPlotDefines.h"
 #include "RimNameConfig.h"
 #include "RimPlot.h"
 
@@ -100,8 +99,8 @@ public:
 
     void updateLegend() override;
 
-    void updateZoomInParentPlot() override;
-    void updateZoomFromParentPlot() override;
+    void updatePlotWidgetFromAxisRanges() override;
+    void updateAxisRangesFromPlotWidget() override;
 
     void            setAutoScaleXEnabled( bool enabled ) override;
     void            setAutoScaleYEnabled( bool enabled ) override;
@@ -125,8 +124,6 @@ protected:
     virtual QString xAxisParameterString() const;
     QString         yAxisParameterString() const;
 
-    void                             updateAxisInQwt( RiaDefines::PlotAxis axisType );
-    void                             updateAxisFromQwt( RiaDefines::PlotAxis axisType );
     std::vector<const RimPlotCurve*> visibleCurves() const;
 
     RimPlotAxisProperties* xAxisProperties();
@@ -148,6 +145,7 @@ private:
     void connectAxisSignals( RimPlotAxisProperties* axis );
     void axisSettingsChanged( const caf::SignalEmitter* emitter );
     void axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic );
+    void applyPropertiesOnPlotAxes();
 
 private slots:
     void onPlotZoomed();

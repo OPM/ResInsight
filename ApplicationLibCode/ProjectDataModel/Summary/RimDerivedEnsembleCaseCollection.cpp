@@ -23,8 +23,8 @@
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimDerivedSummaryCase.h"
 #include "RimProject.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "RifSummaryReaderInterface.h"
 
@@ -96,7 +96,7 @@ RimDerivedEnsembleCaseCollection::~RimDerivedEnsembleCaseCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedEnsembleCaseCollection::setEnsemble1( RimSummaryCaseCollection* ensemble )
+void RimDerivedEnsembleCaseCollection::setEnsemble1( RimSummaryEnsemble* ensemble )
 {
     m_ensemble1 = ensemble;
     updateAutoName();
@@ -105,7 +105,7 @@ void RimDerivedEnsembleCaseCollection::setEnsemble1( RimSummaryCaseCollection* e
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedEnsembleCaseCollection::setEnsemble2( RimSummaryCaseCollection* ensemble )
+void RimDerivedEnsembleCaseCollection::setEnsemble2( RimSummaryEnsemble* ensemble )
 {
     m_ensemble2 = ensemble;
     updateAutoName();
@@ -253,7 +253,7 @@ QList<caf::PdmOptionItemInfo> RimDerivedEnsembleCaseCollection::calculateValueOp
 
     if ( fieldNeedingOptions == &m_fixedTimeStepIndex )
     {
-        RimSummaryCaseCollection* sourceEnsemble = nullptr;
+        RimSummaryEnsemble* sourceEnsemble = nullptr;
         if ( m_useFixedTimeStep() == FixedTimeStepMode::FIXED_TIME_STEP_CASE_1 )
         {
             sourceEnsemble = m_ensemble1;
@@ -282,7 +282,7 @@ QList<caf::PdmOptionItemInfo> RimDerivedEnsembleCaseCollection::calculateValueOp
 //--------------------------------------------------------------------------------------------------
 void RimDerivedEnsembleCaseCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimSummaryCaseCollection::defineUiOrdering( uiConfigName, uiOrdering );
+    RimSummaryEnsemble::defineUiOrdering( uiConfigName, uiOrdering );
 
     uiOrdering.add( &m_caseCount );
     uiOrdering.add( &m_ensemble1 );
@@ -429,6 +429,10 @@ RimDerivedSummaryCase* RimDerivedEnsembleCaseCollection::firstCaseNotInUse()
 
     // If no active case was found, add a new case to the collection
     auto newCase = new RimDerivedSummaryCase();
+
+    // Show realization data source for the first case. If we create for all, the performance will be bad
+    newCase->setShowVectorItemsInProjectTree( m_cases.empty() );
+
     m_cases.push_back( newCase );
     return newCase;
 }
@@ -439,7 +443,7 @@ RimDerivedSummaryCase* RimDerivedEnsembleCaseCollection::firstCaseNotInUse()
 std::vector<RimDerivedSummaryCase*> RimDerivedEnsembleCaseCollection::allDerivedCases( bool activeOnly ) const
 {
     std::vector<RimDerivedSummaryCase*> activeCases;
-    for ( auto sumCase : RimSummaryCaseCollection::allSummaryCases() )
+    for ( auto sumCase : RimSummaryEnsemble::allSummaryCases() )
     {
         auto derivedCase = dynamic_cast<RimDerivedSummaryCase*>( sumCase );
         if ( derivedCase && ( !activeOnly || derivedCase->isInUse() ) )
@@ -457,7 +461,7 @@ void RimDerivedEnsembleCaseCollection::updateAutoName()
 {
     QString timeStepString;
     {
-        RimSummaryCaseCollection* sourceEnsemble = nullptr;
+        RimSummaryEnsemble* sourceEnsemble = nullptr;
         if ( m_useFixedTimeStep() == FixedTimeStepMode::FIXED_TIME_STEP_CASE_1 )
         {
             sourceEnsemble = m_ensemble1;
@@ -594,9 +598,9 @@ std::vector<RimDerivedEnsembleCaseCollection*> RimDerivedEnsembleCaseCollection:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCaseCollection*> RimDerivedEnsembleCaseCollection::allEnsembles() const
+std::vector<RimSummaryEnsemble*> RimDerivedEnsembleCaseCollection::allEnsembles() const
 {
-    std::vector<RimSummaryCaseCollection*> ensembles;
+    std::vector<RimSummaryEnsemble*> ensembles;
 
     auto project = RimProject::current();
 

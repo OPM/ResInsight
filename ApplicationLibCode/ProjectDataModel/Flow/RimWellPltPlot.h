@@ -38,7 +38,7 @@
 class RimEclipseCase;
 class RimEclipseResultCase;
 class RimWellLogCurve;
-class RimWellLogFileChannel;
+class RimWellLogChannel;
 class RimWellPath;
 class RiuWellPltPlot;
 class RimWellLogTrack;
@@ -118,9 +118,10 @@ private:
 
     caf::PdmChildField<RimWellLogPlot*> m_wellLogPlot_OBSOLETE;
 
-    caf::PdmField<bool>                                 m_useStandardConditionCurves;
-    caf::PdmField<bool>                                 m_useReservoirConditionCurves;
-    caf::PdmField<std::vector<caf::AppEnum<FlowPhase>>> m_phases;
+    caf::PdmField<bool> m_useStandardConditionCurves;
+    caf::PdmField<bool> m_useReservoirConditionCurves;
+
+    caf::PdmField<std::vector<caf::AppEnum<RimWellPlotTools::FlowPhase>>> m_phases;
 
     bool m_doInitAfterLoad;
     bool m_isOnLoad;

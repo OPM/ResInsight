@@ -24,6 +24,7 @@
 #include "RiaDateTimeDefines.h"
 #include "RiaDefines.h"
 #include "RiaFontCache.h"
+#include "RiaPreferencesOsdu.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -38,11 +39,14 @@
 #include <QStringList>
 
 #include <map>
+#include <string>
 
-class RifReaderSettings;
 class RiaPreferencesSummary;
 class RiaPreferencesGeoMech;
 class RiaPreferencesSystem;
+class RiaPreferencesOsdu;
+class RiaPreferencesGrid;
+class RiaPreferencesSumo;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -55,7 +59,6 @@ public:
     using FontSizeEnum        = RiaFontCache::FontSizeEnum;
     using PageSizeEnum        = caf::AppEnum<QPageSize::PageSizeId>;
     using PageOrientationEnum = caf::AppEnum<QPageLayout::Orientation>;
-    using GridModelEnum       = caf::AppEnum<RiaDefines::GridModelReader>;
 
     bool enableFaultsByDefault() const;
 
@@ -66,9 +69,6 @@ public:
     static RiaPreferences* current();
 
     QStringList tabNames();
-
-    const RifReaderSettings*    readerSettings() const;
-    RiaDefines::GridModelReader gridModelReader() const;
 
     bool useUndoRedo() const;
 
@@ -124,10 +124,14 @@ public:
     QString loggerFilename() const;
     int     loggerFlushInterval() const;
     bool    loggerTrapSignalAndFlush() const;
+    bool    storeBackupOfProjectFiles() const;
 
     RiaPreferencesGeoMech* geoMechPreferences() const;
     RiaPreferencesSummary* summaryPreferences() const;
     RiaPreferencesSystem*  systemPreferences() const;
+    RiaPreferencesOsdu*    osduPreferences() const;
+    RiaPreferencesSumo*    sumoPreferences() const;
+    RiaPreferencesGrid*    gridPreferences() const;
 
 public:
     caf::PdmField<bool> enableGrpcServer;
@@ -136,8 +140,6 @@ public:
     caf::PdmField<QString> scriptDirectories;
     caf::PdmField<QString> scriptEditorExecutable;
     caf::PdmField<bool>    showPythonDebugInfo;
-
-    caf::PdmField<QString> ssihubAddress;
 
     caf::PdmField<cvf::Color3f> defaultGridLineColors;
     caf::PdmField<cvf::Color3f> defaultFaultGridLineColors;
@@ -150,9 +152,6 @@ public:
     caf::PdmField<FontSizeEnum> defaultPlotFontSize;
 
     caf::PdmField<QString> lastUsedProjectFileName;
-
-    caf::PdmField<bool> autocomputeDepthRelatedProperties;
-    caf::PdmField<bool> loadAndShowSoil;
 
     caf::PdmField<bool>    holoLensDisableCertificateVerification;
     caf::PdmField<QString> csvTextExportFieldSeparator;
@@ -177,9 +176,6 @@ private:
     static double defaultMarginSize( QPageSize::PageSizeId pageSizeId );
 
 private:
-    caf::PdmField<GridModelEnum>           m_gridModelReader;
-    caf::PdmChildField<RifReaderSettings*> m_readerSettings;
-
     caf::PdmField<QString> m_dateFormat;
     caf::PdmField<QString> m_timeFormat;
 
@@ -219,11 +215,16 @@ private:
     caf::PdmField<int>                      m_loggerFlushInterval;
     caf::PdmField<bool>                     m_loggerTrapSignalAndFlush;
 
+    caf::PdmField<bool> m_storeBackupOfProjectFile;
+
     // Surface Import
     caf::PdmField<double> m_surfaceImportResamplingDistance;
 
     // Well Path Import
     caf::PdmField<QString> m_multiLateralWellPattern;
+
+    // Grid import
+    caf::PdmChildField<RiaPreferencesGrid*> m_gridPreferences;
 
     // GeoMech things
     caf::PdmChildField<RiaPreferencesGeoMech*> m_geoMechPreferences;
@@ -233,6 +234,10 @@ private:
 
     // System settings
     caf::PdmChildField<RiaPreferencesSystem*> m_systemPreferences;
+
+    // Osdu settings
+    caf::PdmChildField<RiaPreferencesOsdu*> m_osduPreferences;
+    caf::PdmChildField<RiaPreferencesSumo*> m_sumoPreferences;
 
     // 3d view
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>       m_defaultMeshModeType;

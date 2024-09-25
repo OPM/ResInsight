@@ -53,7 +53,6 @@ class RimIntersectionCollection : public caf::PdmObject
 
 public:
     RimIntersectionCollection();
-    ~RimIntersectionCollection() override;
 
     void appendIntersectionAndUpdate( RimExtrudedCurveIntersection* intersection, bool allowActiveViewChange = true );
     void appendIntersectionNoUpdate( RimExtrudedCurveIntersection* intersection );
@@ -66,7 +65,7 @@ public:
 
     void updateIntersectionBoxGeometry();
 
-    void syncronize2dIntersectionViews();
+    void synchronize2dIntersectionViews();
     void scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
 
     bool shouldApplyCellFiltersToIntersections() const;

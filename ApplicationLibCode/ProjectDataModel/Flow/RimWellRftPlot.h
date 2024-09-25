@@ -44,7 +44,7 @@ class RimEclipseCase;
 class RimEclipseResultCase;
 class RimRegularLegendConfig;
 class RimWellLogCurve;
-class RimWellLogFileChannel;
+class RimWellLogChannel;
 class RimWellPath;
 class RimWellPathCollection;
 class RiuWellRftPlot;
@@ -84,8 +84,8 @@ public:
 
     int branchIndex() const;
 
-    std::variant<RimSummaryCase*, RimSummaryCaseCollection*> dataSource() const;
-    void applyInitialSelections( std::variant<RimSummaryCase*, RimSummaryCaseCollection*> dataSource );
+    std::variant<RimSummaryCase*, RimSummaryEnsemble*> dataSource() const;
+    void applyInitialSelections( std::variant<RimSummaryCase*, RimSummaryEnsemble*> dataSource );
 
     static const char* plotNameFormatString();
 
@@ -94,7 +94,7 @@ public:
     bool showErrorBarsForObservedData() const;
     void onLegendDefinitionChanged();
 
-    RimWellRftEnsembleCurveSet* findEnsembleCurveSet( RimSummaryCaseCollection* ensemble ) const;
+    RimWellRftEnsembleCurveSet* findEnsembleCurveSet( RimSummaryEnsemble* ensemble ) const;
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -140,8 +140,8 @@ private:
     cvf::Color3f findCurveColor( RimWellLogCurve* curve );
     void         defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveDefinition>& allCurveDefs );
 
-    std::vector<RimSummaryCaseCollection*> selectedEnsembles() const;
-    void                                   createEnsembleCurveSets();
+    std::vector<RimSummaryEnsemble*> selectedEnsembles() const;
+    void                             createEnsembleCurveSets();
 
 private:
     friend class RimWellRftEnsembleCurveSet;

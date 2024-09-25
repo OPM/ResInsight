@@ -47,14 +47,6 @@ RimStimPlanModelTemplateCollection::RimStimPlanModelTemplateCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStimPlanModelTemplateCollection::~RimStimPlanModelTemplateCollection()
-{
-    m_stimPlanModelTemplates.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimStimPlanModelTemplate* RimStimPlanModelTemplateCollection::stimPlanModelTemplate( int id ) const
 {
     for ( const auto& templ : m_stimPlanModelTemplates )
@@ -132,8 +124,7 @@ void RimStimPlanModelTemplateCollection::onChildDeleted( caf::PdmChildArrayField
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 
-    std::vector<Rim3dView*> views;
-    proj->allVisibleViews( views );
+    std::vector<Rim3dView*> views = proj->allVisibleViews();
     for ( Rim3dView* visibleView : views )
     {
         if ( dynamic_cast<RimEclipseView*>( visibleView ) )

@@ -34,7 +34,6 @@ class RimStimPlanModelTemplateCollection : public caf::PdmObject
 
 public:
     RimStimPlanModelTemplateCollection();
-    ~RimStimPlanModelTemplateCollection() override;
 
     RimStimPlanModelTemplate*              stimPlanModelTemplate( int id ) const;
     std::vector<RimStimPlanModelTemplate*> stimPlanModelTemplates() const;

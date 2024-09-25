@@ -74,9 +74,7 @@ QList<caf::PdmOptionItemInfo> RicHoloLensExportToFolderUi::calculateValueOptions
 
     if ( fieldNeedingOptions == &m_viewForExport )
     {
-        std::vector<RimGridView*> visibleViews;
-        RimProject::current()->allVisibleGridViews( visibleViews );
-
+        std::vector<RimGridView*> visibleViews = RimProject::current()->allVisibleGridViews();
         for ( RimGridView* v : visibleViews )
         {
             RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( v, &options );

@@ -135,6 +135,11 @@ bool RiaArgumentParser::parseArguments( cvf::ProgramOptions* progOpt )
     progOpt->registerOption( "version", "", "Display the application version string" );
     progOpt->registerOption( "openplotwindow", "", "Open the 2D plot window. By default, the 3D window is displayed." );
 
+    progOpt->registerOption( "egridReader",
+                             "<readerName>",
+                             "Select the reader type used to access EGRID files, valid values are RESDATA or OPM_COMMON",
+                             cvf::ProgramOptions::SINGLE_VALUE );
+
     progOpt->setOptionPrefix( cvf::ProgramOptions::DOUBLE_DASH );
 
     QStringList arguments = QCoreApplication::arguments();

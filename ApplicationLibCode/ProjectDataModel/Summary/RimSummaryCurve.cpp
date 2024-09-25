@@ -39,9 +39,9 @@
 #include "RimSummaryAddress.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurveAutoName.h"
 #include "RimSummaryCurveCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryTimeAxisProperties.h"
@@ -86,6 +86,9 @@ RimSummaryCurve::RimSummaryCurve()
     m_yValuesSummaryAddress = new RimSummaryAddress;
 
     CAF_PDM_InitFieldNoDefault( &m_yValuesResampling, "Resampling", "Resampling" );
+
+    CAF_PDM_InitFieldNoDefault( &m_yCurveTypeMode, "CurveTypeMode", "Curve Type" );
+    CAF_PDM_InitFieldNoDefault( &m_yCurveType, "CurveType", "" );
 
     // X Values
 
@@ -422,6 +425,14 @@ void RimSummaryCurve::setOverrideCurveDataY( const std::vector<time_t>& dateTime
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddressDefines::CurveType RimSummaryCurve::curveType() const
+{
+    return m_yCurveType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setAxisTypeX( RiaDefines::HorizontalAxisType axisType )
 {
     m_xAxisType = axisType;
@@ -597,7 +608,7 @@ void RimSummaryCurve::updateZoomInParentPlot()
 {
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
-    plot->updateZoomInParentPlot();
+    plot->updatePlotWidgetFromAxisRanges();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -899,9 +910,15 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         curveDataGroup->add( &m_yValuesSummaryCase, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
         curveDataGroup->add( &m_yValuesSummaryAddressUiField, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
         curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
-        curveDataGroup->add( &m_yValuesResampling, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
         curveDataGroup->add( &m_yPlotAxisProperties, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
-        curveDataGroup->add( &m_showErrorBars );
+
+        caf::PdmUiGroup* detailGroup = curveDataGroup->addNewGroup( "Advanced Properties" );
+        detailGroup->setCollapsedByDefault();
+        detailGroup->add( &m_yValuesResampling );
+        detailGroup->add( &m_showErrorBars );
+        detailGroup->add( &m_yCurveTypeMode );
+        detailGroup->add( &m_yCurveType );
+        m_yCurveType.uiCapability()->setUiReadOnly( m_yCurveTypeMode() == RiaDefines::SummaryCurveTypeMode::AUTO );
     }
 
     if ( m_showXAxisGroup )
@@ -1021,7 +1038,7 @@ QString RimSummaryCurve::curveExportDescription( const RifEclipseSummaryAddress&
     RimEnsembleCurveSetCollection* coll = firstAncestorOrThisOfType<RimEnsembleCurveSetCollection>();
 
     auto curveSet = coll ? coll->findCurveSetFromPlotCurve( m_plotCurve ) : nullptr;
-    auto group    = curveSet ? curveSet->summaryCaseCollection() : nullptr;
+    auto group    = curveSet ? curveSet->summaryEnsemble() : nullptr;
 
     auto addressUiText = addr.uiText();
     if ( !m_yValuesSummaryCase() )
@@ -1251,6 +1268,10 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         m_xPushButtonSelectSummaryAddress = false;
     }
+    else if ( changedField == &m_yCurveTypeMode )
+    {
+        calculateCurveTypeFromAddress();
+    }
 
     if ( crossPlotTestForMatchingTimeSteps )
     {
@@ -1369,17 +1390,30 @@ std::vector<time_t> RimSummaryCurve::timeStepsX() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::calculateCurveInterpolationFromAddress()
 {
-    if ( m_yValuesSummaryAddress() )
+    if ( !m_yValuesSummaryAddress() ) return;
+
+    calculateCurveTypeFromAddress();
+
+    if ( curveType() == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED )
     {
-        auto address = m_yValuesSummaryAddress()->address();
-        if ( RiaSummaryTools::hasAccumulatedData( address ) )
-        {
-            m_curveAppearance->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT );
-        }
-        else
-        {
-            m_curveAppearance->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT );
-        }
+        m_curveAppearance->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT );
+    }
+    else
+    {
+        m_curveAppearance->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::calculateCurveTypeFromAddress()
+{
+    if ( !m_yValuesSummaryAddress() ) return;
+
+    if ( m_yCurveTypeMode() == RiaDefines::SummaryCurveTypeMode::AUTO )
+    {
+        m_yCurveType = RiaSummaryTools::identifyCurveType( m_yValuesSummaryAddress()->address() );
     }
 }
 
@@ -1388,4 +1422,56 @@ void RimSummaryCurve::calculateCurveInterpolationFromAddress()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::updateTimeAnnotations()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::updateLegendEntryVisibilityNoPlotUpdate()
+{
+    if ( !m_plotCurve ) return;
+    if ( !firstAncestorOrThisOfType<RimEnsembleCurveSet>() ) return;
+
+    bool showLegendInPlot = m_showLegend();
+    if ( auto summaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>() )
+    {
+        bool anyCalculated = false;
+        for ( const auto c : summaryPlot->summaryCurves() )
+        {
+            if ( c->summaryAddressY().isCalculated() )
+            {
+                // Never hide the legend for calculated curves, as the curve legend is used to
+                // show some essential auto generated data
+                anyCalculated = true;
+            }
+        }
+
+        auto isMultiPlot = ( firstAncestorOrThisOfType<RimMultiPlot>() != nullptr );
+
+        if ( !anyCalculated && isMultiPlot && summaryPlot->ensembleCurveSetCollection()->curveSets().empty() && summaryPlot->curveCount() == 1 )
+        {
+            // Disable display of legend if the summary plot has only one single curve
+            showLegendInPlot = false;
+        }
+    }
+
+    m_plotCurve->setVisibleInLegend( showLegendInPlot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCurve::canCurveBeAttached() const
+{
+    if ( !RimPlotCurve::canCurveBeAttached() ) return false;
+
+    bool isVisibleInPossibleParent = true;
+
+    auto summaryCurveCollection = firstAncestorOrThisOfType<RimSummaryCurveCollection>();
+    if ( summaryCurveCollection ) isVisibleInPossibleParent = summaryCurveCollection->isCurvesVisible();
+
+    auto ensembleCurveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
+    if ( ensembleCurveSet ) isVisibleInPossibleParent = ensembleCurveSet->isCurvesVisible();
+
+    return isVisibleInPossibleParent;
 }

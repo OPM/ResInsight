@@ -31,7 +31,8 @@
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
+#include "RimSummaryEnsembleTools.h"
 
 #include "RiuContextMenuLauncher.h"
 #include "RiuPlotMainWindowTools.h"
@@ -303,7 +304,7 @@ QList<caf::PdmOptionItemInfo> RimAbstractCorrelationPlot::calculateValueOptions(
     }
     else if ( fieldNeedingOptions == &m_curveSetForFiltering )
     {
-        RimSummaryCaseCollection* ensemble = nullptr;
+        RimSummaryEnsemble* ensemble = nullptr;
 
         for ( auto e : m_dataSources )
         {
@@ -339,7 +340,7 @@ std::set<time_t> RimAbstractCorrelationPlot::allAvailableTimeSteps()
     std::set<time_t> timeStepUnion;
 
     RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
-    for ( RimSummaryCaseCollection* ensemble : analyserOfSelectedCurveDefs->m_ensembles )
+    for ( RimSummaryEnsemble* ensemble : analyserOfSelectedCurveDefs->m_ensembles )
     {
         const std::set<time_t>& timeSteps = ensemble->ensembleTimeSteps();
         timeStepUnion.insert( timeSteps.begin(), timeSteps.end() );
@@ -389,7 +390,7 @@ std::set<RifEclipseSummaryAddress> RimAbstractCorrelationPlot::addresses() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RimSummaryCaseCollection*> RimAbstractCorrelationPlot::ensembles() const
+std::set<RimSummaryEnsemble*> RimAbstractCorrelationPlot::ensembles() const
 {
     RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
     return analyserOfSelectedCurveDefs->m_ensembles;
@@ -398,7 +399,7 @@ std::set<RimSummaryCaseCollection*> RimAbstractCorrelationPlot::ensembles() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RimSummaryCase*> RimAbstractCorrelationPlot::filterEnsembleCases( RimSummaryCaseCollection* ensemble ) const
+std::set<RimSummaryCase*> RimAbstractCorrelationPlot::filterEnsembleCases( RimSummaryEnsemble* ensemble ) const
 {
     std::set<RimSummaryCase*> setOfCases;
 
@@ -406,7 +407,7 @@ std::set<RimSummaryCase*> RimAbstractCorrelationPlot::filterEnsembleCases( RimSu
     {
         std::vector<RimSummaryCase*> summaryCasesVector;
 
-        if ( m_useCaseFilter() && m_curveSetForFiltering() && m_curveSetForFiltering->summaryCaseCollection() == ensemble )
+        if ( m_useCaseFilter() && m_curveSetForFiltering() && m_curveSetForFiltering->summaryEnsemble() == ensemble )
         {
             summaryCasesVector = m_curveSetForFiltering->filterEnsembleCases( ensemble->allSummaryCases() );
         }
@@ -463,9 +464,9 @@ std::set<RigEnsembleParameter> RimAbstractCorrelationPlot::ensembleParameters()
 
     RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
 
-    for ( RimSummaryCaseCollection* ensemble : analyserOfSelectedCurveDefs->m_ensembles )
+    for ( RimSummaryEnsemble* ensemble : analyserOfSelectedCurveDefs->m_ensembles )
     {
-        std::vector<RigEnsembleParameter> parameters = ensemble->alphabeticEnsembleParameters();
+        std::vector<RigEnsembleParameter> parameters = RimSummaryEnsembleTools::alphabeticEnsembleParameters( ensemble->allSummaryCases() );
         ensembleParms.insert( parameters.begin(), parameters.end() );
     }
     return ensembleParms;
@@ -480,7 +481,7 @@ std::set<RigEnsembleParameter> RimAbstractCorrelationPlot::variationSortedEnsemb
 
     RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
 
-    for ( RimSummaryCaseCollection* ensemble : analyserOfSelectedCurveDefs->m_ensembles )
+    for ( RimSummaryEnsemble* ensemble : analyserOfSelectedCurveDefs->m_ensembles )
     {
         std::vector<RigEnsembleParameter> parameters = ensemble->variationSortedEnsembleParameters();
         ensembleParms.insert( parameters.begin(), parameters.end() );

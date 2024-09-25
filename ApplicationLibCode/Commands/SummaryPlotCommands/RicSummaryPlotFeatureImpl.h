@@ -18,6 +18,7 @@
 #pragma once
 
 #include <QString>
+#include <QStringList>
 
 #include <set>
 #include <vector>
@@ -32,10 +33,8 @@ class PdmObject;
 class RimSummaryCurve;
 class RimSummaryPlot;
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RimEnsembleCurveSet;
-
-class QStringList;
 
 class RicSummaryPlotFeatureImpl
 {
@@ -53,7 +52,7 @@ public:
     static void createSummaryPlotsFromArgumentLine( const QStringList& arguments );
 
     static RimSummaryPlot* createSummaryPlotForEnsemble( const std::vector<RimSummaryCase*>& summaryCasesToUse,
-                                                         RimSummaryCaseCollection*           ensemble,
+                                                         RimSummaryEnsemble*                 ensemble,
                                                          QStringList                         summaryAddressFilters,
                                                          bool                                addHistoryCurves = false,
                                                          EnsembleColoringType ensembleColoringStyle           = EnsembleColoringType::NONE,
@@ -65,7 +64,7 @@ public:
 
     static std::vector<RimSummaryPlot*>
         createMultipleSummaryPlotsFromAddresses( const std::vector<RimSummaryCase*>& summaryCasesToUse,
-                                                 RimSummaryCaseCollection*           ensemble,
+                                                 RimSummaryEnsemble*                 ensemble,
                                                  QStringList                         summaryAddressFilters,
                                                  bool                                addHistoryCurves          = false,
                                                  EnsembleColoringType                ensembleColoringStyle     = EnsembleColoringType::NONE,
@@ -79,7 +78,7 @@ public:
     static QString summaryPlotCommandLineHelpText();
 
 private:
-    static RimEnsembleCurveSet* createCurveSet( RimSummaryCaseCollection*       ensemble,
+    static RimEnsembleCurveSet* createCurveSet( RimSummaryEnsemble*             ensemble,
                                                 const RifEclipseSummaryAddress& addr,
                                                 EnsembleColoringType            ensembleColoringStyle,
                                                 QString                         ensembleColoringParameter );

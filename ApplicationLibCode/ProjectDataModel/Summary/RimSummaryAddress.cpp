@@ -20,10 +20,6 @@
 
 #include "RiaSummaryDefines.h"
 
-#include "RimProject.h"
-#include "RimSummaryCalculation.h"
-#include "RimSummaryCalculationCollection.h"
-
 #include <QRegularExpression>
 
 namespace caf

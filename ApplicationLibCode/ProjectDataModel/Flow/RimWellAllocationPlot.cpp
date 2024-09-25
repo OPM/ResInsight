@@ -18,6 +18,8 @@
 
 #include "RimWellAllocationPlot.h"
 
+#include <memory>
+
 #include "RiaNumericalTools.h"
 #include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
@@ -332,18 +334,18 @@ void RimWellAllocationPlot::updateFromWell()
         RigEclCellIndexCalculator cellIdxCalc( m_case->eclipseCaseData()->mainGrid(),
                                                m_case->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
                                                nullptr );
-        wfCalculator.reset( new RigAccWellFlowCalculator( pipeBranchesCLCoords,
-                                                          pipeBranchesCellIds,
-                                                          tracerFractionCellValues,
-                                                          cellIdxCalc,
-                                                          smallContributionThreshold,
-                                                          isProducer ) );
+        wfCalculator = std::make_unique<RigAccWellFlowCalculator>( pipeBranchesCLCoords,
+                                                                   pipeBranchesCellIds,
+                                                                   tracerFractionCellValues,
+                                                                   cellIdxCalc,
+                                                                   smallContributionThreshold,
+                                                                   isProducer );
     }
     else
     {
         if ( !pipeBranchesCLCoords.empty() )
         {
-            wfCalculator.reset( new RigAccWellFlowCalculator( pipeBranchesCLCoords, pipeBranchesCellIds, smallContributionThreshold ) );
+            wfCalculator = std::make_unique<RigAccWellFlowCalculator>( pipeBranchesCLCoords, pipeBranchesCellIds, smallContributionThreshold );
         }
     }
 

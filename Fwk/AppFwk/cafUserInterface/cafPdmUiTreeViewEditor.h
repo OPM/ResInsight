@@ -87,8 +87,10 @@ public:
     explicit PdmUiTreeViewWidget( QWidget* parent = nullptr )
         : QTreeView( parent )
     {
-        setStyle( new PdmUiTreeViewStyle );
+        m_style = std::make_shared<PdmUiTreeViewStyle>();
+        setStyle( m_style.get() );
     };
+
     ~PdmUiTreeViewWidget() override{};
 
     bool isTreeItemEditWidgetActive() const { return state() == QAbstractItemView::EditingState; }
@@ -96,6 +98,8 @@ public:
 protected:
     void dragMoveEvent( QDragMoveEvent* event ) override;
     void dragLeaveEvent( QDragLeaveEvent* event ) override;
+
+    std::shared_ptr<PdmUiTreeViewStyle> m_style;
 };
 
 //--------------------------------------------------------------------------------------------------

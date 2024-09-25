@@ -25,7 +25,7 @@
 
 #include "RimFileWellPath.h"
 #include "RimTools.h"
-#include "RimWellLogFileChannel.h"
+#include "RimWellLogChannel.h"
 
 #include <QFileInfo>
 #include <QString>
@@ -49,14 +49,6 @@ RimWellLogCsvFile::RimWellLogCsvFile()
     RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_name );
 
     m_wellLogDataFile = nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimWellLogCsvFile::~RimWellLogCsvFile()
-{
-    m_wellLogChannelNames.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,14 +78,14 @@ bool RimWellLogCsvFile::readFile( QString* errorMessage )
         return false;
     }
 
-    m_wellLogChannelNames.deleteChildren();
+    m_wellLogChannels.deleteChildren();
 
     QStringList wellLogNames = m_wellLogDataFile->wellLogChannelNames();
     for ( int logIdx = 0; logIdx < wellLogNames.size(); logIdx++ )
     {
-        RimWellLogFileChannel* wellLog = new RimWellLogFileChannel();
+        RimWellLogChannel* wellLog = new RimWellLogChannel();
         wellLog->setName( wellLogNames[logIdx] );
-        m_wellLogChannelNames.push_back( wellLog );
+        m_wellLogChannels.push_back( wellLog );
     }
 
     return true;
@@ -117,7 +109,7 @@ std::vector<std::pair<double, double>> RimWellLogCsvFile::findMdAndChannelValues
     std::vector<RimWellLogCsvFile*> wellLogFiles = wellPath.descendantsIncludingThisOfType<RimWellLogCsvFile>();
     for ( RimWellLogCsvFile* wellLogFile : wellLogFiles )
     {
-        RigWellLogCsvFile* fileData = wellLogFile->wellLogFileData();
+        RigWellLogCsvFile* fileData = wellLogFile->wellLogData();
         if ( fileData )
         {
             std::vector<double> channelValues = fileData->values( channelName );
@@ -144,7 +136,7 @@ std::vector<std::pair<double, double>> RimWellLogCsvFile::findMdAndChannelValues
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWellLogCsvFile* RimWellLogCsvFile::wellLogFileData()
+RigWellLogCsvFile* RimWellLogCsvFile::wellLogData()
 {
     return m_wellLogDataFile.p();
 }

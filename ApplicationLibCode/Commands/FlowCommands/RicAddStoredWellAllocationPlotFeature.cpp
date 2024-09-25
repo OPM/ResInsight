@@ -62,9 +62,7 @@ void RicAddStoredWellAllocationPlotFeature::onActionTriggered( bool isChecked )
     {
         RimWellAllocationPlot* sourceObject = dynamic_cast<RimWellAllocationPlot*>( caf::SelectionManager::instance()->selectedItem() );
 
-        RimWellAllocationPlot* wellAllocationPlot =
-            dynamic_cast<RimWellAllocationPlot*>( sourceObject->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-
+        auto wellAllocationPlot = sourceObject->copyObject<RimWellAllocationPlot>();
         CVF_ASSERT( wellAllocationPlot );
 
         flowPlotColl->addWellAllocPlotToStoredPlots( wellAllocationPlot );

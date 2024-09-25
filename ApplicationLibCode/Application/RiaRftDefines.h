@@ -22,10 +22,21 @@
 
 namespace RiaDefines
 {
+bool    isSegmentResult( const QString& resultName );
 QString segmentStartDepthResultName();
 QString segmentEndDepthResultName();
 QString segmentTvdDepthResultName();
 QString segmentNumberResultName();
+
+bool        isSegmentConnectionResult( const QString& resultName );
+QString     segmentConnectionTvdDepthResultName();
+std::string segmentConnectionEndDepthResultName();
+std::string segmentConnectionStartDepthResultName();
+std::string segmentConnectionBranchNoResultName();
+QString     segmentConnectionMeasuredDepthResultName();
+std::string segmentConnectionIPos();
+std::string segmentConnectionJPos();
+std::string segmentConnectionKPos();
 
 QString allBranches();
 QString segmentBranchNumberResultName();

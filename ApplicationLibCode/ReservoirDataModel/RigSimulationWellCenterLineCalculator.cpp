@@ -243,7 +243,10 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeSt
     // Well head
     // Match this position with well head position in RivWellHeadPartMgr::buildWellHeadParts()
 
-    const RigCell& whCell     = eclipseCaseData->cellFromWellResultCell( wellFrame.wellHeadOrStartCell() );
+    auto wellPoint = wellFrame.wellHeadOrStartCell();
+    if ( !wellPoint.isCell() ) return;
+
+    const RigCell& whCell     = eclipseCaseData->cellFromWellResultCell( wellPoint );
     cvf::Vec3d     whStartPos = whCell.faceCenter( cvf::StructGridInterface::NEG_K );
 
     RigWellResultPoint        wellHead  = wellFrame.wellHeadOrStartCell();

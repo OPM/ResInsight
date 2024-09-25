@@ -41,7 +41,6 @@ class RimWellLogCsvFile : public RimWellLogFile
 
 public:
     RimWellLogCsvFile();
-    ~RimWellLogCsvFile() override;
 
     QString name() const override { return m_name; }
 
@@ -49,7 +48,7 @@ public:
 
     QString wellName() const override;
 
-    RigWellLogCsvFile* wellLogFileData() override;
+    RigWellLogCsvFile* wellLogData() override;
 
     std::vector<std::pair<double, double>>
         findMdAndChannelValuesForWellPath( const RimWellPath& wellPath, const QString& channelName, QString* unitString = nullptr ) override;

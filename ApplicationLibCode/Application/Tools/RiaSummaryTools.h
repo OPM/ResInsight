@@ -19,9 +19,13 @@
 #pragma once
 
 #include "RiaDateTimeDefines.h"
+
+#include "RifEclipseSummaryAddressDefines.h"
+
 #include "RimObservedDataCollection.h"
 
 #include <QString>
+#include <QStringList>
 
 #include <vector>
 
@@ -31,14 +35,12 @@ class RimSummaryMultiPlot;
 class RimSummaryMultiPlotCollection;
 class RimSummaryCaseMainCollection;
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RimSummaryTable;
 class RimSummaryTableCollection;
 class RimObservedDataCollection;
 class RimSummaryCurve;
 class RimUserDefinedCalculation;
-
-class QStringList;
 
 namespace caf
 {
@@ -67,18 +69,24 @@ public:
     static RimSummaryTable*           parentSummaryTable( caf::PdmObject* object );
     static RimSummaryTableCollection* parentSummaryTableCollection( caf::PdmObject* object );
 
-    static bool hasAccumulatedData( const RifEclipseSummaryAddress& address );
-    static void getSummaryCasesAndAddressesForCalculation( int                                    id,
-                                                           std::vector<RimSummaryCase*>&          cases,
-                                                           std::vector<RifEclipseSummaryAddress>& addresses );
+    static RifEclipseSummaryAddressDefines::CurveType identifyCurveType( const RifEclipseSummaryAddress& address );
+    static void                                       getSummaryCasesAndAddressesForCalculation( int                                    id,
+                                                                                                 std::vector<RimSummaryCase*>&          cases,
+                                                                                                 std::vector<RifEclipseSummaryAddress>& addresses );
 
     static std::pair<std::vector<time_t>, std::vector<double>> resampledValuesForPeriod( const RifEclipseSummaryAddress& address,
                                                                                          const std::vector<time_t>&      timeSteps,
                                                                                          const std::vector<double>&      values,
                                                                                          RiaDefines::DateTimePeriod      period );
 
-    static RimSummaryCase*           summaryCaseById( int caseId );
-    static RimSummaryCaseCollection* ensembleById( int ensembleId );
+    static std::pair<std::vector<time_t>, std::vector<double>>
+        resampledValuesForPeriod( RifEclipseSummaryAddressDefines::CurveType accumulatedOrRate,
+                                  const std::vector<time_t>&                 timeSteps,
+                                  const std::vector<double>&                 values,
+                                  RiaDefines::DateTimePeriod                 period );
+
+    static RimSummaryCase*     summaryCaseById( int caseId );
+    static RimSummaryEnsemble* ensembleById( int ensembleId );
 
     static QList<caf::PdmOptionItemInfo> optionsForAllSummaryCases();
     static QList<caf::PdmOptionItemInfo> optionsForSummaryCases( const std::vector<RimSummaryCase*>& cases );
@@ -87,6 +95,7 @@ public:
     static void copyCurveAxisData( RimSummaryCurve& curve, const RimSummaryCurve& otherCurve );
 
     static void reloadSummaryCase( RimSummaryCase* summaryCase );
+    static void reloadSummaryEnsemble( RimSummaryEnsemble* ensemble );
 
 private:
     static void updateRequiredCalculatedCurves( RimSummaryCase* sourceSummaryCase );

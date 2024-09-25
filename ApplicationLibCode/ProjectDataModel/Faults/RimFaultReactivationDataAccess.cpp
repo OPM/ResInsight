@@ -58,7 +58,8 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( const RimFaultRe
     double seabedDepth          = -model.seaBedDepth();
     m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorPorePressure>( eCase, porePressureGradient, seabedDepth ) );
     m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorVoidRatio>( eCase, 0.0001 ) );
-    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorTemperature>( eCase, topTemperature, seabedDepth ) );
+    m_accessors.push_back(
+        std::make_shared<RimFaultReactivationDataAccessorTemperature>( eCase, topTemperature, seabedDepth, timeSteps.front() ) );
 
     std::vector<RimFaultReactivation::Property> stressProperties = { RimFaultReactivation::Property::StressTop,
                                                                      RimFaultReactivation::Property::DepthTop,

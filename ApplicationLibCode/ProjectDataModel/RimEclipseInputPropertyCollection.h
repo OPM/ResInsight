@@ -39,7 +39,6 @@ class RimEclipseInputPropertyCollection : public caf::PdmObject
 
 public:
     RimEclipseInputPropertyCollection();
-    ~RimEclipseInputPropertyCollection() override;
     std::vector<RimEclipseInputProperty*> findInputProperties( QString fileName );
     RimEclipseInputProperty*              findInputProperty( QString resultName );
 

@@ -65,10 +65,10 @@ void caf::AppEnum<RiaDefines::DepthUnitType>::setUp()
 template <>
 void caf::AppEnum<RiaDefines::GridModelReader>::setUp()
 {
-    addItem( RiaDefines::GridModelReader::LIBECL, "LIBECL", "libecl" );
+    addItem( RiaDefines::GridModelReader::RESDATA, "RESDATA", "resdata", { "LIBECL" } );
     addItem( RiaDefines::GridModelReader::OPM_COMMON, "OPM_COMMON", "opm-common (beta)" );
 
-    setDefault( RiaDefines::GridModelReader::LIBECL );
+    setDefault( RiaDefines::GridModelReader::RESDATA );
 }
 
 template <>
@@ -373,4 +373,12 @@ QString RiaDefines::stringListSeparator()
 std::vector<double> RiaDefines::viewScaleOptions()
 {
     return { 0.005, 0.01, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0, 15.0, 20.0, 50.0 };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::betaFeaturePostfix()
+{
+    return " [BETA]";
 }

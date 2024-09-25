@@ -30,7 +30,7 @@ set(COMMAND_REFERENCED_CMAKE_FILES
     OctaveScriptCommands/CMakeLists_files.cmake
     OperationsUsingObjReferences/CMakeLists_files.cmake
     SummaryPlotCommands/CMakeLists_files.cmake
-    SsiHubImportCommands/CMakeLists_files.cmake
+    OsduImportCommands/CMakeLists_files.cmake
     StreamlineCommands/CMakeLists_files.cmake
     SurfaceCommands/CMakeLists_files.cmake
     SeismicCommands/CMakeLists_files.cmake
@@ -42,6 +42,7 @@ set(COMMAND_REFERENCED_CMAKE_FILES
     FractureCommands/CMakeLists_files.cmake
     PlotBuilderCommands/CMakeLists_files.cmake
     PolygonCommands/CMakeLists_files.cmake
+    Sumo/CMakeLists_files.cmake
 )
 
 # Include source file lists from *.cmake files

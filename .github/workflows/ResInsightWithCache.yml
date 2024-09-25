@@ -9,9 +9,9 @@ on:
     - cron: '0 1 * * *'
 env:
   BUILD_TYPE: Release
-  BUILDCACHE_VERSION: 0.27.6
   BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
   BUILDCACHE_ACCURACY: SLOPPY
+  VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
 
 concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
@@ -23,45 +23,49 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        build_type: [Release]
         config:
           - {
               name: "Windows Latest MSVC",
               os: windows-2022,
               cc: "cl",
               cxx: "cl",
-              vcpkg-response-file: vcpkg_x64-windows.txt,
-              vcpkg-triplet: x64-windows,
               build-python-module: true,
               execute-unit-tests: true,
               execute-pytests: true,
               unity-build: true,
               publish-to-pypi: false,
+              vcpkg-bootstrap: bootstrap-vcpkg.bat,
+              vcpkg-triplet: x64-windows-release,
+              qt-version: 5.12.12,
             }
           - {
-              name: "Ubuntu 20.04 gcc",
-              os: ubuntu-20.04,
+              name: "Ubuntu 22.04 gcc",
+              os: ubuntu-22.04,
               cc: "gcc",
               cxx: "g++",
-              vcpkg-response-file: vcpkg_x64-linux.txt,
-              vcpkg-triplet: x64-linux,
               build-python-module: true,
               execute-unit-tests: true,
               execute-pytests: true,
               unity-build: false,
               publish-to-pypi: true,
+              vcpkg-bootstrap: bootstrap-vcpkg.sh,
+              vcpkg-triplet: x64-linux-release,
+              qt-version: 5.12.12,
             }
           - {
               name: "Ubuntu 22.04 clang-16",
               os: ubuntu-22.04,
               cc: "clang-16",
               cxx: "clang++-16",
-              vcpkg-response-file: vcpkg_x64-linux.txt,
-              vcpkg-triplet: x64-linux,
               build-python-module: true,
               execute-unit-tests: true,
               execute-pytests: false,
               unity-build: false,
               publish-to-pypi: false,
+              vcpkg-bootstrap: bootstrap-vcpkg.sh,
+              vcpkg-triplet: x64-linux-release,
+              qt-version: 5.12.12,
             }
     steps:
       - name: Checkout
@@ -72,7 +76,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.8"
+          python-version: "3.11"
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
 
@@ -107,8 +111,7 @@ jobs:
             set(buildcache_suffix "linux.tar.gz")
           endif()
 
-          set(buildcache_version $ENV{BUILDCACHE_VERSION})
-          set(buildcache_url "https://github.com/mbitsnbites/buildcache/releases/download/v${buildcache_version}/buildcache-${buildcache_suffix}")
+          set(buildcache_url "https://gitlab.com/bits-n-bites/buildcache/-/releases/permalink/latest/downloads/buildcache-${buildcache_suffix}")
           file(DOWNLOAD "${buildcache_url}" ./buildcache.zip)
           execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./buildcache.zip)
 
@@ -170,74 +173,51 @@ jobs:
           sudo ./llvm.sh 16 all
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
-          version: 5.12.12
+          version: ${{ matrix.config.qt-version }}
           dir: "${{ github.workspace }}/Qt/"
           cache: true
+          modules: "qtnetworkauth"
 
-      - name: Restore from cache and install vcpkg
-        uses: lukka/run-vcpkg@v7
-        id: runvcpkg
+      - name: Export GitHub Actions cache environment variables
+        uses: actions/github-script@v7
         with:
-          vcpkgArguments: "@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}"
-          vcpkgDirectory:
-            "${{ github.workspace }}/ThirdParty/vcpkg"
-          appendedCacheKey: ${{ matrix.config.os }}-${{ matrix.config.cxx }}-cache-key-v2
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
-      - name: Cache dynamic version of OpenSSL (Linux)
-        if: contains( matrix.config.os, 'ubuntu_disabled')
-        uses: actions/cache@v4
-        with:
-          path: ${{ github.workspace }}/ThirdParty/vcpkg/installed/x64-linux-dynamic
-          key: ${{ matrix.config.os }}-vcpkg-x64-linux-dynamic_v05
-
-      - name: Install dynamic version of OpenSSL (Linux)
-        if: contains( matrix.config.os, 'ubuntu')
+      - name: vcpkg bootstrap
         run: |
-          $VCPKG_ROOT/vcpkg install --overlay-triplets=${{ github.workspace }}/ThirdParty/vcpkg-custom-triplets --triplet x64-linux-dynamic openssl
+          ThirdParty/vcpkg/${{ matrix.config.vcpkg-bootstrap }}
 
       - name: Configure
-        shell: cmake -P {0}
-        run: |
-          set(ENV{CC} ${{ matrix.config.cc }})
-          set(ENV{CXX} ${{ matrix.config.cxx }})
+        shell: bash
+        env:
+          CC: ${{ matrix.config.cc }}
+          CXX: ${{ matrix.config.cxx }}
+        run: >
+          cmake -S . -B cmakebuild
+          -DVCPKG_BUILD_TYPE=release
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg-triplet }}
+          -DCMAKE_INSTALL_PREFIX=cmakebuild/install
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DRESINSIGHT_QT5_BUNDLE_LIBRARIES=true
+          -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
+          -DRESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
+          -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=false
+          -DRESINSIGHT_ENABLE_UNITY_BUILD=${{ matrix.config.unity-build }}
+          -DRESINSIGHT_ENABLE_GRPC=${{ matrix.config.build-python-module }}
+          -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
+          -DRESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
+          -DRESINSIGHT_ENABLE_HDF5=false
+          -DRESINSIGHT_BUILD_LIBS_FROM_SOURCE=false
+          -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -G Ninja
 
-          execute_process(
-            COMMAND cmake
-              -S .
-              -B cmakebuild
-              -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
-              -D CMAKE_INSTALL_PREFIX=cmakebuild/install
-              -D RESINSIGHT_BUNDLE_OPENSSL=true
-              -D RESINSIGHT_QT5_BUNDLE_LIBRARIES=true
-              -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
-              -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
-              -D RESINSIGHT_ENABLE_PRECOMPILED_HEADERS=false
-              -D RESINSIGHT_ENABLE_UNITY_BUILD=${{ matrix.config.unity-build }}
-              -D RESINSIGHT_ENABLE_GRPC=${{ matrix.config.build-python-module }}
-              -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
-              -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
-              -D RESINSIGHT_ENABLE_HDF5=false
-              -D RESINSIGHT_BUILD_LIBS_FROM_SOURCE=false
-              -D CMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
-              -G Ninja
-            RESULT_VARIABLE result
-          )
-          if (NOT result EQUAL 0)
-            message(FATAL_ERROR "Bad exit status")
-          endif()
       - name: Build
-        shell: cmake -P {0}
         run: |
-          set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
-          execute_process(
-            COMMAND cmake --build cmakebuild --target install
-            RESULT_VARIABLE result
-          )
-          if (NOT result EQUAL 0)
-            message(FATAL_ERROR "Bad exit status")
-          endif()
+          cmake --build cmakebuild --target install
 
       - name: Stats for buildcache
         run: ${{ github.workspace }}/buildcache/bin/buildcache -s
@@ -272,12 +252,14 @@ jobs:
         with:
           name: python-distribution
           path: GrpcInterface/Python/dist
+          retention-days: 5
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ResInsight-${{ matrix.config.name }}
           path: ${{ runner.workspace }}/ResInsight/cmakebuild/install
+          retention-days: 5
 
   pypi-publish:
     name: Upload release to PyPI
@@ -307,5 +289,5 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       # uncomment the two lines below to publish to test PyPi
       # with:
-        # repository-url: https://test.pypi.org/legacy/
+      #   repository-url: https://test.pypi.org/legacy/
 

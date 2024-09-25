@@ -1,4 +1,3 @@
-cmake_minimum_required( VERSION 2.8.12 ) # If you are creating Python wrappers for Windows, the actual version requirement is 3.4
 project( ERT C CXX )
 
 include(GNUInstallDirs)
@@ -354,5 +353,5 @@ if (INSTALL_ERT)
    install(EXPORT ecl-config DESTINATION share/cmake/ecl)
 endif()
 
-export(TARGETS ecl FILE eclConfig.cmake)
-export(PACKAGE ecl)
+export(TARGETS resdata  FILE eclConfig.cmake)
+export(PACKAGE resdata)

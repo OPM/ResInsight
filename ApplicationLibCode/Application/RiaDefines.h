@@ -172,8 +172,9 @@ enum class GridCaseAxis
 
 enum class GridModelReader
 {
-    LIBECL,
-    OPM_COMMON
+    RESDATA,
+    OPM_COMMON,
+    NOT_SET
 };
 
 enum class ThemeEnum
@@ -250,6 +251,8 @@ enum class ItemIn3dView
     POLYGON = 0b00000010,
     ALL     = 0b00000011
 };
+
+QString betaFeaturePostfix();
 
 }; // namespace RiaDefines
 

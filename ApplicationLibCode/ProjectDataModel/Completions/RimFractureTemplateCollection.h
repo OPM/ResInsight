@@ -37,7 +37,6 @@ class RimFractureTemplateCollection : public caf::PdmObject
 
 public:
     RimFractureTemplateCollection();
-    ~RimFractureTemplateCollection() override;
 
     RimFractureTemplate*              fractureTemplate( int id ) const;
     std::vector<RimFractureTemplate*> fractureTemplates() const;

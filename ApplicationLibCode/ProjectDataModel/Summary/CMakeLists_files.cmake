@@ -4,7 +4,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimGridSummaryCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseMainCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryEnsemble.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurvesData.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveAppearanceCalculator.h
@@ -54,6 +54,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryRegressionAnalysisCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryAddressSelector.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCrossPlotStatisticsCase.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryEnsembleTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -62,7 +63,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimGridSummaryCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseMainCollection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryEnsemble.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurvesData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveAppearanceCalculator.cpp
@@ -112,6 +113,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryRegressionAnalysisCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryAddressSelector.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCrossPlotStatisticsCase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryEnsembleTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

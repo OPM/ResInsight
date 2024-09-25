@@ -490,7 +490,7 @@ bool layer_trace_block_edge( const layer_type * layer , int start_i , int start_
         point_shift( &start_corner , 0 , 1 );
         layer_trace_block_edge__(layer , start_corner , i  , j , value , LEFT_EDGE , corner_list , cell_list);
       } else
-        util_abort("%s: what the fuck - internal error \n",__func__);
+        util_abort("%s: internal error \n",__func__);
 
       int_vector_select_unique( cell_list );
       return true;

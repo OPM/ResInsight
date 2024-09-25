@@ -23,8 +23,8 @@
 #include "RimCsvSummaryCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "RiuFileDialogTools.h"
 

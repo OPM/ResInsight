@@ -34,7 +34,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/FixedWidthDataParser-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigTimeCurveHistoryMerger-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ListKeywordsForObjectsAndFields-Test.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaProjectFileVersionTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaProjectFileTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyTableReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimRelocatePath-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigTransmissibilityCondenser-Test.cpp
@@ -102,6 +102,10 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCalculationIO-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEmReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifPolygonReader-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifParquetReader-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifOsduWellPathReader-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigVfpTables-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaResultName-Test.cpp
 )
 
 if(RESINSIGHT_ENABLE_GRPC)

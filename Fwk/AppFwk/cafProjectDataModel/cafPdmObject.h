@@ -186,6 +186,9 @@ public:
 
     /// Gets all children matching class keyword. Not recursive.
     void childrenFromClassKeyword( const QString& classKeyword, std::vector<PdmObject*>& children ) const;
+
+protected:
+    PdmObjectHandle* doCopyObject() const override;
 };
 
 } // End of namespace caf

@@ -23,7 +23,7 @@
 #include "RifSummaryReaderInterface.h"
 
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "cafAssert.h"
 
@@ -57,7 +57,7 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCase*           
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& summaryAddressY )
+RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryEnsemble* ensemble, const RifEclipseSummaryAddress& summaryAddressY )
     : m_summaryCaseY( nullptr )
     , m_summaryAddressY( summaryAddressY )
     , m_summaryCaseX( nullptr )
@@ -70,7 +70,7 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCaseCollection* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCaseCollection* ensemble, const RiaSummaryCurveAddress& summaryCurveAddress )
+RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryEnsemble* ensemble, const RiaSummaryCurveAddress& summaryCurveAddress )
     : m_summaryCaseY( nullptr )
     , m_summaryAddressY( summaryCurveAddress.summaryAddressY() )
     , m_summaryCaseX( nullptr )
@@ -91,7 +91,7 @@ RimSummaryCase* RiaSummaryCurveDefinition::summaryCaseY() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RiaSummaryCurveDefinition::ensemble() const
+RimSummaryEnsemble* RiaSummaryCurveDefinition::ensemble() const
 {
     return m_ensemble;
 }
@@ -99,7 +99,7 @@ RimSummaryCaseCollection* RiaSummaryCurveDefinition::ensemble() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveDefinition::setEnsemble( RimSummaryCaseCollection* ensemble )
+void RiaSummaryCurveDefinition::setEnsemble( RimSummaryEnsemble* ensemble )
 {
     m_ensemble = ensemble;
 }

@@ -158,7 +158,7 @@ void RifEclipseRestartFilesetAccess::timeSteps( std::vector<QDateTime>* timeStep
 //--------------------------------------------------------------------------------------------------
 /// Get list of result names
 //--------------------------------------------------------------------------------------------------
-std::vector<RifKeywordValueCount> RifEclipseRestartFilesetAccess::keywordValueCounts()
+std::vector<RifEclipseKeywordValueCount> RifEclipseRestartFilesetAccess::keywordValueCounts()
 {
     CVF_ASSERT( timeStepCount() > 0 );
 

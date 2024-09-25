@@ -47,9 +47,9 @@
 #include "RimProject.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimWellFlowRateCurve.h"
+#include "RimWellLogChannel.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFile.h"
-#include "RimWellLogFileChannel.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellLogLasFileCurve.h"
 #include "RimWellLogPlot.h"
@@ -67,6 +67,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <memory>
 #include <tuple>
 
 CAF_PDM_SOURCE_INIT( RimWellPltPlot, "WellPltPlot" );
@@ -74,20 +75,20 @@ CAF_PDM_SOURCE_INIT( RimWellPltPlot, "WellPltPlot" );
 namespace caf
 {
 template <>
-void caf::AppEnum<FlowType>::setUp()
+void caf::AppEnum<RimWellPlotTools::FlowType>::setUp()
 {
-    addItem( FLOW_TYPE_PHASE_SPLIT, "PHASE_SPLIT", "Phase Split" );
-    addItem( FLOW_TYPE_TOTAL, "TOTAL", "Total Flow" );
-    setDefault( FLOW_TYPE_PHASE_SPLIT );
+    addItem( RimWellPlotTools::FlowType::FLOW_TYPE_PHASE_SPLIT, "PHASE_SPLIT", "Phase Split" );
+    addItem( RimWellPlotTools::FlowType::FLOW_TYPE_TOTAL, "TOTAL", "Total Flow" );
+    setDefault( RimWellPlotTools::FlowType::FLOW_TYPE_PHASE_SPLIT );
 }
 
 template <>
-void caf::AppEnum<FlowPhase>::setUp()
+void caf::AppEnum<RimWellPlotTools::FlowPhase>::setUp()
 {
-    addItem( FLOW_PHASE_OIL, "PHASE_OIL", "Oil" );
-    addItem( FLOW_PHASE_GAS, "PHASE_GAS", "Gas" );
-    addItem( FLOW_PHASE_WATER, "PHASE_WATER", "Water" );
-    addItem( FLOW_PHASE_TOTAL, "PHASE_TOTAL", "Total" );
+    addItem( RimWellPlotTools::FlowPhase::FLOW_PHASE_OIL, "PHASE_OIL", "Oil" );
+    addItem( RimWellPlotTools::FlowPhase::FLOW_PHASE_GAS, "PHASE_GAS", "Gas" );
+    addItem( RimWellPlotTools::FlowPhase::FLOW_PHASE_WATER, "PHASE_WATER", "Water" );
+    addItem( RimWellPlotTools::FlowPhase::FLOW_PHASE_TOTAL, "PHASE_TOTAL", "Total" );
 }
 } // namespace caf
 
@@ -127,7 +128,9 @@ RimWellPltPlot::RimWellPltPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_phases, "Phases", "Phases" );
     m_phases.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_phases = std::vector<caf::AppEnum<FlowPhase>>( { FLOW_PHASE_OIL, FLOW_PHASE_GAS, FLOW_PHASE_WATER } );
+    m_phases = std::vector<caf::AppEnum<RimWellPlotTools::FlowPhase>>( { RimWellPlotTools::FlowPhase::FLOW_PHASE_OIL,
+                                                                         RimWellPlotTools::FlowPhase::FLOW_PHASE_GAS,
+                                                                         RimWellPlotTools::FlowPhase::FLOW_PHASE_WATER } );
     m_phases.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     m_nameConfig->setCustomName( "PLT Plot" );
@@ -484,7 +487,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
     // Add curves
     for ( const RiaRftPltCurveDefinition& curveDefToAdd : curveDefs )
     {
-        std::set<FlowPhase> selectedPhases = std::set<FlowPhase>( m_phases().begin(), m_phases().end() );
+        std::set<RimWellPlotTools::FlowPhase> selectedPhases = std::set<RimWellPlotTools::FlowPhase>( m_phases().begin(), m_phases().end() );
 
         RifDataSourceForRftPlt sourceDef = curveDefToAdd.address();
         QDateTime              timeStep  = curveDefToAdd.timeStep();
@@ -505,11 +508,11 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
         if ( sourceDef.sourceType() == RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA )
         {
-            resultPointCalc.reset( new RigRftResultPointCalculator( m_wellPathName, rimEclipseResultCase, timeStep ) );
+            resultPointCalc = std::make_unique<RigRftResultPointCalculator>( m_wellPathName, rimEclipseResultCase, timeStep );
         }
         else if ( sourceDef.sourceType() == RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA )
         {
-            resultPointCalc.reset( new RigSimWellResultPointCalculator( m_wellPathName, rimEclipseResultCase, timeStep ) );
+            resultPointCalc = std::make_unique<RigSimWellResultPointCalculator>( m_wellPathName, rimEclipseResultCase, timeStep );
         }
 
         RiaDefines::EclipseUnitSystem unitSet = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
@@ -522,7 +525,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         {
             if ( !resultPointCalc->pipeBranchCLCoords().empty() )
             {
-                if ( selectedPhases.count( FLOW_PHASE_TOTAL ) && m_useReservoirConditionCurves() &&
+                if ( selectedPhases.count( RimWellPlotTools::FlowPhase::FLOW_PHASE_TOTAL ) && m_useReservoirConditionCurves() &&
                      sourceDef.sourceType() == RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA )
                 {
                     RigAccWellFlowCalculator wfTotalAccumulator( resultPointCalc->pipeBranchCLCoords(),
@@ -561,17 +564,17 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                                      : tracerName == RIG_FLOW_WATER_NAME ? cvf::Color3f::BLUE
                                                                          : cvf::Color3f::DARK_GRAY;
 
-                        if ( ( tracerName == RIG_FLOW_OIL_NAME && selectedPhases.count( FLOW_PHASE_OIL ) ) ||
-                             ( tracerName == RIG_FLOW_GAS_NAME && selectedPhases.count( FLOW_PHASE_GAS ) ) ||
-                             ( tracerName == RIG_FLOW_WATER_NAME && selectedPhases.count( FLOW_PHASE_WATER ) ) )
+                        if ( ( tracerName == RIG_FLOW_OIL_NAME && selectedPhases.count( RimWellPlotTools::FlowPhase::FLOW_PHASE_OIL ) ) ||
+                             ( tracerName == RIG_FLOW_GAS_NAME && selectedPhases.count( RimWellPlotTools::FlowPhase::FLOW_PHASE_GAS ) ) ||
+                             ( tracerName == RIG_FLOW_WATER_NAME && selectedPhases.count( RimWellPlotTools::FlowPhase::FLOW_PHASE_WATER ) ) )
                         {
-                            FlowPhase flowPhase = FLOW_PHASE_NONE;
+                            RimWellPlotTools::FlowPhase flowPhase = RimWellPlotTools::FlowPhase::FLOW_PHASE_NONE;
                             if ( tracerName == RIG_FLOW_OIL_NAME )
-                                flowPhase = FLOW_PHASE_OIL;
+                                flowPhase = RimWellPlotTools::FlowPhase::FLOW_PHASE_OIL;
                             else if ( tracerName == RIG_FLOW_GAS_NAME )
-                                flowPhase = FLOW_PHASE_GAS;
+                                flowPhase = RimWellPlotTools::FlowPhase::FLOW_PHASE_GAS;
                             else if ( tracerName == RIG_FLOW_WATER_NAME )
-                                flowPhase = FLOW_PHASE_WATER;
+                                flowPhase = RimWellPlotTools::FlowPhase::FLOW_PHASE_WATER;
                             QString curveUnitText =
                                 RimWellPlotTools::curveUnitText( RimWellLogLasFile::WELL_FLOW_COND_STANDARD, unitSet, flowPhase );
 
@@ -590,7 +593,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         }
         else if ( sourceDef.sourceType() == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE )
         {
-            if ( sourceDef.wellLogFile() && sourceDef.wellLogFile()->wellLogFileData() )
+            if ( sourceDef.wellLogFile() && sourceDef.wellLogFile()->wellLogData() )
             {
                 RimWellLogLasFile::WellFlowCondition flowCondition = sourceDef.wellLogFile()->wellFlowRateCondition();
 
@@ -599,9 +602,9 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                 {
                     using ChannelValNameIdxTuple = std::tuple<double, QString, int>;
 
-                    RigWellLogLasFile* wellLogFileData = sourceDef.wellLogFile()->wellLogFileData();
+                    RigWellLogLasFile* wellLogData = sourceDef.wellLogFile()->wellLogData();
 
-                    QStringList channelNames = wellLogFileData->wellLogChannelNames();
+                    QStringList channelNames = wellLogData->wellLogChannelNames();
 
                     std::multiset<ChannelValNameIdxTuple> sortedChannels;
                     std::vector<std::vector<double>>      channelData;
@@ -610,16 +613,16 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                     for ( int chIdx = 0; chIdx < channelNames.size(); ++chIdx )
                     {
                         QString channelName = channelNames[chIdx];
-                        channelData[chIdx]  = wellLogFileData->values( channelName );
+                        channelData[chIdx]  = wellLogData->values( channelName );
                         if ( !channelData[chIdx].empty() )
                         {
                             sortedChannels.insert( ChannelValNameIdxTuple( -fabs( channelData[chIdx].front() ), channelName, chIdx ) );
                         }
                     }
 
-                    std::vector<double> depthValues = wellLogFileData->depthValues();
+                    std::vector<double> depthValues = wellLogData->depthValues();
 
-                    RiaDefines::EclipseUnitSystem unitSystem = RiaDefines::fromDepthUnit( wellLogFileData->depthUnit() );
+                    RiaDefines::EclipseUnitSystem unitSystem = RiaDefines::fromDepthUnit( wellLogData->depthUnit() );
 
                     for ( const ChannelValNameIdxTuple& channelInfo : sortedChannels )
                     {
@@ -631,13 +634,13 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                                          : RimWellPlotTools::isWaterFlowChannel( channelName ) ? cvf::Color3f::BLUE
                                                                                                : cvf::Color3f::DARK_GRAY;
 
-                            FlowPhase flowPhase = FLOW_PHASE_NONE;
+                            RimWellPlotTools::FlowPhase flowPhase = RimWellPlotTools::FlowPhase::FLOW_PHASE_NONE;
                             if ( RimWellPlotTools::isOilFlowChannel( channelName ) )
-                                flowPhase = FLOW_PHASE_OIL;
+                                flowPhase = RimWellPlotTools::FlowPhase::FLOW_PHASE_OIL;
                             else if ( RimWellPlotTools::isGasFlowChannel( channelName ) )
-                                flowPhase = FLOW_PHASE_GAS;
+                                flowPhase = RimWellPlotTools::FlowPhase::FLOW_PHASE_GAS;
                             else if ( RimWellPlotTools::isWaterFlowChannel( channelName ) )
-                                flowPhase = FLOW_PHASE_WATER;
+                                flowPhase = RimWellPlotTools::FlowPhase::FLOW_PHASE_WATER;
                             QString curveUnitText = RimWellPlotTools::curveUnitText( flowCondition, unitSystem, flowPhase );
 
                             addStackedCurve( curveName + ", " + channelName + " " + curveUnitText,
@@ -801,10 +804,10 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
 
     if ( fieldNeedingOptions == &m_phases )
     {
-        options.push_back( caf::PdmOptionItemInfo( "Oil", FLOW_PHASE_OIL ) );
-        options.push_back( caf::PdmOptionItemInfo( "Gas", FLOW_PHASE_GAS ) );
-        options.push_back( caf::PdmOptionItemInfo( "Water", FLOW_PHASE_WATER ) );
-        options.push_back( caf::PdmOptionItemInfo( "Total", FLOW_PHASE_TOTAL ) );
+        options.push_back( caf::PdmOptionItemInfo( "Oil", RimWellPlotTools::FlowPhase::FLOW_PHASE_OIL ) );
+        options.push_back( caf::PdmOptionItemInfo( "Gas", RimWellPlotTools::FlowPhase::FLOW_PHASE_GAS ) );
+        options.push_back( caf::PdmOptionItemInfo( "Water", RimWellPlotTools::FlowPhase::FLOW_PHASE_WATER ) );
+        options.push_back( caf::PdmOptionItemInfo( "Total", RimWellPlotTools::FlowPhase::FLOW_PHASE_TOTAL ) );
     }
 
     return options;

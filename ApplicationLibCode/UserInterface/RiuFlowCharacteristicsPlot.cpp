@@ -63,7 +63,7 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot( RimFlowCharacteristicsPl
 
     QGridLayout* mainLayout = new QGridLayout();
     setLayout( mainLayout );
-    layout()->setMargin( 3 );
+    layout()->setContentsMargins( 3, 3, 3, 3 );
     layout()->setSpacing( 3 );
 
     // White background

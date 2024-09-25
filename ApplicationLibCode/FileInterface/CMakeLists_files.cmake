@@ -10,6 +10,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifPerforationIntervalReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseInput.h
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseOutput.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseWell.h
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryReaderInterface.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseUserDataParserTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RifColumnBasedUserDataParser.h
@@ -79,12 +80,14 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSeismicReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifSeismicZGYReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifOpenVDSReader.h
-    ${CMAKE_CURRENT_LIST_DIR}/RifOpmGridTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifOpmRadialGridTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RifCsvSummaryReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealSummaryCsvReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealCsvSectionSummaryReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanCsvSummaryReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmCommon.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmCommonActive.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifEclipseReportKeywords.h
     ${CMAKE_CURRENT_LIST_DIR}/RifInpExportTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RifFaultReactivationModelExporter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifThermalToStimPlanFractureXmlOutput.h
@@ -96,6 +99,10 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCalculationImporter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCalculationExporter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifPolygonReader.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifOsduWellPathReader.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifAsciiDataParseOptions.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifByteArrayArrowRandomAccessFile.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifArrowTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -103,13 +110,13 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputFileTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffFileTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseOutputFileTools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RifEclipseRestartDataAccess.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseRestartFilesetAccess.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseUnifiedRestartFileAccess.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseSummaryTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifPerforationIntervalReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseInput.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseOutput.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseWell.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryReaderInterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseUserDataParserTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifColumnBasedUserDataParser.cpp
@@ -122,7 +129,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifJsonEncodeDecode.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderInterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderMockModel.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RifReaderSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseSummaryAddress.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseRftAddress.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifWellPathImporter.cpp
@@ -176,12 +182,14 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSeismicReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSeismicZGYReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifOpenVDSReader.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RifOpmGridTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifOpmRadialGridTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifCsvSummaryReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealCsvSummaryReader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifEclipseReportKeywords.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealCsvSectionSummaryReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanCsvSummaryReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmCommon.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmCommonActive.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifInpExportTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifFaultReactivationModelExporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifThermalToStimPlanFractureXmlOutput.cpp
@@ -191,6 +199,10 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCalculationImporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCalculationExporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifPolygonReader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifOsduWellPathReader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifOsduWellLogReader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifByteArrayArrowRandomAccessFile.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifArrowTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

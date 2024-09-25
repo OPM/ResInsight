@@ -19,6 +19,7 @@
 #include "RiuMohrsCirclePlot.h"
 
 #include "RiaColorTables.h"
+#include "RiaLogging.h"
 
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
@@ -36,8 +37,6 @@
 
 #include "Riu3dSelectionManager.h"
 #include "RiuQwtPlotTools.h"
-
-#include "cvfAssert.h"
 
 #include <QPainterPath>
 #include <QPen>
@@ -405,8 +404,6 @@ bool RiuMohrsCirclePlot::addOrUpdateCurves( const RimGeoMechResultDefinition* ge
 
     size_t i, j, k;
     bool   validIndex = femPart->getOrCreateStructGrid()->ijkFromCellIndex( elmIndex, &i, &j, &k );
-
-    CVF_ASSERT( validIndex );
     if ( validIndex )
     {
         int elmId = femPart->elmId( elmIndex );
@@ -422,6 +419,9 @@ bool RiuMohrsCirclePlot::addOrUpdateCurves( const RimGeoMechResultDefinition* ge
 
         return true;
     }
+
+    auto txt = QString( "Not able to create Mohr plot for element index:%1, element ID:%2" ).arg( elmIndex ).arg( elmId );
+    RiaLogging::warning( txt );
 
     return false;
 }

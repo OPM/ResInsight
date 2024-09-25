@@ -20,13 +20,16 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCase.h"
+#include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
 #include "RimGridView.h"
+#include "RimIntersectionCollection.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
@@ -176,7 +179,7 @@ RimCase* Rim2dIntersectionView::ownerCase() const
 
     if ( !rimCase )
     {
-        rimCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
+        rimCase = firstAncestorOrThisOfType<RimCase>();
     }
 
     return rimCase;
@@ -258,7 +261,7 @@ void Rim2dIntersectionView::update3dInfo()
         }
     }
 
-    if ( overlayInfoConfig->showCaseInfo() )
+    if ( overlayInfoConfig->showCaseInfo() && ownerCase() )
     {
         overlayInfoText += "<b>--" + ownerCase()->caseUserDescription() + "--</b>";
     }
@@ -404,26 +407,9 @@ bool Rim2dIntersectionView::showDefiningPoints() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimLegendConfig*> Rim2dIntersectionView::legendConfigs() const
 {
-    std::vector<RimLegendConfig*> legendsIn3dView;
-
     // Return empty list, as the intersection view has a copy of the legend items. Picking and selection of the
     // corresponding item is handeled by handleOverlayItemPicked()
-    return legendsIn3dView;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool Rim2dIntersectionView::handleOverlayItemPicked( const cvf::OverlayItem* pickedOverlayItem ) const
-{
-    if ( m_legendObjectToSelect )
-    {
-        if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( m_legendObjectToSelect );
-
-        return true;
-    }
-
-    return false;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -467,7 +453,7 @@ bool Rim2dIntersectionView::hasResults()
 //--------------------------------------------------------------------------------------------------
 size_t Rim2dIntersectionView::onTimeStepCountRequested()
 {
-    if ( isTimeStepDependentDataVisible() )
+    if ( isTimeStepDependentDataVisible() && ownerCase() )
     {
         return ownerCase()->timeStepStrings().size();
     }
@@ -533,16 +519,19 @@ void Rim2dIntersectionView::onCreateDisplayModel()
         nativeOrOverrideViewer()->addFrame( new cvf::Scene(), isUsingOverrideViewer() );
     }
 
-    m_flatIntersectionPartMgr = new RivExtrudedCurveIntersectionPartMgr( m_intersection(), true );
+    bool propertiesFiltersActive = false;
+    bool cellFiltersActive       = false;
 
-    m_intersectionVizModel->removeAllParts();
+    RimGridView* grView = m_intersection->firstAncestorOrThisOfType<RimGridView>();
+    if ( grView && grView->intersectionCollection()->shouldApplyCellFiltersToIntersections() )
+    {
+        propertiesFiltersActive = grView->propertyFilterCollection()->hasActiveFilters();
+        cellFiltersActive       = grView->cellFilterCollection()->hasActiveFilters();
+    }
 
-    m_flatIntersectionPartMgr->generatePartGeometry( nullptr, scaleTransform() );
-    m_flatIntersectionPartMgr->appendIntersectionFacesToModel( m_intersectionVizModel.p(), scaleTransform() );
-    m_flatIntersectionPartMgr->appendMeshLinePartsToModel( m_intersectionVizModel.p(), scaleTransform() );
-    m_flatIntersectionPartMgr->appendPolylinePartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
+    m_flatIntersectionPartMgr = new RivExtrudedCurveIntersectionPartMgr( m_intersection, true );
 
-    m_flatIntersectionPartMgr->applySingleColorEffect();
+    appendIntersectionToModel( cellFiltersActive, propertiesFiltersActive );
 
     m_flatSimWellPipePartMgr = nullptr;
     m_flatWellHeadPartMgr    = nullptr;
@@ -557,7 +546,7 @@ void Rim2dIntersectionView::onCreateDisplayModel()
     if ( m_intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_WELL_PATH && m_intersection->wellPath() )
     {
         Rim3dView* settingsView = m_intersection->firstAncestorOrThisOfType<Rim3dView>();
-        if ( settingsView )
+        if ( settingsView && ownerCase() )
         {
             m_flatWellpathPartMgr = new RivWellPathPartMgr( m_intersection->wellPath(), settingsView );
             m_flatWellpathPartMgr->appendFlattenedStaticGeometryPartsToModel( m_intersectionVizModel.p(),
@@ -590,6 +579,17 @@ void Rim2dIntersectionView::onUpdateDisplayModelForCurrentTimeStep()
 
     update3dInfo();
     onUpdateLegends();
+
+    RimGridView* grView = m_intersection->firstAncestorOrThisOfType<RimGridView>();
+    if ( grView )
+    {
+        if ( grView->intersectionCollection()->shouldApplyCellFiltersToIntersections() &&
+             grView->propertyFilterCollection()->hasActiveFilters() )
+        {
+            m_flatIntersectionPartMgr = new RivExtrudedCurveIntersectionPartMgr( m_intersection, true );
+            appendIntersectionForCurrentTimeStep();
+        }
+    }
 
     if ( m_flatSimWellPipePartMgr.notNull() )
     {
@@ -662,8 +662,6 @@ void Rim2dIntersectionView::onUpdateDisplayModelForCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::onUpdateLegends()
 {
-    m_legendObjectToSelect = nullptr;
-
     if ( !nativeOrOverrideViewer() || !m_intersection ) return;
 
     nativeOrOverrideViewer()->removeAllColorLegends();
@@ -724,15 +722,11 @@ void Rim2dIntersectionView::onUpdateLegends()
         {
             m_ternaryLegendConfig()->setTitle( "Cell Result:\n" );
             legend = m_ternaryLegendConfig()->titledOverlayFrame();
-
-            m_legendObjectToSelect = ternaryLegendConfig;
         }
         else
         {
             eclResDef->updateLegendTitle( m_legendConfig, "Cell Result:\n" );
             legend = m_legendConfig()->titledOverlayFrame();
-
-            m_legendObjectToSelect = regularLegendConfig;
         }
     }
 
@@ -740,8 +734,6 @@ void Rim2dIntersectionView::onUpdateLegends()
     {
         geomResDef->updateLegendTextAndRanges( m_legendConfig(), "Cell Result:\n", m_currentTimeStep() );
         legend = m_legendConfig()->titledOverlayFrame();
-
-        m_legendObjectToSelect = regularLegendConfig;
     }
 
     if ( legend )
@@ -855,4 +847,119 @@ void Rim2dIntersectionView::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 void Rim2dIntersectionView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     uiTreeOrdering.skipRemainingChildren( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim2dIntersectionView::appendIntersectionToModel( bool cellFiltersActive, bool propertyFiltersActive )
+{
+    m_intersectionVizModel->removeAllParts();
+
+    RimEclipseView* eclView = m_intersection->firstAncestorOrThisOfType<RimEclipseView>();
+    RimGeoMechView* geoView = m_intersection->firstAncestorOrThisOfType<RimGeoMechView>();
+
+    if ( cellFiltersActive || propertyFiltersActive )
+    {
+        if ( eclView )
+        {
+            if ( !propertyFiltersActive )
+            {
+                cvf::UByteArray visibleCells;
+                eclView->calculateCellVisibility( &visibleCells, { RANGE_FILTERED_WELL_CELLS, RANGE_FILTERED }, m_currentTimeStep );
+                appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), &visibleCells );
+            }
+        }
+        else if ( geoView )
+        {
+            if ( !propertyFiltersActive )
+            {
+                cvf::UByteArray visibleCells;
+                geoView->calculateCurrentTotalCellVisibility( &visibleCells, m_currentTimeStep );
+                appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), &visibleCells );
+            }
+        }
+
+        // NB! Geometry objects are recreated in appendDynamicPartsToModel(), always call
+        // appendPartsToModel() after appendDynamicPartsToModel()
+        appendPartsToModel( m_intersectionVizModel.p(), scaleTransform() );
+    }
+    else
+    {
+        appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), nullptr );
+
+        // NB! Geometry objects are recreated in appendDynamicPartsToModel(), always call
+        // appendPartsToModel() after appendDynamicPartsToModel()
+        appendPartsToModel( m_intersectionVizModel.p(), scaleTransform() );
+    }
+    m_intersectionVizModel->updateBoundingBoxesRecursive();
+    nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim2dIntersectionView::appendIntersectionForCurrentTimeStep()
+{
+    if ( nativeOrOverrideViewer() )
+    {
+        cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
+        if ( frameScene )
+        {
+            cvf::String name = "IntersectionDynamicModel";
+            Rim3dView::removeModelByName( frameScene, name );
+
+            cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
+            frameParts->setName( name );
+
+            RimEclipseView* eclView = m_intersection->firstAncestorOrThisOfType<RimEclipseView>();
+            RimGeoMechView* geoView = m_intersection->firstAncestorOrThisOfType<RimGeoMechView>();
+            if ( eclView )
+            {
+                cvf::UByteArray visibility;
+                eclView->calculateCellVisibility( &visibility, { PROPERTY_FILTERED, PROPERTY_FILTERED_WELL_CELLS }, m_currentTimeStep );
+                appendDynamicPartsToModel( frameParts.p(), scaleTransform(), &visibility );
+            }
+            else if ( geoView )
+            {
+                cvf::UByteArray visibility;
+                geoView->calculateCurrentTotalCellVisibility( &visibility, m_currentTimeStep );
+                appendDynamicPartsToModel( frameParts.p(), scaleTransform(), &visibility );
+            }
+            else
+            {
+                appendDynamicPartsToModel( frameParts.p(), scaleTransform(), nullptr );
+            }
+            frameParts->updateBoundingBoxesRecursive();
+
+            frameScene->addModel( frameParts.p() );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim2dIntersectionView::appendPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
+{
+    m_flatIntersectionPartMgr->appendPolylinePartsToModel( *this, model, scaleTransform, true /*annotationOnly*/ );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim2dIntersectionView::appendDynamicPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform, cvf::UByteArray* visibleCells )
+{
+    m_flatIntersectionPartMgr->generatePartGeometry( visibleCells, scaleTransform );
+    m_flatIntersectionPartMgr->appendIntersectionFacesToModel( model, scaleTransform );
+    m_flatIntersectionPartMgr->appendMeshLinePartsToModel( model, scaleTransform );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim2dIntersectionView::onCellVisibilityChanged( const SignalEmitter* emitter )
+{
+    onCreateDisplayModel();
+    scheduleCreateDisplayModelAndRedraw();
 }

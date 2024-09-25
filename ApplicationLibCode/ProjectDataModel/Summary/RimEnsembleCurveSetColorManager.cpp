@@ -26,7 +26,7 @@
 #include "RimObjectiveFunction.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "cvfScalarMapper.h"
 

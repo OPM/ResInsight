@@ -25,7 +25,7 @@
 
 #include "RimProject.h"
 #include "RimSummaryAddressCollection.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryEnsemble.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiCheckBoxEditor.h"
@@ -104,7 +104,7 @@ bool RimSummaryCase::isObservedData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCase::showRealizationDataSources() const
+bool RimSummaryCase::showVectorItemsInProjectTree() const
 {
     return m_showSubNodesInTree();
 }
@@ -112,7 +112,7 @@ bool RimSummaryCase::showRealizationDataSources() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCase::setShowRealizationDataSource( bool enable )
+void RimSummaryCase::setShowVectorItemsInProjectTree( bool enable )
 {
     m_showSubNodesInTree = enable;
     updateConnectedEditors();
@@ -145,9 +145,9 @@ bool RimSummaryCase::hasCaseRealizationParameters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RimSummaryCase::ensemble() const
+RimSummaryEnsemble* RimSummaryCase::ensemble() const
 {
-    RimSummaryCaseCollection* e = firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+    RimSummaryEnsemble* e = firstAncestorOrThisOfType<RimSummaryEnsemble>();
     return e && e->isEnsemble() ? e : nullptr;
 }
 
@@ -397,14 +397,40 @@ void RimSummaryCase::onCalculationUpdated()
     // NB! Performance critical method
     if ( !m_showSubNodesInTree ) return;
 
+    if ( m_dataVectorFolders->isEmpty() )
+    {
+        // Build the child nodes if they are not already built. This function will also create the
+        // calculated objects so we can do a early return.
+        refreshMetaData();
+
+        return;
+    }
+
     // Delete all calculated address objects
-    m_dataVectorFolders->deleteCalculatedObjects();
+    auto deletedCalculatedObjectCount = m_dataVectorFolders->deleteCalculatedAddresses();
+    int  calculatedAddressCount       = 0;
 
     if ( auto reader = summaryReader() )
     {
         auto addresses = reader->allResultAddresses();
-        m_dataVectorFolders->updateFolderStructure( addresses, m_caseId );
+
+        std::set<RifEclipseSummaryAddress> calculatedAddresses;
+
+        for ( const auto& adr : addresses )
+        {
+            if ( adr.isCalculated() )
+            {
+                calculatedAddresses.insert( adr );
+            }
+        }
+
+        calculatedAddressCount = static_cast<int>( calculatedAddresses.size() );
+
+        m_dataVectorFolders->updateFolderStructure( calculatedAddresses, m_caseId );
     }
 
-    updateConnectedEditors();
+    if ( deletedCalculatedObjectCount > 0 || calculatedAddressCount > 0 )
+    {
+        updateConnectedEditors();
+    }
 }

@@ -25,8 +25,8 @@
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryNameHelper.h"
 
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
@@ -121,9 +121,9 @@ QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress& sum
 
     {
         auto ensembleCurveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
-        if ( ensembleCurveSet && ensembleCurveSet->summaryCaseCollection() )
+        if ( ensembleCurveSet && ensembleCurveSet->summaryEnsemble() )
         {
-            caseNameY = ensembleCurveSet->summaryCaseCollection()->name().toStdString();
+            caseNameY = ensembleCurveSet->summaryEnsemble()->name().toStdString();
         }
     }
 
@@ -155,9 +155,9 @@ QString RimSummaryCurveAutoName::curveNameX( const RifEclipseSummaryAddress& sum
 
     {
         auto ensembleCurveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
-        if ( ensembleCurveSet && ensembleCurveSet->summaryCaseCollection() )
+        if ( ensembleCurveSet && ensembleCurveSet->summaryEnsemble() )
         {
-            caseNameX = ensembleCurveSet->summaryCaseCollection()->name().toStdString();
+            caseNameX = ensembleCurveSet->summaryEnsemble()->name().toStdString();
         }
     }
 

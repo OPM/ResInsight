@@ -552,6 +552,25 @@ const caf::ColorTable& RiaColorTables::heatMapPaletteColors()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const caf::ColorTable& RiaColorTables::curveSetPaletteColors()
+{
+    static std::vector<cvf::Color3ub> colors{
+        cvf::Color3ub( 255, 131, 140 ), // Old pink
+        cvf::Color3ub( 210, 176, 112 ), // Light Brown
+        cvf::Color3ub( 140, 171, 238 ), // Light gray blue
+        cvf::Color3ub( 130, 255, 120 ), // Light green
+        cvf::Color3ub( 255, 64, 236 ), // Magenta
+        cvf::Color3ub( 101, 132, 96 ), // Dark green
+    };
+
+    static caf::ColorTable colorTable = caf::ColorTable( colors );
+
+    return colorTable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Color3f RiaColorTables::undefinedCellColor()
 {
     return cvf::Color3::GRAY;

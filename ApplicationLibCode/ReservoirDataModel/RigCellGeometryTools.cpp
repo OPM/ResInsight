@@ -932,3 +932,20 @@ bool RigCellGeometryTools::polylineIntersectsCellNegK2D( const std::vector<cvf::
 
     return false;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Returns true if the point in the XY plane is inside the given cell corners. Just the top (neg k) face is checked.
+//--------------------------------------------------------------------------------------------------
+bool RigCellGeometryTools::pointInsideCellNegK2D( const cvf::Vec3d& point, const std::array<cvf::Vec3d, 8>& cellCorners )
+{
+    std::vector<cvf::Vec3d> polygon;
+
+    const std::vector<size_t> negK = { 0, 3, 2, 1, 0 };
+
+    for ( auto i : negK )
+    {
+        polygon.push_back( cellCorners[i] );
+    }
+
+    return RigCellGeometryTools::pointInsidePolygon2D( point, polygon );
+}

@@ -30,7 +30,7 @@
 class RimAnalysisPlotDataEntry;
 class RimCorrelationMatrixPlot;
 class RimParameterResultCrossPlot;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RimCorrelationPlot;
 class RiaSummaryCurveDefinition;
 

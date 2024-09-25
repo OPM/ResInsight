@@ -21,6 +21,7 @@
 #include "Rim2dIntersectionView.h"
 #include "RimCase.h"
 #include "RimExtrudedCurveIntersection.h"
+#include "RimGridView.h"
 
 CAF_PDM_SOURCE_INIT( Rim2dIntersectionViewCollection, "Intersection2dViewCollection" );
 
@@ -88,23 +89,28 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
 
     for ( RimExtrudedCurveIntersection* intersection : allOrderedIntersectionsInCase )
     {
+        auto view = intersection->firstAncestorOrThisOfType<RimGridView>();
+
         auto it = intersectionToViewMap.find( intersection );
         if ( it == intersectionToViewMap.end() )
         {
             Rim2dIntersectionView* newView = new Rim2dIntersectionView();
 
-            auto view = intersection->firstAncestorOrThisOfType<Rim3dView>();
             if ( view )
             {
                 newView->setCurrentTimeStep( view->currentTimeStep() );
+                view->cellVisibilityChanged.connect( newView, &Rim2dIntersectionView::onCellVisibilityChanged );
             }
 
             newView->setIntersection( intersection );
+
             m_intersectionViews.push_back( newView );
         }
         else
         {
+            view->cellVisibilityChanged.disconnect( it->second );
             m_intersectionViews.push_back( it->second );
+            view->cellVisibilityChanged.connect( it->second, &Rim2dIntersectionView::onCellVisibilityChanged );
         }
     }
 

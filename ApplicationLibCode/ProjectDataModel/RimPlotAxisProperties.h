@@ -64,6 +64,8 @@ public:
 public:
     RimPlotAxisProperties();
 
+    void configureForBasicUse();
+
     void setAlwaysRequired( bool enable );
 
     void setEnableTitleTextSettings( bool enable );

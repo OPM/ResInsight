@@ -81,14 +81,6 @@ RicExportToLasFileResampleUi::RicExportToLasFileResampleUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicExportToLasFileResampleUi::~RicExportToLasFileResampleUi()
-{
-    m_tvdrkbOffsets.deleteChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicExportToLasFileResampleUi::tvdrkbDiffForWellPaths( std::vector<double>* rkbDiffs )
 {
     for ( size_t i = 0; i < m_tvdrkbOffsets.size(); i++ )

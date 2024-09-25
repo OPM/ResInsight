@@ -30,16 +30,17 @@
 #include "RimProject.h"
 #include "RimSummaryAddressModifier.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryDataSourceStepping.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotControls.h"
 
 #include "RiuPlotMainWindow.h"
+#include "RiuTools.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiItem.h"
@@ -208,9 +209,9 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
     if ( !dataSourceSteppingObject()->curveSets().empty() )
     {
         auto first = dataSourceSteppingObject()->curveSets().front();
-        if ( first->summaryCaseCollection() )
+        if ( first->summaryEnsemble() )
         {
-            analyzer = first->summaryCaseCollection()->addressAnalyzer();
+            analyzer = first->summaryEnsemble()->addressAnalyzer();
         }
     }
 
@@ -419,13 +420,13 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         if ( m_ensemble() && dataSourceSteppingObject() )
         {
             caf::PdmPointer<caf::PdmObjectHandle> variantHandle      = oldValue.value<caf::PdmPointer<caf::PdmObjectHandle>>();
-            RimSummaryCaseCollection*             previousCollection = dynamic_cast<RimSummaryCaseCollection*>( variantHandle.p() );
+            RimSummaryEnsemble*                   previousCollection = dynamic_cast<RimSummaryEnsemble*>( variantHandle.p() );
 
             for ( auto curveSet : dataSourceSteppingObject()->curveSets() )
             {
-                if ( curveSet->summaryCaseCollection() == previousCollection )
+                if ( curveSet->summaryEnsemble() == previousCollection )
                 {
-                    curveSet->setSummaryCaseCollection( m_ensemble );
+                    curveSet->setSummaryEnsemble( m_ensemble );
                 }
             }
 
@@ -607,9 +608,9 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::adressesForSour
     {
         for ( auto curveSet : dataSourceSteppingObject()->curveSets() )
         {
-            if ( curveSet && curveSet->summaryCaseCollection() )
+            if ( curveSet && curveSet->summaryEnsemble() )
             {
-                auto addresses = curveSet->summaryCaseCollection()->ensembleSummaryAddresses();
+                auto addresses = curveSet->summaryEnsemble()->ensembleSummaryAddresses();
                 addressSet.insert( addresses.begin(), addresses.end() );
             }
         }
@@ -875,17 +876,17 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RimSummaryCaseCollection*> RimSummaryPlotSourceStepping::ensembleCollection() const
+std::set<RimSummaryEnsemble*> RimSummaryPlotSourceStepping::ensembleCollection() const
 {
-    std::set<RimSummaryCaseCollection*> summaryCaseCollections;
+    std::set<RimSummaryEnsemble*> summaryCaseCollections;
 
     if ( dataSourceSteppingObject() )
     {
         for ( auto curveSet : dataSourceSteppingObject()->curveSets() )
         {
-            if ( curveSet && curveSet->summaryCaseCollection() )
+            if ( curveSet && curveSet->summaryEnsemble() )
             {
-                summaryCaseCollections.insert( curveSet->summaryCaseCollection() );
+                summaryCaseCollections.insert( curveSet->summaryEnsemble() );
             }
         }
     }
@@ -914,7 +915,7 @@ std::vector<RimSummaryCase*> RimSummaryPlotSourceStepping::summaryCasesForSource
     {
         if ( sumCase->isObservedData() ) continue;
 
-        auto sumCaseColl = sumCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+        auto sumCaseColl = sumCase->firstAncestorOrThisOfType<RimSummaryEnsemble>();
         if ( sumCaseColl && sumCaseColl->isEnsemble() )
         {
             if ( m_includeEnsembleCasesForCaseStepping() )
@@ -955,15 +956,12 @@ void RimSummaryPlotSourceStepping::defineEditorAttribute( const caf::PdmFieldHan
         }
         else
         {
+            RiuTools::enableUpDownArrowsForComboBox( attribute );
+
             QString nextText       = RimSummaryPlotControls::nextStepKeyText();
             QString prevText       = RimSummaryPlotControls::prevStepKeyText();
             myAttr->nextButtonText = "Next (" + nextText + ")";
             myAttr->prevButtonText = "Previous (" + prevText + ")";
-
-            myAttr->nextIcon     = QIcon( ":/ComboBoxDown.svg" );
-            myAttr->previousIcon = QIcon( ":/ComboBoxUp.svg" );
-
-            myAttr->showPreviousAndNextButtons = true;
         }
     }
 
@@ -1352,9 +1350,9 @@ RimSummaryCase* RimSummaryPlotSourceStepping::stepCase( int direction )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RimSummaryPlotSourceStepping::stepEnsemble( int direction )
+RimSummaryEnsemble* RimSummaryPlotSourceStepping::stepEnsemble( int direction )
 {
-    std::vector<RimSummaryCaseCollection*> ensembles;
+    std::vector<RimSummaryEnsemble*> ensembles;
 
     RimProject* proj = RimProject::current();
     for ( auto ensemble : proj->summaryGroups() )

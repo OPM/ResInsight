@@ -80,9 +80,8 @@ void RicPasteGeoMechViewsFeature::onActionTriggered( bool isChecked )
     // Add cases to case group
     for ( size_t i = 0; i < geomViews.size(); i++ )
     {
-        RimGeoMechView* rimReservoirView =
-            dynamic_cast<RimGeoMechView*>( geomViews[i]->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-        QString nameOfCopy = QString( "Copy of " ) + rimReservoirView->name();
+        auto    rimReservoirView = geomViews[i]->copyObject<RimGeoMechView>();
+        QString nameOfCopy       = QString( "Copy of " ) + rimReservoirView->name();
         rimReservoirView->setName( nameOfCopy );
         geomCase->geoMechViews().push_back( rimReservoirView );
 

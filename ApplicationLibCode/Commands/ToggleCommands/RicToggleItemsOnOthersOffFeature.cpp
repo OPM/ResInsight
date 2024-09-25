@@ -55,12 +55,16 @@ void RicToggleItemsOnOthersOffFeature::onActionTriggered( bool isChecked )
     // First toggle off all siblings
     caf::PdmFieldHandle* commonParent = commonParentForAllSelections( selectedObjects );
 
+    caf::PdmFieldHandle* firstField = nullptr;
+
     for ( caf::PdmObjectHandle* child : childObjects( commonParent ) )
     {
         caf::PdmField<bool>* field = objectToggleField( child );
 
         if ( field )
         {
+            if ( !firstField ) firstField = field;
+
             // Avoid calling setValueWithFieldChanged() here, as this potentially can trigger heavy computations. Assume
             // that the update logic is sufficient when setting the selected objects.
             field->setValue( false );
@@ -73,6 +77,15 @@ void RicToggleItemsOnOthersOffFeature::onActionTriggered( bool isChecked )
         caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>( selectedObject->objectToggleField() );
 
         field->setValueWithFieldChanged( true );
+    }
+
+    // If multiple fields are updated, we call onChildrenUpdated() on the owner of the first field
+    // Example: Trigger replot of curves when multiple curves are toggled
+    auto [ownerOfChildArrayField, childArrayFieldHandle] = RicToggleItemsFeatureImpl::findOwnerAndChildArrayField( firstField );
+    if ( ownerOfChildArrayField && childArrayFieldHandle )
+    {
+        std::vector<caf::PdmObjectHandle*> objs;
+        ownerOfChildArrayField->onChildrenUpdated( childArrayFieldHandle, objs );
     }
 }
 

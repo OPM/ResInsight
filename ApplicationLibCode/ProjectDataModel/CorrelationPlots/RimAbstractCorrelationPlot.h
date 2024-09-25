@@ -32,7 +32,7 @@ class RiaSummaryCurveDefinitionAnalyser;
 class RimAnalysisPlotDataEntry;
 class RimSummaryAddress;
 class RimEnsembleCurveSet;
-class RimSummaryCaseCollection;
+class RimSummaryEnsemble;
 class RimSummaryCase;
 class RigEnsembleParameter;
 class RifEclipseSummaryAddress;
@@ -52,10 +52,10 @@ public:
     std::vector<RiaSummaryCurveDefinition> curveDefinitions() const;
     void                                   setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
     void                                   setTimeStep( std::time_t timeStep );
-    std::set<RimSummaryCaseCollection*>    ensembles() const;
+    std::set<RimSummaryEnsemble*>          ensembles() const;
 
     // Get summary cases filtered by attached ensemble parameter filter
-    std::set<RimSummaryCase*> filterEnsembleCases( RimSummaryCaseCollection* ensemble ) const;
+    std::set<RimSummaryCase*> filterEnsembleCases( RimSummaryEnsemble* ensemble ) const;
     bool                      isCaseFilterEnabled() const;
     void                      enableCaseFilter( bool enable );
     RimEnsembleCurveSet*      caseFilterDataSource() const;
