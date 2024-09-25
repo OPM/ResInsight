@@ -56,9 +56,14 @@ elseif(MSVC)
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  set(CMAKE_CXX_FLAGS
-      "-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat -Wno-unused-parameter -Wno-array-bounds -Wno-dangling-reference -Wno-stringop-overflow"
-  )
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS
+        "-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat -Wno-unused-parameter")
+
+  else()
+    set(CMAKE_CXX_FLAGS
+        "-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat -Wno-unused-parameter -Wno-array-bounds -Wno-dangling-reference -Wno-stringop-overflow")
+  endif()
   set(CMAKE_CXX_FLAGS_DEBUG "-ggdb -g3 -O0 -DDEBUG -D_DEBUG")
   set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
 endif()
