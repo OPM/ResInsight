@@ -24,7 +24,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiuQtChartView::RiuQtChartView( RimPlotWindow* plotWindow, QWidget* parent )
-    : QtCharts::QChartView( parent )
+    : QChartView( parent )
     , m_plotWindow( plotWindow )
 {
     setMouseTracking( true );
@@ -59,7 +59,7 @@ void RiuQtChartView::mousePressEvent( QMouseEvent* event )
     }
     else
     {
-        QtCharts::QChartView::mousePressEvent( event );
+        QChartView::mousePressEvent( event );
     }
 }
 
@@ -82,7 +82,7 @@ void RiuQtChartView::mouseReleaseEvent( QMouseEvent* event )
             return QGraphicsView::mouseReleaseEvent( event );
         }
 
-        QtCharts::QChartView::mouseReleaseEvent( event );
+        QChartView::mouseReleaseEvent( event );
     }
 }
 
@@ -101,6 +101,6 @@ void RiuQtChartView::mouseMoveEvent( QMouseEvent* event )
     }
     else
     {
-        QtCharts::QChartView::mouseMoveEvent( event );
+        QChartView::mouseMoveEvent( event );
     }
 }

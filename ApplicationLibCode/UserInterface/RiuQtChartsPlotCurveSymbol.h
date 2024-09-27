@@ -29,11 +29,7 @@
 class QPainter;
 class QPointF;
 class QRect;
-
-namespace QtCharts
-{
 class QScatterSeries;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -58,12 +54,12 @@ public:
 
     QRect boundingRect() const override;
 
-    void applyToScatterSeries( QtCharts::QScatterSeries* series ) const;
+    void applyToScatterSeries( QScatterSeries* series ) const;
 
     QImage image() const;
 
 private:
-    void setImageBrush( QtCharts::QScatterSeries* series, const QImage& image ) const;
+    void setImageBrush( QScatterSeries* series, const QImage& image ) const;
 
     QColor m_color;
     QPen   m_pen;
