@@ -2363,6 +2363,8 @@ void RimEclipseView::calculateCurrentTotalCellVisibility( cvf::UByteArray* total
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::calculateCellVisibility( cvf::UByteArray* visibility, std::vector<RivCellSetEnum> geomTypes, int timeStep )
 {
+    if ( !mainGrid() ) return;
+
     size_t cellCount = mainGrid()->globalCellArray().size();
 
     visibility->resize( cellCount );
