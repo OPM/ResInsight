@@ -50,14 +50,14 @@ void RigActiveCellGrid::transferActiveInformation( int                     gridI
 {
     if ( gridIndex == 0 )
     {
-        m_globalToActiveMap.clear();
+        m_globalToNativeMap.clear();
     }
 
     const auto totalCells = activeMatrixIndexes.size();
 
-    const auto cellStartIndex = m_globalToActiveMap.size();
+    const auto cellStartIndex = m_globalToNativeMap.size();
 
-    m_globalToActiveMap.resize( cellStartIndex + totalCells );
+    m_globalToNativeMap.resize( cellStartIndex + totalCells );
     size_t activeCells       = cellStartIndex;
     size_t anInactiveCellIdx = cellStartIndex;
 
@@ -66,14 +66,14 @@ void RigActiveCellGrid::transferActiveInformation( int                     gridI
         const auto globalCellIndex = cellStartIndex + i;
         if ( ( activeMatrixIndexes[i] < 0 ) && ( activeFracIndexes[i] < 0 ) )
         {
-            m_globalToActiveMap[globalCellIndex] = totalActiveCells;
+            m_globalToNativeMap[globalCellIndex] = totalActiveCells;
             anInactiveCellIdx                    = globalCellIndex;
             continue;
         }
-        m_activeToGlobalMap.push_back( globalCellIndex );
-        m_globalToActiveMap[i] = activeCells++;
+        m_nativeToGlobalMap.push_back( globalCellIndex );
+        m_globalToNativeMap[i] = activeCells++;
     }
-    m_activeToGlobalMap.push_back( anInactiveCellIdx );
+    m_nativeToGlobalMap.push_back( anInactiveCellIdx );
 
     RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
     RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
@@ -92,7 +92,7 @@ void RigActiveCellGrid::transferActiveInformation( int                     gridI
 #pragma omp parallel for
     for ( int opmCellIndex = 0; opmCellIndex < (int)totalCells; opmCellIndex++ )
     {
-        auto activeCellIndex = m_globalToActiveMap[cellStartIndex + opmCellIndex];
+        auto activeCellIndex = m_globalToNativeMap[cellStartIndex + opmCellIndex];
 
         // active cell index
         int matrixActiveIndex = activeMatrixIndexes[opmCellIndex];
@@ -118,7 +118,7 @@ void RigActiveCellGrid::transferActiveInformation( int                     gridI
 size_t RigActiveCellGrid::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
 {
     auto index = RigGridBase::cellIndexFromIJK( i, j, k );
-    return m_globalToActiveMap[index];
+    return m_globalToNativeMap[index];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,7 +127,7 @@ size_t RigActiveCellGrid::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
 size_t RigActiveCellGrid::cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const
 {
     auto index = RigGridBase::cellIndexFromIJKUnguarded( i, j, k );
-    return m_globalToActiveMap[index];
+    return m_globalToNativeMap[index];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,11 +135,11 @@ size_t RigActiveCellGrid::cellIndexFromIJKUnguarded( size_t i, size_t j, size_t 
 //--------------------------------------------------------------------------------------------------
 bool RigActiveCellGrid::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const
 {
-    if ( cellIndex >= m_activeToGlobalMap.size() )
+    if ( cellIndex >= m_nativeToGlobalMap.size() )
     {
         return false;
     }
-    auto index = m_activeToGlobalMap[cellIndex];
+    auto index = m_nativeToGlobalMap[cellIndex];
     return RigGridBase::ijkFromCellIndex( index, i, j, k );
 }
 
@@ -148,7 +148,7 @@ bool RigActiveCellGrid::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j
 //--------------------------------------------------------------------------------------------------
 void RigActiveCellGrid::ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const
 {
-    auto index = m_activeToGlobalMap[cellIndex];
+    auto index = m_nativeToGlobalMap[cellIndex];
     RigGridBase::ijkFromCellIndexUnguarded( index, i, j, k );
 }
 
@@ -157,9 +157,9 @@ void RigActiveCellGrid::ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, 
 //--------------------------------------------------------------------------------------------------
 RigCell& RigActiveCellGrid::cell( size_t gridLocalCellIndex )
 {
-    CVF_ASSERT( gridLocalCellIndex < m_globalToActiveMap.size() );
+    CVF_ASSERT( gridLocalCellIndex < m_globalToNativeMap.size() );
 
-    const auto index = m_globalToActiveMap[gridLocalCellIndex];
+    const auto index = m_globalToNativeMap[gridLocalCellIndex];
     return m_cells[index];
 }
 
@@ -168,9 +168,9 @@ RigCell& RigActiveCellGrid::cell( size_t gridLocalCellIndex )
 //--------------------------------------------------------------------------------------------------
 const RigCell& RigActiveCellGrid::cell( size_t gridLocalCellIndex ) const
 {
-    CVF_ASSERT( gridLocalCellIndex < m_globalToActiveMap.size() );
+    CVF_ASSERT( gridLocalCellIndex < m_globalToNativeMap.size() );
 
-    const auto index = m_globalToActiveMap[gridLocalCellIndex];
+    const auto index = m_globalToNativeMap[gridLocalCellIndex];
     return m_cells[index];
 }
 
@@ -199,9 +199,9 @@ const RigCell& RigActiveCellGrid::nativeCell( size_t nativeCellIndex ) const
 //--------------------------------------------------------------------------------------------------
 size_t RigActiveCellGrid::globalCellIndexToNative( size_t globalCellIndex ) const
 {
-    CVF_ASSERT( globalCellIndex < m_globalToActiveMap.size() );
+    CVF_ASSERT( globalCellIndex < m_globalToNativeMap.size() );
 
-    return m_globalToActiveMap[globalCellIndex];
+    return m_globalToNativeMap[globalCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -209,9 +209,9 @@ size_t RigActiveCellGrid::globalCellIndexToNative( size_t globalCellIndex ) cons
 //--------------------------------------------------------------------------------------------------
 size_t RigActiveCellGrid::nativeCellIndexToGlobal( size_t nativeCellIndex ) const
 {
-    CVF_ASSERT( nativeCellIndex < m_globalToActiveMap.size() );
+    CVF_ASSERT( nativeCellIndex < m_globalToNativeMap.size() );
 
-    return m_activeToGlobalMap[nativeCellIndex];
+    return m_nativeToGlobalMap[nativeCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
