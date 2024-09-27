@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifFileParseTools.h"
+#include "RiaTextStringTools.h"
 
 // Disable deprecation warning for QString::SkipEmptyParts
 #ifdef _MSC_VER
@@ -31,7 +32,7 @@
 //--------------------------------------------------------------------------------------------------
 QStringList RifFileParseTools::splitLineAndTrim( const QString& line, const QString& separator, bool skipEmptyParts )
 {
-    QStringList cols = line.trimmed().split( separator, skipEmptyParts ? QString::SkipEmptyParts : QString::KeepEmptyParts );
+    auto cols = RiaTextStringTools::splitString( line.trimmed(), separator, skipEmptyParts );
     for ( QString& col : cols )
     {
         col = col.trimmed();
@@ -44,7 +45,7 @@ QStringList RifFileParseTools::splitLineAndTrim( const QString& line, const QStr
 //--------------------------------------------------------------------------------------------------
 QStringList RifFileParseTools::splitLineAndTrim( const QString& line, const QRegExp& regexp, bool skipEmptyParts )
 {
-    QStringList cols = line.trimmed().split( regexp, skipEmptyParts ? QString::SkipEmptyParts : QString::KeepEmptyParts );
+    auto cols = RiaTextStringTools::splitString( line.trimmed(), regexp, skipEmptyParts );
     for ( QString& col : cols )
     {
         col = col.trimmed();

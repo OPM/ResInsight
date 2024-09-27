@@ -22,6 +22,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 
+#include <QRegExp>
+
 class RimMswCompletionParameters;
 class RimWellPathCompletionsLegacy;
 

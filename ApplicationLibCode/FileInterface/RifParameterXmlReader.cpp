@@ -18,6 +18,8 @@
 
 #include "RifParameterXmlReader.h"
 
+#include "RiaTextStringTools.h"
+
 #include "RimDoubleParameter.h"
 #include "RimGenericParameter.h"
 #include "RimIntegerParameter.h"
@@ -103,7 +105,7 @@ bool RifParameterXmlReader::parseFile( QString& outErrorText )
         {
             if ( xml.isStartElement() )
             {
-                if ( xml.name() == "group" )
+                if ( RiaTextStringTools::isTextEqual( xml.name(), QString( "group" ) ) )
                 {
                     // check that we have the required attributes
                     for ( auto& reqattr : reqGroupAttrs )
@@ -136,7 +138,7 @@ bool RifParameterXmlReader::parseFile( QString& outErrorText )
                     }
                     continue;
                 }
-                else if ( xml.name() == "parameter" )
+                else if ( RiaTextStringTools::isTextEqual( xml.name(), QString( "parameter" ) ) )
                 {
                     if ( group == nullptr ) continue;
 
@@ -192,7 +194,7 @@ bool RifParameterXmlReader::parseFile( QString& outErrorText )
                         currentList->addParameter( parameter->name() );
                     }
                 }
-                else if ( xml.name() == "list" )
+                else if ( RiaTextStringTools::isTextEqual( xml.name(), QString( "list" ) ) )
                 {
                     // check that we have the required attributes
                     for ( auto& reqattr : reqListAttrs )
@@ -213,7 +215,7 @@ bool RifParameterXmlReader::parseFile( QString& outErrorText )
             }
             else if ( xml.isEndElement() )
             {
-                if ( xml.name() == "group" )
+                if ( RiaTextStringTools::isTextEqual( xml.name(), QString( "group" ) ) )
                 {
                     if ( group != nullptr )
                     {
@@ -221,7 +223,7 @@ bool RifParameterXmlReader::parseFile( QString& outErrorText )
                         group = nullptr;
                     }
                 }
-                else if ( xml.name() == "list" )
+                else if ( RiaTextStringTools::isTextEqual( xml.name(), QString( "list" ) ) )
                 {
                     if ( group )
                     {

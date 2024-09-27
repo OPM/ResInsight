@@ -19,10 +19,12 @@
 #include "RifEclipseSummaryAddress.h"
 
 #include "RiaStdStringTools.h"
+#include "RiaTextStringTools.h"
 
 #include "RifEclEclipseSummary.h"
 #include "RiuSummaryQuantityNameInfoProvider.h"
 
+#include <QRegExp>
 #include <QStringList>
 #include <QTextStream>
 
@@ -1213,7 +1215,7 @@ std::string RifEclipseSummaryAddress::blockAsString() const
 //--------------------------------------------------------------------------------------------------
 std::tuple<int, int, int> RifEclipseSummaryAddress::ijkTupleFromUiText( const std::string& s )
 {
-    QStringList ijk = QString().fromStdString( s ).trimmed().split( QRegExp( "[,]" ) );
+    auto ijk = RiaTextStringTools::splitSkipEmptyParts( QString::fromStdString( s ).trimmed(), QRegExp( "[,]" ) );
 
     if ( ijk.size() != 3 ) return std::make_tuple( -1, -1, -1 );
 
@@ -1235,7 +1237,7 @@ std::string RifEclipseSummaryAddress::formatUiTextRegionToRegion() const
 //--------------------------------------------------------------------------------------------------
 std::pair<int, int> RifEclipseSummaryAddress::regionToRegionPairFromUiText( const std::string& s )
 {
-    QStringList r2r = QString().fromStdString( s ).trimmed().split( QRegExp( "[-]" ) );
+    auto r2r = RiaTextStringTools::splitSkipEmptyParts( QString::fromStdString( s ).trimmed(), QRegExp( "[-]" ) );
 
     if ( r2r.size() != 2 ) return std::make_pair( -1, -1 );
 

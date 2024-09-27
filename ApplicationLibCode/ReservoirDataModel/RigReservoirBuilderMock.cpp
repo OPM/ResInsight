@@ -29,6 +29,8 @@
 #include "RigWellResultFrame.h"
 #include "RigWellResultPoint.h"
 
+#include <QRegExp>
+
 /* rand example: guess the number */
 #include <cstdio>
 #include <cstdlib>
