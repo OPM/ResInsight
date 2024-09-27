@@ -7,6 +7,26 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language><atom:link href="https://resinsight.org/import/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Cloud Services</title>
+      <link>https://resinsight.org/import/cloudservices/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/import/cloudservices/</guid>
+      <description>Configuration of cloud services is described in Cloud Services - Authorization.
+Summary Ensembles from SUMO Summary ensemble data can be accessed from SUMO. ResInsight will store the required information to the data source, and fetch data from the cloud during project import.
+Select Cloud Data, this will show available fields with cases in the Data Source Property Editor Select Field and Case, and a list of available ensembles are displayed Select Ensembles and push Add Ensembles.</description>
+    </item>
+    
+    <item>
+      <title>Cloud Services - Authorization</title>
+      <link>https://resinsight.org/import/cloudservicesauthorization/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/import/cloudservicesauthorization/</guid>
+      <description>Authorization Currently supported cloud services use OAuth 2.0, the industry-standerd protocol for authentication. The first time a user initiates data from a cloud service, a browser window will appear for the user to enter username/password followed by additional two-factor authentication. A text string usually called a token is created, containing the access and authorization information required to access the cloud data source. This token is cached by ResInsight in the .</description>
+    </item>
+    
+    <item>
       <title>Eclipse Cases</title>
       <link>https://resinsight.org/import/eclipsecases/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

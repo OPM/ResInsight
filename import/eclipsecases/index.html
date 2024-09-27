@@ -12,18 +12,18 @@
     <title>Eclipse Cases :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1713969275" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1713969275" rel="stylesheet">
-    <link href="/css/hybrid.css?1713969275" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1713969275" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1713969275" rel="stylesheet">
-    <link href="/css/auto-complete.css?1713969275" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1713969275" rel="stylesheet">
-    <link href="/css/theme.css?1713969275" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1713969275" rel="stylesheet">
+    <link href="/css/nucleus.css?1727432415" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1727432415" rel="stylesheet">
+    <link href="/css/hybrid.css?1727432415" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1727432415" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1727432415" rel="stylesheet">
+    <link href="/css/auto-complete.css?1727432415" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1727432415" rel="stylesheet">
+    <link href="/css/theme.css?1727432415" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1727432415" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1713969275"></script>
+    <script src="/js/jquery-3.3.1.min.js?1727432415"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -257,6 +257,9 @@
 
             
           
+             
+            
+          
             
             
 
@@ -283,6 +286,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -2005,6 +2011,44 @@
  
   
     
+      <li data-nav-id="/import/cloudservices/" title="Cloud Services" class="dd-item ">
+        <a href="/import/cloudservices/">
+        Cloud Services
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/import/cloudservicesauthorization/" title="Cloud Services - Authorization" class="dd-item ">
+        <a href="/import/cloudservicesauthorization/">
+        Cloud Services - Authorization
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/eclipsecases/" title="Eclipse Cases" class="dd-item active">
         <a href="/import/eclipsecases/">
         Eclipse Cases
@@ -2614,6 +2658,25 @@
  
   
     
+      <li data-nav-id="/misc/projectfilerevisions/" title="Project File Revisions" class="dd-item ">
+        <a href="/misc/projectfilerevisions/">
+        Project File Revisions
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/misc/windowmanagement/" title="Window Management" class="dd-item ">
         <a href="/misc/windowmanagement/">
         Window Management
@@ -2733,6 +2796,25 @@
           
           
         
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/best-practices/performancehints/" title="Performance Hints" class="dd-item ">
+        <a href="/best-practices/performancehints/">
+        Performance Hints
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
           
             
             
@@ -3018,8 +3100,10 @@ if (!doNotTrack) {
 <li><strong>Import Eclipse Cases Recursively</strong>: Brings up the recursive file selection dialog. This dialog is described in detail on the <a href="/import/eclipsesummarydata/#ensemble-file-import">Summary Plots page</a>.</li>
 <li><strong>Import Eclipse Case (Time Step Filtered)</strong>: See <a href="#time-step-filtered-eclipse-result">description</a></li>
 <li><strong>Import Input Eclipse Case</strong>: See <a href="#eclipse-ascii-input-data">description</a></li>
-<li><strong>Create Grid Case Group</strong> : Import a number of Eclipse files and places the cases in a <a href="/calculated-data/casegroupsandstatistics/#creating-grid-case-groups">grid case group</a> See <a href="/import/eclipsesummarydata/#ensemble-file-import">File Selection Dialog</a> for how to import multiple files.</li>
+<li><strong>Create Grid Case Group</strong> : Import a set of Eclipse files and places the cases in a <a href="/calculated-data/casegroupsandstatistics/#creating-grid-case-groups">grid case group</a> See <a href="/import/eclipsesummarydata/#ensemble-file-import">File Selection Dialog</a> for how to import multiple files. All cases must have identical IJK to be part of a grid case group.</li>
+<li><strong>Create Grid Case Ensemble</strong> : Import a set of Eclipse files and places the cases in a grid case ensemble. The grid models can have varying IJK resolution. If you have identical IJK for all cases, consider uting a <strong>Grid Case Group</strong> for reduced memory usage and improved performance.</li>
 </ul>
+<p>Changing the grid case a view is connected to is described in <a href="/3d-main-window/3dviews/#change-data-source-for-view">3D Views</a></p>
 <p>The <strong>Reload Case</strong> command can be used to reload a previously imported case, to make sure it is up to date. This is useful if the grid or result files changes while a ResInsight session is active.</p>
 
 <div class="notices note" ><p>You can select several grid files in one go by multiple selection of files (Ctrl + left mouse button, Shift + left mouse button).</p>
@@ -3219,6 +3303,11 @@ See <a href="/misc/preferences/#behavior-when-loading-data">Preferences: Behavio
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                 
@@ -3228,11 +3317,16 @@ See <a href="/misc/preferences/#behavior-when-loading-data">Preferences: Behavio
                     
                     
 
+                    
+            
+        
                     
             
         
                     
+                        
             
+            
         
                     
                         
@@ -4621,12 +4715,44 @@ See <a href="/misc/preferences/#behavior-when-loading-data">Preferences: Behavio
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
                         
             
             
+                
+                    
+                        
+                        
+                    
+                
                 
+
+                    
+                    
+                    
+
+                    
+            
+        
                     
+                        
+            
+            
+                
                     
                 
                 
@@ -4636,6 +4762,9 @@ See <a href="/misc/preferences/#behavior-when-loading-data">Preferences: Behavio
                     
 
                     
+            
+        
+                    
                         
             
             
@@ -5074,6 +5203,19 @@ See <a href="/misc/preferences/#behavior-when-loading-data">Preferences: Behavio
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
                         
             
@@ -5087,6 +5229,9 @@ See <a href="/misc/preferences/#behavior-when-loading-data">Preferences: Behavio
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -5202,7 +5347,20 @@ See <a href="/misc/preferences/#behavior-when-loading-data">Preferences: Behavio
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
                     
+
+                    
                         
             
             
@@ -5215,6 +5373,9 @@ See <a href="/misc/preferences/#behavior-when-loading-data">Preferences: Behavio
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -5308,7 +5469,7 @@ See <a href="/misc/preferences/#behavior-when-loading-data">Preferences: Behavio
 	 
 	 
 		
-			<a class="nav nav-prev" href="/import/" title="Import"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/import/cloudservicesauthorization/" title="Cloud Services - Authorization"> <i class="fa fa-chevron-left"></i></a>
 		
 		
 			<a class="nav nav-next" href="/import/eclipsesummarydata/" title="Eclipse Summary Data" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
@@ -5321,19 +5482,19 @@ See <a href="/misc/preferences/#behavior-when-loading-data">Preferences: Behavio
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1713969275"></script>
-    <script src="/js/perfect-scrollbar.min.js?1713969275"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1713969275"></script>
-    <script src="/js/jquery.sticky.js?1713969275"></script>
-    <script src="/js/featherlight.min.js?1713969275"></script>
-    <script src="/js/highlight.pack.js?1713969275"></script>
+    <script src="/js/clipboard.min.js?1727432415"></script>
+    <script src="/js/perfect-scrollbar.min.js?1727432415"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1727432415"></script>
+    <script src="/js/jquery.sticky.js?1727432415"></script>
+    <script src="/js/featherlight.min.js?1727432415"></script>
+    <script src="/js/highlight.pack.js?1727432415"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1713969275"></script>
-    <script src="/js/learn.js?1713969275"></script>
-    <script src="/js/hugo-learn.js?1713969275"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1727432415"></script>
+    <script src="/js/learn.js?1727432415"></script>
+    <script src="/js/hugo-learn.js?1727432415"></script>
 
-    <link href="/mermaid/mermaid.css?1713969275" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1713969275"></script>
+    <link href="/mermaid/mermaid.css?1727432415" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1727432415"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

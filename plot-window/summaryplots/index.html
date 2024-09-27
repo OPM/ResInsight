@@ -12,18 +12,18 @@
     <title>Summary Plots :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1713969275" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1713969275" rel="stylesheet">
-    <link href="/css/hybrid.css?1713969275" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1713969275" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1713969275" rel="stylesheet">
-    <link href="/css/auto-complete.css?1713969275" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1713969275" rel="stylesheet">
-    <link href="/css/theme.css?1713969275" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1713969275" rel="stylesheet">
+    <link href="/css/nucleus.css?1727432415" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1727432415" rel="stylesheet">
+    <link href="/css/hybrid.css?1727432415" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1727432415" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1727432415" rel="stylesheet">
+    <link href="/css/auto-complete.css?1727432415" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1727432415" rel="stylesheet">
+    <link href="/css/theme.css?1727432415" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1727432415" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1713969275"></script>
+    <script src="/js/jquery-3.3.1.min.js?1727432415"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -257,6 +257,9 @@
 
             
           
+             
+            
+          
             
             
 
@@ -283,6 +286,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -2005,6 +2011,44 @@
  
   
     
+      <li data-nav-id="/import/cloudservices/" title="Cloud Services" class="dd-item ">
+        <a href="/import/cloudservices/">
+        Cloud Services
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/import/cloudservicesauthorization/" title="Cloud Services - Authorization" class="dd-item ">
+        <a href="/import/cloudservicesauthorization/">
+        Cloud Services - Authorization
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/eclipsecases/" title="Eclipse Cases" class="dd-item ">
         <a href="/import/eclipsecases/">
         Eclipse Cases
@@ -2614,6 +2658,25 @@
  
   
     
+      <li data-nav-id="/misc/projectfilerevisions/" title="Project File Revisions" class="dd-item ">
+        <a href="/misc/projectfilerevisions/">
+        Project File Revisions
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/misc/windowmanagement/" title="Window Management" class="dd-item ">
         <a href="/misc/windowmanagement/">
         Window Management
@@ -2733,6 +2796,25 @@
           
           
         
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/best-practices/performancehints/" title="Performance Hints" class="dd-item ">
+        <a href="/best-practices/performancehints/">
+        Performance Hints
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
           
             
             
@@ -3126,7 +3208,7 @@ Right-click a composite plot in <strong>Plots</strong> and select <strong>Split 
 <h3 id="accessing-plot-data">Accessing Plot Data</h3>
 <p>Right-clicking a plot in <strong>Plots</strong> window and selecting <strong>Show Plot Data</strong> will open a window containing the plot data as text columns.
 The window displays plot data by day, week, month, quarter, half year and year.</p>
-<p><strong>Resampling Method Description</strong></p>
+<p><strong>Resampling Method</strong></p>
 <ol>
 <li>
 <p>For aggregated values (<strong>*OPT</strong> and similar), the resampled value is calculated based on linear resampling.</p>
@@ -3134,10 +3216,10 @@ The window displays plot data by day, week, month, quarter, half year and year.<
 <li>
 <p>For rate values (<strong>*OPR</strong>), the total volume in the requested resample interval is computed. The rate value is then computed by</p>
 <p>$Rate_{period} = \frac{TotalVolumePeriod}{period}$</p>
+<p>No extrapolation of rate values is performed. This means that the rate for the last time period can appear lower than the previous time period if the last reported rate is early in the last resampling period.</p>
 </li>
 </ol>
-<p>The text content of this window is easy to copy and paste into Excel or other tools for further processing.
-It is also possible to save the text data to a file by the right-click command <strong>Export to File</strong>.</p>
+<p>The text content of this window is easy to copy and paste into Excel or other tools for further processing. It is also possible to save the text data to a file by the right-click command <strong>Export to File</strong>.</p>
 <h2 id="editing-summary-plots">Editing Summary Plots</h2>
 <p>A color selection dialog can be opened by clicking on the color icon in the <strong>Project Tree</strong>.
 <img src="/images/plot-window/ColorSelectionDialog.png" alt=""></p>
@@ -3152,8 +3234,9 @@ It is also possible to save the text data to a file by the right-click command <
 <li><strong>Stacking</strong> - Options to control stacking of curves optionally with phase colors.</li>
 <li><strong>Appearance</strong> &ndash; Options to control curve color, symbols, line style etc.</li>
 <li><strong>Curve Name</strong> &ndash; Controls how the curve is labeled in the legend.</li>
-<li><strong>Advanced</strong> &ndash; Specification of additional options.</li>
 </ul>
+<h4 id="curve-type">Curve Type</h4>
+<p>The <strong>Curve Type</strong> can automatically be derived based on the name of the summary vector name, either <strong>Accumulated</strong>(ends with &ldquo;T&rdquo;) or <strong>Rate</strong>. The curve type can be manually specified if <strong>Custom</strong> curve type is selected. This option can be especially useful for imported curves.</p>
 <p>Other actions are available via right-click menu for selected curve. For instance, the Y-Axis for one or more curves can be switched for using the right-click command <b>Switch Plot Axis</b>.</p>
 <h3 id="default-time-axis-properties">Default Time Axis Properties</h3>
 <p>Time axis properties are displayed by clicking the <strong>Time Axis</strong> subitem of a summary plot in <strong>Plots</strong> window.</p>
@@ -3337,6 +3420,11 @@ max/max range, and font size.</li>
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                 
@@ -3346,11 +3434,16 @@ max/max range, and font size.</li>
                     
                     
 
+                    
+            
+        
                     
             
         
                     
+                        
             
+            
         
                     
                         
@@ -4738,10 +4831,39 @@ max/max range, and font size.</li>
                     
                     
 
+                    
+            
+        
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
                     
+
+                    
             
         
                     
@@ -4757,6 +4879,9 @@ max/max range, and font size.</li>
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -5192,6 +5317,19 @@ max/max range, and font size.</li>
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
                         
             
@@ -5206,6 +5344,9 @@ max/max range, and font size.</li>
                     
 
                     
+            
+        
+                    
                         
             
             
@@ -5320,7 +5461,20 @@ max/max range, and font size.</li>
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
                     
+
+                    
                         
             
             
@@ -5333,6 +5487,9 @@ max/max range, and font size.</li>
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -5439,19 +5596,19 @@ max/max range, and font size.</li>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1713969275"></script>
-    <script src="/js/perfect-scrollbar.min.js?1713969275"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1713969275"></script>
-    <script src="/js/jquery.sticky.js?1713969275"></script>
-    <script src="/js/featherlight.min.js?1713969275"></script>
-    <script src="/js/highlight.pack.js?1713969275"></script>
+    <script src="/js/clipboard.min.js?1727432415"></script>
+    <script src="/js/perfect-scrollbar.min.js?1727432415"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1727432415"></script>
+    <script src="/js/jquery.sticky.js?1727432415"></script>
+    <script src="/js/featherlight.min.js?1727432415"></script>
+    <script src="/js/highlight.pack.js?1727432415"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1713969275"></script>
-    <script src="/js/learn.js?1713969275"></script>
-    <script src="/js/hugo-learn.js?1713969275"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1727432415"></script>
+    <script src="/js/learn.js?1727432415"></script>
+    <script src="/js/hugo-learn.js?1727432415"></script>
 
-    <link href="/mermaid/mermaid.css?1713969275" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1713969275"></script>
+    <link href="/mermaid/mermaid.css?1727432415" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1727432415"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

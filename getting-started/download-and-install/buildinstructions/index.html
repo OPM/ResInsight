@@ -12,18 +12,18 @@
     <title>Building ResInsight from Source :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1713969275" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1713969275" rel="stylesheet">
-    <link href="/css/hybrid.css?1713969275" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1713969275" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1713969275" rel="stylesheet">
-    <link href="/css/auto-complete.css?1713969275" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1713969275" rel="stylesheet">
-    <link href="/css/theme.css?1713969275" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1713969275" rel="stylesheet">
+    <link href="/css/nucleus.css?1727432415" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1727432415" rel="stylesheet">
+    <link href="/css/hybrid.css?1727432415" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1727432415" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1727432415" rel="stylesheet">
+    <link href="/css/auto-complete.css?1727432415" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1727432415" rel="stylesheet">
+    <link href="/css/theme.css?1727432415" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1727432415" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1713969275"></script>
+    <script src="/js/jquery-3.3.1.min.js?1727432415"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -257,6 +257,9 @@
 
             
           
+             
+            
+          
             
             
 
@@ -283,6 +286,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -2005,6 +2011,44 @@
  
   
     
+      <li data-nav-id="/import/cloudservices/" title="Cloud Services" class="dd-item ">
+        <a href="/import/cloudservices/">
+        Cloud Services
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/import/cloudservicesauthorization/" title="Cloud Services - Authorization" class="dd-item ">
+        <a href="/import/cloudservicesauthorization/">
+        Cloud Services - Authorization
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/eclipsecases/" title="Eclipse Cases" class="dd-item ">
         <a href="/import/eclipsecases/">
         Eclipse Cases
@@ -2614,6 +2658,25 @@
  
   
     
+      <li data-nav-id="/misc/projectfilerevisions/" title="Project File Revisions" class="dd-item ">
+        <a href="/misc/projectfilerevisions/">
+        Project File Revisions
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/misc/windowmanagement/" title="Window Management" class="dd-item ">
         <a href="/misc/windowmanagement/">
         Window Management
@@ -2733,6 +2796,25 @@
           
           
         
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/best-practices/performancehints/" title="Performance Hints" class="dd-item ">
+        <a href="/best-practices/performancehints/">
+        Performance Hints
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
           
             
             
@@ -3129,7 +3211,7 @@ This makes it easier to see all of the options for ResInsight.</p>
 <tr>
 <td><code>RESINSIGHT_PRIVATE_INSTALL</code></td>
 <td>ON</td>
-<td>Linux only: Include libecl libraries in the installation package</td>
+<td>Linux only: Include resdata libraries in the installation package</td>
 </tr>
 <tr>
 <td><code>RESINSIGHT_HDF5_BUNDLE_LIBRARIES</code></td>
@@ -3200,9 +3282,9 @@ This will not break the build or compilation of ResInsight.</p>
 <code>sudo apt-get install git cmake build-essential octave liboctave-dev qtbase5-dev qtscript5-dev libqt5svg5-dev qtbase5-private-dev</code></p>
 <h4 id="odb-support">ODB support</h4>
 <p>ResInsight can be built with support for ABAQUS ODB files. This requires an installation of the ABAQUS ODB API
-from Simulia on the build computer. The path to the ABAQUS ODB API folder containing header files and library
-files must be specified. Leaving this option blank gives a build without ODB support.
-ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windows 7/8/10 and RedHat Linux 6.</p>
+from Simulia on the build computer. The path to an ABAQUS ODB API folder containing header files in an <em>include</em> sub-folder and the library
+files in a <em>lib</em> sub-folder must be specified in the CMake option <em>RESINSIGHT_ODB_API_DIR</em>. Leaving this option blank gives a build without ODB support.
+ResInsight has been built and tested with ABAQUS ODB versions 2020 and 2024 on Windows 10/11, Redhat Linux 7/8 and Ubuntu 22/24.</p>
 <h4 id="hdf5">HDF5</h4>
 <p>HDF5 is used to read SourSimRL result files. On Windows this is optional, while on Linux the installed HDF5 library will be used if present.</p>
 <p>Use an advanced flag RESINSIGHT_HDF5_BUNDLE_LIBRARIES to include HDF5 libraries in the installation package.</p>
@@ -3374,6 +3456,11 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                     
@@ -3384,11 +3471,16 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
                     
                     
 
+                    
+            
+        
                     
             
         
                     
+                        
             
+            
         
                     
                         
@@ -4774,10 +4866,39 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
                     
                     
 
+                    
+            
+        
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
                     
+
+                    
             
         
                     
@@ -4793,6 +4914,9 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -5228,6 +5352,19 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
                         
             
@@ -5242,6 +5379,9 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
                     
 
                     
+            
+        
+                    
                         
             
             
@@ -5356,7 +5496,20 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
                     
+
+                    
                         
             
             
@@ -5369,6 +5522,9 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -5475,19 +5631,19 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1713969275"></script>
-    <script src="/js/perfect-scrollbar.min.js?1713969275"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1713969275"></script>
-    <script src="/js/jquery.sticky.js?1713969275"></script>
-    <script src="/js/featherlight.min.js?1713969275"></script>
-    <script src="/js/highlight.pack.js?1713969275"></script>
+    <script src="/js/clipboard.min.js?1727432415"></script>
+    <script src="/js/perfect-scrollbar.min.js?1727432415"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1727432415"></script>
+    <script src="/js/jquery.sticky.js?1727432415"></script>
+    <script src="/js/featherlight.min.js?1727432415"></script>
+    <script src="/js/highlight.pack.js?1727432415"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1713969275"></script>
-    <script src="/js/learn.js?1713969275"></script>
-    <script src="/js/hugo-learn.js?1713969275"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1727432415"></script>
+    <script src="/js/learn.js?1727432415"></script>
+    <script src="/js/hugo-learn.js?1727432415"></script>
 
-    <link href="/mermaid/mermaid.css?1713969275" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1713969275"></script>
+    <link href="/mermaid/mermaid.css?1727432415" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1727432415"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

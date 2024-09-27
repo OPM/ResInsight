@@ -233,6 +233,19 @@ See Release Notes on GitHub for further details and information.</description>
     </item>
     
     <item>
+      <title>What&#39;s New in 2024.09</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2024_09/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2024_09/</guid>
+      <description>Cloud Services ResInsight has now support for import of data from two cloud services, ensemble summary data from SUMO and well path geometry from OSDU.
+Cloud Services
+Ensemble Grid Case An ensemble of grid cases can be imported into a grid case ensemble. Creating a view in this ensemble will allow the user to quickly switch between realizations using a drop down menu.
+Import Grid Case Ensemble
+Change Data Source for View</description>
+    </item>
+    
+    <item>
       <title>What&#39;s New in 2018.11</title>
       <link>https://resinsight.org/getting-started/whats-new/releasenotes_2018_11/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

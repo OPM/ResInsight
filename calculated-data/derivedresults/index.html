@@ -12,18 +12,18 @@
     <title>Derived Results - Eclipse :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1713969275" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1713969275" rel="stylesheet">
-    <link href="/css/hybrid.css?1713969275" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1713969275" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1713969275" rel="stylesheet">
-    <link href="/css/auto-complete.css?1713969275" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1713969275" rel="stylesheet">
-    <link href="/css/theme.css?1713969275" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1713969275" rel="stylesheet">
+    <link href="/css/nucleus.css?1727432415" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1727432415" rel="stylesheet">
+    <link href="/css/hybrid.css?1727432415" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1727432415" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1727432415" rel="stylesheet">
+    <link href="/css/auto-complete.css?1727432415" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1727432415" rel="stylesheet">
+    <link href="/css/theme.css?1727432415" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1727432415" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1713969275"></script>
+    <script src="/js/jquery-3.3.1.min.js?1727432415"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -257,6 +257,9 @@
 
             
           
+             
+            
+          
             
             
 
@@ -283,6 +286,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -2005,6 +2011,44 @@
  
   
     
+      <li data-nav-id="/import/cloudservices/" title="Cloud Services" class="dd-item ">
+        <a href="/import/cloudservices/">
+        Cloud Services
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/import/cloudservicesauthorization/" title="Cloud Services - Authorization" class="dd-item ">
+        <a href="/import/cloudservicesauthorization/">
+        Cloud Services - Authorization
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/eclipsecases/" title="Eclipse Cases" class="dd-item ">
         <a href="/import/eclipsecases/">
         Eclipse Cases
@@ -2614,6 +2658,25 @@
  
   
     
+      <li data-nav-id="/misc/projectfilerevisions/" title="Project File Revisions" class="dd-item ">
+        <a href="/misc/projectfilerevisions/">
+        Project File Revisions
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/misc/windowmanagement/" title="Window Management" class="dd-item ">
         <a href="/misc/windowmanagement/">
         Window Management
@@ -2733,6 +2796,25 @@
           
           
         
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/best-practices/performancehints/" title="Performance Hints" class="dd-item ">
+        <a href="/best-practices/performancehints/">
+        Performance Hints
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
           
             
             
@@ -2966,6 +3048,7 @@ if (!doNotTrack) {
             <li><a href="#identification-of-questionable-nncs">Identification of Questionable NNCs</a></li>
             <li><a href="#water-flooded-pv">Water Flooded PV</a></li>
             <li><a href="#mobile-pore-volume">Mobile Pore Volume</a></li>
+            <li><a href="#cell-volume">Cell Volume</a></li>
           </ul>
         </li>
       </ul>
@@ -3058,6 +3141,8 @@ as a <strong>Cell Result</strong> and <strong>Separate Fault Result</strong>.</p
 <p>If <strong>MULTPV</strong> is missing, <strong>MULTPV</strong> is set to 1.0.
 If <strong>SWCR</strong> is missing, <strong>SWCR</strong> is et to 0.0.</p>
 <p>$ MOBPORV = MULTPV * PORV * (1.0 - SWCR) $</p>
+<h3 id="cell-volume">Cell Volume</h3>
+<p>The static property <strong>riCellVolume</strong> contains the geometrical volume of a cell.</p>
 
 
 <footer class="footline">
@@ -3220,6 +3305,11 @@ If <strong>SWCR</strong> is missing, <strong>SWCR</strong> is et to 0.0.</p>
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                 
@@ -3229,11 +3319,16 @@ If <strong>SWCR</strong> is missing, <strong>SWCR</strong> is et to 0.0.</p>
                     
                     
 
+                    
+            
+        
                     
             
         
                     
+                        
             
+            
         
                     
                         
@@ -4624,10 +4719,39 @@ If <strong>SWCR</strong> is missing, <strong>SWCR</strong> is et to 0.0.</p>
                     
                     
 
+                    
+            
+        
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
                     
+
+                    
             
         
                     
@@ -4643,6 +4767,9 @@ If <strong>SWCR</strong> is missing, <strong>SWCR</strong> is et to 0.0.</p>
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -5078,6 +5205,19 @@ If <strong>SWCR</strong> is missing, <strong>SWCR</strong> is et to 0.0.</p>
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
                         
             
@@ -5092,6 +5232,9 @@ If <strong>SWCR</strong> is missing, <strong>SWCR</strong> is et to 0.0.</p>
                     
 
                     
+            
+        
+                    
                         
             
             
@@ -5206,7 +5349,20 @@ If <strong>SWCR</strong> is missing, <strong>SWCR</strong> is et to 0.0.</p>
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
                     
+
+                    
                         
             
             
@@ -5219,6 +5375,9 @@ If <strong>SWCR</strong> is missing, <strong>SWCR</strong> is et to 0.0.</p>
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -5325,19 +5484,19 @@ If <strong>SWCR</strong> is missing, <strong>SWCR</strong> is et to 0.0.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1713969275"></script>
-    <script src="/js/perfect-scrollbar.min.js?1713969275"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1713969275"></script>
-    <script src="/js/jquery.sticky.js?1713969275"></script>
-    <script src="/js/featherlight.min.js?1713969275"></script>
-    <script src="/js/highlight.pack.js?1713969275"></script>
+    <script src="/js/clipboard.min.js?1727432415"></script>
+    <script src="/js/perfect-scrollbar.min.js?1727432415"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1727432415"></script>
+    <script src="/js/jquery.sticky.js?1727432415"></script>
+    <script src="/js/featherlight.min.js?1727432415"></script>
+    <script src="/js/highlight.pack.js?1727432415"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1713969275"></script>
-    <script src="/js/learn.js?1713969275"></script>
-    <script src="/js/hugo-learn.js?1713969275"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1727432415"></script>
+    <script src="/js/learn.js?1727432415"></script>
+    <script src="/js/hugo-learn.js?1727432415"></script>
 
-    <link href="/mermaid/mermaid.css?1713969275" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1713969275"></script>
+    <link href="/mermaid/mermaid.css?1727432415" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1727432415"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

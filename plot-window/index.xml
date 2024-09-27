@@ -249,9 +249,8 @@ Create New PLT Plot There are several ways to create new PLT Plots</description>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/plot-window/vfpplot/</guid>
-      <description>A Vertical Flow Performance Plot (VFP Plot) shows the relationship between bottom hole well conditions and wellhead pressure describing a well&amp;rsquo;s ability to lift fluids to the surface. ResInsight can display both production and injection VFP plots.
-Creating VFP Plots VFP Plots are created by right-clicking the VFP Plots item in Plot Project Tree.
-Production VFP Plot The production VFP Plot shows the outflow or downstream pressure based on the inlet or upstream pressure and the phases flowing through the system.</description>
+      <description>A Vertical Flow Performance Plot (VFP Plot) shows the relationship between bottom hole well conditions and wellhead pressure describing a well&amp;rsquo;s ability to lift fluids to the surface. ResInsight can display both production and injection VFP plots:
+Production VFP Plots show the outflow or downstream pressure based on the inlet or upstream pressure and the phases flowing. For a well, this means the table relates the flowing bottom-hole pressure (BHP) to the well&amp;rsquo;s tubing head pressure (THP) based on the oil, gas and water rates (and any artificial lift quantities like gas lift gas), or phases ratios, flowing up the wellbore.</description>
     </item>
     
     <item>

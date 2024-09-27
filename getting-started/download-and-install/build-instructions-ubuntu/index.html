@@ -12,18 +12,18 @@
     <title>Build Instructions Ubuntu :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1713969275" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1713969275" rel="stylesheet">
-    <link href="/css/hybrid.css?1713969275" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1713969275" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1713969275" rel="stylesheet">
-    <link href="/css/auto-complete.css?1713969275" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1713969275" rel="stylesheet">
-    <link href="/css/theme.css?1713969275" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1713969275" rel="stylesheet">
+    <link href="/css/nucleus.css?1727432415" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1727432415" rel="stylesheet">
+    <link href="/css/hybrid.css?1727432415" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1727432415" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1727432415" rel="stylesheet">
+    <link href="/css/auto-complete.css?1727432415" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1727432415" rel="stylesheet">
+    <link href="/css/theme.css?1727432415" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1727432415" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1713969275"></script>
+    <script src="/js/jquery-3.3.1.min.js?1727432415"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -257,6 +257,9 @@
 
             
           
+             
+            
+          
             
             
 
@@ -283,6 +286,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -2005,6 +2011,44 @@
  
   
     
+      <li data-nav-id="/import/cloudservices/" title="Cloud Services" class="dd-item ">
+        <a href="/import/cloudservices/">
+        Cloud Services
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/import/cloudservicesauthorization/" title="Cloud Services - Authorization" class="dd-item ">
+        <a href="/import/cloudservicesauthorization/">
+        Cloud Services - Authorization
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/eclipsecases/" title="Eclipse Cases" class="dd-item ">
         <a href="/import/eclipsecases/">
         Eclipse Cases
@@ -2614,6 +2658,25 @@
  
   
     
+      <li data-nav-id="/misc/projectfilerevisions/" title="Project File Revisions" class="dd-item ">
+        <a href="/misc/projectfilerevisions/">
+        Project File Revisions
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/misc/windowmanagement/" title="Window Management" class="dd-item ">
         <a href="/misc/windowmanagement/">
         Window Management
@@ -2733,6 +2796,25 @@
           
           
         
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/best-practices/performancehints/" title="Performance Hints" class="dd-item ">
+        <a href="/best-practices/performancehints/">
+        Performance Hints
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
           
             
             
@@ -2969,9 +3051,8 @@ if (!doNotTrack) {
             <li><a href="#build-and-install-required-dependencies-using-vcpkg">Build and install required dependencies using vcpkg</a></li>
             <li><a href="#windows-build-and-install-required-dependencies-using-vcpkg">(Windows) Build and install required dependencies using vcpkg</a></li>
             <li><a href="#python-dependencies">Python dependencies</a></li>
-            <li><a href="#installation-of-custom-qt">Installation of custom Qt</a></li>
+            <li><a href="#qt">Qt</a></li>
             <li><a href="#build-resinsight">Build ResInsight</a></li>
-            <li><a href="#notes-for-centos">Notes for CentOS</a></li>
           </ul>
         </li>
       </ul>
@@ -3009,6 +3090,7 @@ if (!doNotTrack) {
 
 
 <h2 id="dependencies-and-prerequisites">Dependencies and Prerequisites</h2>
+<p>This page is mainly build instructions for Ubuntu, but some comments are also added for RHEL8 and Windows.</p>
 <h3 id="configuration-and-build">Configuration and build</h3>
 <table>
 <thead>
@@ -3036,13 +3118,12 @@ if (!doNotTrack) {
 <pre><code>sudo apt update
 </code></pre>
 <p>Install GCC and related tools</p>
-<pre><code>sudo apt install build-essential
-sudo apt install curl zip unzip tar
+<pre><code>sudo apt install build-essential curl zip unzip tar flex bison
 </code></pre>
 <p>As gcc 10 is required, it can be useful to set the default compiler.
 <a href="https://linuxconfig.org/how-to-switch-between-multiple-gcc-and-g-compiler-versions-on-ubuntu-20-04-lts-focal-fossa">Set default compiler</a></p>
-<p>Install Qt</p>
-<pre><code>sudo apt install -y qtbase5-dev libqt5svg5-dev qtbase5-private-dev
+<p>Dependencies for RHEL8</p>
+<pre><code>yum install curl zip unzip tar flex bison perl-IPC-Cmd gcc-toolset-10 freeglut
 </code></pre>
 <h3 id="clone-and-update-sub-modules">Clone and update sub modules</h3>
 <pre><code>git clone https://github.com/OPM/ResInsight
@@ -3050,25 +3131,30 @@ cd ResInsight
 git submodule update --init
 </code></pre>
 <h3 id="build-and-install-required-dependencies-using-vcpkg">Build and install required dependencies using vcpkg</h3>
-<p>vcpkg is located in the folder ThirdParty/vcpkg</p>
+<p>vcpkg is located in the folder ThirdParty/vcpkg. The packages to be installed is specified in vcpkg.json. The actual install of the selected packages are done in the CMake configure step.</p>
 <pre><code>ThirdParty/vcpkg/bootstrap-vcpkg.sh
-ThirdParty/vcpkg/vcpkg install grpc boost-filesystem boost-spirit eigen3
 </code></pre>
 <h3 id="windows-build-and-install-required-dependencies-using-vcpkg">(Windows) Build and install required dependencies using vcpkg</h3>
 <p>Open a command prompt using &ldquo;Run as Administrator&rdquo; for Visual Studio x64.</p>
 <p><a href="https://ceetronsolutions.github.io/resinsight-system-doc/editor/vcpkg">Detailed Developer notes</a></p>
 <pre><code>ThirdParty/vcpkg/bootstrap-vcpkg.bat
-ThirdParty/vcpkg/vcpkg install grpc boost-filesystem boost-spirit eigen3 --triplet x64-windows
 </code></pre>
 <h3 id="python-dependencies">Python dependencies</h3>
 <p>Install Python version 3.8 or newer, and use dev-requirements.txt</p>
 <pre><code>python3 -m pip install -r GrpcInterface/Python/dev-requirements.txt
 </code></pre>
-<h3 id="installation-of-custom-qt">Installation of custom Qt</h3>
+<h3 id="qt">Qt</h3>
+<p>System packages Ubuntu</p>
+<pre><code>sudo apt install -y qtbase5-dev libqt5svg5-dev qtbase5-private-dev libqt5networkauth5-dev
+</code></pre>
+<p>System packages RHEL8</p>
+<pre><code>sudo yum install -y qt5-devel qt5-qtnetworkauth-devel qt5-qtcharts-devel qt5-qtbase-private-devel gcc-toolset-10 gcc-toolset-10-libatomic-devel
+</code></pre>
+<p>Installation of custom Qt</p>
 <p>Go to a folder to install custom Qt
 In this folder, execute</p>
 <pre><code>python3 -m pip install aqtinstall
-aqt install-qt linux desktop 5.15.2 -m qtcharts
+aqt install-qt linux desktop 5.15.2 -m qtcharts qtnetworkauth
 </code></pre>
 <h3 id="build-resinsight">Build ResInsight</h3>
 <pre><code>mkdir cmakebuild
@@ -3076,18 +3162,13 @@ cd cmakebuild
 cmake \
 -DCMAKE_PREFIX_PATH=/your_qt_path/5.15.2/gcc_64/lib/cmake \
 -DRESINSIGHT_ENABLE_GRPC=true \
--DVCPKG_TARGET_TRIPLET=x64-linux \
--DCMAKE_TOOLCHAIN_FILE=../ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake \
 -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=python \
+-DCMAKE_TOOLCHAIN_FILE=../ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake \
+-DVCPKG_TARGET_TRIPLET=x64-linux-release \
 ..
 
 make -j8
 </code></pre>
-<h3 id="notes-for-centos">Notes for CentOS</h3>
-<p>The dependency on <code>atomic</code> can be installed using the following code, adjust the devtoolset version to match your installation:</p>
-<pre><code>sudo yum install devtoolset-11-libatomic-devel
-</code></pre>
-<p><a href="https://github.com/OPM/ResInsight/blob/dev/.github/workflows/centos7.yml">Link to workflow for CentOS 7</a></p>
 
 
 <footer class="footline">
@@ -3256,6 +3337,11 @@ make -j8
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                         
@@ -3268,11 +3354,16 @@ make -j8
                     
                     
 
+                    
+            
+        
                     
             
         
                     
+                        
             
+            
         
                     
                         
@@ -4655,10 +4746,39 @@ make -j8
                     
                     
 
+                    
+            
+        
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
                     
+
+                    
             
         
                     
@@ -4674,6 +4794,9 @@ make -j8
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -5109,6 +5232,19 @@ make -j8
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
                         
             
@@ -5123,6 +5259,9 @@ make -j8
                     
 
                     
+            
+        
+                    
                         
             
             
@@ -5237,7 +5376,20 @@ make -j8
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
                     
+
+                    
                         
             
             
@@ -5250,6 +5402,9 @@ make -j8
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -5356,19 +5511,19 @@ make -j8
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1713969275"></script>
-    <script src="/js/perfect-scrollbar.min.js?1713969275"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1713969275"></script>
-    <script src="/js/jquery.sticky.js?1713969275"></script>
-    <script src="/js/featherlight.min.js?1713969275"></script>
-    <script src="/js/highlight.pack.js?1713969275"></script>
+    <script src="/js/clipboard.min.js?1727432415"></script>
+    <script src="/js/perfect-scrollbar.min.js?1727432415"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1727432415"></script>
+    <script src="/js/jquery.sticky.js?1727432415"></script>
+    <script src="/js/featherlight.min.js?1727432415"></script>
+    <script src="/js/highlight.pack.js?1727432415"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1713969275"></script>
-    <script src="/js/learn.js?1713969275"></script>
-    <script src="/js/hugo-learn.js?1713969275"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1727432415"></script>
+    <script src="/js/learn.js?1727432415"></script>
+    <script src="/js/hugo-learn.js?1727432415"></script>
 
-    <link href="/mermaid/mermaid.css?1713969275" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1713969275"></script>
+    <link href="/mermaid/mermaid.css?1727432415" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1727432415"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

@@ -12,18 +12,18 @@
     <title>VFP Plot :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1713969275" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1713969275" rel="stylesheet">
-    <link href="/css/hybrid.css?1713969275" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1713969275" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1713969275" rel="stylesheet">
-    <link href="/css/auto-complete.css?1713969275" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1713969275" rel="stylesheet">
-    <link href="/css/theme.css?1713969275" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1713969275" rel="stylesheet">
+    <link href="/css/nucleus.css?1727432415" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1727432415" rel="stylesheet">
+    <link href="/css/hybrid.css?1727432415" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1727432415" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1727432415" rel="stylesheet">
+    <link href="/css/auto-complete.css?1727432415" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1727432415" rel="stylesheet">
+    <link href="/css/theme.css?1727432415" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1727432415" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1713969275"></script>
+    <script src="/js/jquery-3.3.1.min.js?1727432415"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -257,6 +257,9 @@
 
             
           
+             
+            
+          
             
             
 
@@ -283,6 +286,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -2005,6 +2011,44 @@
  
   
     
+      <li data-nav-id="/import/cloudservices/" title="Cloud Services" class="dd-item ">
+        <a href="/import/cloudservices/">
+        Cloud Services
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/import/cloudservicesauthorization/" title="Cloud Services - Authorization" class="dd-item ">
+        <a href="/import/cloudservicesauthorization/">
+        Cloud Services - Authorization
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/eclipsecases/" title="Eclipse Cases" class="dd-item ">
         <a href="/import/eclipsecases/">
         Eclipse Cases
@@ -2614,6 +2658,25 @@
  
   
     
+      <li data-nav-id="/misc/projectfilerevisions/" title="Project File Revisions" class="dd-item ">
+        <a href="/misc/projectfilerevisions/">
+        Project File Revisions
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/misc/windowmanagement/" title="Window Management" class="dd-item ">
         <a href="/misc/windowmanagement/">
         Window Management
@@ -2733,6 +2796,25 @@
           
           
         
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/best-practices/performancehints/" title="Performance Hints" class="dd-item ">
+        <a href="/best-practices/performancehints/">
+        Performance Hints
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
           
             
             
@@ -2956,9 +3038,15 @@ if (!doNotTrack) {
   <ul>
     <li>
       <ul>
+        <li><a href="#importing-vfp-data">Importing VFP data</a></li>
         <li><a href="#creating-vfp-plots">Creating VFP Plots</a></li>
-        <li><a href="#production-vfp-plot">Production VFP Plot</a></li>
-        <li><a href="#injection-vfp-plot">Injection VFP Plot</a></li>
+        <li><a href="#list-of-vfp-plots-and-settings">List of VFP Plots and settings</a></li>
+        <li><a href="#property-editor">Property Editor</a>
+          <ul>
+            <li></li>
+          </ul>
+        </li>
+        <li><a href="#injection-vfp-plot-property-editor">Injection VFP Plot Property Editor</a></li>
       </ul>
     </li>
   </ul>
@@ -2994,73 +3082,81 @@ if (!doNotTrack) {
 
 
 <p><img src="/images/plot-window/VFP_Plot.png" alt=""></p>
-<p>A Vertical Flow Performance Plot (VFP Plot) shows the relationship between bottom hole well conditions and wellhead pressure describing a well&rsquo;s ability to lift fluids to the surface. ResInsight can display both production and injection VFP plots.</p>
-<h2 id="creating-vfp-plots">Creating VFP Plots</h2>
-<p>VFP Plots are created by right-clicking the <strong>VFP Plots</strong> item in <strong>Plot Project Tree</strong>.</p>
-<p><img src="/images/plot-window/VFP_PlotNew.png" alt=""></p>
-<h2 id="production-vfp-plot">Production VFP Plot</h2>
-<p>The production VFP Plot shows  the outflow or downstream pressure based on the inlet or upstream pressure and the phases flowing through the system. For a well this means the table relates the flowing bottom-hole pressure
+<p>A Vertical Flow Performance Plot (VFP Plot) shows the relationship between bottom hole well conditions and wellhead pressure describing a well&rsquo;s ability to lift fluids to the surface. ResInsight can display both production and injection VFP plots:</p>
+<ul>
+<li>
+<p><strong>Production VFP Plots</strong> show the outflow or downstream pressure based on the inlet or upstream pressure and the phases flowing. For a well, this means the table relates the flowing bottom-hole pressure
 (<em>BHP</em>) to the well&rsquo;s tubing head pressure (<em>THP</em>) based on the oil, gas and water rates (and any artificial
 lift quantities like gas lift gas), or phases ratios, flowing up the wellbore. The data is read from files containing the <em>VFPPROD</em> Eclipse keyword.</p>
-<p>The following is an example of a production VFP Plot and corresponding Property Editor.</p>
-<p><img src="/images/plot-window/VFP_Production.png" alt=""></p>
-<p>The available settings of the production Property Editor are:</p>
-<ul>
-<li>
-<p><strong>File Path</strong>: The VFP data file(s) to plot. Multi-selection of files is possible.</p>
 </li>
 <li>
-<p><strong>Table Number</strong>: The table number, i.e. VFPTAB keyword in Eclipse data.</p>
-</li>
-<li>
-<p><strong>Reference Depth</strong>: The reference depth used to generate the table, i.e. VFPREF keyword in Eclipse data.</p>
-</li>
-<li>
-<p><strong>Interpolated Variable</strong>: Y-axis variable.</p>
-</li>
-<li>
-<p><strong>Flowing Phase</strong>: The flowing phase in the system, i.e. FLO keyword in Eclipse data.</p>
-</li>
-<li>
-<p><strong>Flowing Water Fraction</strong>: Corresponds to the WFR keyword in Eclipse data.</p>
-</li>
-<li>
-<p><strong>Flowing Gas Fraction</strong>: Corresponds to the GFR keyword in Eclipse data.</p>
-</li>
-<li>
-<p><strong>Primary Variable</strong>: Variable on X-axis.</p>
-</li>
-<li>
-<p><strong>Family Variable</strong>: Variable for grouping of properties.</p>
-</li>
-<li>
-<p><strong>Fixed Variables</strong>: Used to choose which table to display.</p>
+<p><strong>Injection VFP Plots</strong> show the outflow or downstream pressure based on the inlet or upstream pressure and the phases being injected into the system. For a well, this means the table relates the flowing bottom-hole pressure (<em>BHP</em>) to the well&rsquo;s tubing head pressure (<em>THP</em>) based on the oil, gas or water injection rates. The data can be read from files containing the <em>VFPINJ</em> Eclipse keyword.</p>
 </li>
 </ul>
-<p>Plot data can be exported by right-clicking the actual plot and selecting <em>Show Plot Data</em>.</p>
-<h2 id="injection-vfp-plot">Injection VFP Plot</h2>
-<p>The Injection VFP Plot shows the outflow or downstream pressure based on the inlet or upstream pressure and the phases being injected into the system. For a well this means the table relates the flowing bottom-hole pressure (<em>BHP</em>) to the well&rsquo;s tubing head pressure (<em>THP</em>) based on the oil, gas or water injection rates. The data can be read from files containing the <em>VFPINJ</em> Eclipse keyword.</p>
-<p>The following is an example of a production VFP Plot and corresponding Property Editor.</p>
-<p><img src="/images/plot-window/VFP_Injection.png" alt=""></p>
-<p>The available settings of the injection VFP Property Editor are:</p>
+<h2 id="importing-vfp-data">Importing VFP data</h2>
+<p>VFP Plot data can be imported by right-clicking the <strong>VFP Data</strong> item in <strong>Data Sources</strong> to select VFP data from either text files (.ecl or .vfp) or from simulator files (.data). Multi-selection of files is possible.</p>
+<p><img src="/images/plot-window/VFP_DataSource_Import.png" alt=""></p>
+<p>Alternatively, VFP Plot data can be imported by right-clicking the <strong>VFP Plots</strong> item in <strong>Plot Project Tree</strong>.</p>
+<p><img src="/images/plot-window/VFP_PlotTree_Import.png" alt=""></p>
+<h2 id="creating-vfp-plots">Creating VFP Plots</h2>
+<p>Having imported VFP data, <strong>Data Sources</strong> lists all available VFP table numbers (c.f. VFPTAB keyword in Eclipse). A VFP plot can be created by right-clicking select VFP table entries.</p>
+<p><img src="/images/plot-window/VFP_DataSource_Create.png" alt=""></p>
+<p>Plot data can be exported by right-clicking a VFP plot and selecting <em>Show Plot Data</em>.</p>
+<h2 id="list-of-vfp-plots-and-settings">List of VFP Plots and settings</h2>
+<p>The <strong>VFP Plots</strong> item in <strong>Plot Project Tree</strong> lists existing VFP plots.</p>
+<p><img src="/images/plot-window/VFP_PlotTree_Listing.png" alt=""></p>
+<p>Available controls for each VFP plot are:</p>
 <ul>
 <li>
-<p><strong>File Path</strong>: The VFP data file(s) to plot. Multi-selection of files is possible.</p>
+<p><strong>X-Axis</strong> and <strong>Y-Axis</strong>: controls title, layout, fonts, and values of X- and Y-axes, respectively.</p>
 </li>
 <li>
-<p><strong>Table Number</strong>: The table number, i.e. VFPTAB keyword in Eclipse data.</p>
-</li>
-<li>
-<p><strong>Reference Depth</strong>: The reference depth used to generate the table, i.e. VFPREF keyword in Eclipse data.</p>
-</li>
-<li>
-<p><strong>Interpolated Variable</strong>: Y-axis variable.</p>
-</li>
-<li>
-<p><strong>Flowing Phase</strong>: The flowing phase in the system, i.e. FLO keyword in Eclipse data.</p>
+<p><strong>Curve Colors</strong>: When curves are plotted, the curve color is taken from the depicted list of colors. The curve colors can be changed by the user.</p>
 </li>
 </ul>
-<p>Plot data can be exported by right-clicking the actual plot and selecting <em>Show Plot Data</em>.</p>
+<p>Most plot mouse interactions are available to VFP plots, c.f. <a href="/plot-window/summaryplots/#plot-mouse-interaction"><em>Summary Plots</em></a>.
+Notably, interactive value tracking and zoom is available and double-clicking a VFP plot resets zoom.</p>
+<h2 id="property-editor">Property Editor</h2>
+<h4 id="production-vfp-plot-property-editor">Production VFP Plot Property Editor</h4>
+<p>The Production VFP Plot Property Editor allows the following essential settings:</p>
+<ul>
+<li>
+<p><strong>Configuration</strong></p>
+<p>&ndash; <em>Curve Matching Type</em>: Defines curve matching, e.g. in case <em>Table A</em>: THP 200, 250, 300, 400 and <em>Table B</em>: THP 210, 300, 450.</p>
+<p>&ndash; <em>Curve Value Options</em>: Defines if the options in the currently selected <em>Family variable</em> is defined by the Main VFP table, or a union of family values from all selected tables.</p>
+<p>&ndash; <em>Interpolated Variable</em>: Y-axis variable.</p>
+<p>&ndash; <em>Primary Variable</em>: X-axis variable.</p>
+<p>&ndash; <em>Family Variable</em>: Variable for grouping of properties. Available values for <em>Family Variable</em> may differ if multiple tables are selected.</p>
+</li>
+<li>
+<p><strong>Table Details</strong></p>
+<p>&ndash; <em>Table Number</em>: The table number, c.f. VFPTAB keyword of Eclipse.</p>
+<p>&ndash; <em>Reference Depth</em>: The reference depth used to generate the table, i.e. VFPREF keyword of Eclipse.</p>
+<p>&ndash; <em>Flowing Phase</em>: The flowing phase in the system, i.e. FLO keyword of Eclipse.</p>
+<p>&ndash; <em>Flowing Water Fraction</em>: Corresponds to the WFR keyword of Eclipse.</p>
+<p>&ndash; <em>Flowing Gas Fraction</em>: Corresponds to the GFR keyword of Eclipse.</p>
+</li>
+<li>
+<p><strong>Comparison Tables</strong>: Enables plots for comparison with other VFP production table numbers.</p>
+</li>
+<li>
+<p><strong>Selection Details</strong>: Check-boxes for selection of numeric values per variable.</p>
+</li>
+</ul>
+<p><img src="/images/plot-window/VFP_PROD_PropEd.png" alt=""></p>
+<h2 id="injection-vfp-plot-property-editor">Injection VFP Plot Property Editor</h2>
+<p>Referring to the detailing above, the injection VFP Plot Property Editor allows the following groups of settings:</p>
+<ul>
+<li>
+<p><strong>Configuration</strong></p>
+</li>
+<li>
+<p><strong>Table Details</strong></p>
+</li>
+<li>
+<p><strong>Comparison Tables</strong></p>
+</li>
+</ul>
 
 
 <footer class="footline">
@@ -3223,6 +3319,11 @@ lift quantities like gas lift gas), or phases ratios, flowing up the wellbore. T
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                 
@@ -3232,11 +3333,16 @@ lift quantities like gas lift gas), or phases ratios, flowing up the wellbore. T
                     
                     
 
+                    
+            
+        
                     
             
         
                     
+                        
             
+            
         
                     
                         
@@ -4627,10 +4733,39 @@ lift quantities like gas lift gas), or phases ratios, flowing up the wellbore. T
                     
                     
 
+                    
+            
+        
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
                     
+
+                    
             
         
                     
@@ -4646,6 +4781,9 @@ lift quantities like gas lift gas), or phases ratios, flowing up the wellbore. T
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -5081,6 +5219,19 @@ lift quantities like gas lift gas), or phases ratios, flowing up the wellbore. T
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
                         
             
@@ -5095,6 +5246,9 @@ lift quantities like gas lift gas), or phases ratios, flowing up the wellbore. T
                     
 
                     
+            
+        
+                    
                         
             
             
@@ -5209,7 +5363,20 @@ lift quantities like gas lift gas), or phases ratios, flowing up the wellbore. T
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
                     
+
+                    
                         
             
             
@@ -5222,6 +5389,9 @@ lift quantities like gas lift gas), or phases ratios, flowing up the wellbore. T
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -5328,19 +5498,19 @@ lift quantities like gas lift gas), or phases ratios, flowing up the wellbore. T
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1713969275"></script>
-    <script src="/js/perfect-scrollbar.min.js?1713969275"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1713969275"></script>
-    <script src="/js/jquery.sticky.js?1713969275"></script>
-    <script src="/js/featherlight.min.js?1713969275"></script>
-    <script src="/js/highlight.pack.js?1713969275"></script>
+    <script src="/js/clipboard.min.js?1727432415"></script>
+    <script src="/js/perfect-scrollbar.min.js?1727432415"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1727432415"></script>
+    <script src="/js/jquery.sticky.js?1727432415"></script>
+    <script src="/js/featherlight.min.js?1727432415"></script>
+    <script src="/js/highlight.pack.js?1727432415"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1713969275"></script>
-    <script src="/js/learn.js?1713969275"></script>
-    <script src="/js/hugo-learn.js?1713969275"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1727432415"></script>
+    <script src="/js/learn.js?1727432415"></script>
+    <script src="/js/hugo-learn.js?1727432415"></script>
 
-    <link href="/mermaid/mermaid.css?1713969275" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1713969275"></script>
+    <link href="/mermaid/mermaid.css?1727432415" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1727432415"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

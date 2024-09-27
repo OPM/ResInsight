@@ -27,6 +27,16 @@ The *.rsp file is an XML file, and can be edited by any text editor.</descriptio
     </item>
     
     <item>
+      <title>Project File Revisions</title>
+      <link>https://resinsight.org/misc/projectfilerevisions/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/misc/projectfilerevisions/</guid>
+      <description>Revision History A backup of a project file is added to a project file database when the project file is saved. The backup file is named with the extension *.rspdb and is stored in the same directory as the project file. The backup file is created with the same content as the project file at the time of the save operation.
+Restore Revision from Backup All revisions in the project database can be restored using the tool restore-projectfile-versions.</description>
+    </item>
+    
+    <item>
       <title>Window Management</title>
       <link>https://resinsight.org/misc/windowmanagement/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

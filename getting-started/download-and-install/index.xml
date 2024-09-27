@@ -46,11 +46,25 @@ ResInsight has been successfully installed and used on Ubuntu in WSL. The instal
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/getting-started/download-and-install/build-instructions-ubuntu/</guid>
-      <description>Dependencies and Prerequisites Configuration and build Tool Minimum version git 2.7.4 gcc 10 python 3 Update apt installer
+      <description>Dependencies and Prerequisites This page is mainly build instructions for Ubuntu, but some comments are also added for RHEL8 and Windows.
+Configuration and build Tool Minimum version git 2.7.4 gcc 10 python 3 Update apt installer
 sudo apt updateInstall GCC and related tools
-sudo apt install build-essentialsudo apt install curl zip unzip tarAs gcc 10 is required, it can be useful to set the default compiler. Set default compiler
-Install Qt
-sudo apt install -y qtbase5-dev libqt5svg5-dev qtbase5-private-devClone and update sub modules git clone https://github.</description>
+sudo apt install build-essential curl zip unzip tar flex bisonAs gcc 10 is required, it can be useful to set the default compiler. Set default compiler</description>
+    </item>
+    
+    <item>
+      <title>Build Instructions Ubuntu Qt6 - Basic</title>
+      <link>https://resinsight.org/getting-started/download-and-install/build-instructions-ubuntu-qt6/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/download-and-install/build-instructions-ubuntu-qt6/</guid>
+      <description>Dependencies and Prerequisites This page is mainly build instructions for Ubuntu, but some comments are also added for RHEL8 and Windows.
+Basic instructions without Python binding and GRPC.
+Configuration and build Tool Minimum version gcc 11 python 3.8 Qt 6.5 Update apt installer
+sudo apt updateInstall GCC and related tools
+sudo apt install build-essential curl zip unzip tar flex bisonSet default compiler
+Dependencies for RHEL8
+yum install curl zip unzip tar flex bison perl-IPC-Cmd gcc-toolset-10 freeglutClone and update sub modules git clone https://github.</description>
     </item>
     
     <item>
