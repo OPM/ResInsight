@@ -20,15 +20,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
 
-find_package(
-  Qt5
-  COMPONENTS Core Network
-  QUIET)
-
-set(QT_LIBRARIES
-    Qt5::Core
-    Qt5::Network)
-
 set(SOURCE_GROUP_HEADER_FILES
     RiaGrpcServer.h
     RiaGrpcHelper.h

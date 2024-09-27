@@ -19,41 +19,36 @@ endif()
 # Open GL
 find_package(OpenGL)
 
-find_package(Qt5 ${RI_QT_MINIMUM_VERSION} COMPONENTS Core)
-
-if(Qt5Core_FOUND)
-  find_package(
-    Qt5 ${RI_QT_MINIMUM_VERSION}
-    COMPONENTS Core
-               Gui
-               OpenGL
-               Network
-               NetworkAuth
-               Widgets
-               Xml
-               Concurrent
-               PrintSupport
-               Svg
-               Sql
-    OPTIONAL_COMPONENTS Charts
-  )
-  set(QT_LIBRARIES
-      Qt5::Core
-      Qt5::Gui
-      Qt5::Network
-      Qt5::NetworkAuth
-      Qt5::OpenGL
-      Qt5::Widgets
-      Qt5::Xml
-      Qt5::Concurrent
-      Qt5::PrintSupport
-      Qt5::Svg
-      Qt5::Sql
-  )
-  if(Qt5Charts_FOUND)
-    list(APPEND QT_LIBRARIES Qt5::Charts)
-  endif(Qt5Charts_FOUND)
-endif(Qt5Core_FOUND)
+find_package(
+  Qt6
+  COMPONENTS Core
+             Gui
+             OpenGL
+             Network
+             NetworkAuth
+             Widgets
+             Xml
+             Concurrent
+             PrintSupport
+             Svg
+             Sql
+  OPTIONAL_COMPONENTS Charts
+)
+set(QT_LIBRARIES
+    Qt6::Core
+    Qt6::Gui
+    Qt6::OpenGL
+    Qt6::Network
+    Qt6::NetworkAuth
+    Qt6::Widgets
+    Qt6::Xml
+    Qt6::Concurrent
+    Qt6::PrintSupport
+    Qt6::Svg
+    Qt6::Sql
+)
+qt_standard_project_setup()
+set(CMAKE_AUTORCC ON)
 
 if(MSVC)
   # Avoid Qt warnings about macro redefinitions for math constants
@@ -126,10 +121,6 @@ list(APPEND CPP_SOURCES ${CODE_SOURCE_FILES})
 
 set(QRC_FILES ${QRC_FILES} Resources/ResInsight.qrc)
 
-# Runs RCC and MOC on specified files
-qt5_add_resources(QRC_FILES_CPP ${QRC_FILES})
-qt5_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS})
-
 # Adding resource (RC) files for Windows
 if(MSVC)
   set(WIN_RESOURCE Resources/ResInsight.rc)
@@ -157,7 +148,7 @@ set(EXE_FILES
     ${CPP_SOURCES}
     ${MOC_SOURCE_FILES}
     ${FORM_FILES_CPP}
-    ${QRC_FILES_CPP}
+    ${QRC_FILES}
     ${WIN_RESOURCE}
     ${HEADER_FILES}
     ${REFERENCED_CMAKE_FILES}
@@ -165,7 +156,7 @@ set(EXE_FILES
     .clang-tidy
 )
 
-add_executable(ResInsight ${EXE_FILES})
+qt_add_executable(ResInsight ${EXE_FILES})
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set_target_properties(
@@ -288,10 +279,10 @@ if(RESINSIGHT_USE_ODB_API)
   list(APPEND LINK_LIBRARIES RifOdbReader)
 endif()
 
-target_link_libraries(ResInsight ${LINK_LIBRARIES})
+target_link_libraries(ResInsight PRIVATE ${LINK_LIBRARIES})
 
 if(UNIX AND NOT APPLE)
-  target_link_libraries(ResInsight xcb)
+  target_link_libraries(ResInsight PRIVATE xcb)
 endif()
 
 # ##############################################################################
@@ -332,7 +323,7 @@ foreach(riFileName ${RI_FILENAMES})
     -E
     copy_if_different
     ${riFileName}
-    $<TARGET_FILE_DIR:ResInsightDummyTarget>
+    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
   )
 endforeach()
 add_custom_target(PreBuildFileCopy ${copyCommands})
@@ -378,123 +369,6 @@ endif(RESINSIGHT_ENABLE_GRPC)
 
 # bundle libraries together with private installation
 if(RESINSIGHT_PRIVATE_INSTALL)
-  if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-
-    set(RESINSIGHT_INSTALL_RPATH
-        ""
-        CACHE STRING "RPATH to be injected into binary"
-    )
-    mark_as_advanced(FORCE RESINSIGHT_INSTALL_RPATH)
-
-    # Add ORIGIN to represent the directory where the binary is located
-    set(RESINSIGHT_INSTALL_RPATH ${RESINSIGHT_INSTALL_RPATH} "\$ORIGIN")
-
-    if(${RESINSIGHT_USE_ODB_API})
-      # This is a "hack" to make ResInsight runtime find the ODB so files used
-      # when compiling. statoil wanted it this way, but we should probbly make a
-      # different installoptions that does things this way, and really do copy
-      # them when doing PRIVATE_INSTALL
-      set(RESINSIGHT_INSTALL_RPATH ${RESINSIGHT_INSTALL_RPATH}
-                                   ${RESINSIGHT_ODB_API_DIR}/lib
-      )
-    endif()
-
-    if(EXISTS ${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT})
-      # append the external ERT lib root
-      set(RESINSIGHT_INSTALL_RPATH ${RESINSIGHT_INSTALL_RPATH}
-                                   ${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}
-      )
-    endif()
-
-    # message("RESINSIGHT_INSTALL_RPATH : " "${RESINSIGHT_INSTALL_RPATH}")
-
-    set_target_properties(
-      ResInsight PROPERTIES INSTALL_RPATH "${RESINSIGHT_INSTALL_RPATH}"
-    )
-
-    # bundle Qt5 libraries
-    option(RESINSIGHT_QT5_BUNDLE_LIBRARIES "Bundle Qt5 libraries" OFF)
-    mark_as_advanced(FORCE RESINSIGHT_QT5_BUNDLE_LIBRARIES)
-    if(RESINSIGHT_QT5_BUNDLE_LIBRARIES)
-      message(STATUS "Bundling of Qt5 libraries is enabled")
-
-      # Get root directory
-      get_property(
-        _filepath
-        TARGET "Qt5::Core"
-        PROPERTY LOCATION_RELEASE
-      )
-      get_filename_component(_dir ${_filepath} PATH)
-
-      foreach(qtlib ${QT_LIBRARIES})
-        get_target_property(FILE_NAME_FULL_PATH ${qtlib} LOCATION)
-        message(STATUS "${qtlib} location on disk - ${FILE_NAME_FULL_PATH}")
-        get_filename_component(FILE_NAME_WE ${FILE_NAME_FULL_PATH} NAME_WE)
-        message(STATUS "${FILE_NAME_WE} name without ext - ${FILE_NAME_WE}")
-
-        list(APPEND QT_INSTALL_FILES_WITHOUT_EXTENSION ${FILE_NAME_WE})
-      endforeach()
-
-      # XcbQpa is used by libXcb.so required by platform plugin xcb
-      list(APPEND QT_INSTALL_FILES_WITHOUT_EXTENSION libQt5XcbQpa libQt5DBus)
-
-      # append icu
-      list(APPEND QT_INSTALL_FILES_WITHOUT_EXTENSION libicu*)
-
-      foreach(installfile ${QT_INSTALL_FILES_WITHOUT_EXTENSION})
-        file(GLOB FILE_AND_SYMLINKS ${_dir}/${installfile}.so*)
-        install(
-          FILES ${FILE_AND_SYMLINKS}
-          DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-          OPTIONAL
-        )
-      endforeach()
-
-      set(QT_PLUGIN_PATH "$ENV{QT_PLUGIN_PATH}")
-      if(QT_PLUGIN_PATH STREQUAL "")
-        set(QT_PLUGIN_PATH "${_dir}/qt5/plugins/")
-      endif()
-      message(STATUS "QT_PLUGIN_PATH : ${QT_PLUGIN_PATH}")
-
-      # include platform files
-      install(FILES ${QT_PLUGIN_PATH}/platforms/libqxcb.so
-              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/platforms/
-      )
-      install(FILES ${QT_PLUGIN_PATH}/imageformats/libqsvg.so
-              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/imageformats/
-      )
-      install(FILES ${QT_PLUGIN_PATH}/iconengines/libqsvgicon.so
-              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/iconengines/
-      )
-      # Required when using --platform offscreen
-      install(FILES ${QT_PLUGIN_PATH}/platforms/libqoffscreen.so
-              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/platforms/
-      )
-
-      # Required by xcb module used to create OpenGL widgets
-      install(
-        FILES ${QT_PLUGIN_PATH}/xcbglintegrations/libqxcb-egl-integration.so
-        DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/plugins/xcbglintegrations/
-        OPTIONAL
-      )
-      install(
-        FILES ${QT_PLUGIN_PATH}/xcbglintegrations/libqxcb-glx-integration.so
-        DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/plugins/xcbglintegrations/
-        OPTIONAL
-      )
-
-      # Required sql driver
-      install(
-        FILES ${QT_PLUGIN_PATH}/sqldrivers/libqsqlite.so
-        DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/sqldrivers/
-        OPTIONAL
-      )
-
-      install(FILES qt.conf DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/)
-
-    endif(RESINSIGHT_QT5_BUNDLE_LIBRARIES)
-
-  endif()
 
   if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     # put a .exe.local file in the target directory to pick up DLLs from there
@@ -503,79 +377,6 @@ if(RESINSIGHT_PRIVATE_INSTALL)
     )
 
     set(RESINSIGHT_FILES ${RI_FILENAMES})
-
-    if(WIN32
-       AND TARGET Qt5::qmake
-       AND NOT TARGET Qt5::windeployqt
-    )
-      get_target_property(_qt5_qmake_location Qt5::qmake IMPORTED_LOCATION)
-
-      execute_process(
-        COMMAND "${_qt5_qmake_location}" -query QT_INSTALL_PREFIX
-        RESULT_VARIABLE return_code
-        OUTPUT_VARIABLE qt5_install_prefix
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-      )
-
-      set(imported_location "${qt5_install_prefix}/bin/windeployqt.exe")
-
-      message(STATUS "QMAKE: ${_qt5_qmake_location}")
-      message(STATUS "QTPREFIX: ${qt5_install_prefix}")
-
-      if(EXISTS ${imported_location})
-        add_executable(Qt5::windeployqt IMPORTED)
-
-        set_target_properties(
-          Qt5::windeployqt PROPERTIES IMPORTED_LOCATION ${imported_location}
-        )
-      endif()
-    endif()
-
-    # TODO(wjwwood): find a way to make this optional or to run without
-    # "deploying" the necessary dlls and stuff to the bin folder. see:
-    # https://stackoverflow.com/questions/41193584/deploy-all-qt-dependencies-when-building#41199492
-    if(TARGET Qt5::windeployqt)
-      # execute windeployqt in a tmp directory after build
-      add_custom_command(
-        TARGET ResInsight
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E remove_directory
-                "${CMAKE_CURRENT_BINARY_DIR}/windeployqt"
-        COMMAND set PATH=%PATH%$<SEMICOLON>${qt5_install_prefix}/bin
-        COMMAND
-          Qt5::windeployqt --no-compiler-runtime --no-system-d3d-compiler
-          --no-quick-import --no-translations --verbose 0 --dir
-          "${CMAKE_CURRENT_BINARY_DIR}/windeployqt"
-          "$<TARGET_FILE_DIR:ResInsight>/$<TARGET_FILE_NAME:ResInsight>"
-      )
-
-      # Qt DLLs
-      message(STATUS "Creating post build step for copying Qt DLLs")
-
-      # copy all files in the windeployqt directory to the installation
-      # directory
-      add_custom_command(
-        TARGET ResInsight
-        POST_BUILD
-        COMMAND
-          ${CMAKE_COMMAND} -E copy_directory
-          "${CMAKE_CURRENT_BINARY_DIR}/windeployqt/"
-          $<TARGET_FILE_DIR:ResInsight>
-      )
-
-      # copy deployment directory during installation
-      install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/windeployqt/"
-              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-      )
-
-      # install additional DLLS not able to be found by windeployqt
-      set(qt5_offscreen_name "$<IF:$<CONFIG:Debug>,qoffscreend,qoffscreen>")
-      install(
-        FILES ${qt5_install_prefix}/plugins/platforms/${qt5_offscreen_name}.dll
-        DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/platforms
-      )
-
-    endif()
 
     # install GRPC-related DLLs and generated_classes.py
     if(RESINSIGHT_ENABLE_GRPC)
@@ -628,8 +429,35 @@ if(RESINSIGHT_PRIVATE_INSTALL)
   endif()
 
   install(TARGETS ResInsight DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
-
   install(FILES ${RESINSIGHT_FILES} DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+
+  if(WIN32 AND WINDEPLOYQT_EXECUTABLE)
+    # Add a post-build command to run windeployqt. This makes it possible to
+    # debug the binary from a debugger without any manual steps. This also fixes
+    # an issue related to the Install() command and usage of windeployqt as part
+    # of installation. The installation tried to use windeployqt on the
+    # executable in the build directory, which did not find the Qt libraries.
+    #
+    # TODO: This command copies all required dlls, so we should probably not use
+    # the Install() command to copy external dlls dependencies.
+    #
+    add_custom_command(
+      TARGET ResInsight
+      POST_BUILD
+      COMMAND ${WINDEPLOYQT_EXECUTABLE} $<TARGET_FILE:ResInsight> --release
+              --no-translations
+      COMMENT
+        "Running windeployqt to deploy Qt dependencies to the build folder, required by install()"
+    )
+
+    # Running windeployqt to deploy Qt dependencies to the install folder"
+    install(
+      TARGETS ResInsight
+      DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+      RUNTIME_DEPENDENCIES PRE_EXCLUDE_REGEXES "api-ms-" "ext-ms-"
+      POST_EXCLUDE_REGEXES ".*system32/.*\\.dll"
+    )
+  endif()
 
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     install(
@@ -671,6 +499,12 @@ endif(RESINSIGHT_PRIVATE_INSTALL)
 # ##############################################################################
 # Installation packaging
 # ##############################################################################
+
+qt_generate_deploy_app_script(
+  TARGET ResInsight OUTPUT_SCRIPT deploy_script NO_UNSUPPORTED_PLATFORM_ERROR
+  NO_TRANSLATIONS
+)
+install(SCRIPT ${deploy_script})
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(CPACK_GENERATOR TGZ)

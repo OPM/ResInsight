@@ -1,0 +1,45 @@
+{
+    "version": 2,
+    "configurePresets": [
+        {
+            "name": "windows-base",
+            "hidden": true,
+            "displayName": "Windows Base",
+            "inherits": "ninja",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "VCPKG_TARGET_TRIPLET": "x64-windows-release",
+                "RESINSIGHT_ENABLE_UNITY_BUILD": true,
+                "RESINSIGHT_ENABLE_GRPC": true,
+                "CMAKE_PREFIX_PATH": "c:/Qt/6.6.3/msvc2019_64;f:/tools/buildcache/bin",
+                "RESINSIGHT_GRPC_PYTHON_EXECUTABLE": "c:/Users/MagneSjaastad/AppData/Local/Programs/Python/Python38/python.exe",
+                "RESINSIGHT_ODB_API_DIR": "c:/odb/odb_2020/odb_api"
+
+            }
+        },
+        {
+            "name": "x64-debug",
+            "displayName": "x64 Debug",
+            "description": "Target Windows (64-bit) with the Visual Studio development environment. (Debug)",
+            "inherits": "windows-base",
+            "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+        },
+        {
+            "name": "x64-relwithdebinfo",
+            "displayName": "x64 Release with Debug Info",
+            "description": "Target Windows (64-bit) with the Visual Studio development environment. (RelWithDebInfo)",
+            "inherits": "windows-base",
+            "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+        },
+        {
+            "name": "x64-release",
+            "displayName": "x64 Release",
+            "description": "Target Windows (64-bit) with the Visual Studio development environment. (Release)",
+            "inherits": "windows-base",
+            "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+        }
+    ]
+}

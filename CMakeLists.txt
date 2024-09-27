@@ -5,7 +5,16 @@ include(FetchContent)
 
 project(ResInsight)
 
+# Ensure all binary files ensd up in the same folder as the executable
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
 set(VIZ_MODULES_FOLDER_NAME Fwk/VizFwk)
+
+# !!! For now, we force Qt to version 5
+set(CEE_USE_QT5 OFF)
+message(STATUS "Forcing setting of CEE_USE_QT6 to ON")
+set(CEE_USE_QT6 ON)
+message(STATUS "CEE_USE_QT6=${CEE_USE_QT6}")
 
 cmake_policy(SET CMP0020 NEW)
 if(POLICY CMP0077)
@@ -525,12 +534,29 @@ endif()
 # ##############################################################################
 # Qt
 # ##############################################################################
-set(RI_QT_MINIMUM_VERSION 5.12)
 
 find_package(
-  Qt5 ${RI_QT_MINIMUM_VERSION} COMPONENTS Core Gui OpenGL Network NetworkAuth
-                                          Widgets
+  Qt6
+  COMPONENTS
+  REQUIRED
+  Core
+  Gui
+  OpenGL
+  Network
+  Widgets
+  Charts
+  Core5Compat
 )
+set(QT_LIBRARIES
+    Qt6::Core
+    Qt6::Gui
+    Qt6::OpenGL
+    Qt6::Network
+    Qt6::Widgets
+    Qt6::Charts
+    Qt6::Core5Compat
+)
+qt_standard_project_setup()
 
 # Open GL
 find_package(OpenGL)
@@ -538,23 +564,13 @@ find_package(OpenGL)
 # ##############################################################################
 # QtCharts
 # ##############################################################################
-option(RESINSIGHT_USE_QT_CHARTS "Enable QtCharts in the code" ON)
-if(RESINSIGHT_USE_QT_CHARTS)
-  find_package(Qt5 OPTIONAL_COMPONENTS Charts)
-
-  if(Qt5Charts_FOUND)
-    message(STATUS "QtCharts found: ${Qt5Charts_LIBRARIES}")
-    add_definitions(-DUSE_QTCHARTS)
-  else()
-    message(STATUS "QtCharts not found.")
-    set(RESINSIGHT_USE_QT_CHARTS OFF)
-  endif()
-endif()
+set(RESINSIGHT_USE_QT_CHARTS ON)
+add_definitions(-DUSE_QTCHARTS)
 
 # ##############################################################################
 # Qwt
 # ##############################################################################
-
+set(USE_QT6 ON)
 add_subdirectory(ThirdParty/qwt)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -578,14 +594,14 @@ set(ADS_VERSION "4.2.1")
 add_subdirectory(ThirdParty/qtadvanceddocking EXCLUDE_FROM_ALL)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  target_compile_options(qt5advanceddocking PRIVATE -Wno-deprecated-copy)
+  target_compile_options(qt6advanceddocking PRIVATE -Wno-deprecated-copy)
 elseif(MSVC)
-  target_compile_options(qt5advanceddocking PRIVATE /wd4996 /wd4005)
+  target_compile_options(qt6advanceddocking PRIVATE /wd4996 /wd4005)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  target_compile_options(qt5advanceddocking PRIVATE -Wno-deprecated)
+  target_compile_options(qt6advanceddocking PRIVATE -Wno-deprecated)
 endif()
 
-list(APPEND THIRD_PARTY_LIBRARIES qt5advanceddocking)
+list(APPEND THIRD_PARTY_LIBRARIES qt6advanceddocking)
 
 # ##############################################################################
 # Nightcharts
@@ -766,20 +782,12 @@ if(RESINSIGHT_ENABLE_UNITY_BUILD)
   # message("Cmake Unity build is enabled on : custom-opm-common")
   # set_property(TARGET custom-opm-common PROPERTY UNITY_BUILD true)
   message("Cmake Unity build is enabled on : qtadvanceddocking")
-  set_property(TARGET qt5advanceddocking PROPERTY UNITY_BUILD true)
+  set_property(TARGET qt6advanceddocking PROPERTY UNITY_BUILD true)
 endif()
 
 # ##############################################################################
 # Vizualization Framework
 # ##############################################################################
-
-# !!! For now, we force Qt to version 5
-message(STATUS "Forcing setting of CEE_USE_QT5 to ON")
-set(CEE_USE_QT5
-    ON
-    CACHE BOOL "Force usage of Qt5" FORCE
-)
-message(STATUS "CEE_USE_QT5=${CEE_USE_QT5}")
 
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibCore)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibGeometry)
@@ -930,7 +938,9 @@ endif()
 # Installation settings
 # ##############################################################################
 
-set(RESINSIGHT_INSTALL_FOLDER ".")
+# Set the install folder to be the bin folder. TODO: Move Python scripts to a
+# separate folder
+set(RESINSIGHT_INSTALL_FOLDER "bin")
 
 # override system install prefix if private installation chosen
 option(RESINSIGHT_PRIVATE_INSTALL
@@ -1060,17 +1070,6 @@ add_subdirectory(ThirdParty/extract-projectfile-versions)
 install(TARGETS extract-projectfile-versions
         DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
 )
-
-if(MSVC)
-  # Install all the DLLs needed for the executable. System dependencies are not
-  # included
-  install(
-    TARGETS ResInsight
-    DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-    RUNTIME_DEPENDENCIES PRE_EXCLUDE_REGEXES "api-ms-" "ext-ms-"
-    POST_EXCLUDE_REGEXES ".*system32/.*\\.dll"
-  )
-endif(MSVC)
 
 # ##############################################################################
 # Add OpenSSL 1.1.1 libraries The OpenSSL libraries are needed for the
