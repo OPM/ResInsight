@@ -62,6 +62,11 @@ void RicExitApplicationFeature::onActionTriggered( bool isChecked )
     {
         app->mainPlotWindow()->close();
     }
+
+    // This was required after moving to Qt6, causing the application not to shut down properly, and ghost processes remains after a forced
+    // shutdown. The slot onLastWindowClosed() configured in RiaGuiApplication::RiaGuiApplication is never called. Testing with
+    // processEvents() had no effect.
+    app->quit();
 }
 
 //--------------------------------------------------------------------------------------------------
