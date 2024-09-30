@@ -20,6 +20,8 @@
 
 #include <QDataStream>
 
+#include <string>
+
 namespace riOctavePlugin
 {
 const int qtDataStreamVersion = QDataStream::Qt_4_0;

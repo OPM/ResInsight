@@ -49,8 +49,6 @@
 
 #include <cmath>
 
-using namespace QtCharts;
-
 namespace caf
 {
 template <>

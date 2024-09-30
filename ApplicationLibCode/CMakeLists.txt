@@ -23,41 +23,38 @@ option(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS
        "Treat warnings as errors (stops build)" OFF
 )
 
-find_package(Qt5 ${RI_QT_MINIMUM_VERSION} COMPONENTS Core)
-
-if(Qt5Core_FOUND)
-  find_package(
-    Qt5 ${RI_QT_MINIMUM_VERSION}
-    COMPONENTS Core
-               Gui
-               OpenGL
-               Network
-               NetworkAuth
-               Widgets
-               Xml
-               Concurrent
-               PrintSupport
-               Svg
-               Sql
-    OPTIONAL_COMPONENTS Charts
-  )
-  set(QT_LIBRARIES
-      Qt5::Core
-      Qt5::Gui
-      Qt5::Network
-      Qt5::NetworkAuth
-      Qt5::OpenGL
-      Qt5::Widgets
-      Qt5::Xml
-      Qt5::Concurrent
-      Qt5::PrintSupport
-      Qt5::Svg
-      Qt5::Sql
-  )
-  if(Qt5Charts_FOUND)
-    list(APPEND QT_LIBRARIES Qt5::Charts)
-  endif(Qt5Charts_FOUND)
-endif(Qt5Core_FOUND)
+find_package(
+  Qt6
+  COMPONENTS Core
+             Gui
+             OpenGL
+             Network
+             NetworkAuth
+             Widgets
+             Xml
+             Concurrent
+             PrintSupport
+             Svg
+             Sql
+             Core5Compat
+  OPTIONAL_COMPONENTS Charts
+)
+set(QT_LIBRARIES
+    Qt6::Core
+    Qt6::Gui
+    Qt6::OpenGL
+    Qt6::Network
+    Qt6::NetworkAuth
+    Qt6::Widgets
+    Qt6::Xml
+    Qt6::Concurrent
+    Qt6::PrintSupport
+    Qt6::Svg
+    Qt6::Sql
+    Qt6::Core5Compat
+    Qt6::Charts
+)
+qt_standard_project_setup()
 
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
   set(Python3_EXECUTABLE ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
@@ -219,19 +216,6 @@ if(RESINSIGHT_FOUND_HDF5)
 endif()
 
 # ##############################################################################
-# Qt specifics: Moc, ui, resources
-# ##############################################################################
-
-set(QT_MOC_HEADERS
-    ${QT_MOC_HEADERS} ProjectDataModel/RimMimeData.h
-    ProjectDataModel/Intersections/RimBoxIntersection.h
-    SocketInterface/RiaSocketServer.h
-)
-
-qt5_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS})
-qt5_wrap_ui(FORM_FILES_CPP ${QT_UI_FILES})
-
-# ##############################################################################
 # Create source groups - see also included CMakeLists_files.cmake
 # ##############################################################################
 source_group("ModelVisualization" FILES ${MODEL_VISUALIZATION_FILES})
@@ -267,6 +251,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             -Wno-call-to-pure-virtual-from-ctor-dtor
             -Wno-delete-non-abstract-non-virtual-dtor
             -Wno-ambiguous-reversed-operator
+            -Wno-deprecated-declarations
   )
 endif()
 
@@ -414,12 +399,17 @@ set(UNITY_EXCLUDE_FILES
     # Exclude files including opm-common
     ProjectDataModel/RimVfpTableExtractor.cpp
     ProjectDataModel/RimVfpPlot.cpp
+    # Exclude moc files as they cause template instanciation issues
+    # https://cmake.org/cmake/help/latest/prop_tgt/AUTOGEN_BUILD_DIR.html
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_autogen/mocs_compilation.cpp
     ProjectDataModel/RiaOpmParserTools.cpp
     FileInterface/RifOsduWellPathReader.cpp
     FileInterface/RifOsduWellLogReader.cpp
     FileInterface/RifByteArrayArrowRandomAccessFile.cpp
     FileInterface/RifArrowTools.cpp
 )
+
+message("Files excluded from UNITY_BUILD : ${UNITY_EXCLUDE_FILES}")
 
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
   foreach(fileToExclude ${UNITY_EXCLUDE_FILES})

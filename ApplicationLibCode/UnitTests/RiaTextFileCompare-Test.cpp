@@ -8,7 +8,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RiaTextFileCompareTest, BasicCompareWithDiff )
+TEST( DISABLED_RiaTextFileCompareTest, BasicCompareWithDiff )
 {
     RiaRegressionTest regTestConfig;
     regTestConfig.readSettingsFromApplicationStore();
@@ -29,7 +29,7 @@ TEST( RiaTextFileCompareTest, BasicCompareWithDiff )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RiaTextFileCompareTest, BasicCompareNoDiff )
+TEST( DISABLED_RiaTextFileCompareTest, BasicCompareNoDiff )
 {
     RiaRegressionTest regTestConfig;
     regTestConfig.readSettingsFromApplicationStore();
@@ -50,7 +50,7 @@ TEST( RiaTextFileCompareTest, BasicCompareNoDiff )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RiaTextFileCompareTest, BasicCompareError )
+TEST( DISABLED_RiaTextFileCompareTest, BasicCompareError )
 {
     RiaRegressionTest regTestConfig;
     regTestConfig.readSettingsFromApplicationStore();

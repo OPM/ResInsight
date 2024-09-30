@@ -41,6 +41,7 @@
 #include <QListWidget>
 #include <QMenu>
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QSignalBlocker>
 #include <QTextEdit>
@@ -662,8 +663,8 @@ QStringList RicRecursiveFileSearchDialog::createFileNameFilterList()
 //--------------------------------------------------------------------------------------------------
 QString RicRecursiveFileSearchDialog::replaceWithRealizationStar( const QString& text )
 {
-    const QString pattern = "realization-\\d+";
-    QRegExp       regexp( pattern, Qt::CaseInsensitive );
+    const QString      pattern = "realization-\\d+";
+    QRegularExpression regexp( pattern, QRegularExpression::CaseInsensitiveOption );
 
     QString textWithStar = text;
     textWithStar.replace( regexp, "realization-*" );
@@ -681,7 +682,7 @@ void RicRecursiveFileSearchDialog::populateComboBoxHistoryFromRegistry( QComboBo
 
     const int maxItemsInRegistry = 10;
 
-    int numRecentFiles = std::min( files.size(), maxItemsInRegistry );
+    int numRecentFiles = std::min( (int)files.size(), maxItemsInRegistry );
     for ( int i = 0; i < numRecentFiles; i++ )
     {
         comboBox->addItem( files[i] );
@@ -723,7 +724,7 @@ void RicRecursiveFileSearchDialog::setOkButtonEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::warningIfInvalidCharacters()
 {
-    if ( fileNameFilter().contains( QRegExp( "[\\\\/:]" ) ) )
+    if ( fileNameFilter().contains( QRegularExpression( "[\\\\/:]" ) ) )
     {
         QToolTip::showText( m_fileFilterField->mapToGlobal( QPoint( 0, 0 ) ), "File pattern contains invalid characters" );
         m_effectiveFilterContentLabel->setText( "(Invalid filter)" );
@@ -1045,7 +1046,7 @@ QStringList RicRecursiveFileSearchDialog::buildDirectoryListRecursive( const QSt
         QString pathFilter = pathFilterWithoutStartSeparator();
         if ( !pathFilter.startsWith( "*" ) )
         {
-            int wildcardIndex = pathFilter.indexOf( QRegExp( QString( "[*%1]" ).arg( RiaFilePathTools::separator() ) ) );
+            int wildcardIndex = pathFilter.indexOf( QRegularExpression( QString( "[*%1]" ).arg( RiaFilePathTools::separator() ) ) );
             if ( wildcardIndex >= 0 )
             {
                 currPathFilter  = pathFilter.left( wildcardIndex + 1 );
@@ -1085,8 +1086,10 @@ bool RicRecursiveFileSearchDialog::pathFilterMatch( const QString& pathFilter, c
     if ( relPath.endsWith( RiaFilePathTools::separator() ) && !pathFilter.endsWith( RiaFilePathTools::separator() ) )
         pattern += RiaFilePathTools::separator();
 
-    QRegExp regexp( pattern, Qt::CaseInsensitive, QRegExp::Wildcard );
-    return regexp.exactMatch( relPath );
+    QRegularExpression regexp( pattern, QRegularExpression::CaseInsensitiveOption );
+    auto               match = regexp.match( relPath );
+
+    return match.hasMatch();
 }
 
 //--------------------------------------------------------------------------------------------------

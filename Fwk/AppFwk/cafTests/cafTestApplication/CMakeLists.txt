@@ -24,7 +24,6 @@ if(CEE_USE_QT6)
   )
   set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets Qt6::OpenGL Qt6::Svg)
   qt_standard_project_setup()
-  set(CMAKE_AUTORCC ON)
 else()
   find_package(
     Qt5

@@ -29,7 +29,7 @@ class RimPlotWindow;
 //==================================================================================================
 //
 //==================================================================================================
-class RiuQtChartView : public QtCharts::QChartView, public RiuInterfaceToViewWindow
+class RiuQtChartView : public QChartView, public RiuInterfaceToViewWindow
 {
 public:
     RiuQtChartView( RimPlotWindow* plotWindow, QWidget* parent = nullptr );

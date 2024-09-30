@@ -24,12 +24,10 @@
 #include <QtGui/QPainter>
 #include <QtWidgets/QGraphicsSceneMouseEvent>
 
-using namespace QtCharts;
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQtChartsToolTip::RiuQtChartsToolTip( QChart* chart, QtCharts::QAbstractSeries* series )
+RiuQtChartsToolTip::RiuQtChartsToolTip( QChart* chart, QAbstractSeries* series )
     : QGraphicsItem( chart )
     , m_chart( chart )
     , m_series( series )
