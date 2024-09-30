@@ -500,9 +500,11 @@ endif(RESINSIGHT_PRIVATE_INSTALL)
 # Installation packaging
 # ##############################################################################
 
-if (Qt6Widgets_VERSION VERSION_LESS 6.5.0)
+if(Qt6Widgets_VERSION VERSION_LESS 6.5.0)
   message("Detected Qt version ${Qt6Widgets_VERSION}")
-  message("Install target is not complete as Qt 6.5 is required to use qt_generate_deploy_app_script()")
+  message(
+    "Install target is not complete as Qt 6.5 is required to use qt_generate_deploy_app_script()"
+  )
 else()
   qt_generate_deploy_app_script(
     TARGET ResInsight OUTPUT_SCRIPT deploy_script NO_UNSUPPORTED_PLATFORM_ERROR
