@@ -45,10 +45,10 @@ public:
 
     void setCellScalar( size_t gridLocalCellIndex, double scalarValue ) override
     {
-        size_t reservoirCellIndex = m_grid->reservoirCellIndex( gridLocalCellIndex );
-        CVF_TIGHT_ASSERT( reservoirCellIndex < m_reservoirResultValues->size() );
+        size_t nativeCellIndex = m_grid->localCellIndexToNative( gridLocalCellIndex );
+        CVF_TIGHT_ASSERT( nativeCellIndex < m_reservoirResultValues->size() );
 
-        ( *m_reservoirResultValues )[reservoirCellIndex] = scalarValue;
+        ( *m_reservoirResultValues )[nativeCellIndex] = scalarValue;
     }
 
 private:
@@ -71,8 +71,8 @@ public:
 
     void setCellScalar( size_t gridLocalCellIndex, double scalarValue ) override
     {
-        size_t reservoirCellIndex = m_grid->reservoirCellIndex( gridLocalCellIndex );
-        size_t resultValueIndex   = m_activeCellInfo->cellResultIndex( reservoirCellIndex );
+        size_t nativeCellIndex  = m_grid->localCellIndexToNative( gridLocalCellIndex );
+        size_t resultValueIndex = m_activeCellInfo->cellResultIndex( nativeCellIndex );
 
         CVF_TIGHT_ASSERT( m_reservoirResultValues != nullptr && resultValueIndex < m_reservoirResultValues->size() );
 

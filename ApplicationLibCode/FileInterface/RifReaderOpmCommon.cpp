@@ -330,7 +330,8 @@ void RifReaderOpmCommon::transferStaticNNCData( Opm::EclIO::EGrid& opmMainGrid, 
             RigGridBase* grid1 = mainGrid->gridByIndex( c.grid1_Id );
             RigGridBase* grid2 = mainGrid->gridByIndex( c.grid2_Id );
 
-            RigConnection nncConnection( grid1->reservoirCellIndex( c.grid1_CellIdx - 1 ), grid2->reservoirCellIndex( c.grid2_CellIdx - 1 ) );
+            RigConnection nncConnection( grid1->localCellIndexToNative( c.grid1_CellIdx - 1 ),
+                                         grid2->localCellIndexToNative( c.grid2_CellIdx - 1 ) );
 
             nncConnections.push_back( nncConnection );
 

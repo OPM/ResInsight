@@ -109,7 +109,7 @@ void RigReservoirBuilder::createGridsAndCells( RigEclipseCaseData* eclipseCase )
         eclipseCase->mainGrid()->addLocalGrid( localGrid );
         localGrid->setParentGrid( eclipseCase->mainGrid() );
 
-        localGrid->setIndexToStartOfCells( mainGridNodes.size() / 8 );
+        localGrid->setIndexToGlobalStartOfCells( mainGridNodes.size() / 8 );
         cvf::Vec3st gridPointDimensions( lgr.m_singleCellRefinementFactors.x() *
                                                  ( lgr.m_mainGridMaxCellPosition.x() - lgr.m_mainGridMinCellPosition.x() + 1 ) +
                                              1,

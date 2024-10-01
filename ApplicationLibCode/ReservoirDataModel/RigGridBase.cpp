@@ -603,9 +603,7 @@ bool RigGridCellFaceVisibilityFilter::isFaceVisible( size_t                     
 
     // Do not show cell geometry if a fault is present to avoid z fighting between surfaces
     // It will always be a better solution to avoid geometry creation instead of part priority and polygon offset
-    const auto      cellIndex     = m_grid->nativeCellIndexToGlobal( nativeCellIndex );
-    size_t          resvCellIndex = m_grid->reservoirCellIndex( cellIndex );
-    const RigFault* fault         = m_grid->mainGrid()->findFaultFromCellIndexAndCellFace( resvCellIndex, face );
+    const RigFault* fault = m_grid->mainGrid()->findFaultFromCellIndexAndCellFace( nativeCellIndex, face );
     if ( fault )
     {
         return false;
