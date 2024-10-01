@@ -325,7 +325,7 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
     const auto newCellCount = cellStartIndex + cellCount + 1;
     activeGrid->reservoirCells().resize( newCellCount, defaultCell );
     activeGrid->reservoirCells()[newCellCount - 1].setInvalid( true );
-    activeGrid->nodes().resize( ( newCellCount ) * 8, cvf::Vec3d( 0, 0, 0 ) );
+    activeGrid->nodes().resize( (newCellCount)*8, cvf::Vec3d( 0, 0, 0 ) );
 
     auto& riNodes = activeGrid->nodes();
 
