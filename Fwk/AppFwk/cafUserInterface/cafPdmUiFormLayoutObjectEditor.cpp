@@ -348,6 +348,17 @@ QMinimizePanel* caf::PdmUiFormLayoutObjectEditor::findOrCreateGroupBox( QWidget*
 
     if ( it == m_groupBoxes.end() )
     {
+        auto newBoxIt = m_newGroupBoxes.find( groupBoxKey );
+        if ( newBoxIt != m_newGroupBoxes.end() )
+        {
+            // This error happens when the same group is added to the same parent multiple times
+            // https://github.com/OPM/ResInsight/issues/11731
+            // Suggested approach: Make sure that all objects and groups in PdmUiOrdering have unique names.
+
+            auto message = "Detected duplicate group box with keyword: " + groupBoxKey;
+            CAF_ASSERT( false && message.toStdString().data() );
+        }
+
         groupBox = new QMinimizePanel( parent );
         groupBox->enableFrame( group->enableFrame() );
         groupBox->setTitle( group->uiName( uiConfigName ) );
