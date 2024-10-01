@@ -52,6 +52,7 @@ public:
     caf::PdmField<bool>    openReportInBrowser;
     caf::PdmField<bool>    appendTestsAfterTestFilter;
     caf::PdmField<bool>    invalidateExternalFilePaths;
+    caf::PdmField<bool>    activateObjectsInPropertyEditor;
 
     caf::PdmField<bool> exportSnapshots3dViews;
     caf::PdmField<bool> exportSnapshotsPlots;
