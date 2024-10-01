@@ -75,7 +75,8 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
     else if ( gridUnitStr.starts_with( 'C' ) )
         m_gridUnit = 3;
 
-    auto totalCellCount           = opmGrid.totalActiveCells() + 1; // add one inactive cell used as placeholder for all inactive cells
+    auto totalCellCount           = opmGrid.totalNumberOfCells();
+    auto totalNativeCellCount     = opmGrid.totalActiveCells() + 1; // add one inactive cell used as placeholder for all inactive cells
     auto globalMatrixActiveSize   = opmGrid.activeCells();
     auto globalFractureActiveSize = opmGrid.activeFracCells();
 
@@ -98,11 +99,11 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
         localGrid->setGridPointDimensions( cvf::Vec3st( lgrDims[0] + 1, lgrDims[1] + 1, lgrDims[2] + 1 ) );
         localGrid->setGridId( lgrIdx + 1 );
         localGrid->setGridName( lgr_names[lgrIdx] );
+        localGrid->setIndexToGlobalStartOfCells( totalCellCount );
         activeGrid->addLocalGrid( localGrid );
 
-        localGrid->setIndexToStartOfCells( totalCellCount );
-
-        totalCellCount += lgrGrids[lgrIdx].totalActiveCells();
+        totalCellCount += lgrGrids[lgrIdx].totalNumberOfCells();
+        totalNativeCellCount += lgrGrids[lgrIdx].totalActiveCells() + 1;
     }
 
     // active cell information
@@ -123,23 +124,53 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
 
         // TODO - loop over all grids
 
-        activeGrid->transferActiveInformation( 0,
-                                               eclipseCaseData,
-                                               opmGrid.totalActiveCells(),
-                                               opmGrid.activeCells(),
-                                               opmGrid.activeFracCells(),
-                                               opmGrid.active_indexes(),
-                                               opmGrid.active_frac_indexes() );
+        size_t anInactiveCellIndex = activeGrid->transferActiveInformation( 0,
+                                                                            eclipseCaseData,
+                                                                            opmGrid.totalActiveCells(),
+                                                                            opmGrid.activeCells(),
+                                                                            opmGrid.activeFracCells(),
+                                                                            opmGrid.active_indexes(),
+                                                                            opmGrid.active_frac_indexes(),
+                                                                            0 );
+
+        for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
+        {
+            activeGrid->transferActiveInformation( lgrIdx + 1,
+                                                   eclipseCaseData,
+                                                   lgrGrids[lgrIdx].totalActiveCells(),
+                                                   lgrGrids[lgrIdx].activeCells(),
+                                                   lgrGrids[lgrIdx].activeFracCells(),
+                                                   lgrGrids[lgrIdx].active_indexes(),
+                                                   lgrGrids[lgrIdx].active_frac_indexes(),
+                                                   anInactiveCellIndex );
+        }
+
+        eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeDerivedData();
+        eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL )->computeDerivedData();
     }
 
     // grid geometry
     {
-        RiaLogging::info( QString( "Loading %0 active of %1 total cells." )
+        RiaLogging::info( QString( "Loading %0 active of %1 total cells in main grid." )
                               .arg( QString::fromStdString( RiaStdStringTools::formatThousandGrouping( opmGrid.totalActiveCells() ) ) )
                               .arg( QString::fromStdString( RiaStdStringTools::formatThousandGrouping( opmGrid.totalNumberOfCells() ) ) ) );
 
         auto task = progInfo.task( "Loading Active Cell Main Grid Geometry", 1 );
         transferActiveGeometry( opmGrid, activeGrid, eclipseCaseData );
+
+        bool hasParentInfo = ( lgr_parent_names.size() >= (size_t)numLGRs );
+
+        auto task = progInfo.task( "Loading Active Cell LGR Grid Geometry ", 1 );
+
+        for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
+        {
+            RigGridBase* parentGrid = hasParentInfo ? activeGrid->gridByName( lgr_parent_names[lgrIdx] ) : activeGrid;
+
+            RigLocalGrid* localGrid = static_cast<RigLocalGrid*>( activeGrid->gridById( lgrIdx + 1 ) );
+            localGrid->setParentGrid( parentGrid );
+
+            transferActiveGeometry( opmGrid, lgrGrids[lgrIdx], mainGrid, localGrid, eclipseCaseData );
+        }
     }
 
     activeGrid->initAllSubGridsParentGridPointer();

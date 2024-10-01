@@ -40,17 +40,19 @@ RigActiveCellGrid::~RigActiveCellGrid()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellGrid::transferActiveInformation( int                     gridIndex,
-                                                   RigEclipseCaseData*     eclipseCaseData,
-                                                   size_t                  totalActiveCells,
-                                                   size_t                  matrixActiveCells,
-                                                   size_t                  fractureActiveCells,
-                                                   const std::vector<int>& activeMatrixIndexes,
-                                                   const std::vector<int>& activeFracIndexes )
+size_t RigActiveCellGrid::transferActiveInformation( int                     gridIndex,
+                                                     RigEclipseCaseData*     eclipseCaseData,
+                                                     size_t                  totalActiveCells,
+                                                     size_t                  matrixActiveCells,
+                                                     size_t                  fractureActiveCells,
+                                                     const std::vector<int>& activeMatrixIndexes,
+                                                     const std::vector<int>& activeFracIndexes,
+                                                     size_t                  inactiveCellIndex )
 {
     if ( gridIndex == 0 )
     {
         m_globalToNativeMap.clear();
+        inactiveCellIndex = 0;
     }
 
     const auto totalCells = activeMatrixIndexes.size();
@@ -59,7 +61,7 @@ void RigActiveCellGrid::transferActiveInformation( int                     gridI
 
     m_globalToNativeMap.resize( cellStartIndex + totalCells );
     size_t activeCells       = cellStartIndex;
-    size_t anInactiveCellIdx = cellStartIndex;
+    size_t anInactiveCellIdx = inactiveCellIndex;
 
     for ( size_t i = 0; i < totalCells; i++ )
     {
@@ -107,9 +109,6 @@ void RigActiveCellGrid::transferActiveInformation( int                     gridI
             fractureActiveCellInfo->setCellResultIndex( activeCellIndex, fractureActiveIndex );
         }
     }
-
-    activeCellInfo->computeDerivedData();
-    fractureActiveCellInfo->computeDerivedData();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -35,4 +35,9 @@ public:
 protected:
     bool importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* caseData ) override;
     void transferActiveGeometry( Opm::EclIO::EGrid& opmMainGrid, RigActiveCellGrid* riMainGrid, RigEclipseCaseData* caseData );
+    void transferActiveGeometry( Opm::EclIO::EGrid&  opmMainGrid,
+                                 Opm::EclIO::EGrid&  opmGrid,
+                                 RigMainGrid*        mainGrid,
+                                 RigGridBase*        localGrid,
+                                 RigEclipseCaseData* eclipseCaseData );
 };

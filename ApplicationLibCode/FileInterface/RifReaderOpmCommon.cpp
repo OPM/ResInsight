@@ -189,7 +189,7 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
         localGrid->setGridName( lgr_names[lgrIdx] );
         mainGrid->addLocalGrid( localGrid );
 
-        localGrid->setIndexToStartOfCells( totalCellCount );
+        localGrid->setIndexToGlobalStartOfCells( totalCellCount );
 
         totalCellCount += lgrGrids[lgrIdx].totalNumberOfCells();
     }

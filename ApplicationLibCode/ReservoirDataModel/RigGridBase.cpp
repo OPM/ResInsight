@@ -30,7 +30,7 @@
 
 RigGridBase::RigGridBase( RigMainGrid* mainGrid )
     : m_gridPointDimensions( 0, 0, 0 )
-    , m_indexToStartOfCells( 0 )
+    , m_indexToGlobalStartOfCells( 0 )
     , m_mainGrid( mainGrid )
 {
     if ( mainGrid == nullptr )
@@ -84,9 +84,9 @@ RigCell& RigGridBase::cell( size_t gridLocalCellIndex )
 {
     CVF_ASSERT( m_mainGrid );
 
-    CVF_ASSERT( m_indexToStartOfCells + gridLocalCellIndex < m_mainGrid->globalCellCount() );
+    CVF_ASSERT( m_indexToGlobalStartOfCells + gridLocalCellIndex < m_mainGrid->globalCellCount() );
 
-    return m_mainGrid->reservoirCells()[m_indexToStartOfCells + gridLocalCellIndex];
+    return m_mainGrid->reservoirCells()[m_indexToGlobalStartOfCells + gridLocalCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,9 +96,9 @@ const RigCell& RigGridBase::cell( size_t gridLocalCellIndex ) const
 {
     CVF_ASSERT( m_mainGrid );
 
-    CVF_ASSERT( m_indexToStartOfCells + gridLocalCellIndex < m_mainGrid->globalCellCount() );
+    CVF_ASSERT( m_indexToGlobalStartOfCells + gridLocalCellIndex < m_mainGrid->globalCellCount() );
 
-    return m_mainGrid->reservoirCells()[m_indexToStartOfCells + gridLocalCellIndex];
+    return m_mainGrid->reservoirCells()[m_indexToGlobalStartOfCells + gridLocalCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -439,9 +439,13 @@ void RigGridBase::characteristicCellSizes( double* iSize, double* jSize, double*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigGridBase::reservoirCellIndex( size_t gridLocalCellIndex ) const
+size_t RigGridBase::localCellIndexToNative( size_t gridLocalCellIndex ) const
 {
-    return m_indexToStartOfCells + gridLocalCellIndex;
+    if ( !m_mainGrid ) return globalCellIndexToNative( gridLocalCellIndex );
+
+    return m_mainGrid->globalCellIndexToNative( m_indexToGlobalStartOfCells + gridLocalCellIndex );
+
+    return m_indexToGlobalStartOfCells + gridLocalCellIndex;
 }
 
 //--------------------------------------------------------------------------------------------------

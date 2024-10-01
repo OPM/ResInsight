@@ -28,13 +28,14 @@ public:
     RigActiveCellGrid();
     ~RigActiveCellGrid() override;
 
-    void transferActiveInformation( int                     gridIndex, // 0 - main grid, 1 - first LGR...
-                                    RigEclipseCaseData*     eclipseCaseData,
-                                    size_t                  totalActiveCells,
-                                    size_t                  matrixActiveCells,
-                                    size_t                  fractureActiveCells,
-                                    const std::vector<int>& activeMatrixIndexes,
-                                    const std::vector<int>& activeFracIndexes );
+    size_t transferActiveInformation( int                     gridIndex, // 0 - main grid, 1 - first LGR...
+                                      RigEclipseCaseData*     eclipseCaseData,
+                                      size_t                  totalActiveCells,
+                                      size_t                  matrixActiveCells,
+                                      size_t                  fractureActiveCells,
+                                      const std::vector<int>& activeMatrixIndexes,
+                                      const std::vector<int>& activeFracIndexes,
+                                      size_t                  inactiveCellIndex );
 
     size_t cellIndexFromIJK( size_t i, size_t j, size_t k ) const override;
     size_t cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const override;
