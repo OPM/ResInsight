@@ -146,7 +146,7 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
             bool addSpace = false;
             if ( uiFieldHandle )
             {
-                if ( uiFieldHandle->uiValue().type() == QVariant::Bool )
+                if ( uiFieldHandle->uiValue().metaType().id() == QMetaType::Bool )
                 {
                     QString editorTypeName = caf::PdmUiToolButtonEditor::uiEditorTypeName();
 

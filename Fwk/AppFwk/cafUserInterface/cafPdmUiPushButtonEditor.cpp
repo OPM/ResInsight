@@ -86,7 +86,7 @@ void PdmUiPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
     }
     else
     {
-        if ( variantFieldValue.type() == QVariant::Bool )
+        if ( variantFieldValue.metaType().id() == QMetaType::Bool )
         {
             m_pushButton->setText( variantFieldValue.toBool() ? "On" : "Off" );
         }
@@ -103,7 +103,7 @@ void PdmUiPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
         m_buttonLayout->setAlignment( m_pushButton, Qt::AlignRight );
     }
 
-    if ( variantFieldValue.type() == QVariant::Bool )
+    if ( variantFieldValue.metaType().id() == QMetaType::Bool )
     {
         m_pushButton->setChecked( uiField()->uiValue().toBool() );
     }

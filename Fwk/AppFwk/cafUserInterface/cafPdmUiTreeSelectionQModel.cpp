@@ -632,7 +632,7 @@ void caf::PdmUiTreeSelectionQModel::recursiveNotifyChildren( const QModelIndex& 
 //--------------------------------------------------------------------------------------------------
 bool caf::PdmUiTreeSelectionQModel::isSingleValueField( const QVariant& fieldValue )
 {
-    if ( fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt )
+    if ( fieldValue.metaType().id() == QMetaType::Int || fieldValue.metaType().id() == QMetaType::UInt )
     {
         return true;
     }
@@ -645,7 +645,7 @@ bool caf::PdmUiTreeSelectionQModel::isSingleValueField( const QVariant& fieldVal
 //--------------------------------------------------------------------------------------------------
 bool caf::PdmUiTreeSelectionQModel::isMultipleValueField( const QVariant& fieldValue )
 {
-    if ( fieldValue.type() == QVariant::List )
+    if ( fieldValue.metaType().id() == QMetaType::QVariantList )
     {
         return true;
     }

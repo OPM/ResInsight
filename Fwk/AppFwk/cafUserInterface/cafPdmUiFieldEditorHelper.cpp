@@ -79,7 +79,7 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFieldEditorHelper::createFieldEditorForFi
             // https://github.com/OPM/ResInsight/issues/10483
             fieldTypeName = caf::PdmUiListEditor::uiEditorTypeName();
         }
-        else if ( field->toUiBasedQVariant().type() != QVariant::List )
+        else if ( field->toUiBasedQVariant().metaType().id() != QMetaType::QVariantList )
         {
             // Handle a single value field with valueOptions: Make a combobox
 
