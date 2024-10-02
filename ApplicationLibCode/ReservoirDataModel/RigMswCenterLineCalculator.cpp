@@ -74,7 +74,7 @@ std::vector<SimulationWellCellBranch>
 {
     const RigWellResultFrame* wellFramePtr = nullptr;
 
-    if ( timeStepIndex < 0 )
+    if ( timeStepIndex < 0 || !wellResults->hasWellResult( timeStepIndex ) )
     {
         wellFramePtr = wellResults->staticWellResultFrame();
     }
