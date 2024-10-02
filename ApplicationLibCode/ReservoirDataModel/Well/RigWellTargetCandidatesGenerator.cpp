@@ -602,3 +602,53 @@ std::vector<RigWellTargetCandidatesGenerator::ClusterStatistics>
 
     return statistics;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCase&         targetCase,
+                                                                   RimEclipseCaseEnsemble& ensemble,
+                                                                   size_t                  timeStepIdx,
+                                                                   VolumeType              volumeType,
+                                                                   VolumesType             volumesType,
+                                                                   VolumeResultType        volumeResultType,
+                                                                   const ClusteringLimits& limits )
+{
+    for ( auto eclipseCase : ensemble.cases() )
+    {
+        generateCandidates( eclipseCase, timeStepIdx, volumeType, volumesType, volumeResultType, limits );
+    }
+
+    const RigCaseCellResultsData* targetResultsData    = targetCase.results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    const RigActiveCellInfo*      targetActiveCellInfo = targetResultsData->activeCellInfo();
+
+    const size_t targetNumReservoirCells = targetActiveCellInfo->reservoirCellCount();
+    const size_t targetNumActiveCells    = targetActiveCellInfo->reservoirActiveCellCount();
+    const int    numGrids                = ensemble.cases().size();
+
+    std::vector<int>    occupancy( targetNumActiveCells, 0 );
+    std::vector<double> pressure( numGrids, std::numeric_limits<double>::infinity() );
+    for ( auto eclipseCase : ensemble.cases() )
+    {
+        const RigCaseCellResultsData* resultsData    = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        const RigMainGrid*            mainGrid       = eclipseCase->mainGrid();
+        const RigActiveCellInfo*      activeCellInfo = resultsData->activeCellInfo();
+
+        std::vector<double> clusterNum;
+        for ( size_t targetCellIdx = 0; targetCellIdx < targetNumReservoirCells; targetCellIdx++ )
+        {
+            const RigCell& nativeCell = targetCase.mainGrid()->globalCellArray()[targetCellIdx];
+            cvf::Vec3d     cellCenter = nativeCell.center();
+
+            size_t cellIdx = mainGrid->findReservoirCellIndexFromPoint( cellCenter );
+            if ( cellIdx != cvf::UNDEFINED_SIZE_T && activeCellInfo->isActive( cellIdx ) )
+            {
+                size_t resultIndex = targetResultsData->activeCellInfo()->cellResultIndex( cellIdx );
+                if ( clusterNum[resultIndex] > 0 )
+                {
+                    occupancy[resultIndex]++;
+                }
+            }
+        }
+    }
+}
