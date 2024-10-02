@@ -21,8 +21,11 @@
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
 
 #include "Well/RigWellTargetCandidatesGenerator.h"
+
+class RimEclipseCase;
 
 //==================================================================================================
 ///
@@ -43,8 +46,13 @@ protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    void generateCandidates();
+    void generateCandidates( RimEclipseCase* eclipseCase );
     void updateAllBoundaries();
+    void generateEnsembleStatistics();
+
+    RimEclipseCase* firstCase() const;
+
+    RigWellTargetCandidatesGenerator::ClusteringLimits getClusteringLimits() const;
 
     caf::PdmField<int> m_timeStep;
 
@@ -57,8 +65,9 @@ private:
     caf::PdmField<double> m_permeability;
     caf::PdmField<double> m_transmissibility;
 
-    caf::PdmField<int> m_maxIterations;
-    caf::PdmField<int> m_maxClusters;
+    caf::PdmField<int>  m_maxIterations;
+    caf::PdmField<int>  m_maxClusters;
+    caf::PdmField<bool> m_generateEnsembleStatistics;
 
     double m_minimumVolume;
     double m_maximumVolume;
