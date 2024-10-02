@@ -72,11 +72,11 @@ bool caf::CadNavigation::handleInputEvent( QInputEvent* inputEvent )
             QMouseEvent* me = static_cast<QMouseEvent*>( inputEvent );
 
             int translatedMousePosX, translatedMousePosY;
-            cvfEventPos( me->x(), me->y(), &translatedMousePosX, &translatedMousePosY );
+            cvfEventPos( me->position().x(), me->position().y(), &translatedMousePosX, &translatedMousePosY );
 
             if ( me->button() == Qt::MiddleButton && me->modifiers() == Qt::NoModifier && isRotationEnabled() )
             {
-                this->pickAndSetPointOfInterest( me->x(), me->y() );
+                this->pickAndSetPointOfInterest( me->position().x(), me->position().y() );
 
                 m_trackball->startNavigation( cvf::ManipulatorTrackball::ROTATE, translatedMousePosX, translatedMousePosY );
                 m_roationSensitivityCalculator.init( me );
@@ -120,7 +120,7 @@ bool caf::CadNavigation::handleInputEvent( QInputEvent* inputEvent )
                 QMouseEvent* me = static_cast<QMouseEvent*>( inputEvent );
 
                 int translatedMousePosX, translatedMousePosY;
-                cvfEventPos( me->x(), me->y(), &translatedMousePosX, &translatedMousePosY );
+                cvfEventPos( me->position().x(), me->position().y(), &translatedMousePosX, &translatedMousePosY );
 
                 if ( m_isNavigating )
                 {

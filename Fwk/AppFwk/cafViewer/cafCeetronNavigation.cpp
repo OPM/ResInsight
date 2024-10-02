@@ -141,8 +141,8 @@ void caf::CeetronNavigation::mouseMoveEvent( QMouseEvent* event )
 {
     if ( !m_viewer->canRender() ) return;
     initializeRotationCenter();
-    int posX = event->x();
-    int posY = m_viewer->height() - event->y();
+    int posX = event->position().x();
+    int posY = m_viewer->height() - event->position().y();
 
     ManipulatorTrackball::NavigationType navType = getNavigationTypeFromMouseButtons( event->buttons() );
     if ( navType != m_trackball->activeNavigation() )
@@ -166,8 +166,8 @@ void caf::CeetronNavigation::mousePressEvent( QMouseEvent* event )
 {
     if ( !m_viewer->canRender() ) return;
     initializeRotationCenter();
-    int posX = event->x();
-    int posY = m_viewer->height() - event->y();
+    int posX = event->position().x();
+    int posY = m_viewer->height() - event->position().y();
 
     ManipulatorTrackball::NavigationType navType = getNavigationTypeFromMouseButtons( event->buttons() );
     m_trackball->startNavigation( navType, posX, posY );
@@ -183,7 +183,7 @@ void caf::CeetronNavigation::mouseReleaseEvent( QMouseEvent* event )
     if ( !m_viewer->canRender() ) return;
     initializeRotationCenter();
     ManipulatorTrackball::NavigationType navType = getNavigationTypeFromMouseButtons( event->buttons() );
-    m_trackball->startNavigation( navType, event->x(), event->y() );
+    m_trackball->startNavigation( navType, event->position().x(), event->position().y() );
 
     setCursorFromCurrentState();
 }
