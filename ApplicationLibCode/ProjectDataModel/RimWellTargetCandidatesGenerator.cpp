@@ -33,6 +33,7 @@
 #include "RimTools.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiSliderTools.h"
 
 #include "cvfMath.h"
@@ -79,6 +80,7 @@ RimWellTargetCandidatesGenerator::RimWellTargetCandidatesGenerator()
 {
     CAF_PDM_InitObject( "Well Target Candidates Generator" );
 
+    CAF_PDM_InitFieldNoDefault( &m_targetCase, "TargetCase", "Target Case" );
     CAF_PDM_InitField( &m_timeStep, "TimeStep", 0, "Time Step" );
 
     CAF_PDM_InitFieldNoDefault( &m_volumeType, "VolumeType", "Volume" );
@@ -99,6 +101,9 @@ RimWellTargetCandidatesGenerator::RimWellTargetCandidatesGenerator()
 
     CAF_PDM_InitField( &m_maxIterations, "Iterations", 10000, "Max Iterations" );
     CAF_PDM_InitField( &m_maxClusters, "MaxClusters", 5, "Max Clusters" );
+
+    CAF_PDM_InitField( &m_generateEnsembleStatistics, "GenerateEnsembleStatistics", true, "Generate Ensemble Statistics" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_generateEnsembleStatistics );
 
     m_minimumVolume = cvf::UNDEFINED_DOUBLE;
     m_maximumVolume = cvf::UNDEFINED_DOUBLE;
@@ -126,8 +131,12 @@ RimWellTargetCandidatesGenerator::~RimWellTargetCandidatesGenerator()
 void RimWellTargetCandidatesGenerator::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     updateAllBoundaries();
+    generateCandidates( m_targetCase() );
 
-    generateCandidates();
+    if ( changedField == &m_generateEnsembleStatistics )
+    {
+        generateEnsembleStatistics();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,7 +146,19 @@ QList<caf::PdmOptionItemInfo> RimWellTargetCandidatesGenerator::calculateValueOp
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_timeStep )
+    if ( fieldNeedingOptions == &m_targetCase )
+    {
+        auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
+        if ( !ensemble ) return options;
+
+        if ( ensemble->cases().empty() ) return options;
+
+        for ( auto eclipseCase : ensemble->cases() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( eclipseCase->caseUserDescription(), eclipseCase, false, eclipseCase->uiIconProvider() ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_timeStep )
     {
         auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
         if ( ensemble && !ensemble->cases().empty() )
@@ -257,29 +278,42 @@ void RimWellTargetCandidatesGenerator::defineEditorAttribute( const caf::PdmFiel
             doubleAttributes->m_decimals = 3;
         }
     }
+
+    if ( field == &m_generateEnsembleStatistics )
+    {
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        if ( attrib )
+        {
+            attrib->m_buttonText = "Create Ensemble Statistics";
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellTargetCandidatesGenerator::generateCandidates()
+void RimWellTargetCandidatesGenerator::generateCandidates( RimEclipseCase* eclipseCase )
+{
+    RigWellTargetCandidatesGenerator::ClusteringLimits limits = getClusteringLimits();
+    RigWellTargetCandidatesGenerator::generateCandidates( eclipseCase, m_timeStep(), m_volumeType(), m_volumesType(), m_volumeResultType(), limits );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellTargetCandidatesGenerator::generateEnsembleStatistics()
 {
     auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
     if ( !ensemble ) return;
 
-    if ( ensemble->cases().empty() ) return;
-
-    RimEclipseCase* eclipseCase = ensemble->cases().front();
-
-    RigWellTargetCandidatesGenerator::ClusteringLimits limits;
-    limits.volume           = m_volume;
-    limits.permeability     = m_permeability;
-    limits.pressure         = m_pressure;
-    limits.transmissibility = m_transmissibility;
-    limits.maxClusters      = m_maxClusters;
-    limits.maxIterations    = m_maxIterations;
-
-    RigWellTargetCandidatesGenerator::generateCandidates( eclipseCase, m_timeStep(), m_volumeType(), m_volumesType(), m_volumeResultType(), limits );
+    RigWellTargetCandidatesGenerator::ClusteringLimits limits = getClusteringLimits();
+    RigWellTargetCandidatesGenerator::generateEnsembleCandidates( *m_targetCase(),
+                                                                  *ensemble,
+                                                                  m_timeStep(),
+                                                                  m_volumeType(),
+                                                                  m_volumesType(),
+                                                                  m_volumeResultType(),
+                                                                  limits );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -293,4 +327,17 @@ void RimWellTargetCandidatesGenerator::defineUiOrdering( QString uiConfigName, c
     {
         updateAllBoundaries();
     }
+}
+
+RigWellTargetCandidatesGenerator::ClusteringLimits RimWellTargetCandidatesGenerator::getClusteringLimits() const
+{
+    RigWellTargetCandidatesGenerator::ClusteringLimits limits;
+    limits.volume           = m_volume;
+    limits.permeability     = m_permeability;
+    limits.pressure         = m_pressure;
+    limits.transmissibility = m_transmissibility;
+    limits.maxClusters      = m_maxClusters;
+    limits.maxIterations    = m_maxIterations;
+
+    return limits;
 }
