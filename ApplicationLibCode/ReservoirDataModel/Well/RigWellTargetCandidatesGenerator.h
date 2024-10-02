@@ -20,13 +20,18 @@
 
 #include "cafVecIjk.h"
 
+#include "cvfBoundingBox.h"
 #include "cvfStructGrid.h"
 
+#include <map>
 #include <optional>
 
 class RigActiveCellInfo;
 class RigCaseCellResultsData;
 class RimEclipseCase;
+class RimEclipseCaseEnsemble;
+class RimRegularGridCase;
+
 //==================================================================================================
 ///
 ///
@@ -76,6 +81,13 @@ public:
                                                 VolumesType             volumesType,
                                                 VolumeResultType        volumeResultType,
                                                 size_t                  timeStepIdx );
+
+    static RimRegularGridCase* generateEnsembleCandidates( RimEclipseCaseEnsemble& ensemble,
+                                                           size_t                  timeStepIdx,
+                                                           VolumeType              volumeType,
+                                                           VolumesType             volumesType,
+                                                           VolumeResultType        volumeResultType,
+                                                           const ClusteringLimits& limits );
 
     class ClusterStatistics
     {
@@ -156,6 +168,10 @@ private:
 
     static void createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<int>& clusterIds );
 
+    static void createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<double>& values );
+
+    static void createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<int>& clusterIds, double value );
+
     static double getValueForFace( const std::vector<double>&         x,
                                    const std::vector<double>&         y,
                                    const std::vector<double>&         z,
@@ -177,4 +193,15 @@ private:
                                                                                                 int                        numClustersFound,
                                                                                                 size_t                     timeStepIdx,
                                                                                                 const QString& clusterResultName );
+
+    static void computeStatisticsAndCreateVectors( RimEclipseCase&                         targetCase,
+                                                   const QString&                          resultName,
+                                                   const std::vector<std::vector<double>>& vec );
+
+    static void accumulateResultsForSingleCase( RimEclipseCase&                                      eclipseCase,
+                                                RimEclipseCase&                                      targetCase,
+                                                std::map<QString, std::vector<std::vector<double>>>& resultNamesAndSamples,
+                                                std::vector<int>&                                    occupancy );
+
+    static cvf::BoundingBox computeBoundingBoxForResult( RimEclipseCase& eclipseCase, const QString& resultName, size_t timeStepIndex );
 };
