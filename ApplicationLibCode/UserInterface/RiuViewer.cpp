@@ -1076,8 +1076,8 @@ void RiuViewer::mouseMoveEvent( QMouseEvent* mouseEvent )
         RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
         if ( viewLinker )
         {
-            int translatedMousePosX = mouseEvent->pos().x();
-            int translatedMousePosY = height() - mouseEvent->pos().y();
+            int translatedMousePosX = mouseEvent->position().x();
+            int translatedMousePosY = height() - mouseEvent->position().y();
 
             cvf::Vec3d displayCoord( 0, 0, 0 );
             if ( mainCamera()->unproject( cvf::Vec3d( static_cast<double>( translatedMousePosX ), static_cast<double>( translatedMousePosY ), 0 ),

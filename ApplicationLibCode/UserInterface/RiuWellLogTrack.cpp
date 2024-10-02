@@ -139,11 +139,11 @@ void RiuWellLogTrack::onMouseMoveEvent( QMouseEvent* mouseEvent )
     double depth = 0.0;
     if ( depthTrackPlot->depthOrientation() == RiaDefines::Orientation::HORIZONTAL )
     {
-        depth = axisMap.invTransform( mouseEvent->pos().x() );
+        depth = axisMap.invTransform( mouseEvent->position().x() );
     }
     else
     {
-        depth = axisMap.invTransform( mouseEvent->pos().y() );
+        depth = axisMap.invTransform( mouseEvent->position().y() );
     }
 
     depthTrackPlot->setDepthMarkerPosition( depth );
