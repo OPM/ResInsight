@@ -96,8 +96,8 @@ void MouseState::updateFromMouseEvent(QMouseEvent* event)
         if (numMouseButtonsInState(m_mouseButtonState) == 1)
         {
             m_cleanButtonPressButton = buttonPressed;
-            m_cleanButtonPressPosX = event->x();
-            m_cleanButtonPressPosY = event->y();
+            m_cleanButtonPressPosX = event->position().x();
+            m_cleanButtonPressPosY = event->pos().y();
         }
     }
 
@@ -115,8 +115,8 @@ void MouseState::updateFromMouseEvent(QMouseEvent* event)
             m_cleanButtonPressPosY != cvf::UNDEFINED_INT)
         {
             // We have a candidate, check if movement is within tolerance
-            if (cvf::Math::abs(double((m_cleanButtonPressPosX - event->x()))) <= m_cleanButtonClickTolerance &&
-                cvf::Math::abs(double((m_cleanButtonPressPosY - event->y()))) <= m_cleanButtonClickTolerance)
+            if (cvf::Math::abs(double((m_cleanButtonPressPosX - event->position().x()))) <= m_cleanButtonClickTolerance &&
+                cvf::Math::abs(double((m_cleanButtonPressPosY - event->pos().y()))) <= m_cleanButtonClickTolerance)
             {
                 m_cleanButtonClickButton = buttonReleased;
             }

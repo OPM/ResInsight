@@ -332,8 +332,8 @@ bool caf::TrackBallBasedNavigation::shouldRaytraceForNewPoiDuringWheelZoom( int 
 //--------------------------------------------------------------------------------------------------
 void caf::RotationSensitivityCalculator::init( QMouseEvent* eventAtRotationStart )
 {
-    m_lastPosX = eventAtRotationStart->x();
-    m_lastPosY = eventAtRotationStart->y();
+    m_lastPosX = eventAtRotationStart->position().x();
+    m_lastPosY = eventAtRotationStart->position().y();
 
     m_lastTime = eventAtRotationStart->timestamp();
 }
@@ -353,8 +353,8 @@ double caf::RotationSensitivityCalculator::calculateSensitivity( QMouseEvent* ev
             unsigned long timeSinceLast = presentTime - m_lastTime;
             if ( timeSinceLast == 0 ) timeSinceLast = 1; // one millisecond
 
-            int deltaX = eventWhenRotating->x() - m_lastPosX;
-            int deltaY = eventWhenRotating->y() - m_lastPosY;
+            int deltaX = eventWhenRotating->position().x() - m_lastPosX;
+            int deltaY = eventWhenRotating->position().y() - m_lastPosY;
 
             cvf::Vec2d mouseVelocity( deltaX, deltaY );
             mouseVelocity /= 1.0e-3 * timeSinceLast;
@@ -367,8 +367,8 @@ double caf::RotationSensitivityCalculator::calculateSensitivity( QMouseEvent* ev
             if ( mouseVelocityLengthCorr < slowLimit )
                 sensitivity = mouseVelocityLengthCorr * mouseVelocityLengthCorr / ( slowLimit * slowLimit );
 
-            m_lastPosX                = eventWhenRotating->x();
-            m_lastPosY                = eventWhenRotating->y();
+            m_lastPosX                = eventWhenRotating->position().x();
+            m_lastPosY                = eventWhenRotating->position().y();
             m_lastTime                = eventWhenRotating->timestamp();
             m_lastMouseVelocityLenght = 0.8 * mouseVelocityLength + 0.2 * m_lastMouseVelocityLenght;
         }

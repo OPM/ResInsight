@@ -75,11 +75,11 @@ bool caf::CeetronPlusNavigation::handleInputEvent( QInputEvent* inputEvent )
             QMouseEvent* me = static_cast<QMouseEvent*>( inputEvent );
 
             int translatedMousePosX, translatedMousePosY;
-            cvfEventPos( me->x(), me->y(), &translatedMousePosX, &translatedMousePosY );
+            cvfEventPos( me->position().x(), me->position().y(), &translatedMousePosX, &translatedMousePosY );
 
             if ( me->button() == Qt::RightButton && isRotationEnabled() )
             {
-                this->pickAndSetPointOfInterest( me->x(), me->y() );
+                this->pickAndSetPointOfInterest( me->position().x(), me->position().y() );
 
                 m_trackball->startNavigation( cvf::ManipulatorTrackball::ROTATE, translatedMousePosX, translatedMousePosY );
                 m_roationSensitivityCalculator.init( me );
@@ -103,8 +103,8 @@ bool caf::CeetronPlusNavigation::handleInputEvent( QInputEvent* inputEvent )
                 if ( me->modifiers() == Qt::NoModifier )
                 {
                     QMouseEvent* we = static_cast<QMouseEvent*>( inputEvent );
-                    m_lastPosX      = we->x();
-                    m_lastPosY      = we->y();
+                    m_lastPosX      = we->position().x();
+                    m_lastPosY      = we->position().y();
 
                     m_zoomRay = createZoomRay( translatedMousePosX, translatedMousePosY );
 
@@ -150,16 +150,16 @@ bool caf::CeetronPlusNavigation::handleInputEvent( QInputEvent* inputEvent )
                 QMouseEvent* me = static_cast<QMouseEvent*>( inputEvent );
 
                 int translatedMousePosX, translatedMousePosY;
-                cvfEventPos( me->x(), me->y(), &translatedMousePosX, &translatedMousePosY );
+                cvfEventPos( me->position().x(), me->position().y(), &translatedMousePosX, &translatedMousePosY );
 
                 if ( m_isNavigating )
                 {
                     if ( m_isZooming )
                     {
-                        int delta = 3 * ( m_lastPosY - me->y() );
+                        int delta = 3 * ( m_lastPosY - me->position().y() );
                         this->zoomAlongRay( m_zoomRay.p(), delta );
-                        m_lastPosX = me->x();
-                        m_lastPosY = me->y();
+                        m_lastPosX = me->position().x();
+                        m_lastPosY = me->position().y();
                     }
                     else
                     {
