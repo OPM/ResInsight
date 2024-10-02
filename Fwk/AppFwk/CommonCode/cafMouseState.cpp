@@ -109,7 +109,8 @@ void QtMouseState::updateFromMouseEvent( QMouseEvent* event )
              m_cleanButtonPressPosY != cvf::UNDEFINED_INT )
         {
             // We have a candidate, check if movement is within tolerance
-            if ( cvf::Math::abs( double( ( m_cleanButtonPressPosX - event->position().x() ) ) ) <= m_cleanButtonClickTolerance &&
+            if ( cvf::Math::abs( double( ( m_cleanButtonPressPosX - event->position().x() ) ) ) <=
+                     m_cleanButtonClickTolerance &&
                  cvf::Math::abs( double( ( m_cleanButtonPressPosY - event->position().y() ) ) ) <=
                      m_cleanButtonClickTolerance )
             {
