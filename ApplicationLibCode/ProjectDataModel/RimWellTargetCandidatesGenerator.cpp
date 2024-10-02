@@ -160,12 +160,9 @@ QList<caf::PdmOptionItemInfo> RimWellTargetCandidatesGenerator::calculateValueOp
     }
     else if ( fieldNeedingOptions == &m_timeStep )
     {
-        auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
-        if ( ensemble && !ensemble->cases().empty() )
+        if ( m_targetCase() )
         {
-            RimEclipseCase* eclipseCase = ensemble->cases().front();
-
-            RimTools::timeStepsForCase( eclipseCase, &options );
+            RimTools::timeStepsForCase( m_targetCase(), &options );
         }
     }
 
@@ -329,6 +326,9 @@ void RimWellTargetCandidatesGenerator::defineUiOrdering( QString uiConfigName, c
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RigWellTargetCandidatesGenerator::ClusteringLimits RimWellTargetCandidatesGenerator::getClusteringLimits() const
 {
     RigWellTargetCandidatesGenerator::ClusteringLimits limits;
