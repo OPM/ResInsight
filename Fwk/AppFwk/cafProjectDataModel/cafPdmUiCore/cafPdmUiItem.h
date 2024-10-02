@@ -180,7 +180,7 @@ bool PdmOptionItemInfo::findValues( const QList<PdmOptionItemInfo>& optionList,
     // Find this fieldvalue in the optionlist if present
 
     // First handle lists/arrays of values
-    if ( fieldValue.type() == QVariant::List )
+    if ( fieldValue.metaType().id() == QMetaType::QVariantList )
     {
         QList<QVariant> valuesSelectedInField = fieldValue.toList();
 

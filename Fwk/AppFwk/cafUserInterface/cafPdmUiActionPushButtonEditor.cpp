@@ -81,7 +81,7 @@ void PdmUiActionPushButtonEditor::configureAndUpdateUi( const QString& uiConfigN
 
     QVariant variantFieldValue = uiField()->uiValue();
 
-    if ( variantFieldValue.type() == QVariant::Bool )
+    if ( variantFieldValue.metaType().id() == QMetaType::Bool )
     {
         m_pushButton->setChecked( uiField()->uiValue().toBool() );
     }

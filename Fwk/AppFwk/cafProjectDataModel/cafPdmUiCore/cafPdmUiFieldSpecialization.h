@@ -45,7 +45,7 @@ public:
     /// This is needed for the lookup regarding OptionValues
     static bool isDataElementEqual( const QVariant& variantValue, const QVariant& variantValue2 )
     {
-        if ( variantValue.type() == QVariant::UserType )
+        if ( variantValue.typeId() > QMetaType::User )
         {
             return ( variantValue.value<T>() == variantValue2.value<T>() );
         }

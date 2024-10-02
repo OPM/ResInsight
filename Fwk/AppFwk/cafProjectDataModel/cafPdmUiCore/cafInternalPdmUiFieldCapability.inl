@@ -24,7 +24,7 @@ void PdmFieldUiCap<FieldType>::setValueFromUiEditor( const QVariant& uiValue, bo
     if ( !m_optionEntryCache.empty() )
     {
         // This has an option based GUI, the uiValue is only indexes into the m_optionEntryCache
-        if ( uiValue.type() == QVariant::UInt )
+        if ( uiValue.metaType().id() == QMetaType::UInt )
         {
             uint optionIndex = uiValue.toUInt();
             CAF_ASSERT( optionIndex < static_cast<unsigned int>( m_optionEntryCache.size() ) );
@@ -35,7 +35,7 @@ void PdmFieldUiCap<FieldType>::setValueFromUiEditor( const QVariant& uiValue, bo
             PdmUiFieldSpecialization<typename FieldType::FieldDataType>::setFromVariant( optionVariantValue, fieldValue );
             m_field->setValue( fieldValue );
         }
-        else if ( uiValue.type() == QVariant::List )
+        else if ( uiValue.metaType().id() == QMetaType::QVariantList )
         {
             QList<QVariant> selectedIndexes = uiValue.toList();
             QList<QVariant> valuesToSetInField;
@@ -48,7 +48,7 @@ void PdmFieldUiCap<FieldType>::setValueFromUiEditor( const QVariant& uiValue, bo
             }
             else
             {
-                if ( selectedIndexes.front().type() == QVariant::UInt )
+                if ( selectedIndexes.front().metaType().id() == QMetaType::UInt )
                 {
                     for ( int i = 0; i < selectedIndexes.size(); ++i )
                     {
@@ -132,7 +132,7 @@ QVariant PdmFieldUiCap<FieldType>::uiValue() const
         PdmOptionItemInfo::findValues<typename FieldType::FieldDataType>( m_optionEntryCache,
                                                                           uiBasedQVariant,
                                                                           indexesToFoundOptions );
-        if ( uiBasedQVariant.type() == QVariant::List )
+        if ( uiBasedQVariant.metaType().id() == QMetaType::QVariantList )
         {
             if ( isAutoAddingOptionFromValue() &&
                  indexesToFoundOptions.size() != static_cast<size_t>( uiBasedQVariant.toList().size() ) )
@@ -217,7 +217,7 @@ QList<PdmOptionItemInfo> PdmFieldUiCap<FieldType>::valueOptions() const
 
         if ( !foundAllFieldValues )
         {
-            if ( uiBasedQVariant.type() != QVariant::List ) // Single value field
+            if ( uiBasedQVariant.metaType().id() != QMetaType::QVariantList ) // Single value field
             {
                 if ( !uiBasedQVariant.toString().isEmpty() )
                 {
