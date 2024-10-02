@@ -277,7 +277,7 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
 
                 QString snake_method_name = camelToSnakeCase( methodName );
 
-                if ( classMethodsGenerated[classKeyword][snake_method_name].count() ) continue;
+                if ( classMethodsGenerated[classKeyword][snake_method_name].length() ) continue;
 
                 QStringList inputArgumentStrings;
                 QStringList outputArgumentStrings;
