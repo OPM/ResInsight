@@ -261,7 +261,7 @@ void RicNewRftSegmentWellLogPlotFeature::appendConnectionFactorTrack( RimWellLog
 
     // Connection factor data can be found in the tubing, device and annulus branches.
     // Search for data ordered by annulus, device and tubing.
-    RiaDefines::RftBranchType branchType = RiaDefines::RftBranchType::RFT_ANNULUS;
+    RiaDefines::RftBranchType branchType = RiaDefines::RftBranchType::RFT_UNKNOWN;
     bool                      foundData  = false;
     if ( RicWellLogTools::hasData( resultName, wellName, branchType, summaryCase ) )
     {

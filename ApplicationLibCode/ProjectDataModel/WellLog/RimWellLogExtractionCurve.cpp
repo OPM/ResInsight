@@ -1044,7 +1044,6 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
         {
             curveDataGroup->add( &m_wellPath );
             curveDataGroup->add( &m_refWellPath );
-            RimWellLogCurve::defineUiOrdering( uiConfigName, uiOrdering );
         }
         else
         {
@@ -1062,7 +1061,6 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
         curveDataGroup->add( &m_geomPartId );
         curveDataGroup->add( &m_wellPath );
         curveDataGroup->add( &m_refWellPath );
-        RimWellLogCurve::defineUiOrdering( uiConfigName, uiOrdering );
 
         m_geomResultDefinition->uiOrdering( uiConfigName, *curveDataGroup );
     }

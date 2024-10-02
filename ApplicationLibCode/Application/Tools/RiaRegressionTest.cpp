@@ -82,6 +82,8 @@ RiaRegressionTest::RiaRegressionTest()
     CAF_PDM_InitField( &appendTestsAfterTestFilter, "appendTestsAfterTestFilter", false, "Append All Tests After Test Filter" );
 
     CAF_PDM_InitField( &invalidateExternalFilePaths, "invalidateExternalFilePaths", false, "Invalidate External File Paths" );
+    CAF_PDM_InitField( &activateObjectsInPropertyEditor, "activateObjectsInPropertyEditor", false, "Activate Objects In Property Editor" );
+
     CAF_PDM_InitFieldNoDefault( &overridePlotEngine, "forcePlotEngine", "Force Plot Engine" );
 
     CAF_PDM_InitField( &exportSnapshots3dViews, "exportSnapshots3dViews", true, "Export Snapshots 3D Views" );
