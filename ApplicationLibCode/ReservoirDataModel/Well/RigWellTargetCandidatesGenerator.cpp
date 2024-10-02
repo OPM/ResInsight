@@ -630,11 +630,14 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
     std::vector<double> pressure( numGrids, std::numeric_limits<double>::infinity() );
     for ( auto eclipseCase : ensemble.cases() )
     {
-        const RigCaseCellResultsData* resultsData    = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-        const RigMainGrid*            mainGrid       = eclipseCase->mainGrid();
-        const RigActiveCellInfo*      activeCellInfo = resultsData->activeCellInfo();
+        RigCaseCellResultsData*  resultsData    = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        const RigMainGrid*       mainGrid       = eclipseCase->mainGrid();
+        const RigActiveCellInfo* activeCellInfo = resultsData->activeCellInfo();
 
-        std::vector<double> clusterNum;
+        RigEclipseResultAddress pressureAddress( RiaDefines::ResultCatType::GENERATED, "CLUSTER_NUM" );
+        resultsData->ensureKnownResultLoaded( pressureAddress );
+        const std::vector<double>& clusterNum = resultsData->cellScalarResults( pressureAddress, timeStepIdx );
+
         for ( size_t targetCellIdx = 0; targetCellIdx < targetNumReservoirCells; targetCellIdx++ )
         {
             const RigCell& nativeCell = targetCase.mainGrid()->globalCellArray()[targetCellIdx];
@@ -651,4 +654,6 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
             }
         }
     }
+
+    createResultVector( targetCase, "OCCUPANCY", occupancy );
 }
