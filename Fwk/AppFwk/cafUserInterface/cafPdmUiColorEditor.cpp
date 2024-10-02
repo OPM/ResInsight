@@ -153,7 +153,7 @@ QWidget* PdmUiColorEditor::createEditorWidget( QWidget* parent )
     m_colorPreviewLabel->setText( QLatin1String( "..." ) );
     m_colorPreviewLabel->setAlignment( Qt::AlignCenter );
 
-    QFontMetrics fontMetrics = QApplication::fontMetrics();
+    QFontMetrics fontMetrics( QApplication::font() );
 
     buttonLayout->addWidget( m_colorPreviewLabel );
     m_colorSelectionButton->setMinimumWidth( fontMetrics.boundingRect( m_colorPreviewLabel->text() ).width() + 15 );

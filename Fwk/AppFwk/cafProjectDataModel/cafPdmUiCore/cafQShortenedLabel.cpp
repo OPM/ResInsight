@@ -79,7 +79,7 @@ QSize QShortenedLabel::minimumSizeHint() const
 {
     const int minimumNumberOfCharacters = 10;
 
-    QFontMetrics fontMetrics   = QApplication::fontMetrics();
+    QFontMetrics fontMetrics( QApplication::font() );
     QString      fullLabelText = fullText();
     QString      shortenedText = fullLabelText.left( minimumNumberOfCharacters );
     int          minimumWidth  = fontMetrics.horizontalAdvance( shortenedText );
@@ -118,8 +118,8 @@ QSize QShortenedLabel::minimumSizeHint() const
 //--------------------------------------------------------------------------------------------------
 QSize QShortenedLabel::sizeHint() const
 {
-    QFontMetrics fontMetrics = QApplication::fontMetrics();
-    QString      labelText   = fullText();
+    QFontMetrics fontMetrics( QApplication::font() );
+    QString      labelText = fullText();
 
     QStringList labelLines   = labelText.split( "\n" );
     int         maxLineWidth = 0;
@@ -147,8 +147,8 @@ void QShortenedLabel::resizeEvent( QResizeEvent* event )
 //--------------------------------------------------------------------------------------------------
 void caf::QShortenedLabel::resizeText( QSize paintSize )
 {
-    QString      labelText   = fullText();
-    QFontMetrics fontMetrics = QApplication::fontMetrics();
+    QString      labelText = fullText();
+    QFontMetrics fontMetrics( QApplication::font() );
 
     QStringList labelLines   = labelText.split( "\n" );
     int         maxLineWidth = 0;
