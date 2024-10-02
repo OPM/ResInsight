@@ -70,6 +70,8 @@ private:
     static QString diff2htmlHeaderText( const QString& testRootPath );
     QFileInfoList  subDirectoriesForTestExecution( const QDir& directory );
 
+    static void selectObjectsInProject();
+
 private:
     QString           m_rootPath;
     QStringList       m_testFilter;

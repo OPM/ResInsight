@@ -32,8 +32,14 @@
 
 #include "Rim3dView.h"
 #include "RimCase.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseResultAddress.h"
+#include "RimFaultInView.h"
 #include "RimMainPlotCollection.h"
+#include "RimOilField.h"
 #include "RimProject.h"
+#include "RimSimWellInView.h"
+#include "RimSummaryCaseMainCollection.h"
 
 #include "RiuDockWidgetTools.h"
 #include "RiuMainWindow.h"
@@ -47,6 +53,7 @@
 #include "DockManager.h"
 
 #include "cafMemoryInspector.h"
+#include "cafPdmUiTreeView.h"
 #include "cafUtils.h"
 
 #include <QDateTime>
@@ -254,6 +261,11 @@ void RiaRegressionTestRunner::runRegressionTest()
                 }
 
                 uint64_t usedMemoryBeforeClose = caf::MemoryInspector::getApplicationPhysicalMemoryUsageMiB();
+
+                if ( regressionTestConfig.activateObjectsInPropertyEditor )
+                {
+                    RiaRegressionTestRunner::selectObjectsInProject();
+                }
 
                 app->closeProject();
 
@@ -630,6 +642,78 @@ QFileInfoList RiaRegressionTestRunner::subDirectoriesForTestExecution( const QDi
     }
 
     return foldersMatchingTestFilter;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Find relevant object to show in property editor. Loop through all objects in project and select them, this will activate the Property
+/// Editor. Avoid RimSummaryCaseMainCollection, as this container contains all the summary addresses, and can potentially contain extremely
+/// many objects
+//--------------------------------------------------------------------------------------------------
+void RiaRegressionTestRunner::selectObjectsInProject()
+{
+    auto project = RimProject::current();
+    if ( !project ) return;
+
+    std::vector<caf::PdmObject*> baseObjects;
+
+    auto oilField = project->activeOilField();
+
+    std::vector<caf::PdmFieldHandle*> fields = oilField->fields();
+    for ( auto f : fields )
+    {
+        std::vector<caf::PdmObjectHandle*> childObjects = f->children();
+        for ( auto childObject : childObjects )
+        {
+            // Skip RimSummaryCaseMainCollection, as this container contains all the summary addresses, and can potentially contain extemely
+            // many objects
+            if ( dynamic_cast<RimSummaryCaseMainCollection*>( childObject ) != nullptr )
+            {
+                continue;
+            }
+
+            caf::PdmObject* pdmObjectChild = dynamic_cast<caf::PdmObject*>( childObject );
+            if ( pdmObjectChild )
+            {
+                baseObjects.push_back( pdmObjectChild );
+            }
+        }
+    }
+
+    baseObjects.push_back( project->mainPlotCollection() );
+
+    std::vector<caf::PdmObject*> allObjects;
+    for ( auto baseObj : baseObjects )
+    {
+        auto objectsForSelection = baseObj->descendantsIncludingThisOfType<caf::PdmObject>();
+
+        allObjects.insert( allObjects.end(), objectsForSelection.begin(), objectsForSelection.end() );
+    }
+
+    QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+
+    auto mainWindow     = RiuMainWindow::instance();
+    auto plotMainWindow = RiuPlotMainWindow::instance();
+
+    for ( auto obj : allObjects )
+    {
+        if ( dynamic_cast<RimFaultInView*>( obj ) ) continue;
+        if ( dynamic_cast<RimEclipseResultAddress*>( obj ) ) continue;
+        if ( dynamic_cast<RimSimWellInView*>( obj ) ) continue;
+
+        if ( auto treeView = mainWindow->getTreeViewWithItem( obj ) )
+        {
+            treeView->selectItems( { obj } );
+
+            QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        }
+
+        if ( auto treeView = plotMainWindow->getTreeViewWithItem( obj ) )
+        {
+            treeView->selectItems( { obj } );
+
+            QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
