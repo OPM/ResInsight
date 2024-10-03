@@ -138,7 +138,7 @@ const RigCell& RigMainGrid::cellByGridAndGridLocalCellIdx( size_t gridIdx, size_
 //--------------------------------------------------------------------------------------------------
 size_t RigMainGrid::reservoirCellIndexByGridAndGridLocalCellIndex( size_t gridIdx, size_t gridLocalCellIdx ) const
 {
-    return gridByIndex( gridIdx )->reservoirCellIndex( gridLocalCellIdx );
+    return gridByIndex( gridIdx )->localCellIndexToNative( gridLocalCellIdx );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -588,7 +588,7 @@ void RigMainGrid::addUnNamedFaultFaces( int                               global
                 continue;
             }
 
-            neighborReservoirCellIdx = hostGrid->reservoirCellIndex( nativeNeighborGridCellIdx );
+            neighborReservoirCellIdx = hostGrid->localCellIndexToNative( nativeNeighborGridCellIdx );
             if ( cell( neighborReservoirCellIdx ).isInvalid() )
             {
                 continue;
@@ -943,7 +943,7 @@ void RigMainGrid::buildCellSearchTreeOptimized( size_t cellsPerBoundingBox )
                                     const auto& localCell = subGrid->cell( localIdx );
                                     if ( localCell.mainGridCellIndex() == cellIdx )
                                     {
-                                        aggregatedCellIndices.push_back( static_cast<int>( subGrid->reservoirCellIndex( localIdx ) ) );
+                                        aggregatedCellIndices.push_back( static_cast<int>( subGrid->localCellIndexToNative( localIdx ) ) );
                                     }
                                 }
                             }

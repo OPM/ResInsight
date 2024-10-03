@@ -451,6 +451,17 @@ size_t RigGridBase::localCellIndexToNative( size_t gridLocalCellIndex ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t RigGridBase::localNativeCellIndexToNative( size_t nativeLocalCellIndex ) const
+{
+    if ( !m_mainGrid ) return nativeLocalCellIndex;
+
+    const auto nativeStartIdx = m_mainGrid->globalCellIndexToNative( m_indexToGlobalStartOfCells );
+    return nativeStartIdx + nativeLocalCellIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 size_t RigGridBase::addCoarseningBox( size_t i1, size_t i2, size_t j1, size_t j2, size_t k1, size_t k2 )
 {
     std::array<size_t, 6> box;

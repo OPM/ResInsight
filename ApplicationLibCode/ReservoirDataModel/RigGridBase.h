@@ -74,6 +74,7 @@ public:
     void characteristicCellSizes( double* iSize, double* jSize, double* kSize ) const override;
 
     size_t localCellIndexToNative( size_t gridLocalCellIndex ) const;
+    size_t localNativeCellIndexToNative( size_t nativeLocalCellIndex ) const;
     void   setIndexToGlobalStartOfCells( size_t indexToGlobalStartOfCells ) { m_indexToGlobalStartOfCells = indexToGlobalStartOfCells; }
 
     void   setGridIndex( size_t index ) { m_gridIndex = index; }

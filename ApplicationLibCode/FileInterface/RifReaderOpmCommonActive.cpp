@@ -162,6 +162,12 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
 
         for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
         {
+            RiaLogging::info(
+                QString( "Loading %0 active of %1 total cells in LGR grid %2." )
+                    .arg( QString::fromStdString( RiaStdStringTools::formatThousandGrouping( lgrGrids[lgrIdx].totalActiveCells() ) ) )
+                    .arg( QString::fromStdString( RiaStdStringTools::formatThousandGrouping( lgrGrids[lgrIdx].totalNumberOfCells() ) ) )
+                    .arg( lgrIdx + 1 ) );
+
             RigGridBase* parentGrid = hasParentInfo ? activeGrid->gridByName( lgr_parent_names[lgrIdx] ) : activeGrid;
 
             RigLocalGrid* localGrid = static_cast<RigLocalGrid*>( activeGrid->gridById( lgrIdx + 1 ) );
@@ -325,7 +331,7 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
     const auto newCellCount = cellStartIndex + cellCount + 1;
     activeGrid->reservoirCells().resize( newCellCount, defaultCell );
     activeGrid->reservoirCells()[newCellCount - 1].setInvalid( true );
-    activeGrid->nodes().resize( ( newCellCount ) * 8, cvf::Vec3d( 0, 0, 0 ) );
+    activeGrid->nodes().resize( (newCellCount)*8, cvf::Vec3d( 0, 0, 0 ) );
 
     auto& riNodes = activeGrid->nodes();
 
