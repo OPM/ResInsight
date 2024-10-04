@@ -8,12 +8,10 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        qtver: [5.12.12, 6.5.3]
+        qtver: [6.5.3]
         include:
           - qtver: 6.5.3
             build_flags: -DCEE_USE_QT6=ON -DCEE_USE_QT5=OFF
-          - qtver: 5.12.12
-            build_flags: -DCEE_USE_QT6=OFF -DCEE_USE_QT5=ON
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -57,20 +55,6 @@ jobs:
           cd cmakebuild
           cmake --install . --prefix ${{github.workspace}}/cmakebuild/install
 
-      - name: Run Unit Tests Qt5
-        if: matrix.qtver == '5.12.12'
-        shell: bash
-        run: |
-          cmakebuild/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests/cafPdmCore_UnitTests
-          cmakebuild/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests/cafPdmXml_UnitTests
-          cmakebuild/cafProjectDataModel/cafProjectDataModel_UnitTests/cafProjectDataModel_UnitTests
-          cmakebuild/cafPdmScripting/cafPdmScripting_UnitTests/cafPdmScripting_UnitTests
-
-      - name: Run Unit Tests Windows Qt5 (does not work on Linux)
-        if: (contains( matrix.os, 'windows') && (matrix.qtver == '5.12.12'))
-        shell: bash
-        run: cmakebuild/cafUserInterface/cafUserInterface_UnitTests/cafUserInterface_UnitTests
-
       - name: Run Unit Tests Qt6
         if: matrix.qtver == '6.5.3'
         shell: bash
@@ -79,9 +63,8 @@ jobs:
           cmakebuild/install/bin/cafPdmXml_UnitTests
           cmakebuild/install/bin/cafProjectDataModel_UnitTests
           cmakebuild/install/bin/cafPdmScripting_UnitTests
-  
+
       - name: Run Unit Tests Windows Qt6 (does not work on Linux)
         if: (contains( matrix.os, 'windows') && (matrix.qtver == '6.5.3'))
         shell: bash
         run: cmakebuild/install/bin/cafUserInterface_UnitTests
-  
