@@ -501,13 +501,13 @@ endif(RESINSIGHT_PRIVATE_INSTALL)
 # ##############################################################################
 
 set(CUSTOM_OPENSSL_FILES libcrypto.so libcrypto.so.3 libssl.so libssl.so.3)
-foreach(customFile ${CUSTOM_OPENSSL_FILES})
+foreach(file ${CUSTOM_OPENSSL_FILES})
   if(EXISTS
-     "${CMAKE_BINARY_DIR}/vcpkg_installed_custom/x64-linux-dynamic/lib/${customFile}"
+     "${CMAKE_BINARY_DIR}/vcpkg_installed_custom/x64-linux-dynamic/lib/${file}"
   )
     install(
       FILES
-        ${CMAKE_BINARY_DIR}/vcpkg_installed_custom/x64-linux-dynamic/lib/${customFile}
+        ${CMAKE_BINARY_DIR}/vcpkg_installed_custom/x64-linux-dynamic/lib/${file}
       DESTINATION lib64
     )
   endif()
