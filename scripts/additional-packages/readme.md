@@ -8,7 +8,7 @@ From Qt 6.5, OpenSSL 3 is used for authentication workflows. On RHEL8 the only a
 1. Build and install ResInsight
 2. Build a dynamic version of OpenSSL 3 using vcpkg. In the /build folder, execute the following:
 
-    ../ThirdParty/vcpkg/vcpkg install --triplet x64-linux-dynamic --x-manifest-root=../scripts/additional-packages --x-install-root=./vcpkg_installed
+    ../ThirdParty/vcpkg/vcpkg install --triplet x64-linux-dynamic --x-manifest-root=../scripts/additional-packages --x-install-root=./vcpkg_installed_custom
 
    Make sure that the libraries `libcrypto.so/libssl.so` are installed in `/build/vcpkg_installed/lib64`
 3. Copy `libcrypto.so/libssl.so` to the `/lib64` folder in the install package for ResInsight
