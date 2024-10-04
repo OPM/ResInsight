@@ -1066,7 +1066,7 @@ else(RESINSIGHT_USE_EXTERNAL_OCTAVE_PLUGINS)
   if(OCTAVE_MKOCTFILE)
     message(STATUS "Adding OctavePlugin library")
 
-    add_subdirectory(Octave/OctavePlugin)
+    # add_subdirectory(Octave/OctavePlugin)
   else(OCTAVE_MKOCTFILE)
     message(
       STATUS "Could not find OCTAVE_MKOCTFILE, skipping OctavePlugin library"
