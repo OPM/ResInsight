@@ -190,8 +190,8 @@ void RimCloudDataSourceCollection::defineUiOrdering( QString uiConfigName, caf::
     uiOrdering.add( &m_sumoCaseId, layout );
     uiOrdering.add( &m_sumoEnsembleNames, layout );
 
-    uiOrdering.add( &m_addDataSources, { .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
-    uiOrdering.add( &m_addEnsembles, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
+    uiOrdering.add( &m_addDataSources, layout );
+    uiOrdering.add( &m_addEnsembles, layout );
 }
 
 //--------------------------------------------------------------------------------------------------
