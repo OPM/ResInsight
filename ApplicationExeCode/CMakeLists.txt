@@ -196,7 +196,7 @@ if(MSVC)
   # /wd4100 /wd4127")
 
   set(BUILD_FLAGS_FOR_MSVC "/wd4190 /wd4100 /wd4127 /wd4245 /wd4005")
-    
+
   message(STATUS "BUILD_FLAGS_FOR_MSVC ${BUILD_FLAGS_FOR_MSVC}")
   set_target_properties(
     ResInsight PROPERTIES COMPILE_FLAGS ${BUILD_FLAGS_FOR_MSVC}
