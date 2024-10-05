@@ -173,7 +173,6 @@ private:
 
     QAction* m_snapshotAllViewsToFile;
 
-    QAction* m_createCommandObject;
     QAction* m_showRegressionTestDialog;
     QAction* m_executePaintEventPerformanceTest;
 
@@ -234,8 +233,6 @@ private slots:
 
     // Debug slots
     void slotSnapshotAllViewsToFile();
-
-    void slotCreateCommandObject();
 
     void slotShowRegressionTestDialog();
     void slotExecutePaintEventPerformanceTest();

@@ -48,7 +48,6 @@
 
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCellFilterCollection.h"
-#include "RimCommandObject.h"
 #include "RimCommandRouter.h"
 #include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCaseCollection.h"
@@ -789,18 +788,6 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
     // Default behavior for scripts is to use current active view for data read/write
     onProjectOpened();
 
-    // Loop over command objects and execute them
-    for ( size_t i = 0; i < m_project->commandObjects.size(); i++ )
-    {
-        m_commandQueue.push_back( m_project->commandObjects[i] );
-    }
-
-    // Lock the command queue
-    m_commandQueueLock.lock();
-
-    // Execute command objects, and release the mutex when the queue is empty
-    executeCommandObjects();
-
     // Recalculate the results from grid property calculations.
     // Has to be done late since the results are filtered by view cell visibility
     for ( auto gridCalculation : m_project->gridCalculationCollection()->sortedGridCalculations() )
@@ -883,7 +870,6 @@ void RiaApplication::closeProject()
     onProjectBeingClosed();
 
     m_project->close();
-    m_commandQueue.clear();
 
     RiaWellNameComparer::clearCache();
 
@@ -1381,81 +1367,6 @@ void RiaApplication::executeCommandFile( const QString& commandFile )
 
     QTextStream in( &file );
     RicfCommandFileExecutor::instance()->executeCommands( in );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::addCommandObject( RimCommandObject* commandObject )
-{
-    m_commandQueue.push_back( commandObject );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::executeCommandObjects()
-{
-    {
-        auto currentCommandQueue = m_commandQueue;
-        for ( auto command : currentCommandQueue )
-        {
-            if ( !command->isAsyncronous() )
-            {
-                command->redo();
-                m_commandQueue.remove( command );
-            }
-        }
-    }
-
-    if ( !m_commandQueue.empty() )
-    {
-        auto it = m_commandQueue.begin();
-        if ( it->notNull() )
-        {
-            RimCommandObject* first = *it;
-            first->redo();
-        }
-        m_commandQueue.pop_front();
-    }
-    else
-    {
-        // Unlock the command queue lock when the command queue is empty
-        // Required to lock the mutex before unlocking to avoid undefined behavior
-        m_commandQueueLock.tryLock();
-        m_commandQueueLock.unlock();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::waitUntilCommandObjectsHasBeenProcessed()
-{
-    auto         start            = std::chrono::system_clock::now();
-    const double timeoutThreshold = 5.0;
-
-    // Wait until all command objects have completed
-    bool mutexLockedSuccessfully = m_commandQueueLock.tryLock();
-
-    while ( !mutexLockedSuccessfully )
-    {
-        invokeProcessEvents();
-
-        mutexLockedSuccessfully = m_commandQueueLock.tryLock();
-
-        std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - start;
-        if ( timeoutThreshold < elapsed_seconds.count() )
-        {
-            // This can happen if the octave plugins fails to execute during regression testing.
-
-            RiaLogging::warning(
-                QString( "Timeout waiting for command objects to complete, timeout set to %1 seconds." ).arg( timeoutThreshold ) );
-            break;
-        }
-    }
-
-    m_commandQueueLock.unlock();
 }
 
 //--------------------------------------------------------------------------------------------------

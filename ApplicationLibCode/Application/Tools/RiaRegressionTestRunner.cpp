@@ -240,9 +240,6 @@ void RiaRegressionTestRunner::runRegressionTest()
 
                 app->loadProject( testCaseFolder.filePath( projectFileName ), RiaApplication::ProjectLoadAction::PLA_NONE, projectModifier.p() );
 
-                // Wait until all command objects have completed
-                app->waitUntilCommandObjectsHasBeenProcessed();
-
                 QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath( generatedFolderName );
                 if ( regressionTestConfig.exportSnapshots3dViews )
                 {

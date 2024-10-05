@@ -45,7 +45,6 @@
 #include "RimCase.h"
 #include "RimCaseCollection.h"
 #include "RimColorLegendCollection.h"
-#include "RimCommandObject.h"
 #include "RimCompletionTemplateCollection.h"
 #include "RimContextCommandBuilder.h"
 #include "RimCorrelationPlotCollection.h"
@@ -172,8 +171,6 @@ RimProject::RimProject()
     CAF_PDM_InitFieldNoDefault( &gridCalculationCollection, "GridCalculationCollection", "Grid Calculation Collection" );
     gridCalculationCollection = new RimGridCalculationCollection;
 
-    CAF_PDM_InitFieldNoDefault( &commandObjects, "CommandObjects", "Command Objects" );
-
     CAF_PDM_InitFieldNoDefault( &multiSnapshotDefinitions, "MultiSnapshotDefinitions", "Multi Snapshot Definitions" );
 
     CAF_PDM_InitFieldNoDefault( &mainWindowTreeViewStates, "TreeViewStates", "" );
@@ -266,8 +263,6 @@ void RimProject::close()
 
     casesObsolete.deleteChildren();
     caseGroupsObsolete.deleteChildren();
-
-    commandObjects.deleteChildren();
 
     multiSnapshotDefinitions.deleteChildren();
 

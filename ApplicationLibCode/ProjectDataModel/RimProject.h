@@ -43,8 +43,6 @@ class RimPolylinesAnnotation;
 class RimSummaryCalculationCollection;
 class RimSummaryCalculation;
 class RimCase;
-class RimCommandObject;
-class RimCommandObject;
 class RimDialogData;
 class RimEclipseCase;
 class RimGeoMechCase;
@@ -101,7 +99,6 @@ public:
     caf::PdmChildField<RimViewLinkerCollection*>         viewLinkerCollection;
     caf::PdmChildField<RimSummaryCalculationCollection*> calculationCollection;
     caf::PdmChildField<RimGridCalculationCollection*>    gridCalculationCollection;
-    caf::PdmChildArrayField<RimCommandObject*>           commandObjects;
 
     RimMainPlotCollection* mainPlotCollection() const;
 

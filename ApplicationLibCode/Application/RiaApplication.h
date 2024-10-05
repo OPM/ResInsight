@@ -49,7 +49,6 @@ class RiaSocketServer;
 
 class RigEclipseCaseData;
 
-class RimCommandObject;
 class RimCommandRouter;
 class RimEclipseCase;
 class RimEclipseView;
@@ -180,9 +179,6 @@ public:
     QVariant cacheDataObject( const QString& key ) const;
 
     void executeCommandFile( const QString& commandFile );
-    void addCommandObject( RimCommandObject* commandObject );
-    void executeCommandObjects();
-    void waitUntilCommandObjectsHasBeenProcessed();
 
     const QString startDir() const;
     void          setStartDir( const QString& startDir );
@@ -252,9 +248,6 @@ protected:
     QString                    m_startupDefaultDirectory;
     QString                    m_commandLineHelpText;
     QMap<QString, QVariant>    m_sessionCache; // Session cache used to store username/passwords per session
-
-    std::list<caf::PdmPointer<RimCommandObject>> m_commandQueue;
-    QMutex                                       m_commandQueueLock;
 
     bool m_runningWorkerProcess;
 
