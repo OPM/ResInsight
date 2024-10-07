@@ -7,22 +7,13 @@ if(CAF_ENABLE_UNITY_BUILD)
 endif()
 
 # Qt
-if(CEE_USE_QT6)
-  find_package(
-    Qt6
-    COMPONENTS
-    REQUIRED Core Gui Widgets
-  )
-  set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets)
-  qt_standard_project_setup()
-else()
-  find_package(
-    Qt5
-    COMPONENTS
-    REQUIRED Core Gui Widgets
-  )
-  set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-endif()
+find_package(
+  Qt6
+  COMPONENTS
+  REQUIRED Core Gui Widgets
+)
+set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets)
+qt_standard_project_setup()
 
 set(PROJECT_FILES
     cafDataLoader.h cafDataLoader.cpp cafDataLoadTask.h cafDataLoadTask.cpp

@@ -1,20 +1,9 @@
-if(CEE_USE_QT6)
-  find_package(
-    Qt6
-    COMPONENTS
-    REQUIRED Core
-  )
-  set(QT_LIBRARIES Qt6::Core)
-else()
-  find_package(
-    Qt5
-    COMPONENTS
-    REQUIRED Core
-  )
-  set(QT_LIBRARIES Qt5::Core)
-  qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
-  qt5_add_resources(QRC_FILES_CPP ${QRC_FILES})
-endif()
+find_package(
+  Qt6
+  COMPONENTS
+  REQUIRED Core
+)
+set(QT_LIBRARIES Qt6::Core)
 
 project(cafPdmCvf_UnitTests)
 

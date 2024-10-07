@@ -11,23 +11,13 @@ set(MOC_HEADER_FILES cafFrameAnimationControl.h cafAnimationToolBar.h
                      cafPopupMenuButton.h
 )
 
-if(CEE_USE_QT6)
-  find_package(
-    Qt6
-    COMPONENTS
-    REQUIRED Core Gui Widgets
-  )
-  set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets)
-  qt_standard_project_setup()
-else()
-  find_package(
-    Qt5
-    COMPONENTS
-    REQUIRED Core Gui Widgets
-  )
-  set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-  qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
-endif()
+find_package(
+  Qt6
+  COMPONENTS
+  REQUIRED Core Gui Widgets
+)
+set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets)
+qt_standard_project_setup()
 
 # NOTE! Resources in this subfolder appends to the variable QRC_FILES in parent
 # scope CMakeList.txt in the application folder (parent scope) must use the

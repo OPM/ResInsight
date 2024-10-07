@@ -10,7 +10,6 @@ endif()
 find_package(OpenGL)
 
 # Qt
-if(CEE_USE_QT6)
   find_package(
     Qt6
     COMPONENTS
@@ -21,15 +20,6 @@ if(CEE_USE_QT6)
   set_property(
     SOURCE cafTransparentWBRenderConfiguration.cpp PROPERTY SKIP_AUTOMOC ON
   )
-else()
-  find_package(
-    Qt5
-    COMPONENTS
-    REQUIRED Core Gui Widgets OpenGL
-  )
-  set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
-  qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
-endif()
 
 add_library(
   ${PROJECT_NAME}
