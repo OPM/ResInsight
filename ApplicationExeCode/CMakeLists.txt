@@ -437,7 +437,7 @@ if(RESINSIGHT_PRIVATE_INSTALL)
     add_custom_command(
       TARGET ResInsight
       POST_BUILD
-      COMMAND ${WINDEPLOYQT_EXECUTABLE} $<TARGET_FILE:ResInsight> --release
+      COMMAND ${WINDEPLOYQT_EXECUTABLE} $<TARGET_FILE:ResInsight> "$<IF:$<CONFIG:Debug>,--debug,--release>"
               --no-translations
       COMMENT
         "Running windeployqt to deploy Qt dependencies to the build folder, required by install()"
