@@ -88,7 +88,7 @@ cvf::ref<RigFormationNames> RifColorLegendData::readLyrFormationNameFile( const 
             // extract last word which may contain formation color
             QString colorWord = RiaTextStringTools::splitSkipEmptyParts( numberString ).last();
 
-            if ( QColor::isValidColor( colorWord ) ) numberString.remove( colorWord ); // remove color if present as last word on line
+            if ( QColor::isValidColorName( colorWord ) ) numberString.remove( colorWord ); // remove color if present as last word on line
 
             // extract words containing formation number(s)
             QStringList numberWords = RiaTextStringTools::splitSkipEmptyParts( numberString, QRegExp( "-" ) );
@@ -110,7 +110,7 @@ cvf::ref<RigFormationNames> RifColorLegendData::readLyrFormationNameFile( const 
                 startK  = tmp < endK ? tmp : endK;
                 endK    = tmp > endK ? tmp : endK;
 
-                if ( QColor::isValidColor( colorWord ) ) // formation color present at end of line
+                if ( QColor::isValidColorName( colorWord ) ) // formation color present at end of line
                 {
                     cvf::Color3f formationColor;
 
@@ -133,7 +133,7 @@ cvf::ref<RigFormationNames> RifColorLegendData::readLyrFormationNameFile( const 
                     continue;
                 }
 
-                if ( QColor::isValidColor( colorWord ) ) // formation color present at end of line
+                if ( QColor::isValidColorName( colorWord ) ) // formation color present at end of line
                 {
                     cvf::Color3f formationColor;
 

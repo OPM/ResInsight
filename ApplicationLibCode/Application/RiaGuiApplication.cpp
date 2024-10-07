@@ -50,7 +50,6 @@
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimAnnotationTextAppearance.h"
-#include "RimCommandObject.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
 #include "RimFlowPlotCollection.h"
@@ -1573,9 +1572,6 @@ void RiaGuiApplication::slotWorkerProcessFinished( int exitCode, QProcess::ExitS
         m_workerProcess->close();
     }
     m_workerProcess = nullptr;
-
-    // Always make sure the command objects are executed before any return statement
-    executeCommandObjects();
 
     // Either the work process crashed or was aborted by the user
     if ( exitStatus == QProcess::CrashExit )

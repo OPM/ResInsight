@@ -30,7 +30,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimReservoirCellResultsStorage.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCaseEvaluator.h
     ${CMAKE_CURRENT_LIST_DIR}/RimMimeData.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimCommandObject.h
     ${CMAKE_CURRENT_LIST_DIR}/RimTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFormationNames.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFormationNamesCollection.h
@@ -168,7 +167,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimReservoirCellResultsStorage.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCaseEvaluator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimMimeData.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimCommandObject.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFormationNames.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFormationNamesCollection.cpp

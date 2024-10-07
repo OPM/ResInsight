@@ -162,7 +162,7 @@ std::unique_ptr<QIcon> IconProvider::icon( const QSize& size ) const
     bool validIcon = false;
     if ( !m_backgroundColorStrings.empty() )
     {
-        if ( m_backgroundColorStrings.size() == 1u && QColor::isValidColor( m_backgroundColorStrings.front() ) )
+        if ( m_backgroundColorStrings.size() == 1u && QColor::isValidColorName( m_backgroundColorStrings.front() ) )
         {
             pixmap.fill( QColor( m_backgroundColorStrings.front() ) );
             validIcon = true;
@@ -176,7 +176,7 @@ std::unique_ptr<QIcon> IconProvider::icon( const QSize& size ) const
             QLinearGradient gradient( QPointF( 0.0f, 0.0f ), QPoint( size.width(), 0.0f ) );
             for ( size_t i = 0; i < m_backgroundColorStrings.size(); ++i )
             {
-                if ( !QColor::isValidColor( m_backgroundColorStrings[i] ) )
+                if ( !QColor::isValidColorName( m_backgroundColorStrings[i] ) )
                 {
                     validIcon = false;
                     break;
@@ -303,7 +303,7 @@ bool IconProvider::backgroundColorsAreValid() const
         bool validBackgroundColors = true;
         for ( QString colorName : m_backgroundColorStrings )
         {
-            if ( !QColor::isValidColor( colorName ) )
+            if ( !QColor::isValidColorName( colorName ) )
             {
                 validBackgroundColors = false;
                 break;

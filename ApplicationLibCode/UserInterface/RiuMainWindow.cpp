@@ -32,7 +32,6 @@
 #include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
-#include "RimCommandObject.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapView.h"
@@ -358,7 +357,6 @@ void RiuMainWindow::createActions()
 
     m_snapshotAllViewsToFile = new QAction( QIcon( ":/SnapShotSaveViews.svg" ), "Snapshot All Views To File", this );
 
-    m_createCommandObject              = new QAction( "Create Command Object", this );
     m_showRegressionTestDialog         = new QAction( "Regression Test Dialog", this );
     m_executePaintEventPerformanceTest = new QAction( "&Paint Event Performance Test", this );
 
@@ -370,7 +368,6 @@ void RiuMainWindow::createActions()
 
     connect( m_snapshotAllViewsToFile, SIGNAL( triggered() ), SLOT( slotSnapshotAllViewsToFile() ) );
 
-    connect( m_createCommandObject, SIGNAL( triggered() ), SLOT( slotCreateCommandObject() ) );
     connect( m_showRegressionTestDialog, SIGNAL( triggered() ), SLOT( slotShowRegressionTestDialog() ) );
     connect( m_executePaintEventPerformanceTest, SIGNAL( triggered() ), SLOT( slotExecutePaintEventPerformanceTest() ) );
 
@@ -531,8 +528,6 @@ void RiuMainWindow::createMenus()
     testMenu->addAction( m_mockLargeResultsModelAction );
     testMenu->addAction( m_mockModelCustomizedAction );
     testMenu->addAction( m_mockInputModelAction );
-    testMenu->addSeparator();
-    testMenu->addAction( m_createCommandObject );
     testMenu->addSeparator();
     testMenu->addAction( m_showRegressionTestDialog );
     testMenu->addAction( m_executePaintEventPerformanceTest );
@@ -1926,44 +1921,6 @@ void RiuMainWindow::slotAnimationSliderMoved( int newValue )
 void RiuMainWindow::selectedCases( std::vector<RimCase*>& cases )
 {
     caf::SelectionManager::instance()->objectsByType( &cases );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotCreateCommandObject()
-{
-    RiaApplication* app = RiaApplication::instance();
-    if ( !app->project() ) return;
-
-    caf::PdmUiTreeView* projectTree = dynamic_cast<caf::PdmUiTreeView*>( sender() );
-    if ( !projectTree ) return;
-
-    std::vector<caf::PdmUiItem*> selectedUiItems;
-    projectTree->selectedUiItems( selectedUiItems );
-
-    caf::PdmObjectGroup selectedObjects;
-    for ( auto* selectedUiItem : selectedUiItems )
-    {
-        caf::PdmUiObjectHandle* uiObj = dynamic_cast<caf::PdmUiObjectHandle*>( selectedUiItem );
-        if ( uiObj )
-        {
-            selectedObjects.addObject( uiObj->objectHandle() );
-        }
-    }
-
-    if ( !selectedObjects.objects.empty() )
-    {
-        std::vector<RimCommandObject*> commandObjects;
-        RimCommandFactory::createCommandObjects( selectedObjects, &commandObjects );
-
-        for ( auto* commandObject : commandObjects )
-        {
-            app->project()->commandObjects.push_back( commandObject );
-        }
-
-        app->project()->updateConnectedEditors();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

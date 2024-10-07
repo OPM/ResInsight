@@ -10,11 +10,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 set(VIZ_MODULES_FOLDER_NAME Fwk/VizFwk)
 
-# !!! For now, we force Qt to version 5
+message(STATUS "Set CEE_USE_QT6 to ON")
 set(CEE_USE_QT5 OFF)
-message(STATUS "Forcing setting of CEE_USE_QT6 to ON")
 set(CEE_USE_QT6 ON)
-message(STATUS "CEE_USE_QT6=${CEE_USE_QT6}")
 
 cmake_policy(SET CMP0020 NEW)
 if(POLICY CMP0077)
@@ -1078,36 +1076,6 @@ add_subdirectory(ThirdParty/extract-projectfile-versions)
 install(TARGETS extract-projectfile-versions
         DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
 )
-
-# ##############################################################################
-# Add OpenSSL 1.1.1 libraries The OpenSSL libraries are needed for the
-# NetworkAuth module in Qt 5 Installed by adding openssl-windows in vcpkg.json
-# Required to use fully specified path to the dlls, as it is not trivial to find
-# the path. OpenSSL 3 is installed and used by other modules
-# ##############################################################################
-
-if(MSVC)
-  FetchContent_Declare(
-    openssl_1_1_1
-    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2024.05/openssl_1_1_1.zip
-  )
-  FetchContent_Populate(openssl_1_1_1)
-
-  set(FILE_PATH_LIBCRYPTO_1_1
-      "${openssl_1_1_1_SOURCE_DIR}/libcrypto-1_1-x64.dll"
-  )
-  set(FILE_PATH_LIBOPENSSL_1_1 "${openssl_1_1_1_SOURCE_DIR}/libssl-1_1-x64.dll")
-
-  message(STATUS "FILE_PATH_LIBCRYPTO_1_1: ${FILE_PATH_LIBCRYPTO_1_1}")
-  message(STATUS "FILE_PATH_LIBOPENSSL_1_1: ${FILE_PATH_LIBOPENSSL_1_1}")
-
-  install(
-    FILES ${FILE_PATH_LIBCRYPTO_1_1} ${FILE_PATH_LIBOPENSSL_1_1}
-    DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-    OPTIONAL
-  )
-
-endif() # MSVC
 
 # ##############################################################################
 # Visual Studio : Create the ruleset file to be used by Static Code Analysis
