@@ -10,16 +10,16 @@ endif()
 find_package(OpenGL)
 
 # Qt
-  find_package(
-    Qt6
-    COMPONENTS
-    REQUIRED Core Gui Widgets OpenGL
-  )
-  set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets Qt6::OpenGL)
-  qt_standard_project_setup()
-  set_property(
-    SOURCE cafTransparentWBRenderConfiguration.cpp PROPERTY SKIP_AUTOMOC ON
-  )
+find_package(
+  Qt6
+  COMPONENTS
+  REQUIRED Core Gui Widgets OpenGL
+)
+set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets Qt6::OpenGL)
+qt_standard_project_setup()
+set_property(
+  SOURCE cafTransparentWBRenderConfiguration.cpp PROPERTY SKIP_AUTOMOC ON
+)
 
 add_library(
   ${PROJECT_NAME}

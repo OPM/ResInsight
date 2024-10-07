@@ -8,12 +8,12 @@ set(MOC_HEADER_FILES MainWindow.h WidgetLayoutTest.h)
 # Resource file
 set(QRC_FILES textedit.qrc)
 
-  find_package(
-    Qt6
-    COMPONENTS
-    REQUIRED Core Gui Widgets OpenGL Svg
-  )
-  set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets Qt6::OpenGL Qt6::Svg)
+find_package(
+  Qt6
+  COMPONENTS
+  REQUIRED Core Gui Widgets OpenGL Svg
+)
+set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets Qt6::OpenGL Qt6::Svg)
 
 option(USE_COMMAND_FRAMEWORK "Use Caf Command Framework" ON)
 

@@ -55,13 +55,13 @@ set(MOC_HEADER_FILES
     cafPdmUiValueRangeEditor.h
 )
 
-  find_package(
-    Qt6
-    COMPONENTS
-    REQUIRED Core Gui Widgets Svg
-  )
-  set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg)
-  qt_standard_project_setup()
+find_package(
+  Qt6
+  COMPONENTS
+  REQUIRED Core Gui Widgets Svg
+)
+set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg)
+qt_standard_project_setup()
 
 set(PROJECT_FILES
     # field editors

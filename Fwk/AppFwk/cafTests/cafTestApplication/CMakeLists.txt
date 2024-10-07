@@ -50,12 +50,8 @@ set(PROJECT_FILES
 )
 
 qt_add_executable(
-  ${PROJECT_NAME}
-  ${PROJECT_FILES}
-  ${MOC_SOURCE_FILES}
-  ${QRC_FILES}
-  $<TARGET_OBJECTS:cafCommandFeatures> # Needed for cmake version < 3.12.
-                                       # Remove
+  ${PROJECT_NAME} ${PROJECT_FILES} ${MOC_SOURCE_FILES} ${QRC_FILES}
+  $<TARGET_OBJECTS:cafCommandFeatures> # Needed for cmake version < 3.12. Remove
   # when we can use target_link_libraries with OBJECT libraries
 )
 
@@ -98,17 +94,16 @@ install(
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-  qt_generate_deploy_app_script(
-    TARGET ${PROJECT_NAME} OUTPUT_SCRIPT deploy_script
-    NO_UNSUPPORTED_PLATFORM_ERROR NO_TRANSLATIONS
-  )
-  install(SCRIPT ${deploy_script})
+qt_generate_deploy_app_script(
+  TARGET ${PROJECT_NAME} OUTPUT_SCRIPT deploy_script
+  NO_UNSUPPORTED_PLATFORM_ERROR NO_TRANSLATIONS
+)
+install(SCRIPT ${deploy_script})
 
-  if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(CPACK_GENERATOR TGZ)
-  elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set(CPACK_GENERATOR ZIP)
-  endif()
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  set(CPACK_GENERATOR TGZ)
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  set(CPACK_GENERATOR ZIP)
+endif()
 
-  include(CPack)
-
+include(CPack)

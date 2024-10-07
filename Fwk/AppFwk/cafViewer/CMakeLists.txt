@@ -11,13 +11,13 @@ endif()
 # These headers need to go through Qt's MOC compiler
 set(MOC_HEADER_FILES cafViewer.h)
 
-  find_package(
-    Qt6
-    COMPONENTS
-    REQUIRED Core Gui Widgets OpenGL
-  )
-  set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets Qt6::OpenGL)
-  qt_standard_project_setup()
+find_package(
+  Qt6
+  COMPONENTS
+  REQUIRED Core Gui Widgets OpenGL
+)
+set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets Qt6::OpenGL)
+qt_standard_project_setup()
 
 add_library(
   ${PROJECT_NAME}
