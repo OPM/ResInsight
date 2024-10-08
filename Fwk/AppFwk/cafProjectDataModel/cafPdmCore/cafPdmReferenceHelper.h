@@ -60,8 +60,6 @@ public:
 private:
     static QStringList      referenceFromRootToObjectAsStringList( PdmObjectHandle* root, PdmObjectHandle* obj );
     static PdmObjectHandle* objectFromReferenceStringList( PdmObjectHandle* root, const QStringList& reference );
-
-    static PdmFieldHandle* findField( PdmObjectHandle* object, const QString& fieldKeyword );
 };
 
 } // end namespace caf
