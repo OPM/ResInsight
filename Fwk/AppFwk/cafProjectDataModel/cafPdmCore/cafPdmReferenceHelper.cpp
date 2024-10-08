@@ -99,26 +99,6 @@ PdmObjectHandle* PdmReferenceHelper::objectFromReference( PdmObjectHandle* root,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmFieldHandle* PdmReferenceHelper::findField( PdmObjectHandle* object, const QString& fieldKeyword )
-{
-    if ( object == nullptr ) return nullptr;
-
-    std::vector<PdmFieldHandle*> fields = object->fields();
-
-    for ( size_t i = 0; i < fields.size(); i++ )
-    {
-        if ( fields[i]->keyword() == fieldKeyword )
-        {
-            return fields[i];
-        }
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList( PdmObjectHandle* root, PdmObjectHandle* obj )
 {
     QStringList objectNames;
@@ -194,7 +174,9 @@ PdmFieldHandle* PdmReferenceHelper::fieldFromReference( PdmObjectHandle* root, c
     decodedReference.pop_front();
 
     PdmObjectHandle* parentObject = objectFromReferenceStringList( root, decodedReference );
-    return findField( parentObject, fieldKeyword );
+    if ( !parentObject ) return nullptr;
+
+    return parentObject->findField( fieldKeyword );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -209,9 +191,10 @@ PdmObjectHandle* PdmReferenceHelper::objectFromReferenceStringList( PdmObjectHan
     int i = 0;
     while ( i < reference.size() )
     {
-        QString fieldKeyword = reference.at( i++ );
+        if ( !currentObject ) return nullptr;
 
-        PdmFieldHandle* fieldHandle = findField( currentObject, fieldKeyword );
+        QString fieldKeyword = reference.at( i++ );
+        auto    fieldHandle  = currentObject->findField( fieldKeyword );
         if ( !fieldHandle )
         {
             return nullptr;
