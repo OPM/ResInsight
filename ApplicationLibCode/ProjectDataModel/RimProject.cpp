@@ -55,7 +55,6 @@
 #include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseViewCollection.h"
 #include "RimEnsembleWellLogsCollection.h"
-#include "RimFieldReferenceCollection.h"
 #include "RimFileWellPath.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
@@ -73,6 +72,7 @@
 #include "RimObservedDataCollection.h"
 #include "RimObservedSummaryData.h"
 #include "RimOilField.h"
+#include "RimPinnedFieldCollection.h"
 #include "RimPlotWindow.h"
 #include "RimPltPlotCollection.h"
 #include "RimPolylinesFromFileAnnotation.h"
@@ -162,7 +162,7 @@ RimProject::RimProject()
     scriptCollection.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_mainPlotCollection, "MainPlotCollection", "Plots" );
-    CAF_PDM_InitFieldNoDefault( &m_fieldReferenceCollection, "FieldReferenceCollection", "FieldReferenceCollection" );
+    CAF_PDM_InitFieldNoDefault( &m_pinnedFieldCollection, "PinnedFieldCollection", "PinnedFieldCollection" );
 
     CAF_PDM_InitFieldNoDefault( &viewLinkerCollection, "LinkedViews", "Linked Views", ":/LinkView.svg" );
     viewLinkerCollection = new RimViewLinkerCollection;
@@ -223,8 +223,8 @@ RimProject::RimProject()
     scriptCollection->uiCapability()->setUiName( "Scripts" );
     scriptCollection->uiCapability()->setUiIconFromResourceString( ":/octave.png" );
 
-    m_mainPlotCollection       = new RimMainPlotCollection();
-    m_fieldReferenceCollection = new RimFieldReferenceCollection();
+    m_mainPlotCollection    = new RimMainPlotCollection();
+    m_pinnedFieldCollection = new RimPinnedFieldCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_plotTemplateTopFolder, "PlotTemplateCollection", "Plot Templates" );
     m_plotTemplateTopFolder = new RimPlotTemplateFolderItem();
@@ -358,9 +358,9 @@ void RimProject::updatesAfterProjectFileIsRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFieldReferenceCollection* RimProject::fieldReferenceCollection() const
+RimPinnedFieldCollection* RimProject::pinnedFieldCollection() const
 {
-    return m_fieldReferenceCollection();
+    return m_pinnedFieldCollection();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -23,6 +23,10 @@
 
 //==================================================================================================
 ///
+/// This class is used to store a reference to a field in a PdmObject, and is similar to caf::PdmPtrField<caf::PdmObjectHandle*> that is
+/// used for a non-owning reference to an object. Consider creating a caf::PdmPtrField<caf::PdmFieldHandle*> instead of this class.
+///
+/// Investigate if PdmFieldCapability::attributes can be used to store the field name for a caf::PdmPtrField<caf::PdmObjectHandle*>
 ///
 //==================================================================================================
 class RimFieldReference : public caf::PdmObject
@@ -33,11 +37,13 @@ public:
     RimFieldReference();
     ~RimFieldReference() override;
 
-    void                 setField( caf::PdmFieldHandle* fieldHandle );
-    void                 setField( caf::PdmObjectHandle* object, const QString& fieldName );
+    void                 setField( caf::PdmFieldHandle* field );
     caf::PdmFieldHandle* field() const;
 
-protected:
+private:
+    void setField( caf::PdmObjectHandle* object, const QString& fieldName );
+
+private:
     caf::PdmPtrField<caf::PdmObjectHandle*> m_object;
     caf::PdmField<QString>                  m_fieldName;
 };

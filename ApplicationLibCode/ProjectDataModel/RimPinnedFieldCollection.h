@@ -28,21 +28,21 @@ class RimFieldReference;
 ///
 ///
 //==================================================================================================
-class RimFieldReferenceCollection : public caf::PdmObject
+class RimPinnedFieldCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimFieldReferenceCollection();
+    RimPinnedFieldCollection();
 
-    static RimFieldReferenceCollection* instance();
+    static RimPinnedFieldCollection* instance();
 
-    void addFieldReference( caf::PdmFieldHandle* fieldHandle );
-    void removeFieldReference( caf::PdmFieldHandle* fieldHandle );
+    void addField( caf::PdmFieldHandle* field );
+    void removeField( caf::PdmFieldHandle* field );
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    caf::PdmChildArrayField<RimFieldReference*> m_objects;
+    caf::PdmChildArrayField<RimFieldReference*> m_fieldReferences;
 };

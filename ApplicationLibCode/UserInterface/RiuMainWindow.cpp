@@ -41,9 +41,9 @@
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInViewCollection.h"
-#include "RimFieldReferenceCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
+#include "RimPinnedFieldCollection.h"
 #include "RimProject.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimViewLinker.h"
@@ -245,7 +245,7 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
         m_pdmUiPropertyView->currentObject()->uiCapability()->updateConnectedEditors();
     }
 
-    m_pinnedFieldView->showProperties( RimFieldReferenceCollection::instance() );
+    m_pinnedFieldView->showProperties( RimPinnedFieldCollection::instance() );
 
     if ( statusBar() && !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
     {
@@ -822,7 +822,7 @@ void RiuMainWindow::createDockPanels()
     }
 
     {
-        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Reference Fields", "msj test", dockManager() );
+        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Pinned Fields", "Pinned Fields", dockManager() );
 
         m_pinnedFieldView = new caf::PdmUiPropertyView( dockWidget );
         dockWidget->setWidget( m_pinnedFieldView );
@@ -1503,7 +1503,7 @@ void RiuMainWindow::selectedObjectsChanged()
     updateUiFieldsFromActiveResult( firstSelectedObject );
 
     m_pdmUiPropertyView->showProperties( firstSelectedObject );
-    m_pinnedFieldView->showProperties( m_pinnedFieldView->currentObject() );
+    m_pinnedFieldView->showProperties( RimPinnedFieldCollection::instance() );
 
     m_seismicHistogramPanel->showHistogram( firstSelectedObject );
 

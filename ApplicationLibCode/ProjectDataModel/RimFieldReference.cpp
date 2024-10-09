@@ -39,24 +39,14 @@ RimFieldReference::~RimFieldReference()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFieldReference::setField( caf::PdmObjectHandle* object, const QString& fieldName )
+void RimFieldReference::setField( caf::PdmFieldHandle* field )
 {
-    m_object    = object;
-    m_fieldName = fieldName;
-}
+    if ( !field ) return;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFieldReference::setField( caf::PdmFieldHandle* fieldHandle )
-{
-    if ( !fieldHandle ) return;
-
-    auto ownerObject = fieldHandle->ownerObject();
+    auto ownerObject = field->ownerObject();
     if ( !ownerObject ) return;
 
-    m_object    = fieldHandle->ownerObject();
-    m_fieldName = fieldHandle->keyword();
+    setField( field->ownerObject(), field->keyword() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,10 +54,16 @@ void RimFieldReference::setField( caf::PdmFieldHandle* fieldHandle )
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimFieldReference::field() const
 {
-    if ( !m_object() )
-    {
-        return nullptr;
-    }
+    if ( !m_object() ) return nullptr;
 
     return m_object->findField( m_fieldName() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFieldReference::setField( caf::PdmObjectHandle* object, const QString& fieldName )
+{
+    m_object    = object;
+    m_fieldName = fieldName;
 }

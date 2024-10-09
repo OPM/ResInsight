@@ -16,68 +16,69 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFieldReferenceCollection.h"
+#include "RimPinnedFieldCollection.h"
 #include "RimProject.h"
 
-CAF_PDM_SOURCE_INIT( RimFieldReferenceCollection, "RimFieldReferenceCollection" );
+#include "cafAssert.h"
+
+CAF_PDM_SOURCE_INIT( RimPinnedFieldCollection, "RimFieldReferenceCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFieldReferenceCollection::RimFieldReferenceCollection()
+RimPinnedFieldCollection::RimPinnedFieldCollection()
 {
     CAF_PDM_InitObject( "Field Reference Collection" );
 
-    CAF_PDM_InitFieldNoDefault( &m_objects, "Objects", "Objects" );
+    CAF_PDM_InitFieldNoDefault( &m_fieldReferences, "Objects", "Objects" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFieldReferenceCollection* RimFieldReferenceCollection::instance()
+RimPinnedFieldCollection* RimPinnedFieldCollection::instance()
 {
     auto proj = RimProject::current();
-    if ( !proj ) return nullptr;
+    CAF_ASSERT( proj && "RimProject is nullptr when trying to access RimFieldReferenceCollection::instance()" );
 
-    return proj->fieldReferenceCollection();
+    return proj->pinnedFieldCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFieldReferenceCollection::addFieldReference( caf::PdmFieldHandle* fieldHandle )
+void RimPinnedFieldCollection::addField( caf::PdmFieldHandle* field )
 {
-    if ( !fieldHandle ) return;
+    if ( !field ) return;
 
-    for ( auto obj : m_objects )
+    for ( auto obj : m_fieldReferences )
     {
         auto field = obj->field();
-        if ( field == fieldHandle )
+        if ( field == field )
         {
             return;
         }
     }
 
     auto fieldReference = new RimFieldReference();
-    fieldReference->setField( fieldHandle );
+    fieldReference->setField( field );
 
-    m_objects.push_back( fieldReference );
+    m_fieldReferences.push_back( fieldReference );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFieldReferenceCollection::removeFieldReference( caf::PdmFieldHandle* fieldHandle )
+void RimPinnedFieldCollection::removeField( caf::PdmFieldHandle* field )
 {
-    if ( !fieldHandle ) return;
+    if ( !field ) return;
 
-    for ( auto obj : m_objects )
+    for ( auto fieldRef : m_fieldReferences )
     {
-        auto field = obj->field();
-        if ( field == fieldHandle )
+        if ( field == fieldRef->field() )
         {
-            m_objects.removeChild( obj );
-            delete obj;
+            m_fieldReferences.removeChild( fieldRef );
+            delete fieldRef;
             return;
         }
     }
@@ -86,19 +87,18 @@ void RimFieldReferenceCollection::removeFieldReference( caf::PdmFieldHandle* fie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFieldReferenceCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimPinnedFieldCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     std::map<caf::PdmObjectHandle*, std::vector<caf::PdmFieldHandle*>> fieldMap;
 
-    // group fields by object
-    for ( auto obj : m_objects )
+    // Group fields by object
+    for ( auto obj : m_fieldReferences )
     {
         if ( !obj ) continue;
 
         if ( auto field = obj->field() )
         {
-            auto ownerObject = field->ownerObject();
-            if ( ownerObject )
+            if ( auto ownerObject = field->ownerObject() )
             {
                 fieldMap[ownerObject].push_back( field );
             }
@@ -107,7 +107,7 @@ void RimFieldReferenceCollection::defineUiOrdering( QString uiConfigName, caf::P
 
     int groupId = 1;
 
-    // create ui ordering with a group for each object
+    // Create ui ordering with a group containing fields for each object
     for ( auto& pair : fieldMap )
     {
         auto object = pair.first;
@@ -115,7 +115,7 @@ void RimFieldReferenceCollection::defineUiOrdering( QString uiConfigName, caf::P
 
         QString groupName;
         auto    uiCapability = object->uiCapability();
-        if ( uiCapability->userDescriptionField() )
+        if ( uiCapability->userDescriptionField() && uiCapability->userDescriptionField()->uiCapability() )
         {
             groupName = uiCapability->userDescriptionField()->uiCapability()->uiValue().toString();
         }

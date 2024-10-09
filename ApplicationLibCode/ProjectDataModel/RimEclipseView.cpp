@@ -61,7 +61,7 @@
 #include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInViewCollection.h"
 #include "RimFaultReactivationModelCollection.h"
-#include "RimFieldReferenceCollection.h"
+#include "RimPinnedFieldCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowDiagSolution.h"
 #include "RimFracture.h"
@@ -248,7 +248,7 @@ RimEclipseView::RimEclipseView()
     m_faultReactVizModel = new cvf::ModelBasicList;
     m_faultReactVizModel->setName( "FaultReactModel" );
 
-    RimFieldReferenceCollection::instance()->addFieldReference( &m_eclipseCase );
+    RimPinnedFieldCollection::instance()->addField( &m_eclipseCase );
 }
 
 //--------------------------------------------------------------------------------------------------
