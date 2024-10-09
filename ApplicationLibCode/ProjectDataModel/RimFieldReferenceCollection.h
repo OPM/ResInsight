@@ -35,6 +35,8 @@ class RimFieldReferenceCollection : public caf::PdmObject
 public:
     RimFieldReferenceCollection();
 
+    static RimFieldReferenceCollection* instance();
+
     void addFieldReference( caf::PdmFieldHandle* fieldHandle );
     void removeFieldReference( caf::PdmFieldHandle* fieldHandle );
 

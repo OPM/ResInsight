@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimFieldReferenceCollection.h"
+#include "RimProject.h"
 
 CAF_PDM_SOURCE_INIT( RimFieldReferenceCollection, "RimFieldReferenceCollection" );
 
@@ -28,6 +29,17 @@ RimFieldReferenceCollection::RimFieldReferenceCollection()
     CAF_PDM_InitObject( "Field Reference Collection" );
 
     CAF_PDM_InitFieldNoDefault( &m_objects, "Objects", "Objects" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFieldReferenceCollection* RimFieldReferenceCollection::instance()
+{
+    auto proj = RimProject::current();
+    if ( !proj ) return nullptr;
+
+    return proj->fieldReferenceCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,12 +88,48 @@ void RimFieldReferenceCollection::removeFieldReference( caf::PdmFieldHandle* fie
 //--------------------------------------------------------------------------------------------------
 void RimFieldReferenceCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    for ( auto obj : m_objects.childrenByType() )
+    std::map<caf::PdmObjectHandle*, std::vector<caf::PdmFieldHandle*>> fieldMap;
+
+    // group fields by object
+    for ( auto obj : m_objects )
     {
-        auto field = obj->field();
-        if ( field )
+        if ( !obj ) continue;
+
+        if ( auto field = obj->field() )
         {
-            uiOrdering.add( field );
+            auto ownerObject = field->ownerObject();
+            if ( ownerObject )
+            {
+                fieldMap[ownerObject].push_back( field );
+            }
+        }
+    }
+
+    int groupId = 1;
+
+    // create ui ordering with a group for each object
+    for ( auto& pair : fieldMap )
+    {
+        auto object = pair.first;
+        auto fields = pair.second;
+
+        QString groupName;
+        auto    uiCapability = object->uiCapability();
+        if ( uiCapability->userDescriptionField() )
+        {
+            groupName = uiCapability->userDescriptionField()->uiCapability()->uiValue().toString();
+        }
+        else
+        {
+            groupName = "Group " + QString::number( groupId );
+        }
+
+        auto group = uiOrdering.addNewGroup( groupName );
+        groupId++;
+
+        for ( auto field : fields )
+        {
+            group->add( field );
         }
     }
 }

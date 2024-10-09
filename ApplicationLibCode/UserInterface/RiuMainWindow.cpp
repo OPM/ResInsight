@@ -41,6 +41,7 @@
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInViewCollection.h"
+#include "RimFieldReferenceCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
 #include "RimProject.h"
@@ -188,6 +189,11 @@ RiuMainWindow::~RiuMainWindow()
     {
         m_pdmUiPropertyView->showProperties( nullptr );
     }
+
+    if ( m_pinnedFieldView )
+    {
+        m_pinnedFieldView->showProperties( nullptr );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -238,6 +244,8 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
     {
         m_pdmUiPropertyView->currentObject()->uiCapability()->updateConnectedEditors();
     }
+
+    m_pinnedFieldView->showProperties( RimFieldReferenceCollection::instance() );
 
     if ( statusBar() && !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
     {
@@ -293,6 +301,11 @@ void RiuMainWindow::cleanupGuiCaseClose()
     if ( m_pdmUiPropertyView )
     {
         m_pdmUiPropertyView->showProperties( nullptr );
+    }
+
+    if ( m_pinnedFieldView )
+    {
+        m_pinnedFieldView->showProperties( nullptr );
     }
 
     for ( auto& additionalProjectView : m_additionalProjectViews )
@@ -805,6 +818,14 @@ void RiuMainWindow::createDockPanels()
 
         m_pdmUiPropertyView = new caf::PdmUiPropertyView( dockWidget );
         dockWidget->setWidget( m_pdmUiPropertyView );
+        dockManager()->addDockWidget( ads::DockWidgetArea::BottomDockWidgetArea, dockWidget, leftArea );
+    }
+
+    {
+        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Reference Fields", "msj test", dockManager() );
+
+        m_pinnedFieldView = new caf::PdmUiPropertyView( dockWidget );
+        dockWidget->setWidget( m_pinnedFieldView );
         dockManager()->addDockWidget( ads::DockWidgetArea::BottomDockWidgetArea, dockWidget, leftArea );
     }
 
@@ -1482,6 +1503,7 @@ void RiuMainWindow::selectedObjectsChanged()
     updateUiFieldsFromActiveResult( firstSelectedObject );
 
     m_pdmUiPropertyView->showProperties( firstSelectedObject );
+    m_pinnedFieldView->showProperties( m_pinnedFieldView->currentObject() );
 
     m_seismicHistogramPanel->showHistogram( firstSelectedObject );
 

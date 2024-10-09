@@ -25,6 +25,7 @@
 #include "RigReservoirGridTools.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
+#include "RimFieldReferenceCollection.h"
 #include "RimTools.h"
 
 #include "cafPdmUiLabelEditor.h"
@@ -217,14 +218,23 @@ void RimCellRangeFilter::setDefaultValues( int sliceDirection, int defaultSlice 
         case 0:
             cellCountI = 1;
             if ( defaultSlice > 0 ) startIndexI = defaultSlice;
+
+            RimFieldReferenceCollection::instance()->addFieldReference( &startIndexI );
+
             break;
         case 1:
             cellCountJ = 1;
             if ( defaultSlice > 0 ) startIndexJ = defaultSlice;
+
+            RimFieldReferenceCollection::instance()->addFieldReference( &startIndexJ );
+
             break;
         case 2:
             cellCountK = 1;
             if ( defaultSlice > 0 ) startIndexK = defaultSlice;
+
+            RimFieldReferenceCollection::instance()->addFieldReference( &startIndexK );
+
             break;
         default:
             break;
