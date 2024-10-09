@@ -72,6 +72,7 @@
 #include "RimObservedDataCollection.h"
 #include "RimObservedSummaryData.h"
 #include "RimOilField.h"
+#include "RimPinnedFieldCollection.h"
 #include "RimPlotWindow.h"
 #include "RimPltPlotCollection.h"
 #include "RimPolylinesFromFileAnnotation.h"
@@ -161,6 +162,7 @@ RimProject::RimProject()
     scriptCollection.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_mainPlotCollection, "MainPlotCollection", "Plots" );
+    CAF_PDM_InitFieldNoDefault( &m_pinnedFieldCollection, "PinnedFieldCollection", "PinnedFieldCollection" );
 
     CAF_PDM_InitFieldNoDefault( &viewLinkerCollection, "LinkedViews", "Linked Views", ":/LinkView.svg" );
     viewLinkerCollection = new RimViewLinkerCollection;
@@ -221,7 +223,8 @@ RimProject::RimProject()
     scriptCollection->uiCapability()->setUiName( "Scripts" );
     scriptCollection->uiCapability()->setUiIconFromResourceString( ":/octave.png" );
 
-    m_mainPlotCollection = new RimMainPlotCollection();
+    m_mainPlotCollection    = new RimMainPlotCollection();
+    m_pinnedFieldCollection = new RimPinnedFieldCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_plotTemplateTopFolder, "PlotTemplateCollection", "Plot Templates" );
     m_plotTemplateTopFolder = new RimPlotTemplateFolderItem();
@@ -350,6 +353,14 @@ void RimProject::updatesAfterProjectFileIsRead()
 
     if ( m_subWindowsTiled3DWindow_OBSOLETE ) m_subWindowsTileMode3DWindow = RiaDefines::WindowTileMode::DEFAULT;
     if ( m_subWindowsTiledPlotWindow_OBSOLETE ) m_subWindowsTileModePlotWindow = RiaDefines::WindowTileMode::DEFAULT;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPinnedFieldCollection* RimProject::pinnedFieldCollection() const
+{
+    return m_pinnedFieldCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
