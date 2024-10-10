@@ -18,11 +18,9 @@
 
 #pragma once
 
-#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-
-class RimFieldReference;
+#include "cafPdmPtrField.h"
 
 //==================================================================================================
 ///
@@ -32,23 +30,24 @@ class RimFieldReference;
 /// Investigate if PdmFieldCapability::attributes can be used to store the field name for a caf::PdmPtrField<caf::PdmObjectHandle*>
 ///
 //==================================================================================================
-class RimFieldQuickAccess : public caf::PdmObject
+class RimFieldReference : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimFieldQuickAccess();
+    RimFieldReference();
 
     void                 setField( caf::PdmFieldHandle* field );
     caf::PdmFieldHandle* field() const;
 
-    caf::PdmFieldHandle* selectObjectButton();
+    caf::PdmObjectHandle* object() const;
 
 private:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    caf::PdmChildField<RimFieldReference*> m_fieldReference;
+    void setField( caf::PdmObjectHandle* object, const QString& fieldName );
 
-    caf::PdmField<bool> m_selectObjectButton;
+private:
+    caf::PdmPtrField<caf::PdmObjectHandle*> m_object;
+    caf::PdmField<QString>                  m_fieldName;
 };

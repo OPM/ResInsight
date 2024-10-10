@@ -135,6 +135,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCameraPosition.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellTargetCandidatesGenerator.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFieldQuickAccess.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFieldReference.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPinnedFieldCollection.h
 )
 
@@ -271,6 +272,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCameraPosition.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellTargetCandidatesGenerator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFieldQuickAccess.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFieldReference.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPinnedFieldCollection.cpp
 )
 
