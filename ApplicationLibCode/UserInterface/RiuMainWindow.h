@@ -261,6 +261,7 @@ public:
 private:
     caf::PdmObject*         m_pdmRoot;
     caf::PdmUiPropertyView* m_pdmUiPropertyView;
+    caf::PdmUiPropertyView* m_pinnedFieldView;
 
     QComboBox* m_scaleFactor;
 

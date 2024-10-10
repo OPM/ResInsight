@@ -74,6 +74,7 @@
 #include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimMultipleEclipseResults.h"
 #include "RimOilField.h"
+#include "RimPinnedFieldCollection.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
@@ -246,6 +247,8 @@ RimEclipseView::RimEclipseView()
 
     m_faultReactVizModel = new cvf::ModelBasicList;
     m_faultReactVizModel->setName( "FaultReactModel" );
+
+    RimPinnedFieldCollection::instance()->addField( &m_eclipseCase );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -57,10 +57,12 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiPushButtonEditor );
 //--------------------------------------------------------------------------------------------------
 void PdmUiPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    CAF_ASSERT( !m_pushButton.isNull() );
-    CAF_ASSERT( !m_label.isNull() );
+    if ( !m_pushButton ) return;
 
-    PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    if ( m_label )
+    {
+        PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    }
 
     m_pushButton->setCheckable( true );
     m_pushButton->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
