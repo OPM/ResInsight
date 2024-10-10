@@ -28,7 +28,7 @@ CAF_PDM_SOURCE_INIT( RimFieldReference, "RimFieldReference" );
 RimFieldReference::RimFieldReference()
 {
     CAF_PDM_InitFieldNoDefault( &m_object, "Object", "Object" );
-    CAF_PDM_InitFieldNoDefault( &m_fieldName, "FieldName", "FieldName" );
+    CAF_PDM_InitFieldNoDefault( &m_fieldKeyword, "FieldKeyword", "Field Keyword" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -38,10 +38,10 @@ void RimFieldReference::setObject( caf::PdmObject* object )
 {
     m_object = object;
 
-    std::vector<QString> fieldNames = RimFieldReference::fieldNames( object );
-    if ( !fieldNames.empty() )
+    auto keywordAndNames = RimFieldReference::fieldKeywordAndNames( object );
+    if ( !keywordAndNames.empty() )
     {
-        m_fieldName = fieldNames[0];
+        m_fieldKeyword = keywordAndNames[0].first;
     }
 }
 
@@ -61,16 +61,35 @@ void RimFieldReference::setField( caf::PdmFieldHandle* field )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RimFieldReference::fieldNames( caf::PdmObject* object )
+std::vector<std::pair<QString, QString>> RimFieldReference::fieldKeywordAndNames( caf::PdmObject* object )
 {
-    std::vector<QString> names;
+    std::vector<std::pair<QString, QString>> names;
 
     if ( object )
     {
-        auto allFields = object->fields();
-        for ( auto field : allFields )
+        // Get the fields for the current uiOrdering. Calling object->fields() will not work as it will return all fields.
+        caf::PdmUiOrdering uiOrdering;
+        object->uiOrdering( "", uiOrdering );
+
+        std::vector<caf::PdmFieldHandle*> fields;
+        for ( auto item : uiOrdering.uiItems() )
         {
-            names.push_back( field->keyword() );
+            findFieldsRecursively( item, fields );
+        }
+
+        for ( auto item : fields )
+        {
+            if ( auto field = dynamic_cast<caf::PdmFieldHandle*>( item ) )
+            {
+                auto text = field->keyword();
+
+                if ( auto uiCapability = field->uiCapability() )
+                {
+                    text = uiCapability->uiName();
+                }
+
+                names.push_back( { field->keyword(), text } );
+            }
         }
     }
 
@@ -80,8 +99,29 @@ std::vector<QString> RimFieldReference::fieldNames( caf::PdmObject* object )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFieldReference::findFieldsRecursively( caf::PdmUiItem* object, std::vector<caf::PdmFieldHandle*>& fields )
+{
+    if ( auto uiFieldHandle = dynamic_cast<caf::PdmUiFieldHandle*>( object ) )
+    {
+        if ( uiFieldHandle->fieldHandle() ) fields.push_back( uiFieldHandle->fieldHandle() );
+    }
+
+    if ( auto group = dynamic_cast<caf::PdmUiGroup*>( object ) )
+    {
+        for ( auto child : group->uiItems() )
+        {
+            findFieldsRecursively( child, fields );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFieldReference::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_object );
+    uiOrdering.add( &m_fieldKeyword );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,12 +131,12 @@ QList<caf::PdmOptionItemInfo> RimFieldReference::calculateValueOptions( const ca
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_fieldName )
+    if ( fieldNeedingOptions == &m_fieldKeyword )
     {
-        auto fieldNames = RimFieldReference::fieldNames( m_object );
-        for ( const auto& name : fieldNames )
+        auto keywordAndNames = RimFieldReference::fieldKeywordAndNames( m_object );
+        for ( const auto& [keyword, name] : keywordAndNames )
         {
-            options.push_back( caf::PdmOptionItemInfo( name, name ) );
+            options.push_back( caf::PdmOptionItemInfo( name, keyword ) );
         }
     }
     else if ( fieldNeedingOptions == &m_object )
@@ -129,7 +169,7 @@ caf::PdmFieldHandle* RimFieldReference::field() const
 {
     if ( !m_object() ) return nullptr;
 
-    return m_object->findField( m_fieldName() );
+    return m_object->findField( m_fieldKeyword() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,6 +193,6 @@ void RimFieldReference::setObjectsForSelection( const std::vector<caf::PdmObject
 //--------------------------------------------------------------------------------------------------
 void RimFieldReference::setField( caf::PdmObject* object, const QString& fieldName )
 {
-    m_object    = object;
-    m_fieldName = fieldName;
+    m_object       = object;
+    m_fieldKeyword = fieldName;
 }

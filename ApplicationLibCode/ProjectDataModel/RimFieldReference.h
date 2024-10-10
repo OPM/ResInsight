@@ -51,11 +51,12 @@ private:
 
     void setField( caf::PdmObject* object, const QString& fieldName );
 
-    static std::vector<QString> fieldNames( caf::PdmObject* object );
+    static std::vector<std::pair<QString, QString>> fieldKeywordAndNames( caf::PdmObject* object );
+    static void findFieldsRecursively( caf::PdmUiItem* object, std::vector<caf::PdmFieldHandle*>& fields );
 
 private:
     caf::PdmPtrField<caf::PdmObject*> m_object;
-    caf::PdmField<QString>            m_fieldName;
+    caf::PdmField<QString>            m_fieldKeyword;
 
     std::vector<caf::PdmObject*> m_objectsForSelection;
 };
