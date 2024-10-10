@@ -32,6 +32,7 @@
 #include "opm/input/eclipse/Parser/ParserKeywords/G.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/I.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/P.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/S.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/T.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/V.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
@@ -107,7 +108,8 @@ std::pair<std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>> extract
                                                            Opm::ParserKeywords::INCLUDE(),
                                                            Opm::ParserKeywords::TUNING(),
                                                            Opm::ParserKeywords::GRUPTREE(),
-                                                           Opm::ParserKeywords::WELSPECS() };
+                                                           Opm::ParserKeywords::WELSPECS(),
+                                                           Opm::ParserKeywords::SLAVES() };
         for ( const auto& kw : parserKeywords )
         {
             parser.addParserKeyword( kw );
