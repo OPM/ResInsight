@@ -18,15 +18,12 @@
 
 #include "RicAddFieldToQuickAccessFeature.h"
 
-/*
-#include "RiaApplication.h"
+#include "RimFieldReference.h"
+#include "RimPinnedFieldCollection.h"
 
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimGridView.h"
+#include "cafPdmUiPropertyViewDialog.h"
 
-#include "RiuViewer.h"
-#include "RiuViewerCommands.h"
-*/
+#include "Riu3DMainWindowTools.h"
 
 #include <QAction>
 
@@ -41,6 +38,20 @@ void RicAddFieldToQuickAccessFeature::onActionTriggered( bool isChecked )
     if ( objects.empty() ) return;
 
     auto firstObject = objects.front();
+
+    RimFieldReference fieldRef;
+    fieldRef.setObject( firstObject );
+
+    caf::PdmUiPropertyViewDialog propertyDialog( Riu3DMainWindowTools::mainWindowWidget(), &fieldRef, "Select Field", "" );
+    if ( propertyDialog.exec() == QDialog::Accepted )
+    {
+        auto field = fieldRef.field();
+        if ( field )
+        {
+            RimPinnedFieldCollection::instance()->addField( field );
+            RimPinnedFieldCollection::instance()->updateAllRequiredEditors();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,6 +59,6 @@ void RicAddFieldToQuickAccessFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicAddFieldToQuickAccessFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Add Field To Quick Access" );
-    // actionToSetup->setIcon( QIcon( ":/SummaryEnsemble.svg" ) );
+    actionToSetup->setText( "Pin Field To Quick Access" );
+    actionToSetup->setIcon( QIcon( ":/pin.svg" ) );
 }

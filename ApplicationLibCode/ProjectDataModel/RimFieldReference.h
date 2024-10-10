@@ -37,17 +37,25 @@ class RimFieldReference : public caf::PdmObject
 public:
     RimFieldReference();
 
+    void setObject( caf::PdmObject* object );
+
     void                 setField( caf::PdmFieldHandle* field );
     caf::PdmFieldHandle* field() const;
 
-    caf::PdmObjectHandle* object() const;
+    caf::PdmObject* object() const;
+    void            setObjectsForSelection( const std::vector<caf::PdmObject*>& objectsForSelection );
 
 private:
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    void setField( caf::PdmObjectHandle* object, const QString& fieldName );
+    void setField( caf::PdmObject* object, const QString& fieldName );
+
+    static std::vector<QString> fieldNames( caf::PdmObject* object );
 
 private:
-    caf::PdmPtrField<caf::PdmObjectHandle*> m_object;
-    caf::PdmField<QString>                  m_fieldName;
+    caf::PdmPtrField<caf::PdmObject*> m_object;
+    caf::PdmField<QString>            m_fieldName;
+
+    std::vector<caf::PdmObject*> m_objectsForSelection;
 };
