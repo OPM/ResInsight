@@ -16,18 +16,18 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFieldReference.h"
+#include "RimFieldQuickAccess.h"
 
 #include "Riu3DMainWindowTools.h"
 
 #include "cafPdmUiToolButtonEditor.h"
 
-CAF_PDM_SOURCE_INIT( RimFieldReference, "RimFieldReference" );
+CAF_PDM_SOURCE_INIT( RimFieldQuickAccess, "RimFieldReference" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFieldReference::RimFieldReference()
+RimFieldQuickAccess::RimFieldQuickAccess()
 {
     CAF_PDM_InitFieldNoDefault( &m_object, "Object", "Object" );
     CAF_PDM_InitFieldNoDefault( &m_fieldName, "FieldName", "FieldName" );
@@ -40,7 +40,7 @@ RimFieldReference::RimFieldReference()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFieldReference::setField( caf::PdmFieldHandle* field )
+void RimFieldQuickAccess::setField( caf::PdmFieldHandle* field )
 {
     if ( !field ) return;
 
@@ -53,7 +53,7 @@ void RimFieldReference::setField( caf::PdmFieldHandle* field )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFieldReference::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimFieldQuickAccess::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     if ( field() )
     {
@@ -68,7 +68,7 @@ void RimFieldReference::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimFieldReference::field() const
+caf::PdmFieldHandle* RimFieldQuickAccess::field() const
 {
     if ( !m_object() ) return nullptr;
 
@@ -78,7 +78,7 @@ caf::PdmFieldHandle* RimFieldReference::field() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimFieldReference::selectObjectButton()
+caf::PdmFieldHandle* RimFieldQuickAccess::selectObjectButton()
 {
     return &m_selectObjectButton;
 }
@@ -86,7 +86,7 @@ caf::PdmFieldHandle* RimFieldReference::selectObjectButton()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFieldReference::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+void RimFieldQuickAccess::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_selectObjectButton )
     {
@@ -102,7 +102,7 @@ void RimFieldReference::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFieldReference::setField( caf::PdmObjectHandle* object, const QString& fieldName )
+void RimFieldQuickAccess::setField( caf::PdmObjectHandle* object, const QString& fieldName )
 {
     m_object    = object;
     m_fieldName = fieldName;

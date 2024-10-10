@@ -30,12 +30,12 @@
 /// Investigate if PdmFieldCapability::attributes can be used to store the field name for a caf::PdmPtrField<caf::PdmObjectHandle*>
 ///
 //==================================================================================================
-class RimFieldReference : public caf::PdmObject
+class RimFieldQuickAccess : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimFieldReference();
+    RimFieldQuickAccess();
 
     void                 setField( caf::PdmFieldHandle* field );
     caf::PdmFieldHandle* field() const;

@@ -22,7 +22,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-class RimFieldReference;
+class RimFieldQuickAccess;
 
 //==================================================================================================
 ///
@@ -44,5 +44,5 @@ private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    caf::PdmChildArrayField<RimFieldReference*> m_fieldReferences;
+    caf::PdmChildArrayField<RimFieldQuickAccess*> m_fieldReferences;
 };

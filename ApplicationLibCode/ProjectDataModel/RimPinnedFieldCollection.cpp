@@ -18,7 +18,7 @@
 
 #include "RimPinnedFieldCollection.h"
 
-#include "RimFieldReference.h"
+#include "RimFieldQuickAccess.h"
 #include "RimProject.h"
 
 #include "cafAssert.h"
@@ -61,7 +61,7 @@ void RimPinnedFieldCollection::addField( caf::PdmFieldHandle* field )
         }
     }
 
-    auto fieldReference = new RimFieldReference();
+    auto fieldReference = new RimFieldQuickAccess();
     fieldReference->setField( field );
 
     m_fieldReferences.push_back( fieldReference );
@@ -90,7 +90,7 @@ void RimPinnedFieldCollection::removeField( caf::PdmFieldHandle* field )
 //--------------------------------------------------------------------------------------------------
 void RimPinnedFieldCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    std::map<caf::PdmObjectHandle*, std::vector<RimFieldReference*>> fieldMap;
+    std::map<caf::PdmObjectHandle*, std::vector<RimFieldQuickAccess*>> fieldMap;
 
     // Group fields by object
     for ( auto fieldRef : m_fieldReferences )
