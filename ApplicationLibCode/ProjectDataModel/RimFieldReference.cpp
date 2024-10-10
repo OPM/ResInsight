@@ -16,50 +16,43 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFieldQuickAccess.h"
-
 #include "RimFieldReference.h"
-
-#include "Riu3DMainWindowTools.h"
 
 #include "cafPdmUiToolButtonEditor.h"
 
-CAF_PDM_SOURCE_INIT( RimFieldQuickAccess, "RimFieldQuickAccess" );
+CAF_PDM_SOURCE_INIT( RimFieldReference, "RimFieldReference" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFieldQuickAccess::RimFieldQuickAccess()
+RimFieldReference::RimFieldReference()
 {
-    CAF_PDM_InitFieldNoDefault( &m_fieldReference, "FieldReference", "FieldReference" );
-    m_fieldReference = new RimFieldReference();
-
-    CAF_PDM_InitField( &m_selectObjectButton, "SelectObject", false, "...", ":/Bullet.png", "Select Object in Property Editor" );
-    m_selectObjectButton.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
-    m_selectObjectButton.xmlCapability()->disableIO();
+    CAF_PDM_InitFieldNoDefault( &m_object, "Object", "Object" );
+    CAF_PDM_InitFieldNoDefault( &m_fieldName, "FieldName", "FieldName" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFieldQuickAccess::setField( caf::PdmFieldHandle* field )
+void RimFieldReference::setField( caf::PdmFieldHandle* field )
 {
-    if ( !m_fieldReference() ) return;
+    if ( !field ) return;
 
-    m_fieldReference->setField( field );
+    auto ownerObject = field->ownerObject();
+    if ( !ownerObject ) return;
+
+    setField( field->ownerObject(), field->keyword() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFieldQuickAccess::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimFieldReference::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    if ( m_fieldReference() && m_fieldReference()->field() )
+    if ( field() )
     {
-        uiOrdering.add( m_fieldReference()->field() );
+        uiOrdering.add( field() );
     }
-
-    uiOrdering.add( &m_selectObjectButton );
 
     uiOrdering.skipRemainingFields();
 }
@@ -67,36 +60,26 @@ void RimFieldQuickAccess::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimFieldQuickAccess::field() const
+caf::PdmFieldHandle* RimFieldReference::field() const
 {
-    if ( !m_fieldReference() ) return nullptr;
+    if ( !m_object() ) return nullptr;
 
-    return m_fieldReference->field();
+    return m_object->findField( m_fieldName() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimFieldQuickAccess::selectObjectButton()
+caf::PdmObjectHandle* RimFieldReference::object() const
 {
-    return &m_selectObjectButton;
+    return m_object;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFieldQuickAccess::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+void RimFieldReference::setField( caf::PdmObjectHandle* object, const QString& fieldName )
 {
-    if ( changedField == &m_selectObjectButton )
-    {
-        m_selectObjectButton = false;
-
-        if ( m_fieldReference() )
-        {
-            if ( auto pdmObj = dynamic_cast<caf::PdmObject*>( m_fieldReference->object() ) )
-            {
-                Riu3DMainWindowTools::selectAsCurrentItem( pdmObj );
-            }
-        }
-    }
+    m_object    = object;
+    m_fieldName = fieldName;
 }
