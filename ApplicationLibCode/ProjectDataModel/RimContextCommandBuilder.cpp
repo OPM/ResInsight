@@ -1125,6 +1125,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicPasteAsciiDataCurveFeature";
         menuBuilder << "RicPasteSummaryCaseFeature";
         menuBuilder.addSeparator();
+        menuBuilder << "RicAddFieldToQuickAccessFeature";
+        menuBuilder.addSeparator();
         menuBuilder << "RicCopyReferencesToClipboardFeature";
 
         menuBuilder << "RicLinkViewFeature";

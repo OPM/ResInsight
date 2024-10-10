@@ -822,7 +822,8 @@ void RiuMainWindow::createDockPanels()
     }
 
     {
-        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Quick Access", "Quick Access", dockManager() );
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Quick Access", RiuDockWidgetTools::mainWindowQuickAccessName(), dockManager() );
 
         m_pinnedFieldView = new caf::PdmUiPropertyView( dockWidget );
         dockWidget->setWidget( m_pinnedFieldView );

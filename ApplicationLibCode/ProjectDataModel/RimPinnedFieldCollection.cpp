@@ -131,11 +131,7 @@ void RimPinnedFieldCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
         for ( auto fieldRef : fieldRefs )
         {
             group->add( fieldRef->field() );
-        }
-
-        if ( !fieldRefs.empty() )
-        {
-            group->add( fieldRefs.front()->selectObjectButton(), { .newRow = false } );
+            group->add( fieldRef->selectObjectButton(), { .newRow = false } );
         }
     }
 }
