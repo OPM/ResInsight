@@ -37,6 +37,12 @@ RimFieldQuickAccess::RimFieldQuickAccess()
     CAF_PDM_InitField( &m_selectObjectButton, "SelectObject", false, "...", ":/Bullet.png", "Select Object in Property Editor" );
     m_selectObjectButton.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_selectObjectButton.xmlCapability()->disableIO();
+
+    CAF_PDM_InitField( &m_removeObjectButton, "RemoveObject", false, "...", ":/Erase.svg", "Remove Item" );
+    m_removeObjectButton.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    m_removeObjectButton.xmlCapability()->disableIO();
+
+    m_toBeDeleted = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,7 +65,8 @@ void RimFieldQuickAccess::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         uiOrdering.add( m_fieldReference()->field() );
     }
 
-    uiOrdering.add( &m_selectObjectButton );
+    uiOrdering.add( &m_selectObjectButton, { .newRow = false } );
+    uiOrdering.add( &m_removeObjectButton, { .newRow = false } );
 
     uiOrdering.skipRemainingFields();
 }
@@ -77,9 +84,9 @@ caf::PdmFieldHandle* RimFieldQuickAccess::field() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimFieldQuickAccess::selectObjectButton()
+bool RimFieldQuickAccess::toBeDeleted() const
 {
-    return &m_selectObjectButton;
+    return m_toBeDeleted;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,5 +105,12 @@ void RimFieldQuickAccess::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                 Riu3DMainWindowTools::selectAsCurrentItem( pdmObj );
             }
         }
+    }
+
+    if ( changedField == &m_removeObjectButton )
+    {
+        m_removeObjectButton = false;
+
+        m_toBeDeleted = true;
     }
 }

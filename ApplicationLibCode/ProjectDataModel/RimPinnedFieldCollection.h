@@ -43,6 +43,10 @@ public:
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
+    void deleteMarkedObjects();
+
 private:
     caf::PdmChildArrayField<RimFieldQuickAccess*> m_fieldReferences;
+
+    std::set<RimFieldQuickAccess*> m_toBeDeleted;
 };

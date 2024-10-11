@@ -42,7 +42,7 @@ public:
     void                 setField( caf::PdmFieldHandle* field );
     caf::PdmFieldHandle* field() const;
 
-    caf::PdmFieldHandle* selectObjectButton();
+    bool toBeDeleted() const;
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -51,4 +51,6 @@ private:
     caf::PdmChildField<RimFieldReference*> m_fieldReference;
 
     caf::PdmField<bool> m_selectObjectButton;
+    caf::PdmField<bool> m_removeObjectButton;
+    bool                m_toBeDeleted;
 };

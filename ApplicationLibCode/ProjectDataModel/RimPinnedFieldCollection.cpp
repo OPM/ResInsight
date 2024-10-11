@@ -18,6 +18,8 @@
 
 #include "RimPinnedFieldCollection.h"
 
+#include "RiaApplication.h"
+
 #include "RimFieldQuickAccess.h"
 #include "RimProject.h"
 
@@ -78,8 +80,7 @@ void RimPinnedFieldCollection::removeField( caf::PdmFieldHandle* field )
     {
         if ( field == fieldRef->field() )
         {
-            m_fieldReferences.removeChild( fieldRef );
-            delete fieldRef;
+            m_toBeDeleted.insert( fieldRef );
             return;
         }
     }
@@ -90,9 +91,13 @@ void RimPinnedFieldCollection::removeField( caf::PdmFieldHandle* field )
 //--------------------------------------------------------------------------------------------------
 void RimPinnedFieldCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    std::map<caf::PdmObjectHandle*, std::vector<RimFieldQuickAccess*>> fieldMap;
+    auto activeView = RiaApplication::instance()->activeGridView();
+    if ( !activeView ) return;
 
-    // Group fields by object
+    deleteMarkedObjects();
+
+    std::vector<RimFieldQuickAccess*> fieldsForView;
+
     for ( auto fieldRef : m_fieldReferences )
     {
         if ( !fieldRef ) continue;
@@ -101,37 +106,55 @@ void RimPinnedFieldCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
         {
             if ( auto ownerObject = field->ownerObject() )
             {
-                fieldMap[ownerObject].push_back( fieldRef );
+                auto view = ownerObject->firstAncestorOrThisOfType<RimGridView>();
+                if ( view != activeView )
+                {
+                    continue;
+                }
+
+                fieldsForView.push_back( fieldRef );
             }
         }
     }
 
-    int groupId = 1;
+    if ( fieldsForView.empty() ) return;
 
-    // Create ui ordering with a group containing fields for each object
-    for ( auto& pair : fieldMap )
+    QString groupName;
+    auto    uiCapability = activeView->uiCapability();
+    if ( uiCapability->userDescriptionField() && uiCapability->userDescriptionField()->uiCapability() )
     {
-        auto object    = pair.first;
-        auto fieldRefs = pair.second;
+        groupName = uiCapability->userDescriptionField()->uiCapability()->uiValue().toString();
+    }
+    else
+    {
+        groupName = "Group ";
+    }
 
-        QString groupName;
-        auto    uiCapability = object->uiCapability();
-        if ( uiCapability->userDescriptionField() && uiCapability->userDescriptionField()->uiCapability() )
-        {
-            groupName = uiCapability->userDescriptionField()->uiCapability()->uiValue().toString();
-        }
-        else
-        {
-            groupName = "Group " + QString::number( groupId );
-        }
+    auto group = uiOrdering.addNewGroup( groupName );
 
-        auto group = uiOrdering.addNewGroup( groupName );
-        groupId++;
+    for ( auto fieldRef : fieldsForView )
+    {
+        fieldRef->uiOrdering( uiConfigName, *group );
+    }
+}
 
-        for ( auto fieldRef : fieldRefs )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPinnedFieldCollection::deleteMarkedObjects()
+{
+    for ( auto fieldRef : m_fieldReferences )
+    {
+        if ( fieldRef->toBeDeleted() )
         {
-            group->add( fieldRef->field() );
-            group->add( fieldRef->selectObjectButton(), { .newRow = false } );
+            m_toBeDeleted.insert( fieldRef );
         }
     }
+
+    for ( auto fieldRef : m_toBeDeleted )
+    {
+        m_fieldReferences.removeChild( fieldRef );
+        delete fieldRef;
+    }
+    m_toBeDeleted.clear();
 }
