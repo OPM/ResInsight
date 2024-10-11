@@ -1504,7 +1504,6 @@ void RiuMainWindow::selectedObjectsChanged()
     updateUiFieldsFromActiveResult( firstSelectedObject );
 
     m_pdmUiPropertyView->showProperties( firstSelectedObject );
-    m_pinnedFieldView->showProperties( RimPinnedFieldCollection::instance() );
 
     m_seismicHistogramPanel->showHistogram( firstSelectedObject );
 
@@ -1557,6 +1556,9 @@ void RiuMainWindow::selectedObjectsChanged()
             projectTree->treeView()->setFocus();
         }
     }
+
+    // The update of pinned view is depending on active view, and must be done after the active view is set
+    m_pinnedFieldView->showProperties( RimPinnedFieldCollection::instance() );
 }
 
 //--------------------------------------------------------------------------------------------------
