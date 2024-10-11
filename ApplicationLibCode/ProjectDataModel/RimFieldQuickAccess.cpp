@@ -38,11 +38,11 @@ RimFieldQuickAccess::RimFieldQuickAccess()
     m_selectObjectButton.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_selectObjectButton.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_removeObjectButton, "RemoveObject", false, "...", ":/Erase.svg", "Remove Item" );
-    m_removeObjectButton.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
-    m_removeObjectButton.xmlCapability()->disableIO();
+    CAF_PDM_InitField( &m_removeItemButton, "RemoveItem", false, "...", ":/Erase.svg", "Remove Quick Access" );
+    m_removeItemButton.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    m_removeItemButton.xmlCapability()->disableIO();
 
-    m_toBeDeleted = false;
+    m_markedForRemoval = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,7 +66,7 @@ void RimFieldQuickAccess::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     }
 
     uiOrdering.add( &m_selectObjectButton, { .newRow = false } );
-    uiOrdering.add( &m_removeObjectButton, { .newRow = false } );
+    uiOrdering.add( &m_removeItemButton, { .newRow = false } );
 
     uiOrdering.skipRemainingFields();
 }
@@ -84,9 +84,9 @@ caf::PdmFieldHandle* RimFieldQuickAccess::field() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFieldQuickAccess::toBeDeleted() const
+bool RimFieldQuickAccess::markedForRemoval() const
 {
-    return m_toBeDeleted;
+    return m_markedForRemoval;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,10 +107,10 @@ void RimFieldQuickAccess::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         }
     }
 
-    if ( changedField == &m_removeObjectButton )
+    if ( changedField == &m_removeItemButton )
     {
-        m_removeObjectButton = false;
+        m_removeItemButton = false;
 
-        m_toBeDeleted = true;
+        m_markedForRemoval = true;
     }
 }

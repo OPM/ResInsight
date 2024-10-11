@@ -26,10 +26,6 @@ class RimFieldReference;
 
 //==================================================================================================
 ///
-/// This class is used to store a reference to a field in a PdmObject, and is similar to caf::PdmPtrField<caf::PdmObjectHandle*> that is
-/// used for a non-owning reference to an object. Consider creating a caf::PdmPtrField<caf::PdmFieldHandle*> instead of this class.
-///
-/// Investigate if PdmFieldCapability::attributes can be used to store the field name for a caf::PdmPtrField<caf::PdmObjectHandle*>
 ///
 //==================================================================================================
 class RimFieldQuickAccess : public caf::PdmObject
@@ -42,7 +38,7 @@ public:
     void                 setField( caf::PdmFieldHandle* field );
     caf::PdmFieldHandle* field() const;
 
-    bool toBeDeleted() const;
+    bool markedForRemoval() const;
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -51,6 +47,6 @@ private:
     caf::PdmChildField<RimFieldReference*> m_fieldReference;
 
     caf::PdmField<bool> m_selectObjectButton;
-    caf::PdmField<bool> m_removeObjectButton;
-    bool                m_toBeDeleted;
+    caf::PdmField<bool> m_removeItemButton;
+    bool                m_markedForRemoval;
 };

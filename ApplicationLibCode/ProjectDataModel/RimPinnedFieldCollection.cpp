@@ -146,7 +146,7 @@ void RimPinnedFieldCollection::deleteMarkedObjects()
 {
     for ( auto fieldRef : m_fieldReferences )
     {
-        if ( fieldRef->toBeDeleted() )
+        if ( fieldRef->markedForRemoval() )
         {
             m_toBeDeleted.insert( fieldRef );
         }
