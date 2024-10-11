@@ -114,7 +114,7 @@ void RicSummaryPlotEditorWidgetCreator::recursivelyConfigureAndUpdateTopLevelUiO
     QMinimizePanel* curveGroup = getOrCreateCurveTreeGroup();
     m_lowerLeftLayout->insertWidget( 2, curveGroup, 1 );
     m_lowerLeftLayout->addStretch( 0 );
-    m_lowerRightLayout->insertWidget( 1, getOrCreatePlotWidget() );
+    m_lowerRightLayout->insertWidget( 0, getOrCreatePlotWidget() );
 
     // Fields at bottom of dialog
     configureAndUpdateFields( 1, m_bottomFieldLayout, topLevelUiItems, uiConfigName );
