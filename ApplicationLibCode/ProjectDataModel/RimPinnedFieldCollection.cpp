@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RimFieldQuickAccess.h"
+#include "RimGridView.h"
 #include "RimProject.h"
 
 #include "cafAssert.h"
