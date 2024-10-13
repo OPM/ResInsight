@@ -19,6 +19,7 @@
 #include "gtest/gtest.h"
 
 #include "RiaConsoleApplication.h"
+#include "RiaQuantityInfoTools.h"
 #include "RiaRegressionTestRunner.h"
 
 #include <QLocale>
@@ -30,6 +31,7 @@ int main( int argc, char** argv )
 {
     // Create feature manager before the application object is created
     RiaRegressionTestRunner::createSingleton();
+    RiaQuantityInfoTools::initializeSummaryKeywords();
 
     RiaApplication* app = new RiaConsoleApplication( argc, argv );
     app->initialize();
