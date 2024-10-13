@@ -19,6 +19,7 @@
 #include "RiaArgumentParser.h"
 #include "RiaMainTools.h"
 #include "RiaPreferences.h"
+#include "RiaQuantityInfoTools.h"
 
 #ifdef ENABLE_GRPC
 #include "RiaGrpcConsoleApplication.h"
@@ -92,6 +93,7 @@ int main( int argc, char* argv[] )
 
     // Create feature manager before the application object is created
     RiaMainTools::initializeSingletons();
+    RiaQuantityInfoTools::initializeSummaryKeywords();
 
     // https://www.w3.org/wiki/CSS/Properties/color/keywords
     caf::UiAppearanceSettings::instance()->setAutoValueEditorColor( "moccasin" );

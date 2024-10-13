@@ -220,8 +220,10 @@ endif()
 # ##############################################################################
 source_group("ModelVisualization" FILES ${MODEL_VISUALIZATION_FILES})
 
+qt_add_resources(QRC_FILES Application/Resources/ApplicationLibCode.qrc)
+
 list(APPEND ALL_SOURCE_FILES ${CPP_SOURCES} ${MOC_SOURCE_FILES}
-     ${FORM_FILES_CPP}
+     ${FORM_FILES_CPP} ${QRC_FILES}
 )
 
 add_library(${PROJECT_NAME} OBJECT ${ALL_SOURCE_FILES})
@@ -389,6 +391,7 @@ set(UNITY_EXCLUDE_FILES
     qrc_cafAnimControl.cpp
     qrc_ResInsight.cpp
     qrc_cafCommandFeatures.cpp
+    qrc_ApplicationLibCode.cpp
     # Exclude files including opm-common
     ProjectDataModel/RimVfpTableExtractor.cpp
     ProjectDataModel/RimVfpPlot.cpp

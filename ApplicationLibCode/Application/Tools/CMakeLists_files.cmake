@@ -55,6 +55,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTextTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaFileLogger.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaProjectBackupTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaQuantityInfoTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -107,6 +108,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTextTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaFileLogger.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaProjectBackupTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaQuantityInfoTools.cpp
 )
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

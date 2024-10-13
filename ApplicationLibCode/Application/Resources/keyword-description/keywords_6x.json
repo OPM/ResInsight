@@ -1,0 +1,1458 @@
+{
+    "BAPIF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil API (Fracture)"
+    },
+    "BAPIM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil API (Matrix)"
+    },
+    "BAPIM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil API (Matrix -1)"
+    },
+    "BAPIM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil API (Matrix 2)"
+    },
+    "BAPIM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil API (Matrix 3)"
+    },
+    "BAPIM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil API (Matrix 4)"
+    },
+    "BCCPF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Pore Volume Compressibility (Fracture)"
+    },
+    "BCCPM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Pore Volume Compressibility (Matrix)"
+    },
+    "BCCPM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Pore Volume Compressibility (Matrix -1)"
+    },
+    "BCCPM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Pore Volume Compressibility (Matrix 2)"
+    },
+    "BCCPM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Pore Volume Compressibility (Matrix 3)"
+    },
+    "BCCPM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Pore Volume Compressibility (Matrix 4)"
+    },
+    "BDENGASF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Density (Fracture)"
+    },
+    "BDENGASM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Density (Matrix)"
+    },
+    "BDENGASM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Density (Matrix -1)"
+    },
+    "BDENGASM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Density (Matrix 2)"
+    },
+    "BDENGASM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Density (Matrix 3)"
+    },
+    "BDENGASM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Density (Matrix 4)"
+    },
+    "BDENOILF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Density (Fracture)"
+    },
+    "BDENOILM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Density (Matrix)"
+    },
+    "BDENOILM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Density (Matrix -1)"
+    },
+    "BDENOILM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Density (Matrix 2)"
+    },
+    "BDENOILM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Density (Matrix 3)"
+    },
+    "BDENOILM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Density (Matrix 4)"
+    },
+    "BDENWATF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Density (Fracture)"
+    },
+    "BDENWATM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Density (Matrix)"
+    },
+    "BDENWATM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Density (Matrix -1)"
+    },
+    "BDENWATM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Density (Matrix 2)"
+    },
+    "BDENWATM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Density (Matrix 3)"
+    },
+    "BDENWATM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Density (Matrix 4)"
+    },
+    "BDPF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Change in Pressure Since Initial State (Fracture)"
+    },
+    "BDPM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Change in Pressure Since Initial State (Matrix)"
+    },
+    "BDPM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Change in Pressure Since Initial State (Matrix -1)"
+    },
+    "BDPM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Change in Pressure Since Initial State (Matrix 2)"
+    },
+    "BDPM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Change in Pressure Since Initial State (Matrix 3)"
+    },
+    "BDPM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Change in Pressure Since Initial State (Matrix 4)"
+    },
+    "BDYNBRSTF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Breaking Stress (Fracture)"
+    },
+    "BDYNBRSTM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Breaking Stress (Matrix)"
+    },
+    "BDYNBRSTM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Breaking Stress (Matrix -1)"
+    },
+    "BDYNBRSTM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Breaking Stress (Matrix 2)"
+    },
+    "BDYNBRSTM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Breaking Stress (Matrix 3)"
+    },
+    "BDYNBRSTM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Breaking Stress (Matrix 4)"
+    },
+    "BDYNKXF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Permeability in X-Direction (Fracture)"
+    },
+    "BDYNKXM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Permeability in X-Direction (Matrix)"
+    },
+    "BDYNKXM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Permeability in X-Direction (Matrix -1)"
+    },
+    "BDYNKXM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Permeability in X-Direction (Matrix 2)"
+    },
+    "BDYNKXM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Permeability in X-Direction (Matrix 3)"
+    },
+    "BDYNKXM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Permeability in X-Direction (Matrix 4)"
+    },
+    "BDYNKYF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Permeability in Y-Direction (Fracture)"
+    },
+    "BDYNKYM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Permeability in Y-Direction (Matrix)"
+    },
+    "BDYNKYM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Permeability in Y-Direction (Matrix -1)"
+    },
+    "BDYNKYM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Permeability in Y-Direction (Matrix 2)"
+    },
+    "BDYNKYM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Permeability in Y-Direction (Matrix 3)"
+    },
+    "BDYNKYM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Permeability in Y-Direction (Matrix 4)"
+    },
+    "BDYNKZF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Permeability in Z-Direction (Fracture)"
+    },
+    "BDYNKZM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Permeability in Z-Direction (Matrix)"
+    },
+    "BDYNKZM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Permeability in Z-Direction (Matrix -1)"
+    },
+    "BDYNKZM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Permeability in Z-Direction (Matrix 2)"
+    },
+    "BDYNKZM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Permeability in Z-Direction (Matrix 3)"
+    },
+    "BDYNKZM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Permeability in Z-Direction (Matrix 4)"
+    },
+    "BDYNPVF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Pore Volume (Fracture)"
+    },
+    "BDYNPVM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Pore Volume (Matrix)"
+    },
+    "BDYNPVM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Pore Volume (Matrix -1)"
+    },
+    "BDYNPVM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Pore Volume (Matrix 2)"
+    },
+    "BDYNPVM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Pore Volume (Matrix 3)"
+    },
+    "BDYNPVM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Pore Volume (Matrix 4)"
+    },
+    "BDYNSIGF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Sigma Permeability (Fracture)"
+    },
+    "BDYNSIGM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Sigma Permeability (Matrix)"
+    },
+    "BDYNSIGM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Sigma Permeability (Matrix -1)"
+    },
+    "BDYNSIGM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Sigma Permeability (Matrix 2)"
+    },
+    "BDYNSIGM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Sigma Permeability (Matrix 3)"
+    },
+    "BDYNSIGM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Sigma Permeability (Matrix 4)"
+    },
+    "BKRGASF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Relative Permeability (Fracture)"
+    },
+    "BKRGASM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Relative Permeability (Matrix)"
+    },
+    "BKRGASM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Relative Permeability (Matrix -1)"
+    },
+    "BKRGASM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Relative Permeability (Matrix 2)"
+    },
+    "BKRGASM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Relative Permeability (Matrix 3)"
+    },
+    "BKRGASM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Relative Permeability (Matrix 4)"
+    },
+    "BKROILF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Relative Permeability (Fracture)"
+    },
+    "BKROILM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Relative Permeability (Matrix)"
+    },
+    "BKROILM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Relative Permeability (Matrix -1)"
+    },
+    "BKROILM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Relative Permeability (Matrix 2)"
+    },
+    "BKROILM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Relative Permeability (Matrix 3)"
+    },
+    "BKROILM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Relative Permeability (Matrix 4)"
+    },
+    "BKRWATF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Relative Permeability (Fracture)"
+    },
+    "BKRWATM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Relative Permeability (Matrix)"
+    },
+    "BKRWATM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Relative Permeability (Matrix -1)"
+    },
+    "BKRWATM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Relative Permeability (Matrix 2)"
+    },
+    "BKRWATM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Relative Permeability (Matrix 3)"
+    },
+    "BKRWATM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Relative Permeability (Matrix 4)"
+    },
+    "BPCOGF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil-Gas Capillary Pressure (Fracture)"
+    },
+    "BPCOGM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil-Gas Capillary Pressure (Matrix)"
+    },
+    "BPCOGM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil-Gas Capillary Pressure (Matrix -1)"
+    },
+    "BPCOGM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil-Gas Capillary Pressure (Matrix 2)"
+    },
+    "BPCOGM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil-Gas Capillary Pressure (Matrix 3)"
+    },
+    "BPCOGM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil-Gas Capillary Pressure (Matrix 4)"
+    },
+    "BPCOILF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Capillary Pressure (Fracture)"
+    },
+    "BPCOILM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Capillary Pressure (Matrix)"
+    },
+    "BPCOILM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Capillary Pressure (Matrix -1)"
+    },
+    "BPCOILM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Capillary Pressure (Matrix 2)"
+    },
+    "BPCOILM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Capillary Pressure (Matrix 3)"
+    },
+    "BPCOILM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Capillary Pressure (Matrix 4)"
+    },
+    "BPCOWF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil-Water Capillary Pressure (Fracture)"
+    },
+    "BPCOWM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil-Water Capillary Pressure (Matrix)"
+    },
+    "BPCOWM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil-Water Capillary Pressure (Matrix -1)"
+    },
+    "BPCOWM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil-Water Capillary Pressure (Matrix 2)"
+    },
+    "BPCOWM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil-Water Capillary Pressure (Matrix 3)"
+    },
+    "BPCOWM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil-Water Capillary Pressure (Matrix 4)"
+    },
+    "BPCWATF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Capillary Pressure (Fracture)"
+    },
+    "BPCWATM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Capillary Pressure (Matrix)"
+    },
+    "BPCWATM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Capillary Pressure (Matrix -1)"
+    },
+    "BPCWATM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Capillary Pressure (Matrix 2)"
+    },
+    "BPCWATM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Capillary Pressure (Matrix 3)"
+    },
+    "BPCWATM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Capillary Pressure (Matrix 4)"
+    },
+    "BPMODHYSF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Pmod Hysteresis Curve Type (1/2/3=B/S/P) (Fracture)"
+    },
+    "BPMODHYSM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Pmod Hysteresis Curve Type (1/2/3=B/S/P) (Matrix)"
+    },
+    "BPMODHYSM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Pmod Hysteresis Curve Type (1/2/3=B/S/P) (Matrix -1)"
+    },
+    "BPMODHYSM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Pmod Hysteresis Curve Type (1/2/3=B/S/P) (Matrix 2)"
+    },
+    "BPMODHYSM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Pmod Hysteresis Curve Type (1/2/3=B/S/P) (Matrix 3)"
+    },
+    "BPMODHYSM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Dynamic Pmod Hysteresis Curve Type (1/2/3=B/S/P) (Matrix 4)"
+    },
+    "BPRF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Pressure (Fracture)"
+    },
+    "BPRM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Pressure (Matrix)"
+    },
+    "BPRM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Pressure (Matrix -1)"
+    },
+    "BPRM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Pressure (Matrix 2)"
+    },
+    "BPRM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Pressure (Matrix 3)"
+    },
+    "BPRM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Pressure (Matrix 4)"
+    },
+    "BRSF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Rs (Fracture)"
+    },
+    "BRSM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Rs (Matrix)"
+    },
+    "BRSM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Rs (Matrix -1)"
+    },
+    "BRSM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Rs (Matrix 2)"
+    },
+    "BRSM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Rs (Matrix 3)"
+    },
+    "BRSM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Rs (Matrix 4)"
+    },
+    "BRVF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Rv (Fracture)"
+    },
+    "BRVM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Rv (Matrix)"
+    },
+    "BRVM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Rv (Matrix -1)"
+    },
+    "BRVM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Rv (Matrix 2)"
+    },
+    "BRVM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Rv (Matrix 3)"
+    },
+    "BRVM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Rv (Matrix 4)"
+    },
+    "BSGASF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Saturation (Fracture)"
+    },
+    "BSGASM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Saturation (Matrix)"
+    },
+    "BSGASM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Saturation (Matrix -1)"
+    },
+    "BSGASM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Saturation (Matrix 2)"
+    },
+    "BSGASM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Saturation (Matrix 3)"
+    },
+    "BSGASM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Saturation (Matrix 4)"
+    },
+    "BSOILF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Saturation (Fracture)"
+    },
+    "BSOILM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Saturation (Matrix)"
+    },
+    "BSOILM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Saturation (Matrix -1)"
+    },
+    "BSOILM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Saturation (Matrix 2)"
+    },
+    "BSOILM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Saturation (Matrix 3)"
+    },
+    "BSOILM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Saturation (Matrix 4)"
+    },
+    "BSRVSTATF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Srv Status (1/2/3=Stim/Sigprop/Propprop) (Fracture)"
+    },
+    "BSRVSTATM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Srv Status (1/2/3=Stim/Sigprop/Propprop) (Matrix)"
+    },
+    "BSRVSTATM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Srv Status (1/2/3=Stim/Sigprop/Propprop) (Matrix -1)"
+    },
+    "BSRVSTATM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Srv Status (1/2/3=Stim/Sigprop/Propprop) (Matrix 2)"
+    },
+    "BSRVSTATM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Srv Status (1/2/3=Stim/Sigprop/Propprop) (Matrix 3)"
+    },
+    "BSRVSTATM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Srv Status (1/2/3=Stim/Sigprop/Propprop) (Matrix 4)"
+    },
+    "BSTRAINF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Volumetric Strain (Fracture)"
+    },
+    "BSTRAINM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Volumetric Strain (Matrix)"
+    },
+    "BSTRAINM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Volumetric Strain (Matrix -1)"
+    },
+    "BSTRAINM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Volumetric Strain (Matrix 2)"
+    },
+    "BSTRAINM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Volumetric Strain (Matrix 3)"
+    },
+    "BSTRAINM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Volumetric Strain (Matrix 4)"
+    },
+    "BSTRESSAF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Mean Normal Stress Idealised Analytic Solution (Fracture)"
+    },
+    "BSTRESSAM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Mean Normal Stress Idealised Analytic Solution (Matrix)"
+    },
+    "BSTRESSAM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Mean Normal Stress Idealised Analytic Solution (Matrix -1)"
+    },
+    "BSTRESSAM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Mean Normal Stress Idealised Analytic Solution (Matrix 2)"
+    },
+    "BSTRESSAM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Mean Normal Stress Idealised Analytic Solution (Matrix 3)"
+    },
+    "BSTRESSAM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Mean Normal Stress Idealised Analytic Solution (Matrix 4)"
+    },
+    "BSTRESSF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Mean Normal Stress (Fracture)"
+    },
+    "BSTRESSM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Mean Normal Stress (Matrix)"
+    },
+    "BSTRESSM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Mean Normal Stress (Matrix -1)"
+    },
+    "BSTRESSM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Mean Normal Stress (Matrix 2)"
+    },
+    "BSTRESSM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Mean Normal Stress (Matrix 3)"
+    },
+    "BSTRESSM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Mean Normal Stress (Matrix 4)"
+    },
+    "BSTRESSNF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Net Stress (Fracture)"
+    },
+    "BSTRESSNM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Net Stress (Matrix)"
+    },
+    "BSTRESSNM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Net Stress (Matrix -1)"
+    },
+    "BSTRESSNM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Net Stress (Matrix 2)"
+    },
+    "BSTRESSNM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Net Stress (Matrix 3)"
+    },
+    "BSTRESSNM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Net Stress (Matrix 4)"
+    },
+    "BSWATF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Saturation (Fracture)"
+    },
+    "BSWATM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Saturation (Matrix)"
+    },
+    "BSWATM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Saturation (Matrix -1)"
+    },
+    "BSWATM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Saturation (Matrix 2)"
+    },
+    "BSWATM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Saturation (Matrix 3)"
+    },
+    "BSWATM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Saturation (Matrix 4)"
+    },
+    "BVISCGASF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Viscosity (Fracture)"
+    },
+    "BVISCGASM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Viscosity (Matrix)"
+    },
+    "BVISCGASM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Viscosity (Matrix -1)"
+    },
+    "BVISCGASM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Viscosity (Matrix 2)"
+    },
+    "BVISCGASM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Viscosity (Matrix 3)"
+    },
+    "BVISCGASM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Gas Viscosity (Matrix 4)"
+    },
+    "BVISCOILF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Viscosity (Fracture)"
+    },
+    "BVISCOILM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Viscosity (Matrix)"
+    },
+    "BVISCOILM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Viscosity (Matrix -1)"
+    },
+    "BVISCOILM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Viscosity (Matrix 2)"
+    },
+    "BVISCOILM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Viscosity (Matrix 3)"
+    },
+    "BVISCOILM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Oil Viscosity (Matrix 4)"
+    },
+    "BVISCWATF": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Viscosity (Fracture)"
+    },
+    "BVISCWATM": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Viscosity (Matrix)"
+    },
+    "BVISCWATM-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Viscosity (Matrix -1)"
+    },
+    "BVISCWATM2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Viscosity (Matrix 2)"
+    },
+    "BVISCWATM3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Viscosity (Matrix 3)"
+    },
+    "BVISCWATM4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Water Viscosity (Matrix 4)"
+    },
+    "BX0F": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Liquid Phase Mole Fraction (Component 0) (Fracture)"
+    },
+    "BX0M": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Liquid Phase Mole Fraction (Component 0) (Matrix)"
+    },
+    "BX0M-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Liquid Phase Mole Fraction (Component 0) (Matrix -1)"
+    },
+    "BX0M2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Liquid Phase Mole Fraction (Component 0) (Matrix 2)"
+    },
+    "BX0M3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Liquid Phase Mole Fraction (Component 0) (Matrix 3)"
+    },
+    "BX0M4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Liquid Phase Mole Fraction (Component 0) (Matrix 4)"
+    },
+    "BX1F": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Liquid Phase Mole Fraction (Component 1) (Fracture)"
+    },
+    "BX1M": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Liquid Phase Mole Fraction (Component 1) (Matrix)"
+    },
+    "BX1M-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Liquid Phase Mole Fraction (Component 1) (Matrix -1)"
+    },
+    "BX1M2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Liquid Phase Mole Fraction (Component 1) (Matrix 2)"
+    },
+    "BX1M3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Liquid Phase Mole Fraction (Component 1) (Matrix 3)"
+    },
+    "BX1M4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Liquid Phase Mole Fraction (Component 1) (Matrix 4)"
+    },
+    "BX2F": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Liquid Phase Mole Fraction (Component 2) (Fracture)"
+    },
+    "BX2M": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Liquid Phase Mole Fraction (Component 2) (Matrix)"
+    },
+    "BX2M-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Liquid Phase Mole Fraction (Component 2) (Matrix -1)"
+    },
+    "BX2M2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Liquid Phase Mole Fraction (Component 2) (Matrix 2)"
+    },
+    "BX2M3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Liquid Phase Mole Fraction (Component 2) (Matrix 3)"
+    },
+    "BX2M4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Liquid Phase Mole Fraction (Component 2) (Matrix 4)"
+    },
+    "BY0F": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Vapor Phase Mole Fraction (Component 0) (Fracture)"
+    },
+    "BY0M": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Vapor Phase Mole Fraction (Component 0) (Matrix)"
+    },
+    "BY0M-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Vapor Phase Mole Fraction (Component 0) (Matrix -1)"
+    },
+    "BY0M2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Vapor Phase Mole Fraction (Component 0) (Matrix 2)"
+    },
+    "BY0M3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Vapor Phase Mole Fraction (Component 0) (Matrix 3)"
+    },
+    "BY0M4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Vapor Phase Mole Fraction (Component 0) (Matrix 4)"
+    },
+    "BY1F": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Vapor Phase Mole Fraction (Component 1) (Fracture)"
+    },
+    "BY1M": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Vapor Phase Mole Fraction (Component 1) (Matrix)"
+    },
+    "BY1M-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Vapor Phase Mole Fraction (Component 1) (Matrix -1)"
+    },
+    "BY1M2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Vapor Phase Mole Fraction (Component 1) (Matrix 2)"
+    },
+    "BY1M3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Vapor Phase Mole Fraction (Component 1) (Matrix 3)"
+    },
+    "BY1M4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Vapor Phase Mole Fraction (Component 1) (Matrix 4)"
+    },
+    "BY2F": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Vapor Phase Mole Fraction (Component 2) (Fracture)"
+    },
+    "BY2M": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Vapor Phase Mole Fraction (Component 2) (Matrix)"
+    },
+    "BY2M-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Vapor Phase Mole Fraction (Component 2) (Matrix -1)"
+    },
+    "BY2M2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Vapor Phase Mole Fraction (Component 2) (Matrix 2)"
+    },
+    "BY2M3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Vapor Phase Mole Fraction (Component 2) (Matrix 3)"
+    },
+    "BY2M4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Vapor Phase Mole Fraction (Component 2) (Matrix 4)"
+    },
+    "BZ0F": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Total Mole Fraction (Component 0) (Fracture)"
+    },
+    "BZ0M": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Total Mole Fraction (Component 0) (Matrix)"
+    },
+    "BZ0M-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Total Mole Fraction (Component 0) (Matrix -1)"
+    },
+    "BZ0M2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Total Mole Fraction (Component 0) (Matrix 2)"
+    },
+    "BZ0M3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Total Mole Fraction (Component 0) (Matrix 3)"
+    },
+    "BZ0M4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Total Mole Fraction (Component 0) (Matrix 4)"
+    },
+    "BZ1F": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Total Mole Fraction (Component 1) (Fracture)"
+    },
+    "BZ1M": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Total Mole Fraction (Component 1) (Matrix)"
+    },
+    "BZ1M-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Total Mole Fraction (Component 1) (Matrix -1)"
+    },
+    "BZ1M2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Total Mole Fraction (Component 1) (Matrix 2)"
+    },
+    "BZ1M3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Total Mole Fraction (Component 1) (Matrix 3)"
+    },
+    "BZ1M4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Total Mole Fraction (Component 1) (Matrix 4)"
+    },
+    "BZ2F": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Total Mole Fraction (Component 2) (Fracture)"
+    },
+    "BZ2M": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Total Mole Fraction (Component 2) (Matrix)"
+    },
+    "BZ2M-1": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Total Mole Fraction (Component 2) (Matrix -1)"
+    },
+    "BZ2M2": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Total Mole Fraction (Component 2) (Matrix 2)"
+    },
+    "BZ2M3": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Total Mole Fraction (Component 2) (Matrix 3)"
+    },
+    "BZ2M4": {
+        "category": "SUMMARY_BLOCK",
+        "description": "Total Mole Fraction (Component 2) (Matrix 4)"
+    },
+    "CFGAS": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Gas Flow Rate"
+    },
+    "CPDIAM": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Perforation Diameter"
+    },
+    "FDG": {
+        "category": "SUMMARY_FIELD",
+        "description": "Gas in Place Difference from Initial Conditions"
+    },
+    "FDO": {
+        "category": "SUMMARY_FIELD",
+        "description": "Oil in Place Difference from Initial Conditions"
+    },
+    "FDW": {
+        "category": "SUMMARY_FIELD",
+        "description": "Water in Place Difference from Initial Conditions"
+    },
+    "FGIP": {
+        "category": "SUMMARY_FIELD",
+        "description": "Gas in Place"
+    },
+    "FLIR": {
+        "category": "SUMMARY_FIELD",
+        "description": "Liquid Injection Rate"
+    },
+    "FLIRH": {
+        "category": "SUMMARY_FIELD",
+        "description": "Liquid Injection Rate History"
+    },
+    "FLIT": {
+        "category": "SUMMARY_FIELD",
+        "description": "Liquid Injection Total"
+    },
+    "FMBG": {
+        "category": "SUMMARY_FIELD",
+        "description": "Gas Phase Material Balance Error"
+    },
+    "FMBO": {
+        "category": "SUMMARY_FIELD",
+        "description": "Oil Phase Material Balance Error"
+    },
+    "FMBW": {
+        "category": "SUMMARY_FIELD",
+        "description": "Water Phase Material Balance Error"
+    },
+    "FMSTR": {
+        "category": "SUMMARY_FIELD",
+        "description": "Average Mean Stress"
+    },
+    "FMWIR": {
+        "category": "SUMMARY_FIELD",
+        "description": "Number of Injecting Wells"
+    },
+    "FMWSH": {
+        "category": "SUMMARY_FIELD",
+        "description": "Number of Stopped Wells"
+    },
+    "FMWST": {
+        "category": "SUMMARY_FIELD",
+        "description": "Number of Shut Wells"
+    },
+    "FOIP": {
+        "category": "SUMMARY_FIELD",
+        "description": "Oil in Place"
+    },
+    "FWIP": {
+        "category": "SUMMARY_FIELD",
+        "description": "Water in Place"
+    },
+    "GLIR": {
+        "category": "SUMMARY_WELL_GROUP",
+        "description": "Liquid Injection Rate"
+    },
+    "GLIRH": {
+        "category": "SUMMARY_WELL_GROUP",
+        "description": "Liquid Injection Rate History"
+    },
+    "GLIT": {
+        "category": "SUMMARY_WELL_GROUP",
+        "description": "Liquid Injection Total"
+    },
+    "INFLOW0": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Inflow Rate (Component 0)"
+    },
+    "INFLOW1": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Inflow Rate (Component 1)"
+    },
+    "INFLOW2": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Inflow Rate (Component 2)"
+    },
+    "MEMORYTS": {
+        "category": "SUMMARY_MISC",
+        "description": "Maximum Current Memory Usage Across Processors"
+    },
+    "MLINEART": {
+        "category": "SUMMARY_MISC",
+        "description": "Number of Tracer Linear Iterations at the Current Time-Step"
+    },
+    "MSDEPTH": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Depth of Well Completion"
+    },
+    "MSUMCHOP": {
+        "category": "SUMMARY_MISC",
+        "description": "Total Number of Time-Step Chops"
+    },
+    "MSUMLINT": {
+        "category": "SUMMARY_MISC",
+        "description": "Total Number of Tracer Linear Iterations"
+    },
+    "NGIR": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Gas Injection Rate"
+    },
+    "NGIRH": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Gas Injection Rate History"
+    },
+    "NGIT": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Gas Injection Total"
+    },
+    "NGOR": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Gas Oil Ratio"
+    },
+    "NGORH": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Gas Oil Ratio History"
+    },
+    "NGPR": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Gas Production Rate"
+    },
+    "NGPRH": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Gas Production History"
+    },
+    "NGPT": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Gas Production Total"
+    },
+    "NLINEARS": {
+        "category": "SUMMARY_MISC",
+        "description": "Average Linear Iterations per Newton Iteration"
+    },
+    "NLIR": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Liquid Injection Rate"
+    },
+    "NLIRH": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Liquid Injection Rate History"
+    },
+    "NLIT": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Liquid Injection Total"
+    },
+    "NLPR": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Liquid Production Rate"
+    },
+    "NLPRH": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Liquid Production Rate History"
+    },
+    "NLPT": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Liquid Production Total"
+    },
+    "NOIR": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Oil Injection Rate"
+    },
+    "NOIRH": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Oil Injection Rate History"
+    },
+    "NOIT": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Oil Injection Total"
+    },
+    "NOPR": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Oil Production Rate"
+    },
+    "NOPRH": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Oil Production Rate History"
+    },
+    "NOPT": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Oil Production Total"
+    },
+    "NWCT": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Water Cut"
+    },
+    "NWCTH": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Water Cut History"
+    },
+    "NWIR": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Water Injection Rate"
+    },
+    "NWIRH": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Water Injection Rate History"
+    },
+    "NWIT": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Water Injection Total"
+    },
+    "NWPR": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Water Production Rate"
+    },
+    "NWPRH": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Water Production Rate History"
+    },
+    "NWPT": {
+        "category": "SUMMARY_NETWORK",
+        "description": "Water Production Total"
+    },
+    "RDG": {
+        "category": "SUMMARY_REGION",
+        "description": "Gas in Place Difference from Initial Conditions"
+    },
+    "RDO": {
+        "category": "SUMMARY_REGION",
+        "description": "Oil in Place Difference from Initial Conditions"
+    },
+    "RDW": {
+        "category": "SUMMARY_REGION",
+        "description": "Water in Place Difference from Initial Conditions"
+    },
+    "RGIP": {
+        "category": "SUMMARY_REGION",
+        "description": "Gas in Place"
+    },
+    "RGIR": {
+        "category": "SUMMARY_REGION",
+        "description": "Gas Injection Rate"
+    },
+    "RGIT": {
+        "category": "SUMMARY_REGION",
+        "description": "Gas Injection Total"
+    },
+    "RGPR": {
+        "category": "SUMMARY_REGION",
+        "description": "Gas Production Rate"
+    },
+    "RGPT": {
+        "category": "SUMMARY_REGION",
+        "description": "Gas Production Total"
+    },
+    "RLIR": {
+        "category": "SUMMARY_REGION",
+        "description": "Liquid Injection Rate"
+    },
+    "RLIT": {
+        "category": "SUMMARY_REGION",
+        "description": "Liquid Injection Total"
+    },
+    "RLPR": {
+        "category": "SUMMARY_REGION",
+        "description": "Liquid Production Rate"
+    },
+    "RLPT": {
+        "category": "SUMMARY_REGION",
+        "description": "Liquid Production Total"
+    },
+    "RMSTR": {
+        "category": "SUMMARY_REGION",
+        "description": "Averaged Mean Normal Stress"
+    },
+    "ROIP": {
+        "category": "SUMMARY_REGION",
+        "description": "Oil in Place"
+    },
+    "ROIR": {
+        "category": "SUMMARY_REGION",
+        "description": "Oil Injection Rate"
+    },
+    "ROIT": {
+        "category": "SUMMARY_REGION",
+        "description": "Oil Injection Total"
+    },
+    "ROPR": {
+        "category": "SUMMARY_REGION",
+        "description": "Oil Production Rate"
+    },
+    "ROPT": {
+        "category": "SUMMARY_REGION",
+        "description": "Oil Production Total"
+    },
+    "RPR": {
+        "category": "SUMMARY_REGION",
+        "description": "Averaged Pressure"
+    },
+    "RPRP": {
+        "category": "SUMMARY_REGION",
+        "description": "Averaged Pore-Volume Weighted Pressure"
+    },
+    "RWIP": {
+        "category": "SUMMARY_REGION",
+        "description": "Water in Place"
+    },
+    "RWIR": {
+        "category": "SUMMARY_REGION",
+        "description": "Water Injection Rate"
+    },
+    "RWIT": {
+        "category": "SUMMARY_REGION",
+        "description": "Water Injection Total"
+    },
+    "RWPR": {
+        "category": "SUMMARY_REGION",
+        "description": "Water Production Rate"
+    },
+    "RWPT": {
+        "category": "SUMMARY_REGION",
+        "description": "Water Production Total"
+    },
+    "TNREPT": {
+        "category": "SUMMARY_MISC",
+        "description": "Total Number of Report Steps"
+    },
+    "TS": {
+        "category": "SUMMARY_MISC",
+        "description": "Current Time-Step Number"
+    },
+    "TSCHOPS": {
+        "category": "SUMMARY_MISC",
+        "description": "Number of Time Step Chops at Current Time Step"
+    },
+    "WADEN": {
+        "category": "SUMMARY_WELL",
+        "description": "Average Density"
+    },
+    "WCNTL": {
+        "category": "SUMMARY_WELL",
+        "description": "Control Mode"
+    },
+    "WLIR": {
+        "category": "SUMMARY_WELL",
+        "description": "Liquid Injection Rate"
+    },
+    "WLIRH": {
+        "category": "SUMMARY_WELL",
+        "description": "Liquid Injection Rate History"
+    },
+    "WLIT": {
+        "category": "SUMMARY_WELL",
+        "description": "Liquid Injection Total"
+    },
+    "WLPV": {
+        "category": "SUMMARY_WELL",
+        "description": "Liquid Production Volume"
+    },
+    "WSBULKV": {
+        "category": "SUMMARY_WELL",
+        "description": "Stimulated Bulk Volume Associated with SRV"
+    },
+    "WSBVPROP": {
+        "category": "SUMMARY_WELL",
+        "description": "Stimulated Propped Bulk Volume Associated with SRV"
+    },
+    "WSBVUNPR": {
+        "category": "SUMMARY_WELL",
+        "description": "Stimulated Unpropped Bulk Volume Associated with SRV"
+    },
+    "WSMFSA": {
+        "category": "SUMMARY_WELL",
+        "description": "Stimulated Surface Area Associated with SRV"
+    },
+    "WSMFSAP": {
+        "category": "SUMMARY_WELL",
+        "description": "Stimulated Propped Surface Area Associated with SRV"
+    },
+    "WSMFSAU": {
+        "category": "SUMMARY_WELL",
+        "description": "Stimulated Unpropped Surface Area Associated with SRV"
+    },
+    "WSPORVF": {
+        "category": "SUMMARY_WELL",
+        "description": "Stimulated Pore Volume Associated with SRV (Fracture)"
+    },
+    "WSPORVM": {
+        "category": "SUMMARY_WELL",
+        "description": "Stimulated Pore Volume Associated with SRV (Matrix)"
+    },
+    "WTIC": {
+        "category": "SUMMARY_WELL",
+        "description": "Well Tracer Injection Concentration"
+    },
+    "WTIR": {
+        "category": "SUMMARY_WELL",
+        "description": "Well Tracer Injection Rate"
+    },
+    "WTIT": {
+        "category": "SUMMARY_WELL",
+        "description": "Well Tracer Cumulative Injection"
+    },
+    "WTPC": {
+        "category": "SUMMARY_WELL",
+        "description": "Well Tracer Production Concentration"
+    },
+    "WTPR": {
+        "category": "SUMMARY_WELL",
+        "description": "Well Tracer Production Rate"
+    },
+    "WTPT": {
+        "category": "SUMMARY_WELL",
+        "description": "Well Tracer Cumulative Production"
+    }
+}
