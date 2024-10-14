@@ -31,7 +31,6 @@
 #include "RiuQwtPlotWheelZoomer.h"
 #include "RiuQwtPlotZoomer.h"
 #include "RiuQwtSymbol.h"
-#include "RiuResultQwtPlot.h"
 
 #include "cvfColor3.h"
 
