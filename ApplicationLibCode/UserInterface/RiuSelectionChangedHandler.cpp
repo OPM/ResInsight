@@ -188,6 +188,11 @@ void RiuSelectionChangedHandler::addResultCurveFromSelectionItem( const RiuEclip
                                                            eclipseSelectionItem->m_color,
                                                            timeStepDates,
                                                            timeHistoryValues );
+
+        if ( eclipseSelectionItem->m_timestepIdx < timeStepDates.size() )
+        {
+            RiuMainWindow::instance()->resultPlot()->showTimeStep( timeStepDates[eclipseSelectionItem->m_timestepIdx] );
+        }
     }
 }
 
