@@ -58,6 +58,8 @@ public:
                    const std::vector<double>& frameTimes,
                    const std::vector<double>& timeHistoryValues );
 
+    void showTimeStep( const QDateTime& dateTime );
+
     void deleteAllCurves();
 
 protected:
@@ -74,7 +76,7 @@ private slots:
     void slotCurrentPlotDataInTextDialog();
 
 private:
-    std::vector<QwtPlotCurve*> m_plotCurves;
+    std::vector<QwtPlotItem*> m_plotItems;
 
     std::map<int, QString>                          m_caseNames;
     std::map<int, std::vector<QDateTime>>           m_timeSteps;

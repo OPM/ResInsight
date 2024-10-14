@@ -42,7 +42,9 @@
 #include "qwt_plot_curve.h"
 #include "qwt_plot_grid.h"
 #include "qwt_plot_layout.h"
+#include "qwt_plot_marker.h"
 #include "qwt_scale_engine.h"
+#include "qwt_text.h"
 
 #include <QContextMenuEvent>
 #include <QMenu>
@@ -80,7 +82,7 @@ void RiuResultQwtPlot::addCurve( const RimCase*                rimCase,
         return;
     }
 
-    RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve( nullptr, "Curve 1" );
+    auto plotCurve = new RiuQwtPlotCurve( nullptr, "Curve 1" );
 
     plotCurve->setSamplesFromDatesAndYValues( dateTimes, timeHistoryValues, false );
     plotCurve->setTitle( curveName );
@@ -88,7 +90,7 @@ void RiuResultQwtPlot::addCurve( const RimCase*                rimCase,
     plotCurve->setPen( QPen( QColor( curveColor.rByte(), curveColor.gByte(), curveColor.bByte() ) ) );
 
     plotCurve->attach( this );
-    m_plotCurves.push_back( plotCurve );
+    m_plotItems.push_back( plotCurve );
 
     setAxisScale( QwtAxis::XTop, QwtDate::toDouble( dateTimes.front() ), QwtDate::toDouble( dateTimes.back() ) );
     applyFontSizes( false );
@@ -127,15 +129,38 @@ void RiuResultQwtPlot::addCurve( const RimCase*             rimCase,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuResultQwtPlot::showTimeStep( const QDateTime& dateTime )
+{
+    if ( !dateTime.isValid() ) return;
+
+    auto lineMarker = new QwtPlotMarker;
+
+    QPen pen;
+    pen.setStyle( Qt::DashLine );
+    lineMarker->setLinePen( pen );
+
+    lineMarker->setXValue( QwtDate::toDouble( dateTime ) );
+    lineMarker->setLineStyle( QwtPlotMarker::VLine );
+    lineMarker->setLabel( QString( "Time Step" ) );
+    lineMarker->setLabelAlignment( Qt::AlignTop | Qt::AlignRight );
+    lineMarker->setLabelOrientation( Qt::Vertical );
+    lineMarker->attach( this );
+
+    m_plotItems.push_back( lineMarker );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuResultQwtPlot::deleteAllCurves()
 {
-    for ( size_t i = 0; i < m_plotCurves.size(); i++ )
+    for ( size_t i = 0; i < m_plotItems.size(); i++ )
     {
-        m_plotCurves[i]->detach();
-        delete m_plotCurves[i];
+        m_plotItems[i]->detach();
+        delete m_plotItems[i];
     }
 
-    m_plotCurves.clear();
+    m_plotItems.clear();
 
     m_caseNames.clear();
     m_curveNames.clear();
