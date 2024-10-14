@@ -40,7 +40,7 @@ public:
     void setDescription( QString desc );
     void setCommand( QString cmdStr );
     void addParameter( QString paramStr );
-    void setParameters( QStringList parameterList );
+    void addParameters( QStringList parameterList );
 
     void addEnvironmentVariable( QString name, QString value );
 
@@ -57,7 +57,10 @@ protected:
 
 private:
     QString optionalCommandInterpreter() const;
+    QString optionalPreParameters() const;
     QString handleSpaces( QString argument ) const;
+
+    bool isWindowsBatchFile() const;
 
     caf::PdmField<QString> m_command;
     QStringList            m_arguments;

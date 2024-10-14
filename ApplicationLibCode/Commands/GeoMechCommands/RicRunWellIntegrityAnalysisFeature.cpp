@@ -107,7 +107,7 @@ void RicRunWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
 
     RimProcess process;
     process.setCommand( command );
-    process.setParameters( parameters );
+    process.addParameters( parameters );
 
     if ( !process.execute() )
     {
