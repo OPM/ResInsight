@@ -18,6 +18,8 @@
 
 #include "RimSummaryEnsembleTools.h"
 
+#include "RiaSummaryTools.h"
+
 #include "RifReaderRftInterface.h"
 #include "RifSummaryReaderInterface.h"
 
@@ -28,6 +30,11 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
+#include "RimSummaryPlot.h"
+
+#include "RiuPlotMainWindow.h"
+
+#include "cafPdmUiTreeView.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -339,6 +346,18 @@ void RimSummaryEnsembleTools::highlightCurvesForSameRealization( RimPlotCurve* s
     auto ensembleCurveSet = sourceSummaryCurve->firstAncestorOfType<RimEnsembleCurveSet>();
     if ( !ensembleCurveSet ) return;
 
+    auto sourceCase = sourceSummaryCurve->summaryCaseY();
+    if ( !sourceCase ) return;
+
+    // Select the realization object in Data Sources Tree view
+    if ( auto mainWindow = RiuPlotMainWindow::instance() )
+    {
+        if ( auto treeView = mainWindow->getTreeViewWithItem( sourceCase ) )
+        {
+            treeView->selectAsCurrentItem( sourceCase );
+        }
+    }
+
     auto summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
 
     for ( auto multiPlot : summaryPlotColl->multiPlots() )
@@ -354,7 +373,7 @@ void RimSummaryEnsembleTools::highlightCurvesForSameRealization( RimPlotCurve* s
 
             for ( auto curve : summaryCurves )
             {
-                if ( sourceSummaryCurve->summaryCaseY() == curve->summaryCaseY() )
+                if ( sourceCase == curve->summaryCaseY() )
                 {
                     curvesForSameRealization.push_back( curve );
                 }
