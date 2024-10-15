@@ -343,24 +343,6 @@ void RimGridCrossPlot::setAutoScaleYEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObject* RimGridCrossPlot::findPdmObjectFromPlotCurve( const RiuPlotCurve* plotCurve ) const
-{
-    for ( auto dataSet : m_crossPlotDataSets )
-    {
-        for ( auto curve : dataSet->curves() )
-        {
-            if ( curve->isSameCurve( plotCurve ) )
-            {
-                return curve;
-            }
-        }
-    }
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
 {
     RiuPlotMainWindowTools::showPlotMainWindow();

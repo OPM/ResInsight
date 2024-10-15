@@ -1997,22 +1997,6 @@ void RimWellLogTrack::zoomAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObject* RimWellLogTrack::findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const
-{
-    for ( size_t idx = 0; idx < m_curves.size(); idx++ )
-    {
-        if ( m_curves[idx]->isSameCurve( curve ) )
-        {
-            return m_curves[idx];
-        }
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_description );

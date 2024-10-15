@@ -102,10 +102,9 @@ public:
     void updatePlotWidgetFromAxisRanges() override;
     void updateAxisRangesFromPlotWidget() override;
 
-    void            setAutoScaleXEnabled( bool enabled ) override;
-    void            setAutoScaleYEnabled( bool enabled ) override;
-    caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const override;
-    void            onAxisSelected( RiuPlotAxis axis, bool toggle ) override;
+    void setAutoScaleXEnabled( bool enabled ) override;
+    void setAutoScaleYEnabled( bool enabled ) override;
+    void onAxisSelected( RiuPlotAxis axis, bool toggle ) override;
 
     bool isDeletable() const override;
     bool isCurveHighlightSupported() const override;

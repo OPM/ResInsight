@@ -371,51 +371,6 @@ QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaDefines::DateTimePerio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObject* RimSummaryPlot::findPdmObjectFromPlotCurve( const RiuPlotCurve* plotCurve ) const
-{
-    for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
-    {
-        if ( curve->isSameCurve( plotCurve ) )
-        {
-            return curve;
-        }
-    }
-
-    for ( RimAsciiDataCurve* curve : m_asciiDataCurves )
-    {
-        if ( curve->isSameCurve( plotCurve ) )
-        {
-            return curve;
-        }
-    }
-
-    if ( m_summaryCurveCollection )
-    {
-        RimSummaryCurve* foundCurve = m_summaryCurveCollection->findRimCurveFromPlotCurve( plotCurve );
-
-        if ( foundCurve )
-        {
-            m_summaryCurveCollection->setCurrentSummaryCurve( foundCurve );
-
-            return foundCurve;
-        }
-    }
-
-    if ( m_ensembleCurveSetCollection )
-    {
-        RimSummaryCurve* foundCurve = m_ensembleCurveSetCollection->findRimCurveFromPlotCurve( plotCurve );
-
-        if ( foundCurve )
-        {
-            return foundCurve;
-        }
-    }
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
 {
     RiuPlotMainWindowTools::showPlotMainWindow();
