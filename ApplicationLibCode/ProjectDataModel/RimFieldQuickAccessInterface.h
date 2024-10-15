@@ -18,8 +18,18 @@
 
 #pragma once
 
+#include <vector>
+
+namespace caf
+{
+class PdmFieldHandle;
+class PdmUiOrdering;
+}; // namespace caf
+
 class RimFieldQuickAccessInterface
 {
 public:
     virtual std::vector<caf::PdmFieldHandle*> quickAccessFields() = 0;
+    virtual void                              quickAccessUiOrdering( caf::PdmUiOrdering& uiOrdering ){};
+    virtual bool                              hasUiOrdering() const { return false; };
 };

@@ -21,6 +21,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrArrayField.h"
 
 class RimFieldQuickAccess;
 
@@ -50,6 +51,7 @@ private:
 
 private:
     caf::PdmChildArrayField<RimFieldQuickAccess*> m_fieldReferences;
+    caf::PdmPtrArrayField<caf::PdmObjectHandle*>  m_objectReferences;
 
     std::set<RimFieldQuickAccess*> m_toBeDeleted;
 };

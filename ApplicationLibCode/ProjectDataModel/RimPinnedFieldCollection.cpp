@@ -36,7 +36,9 @@ RimPinnedFieldCollection::RimPinnedFieldCollection()
 {
     CAF_PDM_InitObject( "Field Reference Collection" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fieldReferences, "Objects", "Objects" );
+    CAF_PDM_InitFieldNoDefault( &m_fieldReferences, "FieldReferences", "Field References" );
+    CAF_PDM_InitFieldNoDefault( &m_objectReferences, "ObjectReferences", "Objects With UiOrdering" );
+    m_objectReferences.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,12 +58,11 @@ RimPinnedFieldCollection* RimPinnedFieldCollection::instance()
 void RimPinnedFieldCollection::addQuickAccessFieldsRecursively( caf::PdmObjectHandle* object )
 {
     if ( object == nullptr ) return;
+    addQuickAccessFields( object );
 
     for ( auto field : object->fields() )
     {
         if ( !field ) continue;
-
-        addQuickAccessFields( object );
 
         for ( auto childObject : field->children() )
         {
@@ -83,6 +84,11 @@ void RimPinnedFieldCollection::addQuickAccessFields( caf::PdmObjectHandle* objec
         for ( auto field : fields )
         {
             addField( field );
+        }
+
+        if ( quickInterface->hasUiOrdering() )
+        {
+            m_objectReferences.push_back( object );
         }
     }
 }
@@ -134,6 +140,7 @@ void RimPinnedFieldCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
     if ( !activeView ) return;
 
     deleteMarkedObjects();
+    m_objectReferences.removeChild( nullptr );
 
     std::vector<RimFieldQuickAccess*> fieldsForView;
 
@@ -156,24 +163,42 @@ void RimPinnedFieldCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
         }
     }
 
-    if ( fieldsForView.empty() ) return;
-
-    QString groupName;
-    auto    uiCapability = activeView->uiCapability();
-    if ( uiCapability->userDescriptionField() && uiCapability->userDescriptionField()->uiCapability() )
+    if ( !fieldsForView.empty() )
     {
-        groupName = uiCapability->userDescriptionField()->uiCapability()->uiValue().toString();
-    }
-    else
-    {
-        groupName = "Group ";
-    }
+        QString groupName;
+        auto    uiCapability = activeView->uiCapability();
+        if ( uiCapability->userDescriptionField() && uiCapability->userDescriptionField()->uiCapability() )
+        {
+            groupName = uiCapability->userDescriptionField()->uiCapability()->uiValue().toString();
+        }
+        else
+        {
+            groupName = "Group ";
+        }
 
-    auto group = uiOrdering.addNewGroup( groupName );
+        auto group = uiOrdering.addNewGroup( groupName );
 
-    for ( auto fieldRef : fieldsForView )
-    {
-        fieldRef->uiOrdering( uiConfigName, *group );
+        for ( auto fieldRef : fieldsForView )
+        {
+            fieldRef->uiOrdering( uiConfigName, *group );
+        }
+
+        auto objects = m_objectReferences.ptrReferencedObjectsByType();
+        for ( auto obj : objects )
+        {
+            if ( !obj ) continue;
+
+            auto view = obj->firstAncestorOrThisOfType<RimGridView>();
+            if ( view != activeView ) continue;
+
+            if ( auto qaInterface = dynamic_cast<RimFieldQuickAccessInterface*>( obj ) )
+            {
+                if ( qaInterface->hasUiOrdering() )
+                {
+                    qaInterface->quickAccessUiOrdering( *group );
+                }
+            }
+        }
     }
 }
 
