@@ -188,8 +188,6 @@ public:
 
     RimWellPath* wellPathAttributeSource() const;
 
-    caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const override;
-
     void setLogarithmicScale( bool enable );
     bool isLogarithmicScale() const;
 

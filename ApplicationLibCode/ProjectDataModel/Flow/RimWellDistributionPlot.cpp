@@ -206,15 +206,6 @@ void RimWellDistributionPlot::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObject* RimWellDistributionPlot::findPdmObjectFromPlotCurve( const RiuPlotCurve* /*curve*/ ) const
-{
-    // cvf::Trace::show("RimWellDistributionPlot::findPdmObjectFromQwtCurve()");
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlot::onAxisSelected( RiuPlotAxis /*axis*/, bool /*toggle*/ )
 {
     // cvf::Trace::show("RimWellDistributionPlot::onAxisSelected()");
