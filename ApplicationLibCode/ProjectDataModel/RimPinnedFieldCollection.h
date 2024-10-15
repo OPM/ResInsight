@@ -37,6 +37,9 @@ public:
 
     static RimPinnedFieldCollection* instance();
 
+    void addQuickAccessFieldsRecursively( caf::PdmObjectHandle* object );
+    void addQuickAccessFields( caf::PdmObjectHandle* object );
+
     void addField( caf::PdmFieldHandle* field );
     void removeField( caf::PdmFieldHandle* field );
 

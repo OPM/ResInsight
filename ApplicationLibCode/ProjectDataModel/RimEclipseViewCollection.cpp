@@ -30,6 +30,7 @@
 #include "RimEclipseView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimGridView.h"
+#include "RimPinnedFieldCollection.h"
 #include "RimProject.h"
 #include "RimStimPlanColors.h"
 
@@ -108,6 +109,8 @@ RimEclipseView* RimEclipseViewCollection::addView( RimEclipseCase* eclipseCase )
     caf::PdmDocument::updateUiIconStateRecursively( view );
 
     m_views.push_back( view );
+
+    RimPinnedFieldCollection::instance()->addQuickAccessFields( view );
 
     view->loadDataAndUpdate();
 

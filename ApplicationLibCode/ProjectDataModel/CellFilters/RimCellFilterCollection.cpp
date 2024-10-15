@@ -24,6 +24,7 @@
 #include "RimCellIndexFilter.h"
 #include "RimCellRangeFilter.h"
 #include "RimOilField.h"
+#include "RimPinnedFieldCollection.h"
 #include "RimPolygonFilter.h"
 #include "RimProject.h"
 #include "RimUserDefinedFilter.h"
@@ -449,6 +450,9 @@ void RimCellFilterCollection::addFilter( RimCellFilter* pFilter )
 {
     setAutoName( pFilter );
     m_cellFilters.push_back( pFilter );
+
+    RimPinnedFieldCollection::instance()->addQuickAccessFields( pFilter );
+
     connectToFilterUpdates( pFilter );
     updateConnectedEditors();
 }

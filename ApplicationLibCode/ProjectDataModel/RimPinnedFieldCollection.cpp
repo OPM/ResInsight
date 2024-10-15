@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RimFieldQuickAccess.h"
+#include "RimFieldQuickAccessInterface.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 
@@ -47,6 +48,43 @@ RimPinnedFieldCollection* RimPinnedFieldCollection::instance()
     CAF_ASSERT( proj && "RimProject is nullptr when trying to access RimFieldReferenceCollection::instance()" );
 
     return proj->pinnedFieldCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPinnedFieldCollection::addQuickAccessFieldsRecursively( caf::PdmObjectHandle* object )
+{
+    if ( object == nullptr ) return;
+
+    for ( auto field : object->fields() )
+    {
+        if ( !field ) continue;
+
+        addQuickAccessFields( object );
+
+        for ( auto childObject : field->children() )
+        {
+            addQuickAccessFieldsRecursively( childObject );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPinnedFieldCollection::addQuickAccessFields( caf::PdmObjectHandle* object )
+{
+    if ( !object ) return;
+
+    if ( auto quickInterface = dynamic_cast<RimFieldQuickAccessInterface*>( object ) )
+    {
+        auto fields = quickInterface->quickAccessFields();
+        for ( auto field : fields )
+        {
+            addField( field );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

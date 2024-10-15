@@ -77,6 +77,7 @@
 #include "RimOsduWellLogDataLoader.h"
 #include "RimOsduWellPath.h"
 #include "RimOsduWellPathDataLoader.h"
+#include "RimPinnedFieldCollection.h"
 #include "RimPlotWindow.h"
 #include "RimProject.h"
 #include "RimScriptCollection.h"
@@ -514,6 +515,9 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
     // paths in initAfterRead().
     m_project->resolveReferencesRecursively();
     m_project->initAfterReadRecursively();
+
+    // Traverse objects recursively and add quick access fields
+    RimPinnedFieldCollection::instance()->addQuickAccessFieldsRecursively( m_project.get() );
 
     // Migrate all RimGridCases to RimFileSummaryCase
     RimGridSummaryCase_obsolete::convertGridCasesToSummaryFileCases( m_project.get() );

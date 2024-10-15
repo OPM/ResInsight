@@ -23,9 +23,9 @@
 #include "RiaApplication.h"
 #include "RigActiveCellInfo.h"
 #include "RigReservoirGridTools.h"
+
 #include "Rim3dView.h"
 #include "RimCase.h"
-#include "RimPinnedFieldCollection.h"
 #include "RimTools.h"
 
 #include "cafPdmUiLabelEditor.h"
@@ -172,6 +172,18 @@ void RimCellRangeFilter::computeAndSetValidValues()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmFieldHandle*> RimCellRangeFilter::quickAccessFields()
+{
+    if ( cellCountI == 1 ) return { &startIndexI };
+    if ( cellCountJ == 1 ) return { &startIndexJ };
+    if ( cellCountK == 1 ) return { &startIndexK };
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::setDefaultValues( int sliceDirection, int defaultSlice )
 {
     const cvf::StructGridInterface* grid = selectedGrid();
@@ -219,21 +231,15 @@ void RimCellRangeFilter::setDefaultValues( int sliceDirection, int defaultSlice 
             cellCountI = 1;
             if ( defaultSlice > 0 ) startIndexI = defaultSlice;
 
-            RimPinnedFieldCollection::instance()->addField( &startIndexI );
-
             break;
         case 1:
             cellCountJ = 1;
             if ( defaultSlice > 0 ) startIndexJ = defaultSlice;
 
-            RimPinnedFieldCollection::instance()->addField( &startIndexJ );
-
             break;
         case 2:
             cellCountK = 1;
             if ( defaultSlice > 0 ) startIndexK = defaultSlice;
-
-            RimPinnedFieldCollection::instance()->addField( &startIndexK );
 
             break;
         default:

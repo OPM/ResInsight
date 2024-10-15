@@ -74,7 +74,6 @@
 #include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimMultipleEclipseResults.h"
 #include "RimOilField.h"
-#include "RimPinnedFieldCollection.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
@@ -247,8 +246,6 @@ RimEclipseView::RimEclipseView()
 
     m_faultReactVizModel = new cvf::ModelBasicList;
     m_faultReactVizModel->setName( "FaultReactModel" );
-
-    RimPinnedFieldCollection::instance()->addField( &m_eclipseCase );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1757,6 +1754,14 @@ void RimEclipseView::synchronizeWellsWithResults()
 std::vector<RigEclipseResultAddress> RimEclipseView::additionalResultsForResultInfo() const
 {
     return m_additionalResultsForResultInfo()->additionalResultAddresses();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmFieldHandle*> RimEclipseView::quickAccessFields()
+{
+    return { &m_eclipseCase };
 }
 
 //--------------------------------------------------------------------------------------------------
