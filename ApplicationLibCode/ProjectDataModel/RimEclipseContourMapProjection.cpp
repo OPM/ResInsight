@@ -26,6 +26,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigCell.h"
 #include "RigCellGeometryTools.h"
+#include "RigContourMapGrid.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigHexIntersectionTools.h"
@@ -238,7 +239,7 @@ std::vector<double> RimEclipseContourMapProjection::generateResults( int timeSte
 #pragma omp parallel for
                 for ( int index = 0; index < static_cast<int>( nCells ); ++index )
                 {
-                    cvf::Vec2ui ij           = ijFromCellIndex( index );
+                    cvf::Vec2ui ij           = m_contourMapGrid->ijFromCellIndex( index );
                     aggregatedResults[index] = calculateValueInMapCell( ij.x(), ij.y(), gridResultValues );
                 }
             }
@@ -343,19 +344,8 @@ void RimEclipseContourMapProjection::updateGridInformation()
     m_activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
     m_kLayers        = m_mainGrid->cellCountK();
 
-    m_gridBoundingBox           = eclipseCase->activeCellsBoundingBox();
-    cvf::Vec3d minExpandedPoint = m_gridBoundingBox.min() - cvf::Vec3d( gridEdgeOffset(), gridEdgeOffset(), 0.0 );
-    cvf::Vec3d maxExpandedPoint = m_gridBoundingBox.max() + cvf::Vec3d( gridEdgeOffset(), gridEdgeOffset(), 0.0 );
-    m_expandedBoundingBox       = cvf::BoundingBox( minExpandedPoint, maxExpandedPoint );
-
-    m_mapSize = calculateMapSize();
-
-    // Re-jig max point to be an exact multiple of cell size
-    cvf::Vec3d minPoint   = m_expandedBoundingBox.min();
-    cvf::Vec3d maxPoint   = m_expandedBoundingBox.max();
-    maxPoint.x()          = minPoint.x() + m_mapSize.x() * sampleSpacing();
-    maxPoint.y()          = minPoint.y() + m_mapSize.y() * sampleSpacing();
-    m_expandedBoundingBox = cvf::BoundingBox( minPoint, maxPoint );
+    cvf::BoundingBox gridBoundingBox = eclipseCase->activeCellsBoundingBox();
+    m_contourMapGrid                 = std::make_unique<RigContourMapGrid>( gridBoundingBox, sampleSpacing() );
 }
 
 //--------------------------------------------------------------------------------------------------

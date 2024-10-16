@@ -24,6 +24,7 @@
 #include "RiaWeightedMeanCalculator.h"
 
 #include "RigCellGeometryTools.h"
+#include "RigContourMapGrid.h"
 #include "RigHexIntersectionTools.h"
 
 #include "RimCase.h"
@@ -75,7 +76,6 @@ CAF_PDM_ABSTRACT_SOURCE_INIT( RimContourMapProjection, "RimContourMapProjection"
 //--------------------------------------------------------------------------------------------------
 RimContourMapProjection::RimContourMapProjection()
     : m_pickPoint( cvf::Vec2d::UNDEFINED )
-    , m_mapSize( cvf::Vec2ui( 0u, 0u ) )
     , m_currentResultTimestep( -1 )
     , m_minResultAllTimeSteps( std::numeric_limits<double>::infinity() )
     , m_maxResultAllTimeSteps( -std::numeric_limits<double>::infinity() )
@@ -166,8 +166,8 @@ std::vector<cvf::Vec3d> RimContourMapProjection::generatePickPointPolygon()
         {
 #ifndef NDEBUG
             cvf::Vec2d  cellDiagonal( sampleSpacing() * 0.5, sampleSpacing() * 0.5 );
-            cvf::Vec2ui pickedCell = ijFromLocalPos( m_pickPoint );
-            cvf::Vec2d  cellCenter = cellCenterPosition( pickedCell.x(), pickedCell.y() );
+            cvf::Vec2ui pickedCell = m_contourMapGrid->ijFromLocalPos( m_pickPoint );
+            cvf::Vec2d  cellCenter = m_contourMapGrid->cellCenterPosition( pickedCell.x(), pickedCell.y() );
             cvf::Vec2d  cellCorner = cellCenter - cellDiagonal;
             points.push_back( cvf::Vec3d( cellCorner, 0.0 ) );
             points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( sampleSpacing(), 0.0 ), 0.0 ) );
@@ -326,7 +326,7 @@ double RimContourMapProjection::sumAllValues() const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2ui RimContourMapProjection::numberOfElementsIJ() const
 {
-    return m_mapSize;
+    return m_contourMapGrid->numberOfElementsIJ();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -334,10 +334,7 @@ cvf::Vec2ui RimContourMapProjection::numberOfElementsIJ() const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2ui RimContourMapProjection::numberOfVerticesIJ() const
 {
-    cvf::Vec2ui mapSize = numberOfElementsIJ();
-    mapSize.x() += 1u;
-    mapSize.y() += 1u;
-    return mapSize;
+    return m_contourMapGrid->numberOfVerticesIJ();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -354,7 +351,7 @@ bool RimContourMapProjection::isColumnResult() const
 //--------------------------------------------------------------------------------------------------
 double RimContourMapProjection::valueAtVertex( uint i, uint j ) const
 {
-    size_t index = vertexIndexFromIJ( i, j );
+    size_t index = m_contourMapGrid->vertexIndexFromIJ( i, j );
     if ( index < numberOfVertices() )
     {
         return m_aggregatedVertexResults.at( index );
@@ -367,7 +364,7 @@ double RimContourMapProjection::valueAtVertex( uint i, uint j ) const
 //--------------------------------------------------------------------------------------------------
 uint RimContourMapProjection::numberOfCells() const
 {
-    return m_mapSize.x() * m_mapSize.y();
+    return m_contourMapGrid->numberOfCells();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -378,7 +375,7 @@ uint RimContourMapProjection::numberOfValidCells() const
     uint validCount = 0u;
     for ( uint i = 0; i < numberOfCells(); ++i )
     {
-        cvf::Vec2ui ij = ijFromCellIndex( i );
+        cvf::Vec2ui ij = m_contourMapGrid->ijFromCellIndex( i );
         if ( hasResultInCell( ij.x(), ij.y() ) )
         {
             validCount++;
@@ -404,9 +401,10 @@ bool RimContourMapProjection::checkForMapIntersection( const cvf::Vec3d& domainP
     CVF_TIGHT_ASSERT( contourMapPoint );
     CVF_TIGHT_ASSERT( valueAtPoint );
 
-    cvf::Vec3d mapPos3d = domainPoint3d - m_expandedBoundingBox.min();
-    cvf::Vec2d mapPos2d( mapPos3d.x(), mapPos3d.y() );
-    cvf::Vec2d gridorigin( m_expandedBoundingBox.min().x(), m_expandedBoundingBox.min().y() );
+    const cvf::Vec3d& minPoint = m_contourMapGrid->expandedBoundingBox().min();
+    cvf::Vec3d        mapPos3d = domainPoint3d - minPoint;
+    cvf::Vec2d        mapPos2d( mapPos3d.x(), mapPos3d.y() );
+    cvf::Vec2d        gridorigin( minPoint.x(), minPoint.y() );
 
     double value = interpolateValue( mapPos2d );
     if ( value != std::numeric_limits<double>::infinity() )
@@ -424,7 +422,7 @@ bool RimContourMapProjection::checkForMapIntersection( const cvf::Vec3d& domainP
 //--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::setPickPoint( cvf::Vec2d globalPickPoint )
 {
-    m_pickPoint = globalPickPoint - origin2d();
+    m_pickPoint = globalPickPoint - m_contourMapGrid->origin2d();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -432,7 +430,7 @@ void RimContourMapProjection::setPickPoint( cvf::Vec2d globalPickPoint )
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimContourMapProjection::origin3d() const
 {
-    return m_expandedBoundingBox.min();
+    return m_contourMapGrid->expandedBoundingBox().min();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -774,9 +772,9 @@ std::vector<std::vector<std::pair<size_t, double>>> RimContourMapProjection::gen
 #pragma omp parallel for
         for ( int index = 0; index < nCells; ++index )
         {
-            cvf::Vec2ui ij = ijFromCellIndex( index );
+            cvf::Vec2ui ij = m_contourMapGrid->ijFromCellIndex( index );
 
-            cvf::Vec2d globalPos          = cellCenterPosition( ij.x(), ij.y() ) + origin2d();
+            cvf::Vec2d globalPos          = m_contourMapGrid->cellCenterPosition( ij.x(), ij.y() ) + m_contourMapGrid->origin2d();
             projected3dGridIndices[index] = cellRayIntersectionAndResults( globalPos, weightingResultValues );
         }
     }
@@ -785,9 +783,9 @@ std::vector<std::vector<std::pair<size_t, double>>> RimContourMapProjection::gen
 #pragma omp parallel for
         for ( int index = 0; index < nCells; ++index )
         {
-            cvf::Vec2ui ij = ijFromCellIndex( index );
+            cvf::Vec2ui ij = m_contourMapGrid->ijFromCellIndex( index );
 
-            cvf::Vec2d globalPos          = cellCenterPosition( ij.x(), ij.y() ) + origin2d();
+            cvf::Vec2d globalPos          = m_contourMapGrid->cellCenterPosition( ij.x(), ij.y() ) + m_contourMapGrid->origin2d();
             projected3dGridIndices[index] = cellOverlapVolumesAndResults( globalPos, weightingResultValues );
         }
     }
@@ -808,7 +806,7 @@ void RimContourMapProjection::generateVertexResults()
 #pragma omp parallel for
     for ( int index = 0; index < static_cast<int>( nVertices ); ++index )
     {
-        cvf::Vec2ui ij                   = ijFromVertexIndex( index );
+        cvf::Vec2ui ij                   = m_contourMapGrid->ijFromVertexIndex( index );
         m_aggregatedVertexResults[index] = calculateValueAtVertex( ij.x(), ij.y() );
     }
 }
@@ -818,7 +816,7 @@ void RimContourMapProjection::generateVertexResults()
 //--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::generateTrianglesWithVertexValues()
 {
-    std::vector<cvf::Vec3d> vertices = generateVertices();
+    std::vector<cvf::Vec3d> vertices = m_contourMapGrid->generateVertices();
 
     cvf::Vec2ui              patchSize = numberOfVerticesIJ();
     cvf::ref<cvf::UIntArray> faceList  = new cvf::UIntArray;
@@ -1043,29 +1041,6 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
     }
 
     m_trianglesWithVertexValues = finalTriangles;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RimContourMapProjection::generateVertices() const
-{
-    size_t                  nVertices = numberOfVertices();
-    std::vector<cvf::Vec3d> vertices( nVertices, cvf::Vec3d::ZERO );
-
-#pragma omp parallel for
-    for ( int index = 0; index < static_cast<int>( nVertices ); ++index )
-    {
-        cvf::Vec2ui ij     = ijFromVertexIndex( index );
-        cvf::Vec2d  mapPos = cellCenterPosition( ij.x(), ij.y() );
-        // Shift away from sample point to vertex
-        mapPos.x() -= sampleSpacing() * 0.5;
-        mapPos.y() -= sampleSpacing() * 0.5;
-
-        cvf::Vec3d vertexPos( mapPos, 0.0 );
-        vertices[index] = vertexPos;
-    }
-    return vertices;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1301,18 +1276,19 @@ double RimContourMapProjection::sumTriangleAreas( const std::vector<cvf::Vec4d>&
 std::vector<RimContourMapProjection::CellIndexAndResult>
     RimContourMapProjection::cellOverlapVolumesAndResults( const cvf::Vec2d& globalPos2d, const std::vector<double>& weightingResultValues ) const
 {
-    cvf::Vec3d top2dElementCentroid( globalPos2d, m_expandedBoundingBox.max().z() );
-    cvf::Vec3d bottom2dElementCentroid( globalPos2d, m_expandedBoundingBox.min().z() );
-    cvf::Vec3d planarDiagonalVector( 0.5 * sampleSpacing(), 0.5 * sampleSpacing(), 0.0 );
-    cvf::Vec3d topNECorner    = top2dElementCentroid + planarDiagonalVector;
-    cvf::Vec3d bottomSWCorner = bottom2dElementCentroid - planarDiagonalVector;
+    const cvf::BoundingBox& expandedBoundingBox = m_contourMapGrid->expandedBoundingBox();
+    cvf::Vec3d              top2dElementCentroid( globalPos2d, expandedBoundingBox.max().z() );
+    cvf::Vec3d              bottom2dElementCentroid( globalPos2d, expandedBoundingBox.min().z() );
+    cvf::Vec3d              planarDiagonalVector( 0.5 * sampleSpacing(), 0.5 * sampleSpacing(), 0.0 );
+    cvf::Vec3d              topNECorner    = top2dElementCentroid + planarDiagonalVector;
+    cvf::Vec3d              bottomSWCorner = bottom2dElementCentroid - planarDiagonalVector;
 
     cvf::BoundingBox bbox2dElement( bottomSWCorner, topNECorner );
 
     std::vector<std::pair<size_t, double>> matchingVisibleCellsAndWeight;
 
     // Bounding box has been expanded, so 2d element may be outside actual 3d grid
-    if ( !bbox2dElement.intersects( m_gridBoundingBox ) )
+    if ( !bbox2dElement.intersects( m_contourMapGrid->originalBoundingBox() ) )
     {
         return matchingVisibleCellsAndWeight;
     }
@@ -1362,11 +1338,13 @@ std::vector<RimContourMapProjection::CellIndexAndResult>
 {
     std::vector<std::pair<size_t, double>> matchingVisibleCellsAndWeight;
 
-    cvf::Vec3d highestPoint( globalPos2d, m_expandedBoundingBox.max().z() );
-    cvf::Vec3d lowestPoint( globalPos2d, m_expandedBoundingBox.min().z() );
+    const cvf::BoundingBox& expandedBoundingBox = m_contourMapGrid->expandedBoundingBox();
+
+    cvf::Vec3d highestPoint( globalPos2d, expandedBoundingBox.max().z() );
+    cvf::Vec3d lowestPoint( globalPos2d, expandedBoundingBox.min().z() );
 
     // Bounding box has been expanded, so ray may be outside actual 3d grid
-    if ( !m_gridBoundingBox.contains( highestPoint ) )
+    if ( !m_contourMapGrid->originalBoundingBox().contains( highestPoint ) )
     {
         return matchingVisibleCellsAndWeight;
     }
@@ -1441,8 +1419,8 @@ bool RimContourMapProjection::isStraightSummationResult( ResultAggregationEnum a
 //--------------------------------------------------------------------------------------------------
 double RimContourMapProjection::interpolateValue( const cvf::Vec2d& gridPos2d ) const
 {
-    cvf::Vec2ui cellContainingPoint = ijFromLocalPos( gridPos2d );
-    cvf::Vec2d  cellCenter          = cellCenterPosition( cellContainingPoint.x(), cellContainingPoint.y() );
+    cvf::Vec2ui cellContainingPoint = m_contourMapGrid->ijFromLocalPos( gridPos2d );
+    cvf::Vec2d  cellCenter          = m_contourMapGrid->cellCenterPosition( cellContainingPoint.x(), cellContainingPoint.y() );
 
     std::array<cvf::Vec3d, 4> x;
     x[0] = cvf::Vec3d( cellCenter + cvf::Vec2d( -sampleSpacing() * 0.5, -sampleSpacing() * 0.5 ), 0.0 );
@@ -1494,7 +1472,7 @@ double RimContourMapProjection::interpolateValue( const cvf::Vec2d& gridPos2d ) 
 //--------------------------------------------------------------------------------------------------
 double RimContourMapProjection::valueInCell( uint i, uint j ) const
 {
-    size_t index = cellIndexFromIJ( i, j );
+    size_t index = m_contourMapGrid->cellIndexFromIJ( i, j );
     if ( index < numberOfCells() )
     {
         return m_aggregatedResults.at( index );
@@ -1520,8 +1498,8 @@ double RimContourMapProjection::calculateValueAtVertex( uint vi, uint vj ) const
 
     if ( vi > 0u ) averageIs.push_back( vi - 1 );
     if ( vj > 0u ) averageJs.push_back( vj - 1 );
-    if ( vi < m_mapSize.x() ) averageIs.push_back( vi );
-    if ( vj < m_mapSize.y() ) averageJs.push_back( vj );
+    if ( vi < m_contourMapGrid->mapSize().x() ) averageIs.push_back( vi );
+    if ( vj < m_contourMapGrid->mapSize().y() ) averageJs.push_back( vj );
 
     RiaWeightedMeanCalculator<double> calc;
     for ( uint j : averageJs )
@@ -1546,7 +1524,7 @@ double RimContourMapProjection::calculateValueAtVertex( uint vi, uint vj ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<size_t, double>> RimContourMapProjection::cellsAtIJ( uint i, uint j ) const
 {
-    size_t cellIndex = cellIndexFromIJ( i, j );
+    size_t cellIndex = m_contourMapGrid->cellIndexFromIJ( i, j );
     if ( cellIndex < m_projected3dGridIndices.size() )
     {
         return m_projected3dGridIndices[cellIndex];
@@ -1555,95 +1533,11 @@ std::vector<std::pair<size_t, double>> RimContourMapProjection::cellsAtIJ( uint 
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RimContourMapProjection::cellIndexFromIJ( uint i, uint j ) const
-{
-    CVF_ASSERT( i < m_mapSize.x() );
-    CVF_ASSERT( j < m_mapSize.y() );
-
-    return i + j * m_mapSize.x();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RimContourMapProjection::vertexIndexFromIJ( uint i, uint j ) const
-{
-    return i + j * ( m_mapSize.x() + 1 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Vec2ui RimContourMapProjection::ijFromVertexIndex( size_t gridIndex ) const
-{
-    cvf::Vec2ui gridSize = numberOfVerticesIJ();
-
-    uint quotientX  = static_cast<uint>( gridIndex ) / gridSize.x();
-    uint remainderX = static_cast<uint>( gridIndex ) % gridSize.x();
-
-    return cvf::Vec2ui( remainderX, quotientX );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Vec2ui RimContourMapProjection::ijFromCellIndex( size_t cellIndex ) const
-{
-    CVF_TIGHT_ASSERT( cellIndex < numberOfCells() );
-
-    uint quotientX  = static_cast<uint>( cellIndex ) / m_mapSize.x();
-    uint remainderX = static_cast<uint>( cellIndex ) % m_mapSize.x();
-
-    return cvf::Vec2ui( remainderX, quotientX );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Vec2ui RimContourMapProjection::ijFromLocalPos( const cvf::Vec2d& localPos2d ) const
-{
-    uint i = localPos2d.x() / sampleSpacing();
-    uint j = localPos2d.y() / sampleSpacing();
-    return cvf::Vec2ui( i, j );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Vec2d RimContourMapProjection::cellCenterPosition( uint i, uint j ) const
-{
-    cvf::Vec3d gridExtent = m_expandedBoundingBox.extent();
-    cvf::Vec2d cellCorner = cvf::Vec2d( ( i * gridExtent.x() ) / ( m_mapSize.x() ), ( j * gridExtent.y() ) / ( m_mapSize.y() ) );
-
-    return cellCorner + cvf::Vec2d( sampleSpacing() * 0.5, sampleSpacing() * 0.5 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Vec2d RimContourMapProjection::origin2d() const
-{
-    return cvf::Vec2d( m_expandedBoundingBox.min().x(), m_expandedBoundingBox.min().y() );
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Vertex positions in local coordinates (add origin2d.x() for UTM x)
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimContourMapProjection::xVertexPositions() const
 {
-    double gridExtent = m_expandedBoundingBox.extent().x();
-
-    cvf::Vec2ui         gridSize = numberOfVerticesIJ();
-    std::vector<double> positions;
-    positions.reserve( gridSize.x() );
-    for ( uint i = 0; i < gridSize.x(); ++i )
-    {
-        positions.push_back( ( i * gridExtent ) / ( gridSize.x() - 1 ) );
-    }
-
-    return positions;
+    return m_contourMapGrid->xVertexPositions();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1651,30 +1545,7 @@ std::vector<double> RimContourMapProjection::xVertexPositions() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimContourMapProjection::yVertexPositions() const
 {
-    double gridExtent = m_expandedBoundingBox.extent().y();
-
-    cvf::Vec2ui         gridSize = numberOfVerticesIJ();
-    std::vector<double> positions;
-    positions.reserve( gridSize.y() );
-    for ( uint j = 0; j < gridSize.y(); ++j )
-    {
-        positions.push_back( ( j * gridExtent ) / ( gridSize.y() - 1 ) );
-    }
-
-    return positions;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Vec2ui RimContourMapProjection::calculateMapSize() const
-{
-    cvf::Vec3d gridExtent = m_expandedBoundingBox.extent();
-
-    uint projectionSizeX = static_cast<uint>( std::ceil( gridExtent.x() / sampleSpacing() ) );
-    uint projectionSizeY = static_cast<uint>( std::ceil( gridExtent.y() / sampleSpacing() ) );
-
-    return cvf::Vec2ui( projectionSizeX, projectionSizeY );
+    return m_contourMapGrid->yVertexPositions();
 }
 
 //--------------------------------------------------------------------------------------------------
