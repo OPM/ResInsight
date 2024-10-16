@@ -161,26 +161,24 @@ std::vector<cvf::Vec3d> RimContourMapProjection::generatePickPointPolygon()
 
     if ( !m_pickPoint.isUndefined() )
     {
-        {
 #ifndef NDEBUG
-            cvf::Vec2d  cellDiagonal( sampleSpacing() * 0.5, sampleSpacing() * 0.5 );
-            cvf::Vec2ui pickedCell = m_contourMapGrid->ijFromLocalPos( m_pickPoint );
-            cvf::Vec2d  cellCenter = m_contourMapGrid->cellCenterPosition( pickedCell.x(), pickedCell.y() );
-            cvf::Vec2d  cellCorner = cellCenter - cellDiagonal;
-            points.push_back( cvf::Vec3d( cellCorner, 0.0 ) );
-            points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( sampleSpacing(), 0.0 ), 0.0 ) );
-            points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( sampleSpacing(), 0.0 ), 0.0 ) );
-            points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( sampleSpacing(), sampleSpacing() ), 0.0 ) );
-            points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( sampleSpacing(), sampleSpacing() ), 0.0 ) );
-            points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( 0.0, sampleSpacing() ), 0.0 ) );
-            points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( 0.0, sampleSpacing() ), 0.0 ) );
-            points.push_back( cvf::Vec3d( cellCorner, 0.0 ) );
+        cvf::Vec2d  cellDiagonal( sampleSpacing() * 0.5, sampleSpacing() * 0.5 );
+        cvf::Vec2ui pickedCell = m_contourMapGrid->ijFromLocalPos( m_pickPoint );
+        cvf::Vec2d  cellCenter = m_contourMapGrid->cellCenterPosition( pickedCell.x(), pickedCell.y() );
+        cvf::Vec2d  cellCorner = cellCenter - cellDiagonal;
+        points.push_back( cvf::Vec3d( cellCorner, 0.0 ) );
+        points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( sampleSpacing(), 0.0 ), 0.0 ) );
+        points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( sampleSpacing(), 0.0 ), 0.0 ) );
+        points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( sampleSpacing(), sampleSpacing() ), 0.0 ) );
+        points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( sampleSpacing(), sampleSpacing() ), 0.0 ) );
+        points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( 0.0, sampleSpacing() ), 0.0 ) );
+        points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( 0.0, sampleSpacing() ), 0.0 ) );
+        points.push_back( cvf::Vec3d( cellCorner, 0.0 ) );
 #endif
-            points.push_back( cvf::Vec3d( m_pickPoint - cvf::Vec2d( 0.5 * sampleSpacing(), 0.0 ), 0.0 ) );
-            points.push_back( cvf::Vec3d( m_pickPoint + cvf::Vec2d( 0.5 * sampleSpacing(), 0.0 ), 0.0 ) );
-            points.push_back( cvf::Vec3d( m_pickPoint - cvf::Vec2d( 0.0, 0.5 * sampleSpacing() ), 0.0 ) );
-            points.push_back( cvf::Vec3d( m_pickPoint + cvf::Vec2d( 0.0, 0.5 * sampleSpacing() ), 0.0 ) );
-        }
+        points.push_back( cvf::Vec3d( m_pickPoint - cvf::Vec2d( 0.5 * sampleSpacing(), 0.0 ), 0.0 ) );
+        points.push_back( cvf::Vec3d( m_pickPoint + cvf::Vec2d( 0.5 * sampleSpacing(), 0.0 ), 0.0 ) );
+        points.push_back( cvf::Vec3d( m_pickPoint - cvf::Vec2d( 0.0, 0.5 * sampleSpacing() ), 0.0 ) );
+        points.push_back( cvf::Vec3d( m_pickPoint + cvf::Vec2d( 0.0, 0.5 * sampleSpacing() ), 0.0 ) );
     }
     return points;
 }
@@ -256,10 +254,7 @@ QString RimContourMapProjection::resultAggregationText() const
 QString RimContourMapProjection::caseName() const
 {
     RimCase* rimCase = baseView()->ownerCase();
-    if ( !rimCase )
-    {
-        return QString();
-    }
+    if ( !rimCase ) return QString();
 
     return rimCase->caseUserDescription();
 }
@@ -270,10 +265,7 @@ QString RimContourMapProjection::caseName() const
 QString RimContourMapProjection::currentTimeStepName() const
 {
     RimCase* rimCase = baseView()->ownerCase();
-    if ( !rimCase || m_currentResultTimestep == -1 )
-    {
-        return QString();
-    }
+    if ( !rimCase || m_currentResultTimestep == -1 ) return QString();
 
     return rimCase->timeStepName( m_currentResultTimestep );
 }
@@ -576,15 +568,10 @@ double RimContourMapProjection::calculateValueInMapCell( uint i, uint j, const s
 //--------------------------------------------------------------------------------------------------
 bool RimContourMapProjection::gridMappingNeedsUpdating() const
 {
-    if ( m_projected3dGridIndices.size() != numberOfCells() )
-    {
-        return true;
-    }
+    if ( m_projected3dGridIndices.size() != numberOfCells() ) return true;
 
-    if ( m_cellGridIdxVisibility.isNull() )
-    {
-        return true;
-    }
+    if ( m_cellGridIdxVisibility.isNull() ) return true;
+
     cvf::ref<cvf::UByteArray> currentVisibility = getCellVisibility();
 
     CVF_ASSERT( currentVisibility->size() == m_cellGridIdxVisibility->size() );
@@ -601,21 +588,8 @@ bool RimContourMapProjection::gridMappingNeedsUpdating() const
 //--------------------------------------------------------------------------------------------------
 bool RimContourMapProjection::resultsNeedsUpdating( int timeStep ) const
 {
-    if ( m_aggregatedResults.size() != numberOfCells() )
-    {
-        return true;
-    }
-
-    if ( m_aggregatedVertexResults.size() != numberOfVertices() )
-    {
-        return true;
-    }
-
-    if ( timeStep != m_currentResultTimestep )
-    {
-        return true;
-    }
-    return false;
+    return ( m_aggregatedResults.size() != numberOfCells() || m_aggregatedVertexResults.size() != numberOfVertices() ||
+             timeStep != m_currentResultTimestep );
 }
 
 //--------------------------------------------------------------------------------------------------
