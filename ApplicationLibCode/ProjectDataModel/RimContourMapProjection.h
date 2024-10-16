@@ -21,16 +21,11 @@
 #include "RimCheckableNamedObject.h"
 
 #include "cafContourLines.h"
-#include "cafDisplayCoordTransform.h"
-#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmProxyValueField.h"
 
 #include "cvfArray.h"
 #include "cvfBoundingBox.h"
-#include "cvfGeometryBuilderFaceList.h"
-#include "cvfString.h"
 #include "cvfVector2.h"
 
 class RigContourMapGrid;

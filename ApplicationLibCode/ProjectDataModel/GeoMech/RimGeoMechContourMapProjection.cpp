@@ -18,8 +18,6 @@
 #include "RimGeoMechContourMapProjection.h"
 
 #include "RiaImageTools.h"
-#include "RiaWeightedGeometricMeanCalculator.h"
-#include "RiaWeightedHarmonicMeanCalculator.h"
 #include "RiaWeightedMeanCalculator.h"
 
 #include "RigCellGeometryTools.h"
@@ -36,7 +34,7 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechContourMapView.h"
-#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimPropertyFilterCollection.h"
 #include "RimRegularLegendConfig.h"
 
 #include "RivFemElmVisibilityCalculator.h"
@@ -44,14 +42,9 @@
 #include "cafPdmUiDoubleSliderEditor.h"
 
 #include "cvfArray.h"
-#include "cvfCellRange.h"
-#include "cvfGeometryTools.h"
-#include "cvfGeometryUtils.h"
-#include "cvfScalarMapper.h"
 #include "cvfStructGridGeometryGenerator.h"
 #include "cvfVector3.h"
 
-#include <QDebug>
 #include <algorithm>
 #include <array>
 

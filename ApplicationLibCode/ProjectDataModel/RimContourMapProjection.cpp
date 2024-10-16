@@ -25,7 +25,6 @@
 
 #include "RigCellGeometryTools.h"
 #include "RigContourMapGrid.h"
-#include "RigHexIntersectionTools.h"
 
 #include "RimCase.h"
 #include "RimGridView.h"
@@ -39,7 +38,6 @@
 #include "cafProgressInfo.h"
 
 #include "cvfArray.h"
-#include "cvfCellRange.h"
 #include "cvfGeometryTools.h"
 #include "cvfGeometryUtils.h"
 #include "cvfScalarMapper.h"
