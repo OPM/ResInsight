@@ -790,30 +790,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicConvertGroupToEnsembleFeature";
             menuBuilder.addSeparator();
         }
-        else if ( dynamic_cast<RimSummaryCase*>( firstUiItem ) )
-        {
-            menuBuilder << "RicShowDataSourcesForRealization";
-            menuBuilder.addSeparator();
-
-            menuBuilder.subMenuStart( "Import" );
-            menuBuilder << "RicImportSummaryCaseFeature";
-            menuBuilder << "RicImportSummaryCasesFeature";
-            menuBuilder << "RicImportSummaryGroupFeature";
-            menuBuilder << "RicImportEnsembleFeature";
-            menuBuilder.subMenuEnd();
-            menuBuilder.addSeparator();
-            menuBuilder << "RicNewSummaryMultiPlotFeature";
-            menuBuilder << "RicOpenSummaryPlotEditorFeature";
-            menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
-            menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
-            menuBuilder.addSeparator();
-            menuBuilder << "RicImportGridModelFromSummaryCaseFeature";
-
-            if ( !dynamic_cast<RimObservedSummaryData*>( firstUiItem ) )
-            {
-                menuBuilder << "RicShowSummaryCurveCalculatorFeature";
-            }
-        }
         else if ( dynamic_cast<RimWellLogChannel*>( firstUiItem ) )
         {
             menuBuilder << "RicAddWellLogToPlotFeature";
