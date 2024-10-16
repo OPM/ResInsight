@@ -27,6 +27,7 @@
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryEnsemble.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -222,6 +223,42 @@ void RimSummaryCase::buildChildNodes()
 
     auto addresses = reader->allResultAddresses();
     m_dataVectorFolders->updateFolderStructure( addresses, m_caseId );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    appendMenuItems( menuBuilder, true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder, bool showCurveCalculator ) const
+{
+    menuBuilder << "RicShowDataSourcesForRealization";
+    menuBuilder.addSeparator();
+
+    menuBuilder.subMenuStart( "Import" );
+    menuBuilder << "RicImportSummaryCaseFeature";
+    menuBuilder << "RicImportSummaryCasesFeature";
+    menuBuilder << "RicImportSummaryGroupFeature";
+    menuBuilder << "RicImportEnsembleFeature";
+    menuBuilder.subMenuEnd();
+    menuBuilder.addSeparator();
+    menuBuilder << "RicNewSummaryMultiPlotFeature";
+    menuBuilder << "RicOpenSummaryPlotEditorFeature";
+    menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
+    menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
+    menuBuilder.addSeparator();
+    menuBuilder << "RicImportGridModelFromSummaryCaseFeature";
+
+    if ( showCurveCalculator )
+    {
+        menuBuilder << "RicShowSummaryCurveCalculatorFeature";
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -46,6 +46,8 @@ public:
 protected:
     QString customWellName() const;
 
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
 private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

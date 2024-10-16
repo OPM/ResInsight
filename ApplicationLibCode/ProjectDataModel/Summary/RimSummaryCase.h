@@ -100,6 +100,8 @@ protected:
     virtual QString caseName() const = 0;
 
     void initAfterRead() override;
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder, bool showCurveCalculator ) const;
 
 private:
     void buildChildNodes();

@@ -113,6 +113,15 @@ QString RimObservedSummaryData::customWellName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimObservedSummaryData::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    // Do not show curve calculator for observed data
+    RimSummaryCase::appendMenuItems( menuBuilder, false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimObservedSummaryData::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     if ( fieldNeedingOptions == &m_summaryCategory )
