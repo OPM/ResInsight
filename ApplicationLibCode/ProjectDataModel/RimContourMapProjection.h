@@ -33,6 +33,7 @@
 #include "cvfString.h"
 #include "cvfVector2.h"
 
+class RigContourMapGrid;
 class RimGridView;
 class RimRegularLegendConfig;
 
@@ -165,10 +166,9 @@ protected:
     bool                                                mapCellVisibilityNeedsUpdating();
     std::vector<std::vector<std::pair<size_t, double>>> generateGridMapping();
 
-    void                    generateVertexResults();
-    void                    generateTrianglesWithVertexValues();
-    std::vector<cvf::Vec3d> generateVertices() const;
-    void                    generateContourPolygons();
+    void generateVertexResults();
+    void generateTrianglesWithVertexValues();
+    void generateContourPolygons();
     ContourPolygons createContourPolygonsFromLineSegments( caf::ContourLines::ListOfLineSegments& unorderedLineSegments, double contourValue );
     void          smoothContourPolygons( ContourPolygons* contourPolygons, bool favourExpansion );
     void          clipContourPolygons( ContourPolygons* contourPolygons, const ContourPolygons* clipBy );
@@ -191,15 +191,7 @@ protected:
 
     // Cell index and position conversion
     std::vector<CellIndexAndResult> cellsAtIJ( uint i, uint j ) const;
-    size_t                          cellIndexFromIJ( uint i, uint j ) const;
-    size_t                          vertexIndexFromIJ( uint i, uint j ) const;
-    cvf::Vec2ui                     ijFromVertexIndex( size_t gridIndex ) const;
-    cvf::Vec2ui                     ijFromCellIndex( size_t mapIndex ) const;
-    cvf::Vec2ui                     ijFromLocalPos( const cvf::Vec2d& localPos2d ) const;
-    cvf::Vec2d                      cellCenterPosition( uint i, uint j ) const;
-    cvf::Vec2d                      origin2d() const;
 
-    cvf::Vec2ui  calculateMapSize() const;
     double       gridEdgeOffset() const;
     virtual void updateAfterResultGeneration( int timeStep ) = 0;
 
@@ -225,9 +217,6 @@ protected:
     std::vector<std::vector<std::pair<size_t, double>>> m_projected3dGridIndices;
 
     cvf::Vec2d                   m_pickPoint;
-    cvf::Vec2ui                  m_mapSize;
-    cvf::BoundingBox             m_expandedBoundingBox;
-    cvf::BoundingBox             m_gridBoundingBox;
     std::vector<ContourPolygons> m_contourPolygons;
     std::vector<double>          m_contourLevelCumulativeAreas;
     std::vector<cvf::Vec4d>      m_trianglesWithVertexValues;
@@ -236,4 +225,6 @@ protected:
 
     double m_minResultAllTimeSteps;
     double m_maxResultAllTimeSteps;
+
+    std::unique_ptr<RigContourMapGrid> m_contourMapGrid;
 };

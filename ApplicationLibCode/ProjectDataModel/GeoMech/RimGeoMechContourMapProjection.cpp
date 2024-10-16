@@ -23,6 +23,7 @@
 #include "RiaWeightedMeanCalculator.h"
 
 #include "RigCellGeometryTools.h"
+#include "RigContourMapGrid.h"
 #include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
@@ -236,14 +237,15 @@ void RimGeoMechContourMapProjection::updateGridInformation()
     m_kLayers                   = m_femPartGrid->cellCountK();
     m_femPart->ensureIntersectionSearchTreeIsBuilt();
 
-    m_gridBoundingBox = geoMechCase->activeCellsBoundingBox();
+    cvf::BoundingBox gridBoundingBox = geoMechCase->activeCellsBoundingBox();
+    cvf::BoundingBox expandedBoundingBox;
 
     if ( m_limitToPorePressureRegions )
     {
         auto [stepIdx, frameIdx] = view()->currentStepAndDataFrame();
 
-        m_expandedBoundingBox = calculateExpandedPorBarBBox( stepIdx, frameIdx );
-        if ( !m_expandedBoundingBox.isValid() )
+        expandedBoundingBox = calculateExpandedPorBarBBox( stepIdx, frameIdx );
+        if ( !expandedBoundingBox.isValid() )
         {
             m_limitToPorePressureRegions = false;
         }
@@ -251,26 +253,19 @@ void RimGeoMechContourMapProjection::updateGridInformation()
 
     if ( !m_limitToPorePressureRegions )
     {
-        m_expandedBoundingBox = m_gridBoundingBox;
+        expandedBoundingBox = gridBoundingBox;
     }
 
-    cvf::Vec3d minExpandedPoint = m_expandedBoundingBox.min() - cvf::Vec3d( gridEdgeOffset(), gridEdgeOffset(), 0.0 );
-    cvf::Vec3d maxExpandedPoint = m_expandedBoundingBox.max() + cvf::Vec3d( gridEdgeOffset(), gridEdgeOffset(), 0.0 );
+    cvf::Vec3d minExpandedPoint = expandedBoundingBox.min() - cvf::Vec3d( gridEdgeOffset(), gridEdgeOffset(), 0.0 );
+    cvf::Vec3d maxExpandedPoint = expandedBoundingBox.max() + cvf::Vec3d( gridEdgeOffset(), gridEdgeOffset(), 0.0 );
     if ( m_limitToPorePressureRegions && !m_applyPPRegionLimitVertically )
     {
-        minExpandedPoint.z() = m_gridBoundingBox.min().z();
-        maxExpandedPoint.z() = m_gridBoundingBox.max().z();
+        minExpandedPoint.z() = gridBoundingBox.min().z();
+        maxExpandedPoint.z() = gridBoundingBox.max().z();
     }
-    m_expandedBoundingBox = cvf::BoundingBox( minExpandedPoint, maxExpandedPoint );
+    expandedBoundingBox = cvf::BoundingBox( minExpandedPoint, maxExpandedPoint );
 
-    m_mapSize = calculateMapSize();
-
-    // Re-jig max point to be an exact multiple of cell size
-    cvf::Vec3d minPoint   = m_expandedBoundingBox.min();
-    cvf::Vec3d maxPoint   = m_expandedBoundingBox.max();
-    maxPoint.x()          = minPoint.x() + m_mapSize.x() * sampleSpacing();
-    maxPoint.y()          = minPoint.y() + m_mapSize.y() * sampleSpacing();
-    m_expandedBoundingBox = cvf::BoundingBox( minPoint, maxPoint );
+    m_contourMapGrid = std::make_unique<RigContourMapGrid>( gridBoundingBox, expandedBoundingBox, sampleSpacing() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -298,11 +293,11 @@ std::vector<bool> RimGeoMechContourMapProjection::getMapCellVisibility()
         cvf::BoundingBox validResBoundingBox;
         for ( size_t cellIndex = 0; cellIndex < cellResults.size(); ++cellIndex )
         {
-            cvf::Vec2ui ij = ijFromCellIndex( cellIndex );
+            cvf::Vec2ui ij = m_contourMapGrid->ijFromCellIndex( cellIndex );
             if ( cellResults[cellIndex] != std::numeric_limits<double>::infinity() )
             {
                 distanceImage[ij.x()][ij.y()] = 1u;
-                validResBoundingBox.add( cvf::Vec3d( cellCenterPosition( ij.x(), ij.y() ), 0.0 ) );
+                validResBoundingBox.add( cvf::Vec3d( m_contourMapGrid->cellCenterPosition( ij.x(), ij.y() ), 0.0 ) );
             }
             else
             {
@@ -322,7 +317,7 @@ std::vector<bool> RimGeoMechContourMapProjection::getMapCellVisibility()
             {
                 if ( !mapCellVisibility[cellIndex] )
                 {
-                    cvf::Vec2ui ij = ijFromCellIndex( cellIndex );
+                    cvf::Vec2ui ij = m_contourMapGrid->ijFromCellIndex( cellIndex );
                     if ( distanceImage[ij.x()][ij.y()] < cellPadding * cellPadding )
                     {
                         mapCellVisibility[cellIndex] = true;
@@ -412,7 +407,7 @@ std::vector<double> RimGeoMechContourMapProjection::generateResultsFromAddress( 
     {
         if ( mapCellVisibility.empty() || mapCellVisibility[index] )
         {
-            cvf::Vec2ui ij           = ijFromCellIndex( index );
+            cvf::Vec2ui ij           = m_contourMapGrid->ijFromCellIndex( index );
             aggregatedResults[index] = calculateValueInMapCell( ij.x(), ij.y(), resultValues );
         }
     }

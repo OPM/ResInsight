@@ -32,6 +32,7 @@
 
 class RigActiveCellInfo;
 class RigMainGrid;
+class RigContourMapGrid;
 class RigResultAccessor;
 class RimEclipseContourMapView;
 class RimEclipseCase;
