@@ -18,10 +18,6 @@
 
 #include "RimEclipseContourMapProjection.h"
 
-#include "RiaWeightedGeometricMeanCalculator.h"
-#include "RiaWeightedHarmonicMeanCalculator.h"
-#include "RiaWeightedMeanCalculator.h"
-
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCell.h"
@@ -39,18 +35,6 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimRegularLegendConfig.h"
-#include "RimTextAnnotation.h"
-
-#include "cafContourLines.h"
-#include "cafPdmUiDoubleSliderEditor.h"
-#include "cafPdmUiTreeOrdering.h"
-
-#include "cvfArray.h"
-#include "cvfCellRange.h"
-#include "cvfGeometryTools.h"
-#include "cvfGeometryUtils.h"
-#include "cvfScalarMapper.h"
-#include "cvfStructGridGeometryGenerator.h"
 
 #include <algorithm>
 
