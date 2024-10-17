@@ -21,6 +21,7 @@
 #pragma once
 
 #include "RimCellFilter.h"
+#include "RimFieldQuickAccessInterface.h"
 
 #include "cafPdmFieldCvfVec3d.h"
 
@@ -39,7 +40,7 @@ class StructGridInterface;
 ///
 ///
 //==================================================================================================
-class RimCellRangeFilter : public RimCellFilter
+class RimCellRangeFilter : public RimCellFilter, public RimFieldQuickAccessInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -58,6 +59,8 @@ public:
     void setDefaultValues( int sliceDirection = -1, int defaultSlice = -1 );
 
     void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter, int gridIndex ) override;
+
+    std::vector<caf::PdmFieldHandle*> quickAccessFields() override;
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

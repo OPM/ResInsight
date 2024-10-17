@@ -58,6 +58,7 @@ public:
     static QString mainWindowMessagesName();
     static QString mainWindowMohrsCirclePlotName();
     static QString mainWindowUndoStackName();
+    static QString mainWindowQuickAccessName();
 
     static QString mainWindowProjectTreeName();
     static QString mainWindowDataSourceTreeName();
@@ -74,6 +75,7 @@ public:
     static QString plotMainWindowMessagesName();
     static QString plotMainWindowUndoStackName();
     static QString plotMainWindowPlotManagerName();
+    static QString plotWindowQuickAccessName();
 
     static QString dockState3DEclipseName();
     static QString dockState3DGeoMechName();

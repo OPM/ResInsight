@@ -26,11 +26,13 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
+#include "RimPinnedFieldCollection.h"
 #include "RimViewController.h"
+
+#include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
-#include "Riu3DMainWindowTools.h"
 #include "cvfAssert.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -64,6 +66,8 @@ void RicEclipsePropertyFilterFeatureImpl::addPropertyFilter( RimEclipsePropertyF
     propertyFilterCollection->propertyFiltersField().push_back( propertyFilter );
     setDefaults( propertyFilter );
 
+    RimPinnedFieldCollection::instance()->addQuickAccessFields( propertyFilter );
+
     propertyFilterCollection->reservoirView()->scheduleGeometryRegen( PROPERTY_FILTERED );
     propertyFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();
 
@@ -81,6 +85,8 @@ void RicEclipsePropertyFilterFeatureImpl::insertPropertyFilter( RimEclipseProper
     RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
     propertyFilterCollection->propertyFiltersField().insertAt( static_cast<int>( index ), propertyFilter );
     setDefaults( propertyFilter );
+
+    RimPinnedFieldCollection::instance()->addQuickAccessFields( propertyFilter );
 
     propertyFilterCollection->reservoirView()->scheduleGeometryRegen( PROPERTY_FILTERED );
     propertyFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();

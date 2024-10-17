@@ -250,6 +250,41 @@ void RimEclipsePropertyFilter::defineUiOrdering( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmFieldHandle*> RimEclipsePropertyFilter::quickAccessFields()
+{
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::quickAccessUiOrdering( caf::PdmUiOrdering& uiOrdering )
+{
+    auto name = "Property Filter : " + m_resultDefinition->resultVariableUiName();
+
+    int  index     = 1;
+    auto candidate = name;
+    while ( uiOrdering.findGroup( candidate ) != nullptr )
+    {
+        candidate = name + " (" + QString::number( index++ ) + ")";
+    }
+
+    auto group = uiOrdering.addNewGroup( candidate );
+    group->add( &m_lowerBound );
+    group->add( &m_upperBound );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEclipsePropertyFilter::hasUiOrdering() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
     PdmObject::defineUiTreeOrdering( uiTreeOrdering, uiConfigName );

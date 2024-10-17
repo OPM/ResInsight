@@ -20,6 +20,9 @@
 
 #pragma once
 
+#include "RimFieldQuickAccessInterface.h"
+#include "RimGridView.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -33,8 +36,6 @@
 // Includes to make Pdm work for cvf::Color and cvf:Mat
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
-
-#include "RimGridView.h"
 
 class RigActiveCellInfo;
 class RigCaseCellResultsData;
@@ -83,7 +84,7 @@ class OverlayItem;
 ///
 ///
 //==================================================================================================
-class RimEclipseView : public RimGridView
+class RimEclipseView : public RimGridView, public RimFieldQuickAccessInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -173,6 +174,8 @@ public:
     cvf::Color4f                  colorFromCellCategory( RivCellSetEnum geometryType ) const;
 
     std::vector<RigEclipseResultAddress> additionalResultsForResultInfo() const;
+
+    std::vector<caf::PdmFieldHandle*> quickAccessFields() override;
 
 protected:
     void                 initAfterRead() override;
