@@ -21,6 +21,7 @@
 #include "RiaWeightedMeanCalculator.h"
 
 #include "RigCellGeometryTools.h"
+#include "RigContourMapCalculator.h"
 #include "RigContourMapGrid.h"
 #include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
@@ -611,10 +612,15 @@ QList<caf::PdmOptionItemInfo> RimGeoMechContourMapProjection::calculateValueOpti
 
     if ( fieldNeedingOptions == &m_resultAggregation )
     {
-        std::vector<ResultAggregationEnum> validOptions =
-            { RESULTS_TOP_VALUE, RESULTS_MEAN_VALUE, RESULTS_GEOM_VALUE, RESULTS_HARM_VALUE, RESULTS_MIN_VALUE, RESULTS_MAX_VALUE, RESULTS_SUM };
+        std::vector<RigContourMapCalculator::ResultAggregationEnum> validOptions = { RigContourMapCalculator::RESULTS_TOP_VALUE,
+                                                                                     RigContourMapCalculator::RESULTS_MEAN_VALUE,
+                                                                                     RigContourMapCalculator::RESULTS_GEOM_VALUE,
+                                                                                     RigContourMapCalculator::RESULTS_HARM_VALUE,
+                                                                                     RigContourMapCalculator::RESULTS_MIN_VALUE,
+                                                                                     RigContourMapCalculator::RESULTS_MAX_VALUE,
+                                                                                     RigContourMapCalculator::RESULTS_SUM };
 
-        for ( ResultAggregationEnum option : validOptions )
+        for ( RigContourMapCalculator::ResultAggregationEnum option : validOptions )
         {
             options.push_back( caf::PdmOptionItemInfo( ResultAggregation::uiText( option ), option ) );
         }
