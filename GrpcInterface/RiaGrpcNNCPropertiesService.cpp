@@ -100,8 +100,8 @@ grpc::Status RiaNNCConnectionsStateHandler::assignReply( rips::NNCConnections* r
     for ( ; indexInPackage < packageSize && m_currentIdx < connectionCount; ++indexInPackage )
     {
         const RigConnection& connection = connections[m_currentIdx];
-        const RigCell&       cell1      = mainGrid->globalCellArray()[connection.c1GlobIdx()];
-        const RigCell&       cell2      = mainGrid->globalCellArray()[connection.c2GlobIdx()];
+        const RigCell&       cell1      = mainGrid->cell( connection.c1GlobIdx() );
+        const RigCell&       cell2      = mainGrid->cell( connection.c2GlobIdx() );
 
         NNCConnection* nncConnection = reply->add_connections();
         nncConnection->set_allocated_cell1( createConnectionVec3i( cell1 ) );

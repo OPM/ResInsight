@@ -40,7 +40,7 @@ double RigActiveCellsResultAccessor::cellScalar( size_t gridLocalCellIndex ) con
 {
     if ( m_reservoirResultValues == nullptr || m_reservoirResultValues->empty() ) return HUGE_VAL;
 
-    size_t reservoirCellIndex = m_grid->reservoirCellIndex( gridLocalCellIndex );
+    size_t reservoirCellIndex = m_grid->localCellIndexToNative( gridLocalCellIndex );
     size_t resultValueIndex   = m_activeCellInfo->cellResultIndex( reservoirCellIndex );
     if ( resultValueIndex == cvf::UNDEFINED_SIZE_T ) return HUGE_VAL;
 

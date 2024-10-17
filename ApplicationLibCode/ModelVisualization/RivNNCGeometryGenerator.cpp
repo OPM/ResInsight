@@ -77,12 +77,8 @@ void RivNNCGeometryGenerator::computeArrays()
     const cvf::Vec3f offset( m_offset );
     long long numConnections = static_cast<long long>( m_nncIndexes.empty() ? m_nncData->allConnections().size() : m_nncIndexes.size() );
 
-    bool                  isVisibilityCalcActive = m_cellVisibility.notNull() && m_grid.notNull();
-    std::vector<RigCell>* allCells               = nullptr;
-    if ( isVisibilityCalcActive )
-    {
-        allCells = &( m_grid->mainGrid()->globalCellArray() );
-    }
+    bool       isVisibilityCalcActive = m_cellVisibility.notNull() && m_grid.notNull();
+    const auto mainGrid               = m_grid->mainGrid();
 
 #pragma omp parallel for ordered
     for ( long long nIdx = 0; nIdx < numConnections; ++nIdx )
@@ -104,15 +100,15 @@ void RivNNCGeometryGenerator::computeArrays()
                 bool cell1Visible = false;
                 bool cell2Visible = false;
 
-                if ( ( *allCells )[conn.c1GlobIdx()].hostGrid() == m_grid.p() )
+                if ( mainGrid->cell( conn.c1GlobIdx() ).hostGrid() == m_grid.p() )
                 {
-                    size_t cell1GridLocalIdx = ( *allCells )[conn.c1GlobIdx()].gridLocalCellIndex();
+                    size_t cell1GridLocalIdx = mainGrid->cell( conn.c1GlobIdx() ).gridLocalCellIndex();
                     cell1Visible             = ( *m_cellVisibility )[cell1GridLocalIdx];
                 }
 
-                if ( ( *allCells )[conn.c2GlobIdx()].hostGrid() == m_grid.p() )
+                if ( mainGrid->cell( conn.c2GlobIdx() ).hostGrid() == m_grid.p() )
                 {
-                    size_t cell2GridLocalIdx = ( *allCells )[conn.c2GlobIdx()].gridLocalCellIndex();
+                    size_t cell2GridLocalIdx = mainGrid->cell( conn.c2GlobIdx() ).gridLocalCellIndex();
                     cell2Visible             = ( *m_cellVisibility )[cell2GridLocalIdx];
                 }
 

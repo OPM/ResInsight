@@ -203,11 +203,11 @@ public:
         {
             quint64 valueIndex = 0;
 
-            for ( size_t reservoirCellIndex = 0; reservoirCellIndex < mainGrid->globalCellArray().size(); reservoirCellIndex++ )
+            for ( size_t nativeCellIndex = 0; nativeCellIndex < mainGrid->cellCount(); nativeCellIndex++ )
             {
-                if ( !actCellInfo->isActive( reservoirCellIndex ) ) continue;
+                if ( !actCellInfo->isActive( nativeCellIndex ) ) continue;
 
-                cvf::Vec3d center = mainGrid->globalCellArray()[reservoirCellIndex].center();
+                cvf::Vec3d center = mainGrid->nativeCell( nativeCellIndex ).center();
 
                 convertVec3dToPositiveDepth( &center );
 
@@ -377,11 +377,11 @@ public:
 
                 quint64 valueIndex = 0;
 
-                for ( size_t reservoirCellIndex = 0; reservoirCellIndex < mainGrid->globalCellArray().size(); reservoirCellIndex++ )
+                for ( size_t nativeCellIndex = 0; nativeCellIndex < mainGrid->cellCount(); nativeCellIndex++ )
                 {
-                    if ( !actCellInfo->isActive( reservoirCellIndex ) ) continue;
+                    if ( !actCellInfo->isActive( nativeCellIndex ) ) continue;
 
-                    mainGrid->cellCornerVertices( reservoirCellIndex, cornerVerts );
+                    mainGrid->cellCornerVertices( nativeCellIndex, cornerVerts );
 
                     doubleValues[valueIndex++] = getCellCornerWithPositiveDepth( cornerVerts, cornerIndexMapping, coordIdx );
                 }

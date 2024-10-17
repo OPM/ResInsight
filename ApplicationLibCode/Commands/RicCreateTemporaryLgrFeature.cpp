@@ -190,7 +190,7 @@ void RicCreateTemporaryLgrFeature::setupActionLook( QAction* actionToSetup )
 void RicCreateTemporaryLgrFeature::createLgr( const LgrInfo& lgrInfo, RigMainGrid* mainGrid )
 {
     int    lgrId          = lgrInfo.id;
-    size_t totalCellCount = mainGrid->globalCellArray().size();
+    size_t totalCellCount = mainGrid->cellCount();
     size_t lgrCellCount   = lgrInfo.cellCount();
 
     // Create local grid and set properties
@@ -203,14 +203,14 @@ void RicCreateTemporaryLgrFeature::createLgr( const LgrInfo& lgrInfo, RigMainGri
     localGrid->setGridPointDimensions( cvf::Vec3st( lgrInfo.sizes.i() + 1, lgrInfo.sizes.j() + 1, lgrInfo.sizes.k() + 1 ) );
     mainGrid->addLocalGrid( localGrid );
 
-    size_t cellStartIndex = mainGrid->globalCellArray().size();
+    size_t cellStartIndex = mainGrid->cellCount();
     size_t nodeStartIndex = mainGrid->nodes().size();
 
     // Resize global cell and node arrays
     {
         RigCell defaultCell;
         defaultCell.setHostGrid( localGrid );
-        mainGrid->globalCellArray().resize( cellStartIndex + lgrCellCount, defaultCell );
+        mainGrid->reservoirCells().resize( cellStartIndex + lgrCellCount, defaultCell );
         mainGrid->nodes().resize( nodeStartIndex + lgrCellCount * 8, cvf::Vec3d( 0, 0, 0 ) );
     }
 
@@ -231,10 +231,10 @@ void RicCreateTemporaryLgrFeature::createLgr( const LgrInfo& lgrInfo, RigMainGri
                 size_t mainI = lgrInfo.mainGridStartCell.i() + lgrI / lgrSizePerMainCell.i();
 
                 size_t mainCellIndex = mainGrid->cellIndexFromIJK( mainI, mainJ, mainK );
-                auto&  mainGridCell  = mainGrid->globalCellArray()[mainCellIndex];
+                auto&  mainGridCell  = mainGrid->reservoirCells()[mainCellIndex];
                 mainGridCell.setSubGrid( localGrid );
 
-                RigCell& cell = mainGrid->globalCellArray()[cellStartIndex + gridLocalCellIndex];
+                RigCell& cell = mainGrid->reservoirCells()[cellStartIndex + gridLocalCellIndex];
                 cell.setGridLocalCellIndex( gridLocalCellIndex );
                 cell.setParentCellIndex( mainCellIndex );
 

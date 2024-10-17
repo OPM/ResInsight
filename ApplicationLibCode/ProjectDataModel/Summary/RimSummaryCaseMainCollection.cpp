@@ -474,7 +474,7 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
         RifOpmCommonEclipseSummary::resetEnhancedSummaryFileCount();
 
         RiaThreadSafeLogger threadSafeLogger;
-        QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        // QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
 
         // The HDF5 reader requires a special configuration to be thread safe. Disable threading for HDF reader.
         bool canUseMultipleTreads = ( prefs->summaryDataReader() != RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON );
@@ -554,7 +554,7 @@ std::vector<RimSummaryCase*>
 
         for ( const RifSummaryCaseFileResultInfo& fileInfo : summaryHeaderFileInfos )
         {
-            QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+            // QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
 
             auto existingSummaryCase = findTopLevelSummaryCaseFromFileName( fileInfo.summaryFileName() );
             if ( !existingSummaryCase )
@@ -597,7 +597,7 @@ std::vector<RimSummaryCase*>
             if ( progress != nullptr ) progress->incrementProgress();
         }
 
-        QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        // QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
     }
 
     RimSummaryCaseMainCollection::loadSummaryCaseData( sumCases );

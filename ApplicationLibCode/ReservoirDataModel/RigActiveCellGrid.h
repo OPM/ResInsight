@@ -28,12 +28,14 @@ public:
     RigActiveCellGrid();
     ~RigActiveCellGrid() override;
 
-    void transferActiveInformation( RigEclipseCaseData*     eclipseCaseData,
-                                    size_t                  totalActiveCells,
-                                    size_t                  matrixActiveCells,
-                                    size_t                  fractureActiveCells,
-                                    const std::vector<int>& activeMatrixIndexes,
-                                    const std::vector<int>& activeFracIndexes );
+    size_t transferActiveInformation( int                     gridIndex, // 0 - main grid, 1 - first LGR...
+                                      RigEclipseCaseData*     eclipseCaseData,
+                                      size_t                  totalActiveCells,
+                                      size_t                  matrixActiveCells,
+                                      size_t                  fractureActiveCells,
+                                      const std::vector<int>& activeMatrixIndexes,
+                                      const std::vector<int>& activeFracIndexes,
+                                      size_t                  inactiveCellIndex );
 
     size_t cellIndexFromIJK( size_t i, size_t j, size_t k ) const override;
     size_t cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const override;
@@ -42,10 +44,17 @@ public:
 
     RigCell&       cell( size_t gridLocalCellIndex ) override;
     const RigCell& cell( size_t gridLocalCellIndex ) const override;
-    size_t         cellCount() const override;
+
+    RigCell&       nativeCell( size_t nativeCellIndex ) override;
+    const RigCell& nativeCell( size_t nativeCellIndex ) const override;
+
+    size_t globalCellIndexToNative( size_t globalCellIndex ) const override;
+    size_t nativeCellIndexToGlobal( size_t nativeCellIndex ) const override;
+
+    size_t cellCount() const override;
 
 private:
-    std::vector<size_t> m_globalToActiveMap;
-    std::vector<size_t> m_activeToGlobalMap;
+    std::vector<size_t> m_globalToNativeMap;
+    std::vector<size_t> m_nativeToGlobalMap;
     RigCell             m_invalidCell;
 };

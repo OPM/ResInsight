@@ -390,6 +390,7 @@ void StructGridGeometryGenerator::computeArrays()
             for ( i = 0; i < m_grid->cellCountI(); i++ )
             {
                 size_t cellIndex = m_grid->cellIndexFromIJK( i, j, k );
+
                 if ( m_cellVisibility.notNull() && !( *m_cellVisibility )[cellIndex] )
                 {
                     continue;
