@@ -22,6 +22,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigCell.h"
 #include "RigCellGeometryTools.h"
+#include "RigContourMapCalculator.h"
 #include "RigContourMapGrid.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
@@ -115,8 +116,7 @@ void RimEclipseContourMapProjection::updateLegend()
 
     legendConfig()->setAutomaticRanges( minValAllTimeSteps, maxValAllTimeSteps, minVal, maxVal );
 
-    if ( m_resultAggregation() == RESULTS_OIL_COLUMN || m_resultAggregation() == RESULTS_GAS_COLUMN ||
-         m_resultAggregation() == RESULTS_HC_COLUMN )
+    if ( isColumnResult() )
     {
         legendConfig()->setTitle( QString( "Map Projection\n%1" ).arg( m_resultAggregation().uiText() ) );
     }
@@ -188,12 +188,14 @@ std::vector<double> RimEclipseContourMapProjection::generateResults( int timeSte
                 gridCellResult->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" ) );
                 gridCellResult->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "NTG" ) );
                 gridCellResult->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" ) );
-                if ( m_resultAggregation == RESULTS_OIL_COLUMN || m_resultAggregation == RESULTS_HC_COLUMN )
+                if ( m_resultAggregation == RigContourMapCalculator::RESULTS_OIL_COLUMN ||
+                     m_resultAggregation == RigContourMapCalculator::RESULTS_HC_COLUMN )
                 {
                     gridCellResult->ensureKnownResultLoaded(
                         RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ) );
                 }
-                if ( m_resultAggregation == RESULTS_GAS_COLUMN || m_resultAggregation == RESULTS_HC_COLUMN )
+                if ( m_resultAggregation == RigContourMapCalculator::RESULTS_GAS_COLUMN ||
+                     m_resultAggregation == RigContourMapCalculator::RESULTS_HC_COLUMN )
                 {
                     gridCellResult->ensureKnownResultLoaded(
                         RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ) );
@@ -284,7 +286,7 @@ std::vector<double> RimEclipseContourMapProjection::calculateColumnResult( Resul
 
     std::vector<double> resultValues( poroResults.size(), 0.0 );
 
-    if ( resultAggregation == RESULTS_OIL_COLUMN || resultAggregation == RESULTS_HC_COLUMN )
+    if ( resultAggregation == RigContourMapCalculator::RESULTS_OIL_COLUMN || resultAggregation == RigContourMapCalculator::RESULTS_HC_COLUMN )
     {
         const std::vector<double>& soilResults =
             resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ),
@@ -295,7 +297,7 @@ std::vector<double> RimEclipseContourMapProjection::calculateColumnResult( Resul
         }
     }
 
-    if ( resultAggregation == RESULTS_GAS_COLUMN || resultAggregation == RESULTS_HC_COLUMN )
+    if ( resultAggregation == RigContourMapCalculator::RESULTS_GAS_COLUMN || resultAggregation == RigContourMapCalculator::RESULTS_HC_COLUMN )
     {
         bool hasGasResult =
             resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ) );

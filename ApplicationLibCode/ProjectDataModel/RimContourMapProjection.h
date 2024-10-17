@@ -20,6 +20,7 @@
 
 #include "RimCheckableNamedObject.h"
 
+#include "RigContourMapCalculator.h"
 #include "RigContourPolygonsTools.h"
 
 #include "cafPdmField.h"
@@ -44,21 +45,7 @@ class RimContourMapProjection : public RimCheckableNamedObject
 public:
     using CellIndexAndResult = std::pair<size_t, double>;
 
-    enum ResultAggregationEnum
-    {
-        RESULTS_TOP_VALUE,
-        RESULTS_MEAN_VALUE,
-        RESULTS_GEOM_VALUE,
-        RESULTS_HARM_VALUE,
-        RESULTS_MIN_VALUE,
-        RESULTS_MAX_VALUE,
-        RESULTS_VOLUME_SUM,
-        RESULTS_SUM,
-        RESULTS_OIL_COLUMN,
-        RESULTS_GAS_COLUMN,
-        RESULTS_HC_COLUMN
-    };
-    using ResultAggregation = caf::AppEnum<ResultAggregationEnum>;
+    using ResultAggregation = caf::AppEnum<RigContourMapCalculator::ResultAggregationEnum>;
     using ContourPolygons   = std::vector<RigContourPolygonsTools::ContourPolygon>;
 
     RimContourMapProjection();
@@ -95,6 +82,8 @@ public:
     cvf::Vec2ui numberOfVerticesIJ() const;
 
     bool isColumnResult() const;
+    bool isMeanResult() const;
+    bool isStraightSummationResult() const;
 
     double valueAtVertex( uint i, uint j ) const;
 
@@ -114,14 +103,11 @@ public:
     virtual RimRegularLegendConfig* legendConfig() const          = 0;
     virtual void                    updateLegend()                = 0;
 
-protected:
-    // Protected virtual methods to be overridden by Eclipse and Geo-mechanical contour map implementations
-    virtual void                updateGridInformation()                                                            = 0;
-    virtual std::vector<double> retrieveParameterWeights()                                                         = 0;
-    virtual std::vector<double> generateResults( int timeStep )                                                    = 0;
-    virtual bool                resultVariableChanged() const                                                      = 0;
-    virtual void                clearResultVariable()                                                              = 0;
-    virtual RimGridView*        baseView() const                                                                   = 0;
+    // Use this function to get the result index into grid cell results. The index will differ if we have active cells
+    virtual size_t gridResultIndex( size_t globalCellIdx ) const;
+
+    virtual std::vector<double> retrieveParameterWeights() = 0;
+
     virtual size_t              kLayer( size_t globalCellIdx ) const                                               = 0;
     virtual size_t              kLayers() const                                                                    = 0;
     virtual std::vector<size_t> findIntersectingCells( const cvf::BoundingBox& bbox ) const                        = 0;
@@ -129,8 +115,15 @@ protected:
     virtual double calculateRayLengthInCell( size_t globalCellIdx, const cvf::Vec3d& highestPoint, const cvf::Vec3d& lowestPoint ) const = 0;
     virtual double getParameterWeightForCell( size_t globalCellIdx, const std::vector<double>& parameterWeights ) const = 0;
 
-    // Use this function to get the result index into grid cell results. The index will differ if we have active cells
-    virtual size_t gridResultIndex( size_t globalCellIdx ) const;
+    virtual cvf::ref<cvf::UByteArray> getCellVisibility() const;
+
+protected:
+    // Protected virtual methods to be overridden by Eclipse and Geo-mechanical contour map implementations
+    virtual void                updateGridInformation()         = 0;
+    virtual std::vector<double> generateResults( int timeStep ) = 0;
+    virtual bool                resultVariableChanged() const   = 0;
+    virtual void                clearResultVariable()           = 0;
+    virtual RimGridView*        baseView() const                = 0;
 
     double calculateValueInMapCell( uint i, uint j, const std::vector<double>& gridCellValues ) const;
 
@@ -149,25 +142,16 @@ protected:
 
     virtual std::pair<double, double> minmaxValuesAllTimeSteps();
 
-    virtual cvf::ref<cvf::UByteArray>                   getCellVisibility() const;
-    virtual std::vector<bool>                           getMapCellVisibility();
-    bool                                                mapCellVisibilityNeedsUpdating();
-    std::vector<std::vector<std::pair<size_t, double>>> generateGridMapping();
+    virtual std::vector<bool>                                  getMapCellVisibility();
+    bool                                                       mapCellVisibilityNeedsUpdating();
+    static std::vector<std::vector<std::pair<size_t, double>>> generateGridMapping( RimContourMapProjection& contourMapProjection,
+                                                                                    const RigContourMapGrid& contourMapGrid );
 
     void generateVertexResults();
     void generateTrianglesWithVertexValues();
     void generateContourPolygons();
 
     static double sumTriangleAreas( const std::vector<cvf::Vec4d>& triangles );
-
-    std::vector<CellIndexAndResult> cellOverlapVolumesAndResults( const cvf::Vec2d&          globalPos2d,
-                                                                  const std::vector<double>& weightingResultValues ) const;
-    std::vector<CellIndexAndResult> cellRayIntersectionAndResults( const cvf::Vec2d&          globalPos2d,
-                                                                   const std::vector<double>& weightingResultValues ) const;
-
-    bool        isMeanResult() const;
-    bool        isStraightSummationResult() const;
-    static bool isStraightSummationResult( ResultAggregationEnum aggregationType );
 
     double interpolateValue( const cvf::Vec2d& gridPosition2d ) const;
     double valueInCell( uint i, uint j ) const;
