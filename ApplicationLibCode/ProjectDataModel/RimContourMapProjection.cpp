@@ -1061,18 +1061,21 @@ void RimContourMapProjection::generateContourPolygons()
                     caf::ContourLines::create( m_aggregatedVertexResults, xVertexPositions(), yVertexPositions(), contourLevels );
 
                 contourPolygons = std::vector<ContourPolygons>( unorderedLineSegmentsPerLevel.size() );
+                const double areaThreshold = 1.5 * ( sampleSpacing() * sampleSpacing() ) / ( sampleSpacingFactor() * sampleSpacingFactor() );
 
 #pragma omp parallel for
                 for ( int i = 0; i < (int)unorderedLineSegmentsPerLevel.size(); ++i )
                 {
-                    contourPolygons[i] = createContourPolygonsFromLineSegments( unorderedLineSegmentsPerLevel[i], contourLevels[i] );
+                    contourPolygons[i] = RigContourPolygonsTools::createContourPolygonsFromLineSegments( unorderedLineSegmentsPerLevel[i],
+                                                                                                         contourLevels[i],
+                                                                                                         areaThreshold );
 
                     if ( m_smoothContourLines() )
                     {
-                        smoothContourPolygons( &contourPolygons[i], true );
+                        RigContourPolygonsTools::smoothContourPolygons( contourPolygons[i], true, sampleSpacing() );
                     }
 
-                    for ( ContourPolygon& polygon : contourPolygons[i] )
+                    for ( RigContourPolygonsTools::ContourPolygon& polygon : contourPolygons[i] )
                     {
                         RigCellGeometryTools::simplifyPolygon( &polygon.vertices, simplifyEpsilon );
                     }
@@ -1086,7 +1089,7 @@ void RimContourMapProjection::generateContourPolygons()
                 {
                     for ( size_t i = 1; i < contourPolygons.size(); ++i )
                     {
-                        clipContourPolygons(&contourPolygons[i], &contourPolygons[i - 1] );
+                        RigContourPolygonsTools::clipContourPolygons(&contourPolygons[i], &contourPolygons[i - 1] );
                     }
                 }
                 */
@@ -1094,135 +1097,13 @@ void RimContourMapProjection::generateContourPolygons()
                 m_contourLevelCumulativeAreas.resize( contourPolygons.size(), 0.0 );
                 for ( int64_t i = (int64_t)contourPolygons.size() - 1; i >= 0; --i )
                 {
-                    double levelOuterArea            = sumPolygonArea( contourPolygons[i] );
+                    double levelOuterArea            = RigContourPolygonsTools::sumPolygonArea( contourPolygons[i] );
                     m_contourLevelCumulativeAreas[i] = levelOuterArea;
                 }
             }
         }
     }
     m_contourPolygons = contourPolygons;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimContourMapProjection::ContourPolygons
-    RimContourMapProjection::createContourPolygonsFromLineSegments( caf::ContourLines::ListOfLineSegments& unorderedLineSegments,
-                                                                    double                                 contourValue )
-{
-    const double areaThreshold = 1.5 * ( sampleSpacing() * sampleSpacing() ) / ( sampleSpacingFactor() * sampleSpacingFactor() );
-
-    ContourPolygons contourPolygons;
-
-    std::vector<std::vector<cvf::Vec3d>> polygons;
-    RigCellGeometryTools::createPolygonFromLineSegments( unorderedLineSegments, polygons, 1.0e-8 );
-    for ( size_t j = 0; j < polygons.size(); ++j )
-    {
-        double         signedArea = cvf::GeometryTools::signedAreaPlanarPolygon( cvf::Vec3d::Z_AXIS, polygons[j] );
-        ContourPolygon contourPolygon;
-        contourPolygon.value = contourValue;
-        if ( signedArea < 0.0 )
-        {
-            contourPolygon.vertices.insert( contourPolygon.vertices.end(), polygons[j].rbegin(), polygons[j].rend() );
-        }
-        else
-        {
-            contourPolygon.vertices = polygons[j];
-        }
-
-        contourPolygon.area = cvf::GeometryTools::signedAreaPlanarPolygon( cvf::Vec3d::Z_AXIS, contourPolygon.vertices );
-        if ( contourPolygon.area > areaThreshold )
-        {
-            for ( const cvf::Vec3d& vertex : contourPolygon.vertices )
-            {
-                contourPolygon.bbox.add( vertex );
-            }
-            contourPolygons.push_back( contourPolygon );
-        }
-    }
-    return contourPolygons;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::smoothContourPolygons( ContourPolygons* contourPolygons, bool favourExpansion )
-{
-    CVF_ASSERT( contourPolygons );
-    for ( size_t i = 0; i < contourPolygons->size(); ++i )
-    {
-        ContourPolygon& polygon = contourPolygons->at( i );
-
-        for ( size_t n = 0; n < 20; ++n )
-        {
-            std::vector<cvf::Vec3d> newVertices;
-            newVertices.resize( polygon.vertices.size() );
-            double maxChange = 0.0;
-            for ( size_t j = 0; j < polygon.vertices.size(); ++j )
-            {
-                cvf::Vec3d vm1 = polygon.vertices.back();
-                cvf::Vec3d v   = polygon.vertices[j];
-                cvf::Vec3d vp1 = polygon.vertices.front();
-                if ( j > 0u )
-                {
-                    vm1 = polygon.vertices[j - 1];
-                }
-                if ( j < polygon.vertices.size() - 1 )
-                {
-                    vp1 = polygon.vertices[j + 1];
-                }
-                // Only expand.
-                cvf::Vec3d modifiedVertex = 0.5 * ( v + 0.5 * ( vm1 + vp1 ) );
-                cvf::Vec3d delta          = modifiedVertex - v;
-                cvf::Vec3d tangent3d      = vp1 - vm1;
-                cvf::Vec2d tangent2d( tangent3d.x(), tangent3d.y() );
-                cvf::Vec3d norm3d( tangent2d.getNormalized().perpendicularVector() );
-                if ( delta * norm3d > 0 && favourExpansion )
-                {
-                    // Normal is always inwards facing so a positive dot product means inward movement
-                    // Favour expansion rather than contraction by only contracting by a fraction.
-                    // The fraction is empirically found to give a decent result.
-                    modifiedVertex = v + 0.2 * delta;
-                }
-                newVertices[j] = modifiedVertex;
-                maxChange      = std::max( maxChange, ( modifiedVertex - v ).length() );
-            }
-            polygon.vertices.swap( newVertices );
-            if ( maxChange < sampleSpacing() * 1.0e-2 ) break;
-        }
-    }
-}
-
-void RimContourMapProjection::clipContourPolygons( ContourPolygons* contourPolygons, const ContourPolygons* clipBy )
-{
-    CVF_ASSERT( clipBy );
-    for ( size_t i = 0; i < contourPolygons->size(); ++i )
-    {
-        ContourPolygon& polygon = contourPolygons->at( i );
-        for ( size_t j = 0; j < clipBy->size(); ++j )
-        {
-            std::vector<std::vector<cvf::Vec3d>> intersections =
-                RigCellGeometryTools::intersectionWithPolygon( polygon.vertices, clipBy->at( j ).vertices );
-            if ( !intersections.empty() )
-            {
-                polygon.vertices = intersections.front();
-                polygon.area     = std::abs( cvf::GeometryTools::signedAreaPlanarPolygon( cvf::Vec3d::Z_AXIS, polygon.vertices ) );
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::sumPolygonArea( const ContourPolygons& contourPolygons )
-{
-    double sumArea = 0.0;
-    for ( const ContourPolygon& polygon : contourPolygons )
-    {
-        sumArea += polygon.area;
-    }
-    return sumArea;
 }
 
 //--------------------------------------------------------------------------------------------------

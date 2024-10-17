@@ -103,6 +103,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigOsduWellLogData.h
     ${CMAKE_CURRENT_LIST_DIR}/RigWellTargetCandidatesGenerator.h
     ${CMAKE_CURRENT_LIST_DIR}/RigContourMapGrid.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigContourPolygonsTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -204,6 +205,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigOsduWellLogData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellTargetCandidatesGenerator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigContourMapGrid.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigContourPolygonsTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

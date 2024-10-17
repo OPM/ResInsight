@@ -4,6 +4,7 @@
 #include "RiaFontCache.h"
 #include "RiaWeightedMeanCalculator.h"
 #include "RigCellGeometryTools.h"
+#include "RigContourPolygonsTools.h"
 #include "RivMeshLinesSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivScalarMapperUtils.h"
@@ -409,7 +410,7 @@ std::vector<cvf::ref<cvf::Drawable>>
     std::vector<double> tickValues;
     mapper->majorTickValues( &tickValues );
 
-    const RimContourMapProjection::ContourPolygons* previousLevel = nullptr;
+    const RigContourPolygonsTools::ContourPolygons* previousLevel = nullptr;
     for ( int64_t i = (int64_t)m_contourLinePolygons.size() - 1; i > 0; --i )
     {
         cvf::Color3f                backgroundColor( mapper->mapToColor( tickValues[i] ) );
@@ -435,7 +436,9 @@ std::vector<cvf::ref<cvf::Drawable>>
                 const cvf::Vec3d& localVertex2 = m_contourLinePolygons[i][j].vertices[nextVertex];
 
                 cvf::Vec3d lineCenter = ( localVertex1 + localVertex2 ) * 0.5;
-                if ( previousLevel && lineOverlapsWithPreviousContourLevel( lineCenter, previousLevel ) )
+                double     tolerance  = 1.0e-2 * m_contourMapProjection->sampleSpacing();
+
+                if ( previousLevel && lineOverlapsWithPreviousContourLevel( lineCenter, *previousLevel, tolerance ) )
                 {
                     continue;
                 }
@@ -557,41 +560,9 @@ cvf::ref<cvf::DrawableGeo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RivContourMapProjectionPartMgr::lineOverlapsWithPreviousContourLevel( const cvf::Vec3d& lineCenter,
-                                                                           const RimContourMapProjection::ContourPolygons* previousLevel ) const
+bool RivContourMapProjectionPartMgr::lineOverlapsWithPreviousContourLevel( const cvf::Vec3d&                               lineCenter,
+                                                                           const RigContourPolygonsTools::ContourPolygons& previousLevel,
+                                                                           double                                          tolerance )
 {
-    const int64_t jump = 50;
-    CVF_ASSERT( previousLevel );
-    double tolerance = 1.0e-2 * m_contourMapProjection->sampleSpacing();
-    for ( const RimContourMapProjection::ContourPolygon& edgePolygon : *previousLevel )
-    {
-        std::pair<int64_t, double> closestIndex( 0, std::numeric_limits<double>::infinity() );
-        for ( int64_t i = 0; i < (int64_t)edgePolygon.vertices.size(); i += jump )
-        {
-            const cvf::Vec3d& edgeVertex1 = edgePolygon.vertices[i];
-            const cvf::Vec3d& edgeVertex2 = edgePolygon.vertices[( i + 1 ) % edgePolygon.vertices.size()];
-            double            dist1       = cvf::GeometryTools::linePointSquareDist( edgeVertex1, edgeVertex2, lineCenter );
-            if ( dist1 < tolerance )
-            {
-                return true;
-            }
-            if ( dist1 < closestIndex.second )
-            {
-                closestIndex = std::make_pair( i, dist1 );
-            }
-        }
-        for ( int64_t i = std::max( (int64_t)1, closestIndex.first - jump + 1 );
-              i < std::min( (int64_t)edgePolygon.vertices.size(), closestIndex.first + jump );
-              ++i )
-        {
-            const cvf::Vec3d& edgeVertex1 = edgePolygon.vertices[i];
-            const cvf::Vec3d& edgeVertex2 = edgePolygon.vertices[( i + 1 ) % edgePolygon.vertices.size()];
-            double            dist1       = cvf::GeometryTools::linePointSquareDist( edgeVertex1, edgeVertex2, lineCenter );
-            if ( dist1 < tolerance )
-            {
-                return true;
-            }
-        }
-    }
-    return false;
+    return RigContourPolygonsTools::lineOverlapsWithContourPolygons( lineCenter, previousLevel, tolerance );
 }
