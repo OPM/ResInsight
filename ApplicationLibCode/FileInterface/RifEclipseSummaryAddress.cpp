@@ -1034,8 +1034,19 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
             break;
 
         case SummaryCategory::SUMMARY_NETWORK:
-            return networkAddress( vectorName, token1 );
-            break;
+        {
+            auto aggregated = token1;
+            if ( !token2.empty() )
+            {
+                // Network name can contain more than one token. Concatenate tokens using : as separator
+                // https://github.com/OPM/ResInsight/issues/11785
+                aggregated += ":";
+                aggregated += token2;
+            }
+
+            return networkAddress( vectorName, aggregated );
+        }
+        break;
 
         case SummaryCategory::SUMMARY_MISC:
             return miscAddress( vectorName );
