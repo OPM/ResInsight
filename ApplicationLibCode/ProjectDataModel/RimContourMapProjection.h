@@ -20,7 +20,8 @@
 
 #include "RimCheckableNamedObject.h"
 
-#include "cafContourLines.h"
+#include "RigContourPolygonsTools.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -43,14 +44,6 @@ class RimContourMapProjection : public RimCheckableNamedObject
 public:
     using CellIndexAndResult = std::pair<size_t, double>;
 
-    struct ContourPolygon
-    {
-        std::vector<cvf::Vec3d> vertices;
-        double                  value;
-        double                  area;
-        cvf::BoundingBox        bbox;
-    };
-
     enum ResultAggregationEnum
     {
         RESULTS_TOP_VALUE,
@@ -66,7 +59,7 @@ public:
         RESULTS_HC_COLUMN
     };
     using ResultAggregation = caf::AppEnum<ResultAggregationEnum>;
-    using ContourPolygons   = std::vector<ContourPolygon>;
+    using ContourPolygons   = std::vector<RigContourPolygonsTools::ContourPolygon>;
 
     RimContourMapProjection();
     ~RimContourMapProjection() override;
@@ -164,10 +157,7 @@ protected:
     void generateVertexResults();
     void generateTrianglesWithVertexValues();
     void generateContourPolygons();
-    ContourPolygons createContourPolygonsFromLineSegments( caf::ContourLines::ListOfLineSegments& unorderedLineSegments, double contourValue );
-    void          smoothContourPolygons( ContourPolygons* contourPolygons, bool favourExpansion );
-    void          clipContourPolygons( ContourPolygons* contourPolygons, const ContourPolygons* clipBy );
-    static double sumPolygonArea( const ContourPolygons& contourPolygons );
+
     static double sumTriangleAreas( const std::vector<cvf::Vec4d>& triangles );
 
     std::vector<CellIndexAndResult> cellOverlapVolumesAndResults( const cvf::Vec2d&          globalPos2d,

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimEclipseContourMapProjection.h"
+#include "RimContourMapProjection.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafPdmPointer.h"
@@ -59,8 +59,9 @@ private:
                                                                            const caf::DisplayCoordTransform*           displayCoordTransform,
                                                                            std::vector<std::vector<cvf::BoundingBox>>* labelBBoxes ) const;
     cvf::ref<cvf::DrawableGeo> createPickPointVisDrawable( const caf::DisplayCoordTransform* displayCoordTransform ) const;
-    bool                       lineOverlapsWithPreviousContourLevel( const cvf::Vec3d&                               lineCenter,
-                                                                     const RimContourMapProjection::ContourPolygons* previousLevel ) const;
+    static bool                lineOverlapsWithPreviousContourLevel( const cvf::Vec3d&                               lineCenter,
+                                                                     const RimContourMapProjection::ContourPolygons& previousLevel,
+                                                                     double                                          tolerance );
 
 private:
     caf::PdmPointer<RimContourMapProjection> m_contourMapProjection;
