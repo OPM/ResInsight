@@ -1759,6 +1759,17 @@ std::vector<RigEclipseResultAddress> RimEclipseView::additionalResultsForResultI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::map<QString, std::vector<caf::PdmFieldHandle*>> RimEclipseView::quickAccessFields()
+{
+    std::map<QString, std::vector<caf::PdmFieldHandle*>> fields;
+    fields[""].push_back( &m_eclipseCase );
+
+    return fields;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimStreamlineInViewCollection* RimEclipseView::streamlineCollection() const
 {
     return m_streamlineCollection;

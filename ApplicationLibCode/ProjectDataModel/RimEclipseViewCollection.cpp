@@ -23,6 +23,7 @@
 
 #include "RigCaseCellResultsData.h"
 
+#include "QuickAccess/RimQuickAccessCollection.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellEdgeColors.h"
@@ -108,6 +109,8 @@ RimEclipseView* RimEclipseViewCollection::addView( RimEclipseCase* eclipseCase )
     caf::PdmDocument::updateUiIconStateRecursively( view );
 
     m_views.push_back( view );
+
+    RimQuickAccessCollection::instance()->addQuickAccessFields( view );
 
     view->loadDataAndUpdate();
 

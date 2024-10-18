@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "QuickAccess/RimFieldQuickAccessInterface.h"
 #include "RimPropertyFilter.h"
 
 #include "cafPdmChildField.h"
@@ -31,7 +32,7 @@ class RimEclipseResultDefinition;
 ///
 ///
 //==================================================================================================
-class RimEclipsePropertyFilter : public RimPropertyFilter
+class RimEclipsePropertyFilter : public RimPropertyFilter, public RimFieldQuickAccessInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -55,6 +56,8 @@ public:
     void initAfterRead() override;
 
     void updateUiFieldsFromActiveResult();
+
+    std::map<QString, std::vector<caf::PdmFieldHandle*>> quickAccessFields() override;
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
