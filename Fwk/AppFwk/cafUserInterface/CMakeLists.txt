@@ -37,6 +37,7 @@ set(MOC_HEADER_FILES
     cafPdmUiTableViewQModel.h
     cafPdmUiTextEditor.h
     cafPdmUiToolButtonEditor.h
+    cafPdmUiToolButtonCallbackEditor.h
     cafPdmUiTreeView.h
     cafPdmUiTreeViewQModel.h
     cafPdmUiTreeViewEditor.h
@@ -100,6 +101,8 @@ set(PROJECT_FILES
     cafPdmUiToolBarEditor.h
     cafPdmUiToolButtonEditor.cpp
     cafPdmUiToolButtonEditor.h
+    cafPdmUiToolButtonCallbackEditor.cpp
+    cafPdmUiToolButtonCallbackEditor.h
     cafPdmUiTreeSelectionEditor.h
     cafPdmUiTreeSelectionEditor.cpp
     cafPdmUiTreeSelectionQModel.h
