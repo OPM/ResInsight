@@ -192,8 +192,8 @@ void RimEclipsePropertyFilter::setToDefaultValues()
 
     computeResultValueRange();
 
-    m_lowerBound = m_minimumResultValue;
-    m_upperBound = m_maximumResultValue;
+    m_lowerBound.setValueWithFieldChanged( m_minimumResultValue );
+    m_upperBound.setValueWithFieldChanged( m_maximumResultValue );
 
     m_selectedCategoryValues = m_categoryValues;
     m_useCategorySelection   = true;
@@ -245,6 +245,21 @@ void RimEclipsePropertyFilter::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     updateReadOnlyStateOfAllFields();
     updateRangeLabel();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<QString, std::vector<caf::PdmFieldHandle*>> RimEclipsePropertyFilter::quickAccessFields()
+{
+    std::map<QString, std::vector<caf::PdmFieldHandle*>> fields;
+
+    auto name = "Property Filter : " + m_resultDefinition->resultVariableUiName();
+
+    fields[name].push_back( &m_lowerBound );
+    fields[name].push_back( &m_upperBound );
+
+    return fields;
 }
 
 //--------------------------------------------------------------------------------------------------
