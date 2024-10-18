@@ -23,6 +23,7 @@
 #include "RiaApplication.h"
 #include "RigActiveCellInfo.h"
 #include "RigReservoirGridTools.h"
+
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimTools.h"
@@ -166,6 +167,20 @@ void RimCellRangeFilter::computeAndSetValidValues()
         startIndexK = std::clamp( startIndexK.v(), 1, static_cast<int>( grid->cellCountK() ) );
     }
     updateIconState();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<QString, std::vector<caf::PdmFieldHandle*>> RimCellRangeFilter::quickAccessFields()
+{
+    std::map<QString, std::vector<caf::PdmFieldHandle*>> fields;
+
+    if ( cellCountI == 1 ) fields[""].push_back( &startIndexI );
+    if ( cellCountJ == 1 ) fields[""].push_back( &startIndexJ );
+    if ( cellCountK == 1 ) fields[""].push_back( &startIndexK );
+
+    return fields;
 }
 
 //--------------------------------------------------------------------------------------------------
