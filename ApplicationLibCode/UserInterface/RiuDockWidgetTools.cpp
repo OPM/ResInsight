@@ -142,9 +142,25 @@ QString RiuDockWidgetTools::mainWindowUndoStackName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::mainWindowQuickAccessName()
+{
+    return "dockQuickAccess_mainWindow";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiuDockWidgetTools::plotMainWindowPlotManagerName()
 {
     return "dockSummaryPlotManager";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::plotWindowQuickAccessName()
+{
+    return "dockQuickAccess_plotWindow";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -383,6 +399,8 @@ QIcon RiuDockWidgetTools::dockIcon( const QString dockWidgetName )
         return QIcon( ":/graph.svg" );
     else if ( dockWidgetName == plotMainWindowCloudTreeName() )
         return QIcon( ":/Cloud.svg" );
+    else if ( dockWidgetName == plotWindowQuickAccessName() || dockWidgetName == mainWindowQuickAccessName() )
+        return QIcon( ":/pin.svg" );
 
     return QIcon( ":/view.svg" );
 }
