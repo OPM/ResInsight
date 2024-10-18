@@ -29,6 +29,7 @@
 
 #include "RicGridCalculatorDialog.h"
 
+#include "QuickAccess/RimQuickAccessCollection.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
@@ -188,6 +189,11 @@ RiuMainWindow::~RiuMainWindow()
     {
         m_pdmUiPropertyView->showProperties( nullptr );
     }
+
+    if ( m_quickAccessView )
+    {
+        m_quickAccessView->showProperties( nullptr );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -238,6 +244,8 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
     {
         m_pdmUiPropertyView->currentObject()->uiCapability()->updateConnectedEditors();
     }
+
+    m_quickAccessView->showProperties( RimQuickAccessCollection::instance() );
 
     if ( statusBar() && !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
     {
@@ -293,6 +301,11 @@ void RiuMainWindow::cleanupGuiCaseClose()
     if ( m_pdmUiPropertyView )
     {
         m_pdmUiPropertyView->showProperties( nullptr );
+    }
+
+    if ( m_quickAccessView )
+    {
+        m_quickAccessView->showProperties( nullptr );
     }
 
     for ( auto& additionalProjectView : m_additionalProjectViews )
@@ -805,6 +818,15 @@ void RiuMainWindow::createDockPanels()
 
         m_pdmUiPropertyView = new caf::PdmUiPropertyView( dockWidget );
         dockWidget->setWidget( m_pdmUiPropertyView );
+        dockManager()->addDockWidget( ads::DockWidgetArea::BottomDockWidgetArea, dockWidget, leftArea );
+    }
+
+    {
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Quick Access", RiuDockWidgetTools::mainWindowQuickAccessName(), dockManager() );
+
+        m_quickAccessView = new caf::PdmUiPropertyView( dockWidget );
+        dockWidget->setWidget( m_quickAccessView );
         dockManager()->addDockWidget( ads::DockWidgetArea::BottomDockWidgetArea, dockWidget, leftArea );
     }
 
@@ -1534,6 +1556,9 @@ void RiuMainWindow::selectedObjectsChanged()
             projectTree->treeView()->setFocus();
         }
     }
+
+    // The update of quick access view is depending on active view, and must be done after the active view is set
+    m_quickAccessView->showProperties( RimQuickAccessCollection::instance() );
 }
 
 //--------------------------------------------------------------------------------------------------
