@@ -196,6 +196,10 @@ void RiaSummaryCurveDefinition::setIdentifierText( SummaryCategory category, con
             m_summaryAddressY.setGroupName( name );
             m_summaryAddressX.setGroupName( name );
             break;
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_NETWORK:
+            m_summaryAddressY.setNetworkName( name );
+            m_summaryAddressX.setNetworkName( name );
+            break;
         default:
             break;
     }

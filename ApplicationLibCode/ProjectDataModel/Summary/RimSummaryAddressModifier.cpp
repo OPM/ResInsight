@@ -44,6 +44,10 @@ RifEclipseSummaryAddress RimSummaryAddressModifier::replaceObjectName( const Rif
     {
         adr.setGroupName( objectName );
     }
+    else if ( contentType == RimSummaryAddressCollection::CollectionContentType::NETWORK )
+    {
+        adr.setNetworkName( objectName );
+    }
     else if ( contentType == RimSummaryAddressCollection::CollectionContentType::REGION )
     {
         int intValue = RiaStdStringTools::toInt( objectName );
