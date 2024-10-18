@@ -128,6 +128,7 @@ list(
   ProjectDataModelCommands/CMakeLists_files.cmake
   ProjectDataModelCommands/CommandRouter/CMakeLists_files.cmake
   ProjectDataModel/VerticalFlowPerformance/CMakeLists_files.cmake
+  ProjectDataModel/QuickAccess/CMakeLists_files.cmake
   GeoMech/GeoMechVisualization/CMakeLists_files.cmake
   ModelVisualization/CMakeLists_files.cmake
   ModelVisualization/Faults/CMakeLists_files.cmake
