@@ -74,7 +74,8 @@ public:
     }
     DataType value() const
     {
-        CAF_ASSERT( m_valueGetter );
+        if ( !m_valueGetter ) return DataType();
+
         return m_valueGetter->getValue();
     }
 
