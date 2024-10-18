@@ -185,7 +185,7 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
 #pragma omp parallel for
             for ( long localGridCellIdx = 0; localGridCellIdx < static_cast<long>( grid->cellCount() ); localGridCellIdx++ )
             {
-                size_t reservoirCellIndex = grid->reservoirCellIndex( localGridCellIdx );
+                size_t reservoirCellIndex = grid->localNativeToNative( localGridCellIdx );
                 if ( activeCellInfo->isActive( reservoirCellIndex ) )
                 {
                     double sourceVal = sourceResultAccessor->cellScalar( localGridCellIdx );
@@ -290,7 +290,7 @@ bool RigCaseCellResultCalculator::computeDivideByCellFaceArea( RigMainGrid*     
 #pragma omp parallel for
             for ( int localGridCellIdx = 0; localGridCellIdx < static_cast<int>( grid->cellCount() ); localGridCellIdx++ )
             {
-                const size_t reservoirCellIndex = grid->reservoirCellIndex( localGridCellIdx );
+                const size_t reservoirCellIndex = grid->localNativeToNative( localGridCellIdx );
                 if ( activeCellInfo->isActive( reservoirCellIndex ) )
                 {
                     double sourceVal = sourceResultAccessor->cellScalar( localGridCellIdx );

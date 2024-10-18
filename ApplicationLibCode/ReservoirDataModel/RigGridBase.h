@@ -37,6 +37,9 @@ class RigMainGrid;
 class RigCell;
 class RigActiveCellInfo;
 
+// global cell index is index in full I,J,K grid
+// actual cell index is the index into the m_cells array, will be differenc
+
 class RigGridBase : public cvf::StructGridInterface
 {
 public:
@@ -49,14 +52,30 @@ public:
     size_t cellCountJ() const override;
     size_t cellCountK() const override;
 
-    virtual size_t         cellCount() const;
-    virtual RigCell&       cell( size_t gridLocalCellIndex );
-    virtual const RigCell& cell( size_t gridLocalCellIndex ) const;
+    virtual size_t cellCount() const; // number of cells in the cell array, could be different from countI x countJ x countK
+
+    virtual size_t globalCellCount() const; // number of cells in the global grid (countI x countJ x countK)
+
+    // Cell index naming:
+    // - global cell index is the cell index in the IJK global grid
+    // - local cell index is the cell index in the local IJK grid
+    // - native cell index is the cell index in the cell array, which is the same index if all cells are present,
+    //    but could be different if i.e. only active cells are loaded
+
+    virtual RigCell&       cell( size_t globalCellIndex );
+    virtual const RigCell& cell( size_t globalCellIndex ) const;
+
+    virtual RigCell&       nativeCell( size_t nativeCellIndex ) { return cell( nativeCellIndex ); };
+    virtual const RigCell& nativeCell( size_t nativeCellIndex ) const { return cell( nativeCellIndex ); };
+
+    virtual size_t globalCellIndexToNative( size_t globalCellIndex ) const { return globalCellIndex; };
+    virtual size_t nativeCellIndexToGlobal( size_t nativeIndex ) const { return nativeIndex; };
 
     void characteristicCellSizes( double* iSize, double* jSize, double* kSize ) const override;
 
-    size_t reservoirCellIndex( size_t gridLocalCellIndex ) const;
-    void   setIndexToStartOfCells( size_t indexToStartOfCells ) { m_indexToStartOfCells = indexToStartOfCells; }
+    size_t localCellIndexToNative( size_t gridLocalCellIndex ) const;
+    size_t localNativeCellIndexToNative( size_t nativeLocalCellIndex ) const;
+    void   setIndexToGlobalStartOfCells( size_t indexToGlobalStartOfCells ) { m_indexToGlobalStartOfCells = indexToGlobalStartOfCells; }
 
     void   setGridIndex( size_t index ) { m_gridIndex = index; }
     size_t gridIndex() const { return m_gridIndex; }
@@ -118,7 +137,7 @@ private:
     std::string      m_gridName;
     cvf::Vec3st      m_gridPointDimensions;
     cvf::Vec3st      m_cellCount;
-    size_t           m_indexToStartOfCells; ///< Index into the global cell array stored in main-grid where this grids cells starts.
+    size_t           m_indexToGlobalStartOfCells; ///< Index into the global cell array stored in main-grid where this grids cells starts.
     size_t           m_gridIndex; ///< The LGR index of this grid. Starts with 1. Main grid has index 0.
     int              m_gridId; ///< The LGR id of this grid. Main grid has id 0.
     RigMainGrid*     m_mainGrid;

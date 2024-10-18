@@ -387,7 +387,7 @@ std::vector<size_t> RimEclipseContourMapProjection::findIntersectingCells( const
 //--------------------------------------------------------------------------------------------------
 size_t RimEclipseContourMapProjection::kLayer( size_t globalCellIdx ) const
 {
-    const RigCell& cell            = m_mainGrid->globalCellArray()[globalCellIdx];
+    const RigCell& cell            = m_mainGrid->cell( globalCellIdx );
     size_t         mainGridCellIdx = cell.mainGridCellIndex();
     size_t         i, j, k;
     m_mainGrid->ijkFromCellIndex( mainGridCellIdx, &i, &j, &k );
@@ -409,7 +409,7 @@ double RimEclipseContourMapProjection::calculateOverlapVolume( size_t globalCell
 {
     std::array<cvf::Vec3d, 8> hexCorners;
 
-    const RigCell& cell = m_mainGrid->globalCellArray()[globalCellIdx];
+    const RigCell& cell = m_mainGrid->cell( globalCellIdx );
 
     size_t       localCellIdx = cell.gridLocalCellIndex();
     RigGridBase* localGrid    = cell.hostGrid();
@@ -435,7 +435,7 @@ double RimEclipseContourMapProjection::calculateRayLengthInCell( size_t         
 {
     std::array<cvf::Vec3d, 8> hexCorners;
 
-    RigCell cell = m_mainGrid->globalCellArray()[globalCellIdx];
+    RigCell cell = m_mainGrid->cell( globalCellIdx );
 
     size_t       localCellIdx = cell.gridLocalCellIndex();
     RigGridBase* localGrid    = cell.hostGrid();
