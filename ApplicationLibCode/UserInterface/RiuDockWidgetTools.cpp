@@ -400,7 +400,7 @@ QIcon RiuDockWidgetTools::dockIcon( const QString dockWidgetName )
     else if ( dockWidgetName == plotMainWindowCloudTreeName() )
         return QIcon( ":/Cloud.svg" );
     else if ( dockWidgetName == plotWindowQuickAccessName() || dockWidgetName == mainWindowQuickAccessName() )
-        return QIcon( ":/pin.svg" );
+        return QIcon( ":/pinned.svg" );
 
     return QIcon( ":/view.svg" );
 }
