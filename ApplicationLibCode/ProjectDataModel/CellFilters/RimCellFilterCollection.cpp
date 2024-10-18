@@ -18,6 +18,7 @@
 
 #include "RimCellFilterCollection.h"
 
+#include "QuickAccess/RimQuickAccessCollection.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellFilter.h"
@@ -426,6 +427,9 @@ RimCellRangeFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* src
     addFilter( pFilter );
     pFilter->setGridIndex( gridIndex );
     pFilter->setDefaultValues( sliceDirection, defaultSlice );
+
+    RimQuickAccessCollection::instance()->addQuickAccessFields( pFilter );
+
     onFilterUpdated( pFilter );
     return pFilter;
 }

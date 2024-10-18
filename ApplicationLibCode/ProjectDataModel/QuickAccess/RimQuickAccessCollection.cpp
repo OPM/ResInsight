@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RimFieldQuickAccess.h"
+#include "RimFieldQuickAccessGroup.h"
 #include "RimFieldQuickAccessInterface.h"
 #include "RimFieldReference.h"
 #include "RimGridView.h"
