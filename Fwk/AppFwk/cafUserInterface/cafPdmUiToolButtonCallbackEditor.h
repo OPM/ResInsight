@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) 2014 Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -36,30 +36,52 @@
 
 #pragma once
 
-#include "cafPdmObjectHandle.h"
+#include "cafPdmUiFieldEditorHandle.h"
+
+#include <QPointer>
+#include <QToolButton>
+#include <QWidget>
+
+#include <functional>
 
 namespace caf
 {
-//==================================================================================================
-///
-//==================================================================================================
-class PdmReferenceHelper
+class PdmUiToolButtonCallbackEditorAttribute : public PdmUiEditorAttribute
 {
 public:
-    static PdmObjectHandle* findRoot( PdmObjectHandle* obj );
-    static PdmObjectHandle* findRoot( PdmFieldHandle* field );
+    PdmUiToolButtonCallbackEditorAttribute() {}
 
-    static QString          referenceFromRootToField( PdmObjectHandle* root, PdmFieldHandle* field );
-    static QString          referenceFromRootToObject( PdmObjectHandle* root, PdmObjectHandle* obj );
-    static PdmObjectHandle* objectFromReference( PdmObjectHandle* root, const QString& reference );
-    static PdmFieldHandle*  fieldFromReference( PdmObjectHandle* root, const QString& reference );
+    // Usage:
+    // In the class having a proxyfield connected to a bool
+    // In defineEditorAttributes:
+    //   attr->setCallback( std::bind( &MyClass::myFunctionToBeCalled, this ) );
+    //
+    void setCallback( std::function<void()> callback ) { m_onClickedCallback = callback; }
 
-    static QString          referenceFromFieldToObject( PdmFieldHandle* fromField, PdmObjectHandle* toObj );
-    static PdmObjectHandle* objectFromFieldReference( PdmFieldHandle* fromField, const QString& reference );
+public:
+    std::function<void()> m_onClickedCallback;
+};
+
+class PdmUiToolButtonCallbackEditor : public PdmUiFieldEditorHandle
+{
+    Q_OBJECT
+    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+
+public:
+    PdmUiToolButtonCallbackEditor() {}
+    ~PdmUiToolButtonCallbackEditor() override {}
+
+protected:
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+
+protected slots:
+    void slotClicked( bool checked );
 
 private:
-    static QStringList      referenceFromRootToObjectAsStringList( PdmObjectHandle* root, PdmObjectHandle* obj );
-    static PdmObjectHandle* objectFromReferenceStringList( PdmObjectHandle* root, const QStringList& reference );
+    QPointer<QToolButton>                  m_toolButton;
+    PdmUiToolButtonCallbackEditorAttribute m_attributes;
 };
 
 } // end namespace caf
