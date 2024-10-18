@@ -45,7 +45,7 @@
 
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "Polygons/RimPolygonCollection.h"
-
+#include "QuickAccess/RimQuickAccessCollection.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCellFilterCollection.h"
 #include "RimCommandRouter.h"
@@ -514,6 +514,12 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
     // paths in initAfterRead().
     m_project->resolveReferencesRecursively();
     m_project->initAfterReadRecursively();
+
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2024.09.2" ) )
+    {
+        // Traverse objects recursively and add quick access fields for old projects
+        RimQuickAccessCollection::instance()->addQuickAccessFieldsRecursively( m_project.get() );
+    }
 
     // Migrate all RimGridCases to RimFileSummaryCase
     RimGridSummaryCase_obsolete::convertGridCasesToSummaryFileCases( m_project.get() );
