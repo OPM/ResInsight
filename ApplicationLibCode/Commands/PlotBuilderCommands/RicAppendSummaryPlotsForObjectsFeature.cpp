@@ -20,6 +20,7 @@
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaStdStringTools.h"
 #include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryTools.h"
@@ -68,6 +69,9 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
 
     caf::ProgressInfo info( sumAddressCollections.size(), "Appending plots..." );
 
+    summaryMultiPlot->startBatchAddOperation();
+    RiaPlotWindowRedrawScheduler::instance()->blockScheduledUpdatesAndReplots();
+
     for ( auto summaryAdrCollection : sumAddressCollections )
     {
         auto duplicatedPlots = RicSummaryPlotBuilder::duplicateSummaryPlots( plotsForOneInstance );
@@ -108,11 +112,16 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
                 summaryMultiPlot->addPlot( duplicatedPlot );
                 duplicatedPlot->resolveReferencesRecursively();
             }
-
-            duplicatedPlot->loadDataAndUpdate();
         }
+
         info.incrementProgress();
     }
+    summaryMultiPlot->endBatchAddOperation();
+
+    RiaPlotWindowRedrawScheduler::instance()->clearAllScheduledUpdates();
+    RiaPlotWindowRedrawScheduler::instance()->unblockScheduledUpdatesAndReplots();
+
+    summaryMultiPlot->loadDataAndUpdate();
 
     summaryMultiPlot->updatePlotTitles();
 }
