@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimFieldQuickAccessGroup.h"
+#include "RimFieldQuickAccess.h"
+#include "RimGridView.h"
 
 #include "RiaLogging.h"
 

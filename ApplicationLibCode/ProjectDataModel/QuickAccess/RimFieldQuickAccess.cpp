@@ -38,11 +38,11 @@ RimFieldQuickAccess::RimFieldQuickAccess()
     CAF_PDM_InitFieldNoDefault( &m_fieldReference, "FieldReference", "FieldReference" );
     m_fieldReference = new RimFieldReference();
 
-    CAF_PDM_InitFieldNoDefault( &m_selectObjectButton, "SelectObject", "...", ":/Bullet.png", "Select Object in Property Editor" );
+    CAF_PDM_InitFieldNoDefault( &m_selectObjectButton, "SelectObject", "...", ":/Select.svg", "Select Object in Property Editor" );
     m_selectObjectButton.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonCallbackEditor::uiEditorTypeName() );
     m_selectObjectButton.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_removeItemButton, "RemoveItem", "...", ":/pin.svg", "Remove Quick Access" );
+    CAF_PDM_InitFieldNoDefault( &m_removeItemButton, "RemoveItem", "...", ":/pinned-remove.svg", "Remove Quick Access" );
     m_removeItemButton.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonCallbackEditor::uiEditorTypeName() );
     m_removeItemButton.xmlCapability()->disableIO();
 
