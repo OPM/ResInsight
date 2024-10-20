@@ -149,8 +149,30 @@ void RiaPlotWindowRedrawScheduler::performScheduledUpdatesAndReplots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaPlotWindowRedrawScheduler::blockScheduledUpdatesAndReplots()
+{
+    m_blockScheduledUpdatesAndReplots = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPlotWindowRedrawScheduler::unblockScheduledUpdatesAndReplots()
+{
+    m_blockScheduledUpdatesAndReplots = false;
+    startTimer( 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaPlotWindowRedrawScheduler::slotUpdateAndReplotScheduledItemsWhenReady()
 {
+    if ( m_blockScheduledUpdatesAndReplots )
+    {
+        return;
+    }
+
     if ( caf::ProgressState::isActive() )
     {
         startTimer( 100 );
