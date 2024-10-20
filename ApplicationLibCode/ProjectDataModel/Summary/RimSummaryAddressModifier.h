@@ -50,12 +50,13 @@ public:
                                              const std::string&                                 objectName,
                                              RimSummaryAddressCollection::CollectionContentType contentType );
 
+    static RifEclipseSummaryAddress replaceTokenForCategory( const RifEclipseSummaryAddress&                  sourceAdr,
+                                                             const std::string&                               token,
+                                                             RifEclipseSummaryAddressDefines::SummaryCategory contentType );
+
 private:
-    static RiaSummaryCurveAddress   curveAddress( RimSummaryCurve* curve );
-    static RiaSummaryCurveAddress   curveAddress( RimEnsembleCurveSet* curveSet );
-    static void                     setCurveAddress( RimEnsembleCurveSet* curveSet, const RiaSummaryCurveAddress& curveAdr );
-    static void                     setCurveAddress( RimSummaryCurve* curve, const RiaSummaryCurveAddress& curveAdr );
-    static RifEclipseSummaryAddress replaceObjectName( const RifEclipseSummaryAddress&                    sourceAdr,
-                                                       std::string                                        objectName,
-                                                       RimSummaryAddressCollection::CollectionContentType contentType );
+    static RiaSummaryCurveAddress curveAddress( RimSummaryCurve* curve );
+    static RiaSummaryCurveAddress curveAddress( RimEnsembleCurveSet* curveSet );
+    static void                   setCurveAddress( RimEnsembleCurveSet* curveSet, const RiaSummaryCurveAddress& curveAdr );
+    static void                   setCurveAddress( RimSummaryCurve* curve, const RiaSummaryCurveAddress& curveAdr );
 };
