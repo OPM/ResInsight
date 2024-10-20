@@ -176,12 +176,14 @@ void RiaSummaryCurveDefinition::setIdentifierText( SummaryCategory category, con
 {
     if ( RifEclipseSummaryAddress::isDependentOnWellName( category ) )
     {
-        m_summaryAddressX = RimSummaryAddressModifier::replaceTokenForCategory( m_summaryAddressX,
-                                                                               name,
-                                                                               RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL );
-        m_summaryAddressY = RimSummaryAddressModifier::replaceTokenForCategory( m_summaryAddressY,
-                                                                               name,
-                                                                               RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL );
+        m_summaryAddressX =
+            RimSummaryAddressModifier::replaceTokenForCategory( m_summaryAddressX,
+                                                                name,
+                                                                RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL );
+        m_summaryAddressY =
+            RimSummaryAddressModifier::replaceTokenForCategory( m_summaryAddressY,
+                                                                name,
+                                                                RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL );
     }
     else
     {
