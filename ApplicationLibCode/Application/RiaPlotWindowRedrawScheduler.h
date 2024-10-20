@@ -48,6 +48,9 @@ public:
     void clearAllScheduledUpdates();
     void performScheduledUpdatesAndReplots();
 
+    void blockScheduledUpdatesAndReplots();
+    void unblockScheduledUpdatesAndReplots();
+
 private slots:
     void slotUpdateAndReplotScheduledItemsWhenReady();
 
@@ -64,4 +67,5 @@ private:
     std::set<QPointer<RiuPlotWidget>> m_plotWidgetsToReplot;
 
     QScopedPointer<QTimer> m_plotWindowUpdateTimer;
+    bool                   m_blockScheduledUpdatesAndReplots = false;
 };

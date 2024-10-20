@@ -20,6 +20,7 @@
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaStdStringTools.h"
 #include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryTools.h"
@@ -68,6 +69,9 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
 
     caf::ProgressInfo info( sumAddressCollections.size(), "Appending plots..." );
 
+    summaryMultiPlot->startBatchAddOperation();
+    RiaPlotWindowRedrawScheduler::instance()->blockScheduledUpdatesAndReplots();
+
     for ( auto summaryAdrCollection : sumAddressCollections )
     {
         auto duplicatedPlots = RicSummaryPlotBuilder::duplicateSummaryPlots( plotsForOneInstance );
@@ -108,11 +112,16 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
                 summaryMultiPlot->addPlot( duplicatedPlot );
                 duplicatedPlot->resolveReferencesRecursively();
             }
-
-            duplicatedPlot->loadDataAndUpdate();
         }
+
         info.incrementProgress();
     }
+    summaryMultiPlot->endBatchAddOperation();
+
+    RiaPlotWindowRedrawScheduler::instance()->clearAllScheduledUpdates();
+    RiaPlotWindowRedrawScheduler::instance()->unblockScheduledUpdatesAndReplots();
+
+    summaryMultiPlot->loadDataAndUpdate();
 
     summaryMultiPlot->updatePlotTitles();
 }
@@ -273,6 +282,13 @@ bool RicAppendSummaryPlotsForObjectsFeature::isSelectionCompatibleWithPlot( cons
             errorText = "Source plot must contain at least one region to be able to duplicate a selection of regions";
         }
     }
+    else if ( selectionType == RimSummaryAddressCollection::CollectionContentType::NETWORK )
+    {
+        if ( analyzer.networkNames().empty() )
+        {
+            errorText = "Source plot must contain at least one network to be able to duplicate a selection of networks";
+        }
+    }
 
     if ( !errorText.isEmpty() )
     {
@@ -294,6 +310,7 @@ std::vector<RimSummaryPlot*>
 
     std::string wellNameToMatch;
     std::string groupNameToMatch;
+    std::string networkNameToMatch;
     int         regionToMatch     = -1;
     int         caseIdToMatch     = -1;
     int         ensembleIdToMatch = -1;
@@ -316,6 +333,10 @@ std::vector<RimSummaryPlot*>
     else if ( objectType == RimSummaryAddressCollection::CollectionContentType::REGION )
     {
         if ( !myAnalyser.regionNumbers().empty() ) regionToMatch = *( myAnalyser.regionNumbers().begin() );
+    }
+    else if ( objectType == RimSummaryAddressCollection::CollectionContentType::NETWORK )
+    {
+        if ( !myAnalyser.networkNames().empty() ) networkNameToMatch = *( myAnalyser.networkNames().begin() );
     }
     else if ( objectType == RimSummaryAddressCollection::CollectionContentType::SUMMARY_CASE )
     {
@@ -365,6 +386,10 @@ std::vector<RimSummaryPlot*>
                     isMatching = true;
                 }
                 else if ( !groupNameToMatch.empty() && a.groupName() == groupNameToMatch )
+                {
+                    isMatching = true;
+                }
+                else if ( !networkNameToMatch.empty() && a.networkName() == networkNameToMatch )
                 {
                     isMatching = true;
                 }
