@@ -21,6 +21,8 @@
 #include "cvfBoundingBox.h"
 #include "cvfVector2.h"
 
+using namespace cvf;
+
 //==================================================================================================
 ///
 ///
@@ -36,9 +38,9 @@ public:
     cvf::Vec2ui numberOfElementsIJ() const;
     cvf::Vec2ui numberOfVerticesIJ() const;
 
-    uint   numberOfCells() const;
-    uint   numberOfValidCells() const;
-    size_t numberOfVertices() const;
+    cvf::uint numberOfCells() const;
+    cvf::uint numberOfValidCells() const;
+    size_t    numberOfVertices() const;
 
     cvf::Vec3d origin3d() const;
 
@@ -48,12 +50,12 @@ public:
     std::vector<cvf::Vec3d> generateVertices() const;
 
     // Cell index and position conversion
-    size_t      cellIndexFromIJ( uint i, uint j ) const;
-    size_t      vertexIndexFromIJ( uint i, uint j ) const;
+    size_t      cellIndexFromIJ( cvf::uint i, cvf::uint j ) const;
+    size_t      vertexIndexFromIJ( cvf::uint i, cvf::uint j ) const;
     cvf::Vec2ui ijFromVertexIndex( size_t gridIndex ) const;
     cvf::Vec2ui ijFromCellIndex( size_t mapIndex ) const;
     cvf::Vec2ui ijFromLocalPos( const cvf::Vec2d& localPos2d ) const;
-    cvf::Vec2d  cellCenterPosition( uint i, uint j ) const;
+    cvf::Vec2d  cellCenterPosition( cvf::uint i, cvf::uint j ) const;
     cvf::Vec2d  origin2d() const;
 
     double gridEdgeOffset() const;

@@ -19,6 +19,8 @@
 
 #include "RimNamedObject.h"
 
+#include "RifEclipseSummaryAddressDefines.h"
+
 #include "cafPdmChildArrayField.h"
 
 #include <QString>
@@ -58,6 +60,8 @@ public:
         CALCULATED,
         IMPORTED
     };
+
+    static RifEclipseSummaryAddressDefines::SummaryCategory contentTypeToSummaryCategory( CollectionContentType contentType );
 
 public:
     RimSummaryAddressCollection();
