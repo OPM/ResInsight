@@ -22,7 +22,7 @@
 #include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
 #include "RiaStatisticsTools.h"
-#include "RiaSummaryAddressAnalyzer.h"
+#include "Summary/RiaSummaryAddressAnalyzer.h"
 
 #include "RifSummaryReaderInterface.h"
 

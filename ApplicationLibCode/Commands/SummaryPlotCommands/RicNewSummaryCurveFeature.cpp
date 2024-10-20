@@ -21,7 +21,7 @@
 #include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 #include "RimMainPlotCollection.h"
 #include "RimObservedDataCollection.h"
 #include "RimObservedSummaryData.h"

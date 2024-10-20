@@ -19,7 +19,7 @@
 #include "RimEnsembleCrossPlotStatisticsCase.h"
 
 #include "RiaLogging.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 
 #include "RifEclipseSummaryAddressDefines.h"

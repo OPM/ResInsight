@@ -19,7 +19,7 @@
 #include "RimWellLogCurveCommonDataSource.h"
 
 #include "RiaSimWellBranchTools.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifReaderOpmRft.h"
 

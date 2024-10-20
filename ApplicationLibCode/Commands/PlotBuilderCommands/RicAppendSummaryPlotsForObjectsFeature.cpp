@@ -22,8 +22,8 @@
 #include "RiaLogging.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaStdStringTools.h"
-#include "RiaSummaryAddressAnalyzer.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryAddressAnalyzer.h"
+#include "Summary/RiaSummaryTools.h"
 #include "Summary/RiaSummaryAddressModifier.h"
 
 #include "RicSummaryPlotBuilder.h"

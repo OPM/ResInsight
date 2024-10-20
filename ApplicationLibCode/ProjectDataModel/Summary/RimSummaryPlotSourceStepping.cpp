@@ -21,7 +21,7 @@
 #include "RiaEnsembleNameTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaStdStringTools.h"
-#include "RiaSummaryAddressAnalyzer.h"
+#include "Summary/RiaSummaryAddressAnalyzer.h"
 #include "Summary/RiaSummaryAddressModifier.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 

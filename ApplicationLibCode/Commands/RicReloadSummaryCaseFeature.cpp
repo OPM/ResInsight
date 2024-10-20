@@ -19,7 +19,7 @@
 #include "RicReloadSummaryCaseFeature.h"
 
 #include "RiaLogging.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RimObservedDataCollection.h"
 #include "RimObservedSummaryData.h"

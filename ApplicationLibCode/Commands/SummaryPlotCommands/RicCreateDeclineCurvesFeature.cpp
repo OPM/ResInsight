@@ -18,7 +18,7 @@
 
 #include "RicCreateDeclineCurvesFeature.h"
 
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RimSummaryCurve.h"
 #include "RimSummaryDeclineCurve.h"

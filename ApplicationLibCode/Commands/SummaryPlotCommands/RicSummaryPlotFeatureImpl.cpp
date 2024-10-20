@@ -26,7 +26,7 @@
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
-#include "RiaSummaryStringTools.h"
+#include "Summary/RiaSummaryStringTools.h"
 #include "RiaTextStringTools.h"
 
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"

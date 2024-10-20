@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaSummaryAddressAnalyzer.h"
+#include "Summary/RiaSummaryAddressAnalyzer.h"
 #include "RiaStdStringTools.h"
 
 #include "Summary/RiaSummaryCurveDefinition.h"

@@ -23,7 +23,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 #include "RigEclipseResultAddress.h"
 
 #include "RimEclipseCase.h"

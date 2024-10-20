@@ -20,7 +20,7 @@
 
 #include "RiaGuiApplication.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 
 #include "RimAsciiDataCurve.h"

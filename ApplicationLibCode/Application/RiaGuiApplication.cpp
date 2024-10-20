@@ -35,7 +35,7 @@
 #include "RiaProjectModifier.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaSocketServer.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 #include "RiaVersionInfo.h"
 #include "RiaViewRedrawScheduler.h"
 

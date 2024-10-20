@@ -21,7 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "Summary/RiaSummaryDefines.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 #include "RiaTimeTTools.h"
 
 #include "RifArrowTools.h"

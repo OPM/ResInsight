@@ -20,7 +20,7 @@
 
 #include "RiaEclipseFileNameTools.h"
 #include "RiaLogging.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RicImportGeneralDataFeature.h"
 

@@ -18,7 +18,7 @@
 
 #include "RicOpenSummaryPlotEditorFeature.h"
 
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RicEditSummaryPlotFeature.h"
 #include "RicNewSummaryEnsembleCurveSetFeature.h"

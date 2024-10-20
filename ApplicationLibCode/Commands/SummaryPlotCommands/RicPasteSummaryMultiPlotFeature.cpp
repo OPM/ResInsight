@@ -21,7 +21,7 @@
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 

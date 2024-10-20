@@ -21,7 +21,7 @@
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaStdStringTools.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 
 #include "RifSummaryReaderInterface.h"

@@ -19,7 +19,7 @@
 #include "RimSummaryDeclineCurve.h"
 
 #include "RiaQDateTimeTools.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 #include "RiaTimeTTools.h"
 
 #include "RigDeclineCurveCalculator.h"

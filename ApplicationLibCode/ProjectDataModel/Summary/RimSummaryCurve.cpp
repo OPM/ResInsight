@@ -28,7 +28,7 @@
 #include "RiaResultNames.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 #include "Summary/RiaSummaryDefines.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimEnsembleCurveSet.h"

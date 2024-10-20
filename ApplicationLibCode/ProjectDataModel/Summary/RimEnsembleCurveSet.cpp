@@ -23,7 +23,7 @@
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaResultNames.h"
-#include "RiaSummaryAddressAnalyzer.h"
+#include "Summary/RiaSummaryAddressAnalyzer.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 #include "RiaTimeTTools.h"
 

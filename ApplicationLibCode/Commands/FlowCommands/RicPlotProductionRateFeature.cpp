@@ -27,7 +27,7 @@
 
 #include "RigSimWellData.h"
 
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 #include "Rim3dView.h"
 #include "RimEclipseResultCase.h"
 #include "RimMainPlotCollection.h"

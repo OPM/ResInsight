@@ -18,7 +18,7 @@
 
 #include "RimGridSummaryCase.h"
 
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RicfCommandObject.h"
 
