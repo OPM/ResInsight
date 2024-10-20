@@ -27,7 +27,6 @@
 
 #include "RigSimWellData.h"
 
-#include "Summary/RiaSummaryTools.h"
 #include "Rim3dView.h"
 #include "RimEclipseResultCase.h"
 #include "RimMainPlotCollection.h"
@@ -41,6 +40,7 @@
 #include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RiuPlotMainWindow.h"
 

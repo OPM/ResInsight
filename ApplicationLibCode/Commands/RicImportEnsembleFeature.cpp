@@ -22,9 +22,9 @@
 #include "RiaEnsembleNameTools.h"
 #include "RiaFilePathTools.h"
 #include "RiaPreferences.h"
+#include "RiaTextStringTools.h"
 #include "Summary/RiaSummaryDefines.h"
 #include "Summary/RiaSummaryTools.h"
-#include "RiaTextStringTools.h"
 
 #include "RicCreateSummaryCaseCollectionFeature.h"
 #include "RicImportSummaryCasesFeature.h"

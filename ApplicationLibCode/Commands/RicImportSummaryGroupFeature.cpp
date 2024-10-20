@@ -21,9 +21,9 @@
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 
-#include "Summary/RiaSummaryDefines.h"
 #include "RicCreateSummaryCaseCollectionFeature.h"
 #include "RicImportSummaryCasesFeature.h"
+#include "Summary/RiaSummaryDefines.h"
 
 #include "RifSummaryCaseRestartSelector.h"
 

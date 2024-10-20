@@ -22,8 +22,8 @@
 #include "RiaNumericalTools.h"
 #include "RiaPlotDefines.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
-#include "Summary/RiaSummaryStringTools.h"
 #include "Summary/RiaSummaryAddressModifier.h"
+#include "Summary/RiaSummaryStringTools.h"
 
 #include "PlotBuilderCommands/RicAppendSummaryPlotsForObjectsFeature.h"
 #include "PlotBuilderCommands/RicAppendSummaryPlotsForSummaryAddressesFeature.h"

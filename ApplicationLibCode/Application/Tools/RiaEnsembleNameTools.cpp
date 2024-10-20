@@ -19,8 +19,8 @@
 #include "RiaEnsembleNameTools.h"
 
 #include "RiaFilePathTools.h"
-#include "Summary/RiaSummaryDefines.h"
 #include "RiaTextStringTools.h"
+#include "Summary/RiaSummaryDefines.h"
 
 #include "RimCaseDisplayNameTools.h"
 #include "RimProject.h"

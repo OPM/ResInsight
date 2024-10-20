@@ -20,8 +20,8 @@
 
 #include "RiaLogging.h"
 #include "RiaStdStringTools.h"
-#include "Summary/RiaSummaryTools.h"
 #include "RiaTextStringTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifEclipseSummaryAddress.h"
 #include "RifReaderEclipseSummary.h"

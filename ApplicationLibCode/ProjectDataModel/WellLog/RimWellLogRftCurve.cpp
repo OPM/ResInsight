@@ -28,8 +28,8 @@
 #include "RiaRftDefines.h"
 #include "RiaSimWellBranchTools.h"
 #include "RiaStatisticsTools.h"
-#include "Summary/RiaSummaryTools.h"
 #include "RiaTextStringTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifEclipseRftAddress.h"
 #include "RifReaderEclipseRft.h"

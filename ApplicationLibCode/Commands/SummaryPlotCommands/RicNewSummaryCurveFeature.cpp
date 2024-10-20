@@ -21,7 +21,6 @@
 #include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 
-#include "Summary/RiaSummaryTools.h"
 #include "RimMainPlotCollection.h"
 #include "RimObservedDataCollection.h"
 #include "RimObservedSummaryData.h"
@@ -31,6 +30,7 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RiuPlotMainWindow.h"
 

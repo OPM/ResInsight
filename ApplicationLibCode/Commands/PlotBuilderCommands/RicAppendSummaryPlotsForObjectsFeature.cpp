@@ -23,8 +23,8 @@
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaStdStringTools.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
-#include "Summary/RiaSummaryTools.h"
 #include "Summary/RiaSummaryAddressModifier.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RicSummaryPlotBuilder.h"
 

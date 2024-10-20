@@ -35,9 +35,9 @@
 #include "RiaProjectModifier.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaSocketServer.h"
-#include "Summary/RiaSummaryTools.h"
 #include "RiaVersionInfo.h"
 #include "RiaViewRedrawScheduler.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"

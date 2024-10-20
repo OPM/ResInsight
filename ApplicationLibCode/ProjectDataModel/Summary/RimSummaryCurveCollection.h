@@ -18,8 +18,8 @@
 
 #pragma once
 
-#include "Summary/RiaSummaryDefines.h"
 #include "RimSummaryPlotSourceStepping.h"
+#include "Summary/RiaSummaryDefines.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
