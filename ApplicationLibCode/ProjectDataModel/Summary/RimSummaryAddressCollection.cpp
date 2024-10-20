@@ -62,6 +62,55 @@ CAF_PDM_SOURCE_INIT( RimSummaryAddressCollection, "RimSummaryAddressCollection" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddressDefines::SummaryCategory RimSummaryAddressCollection::contentTypeToSummaryCategory( CollectionContentType contentType )
+{
+    switch ( contentType )
+    {
+        case CollectionContentType::WELL:
+            return SummaryCategory::SUMMARY_WELL;
+        case CollectionContentType::GROUP:
+            return SummaryCategory::SUMMARY_GROUP;
+        case CollectionContentType::REGION:
+            return SummaryCategory::SUMMARY_REGION;
+        case CollectionContentType::FIELD:
+            return SummaryCategory::SUMMARY_FIELD;
+        case CollectionContentType::MISC:
+            return SummaryCategory::SUMMARY_MISC;
+        case CollectionContentType::AQUIFER:
+            return SummaryCategory::SUMMARY_AQUIFER;
+        case CollectionContentType::NETWORK:
+            return SummaryCategory::SUMMARY_NETWORK;
+        case CollectionContentType::REGION_2_REGION:
+            return SummaryCategory::SUMMARY_REGION_2_REGION;
+        case CollectionContentType::WELL_COMPLETION:
+            return SummaryCategory::SUMMARY_WELL_COMPLETION;
+        case CollectionContentType::WELL_LGR:
+            return SummaryCategory::SUMMARY_WELL_LGR;
+        case CollectionContentType::WELL_COMPLETION_LGR:
+            return SummaryCategory::SUMMARY_WELL_COMPLETION_LGR;
+        case CollectionContentType::WELL_SEGMENT:
+            return SummaryCategory::SUMMARY_WELL_SEGMENT;
+        case CollectionContentType::BLOCK:
+            return SummaryCategory::SUMMARY_BLOCK;
+        case CollectionContentType::BLOCK_LGR:
+            return SummaryCategory::SUMMARY_BLOCK_LGR;
+        case CollectionContentType::IMPORTED:
+            return SummaryCategory::SUMMARY_IMPORTED;
+        case CollectionContentType::CALCULATED:
+        case CollectionContentType::NOT_DEFINED:
+        case CollectionContentType::WELL_FOLDER:
+        case CollectionContentType::GROUP_FOLDER:
+        case CollectionContentType::REGION_FOLDER:
+        case CollectionContentType::NETWORK_FOLDER:
+        case CollectionContentType::SUMMARY_CASE:
+        default:
+            return SummaryCategory::SUMMARY_INVALID;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSummaryAddressCollection::RimSummaryAddressCollection()
 {
     CAF_PDM_InitObject( "Folder", ":/Folder.png", "", "" );

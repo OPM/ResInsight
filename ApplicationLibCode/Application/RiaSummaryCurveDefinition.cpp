@@ -22,6 +22,7 @@
 
 #include "RifSummaryReaderInterface.h"
 
+#include "RimSummaryAddressModifier.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
 
@@ -175,33 +176,19 @@ void RiaSummaryCurveDefinition::setIdentifierText( SummaryCategory category, con
 {
     if ( RifEclipseSummaryAddress::isDependentOnWellName( category ) )
     {
-        m_summaryAddressY.setWellName( name );
-        m_summaryAddressX.setWellName( name );
+        m_summaryAddressX =
+            RimSummaryAddressModifier::replaceTokenForCategory( m_summaryAddressX,
+                                                                name,
+                                                                RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL );
+        m_summaryAddressY =
+            RimSummaryAddressModifier::replaceTokenForCategory( m_summaryAddressY,
+                                                                name,
+                                                                RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL );
     }
-
-    int id = RiaStdStringTools::toInt( name );
-
-    switch ( category )
+    else
     {
-        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_AQUIFER:
-            m_summaryAddressY.setAquiferNumber( id );
-            m_summaryAddressX.setAquiferNumber( id );
-            break;
-        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION:
-        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION_2_REGION:
-            m_summaryAddressY.setRegion( id );
-            m_summaryAddressX.setRegion( id );
-            break;
-        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP:
-            m_summaryAddressY.setGroupName( name );
-            m_summaryAddressX.setGroupName( name );
-            break;
-        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_NETWORK:
-            m_summaryAddressY.setNetworkName( name );
-            m_summaryAddressX.setNetworkName( name );
-            break;
-        default:
-            break;
+        m_summaryAddressX = RimSummaryAddressModifier::replaceTokenForCategory( m_summaryAddressX, name, m_summaryAddressX.category() );
+        m_summaryAddressY = RimSummaryAddressModifier::replaceTokenForCategory( m_summaryAddressY, name, m_summaryAddressY.category() );
     }
 }
 
