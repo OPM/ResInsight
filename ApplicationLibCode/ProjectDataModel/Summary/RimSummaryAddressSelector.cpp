@@ -19,7 +19,7 @@
 #include "RimSummaryAddressSelector.h"
 
 #include "RiaResultNames.h"
-#include "RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 
 #include "RifSummaryReaderInterface.h"

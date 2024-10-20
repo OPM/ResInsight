@@ -18,7 +18,7 @@
 
 #include "RimSummaryDataSourceStepping.h"
 
-#include "RiaSummaryDefines.h"
+#include "Summary/RiaSummaryDefines.h"
 
 #include "cafAppEnum.h"
 

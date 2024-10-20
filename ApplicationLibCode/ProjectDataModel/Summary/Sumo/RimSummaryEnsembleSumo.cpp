@@ -20,7 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
-#include "RiaSummaryDefines.h"
+#include "Summary/RiaSummaryDefines.h"
 #include "RiaSummaryTools.h"
 #include "RiaTimeTTools.h"
 

@@ -24,7 +24,7 @@
 #include "RiaQDateTimeTools.h"
 #include "RiaResultNames.h"
 #include "RiaSummaryAddressAnalyzer.h"
-#include "RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
 #include "RiaTimeTTools.h"
 
 #include "RimSummaryCalculationCollection.h"

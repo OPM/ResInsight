@@ -29,8 +29,8 @@
 #include "RiaRegressionTestRunner.h"
 #include "RiaStdStringTools.h"
 #include "RiaSummaryAddressAnalyzer.h"
-#include "RiaSummaryCurveDefinition.h"
-#include "RiaSummaryDefines.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryDefines.h"
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 

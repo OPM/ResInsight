@@ -22,7 +22,7 @@
 
 #include "RiaCurveMerger.h"
 #include "RiaLogging.h"
-#include "RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 
 #include "RifSummaryReaderInterface.h"

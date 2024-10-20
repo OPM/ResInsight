@@ -22,7 +22,7 @@
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaStatisticsTools.h"
-#include "RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
 
 #include "RifCsvDataTableFormatter.h"
 #include "RifSummaryReaderInterface.h"

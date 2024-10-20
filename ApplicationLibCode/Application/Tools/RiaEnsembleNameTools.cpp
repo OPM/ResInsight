@@ -19,7 +19,7 @@
 #include "RiaEnsembleNameTools.h"
 
 #include "RiaFilePathTools.h"
-#include "RiaSummaryDefines.h"
+#include "Summary/RiaSummaryDefines.h"
 #include "RiaTextStringTools.h"
 
 #include "RimCaseDisplayNameTools.h"

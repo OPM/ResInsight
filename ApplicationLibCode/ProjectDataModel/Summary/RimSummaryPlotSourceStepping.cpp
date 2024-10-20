@@ -22,7 +22,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaStdStringTools.h"
 #include "RiaSummaryAddressAnalyzer.h"
-#include "RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
 
 #include "RimDataSourceSteppingTools.h"
 #include "RimEnsembleCurveSet.h"

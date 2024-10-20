@@ -22,7 +22,7 @@
 #include "RiaEnsembleNameTools.h"
 #include "RiaFilePathTools.h"
 #include "RiaPreferences.h"
-#include "RiaSummaryDefines.h"
+#include "Summary/RiaSummaryDefines.h"
 #include "RiaSummaryTools.h"
 #include "RiaTextStringTools.h"
 

@@ -19,7 +19,7 @@
 #include "RiaSummaryAddressAnalyzer.h"
 #include "RiaStdStringTools.h"
 
-#include "RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
 
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
