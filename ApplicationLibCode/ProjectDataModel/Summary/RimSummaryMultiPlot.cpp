@@ -1172,10 +1172,11 @@ void RimSummaryMultiPlot::updatePlotVisibility()
     {
         for ( auto curve : plot->summaryAndEnsembleCurves() )
         {
-            auto address  = curve->valuesY();
-            auto maxValue = std::max_element( address.begin(), address.end() );
+            auto values = curve->valuesY();
+            if ( values.empty() ) continue;
 
-            if ( *maxValue > limit ) return true;
+            auto maxValue = std::max_element( values.begin(), values.end() );
+            if ( maxValue != values.end() && ( *maxValue > limit ) ) return true;
         }
 
         return false;
