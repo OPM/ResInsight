@@ -404,6 +404,7 @@ set(UNITY_EXCLUDE_FILES
     FileInterface/RifOsduWellLogReader.cpp
     FileInterface/RifByteArrayArrowRandomAccessFile.cpp
     FileInterface/RifArrowTools.cpp
+    ReservoirDataModel/RigContourMapGrid.cpp
 )
 
 message("Files excluded from UNITY_BUILD : ${UNITY_EXCLUDE_FILES}")

@@ -23,6 +23,7 @@
 #include "RiaPlotDefines.h"
 #include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryStringTools.h"
+#include "Summary/RiaSummaryAddressModifier.h"
 
 #include "PlotBuilderCommands/RicAppendSummaryPlotsForObjectsFeature.h"
 #include "PlotBuilderCommands/RicAppendSummaryPlotsForSummaryAddressesFeature.h"
@@ -42,7 +43,6 @@
 #include "RimPlotAxisProperties.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryAddressCollection.h"
-#include "RimSummaryAddressModifier.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryEnsemble.h"
@@ -791,7 +791,7 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
 
     for ( auto p : summaryPlots() )
     {
-        auto addresses = RimSummaryAddressModifier::allSummaryAddressesY( p );
+        auto addresses = RiaSummaryAddressModifier::allSummaryAddressesY( p );
         analyzer.appendAddresses( addresses );
     }
 
@@ -1261,7 +1261,7 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
 
         for ( auto p : summaryPlots() )
         {
-            auto addresses = RimSummaryAddressModifier::allSummaryAddressesY( p );
+            auto addresses = RiaSummaryAddressModifier::allSummaryAddressesY( p );
             analyzer.appendAddresses( addresses );
         }
 
@@ -1545,15 +1545,15 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
         {
             std::vector<RiaSummaryCurveAddress> newCurveAdrs;
 
-            auto curveAddressProviders = RimSummaryAddressModifier::createAddressProviders( newPlot );
-            for ( const auto& adr : RimSummaryAddressModifier::curveAddresses( curveAddressProviders ) )
+            auto curveAddressProviders = RiaSummaryAddressModifier::createAddressProviders( newPlot );
+            for ( const auto& adr : RiaSummaryAddressModifier::curveAddresses( curveAddressProviders ) )
             {
                 const auto adrX = m_sourceStepping()->stepAddress( adr.summaryAddressX(), direction );
                 const auto adrY = m_sourceStepping()->stepAddress( adr.summaryAddressY(), direction );
                 newCurveAdrs.push_back( RiaSummaryCurveAddress( adrX, adrY ) );
             }
 
-            RimSummaryAddressModifier::applyAddressesToCurveAddressProviders( curveAddressProviders, newCurveAdrs );
+            RiaSummaryAddressModifier::applyAddressesToCurveAddressProviders( curveAddressProviders, newCurveAdrs );
         }
     }
 

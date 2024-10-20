@@ -22,13 +22,13 @@
 #include "RiaGuiApplication.h"
 #include "RiaStdStringTools.h"
 #include "RiaSummaryAddressAnalyzer.h"
+#include "Summary/RiaSummaryAddressModifier.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 
 #include "RimDataSourceSteppingTools.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimProject.h"
-#include "RimSummaryAddressModifier.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
@@ -1473,7 +1473,7 @@ std::vector<RimPlot*> RimSummaryPlotSourceStepping::plotsMatchingStepSettings( s
         }
         else
         {
-            auto addresses = RimSummaryAddressModifier::allSummaryAddressesY( plot );
+            auto addresses = RiaSummaryAddressModifier::allSummaryAddressesY( plot );
 
             for ( const auto& a : addresses )
             {

@@ -44,7 +44,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryMultiPlotCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotControls.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveInfoTextProvider.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryAddressModifier.h
     ${CMAKE_CURRENT_LIST_DIR}/RimRftCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCsvSummaryCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTable.h
@@ -103,7 +102,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryMultiPlotCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotControls.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveInfoTextProvider.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryAddressModifier.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimRftCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCsvSummaryCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTable.cpp
