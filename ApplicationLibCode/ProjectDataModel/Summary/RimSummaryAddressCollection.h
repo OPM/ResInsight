@@ -59,6 +59,8 @@ public:
         IMPORTED
     };
 
+    static RifEclipseSummaryAddressDefines::SummaryCategory contentTypeToSummaryCategory( CollectionContentType contentType );
+
 public:
     RimSummaryAddressCollection();
     ~RimSummaryAddressCollection() override;

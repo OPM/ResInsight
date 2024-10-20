@@ -30,38 +30,70 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RimSummaryAddressModifier::replaceObjectName( const RifEclipseSummaryAddress&                    sourceAdr,
-                                                                       std::string                                        objectName,
-                                                                       RimSummaryAddressCollection::CollectionContentType contentType )
+RifEclipseSummaryAddress RimSummaryAddressModifier::replaceTokenForCategory( const RifEclipseSummaryAddress&                  sourceAdr,
+                                                                             std::string                                      token,
+                                                                             RifEclipseSummaryAddressDefines::SummaryCategory contentType )
 {
     auto adr = sourceAdr;
 
-    if ( contentType == RimSummaryAddressCollection::CollectionContentType::WELL )
+    if ( contentType == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL )
     {
-        adr.setWellName( objectName );
+        adr.setWellName( token );
     }
-    else if ( contentType == RimSummaryAddressCollection::CollectionContentType::GROUP )
+    else if ( contentType == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP )
     {
-        adr.setGroupName( objectName );
+        adr.setGroupName( token );
     }
-    else if ( contentType == RimSummaryAddressCollection::CollectionContentType::NETWORK )
+    else if ( contentType == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_NETWORK )
     {
-        adr.setNetworkName( objectName );
+        adr.setNetworkName( token );
     }
-    else if ( contentType == RimSummaryAddressCollection::CollectionContentType::REGION )
+    else if ( contentType == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION )
     {
-        int intValue = RiaStdStringTools::toInt( objectName );
+        int intValue = RiaStdStringTools::toInt( token );
         if ( intValue == -1 )
         {
             QString errorText = QString( "Failed to convert region text to region integer value "
                                          "for region text : %1" )
-                                    .arg( QString::fromStdString( objectName ) );
+                                    .arg( QString::fromStdString( token ) );
 
             RiaLogging::error( errorText );
         }
         else
         {
             adr.setRegion( intValue );
+        }
+    }
+    else if ( contentType == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION_2_REGION )
+    {
+        int intValue = RiaStdStringTools::toInt( token );
+        if ( intValue == -1 )
+        {
+            QString errorText = QString( "Failed to convert region text to region integer value "
+                                         "for region text : %1" )
+                                    .arg( QString::fromStdString( token ) );
+
+            RiaLogging::error( errorText );
+        }
+        else
+        {
+            adr.setRegion2( intValue );
+        }
+    }
+    else if ( contentType == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_AQUIFER )
+    {
+        int intValue = RiaStdStringTools::toInt( token );
+        if ( intValue == -1 )
+        {
+            QString errorText = QString( "Failed to convert aquifer text to aquifer integer value "
+                                         "for aquifer text : %1" )
+                                    .arg( QString::fromStdString( token ) );
+
+            RiaLogging::error( errorText );
+        }
+        else
+        {
+            adr.setAquiferNumber( intValue );
         }
     }
 
@@ -155,18 +187,20 @@ void RimSummaryAddressModifier::updateAddressesByObjectName( const std::vector<C
                                                              const std::string&                                 objectName,
                                                              RimSummaryAddressCollection::CollectionContentType contentType )
 {
+    auto category = RimSummaryAddressCollection::contentTypeToSummaryCategory( contentType );
+
     for ( auto& provider : curveAddressProviders )
     {
         std::visit(
-            [objectName, contentType]( auto&& arg )
+            [objectName, category]( auto&& arg )
             {
                 const auto sourceAdr = RimSummaryAddressModifier::curveAddress( arg );
 
                 const auto sourceX = sourceAdr.summaryAddressX();
                 const auto sourceY = sourceAdr.summaryAddressY();
 
-                const auto newAdrX = RimSummaryAddressModifier::replaceObjectName( sourceX, objectName, contentType );
-                const auto newAdrY = RimSummaryAddressModifier::replaceObjectName( sourceY, objectName, contentType );
+                const auto newAdrX = RimSummaryAddressModifier::replaceTokenForCategory( sourceX, objectName, category );
+                const auto newAdrY = RimSummaryAddressModifier::replaceTokenForCategory( sourceY, objectName, category );
 
                 RimSummaryAddressModifier::setCurveAddress( arg, RiaSummaryCurveAddress( newAdrX, newAdrY ) );
             },
