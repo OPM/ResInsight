@@ -18,6 +18,7 @@
 
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaStdStringTools.h"
+#include "RiaSummaryAddressModifier.h"
 #include "RiaSummaryCurveAddress.h"
 
 #include "RifSummaryReaderInterface.h"
@@ -177,18 +178,18 @@ void RiaSummaryCurveDefinition::setIdentifierText( SummaryCategory category, con
     if ( RifEclipseSummaryAddress::isDependentOnWellName( category ) )
     {
         m_summaryAddressX =
-            RimSummaryAddressModifier::replaceTokenForCategory( m_summaryAddressX,
+            RiaSummaryAddressModifier::replaceTokenForCategory( m_summaryAddressX,
                                                                 name,
                                                                 RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL );
         m_summaryAddressY =
-            RimSummaryAddressModifier::replaceTokenForCategory( m_summaryAddressY,
+            RiaSummaryAddressModifier::replaceTokenForCategory( m_summaryAddressY,
                                                                 name,
                                                                 RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL );
     }
     else
     {
-        m_summaryAddressX = RimSummaryAddressModifier::replaceTokenForCategory( m_summaryAddressX, name, m_summaryAddressX.category() );
-        m_summaryAddressY = RimSummaryAddressModifier::replaceTokenForCategory( m_summaryAddressY, name, m_summaryAddressY.category() );
+        m_summaryAddressX = RiaSummaryAddressModifier::replaceTokenForCategory( m_summaryAddressX, name, m_summaryAddressX.category() );
+        m_summaryAddressY = RiaSummaryAddressModifier::replaceTokenForCategory( m_summaryAddressY, name, m_summaryAddressY.category() );
     }
 }
 

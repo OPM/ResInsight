@@ -26,9 +26,9 @@
 #include "RiaPreferencesSummary.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaResultNames.h"
-#include "RiaSummaryCurveDefinition.h"
-#include "RiaSummaryDefines.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryDefines.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimEnsembleCurveSet.h"

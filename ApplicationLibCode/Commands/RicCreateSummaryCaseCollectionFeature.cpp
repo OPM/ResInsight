@@ -18,7 +18,7 @@
 
 #include "RicCreateSummaryCaseCollectionFeature.h"
 
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"

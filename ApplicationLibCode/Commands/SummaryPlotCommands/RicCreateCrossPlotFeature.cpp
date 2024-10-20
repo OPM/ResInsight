@@ -21,7 +21,7 @@
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
 #include "RiaPreferencesSummary.h"
-#include "RiaSummaryCurveAddress.h"
+#include "Summary/RiaSummaryCurveAddress.h"
 
 #include "RifEclipseSummaryAddress.h"
 

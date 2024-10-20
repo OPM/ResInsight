@@ -23,7 +23,7 @@
 #include "cafPdmPointer.h"
 
 #include "RiaEnsembleNameTools.h"
-#include "RiaSummaryDefines.h"
+#include "Summary/RiaSummaryDefines.h"
 
 #include <QDialog>
 

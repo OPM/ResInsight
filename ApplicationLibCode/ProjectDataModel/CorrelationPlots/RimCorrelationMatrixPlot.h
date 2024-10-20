@@ -21,7 +21,7 @@
 #include "RimAbstractCorrelationPlot.h"
 
 #include "RiaCurveDataTools.h"
-#include "RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
 
 #include "cafAppEnum.h"
 

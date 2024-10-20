@@ -21,7 +21,7 @@
 #include "RiaColorTables.h"
 #include "RiaColorTools.h"
 #include "RiaPreferencesSummary.h"
-#include "RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
 
 #include "RiuQwtPlotCurve.h"
 

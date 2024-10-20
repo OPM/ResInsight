@@ -19,7 +19,7 @@
 #pragma once
 
 #include "RiaEnsembleNameTools.h"
-#include "RiaSummaryDefines.h"
+#include "Summary/RiaSummaryDefines.h"
 
 #include "cafCmdFeature.h"
 

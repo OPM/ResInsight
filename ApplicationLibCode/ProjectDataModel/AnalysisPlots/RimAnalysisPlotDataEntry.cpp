@@ -18,7 +18,7 @@
 
 #include "RimAnalysisPlotDataEntry.h"
 
-#include "RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
 
 #include "RifEclipseSummaryAddress.h"
 #include "RimSummaryEnsemble.h"

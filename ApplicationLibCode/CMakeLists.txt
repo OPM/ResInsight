@@ -91,6 +91,7 @@ list(
   Application/Tools/CMakeLists_files.cmake
   Application/Tools/WellPathTools/CMakeLists_files.cmake
   Application/Tools/Cloud/CMakeLists_files.cmake
+  Application/Tools/Summary/CMakeLists_files.cmake
   ReservoirDataModel/CMakeLists_files.cmake
   ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
   ReservoirDataModel/Completions/CMakeLists_files.cmake
@@ -403,6 +404,7 @@ set(UNITY_EXCLUDE_FILES
     FileInterface/RifOsduWellLogReader.cpp
     FileInterface/RifByteArrayArrowRandomAccessFile.cpp
     FileInterface/RifArrowTools.cpp
+    ReservoirDataModel/RigContourMapGrid.cpp
 )
 
 message("Files excluded from UNITY_BUILD : ${UNITY_EXCLUDE_FILES}")
