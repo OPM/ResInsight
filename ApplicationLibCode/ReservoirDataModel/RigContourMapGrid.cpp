@@ -20,6 +20,8 @@
 
 #include <cmath>
 
+using namespace cvf;
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -170,8 +172,8 @@ cvf::Vec2ui RigContourMapGrid::ijFromCellIndex( size_t cellIndex ) const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2ui RigContourMapGrid::ijFromLocalPos( const cvf::Vec2d& localPos2d ) const
 {
-    uint i = localPos2d.x() / sampleSpacing();
-    uint j = localPos2d.y() / sampleSpacing();
+    uint i = static_cast<uint>( localPos2d.x() / sampleSpacing() );
+    uint j = static_cast<uint>( localPos2d.y() / sampleSpacing() );
     return cvf::Vec2ui( i, j );
 }
 
