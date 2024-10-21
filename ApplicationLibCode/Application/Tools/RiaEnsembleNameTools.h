@@ -23,7 +23,7 @@
 #include <map>
 #include <vector>
 
-#include "RiaSummaryDefines.h"
+#include "Summary/RiaSummaryDefines.h"
 
 class RimSummaryCase;
 

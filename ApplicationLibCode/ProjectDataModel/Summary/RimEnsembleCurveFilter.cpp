@@ -20,7 +20,7 @@
 
 #include "RiaCurveDataTools.h"
 #include "RiaStdStringTools.h"
-#include "RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
 
 #include "RimCustomObjectiveFunction.h"
 #include "RimCustomObjectiveFunctionCollection.h"

@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "RiaSummaryStringTools.h"
+#include "Summary/RiaSummaryStringTools.h"
 
 #include <QString>
 #include <QStringList>

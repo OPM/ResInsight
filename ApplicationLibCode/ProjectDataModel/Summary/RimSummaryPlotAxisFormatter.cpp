@@ -20,7 +20,7 @@
 
 #include "RiaDefines.h"
 #include "RiaNumberFormat.h"
-#include "RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
 
 #include "RifSummaryReaderInterface.h"
 

@@ -16,12 +16,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaSummaryStringTools.h"
+#include "Summary/RiaSummaryStringTools.h"
 
 #include "RiaLogging.h"
 #include "RiaStdStringTools.h"
-#include "RiaSummaryTools.h"
 #include "RiaTextStringTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifEclipseSummaryAddress.h"
 #include "RifReaderEclipseSummary.h"

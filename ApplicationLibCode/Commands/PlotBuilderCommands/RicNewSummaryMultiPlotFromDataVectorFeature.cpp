@@ -19,7 +19,7 @@
 #include "RicNewSummaryMultiPlotFromDataVectorFeature.h"
 
 #include "RiaPreferencesSummary.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"

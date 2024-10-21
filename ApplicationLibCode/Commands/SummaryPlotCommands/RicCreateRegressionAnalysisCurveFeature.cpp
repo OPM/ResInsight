@@ -20,7 +20,7 @@
 
 #include "RiaColorTables.h"
 #include "RiaColorTools.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RimEnsembleCurveSet.h"
 #include "RimSummaryCurve.h"

@@ -19,7 +19,7 @@
 #include "RimSimWellInViewTools.h"
 
 #include "RiaLogging.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"

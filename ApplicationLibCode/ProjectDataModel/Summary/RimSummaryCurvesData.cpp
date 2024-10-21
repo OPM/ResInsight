@@ -19,9 +19,9 @@
 #include "RimSummaryCurvesData.h"
 
 #include "RiaGuiApplication.h"
-#include "RiaSummaryCurveDefinition.h"
-#include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RimAsciiDataCurve.h"
 #include "RimGridTimeHistoryCurve.h"

@@ -22,7 +22,7 @@
 #include "RiaColorTools.h"
 #include "RiaPlotDefines.h"
 #include "RiaSimWellBranchTools.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifReaderEclipseRft.h"
 

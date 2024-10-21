@@ -21,8 +21,8 @@
 #include "RiaCurveSetDefinition.h"
 #include "RiaOptionItemFactory.h"
 #include "RiaStdStringTools.h"
-#include "RiaSummaryCurveDefinition.h"
-#include "RiaSummaryDefines.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryDefines.h"
 
 #include "RifEclipseSummaryAddress.h"
 #include "RifReaderEclipseSummary.h"

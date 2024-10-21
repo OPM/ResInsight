@@ -20,8 +20,8 @@
 
 #include "RiaFilePathTools.h"
 #include "RiaStringEncodingTools.h"
-#include "RiaSummaryAddressAnalyzer.h"
 #include "RifSummaryReaderInterface.h"
+#include "Summary/RiaSummaryAddressAnalyzer.h"
 
 #include "cafAppEnum.h"
 

@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "RiaSummaryAddressAnalyzer.h"
+#include "Summary/RiaSummaryAddressAnalyzer.h"
 
 //--------------------------------------------------------------------------------------------------
 ///

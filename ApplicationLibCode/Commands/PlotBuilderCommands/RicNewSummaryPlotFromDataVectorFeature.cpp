@@ -18,9 +18,9 @@
 
 #include "RicNewSummaryPlotFromDataVectorFeature.h"
 
-#include "RiaSummaryTools.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryPlot.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RicSummaryPlotBuilder.h"
 

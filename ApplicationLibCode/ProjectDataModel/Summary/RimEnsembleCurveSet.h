@@ -24,8 +24,8 @@
 
 #include "RiaDateTimeDefines.h"
 #include "RiaPlotDefines.h"
-#include "RiaSummaryCurveAddress.h"
-#include "RiaSummaryDefines.h"
+#include "Summary/RiaSummaryCurveAddress.h"
+#include "Summary/RiaSummaryDefines.h"
 
 #include "RimEnsembleCrossPlotStatisticsCase.h"
 #include "RimEnsembleCurveSetColorManager.h"

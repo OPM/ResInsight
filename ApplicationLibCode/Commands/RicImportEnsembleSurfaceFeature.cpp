@@ -22,7 +22,7 @@
 #include "RiaEnsembleNameTools.h"
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RicImportEnsembleFeature.h"
 #include "RicRecursiveFileSearchDialog.h"

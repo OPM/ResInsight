@@ -18,7 +18,7 @@
 
 #include "RicDeleteSummaryCaseCollectionFeature.h"
 
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimMainPlotCollection.h"

@@ -19,8 +19,8 @@
 #include "RimSummaryCalculationVariable.h"
 
 #include "RiaApplication.h"
-#include "RiaSummaryCurveDefinition.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifEclipseSummaryAddressQMetaType.h"
 

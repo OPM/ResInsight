@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RimSummaryNameHelper.h"
+#include "Summary/RiaSummaryAddressAnalyzer.h"
 
 #include "cafPdmPointer.h"
 
@@ -31,7 +32,6 @@
 class RimSummaryCurve;
 class RimSummaryCase;
 class RimSummaryEnsemble;
-class RiaSummaryAddressAnalyzer;
 class RifEclipseSummaryAddress;
 class RiaSummaryCurveAddress;
 

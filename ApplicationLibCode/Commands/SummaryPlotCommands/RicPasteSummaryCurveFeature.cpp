@@ -18,7 +18,7 @@
 
 #include "RicPasteSummaryCurveFeature.h"
 
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
 

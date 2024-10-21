@@ -18,7 +18,7 @@
 
 #include "RimSummaryAddress.h"
 
-#include "RiaSummaryDefines.h"
+#include "Summary/RiaSummaryDefines.h"
 
 #include <QRegularExpression>
 

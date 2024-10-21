@@ -18,7 +18,7 @@
 
 #include "RicSelectCaseOrEnsembleUi.h"
 
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RimProject.h"
 #include "RimSummaryCase.h"

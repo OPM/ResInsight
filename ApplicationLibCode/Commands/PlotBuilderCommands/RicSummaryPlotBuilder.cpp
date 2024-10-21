@@ -23,8 +23,8 @@
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
 #include "RiaPreferencesSummary.h"
-#include "RiaSummaryAddressAnalyzer.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryAddressAnalyzer.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifEclipseSummaryAddress.h"
 #include "RifReaderEclipseSummary.h"

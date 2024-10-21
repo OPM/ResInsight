@@ -18,7 +18,6 @@
 
 #include "RimSummaryPlotNameHelper.h"
 
-#include "RiaSummaryAddressAnalyzer.h"
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimObjectiveFunctionTools.h"

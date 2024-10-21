@@ -20,9 +20,9 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
-#include "RiaSummaryDefines.h"
-#include "RiaSummaryTools.h"
 #include "RiaTimeTTools.h"
+#include "Summary/RiaSummaryDefines.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifArrowTools.h"
 #include "RifByteArrayArrowRandomAccessFile.h"

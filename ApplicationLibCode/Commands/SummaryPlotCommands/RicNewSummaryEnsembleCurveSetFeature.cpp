@@ -21,8 +21,8 @@
 #include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferencesSummary.h"
-#include "RiaSummaryTools.h"
 #include "RiaTextStringTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"

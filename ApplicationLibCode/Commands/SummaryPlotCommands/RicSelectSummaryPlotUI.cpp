@@ -18,7 +18,7 @@
 
 #include "RicSelectSummaryPlotUI.h"
 
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"

@@ -18,7 +18,7 @@
 
 #include "RimCorrelationPlotCollection.h"
 
-#include "RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
 
 #include "RimCorrelationMatrixPlot.h"
 #include "RimCorrelationPlot.h"
