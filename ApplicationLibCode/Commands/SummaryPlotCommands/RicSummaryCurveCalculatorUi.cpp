@@ -18,7 +18,7 @@
 
 #include "RicSummaryCurveCalculatorUi.h"
 
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RimProject.h"
 #include "RimSummaryCalculationCollection.h"

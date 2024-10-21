@@ -19,7 +19,7 @@
 #include "RimCloudDataSourceCollection.h"
 
 #include "RiaApplication.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 

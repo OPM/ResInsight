@@ -32,7 +32,7 @@ class RiaSummaryCurveAddress;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class RimSummaryAddressModifier
+class RiaSummaryAddressModifier
 {
 public:
     // Define a variant for summary curves and ensemble curve set. This way we can treat them as similar object without a

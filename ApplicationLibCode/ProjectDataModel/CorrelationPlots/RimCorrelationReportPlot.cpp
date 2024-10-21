@@ -19,7 +19,7 @@
 
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
-#include "RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
 
 #include "RimCorrelationMatrixPlot.h"
 #include "RimCorrelationPlot.h"
