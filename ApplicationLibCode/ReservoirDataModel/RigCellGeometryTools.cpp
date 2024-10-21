@@ -407,9 +407,10 @@ double clipperConversionFactor = 10000; // For transform to clipper int
 
 ClipperLib::IntPoint toClipperPoint( const cvf::Vec3d& cvfPoint )
 {
-    int xInt = cvfPoint.x() * clipperConversionFactor;
-    int yInt = cvfPoint.y() * clipperConversionFactor;
-    int zInt = cvfPoint.z() * clipperConversionFactor;
+    ClipperLib::cInt xInt = cvfPoint.x() * clipperConversionFactor;
+    ClipperLib::cInt yInt = cvfPoint.y() * clipperConversionFactor;
+    ClipperLib::cInt zInt = cvfPoint.z() * clipperConversionFactor;
+
     return ClipperLib::IntPoint( xInt, yInt, zInt );
 }
 
