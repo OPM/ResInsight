@@ -172,27 +172,68 @@ void RiaSumoConnector::requestEnsembleByCasesId( const SumoCaseId& caseId )
 {
     requestTokenBlocking();
 
+    // See the following file for query definition
+    // https://github.com/equinor/fmu-sumo/blob/main/src/fmu/sumo/explorer/objects/case.py
+
     QString payloadTemplate = R"(
 
-{
-    "query": {
-        "bool": {
-            "filter": [
-                        {"term":{"_sumo.parent_object.keyword":"%1"}}
-            ]
-        }
-    },
-    "aggs": {
-        "aggs_columns": {
-            "terms": { "field": "fmu.iteration.name.keyword", "size": 5 }
-        }
-    },
-    "track_total_hits":true,
-    "size":20,
-    "from":0,
-     "_source": false
-}
-
+ {
+        "query": {
+            "term": {
+                "fmu.case.uuid.keyword": "%1"
+            }
+        },
+        "aggs": {
+            "iteration_uuids": {
+                "terms": {
+                    "field": "fmu.iteration.uuid.keyword",
+                    "size": 100
+                }
+            },
+            "iteration_names": {
+                "terms": {
+                    "field": "fmu.iteration.name.keyword",
+                    "size": 100
+                }
+            },
+            "data_types": {
+                "terms": {
+                    "field": "class.keyword",
+                    "size": 100
+                }
+            },
+            "iterations": {
+                "terms": {
+                    "field": "fmu.iteration.uuid.keyword",
+                    "size": 100
+                },
+                "aggs": {
+                    "iteration_name": {
+                        "terms": {
+                            "field": "fmu.iteration.name.keyword",
+                            "size": 100
+                        }
+                    },
+                    "numreal": {
+                        "cardinality": {
+                            "field": "fmu.realization.id"
+                        }
+                    },
+                    "maxreal": {
+                        "max": {
+                            "field": "fmu.realization.id"
+                        }
+                    },
+                    "minreal": {
+                        "min": {
+                            "field": "fmu.realization.id"
+                        }
+                    }
+                }
+            }
+        },
+        "size": 0
+    }
 )";
 
     QNetworkRequest m_networkRequest;
@@ -212,6 +253,45 @@ void RiaSumoConnector::requestEnsembleByCasesId( const SumoCaseId& caseId )
                      parseEnsembleNames( reply, caseId );
                  }
              } );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSumoConnector::parseEnsembleNames( QNetworkReply* reply, const SumoCaseId& caseId )
+{
+    // See the following file for parsing of the reply
+    // https://github.com/equinor/fmu-sumo/blob/main/src/fmu/sumo/explorer/objects/case.py
+
+    QByteArray result = reply->readAll();
+    reply->deleteLater();
+
+    if ( reply->error() == QNetworkReply::NoError )
+    {
+        m_ensembleNames.clear();
+
+        QJsonDocument doc                      = QJsonDocument::fromJson( result );
+        QJsonObject   jsonObj                  = doc.object();
+        QJsonObject   aggregationsObject       = jsonObj["aggregations"].toObject();
+        QJsonObject   aggregationColumnsObject = aggregationsObject["iteration_names"].toObject();
+
+        QJsonArray bucketsArray = aggregationColumnsObject["buckets"].toArray();
+        foreach ( const QJsonValue& bucket, bucketsArray )
+        {
+            QJsonObject bucketObj    = bucket.toObject();
+            auto        ensembleName = bucketObj["key"].toString();
+
+            m_ensembleNames.push_back( { caseId, ensembleName } );
+        }
+
+        RiaLogging::debug( QString( "Ensemble count : %1" ).arg( m_ensembleNames.size() ) );
+    }
+    else
+    {
+        RiaLogging::error( QString( "Request ensemble names failed: : '%s'" ).arg( reply->errorString() ) );
+    }
+
+    emit ensembleNamesFinished();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -720,42 +800,12 @@ void RiaSumoConnector::parseAssets( QNetworkReply* reply )
             RiaLogging::info( QString( "Asset: %1" ).arg( a.name ) );
         }
     }
-    emit assetsFinished();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::parseEnsembleNames( QNetworkReply* reply, const SumoCaseId& caseId )
-{
-    QByteArray result = reply->readAll();
-    reply->deleteLater();
-
-    if ( reply->error() == QNetworkReply::NoError )
+    else
     {
-        m_ensembleNames.clear();
-
-        QJsonDocument doc     = QJsonDocument::fromJson( result );
-        QJsonObject   jsonObj = doc.object();
-        auto          keys_1  = jsonObj.keys();
-
-        auto aggregationsObject = jsonObj["aggregations"].toObject();
-
-        QJsonObject aggregationColumnsObject = aggregationsObject["aggs_columns"].toObject();
-        auto        keys_2                   = aggregationColumnsObject.keys();
-
-        QJsonArray bucketsArray = aggregationColumnsObject["buckets"].toArray();
-        foreach ( const QJsonValue& bucket, bucketsArray )
-        {
-            QJsonObject bucketObj = bucket.toObject();
-            auto        keys_3    = bucketObj.keys();
-
-            auto ensembleName = bucketObj["key"].toString();
-            m_ensembleNames.push_back( { caseId, ensembleName } );
-        }
+        RiaLogging::error( QString( "Request assets failed: : '%s'" ).arg( reply->errorString() ) );
     }
 
-    emit ensembleNamesFinished();
+    emit assetsFinished();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -768,33 +818,31 @@ void RiaSumoConnector::parseCases( QNetworkReply* reply )
 
     if ( reply->error() == QNetworkReply::NoError )
     {
-        QJsonDocument doc      = QJsonDocument::fromJson( result );
-        QJsonObject   jsonObj  = doc.object();
-        QJsonObject   rootHits = jsonObj["hits"].toObject();
-
-        QJsonArray hitsObjects = rootHits["hits"].toArray();
+        QJsonDocument doc         = QJsonDocument::fromJson( result );
+        QJsonObject   jsonObj     = doc.object();
+        QJsonObject   rootHits    = jsonObj["hits"].toObject();
+        QJsonArray    hitsObjects = rootHits["hits"].toArray();
 
         m_cases.clear();
 
         foreach ( const QJsonValue& value, hitsObjects )
         {
             QJsonObject resultObj = value.toObject();
-            auto        keys_1    = resultObj.keys();
-
-            QJsonObject sourceObj  = resultObj["_source"].toObject();
-            auto        sourceKeys = sourceObj.keys();
-
-            QJsonObject fmuObj     = sourceObj["fmu"].toObject();
-            auto        fmuObjKeys = fmuObj.keys();
-
-            QJsonObject fmuCase     = fmuObj["case"].toObject();
-            auto        fmuCaseKeys = fmuCase.keys();
+            QJsonObject sourceObj = resultObj["_source"].toObject();
+            QJsonObject fmuObj    = sourceObj["fmu"].toObject();
+            QJsonObject fmuCase   = fmuObj["case"].toObject();
 
             QString id        = resultObj["_id"].toString();
             QString kind      = "";
             QString fieldName = fmuCase["name"].toString();
             m_cases.push_back( SumoCase{ SumoCaseId( id ), kind, fieldName } );
         }
+
+        RiaLogging::debug( QString( "Case count : %1" ).arg( m_cases.size() ) );
+    }
+    else
+    {
+        RiaLogging::error( QString( "Request cases failed: : '%s'" ).arg( reply->errorString() ) );
     }
 
     emit casesFinished();
@@ -825,6 +873,10 @@ void RiaSumoConnector::parseVectorNames( QNetworkReply* reply, const SumoCaseId&
             }
         }
     }
+    else
+    {
+        RiaLogging::error( QString( "Request vector names failed: : '%s'" ).arg( reply->errorString() ) );
+    }
 
     emit vectorNamesFinished();
 }
@@ -846,10 +898,8 @@ void RiaSumoConnector::parseRealizationNumbers( QNetworkReply* reply, const Sumo
         for ( const auto& hit : hits )
         {
             QJsonObject resultObj = hit.toObject();
-            auto        keys_1    = resultObj.keys();
-
-            auto val      = resultObj.value( "key" );
-            auto intValue = val.toInt();
+            auto        val       = resultObj.value( "key" );
+            auto        intValue  = val.toInt();
 
             auto realizationId = QString::number( intValue );
             m_realizationIds.push_back( realizationId );
@@ -884,13 +934,8 @@ void RiaSumoConnector::parseBlobIds( QNetworkReply*    reply,
         foreach ( const QJsonValue& value, hitsObjects )
         {
             QJsonObject resultObj = value.toObject();
-            auto        keys_1    = resultObj.keys();
-
-            QJsonObject sourceObj  = resultObj["_source"].toObject();
-            auto        sourceKeys = sourceObj.keys();
-
-            QJsonObject fmuObj     = sourceObj["_sumo"].toObject();
-            auto        fmuObjKeys = fmuObj.keys();
+            QJsonObject sourceObj = resultObj["_source"].toObject();
+            QJsonObject fmuObj    = sourceObj["_sumo"].toObject();
 
             auto blobName = fmuObj["blob_name"].toString();
             m_blobUrl.push_back( blobName );
