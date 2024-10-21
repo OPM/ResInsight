@@ -24,6 +24,7 @@
 
 #include "RifSummaryReaderInterface.h"
 
+#include "RimSummaryAddressModifier.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
 

@@ -31,7 +31,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RiaSummaryAddressModifier::replaceTokenForCategory( const RifEclipseSummaryAddress&                  sourceAdr,
-                                                                             std::string                                      token,
+                                                                             const std::string&                               token,
                                                                              RifEclipseSummaryAddressDefines::SummaryCategory contentType )
 {
     auto adr = sourceAdr;

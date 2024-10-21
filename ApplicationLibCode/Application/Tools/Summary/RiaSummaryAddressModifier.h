@@ -51,7 +51,7 @@ public:
                                              RimSummaryAddressCollection::CollectionContentType contentType );
 
     static RifEclipseSummaryAddress replaceTokenForCategory( const RifEclipseSummaryAddress&                  sourceAdr,
-                                                             std::string                                      token,
+                                                             const std::string&                               token,
                                                              RifEclipseSummaryAddressDefines::SummaryCategory contentType );
 
 private:
