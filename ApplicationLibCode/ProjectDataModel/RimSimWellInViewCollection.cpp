@@ -151,7 +151,6 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     CAF_PDM_InitFieldNoDefault( &m_showWellLabel, "ShowWellLabelTristate", "Label" );
     CAF_PDM_InitFieldNoDefault( &m_showWellPipe, "ShowWellPipe", "Pipe" );
     CAF_PDM_InitFieldNoDefault( &m_showWellSpheres, "ShowWellSpheres", "Spheres" );
-    CAF_PDM_InitFieldNoDefault( &m_showWellDisks, "ShowWellDisks", "Disks" );
 
     m_showWellHead.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
     m_showWellHead.xmlCapability()->disableIO();
@@ -164,9 +163,6 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
 
     m_showWellSpheres.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
     m_showWellSpheres.xmlCapability()->disableIO();
-
-    m_showWellDisks.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
-    m_showWellDisks.xmlCapability()->disableIO();
 
     // Scaling
     CAF_PDM_InitField( &wellHeadScaleFactor, "WellHeadScale", 1.0, "Well Head Scale" );
@@ -212,6 +208,10 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     m_showWellCellFence.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_showWellValves, "ShowWellValvesTristate", true, "Valves" );
+
+    CAF_PDM_InitFieldNoDefault( &m_showWellDisks, "ShowWellDisks", "Show Disks" );
+    m_showWellDisks.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
+    m_showWellDisks.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_wellDiskSummaryCase, "WellDiskSummaryCase", "Summary Case" );
 
@@ -623,7 +623,6 @@ void RimSimWellInViewCollection::defineUiOrdering( QString uiConfigName, caf::Pd
     appearanceGroup->add( &m_showWellHead );
     appearanceGroup->add( &m_showWellPipe );
     appearanceGroup->add( &m_showWellSpheres );
-    appearanceGroup->add( &m_showWellDisks );
     appearanceGroup->add( &m_showWellCommunicationLines );
     appearanceGroup->add( &m_showWellValves );
 
@@ -665,6 +664,7 @@ void RimSimWellInViewCollection::defineUiOrdering( QString uiConfigName, caf::Pd
 
     {
         caf::PdmUiGroup* wellDiskGroup = uiOrdering.addNewGroup( "Disks" );
+        wellDiskGroup->add( &m_showWellDisks );
 
         if ( !m_wellDiskSummaryCase() )
         {
