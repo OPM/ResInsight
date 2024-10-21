@@ -17,13 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaSummaryCurveDefinition.h"
+
 #include "RiaStdStringTools.h"
 #include "RiaSummaryAddressModifier.h"
 #include "RiaSummaryCurveAddress.h"
 
 #include "RifSummaryReaderInterface.h"
 
-#include "RimSummaryAddressModifier.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
 
