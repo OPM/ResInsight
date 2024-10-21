@@ -25,8 +25,8 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
-#include "RiaSummaryAddressAnalyzer.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryAddressAnalyzer.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"

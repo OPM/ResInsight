@@ -19,7 +19,7 @@
 #include "RicNewGridTimeHistoryCurveFeature.h"
 
 #include "RiaGuiApplication.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RigFemResultAddress.h"
 

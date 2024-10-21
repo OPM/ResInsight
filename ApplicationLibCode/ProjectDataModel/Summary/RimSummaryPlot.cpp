@@ -21,29 +21,21 @@
 #include "RiaColorTables.h"
 #include "RiaColorTools.h"
 #include "RiaDefines.h"
-#include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
 #include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaStdStringTools.h"
-#include "RiaSummaryAddressAnalyzer.h"
-#include "RiaSummaryCurveDefinition.h"
-#include "RiaSummaryDefines.h"
-#include "RiaSummaryTools.h"
-#include "RiaTimeHistoryCurveResampler.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryDefines.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifEclipseSummaryAddressDefines.h"
-#include "RifReaderEclipseSummary.h"
-
-#include "RicfCommandObject.h"
 
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
-#include "PlotTemplates/RimPlotTemplateFileItem.h"
-#include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "RimAsciiDataCurve.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
@@ -70,7 +62,6 @@
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotItem.h"
 #include "RiuSummaryQwtPlot.h"
-#include "RiuTreeViewEventFilter.h"
 
 #ifdef USE_QTCHARTS
 #include "RiuSummaryQtChartsPlot.h"
@@ -79,7 +70,7 @@
 #include "cvfColor3.h"
 
 #include "cafPdmFieldScriptingCapability.h"
-#include "cafPdmUiCheckBoxEditor.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafSelectionManager.h"
 

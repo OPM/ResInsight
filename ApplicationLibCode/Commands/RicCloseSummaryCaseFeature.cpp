@@ -19,7 +19,7 @@
 #include "RicCloseSummaryCaseFeature.h"
 
 #include "RiaGuiApplication.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RicDeleteItemFeature.h"
 

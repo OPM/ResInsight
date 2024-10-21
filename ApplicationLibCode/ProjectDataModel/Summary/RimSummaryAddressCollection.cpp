@@ -18,7 +18,7 @@
 
 #include "RimSummaryAddressCollection.h"
 
-#include "RiaSummaryDefines.h"
+#include "Summary/RiaSummaryDefines.h"
 
 #include "RifEclipseSummaryAddress.h"
 

@@ -18,7 +18,7 @@
 
 #include "RicImportSummaryCasesFeature.h"
 
-#include "RiaSummaryDefines.h"
+#include "Summary/RiaSummaryDefines.h"
 #include "SummaryPlotCommands/RicNewSummaryCurveFeature.h"
 
 #include "RiaGuiApplication.h"

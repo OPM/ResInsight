@@ -22,8 +22,8 @@
 #include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
-#include "RiaSummaryCurveDefinition.h"
 #include "RiaTextStringTools.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
 
 #include "RifSummaryReaderInterface.h"
 

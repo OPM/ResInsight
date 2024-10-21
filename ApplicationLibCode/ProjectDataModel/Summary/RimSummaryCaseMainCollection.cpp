@@ -21,7 +21,7 @@
 #include "RiaEclipseFileNameTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifCaseRealizationParametersReader.h"
 #include "RifEclipseSummaryTools.h"

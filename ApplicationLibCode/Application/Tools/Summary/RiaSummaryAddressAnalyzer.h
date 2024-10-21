@@ -18,8 +18,8 @@
 
 #pragma once
 
-#include "RiaSummaryCurveAddress.h"
 #include "RifEclipseSummaryAddress.h"
+#include "Summary/RiaSummaryCurveAddress.h"
 
 #include <set>
 #include <string>

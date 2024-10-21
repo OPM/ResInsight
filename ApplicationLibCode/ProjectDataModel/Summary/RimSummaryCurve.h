@@ -26,8 +26,8 @@
 
 #include "RiaDateTimeDefines.h"
 #include "RiaDefines.h"
-#include "RiaSummaryCurveAddress.h"
-#include "RiaSummaryDefines.h"
+#include "Summary/RiaSummaryCurveAddress.h"
+#include "Summary/RiaSummaryDefines.h"
 
 #include "RifEclipseSummaryAddressDefines.h"
 #include "RifEclipseSummaryAddressQMetaType.h"

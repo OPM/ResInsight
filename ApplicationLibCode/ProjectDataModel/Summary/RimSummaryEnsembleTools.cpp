@@ -18,7 +18,7 @@
 
 #include "RimSummaryEnsembleTools.h"
 
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifReaderRftInterface.h"
 #include "RifSummaryReaderInterface.h"

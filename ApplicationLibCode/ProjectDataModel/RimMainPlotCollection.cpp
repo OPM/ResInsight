@@ -20,7 +20,7 @@
 #include "RimMainPlotCollection.h"
 
 #include "RiaPlotCollectionScheduler.h"
-#include "RiaSummaryDefines.h"
+#include "Summary/RiaSummaryDefines.h"
 
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 

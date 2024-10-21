@@ -19,8 +19,8 @@
 #include "RimSummaryAddressSelector.h"
 
 #include "RiaResultNames.h"
-#include "RiaSummaryCurveDefinition.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifSummaryReaderInterface.h"
 

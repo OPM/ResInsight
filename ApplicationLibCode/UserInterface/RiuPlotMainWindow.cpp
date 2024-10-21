@@ -24,7 +24,7 @@
 #include "RiaPreferences.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaRegressionTestRunner.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
