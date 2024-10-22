@@ -137,9 +137,8 @@ void RiaPreferencesGrid::appendItems( caf::PdmUiOrdering& uiOrdering )
     auto resdataGrp = uiOrdering.addNewGroup( "ResData Reader Settings" );
     resdataGrp->add( &m_useResultIndexFile );
 
-    // TODO: Disabled for the 2024.09 release, enable after release
-    // auto opmcGrp = uiOrdering.addNewGroup( "OPM Common Reader Settings" );
-    // opmcGrp->add( &m_onlyLoadActiveCells );
+    auto opmcGrp = uiOrdering.addNewGroup( "OPM Common Reader Settings" );
+    opmcGrp->add( &m_onlyLoadActiveCells );
 
     const bool setFaultImportSettingsReadOnly = !importFaults();
 
@@ -264,8 +263,7 @@ bool RiaPreferencesGrid::autoComputeDepthRelatedProperties() const
 //--------------------------------------------------------------------------------------------------
 bool RiaPreferencesGrid::onlyLoadActiveCells() const
 {
-    return false;
-    // return m_onlyLoadActiveCells;
+    return m_onlyLoadActiveCells;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -75,17 +75,46 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
     else if ( gridUnitStr.starts_with( 'C' ) )
         m_gridUnit = 3;
 
+    auto totalCellCount           = opmGrid.totalNumberOfCells();
+    auto totalNativeCellCount     = opmGrid.totalActiveCells() + 1; // add one inactive cell used as placeholder for all inactive cells
     auto globalMatrixActiveSize   = opmGrid.activeCells();
     auto globalFractureActiveSize = opmGrid.activeFracCells();
 
+    const auto& lgr_names = opmGrid.list_of_lgrs();
     m_gridNames.clear();
     m_gridNames.push_back( "global" );
+    m_gridNames.insert( m_gridNames.end(), lgr_names.begin(), lgr_names.end() );
+    const auto& lgr_parent_names = opmGrid.list_of_lgr_parents();
+    const int   numLGRs          = (int)lgr_names.size();
 
-    std::vector<Opm::EclIO::EGrid> lgrGrids; // lgrs not supported here for now
+    std::vector<Opm::EclIO::EGrid> lgrGrids;
+
+    // init LGR grids
+    for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
+    {
+        lgrGrids.emplace_back( Opm::EclIO::EGrid( m_gridFileName, lgr_names[lgrIdx] ) );
+        RigLocalGrid* localGrid = new RigLocalGrid( activeGrid );
+
+        const auto& lgrDims = lgrGrids[lgrIdx].dimension();
+        localGrid->setGridPointDimensions( cvf::Vec3st( lgrDims[0] + 1, lgrDims[1] + 1, lgrDims[2] + 1 ) );
+        localGrid->setGridId( lgrIdx + 1 );
+        localGrid->setGridName( lgr_names[lgrIdx] );
+        localGrid->setIndexToGlobalStartOfCells( totalCellCount );
+        activeGrid->addLocalGrid( localGrid );
+
+        totalCellCount += lgrGrids[lgrIdx].totalNumberOfCells();
+        totalNativeCellCount += lgrGrids[lgrIdx].totalActiveCells() + 1;
+    }
 
     // active cell information
     {
         auto task = progInfo.task( "Getting Active Cell Information", 1 );
+
+        for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
+        {
+            globalMatrixActiveSize += lgrGrids[lgrIdx].activeCells();
+            globalFractureActiveSize += lgrGrids[lgrIdx].activeFracCells();
+        }
 
         // in case init file and grid file disagrees with number of active cells, read extra porv information from init file to correct this
         if ( !verifyActiveCellInfo( globalMatrixActiveSize, globalFractureActiveSize ) )
@@ -93,22 +122,59 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
             updateActiveCellInfo( eclipseCaseData, opmGrid, lgrGrids, activeGrid );
         }
 
-        activeGrid->transferActiveInformation( eclipseCaseData,
-                                               opmGrid.totalActiveCells(),
-                                               opmGrid.activeCells(),
-                                               opmGrid.activeFracCells(),
-                                               opmGrid.active_indexes(),
-                                               opmGrid.active_frac_indexes() );
+        size_t anInactiveCellIndex = activeGrid->transferActiveInformation( 0,
+                                                                            eclipseCaseData,
+                                                                            opmGrid.totalActiveCells(),
+                                                                            opmGrid.activeCells(),
+                                                                            opmGrid.activeFracCells(),
+                                                                            opmGrid.active_indexes(),
+                                                                            opmGrid.active_frac_indexes(),
+                                                                            0 );
+
+        for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
+        {
+            activeGrid->transferActiveInformation( lgrIdx + 1,
+                                                   eclipseCaseData,
+                                                   lgrGrids[lgrIdx].totalActiveCells(),
+                                                   lgrGrids[lgrIdx].activeCells(),
+                                                   lgrGrids[lgrIdx].activeFracCells(),
+                                                   lgrGrids[lgrIdx].active_indexes(),
+                                                   lgrGrids[lgrIdx].active_frac_indexes(),
+                                                   anInactiveCellIndex );
+        }
+
+        eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeDerivedData();
+        eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL )->computeDerivedData();
     }
 
     // grid geometry
     {
-        RiaLogging::info( QString( "Loading %0 active of %1 total cells." )
+        RiaLogging::info( QString( "Loading %0 active of %1 total cells in main grid." )
                               .arg( QString::fromStdString( RiaStdStringTools::formatThousandGrouping( opmGrid.totalActiveCells() ) ) )
                               .arg( QString::fromStdString( RiaStdStringTools::formatThousandGrouping( opmGrid.totalNumberOfCells() ) ) ) );
 
         auto task = progInfo.task( "Loading Active Cell Main Grid Geometry", 1 );
-        transferActiveGeometry( opmGrid, activeGrid, eclipseCaseData );
+        transferActiveGeometry( opmGrid, opmGrid, activeGrid, activeGrid, eclipseCaseData );
+
+        bool hasParentInfo = ( lgr_parent_names.size() >= (size_t)numLGRs );
+
+        auto task = progInfo.task( "Loading Active Cell LGR Grid Geometry ", 1 );
+
+        for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
+        {
+            RiaLogging::info(
+                QString( "Loading %0 active of %1 total cells in LGR grid %2." )
+                    .arg( QString::fromStdString( RiaStdStringTools::formatThousandGrouping( lgrGrids[lgrIdx].totalActiveCells() ) ) )
+                    .arg( QString::fromStdString( RiaStdStringTools::formatThousandGrouping( lgrGrids[lgrIdx].totalNumberOfCells() ) ) )
+                    .arg( lgrIdx + 1 ) );
+
+            RigGridBase* parentGrid = hasParentInfo ? activeGrid->gridByName( lgr_parent_names[lgrIdx] ) : activeGrid;
+
+            RigLocalGrid* localGrid = static_cast<RigLocalGrid*>( activeGrid->gridById( lgrIdx + 1 ) );
+            localGrid->setParentGrid( parentGrid );
+
+            transferActiveGeometry( opmGrid, lgrGrids[lgrIdx], activeGrid, localGrid, eclipseCaseData );
+        }
     }
 
     activeGrid->initAllSubGridsParentGridPointer();
@@ -149,51 +215,148 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
 
     return true;
 }
+//
+////--------------------------------------------------------------------------------------------------
+/////
+////--------------------------------------------------------------------------------------------------
+// void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMainGrid,
+//                                                        RigActiveCellGrid*  activeGrid,
+//                                                        RigEclipseCaseData* eclipseCaseData )
+//{
+//     int cellCount = opmMainGrid.totalActiveCells();
+//
+//     RigCell defaultCell;
+//     defaultCell.setHostGrid( activeGrid );
+//     for ( size_t i = 0; i < 8; i++ )
+//         defaultCell.cornerIndices()[i] = 0;
+//
+//     activeGrid->reservoirCells().resize( cellCount + 1, defaultCell );
+//     activeGrid->reservoirCells()[cellCount].setInvalid( true );
+//
+//     activeGrid->nodes().resize( ( cellCount + 1 ) * 8, cvf::Vec3d( 0, 0, 0 ) );
+//
+//     auto& riNodes = activeGrid->nodes();
+//
+//     opmMainGrid.loadData();
+//     opmMainGrid.load_grid_data();
+//
+//     const bool  isRadialGrid      = opmMainGrid.is_radial();
+//     const auto& activeMatIndexes  = opmMainGrid.active_indexes();
+//     const auto& activeFracIndexes = opmMainGrid.active_frac_indexes();
+//
+//     // Compute the center of the LGR radial grid cells for each K layer
+//     auto radialGridCenterTopLayerOpm = isRadialGrid
+//                                            ? RifOpmRadialGridTools::computeXyCenterForTopOfCells( opmMainGrid, opmMainGrid, activeGrid )
+//                                            : std::map<int, std::pair<double, double>>();
+//
+//     const bool invalidateLongPyramidCells = invalidateLongThinCells();
+//
+//     // use same mapping as resdata
+//     const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
+//
+// #pragma omp parallel for
+//     for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( opmMainGrid.totalNumberOfCells() ); opmCellIndex++ )
+//     {
+//         if ( ( activeMatIndexes[opmCellIndex] < 0 ) && ( activeFracIndexes[opmCellIndex] < 0 ) ) continue;
+//
+//         auto opmIJK = opmMainGrid.ijk_from_global_index( opmCellIndex );
+//
+//         double xCenterCoordOpm = 0.0;
+//         double yCenterCoordOpm = 0.0;
+//
+//         if ( isRadialGrid && radialGridCenterTopLayerOpm.contains( opmIJK[2] ) )
+//         {
+//             const auto& [xCenter, yCenter] = radialGridCenterTopLayerOpm[opmIJK[2]];
+//             xCenterCoordOpm                = xCenter;
+//             yCenterCoordOpm                = yCenter;
+//         }
+//
+//         auto     nativeIndex = activeGrid->cellIndexFromIJK( opmIJK[0], opmIJK[1], opmIJK[2] );
+//         RigCell& cell        = activeGrid->nativeCell( nativeIndex );
+//         // auto     globalIndex = activeGrid->nativeCellIndexToGlobal( nativeIndex );
+//         cell.setGridLocalCellIndex( nativeIndex );
+//         cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );
+//
+//         // corner coordinates
+//         std::array<double, 8> opmX{};
+//         std::array<double, 8> opmY{};
+//         std::array<double, 8> opmZ{};
+//         opmMainGrid.getCellCorners( opmCellIndex, opmX, opmY, opmZ );
+//
+//         // Each cell has 8 nodes, use active cell index and multiply to find first node index for cell
+//         auto riNodeStartIndex = nativeIndex * 8;
+//
+//         for ( size_t opmNodeIndex = 0; opmNodeIndex < 8; opmNodeIndex++ )
+//         {
+//             auto   riCornerIndex = cellMappingECLRi[opmNodeIndex];
+//             size_t riNodeIndex   = riNodeStartIndex + riCornerIndex;
+//
+//             auto& riNode = riNodes[riNodeIndex];
+//             riNode.x()   = opmX[opmNodeIndex] + xCenterCoordOpm;
+//             riNode.y()   = opmY[opmNodeIndex] + yCenterCoordOpm;
+//             riNode.z()   = -opmZ[opmNodeIndex];
+//
+//             cell.cornerIndices()[riCornerIndex] = riNodeIndex;
+//         }
+//
+//         if ( invalidateLongPyramidCells )
+//         {
+//             cell.setInvalid( cell.isLongPyramidCell() );
+//         }
+//     }
+//
+//     if ( riNodes.size() > 1 ) riNodes[riNodes.size() - 1] = riNodes[0];
+// }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMainGrid,
+                                                       Opm::EclIO::EGrid&  opmGrid,
                                                        RigActiveCellGrid*  activeGrid,
+                                                       RigGridBase*        localGrid,
                                                        RigEclipseCaseData* eclipseCaseData )
 {
-    int cellCount = opmMainGrid.totalActiveCells();
+    int    cellCount      = opmGrid.totalActiveCells();
+    size_t cellStartIndex = activeGrid->reservoirCells().size();
+    size_t nodeStartIndex = activeGrid->nodes().size();
+
+    const bool invalidateLongPyramidCells = invalidateLongThinCells();
 
     RigCell defaultCell;
-    defaultCell.setHostGrid( activeGrid );
+    defaultCell.setHostGrid( localGrid );
     for ( size_t i = 0; i < 8; i++ )
         defaultCell.cornerIndices()[i] = 0;
 
-    activeGrid->globalCellArray().resize( cellCount + 1, defaultCell );
-    activeGrid->globalCellArray()[cellCount].setInvalid( true );
-
-    activeGrid->nodes().resize( ( cellCount + 1 ) * 8, cvf::Vec3d( 0, 0, 0 ) );
+    const auto newCellCount = cellStartIndex + cellCount + 1;
+    activeGrid->reservoirCells().resize( newCellCount, defaultCell );
+    activeGrid->reservoirCells()[newCellCount - 1].setInvalid( true );
+    activeGrid->nodes().resize( (newCellCount)*8, cvf::Vec3d( 0, 0, 0 ) );
 
     auto& riNodes = activeGrid->nodes();
 
-    opmMainGrid.loadData();
-    opmMainGrid.load_grid_data();
+    opmGrid.loadData();
+    opmGrid.load_grid_data();
 
-    const bool  isRadialGrid      = opmMainGrid.is_radial();
-    const auto& activeMatIndexes  = opmMainGrid.active_indexes();
-    const auto& activeFracIndexes = opmMainGrid.active_frac_indexes();
+    const bool  isRadialGrid          = opmGrid.is_radial();
+    const auto& activeMatIndexes      = opmGrid.active_indexes();
+    const auto& activeFracIndexes     = opmGrid.active_frac_indexes();
+    const auto& gridDimension         = opmGrid.dimension();
+    const auto& hostCellGlobalIndices = opmGrid.hostCellsGlobalIndex();
 
     // Compute the center of the LGR radial grid cells for each K layer
-    auto radialGridCenterTopLayerOpm = isRadialGrid
-                                           ? RifOpmRadialGridTools::computeXyCenterForTopOfCells( opmMainGrid, opmMainGrid, activeGrid )
-                                           : std::map<int, std::pair<double, double>>();
-
-    const bool invalidateLongPyramidCells = invalidateLongThinCells();
+    auto radialGridCenterTopLayerOpm = isRadialGrid ? RifOpmRadialGridTools::computeXyCenterForTopOfCells( opmMainGrid, opmGrid, localGrid )
+                                                    : std::map<int, std::pair<double, double>>();
 
     // use same mapping as resdata
     const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 
 #pragma omp parallel for
-    for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( opmMainGrid.totalNumberOfCells() ); opmCellIndex++ )
+    for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( opmGrid.totalNumberOfCells() ); opmCellIndex++ )
     {
         if ( ( activeMatIndexes[opmCellIndex] < 0 ) && ( activeFracIndexes[opmCellIndex] < 0 ) ) continue;
 
-        auto opmIJK = opmMainGrid.ijk_from_global_index( opmCellIndex );
+        auto opmIJK = opmGrid.ijk_from_global_index( opmCellIndex );
 
         double xCenterCoordOpm = 0.0;
         double yCenterCoordOpm = 0.0;
@@ -205,19 +368,28 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
             yCenterCoordOpm                = yCenter;
         }
 
-        auto     riReservoirIndex = activeGrid->cellIndexFromIJK( opmIJK[0], opmIJK[1], opmIJK[2] );
-        RigCell& cell             = activeGrid->globalCellArray()[riReservoirIndex];
-        cell.setGridLocalCellIndex( riReservoirIndex );
-        cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );
+        auto     nativeIndex = activeGrid->cellIndexFromIJK( opmIJK[0], opmIJK[1], opmIJK[2] );
+        RigCell& cell        = activeGrid->nativeCell( cellStartIndex + nativeIndex );
+        cell.setGridLocalCellIndex( nativeIndex );
+
+        // parent cell index
+        if ( ( hostCellGlobalIndices.size() > (size_t)opmCellIndex ) && hostCellGlobalIndices[opmCellIndex] >= 0 )
+        {
+            cell.setParentCellIndex( hostCellGlobalIndices[opmCellIndex] );
+        }
+        else
+        {
+            cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );
+        }
 
         // corner coordinates
         std::array<double, 8> opmX{};
         std::array<double, 8> opmY{};
         std::array<double, 8> opmZ{};
-        opmMainGrid.getCellCorners( opmCellIndex, opmX, opmY, opmZ );
+        opmGrid.getCellCorners( opmCellIndex, opmX, opmY, opmZ );
 
-        // Each cell has 8 nodes, use reservoir cell index and multiply to find first node index for cell
-        auto riNodeStartIndex = riReservoirIndex * 8;
+        // Each cell has 8 nodes, use active cell index and multiply to find first node index for cell
+        auto riNodeStartIndex = nodeStartIndex + nativeIndex * 8;
 
         for ( size_t opmNodeIndex = 0; opmNodeIndex < 8; opmNodeIndex++ )
         {
@@ -230,6 +402,22 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
             riNode.z()   = -opmZ[opmNodeIndex];
 
             cell.cornerIndices()[riCornerIndex] = riNodeIndex;
+
+            // First grid dimension is radius, check if cell are at the outer-most slice
+            if ( isRadialGrid && !hostCellGlobalIndices.empty() && ( gridDimension[0] - 1 == opmIJK[0] ) )
+            {
+                auto hostCellIndex = hostCellGlobalIndices[opmCellIndex];
+
+                RifOpmRadialGridTools::lockToHostPillars( riNode,
+                                                          opmMainGrid,
+                                                          opmGrid,
+                                                          opmIJK,
+                                                          hostCellIndex,
+                                                          opmCellIndex,
+                                                          opmNodeIndex,
+                                                          xCenterCoordOpm,
+                                                          yCenterCoordOpm );
+            }
         }
 
         if ( invalidateLongPyramidCells )
@@ -237,4 +425,6 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
             cell.setInvalid( cell.isLongPyramidCell() );
         }
     }
+
+    if ( riNodes.size() > 1 ) riNodes[riNodes.size() - 1] = riNodes[0];
 }
