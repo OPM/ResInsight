@@ -228,6 +228,15 @@ void RimSummaryCase::buildChildNodes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimSummaryCase::serialNumber()
+{
+    auto reader = summaryReader();
+    return reader ? reader->serialNumber() : -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCase::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     appendMenuItems( menuBuilder, true );
