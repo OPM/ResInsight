@@ -283,7 +283,7 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
         QString tooltipText = uiField()->isAutoValueEnabled() ? UiAppearanceSettings::globaleValueButtonText()
                                                               : UiAppearanceSettings::localValueButtonText();
         m_autoValueToolButton->setToolTip( tooltipText );
-        m_layout->addWidget(m_autoValueToolButton );
+        m_layout->addWidget( m_autoValueToolButton );
         m_autoValueToolButton->show();
     }
     else
