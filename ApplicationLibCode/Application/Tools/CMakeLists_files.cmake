@@ -53,6 +53,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaFileLogger.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaProjectBackupTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaQuantityInfoTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaHashTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES

@@ -20,6 +20,7 @@
 
 #include "RiaColorTools.h"
 #include "RiaGuiApplication.h"
+#include "RiaHashTools.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaResultNames.h"
@@ -116,6 +117,7 @@ CAF_PDM_SOURCE_INIT( RimEnsembleCurveSet, "RimEnsembleCurveSet" );
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet::RimEnsembleCurveSet()
     : filterChanged( this )
+    , m_hash( 0 )
 
 {
     CAF_PDM_InitObject( "Ensemble Curve Set", ":/EnsembleCurveSet16x16.png" );
@@ -1664,26 +1666,38 @@ void RimEnsembleCurveSet::appendOptionItemsForSummaryAddresses( QList<caf::PdmOp
 {
     if ( !summaryCaseGroup ) return;
 
-    std::set<RifEclipseSummaryAddress> addrSet;
-    for ( RimSummaryCase* summaryCase : summaryCaseGroup->allSummaryCases() )
+    auto allSummaryCases = summaryCaseGroup->allSummaryCases();
+    auto hash            = RiaHashTools::hash( allSummaryCases );
+    if ( hash != m_hash )
     {
-        RifSummaryReaderInterface*                reader = summaryCase->summaryReader();
-        const std::set<RifEclipseSummaryAddress>& addrs  = reader ? reader->allResultAddresses() : std::set<RifEclipseSummaryAddress>();
+        m_hash = hash;
 
-        for ( auto& addr : addrs )
+        std::set<RifEclipseSummaryAddress> addressesForEnsemble;
+        for ( RimSummaryCase* summaryCase : allSummaryCases )
         {
-            addrSet.insert( addr );
+            if ( !summaryCase ) continue;
+
+            if ( auto reader = summaryCase->summaryReader() )
+            {
+                const auto& addrs = reader->allResultAddresses();
+                addressesForEnsemble.insert( addrs.begin(), addrs.end() );
+            }
         }
+
+        m_cachedAddressOptions.clear();
+
+        for ( const auto& addr : addressesForEnsemble )
+        {
+            std::string name = addr.uiText();
+            QString     s    = QString::fromStdString( name );
+            m_cachedAddressOptions.push_back( caf::PdmOptionItemInfo( s, QVariant::fromValue( addr ) ) );
+        }
+
+        m_cachedAddressOptions.push_front(
+            caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(), QVariant::fromValue( RifEclipseSummaryAddress() ) ) );
     }
 
-    for ( auto& addr : addrSet )
-    {
-        std::string name = addr.uiText();
-        QString     s    = QString::fromStdString( name );
-        options->push_back( caf::PdmOptionItemInfo( s, QVariant::fromValue( addr ) ) );
-    }
-
-    options->push_front( caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(), QVariant::fromValue( RifEclipseSummaryAddress() ) ) );
+    options->append( m_cachedAddressOptions );
 }
 
 //--------------------------------------------------------------------------------------------------

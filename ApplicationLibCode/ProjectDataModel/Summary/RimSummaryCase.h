@@ -18,6 +18,9 @@
 #pragma once
 
 #include "RiaDefines.h"
+
+#include "RiaHashTools.h"
+
 #include "RigCaseRealizationParameters.h"
 
 #include "RimCaseDisplayNameTools.h"
@@ -105,6 +108,7 @@ protected:
 
 private:
     void buildChildNodes();
+    int  serialNumber();
 
 protected:
     caf::PdmField<QString>         m_displayName;
@@ -123,4 +127,25 @@ protected:
     caf::PdmField<bool> m_useAutoShortName_OBSOLETE;
 
     static const QString DEFAULT_DISPLAY_NAME;
+
+    friend struct std::hash<RimSummaryCase*>;
+};
+
+// Custom specialization of std::hash injected in namespace std
+// NB! Note that this is a specialization of std::hash for a pointer type
+template <>
+struct std::hash<RimSummaryCase*>
+{
+    std::size_t operator()( RimSummaryCase* s ) const noexcept
+    {
+        if ( !s ) return 0;
+
+        auto serialNumber = s->serialNumber();
+        if ( serialNumber != -1 )
+        {
+            return RiaHashTools::hash( serialNumber );
+        }
+
+        return RiaHashTools::hash( s->summaryHeaderFilename().toStdString() );
+    }
 };
