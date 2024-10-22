@@ -172,7 +172,7 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
                                                                       : UiAppearanceSettings::localValueButtonText();
                 m_autoValueToolButton->setToolTip( tooltipText );
 
-                m_layout->insertWidget( 1, m_autoValueToolButton );
+                m_layout->addWidget( m_autoValueToolButton );
                 m_autoValueToolButton->show();
             }
             else
