@@ -105,16 +105,16 @@ void RicSummaryPlotEditorWidgetCreator::recursivelyConfigureAndUpdateTopLevelUiO
 
     caf::PdmUiGroup* appearanceGroup = findGroupByKeyword( topLevelUiItems, RiuSummaryCurveDefinitionKeywords::appearance(), uiConfigName );
     auto             appearanceGroupBox = createGroupBoxWithContent( appearanceGroup, uiConfigName );
-    m_lowerLeftLayout->insertWidget( 0, appearanceGroupBox );
+    m_lowerLeftLayout->addWidget( appearanceGroupBox );
 
     caf::PdmUiGroup* nameConfigGroup = findGroupByKeyword( topLevelUiItems, RiuSummaryCurveDefinitionKeywords::nameConfig(), uiConfigName );
     auto             nameConfigGroupBox = createGroupBoxWithContent( nameConfigGroup, uiConfigName );
-    m_lowerLeftLayout->insertWidget( 1, nameConfigGroupBox );
+    m_lowerLeftLayout->addWidget( nameConfigGroupBox );
 
     QMinimizePanel* curveGroup = getOrCreateCurveTreeGroup();
-    m_lowerLeftLayout->insertWidget( 2, curveGroup, 1 );
+    m_lowerLeftLayout->addWidget( curveGroup, 1 );
     m_lowerLeftLayout->addStretch( 0 );
-    m_lowerRightLayout->insertWidget( 0, getOrCreatePlotWidget() );
+    m_lowerRightLayout->addWidget( getOrCreatePlotWidget() );
 
     // Fields at bottom of dialog
     configureAndUpdateFields( 1, m_bottomFieldLayout, topLevelUiItems, uiConfigName );
@@ -155,8 +155,8 @@ QWidget* RicSummaryPlotEditorWidgetCreator::createWidget( QWidget* parent )
     m_firstColumnSplitter->setHandleWidth( 6 );
     m_firstColumnSplitter->setStyleSheet( "QSplitter::handle { image: url(:/SplitterH.png); }" );
 
-    m_firstColumnSplitter->insertWidget( 0, firstRowFrame );
-    m_firstColumnSplitter->insertWidget( 1, secondRowFrame );
+    m_firstColumnSplitter->addWidget( firstRowFrame );
+    m_firstColumnSplitter->addWidget( secondRowFrame );
 
     const int firstRowPixelHeight  = 500;
     const int secondRowPixelHeight = 300;
