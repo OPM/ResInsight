@@ -45,7 +45,8 @@ public:
     size_t         cellCount() const override;
 
 private:
-    std::vector<size_t> m_globalToActiveMap;
-    std::vector<size_t> m_activeToGlobalMap;
-    RigCell             m_invalidCell;
+    std::vector<size_t>      m_globalToActiveMap;
+    std::vector<size_t>      m_activeToGlobalMap;
+    RigCell                  m_invalidCell;
+    std::map<size_t, size_t> m_cells;
 };
