@@ -180,7 +180,7 @@ public:
 
     void appendColorGroup( caf::PdmUiOrdering& uiOrdering );
 
-    static void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options, RimSummaryEnsemble* summaryCaseGroup );
+    void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options, RimSummaryEnsemble* summaryCaseGroup );
 
     const RimEnsembleCurveFilterCollection* curveFilters() const;
 
@@ -317,4 +317,7 @@ private:
 
     bool m_disableStatisticCurves;
     bool m_isCurveSetFiltered;
+
+    QList<caf::PdmOptionItemInfo> m_cachedAddressOptions;
+    size_t                        m_hash;
 };

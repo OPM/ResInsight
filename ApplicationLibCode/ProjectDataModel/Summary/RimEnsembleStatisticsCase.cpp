@@ -20,6 +20,7 @@
 
 #include "RiaCurveMerger.h"
 #include "RiaSummaryTools.h"
+#include "RiaHashTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 
 #include "RigStatisticsMath.h"
@@ -129,6 +130,11 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
                                            const RifEclipseSummaryAddress&     inputAddress,
                                            bool                                includeIncompleteCurves )
 {
+    auto hash = RiaHashTools::hash( summaryCases, inputAddress.toEclipseTextAddress(), includeIncompleteCurves );
+    if ( hash == m_hash ) return;
+
+    m_hash = hash;
+
     clearData();
 
     if ( !inputAddress.isValid() ) return;
