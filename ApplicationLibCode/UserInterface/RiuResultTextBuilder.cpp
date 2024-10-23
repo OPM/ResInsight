@@ -96,7 +96,7 @@ RiuResultTextBuilder::RiuResultTextBuilder( RimGridView*                settings
         RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();
         RigMainGrid*        mainGrid = caseData->mainGrid();
 
-        const RigCell& cell = caseData->mainGrid()->globalCellArray()[reservoirCellIndex];
+        const RigCell& cell = caseData->mainGrid()->cell( reservoirCellIndex );
 
         for ( size_t i = 0; i < mainGrid->gridCount(); i++ )
         {
@@ -922,8 +922,8 @@ QString RiuResultTextBuilder::nncDetails()
 
                     // First cell of NNC
                     {
-                        CVF_ASSERT( conn.c1GlobIdx() < grid->globalCellArray().size() );
-                        const RigCell& cell = grid->globalCellArray()[conn.c1GlobIdx()];
+                        CVF_ASSERT( conn.c1GlobIdx() < grid->totalCellCount() );
+                        const RigCell& cell = grid->cell( conn.c1GlobIdx() );
 
                         RigGridBase* hostGrid           = cell.hostGrid();
                         size_t       gridLocalCellIndex = cell.gridLocalCellIndex();
@@ -944,8 +944,8 @@ QString RiuResultTextBuilder::nncDetails()
 
                     // Second cell of NNC
                     {
-                        CVF_ASSERT( conn.c2GlobIdx() < grid->globalCellArray().size() );
-                        const RigCell& cell = grid->globalCellArray()[conn.c2GlobIdx()];
+                        CVF_ASSERT( conn.c2GlobIdx() < grid->totalCellCount() );
+                        const RigCell& cell = grid->cell( conn.c2GlobIdx() );
 
                         RigGridBase* hostGrid           = cell.hostGrid();
                         size_t       gridLocalCellIndex = cell.gridLocalCellIndex();

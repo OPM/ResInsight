@@ -66,7 +66,7 @@ bool RivEclipseIntersectionGrid::useCell( size_t cellIndex ) const
 
     if ( m_intervalTool.isNumberIncluded( k ) )
     {
-        const RigCell& cell = m_mainGrid->globalCellArray()[cellIndex];
+        const RigCell& cell = m_mainGrid->cell( cellIndex );
         if ( m_showInactiveCells )
             return !cell.isInvalid() && ( cell.subGrid() == nullptr );
         else
@@ -88,7 +88,7 @@ void RivEclipseIntersectionGrid::cellCornerVertices( size_t cellIndex, cvf::Vec3
 //--------------------------------------------------------------------------------------------------
 void RivEclipseIntersectionGrid::cellCornerIndices( size_t cellIndex, size_t cornerIndices[8] ) const
 {
-    const std::array<size_t, 8>& cornerIndicesSource = m_mainGrid->globalCellArray()[cellIndex].cornerIndices();
+    const std::array<size_t, 8>& cornerIndicesSource = m_mainGrid->cell( cellIndex ).cornerIndices();
 
     for ( size_t i = 0; i < 8; i++ )
     {

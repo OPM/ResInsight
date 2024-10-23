@@ -316,19 +316,18 @@ std::vector<size_t> RigWellTargetCandidatesGenerator::findCandidates( const RimE
             cvf::StructGridInterface::FaceType::NEG_K,
         };
 
-        size_t resultIndex = resultsData->activeCellInfo()->cellResultIndex( cellIdx );
+        size_t         resultIndex              = resultsData->activeCellInfo()->cellResultIndex( cellIdx );
+        const RigCell& nativeCell               = eclipseCase.mainGrid()->cell( cellIdx );
+        RigGridBase*   grid                     = nativeCell.hostGrid();
+        size_t         gridLocalNativeCellIndex = nativeCell.gridLocalCellIndex();
+
+        size_t i, j, k;
+
+        grid->ijkFromCellIndex( gridLocalNativeCellIndex, &i, &j, &k );
 
         for ( cvf::StructGridInterface::FaceType face : faces )
         {
-            const RigCell& nativeCell = eclipseCase.mainGrid()->globalCellArray()[cellIdx];
-            RigGridBase*   grid       = nativeCell.hostGrid();
-
-            size_t gridLocalNativeCellIndex = nativeCell.gridLocalCellIndex();
-
-            size_t i, j, k, gridLocalNeighborCellIdx;
-
-            grid->ijkFromCellIndex( gridLocalNativeCellIndex, &i, &j, &k );
-
+            size_t gridLocalNeighborCellIdx;
             if ( grid->cellIJKNeighbor( i, j, k, face, &gridLocalNeighborCellIdx ) )
             {
                 size_t neighborResvCellIdx = grid->reservoirCellIndex( gridLocalNeighborCellIdx );
