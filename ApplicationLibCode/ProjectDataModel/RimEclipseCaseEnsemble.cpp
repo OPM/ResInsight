@@ -22,6 +22,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
+#include "RimStatisticsContourMap.h"
 #include "RimWellTargetCandidatesGenerator.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -52,6 +53,8 @@ RimEclipseCaseEnsemble::RimEclipseCaseEnsemble()
     m_viewCollection = new RimEclipseViewCollection;
 
     CAF_PDM_InitFieldNoDefault( &m_wellTargetGenerators, "WellTargetGenerators", "Well Target Candidates Generators" );
+
+    CAF_PDM_InitFieldNoDefault( &m_statisticsContourMaps, "StatisticsContourMaps", "Statistics Contour maps" );
 
     setDeletable( true );
 }
@@ -173,6 +176,7 @@ void RimEclipseCaseEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBu
 {
     menuBuilder << "RicNewViewForGridEnsembleFeature";
     menuBuilder << "RicNewWellTargetCandidatesGeneratorFeature";
+    menuBuilder << "RicNewStatisticsContourMapFeature";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,4 +193,12 @@ RimEclipseViewCollection* RimEclipseCaseEnsemble::viewCollection() const
 void RimEclipseCaseEnsemble::addWellTargetsGenerator( RimWellTargetCandidatesGenerator* generator )
 {
     m_wellTargetGenerators.push_back( generator );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCaseEnsemble::addStatisticsContourMap( RimStatisticsContourMap* statisticsContourMap )
+{
+    m_statisticsContourMaps.push_back( statisticsContourMap );
 }
