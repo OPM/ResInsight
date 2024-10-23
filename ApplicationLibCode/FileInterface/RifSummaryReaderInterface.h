@@ -58,6 +58,8 @@ public:
     int serialNumber() const;
 
 protected:
+    void increaseSerialNumber();
+
     std::set<RifEclipseSummaryAddress> m_allResultAddresses; // Result and error addresses
     std::set<RifEclipseSummaryAddress> m_allErrorAddresses; // Error addresses
 

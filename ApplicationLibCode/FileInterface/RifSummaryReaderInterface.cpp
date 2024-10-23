@@ -69,10 +69,18 @@ int RifSummaryReaderInterface::serialNumber() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifSummaryReaderInterface::RifSummaryReaderInterface()
+void RifSummaryReaderInterface::increaseSerialNumber()
 {
 #pragma omp critical
     m_serialNumber = m_nextSerialNumber++;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifSummaryReaderInterface::RifSummaryReaderInterface()
+{
+    increaseSerialNumber();
 }
 
 //--------------------------------------------------------------------------------------------------
