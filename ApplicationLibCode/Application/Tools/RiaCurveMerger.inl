@@ -154,12 +154,14 @@ void RiaCurveMerger<XValueType>::computeInterpolatedValues( bool includeValuesFr
         std::vector<double>& curveValues = m_interpolatedValuesForAllCurves[curveIdx];
         curveValues.resize( dataValueCount );
 
-        for ( size_t valueIndex = 0; valueIndex < dataValueCount; valueIndex++ )
+#pragma omp parallel for
+        for ( int valueIndex = 0; valueIndex < static_cast<int>( dataValueCount ); valueIndex++ )
         {
             double interpolValue =
                 interpolatedYValue( m_allXValues[valueIndex], m_originalValues[curveIdx].first, m_originalValues[curveIdx].second );
             if ( !RiaCurveDataTools::isValidValue( interpolValue, false ) )
             {
+#pragma omp critical
                 accumulatedValidValues[valueIndex] = HUGE_VAL;
             }
 
@@ -235,11 +237,21 @@ double RiaCurveMerger<XValueType>::interpolatedYValue( const XValueType&        
                                                        const std::vector<XValueType>& xValues,
                                                        const std::vector<double>&     yValues )
 {
+    if ( xValues.empty() ) return HUGE_VAL;
     if ( yValues.size() != xValues.size() ) return HUGE_VAL;
 
     const bool removeInterpolatedValues = false;
 
-    for ( size_t firstI = 0; firstI < xValues.size(); firstI++ )
+    // Use lower_bound to find the first element that is not less than the interpolation value using a threshold that is larger than the
+    // threshold used in XComparator::equals
+    XValueType threshold = 1.0e-6 * xValues.back();
+    auto       it        = std::lower_bound( xValues.begin(), xValues.end(), interpolationXValue - threshold );
+    if ( it == xValues.end() ) return HUGE_VAL;
+
+    size_t startIndex = it - xValues.begin();
+    if ( startIndex > 0 ) startIndex--;
+
+    for ( size_t firstI = startIndex; firstI < xValues.size(); firstI++ )
     {
         if ( XComparator::equals( xValues.at( firstI ), interpolationXValue ) )
         {
