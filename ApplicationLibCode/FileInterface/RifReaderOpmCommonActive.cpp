@@ -99,15 +99,25 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
         localGrid->setGridPointDimensions( cvf::Vec3st( lgrDims[0] + 1, lgrDims[1] + 1, lgrDims[2] + 1 ) );
         localGrid->setGridId( lgrIdx + 1 );
         localGrid->setGridName( lgr_names[lgrIdx] );
-        localGrid->setIndexToGlobalStartOfCells( totalCellCount );
+        localGrid->setIndexToStartOfCells( totalCellCount );
         activeGrid->addLocalGrid( localGrid );
 
         totalCellCount += lgrGrids[lgrIdx].totalNumberOfCells();
         totalNativeCellCount += lgrGrids[lgrIdx].totalActiveCells() + 1;
     }
 
+    activeGrid->setTotalCellCount( totalCellCount );
+
     // active cell information
     {
+        RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+
+        activeCellInfo->setReservoirCellCount( totalCellCount );
+        fractureActiveCellInfo->setReservoirCellCount( totalCellCount );
+        activeCellInfo->setGridCount( 1 + numLGRs );
+        fractureActiveCellInfo->setGridCount( 1 + numLGRs );
+
         auto task = progInfo.task( "Getting Active Cell Information", 1 );
 
         for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
@@ -122,29 +132,28 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
             updateActiveCellInfo( eclipseCaseData, opmGrid, lgrGrids, activeGrid );
         }
 
-        size_t anInactiveCellIndex = activeGrid->transferActiveInformation( 0,
-                                                                            eclipseCaseData,
-                                                                            opmGrid.totalActiveCells(),
-                                                                            opmGrid.activeCells(),
-                                                                            opmGrid.activeFracCells(),
-                                                                            opmGrid.active_indexes(),
-                                                                            opmGrid.active_frac_indexes(),
-                                                                            0 );
+        globalMatrixActiveSize   = opmGrid.activeCells();
+        globalFractureActiveSize = opmGrid.activeFracCells();
+
+        activeCellInfo->setGridActiveCellCounts( 0, globalMatrixActiveSize );
+        fractureActiveCellInfo->setGridActiveCellCounts( 0, globalFractureActiveSize );
+
+        transferActiveCells( opmGrid, 0, eclipseCaseData, 0, 0 );
+        size_t cellCount = opmGrid.totalNumberOfCells();
 
         for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
         {
-            activeGrid->transferActiveInformation( lgrIdx + 1,
-                                                   eclipseCaseData,
-                                                   lgrGrids[lgrIdx].totalActiveCells(),
-                                                   lgrGrids[lgrIdx].activeCells(),
-                                                   lgrGrids[lgrIdx].activeFracCells(),
-                                                   lgrGrids[lgrIdx].active_indexes(),
-                                                   lgrGrids[lgrIdx].active_frac_indexes(),
-                                                   anInactiveCellIndex );
+            auto& lgrGrid = lgrGrids[lgrIdx];
+            transferActiveCells( lgrGrid, cellCount, eclipseCaseData, globalMatrixActiveSize, globalFractureActiveSize );
+            cellCount += lgrGrid.totalNumberOfCells();
+            globalMatrixActiveSize += lgrGrid.activeCells();
+            globalFractureActiveSize += lgrGrid.activeFracCells();
+            activeCellInfo->setGridActiveCellCounts( lgrIdx + 1, lgrGrid.activeCells() );
+            fractureActiveCellInfo->setGridActiveCellCounts( lgrIdx + 1, lgrGrid.activeFracCells() );
         }
 
-        eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeDerivedData();
-        eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL )->computeDerivedData();
+        activeCellInfo->computeDerivedData();
+        fractureActiveCellInfo->computeDerivedData();
     }
 
     // grid geometry
@@ -158,7 +167,7 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
 
         bool hasParentInfo = ( lgr_parent_names.size() >= (size_t)numLGRs );
 
-        auto task = progInfo.task( "Loading Active Cell LGR Grid Geometry ", 1 );
+        auto task2 = progInfo.task( "Loading Active Cell LGR Grid Geometry ", 1 );
 
         for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
         {
@@ -328,12 +337,11 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
     for ( size_t i = 0; i < 8; i++ )
         defaultCell.cornerIndices()[i] = 0;
 
-    const auto newCellCount = cellStartIndex + cellCount + 1;
-    activeGrid->reservoirCells().resize( newCellCount, defaultCell );
-    activeGrid->reservoirCells()[newCellCount - 1].setInvalid( true );
-    activeGrid->nodes().resize( (newCellCount)*8, cvf::Vec3d( 0, 0, 0 ) );
+    const auto newNodeCount = nodeStartIndex + 8 * cellCount;
+    activeGrid->nodes().resize( newNodeCount, cvf::Vec3d( 0, 0, 0 ) );
 
     auto& riNodes = activeGrid->nodes();
+    auto& riCells = activeGrid->nativeCells();
 
     opmGrid.loadData();
     opmGrid.load_grid_data();
@@ -350,6 +358,20 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
 
     // use same mapping as resdata
     const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
+
+    std::map<int, int> activeCellMap;
+    int                nativeIdx = 0;
+
+    // non-parallell loop to set up and initialize things so that we can run in parallell later
+    for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( opmGrid.totalNumberOfCells() ); opmCellIndex++ )
+    {
+        if ( ( activeMatIndexes[opmCellIndex] < 0 ) && ( activeFracIndexes[opmCellIndex] < 0 ) ) continue;
+
+        auto opmIJK                          = opmGrid.ijk_from_global_index( opmCellIndex );
+        auto localIndex                      = localGrid->cellIndexFromIJK( opmIJK[0], opmIJK[1], opmIJK[2] );
+        riCells[cellStartIndex + localIndex] = defaultCell;
+        activeCellMap[opmCellIndex]          = nativeIdx++;
+    }
 
 #pragma omp parallel for
     for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( opmGrid.totalNumberOfCells() ); opmCellIndex++ )
@@ -368,9 +390,9 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
             yCenterCoordOpm                = yCenter;
         }
 
-        auto     nativeIndex = activeGrid->cellIndexFromIJK( opmIJK[0], opmIJK[1], opmIJK[2] );
-        RigCell& cell        = activeGrid->nativeCell( cellStartIndex + nativeIndex );
-        cell.setGridLocalCellIndex( nativeIndex );
+        auto     localIndex = localGrid->cellIndexFromIJK( opmIJK[0], opmIJK[1], opmIJK[2] );
+        RigCell& cell       = riCells[cellStartIndex + localIndex];
+        cell.setGridLocalCellIndex( localIndex );
 
         // parent cell index
         if ( ( hostCellGlobalIndices.size() > (size_t)opmCellIndex ) && hostCellGlobalIndices[opmCellIndex] >= 0 )
@@ -389,7 +411,8 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
         opmGrid.getCellCorners( opmCellIndex, opmX, opmY, opmZ );
 
         // Each cell has 8 nodes, use active cell index and multiply to find first node index for cell
-        auto riNodeStartIndex = nodeStartIndex + nativeIndex * 8;
+        auto localNodeIndex   = activeCellMap[opmCellIndex] * 8;
+        auto riNodeStartIndex = nodeStartIndex + localNodeIndex;
 
         for ( size_t opmNodeIndex = 0; opmNodeIndex < 8; opmNodeIndex++ )
         {
@@ -425,6 +448,4 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
             cell.setInvalid( cell.isLongPyramidCell() );
         }
     }
-
-    if ( riNodes.size() > 1 ) riNodes[riNodes.size() - 1] = riNodes[0];
 }

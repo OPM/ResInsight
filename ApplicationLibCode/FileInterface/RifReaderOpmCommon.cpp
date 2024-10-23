@@ -197,7 +197,7 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
     activeCellInfo->setReservoirCellCount( totalCellCount );
     fractureActiveCellInfo->setReservoirCellCount( totalCellCount );
 
-    mainGrid->globalCellArray().reserve( (size_t)totalCellCount );
+    mainGrid->reservoirCells().reserve( (size_t)totalCellCount );
     mainGrid->nodes().reserve( (size_t)totalCellCount * 8 );
 
     activeCellInfo->setGridCount( 1 + numLGRs );
@@ -411,7 +411,7 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
                                            RigEclipseCaseData* eclipseCaseData )
 {
     int    cellCount      = opmGrid.totalNumberOfCells();
-    size_t cellStartIndex = mainGrid->globalCellArray().size();
+    size_t cellStartIndex = mainGrid->reservoirCells().size();
     size_t nodeStartIndex = mainGrid->nodes().size();
 
     const bool invalidateLongPyramidCells = invalidateLongThinCells();
@@ -419,7 +419,7 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
     RigCell defaultCell;
     defaultCell.setHostGrid( localGrid );
 
-    mainGrid->globalCellArray().resize( cellStartIndex + cellCount, defaultCell );
+    mainGrid->reservoirCells().resize( cellStartIndex + cellCount, defaultCell );
 
     mainGrid->nodes().resize( nodeStartIndex + cellCount * 8, cvf::Vec3d( 0, 0, 0 ) );
 
@@ -456,7 +456,7 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
         }
 
         auto     riReservoirIndex = localGrid->cellIndexFromIJK( opmIJK[0], opmIJK[1], opmIJK[2] );
-        RigCell& cell             = mainGrid->globalCellArray()[cellStartIndex + riReservoirIndex];
+        RigCell& cell             = mainGrid->cell( cellStartIndex + riReservoirIndex );
         cell.setGridLocalCellIndex( riReservoirIndex );
 
         // parent cell index

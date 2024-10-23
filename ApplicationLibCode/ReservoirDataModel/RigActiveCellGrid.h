@@ -28,25 +28,35 @@ public:
     RigActiveCellGrid();
     ~RigActiveCellGrid() override;
 
-    void transferActiveInformation( RigEclipseCaseData*     eclipseCaseData,
-                                    size_t                  totalActiveCells,
-                                    size_t                  matrixActiveCells,
-                                    size_t                  fractureActiveCells,
-                                    const std::vector<int>& activeMatrixIndexes,
-                                    const std::vector<int>& activeFracIndexes );
+    // size_t transferActiveInformation( int                     gridIndex,
+    //                                   RigEclipseCaseData*     eclipseCaseData,
+    //                                   size_t                  totalActiveCells,
+    //                                   size_t                  matrixActiveCells,
+    //                                   size_t                  fractureActiveCells,
+    //                                   const std::vector<int>& activeMatrixIndexes,
+    //                                   const std::vector<int>& activeFracIndexes,
+    //                                   size_t                  inactiveCellIndex );
 
-    size_t cellIndexFromIJK( size_t i, size_t j, size_t k ) const override;
-    size_t cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const override;
-    bool   ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const override;
-    void   ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const override;
+    // size_t cellIndexFromIJK( size_t i, size_t j, size_t k ) const override;
+    // size_t cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const override;
+    // bool   ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const override;
+    // void   ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const override;
 
     RigCell&       cell( size_t gridLocalCellIndex ) override;
     const RigCell& cell( size_t gridLocalCellIndex ) const override;
-    size_t         cellCount() const override;
+    // size_t         cellCount() const override;
+
+    size_t totalCellCount() const override;
+
+public: // only for use by file readers!
+    std::map<size_t, RigCell>&       nativeCells();
+    const std::map<size_t, RigCell>& nativeCells() const;
+    void                             setTotalCellCount( size_t totalCellCount );
 
 private:
-    std::vector<size_t>      m_globalToActiveMap;
-    std::vector<size_t>      m_activeToGlobalMap;
-    RigCell                  m_invalidCell;
-    std::map<size_t, size_t> m_cells;
+    // std::vector<size_t>       m_globalToNativeMap;
+    // std::vector<size_t>       m_nativeToGlobalMap;
+    size_t                    m_totalCellCount;
+    RigCell                   m_invalidCell;
+    std::map<size_t, RigCell> m_nativeCells;
 };

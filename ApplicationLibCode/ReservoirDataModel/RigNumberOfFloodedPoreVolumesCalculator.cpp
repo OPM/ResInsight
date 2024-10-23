@@ -330,11 +330,11 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow( RigMa
 {
     RigActiveCellInfo* actCellInfo = caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-    for ( size_t globalCellIndex = 0; globalCellIndex < mainGrid->globalCellArray().size(); globalCellIndex++ )
+    for ( size_t globalCellIndex = 0; globalCellIndex < mainGrid->totalCellCount(); globalCellIndex++ )
     {
         if ( !actCellInfo->isActive( globalCellIndex ) ) continue;
 
-        const RigCell& cell               = mainGrid->globalCellArray()[globalCellIndex];
+        const RigCell& cell               = mainGrid->cell( globalCellIndex );
         RigGridBase*   hostGrid           = cell.hostGrid();
         size_t         gridLocalCellIndex = cell.gridLocalCellIndex();
 

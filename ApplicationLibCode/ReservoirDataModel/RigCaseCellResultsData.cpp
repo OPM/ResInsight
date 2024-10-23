@@ -514,7 +514,7 @@ bool RigCaseCellResultsData::isUsingGlobalActiveIndex( const RigEclipseResultAdd
     if ( m_cellScalarResults[scalarResultIndex].empty() ) return true;
 
     size_t firstTimeStepResultValueCount = m_cellScalarResults[scalarResultIndex][0].size();
-    return firstTimeStepResultValueCount != m_ownerMainGrid->globalCellArray().size();
+    return firstTimeStepResultValueCount != m_ownerMainGrid->totalCellCount();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1895,9 +1895,9 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
     }
 
 #pragma omp parallel for
-    for ( long cellIdx = 0; cellIdx < static_cast<long>( m_ownerMainGrid->globalCellArray().size() ); cellIdx++ )
+    for ( long cellIdx = 0; cellIdx < static_cast<long>( m_ownerMainGrid->totalCellCount() ); cellIdx++ )
     {
-        const RigCell& cell = m_ownerMainGrid->globalCellArray()[cellIdx];
+        const RigCell& cell = m_ownerMainGrid->cell( cellIdx );
 
         size_t resultIndex = activeCellInfo()->cellResultIndex( cellIdx );
         if ( resultIndex == cvf::UNDEFINED_SIZE_T ) continue;
@@ -2160,14 +2160,14 @@ void RigCaseCellResultsData::computeRiTransComponent( const QString& riTransComp
     const std::vector<cvf::Vec3d>& nodes                 = m_ownerMainGrid->nodes();
     bool                           isFaceNormalsOutwards = m_ownerMainGrid->isFaceNormalsOutwards();
 
-    for ( size_t nativeResvCellIndex = 0; nativeResvCellIndex < m_ownerMainGrid->globalCellArray().size(); nativeResvCellIndex++ )
+    for ( size_t nativeResvCellIndex = 0; nativeResvCellIndex < m_ownerMainGrid->totalCellCount(); nativeResvCellIndex++ )
     {
         // Do nothing if we are only dealing with active cells, and this cell is not active:
         size_t tranResIdx = ( *riTranIdxFunc )( activeCellInfo, nativeResvCellIndex );
 
         if ( tranResIdx == cvf::UNDEFINED_SIZE_T ) continue;
 
-        const RigCell& nativeCell = m_ownerMainGrid->globalCellArray()[nativeResvCellIndex];
+        const RigCell& nativeCell = m_ownerMainGrid->cell( nativeResvCellIndex );
         RigGridBase*   grid       = nativeCell.hostGrid();
 
         size_t gridLocalNativeCellIndex = nativeCell.gridLocalCellIndex();
@@ -2179,7 +2179,7 @@ void RigCaseCellResultsData::computeRiTransComponent( const QString& riTransComp
         if ( grid->cellIJKNeighbor( i, j, k, faceId, &gridLocalNeighborCellIdx ) )
         {
             size_t         neighborResvCellIdx = grid->reservoirCellIndex( gridLocalNeighborCellIdx );
-            const RigCell& neighborCell        = m_ownerMainGrid->globalCellArray()[neighborResvCellIdx];
+            const RigCell& neighborCell        = m_ownerMainGrid->cell( neighborResvCellIdx );
 
             // Do nothing if neighbor cell has no results
             size_t neighborCellPermResIdx = ( *permIdxFunc )( activeCellInfo, neighborResvCellIdx );
@@ -2351,8 +2351,8 @@ void RigCaseCellResultsData::computeNncCombRiTrans()
         size_t neighborCellPermResIdx = ( *permIdxFunc )( activeCellInfo, neighborResvCellIdx );
         if ( neighborCellPermResIdx == cvf::UNDEFINED_SIZE_T ) continue;
 
-        const RigCell& nativeCell   = m_ownerMainGrid->globalCellArray()[nativeResvCellIndex];
-        const RigCell& neighborCell = m_ownerMainGrid->globalCellArray()[neighborResvCellIdx];
+        const RigCell& nativeCell   = m_ownerMainGrid->cell( nativeResvCellIndex );
+        const RigCell& neighborCell = m_ownerMainGrid->cell( neighborResvCellIdx );
 
         // Connection geometry
 
@@ -2595,14 +2595,14 @@ void RigCaseCellResultsData::computeRiTRANSbyAreaComponent( const QString& riTra
     const RigActiveCellInfo*       activeCellInfo = this->activeCellInfo();
     const std::vector<cvf::Vec3d>& nodes          = m_ownerMainGrid->nodes();
 
-    for ( size_t nativeResvCellIndex = 0; nativeResvCellIndex < m_ownerMainGrid->globalCellArray().size(); nativeResvCellIndex++ )
+    for ( size_t nativeResvCellIndex = 0; nativeResvCellIndex < m_ownerMainGrid->totalCellCount(); nativeResvCellIndex++ )
     {
         // Do nothing if we are only dealing with active cells, and this cell is not active:
         size_t nativeCellResValIdx = ( *resValIdxFunc )( activeCellInfo, nativeResvCellIndex );
 
         if ( nativeCellResValIdx == cvf::UNDEFINED_SIZE_T ) continue;
 
-        const RigCell& nativeCell = m_ownerMainGrid->globalCellArray()[nativeResvCellIndex];
+        const RigCell& nativeCell = m_ownerMainGrid->cell( nativeResvCellIndex );
         RigGridBase*   grid       = nativeCell.hostGrid();
 
         size_t gridLocalNativeCellIndex = nativeCell.gridLocalCellIndex();
@@ -2614,7 +2614,7 @@ void RigCaseCellResultsData::computeRiTRANSbyAreaComponent( const QString& riTra
         if ( grid->cellIJKNeighbor( i, j, k, faceId, &gridLocalNeighborCellIdx ) )
         {
             size_t         neighborResvCellIdx = grid->reservoirCellIndex( gridLocalNeighborCellIdx );
-            const RigCell& neighborCell        = m_ownerMainGrid->globalCellArray()[neighborResvCellIdx];
+            const RigCell& neighborCell        = m_ownerMainGrid->cell( neighborResvCellIdx );
 
             // Connection geometry
 
@@ -2690,7 +2690,7 @@ void RigCaseCellResultsData::computeCompletionTypeForTimeStep( size_t timeStep )
 
     std::vector<double>& completionTypeResult = m_cellScalarResults[completionTypeResultIndex][timeStep];
 
-    size_t resultValues = m_ownerMainGrid->globalCellArray().size();
+    size_t resultValues = m_ownerMainGrid->totalCellCount();
 
     if ( completionTypeResult.size() == resultValues )
     {
@@ -2831,7 +2831,7 @@ void RigCaseCellResultsData::setActiveFormationNames( RigFormationNames* activeF
         return;
     }
 
-    size_t totalGlobCellCount = m_ownerMainGrid->globalCellArray().size();
+    size_t totalGlobCellCount = m_ownerMainGrid->totalCellCount();
     addStaticScalarResult( RiaDefines::ResultCatType::FORMATION_NAMES, RiaResultNames::activeFormationNamesResultName(), false, totalGlobCellCount );
 
     std::vector<double>* fnData = modifiableCellScalarResult( RigEclipseResultAddress( RiaDefines::ResultCatType::FORMATION_NAMES,
@@ -2867,7 +2867,7 @@ void RigCaseCellResultsData::setActiveFormationNames( RigFormationNames* activeF
 
         for ( size_t cIdx = localCellCount; cIdx < totalGlobCellCount; ++cIdx )
         {
-            size_t mgrdCellIdx = m_ownerMainGrid->globalCellArray()[cIdx].mainGridCellIndex();
+            size_t mgrdCellIdx = m_ownerMainGrid->cell( cIdx ).mainGridCellIndex();
 
             size_t i( cvf::UNDEFINED_SIZE_T ), j( cvf::UNDEFINED_SIZE_T ), k( cvf::UNDEFINED_SIZE_T );
 

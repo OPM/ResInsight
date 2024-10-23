@@ -203,11 +203,11 @@ public:
         {
             quint64 valueIndex = 0;
 
-            for ( size_t reservoirCellIndex = 0; reservoirCellIndex < mainGrid->globalCellArray().size(); reservoirCellIndex++ )
+            for ( size_t reservoirCellIndex = 0; reservoirCellIndex < mainGrid->totalCellCount(); reservoirCellIndex++ )
             {
                 if ( !actCellInfo->isActive( reservoirCellIndex ) ) continue;
 
-                cvf::Vec3d center = mainGrid->globalCellArray()[reservoirCellIndex].center();
+                cvf::Vec3d center = mainGrid->cell( reservoirCellIndex ).center();
 
                 convertVec3dToPositiveDepth( &center );
 
@@ -377,7 +377,7 @@ public:
 
                 quint64 valueIndex = 0;
 
-                for ( size_t reservoirCellIndex = 0; reservoirCellIndex < mainGrid->globalCellArray().size(); reservoirCellIndex++ )
+                for ( size_t reservoirCellIndex = 0; reservoirCellIndex < mainGrid->totalCellCount(); reservoirCellIndex++ )
                 {
                     if ( !actCellInfo->isActive( reservoirCellIndex ) ) continue;
 
