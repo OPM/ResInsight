@@ -19,8 +19,8 @@
 #include "RimEnsembleStatisticsCase.h"
 
 #include "RiaCurveMerger.h"
-#include "RiaSummaryTools.h"
 #include "RiaHashTools.h"
+#include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 
 #include "RigStatisticsMath.h"
