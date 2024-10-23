@@ -37,6 +37,8 @@ class QDateTime;
 class RifSummaryReaderInterface : public cvf::Object
 {
 public:
+    RifSummaryReaderInterface();
+
     bool hasAddress( const RifEclipseSummaryAddress& resultAddress ) const;
 
     const std::set<RifEclipseSummaryAddress>& allResultAddresses() const;
@@ -53,7 +55,13 @@ public:
 
     virtual void buildMetaData();
 
+    int serialNumber() const;
+
 protected:
     std::set<RifEclipseSummaryAddress> m_allResultAddresses; // Result and error addresses
     std::set<RifEclipseSummaryAddress> m_allErrorAddresses; // Error addresses
+
+private:
+    static int m_nextSerialNumber;
+    int        m_serialNumber;
 };

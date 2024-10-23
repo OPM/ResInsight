@@ -64,4 +64,5 @@ private:
     std::vector<double> m_meanData;
 
     caf::PdmPointer<RimSummaryCase> m_firstSummaryCase;
+    size_t                          m_hash = 0;
 };
