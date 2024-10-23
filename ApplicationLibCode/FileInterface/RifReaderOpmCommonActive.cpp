@@ -25,6 +25,7 @@
 
 #include "RigActiveCellGrid.h"
 #include "RigActiveCellInfo.h"
+#include "RigActiveCellLocalGrid.h"
 #include "RigEclipseCaseData.h"
 
 #include "cafProgressInfo.h"
@@ -93,7 +94,7 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
     for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
     {
         lgrGrids.emplace_back( Opm::EclIO::EGrid( m_gridFileName, lgr_names[lgrIdx] ) );
-        RigLocalGrid* localGrid = new RigLocalGrid( activeGrid );
+        RigActiveCellLocalGrid* localGrid = new RigActiveCellLocalGrid( activeGrid );
 
         const auto& lgrDims = lgrGrids[lgrIdx].dimension();
         localGrid->setGridPointDimensions( cvf::Vec3st( lgrDims[0] + 1, lgrDims[1] + 1, lgrDims[2] + 1 ) );
@@ -179,7 +180,7 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
 
             RigGridBase* parentGrid = hasParentInfo ? activeGrid->gridByName( lgr_parent_names[lgrIdx] ) : activeGrid;
 
-            RigLocalGrid* localGrid = static_cast<RigLocalGrid*>( activeGrid->gridById( lgrIdx + 1 ) );
+            RigActiveCellLocalGrid* localGrid = static_cast<RigActiveCellLocalGrid*>( activeGrid->gridById( lgrIdx + 1 ) );
             localGrid->setParentGrid( parentGrid );
 
             transferActiveGeometry( opmGrid, lgrGrids[lgrIdx], activeGrid, localGrid, eclipseCaseData );
