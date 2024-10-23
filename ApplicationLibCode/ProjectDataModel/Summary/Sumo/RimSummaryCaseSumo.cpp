@@ -124,6 +124,8 @@ void RimSummaryCaseSumo::setValues( const std::vector<time_t>&      timeSteps,
 {
     m_timeSteps             = timeSteps;
     m_values[resultAddress] = values;
+
+    increaseSerialNumber();
 }
 
 //--------------------------------------------------------------------------------------------------
