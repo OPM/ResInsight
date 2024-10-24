@@ -136,9 +136,26 @@ QStringList RiaTextStringTools::splitSkipEmptyParts( const QString& text, const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QStringList RiaTextStringTools::splitSkipEmptyParts( const QString& text, const QRegularExpression& regularExpression )
+{
+    bool skipEmptyParts = true;
+    return splitString( text, regularExpression, skipEmptyParts );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QStringList RiaTextStringTools::splitString( const QString& text, const QString& sep, bool skipEmptyParts )
 {
     return text.split( sep, skipEmptyParts ? Qt::SkipEmptyParts : Qt::KeepEmptyParts, Qt::CaseInsensitive );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RiaTextStringTools::splitString( const QString& text, const QRegularExpression& regularExpression, bool skipEmptyParts )
+{
+    return text.split( regularExpression, skipEmptyParts ? Qt::SkipEmptyParts : Qt::KeepEmptyParts );
 }
 
 //--------------------------------------------------------------------------------------------------
