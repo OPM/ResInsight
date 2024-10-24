@@ -563,6 +563,9 @@ set(QT_LIBRARIES
 )
 qt_standard_project_setup()
 
+# Disable use of foreach
+add_definitions(-DQT_NO_FOREACH)
+
 # Open GL
 find_package(OpenGL)
 

@@ -161,7 +161,7 @@ RifWellPathImporter::WellData RifWellPathImporter::readJsonWellData( const QStri
     wellData.m_wellPathGeometry->setDatumElevation( datumElevation );
     wellData.m_name = jsonMap["name"].toString();
 
-    foreach ( QVariant point, pathList )
+    for ( const QVariant& point : pathList )
     {
         QMap<QString, QVariant> coordinateMap = point.toMap();
         cvf::Vec3d              vec3d( coordinateMap["east"].toDouble(),
