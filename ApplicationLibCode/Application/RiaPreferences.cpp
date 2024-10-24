@@ -47,7 +47,6 @@
 #include <QDate>
 #include <QDir>
 #include <QLocale>
-#include <QRegExp>
 #include <QStandardPaths>
 #include <QValidator>
 

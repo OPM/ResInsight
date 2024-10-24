@@ -121,11 +121,12 @@ void RiaSummaryStringTools::splitUsingDataSourceNames( const QStringList& filter
 
         bool foundDataSource = false;
 
-        QRegExp searcher( pureDataSourceCandidate, Qt::CaseInsensitive, QRegExp::WildcardUnix );
+        QString            regexPattern = QRegularExpression::wildcardToRegularExpression( pureDataSourceCandidate );
+        QRegularExpression searcher( regexPattern, QRegularExpression::CaseInsensitiveOption );
 
         for ( const auto& ds : dataSourceNames )
         {
-            if ( !foundDataSource && searcher.exactMatch( ds ) )
+            if ( !foundDataSource && searcher.match( ds ).hasMatch() )
             {
                 dataSourceFilters.push_back( s );
                 foundDataSource = true;

@@ -41,8 +41,10 @@ bool RiaValidRegExpValidator::isValidCharacter( const QChar& character )
 //--------------------------------------------------------------------------------------------------
 QValidator::State RiaValidRegExpValidator::validate( QString& inputString, int& position ) const
 {
-    QRegExp inputRe( inputString, Qt::CaseInsensitive, QRegExp::Wildcard );
-    if ( inputRe.isValid() ) // A valid wildcard pattern is always acceptable
+    QString            regexPattern = QRegularExpression::wildcardToRegularExpression( inputString );
+    QRegularExpression regex( regexPattern, QRegularExpression::CaseInsensitiveOption );
+
+    if ( regex.isValid() )
     {
         return QValidator::Acceptable;
     }

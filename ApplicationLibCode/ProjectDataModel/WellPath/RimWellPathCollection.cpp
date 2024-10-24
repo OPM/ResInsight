@@ -943,13 +943,14 @@ std::map<QString, std::vector<RimWellPath*>>
 {
     std::map<QString, std::vector<RimWellPath*>> rootWells;
 
-    QString multiLateralWellPathPattern = RiaPreferences::current()->multiLateralWellNamePattern();
-    QRegExp re( multiLateralWellPathPattern, Qt::CaseInsensitive, QRegExp::Wildcard );
+    QString            multiLateralWellPathPattern = RiaPreferences::current()->multiLateralWellNamePattern();
+    QString            regexPattern                = QRegularExpression::wildcardToRegularExpression( multiLateralWellPathPattern );
+    QRegularExpression re( regexPattern, QRegularExpression::CaseInsensitiveOption );
 
     for ( auto wellPath : sourceWellPaths )
     {
         QString name = wellPath->name();
-        if ( re.exactMatch( name ) )
+        if ( re.match( name ).hasMatch() )
         {
             int indexOfLateralStart = name.indexOf( 'Y' );
             if ( indexOfLateralStart > 0 )
