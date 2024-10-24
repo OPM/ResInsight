@@ -1170,7 +1170,7 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues( QString& prefixText
                 // Always use segment end MD values for segment data, as the curve is plotted as step left
                 return RimRftTools::segmentEndMdValues( opmRftReader, m_wellName(), m_timeStep, segmentBranchIndex(), m_segmentBranchType() );
             }
-            
+
             return RimRftTools::segmentConnectionMdValues( opmRftReader, m_wellName(), m_timeStep, segmentBranchIndex(), m_segmentBranchType() );
         }
 
