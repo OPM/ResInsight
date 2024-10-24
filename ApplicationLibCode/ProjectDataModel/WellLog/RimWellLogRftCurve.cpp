@@ -1130,12 +1130,12 @@ std::vector<double> RimWellLogRftCurve::tvDepthValues()
 
     if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
     {
-        if ( RiaDefines::isSegmentConnectionResult( m_segmentResultName ) )
+        if ( RiaDefines::isSegmentResult( m_segmentResultName ) )
 
         {
             depthAddress = RifEclipseRftAddress::createBranchSegmentAddress( m_wellName(),
                                                                              m_timeStep,
-                                                                             RiaDefines::segmentConnectionTvdDepthResultName(),
+                                                                             RiaDefines::segmentTvdDepthResultName(),
                                                                              segmentBranchIndex(),
                                                                              m_segmentBranchType() );
         }
@@ -1143,7 +1143,7 @@ std::vector<double> RimWellLogRftCurve::tvDepthValues()
         {
             depthAddress = RifEclipseRftAddress::createBranchSegmentAddress( m_wellName(),
                                                                              m_timeStep,
-                                                                             RiaDefines::segmentTvdDepthResultName(),
+                                                                             RiaDefines::segmentConnectionTvdDepthResultName(),
                                                                              segmentBranchIndex(),
                                                                              m_segmentBranchType() );
         }
@@ -1165,13 +1165,13 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues( QString& prefixText
         {
             prefixText = "SEGMENT/";
 
-            if ( RiaDefines::isSegmentConnectionResult( m_segmentResultName() ) )
+            if ( RiaDefines::isSegmentResult( m_segmentResultName() ) )
             {
-                return RimRftTools::segmentConnectionMdValues( opmRftReader, m_wellName(), m_timeStep, segmentBranchIndex(), m_segmentBranchType() );
+                // Always use segment end MD values for segment data, as the curve is plotted as step left
+                return RimRftTools::segmentEndMdValues( opmRftReader, m_wellName(), m_timeStep, segmentBranchIndex(), m_segmentBranchType() );
             }
 
-            // Always use segment end MD values for segment data, as the curve is plotted as step left
-            return RimRftTools::segmentEndMdValues( opmRftReader, m_wellName(), m_timeStep, segmentBranchIndex(), m_segmentBranchType() );
+            return RimRftTools::segmentConnectionMdValues( opmRftReader, m_wellName(), m_timeStep, segmentBranchIndex(), m_segmentBranchType() );
         }
 
         return {};
