@@ -88,7 +88,7 @@ QValidator::State PdmUniqueIdValidator::validate( QString& currentString, int& )
 
     if ( m_usedIds.find( currentValue ) != m_usedIds.end() )
     {
-        foreach ( QWidget* widget, QApplication::topLevelWidgets() )
+        for ( QWidget* widget : QApplication::topLevelWidgets() )
         {
             if ( widget->inherits( "QMainWindow" ) )
             {

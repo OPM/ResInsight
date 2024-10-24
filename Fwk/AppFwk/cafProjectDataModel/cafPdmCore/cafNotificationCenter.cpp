@@ -72,7 +72,7 @@ void NotificationCenter::notifyObserversOfDataChange( caf::PdmObjectHandle* item
 {
     CAF_ASSERT( itemThatChanged );
 
-    foreach ( DataModelObserver* o, m_observers )
+    for ( DataModelObserver* o : m_observers )
     {
         o->handleModelNotification( itemThatChanged );
     }
@@ -83,7 +83,7 @@ void NotificationCenter::notifyObserversOfDataChange( caf::PdmObjectHandle* item
 //--------------------------------------------------------------------------------------------------
 void NotificationCenter::notifyObservers()
 {
-    foreach ( DataModelObserver* o, m_observers )
+    for ( DataModelObserver* o : m_observers )
     {
         o->handleModelNotification( nullptr );
     }
@@ -94,7 +94,7 @@ void NotificationCenter::notifyObservers()
 //--------------------------------------------------------------------------------------------------
 void NotificationCenter::notifyObserversOfSelectionChange()
 {
-    foreach ( DataModelObserver* o, m_observers )
+    for ( DataModelObserver* o : m_observers )
     {
         o->handleModelSelectionChange();
     }

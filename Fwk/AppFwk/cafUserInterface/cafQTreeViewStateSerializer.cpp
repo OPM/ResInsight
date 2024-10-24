@@ -107,7 +107,7 @@ QModelIndex caf::QTreeViewStateSerializer::getModelIndexFromString( QAbstractIte
 
     QModelIndex mi;
 
-    foreach ( QString modelIndexString, modelIndexStringList )
+    for ( const QString& modelIndexString : modelIndexStringList )
     {
         QStringList items = modelIndexString.split( " " );
 

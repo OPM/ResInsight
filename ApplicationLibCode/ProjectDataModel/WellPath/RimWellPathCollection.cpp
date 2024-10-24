@@ -397,7 +397,7 @@ std::vector<RimWellLogLasFile*> RimWellPathCollection::addWellLogs( const QStrin
 
     std::vector<RimWellLogLasFile*> logFileInfos;
 
-    foreach ( QString filePath, filePaths )
+    for ( const QString& filePath : filePaths )
     {
         QString            errorMessage;
         RimWellLogLasFile* logFileInfo = RimWellLogLasFile::readWellLogFile( filePath, &errorMessage );

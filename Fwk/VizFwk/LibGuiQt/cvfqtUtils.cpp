@@ -119,7 +119,7 @@ std::vector<cvf::String> Utils::toStringVector(const QStringList& stringList)
 {
     std::vector<cvf::String> strVec;
 
-    foreach (QString s, stringList)
+    for (const QString& s : stringList)
     {
         strVec.push_back(toString(s));
     }
@@ -136,7 +136,7 @@ QStringList Utils::toQStringList(const std::vector<cvf::String>& stringVector)
 {
     QStringList strList;
 
-    foreach (cvf::String s, stringVector)
+    for (const cvf::String& s : stringVector)
     {
         strList.push_back(toQString(s));
     }

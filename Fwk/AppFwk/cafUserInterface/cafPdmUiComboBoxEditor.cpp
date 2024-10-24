@@ -191,8 +191,8 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
                 m_nextItemButton->setToolTip( "Next" );
             }
 
-            m_layout->insertWidget( 1, m_previousItemButton );
-            m_layout->insertWidget( 2, m_nextItemButton );
+            m_layout->addWidget( m_previousItemButton );
+            m_layout->addWidget( m_nextItemButton );
 
             {
                 QIcon toolButtonIcon;
@@ -283,7 +283,7 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
         QString tooltipText = uiField()->isAutoValueEnabled() ? UiAppearanceSettings::globaleValueButtonText()
                                                               : UiAppearanceSettings::localValueButtonText();
         m_autoValueToolButton->setToolTip( tooltipText );
-        m_layout->insertWidget( 3, m_autoValueToolButton );
+        m_layout->addWidget( m_autoValueToolButton );
         m_autoValueToolButton->show();
     }
     else

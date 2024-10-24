@@ -194,7 +194,7 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object )
 
         CAF_ASSERT( propertyWidget );
 
-        this->m_placeHolderLayout->insertWidget( 0, propertyWidget );
+        this->m_placeHolderLayout->addWidget( propertyWidget );
 
         // Add stretch to make sure the property widget is not stretched
         this->m_placeHolderLayout->insertStretch( -1, 1 );

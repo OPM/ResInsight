@@ -32,7 +32,7 @@ std::map<QString, std::vector<RifPerforationInterval>> RifPerforationIntervalRea
 {
     std::map<QString, std::vector<RifPerforationInterval>> perforationIntervals;
 
-    foreach ( QString filePath, filePaths )
+    for ( const QString& filePath : filePaths )
     {
         readFileIntoMap( filePath, &perforationIntervals );
     }
