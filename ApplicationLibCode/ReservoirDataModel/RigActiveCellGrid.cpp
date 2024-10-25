@@ -25,11 +25,14 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigActiveCellGrid::RigActiveCellGrid()
+    : m_totalCellCount( 0 )
+    , m_totalActiveCellCount( 0 )
 {
     m_invalidCell.setInvalid( true );
     for ( size_t i = 0; i < 8; i++ )
         m_invalidCell.cornerIndices()[i] = 0;
     m_invalidCell.setHostGrid( this );
+    m_invalidCell.setSubGrid( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,4 +206,20 @@ size_t RigActiveCellGrid::totalCellCount() const
 void RigActiveCellGrid::setTotalCellCount( size_t totalCellCount )
 {
     m_totalCellCount = totalCellCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigActiveCellGrid::totalActiveCellCount() const
+{
+    return m_totalActiveCellCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigActiveCellGrid::setTotalActiveCellCount( size_t totalActiveCellCount )
+{
+    m_totalActiveCellCount = totalActiveCellCount;
 }

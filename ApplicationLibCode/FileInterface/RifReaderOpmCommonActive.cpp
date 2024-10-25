@@ -77,7 +77,7 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
         m_gridUnit = 3;
 
     auto totalCellCount           = opmGrid.totalNumberOfCells();
-    auto totalNativeCellCount     = opmGrid.totalActiveCells() + 1; // add one inactive cell used as placeholder for all inactive cells
+    auto totalActiveCellCount     = opmGrid.totalActiveCells();
     auto globalMatrixActiveSize   = opmGrid.activeCells();
     auto globalFractureActiveSize = opmGrid.activeFracCells();
 
@@ -104,10 +104,10 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
         activeGrid->addLocalGrid( localGrid );
 
         totalCellCount += lgrGrids[lgrIdx].totalNumberOfCells();
-        totalNativeCellCount += lgrGrids[lgrIdx].totalActiveCells() + 1;
+        totalActiveCellCount += lgrGrids[lgrIdx].totalActiveCells();
     }
 
-    activeGrid->setTotalCellCount( totalCellCount );
+    activeGrid->setTotalActiveCellCount( totalActiveCellCount );
 
     // active cell information
     {
@@ -180,10 +180,12 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
 
             RigGridBase* parentGrid = hasParentInfo ? activeGrid->gridByName( lgr_parent_names[lgrIdx] ) : activeGrid;
 
-            RigActiveCellLocalGrid* localGrid = static_cast<RigActiveCellLocalGrid*>( activeGrid->gridById( lgrIdx + 1 ) );
-            localGrid->setParentGrid( parentGrid );
-
-            transferActiveGeometry( opmGrid, lgrGrids[lgrIdx], activeGrid, localGrid, eclipseCaseData );
+            RigActiveCellLocalGrid* localGrid = dynamic_cast<RigActiveCellLocalGrid*>( activeGrid->gridById( lgrIdx + 1 ) );
+            if ( localGrid != nullptr )
+            {
+                localGrid->setParentGrid( parentGrid );
+                transferActiveGeometry( opmGrid, lgrGrids[lgrIdx], activeGrid, localGrid, eclipseCaseData );
+            }
         }
     }
 
@@ -328,7 +330,7 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
                                                        RigEclipseCaseData* eclipseCaseData )
 {
     int    cellCount      = opmGrid.totalActiveCells();
-    size_t cellStartIndex = activeGrid->reservoirCells().size();
+    size_t cellStartIndex = activeGrid->totalCellCount();
     size_t nodeStartIndex = activeGrid->nodes().size();
 
     const bool invalidateLongPyramidCells = invalidateLongThinCells();
@@ -340,6 +342,7 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
 
     const auto newNodeCount = nodeStartIndex + 8 * cellCount;
     activeGrid->nodes().resize( newNodeCount, cvf::Vec3d( 0, 0, 0 ) );
+    activeGrid->setTotalCellCount( cellStartIndex + opmGrid.totalNumberOfCells() );
 
     auto& riNodes = activeGrid->nodes();
     auto& riCells = activeGrid->nativeCells();

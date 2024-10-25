@@ -47,16 +47,19 @@ public:
     // size_t         cellCount() const override;
 
     size_t totalCellCount() const override;
+    size_t totalActiveCellCount() const;
 
 public: // only for use by file readers!
     std::map<size_t, RigCell>&       nativeCells();
     const std::map<size_t, RigCell>& nativeCells() const;
     void                             setTotalCellCount( size_t totalCellCount );
+    void                             setTotalActiveCellCount( size_t totalActiveCellCount );
 
 private:
     // std::vector<size_t>       m_globalToNativeMap;
     // std::vector<size_t>       m_nativeToGlobalMap;
     size_t                    m_totalCellCount;
+    size_t                    m_totalActiveCellCount;
     RigCell                   m_invalidCell;
     std::map<size_t, RigCell> m_nativeCells;
 };
