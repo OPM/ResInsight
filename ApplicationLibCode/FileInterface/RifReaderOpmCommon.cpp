@@ -147,9 +147,6 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
 
     Opm::EclIO::EGrid opmGrid( m_gridFileName );
 
-    RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
-
     const auto& dims = opmGrid.dimension();
     mainGrid->setGridPointDimensions( cvf::Vec3st( dims[0] + 1, dims[1] + 1, dims[2] + 1 ) );
     mainGrid->setGridName( "Main grid" );
@@ -184,26 +181,24 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
 
         const auto& lgrDims = lgrGrids[lgrIdx].dimension();
         localGrid->setGridPointDimensions( cvf::Vec3st( lgrDims[0] + 1, lgrDims[1] + 1, lgrDims[2] + 1 ) );
-
         localGrid->setGridId( lgrIdx + 1 );
         localGrid->setGridName( lgr_names[lgrIdx] );
-        mainGrid->addLocalGrid( localGrid );
-
         localGrid->setIndexToStartOfCells( totalCellCount );
+        mainGrid->addLocalGrid( localGrid );
 
         totalCellCount += lgrGrids[lgrIdx].totalNumberOfCells();
     }
 
-    activeCellInfo->setReservoirCellCount( totalCellCount );
-    fractureActiveCellInfo->setReservoirCellCount( totalCellCount );
-
-    mainGrid->reservoirCells().reserve( (size_t)totalCellCount );
-    mainGrid->nodes().reserve( (size_t)totalCellCount * 8 );
-
-    activeCellInfo->setGridCount( 1 + numLGRs );
-    fractureActiveCellInfo->setGridCount( 1 + numLGRs );
-
+    // active cell information
     {
+        RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+
+        activeCellInfo->setReservoirCellCount( totalCellCount );
+        fractureActiveCellInfo->setReservoirCellCount( totalCellCount );
+        activeCellInfo->setGridCount( 1 + numLGRs );
+        fractureActiveCellInfo->setGridCount( 1 + numLGRs );
+
         auto task = progInfo.task( "Getting Active Cell Information", 1 );
 
         for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
@@ -242,23 +237,24 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
         fractureActiveCellInfo->computeDerivedData();
     }
 
+    // grid geometry
     {
         auto task = progInfo.task( "Loading Main Grid Geometry", 1 );
         transferGeometry( opmGrid, opmGrid, mainGrid, mainGrid, eclipseCaseData );
-    }
 
-    bool hasParentInfo = ( lgr_parent_names.size() >= (size_t)numLGRs );
+        bool hasParentInfo = ( lgr_parent_names.size() >= (size_t)numLGRs );
 
-    auto task = progInfo.task( "Loading LGR Grid Geometry ", 1 );
+        auto task2 = progInfo.task( "Loading LGR Grid Geometry ", 1 );
 
-    for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
-    {
-        RigGridBase* parentGrid = hasParentInfo ? mainGrid->gridByName( lgr_parent_names[lgrIdx] ) : mainGrid;
+        for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
+        {
+            RigGridBase* parentGrid = hasParentInfo ? mainGrid->gridByName( lgr_parent_names[lgrIdx] ) : mainGrid;
 
-        RigLocalGrid* localGrid = static_cast<RigLocalGrid*>( mainGrid->gridById( lgrIdx + 1 ) );
-        localGrid->setParentGrid( parentGrid );
+            RigLocalGrid* localGrid = static_cast<RigLocalGrid*>( mainGrid->gridById( lgrIdx + 1 ) );
+            localGrid->setParentGrid( parentGrid );
 
-        transferGeometry( opmGrid, lgrGrids[lgrIdx], mainGrid, localGrid, eclipseCaseData );
+            transferGeometry( opmGrid, lgrGrids[lgrIdx], mainGrid, localGrid, eclipseCaseData );
+        }
     }
 
     mainGrid->initAllSubGridsParentGridPointer();

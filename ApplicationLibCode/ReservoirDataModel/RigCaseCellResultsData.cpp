@@ -1898,6 +1898,7 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
     for ( long cellIdx = 0; cellIdx < static_cast<long>( m_ownerMainGrid->totalCellCount() ); cellIdx++ )
     {
         const RigCell& cell = m_ownerMainGrid->cell( cellIdx );
+        if ( cell.isInvalid() ) continue;
 
         size_t resultIndex = activeCellInfo()->cellResultIndex( cellIdx );
         if ( resultIndex == cvf::UNDEFINED_SIZE_T ) continue;
