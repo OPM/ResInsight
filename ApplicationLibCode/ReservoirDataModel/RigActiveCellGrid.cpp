@@ -29,10 +29,13 @@ RigActiveCellGrid::RigActiveCellGrid()
     , m_totalActiveCellCount( 0 )
 {
     m_invalidCell.setInvalid( true );
-    for ( size_t i = 0; i < 8; i++ )
-        m_invalidCell.cornerIndices()[i] = 0;
     m_invalidCell.setHostGrid( this );
     m_invalidCell.setSubGrid( nullptr );
+
+    for ( size_t i = 0; i < 8; i++ )
+    {
+        m_invalidCell.cornerIndices()[i] = 0;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -41,122 +44,6 @@ RigActiveCellGrid::RigActiveCellGrid()
 RigActiveCellGrid::~RigActiveCellGrid()
 {
 }
-
-////--------------------------------------------------------------------------------------------------
-/////
-////--------------------------------------------------------------------------------------------------
-// size_t RigActiveCellGrid::transferActiveInformation( int                     gridIndex,
-//                                                      RigEclipseCaseData*     eclipseCaseData,
-//                                                      size_t                  totalActiveCells,
-//                                                      size_t                  matrixActiveCells,
-//                                                      size_t                  fractureActiveCells,
-//                                                      const std::vector<int>& activeMatrixIndexes,
-//                                                      const std::vector<int>& activeFracIndexes,
-//                                                      size_t                  inactiveCellIndex )
-//{
-//     if ( gridIndex == 0 )
-//     {
-//         m_globalToNativeMap.clear();
-//         inactiveCellIndex = 0;
-//     }
-//
-//     const auto totalCells = activeMatrixIndexes.size();
-//
-//     const auto cellStartIndex = m_globalToNativeMap.size();
-//
-//     m_globalToNativeMap.resize( cellStartIndex + totalCells );
-//     size_t activeCells       = cellStartIndex;
-//     size_t anInactiveCellIdx = inactiveCellIndex;
-//
-//     for ( size_t i = 0; i < totalCells; i++ )
-//     {
-//         const auto globalCellIndex = cellStartIndex + i;
-//         if ( ( activeMatrixIndexes[i] < 0 ) && ( activeFracIndexes[i] < 0 ) )
-//         {
-//             m_globalToNativeMap[globalCellIndex] = totalActiveCells;
-//             anInactiveCellIdx                    = globalCellIndex;
-//             continue;
-//         }
-//         m_nativeToGlobalMap.push_back( globalCellIndex );
-//         m_globalToNativeMap[i] = activeCells++;
-//     }
-//     m_nativeToGlobalMap.push_back( anInactiveCellIdx );
-//
-//     RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-//     RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
-//
-//     activeCellInfo->setReservoirCellCount( activeCellInfo->reservoirCellCount() + totalActiveCells + 1 );
-//     fractureActiveCellInfo->setReservoirCellCount( fractureActiveCellInfo->reservoirCellCount() + totalActiveCells + 1 );
-//
-//     activeCellInfo->setGridCount( gridIndex + 1 );
-//     fractureActiveCellInfo->setGridCount( gridIndex + 1 );
-//
-//     activeCellInfo->setGridActiveCellCounts( gridIndex, matrixActiveCells );
-//     fractureActiveCellInfo->setGridActiveCellCounts( gridIndex, fractureActiveCells );
-//
-//     // TODO - update indexes here
-//
-// #pragma omp parallel for
-//     for ( int opmCellIndex = 0; opmCellIndex < (int)totalCells; opmCellIndex++ )
-//     {
-//         auto activeCellIndex = m_globalToNativeMap[cellStartIndex + opmCellIndex];
-//
-//         // active cell index
-//         int matrixActiveIndex = activeMatrixIndexes[opmCellIndex];
-//         if ( matrixActiveIndex != -1 )
-//         {
-//             activeCellInfo->setCellResultIndex( activeCellIndex, matrixActiveIndex );
-//         }
-//
-//         int fractureActiveIndex = activeFracIndexes[opmCellIndex];
-//         if ( fractureActiveIndex != -1 )
-//         {
-//             fractureActiveCellInfo->setCellResultIndex( activeCellIndex, fractureActiveIndex );
-//         }
-//     }
-//
-//     return anInactiveCellIdx;
-// }
-
-////--------------------------------------------------------------------------------------------------
-/////
-////--------------------------------------------------------------------------------------------------
-// size_t RigActiveCellGrid::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
-//{
-//     auto index = RigGridBase::cellIndexFromIJK( i, j, k );
-//     return m_globalToActiveMap[index];
-// }
-//
-////--------------------------------------------------------------------------------------------------
-/////
-////--------------------------------------------------------------------------------------------------
-// size_t RigActiveCellGrid::cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const
-//{
-//     auto index = RigGridBase::cellIndexFromIJKUnguarded( i, j, k );
-//     return m_globalToActiveMap[index];
-// }
-//
-////--------------------------------------------------------------------------------------------------
-/////
-////--------------------------------------------------------------------------------------------------
-// bool RigActiveCellGrid::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const
-//{
-//     if ( cellIndex >= m_activeToGlobalMap.size() )
-//     {
-//         return false;
-//     }
-//     auto index = m_activeToGlobalMap[cellIndex];
-//     return RigGridBase::ijkFromCellIndex( index, i, j, k );
-// }
-//
-////--------------------------------------------------------------------------------------------------
-/////
-////--------------------------------------------------------------------------------------------------
-// void RigActiveCellGrid::ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const
-//{
-//     auto index = m_activeToGlobalMap[cellIndex];
-//     RigGridBase::ijkFromCellIndexUnguarded( index, i, j, k );
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///

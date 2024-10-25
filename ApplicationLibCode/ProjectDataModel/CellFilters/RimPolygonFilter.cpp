@@ -505,7 +505,7 @@ void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& 
     {
         for ( size_t j = 0; j < grid->cellCountJ(); j++ )
         {
-            size_t         cellIdx = grid->cellIndexFromIJK( i, j, K );
+            size_t         cellIdx = grid->cellIndexFromIJKUnguarded( i, j, K );
             const RigCell& cell    = grid->cell( cellIdx );
             // valid cell?
             if ( cell.isInvalid() ) continue;

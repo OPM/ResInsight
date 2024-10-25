@@ -305,25 +305,27 @@ std::vector<size_t> RigWellTargetCandidatesGenerator::findCandidates( const RimE
     std::vector<size_t> candidates;
     auto                resultsData = eclipseCase.results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
+    const std::vector<cvf::StructGridInterface::FaceType> faces = {
+        cvf::StructGridInterface::FaceType::POS_I,
+        cvf::StructGridInterface::FaceType::NEG_I,
+        cvf::StructGridInterface::FaceType::POS_J,
+        cvf::StructGridInterface::FaceType::NEG_J,
+        cvf::StructGridInterface::FaceType::POS_K,
+        cvf::StructGridInterface::FaceType::NEG_K,
+    };
+
     for ( size_t cellIdx : previousCells )
     {
-        std::vector<cvf::StructGridInterface::FaceType> faces = {
-            cvf::StructGridInterface::FaceType::POS_I,
-            cvf::StructGridInterface::FaceType::NEG_I,
-            cvf::StructGridInterface::FaceType::POS_J,
-            cvf::StructGridInterface::FaceType::NEG_J,
-            cvf::StructGridInterface::FaceType::POS_K,
-            cvf::StructGridInterface::FaceType::NEG_K,
-        };
+        const RigCell& cell = eclipseCase.mainGrid()->cell( cellIdx );
+        if ( cell.isInvalid() ) continue;
 
-        size_t         resultIndex              = resultsData->activeCellInfo()->cellResultIndex( cellIdx );
-        const RigCell& nativeCell               = eclipseCase.mainGrid()->cell( cellIdx );
-        RigGridBase*   grid                     = nativeCell.hostGrid();
-        size_t         gridLocalNativeCellIndex = nativeCell.gridLocalCellIndex();
+        RigGridBase* grid               = cell.hostGrid();
+        size_t       gridLocalCellIndex = cell.gridLocalCellIndex();
+        size_t       resultIndex        = resultsData->activeCellInfo()->cellResultIndex( cellIdx );
 
         size_t i, j, k;
 
-        grid->ijkFromCellIndex( gridLocalNativeCellIndex, &i, &j, &k );
+        grid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
 
         for ( cvf::StructGridInterface::FaceType face : faces )
         {
