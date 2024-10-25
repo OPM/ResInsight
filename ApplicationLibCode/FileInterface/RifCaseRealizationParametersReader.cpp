@@ -121,7 +121,7 @@ void RifCaseRealizationParametersReader::parse()
         QString line = dataStream.readLine();
 
         lineNo++;
-        QStringList cols = RifFileParseTools::splitLineAndTrim( line, QRegExp( "[ \t]" ), true );
+        QStringList cols = RifFileParseTools::splitLineAndTrim( line, QRegularExpression( "[ \t]" ), true );
 
         if ( cols.size() != 2 )
         {
@@ -289,19 +289,18 @@ int RifCaseRealizationParametersFileLocator::realizationNumber( const QString& m
 
     int resultIndex = -1;
 
-    // Use parenthesis to indicate capture of sub string
-    QString pattern = "(realization-\\d+)";
+    QRegularExpression      pattern( "realization-(\\d+)", QRegularExpression::CaseInsensitiveOption );
+    QRegularExpressionMatch match = pattern.match( absolutePath );
 
-    QRegExp regexp( pattern, Qt::CaseInsensitive );
-    if ( regexp.indexIn( absolutePath ) )
+    if ( match.hasMatch() )
     {
-        QString tempText = regexp.cap( 1 );
+        QString tempText = match.captured( 1 );
 
-        QRegExp rx( "(\\d+)" ); // Find number
-        int     digitPos = rx.indexIn( tempText );
-        if ( digitPos > -1 )
+        QRegularExpression      rx( "(\\d+)" );
+        QRegularExpressionMatch digitMatch = rx.match( tempText );
+        if ( digitMatch.hasMatch() )
         {
-            resultIndex = rx.cap( 0 ).toInt();
+            resultIndex = digitMatch.captured( 1 ).toInt();
         }
     }
 
