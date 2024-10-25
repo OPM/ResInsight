@@ -146,12 +146,11 @@ OpenGLWidget::~OpenGLWidget()
 
     if (m_initializationState == IS_INITIALIZED)
     {
-        // Make sure we disconnect from the aboutToBeDestroyed signal since after this destructor has been 
-        // called, our object is dangling and the call to the slot will cause a crash
-        QOpenGLContext* myQtOpenGLContext = context();
-        if (myQtOpenGLContext)
+        if (QOpenGLContext* myQtOpenGLContext = context())
         {
-            disconnect(myQtOpenGLContext, &QOpenGLContext::aboutToBeDestroyed, this, &OpenGLWidget::qtOpenGLContextAboutToBeDestroyed);
+            // Make sure we disconnect from the all signals since after this destructor has been 
+            // called, our object is dangling and the call to any of the slots will cause a crash
+            myQtOpenGLContext->disconnect();
         }
     }
 
