@@ -113,7 +113,16 @@ public:
     bool isDualPorosity() const;
     void setDualPorosity( bool enable );
 
-public: // only for use by file readers!
+protected: // only for use by file readers and internal services. TODO: replace with a better API
+    friend class RigGridBase;
+    friend class RigReservoirBuilder;
+    friend class RifRoffFileTools;
+    friend class RifEclipseOutputFileTools;
+    friend class RifReaderEclipseOutput;
+    friend class RifReaderOpmCommon;
+    friend class RiaGrpcCaseService;
+    friend class RiaActiveCellInfoStateHandler;
+    friend class RicCreateTemporaryLgrFeature;
     std::vector<RigCell>&       reservoirCells();
     const std::vector<RigCell>& reservoirCells() const;
 
