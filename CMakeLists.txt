@@ -550,7 +550,6 @@ find_package(
   Network
   Widgets
   Charts
-  Core5Compat
 )
 set(QT_LIBRARIES
     Qt6::Core
@@ -559,7 +558,6 @@ set(QT_LIBRARIES
     Qt6::Network
     Qt6::Widgets
     Qt6::Charts
-    Qt6::Core5Compat
 )
 qt_standard_project_setup()
 
