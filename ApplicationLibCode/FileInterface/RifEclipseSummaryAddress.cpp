@@ -189,8 +189,7 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddressParseEr
 
     if ( tokens.size() > 1 )
     {
-        auto firstToken = RiaStdStringTools::trimString( tokens[0] );
-        firstToken      = RiaStdStringTools::toUpper( firstToken );
+        auto firstToken = RiaStdStringTools::toUpper( RiaStdStringTools::trimString( tokens[0] ) );
 
         if ( ( firstToken == "ER" ) || ( firstToken == "ERR" ) || ( firstToken == "ERROR" ) )
         {
