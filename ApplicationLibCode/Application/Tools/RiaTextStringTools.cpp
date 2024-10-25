@@ -158,7 +158,6 @@ QStringList RiaTextStringTools::splitString( const QString& text, const QRegular
     return text.split( regularExpression, skipEmptyParts ? Qt::SkipEmptyParts : Qt::KeepEmptyParts );
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -206,7 +205,6 @@ bool RiaTextStringTools::isNumber( const QString& text, const QString& decimalPo
 
     return RiaStdStringTools::isNumber( stdString, decimalChar );
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
