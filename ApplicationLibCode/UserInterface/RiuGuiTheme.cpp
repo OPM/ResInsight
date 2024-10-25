@@ -57,8 +57,8 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
                  "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
         []( QRegularExpressionMatch& match )
         {
-            QRegExp plotNameRegExp( match.captured( "plotName" ) );
-            QRegExp itemNameRegExp( match.captured( "itemName" ) );
+            QRegularExpression plotNameRegExp( match.captured( "plotName" ) );
+            QRegularExpression itemNameRegExp( match.captured( "itemName" ) );
 
             QRegularExpression lineColorRegExp( "line-color:\\s*([#0-9a-zA-Z]+)" );
             QString            lineColor = lineColorRegExp.match( match.captured( "properties" ) ).captured( 1 );
@@ -84,13 +84,13 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
             {
                 for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
                 {
-                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) )
+                    if ( plotNameRegExp.match( plotWidget->property( "qss-class" ).toString() ).hasMatch() )
                     {
                         for ( QwtPlotItem* item : plotWidget->itemList() )
                         {
                             if ( QwtPlotCurve* curve = dynamic_cast<QwtPlotCurve*>( item ) )
                             {
-                                if ( itemNameRegExp.exactMatch( item->title().text() ) || match.captured( "itemName" ) == "*" )
+                                if ( itemNameRegExp.match( item->title().text() ).hasMatch() || match.captured( "itemName" ) == "*" )
                                 {
                                     QPen pen = curve->pen();
                                     pen.setColor( QColor( lineColor ) );
@@ -117,8 +117,8 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
                  "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
         []( QRegularExpressionMatch& match )
         {
-            QRegExp            plotNameRegExp( match.captured( "plotName" ) );
-            QRegExp            itemNameRegExp( match.captured( "itemName" ) );
+            QRegularExpression plotNameRegExp( match.captured( "plotName" ) );
+            QRegularExpression itemNameRegExp( match.captured( "itemName" ) );
             QRegularExpression colorRegExp( "color:\\s*([#0-9a-zA-Z]+)" );
             QString            color           = colorRegExp.match( match.captured( "properties" ) ).captured( 1 );
             const QWidgetList  topLevelWidgets = QApplication::topLevelWidgets();
@@ -131,13 +131,14 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
             {
                 for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
                 {
-                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) || match.captured( "plotName" ) == "*" )
+                    if ( plotNameRegExp.match( plotWidget->property( "qss-class" ).toString() ).hasMatch() ||
+                         match.captured( "plotName" ) == "*" )
                     {
                         for ( QwtPlotItem* item : plotWidget->itemList() )
                         {
                             if ( QwtPlotGrid* grid = dynamic_cast<QwtPlotGrid*>( item ) )
                             {
-                                if ( itemNameRegExp.exactMatch( item->title().text() ) || match.captured( "itemName" ) == "*" )
+                                if ( itemNameRegExp.match( item->title().text() ).hasMatch() || match.captured( "itemName" ) == "*" )
                                 {
                                     QPen pen = grid->majorPen();
                                     pen.setColor( QColor( color ) );
@@ -155,8 +156,8 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
                  "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
         []( QRegularExpressionMatch& match )
         {
-            QRegExp            plotNameRegExp( match.captured( "plotName" ) );
-            QRegExp            itemNameRegExp( match.captured( "itemName" ) );
+            QRegularExpression plotNameRegExp( match.captured( "plotName" ) );
+            QRegularExpression itemNameRegExp( match.captured( "itemName" ) );
             QRegularExpression colorRegExp( "text-color:\\s*([#0-9a-zA-Z]+)" );
             QString            color           = colorRegExp.match( match.captured( "properties" ) ).captured( 1 );
             const QWidgetList  topLevelWidgets = QApplication::topLevelWidgets();
@@ -169,7 +170,8 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
             {
                 for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
                 {
-                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) || match.captured( "plotName" ) == "*" )
+                    if ( plotNameRegExp.match( plotWidget->property( "qss-class" ).toString() ).hasMatch() ||
+                         match.captured( "plotName" ) == "*" )
                     {
                         for ( QwtLegendLabel* label : plotWidget->findChildren<QwtLegendLabel*>() )
                         {
@@ -189,8 +191,8 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
                  "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
         []( QRegularExpressionMatch& match )
         {
-            QRegExp            plotNameRegExp( match.captured( "plotName" ) );
-            QRegExp            itemNameRegExp( match.captured( "itemName" ) );
+            QRegularExpression plotNameRegExp( match.captured( "plotName" ) );
+            QRegularExpression itemNameRegExp( match.captured( "itemName" ) );
             QRegularExpression colorRegExp( "color:\\s*([#0-9a-zA-Z]+)" );
             QString            color = colorRegExp.match( match.captured( "properties" ) ).captured( 1 );
             QRegularExpression textColorRegExp( "text-color:\\s*([#0-9a-zA-Z]+)" );
@@ -214,7 +216,8 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
             {
                 for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
                 {
-                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) || match.captured( "plotName" ) == "*" )
+                    if ( plotNameRegExp.match( plotWidget->property( "qss-class" ).toString() ).hasMatch() ||
+                         match.captured( "plotName" ) == "*" )
                     {
                         for ( QwtPlotItem* item : plotWidget->itemList() )
                         {
@@ -222,7 +225,7 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
                             {
                                 if ( marker->symbol() == nullptr || marker->symbol()->style() == QwtSymbol::NoSymbol )
                                 {
-                                    if ( itemNameRegExp.exactMatch( item->title().text() ) || match.captured( "itemName" ) == "*" )
+                                    if ( itemNameRegExp.match( item->title().text() ).hasMatch() || match.captured( "itemName" ) == "*" )
                                     {
                                         QPen pen = marker->linePen();
                                         pen.setColor( QColor( color ) );
@@ -243,8 +246,8 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
                  "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
         []( QRegularExpressionMatch& match )
         {
-            QRegExp            plotNameRegExp( match.captured( "plotName" ) );
-            QRegExp            itemNameRegExp( match.captured( "itemName" ) );
+            QRegularExpression plotNameRegExp( match.captured( "plotName" ) );
+            QRegularExpression itemNameRegExp( match.captured( "itemName" ) );
             QRegularExpression colorRegExp( "color:\\s*([#0-9a-zA-Z]+)" );
             QString            color = colorRegExp.match( match.captured( "properties" ) ).captured( 1 );
             QRegularExpression textColorRegExp( "text-color:\\s*([#0-9a-zA-Z]+)" );
@@ -268,7 +271,8 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
             {
                 for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
                 {
-                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) || match.captured( "plotName" ) == "*" )
+                    if ( plotNameRegExp.match( plotWidget->property( "qss-class" ).toString() ).hasMatch() ||
+                         match.captured( "plotName" ) == "*" )
                     {
                         for ( QwtPlotItem* item : plotWidget->itemList() )
                         {
@@ -276,7 +280,7 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
                             {
                                 if ( marker->symbol() && marker->symbol()->style() != QwtSymbol::NoSymbol )
                                 {
-                                    if ( itemNameRegExp.exactMatch( item->title().text() ) || match.captured( "itemName" ) == "*" )
+                                    if ( itemNameRegExp.match( item->title().text() ).hasMatch() || match.captured( "itemName" ) == "*" )
                                     {
                                         QPen pen = marker->symbol()->pen();
                                         pen.setColor( QColor( color ) );
@@ -299,8 +303,8 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
                  "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
         []( QRegularExpressionMatch& match )
         {
-            QRegExp            plotNameRegExp( match.captured( "plotName" ) );
-            QRegExp            itemNameRegExp( match.captured( "itemName" ) );
+            QRegularExpression plotNameRegExp( match.captured( "plotName" ) );
+            QRegularExpression itemNameRegExp( match.captured( "itemName" ) );
             QRegularExpression textColorRegExp( "text-color:\\s*([#a-zA-Z0-9]+)" );
             QString            textColor = textColorRegExp.match( match.captured( "properties" ) ).captured( 1 );
 
@@ -314,7 +318,8 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
             {
                 for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
                 {
-                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) || match.captured( "plotName" ) == "*" )
+                    if ( plotNameRegExp.match( plotWidget->property( "qss-class" ).toString() ).hasMatch() ||
+                         match.captured( "plotName" ) == "*" )
                     {
                         QWidget* canvas = plotWidget->canvas();
                         if ( canvas )
