@@ -29,7 +29,7 @@
 #include "RigWellResultFrame.h"
 #include "RigWellResultPoint.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 /* rand example: guess the number */
 #include <cstdio>
@@ -147,11 +147,11 @@ bool RigReservoirBuilderMock::dynamicResult( RigEclipseCaseData* eclipseCase, co
 {
     int resultIndex = 1;
 
-    QRegExp rx( "[0-9]{1,2}" ); // Find number 0-99
-    int     digitPos = rx.indexIn( result );
-    if ( digitPos > -1 )
+    QRegularExpression      rx( "[0-9]{1,2}" ); // Find number 0-99
+    QRegularExpressionMatch match = rx.match( result );
+    if ( match.hasMatch() )
     {
-        resultIndex = rx.cap( 0 ).toInt() + 1;
+        resultIndex = match.captured( 0 ).toInt() + 1;
     }
 
     double scaleValue  = 1.0 + resultIndex * 0.1;
