@@ -73,13 +73,13 @@ void RigCellVolumeResultCalculator::calculate( const RigEclipseResultAddress& re
     cellVolumeResults.resize( cellResultCount, std::numeric_limits<double>::infinity() );
 
 #pragma omp parallel for
-    for ( int nativeResvCellIndex = 0; nativeResvCellIndex < static_cast<int>( m_resultsData->m_ownerMainGrid->globalCellArray().size() );
+    for ( int nativeResvCellIndex = 0; nativeResvCellIndex < static_cast<int>( m_resultsData->m_ownerMainGrid->totalCellCount() );
           nativeResvCellIndex++ )
     {
         size_t resultIndex = m_resultsData->activeCellInfo()->cellResultIndex( nativeResvCellIndex );
         if ( resultIndex != cvf::UNDEFINED_SIZE_T )
         {
-            const RigCell& cell = m_resultsData->m_ownerMainGrid->globalCellArray()[nativeResvCellIndex];
+            const RigCell& cell = m_resultsData->m_ownerMainGrid->cell( nativeResvCellIndex );
             if ( !cell.subGrid() )
             {
                 cellVolumeResults[resultIndex] = cell.volume();

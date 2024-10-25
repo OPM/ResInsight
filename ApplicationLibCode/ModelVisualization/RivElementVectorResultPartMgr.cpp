@@ -150,24 +150,25 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
 
     RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-    const std::vector<RigCell>& cells = eclipseCase->mainGrid()->globalCellArray();
+    const auto mainGrid = eclipseCase->mainGrid();
 
-    auto getFaceCenterAndNormal = [cells, arrowScaling, displayCordXf]( size_t                             globalCellIdx,
-                                                                        cvf::StructGridInterface::FaceType faceType,
-                                                                        cvf::Vec3d&                        faceCenter,
-                                                                        cvf::Vec3d&                        faceNormal )
+    auto getFaceCenterAndNormal = [arrowScaling, displayCordXf, mainGrid]( size_t                             globalCellIdx,
+                                                                           cvf::StructGridInterface::FaceType faceType,
+                                                                           cvf::Vec3d&                        faceCenter,
+                                                                           cvf::Vec3d&                        faceNormal )
     {
-        faceCenter            = displayCordXf->transformToDisplayCoord( cells[globalCellIdx].faceCenter( faceType ) );
-        cvf::Vec3d cellCenter = displayCordXf->transformToDisplayCoord( cells[globalCellIdx].center() );
+        faceCenter            = displayCordXf->transformToDisplayCoord( mainGrid->cell( globalCellIdx ).faceCenter( faceType ) );
+        cvf::Vec3d cellCenter = displayCordXf->transformToDisplayCoord( mainGrid->cell( globalCellIdx ).center() );
         faceNormal            = ( faceCenter - cellCenter ).getNormalized() * arrowScaling;
     };
 
     if ( !resultAddresses.empty() && !directions.empty() )
     {
 #pragma omp parallel for
-        for ( int gcIdx = 0; gcIdx < static_cast<int>( cells.size() ); ++gcIdx )
+        for ( int gcIdx = 0; gcIdx < static_cast<int>( mainGrid->totalCellCount() ); ++gcIdx )
         {
-            if ( !cells[gcIdx].isInvalid() && activeCellInfo->isActive( gcIdx ) )
+            auto& cell = mainGrid->cell( gcIdx );
+            if ( !cell.isInvalid() && activeCellInfo->isActive( gcIdx ) )
             {
                 size_t resultIdx = activeCellInfo->cellResultIndex( gcIdx );
                 if ( result->vectorView() == RimElementVectorResult::VectorView::PER_FACE )
@@ -198,7 +199,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                             tensorVisualizations.push_back( ElementVectorResultVisualization( faceCenter,
                                                                                               faceNormal,
                                                                                               resultValue,
-                                                                                              std::cbrt( cells[gcIdx].volume() / 3.0 ),
+                                                                                              std::cbrt( cell.volume() / 3.0 ),
                                                                                               centerArrow ) );
                         }
                     }
@@ -233,10 +234,10 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
 
 #pragma omp critical( critical_section_RivElementVectorResultPartMgr_add_2 )
                         tensorVisualizations.push_back(
-                            ElementVectorResultVisualization( displayCordXf->transformToDisplayCoord( cells[gcIdx].center() ),
+                            ElementVectorResultVisualization( displayCordXf->transformToDisplayCoord( cell.center() ),
                                                               aggregatedVector,
                                                               aggregatedResult.length(),
-                                                              std::cbrt( cells[gcIdx].volume() / 3.0 ),
+                                                              std::cbrt( cell.volume() / 3.0 ),
                                                               centerArrow ) );
                     }
                 }
@@ -300,11 +301,12 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                     }
 
 #pragma omp critical( critical_section_RivElementVectorResultPartMgr_add_nnc )
-                    tensorVisualizations.push_back( ElementVectorResultVisualization( displayCordXf->transformToDisplayCoord( connCenter ),
-                                                                                      connNormal,
-                                                                                      resultValue,
-                                                                                      std::cbrt( cells[conn.c1GlobIdx()].volume() / 3.0 ),
-                                                                                      centerArrow ) );
+                    tensorVisualizations.push_back(
+                        ElementVectorResultVisualization( displayCordXf->transformToDisplayCoord( connCenter ),
+                                                          connNormal,
+                                                          resultValue,
+                                                          std::cbrt( mainGrid->cell( conn.c1GlobIdx() ).volume() / 3.0 ),
+                                                          centerArrow ) );
                 }
             }
         }

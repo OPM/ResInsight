@@ -62,7 +62,7 @@ cvf::Vec3d RigStimPlanModelTools::calculateTSTDirection( RigEclipseCaseData* ecl
     int numContributingCells = 0;
     for ( size_t globalCellIndex : closeCells )
     {
-        const RigCell& cell = mainGrid->globalCellArray()[globalCellIndex];
+        const RigCell& cell = mainGrid->cell( globalCellIndex );
 
         if ( !cell.isInvalid() )
         {
@@ -128,7 +128,7 @@ std::tuple<const RigFault*, double, cvf::Vec3d, double> RigStimPlanModelTools::f
             shortestDistance = distance;
             barrierPosition  = intersection.startPoint;
 
-            const RigCell& cell       = mainGrid->globalCellArray()[intersection.globCellIndex];
+            const RigCell& cell       = mainGrid->cell( intersection.globCellIndex );
             cvf::Vec3d     faceNormal = cell.faceNormalWithAreaLength( intersection.intersectedCellFaceIn );
             barrierDip                = RigStimPlanModelTools::calculateFormationDip( faceNormal );
         }

@@ -373,7 +373,7 @@ protected:
         auto resultValues = caseData->results( porosityModel )->modifiableCellScalarResult( resVarAddr, timeStepIndex );
         if ( resultValues && resultValues->empty() && m_cellCount > 0 )
         {
-            auto totalCellCount = caseData->mainGrid()->globalCellArray().size();
+            auto totalCellCount = caseData->mainGrid()->totalCellCount();
             resultValues->resize( totalCellCount );
         }
 

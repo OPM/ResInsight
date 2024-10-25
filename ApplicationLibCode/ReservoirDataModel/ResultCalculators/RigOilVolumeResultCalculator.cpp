@@ -74,7 +74,7 @@ void RigOilVolumeResultCalculator::calculate( const RigEclipseResultAddress& res
         oilVolumeResults.resize( cellResultCount, 0u );
 
 #pragma omp parallel for
-        for ( int nativeResvCellIndex = 0; nativeResvCellIndex < static_cast<int>( m_resultsData->m_ownerMainGrid->globalCellArray().size() );
+        for ( int nativeResvCellIndex = 0; nativeResvCellIndex < static_cast<int>( m_resultsData->m_ownerMainGrid->totalCellCount() );
               nativeResvCellIndex++ )
         {
             size_t resultIndex = m_resultsData->activeCellInfo()->cellResultIndex( nativeResvCellIndex );

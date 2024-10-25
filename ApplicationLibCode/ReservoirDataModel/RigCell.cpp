@@ -335,6 +335,7 @@ cvf::Vec3d RigCell::faceNormalWithAreaLength( cvf::StructGridInterface::FaceType
 //--------------------------------------------------------------------------------------------------
 double RigCell::volume() const
 {
+    if ( m_isInvalid ) return 0.0;
     const std::vector<cvf::Vec3d>& nodeCoords = m_hostGrid->mainGrid()->nodes();
 
     std::array<cvf::Vec3d, 8> hexCorners;

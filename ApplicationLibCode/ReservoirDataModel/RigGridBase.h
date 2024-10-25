@@ -114,11 +114,13 @@ public:
     bool cellIJKNeighbor( size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const override;
     void cellIJKNeighborUnguarded( size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const;
 
+protected:
+    size_t m_indexToStartOfCells; ///< Index into the global cell array stored in main-grid where this grids cells starts.
+
 private:
     std::string      m_gridName;
     cvf::Vec3st      m_gridPointDimensions;
     cvf::Vec3st      m_cellCount;
-    size_t           m_indexToStartOfCells; ///< Index into the global cell array stored in main-grid where this grids cells starts.
     size_t           m_gridIndex; ///< The LGR index of this grid. Starts with 1. Main grid has index 0.
     int              m_gridId; ///< The LGR id of this grid. Main grid has id 0.
     RigMainGrid*     m_mainGrid;

@@ -43,11 +43,10 @@ public:
     RigMainGrid();
     ~RigMainGrid() override;
 
+    virtual size_t totalCellCount() const;
+
     std::vector<cvf::Vec3d>&       nodes();
     const std::vector<cvf::Vec3d>& nodes() const;
-
-    std::vector<RigCell>&       globalCellArray();
-    const std::vector<RigCell>& globalCellArray() const;
 
     virtual RigGridBase*       gridAndGridLocalIdxFromGlobalCellIdx( size_t globalCellIdx, size_t* gridLocalCellIdx );
     virtual const RigGridBase* gridAndGridLocalIdxFromGlobalCellIdx( size_t globalCellIdx, size_t* gridLocalCellIdx ) const;
@@ -113,6 +112,10 @@ public:
 
     bool isDualPorosity() const;
     void setDualPorosity( bool enable );
+
+public: // only for use by file readers!
+    std::vector<RigCell>&       reservoirCells();
+    const std::vector<RigCell>& reservoirCells() const;
 
 protected:
     void initAllSubCellsMainGridCellIndex();

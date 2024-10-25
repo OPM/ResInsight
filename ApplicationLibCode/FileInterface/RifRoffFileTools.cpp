@@ -188,19 +188,19 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
         fractureActiveCellInfo->setReservoirCellCount( totalCellCount );
 
         // Reserve room for the cells and nodes and fill them with data
-        mainGrid->globalCellArray().reserve( totalCellCount );
+        mainGrid->reservoirCells().reserve( totalCellCount );
         mainGrid->nodes().reserve( 8 * totalCellCount );
 
         int               progTicks = 100;
         caf::ProgressInfo progInfo( progTicks, "" );
 
         int    cellCount      = static_cast<int>( totalCellCount );
-        size_t cellStartIndex = mainGrid->globalCellArray().size();
+        size_t cellStartIndex = mainGrid->reservoirCells().size();
         size_t nodeStartIndex = mainGrid->nodes().size();
 
         RigCell defaultCell;
         defaultCell.setHostGrid( mainGrid );
-        mainGrid->globalCellArray().resize( cellStartIndex + cellCount, defaultCell );
+        mainGrid->reservoirCells().resize( cellStartIndex + cellCount, defaultCell );
 
         mainGrid->nodes().resize( nodeStartIndex + static_cast<size_t>( cellCount ) * 8, cvf::Vec3d( 0, 0, 0 ) );
 
@@ -220,7 +220,7 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
 #pragma omp for
         for ( int gridLocalCellIndex = 0; gridLocalCellIndex < cellCount; ++gridLocalCellIndex )
         {
-            RigCell& cell = mainGrid->globalCellArray()[cellStartIndex + gridLocalCellIndex];
+            RigCell& cell = mainGrid->cell( cellStartIndex + gridLocalCellIndex );
 
             cell.setGridLocalCellIndex( gridLocalCellIndex );
 

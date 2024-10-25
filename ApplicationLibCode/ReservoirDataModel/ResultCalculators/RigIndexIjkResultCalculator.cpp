@@ -98,12 +98,13 @@ void RigIndexIjkResultCalculator::calculate( const RigEclipseResultAddress& resV
 
     if ( !( computeIndexI || computeIndexJ || computeIndexK ) ) return;
 
-    const std::vector<RigCell>& globalCellArray = m_resultsData->m_ownerMainGrid->globalCellArray();
-    long long                   numCells        = static_cast<long long>( globalCellArray.size() );
+    const auto mainGrid = m_resultsData->m_ownerMainGrid;
+    long long  numCells = static_cast<long long>( mainGrid->totalCellCount() );
+
 #pragma omp parallel for
     for ( long long cellIdx = 0; cellIdx < numCells; cellIdx++ )
     {
-        const RigCell& cell = globalCellArray[cellIdx];
+        const RigCell& cell = mainGrid->cell( cellIdx );
 
         size_t resultIndex = cellIdx;
         if ( resultIndex == cvf::UNDEFINED_SIZE_T ) continue;
