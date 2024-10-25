@@ -18,15 +18,13 @@
 
 #include "RimEclipseContourMapProjection.h"
 
-#include "RigActiveCellInfo.h"
+#include "RiaPorosityModel.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCell.h"
-#include "RigCellGeometryTools.h"
 #include "RigContourMapCalculator.h"
 #include "RigContourMapGrid.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseContourMapProjection.h"
 #include "RigEclipseResultAddress.h"
-#include "RigHexIntersectionTools.h"
 #include "RigMainGrid.h"
 
 #include "Rim3dView.h"
@@ -37,8 +35,6 @@
 #include "RimEclipseView.h"
 #include "RimRegularLegendConfig.h"
 
-#include <algorithm>
-
 CAF_PDM_SOURCE_INIT( RimEclipseContourMapProjection, "RimEclipseContourMapProjection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -46,8 +42,6 @@ CAF_PDM_SOURCE_INIT( RimEclipseContourMapProjection, "RimEclipseContourMapProjec
 //--------------------------------------------------------------------------------------------------
 RimEclipseContourMapProjection::RimEclipseContourMapProjection()
     : RimContourMapProjection()
-    , m_kLayers( 0u )
-    , m_useActiveCellInfo( true )
 {
     CAF_PDM_InitObject( "RimEclipseContourMapProjection", ":/2DMapProjection16x16.png" );
 
@@ -109,8 +103,8 @@ void RimEclipseContourMapProjection::updateLegend()
 {
     RimEclipseCellColors* cellColors = view()->cellResult();
 
-    double minVal = minValue( m_aggregatedResults );
-    double maxVal = maxValue( m_aggregatedResults );
+    double minVal = minValue();
+    double maxVal = maxValue();
 
     auto [minValAllTimeSteps, maxValAllTimeSteps] = minmaxValuesAllTimeSteps();
 
@@ -138,13 +132,16 @@ void RimEclipseContourMapProjection::updateLegend()
 //--------------------------------------------------------------------------------------------------
 double RimEclipseContourMapProjection::sampleSpacing() const
 {
-    if ( m_mainGrid.notNull() )
+    if ( auto ec = eclipseCase() )
     {
-        return m_relativeSampleSpacing * m_mainGrid->characteristicIJCellSize();
+        if ( auto mainGrid = ec->mainGrid() )
+        {
+            return m_relativeSampleSpacing * mainGrid->characteristicIJCellSize();
+        }
     }
+
     return 0.0;
 }
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -162,76 +159,43 @@ void RimEclipseContourMapProjection::clearGridMappingAndRedraw()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimEclipseContourMapProjection::generateResults( int timeStep )
+std::vector<double> RimEclipseContourMapProjection::generateResults( int timeStep ) const
 {
     m_weightingResult->loadResult();
 
-    size_t nCells = numberOfCells();
-
-    std::vector<double> aggregatedResults = std::vector<double>( nCells, std::numeric_limits<double>::infinity() );
-
-    RimEclipseCellColors* cellColors     = view()->cellResult();
-    auto                  gridCellResult = view()->currentGridCellResults();
+    if ( m_contourMapProjection )
     {
-        {
-            auto resultAdr = cellColors->eclipseResultAddress();
-            if ( resultAdr.isValid() && gridCellResult->hasResultEntry( resultAdr ) )
-                m_useActiveCellInfo = gridCellResult->isUsingGlobalActiveIndex( resultAdr );
-        }
+        RimEclipseCellColors*   cellColors = view()->cellResult();
+        RigEclipseResultAddress resAddr( cellColors->resultType(),
+                                         cellColors->resultVariable(),
+                                         cellColors->timeLapseBaseTimeStep(),
+                                         cellColors->caseDiffIndex() );
 
-        if ( !cellColors->isTernarySaturationSelected() )
-        {
-            std::vector<double> gridResultValues;
-            if ( isColumnResult() )
-            {
-                m_currentResultName = "";
-                gridCellResult->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" ) );
-                gridCellResult->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "NTG" ) );
-                gridCellResult->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" ) );
-                if ( m_resultAggregation == RigContourMapCalculator::RESULTS_OIL_COLUMN ||
-                     m_resultAggregation == RigContourMapCalculator::RESULTS_HC_COLUMN )
-                {
-                    gridCellResult->ensureKnownResultLoaded(
-                        RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ) );
-                }
-                if ( m_resultAggregation == RigContourMapCalculator::RESULTS_GAS_COLUMN ||
-                     m_resultAggregation == RigContourMapCalculator::RESULTS_HC_COLUMN )
-                {
-                    gridCellResult->ensureKnownResultLoaded(
-                        RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ) );
-                }
-                gridResultValues = calculateColumnResult( m_resultAggregation() );
-            }
-            else
-            {
-                if ( cellColors->hasStaticResult() && timeStep > 0 ) timeStep = 0;
-
-                m_currentResultName = cellColors->resultVariable();
-                RigEclipseResultAddress resAddr( cellColors->resultType(),
-                                                 cellColors->resultVariable(),
-                                                 cellColors->timeLapseBaseTimeStep(),
-                                                 cellColors->caseDiffIndex() );
-
-                // When loading a project file, grid calculator results are not computed the first time this function is
-                // called. Must check if result is loaded. See RimReloadCaseTools::updateAll3dViews()
-                if ( resAddr.isValid() && gridCellResult->hasResultEntry( resAddr ) && gridCellResult->isResultLoaded( resAddr ) )
-                {
-                    gridResultValues = gridCellResult->cellScalarResults( resAddr, timeStep );
-                }
-            }
-
-            if ( !gridResultValues.empty() )
-            {
-#pragma omp parallel for
-                for ( int index = 0; index < static_cast<int>( nCells ); ++index )
-                {
-                    cvf::Vec2ui ij           = m_contourMapGrid->ijFromCellIndex( index );
-                    aggregatedResults[index] = calculateValueInMapCell( ij.x(), ij.y(), gridResultValues );
-                }
-            }
-        }
+        return dynamic_cast<RigEclipseContourMapProjection*>( m_contourMapProjection.get() )
+            ->generateResults( resAddr, m_resultAggregation(), timeStep );
     }
-    return aggregatedResults;
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseContourMapProjection::generateAndSaveResults( int timeStep )
+{
+    m_weightingResult->loadResult();
+
+    if ( m_contourMapProjection )
+    {
+        RimEclipseCellColors*   cellColors = view()->cellResult();
+        RigEclipseResultAddress resAddr( cellColors->resultType(),
+                                         cellColors->resultVariable(),
+                                         cellColors->timeLapseBaseTimeStep(),
+                                         cellColors->caseDiffIndex() );
+
+        dynamic_cast<RigEclipseContourMapProjection*>( m_contourMapProjection.get() )
+            ->generateAndSaveResults( resAddr, m_resultAggregation(), timeStep );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -261,77 +225,15 @@ void RimEclipseContourMapProjection::clearResultVariable()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimEclipseContourMapProjection::calculateColumnResult( ResultAggregation resultAggregation ) const
-{
-    const RigCaseCellResultsData* resultData = eclipseCase()->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    bool hasPoroResult = resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" ) );
-    bool hasNtgResult  = resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "NTG" ) );
-    bool hasDzResult   = resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" ) );
-
-    if ( !( hasPoroResult && hasNtgResult && hasDzResult ) )
-    {
-        return std::vector<double>();
-    }
-
-    const std::vector<double>& poroResults =
-        resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" ), 0 );
-    const std::vector<double>& ntgResults =
-        resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "NTG" ), 0 );
-    const std::vector<double>& dzResults =
-        resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" ), 0 );
-
-    CVF_ASSERT( poroResults.size() == ntgResults.size() && ntgResults.size() == dzResults.size() );
-
-    int timeStep = view()->currentTimeStep();
-
-    std::vector<double> resultValues( poroResults.size(), 0.0 );
-
-    if ( resultAggregation == RigContourMapCalculator::RESULTS_OIL_COLUMN || resultAggregation == RigContourMapCalculator::RESULTS_HC_COLUMN )
-    {
-        const std::vector<double>& soilResults =
-            resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ),
-                                           timeStep );
-        for ( size_t cellResultIdx = 0; cellResultIdx < resultValues.size(); ++cellResultIdx )
-        {
-            resultValues[cellResultIdx] = soilResults[cellResultIdx];
-        }
-    }
-
-    if ( resultAggregation == RigContourMapCalculator::RESULTS_GAS_COLUMN || resultAggregation == RigContourMapCalculator::RESULTS_HC_COLUMN )
-    {
-        bool hasGasResult =
-            resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ) );
-        if ( hasGasResult )
-        {
-            const std::vector<double>& sgasResults =
-                resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ),
-                                               timeStep );
-            for ( size_t cellResultIdx = 0; cellResultIdx < resultValues.size(); ++cellResultIdx )
-            {
-                resultValues[cellResultIdx] += sgasResults[cellResultIdx];
-            }
-        }
-    }
-
-    for ( size_t cellResultIdx = 0; cellResultIdx < resultValues.size(); ++cellResultIdx )
-    {
-        resultValues[cellResultIdx] *= poroResults[cellResultIdx] * ntgResults[cellResultIdx] * dzResults[cellResultIdx];
-    }
-    return resultValues;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapProjection::updateGridInformation()
 {
-    auto eclipseCase = this->eclipseCase();
-    m_mainGrid       = eclipseCase->eclipseCaseData()->mainGrid();
-    m_activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    m_kLayers        = m_mainGrid->cellCountK();
+    auto eclipseCase     = this->eclipseCase();
+    auto eclipseCaseData = eclipseCase->eclipseCaseData();
+    auto resultData      = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     cvf::BoundingBox gridBoundingBox = eclipseCase->activeCellsBoundingBox();
     m_contourMapGrid                 = std::make_unique<RigContourMapGrid>( gridBoundingBox, sampleSpacing() );
+    m_contourMapProjection           = std::make_unique<RigEclipseContourMapProjection>( *m_contourMapGrid, *eclipseCaseData, *resultData );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -374,108 +276,6 @@ RimEclipseCase* RimEclipseContourMapProjection::eclipseCase() const
 RimGridView* RimEclipseContourMapProjection::baseView() const
 {
     return view();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<size_t> RimEclipseContourMapProjection::findIntersectingCells( const cvf::BoundingBox& bbox ) const
-{
-    return m_mainGrid->findIntersectingCells( bbox );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RimEclipseContourMapProjection::kLayer( size_t globalCellIdx ) const
-{
-    const RigCell& cell            = m_mainGrid->cell( globalCellIdx );
-    size_t         mainGridCellIdx = cell.mainGridCellIndex();
-    size_t         i, j, k;
-    m_mainGrid->ijkFromCellIndex( mainGridCellIdx, &i, &j, &k );
-    return k;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RimEclipseContourMapProjection::kLayers() const
-{
-    return m_kLayers;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimEclipseContourMapProjection::calculateOverlapVolume( size_t globalCellIdx, const cvf::BoundingBox& bbox ) const
-{
-    std::array<cvf::Vec3d, 8> hexCorners;
-
-    const RigCell& cell = m_mainGrid->cell( globalCellIdx );
-
-    size_t       localCellIdx = cell.gridLocalCellIndex();
-    RigGridBase* localGrid    = cell.hostGrid();
-
-    localGrid->cellCornerVertices( localCellIdx, hexCorners.data() );
-
-    cvf::BoundingBox          overlapBBox;
-    std::array<cvf::Vec3d, 8> overlapCorners;
-    if ( RigCellGeometryTools::estimateHexOverlapWithBoundingBox( hexCorners, bbox, &overlapCorners, &overlapBBox ) )
-    {
-        double overlapVolume = RigCellGeometryTools::calculateCellVolume( overlapCorners );
-        return overlapVolume;
-    }
-    return 0.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimEclipseContourMapProjection::calculateRayLengthInCell( size_t            globalCellIdx,
-                                                                 const cvf::Vec3d& highestPoint,
-                                                                 const cvf::Vec3d& lowestPoint ) const
-{
-    std::array<cvf::Vec3d, 8> hexCorners;
-
-    RigCell cell = m_mainGrid->cell( globalCellIdx );
-
-    size_t       localCellIdx = cell.gridLocalCellIndex();
-    RigGridBase* localGrid    = cell.hostGrid();
-
-    localGrid->cellCornerVertices( localCellIdx, hexCorners.data() );
-    std::vector<HexIntersectionInfo> intersections;
-
-    if ( RigHexIntersectionTools::lineHexCellIntersection( highestPoint, lowestPoint, hexCorners.data(), 0, &intersections ) )
-    {
-        double lengthInCell = ( intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint ).length();
-        return lengthInCell;
-    }
-    return 0.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimEclipseContourMapProjection::getParameterWeightForCell( size_t cellResultIdx, const std::vector<double>& cellWeights ) const
-{
-    if ( cellWeights.empty() ) return 1.0;
-
-    double result = std::max( cellWeights[cellResultIdx], 0.0 );
-    if ( result < 1.0e-6 )
-    {
-        result = 0.0;
-    }
-    return result;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RimEclipseContourMapProjection::gridResultIndex( size_t globalCellIdx ) const
-{
-    if ( m_useActiveCellInfo ) return m_activeCellInfo->cellResultIndex( globalCellIdx );
-
-    return globalCellIdx;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -544,4 +344,24 @@ void RimEclipseContourMapProjection::initAfterRead()
     {
         m_weightingResult->setEclipseCase( eclipseCase() );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimEclipseContourMapProjection::minmaxValuesAllTimeSteps()
+{
+    if ( !resultRangeIsValid() )
+    {
+        clearTimeStepRange();
+
+        int timeStepCount = static_cast<int>( eclipseCase()->timeStepStrings().size() );
+        for ( int i = 0; i < (int)timeStepCount; ++i )
+        {
+            std::vector<double> aggregatedResults = generateResults( i );
+            m_minResultAllTimeSteps = std::min( m_minResultAllTimeSteps, RigContourMapProjection::minValue( aggregatedResults ) );
+            m_maxResultAllTimeSteps = std::max( m_maxResultAllTimeSteps, RigContourMapProjection::maxValue( aggregatedResults ) );
+        }
+    }
+    return std::make_pair( m_minResultAllTimeSteps, m_maxResultAllTimeSteps );
 }

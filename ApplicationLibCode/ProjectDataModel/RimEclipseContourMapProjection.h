@@ -24,8 +24,6 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "cvfBoundingBox.h"
-
 class RigActiveCellInfo;
 class RigMainGrid;
 class RigContourMapGrid;
@@ -57,27 +55,18 @@ public:
     double sampleSpacing() const override;
 
 protected:
-    using CellIndexAndResult = RimContourMapProjection::CellIndexAndResult;
-
     void                updateGridInformation() override;
     std::vector<double> retrieveParameterWeights() override;
-    std::vector<double> generateResults( int timeStep ) override;
+    std::vector<double> generateResults( int timeStep ) const override;
+    void                generateAndSaveResults( int timeStep ) override;
     bool                resultVariableChanged() const override;
     void                clearResultVariable() override;
     RimGridView*        baseView() const override;
-    std::vector<size_t> findIntersectingCells( const cvf::BoundingBox& bbox ) const override;
-    size_t              kLayer( size_t globalCellIdx ) const override;
-    size_t              kLayers() const override;
-    double              calculateOverlapVolume( size_t globalCellIdx, const cvf::BoundingBox& bbox ) const override;
-    double calculateRayLengthInCell( size_t globalCellIdx, const cvf::Vec3d& highestPoint, const cvf::Vec3d& lowestPoint ) const override;
-    double getParameterWeightForCell( size_t cellResultIdx, const std::vector<double>& parameterWeights ) const override;
-    size_t gridResultIndex( size_t globalCellIdx ) const override;
-
-    // Eclipse implementation specific data generation methods
-    std::vector<double> calculateColumnResult( ResultAggregation resultAggregation ) const;
 
     RimEclipseCase*           eclipseCase() const;
     RimEclipseContourMapView* view() const;
+
+    std::pair<double, double> minmaxValuesAllTimeSteps() override;
 
     void updateAfterResultGeneration( int timeStep ) override;
 
@@ -90,11 +79,6 @@ protected:
 protected:
     caf::PdmField<bool>                             m_weightByParameter;
     caf::PdmChildField<RimEclipseResultDefinition*> m_weightingResult;
-
-    cvf::ref<RigMainGrid>       m_mainGrid;
-    cvf::ref<RigActiveCellInfo> m_activeCellInfo;
-    size_t                      m_kLayers;
-    bool                        m_useActiveCellInfo;
 
     QString m_currentResultName;
 };

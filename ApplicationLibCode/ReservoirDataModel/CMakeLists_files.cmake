@@ -83,6 +83,10 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigVisibleCategoriesCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RigWbsParameter.h
     ${CMAKE_CURRENT_LIST_DIR}/RigWeightedMeanCalc.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigContourMapCalculator.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigContourMapProjection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigEclipseContourMapProjection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigGeoMechContourMapProjection.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -166,6 +170,12 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigVisibleCategoriesCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWbsParameter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWeightedMeanCalc.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigContourMapGrid.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigContourPolygonsTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigContourMapCalculator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigContourMapProjection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigEclipseContourMapProjection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigGeoMechContourMapProjection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

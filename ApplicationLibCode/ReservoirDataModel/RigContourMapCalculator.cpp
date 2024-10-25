@@ -24,15 +24,16 @@
 
 #include "RigContourMapGrid.h"
 
-#include "RimCase.h"
-#include "RimContourMapProjection.h"
+#include "RigContourMapProjection.h"
 
 #include <algorithm>
+#include <cmath>
+#include <map>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigContourMapCalculator::calculateValueInMapCell( const RimContourMapProjection&                contourMapProjection,
+double RigContourMapCalculator::calculateValueInMapCell( const RigContourMapProjection&                contourMapProjection,
                                                          const std::vector<std::pair<size_t, double>>& matchingCells,
                                                          const std::vector<double>&                    gridCellValues,
                                                          ResultAggregationEnum                         resultAggregation )
@@ -70,7 +71,7 @@ double RigContourMapCalculator::calculateValueInMapCell( const RimContourMapProj
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigContourMapCalculator::calculateTopValue( const RimContourMapProjection&                contourMapProjection,
+double RigContourMapCalculator::calculateTopValue( const RigContourMapProjection&                contourMapProjection,
                                                    const std::vector<std::pair<size_t, double>>& matchingCells,
                                                    const std::vector<double>&                    gridCellValues )
 {
@@ -88,7 +89,7 @@ double RigContourMapCalculator::calculateTopValue( const RimContourMapProjection
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigContourMapCalculator::calculateMeanValue( const RimContourMapProjection&                contourMapProjection,
+double RigContourMapCalculator::calculateMeanValue( const RigContourMapProjection&                contourMapProjection,
                                                     const std::vector<std::pair<size_t, double>>& matchingCells,
                                                     const std::vector<double>&                    gridCellValues )
 {
@@ -111,7 +112,7 @@ double RigContourMapCalculator::calculateMeanValue( const RimContourMapProjectio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigContourMapCalculator::calculateGeometricMeanValue( const RimContourMapProjection&                contourMapProjection,
+double RigContourMapCalculator::calculateGeometricMeanValue( const RigContourMapProjection&                contourMapProjection,
                                                              const std::vector<std::pair<size_t, double>>& matchingCells,
                                                              const std::vector<double>&                    gridCellValues )
 {
@@ -138,7 +139,7 @@ double RigContourMapCalculator::calculateGeometricMeanValue( const RimContourMap
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigContourMapCalculator::calculateHarmonicMeanValue( const RimContourMapProjection&                contourMapProjection,
+double RigContourMapCalculator::calculateHarmonicMeanValue( const RigContourMapProjection&                contourMapProjection,
                                                             const std::vector<std::pair<size_t, double>>& matchingCells,
                                                             const std::vector<double>&                    gridCellValues )
 {
@@ -165,7 +166,7 @@ double RigContourMapCalculator::calculateHarmonicMeanValue( const RimContourMapP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigContourMapCalculator::calculateMaxValue( const RimContourMapProjection&                contourMapProjection,
+double RigContourMapCalculator::calculateMaxValue( const RigContourMapProjection&                contourMapProjection,
                                                    const std::vector<std::pair<size_t, double>>& matchingCells,
                                                    const std::vector<double>&                    gridCellValues )
 {
@@ -188,7 +189,7 @@ double RigContourMapCalculator::calculateMaxValue( const RimContourMapProjection
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigContourMapCalculator::calculateMinValue( const RimContourMapProjection&                contourMapProjection,
+double RigContourMapCalculator::calculateMinValue( const RigContourMapProjection&                contourMapProjection,
                                                    const std::vector<std::pair<size_t, double>>& matchingCells,
                                                    const std::vector<double>&                    gridCellValues )
 {
@@ -201,7 +202,10 @@ double RigContourMapCalculator::calculateMinValue( const RimContourMapProjection
     return minValue;
 }
 
-double RigContourMapCalculator::calculateSum( const RimContourMapProjection&                contourMapProjection,
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigContourMapCalculator::calculateSum( const RigContourMapProjection&                contourMapProjection,
                                               const std::vector<std::pair<size_t, double>>& matchingCells,
                                               const std::vector<double>&                    gridCellValues )
 {
@@ -221,14 +225,15 @@ double RigContourMapCalculator::calculateSum( const RimContourMapProjection&    
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<std::pair<size_t, double>>>
-    RigContourMapCalculator::generateGridMapping( RimContourMapProjection& contourMapProjection, const RigContourMapGrid& contourMapGrid )
+    RigContourMapCalculator::generateGridMapping( RigContourMapProjection&   contourMapProjection,
+                                                  const RigContourMapGrid&   contourMapGrid,
+                                                  ResultAggregationEnum      resultAggregation,
+                                                  const std::vector<double>& weightingResultValues )
 {
     int                                                 nCells = contourMapGrid.numberOfCells();
     std::vector<std::vector<std::pair<size_t, double>>> projected3dGridIndices( nCells );
 
-    std::vector<double> weightingResultValues = contourMapProjection.retrieveParameterWeights();
-
-    if ( contourMapProjection.isStraightSummationResult() )
+    if ( RigContourMapCalculator::isStraightSummationResult( resultAggregation ) )
     {
 #pragma omp parallel for
         for ( int index = 0; index < nCells; ++index )
@@ -260,7 +265,7 @@ std::vector<std::vector<std::pair<size_t, double>>>
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigContourMapCalculator::CellIndexAndResult>
-    RigContourMapCalculator::cellOverlapVolumesAndResults( const RimContourMapProjection& contourMapProjection,
+    RigContourMapCalculator::cellOverlapVolumesAndResults( const RigContourMapProjection& contourMapProjection,
                                                            const RigContourMapGrid&       contourMapGrid,
                                                            const cvf::Vec2d&              globalPos2d,
                                                            const std::vector<double>&     weightingResultValues )
@@ -326,7 +331,7 @@ std::vector<RigContourMapCalculator::CellIndexAndResult>
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigContourMapCalculator::CellIndexAndResult>
-    RigContourMapCalculator::cellRayIntersectionAndResults( const RimContourMapProjection& contourMapProjection,
+    RigContourMapCalculator::cellRayIntersectionAndResults( const RigContourMapProjection& contourMapProjection,
                                                             const RigContourMapGrid&       contourMapGrid,
                                                             const cvf::Vec2d&              globalPos2d,
                                                             const std::vector<double>&     weightingResultValues )
