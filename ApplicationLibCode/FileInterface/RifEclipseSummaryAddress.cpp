@@ -24,7 +24,6 @@
 #include "RifEclEclipseSummary.h"
 #include "RiuSummaryQuantityNameInfoProvider.h"
 
-#include <QRegExp>
 #include <QStringList>
 #include <QTextStream>
 

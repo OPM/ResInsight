@@ -31,7 +31,6 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QIODevice>
-#include <QRegExp>
 #include <QRegularExpression>
 #include <QString>
 #include <QStringListModel>

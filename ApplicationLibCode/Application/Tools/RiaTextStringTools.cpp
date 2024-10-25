@@ -158,13 +158,6 @@ QStringList RiaTextStringTools::splitString( const QString& text, const QRegular
     return text.split( regularExpression, skipEmptyParts ? Qt::SkipEmptyParts : Qt::KeepEmptyParts );
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QStringList RiaTextStringTools::splitString( const QString& text, const QRegExp& regExp, bool skipEmptyParts )
-{
-    return regExp.splitString( text, skipEmptyParts ? Qt::SkipEmptyParts : Qt::KeepEmptyParts );
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -214,15 +207,6 @@ bool RiaTextStringTools::isNumber( const QString& text, const QString& decimalPo
     return RiaStdStringTools::isNumber( stdString, decimalChar );
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QStringList RiaTextStringTools::splitSkipEmptyParts( const QString& text, const QRegExp& regExp )
-{
-    bool skipEmptyParts = true;
-
-    return splitString( text, regExp, skipEmptyParts );
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

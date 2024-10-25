@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include <QRegExp>
 #include <QRegularExpression>
 #include <QString>
 #include <QStringList>
@@ -37,11 +36,9 @@ QString commonSuffix( const QStringList& stringList );
 QString trimNonAlphaNumericCharacters( const QString& s );
 
 QStringList splitSkipEmptyParts( const QString& text, const QString& sep = " " );
-QStringList splitSkipEmptyParts( const QString& text, const QRegExp& regExp );
 QStringList splitSkipEmptyParts( const QString& text, const QRegularExpression& regularExpression );
 
 QStringList splitString( const QString& text, const QString& sep, bool skipEmptyParts );
-QStringList splitString( const QString& text, const QRegExp& regExp, bool skipEmptyParts );
 QStringList splitString( const QString& text, const QRegularExpression& regularExpression, bool skipEmptyParts );
 
 QString replaceTemplateTextWithValues( const QString& templateText, const std::map<QString, QString>& valueMap );
