@@ -82,9 +82,9 @@ std::string RigGridBase::gridName() const
 //--------------------------------------------------------------------------------------------------
 RigCell& RigGridBase::cell( size_t gridLocalCellIndex )
 {
-    CVF_ASSERT( m_mainGrid );
+    CVF_TIGHT_ASSERT( m_mainGrid );
 
-    CVF_ASSERT( m_indexToStartOfCells + gridLocalCellIndex < m_mainGrid->reservoirCells().size() );
+    CVF_TIGHT_ASSERT( m_indexToStartOfCells + gridLocalCellIndex < m_mainGrid->reservoirCells().size() );
 
     return m_mainGrid->reservoirCells()[m_indexToStartOfCells + gridLocalCellIndex];
 }
@@ -94,7 +94,7 @@ RigCell& RigGridBase::cell( size_t gridLocalCellIndex )
 //--------------------------------------------------------------------------------------------------
 const RigCell& RigGridBase::cell( size_t gridLocalCellIndex ) const
 {
-    CVF_ASSERT( m_mainGrid );
+    CVF_TIGHT_ASSERT( m_mainGrid );
 
     return m_mainGrid->reservoirCells()[m_indexToStartOfCells + gridLocalCellIndex];
 }

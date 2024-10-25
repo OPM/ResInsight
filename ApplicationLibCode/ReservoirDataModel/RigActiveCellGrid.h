@@ -28,23 +28,8 @@ public:
     RigActiveCellGrid();
     ~RigActiveCellGrid() override;
 
-    // size_t transferActiveInformation( int                     gridIndex,
-    //                                   RigEclipseCaseData*     eclipseCaseData,
-    //                                   size_t                  totalActiveCells,
-    //                                   size_t                  matrixActiveCells,
-    //                                   size_t                  fractureActiveCells,
-    //                                   const std::vector<int>& activeMatrixIndexes,
-    //                                   const std::vector<int>& activeFracIndexes,
-    //                                   size_t                  inactiveCellIndex );
-
-    // size_t cellIndexFromIJK( size_t i, size_t j, size_t k ) const override;
-    // size_t cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const override;
-    // bool   ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const override;
-    // void   ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const override;
-
     RigCell&       cell( size_t gridLocalCellIndex ) override;
     const RigCell& cell( size_t gridLocalCellIndex ) const override;
-    // size_t         cellCount() const override;
 
     size_t totalCellCount() const override;
     size_t totalActiveCellCount() const;
@@ -56,8 +41,6 @@ public: // only for use by file readers!
     void                             setTotalActiveCellCount( size_t totalActiveCellCount );
 
 private:
-    // std::vector<size_t>       m_globalToNativeMap;
-    // std::vector<size_t>       m_nativeToGlobalMap;
     size_t                    m_totalCellCount;
     size_t                    m_totalActiveCellCount;
     RigCell                   m_invalidCell;
