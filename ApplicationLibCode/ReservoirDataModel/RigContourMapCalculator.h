@@ -24,7 +24,7 @@
 #include <vector>
 
 class RigContourMapGrid;
-class RimContourMapProjection;
+class RigContourMapProjection;
 
 //==================================================================================================
 ///
@@ -50,20 +50,22 @@ public:
         RESULTS_HC_COLUMN
     };
 
-    static std::vector<std::vector<std::pair<size_t, double>>> generateGridMapping( RimContourMapProjection& contourMapProjection,
-                                                                                    const RigContourMapGrid& contourMapGrid );
+    static std::vector<std::vector<std::pair<size_t, double>>> generateGridMapping( RigContourMapProjection&   contourMapProjection,
+                                                                                    const RigContourMapGrid&   contourMapGrid,
+                                                                                    ResultAggregationEnum      resultAggregation,
+                                                                                    const std::vector<double>& weightingResultValues );
 
-    static double calculateValueInMapCell( const RimContourMapProjection&                contourMapProjection,
+    static double calculateValueInMapCell( const RigContourMapProjection&                contourMapProjection,
                                            const std::vector<std::pair<size_t, double>>& matchingCells,
                                            const std::vector<double>&                    gridCellValues,
                                            ResultAggregationEnum                         resultAggregation );
 
-    static std::vector<CellIndexAndResult> cellOverlapVolumesAndResults( const RimContourMapProjection& contourMapProjection,
+    static std::vector<CellIndexAndResult> cellOverlapVolumesAndResults( const RigContourMapProjection& contourMapProjection,
                                                                          const RigContourMapGrid&       contourMapGrid,
                                                                          const cvf::Vec2d&              globalPos2d,
                                                                          const std::vector<double>&     weightingResultValues );
 
-    static std::vector<CellIndexAndResult> cellRayIntersectionAndResults( const RimContourMapProjection& contourMapProjection,
+    static std::vector<CellIndexAndResult> cellRayIntersectionAndResults( const RigContourMapProjection& contourMapProjection,
                                                                           const RigContourMapGrid&       contourMapGrid,
                                                                           const cvf::Vec2d&              globalPos2d,
                                                                           const std::vector<double>&     weightingResultValues );
@@ -73,26 +75,26 @@ public:
     static bool isStraightSummationResult( ResultAggregationEnum aggregationType );
 
 private:
-    static double calculateTopValue( const RimContourMapProjection&                contourMapProjection,
+    static double calculateTopValue( const RigContourMapProjection&                contourMapProjection,
                                      const std::vector<std::pair<size_t, double>>& matchingCells,
                                      const std::vector<double>&                    gridCellValues );
-    static double calculateMeanValue( const RimContourMapProjection&                contourMapProjection,
+    static double calculateMeanValue( const RigContourMapProjection&                contourMapProjection,
                                       const std::vector<std::pair<size_t, double>>& matchingCells,
                                       const std::vector<double>&                    gridCellValues );
 
-    static double calculateGeometricMeanValue( const RimContourMapProjection&                contourMapProjection,
+    static double calculateGeometricMeanValue( const RigContourMapProjection&                contourMapProjection,
                                                const std::vector<std::pair<size_t, double>>& matchingCells,
                                                const std::vector<double>&                    gridCellValues );
-    static double calculateHarmonicMeanValue( const RimContourMapProjection&                contourMapProjection,
+    static double calculateHarmonicMeanValue( const RigContourMapProjection&                contourMapProjection,
                                               const std::vector<std::pair<size_t, double>>& matchingCells,
                                               const std::vector<double>&                    gridCellValues );
-    static double calculateMaxValue( const RimContourMapProjection&                contourMapProjection,
+    static double calculateMaxValue( const RigContourMapProjection&                contourMapProjection,
                                      const std::vector<std::pair<size_t, double>>& matchingCells,
                                      const std::vector<double>&                    gridCellValues );
-    static double calculateMinValue( const RimContourMapProjection&                contourMapProjection,
+    static double calculateMinValue( const RigContourMapProjection&                contourMapProjection,
                                      const std::vector<std::pair<size_t, double>>& matchingCells,
                                      const std::vector<double>&                    gridCellValues );
-    static double calculateSum( const RimContourMapProjection&                contourMapProjection,
+    static double calculateSum( const RigContourMapProjection&                contourMapProjection,
                                 const std::vector<std::pair<size_t, double>>& matchingCells,
                                 const std::vector<double>&                    gridCellValues );
 };

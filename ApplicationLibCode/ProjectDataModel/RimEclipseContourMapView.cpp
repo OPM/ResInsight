@@ -272,6 +272,7 @@ void RimEclipseContourMapView::updateGeometry()
         {
             m_contourMapProjection->generateResultsIfNecessary( m_currentTimeStep() );
         }
+        onUpdateLegends();
         progress.setProgress( 30 );
     }
 
