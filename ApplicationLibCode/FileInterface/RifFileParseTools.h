@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QString>
 #include <QStringList>
 
@@ -29,7 +29,7 @@ class RifFileParseTools
 {
 public:
     static QStringList splitLineAndTrim( const QString& line, const QString& separator, bool skipEmptyParts = false );
-    static QStringList splitLineAndTrim( const QString& line, const QRegExp& regexp, bool skipEmptyParts = false );
+    static QStringList splitLineAndTrim( const QString& line, const QRegularExpression& regexp, bool skipEmptyParts = false );
 };
 
 //==================================================================================================

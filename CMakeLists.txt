@@ -550,16 +550,9 @@ find_package(
   Network
   Widgets
   Charts
-  Core5Compat
 )
-set(QT_LIBRARIES
-    Qt6::Core
-    Qt6::Gui
-    Qt6::OpenGL
-    Qt6::Network
-    Qt6::Widgets
-    Qt6::Charts
-    Qt6::Core5Compat
+set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::OpenGL Qt6::Network Qt6::Widgets
+                 Qt6::Charts
 )
 qt_standard_project_setup()
 

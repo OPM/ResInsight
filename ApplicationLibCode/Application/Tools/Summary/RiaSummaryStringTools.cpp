@@ -121,11 +121,12 @@ void RiaSummaryStringTools::splitUsingDataSourceNames( const QStringList& filter
 
         bool foundDataSource = false;
 
-        QRegExp searcher( pureDataSourceCandidate, Qt::CaseInsensitive, QRegExp::WildcardUnix );
+        QString            regexPattern = QRegularExpression::wildcardToRegularExpression( pureDataSourceCandidate );
+        QRegularExpression searcher( regexPattern, QRegularExpression::CaseInsensitiveOption );
 
         for ( const auto& ds : dataSourceNames )
         {
-            if ( !foundDataSource && searcher.exactMatch( ds ) )
+            if ( !foundDataSource && searcher.match( ds ).hasMatch() )
             {
                 dataSourceFilters.push_back( s );
                 foundDataSource = true;
@@ -166,13 +167,14 @@ std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryEnsemble*>>
 
     for ( const auto& dsFilter : dataSourceFilters )
     {
-        QString searchString = dsFilter.left( dsFilter.indexOf( ':' ) );
-        QRegExp searcher( searchString, Qt::CaseInsensitive, QRegExp::WildcardUnix );
+        QString            searchString = dsFilter.left( dsFilter.indexOf( ':' ) );
+        QString            regexPattern = QRegularExpression::wildcardToRegularExpression( searchString );
+        QRegularExpression searcher( regexPattern, QRegularExpression::CaseInsensitiveOption );
 
         for ( const auto& ensemble : allEnsembles )
         {
             auto ensembleName = ensemble->name();
-            if ( searcher.exactMatch( ensembleName ) )
+            if ( searcher.match( ensembleName ).hasMatch() )
             {
                 if ( searchString == dsFilter )
                 {
@@ -184,13 +186,14 @@ std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryEnsemble*>>
                 {
                     // Match on subset of realisations in ensemble
 
-                    QString realizationSearchString = dsFilter.right( dsFilter.size() - dsFilter.indexOf( ':' ) - 1 );
-                    QRegExp realizationSearcher( realizationSearchString, Qt::CaseInsensitive, QRegExp::WildcardUnix );
+                    QString            realizationSearchString = dsFilter.right( dsFilter.size() - dsFilter.indexOf( ':' ) - 1 );
+                    QString            regexPattern            = QRegularExpression::wildcardToRegularExpression( realizationSearchString );
+                    QRegularExpression realizationSearcher( regexPattern, QRegularExpression::CaseInsensitiveOption );
 
                     for ( const auto& summaryCase : ensemble->allSummaryCases() )
                     {
                         auto realizationName = summaryCase->displayCaseName();
-                        if ( realizationSearcher.exactMatch( realizationName ) )
+                        if ( realizationSearcher.match( realizationName ).hasMatch() )
                         {
                             matchingSummaryCases.push_back( summaryCase );
                         }
@@ -202,7 +205,7 @@ std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryEnsemble*>>
         for ( const auto& summaryCase : allSummaryCases )
         {
             auto summaryCaseName = summaryCase->displayCaseName();
-            if ( searcher.exactMatch( summaryCaseName ) )
+            if ( searcher.match( summaryCaseName ).hasMatch() )
             {
                 matchingSummaryCases.push_back( summaryCase );
             }
@@ -217,7 +220,7 @@ std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryEnsemble*>>
 //--------------------------------------------------------------------------------------------------
 QStringList RiaSummaryStringTools::splitIntoWords( const QString& text )
 {
-    return RiaTextStringTools::splitSkipEmptyParts( text, QRegExp( "\\s+" ) );
+    return RiaTextStringTools::splitSkipEmptyParts( text );
 }
 
 //--------------------------------------------------------------------------------------------------

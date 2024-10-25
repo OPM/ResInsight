@@ -500,7 +500,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotManager::filteredAddresses()
 
     if ( nativeAddresses.empty() ) return {};
 
-    QStringList allCurveAddressFilters = RiaTextStringTools::splitSkipEmptyParts( m_filterText(), QRegExp( "\\s+" ) );
+    QStringList allCurveAddressFilters = RiaTextStringTools::splitSkipEmptyParts( m_filterText(), QRegularExpression( "\\s+" ) );
 
     return RiaSummaryStringTools::computeFilteredAddresses( allCurveAddressFilters, nativeAddresses, m_includeDiffCurves );
 }

@@ -392,11 +392,12 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                        
             // "VECTOR_NAME [unit]"
             {
                 // "VECTORNAME (unit)" ==> "(unit)"
-                QRegExp exp( "[[]([^]]+)[]]" );
-                if ( exp.indexIn( colName ) >= 0 )
+                QRegularExpression      exp( R"(\[([^\]]+)\])" );
+                QRegularExpressionMatch match = exp.match( colName );
+                if ( match.hasMatch() )
                 {
-                    QString fullCapture = exp.cap( 0 );
-                    QString unitCapture = exp.cap( 1 );
+                    QString fullCapture = match.captured( 0 );
+                    QString unitCapture = match.captured( 1 );
 
                     unit    = unitCapture;
                     colName = RiaTextStringTools::trimAndRemoveDoubleSpaces( colName.remove( fullCapture ) );
@@ -405,11 +406,12 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                        
 
             {
                 // "VECTOR_NAME [unit]" ==> "[unit]"
-                QRegExp exp( "[(]([^)]+)[)]" );
-                if ( exp.indexIn( colName ) >= 0 )
+                QRegularExpression      exp( R"(\(([^)]+)\))" );
+                QRegularExpressionMatch match = exp.match( colName );
+                if ( match.hasMatch() )
                 {
-                    QString fullCapture = exp.cap( 0 );
-                    QString unitCapture = exp.cap( 1 );
+                    QString fullCapture = match.captured( 0 );
+                    QString unitCapture = match.captured( 1 );
 
                     unit    = unitCapture;
                     colName = RiaTextStringTools::trimAndRemoveDoubleSpaces( colName.remove( fullCapture ) );

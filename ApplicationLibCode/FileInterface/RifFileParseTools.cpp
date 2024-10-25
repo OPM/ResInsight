@@ -19,14 +19,6 @@
 #include "RifFileParseTools.h"
 #include "RiaTextStringTools.h"
 
-// Disable deprecation warning for QString::SkipEmptyParts
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )
-#endif
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -43,7 +35,7 @@ QStringList RifFileParseTools::splitLineAndTrim( const QString& line, const QStr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RifFileParseTools::splitLineAndTrim( const QString& line, const QRegExp& regexp, bool skipEmptyParts )
+QStringList RifFileParseTools::splitLineAndTrim( const QString& line, const QRegularExpression& regexp, bool skipEmptyParts )
 {
     auto cols = RiaTextStringTools::splitString( line.trimmed(), regexp, skipEmptyParts );
     for ( QString& col : cols )

@@ -91,7 +91,7 @@ void RimPolylinesFromFileAnnotation::readPolyLinesFile( QString* errorMessage )
         QStringList commentLineSegs = line.split( "#" );
         if ( commentLineSegs.empty() ) continue; // Empty line
 
-        QStringList lineSegs = RiaTextStringTools::splitSkipEmptyParts( commentLineSegs[0], QRegExp( "\\s+" ) );
+        QStringList lineSegs = RiaTextStringTools::splitSkipEmptyParts( commentLineSegs[0], QRegularExpression( "\\s+" ) );
 
         if ( lineSegs.empty() ) continue; // No data
 

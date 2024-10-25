@@ -136,6 +136,15 @@ QStringList RiaTextStringTools::splitSkipEmptyParts( const QString& text, const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QStringList RiaTextStringTools::splitSkipEmptyParts( const QString& text, const QRegularExpression& regularExpression )
+{
+    bool skipEmptyParts = true;
+    return splitString( text, regularExpression, skipEmptyParts );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QStringList RiaTextStringTools::splitString( const QString& text, const QString& sep, bool skipEmptyParts )
 {
     return text.split( sep, skipEmptyParts ? Qt::SkipEmptyParts : Qt::KeepEmptyParts, Qt::CaseInsensitive );
@@ -144,9 +153,9 @@ QStringList RiaTextStringTools::splitString( const QString& text, const QString&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RiaTextStringTools::splitString( const QString& text, const QRegExp& regExp, bool skipEmptyParts )
+QStringList RiaTextStringTools::splitString( const QString& text, const QRegularExpression& regularExpression, bool skipEmptyParts )
 {
-    return regExp.splitString( text, skipEmptyParts ? Qt::SkipEmptyParts : Qt::KeepEmptyParts );
+    return text.split( regularExpression, skipEmptyParts ? Qt::SkipEmptyParts : Qt::KeepEmptyParts );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,16 +204,6 @@ bool RiaTextStringTools::isNumber( const QString& text, const QString& decimalPo
     auto decimalChar = decimalPoint.toLatin1()[0];
 
     return RiaStdStringTools::isNumber( stdString, decimalChar );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QStringList RiaTextStringTools::splitSkipEmptyParts( const QString& text, const QRegExp& regExp )
-{
-    bool skipEmptyParts = true;
-
-    return splitString( text, regExp, skipEmptyParts );
 }
 
 //--------------------------------------------------------------------------------------------------
