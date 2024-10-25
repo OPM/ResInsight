@@ -620,11 +620,7 @@ void PdmUiTreeSelectionEditor::slotInvertCheckedStateOfAll()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::setCheckedStateForIntegerItemsMatchingFilter()
 {
-#if ( QT_VERSION < QT_VERSION_CHECK( 5, 14, 0 ) )
-    auto SkipEmptyParts = QString::SkipEmptyParts;
-#else
     auto SkipEmptyParts = Qt::SkipEmptyParts;
-#endif
 
     std::set<int> filterValues;
 

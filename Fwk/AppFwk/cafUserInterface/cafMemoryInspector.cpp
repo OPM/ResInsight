@@ -25,11 +25,6 @@
 
 #ifdef __linux__
 
-#if ( QT_VERSION < QT_VERSION_CHECK( 5, 14, 0 ) )
-    auto SkipEmptyParts = QString::SkipEmptyParts;
-#else
-    auto SkipEmptyParts = Qt::SkipEmptyParts;
-#endif
 
 //--------------------------------------------------------------------------------------------------
 /// Read bytes of memory of different types for current process from /proc/self/statm
@@ -47,7 +42,7 @@ std::map<QString, uint64_t> readProcessBytesLinux()
     if (procSelfStatus.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         QString line(procSelfStatus.readLine(256));
-        QStringList lineWords = line.split(QRegularExpression("\\s+"), SkipEmptyParts);
+        QStringList lineWords = line.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
         quantities["VmSize"] = static_cast<uint64_t>(lineWords[0].toLongLong() * pageSize);
         quantities["RSS"] = static_cast<uint64_t>(lineWords[1].toLongLong() * pageSize);
         quantities["Shared"] = static_cast<uint64_t>(lineWords[2].toLongLong() * pageSize);
@@ -75,7 +70,7 @@ std::map<QString, uint64_t> readMemInfoLinuxMiB()
             if (lineLength > 0)
             {
                 QString     line  = QString::fromLatin1(buf, lineLength);
-                QStringList words = line.split(QRegularExpression(":*\\s+"), SkipEmptyParts);
+                QStringList words = line.split(QRegularExpression(":*\\s+"), Qt::SkipEmptyParts);
                 if (words.size() > 1)
                 {
                     bool ok    = true;
