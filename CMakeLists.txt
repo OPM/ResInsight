@@ -162,7 +162,7 @@ if(RESINSIGHT_DOWNLOAD_ODB_FROM_SERVER)
     )
   endif()
 
-  FetchContent_Populate(odb-library-from-server)
+  FetchContent_MakeAvailable(odb-library-from-server)
   set(RESINSIGHT_ODB_API_DIR ${odb-library-from-server_SOURCE_DIR})
 endif()
 
@@ -405,7 +405,7 @@ else()
   )
 endif()
 
-FetchContent_Populate(openvds)
+FetchContent_MakeAvailable(openvds)
 
 set(RESINSIGHT_OPENVDS_API_DIR ${openvds_SOURCE_DIR})
 message(STATUS "Using OpenVDS api from : ${RESINSIGHT_OPENVDS_API_DIR}")
@@ -434,7 +434,7 @@ if(MSVC)
       hdf-external-lib
       URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2023.04/HDF_Group.zip
     )
-    FetchContent_Populate(hdf-external-lib)
+    FetchContent_MakeAvailable(hdf-external-lib)
     set(RESINSIGHT_HDF5_DIR ${hdf-external-lib_SOURCE_DIR}/HDF5/1.8.18)
   endif()
 
@@ -490,7 +490,7 @@ if((NOT RESINSIGHT_BUILD_LIBS_FROM_SOURCE) AND MSVC)
     ri-dependencies
     URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/latest/download/custom-opm-common.zip
   )
-  FetchContent_Populate(ri-dependencies)
+  FetchContent_MakeAvailable(ri-dependencies)
 
   add_library(custom-opm-common STATIC IMPORTED)
   set_target_properties(
@@ -1052,7 +1052,7 @@ if(RESINSIGHT_USE_EXTERNAL_OCTAVE_PLUGINS)
     URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/latest/download/OctavePlugins-0.1.1-Linux.tar.gz
   )
 
-  FetchContent_Populate(external-octave_plugins)
+  FetchContent_MakeAvailable(external-octave_plugins)
 
   file(GLOB FILE_AND_SYMLINKS ${external-octave_plugins_SOURCE_DIR}/*.oct)
   install(
