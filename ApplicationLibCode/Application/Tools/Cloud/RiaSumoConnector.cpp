@@ -276,7 +276,7 @@ void RiaSumoConnector::parseEnsembleNames( QNetworkReply* reply, const SumoCaseI
         QJsonObject   aggregationColumnsObject = aggregationsObject["iteration_names"].toObject();
 
         QJsonArray bucketsArray = aggregationColumnsObject["buckets"].toArray();
-        foreach ( const QJsonValue& bucket, bucketsArray )
+        for ( const QJsonValue& bucket : bucketsArray )
         {
             QJsonObject bucketObj    = bucket.toObject();
             auto        ensembleName = bucketObj["key"].toString();
@@ -825,7 +825,7 @@ void RiaSumoConnector::parseCases( QNetworkReply* reply )
 
         m_cases.clear();
 
-        foreach ( const QJsonValue& value, hitsObjects )
+        for ( const QJsonValue& value : hitsObjects )
         {
             QJsonObject resultObj = value.toObject();
             QJsonObject sourceObj = resultObj["_source"].toObject();
@@ -931,7 +931,7 @@ void RiaSumoConnector::parseBlobIds( QNetworkReply*    reply,
         QJsonObject rootHits    = jsonObj["hits"].toObject();
         QJsonArray  hitsObjects = rootHits["hits"].toArray();
 
-        foreach ( const QJsonValue& value, hitsObjects )
+        for ( const QJsonValue& value : hitsObjects )
         {
             QJsonObject resultObj = value.toObject();
             QJsonObject sourceObj = resultObj["_source"].toObject();

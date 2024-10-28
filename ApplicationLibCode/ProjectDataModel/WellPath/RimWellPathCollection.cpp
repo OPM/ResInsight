@@ -397,7 +397,7 @@ std::vector<RimWellLogLasFile*> RimWellPathCollection::addWellLogs( const QStrin
 
     std::vector<RimWellLogLasFile*> logFileInfos;
 
-    foreach ( QString filePath, filePaths )
+    for ( const QString& filePath : filePaths )
     {
         QString            errorMessage;
         RimWellLogLasFile* logFileInfo = RimWellLogLasFile::readWellLogFile( filePath, &errorMessage );
@@ -943,13 +943,14 @@ std::map<QString, std::vector<RimWellPath*>>
 {
     std::map<QString, std::vector<RimWellPath*>> rootWells;
 
-    QString multiLateralWellPathPattern = RiaPreferences::current()->multiLateralWellNamePattern();
-    QRegExp re( multiLateralWellPathPattern, Qt::CaseInsensitive, QRegExp::Wildcard );
+    QString            multiLateralWellPathPattern = RiaPreferences::current()->multiLateralWellNamePattern();
+    QString            regexPattern                = QRegularExpression::wildcardToRegularExpression( multiLateralWellPathPattern );
+    QRegularExpression re( regexPattern, QRegularExpression::CaseInsensitiveOption );
 
     for ( auto wellPath : sourceWellPaths )
     {
         QString name = wellPath->name();
-        if ( re.exactMatch( name ) )
+        if ( re.match( name ).hasMatch() )
         {
             int indexOfLateralStart = name.indexOf( 'Y' );
             if ( indexOfLateralStart > 0 )

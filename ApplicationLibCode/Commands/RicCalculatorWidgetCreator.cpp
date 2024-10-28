@@ -152,8 +152,8 @@ QWidget* RicCalculatorWidgetCreator::createWidget( QWidget* parent )
     rowSplitter->setContentsMargins( 0, 0, 0, 0 );
     rowSplitter->setHandleWidth( 6 );
     rowSplitter->setStyleSheet( "QSplitter::handle { image: url(:/SplitterV.png); }" );
-    rowSplitter->insertWidget( 0, firstRowLeftFrame );
-    rowSplitter->insertWidget( 1, firstRowRightFrame );
+    rowSplitter->addWidget( firstRowLeftFrame );
+    rowSplitter->addWidget( firstRowRightFrame );
     rowSplitter->setSizes( QList<int>() << 1 << 1 );
     firstRowLayout->addWidget( rowSplitter );
 

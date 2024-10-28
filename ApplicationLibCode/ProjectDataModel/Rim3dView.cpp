@@ -21,20 +21,16 @@
 
 #include "RiaApplication.h"
 #include "RiaFieldHandleTools.h"
-#include "RiaGuiApplication.h"
 #include "RiaOptionItemFactory.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaViewRedrawScheduler.h"
-
-#include "RicfCommandObject.h"
 
 #include "Rim2dIntersectionView.h"
 #include "Rim3dWellLogCurve.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"
-#include "RimCellFilterCollection.h"
 #include "RimGridView.h"
 #include "RimLegendConfig.h"
 #include "RimMainPlotCollection.h"
@@ -45,7 +41,6 @@
 #include "RimTools.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
-#include "RimViewLinkerCollection.h"
 #include "RimViewManipulator.h"
 #include "RimViewNameConfig.h"
 #include "RimWellPathCollection.h"
@@ -63,7 +58,6 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapabilityCvfColor3.h"
 #include "cafPdmUiComboBoxEditor.h"
-
 #include "cvfCamera.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
@@ -190,44 +184,6 @@ Rim3dView::Rim3dView()
 //--------------------------------------------------------------------------------------------------
 Rim3dView::~Rim3dView()
 {
-    // When a 3d view is destructed, make sure that all other views using this as a comparison view is reset and
-    // redrawn. A crash was seen for test case
-    // "\ResInsight-regression-test\ProjectFiles\ProjectFilesSmallTests\TestCase_CoViz-Simple" when a view used as
-    // comparison view was deleted.
-
-    if ( auto proj = RimProject::current() )
-    {
-        for ( auto v : proj->allViews() )
-        {
-            if ( v->activeComparisonView() == this )
-            {
-                v->setComparisonView( nullptr );
-                v->scheduleCreateDisplayModelAndRedraw();
-            }
-        }
-
-        if ( this->isMasterView() )
-        {
-            RimViewLinker* viewLinker = this->assosiatedViewLinker();
-            viewLinker->setMasterView( nullptr );
-
-            delete proj->viewLinkerCollection->viewLinker();
-            proj->viewLinkerCollection->viewLinker = nullptr;
-
-            proj->uiCapability()->updateConnectedEditors();
-        }
-
-        RimViewController* vController = this->viewController();
-        if ( vController )
-        {
-            vController->setManagedView( nullptr );
-            vController->ownerViewLinker()->removeViewController( vController );
-            delete vController;
-
-            proj->uiCapability()->updateConnectedEditors();
-        }
-    }
-
     if ( RiaApplication::instance()->activeReservoirView() == this )
     {
         RiaApplication::instance()->setActiveReservoirView( nullptr );

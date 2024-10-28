@@ -94,4 +94,5 @@ class RifCaseRealizationParametersFileLocator
 public:
     static QString locate( const QString& modelPath );
     static int     realizationNumber( const QString& modelPath );
+    static int     realizationNumberFromFullPath( const QString& path );
 };

@@ -202,12 +202,8 @@ void caf::CeetronNavigation::wheelEvent( QWheelEvent* event )
     int navDelta = vpHeight / 5;
     if ( event->angleDelta().y() < 0 ) navDelta *= -1;
 
-#if ( QT_VERSION < QT_VERSION_CHECK( 5, 15, 0 ) )
-    QPoint cursorPosition = event->pos();
-#else
     QPoint cursorPosition = event->position().toPoint();
-#endif
-    int posY = m_viewer->height() - cursorPosition.y();
+    int    posY           = m_viewer->height() - cursorPosition.y();
 
     m_trackball->startNavigation( ManipulatorTrackball::WALK, cursorPosition.x(), posY );
 

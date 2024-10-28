@@ -518,6 +518,8 @@ void RimViewLinker::updateCursorPosition( const Rim3dView* sourceView, const cvf
 
     for ( Rim3dView* destinationView : viewsToUpdate )
     {
+        if ( !destinationView ) continue;
+
         if ( destinationView == sourceView ) continue;
 
         if ( destinationView != m_masterView )
