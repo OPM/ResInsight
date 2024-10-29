@@ -148,8 +148,9 @@ std::vector<SimulationWellCellBranch>
                 const auto& [gridIndex, cellIndex] = gridAndCellIndices.front();
                 if ( gridIndex < eclipseCaseData->gridCount() && cellIndex < eclipseCaseData->grid( gridIndex )->cellCount() )
                 {
-                    const RigCell& cell       = eclipseCaseData->grid( gridIndex )->cell( cellIndex );
-                    cvf::Vec3d     whStartPos = cell.faceCenter( cvf::StructGridInterface::NEG_K );
+                    const RigCell& cell = eclipseCaseData->grid( gridIndex )->cell( cellIndex );
+                    if ( cell.isInvalid() ) continue;
+                    cvf::Vec3d whStartPos = cell.faceCenter( cvf::StructGridInterface::NEG_K );
 
                     // Add extra coordinate between cell face and cell center
                     // to make sure the well pipe terminated in a segment parallel to z-axis
@@ -209,9 +210,13 @@ std::vector<SimulationWellCellBranch>
             }
         }
 
-        const auto simWellBranch = addCoordsAtCellFaceIntersectionsAndCreateBranch( cellCenterCoords, cellCenterResultPoints, eclipseCaseData );
+        if ( !cellCenterCoords.empty() )
+        {
+            const auto simWellBranch =
+                addCoordsAtCellFaceIntersectionsAndCreateBranch( cellCenterCoords, cellCenterResultPoints, eclipseCaseData );
 
-        simWellBranches.emplace_back( simWellBranch );
+            simWellBranches.emplace_back( simWellBranch );
+        }
     }
 
     return simWellBranches;
