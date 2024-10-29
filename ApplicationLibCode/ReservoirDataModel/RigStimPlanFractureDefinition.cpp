@@ -681,8 +681,6 @@ const std::vector<std::vector<double>>&
         }
     }
 
-    RiaLogging::error( "Requested parameter does not exists in stimPlan data" );
-
     static std::vector<std::vector<double>> emptyVector;
     return emptyVector;
 }
