@@ -183,7 +183,7 @@ jobs:
           version: ${{ matrix.config.qt-version }}
           dir: "${{ github.workspace }}/Qt/"
           cache: true
-          modules: "qtnetworkauth qtcharts qt5compat"
+          modules: "qtnetworkauth qtcharts"
 
       - name: Export GitHub Actions cache environment variables
         uses: actions/github-script@v7
