@@ -50,7 +50,10 @@ RigActiveCellGrid::~RigActiveCellGrid()
 //--------------------------------------------------------------------------------------------------
 RigCell& RigActiveCellGrid::cell( size_t gridLocalCellIndex )
 {
-    if ( m_nativeCells.contains( gridLocalCellIndex ) ) return m_nativeCells[gridLocalCellIndex];
+    if ( auto it = m_nativeCells.find( gridLocalCellIndex ); it != m_nativeCells.end() )
+    {
+        return it->second;
+    }
     return m_invalidCell;
 }
 
@@ -59,7 +62,10 @@ RigCell& RigActiveCellGrid::cell( size_t gridLocalCellIndex )
 //--------------------------------------------------------------------------------------------------
 const RigCell& RigActiveCellGrid::cell( size_t gridLocalCellIndex ) const
 {
-    if ( m_nativeCells.contains( gridLocalCellIndex ) ) return m_nativeCells.at( gridLocalCellIndex );
+    if ( const auto it = m_nativeCells.find( gridLocalCellIndex ); it != m_nativeCells.end() )
+    {
+        return it->second;
+    }
     return m_invalidCell;
 }
 
