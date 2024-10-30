@@ -23,6 +23,7 @@
 #include "RigFemResultPosEnum.h"
 
 #include "cvfObject.h"
+#include "cvfVector3.h"
 
 #include <string>
 #include <vector>
