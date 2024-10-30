@@ -37,7 +37,7 @@ ads::CDockWidget* RiuDockWidgetTools::createDockWidget( QString title, QString d
 {
     ads::CDockWidget* dockWidget = new ads::CDockWidget( title, parent );
     dockWidget->setObjectName( dockName );
-    dockWidget->setToggleViewActionMode( ads::CDockWidget::ActionModeShow );
+    dockWidget->setToggleViewActionMode( ads::CDockWidget::ActionModeToggle );
     dockWidget->setIcon( RiuDockWidgetTools::dockIcon( dockName ) );
 
     return dockWidget;
