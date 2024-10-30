@@ -19,7 +19,8 @@
 
 #include "RiaTextStringTools.h"
 #include "RiaWellNameComparer.h"
-#include "RigWellPath.h"
+
+#include "Well/RigWellPath.h"
 
 #include "RimModeledWellPath.h"
 #include "RimWellPathCompletionSettings.h"

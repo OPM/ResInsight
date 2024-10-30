@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RigWellPathFormations.h"
+#include "Well/RigWellPathFormations.h"
 
 #include "cvfObject.h"
 

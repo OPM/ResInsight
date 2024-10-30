@@ -21,7 +21,7 @@
 #include "RifTextDataTableFormatter.h"
 
 #include "RigMainGrid.h"
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "RimModeledWellPath.h"
 #include "RimTools.h"

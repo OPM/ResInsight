@@ -21,7 +21,7 @@
 #include "RicSelectOrCreateViewFeatureImpl.h"
 
 #include "RigFlowDiagResultAddress.h"
-#include "RigSimWellData.h"
+#include "Well/RigSimWellData.h"
 
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilter.h"

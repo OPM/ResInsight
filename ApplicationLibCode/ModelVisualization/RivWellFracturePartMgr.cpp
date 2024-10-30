@@ -24,7 +24,7 @@
 #include "RigFractureGrid.h"
 #include "RigHexIntersectionTools.h"
 #include "RigMainGrid.h"
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "RimCase.h"
 #include "RimEclipseCase.h"

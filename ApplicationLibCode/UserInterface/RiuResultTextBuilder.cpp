@@ -28,9 +28,9 @@
 #include "RigNNCData.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
-#include "RigSimWellData.h"
-#include "RigWellResultFrame.h"
-#include "RigWellResultPoint.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigWellResultFrame.h"
+#include "Well/RigWellResultPoint.h"
 
 #include "Rim2dIntersectionView.h"
 #include "RimCellEdgeColors.h"

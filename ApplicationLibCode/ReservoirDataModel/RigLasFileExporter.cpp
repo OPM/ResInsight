@@ -19,12 +19,12 @@
 #include "RigLasFileExporter.h"
 
 #include "RiaDefines.h"
-#include "RigWellLogCurveData.h"
-#include "RigWellPath.h"
 #include "RimCase.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellPath.h"
+#include "Well/RigWellLogCurveData.h"
+#include "Well/RigWellPath.h"
 
 #include "cafUtils.h"
 

@@ -29,8 +29,8 @@
 #include "RigGridBase.h"
 #include "RigMainGrid.h"
 #include "RigStatisticsMath.h"
-#include "RigWellPath.h"
-#include "RigWellPathGeometryTools.h"
+#include "Well/RigWellPath.h"
+#include "Well/RigWellPathGeometryTools.h"
 
 #include "RimEclipseCase.h"
 #include "RimModeledWellPath.h"

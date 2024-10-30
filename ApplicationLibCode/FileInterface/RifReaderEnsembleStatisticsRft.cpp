@@ -20,9 +20,9 @@
 
 #include "RiaExtractionTools.h"
 
-#include "RigEclipseWellLogExtractor.h"
 #include "RigStatisticsMath.h"
-#include "RigWellPath.h"
+#include "Well/RigEclipseWellLogExtractor.h"
+#include "Well/RigWellPath.h"
 
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"

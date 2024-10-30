@@ -26,16 +26,16 @@
 
 #include "RifReaderEclipseRft.h"
 
-#include "RigAccWellFlowCalculator.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RigEclipseWellLogExtractor.h"
 #include "RigMainGrid.h"
-#include "RigSimWellData.h"
-#include "RigWellLogExtractor.h"
-#include "RigWellPath.h"
-#include "RigWellResultFrame.h"
-#include "RigWellResultPoint.h"
+#include "Well/RigAccWellFlowCalculator.h"
+#include "Well/RigEclipseWellLogExtractor.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigWellLogExtractor.h"
+#include "Well/RigWellPath.h"
+#include "Well/RigWellResultFrame.h"
+#include "Well/RigWellResultPoint.h"
 
 #include "RimDataSourceForRftPlt.h"
 #include "RimEclipseCase.h"

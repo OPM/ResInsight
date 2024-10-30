@@ -27,7 +27,7 @@
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogTrack.h"
 
-#include "RigWellLogCurveData.h"
+#include "Well/RigWellLogCurveData.h"
 
 #include "RiuGuiTheme.h"
 #include "RiuPlotAnnotationTool.h"

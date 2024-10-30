@@ -21,7 +21,9 @@
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RicfCommandObject.h"
 #include "RifTextDataTableFormatter.h"
-#include "RigWellPath.h"
+
+#include "Well/RigWellPath.h"
+#include "Well/RigWellPathGeometryTools.h"
 
 #include "RimExtrudedCurveIntersection.h"
 #include "RimPlotCurve.h"
@@ -35,7 +37,6 @@
 #include "RimWellPathTarget.h"
 #include "RimWellPathTieIn.h"
 
-#include "RigWellPathGeometryTools.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiTreeOrdering.h"

@@ -25,7 +25,7 @@
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
 #include "RigFemScalarResultFrames.h"
-#include "RigGeoMechWellLogExtractor.h"
+#include "Well/RigGeoMechWellLogExtractor.h"
 
 #include "cafProgressInfo.h"
 

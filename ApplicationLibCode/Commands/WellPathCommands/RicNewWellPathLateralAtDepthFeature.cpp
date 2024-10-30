@@ -20,7 +20,8 @@
 
 #include "WellPathCommands/RicWellPathsUnitSystemSettingsImpl.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
+
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
 #include "RimModeledWellPath.h"

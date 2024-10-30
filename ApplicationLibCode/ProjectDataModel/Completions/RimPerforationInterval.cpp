@@ -24,7 +24,7 @@
 #include "RiaQDateTimeTools.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "RimPerforationCollection.h"
 #include "RimProject.h"

@@ -23,7 +23,7 @@
 #include "ExportCommands/RicExportSelectedWellPathsFeature.h"
 #include "ExportCommands/RicExportWellPathsUi.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"

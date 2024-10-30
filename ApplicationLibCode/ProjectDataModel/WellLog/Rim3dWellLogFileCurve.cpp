@@ -18,7 +18,7 @@
 
 #include "Rim3dWellLogFileCurve.h"
 
-#include "RigWellLogLasFile.h"
+#include "Well/RigWellLogLasFile.h"
 
 #include "RimWellLogChannel.h"
 #include "RimWellLogLasFile.h"

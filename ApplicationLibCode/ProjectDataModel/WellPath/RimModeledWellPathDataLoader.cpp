@@ -20,7 +20,7 @@
 
 #include "RimModeledWellPath.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 //--------------------------------------------------------------------------------------------------
 ///

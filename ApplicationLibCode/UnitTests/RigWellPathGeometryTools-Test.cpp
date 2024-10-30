@@ -18,7 +18,7 @@
 
 #include "gtest/gtest.h"
 
-#include "RigWellPathGeometryTools.h"
+#include "Well/RigWellPathGeometryTools.h"
 
 #include <algorithm>
 #include <complex>

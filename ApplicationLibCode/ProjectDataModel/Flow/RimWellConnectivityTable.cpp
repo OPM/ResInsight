@@ -23,12 +23,12 @@
 #include "RiaStdStringTools.h"
 #include "RiaWellFlowDefines.h"
 
-#include "RigAccWellFlowCalculator.h"
 #include "RigEclipseCaseData.h"
-#include "RigSimWellData.h"
-#include "RigSimulationWellCenterLineCalculator.h"
-#include "RigWellAllocationOverTime.h"
-#include "RigWellResultFrame.h"
+#include "Well/RigAccWellFlowCalculator.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigSimulationWellCenterLineCalculator.h"
+#include "Well/RigWellAllocationOverTime.h"
+#include "Well/RigWellResultFrame.h"
 
 #include "RimEclipseCaseTools.h"
 #include "RimEclipseCellColors.h"

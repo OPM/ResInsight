@@ -21,8 +21,8 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RigPipeInCellEvaluator.h"
 #include "RigResultAccessorFactory.h"
+#include "Well/RigPipeInCellEvaluator.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"

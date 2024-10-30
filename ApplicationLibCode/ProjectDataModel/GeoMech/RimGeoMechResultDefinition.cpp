@@ -34,7 +34,7 @@
 #include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
 #include "RigWbsParameter.h"
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "Rim3dWellLogCurve.h"
 #include "RimGeoMechCase.h"

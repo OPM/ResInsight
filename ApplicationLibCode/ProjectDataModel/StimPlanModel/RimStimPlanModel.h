@@ -25,7 +25,7 @@
 #include "RimPerforationInterval.h"
 #include "RimWellPathComponentInterface.h"
 
-#include "RigWellLogExtractor.h"
+#include "Well/RigWellLogExtractor.h"
 
 #include "cafPdmChildField.h"
 #include "cafPdmFieldCvfVec3d.h"

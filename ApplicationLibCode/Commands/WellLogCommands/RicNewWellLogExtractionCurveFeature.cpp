@@ -25,7 +25,7 @@
 
 #include "RiaApplication.h"
 
-#include "RigWellLogCurveData.h"
+#include "Well/RigWellLogCurveData.h"
 
 #include "Rim3dView.h"
 #include "RimGridView.h"

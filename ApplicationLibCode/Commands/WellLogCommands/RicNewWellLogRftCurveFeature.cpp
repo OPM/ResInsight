@@ -26,7 +26,7 @@
 #include "RimWellLogRftCurve.h"
 #include "RimWellLogTrack.h"
 
-#include "RigWellLogCurveData.h"
+#include "Well/RigWellLogCurveData.h"
 
 #include "RiuPlotMainWindow.h"
 

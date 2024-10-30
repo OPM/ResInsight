@@ -26,9 +26,9 @@
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
-#include "RigSimWellData.h"
 #include "RigTracerPoint.h"
-#include "RigWellResultFrame.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigWellResultFrame.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseInputCase.h"

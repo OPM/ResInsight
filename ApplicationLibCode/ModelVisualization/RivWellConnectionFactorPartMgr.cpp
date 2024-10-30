@@ -20,11 +20,11 @@
 
 #include "RiaExtractionTools.h"
 
-#include "RigEclipseWellLogExtractor.h"
 #include "RigMainGrid.h"
 #include "RigVirtualPerforationTransmissibilities.h"
-#include "RigWellLogExtractor.h"
-#include "RigWellPath.h"
+#include "Well/RigEclipseWellLogExtractor.h"
+#include "Well/RigWellLogExtractor.h"
+#include "Well/RigWellPath.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"

@@ -24,10 +24,10 @@
 #include "RiaStimPlanModelDefines.h"
 
 #include "RigEclipseCaseData.h"
-#include "RigEclipseWellLogExtractor.h"
-#include "RigWellPath.h"
+#include "Well/RigEclipseWellLogExtractor.h"
+#include "Well/RigWellPath.h"
+#include "Well/RigWellPathGeometryTools.h"
 
-#include "RigWellPathGeometryTools.h"
 #include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimModeledWellPath.h"

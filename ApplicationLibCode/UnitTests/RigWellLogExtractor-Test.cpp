@@ -21,10 +21,10 @@
 #include "RifReaderMockModel.h"
 
 #include "RigEclipseCaseData.h"
-#include "RigEclipseWellLogExtractor.h"
 #include "RigGridManager.h"
 #include "RigMainGrid.h"
-#include "RigWellPath.h"
+#include "Well/RigEclipseWellLogExtractor.h"
+#include "Well/RigWellPath.h"
 
 //--------------------------------------------------------------------------------------------------
 ///

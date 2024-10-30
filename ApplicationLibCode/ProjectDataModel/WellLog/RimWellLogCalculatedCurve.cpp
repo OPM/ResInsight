@@ -21,7 +21,7 @@
 #include "RiaDefines.h"
 #include "RiaLogging.h"
 
-#include "RigWellLogCurveData.h"
+#include "Well/RigWellLogCurveData.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"

@@ -20,7 +20,8 @@
 
 #include "RicNewWellPathLateralAtDepthFeature.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
+
 #include "RimWellPath.h"
 
 #include "cafSelectionManager.h"

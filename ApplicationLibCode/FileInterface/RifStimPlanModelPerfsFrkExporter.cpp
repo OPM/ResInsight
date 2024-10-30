@@ -24,8 +24,8 @@
 #include "RimStimPlanModel.h"
 #include "RimWellPath.h"
 
-#include "RigWellPath.h"
-#include "RigWellPathGeometryTools.h"
+#include "Well/RigWellPath.h"
+#include "Well/RigWellPathGeometryTools.h"
 
 #include "caf.h"
 

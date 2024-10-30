@@ -21,7 +21,7 @@
 
 #include "RimWellLogFile.h"
 
-#include "RigWellLogCsvFile.h"
+#include "Well/RigWellLogCsvFile.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"

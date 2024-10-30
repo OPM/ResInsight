@@ -24,8 +24,8 @@
 #include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
 
-#include "RigSimWellData.h"
-#include "RigWellResultFrame.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigWellResultFrame.h"
 
 #include "Rim3dView.h"
 #include "RimEclipseResultCase.h"

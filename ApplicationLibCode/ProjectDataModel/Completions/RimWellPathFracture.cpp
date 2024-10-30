@@ -19,7 +19,7 @@
 
 #include "RimWellPathFracture.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "RimEllipseFractureTemplate.h"
 #include "RimProject.h"

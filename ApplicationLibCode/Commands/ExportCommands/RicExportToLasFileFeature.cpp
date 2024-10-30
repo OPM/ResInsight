@@ -26,7 +26,7 @@
 #include "RiaApplication.h"
 
 #include "RigLasFileExporter.h"
-#include "RigWellLogCurveData.h"
+#include "Well/RigWellLogCurveData.h"
 
 #include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"

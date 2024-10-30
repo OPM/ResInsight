@@ -20,7 +20,8 @@
 
 #include "RimFracture.h"
 
-#include "RigSimulationWellCoordsAndMD.h"
+#include "Well/RigSimulationWellCoordsAndMD.h"
+
 #include "RimEllipseFractureTemplate.h"
 
 //==================================================================================================

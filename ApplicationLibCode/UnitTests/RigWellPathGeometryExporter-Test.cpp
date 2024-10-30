@@ -18,9 +18,8 @@
 
 #include "gtest/gtest.h"
 
-#include "RigWellPathGeometryExporter.h"
-
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
+#include "Well/RigWellPathGeometryExporter.h"
 
 #include "cvfVector3.h"
 

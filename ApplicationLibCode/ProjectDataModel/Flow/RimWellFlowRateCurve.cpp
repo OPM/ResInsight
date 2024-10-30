@@ -20,7 +20,7 @@
 
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
-#include "RigWellLogCurveData.h"
+#include "Well/RigWellLogCurveData.h"
 
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogPlot.h"

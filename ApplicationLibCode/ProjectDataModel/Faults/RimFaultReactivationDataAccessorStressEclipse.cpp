@@ -25,12 +25,12 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseResultAddress.h"
-#include "RigEclipseWellLogExtractor.h"
 #include "RigFaultReactivationModel.h"
 #include "RigGriddedPart3d.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
-#include "RigWellPath.h"
+#include "Well/RigEclipseWellLogExtractor.h"
+#include "Well/RigWellPath.h"
 
 #include "RimEclipseCase.h"
 #include "RimFaultReactivationDataAccessorStress.h"

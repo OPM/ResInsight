@@ -20,7 +20,7 @@
 
 #include "RiaDefines.h"
 
-#include "RigWellLogCurveData.h"
+#include "Well/RigWellLogCurveData.h"
 
 #include "cvfVector3.h"
 

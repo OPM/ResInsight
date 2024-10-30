@@ -23,7 +23,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
-#include "RigSimWellData.h"
+#include "Well/RigSimWellData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"

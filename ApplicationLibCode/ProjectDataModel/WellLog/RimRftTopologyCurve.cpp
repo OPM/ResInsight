@@ -24,7 +24,7 @@
 
 #include "RifReaderOpmRft.h"
 
-#include "RigWellLogCurveData.h"
+#include "Well/RigWellLogCurveData.h"
 
 #include "RimDepthTrackPlot.h"
 #include "RimProject.h"

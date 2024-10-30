@@ -31,7 +31,7 @@
 #include "RigFractureGrid.h"
 #include "RigThermalFractureDefinition.h"
 #include "RigThermalFractureResultUtil.h"
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "RimEclipseView.h"
 #include "RimFracture.h"

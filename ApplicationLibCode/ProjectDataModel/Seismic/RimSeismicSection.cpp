@@ -34,7 +34,7 @@
 
 #include "RigPolyLinesData.h"
 #include "RigTexturedSection.h"
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "RivSeismicSectionPartMgr.h"
 

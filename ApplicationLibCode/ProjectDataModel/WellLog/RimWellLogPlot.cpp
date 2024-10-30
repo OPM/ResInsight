@@ -19,8 +19,8 @@
 
 #include "RimWellLogPlot.h"
 
-#include "RigWellLogCurveData.h"
-#include "RigWellPath.h"
+#include "Well/RigWellLogCurveData.h"
+#include "Well/RigWellPath.h"
 
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"

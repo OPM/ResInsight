@@ -36,8 +36,8 @@
 #include "RigEclipseResultInfo.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
-#include "RigSimWellData.h"
-#include "RigWellResultFrame.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigWellResultFrame.h"
 
 #include "cafProgressInfo.h"
 

@@ -21,7 +21,7 @@
 #include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
 
-#include "RigWellLogCsvFile.h"
+#include "Well/RigWellLogCsvFile.h"
 
 #include "RimFileWellPath.h"
 #include "RimTools.h"

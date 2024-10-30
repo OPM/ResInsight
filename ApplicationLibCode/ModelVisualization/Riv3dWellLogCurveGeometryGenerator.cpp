@@ -19,8 +19,8 @@
 #include "Riv3dWellLogCurveGeometryGenerator.h"
 
 #include "RiaCurveDataTools.h"
-#include "RigWellPath.h"
-#include "RigWellPathGeometryTools.h"
+#include "Well/RigWellPath.h"
+#include "Well/RigWellPathGeometryTools.h"
 
 #include "Rim3dWellLogCurve.h"
 #include "RimWellPath.h"

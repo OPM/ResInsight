@@ -24,11 +24,11 @@
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaResultNames.h"
 #include "RiaTextStringTools.h"
 
-#include "RiaResultNames.h"
-#include "RigWellLogCurveData.h"
-#include "RigWellPath.h"
+#include "Well/RigWellLogCurveData.h"
+#include "Well/RigWellPath.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"

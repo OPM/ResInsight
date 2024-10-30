@@ -27,7 +27,7 @@
 #include "RimPlotCurveAppearance.h"
 #include "WellLogCommands/RicNewWellLogPlotFeatureImpl.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"

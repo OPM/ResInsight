@@ -39,9 +39,9 @@
 #include "RigGridManager.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
-#include "RigSimWellData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
-#include "RigWellResultFrame.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigWellResultFrame.h"
 
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCaseCollection.h"

@@ -35,7 +35,7 @@
 #include "RifByteArrayArrowRandomAccessFile.h"
 #include "RifCsvUserDataParser.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "cvfObject.h"
 #include "cvfVector3.h"

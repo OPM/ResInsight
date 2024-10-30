@@ -18,7 +18,7 @@
 
 #include "RimMultipleValveLocations.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "RiaEclipseUnitTools.h"
 

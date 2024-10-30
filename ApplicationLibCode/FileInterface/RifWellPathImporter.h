@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "cvfObject.h"
 
