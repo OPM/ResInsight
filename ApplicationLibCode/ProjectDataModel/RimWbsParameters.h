@@ -17,8 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RigGeoMechWellLogExtractor.h"
 #include "RigWbsParameter.h"
+#include "Well/RigGeoMechWellLogExtractor.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"

@@ -19,7 +19,8 @@
 
 #pragma once
 
-#include "RigPipeInCellEvaluator.h"
+#include "Well/RigPipeInCellEvaluator.h"
+
 #include "RivResultToTextureMapper.h"
 
 #include "cvfScalarMapper.h"

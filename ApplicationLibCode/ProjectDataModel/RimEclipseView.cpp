@@ -37,10 +37,10 @@
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
-#include "RigSimWellData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
-#include "RigWellResultFrame.h"
-#include "RigWellResultPoint.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigWellResultFrame.h"
+#include "Well/RigWellResultPoint.h"
 
 #include "Polygons/RimPolygonInViewCollection.h"
 #include "Rim2dIntersectionView.h"

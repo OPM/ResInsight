@@ -23,9 +23,9 @@
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
 #include "RigMainGrid.h"
-#include "RigSimWellData.h"
-#include "RigWellResultFrame.h"
-#include "RigWellResultPoint.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigWellResultFrame.h"
+#include "Well/RigWellResultPoint.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"

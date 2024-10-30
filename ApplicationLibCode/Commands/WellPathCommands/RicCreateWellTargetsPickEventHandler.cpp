@@ -23,8 +23,8 @@
 #include "RigFemPartGrid.h"
 #include "RigHexIntersectionTools.h"
 #include "RigMainGrid.h"
-#include "RigWellPath.h"
-#include "RigWellPathGeometryTools.h"
+#include "Well/RigWellPath.h"
+#include "Well/RigWellPathGeometryTools.h"
 
 #include "Rim3dView.h"
 #include "RimCase.h"

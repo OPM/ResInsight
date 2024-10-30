@@ -28,7 +28,7 @@
 #include "RigFault.h"
 #include "RigMainGrid.h"
 #include "RigStimPlanModelTools.h"
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "Rim3dView.h"
 #include "RimAnnotationCollection.h"

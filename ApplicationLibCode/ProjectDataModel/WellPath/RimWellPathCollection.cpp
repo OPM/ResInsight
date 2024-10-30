@@ -36,8 +36,8 @@
 
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
-#include "RigOsduWellLogData.h"
-#include "RigWellPath.h"
+#include "Well/RigOsduWellLogData.h"
+#include "Well/RigWellPath.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"

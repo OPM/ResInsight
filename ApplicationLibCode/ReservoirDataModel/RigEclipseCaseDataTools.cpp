@@ -20,7 +20,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RigSimWellData.h"
+#include "Well/RigSimWellData.h"
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -20,7 +20,7 @@
 
 #include "RiaSimWellBranchTools.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "RimEclipseCase.h"
 #include "RimMainPlotCollection.h"

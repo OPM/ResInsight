@@ -24,7 +24,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseResultAddress.h"
-#include "RigWellTargetCandidatesGenerator.h"
+#include "Well/RigWellTargetCandidatesGenerator.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseEnsemble.h"

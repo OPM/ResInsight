@@ -19,8 +19,8 @@
 
 #include "RimWellLogPlot.h"
 
-#include "RigGeoMechWellLogExtractor.h"
 #include "RigWbsParameter.h"
+#include "Well/RigGeoMechWellLogExtractor.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"

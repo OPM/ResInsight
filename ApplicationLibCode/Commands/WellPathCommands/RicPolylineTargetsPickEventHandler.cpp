@@ -20,7 +20,7 @@
 
 #include "RiaOffshoreSphericalCoords.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "Rim3dView.h"
 #include "RimModeledWellPath.h"

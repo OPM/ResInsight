@@ -24,9 +24,9 @@
 #include "RigEclipseCaseData.h"
 #include "RigFault.h"
 #include "RigMainGrid.h"
-#include "RigSimulationWellCoordsAndMD.h"
-#include "RigWellLogExtractor.h"
-#include "RigWellPathIntersectionTools.h"
+#include "Well/RigSimulationWellCoordsAndMD.h"
+#include "Well/RigWellLogExtractor.h"
+#include "Well/RigWellPathIntersectionTools.h"
 
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"

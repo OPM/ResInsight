@@ -21,7 +21,7 @@
 #include "RiaGuiApplication.h"
 
 #include "RigEclipseCaseData.h"
-#include "RigWellLogCurveData.h"
+#include "Well/RigWellLogCurveData.h"
 
 #include "Rim3dView.h"
 #include "RimCase.h"

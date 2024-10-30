@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiaEclipseUnitTools.h"
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "cafAssert.h"
 

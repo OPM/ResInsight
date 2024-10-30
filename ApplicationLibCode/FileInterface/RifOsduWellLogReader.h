@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RigOsduWellLogData.h"
+#include "Well/RigOsduWellLogData.h"
 
 #include "cvfObject.h"
 

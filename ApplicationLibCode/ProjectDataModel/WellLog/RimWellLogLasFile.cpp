@@ -26,7 +26,7 @@
 #include "RiaFieldHandleTools.h"
 #include "RiaQDateTimeTools.h"
 
-#include "RigWellLogLasFile.h"
+#include "Well/RigWellLogLasFile.h"
 
 #include "RimFileWellPath.h"
 #include "RimTools.h"

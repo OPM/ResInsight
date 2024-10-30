@@ -20,10 +20,10 @@
 
 #include "RigCell.h"
 #include "RigMainGrid.h"
-#include "RigSimWellData.h"
-#include "RigSimulationWellCenterLineCalculator.h"
-#include "RigWellPath.h"
-#include "RigWellResultPoint.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigSimulationWellCenterLineCalculator.h"
+#include "Well/RigWellPath.h"
+#include "Well/RigWellResultPoint.h"
 
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"

@@ -26,8 +26,8 @@
 #include "RiaWellLogUnitTools.h"
 
 #include "RigStatisticsMath.h"
-#include "RigWellLogIndexDepthOffset.h"
-#include "RigWellLogLasFile.h"
+#include "Well/RigWellLogIndexDepthOffset.h"
+#include "Well/RigWellLogLasFile.h"
 
 #include "RimWellLogLasFile.h"
 

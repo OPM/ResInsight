@@ -20,7 +20,7 @@
 
 #include "RimWellLog.h"
 
-#include "RigOsduWellLogData.h"
+#include "Well/RigOsduWellLogData.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"

@@ -24,8 +24,8 @@
 #include "RicCreateDepthAdjustedLasFilesUi.h"
 #include "RicExportFeatureImpl.h"
 
-#include "RigEclipseWellLogExtractor.h"
-#include "RigGeoMechWellLogExtractor.h"
+#include "Well/RigEclipseWellLogExtractor.h"
+#include "Well/RigGeoMechWellLogExtractor.h"
 
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"

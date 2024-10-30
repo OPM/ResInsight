@@ -24,7 +24,7 @@
 
 #include "RiaApplication.h"
 
-#include "RigWellLogCurveData.h"
+#include "Well/RigWellLogCurveData.h"
 
 #include "RimRftCase.h"
 #include "RimSummaryCase.h"

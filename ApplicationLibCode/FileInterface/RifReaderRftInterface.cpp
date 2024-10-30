@@ -19,10 +19,10 @@
 #include "RifReaderRftInterface.h"
 
 #include "RigEclipseCaseData.h"
-#include "RigEclipseWellLogExtractor.h"
 #include "RigMainGrid.h"
-#include "RigWellPath.h"
-#include "RigWellPathGeometryTools.h"
+#include "Well/RigEclipseWellLogExtractor.h"
+#include "Well/RigWellPath.h"
+#include "Well/RigWellPathGeometryTools.h"
 
 #include "cafVecIjk.h"
 

@@ -23,8 +23,8 @@
 
 #include "RigMainGrid.h"
 #include "RigPolyLinesData.h"
-#include "RigSimulationWellCenterLineCalculator.h"
-#include "RigWellPath.h"
+#include "Well/RigSimulationWellCenterLineCalculator.h"
+#include "Well/RigWellPath.h"
 
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonCollection.h"

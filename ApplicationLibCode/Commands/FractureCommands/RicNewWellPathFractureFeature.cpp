@@ -23,7 +23,7 @@
 
 #include "RicFractureNameGenerator.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "RimCase.h"
 #include "RimEclipseView.h"

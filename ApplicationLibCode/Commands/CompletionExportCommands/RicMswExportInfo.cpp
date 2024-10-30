@@ -24,7 +24,7 @@
 #include "RimMswCompletionParameters.h"
 #include "RimWellPath.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include <algorithm>
 #include <limits>

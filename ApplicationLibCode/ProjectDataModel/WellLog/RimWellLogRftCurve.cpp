@@ -36,12 +36,12 @@
 #include "RifReaderOpmRft.h"
 
 #include "RigEclipseCaseData.h"
-#include "RigEclipseWellLogExtractor.h"
 #include "RigMainGrid.h"
-#include "RigWellLogCurveData.h"
-#include "RigWellPath.h"
-#include "RigWellPathGeometryTools.h"
-#include "RigWellPathIntersectionTools.h"
+#include "Well/RigEclipseWellLogExtractor.h"
+#include "Well/RigWellLogCurveData.h"
+#include "Well/RigWellPath.h"
+#include "Well/RigWellPathGeometryTools.h"
+#include "Well/RigWellPathIntersectionTools.h"
 
 #include "RimDepthTrackPlot.h"
 #include "RimEclipseResultCase.h"

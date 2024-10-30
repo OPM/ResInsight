@@ -27,8 +27,8 @@
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
 #include "RigMainGrid.h"
-#include "RigSimWellData.h"
-#include "RigWellResultFrame.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigWellResultFrame.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"

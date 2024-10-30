@@ -29,13 +29,13 @@
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
-#include "RigSimWellData.h"
-#include "RigSimulationWellCenterLineCalculator.h"
-#include "RigSimulationWellCoordsAndMD.h"
 #include "RigVirtualPerforationTransmissibilities.h"
-#include "RigWellPath.h"
-#include "RigWellResultFrame.h"
-#include "RigWellResultPoint.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigSimulationWellCenterLineCalculator.h"
+#include "Well/RigSimulationWellCoordsAndMD.h"
+#include "Well/RigWellPath.h"
+#include "Well/RigWellResultFrame.h"
+#include "Well/RigWellResultPoint.h"
 
 #include <QDebug>
 

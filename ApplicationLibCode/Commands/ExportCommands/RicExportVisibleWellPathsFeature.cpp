@@ -23,7 +23,7 @@
 #include "CompletionExportCommands/RicExportCompletionsForVisibleWellPathsFeature.h"
 #include "RicExportSelectedWellPathsFeature.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"

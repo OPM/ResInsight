@@ -18,18 +18,19 @@
 
 #include "Rim3dWellLogExtractionCurve.h"
 
-#include "RigWellLogLasFile.h"
-
 #include "RiaCurveDataTools.h"
 #include "RiaExtractionTools.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RigEclipseWellLogExtractor.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
-#include "RigGeoMechWellLogExtractor.h"
 #include "RigResultAccessorFactory.h"
-#include "RigWellPath.h"
+#include "Well/RigEclipseWellLogExtractor.h"
+#include "Well/RigGeoMechWellLogExtractor.h"
+#include "Well/RigWellLogLasFile.h"
+#include "Well/RigWellPath.h"
+
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimEclipseCase.h"

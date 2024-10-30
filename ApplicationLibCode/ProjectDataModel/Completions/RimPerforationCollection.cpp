@@ -27,7 +27,7 @@
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "RifWellPathImporter.h"
 

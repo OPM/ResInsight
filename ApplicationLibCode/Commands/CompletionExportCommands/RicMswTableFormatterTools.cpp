@@ -25,7 +25,7 @@
 
 #include "RifTextDataTableFormatter.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "RimMswCompletionParameters.h"
 #include "RimWellPath.h" // TODO: Consider adding wellnameforexport to RicMswExportInfo to avoid these includes

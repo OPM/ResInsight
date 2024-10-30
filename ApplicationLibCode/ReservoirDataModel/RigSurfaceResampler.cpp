@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigSurfaceResampler.h"
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "cvfGeometryTools.h"
 

@@ -30,9 +30,9 @@
 #include "RigCompletionData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
-#include "RigWellLogExtractor.h"
-#include "RigWellPath.h"
-#include "RigWellPathIntersectionTools.h"
+#include "Well/RigWellLogExtractor.h"
+#include "Well/RigWellPath.h"
+#include "Well/RigWellPathIntersectionTools.h"
 
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"

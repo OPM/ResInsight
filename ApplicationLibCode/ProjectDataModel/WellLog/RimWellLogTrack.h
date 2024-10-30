@@ -22,7 +22,8 @@
 #include "RimWellLogPlot.h"
 
 #include "RiaPlotDefines.h"
-#include "RigWellPathFormations.h"
+
+#include "Well/RigWellPathFormations.h"
 
 #include "RimPlot.h"
 

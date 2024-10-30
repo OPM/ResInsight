@@ -26,9 +26,9 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
-#include "RigEclipseWellLogExtractor.h"
-#include "RigGeoMechWellLogExtractor.h"
 #include "RigResultAccessorFactory.h"
+#include "Well/RigEclipseWellLogExtractor.h"
+#include "Well/RigGeoMechWellLogExtractor.h"
 
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"

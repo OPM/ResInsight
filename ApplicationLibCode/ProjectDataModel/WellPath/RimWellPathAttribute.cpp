@@ -18,7 +18,8 @@
 #include "RimWellPathAttribute.h"
 
 #include "RiaColorTables.h"
-#include "RigWellPath.h"
+
+#include "Well/RigWellPath.h"
 
 #include "RimProject.h"
 #include "RimWellPath.h"

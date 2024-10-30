@@ -24,8 +24,8 @@
 #include "RiaPreferences.h"
 
 #include "RigEclipseCaseData.h"
-#include "RigSimWellData.h"
-#include "RigWellResultFrame.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigWellResultFrame.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseContourMapView.h"

@@ -18,7 +18,7 @@
 
 #include "RimWellPathTieIn.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "RimFileWellPath.h"
 #include "RimModeledWellPath.h"

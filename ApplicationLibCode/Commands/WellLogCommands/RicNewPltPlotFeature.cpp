@@ -24,7 +24,7 @@
 #include "RicNewWellLogPlotFeatureImpl.h"
 #include "RicWellLogPlotCurveFeatureImpl.h"
 
-#include "RigWellLogCurveData.h"
+#include "Well/RigWellLogCurveData.h"
 
 #include "Rim3dView.h"
 #include "RimEclipseResultCase.h"

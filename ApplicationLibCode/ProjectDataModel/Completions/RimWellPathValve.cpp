@@ -24,7 +24,7 @@
 
 #include "Riu3DMainWindowTools.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "RimMultipleValveLocations.h"
 #include "RimPerforationInterval.h"

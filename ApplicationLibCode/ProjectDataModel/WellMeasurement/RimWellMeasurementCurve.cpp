@@ -18,8 +18,8 @@
 
 #include "RimWellMeasurementCurve.h"
 
-#include "RigWellLogCurveData.h"
-#include "RigWellPath.h"
+#include "Well/RigWellLogCurveData.h"
+#include "Well/RigWellPath.h"
 
 #include "RimDepthTrackPlot.h"
 #include "RimProject.h"

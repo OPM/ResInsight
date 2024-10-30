@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RigSimWellData.h"
+#include "Well/RigSimWellData.h"
 
 #include "cafPdmPointer.h"
 

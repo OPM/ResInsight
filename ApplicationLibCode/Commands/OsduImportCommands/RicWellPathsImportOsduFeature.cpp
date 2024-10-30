@@ -27,7 +27,7 @@
 #include "RiaPreferences.h"
 #include "RiaPreferencesOsdu.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "RimFileWellPath.h"
 #include "RimOilField.h"

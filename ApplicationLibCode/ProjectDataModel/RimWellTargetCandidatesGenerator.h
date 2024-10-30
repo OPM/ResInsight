@@ -22,7 +22,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "RigWellTargetCandidatesGenerator.h"
+#include "Well/RigWellTargetCandidatesGenerator.h"
 
 //==================================================================================================
 ///
