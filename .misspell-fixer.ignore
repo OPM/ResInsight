@@ -1,5 +1,5 @@
 ^ApplicationLibCode/ReservoirDataModel/Well/RigWellLogLasFile.cpp:28:aswell
-^ApplicationLibCode/ReservoirDataModel/Well/RigLasFileExporter.cpp:33:aswell
+^ApplicationLibCode/ReservoirDataModel/RigLasFileExporter.cpp:33:aswell
 ^ApplicationExeCode/Resources/EastView.svg
 ^ApplicationExeCode/Resources/NorthView.svg
 ^ApplicationExeCode/Resources/SouthView.svg
