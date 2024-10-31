@@ -741,7 +741,9 @@ void RifReaderOpmCommon::setupInitAndRestartAccess()
     {
         try
         {
+            RiaLogging::resetTimer( "Starting import of meta data from " + QString::fromStdString( m_restartFileName ) );
             m_restartFile = std::make_unique<EclIO::ERst>( m_restartFileName );
+            RiaLogging::logTimeElapsed( "Completed import of meta data" );
         }
         catch ( ... )
         {
@@ -890,6 +892,8 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
     auto task = progress.task( "Handling well information", 10 );
     if ( loadWellDataEnabled() && !m_restartFileName.empty() )
     {
+        RiaLogging::resetTimer( "Start import of simulation well data" );
+
         auto restartAccess = std::make_unique<RifEclipseUnifiedRestartFileAccess>();
         restartAccess->setRestartFiles( QStringList( QString::fromStdString( m_restartFileName ) ) );
         restartAccess->open();
@@ -907,6 +911,8 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
                                              isImportOfCompleteMswDataEnabled() );
 
         restartAccess->close();
+
+        RiaLogging::logTimeElapsed( "Completed import of simulation well data" );
     }
     else
     {
