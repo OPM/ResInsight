@@ -1139,19 +1139,22 @@ void RimEclipseView::appendElementVectorResultToModel()
             cvf::String name = "ElementVectorModelMod";
             RimEclipseView::removeModelByName( frameScene, name );
 
-            cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
-            frameParts->setName( name );
+            if ( m_elementVectorResult->showResult() )
+            {
+                cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
+                frameParts->setName( name );
 
-            m_reservoirGridPartManager->appendElementVectorResultDynamicGeometryPartsToModel( frameParts.p(),
-                                                                                              PROPERTY_FILTERED,
-                                                                                              m_currentTimeStep );
+                m_reservoirGridPartManager->appendElementVectorResultDynamicGeometryPartsToModel( frameParts.p(),
+                                                                                                  PROPERTY_FILTERED,
+                                                                                                  m_currentTimeStep );
 
-            // TODO: should this be ACTIVE?
-            m_reservoirGridPartManager->appendElementVectorResultDynamicGeometryPartsToModel( frameParts.p(),
-                                                                                              PROPERTY_FILTERED_WELL_CELLS,
-                                                                                              m_currentTimeStep );
+                // TODO: should this be ACTIVE?
+                m_reservoirGridPartManager->appendElementVectorResultDynamicGeometryPartsToModel( frameParts.p(),
+                                                                                                  PROPERTY_FILTERED_WELL_CELLS,
+                                                                                                  m_currentTimeStep );
 
-            frameScene->addModel( frameParts.p() );
+                frameScene->addModel( frameParts.p() );
+            }
         }
     }
 }
