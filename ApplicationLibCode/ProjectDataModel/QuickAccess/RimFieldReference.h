@@ -43,7 +43,6 @@ public:
     caf::PdmFieldHandle* field() const;
 
     caf::PdmObject* object() const;
-    void            setObjectsForSelection( const std::vector<caf::PdmObject*>& objectsForSelection );
 
 private:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -57,6 +56,4 @@ private:
 private:
     caf::PdmPtrField<caf::PdmObject*> m_object;
     caf::PdmField<QString>            m_fieldKeyword;
-
-    std::vector<caf::PdmObject*> m_objectsForSelection;
 };
