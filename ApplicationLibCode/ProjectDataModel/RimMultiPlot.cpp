@@ -194,6 +194,7 @@ void RimMultiPlot::insertPlot( RimPlot* plot, size_t index )
 
         if ( m_viewer )
         {
+            plot->setShowWindow( true );
             plot->createPlotWidget( m_viewer );
             m_viewer->insertPlot( plot->plotWidget(), index );
         }
