@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimFieldReference.h"
+#include "RimFieldQuickAccessInterface.h"
 
 CAF_PDM_SOURCE_INIT( RimFieldReference, "RimFieldReference" );
 
@@ -36,10 +37,19 @@ void RimFieldReference::setObject( caf::PdmObject* object )
 {
     m_object = object;
 
-    auto keywordAndNames = RimFieldReference::fieldKeywordAndNames( object );
-    if ( !keywordAndNames.empty() )
+    if ( auto quickInterface = dynamic_cast<RimFieldQuickAccessInterface*>( m_object() ) )
     {
-        m_fieldKeyword = keywordAndNames[0].first;
+        for ( const auto& [groupName, fields] : quickInterface->quickAccessFields() )
+        {
+            for ( auto field : fields )
+            {
+                if ( field )
+                {
+                    m_fieldKeyword = field->keyword();
+                    return;
+                }
+            }
+        }
     }
 }
 
@@ -131,29 +141,30 @@ QList<caf::PdmOptionItemInfo> RimFieldReference::calculateValueOptions( const ca
 
     if ( fieldNeedingOptions == &m_fieldKeyword )
     {
-        auto keywordAndNames = RimFieldReference::fieldKeywordAndNames( m_object );
-        for ( const auto& [keyword, name] : keywordAndNames )
+        if ( auto quickInterface = dynamic_cast<RimFieldQuickAccessInterface*>( m_object() ) )
         {
-            options.push_back( caf::PdmOptionItemInfo( name, keyword ) );
+            for ( const auto& [groupName, fields] : quickInterface->quickAccessFields() )
+            {
+                for ( auto field : fields )
+                {
+                    auto text = field->keyword();
+
+                    if ( auto uiCapability = field->uiCapability() )
+                    {
+                        text = uiCapability->uiName();
+                    }
+
+                    options.push_back( caf::PdmOptionItemInfo( text, field->keyword() ) );
+                }
+            }
         }
     }
     else if ( fieldNeedingOptions == &m_object )
     {
-        if ( m_objectsForSelection.empty() )
+        if ( m_object )
         {
-            if ( m_object )
-            {
-                QString text = m_object()->uiName();
-                options.push_back( caf::PdmOptionItemInfo( text, m_object ) );
-            }
-        }
-        else
-        {
-            for ( auto obj : m_objectsForSelection )
-            {
-                QString text = obj->uiName();
-                options.push_back( caf::PdmOptionItemInfo( text, obj ) );
-            }
+            QString text = m_object()->uiName();
+            options.push_back( caf::PdmOptionItemInfo( text, m_object ) );
         }
     }
 
@@ -176,14 +187,6 @@ caf::PdmFieldHandle* RimFieldReference::field() const
 caf::PdmObject* RimFieldReference::object() const
 {
     return m_object;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFieldReference::setObjectsForSelection( const std::vector<caf::PdmObject*>& objectsForSelection )
-{
-    m_objectsForSelection = objectsForSelection;
 }
 
 //--------------------------------------------------------------------------------------------------

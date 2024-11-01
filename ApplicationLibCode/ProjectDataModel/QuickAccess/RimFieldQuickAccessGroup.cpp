@@ -60,8 +60,6 @@ void RimFieldQuickAccessGroup::addFields( const std::vector<caf::PdmFieldHandle*
 
     for ( auto field : fields )
     {
-        if ( findField( field ) ) continue;
-
         addField( field );
     }
 }
@@ -73,8 +71,8 @@ void RimFieldQuickAccessGroup::addField( caf::PdmFieldHandle* field )
 {
     if ( !field ) return;
     if ( !m_ownerView ) return;
-
     if ( !isOwnerViewMatching( field ) ) return;
+    if ( findField( field ) ) return;
 
     auto fieldReference = new RimFieldQuickAccess();
     fieldReference->setField( field );

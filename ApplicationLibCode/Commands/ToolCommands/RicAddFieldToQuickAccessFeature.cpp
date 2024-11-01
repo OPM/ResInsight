@@ -18,6 +18,7 @@
 
 #include "RicAddFieldToQuickAccessFeature.h"
 
+#include "QuickAccess/RimFieldQuickAccessInterface.h"
 #include "QuickAccess/RimFieldReference.h"
 #include "QuickAccess/RimQuickAccessCollection.h"
 
@@ -29,6 +30,15 @@
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicAddFieldToQuickAccessFeature, "RicAddFieldToQuickAccessFeature" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicAddFieldToQuickAccessFeature::isCommandEnabled() const
+{
+    auto objects = caf::selectedObjectsByType<RimFieldQuickAccessInterface*>();
+    return !objects.empty();
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
