@@ -20,6 +20,7 @@
 
 #include "RivReservoirViewPartMgr.h"
 
+#include "RigActiveCellGrid.h"
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCaseToCaseCellMapper.h"
@@ -600,6 +601,27 @@ void RivReservoirViewPartMgr::computeNativeVisibility( cvf::UByteArray*         
     CVF_ASSERT( cellIsInWellStatuses->size() >= grid->cellCount() );
 
     cellVisibility->resize( grid->cellCount() );
+
+    if ( auto activeGrid = dynamic_cast<const RigActiveCellGrid*>( grid ) )
+    {
+        auto reservoirIndices = activeGrid->activeReservoirCellIndices();
+#pragma omp parallel for
+        for ( int i = 0; i < static_cast<int>( reservoirIndices.size() ); i++ )
+        {
+            size_t cellIndex = reservoirIndices[i];
+
+            if ( ( !activeCellsIsVisible ) || ( *cellIsInWellStatuses )[cellIndex] )
+            {
+                ( *cellVisibility )[cellIndex] = false;
+            }
+            else
+            {
+                ( *cellVisibility )[cellIndex] = true;
+            }
+        }
+
+        return;
+    }
 
 #pragma omp parallel for
     for ( int cellIndex = 0; cellIndex < static_cast<int>( grid->cellCount() ); cellIndex++ )
