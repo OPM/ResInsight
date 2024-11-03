@@ -112,6 +112,22 @@ size_t RigActiveCellGrid::totalActiveCellCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<size_t> RigActiveCellGrid::activeReservoirCellIndices() const
+{
+    std::vector<size_t> indices;
+    indices.reserve( m_nativeCells.size() );
+
+    for ( const auto& [index, cell] : m_nativeCells )
+    {
+        indices.emplace_back( index );
+    }
+
+    return indices;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigActiveCellGrid::setTotalActiveCellCount( size_t totalActiveCellCount )
 {
     m_totalActiveCellCount = totalActiveCellCount;

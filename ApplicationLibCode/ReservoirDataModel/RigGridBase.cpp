@@ -535,7 +535,7 @@ bool RigGridCellFaceVisibilityFilter::isFaceVisible( size_t                     
     CVF_TIGHT_ASSERT( m_grid );
 
     size_t cellIndex = m_grid->cellIndexFromIJK( i, j, k );
-    if ( m_grid->cell( cellIndex ).subGrid() )
+    if ( m_grid->mainGrid()->gridCount() > 1 && m_grid->cell( cellIndex ).subGrid() )
     {
         // Do not show any faces in the place where a LGR is present
         return false;
@@ -552,24 +552,15 @@ bool RigGridCellFaceVisibilityFilter::isFaceVisible( size_t                     
 
     size_t neighborCellIndex = m_grid->cellIndexFromIJK( ni, nj, nk );
 
-    // Do show the faces in the boarder between this grid and a possible LGR. Some of the LGR cells
-    // might not be visible.
-    if ( m_grid->cell( neighborCellIndex ).subGrid() )
+    // If the neighbour cell is invisible, we need to draw the face
+    if ( ( cellVisibility != nullptr ) && !( *cellVisibility )[neighborCellIndex] )
     {
         return true;
     }
 
-    // Do not show cell geometry if a fault is present to avoid z fighting between surfaces
-    // It will always be a better solution to avoid geometry creation instead of part priority and polygon offset
-    size_t          nativeResvCellIndex = m_grid->reservoirCellIndex( cellIndex );
-    const RigFault* fault               = m_grid->mainGrid()->findFaultFromCellIndexAndCellFace( nativeResvCellIndex, face );
-    if ( fault )
-    {
-        return false;
-    }
-
-    // If the neighbour cell is invisible, we need to draw the face
-    if ( ( cellVisibility != nullptr ) && !( *cellVisibility )[neighborCellIndex] )
+    // Do show the faces in the boarder between this grid and a possible LGR. Some of the LGR cells
+    // might not be visible.
+    if ( m_grid->mainGrid()->gridCount() > 1 && m_grid->cell( neighborCellIndex ).subGrid() )
     {
         return true;
     }

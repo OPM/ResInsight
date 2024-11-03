@@ -34,6 +34,8 @@ public:
     size_t totalCellCount() const override;
     size_t totalActiveCellCount() const;
 
+    std::vector<size_t> activeReservoirCellIndices() const;
+
 protected: // only for use by file readers!
     friend class RifReaderOpmCommonActive;
     std::map<size_t, RigCell>&       nativeCells();
