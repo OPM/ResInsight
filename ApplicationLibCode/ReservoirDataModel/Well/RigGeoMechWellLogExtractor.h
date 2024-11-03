@@ -19,13 +19,11 @@
 
 #pragma once
 
-#include "RiaDefines.h"
 #include "RigWbsParameter.h"
 #include "RigWellLogExtractor.h"
 
 #include "RigFemResultPosEnum.h"
 
-#include "cafAppEnum.h"
 #include "cafTensor3.h"
 
 #include "cvfObject.h"

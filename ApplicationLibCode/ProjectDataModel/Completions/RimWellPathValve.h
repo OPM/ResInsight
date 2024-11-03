@@ -26,7 +26,6 @@
 
 #include "cafPdmObject.h"
 
-#include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"

@@ -25,7 +25,6 @@
 #include "cafPdmCoreVec3d.h"
 #include "cafPdmField.h"
 #include "cafPdmProxyValueField.h"
-#include "cafPdmPtrField.h"
 
 class RimWellPathGeometryDef;
 

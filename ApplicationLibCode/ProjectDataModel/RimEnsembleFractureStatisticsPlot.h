@@ -18,11 +18,8 @@
 
 #pragma once
 
-#include "RiaDefines.h"
-
 #include "RigEnsembleFractureStatisticsCalculator.h"
 
-#include "RimEnsembleFractureStatistics.h"
 #include "RimStatisticsPlot.h"
 
 #include "cafAppEnum.h"

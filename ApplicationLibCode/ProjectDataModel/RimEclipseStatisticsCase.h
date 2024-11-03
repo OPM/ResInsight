@@ -27,8 +27,6 @@
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cvfCollection.h"
-#include "cvfObject.h"
 
 class RigMainGrid;
 class RigSimWellData;

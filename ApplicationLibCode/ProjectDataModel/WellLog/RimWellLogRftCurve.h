@@ -26,8 +26,6 @@
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
-#include "cvfObject.h"
-
 #include <QDateTime>
 #include <map>
 

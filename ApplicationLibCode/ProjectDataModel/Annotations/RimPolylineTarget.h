@@ -20,7 +20,6 @@
 
 #include "RiaLineArcWellPathCalculator.h"
 
-#include "cafAppEnum.h"
 #include "cafPdmCoreVec3d.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"

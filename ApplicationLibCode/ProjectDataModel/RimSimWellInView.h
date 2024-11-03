@@ -25,11 +25,9 @@
 #include "Well/RigWellDiskData.h"
 #include "Well/RigWellResultBranch.h"
 
-#include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmPointer.h"
 
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"

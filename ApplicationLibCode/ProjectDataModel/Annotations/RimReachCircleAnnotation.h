@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "cafAppEnum.h"
-#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
@@ -28,7 +26,6 @@
 #include "cafPdmChildField.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfVec3d.h"
-#include "cafPdmObject.h"
 
 #include "cvfObject.h"
 #include "cvfVector3.h"

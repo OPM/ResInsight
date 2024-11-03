@@ -20,7 +20,6 @@
 
 #include "RimCellFilter.h"
 
-#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmObject.h"

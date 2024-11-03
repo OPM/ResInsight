@@ -24,10 +24,7 @@
 #include "RimEnsembleCurveSetInterface.h"
 #include "RimEnsembleWellLogStatistics.h"
 
-#include "RigEnsembleParameter.h"
-
 #include "cafAppEnum.h"
-#include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"

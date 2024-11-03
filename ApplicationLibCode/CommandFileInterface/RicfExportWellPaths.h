@@ -20,7 +20,6 @@
 
 #include "RicfCommandObject.h"
 
-#include "cafAppEnum.h"
 #include "cafPdmField.h"
 
 class RimWellPath;

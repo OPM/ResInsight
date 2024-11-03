@@ -22,9 +22,7 @@
 #include "RigWbsParameter.h"
 #include "Well/RigGeoMechWellLogExtractor.h"
 
-#include "cafAppEnum.h"
 #include "cafPdmField.h"
-#include "cafPdmPtrField.h"
 
 class RimGeoMechCase;
 class RimWellPath;

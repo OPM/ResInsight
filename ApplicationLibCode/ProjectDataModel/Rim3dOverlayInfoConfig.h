@@ -27,9 +27,6 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
-#include "cvfAssert.h"
-#include "cvfObject.h"
-
 #include "cvfVector2.h"
 
 #include <cmath>
