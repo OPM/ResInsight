@@ -104,6 +104,7 @@
 #include "RiuPlotMainWindowTools.h"
 #include "RiuProcessMonitor.h"
 #include "RiuRecentFileActionProvider.h"
+#include "RiuViewer.h"
 
 #include "DockManager.h"
 
