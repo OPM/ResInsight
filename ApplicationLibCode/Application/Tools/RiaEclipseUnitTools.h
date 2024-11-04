@@ -19,7 +19,6 @@
 #pragma once
 
 #include "RiaDefines.h"
-#include "cafAppEnum.h"
 
 class RiaEclipseUnitTools
 {

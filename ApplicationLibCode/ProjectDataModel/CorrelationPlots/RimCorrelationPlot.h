@@ -22,7 +22,6 @@
 
 #include "RimAbstractCorrelationPlot.h"
 
-#include "cafAppEnum.h"
 #include "cafPdmFieldCvfColor.h"
 
 #include <QDateTime>

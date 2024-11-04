@@ -18,22 +18,9 @@
 
 #pragma once
 
-#include "cafAppEnum.h"
-#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmPointer.h"
 #include "cafPdmPtrField.h"
-
-// Include to make Pdm work for cvf::Color
-#include "cafPdmChildField.h"
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfVec3d.h"
-
-#include "cvfObject.h"
-#include "cvfVector3.h"
-
-#include <vector>
 
 class RimTextAnnotation;
 

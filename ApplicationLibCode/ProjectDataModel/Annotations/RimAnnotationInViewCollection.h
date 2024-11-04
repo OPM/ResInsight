@@ -21,13 +21,10 @@
 #include "RiaFontCache.h"
 #include "RimAnnotationCollectionBase.h"
 
-#include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmPointer.h"
-#include "cafTristate.h"
 
 class RimAnnotationCollection;
 class RimAnnotationGroupCollection;

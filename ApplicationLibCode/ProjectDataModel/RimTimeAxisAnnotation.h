@@ -20,10 +20,8 @@
 
 #include "RimPlotAxisAnnotation.h"
 
-#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmPtrField.h"
 
 #include "cvfColor3.h"
 

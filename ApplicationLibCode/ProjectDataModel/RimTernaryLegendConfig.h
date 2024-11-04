@@ -23,8 +23,6 @@
 
 #include "cvfObject.h"
 
-#include "cafAppEnum.h"
-
 class RimEclipseView;
 class RivTernarySaturationOverlayItem;
 class RivTernaryScalarMapper;

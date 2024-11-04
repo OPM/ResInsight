@@ -21,7 +21,6 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmPointer.h"
 #include "cafPdmPtrField.h"
 
 #include "RiaDateTimeDefines.h"

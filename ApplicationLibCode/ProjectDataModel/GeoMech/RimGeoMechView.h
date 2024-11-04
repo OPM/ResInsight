@@ -21,7 +21,6 @@
 
 #include "RimGridView.h"
 
-#include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"

@@ -20,8 +20,6 @@
 
 #include "RiaDateTimeDefines.h"
 
-#include "cafAppEnum.h"
-
 #include <QString>
 
 #include <set>

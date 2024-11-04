@@ -19,13 +19,9 @@
 
 #include "RimMeshFractureTemplate.h"
 
-#include "cafAppEnum.h"
-#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
-#include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
-#include "cafPdmPtrField.h"
 
 #include "cvfObject.h"
 #include "cvfVector3.h"
