@@ -35,6 +35,8 @@ public:
 
     virtual void performScheduledUpdates() = 0;
 
+    void blockUpdate( bool block );
+
 protected:
     void startTimer( int msecs );
     void waitUntilWorkIsDone();
@@ -44,4 +46,5 @@ private slots:
 
 private:
     QScopedPointer<QTimer> m_updateTimer;
+    bool                   m_blockUpdate;
 };

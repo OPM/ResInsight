@@ -26,6 +26,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiaScheduler::RiaScheduler()
+    : m_blockUpdate( false )
 {
 }
 
@@ -39,6 +40,18 @@ RiaScheduler::~RiaScheduler()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaScheduler::blockUpdate( bool block )
+{
+    m_blockUpdate = block;
+    if ( !m_blockUpdate )
+    {
+        startTimer( 0 );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaScheduler::slotUpdateScheduledItemsWhenReady()
 {
     if ( caf::ProgressState::isActive() )
@@ -47,7 +60,7 @@ void RiaScheduler::slotUpdateScheduledItemsWhenReady()
         return;
     }
 
-    performScheduledUpdates();
+    if ( !m_blockUpdate ) performScheduledUpdates();
 }
 
 //--------------------------------------------------------------------------------------------------

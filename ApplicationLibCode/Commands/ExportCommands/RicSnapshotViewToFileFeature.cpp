@@ -89,7 +89,7 @@ void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName,
 
     auto viewWidget = plot->viewWidget();
 
-    RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdatesAndReplots();
+    RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdates();
     QCoreApplication::processEvents();
     QFile pdfFile( fileName );
     if ( pdfFile.open( QIODevice::WriteOnly ) )

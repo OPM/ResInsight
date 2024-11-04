@@ -15,18 +15,12 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RiaPlotWindowRedrawScheduler.h"
 
 #include "RiuMultiPlotBook.h"
 #include "RiuMultiPlotPage.h"
 #include "RiuPlotWidget.h"
-
-#include <QCoreApplication>
-#include <QDebug>
-
-#include <set>
-
-#include "cafProgressState.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -87,13 +81,8 @@ void RiaPlotWindowRedrawScheduler::schedulePlotWidgetReplot( RiuPlotWidget* plot
 //--------------------------------------------------------------------------------------------------
 void RiaPlotWindowRedrawScheduler::clearAllScheduledUpdates()
 {
-    if ( m_plotWindowUpdateTimer )
-    {
-        while ( m_plotWindowUpdateTimer->isActive() )
-        {
-            QCoreApplication::processEvents();
-        }
-    }
+    waitUntilWorkIsDone();
+
     m_plotWidgetsToReplot.clear();
     m_plotPagesToUpdate.clear();
     m_plotBooksToUpdate.clear();
@@ -102,7 +91,7 @@ void RiaPlotWindowRedrawScheduler::clearAllScheduledUpdates()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPlotWindowRedrawScheduler::performScheduledUpdatesAndReplots()
+void RiaPlotWindowRedrawScheduler::performScheduledUpdates()
 {
     std::map<QPointer<RiuMultiPlotBook>, RiaDefines::MultiPlotPageUpdateType> plotBooksToUpdate;
     std::map<QPointer<RiuMultiPlotPage>, RiaDefines::MultiPlotPageUpdateType> pagesToUpdate;
@@ -143,59 +132,5 @@ void RiaPlotWindowRedrawScheduler::performScheduledUpdatesAndReplots()
         {
             plot->replot();
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaPlotWindowRedrawScheduler::blockScheduledUpdatesAndReplots()
-{
-    m_blockScheduledUpdatesAndReplots = true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaPlotWindowRedrawScheduler::unblockScheduledUpdatesAndReplots()
-{
-    m_blockScheduledUpdatesAndReplots = false;
-    startTimer( 0 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaPlotWindowRedrawScheduler::slotUpdateAndReplotScheduledItemsWhenReady()
-{
-    if ( m_blockScheduledUpdatesAndReplots )
-    {
-        return;
-    }
-
-    if ( caf::ProgressState::isActive() )
-    {
-        startTimer( 100 );
-        return;
-    }
-
-    performScheduledUpdatesAndReplots();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaPlotWindowRedrawScheduler::startTimer( int msecs )
-{
-    if ( !m_plotWindowUpdateTimer )
-    {
-        m_plotWindowUpdateTimer.reset( new QTimer( this ) );
-        connect( m_plotWindowUpdateTimer.data(), SIGNAL( timeout() ), this, SLOT( slotUpdateAndReplotScheduledItemsWhenReady() ) );
-    }
-
-    if ( !m_plotWindowUpdateTimer->isActive() )
-    {
-        m_plotWindowUpdateTimer->setSingleShot( true );
-        m_plotWindowUpdateTimer->start( msecs );
     }
 }

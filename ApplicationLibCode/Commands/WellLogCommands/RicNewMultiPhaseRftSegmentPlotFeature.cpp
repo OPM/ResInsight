@@ -95,7 +95,7 @@ void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
     plot->loadDataAndUpdate();
     plot->updateTrackVisibility();
 
-    RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdatesAndReplots();
+    RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdates();
     plot->updateLayout();
 
     RiuPlotMainWindowTools::onObjectAppended( plot );
