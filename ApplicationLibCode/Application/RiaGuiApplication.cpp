@@ -947,6 +947,11 @@ void RiaGuiApplication::createMainWindow()
     m_mainWindow->loadWinGeoAndDockToolBarLayout();
     m_mainWindow->showWindow();
 
+    {
+        // Initialize opengl. Doing this here will avoid flickerin when creating the first 3d view
+        caf::Viewer view( m_mainWindow );
+    }
+
     // if there is an existing logger, reconnect to it
 
     for ( auto logger : RiaLogging::loggerInstances() )
