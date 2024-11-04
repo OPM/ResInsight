@@ -27,6 +27,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesGrid.h"
+#include "RiaViewRedrawScheduler.h"
 
 #include "RifEclipseSummaryTools.h"
 #include "RifReaderSettings.h"
@@ -94,6 +95,10 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fil
     std::vector<RifSummaryCaseFileResultInfo> summaryFileInfos = selector.summaryFileInfos();
 
     FileCaseIdMap openedFiles;
+
+    // Block updates until summary data is imported
+    // Process events is called during import of summary data, and this will trigger redraw of the 3D window
+    RiaViewRedrawScheduler::instance()->blockUpdate( true );
 
     // Import eclipse case files
     for ( const QString& gridCaseFile : selector.gridCaseFiles() )
@@ -207,6 +212,8 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fil
     }
 
     project->activeOilField()->completionTemplateCollection()->setDefaultUnitSystemBasedOnLoadedCases();
+
+    RiaViewRedrawScheduler::instance()->blockUpdate( false );
 
     if ( RiaGuiApplication::isRunning() )
     {
