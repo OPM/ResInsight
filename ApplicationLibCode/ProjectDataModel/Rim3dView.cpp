@@ -313,7 +313,7 @@ QWidget* Rim3dView::createViewWidget( QWidget* mainWindowParent )
     // screen. Using nullptr as parent solves the issue.
     // https://github.com/OPM/ResInsight/issues/8192
     //
-    m_viewer = new RiuViewer( nullptr );
+    m_viewer = new RiuViewer( mainWindowParent );
     m_viewer->setOwnerReservoirView( this );
 
     cvf::String xLabel;
