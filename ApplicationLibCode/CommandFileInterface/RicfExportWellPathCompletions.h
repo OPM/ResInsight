@@ -22,7 +22,6 @@
 
 #include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
 
-#include "cafAppEnum.h"
 #include "cafPdmField.h"
 
 //==================================================================================================

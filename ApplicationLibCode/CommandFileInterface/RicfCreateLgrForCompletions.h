@@ -22,7 +22,6 @@
 
 #include "ExportCommands/RicLgrSplitType.h"
 
-#include "cafAppEnum.h"
 #include "cafPdmField.h"
 
 class RimWellPath;

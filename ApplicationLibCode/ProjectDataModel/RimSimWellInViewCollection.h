@@ -25,7 +25,6 @@
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h" // Include to make Pdm work for cvf::Color
 #include "cafPdmObject.h"
-#include "cafPdmPointer.h"
 #include "cafPdmPtrField.h"
 #include "cafTristate.h"
 

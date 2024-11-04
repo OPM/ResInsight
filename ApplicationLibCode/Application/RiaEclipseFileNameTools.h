@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "cafAppEnum.h"
-
 #include <QString>
 
 #include <vector>

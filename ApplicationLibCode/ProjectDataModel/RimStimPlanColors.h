@@ -22,7 +22,6 @@
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 
 // Include to make Pdm work for cvf::Color

@@ -20,11 +20,8 @@
 
 #include "RimAnnotationLineAppearance.h"
 
-#include "cafAppEnum.h"
-#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmPointer.h"
 #include "cafPdmPtrField.h"
 
 // Include to make Pdm work for cvf::Color

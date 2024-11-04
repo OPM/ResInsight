@@ -18,7 +18,9 @@
 
 #include "RiaEclipseFileNameTools.h"
 
-#include "QFileInfo"
+#include "cafAppEnum.h"
+
+#include <QFileInfo>
 
 namespace caf
 {

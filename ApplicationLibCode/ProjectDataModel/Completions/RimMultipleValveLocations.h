@@ -19,7 +19,6 @@
 #pragma once
 
 #include "cafAppEnum.h"
-#include "cafPdmBase.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
