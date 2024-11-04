@@ -104,7 +104,6 @@
 #include "RiuPlotMainWindowTools.h"
 #include "RiuProcessMonitor.h"
 #include "RiuRecentFileActionProvider.h"
-#include "RiuViewer.h"
 
 #include "DockManager.h"
 
@@ -957,6 +956,9 @@ void RiaGuiApplication::createMainWindow()
             messagePanelLogger->addMessagePanel( m_mainWindow->messagePanel() );
         }
     }
+
+    // Initialize OpenGL here to avoid flickering when creating the first 3D view
+    QOpenGLWidget openGLWidget( m_mainWindow );
 }
 
 //--------------------------------------------------------------------------------------------------
