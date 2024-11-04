@@ -472,6 +472,11 @@ void RiuMainWindowBase::initializeSubWindow( RiuMdiArea* mdiArea, QMdiSubWindow*
 
         mdiArea->applyTiling();
     }
+
+    // When creating the first sub window, the main window is set hidden. Set active, and process events to make sure the windows is shown
+    // and repainted.
+    activateWindow();
+    QCoreApplication::processEvents();
 }
 
 //--------------------------------------------------------------------------------------------------
