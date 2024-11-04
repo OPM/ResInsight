@@ -70,7 +70,7 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
     caf::ProgressInfo info( sumAddressCollections.size(), "Appending plots..." );
 
     summaryMultiPlot->startBatchAddOperation();
-    RiaPlotWindowRedrawScheduler::instance()->blockScheduledUpdatesAndReplots();
+    RiaPlotWindowRedrawScheduler::instance()->blockUpdate( true );
 
     for ( auto summaryAdrCollection : sumAddressCollections )
     {
@@ -119,7 +119,7 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
     summaryMultiPlot->endBatchAddOperation();
 
     RiaPlotWindowRedrawScheduler::instance()->clearAllScheduledUpdates();
-    RiaPlotWindowRedrawScheduler::instance()->unblockScheduledUpdatesAndReplots();
+    RiaPlotWindowRedrawScheduler::instance()->blockUpdate( false );
 
     summaryMultiPlot->loadDataAndUpdate();
 

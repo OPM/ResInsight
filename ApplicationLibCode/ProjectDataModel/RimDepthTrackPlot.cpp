@@ -950,7 +950,7 @@ void RimDepthTrackPlot::onPlotsReordered( const SignalEmitter* emitter )
     recreatePlotWidgets();
     loadDataAndUpdate();
 
-    RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdatesAndReplots();
+    RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdates();
     updateLayout();
 }
 
