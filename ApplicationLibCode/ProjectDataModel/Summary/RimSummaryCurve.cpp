@@ -247,16 +247,6 @@ RifEclipseSummaryAddress RimSummaryCurve::summaryAddressY() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::setSummaryAddressYAndApplyInterpolation( const RifEclipseSummaryAddress& address )
-{
-    setSummaryAddressY( address );
-
-    calculateCurveInterpolationFromAddress();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setSummaryAddressY( const RifEclipseSummaryAddress& address )
 {
     if ( m_yValuesSummaryAddress->address() != address )
@@ -265,6 +255,10 @@ void RimSummaryCurve::setSummaryAddressY( const RifEclipseSummaryAddress& addres
     }
 
     m_yValuesSummaryAddress->setAddress( address );
+
+    // Always calculate curve interpolation when address is changed
+    // This will ensure that the curve type (Rate or Accumulated) is correctly set based on the address
+    calculateCurveInterpolationFromAddress();
 }
 
 //--------------------------------------------------------------------------------------------------

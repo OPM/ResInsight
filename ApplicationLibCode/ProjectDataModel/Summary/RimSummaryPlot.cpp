@@ -2553,7 +2553,7 @@ RimSummaryCurve* RimSummaryPlot::addNewCurve( const RifEclipseSummaryAddress& ad
 {
     auto* newCurve = new RimSummaryCurve();
     newCurve->setSummaryCaseY( summaryCase );
-    newCurve->setSummaryAddressYAndApplyInterpolation( address );
+    newCurve->setSummaryAddressY( address );
 
     // This address is RifEclipseSummaryAddress::time() if the curve is a time plot. Otherwise it is the address of the summary vector used
     // for the x-axis
