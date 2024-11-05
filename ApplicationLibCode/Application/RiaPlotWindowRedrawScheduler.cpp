@@ -81,8 +81,6 @@ void RiaPlotWindowRedrawScheduler::schedulePlotWidgetReplot( RiuPlotWidget* plot
 //--------------------------------------------------------------------------------------------------
 void RiaPlotWindowRedrawScheduler::clearAllScheduledUpdates()
 {
-    waitUntilWorkIsDone();
-
     m_plotWidgetsToReplot.clear();
     m_plotPagesToUpdate.clear();
     m_plotBooksToUpdate.clear();

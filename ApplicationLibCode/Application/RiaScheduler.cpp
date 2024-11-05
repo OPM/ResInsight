@@ -80,17 +80,3 @@ void RiaScheduler::startTimer( int msecs )
         m_updateTimer->start( msecs );
     }
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaScheduler::waitUntilWorkIsDone()
-{
-    if ( m_updateTimer )
-    {
-        while ( m_updateTimer->isActive() )
-        {
-            QCoreApplication::processEvents();
-        }
-    }
-}
