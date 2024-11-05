@@ -39,7 +39,6 @@ public:
 
 protected:
     void startTimer( int msecs );
-    void waitUntilWorkIsDone();
 
 private slots:
     void slotUpdateScheduledItemsWhenReady();
