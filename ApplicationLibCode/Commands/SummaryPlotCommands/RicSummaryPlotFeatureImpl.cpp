@@ -689,7 +689,7 @@ RimSummaryCurve* RicSummaryPlotFeatureImpl::createCurve( RimSummaryCase* summary
 {
     auto curve = new RimSummaryCurve();
     curve->setSummaryCaseY( summaryCase );
-    curve->setSummaryAddressYAndApplyInterpolation( address );
+    curve->setSummaryAddressY( address );
 
     return curve;
 }

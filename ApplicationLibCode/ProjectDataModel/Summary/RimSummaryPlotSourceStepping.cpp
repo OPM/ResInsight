@@ -1253,7 +1253,8 @@ void RimSummaryPlotSourceStepping::updateVectorNameInCurves( std::vector<RimSumm
     {
         {
             auto adr = curve->summaryAddressY();
-            if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, adr ) ) curve->setSummaryAddressY( adr );
+            if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, adr ) )
+                curve->setSummaryAddressY( adr );
         }
 
         {
