@@ -65,7 +65,6 @@ public:
     virtual std::vector<double> valuesY() const;
 
     void setSummaryCaseY( RimSummaryCase* sumCase );
-    void setSummaryAddressYAndApplyInterpolation( const RifEclipseSummaryAddress& address );
     void setSummaryAddressY( const RifEclipseSummaryAddress& address );
     void setResampling( RiaDefines::DateTimePeriodEnum resampling );
 

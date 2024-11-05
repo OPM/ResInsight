@@ -2056,7 +2056,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
             {
                 RimSummaryCurve* curve = new RimSummaryCurve();
                 curve->setSummaryCaseY( sumCase );
-                curve->setSummaryAddressYAndApplyInterpolation( addr->address() );
+                curve->setSummaryAddressY( addr->address() );
                 curve->setResampling( m_resampling() );
 
                 int lineThickness = 1;
@@ -2259,7 +2259,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
             }
 
             curve->setSummaryCaseY( summaryCase );
-            curve->setSummaryAddressYAndApplyInterpolation( address.summaryAddressY() );
+            curve->setSummaryAddressY( address.summaryAddressY() );
             curve->setLeftOrRightAxisY( axisY() );
 
             if ( isXAxisSummaryVector() )

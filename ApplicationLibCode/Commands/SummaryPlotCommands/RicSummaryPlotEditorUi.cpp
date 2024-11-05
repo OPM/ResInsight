@@ -532,7 +532,7 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions( const std:
                 curve->setShowInLegend( false );
             }
             curve->setSummaryCaseY( currentCase );
-            curve->setSummaryAddressYAndApplyInterpolation( curveDef.summaryAddressY() );
+            curve->setSummaryAddressY( curveDef.summaryAddressY() );
             curve->applyCurveAutoNameSettings( *m_curveNameConfig() );
             if ( currentCase && currentCase->isObservedData() ) curve->setSymbolSkipDistance( 0 );
 

@@ -100,7 +100,7 @@ void RiaSummaryTools::notifyCalculatedCurveNameHasChanged( int calculationId, co
                 if ( adr.isCalculated() && adr.id() == calculationId )
                 {
                     adr.setVectorName( currentCurveName.toStdString() );
-                    curve->setSummaryAddressYAndApplyInterpolation( adr );
+                    curve->setSummaryAddressY( adr );
                 }
             }
         }
