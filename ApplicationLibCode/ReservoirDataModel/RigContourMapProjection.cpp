@@ -18,6 +18,7 @@
 
 #include "RigContourMapProjection.h"
 
+#include "RiaStatisticsTools.h"
 #include "RiaWeightedMeanCalculator.h"
 
 #include "RigContourMapCalculator.h"
@@ -28,6 +29,7 @@
 
 #include <algorithm>
 #include <array>
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -210,16 +212,8 @@ double RigContourMapProjection::calculateValueInMapCell( unsigned int           
 //--------------------------------------------------------------------------------------------------
 double RigContourMapProjection::maxValue( const std::vector<double>& aggregatedResults )
 {
-    double maxV = -std::numeric_limits<double>::infinity();
-
-    for ( size_t index = 0; index < aggregatedResults.size(); ++index )
-    {
-        if ( aggregatedResults[index] != std::numeric_limits<double>::infinity() )
-        {
-            maxV = std::max( maxV, aggregatedResults[index] );
-        }
-    }
-    return maxV;
+    double maxV = RiaStatisticsTools::maximumValue( aggregatedResults );
+    return maxV != -std::numeric_limits<double>::max() ? maxV : -std::numeric_limits<double>::infinity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -227,16 +221,8 @@ double RigContourMapProjection::maxValue( const std::vector<double>& aggregatedR
 //--------------------------------------------------------------------------------------------------
 double RigContourMapProjection::minValue( const std::vector<double>& aggregatedResults )
 {
-    double minV = std::numeric_limits<double>::infinity();
-
-    for ( size_t index = 0; index < aggregatedResults.size(); ++index )
-    {
-        if ( aggregatedResults[index] != std::numeric_limits<double>::infinity() )
-        {
-            minV = std::min( minV, aggregatedResults[index] );
-        }
-    }
-    return minV;
+    double minV = RiaStatisticsTools::minimumValue( aggregatedResults );
+    return minV != std::numeric_limits<double>::max() ? minV : std::numeric_limits<double>::infinity();
 }
 
 //--------------------------------------------------------------------------------------------------

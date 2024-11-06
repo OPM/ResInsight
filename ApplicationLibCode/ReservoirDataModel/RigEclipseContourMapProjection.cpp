@@ -129,6 +129,7 @@ std::pair<bool, std::vector<double>>
             // TODO: this was RimEclipseCellColors->hasStaticResult()
             if ( resultAddress.resultCatType() == RiaDefines::ResultCatType::STATIC_NATIVE && timeStep > 0 ) timeStep = 0;
 
+            resultData.ensureKnownResultLoaded( resultAddress );
             // When loading a project file, grid calculator results are not computed the first time this function is
             // called. Must check if result is loaded. See RimReloadCaseTools::updateAll3dViews()
             if ( resultAddress.isValid() && resultData.hasResultEntry( resultAddress ) && resultData.isResultLoaded( resultAddress ) )
