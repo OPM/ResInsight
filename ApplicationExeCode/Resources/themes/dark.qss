@@ -345,6 +345,16 @@ QMenu::item:selected {
     color: $textColor;
 }
 
+QMenu::icon:checked {
+    background-color: $primaryColor;
+    border: 1px inset $backgroundColor1;
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    bottom: 1px;
+    left: 1px;
+}
+
 QLineEdit,
 QComboBox,
 QSpinBox,
