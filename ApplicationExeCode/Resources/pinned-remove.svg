@@ -3,7 +3,7 @@
    width="16"
    height="16"
    viewBox="0 0 16 16"
-   fill="currentColor"
+   fill="rgb(128, 128, 128)"
    version="1.1"
    id="svg1"
    sodipodi:docname="pinned-remove.svg"
@@ -73,19 +73,19 @@
      d="M4 2h7v.278c0 .406-.086.778-.258 1.117-.172.339-.42.63-.742.875v2.86c.307.145.583.328.828.546.245.219.456.464.633.735.177.27.31.565.398.882.089.318.136.646.141.985v.5H8V14l-.5 1-.5-1v-3.222H3v-.5c0-.339.047-.664.14-.977.094-.312.227-.607.4-.883A3.404 3.404 0 0 1 5 7.13V4.27a2.561 2.561 0 0 1-.734-.875A2.505 2.505 0 0 1 4 2.278V2zm1.086.778c.042.125.094.232.156.32a1.494 1.494 0 0 0 .461.43L6 3.715v4.102l-.336.117c-.411.146-.76.383-1.047.711C4.331 8.973 4.09 9.573 4 10h7c-.088-.427-.33-1.027-.617-1.355a2.456 2.456 0 0 0-1.047-.71L9 7.816V3.715l.297-.18c.094-.057.177-.122.25-.195a2.28 2.28 0 0 0 .21-.242.968.968 0 0 0 .157-.32H5.086z"
      id="path1" />
   <path
-     style="fill:#effafc;fill-opacity:1;stroke:url(#linearGradient2);stroke-width:3.368;stroke-dasharray:none"
+     style="fill:rgb(128, 128, 128);fill-opacity:1;stroke:url(#linearGradient2);stroke-width:3.368;stroke-dasharray:none"
      d="M 1.8566228,1.6050444 14.828324,13.503263"
      id="path2" />
   <path
-     style="fill:url(#linearGradient3);fill-opacity:1;stroke-width:1.8;stroke-dasharray:none"
+     style="fill:rgb(128, 128, 128);fill-opacity:1;stroke-width:1.8;stroke-dasharray:none"
      d="M 2.9064985,2.1250343 11.763093,11.406636"
      id="path3" />
   <path
-     style="fill:#fbf0fb;fill-opacity:1;stroke-width:1.8;stroke-dasharray:none"
+     style="fill:rgb(128, 128, 128);fill-opacity:1;stroke-width:1.8;stroke-dasharray:none"
      d="M 0.67178503,4.1266795 2.9476282,7.2525363"
      id="path4" />
   <path
-     style="fill:#fbf0fb;fill-opacity:1;stroke:#000000;stroke-width:0.926755;stroke-dasharray:none;stroke-opacity:1"
+     style="fill:rgb(128, 128, 128);fill-opacity:1;stroke:#000000;stroke-width:0.926755;stroke-dasharray:none;stroke-opacity:1"
      d="M 2.5651472,1.7153576 13.371336,12.802924"
      id="path5" />
 </svg>
