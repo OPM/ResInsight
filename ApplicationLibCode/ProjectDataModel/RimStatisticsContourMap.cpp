@@ -19,16 +19,26 @@
 #include "RimStatisticsContourMap.h"
 
 #include "RiaLogging.h"
+#include "RiaStatisticsTools.h"
 
 #include "RigCaseCellResultsData.h"
+#include "RigContourMapGrid.h"
 #include "RigEclipseCaseData.h"
-#include "RimEclipseCaseEnsemble.h"
-#include "RimProject.h"
+#include "RigEclipseContourMapProjection.h"
+#include "RigEclipseResultAddress.h"
+#include "RigMainGrid.h"
+#include "RigStatisticsMath.h"
 
+#include "RimEclipseCase.h"
+#include "RimEclipseCaseEnsemble.h"
+#include "RimEclipseContourMapProjection.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimProject.h"
 
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafProgressInfo.h"
+
+#include <limits>
 
 CAF_PDM_SOURCE_INIT( RimStatisticsContourMap, "RimStatisticalContourMap" );
 
@@ -115,4 +125,85 @@ void RimStatisticsContourMap::initAfterRead()
 void RimStatisticsContourMap::computeStatistics()
 {
     RiaLogging::info( "Computing statistics" );
+    auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
+    if ( !ensemble ) return;
+
+    if ( ensemble->cases().empty() ) return;
+
+    RimEclipseCase* firstEclipseCase = ensemble->cases().front();
+    firstEclipseCase->ensureReservoirCaseIsOpen();
+
+    double                                         relativeSampleSpacing = 0.9;
+    int                                            timeStep              = 0;
+    RigContourMapCalculator::ResultAggregationEnum resultAggregation = RigContourMapCalculator::ResultAggregationEnum::RESULTS_MEAN_VALUE;
+
+    cvf::BoundingBox gridBoundingBox = firstEclipseCase->activeCellsBoundingBox();
+
+    auto computeSampleSpacing = []( auto ec, double relativeSampleSpacing )
+    {
+        if ( ec )
+        {
+            if ( auto mainGrid = ec->mainGrid() )
+            {
+                return relativeSampleSpacing * mainGrid->characteristicIJCellSize();
+            }
+        }
+
+        return 0.0;
+    };
+
+    double sampleSpacing = computeSampleSpacing( firstEclipseCase, relativeSampleSpacing );
+
+    auto contourMapGrid = std::make_unique<RigContourMapGrid>( gridBoundingBox, sampleSpacing );
+
+    std::vector<std::vector<double>> results;
+    for ( RimEclipseCase* eclipseCase : ensemble->cases() )
+    {
+        if ( eclipseCase->ensureReservoirCaseIsOpen() )
+        {
+            RiaLogging::info( QString( "Grid: %1" ).arg( eclipseCase->caseUserDescription() ) );
+
+            auto eclipseCaseData = eclipseCase->eclipseCaseData();
+            auto resultData      = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+            RigEclipseContourMapProjection contourMapProjection( *contourMapGrid, *eclipseCaseData, *resultData );
+            contourMapProjection.generateGridMapping( resultAggregation, {} );
+
+            std::vector<double> result =
+                contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(), resultAggregation, timeStep );
+            results.push_back( result );
+        }
+    }
+
+    if ( !results.empty() )
+    {
+        int                 nCells = static_cast<int>( results[0].size() );
+        std::vector<double> p10Results( nCells, std::numeric_limits<double>::infinity() );
+        std::vector<double> p50Results( nCells, std::numeric_limits<double>::infinity() );
+        std::vector<double> p90Results( nCells, std::numeric_limits<double>::infinity() );
+        std::vector<double> meanResults( nCells, std::numeric_limits<double>::infinity() );
+        std::vector<double> minResults( nCells, std::numeric_limits<double>::infinity() );
+        std::vector<double> maxResults( nCells, std::numeric_limits<double>::infinity() );
+
+#pragma omp parallel for
+        for ( int i = 0; i < nCells; i++ )
+        {
+            size_t              numSamples = results.size();
+            std::vector<double> samples( numSamples, 0.0 );
+            for ( size_t s = 0; s < numSamples; s++ )
+                samples[s] = results[s][i];
+
+            double p10, p50, p90, mean;
+
+            RigStatisticsMath::calculateStatisticsCurves( samples, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
+
+            p10Results[i]  = p10;
+            p50Results[i]  = p50;
+            p90Results[i]  = p90;
+            meanResults[i] = mean;
+
+            minResults[i] = RiaStatisticsTools::minimumValue( samples );
+            maxResults[i] = RiaStatisticsTools::maximumValue( samples );
+        }
+    }
 }

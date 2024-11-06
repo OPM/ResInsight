@@ -300,7 +300,7 @@ std::vector<RigContourMapCalculator::CellIndexAndResult>
     auto cellGridIdxVisibility = contourMapProjection.getCellVisibility();
     for ( size_t globalCellIdx : allCellIndices )
     {
-        if ( ( *cellGridIdxVisibility )[globalCellIdx] )
+        if ( cellGridIdxVisibility.isNull() || ( *cellGridIdxVisibility )[globalCellIdx] )
         {
             kLayerCellIndexVector[contourMapProjection.kLayer( globalCellIdx )].push_back( globalCellIdx );
         }
