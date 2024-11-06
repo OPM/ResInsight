@@ -99,7 +99,23 @@ void RimQuickAccessCollection::addQuickAccessField( const RimFieldReference& fie
     auto field  = fieldReference.field();
     if ( object && field )
     {
-        if ( auto group = findOrCreateGroup( object, "" ) )
+        QString groupNameForField;
+
+        if ( auto quickInterface = dynamic_cast<RimFieldQuickAccessInterface*>( object ) )
+        {
+            for ( const auto& [qaGroupName, qaFields] : quickInterface->quickAccessFields() )
+            {
+                for ( const auto qaField : qaFields )
+                {
+                    if ( qaField == field )
+                    {
+                        groupNameForField = qaGroupName;
+                    }
+                }
+            }
+        }
+
+        if ( auto group = findOrCreateGroup( object, groupNameForField ) )
         {
             group->addField( field );
         }
