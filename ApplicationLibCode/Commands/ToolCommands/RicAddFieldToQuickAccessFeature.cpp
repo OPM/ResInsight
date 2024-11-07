@@ -20,6 +20,7 @@
 
 #include "QuickAccess/RimFieldQuickAccessInterface.h"
 #include "QuickAccess/RimFieldReference.h"
+#include "QuickAccess/RimFieldSelection.h"
 #include "QuickAccess/RimQuickAccessCollection.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -51,15 +52,26 @@ void RicAddFieldToQuickAccessFeature::onActionTriggered( bool isChecked )
     auto firstObject = objects.front();
     if ( !firstObject ) return;
 
-    RimFieldReference fieldRef;
-    fieldRef.setObject( firstObject );
+    RimFieldSelection fieldSelection;
+    fieldSelection.setObject( firstObject );
+    fieldSelection.selectAllFields();
 
-    caf::PdmUiPropertyViewDialog propertyDialog( Riu3DMainWindowTools::mainWindowWidget(), &fieldRef, "Select Field for Quick Access", "" );
+    caf::PdmUiPropertyViewDialog propertyDialog( Riu3DMainWindowTools::mainWindowWidget(), &fieldSelection, "Select Field for Quick Access", "" );
     propertyDialog.setWindowIcon( QIcon( ":/pin.svg" ) );
+    propertyDialog.resize( QSize( 400, 500 ) );
 
     if ( propertyDialog.exec() == QDialog::Accepted )
     {
-        RimQuickAccessCollection::instance()->addQuickAccessField( fieldRef );
+        auto selectedFields = fieldSelection.fields();
+        for ( auto field : selectedFields )
+        {
+            RimFieldReference fieldRef;
+            fieldRef.setObject( firstObject );
+            fieldRef.setField( field );
+
+            RimQuickAccessCollection::instance()->addQuickAccessField( fieldRef );
+        }
+
         RimQuickAccessCollection::instance()->updateAllRequiredEditors();
     }
 }
