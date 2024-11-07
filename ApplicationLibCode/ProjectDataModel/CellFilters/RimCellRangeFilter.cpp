@@ -180,6 +180,17 @@ std::map<QString, std::vector<caf::PdmFieldHandle*>> RimCellRangeFilter::quickAc
     if ( cellCountJ == 1 ) fields[""].push_back( &startIndexJ );
     if ( cellCountK == 1 ) fields[""].push_back( &startIndexK );
 
+    if ( fields.empty() )
+    {
+        QString groupName = "IJK Filter";
+        fields[groupName].push_back( &startIndexI );
+        fields[groupName].push_back( &cellCountI );
+        fields[groupName].push_back( &startIndexJ );
+        fields[groupName].push_back( &cellCountJ );
+        fields[groupName].push_back( &startIndexK );
+        fields[groupName].push_back( &cellCountK );
+    }
+
     return fields;
 }
 
