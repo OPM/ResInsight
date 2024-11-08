@@ -83,3 +83,33 @@ TEST( RiaStatisticsTools, NegativeCorrelation )
     double correlation = RiaStatisticsTools::pearsonCorrelation( a, b );
     EXPECT_NEAR( correlation, -1.0, 1.0e-2 );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaStatisticsTools, MinValue )
+{
+    const int           N = 1000;
+    std::vector<double> a;
+    for ( int i = 10; i < N; ++i )
+    {
+        a.push_back( static_cast<double>( i ) );
+    }
+    double minValue = RiaStatisticsTools::minimumValue( a );
+    EXPECT_EQ( minValue, 10.0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaStatisticsTools, MaxValue )
+{
+    const int           N = 1000;
+    std::vector<double> a;
+    for ( int i = 10; i < N; ++i )
+    {
+        a.push_back( static_cast<double>( i ) );
+    }
+    double maxValue = RiaStatisticsTools::maximumValue( a );
+    EXPECT_EQ( maxValue, 999.0 );
+}

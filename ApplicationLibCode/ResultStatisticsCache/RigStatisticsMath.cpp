@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <numeric>
 
 //--------------------------------------------------------------------------------------------------
 /// A function to do basic statistical calculations
