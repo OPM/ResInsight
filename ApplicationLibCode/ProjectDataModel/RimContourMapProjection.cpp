@@ -493,7 +493,7 @@ cvf::ref<cvf::UByteArray> RimContourMapProjection::getCellVisibility() const
 //--------------------------------------------------------------------------------------------------
 bool RimContourMapProjection::mapCellVisibilityNeedsUpdating( int timestep )
 {
-    if ( m_contourMapProjection ) return true;
+    if ( !m_contourMapProjection ) return true;
 
     std::vector<bool> mapCellVisiblity = m_contourMapProjection->getMapCellVisibility( timestep, m_resultAggregation() );
     return !( mapCellVisiblity == m_mapCellVisibility );
