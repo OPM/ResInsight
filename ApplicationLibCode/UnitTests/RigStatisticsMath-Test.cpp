@@ -20,8 +20,11 @@
 
 #include "gtest/gtest.h"
 
-#include "QElapsedTimer"
 #include "RigStatisticsMath.h"
+
+#include "QElapsedTimer"
+
+#include <numeric>
 
 //--------------------------------------------------------------------------------------------------
 ///
