@@ -35,7 +35,7 @@
 
 #include "RimCaseDisplayNameTools.h"
 #include "RimCsvSummaryCase.h"
-#include "RimDerivedEnsembleCaseCollection.h"
+#include "RimDeltaSummaryEnsemble.h"
 #include "RimEclipseResultCase.h"
 #include "RimFileSummaryCase.h"
 #include "RimOilField.h"
@@ -158,12 +158,12 @@ void RimSummaryCaseMainCollection::addCase( RimSummaryCase* summaryCase )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::removeCase( RimSummaryCase* summaryCase, bool notifyChange )
 {
-    std::vector<RimDerivedEnsembleCaseCollection*> derivedEnsembles;
+    std::vector<RimDeltaSummaryEnsemble*> derivedEnsembles;
 
     // Build a list of derived ensembles that must be updated after delete
     for ( auto group : summaryCaseCollections() )
     {
-        auto derEnsemble = dynamic_cast<RimDerivedEnsembleCaseCollection*>( group );
+        auto derEnsemble = dynamic_cast<RimDeltaSummaryEnsemble*>( group );
         if ( derEnsemble )
         {
             if ( derEnsemble->hasCaseReference( summaryCase ) )

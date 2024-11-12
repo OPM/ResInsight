@@ -20,7 +20,7 @@
 
 #include "Summary/RiaSummaryTools.h"
 
-#include "RimDerivedEnsembleCaseCollection.h"
+#include "RimDeltaSummaryEnsemble.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -71,7 +71,7 @@ bool RicDeleteSummaryCaseCollectionFeature::isCommandEnabled() const
     selection.erase( std::remove_if( selection.begin(),
                                      selection.end(),
                                      []( RimSummaryEnsemble* coll )
-                                     { return dynamic_cast<RimDerivedEnsembleCaseCollection*>( coll ) != nullptr; } ),
+                                     { return dynamic_cast<RimDeltaSummaryEnsemble*>( coll ) != nullptr; } ),
                      selection.end() );
     return ( !selection.empty() );
 }

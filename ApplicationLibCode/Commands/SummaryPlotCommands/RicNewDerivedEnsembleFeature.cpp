@@ -18,7 +18,7 @@
 
 #include "RicNewDerivedEnsembleFeature.h"
 
-#include "RimDerivedEnsembleCaseCollection.h"
+#include "RimDeltaSummaryEnsemble.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 
@@ -78,8 +78,8 @@ void RicNewDerivedEnsembleFeature::onActionTriggered( bool isChecked )
         auto project  = RimProject::current();
         auto mainColl = project->firstSummaryCaseMainCollection();
 
-        auto newColl     = mainColl->addEnsemble( {}, "", true, []() { return new RimDerivedEnsembleCaseCollection(); } );
-        auto newEnsemble = dynamic_cast<RimDerivedEnsembleCaseCollection*>( newColl );
+        auto newColl     = mainColl->addEnsemble( {}, "", true, []() { return new RimDeltaSummaryEnsemble(); } );
+        auto newEnsemble = dynamic_cast<RimDeltaSummaryEnsemble*>( newColl );
 
         {
             std::vector<RimSummaryEnsemble*> ensembles = caf::selectedObjectsByType<RimSummaryEnsemble*>();

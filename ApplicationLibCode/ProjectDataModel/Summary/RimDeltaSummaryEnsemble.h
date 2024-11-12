@@ -34,7 +34,7 @@ class RimSummaryCase;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimDerivedEnsembleCaseCollection : public RimSummaryEnsemble
+class RimDeltaSummaryEnsemble : public RimSummaryEnsemble
 {
     CAF_PDM_HEADER_INIT;
 
@@ -47,8 +47,8 @@ public:
     };
 
 public:
-    RimDerivedEnsembleCaseCollection();
-    ~RimDerivedEnsembleCaseCollection() override;
+    RimDeltaSummaryEnsemble();
+    ~RimDeltaSummaryEnsemble() override;
 
     RimSummaryEnsemble*    ensemble1() const { return m_ensemble1; }
     RimSummaryEnsemble*    ensemble2() const { return m_ensemble2; }
@@ -82,7 +82,7 @@ private:
     RimSummaryCase* findCaseByParametersHash( const std::vector<RimSummaryCase*>& cases, size_t hash ) const;
     RimSummaryCase* findCaseByRealizationNumber( const std::vector<RimSummaryCase*>& cases, int realizationNumber ) const;
 
-    std::vector<RimDerivedEnsembleCaseCollection*> findReferringEnsembles() const;
+    std::vector<RimDeltaSummaryEnsemble*> findReferringEnsembles() const;
 
 private:
     std::vector<RimSummaryEnsemble*> allEnsembles() const;
