@@ -20,8 +20,8 @@
 
 #include "SummaryPlotCommands/RicNewDerivedEnsembleFeature.h"
 
-#include "RimDeltaSummaryEnsemble.h"
 #include "RimDeltaSummaryCase.h"
+#include "RimDeltaSummaryEnsemble.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryEnsemble.h"
@@ -400,7 +400,7 @@ void RimDeltaSummaryEnsemble::setAllCasesNotInUse()
 void RimDeltaSummaryEnsemble::deleteCasesNoInUse()
 {
     std::vector<RimDeltaSummaryCase*> inactiveCases;
-    auto                                allCases = allDerivedCases( false );
+    auto                              allCases = allDerivedCases( false );
     std::copy_if( allCases.begin(),
                   allCases.end(),
                   std::back_inserter( inactiveCases ),
@@ -539,6 +539,14 @@ void RimDeltaSummaryEnsemble::updateDerivedEnsembleCases()
     {
         referring->updateDerivedEnsembleCases();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimDeltaSummaryEnsemble::isValid() const
+{
+    return m_ensemble1 != nullptr && m_ensemble2 != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -50,22 +50,17 @@ public:
     RimDeltaSummaryEnsemble();
     ~RimDeltaSummaryEnsemble() override;
 
-    RimSummaryEnsemble*    ensemble1() const { return m_ensemble1; }
-    RimSummaryEnsemble*    ensemble2() const { return m_ensemble2; }
-    DerivedSummaryOperator op() const { return m_operator(); }
-    bool                   isValid() const { return m_ensemble1 != nullptr && m_ensemble2 != nullptr; }
-
     void setEnsemble1( RimSummaryEnsemble* ensemble );
     void setEnsemble2( RimSummaryEnsemble* ensemble );
 
     std::vector<RimSummaryCase*>       allSummaryCases() const override;
     std::set<RifEclipseSummaryAddress> ensembleSummaryAddresses() const override;
-    void                               createDerivedEnsembleCases();
-    void                               updateDerivedEnsembleCases();
 
     bool hasCaseReference( const RimSummaryCase* sumCase ) const;
 
     void onLoadDataAndUpdate() override;
+
+    void createDerivedEnsembleCases();
 
 private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -73,18 +68,20 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
-    void                                setAllCasesNotInUse();
-    void                                deleteCasesNoInUse();
+    void                              setAllCasesNotInUse();
+    void                              deleteCasesNoInUse();
     RimDeltaSummaryCase*              firstCaseNotInUse();
     std::vector<RimDeltaSummaryCase*> allDerivedCases( bool activeOnly ) const;
-    void                                updateAutoName();
+    void                              updateAutoName();
+
+    void updateDerivedEnsembleCases();
+    bool isValid() const;
 
     RimSummaryCase* findCaseByParametersHash( const std::vector<RimSummaryCase*>& cases, size_t hash ) const;
     RimSummaryCase* findCaseByRealizationNumber( const std::vector<RimSummaryCase*>& cases, int realizationNumber ) const;
 
     std::vector<RimDeltaSummaryEnsemble*> findReferringEnsembles() const;
 
-private:
     std::vector<RimSummaryEnsemble*> allEnsembles() const;
 
 private:
