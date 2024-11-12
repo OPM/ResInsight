@@ -28,7 +28,7 @@
 #include "RifSummaryReaderInterface.h"
 
 #include "RimAnalysisPlotDataEntry.h"
-#include "RimDerivedSummaryCase.h"
+#include "RimDeltaSummaryCase.h"
 #include "RimPlotAxisProperties.h"
 #include "RimPlotAxisPropertiesInterface.h"
 #include "RimPlotDataFilterCollection.h"
@@ -1442,7 +1442,7 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
         if ( referenceCaseReader )
         {
             std::pair<std::vector<time_t>, std::vector<double>> timeAndValues =
-                RimDerivedSummaryCase::calculateDerivedValues( reader,
+                RimDeltaSummaryCase::calculateDerivedValues( reader,
                                                                -1,
                                                                referenceCaseReader,
                                                                -1,

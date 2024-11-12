@@ -108,7 +108,7 @@ void RimSummaryEnsemble::removeCase( RimSummaryCase* summaryCase, bool notifyCha
 
     if ( m_isEnsemble && m_cases.size() != caseCountBeforeRemove )
     {
-        if ( dynamic_cast<RimDerivedSummaryCase*>( summaryCase ) == nullptr ) calculateEnsembleParametersIntersectionHash();
+        if ( dynamic_cast<RimDeltaSummaryCase*>( summaryCase ) == nullptr ) calculateEnsembleParametersIntersectionHash();
     }
 
     clearChildNodes();

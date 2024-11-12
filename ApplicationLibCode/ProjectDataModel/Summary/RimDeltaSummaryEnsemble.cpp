@@ -21,7 +21,7 @@
 #include "SummaryPlotCommands/RicNewDerivedEnsembleFeature.h"
 
 #include "RimDeltaSummaryEnsemble.h"
-#include "RimDerivedSummaryCase.h"
+#include "RimDeltaSummaryCase.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryEnsemble.h"
@@ -399,12 +399,12 @@ void RimDeltaSummaryEnsemble::setAllCasesNotInUse()
 //--------------------------------------------------------------------------------------------------
 void RimDeltaSummaryEnsemble::deleteCasesNoInUse()
 {
-    std::vector<RimDerivedSummaryCase*> inactiveCases;
+    std::vector<RimDeltaSummaryCase*> inactiveCases;
     auto                                allCases = allDerivedCases( false );
     std::copy_if( allCases.begin(),
                   allCases.end(),
                   std::back_inserter( inactiveCases ),
-                  []( RimDerivedSummaryCase* derCase ) { return !derCase->isInUse(); } );
+                  []( RimDeltaSummaryCase* derCase ) { return !derCase->isInUse(); } );
 
     for ( auto derCase : inactiveCases )
     {
@@ -416,17 +416,17 @@ void RimDeltaSummaryEnsemble::deleteCasesNoInUse()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimDerivedSummaryCase* RimDeltaSummaryEnsemble::firstCaseNotInUse()
+RimDeltaSummaryCase* RimDeltaSummaryEnsemble::firstCaseNotInUse()
 {
     auto allCases = allDerivedCases( false );
-    auto itr      = std::find_if( allCases.begin(), allCases.end(), []( RimDerivedSummaryCase* derCase ) { return !derCase->isInUse(); } );
+    auto itr      = std::find_if( allCases.begin(), allCases.end(), []( RimDeltaSummaryCase* derCase ) { return !derCase->isInUse(); } );
     if ( itr != allCases.end() )
     {
         return *itr;
     }
 
     // If no active case was found, add a new case to the collection
-    auto newCase = new RimDerivedSummaryCase();
+    auto newCase = new RimDeltaSummaryCase();
 
     // Show realization data source for the first case. If we create for all, the performance will be bad
     newCase->setShowVectorItemsInProjectTree( m_cases.empty() );
@@ -438,12 +438,12 @@ RimDerivedSummaryCase* RimDeltaSummaryEnsemble::firstCaseNotInUse()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimDerivedSummaryCase*> RimDeltaSummaryEnsemble::allDerivedCases( bool activeOnly ) const
+std::vector<RimDeltaSummaryCase*> RimDeltaSummaryEnsemble::allDerivedCases( bool activeOnly ) const
 {
-    std::vector<RimDerivedSummaryCase*> activeCases;
+    std::vector<RimDeltaSummaryCase*> activeCases;
     for ( auto sumCase : RimSummaryEnsemble::allSummaryCases() )
     {
-        auto derivedCase = dynamic_cast<RimDerivedSummaryCase*>( sumCase );
+        auto derivedCase = dynamic_cast<RimDeltaSummaryCase*>( sumCase );
         if ( derivedCase && ( !activeOnly || derivedCase->isInUse() ) )
         {
             activeCases.push_back( derivedCase );

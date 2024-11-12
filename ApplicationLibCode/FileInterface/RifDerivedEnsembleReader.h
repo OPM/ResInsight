@@ -20,7 +20,7 @@
 
 #include "RifSummaryReaderInterface.h"
 
-class RimDerivedSummaryCase;
+class RimDeltaSummaryCase;
 class RimSummaryCase;
 class RifEclipseSummaryAddress;
 
@@ -30,7 +30,7 @@ class RifEclipseSummaryAddress;
 class RifDerivedEnsembleReader : public RifSummaryReaderInterface
 {
 public:
-    RifDerivedEnsembleReader( RimDerivedSummaryCase*     derivedCase,
+    RifDerivedEnsembleReader( RimDeltaSummaryCase*     derivedCase,
                               RifSummaryReaderInterface* sourceSummaryReader1,
                               RifSummaryReaderInterface* sourceSummaryReader2 );
 
@@ -40,5 +40,5 @@ public:
     RiaDefines::EclipseUnitSystem        unitSystem() const override;
 
 private:
-    RimDerivedSummaryCase* m_derivedCase;
+    RimDeltaSummaryCase* m_derivedCase;
 };

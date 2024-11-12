@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimDerivedSummaryCase.h"
+#include "RimDeltaSummaryCase.h"
 #include "RimSummaryEnsemble.h"
 
 #include "cafPdmChildArrayField.h"
@@ -75,8 +75,8 @@ private:
 
     void                                setAllCasesNotInUse();
     void                                deleteCasesNoInUse();
-    RimDerivedSummaryCase*              firstCaseNotInUse();
-    std::vector<RimDerivedSummaryCase*> allDerivedCases( bool activeOnly ) const;
+    RimDeltaSummaryCase*              firstCaseNotInUse();
+    std::vector<RimDeltaSummaryCase*> allDerivedCases( bool activeOnly ) const;
     void                                updateAutoName();
 
     RimSummaryCase* findCaseByParametersHash( const std::vector<RimSummaryCase*>& cases, size_t hash ) const;

@@ -18,12 +18,12 @@
 
 #include "RifDerivedEnsembleReader.h"
 
-#include "RimDerivedSummaryCase.h"
+#include "RimDeltaSummaryCase.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDerivedEnsembleReader::RifDerivedEnsembleReader( RimDerivedSummaryCase*     derivedCase,
+RifDerivedEnsembleReader::RifDerivedEnsembleReader( RimDeltaSummaryCase*     derivedCase,
                                                     RifSummaryReaderInterface* sourceSummaryReader1,
                                                     RifSummaryReaderInterface* sourceSummaryReader2 )
 {

@@ -41,7 +41,7 @@ enum class DerivedSummaryOperator
 //==================================================================================================
 //
 //==================================================================================================
-class RimDerivedSummaryCase : public RimSummaryCase
+class RimDeltaSummaryCase : public RimSummaryCase
 {
     CAF_PDM_HEADER_INIT;
 
@@ -54,8 +54,8 @@ public:
     };
 
 public:
-    RimDerivedSummaryCase();
-    ~RimDerivedSummaryCase() override;
+    RimDeltaSummaryCase();
+    ~RimDeltaSummaryCase() override;
 
     void setInUse( bool inUse );
     bool isInUse() const;

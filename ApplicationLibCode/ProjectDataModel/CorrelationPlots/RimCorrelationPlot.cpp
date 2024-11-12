@@ -29,7 +29,7 @@
 
 #include "RifSummaryReaderInterface.h"
 
-#include "RimDerivedSummaryCase.h"
+#include "RimDeltaSummaryCase.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimPlotAxisProperties.h"
 #include "RimPlotAxisPropertiesInterface.h"
