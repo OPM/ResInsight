@@ -1443,11 +1443,11 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
         {
             std::pair<std::vector<time_t>, std::vector<double>> timeAndValues =
                 RimDeltaSummaryCase::calculateDerivedValues( reader,
-                                                               -1,
-                                                               referenceCaseReader,
-                                                               -1,
-                                                               DerivedSummaryOperator::DERIVED_OPERATOR_SUB,
-                                                               curveDef.summaryAddressY() );
+                                                             -1,
+                                                             referenceCaseReader,
+                                                             -1,
+                                                             DerivedSummaryOperator::DERIVED_OPERATOR_SUB,
+                                                             curveDef.summaryAddressY() );
             timeSteps.swap( timeAndValues.first );
             values.swap( timeAndValues.second );
         }
