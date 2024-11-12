@@ -22,8 +22,6 @@
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 
-#include "RifDerivedEnsembleReader.h"
-
 #include "RimProject.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
@@ -56,6 +54,65 @@ void caf::AppEnum<RimDeltaSummaryCase::FixedTimeStepMode>::setUp()
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimDeltaSummaryCase, "RimDeltaSummaryCase", "RimDerivedEnsembleCase" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimDeltaSummaryCase::unitName( const RifEclipseSummaryAddress& resultAddress ) const
+{
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<time_t> RimDeltaSummaryCase::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
+{
+    if ( !resultAddress.isValid() )
+    {
+        return {};
+    }
+
+    if ( needsCalculation( resultAddress ) )
+    {
+        calculate( resultAddress );
+    }
+
+    if ( m_dataCache.count( resultAddress ) == 0 )
+    {
+        return {};
+    }
+
+    return m_dataCache.at( resultAddress ).first;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<bool, std::vector<double>> RimDeltaSummaryCase::values( const RifEclipseSummaryAddress& resultAddress ) const
+{
+    if ( !resultAddress.isValid() ) return { false, {} };
+
+    if ( needsCalculation( resultAddress ) )
+    {
+        calculate( resultAddress );
+    }
+
+    if ( m_dataCache.count( resultAddress ) == 0 )
+    {
+        return { false, {} };
+    }
+
+    return { true, m_dataCache.at( resultAddress ).second };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::EclipseUnitSystem RimDeltaSummaryCase::unitSystem() const
+{
+    return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -128,35 +185,7 @@ bool RimDeltaSummaryCase::needsCalculation( const RifEclipseSummaryAddress& addr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RimDeltaSummaryCase::timeSteps( const RifEclipseSummaryAddress& address ) const
-{
-    if ( m_dataCache.count( address ) == 0 )
-    {
-        static std::vector<time_t> empty;
-        return empty;
-    }
-
-    return m_dataCache.at( address ).first;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const std::vector<double>& RimDeltaSummaryCase::values( const RifEclipseSummaryAddress& address ) const
-{
-    if ( m_dataCache.count( address ) == 0 )
-    {
-        static std::vector<double> empty;
-        return empty;
-    }
-
-    return m_dataCache.at( address ).second;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDeltaSummaryCase::calculate( const RifEclipseSummaryAddress& address )
+void RimDeltaSummaryCase::calculate( const RifEclipseSummaryAddress& address ) const
 {
     clearData( address );
 
@@ -277,16 +306,12 @@ QString RimDeltaSummaryCase::caseName() const
 //--------------------------------------------------------------------------------------------------
 void RimDeltaSummaryCase::createSummaryReaderInterface()
 {
-    RifSummaryReaderInterface* summaryCase1Reader1 = nullptr;
-    RifSummaryReaderInterface* summaryCase1Reader2 = nullptr;
     if ( m_summaryCase1 )
     {
         if ( !m_summaryCase1->summaryReader() )
         {
             m_summaryCase1->createSummaryReaderInterface();
         }
-
-        summaryCase1Reader1 = m_summaryCase1->summaryReader();
     }
     if ( m_summaryCase2 )
     {
@@ -294,11 +319,7 @@ void RimDeltaSummaryCase::createSummaryReaderInterface()
         {
             m_summaryCase2->createSummaryReaderInterface();
         }
-
-        summaryCase1Reader2 = m_summaryCase2->summaryReader();
     }
-
-    m_reader = std::make_unique<RifDerivedEnsembleReader>( this, summaryCase1Reader1, summaryCase1Reader2 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -306,11 +327,7 @@ void RimDeltaSummaryCase::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimDeltaSummaryCase::summaryReader()
 {
-    if ( !m_reader )
-    {
-        createSummaryReaderInterface();
-    }
-    return m_reader.get();
+    return this;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -343,7 +360,7 @@ void RimDeltaSummaryCase::setFixedTimeSteps( int fixedTimeStepCase1, int fixedTi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDeltaSummaryCase::clearData( const RifEclipseSummaryAddress& address )
+void RimDeltaSummaryCase::clearData( const RifEclipseSummaryAddress& address ) const
 {
     m_dataCache.erase( address );
 }

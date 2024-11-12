@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RifSummaryReaderInterface.h"
+
 #include "RimSummaryCase.h"
 
 #include "cafPdmField.h"
@@ -26,8 +28,6 @@
 #include <memory>
 
 class RifEclipseSummaryAddress;
-class RifSummaryReaderInterface;
-class RifDerivedEnsembleReader;
 
 //==================================================================================================
 ///
@@ -41,7 +41,7 @@ enum class DerivedSummaryOperator
 //==================================================================================================
 //
 //==================================================================================================
-class RimDeltaSummaryCase : public RimSummaryCase
+class RimDeltaSummaryCase : public RimSummaryCase, public RifSummaryReaderInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -63,11 +63,13 @@ public:
     void setOperator( DerivedSummaryOperator oper );
     void setFixedTimeSteps( int fixedTimeStepCase1, int fixedTimeStepCase2 );
 
-    bool                       needsCalculation( const RifEclipseSummaryAddress& address ) const;
-    const std::vector<time_t>& timeSteps( const RifEclipseSummaryAddress& address ) const;
-    const std::vector<double>& values( const RifEclipseSummaryAddress& address ) const;
+    bool needsCalculation( const RifEclipseSummaryAddress& address ) const;
 
-    void calculate( const RifEclipseSummaryAddress& address );
+    std::string unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
+
+    std::vector<time_t>                  timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
+    std::pair<bool, std::vector<double>> values( const RifEclipseSummaryAddress& resultAddress ) const override;
+    RiaDefines::EclipseUnitSystem        unitSystem() const override;
 
     static std::pair<std::vector<time_t>, std::vector<double>> calculateDerivedValues( RifSummaryReaderInterface*      reader1,
                                                                                        int                             fixedTimeStepCase1,
@@ -94,7 +96,8 @@ private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
-    void clearData( const RifEclipseSummaryAddress& address );
+    void calculate( const RifEclipseSummaryAddress& address ) const;
+    void clearData( const RifEclipseSummaryAddress& address ) const;
 
 private:
     caf::PdmPtrField<RimSummaryCase*> m_summaryCase1;
@@ -105,8 +108,8 @@ private:
     caf::PdmField<caf::AppEnum<FixedTimeStepMode>> m_useFixedTimeStep;
     caf::PdmField<int>                             m_fixedTimeStepIndex;
 
-    caf::PdmField<bool>                       m_inUse;
-    std::unique_ptr<RifDerivedEnsembleReader> m_reader;
+    caf::PdmField<bool> m_inUse;
 
-    std::map<RifEclipseSummaryAddress, std::pair<std::vector<time_t>, std::vector<double>>> m_dataCache;
+    // Local cache considered mutable
+    mutable std::map<RifEclipseSummaryAddress, std::pair<std::vector<time_t>, std::vector<double>>> m_dataCache;
 };
