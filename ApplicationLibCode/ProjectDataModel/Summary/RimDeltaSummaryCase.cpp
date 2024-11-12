@@ -22,6 +22,7 @@
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 
+#include "RimDeltaSummaryEnsemble.h"
 #include "RimProject.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
@@ -92,6 +93,27 @@ std::vector<time_t> RimDeltaSummaryCase::timeSteps( const RifEclipseSummaryAddre
 std::pair<bool, std::vector<double>> RimDeltaSummaryCase::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
     if ( !resultAddress.isValid() ) return { false, {} };
+
+    if ( auto deltaEnsemble = firstAncestorOfType<RimDeltaSummaryEnsemble>() )
+    {
+        if ( deltaEnsemble->discardSummaryAddressOnlyPresentInOneCase() )
+        {
+            RifSummaryReaderInterface* reader1 = m_summaryCase1 ? m_summaryCase1->summaryReader() : nullptr;
+            RifSummaryReaderInterface* reader2 = m_summaryCase2 ? m_summaryCase2->summaryReader() : nullptr;
+
+            if ( !reader1 || !reader2 ) return { false, {} };
+
+            if ( !reader1->hasAddress( resultAddress ) || !reader2->hasAddress( resultAddress ) )
+            {
+                QString txt = "Summary vector " + QString::fromStdString( resultAddress.toEclipseTextAddress() ) +
+                              " is only present in one of the source ensembles, no values are calculated for this vector.";
+
+                RiaLogging::warning( txt );
+
+                return { false, {} };
+            }
+        }
+    }
 
     if ( needsCalculation( resultAddress ) )
     {
