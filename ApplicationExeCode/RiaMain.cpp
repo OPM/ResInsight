@@ -78,13 +78,6 @@ int main( int argc, char* argv[] )
     }
 #endif
 
-#ifdef WIN32
-    // Temporary workaround for incorrect scaling of opengl viewport on windows with dpi scaling != 100%
-    // Reverts scaling behaviour to Qt5 style
-    // Should be replaced by proper scaling of x and y coordinates in caf::Viewer
-    qputenv( "QT_ENABLE_HIGHDPI_SCALING", "0" );
-#endif
-
     // The Qt::AA_ShareOpenGLContexts setting is needed when we have multiple viz widgets in flight
     // and we have a setup where these widgets belong to different top-level windows, or end up
     // belonging to different top-level windows through re-parenting.

@@ -141,7 +141,6 @@ public slots:
 
 protected:
     void optimizeClippingPlanes() override;
-    void resizeGL( int width, int height ) override;
     void mouseMoveEvent( QMouseEvent* e ) override;
     void enterEvent( QEnterEvent* e ) override;
     void leaveEvent( QEvent* ) override;

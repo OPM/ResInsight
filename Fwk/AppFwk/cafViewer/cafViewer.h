@@ -181,6 +181,9 @@ public:
     void setCurrentComparisonFrame( int frameIndex );
     void setComparisonViewToFollowAnimation( bool isToFollow );
 
+    // display scaling ratio (should be 1 if DPI scaling is not enabled)
+    inline double displayScalingRatio() const;
+
 public slots:
     virtual void slotSetCurrentFrame( int frameIndex );
     virtual void slotEndAnimation();
