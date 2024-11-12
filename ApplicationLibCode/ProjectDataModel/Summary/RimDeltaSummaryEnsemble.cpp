@@ -28,6 +28,7 @@
 
 #include "RifSummaryReaderInterface.h"
 
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
@@ -73,6 +74,13 @@ RimDeltaSummaryEnsemble::RimDeltaSummaryEnsemble()
     m_caseCount.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitField( &m_matchOnParameters, "MatchOnParameters", false, "Match On Parameters" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_matchOnParameters );
+
+    CAF_PDM_InitField( &m_discardAddressPresentInOneSourceCase,
+                       "DiscardAddressPresentInOneSourceCase",
+                       false,
+                       "Discard Vectors if Missing in One of the Source Ensembles" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_discardAddressPresentInOneSourceCase );
 
     CAF_PDM_InitFieldNoDefault( &m_useFixedTimeStep, "UseFixedTimeStep", "Use Fixed Time Step" );
     CAF_PDM_InitField( &m_fixedTimeStepIndex, "FixedTimeStepIndex", 0, "Time Step" );
@@ -198,6 +206,14 @@ void RimDeltaSummaryEnsemble::createDerivedEnsembleCases()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimDeltaSummaryEnsemble::discardSummaryAddressOnlyPresentInOneCase() const
+{
+    return m_discardAddressPresentInOneSourceCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimDeltaSummaryEnsemble::hasCaseReference( const RimSummaryCase* sumCase ) const
 {
     if ( m_ensemble1 )
@@ -290,13 +306,15 @@ void RimDeltaSummaryEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmUi
     uiOrdering.add( &m_operator );
     uiOrdering.add( &m_ensemble2 );
     uiOrdering.add( &m_swapEnsemblesButton );
-    uiOrdering.add( &m_matchOnParameters );
 
     uiOrdering.add( &m_useFixedTimeStep );
     if ( m_useFixedTimeStep() != RimDeltaSummaryEnsemble::FixedTimeStepMode::FIXED_TIME_STEP_NONE )
     {
         uiOrdering.add( &m_fixedTimeStepIndex );
     }
+
+    uiOrdering.add( &m_matchOnParameters );
+    uiOrdering.add( &m_discardAddressPresentInOneSourceCase );
 
     uiOrdering.skipRemainingFields( true );
 
