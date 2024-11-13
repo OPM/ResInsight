@@ -26,7 +26,7 @@
 
 #include "RifSummaryReaderInterface.h"
 
-#include "RimDerivedEnsembleCaseCollection.h"
+#include "RimDeltaSummaryEnsemble.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimProject.h"
 #include "RimSummaryAddressCollection.h"
@@ -108,7 +108,7 @@ void RimSummaryEnsemble::removeCase( RimSummaryCase* summaryCase, bool notifyCha
 
     if ( m_isEnsemble && m_cases.size() != caseCountBeforeRemove )
     {
-        if ( dynamic_cast<RimDerivedSummaryCase*>( summaryCase ) == nullptr ) calculateEnsembleParametersIntersectionHash();
+        if ( dynamic_cast<RimDeltaSummaryCase*>( summaryCase ) == nullptr ) calculateEnsembleParametersIntersectionHash();
     }
 
     clearChildNodes();
@@ -128,7 +128,7 @@ void RimSummaryEnsemble::addCase( RimSummaryCase* summaryCase )
     m_analyzer.reset();
 
     // Update derived ensemble cases (if any)
-    std::vector<RimDerivedEnsembleCaseCollection*> referringObjects = objectsWithReferringPtrFieldsOfType<RimDerivedEnsembleCaseCollection>();
+    std::vector<RimDeltaSummaryEnsemble*> referringObjects = objectsWithReferringPtrFieldsOfType<RimDeltaSummaryEnsemble>();
     for ( auto derivedEnsemble : referringObjects )
     {
         if ( !derivedEnsemble ) continue;
@@ -223,7 +223,7 @@ void RimSummaryEnsemble::setAsEnsemble( bool isEnsemble )
         m_isEnsemble = isEnsemble;
         updateIcon();
 
-        if ( m_isEnsemble && dynamic_cast<RimDerivedEnsembleCaseCollection*>( this ) == nullptr )
+        if ( m_isEnsemble && dynamic_cast<RimDeltaSummaryEnsemble*>( this ) == nullptr )
         {
             validateEnsembleCases( allSummaryCases() );
             calculateEnsembleParametersIntersectionHash();
