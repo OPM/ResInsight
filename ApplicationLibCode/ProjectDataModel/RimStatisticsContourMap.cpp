@@ -34,6 +34,7 @@
 #include "RimEclipseContourMapProjection.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimProject.h"
+#include "RimTools.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -53,6 +54,10 @@ RimStatisticsContourMap::RimStatisticsContourMap()
     CAF_PDM_InitField( &m_relativeSampleSpacing, "SampleSpacing", 0.9, "Sample Spacing Factor" );
     m_relativeSampleSpacing.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
+    CAF_PDM_InitFieldNoDefault( &m_resultAggregation, "ResultAggregation", "Result Aggregation" );
+
+    CAF_PDM_InitField( &m_timeStep, "TimeStep", 0, "Time Step" );
+
     CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "" );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_resultDefinition = new RimEclipseResultDefinition;
@@ -71,6 +76,8 @@ RimStatisticsContourMap::RimStatisticsContourMap()
 void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_relativeSampleSpacing );
+    uiOrdering.add( &m_resultAggregation );
+    uiOrdering.add( &m_timeStep );
 
     caf::PdmUiGroup* resultDefinitionGroup = uiOrdering.addNewGroup( "Result Definition" );
     m_resultDefinition->uiOrdering( uiConfigName, *resultDefinitionGroup );
@@ -96,6 +103,26 @@ void RimStatisticsContourMap::fieldChangedByUi( const caf::PdmFieldHandle* chang
         computeStatistics();
         m_computeStatisticsButton = false;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimStatisticsContourMap::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_timeStep )
+    {
+        auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
+        if ( ensemble && !ensemble->cases().empty() )
+        {
+            RimEclipseCase* firstEclipseCase = ensemble->cases().front();
+            RimTools::timeStepsForCase( firstEclipseCase, &options );
+        }
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,8 +177,7 @@ void RimStatisticsContourMap::computeStatistics()
     RimEclipseCase* firstEclipseCase = ensemble->cases().front();
     firstEclipseCase->ensureReservoirCaseIsOpen();
 
-    int                                            timeStep          = 0;
-    RigContourMapCalculator::ResultAggregationType resultAggregation = RigContourMapCalculator::ResultAggregationType::MEAN;
+    RigContourMapCalculator::ResultAggregationType resultAggregation = m_resultAggregation();
 
     cvf::BoundingBox gridBoundingBox = firstEclipseCase->activeCellsBoundingBox();
 
@@ -186,7 +212,7 @@ void RimStatisticsContourMap::computeStatistics()
             contourMapProjection.generateGridMapping( resultAggregation, {} );
 
             std::vector<double> result =
-                contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(), resultAggregation, timeStep );
+                contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(), resultAggregation, m_timeStep() );
             results.push_back( result );
         }
     }
