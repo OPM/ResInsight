@@ -35,30 +35,30 @@ class RigContourMapCalculator
 public:
     using CellIndexAndResult = std::pair<size_t, double>;
 
-    enum ResultAggregationEnum
+    enum ResultAggregationType
     {
-        RESULTS_TOP_VALUE,
-        RESULTS_MEAN_VALUE,
-        RESULTS_GEOM_VALUE,
-        RESULTS_HARM_VALUE,
-        RESULTS_MIN_VALUE,
-        RESULTS_MAX_VALUE,
-        RESULTS_VOLUME_SUM,
-        RESULTS_SUM,
-        RESULTS_OIL_COLUMN,
-        RESULTS_GAS_COLUMN,
-        RESULTS_HC_COLUMN
+        TOP_VALUE,
+        MEAN,
+        GEOMETRIC_MEAN,
+        HARMONIC_MEAN,
+        MIN_VALUE,
+        MAX_VALUE,
+        VOLUME_SUM,
+        SUM,
+        OIL_COLUMN,
+        GAS_COLUMN,
+        HYDROCARBON_COLUMN
     };
 
     static std::vector<std::vector<std::pair<size_t, double>>> generateGridMapping( RigContourMapProjection&   contourMapProjection,
                                                                                     const RigContourMapGrid&   contourMapGrid,
-                                                                                    ResultAggregationEnum      resultAggregation,
+                                                                                    ResultAggregationType      resultAggregation,
                                                                                     const std::vector<double>& weightingResultValues );
 
     static double calculateValueInMapCell( const RigContourMapProjection&                contourMapProjection,
                                            const std::vector<std::pair<size_t, double>>& matchingCells,
                                            const std::vector<double>&                    gridCellValues,
-                                           ResultAggregationEnum                         resultAggregation );
+                                           ResultAggregationType                         resultAggregation );
 
     static std::vector<CellIndexAndResult> cellOverlapVolumesAndResults( const RigContourMapProjection& contourMapProjection,
                                                                          const RigContourMapGrid&       contourMapGrid,
@@ -70,9 +70,9 @@ public:
                                                                           const cvf::Vec2d&              globalPos2d,
                                                                           const std::vector<double>&     weightingResultValues );
 
-    static bool isColumnResult( ResultAggregationEnum aggregationType );
-    static bool isMeanResult( ResultAggregationEnum aggregationType );
-    static bool isStraightSummationResult( ResultAggregationEnum aggregationType );
+    static bool isColumnResult( ResultAggregationType aggregationType );
+    static bool isMeanResult( ResultAggregationType aggregationType );
+    static bool isStraightSummationResult( ResultAggregationType aggregationType );
 
 private:
     static double calculateTopValue( const RigContourMapProjection&                contourMapProjection,

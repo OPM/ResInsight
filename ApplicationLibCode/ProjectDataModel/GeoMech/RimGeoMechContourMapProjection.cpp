@@ -344,15 +344,15 @@ QList<caf::PdmOptionItemInfo> RimGeoMechContourMapProjection::calculateValueOpti
 
     if ( fieldNeedingOptions == &m_resultAggregation )
     {
-        std::vector<RigContourMapCalculator::ResultAggregationEnum> validOptions = { RigContourMapCalculator::RESULTS_TOP_VALUE,
-                                                                                     RigContourMapCalculator::RESULTS_MEAN_VALUE,
-                                                                                     RigContourMapCalculator::RESULTS_GEOM_VALUE,
-                                                                                     RigContourMapCalculator::RESULTS_HARM_VALUE,
-                                                                                     RigContourMapCalculator::RESULTS_MIN_VALUE,
-                                                                                     RigContourMapCalculator::RESULTS_MAX_VALUE,
-                                                                                     RigContourMapCalculator::RESULTS_SUM };
+        std::vector<RigContourMapCalculator::ResultAggregationType> validOptions = { RigContourMapCalculator::TOP_VALUE,
+                                                                                     RigContourMapCalculator::MEAN,
+                                                                                     RigContourMapCalculator::GEOMETRIC_MEAN,
+                                                                                     RigContourMapCalculator::HARMONIC_MEAN,
+                                                                                     RigContourMapCalculator::MIN_VALUE,
+                                                                                     RigContourMapCalculator::MAX_VALUE,
+                                                                                     RigContourMapCalculator::SUM };
 
-        for ( RigContourMapCalculator::ResultAggregationEnum option : validOptions )
+        for ( RigContourMapCalculator::ResultAggregationType option : validOptions )
         {
             options.push_back( caf::PdmOptionItemInfo( ResultAggregation::uiText( option ), option ) );
         }

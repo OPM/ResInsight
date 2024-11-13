@@ -43,7 +43,7 @@ class RimContourMapProjection : public RimCheckableNamedObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    using ResultAggregation = caf::AppEnum<RigContourMapCalculator::ResultAggregationEnum>;
+    using ResultAggregation = caf::AppEnum<RigContourMapCalculator::ResultAggregationType>;
     using ContourPolygons   = std::vector<RigContourPolygonsTools::ContourPolygon>;
 
     RimContourMapProjection();

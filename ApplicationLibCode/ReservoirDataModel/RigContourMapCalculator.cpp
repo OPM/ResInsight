@@ -36,29 +36,29 @@
 double RigContourMapCalculator::calculateValueInMapCell( const RigContourMapProjection&                contourMapProjection,
                                                          const std::vector<std::pair<size_t, double>>& matchingCells,
                                                          const std::vector<double>&                    gridCellValues,
-                                                         ResultAggregationEnum                         resultAggregation )
+                                                         ResultAggregationType                         resultAggregation )
 {
     if ( matchingCells.empty() ) return std::numeric_limits<double>::infinity();
 
     switch ( resultAggregation )
     {
-        case RESULTS_TOP_VALUE:
+        case TOP_VALUE:
             return calculateTopValue( contourMapProjection, matchingCells, gridCellValues );
-        case RESULTS_MEAN_VALUE:
+        case MEAN:
             return calculateMeanValue( contourMapProjection, matchingCells, gridCellValues );
-        case RESULTS_GEOM_VALUE:
+        case GEOMETRIC_MEAN:
             return calculateGeometricMeanValue( contourMapProjection, matchingCells, gridCellValues );
-        case RESULTS_HARM_VALUE:
+        case HARMONIC_MEAN:
             return calculateHarmonicMeanValue( contourMapProjection, matchingCells, gridCellValues );
-        case RESULTS_MAX_VALUE:
+        case MAX_VALUE:
             return calculateMaxValue( contourMapProjection, matchingCells, gridCellValues );
-        case RESULTS_MIN_VALUE:
+        case MIN_VALUE:
             return calculateMinValue( contourMapProjection, matchingCells, gridCellValues );
-        case RESULTS_VOLUME_SUM:
-        case RESULTS_SUM:
-        case RESULTS_OIL_COLUMN:
-        case RESULTS_GAS_COLUMN:
-        case RESULTS_HC_COLUMN:
+        case VOLUME_SUM:
+        case SUM:
+        case OIL_COLUMN:
+        case GAS_COLUMN:
+        case HYDROCARBON_COLUMN:
             return calculateSum( contourMapProjection, matchingCells, gridCellValues );
         default:
         {
@@ -227,7 +227,7 @@ double RigContourMapCalculator::calculateSum( const RigContourMapProjection&    
 std::vector<std::vector<std::pair<size_t, double>>>
     RigContourMapCalculator::generateGridMapping( RigContourMapProjection&   contourMapProjection,
                                                   const RigContourMapGrid&   contourMapGrid,
-                                                  ResultAggregationEnum      resultAggregation,
+                                                  ResultAggregationType      resultAggregation,
                                                   const std::vector<double>& weightingResultValues )
 {
     int                                                 nCells = contourMapGrid.numberOfCells();
@@ -392,24 +392,23 @@ std::vector<RigContourMapCalculator::CellIndexAndResult>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigContourMapCalculator::isColumnResult( ResultAggregationEnum aggregationType )
+bool RigContourMapCalculator::isColumnResult( ResultAggregationType aggregationType )
 {
-    return aggregationType == RESULTS_OIL_COLUMN || aggregationType == RESULTS_GAS_COLUMN || aggregationType == RESULTS_HC_COLUMN;
+    return aggregationType == OIL_COLUMN || aggregationType == GAS_COLUMN || aggregationType == HYDROCARBON_COLUMN;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigContourMapCalculator::isMeanResult( ResultAggregationEnum aggregationType )
+bool RigContourMapCalculator::isMeanResult( ResultAggregationType aggregationType )
 {
-    return aggregationType == RESULTS_MEAN_VALUE || aggregationType == RESULTS_HARM_VALUE || aggregationType == RESULTS_GEOM_VALUE;
+    return aggregationType == MEAN || aggregationType == HARMONIC_MEAN || aggregationType == GEOMETRIC_MEAN;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigContourMapCalculator::isStraightSummationResult( ResultAggregationEnum aggregationType )
+bool RigContourMapCalculator::isStraightSummationResult( ResultAggregationType aggregationType )
 {
-    return aggregationType == RESULTS_OIL_COLUMN || aggregationType == RESULTS_GAS_COLUMN || aggregationType == RESULTS_HC_COLUMN ||
-           aggregationType == RESULTS_SUM;
+    return aggregationType == OIL_COLUMN || aggregationType == GAS_COLUMN || aggregationType == HYDROCARBON_COLUMN || aggregationType == SUM;
 }

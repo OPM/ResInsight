@@ -112,7 +112,7 @@ cvf::BoundingBox RigGeoMechContourMapProjection::calculateExpandedPorBarBBox( Ri
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<bool> RigGeoMechContourMapProjection::getMapCellVisibility( int                                            viewStepIndex,
-                                                                        RigContourMapCalculator::ResultAggregationEnum resultAggregation )
+                                                                        RigContourMapCalculator::ResultAggregationType resultAggregation )
 {
     return getMapCellVisibility( m_currentResultAddr, viewStepIndex, resultAggregation );
 }
@@ -122,7 +122,7 @@ std::vector<bool> RigGeoMechContourMapProjection::getMapCellVisibility( int     
 //--------------------------------------------------------------------------------------------------
 std::vector<bool> RigGeoMechContourMapProjection::getMapCellVisibility( RigFemResultAddress                            resAddr,
                                                                         int                                            viewStepIndex,
-                                                                        RigContourMapCalculator::ResultAggregationEnum resultAggregation )
+                                                                        RigContourMapCalculator::ResultAggregationType resultAggregation )
 {
     cvf::Vec2ui                            nCellsIJ = numberOfElementsIJ();
     std::vector<std::vector<unsigned int>> distanceImage( nCellsIJ.x(), std::vector<unsigned int>( nCellsIJ.y(), 0u ) );
@@ -183,7 +183,7 @@ std::vector<bool> RigGeoMechContourMapProjection::getMapCellVisibility( RigFemRe
 ///
 //--------------------------------------------------------------------------------------------------
 void RigGeoMechContourMapProjection::generateAndSaveResults( RigFemResultAddress                            resultAddress,
-                                                             RigContourMapCalculator::ResultAggregationEnum resultAggregation,
+                                                             RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                              int                                            viewerStepIndex )
 {
     m_aggregatedResults = generateResultsFromAddress( resultAddress, m_mapCellVisibility, resultAggregation, viewerStepIndex );
@@ -194,7 +194,7 @@ void RigGeoMechContourMapProjection::generateAndSaveResults( RigFemResultAddress
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigGeoMechContourMapProjection::generateResultsFromAddress( RigFemResultAddress      resultAddress,
                                                                                 const std::vector<bool>& mapCellVisibility,
-                                                                                RigContourMapCalculator::ResultAggregationEnum resultAggregation,
+                                                                                RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                                                 int viewerStepIndex ) const
 {
     RigFemPartResultsCollection* resultCollection  = m_caseData.femPartResults();

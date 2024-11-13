@@ -151,7 +151,7 @@ void RimStatisticsContourMap::computeStatistics()
     firstEclipseCase->ensureReservoirCaseIsOpen();
 
     int                                            timeStep          = 0;
-    RigContourMapCalculator::ResultAggregationEnum resultAggregation = RigContourMapCalculator::ResultAggregationEnum::RESULTS_MEAN_VALUE;
+    RigContourMapCalculator::ResultAggregationType resultAggregation = RigContourMapCalculator::ResultAggregationType::MEAN;
 
     cvf::BoundingBox gridBoundingBox = firstEclipseCase->activeCellsBoundingBox();
 
