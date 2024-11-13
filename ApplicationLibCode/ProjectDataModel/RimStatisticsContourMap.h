@@ -21,6 +21,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "RimContourMapProjection.h"
+
 class RimEclipseCase;
 class RimEclipseResultDefinition;
 
@@ -43,11 +45,14 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void initAfterRead() override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
     void computeStatistics();
 
-    caf::PdmField<double> m_relativeSampleSpacing;
+    caf::PdmField<double>                                     m_relativeSampleSpacing;
+    caf::PdmField<RimContourMapProjection::ResultAggregation> m_resultAggregation;
+    caf::PdmField<int>                                        m_timeStep;
 
     caf::PdmChildField<RimEclipseResultDefinition*> m_resultDefinition;
     caf::PdmField<bool>                             m_computeStatisticsButton;
