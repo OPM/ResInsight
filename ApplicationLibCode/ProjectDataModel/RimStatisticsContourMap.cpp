@@ -35,6 +35,7 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimProject.h"
 
+#include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafProgressInfo.h"
 
@@ -48,6 +49,9 @@ CAF_PDM_SOURCE_INIT( RimStatisticsContourMap, "RimStatisticalContourMap" );
 RimStatisticsContourMap::RimStatisticsContourMap()
 {
     CAF_PDM_InitObject( "StatisticsContourMap", ":/Histogram16x16.png" );
+
+    CAF_PDM_InitField( &m_relativeSampleSpacing, "SampleSpacing", 0.9, "Sample Spacing Factor" );
+    m_relativeSampleSpacing.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "" );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
@@ -66,6 +70,8 @@ RimStatisticsContourMap::RimStatisticsContourMap()
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_relativeSampleSpacing );
+
     caf::PdmUiGroup* resultDefinitionGroup = uiOrdering.addNewGroup( "Result Definition" );
     m_resultDefinition->uiOrdering( uiConfigName, *resultDefinitionGroup );
 
@@ -104,6 +110,17 @@ void RimStatisticsContourMap::defineEditorAttribute( const caf::PdmFieldHandle* 
             attrib->m_buttonText = "Compute";
         }
     }
+
+    if ( &m_relativeSampleSpacing == field )
+    {
+        if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
+        {
+            myAttr->m_minimum                       = 0.2;
+            myAttr->m_maximum                       = 2.0;
+            myAttr->m_sliderTickCount               = 9;
+            myAttr->m_delaySliderUpdateUntilRelease = true;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,8 +150,7 @@ void RimStatisticsContourMap::computeStatistics()
     RimEclipseCase* firstEclipseCase = ensemble->cases().front();
     firstEclipseCase->ensureReservoirCaseIsOpen();
 
-    double                                         relativeSampleSpacing = 0.9;
-    int                                            timeStep              = 0;
+    int                                            timeStep          = 0;
     RigContourMapCalculator::ResultAggregationEnum resultAggregation = RigContourMapCalculator::ResultAggregationEnum::RESULTS_MEAN_VALUE;
 
     cvf::BoundingBox gridBoundingBox = firstEclipseCase->activeCellsBoundingBox();
@@ -152,7 +168,7 @@ void RimStatisticsContourMap::computeStatistics()
         return 0.0;
     };
 
-    double sampleSpacing = computeSampleSpacing( firstEclipseCase, relativeSampleSpacing );
+    double sampleSpacing = computeSampleSpacing( firstEclipseCase, m_relativeSampleSpacing() );
 
     auto contourMapGrid = std::make_unique<RigContourMapGrid>( gridBoundingBox, sampleSpacing );
 
