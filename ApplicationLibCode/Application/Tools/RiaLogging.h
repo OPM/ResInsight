@@ -77,8 +77,14 @@ public:
     static void logTimeElapsed( const QString& message );
 
 private:
+    static void setLastMessage( const QString& message );
+    static bool isSameMessage( const QString& message );
+
+private:
     static std::vector<std::unique_ptr<RiaLogger>>                     sm_logger;
     static std::chrono::time_point<std::chrono::high_resolution_clock> sm_startTime;
+    static QString                                                     sm_lastMessage;
+    static std::chrono::time_point<std::chrono::high_resolution_clock> sm_lastMessageTime;
 };
 
 //==================================================================================================
