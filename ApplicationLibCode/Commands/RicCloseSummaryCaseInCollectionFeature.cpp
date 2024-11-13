@@ -22,7 +22,7 @@
 
 #include "RicCloseSummaryCaseFeature.h"
 
-#include "RimDerivedEnsembleCaseCollection.h"
+#include "RimDeltaSummaryEnsemble.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -64,7 +64,7 @@ bool RicCloseSummaryCaseInCollectionFeature::isCommandEnabled() const
     summaryCaseCollections.erase( std::remove_if( summaryCaseCollections.begin(),
                                                   summaryCaseCollections.end(),
                                                   []( RimSummaryEnsemble* coll )
-                                                  { return dynamic_cast<RimDerivedEnsembleCaseCollection*>( coll ) != nullptr; } ),
+                                                  { return dynamic_cast<RimDeltaSummaryEnsemble*>( coll ) != nullptr; } ),
                                   summaryCaseCollections.end() );
 
     return ( !summaryCaseMainCollections.empty() || !summaryCaseCollections.empty() );

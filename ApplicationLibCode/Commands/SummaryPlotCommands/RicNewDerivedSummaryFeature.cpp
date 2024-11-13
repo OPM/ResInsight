@@ -18,7 +18,7 @@
 
 #include "RicNewDerivedSummaryFeature.h"
 
-#include "RimDerivedSummaryCase.h"
+#include "RimDeltaSummaryCase.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 
@@ -46,7 +46,7 @@ void RicNewDerivedSummaryFeature::onActionTriggered( bool isChecked )
     auto mainColl = mainCollection();
     if ( mainColl )
     {
-        auto derivedCase = new RimDerivedSummaryCase;
+        auto derivedCase = new RimDeltaSummaryCase;
 
         auto selectedCases = twoSelectedSummaryCases();
         if ( selectedCases.empty() )

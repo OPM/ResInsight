@@ -16,13 +16,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimDerivedSummaryCase.h"
+#include "RimDeltaSummaryCase.h"
 
 #include "RiaCurveMerger.h"
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
-
-#include "RifDerivedEnsembleReader.h"
 
 #include "RimProject.h"
 #include "RimSummaryEnsemble.h"
@@ -46,21 +44,80 @@ void caf::AppEnum<DerivedSummaryOperator>::setUp()
 }
 
 template <>
-void caf::AppEnum<RimDerivedSummaryCase::FixedTimeStepMode>::setUp()
+void caf::AppEnum<RimDeltaSummaryCase::FixedTimeStepMode>::setUp()
 {
-    addItem( RimDerivedSummaryCase::FixedTimeStepMode::FIXED_TIME_STEP_NONE, "FIXED_TIME_STEP_NONE", "None" );
-    addItem( RimDerivedSummaryCase::FixedTimeStepMode::FIXED_TIME_STEP_CASE_1, "FIXED_TIME_STEP_CASE_1", "Summary Case 1" );
-    addItem( RimDerivedSummaryCase::FixedTimeStepMode::FIXED_TIME_STEP_CASE_2, "FIXED_TIME_STEP_CASE_2", "Summary Case 2" );
-    setDefault( RimDerivedSummaryCase::FixedTimeStepMode::FIXED_TIME_STEP_NONE );
+    addItem( RimDeltaSummaryCase::FixedTimeStepMode::FIXED_TIME_STEP_NONE, "FIXED_TIME_STEP_NONE", "None" );
+    addItem( RimDeltaSummaryCase::FixedTimeStepMode::FIXED_TIME_STEP_CASE_1, "FIXED_TIME_STEP_CASE_1", "Summary Case 1" );
+    addItem( RimDeltaSummaryCase::FixedTimeStepMode::FIXED_TIME_STEP_CASE_2, "FIXED_TIME_STEP_CASE_2", "Summary Case 2" );
+    setDefault( RimDeltaSummaryCase::FixedTimeStepMode::FIXED_TIME_STEP_NONE );
 }
 } // namespace caf
 
-CAF_PDM_SOURCE_INIT( RimDerivedSummaryCase, "RimDerivedEnsembleCase" );
+CAF_PDM_SOURCE_INIT( RimDeltaSummaryCase, "RimDeltaSummaryCase", "RimDerivedEnsembleCase" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimDerivedSummaryCase::RimDerivedSummaryCase()
+std::string RimDeltaSummaryCase::unitName( const RifEclipseSummaryAddress& resultAddress ) const
+{
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<time_t> RimDeltaSummaryCase::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
+{
+    if ( !resultAddress.isValid() )
+    {
+        return {};
+    }
+
+    if ( needsCalculation( resultAddress ) )
+    {
+        calculate( resultAddress );
+    }
+
+    if ( m_dataCache.count( resultAddress ) == 0 )
+    {
+        return {};
+    }
+
+    return m_dataCache.at( resultAddress ).first;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<bool, std::vector<double>> RimDeltaSummaryCase::values( const RifEclipseSummaryAddress& resultAddress ) const
+{
+    if ( !resultAddress.isValid() ) return { false, {} };
+
+    if ( needsCalculation( resultAddress ) )
+    {
+        calculate( resultAddress );
+    }
+
+    if ( m_dataCache.count( resultAddress ) == 0 )
+    {
+        return { false, {} };
+    }
+
+    return { true, m_dataCache.at( resultAddress ).second };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::EclipseUnitSystem RimDeltaSummaryCase::unitSystem() const
+{
+    return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimDeltaSummaryCase::RimDeltaSummaryCase()
     : m_summaryCase1( nullptr )
     , m_summaryCase2( nullptr )
 {
@@ -81,14 +138,7 @@ RimDerivedSummaryCase::RimDerivedSummaryCase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimDerivedSummaryCase::~RimDerivedSummaryCase()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDerivedSummaryCase::setInUse( bool inUse )
+void RimDeltaSummaryCase::setInUse( bool inUse )
 {
     m_inUse = inUse;
 
@@ -103,7 +153,7 @@ void RimDerivedSummaryCase::setInUse( bool inUse )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimDerivedSummaryCase::isInUse() const
+bool RimDeltaSummaryCase::isInUse() const
 {
     return m_inUse;
 }
@@ -111,7 +161,7 @@ bool RimDerivedSummaryCase::isInUse() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedSummaryCase::setSummaryCases( RimSummaryCase* sumCase1, RimSummaryCase* sumCase2 )
+void RimDeltaSummaryCase::setSummaryCases( RimSummaryCase* sumCase1, RimSummaryCase* sumCase2 )
 {
     m_summaryCase1 = sumCase1;
     m_summaryCase2 = sumCase2;
@@ -120,7 +170,7 @@ void RimDerivedSummaryCase::setSummaryCases( RimSummaryCase* sumCase1, RimSummar
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimDerivedSummaryCase::needsCalculation( const RifEclipseSummaryAddress& address ) const
+bool RimDeltaSummaryCase::needsCalculation( const RifEclipseSummaryAddress& address ) const
 {
     return m_dataCache.count( address ) == 0;
 }
@@ -128,35 +178,7 @@ bool RimDerivedSummaryCase::needsCalculation( const RifEclipseSummaryAddress& ad
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RimDerivedSummaryCase::timeSteps( const RifEclipseSummaryAddress& address ) const
-{
-    if ( m_dataCache.count( address ) == 0 )
-    {
-        static std::vector<time_t> empty;
-        return empty;
-    }
-
-    return m_dataCache.at( address ).first;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const std::vector<double>& RimDerivedSummaryCase::values( const RifEclipseSummaryAddress& address ) const
-{
-    if ( m_dataCache.count( address ) == 0 )
-    {
-        static std::vector<double> empty;
-        return empty;
-    }
-
-    return m_dataCache.at( address ).second;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDerivedSummaryCase::calculate( const RifEclipseSummaryAddress& address )
+void RimDeltaSummaryCase::calculate( const RifEclipseSummaryAddress& address ) const
 {
     clearData( address );
 
@@ -188,12 +210,12 @@ void RimDerivedSummaryCase::calculate( const RifEclipseSummaryAddress& address )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::vector<time_t>, std::vector<double>> RimDerivedSummaryCase::calculateDerivedValues( RifSummaryReaderInterface* reader1,
-                                                                                                   int fixedTimeStepCase1,
-                                                                                                   RifSummaryReaderInterface* reader2,
-                                                                                                   int fixedTimeStepCase2,
-                                                                                                   DerivedSummaryOperator m_operator,
-                                                                                                   const RifEclipseSummaryAddress& address )
+std::pair<std::vector<time_t>, std::vector<double>> RimDeltaSummaryCase::calculateDerivedValues( RifSummaryReaderInterface* reader1,
+                                                                                                 int fixedTimeStepCase1,
+                                                                                                 RifSummaryReaderInterface* reader2,
+                                                                                                 int                    fixedTimeStepCase2,
+                                                                                                 DerivedSummaryOperator summaryOperator,
+                                                                                                 const RifEclipseSummaryAddress& address )
 {
     using ResultPair = std::pair<std::vector<time_t>, std::vector<double>>;
 
@@ -212,7 +234,7 @@ std::pair<std::vector<time_t>, std::vector<double>> RimDerivedSummaryCase::calcu
     else if ( !reader1->hasAddress( address ) && reader2->hasAddress( address ) )
     {
         auto [isOk, summaryValues] = reader2->values( address );
-        if ( m_operator == DerivedSummaryOperator::DERIVED_OPERATOR_SUB )
+        if ( summaryOperator == DerivedSummaryOperator::DERIVED_OPERATOR_SUB )
         {
             for ( auto& v : summaryValues )
             {
@@ -251,11 +273,11 @@ std::pair<std::vector<time_t>, std::vector<double>> RimDerivedSummaryCase::calcu
     {
         double valueCase1 = clampedIndexCase1 >= 0 ? values1[clampedIndexCase1] : allValues1[i];
         double valueCase2 = clampedIndexCase2 >= 0 ? values2[clampedIndexCase2] : allValues2[i];
-        if ( m_operator == DerivedSummaryOperator::DERIVED_OPERATOR_SUB )
+        if ( summaryOperator == DerivedSummaryOperator::DERIVED_OPERATOR_SUB )
         {
             calculatedValues.push_back( valueCase1 - valueCase2 );
         }
-        else if ( m_operator == DerivedSummaryOperator::DERIVED_OPERATOR_ADD )
+        else if ( summaryOperator == DerivedSummaryOperator::DERIVED_OPERATOR_ADD )
         {
             calculatedValues.push_back( valueCase1 + valueCase2 );
         }
@@ -267,7 +289,7 @@ std::pair<std::vector<time_t>, std::vector<double>> RimDerivedSummaryCase::calcu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimDerivedSummaryCase::caseName() const
+QString RimDeltaSummaryCase::caseName() const
 {
     return m_displayName;
 }
@@ -275,18 +297,14 @@ QString RimDerivedSummaryCase::caseName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedSummaryCase::createSummaryReaderInterface()
+void RimDeltaSummaryCase::createSummaryReaderInterface()
 {
-    RifSummaryReaderInterface* summaryCase1Reader1 = nullptr;
-    RifSummaryReaderInterface* summaryCase1Reader2 = nullptr;
     if ( m_summaryCase1 )
     {
         if ( !m_summaryCase1->summaryReader() )
         {
             m_summaryCase1->createSummaryReaderInterface();
         }
-
-        summaryCase1Reader1 = m_summaryCase1->summaryReader();
     }
     if ( m_summaryCase2 )
     {
@@ -294,29 +312,21 @@ void RimDerivedSummaryCase::createSummaryReaderInterface()
         {
             m_summaryCase2->createSummaryReaderInterface();
         }
-
-        summaryCase1Reader2 = m_summaryCase2->summaryReader();
     }
-
-    m_reader = std::make_unique<RifDerivedEnsembleReader>( this, summaryCase1Reader1, summaryCase1Reader2 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifSummaryReaderInterface* RimDerivedSummaryCase::summaryReader()
+RifSummaryReaderInterface* RimDeltaSummaryCase::summaryReader()
 {
-    if ( !m_reader )
-    {
-        createSummaryReaderInterface();
-    }
-    return m_reader.get();
+    return this;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedSummaryCase::setOperator( DerivedSummaryOperator oper )
+void RimDeltaSummaryCase::setOperator( DerivedSummaryOperator oper )
 {
     m_operator = oper;
 }
@@ -324,7 +334,7 @@ void RimDerivedSummaryCase::setOperator( DerivedSummaryOperator oper )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedSummaryCase::setFixedTimeSteps( int fixedTimeStepCase1, int fixedTimeStepCase2 )
+void RimDeltaSummaryCase::setFixedTimeSteps( int fixedTimeStepCase1, int fixedTimeStepCase2 )
 {
     m_useFixedTimeStep = FixedTimeStepMode::FIXED_TIME_STEP_NONE;
 
@@ -343,7 +353,7 @@ void RimDerivedSummaryCase::setFixedTimeSteps( int fixedTimeStepCase1, int fixed
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedSummaryCase::clearData( const RifEclipseSummaryAddress& address )
+void RimDeltaSummaryCase::clearData( const RifEclipseSummaryAddress& address ) const
 {
     m_dataCache.erase( address );
 }
@@ -351,7 +361,7 @@ void RimDerivedSummaryCase::clearData( const RifEclipseSummaryAddress& address )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedSummaryCase::updateDisplayNameFromCases()
+void RimDeltaSummaryCase::updateDisplayNameFromCases()
 {
     QString timeStepString;
     {
@@ -422,7 +432,7 @@ void RimDerivedSummaryCase::updateDisplayNameFromCases()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimDerivedSummaryCase::summaryCase1() const
+RimSummaryCase* RimDeltaSummaryCase::summaryCase1() const
 {
     return m_summaryCase1;
 }
@@ -430,7 +440,7 @@ RimSummaryCase* RimDerivedSummaryCase::summaryCase1() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimDerivedSummaryCase::summaryCase2() const
+RimSummaryCase* RimDeltaSummaryCase::summaryCase2() const
 {
     return m_summaryCase2;
 }
@@ -438,7 +448,7 @@ RimSummaryCase* RimDerivedSummaryCase::summaryCase2() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedSummaryCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimDeltaSummaryCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     // Base class
     uiOrdering.add( &m_displayName );
@@ -459,7 +469,7 @@ void RimDerivedSummaryCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimDerivedSummaryCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimDeltaSummaryCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -501,7 +511,7 @@ QList<caf::PdmOptionItemInfo> RimDerivedSummaryCase::calculateValueOptions( cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+void RimDeltaSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     bool reloadData = false;
     if ( changedField == &m_summaryCase2 || changedField == &m_summaryCase1 )
@@ -552,7 +562,7 @@ void RimDerivedSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedSummaryCase::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+void RimDeltaSummaryCase::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( &m_fixedTimeStepIndex == field )
     {
