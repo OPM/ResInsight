@@ -316,15 +316,17 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimEclipseView* eclipseView )
         RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>( eclipseView );
         if ( contourMap && contourMap->contourMapProjection() && contourMap->contourMapProjection()->mapProjection() )
         {
+            RimEclipseContourMapProjection* eclipseProjection =
+                dynamic_cast<RimEclipseContourMapProjection*>( contourMap->contourMapProjection() );
             QString totCellCount =
                 localeWithSpaceAsGroupSeparator.toString( contourMap->contourMapProjection()->mapProjection()->numberOfCells() );
             cvf::uint validCellCount      = contourMap->contourMapProjection()->mapProjection()->numberOfValidCells();
             QString   activeCellCountText = localeWithSpaceAsGroupSeparator.toString( validCellCount );
             QString   aggregationType     = contourMap->contourMapProjection()->resultAggregationText();
             QString   weightingParameterString;
-            if ( contourMap->contourMapProjection()->weightingParameter() != "None" )
+            if ( eclipseProjection && eclipseProjection->weightingParameter() != "None" )
             {
-                weightingParameterString += QString( " (Weight: %1)" ).arg( contourMap->contourMapProjection()->weightingParameter() );
+                weightingParameterString += QString( " (Weight: %1)" ).arg( eclipseProjection->weightingParameter() );
             }
 
             infoText += QString( "<p><b>-- Contour Map: %1 --</b><p>  "
@@ -452,7 +454,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
         bool isResultsInfoRelevant = contourMap->contourMapProjection()->mapProjection()->numberOfValidCells() > 0u;
         if ( isResultsInfoRelevant )
         {
-            QString propName      = eclipseView->cellResult()->resultVariableUiShortName();
+            QString propName      = contourMap->contourMapProjection()->resultVariableName();
             QString diffResString = eclipseView->cellResult()->additionalResultText();
             if ( !contourMap->contourMapProjection()->isColumnResult() )
             {

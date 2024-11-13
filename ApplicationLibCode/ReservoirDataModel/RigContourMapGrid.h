@@ -33,6 +33,15 @@ public:
     RigContourMapGrid( const cvf::BoundingBox& originalBoundingBox, double sampleSpacing );
     RigContourMapGrid( const cvf::BoundingBox& originalBoundingBox, const cvf::BoundingBox& expandedBoundingBox, double sampleSpacing );
 
+    // Copy constructor
+    RigContourMapGrid( const RigContourMapGrid& other )
+        : m_sampleSpacing( other.m_sampleSpacing )
+        , m_mapSize( other.m_mapSize )
+        , m_expandedBoundingBox( other.m_expandedBoundingBox )
+        , m_originalBoundingBox( other.m_originalBoundingBox )
+    {
+    }
+
     double sampleSpacing() const;
 
     cvf::Vec2ui numberOfElementsIJ() const;

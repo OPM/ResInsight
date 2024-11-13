@@ -78,9 +78,33 @@ QString RimGeoMechContourMapProjection::resultDescriptionText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimGeoMechContourMapProjection::resultVariableName() const
+{
+    if ( auto v = view() )
+    {
+        if ( auto c = v->cellResult() )
+        {
+            return c->resultFieldUiName();
+        }
+    }
+
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimRegularLegendConfig* RimGeoMechContourMapProjection::legendConfig() const
 {
-    return view()->cellResult()->legendConfig();
+    if ( auto v = view() )
+    {
+        if ( auto c = v->cellResult() )
+        {
+            return c->legendConfig();
+        }
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

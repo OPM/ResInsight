@@ -45,6 +45,7 @@ public:
     ~RimGeoMechContourMapProjection() override;
 
     // GeoMech case overrides for contour map methods
+    QString                 resultVariableName() const override;
     QString                 resultDescriptionText() const override;
     RimRegularLegendConfig* legendConfig() const override;
     void                    updateLegend() override;

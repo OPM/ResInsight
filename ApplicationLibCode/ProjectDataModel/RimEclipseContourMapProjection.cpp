@@ -78,6 +78,15 @@ QString RimEclipseContourMapProjection::resultDescriptionText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimEclipseContourMapProjection::resultVariableName() const
+{
+    if ( !isColumnResult() ) return view()->cellResult()->resultVariable();
+    return resultAggregationText();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimEclipseContourMapProjection::weightingParameter() const
 {
     QString parameter = "None";

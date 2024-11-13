@@ -22,6 +22,7 @@
 #include "RiaStatisticsTools.h"
 
 #include "RigCaseCellResultsData.h"
+#include "RigContourMapCalculator.h"
 #include "RigContourMapGrid.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseContourMapProjection.h"
@@ -36,6 +37,7 @@
 #include "RimProject.h"
 #include "RimTools.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafProgressInfo.h"
@@ -43,6 +45,21 @@
 #include <limits>
 
 CAF_PDM_SOURCE_INIT( RimStatisticsContourMap, "RimStatisticalContourMap" );
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RimStatisticsContourMap::StatisticsType>::setUp()
+{
+    addItem( RimStatisticsContourMap::StatisticsType::P10, "P10", "P10" );
+    addItem( RimStatisticsContourMap::StatisticsType::P50, "P50", "P50" );
+    addItem( RimStatisticsContourMap::StatisticsType::P90, "P90", "P90" );
+    addItem( RimStatisticsContourMap::StatisticsType::MEAN, "MEAN", "Mean" );
+    addItem( RimStatisticsContourMap::StatisticsType::MIN, "MIN", "Minimum" );
+    addItem( RimStatisticsContourMap::StatisticsType::MAX, "MAX", "Maximum" );
+    setDefault( RimStatisticsContourMap::StatisticsType::MEAN );
+}
+}; // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -91,6 +108,14 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
 void RimStatisticsContourMap::setEclipseCase( RimEclipseCase* eclipseCase )
 {
     m_resultDefinition->setEclipseCase( eclipseCase );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCaseEnsemble* RimStatisticsContourMap::ensemble() const
+{
+    return firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -198,6 +223,12 @@ void RimStatisticsContourMap::computeStatistics()
 
     auto contourMapGrid = std::make_unique<RigContourMapGrid>( gridBoundingBox, sampleSpacing );
 
+    auto firstEclipseCaseData = firstEclipseCase->eclipseCaseData();
+    auto firstResultData      = firstEclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+    RigEclipseContourMapProjection contourMapProjection( *contourMapGrid, *firstEclipseCaseData, *firstResultData );
+    m_gridMapping = contourMapProjection.generateGridMapping( resultAggregation, {} );
+
     std::vector<std::vector<double>> results;
     for ( RimEclipseCase* eclipseCase : ensemble->cases() )
     {
@@ -235,17 +266,107 @@ void RimStatisticsContourMap::computeStatistics()
             for ( size_t s = 0; s < numSamples; s++ )
                 samples[s] = results[s][i];
 
-            double p10, p50, p90, mean;
+            double p10  = std::numeric_limits<double>::infinity();
+            double p50  = std::numeric_limits<double>::infinity();
+            double p90  = std::numeric_limits<double>::infinity();
+            double mean = std::numeric_limits<double>::infinity();
 
             RigStatisticsMath::calculateStatisticsCurves( samples, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
 
-            p10Results[i]  = p10;
-            p50Results[i]  = p50;
-            p90Results[i]  = p90;
-            meanResults[i] = mean;
+            if ( RiaStatisticsTools::isValidNumber( p10 ) ) p10Results[i] = p10;
+            if ( RiaStatisticsTools::isValidNumber( p50 ) ) p50Results[i] = p50;
+            if ( RiaStatisticsTools::isValidNumber( p90 ) ) p90Results[i] = p90;
+            if ( RiaStatisticsTools::isValidNumber( mean ) ) meanResults[i] = mean;
 
-            minResults[i] = RiaStatisticsTools::minimumValue( samples );
-            maxResults[i] = RiaStatisticsTools::maximumValue( samples );
+            double minValue = RiaStatisticsTools::minimumValue( samples );
+            if ( RiaStatisticsTools::isValidNumber( minValue ) && minValue < std::numeric_limits<double>::max() ) minResults[i] = minValue;
+
+            double maxValue = RiaStatisticsTools::maximumValue( samples );
+            if ( RiaStatisticsTools::isValidNumber( maxValue ) && maxValue > -std::numeric_limits<double>::max() ) maxResults[i] = maxValue;
         }
+
+        m_contourMapGrid               = std::move( contourMapGrid );
+        m_result[StatisticsType::P10]  = p10Results;
+        m_result[StatisticsType::P50]  = p50Results;
+        m_result[StatisticsType::P90]  = p90Results;
+        m_result[StatisticsType::MEAN] = meanResults;
+        m_result[StatisticsType::MIN]  = minResults;
+        m_result[StatisticsType::MAX]  = maxResults;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimStatisticsContourMap::eclipseCase() const
+{
+    auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
+    if ( !ensemble || ensemble->cases().empty() ) return nullptr;
+
+    return ensemble->cases().front();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsContourMap::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicNewStatisticsContourMapViewFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigContourMapGrid* RimStatisticsContourMap::contourMapGrid() const
+{
+    return m_contourMapGrid.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimStatisticsContourMap::result( StatisticsType statisticsType ) const
+{
+    if ( auto it = m_result.find( statisticsType ); it != m_result.end() ) return it->second;
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsContourMap::ensureResultsComputed()
+{
+    if ( !m_contourMapGrid ) computeStatistics();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimStatisticsContourMap::resultAggregationText() const
+{
+    return m_resultAggregation().uiText();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimStatisticsContourMap::resultVariable() const
+{
+    return m_resultDefinition()->resultVariable();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimStatisticsContourMap::isColumnResult() const
+{
+    return RigContourMapCalculator::isColumnResult( m_resultAggregation() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimStatisticsContourMap::sampleSpacingFactor() const
+{
+    return m_relativeSampleSpacing;
 }
