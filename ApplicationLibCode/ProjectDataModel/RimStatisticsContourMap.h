@@ -47,6 +47,8 @@ protected:
 private:
     void computeStatistics();
 
+    caf::PdmField<double> m_relativeSampleSpacing;
+
     caf::PdmChildField<RimEclipseResultDefinition*> m_resultDefinition;
     caf::PdmField<bool>                             m_computeStatisticsButton;
 };
