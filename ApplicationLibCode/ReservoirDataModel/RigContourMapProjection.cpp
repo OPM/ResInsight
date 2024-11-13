@@ -44,7 +44,7 @@ RigContourMapProjection::RigContourMapProjection( const RigContourMapGrid& conto
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<std::pair<size_t, double>>>
-    RigContourMapProjection::generateGridMapping( RigContourMapCalculator::ResultAggregationEnum resultAggregation,
+    RigContourMapProjection::generateGridMapping( RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                   const std::vector<double>&                     weights )
 {
     m_projected3dGridIndices = RigContourMapCalculator::generateGridMapping( *this, m_contourMapGrid, resultAggregation, weights );
@@ -201,7 +201,7 @@ size_t RigContourMapProjection::gridResultIndex( size_t globalCellIdx ) const
 double RigContourMapProjection::calculateValueInMapCell( unsigned int                                   i,
                                                          unsigned int                                   j,
                                                          const std::vector<double>&                     gridCellValues,
-                                                         RigContourMapCalculator::ResultAggregationEnum resultAggregation ) const
+                                                         RigContourMapCalculator::ResultAggregationType resultAggregation ) const
 {
     const std::vector<std::pair<size_t, double>>& matchingCells = cellsAtIJ( i, j );
     return RigContourMapCalculator::calculateValueInMapCell( *this, matchingCells, gridCellValues, resultAggregation );

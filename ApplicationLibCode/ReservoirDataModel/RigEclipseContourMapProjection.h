@@ -44,21 +44,21 @@ public:
     virtual ~RigEclipseContourMapProjection();
 
     void generateAndSaveResults( const RigEclipseResultAddress&                 resultAddress,
-                                 RigContourMapCalculator::ResultAggregationEnum resultAggregation,
+                                 RigContourMapCalculator::ResultAggregationType resultAggregation,
                                  int                                            timeStep );
 
     std::vector<double> generateResults( const RigEclipseResultAddress&                 resultAddress,
-                                         RigContourMapCalculator::ResultAggregationEnum resultAggregation,
+                                         RigContourMapCalculator::ResultAggregationType resultAggregation,
                                          int                                            timeStep ) const;
 
     static std::pair<bool, std::vector<double>> generateResults( const RigEclipseContourMapProjection&          contourMapProjection,
                                                                  const RigContourMapGrid&                       contourMapGrid,
                                                                  RigCaseCellResultsData&                        resultData,
                                                                  const RigEclipseResultAddress&                 resultAddress,
-                                                                 RigContourMapCalculator::ResultAggregationEnum resultAggregation,
+                                                                 RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                                  int                                            timeStep );
 
-    std::vector<bool> getMapCellVisibility( int viewStepIndex, RigContourMapCalculator::ResultAggregationEnum resultAggregation ) override;
+    std::vector<bool> getMapCellVisibility( int viewStepIndex, RigContourMapCalculator::ResultAggregationType resultAggregation ) override;
 
 protected:
     using CellIndexAndResult = RigContourMapProjection::CellIndexAndResult;
@@ -72,10 +72,10 @@ protected:
     size_t gridResultIndex( size_t globalCellIdx ) const override;
 
     // Eclipse implementation specific data generation methods
-    std::vector<double> calculateColumnResult( RigContourMapCalculator::ResultAggregationEnum resultAggregation, int timeStep ) const;
+    std::vector<double> calculateColumnResult( RigContourMapCalculator::ResultAggregationType resultAggregation, int timeStep ) const;
 
     static std::vector<double> calculateColumnResult( RigCaseCellResultsData&                        resultData,
-                                                      RigContourMapCalculator::ResultAggregationEnum resultAggregation,
+                                                      RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                       int                                            timeStep );
 
 protected:

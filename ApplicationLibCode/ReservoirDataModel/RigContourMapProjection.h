@@ -75,13 +75,13 @@ public:
     virtual double              calculateOverlapVolume( size_t globalCellIdx, const cvf::BoundingBox& bbox ) const = 0;
     virtual double calculateRayLengthInCell( size_t globalCellIdx, const cvf::Vec3d& highestPoint, const cvf::Vec3d& lowestPoint ) const = 0;
     virtual double getParameterWeightForCell( size_t globalCellIdx, const std::vector<double>& parameterWeights ) const = 0;
-    virtual std::vector<bool> getMapCellVisibility( int viewStepIndex, RigContourMapCalculator::ResultAggregationEnum resultAggregation ) = 0;
+    virtual std::vector<bool> getMapCellVisibility( int viewStepIndex, RigContourMapCalculator::ResultAggregationType resultAggregation ) = 0;
 
     void                      setCellVisibility( cvf::ref<cvf::UByteArray> cellVisibility );
     cvf::ref<cvf::UByteArray> getCellVisibility() const;
 
     std::vector<std::vector<std::pair<size_t, double>>>
-        generateGridMapping( RigContourMapCalculator::ResultAggregationEnum resultAggregation, const std::vector<double>& weights );
+        generateGridMapping( RigContourMapCalculator::ResultAggregationType resultAggregation, const std::vector<double>& weights );
 
     double interpolateValue( const cvf::Vec2d& gridPosition2d ) const;
 
@@ -100,7 +100,7 @@ protected:
     double calculateValueInMapCell( unsigned int                                   i,
                                     unsigned int                                   j,
                                     const std::vector<double>&                     gridCellValues,
-                                    RigContourMapCalculator::ResultAggregationEnum resultAggregation ) const;
+                                    RigContourMapCalculator::ResultAggregationType resultAggregation ) const;
 
     double valueInCell( unsigned int i, unsigned int j ) const;
     bool   hasResultInCell( unsigned int i, unsigned int j ) const;

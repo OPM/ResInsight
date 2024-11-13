@@ -49,21 +49,21 @@ namespace caf
 template <>
 void RimContourMapProjection::ResultAggregation::setUp()
 {
-    addItem( RigContourMapCalculator::RESULTS_OIL_COLUMN, "OIL_COLUMN", "Oil Column" );
-    addItem( RigContourMapCalculator::RESULTS_GAS_COLUMN, "GAS_COLUMN", "Gas Column" );
-    addItem( RigContourMapCalculator::RESULTS_HC_COLUMN, "HC_COLUMN", "Hydrocarbon Column" );
+    addItem( RigContourMapCalculator::OIL_COLUMN, "OIL_COLUMN", "Oil Column" );
+    addItem( RigContourMapCalculator::GAS_COLUMN, "GAS_COLUMN", "Gas Column" );
+    addItem( RigContourMapCalculator::HYDROCARBON_COLUMN, "HC_COLUMN", "Hydrocarbon Column" );
 
-    addItem( RigContourMapCalculator::RESULTS_MEAN_VALUE, "MEAN_VALUE", "Arithmetic Mean" );
-    addItem( RigContourMapCalculator::RESULTS_HARM_VALUE, "HARM_VALUE", "Harmonic Mean" );
-    addItem( RigContourMapCalculator::RESULTS_GEOM_VALUE, "GEOM_VALUE", "Geometric Mean" );
-    addItem( RigContourMapCalculator::RESULTS_VOLUME_SUM, "VOLUME_SUM", "Volume Weighted Sum" );
-    addItem( RigContourMapCalculator::RESULTS_SUM, "SUM", "Sum" );
+    addItem( RigContourMapCalculator::MEAN, "MEAN_VALUE", "Arithmetic Mean" );
+    addItem( RigContourMapCalculator::HARMONIC_MEAN, "HARM_VALUE", "Harmonic Mean" );
+    addItem( RigContourMapCalculator::GEOMETRIC_MEAN, "GEOM_VALUE", "Geometric Mean" );
+    addItem( RigContourMapCalculator::VOLUME_SUM, "VOLUME_SUM", "Volume Weighted Sum" );
+    addItem( RigContourMapCalculator::SUM, "SUM", "Sum" );
 
-    addItem( RigContourMapCalculator::RESULTS_TOP_VALUE, "TOP_VALUE", "Top  Value" );
-    addItem( RigContourMapCalculator::RESULTS_MIN_VALUE, "MIN_VALUE", "Min Value" );
-    addItem( RigContourMapCalculator::RESULTS_MAX_VALUE, "MAX_VALUE", "Max Value" );
+    addItem( RigContourMapCalculator::TOP_VALUE, "TOP_VALUE", "Top  Value" );
+    addItem( RigContourMapCalculator::MIN_VALUE, "MIN_VALUE", "Min Value" );
+    addItem( RigContourMapCalculator::MAX_VALUE, "MAX_VALUE", "Max Value" );
 
-    setDefault( RigContourMapCalculator::RESULTS_MEAN_VALUE );
+    setDefault( RigContourMapCalculator::MEAN );
 }
 } // namespace caf
 
@@ -883,7 +883,7 @@ void RimContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* chang
 {
     if ( changedField == &m_resultAggregation )
     {
-        ResultAggregation previousAggregation = static_cast<RigContourMapCalculator::ResultAggregationEnum>( oldValue.toInt() );
+        ResultAggregation previousAggregation = static_cast<RigContourMapCalculator::ResultAggregationType>( oldValue.toInt() );
         if ( RigContourMapCalculator::isStraightSummationResult( previousAggregation ) != isStraightSummationResult() )
         {
             clearGridMapping();

@@ -40,12 +40,12 @@ public:
                                     double paddingAroundPorePressureRegion );
 
     void generateAndSaveResults( RigFemResultAddress                            resultAddress,
-                                 RigContourMapCalculator::ResultAggregationEnum resultAggregation,
+                                 RigContourMapCalculator::ResultAggregationType resultAggregation,
                                  int                                            viewerStepIndex );
 
     std::vector<double> generateResultsFromAddress( RigFemResultAddress                            resultAddress,
                                                     const std::vector<bool>&                       mapCellVisibility,
-                                                    RigContourMapCalculator::ResultAggregationEnum resultAggregation,
+                                                    RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                     int                                            viewerStepIndex ) const;
 
     static cvf::BoundingBox calculateExpandedPorBarBBox( RigGeoMechCaseData& caseData,
@@ -54,11 +54,11 @@ public:
                                                          int                 frameIndex,
                                                          double              padding );
 
-    std::vector<bool> getMapCellVisibility( int viewStepIndex, RigContourMapCalculator::ResultAggregationEnum resultAggregation ) override;
+    std::vector<bool> getMapCellVisibility( int viewStepIndex, RigContourMapCalculator::ResultAggregationType resultAggregation ) override;
 
     std::vector<bool> getMapCellVisibility( RigFemResultAddress                            resAddr,
                                             int                                            viewStepIndex,
-                                            RigContourMapCalculator::ResultAggregationEnum resultAggregation );
+                                            RigContourMapCalculator::ResultAggregationType resultAggregation );
 
 protected:
     // GeoMech implementation specific data generation methods
