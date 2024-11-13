@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018- Equinor ASA
+//  Copyright (C) 2024- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,8 +19,9 @@
 #pragma once
 
 #include "RimContourMapProjection.h"
+#include "RimStatisticsContourMap.h"
 
-#include "cafPdmChildField.h"
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -28,7 +29,7 @@ class RigActiveCellInfo;
 class RigMainGrid;
 class RigContourMapGrid;
 class RigResultAccessor;
-class RimEclipseContourMapView;
+class RimStatisticsContourMapView;
 class RimEclipseCase;
 class RimEclipseResultDefinition;
 
@@ -36,24 +37,25 @@ class RimEclipseResultDefinition;
 ///
 ///
 //==================================================================================================
-class RimEclipseContourMapProjection : public RimContourMapProjection
+class RimStatisticsContourMapProjection : public RimContourMapProjection
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimEclipseContourMapProjection();
-    ~RimEclipseContourMapProjection() override;
+    RimStatisticsContourMapProjection();
+    ~RimStatisticsContourMapProjection() override;
 
-    QString weightingParameter() const;
-    void    clearGridMappingAndRedraw();
+    void clearGridMappingAndRedraw();
 
-    // Eclipse case overrides for contour map methods
     QString                 resultVariableName() const override;
     QString                 resultDescriptionText() const override;
     RimRegularLegendConfig* legendConfig() const override;
     void                    updateLegend() override;
 
     double sampleSpacing() const override;
+
+    bool    isColumnResult() const override;
+    QString resultAggregationText() const override;
 
 protected:
     void                updateGridInformation() override;
@@ -64,8 +66,9 @@ protected:
     void                clearResultVariable() override;
     RimGridView*        baseView() const override;
 
-    RimEclipseCase*           eclipseCase() const;
-    RimEclipseContourMapView* view() const;
+    RimEclipseCase*              eclipseCase() const;
+    RimStatisticsContourMap*     statisticsContourMap() const;
+    RimStatisticsContourMapView* view() const;
 
     std::pair<double, double> minmaxValuesAllTimeSteps() override;
 
@@ -73,13 +76,10 @@ protected:
 
 protected:
     // Framework overrides
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void initAfterRead() override;
 
 protected:
-    caf::PdmField<bool>                             m_weightByParameter;
-    caf::PdmChildField<RimEclipseResultDefinition*> m_weightingResult;
+    caf::PdmField<caf::AppEnum<RimStatisticsContourMap::StatisticsType>> m_statisticsType;
 
     QString m_currentResultName;
 };

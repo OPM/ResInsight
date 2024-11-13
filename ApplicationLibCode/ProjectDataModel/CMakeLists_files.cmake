@@ -135,6 +135,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCameraPosition.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellTargetCandidatesGenerator.h
     ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMap.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMapProjection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMapView.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -270,6 +272,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCameraPosition.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellTargetCandidatesGenerator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMap.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMapProjection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMapView.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)

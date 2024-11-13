@@ -28,6 +28,7 @@ class RimRegularLegendConfig;
 class RimViewNameConfig;
 class RimScaleLegendConfig;
 class RivContourMapProjectionPartMgr;
+class RimContourMapProjection;
 
 class RimEclipseContourMapView : public RimEclipseView
 {
@@ -35,7 +36,7 @@ class RimEclipseContourMapView : public RimEclipseView
 
 public:
     RimEclipseContourMapView();
-    RimEclipseContourMapProjection* contourMapProjection() const;
+    RimContourMapProjection* contourMapProjection() const;
 
     RiaDefines::View3dContent viewContent() const override;
 
@@ -83,13 +84,11 @@ protected:
 
     void onLegendConfigChanged( const caf::SignalEmitter* emitter, RimLegendConfigChangeType changeType );
 
-private:
+    cvf::ref<RivContourMapProjectionPartMgr>     m_contourMapProjectionPartMgr;
+    caf::PdmChildField<RimContourMapProjection*> m_contourMapProjection;
+
     bool isFaultLinesVisible() const;
     void setFaultLinesVisible( const bool& visible );
-
-private:
-    cvf::ref<RivContourMapProjectionPartMgr>            m_contourMapProjectionPartMgr;
-    caf::PdmChildField<RimEclipseContourMapProjection*> m_contourMapProjection;
 
     caf::PdmProxyValueField<bool> m_showFaultLines;
     caf::PdmField<bool>           m_showAxisLines;

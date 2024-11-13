@@ -63,14 +63,14 @@ public:
     bool   showContourLines() const;
     bool   showContourLabels() const;
 
-    QString resultAggregationText() const;
+    virtual QString resultAggregationText() const;
 
     QString caseName() const;
     QString currentTimeStepName() const;
 
-    bool isColumnResult() const;
-    bool isMeanResult() const;
-    bool isStraightSummationResult() const;
+    virtual bool isColumnResult() const;
+    bool         isMeanResult() const;
+    bool         isStraightSummationResult() const;
 
     void       setPickPoint( cvf::Vec2d globalPickPoint );
     cvf::Vec2d pickPoint() const;
@@ -78,6 +78,7 @@ public:
     cvf::Vec3d origin3d() const;
 
     // Pure-virtual public methods which should be overridden by Eclipse and Geo-mechanical contour map implementations
+    virtual QString                 resultVariableName() const    = 0;
     virtual QString                 resultDescriptionText() const = 0;
     virtual RimRegularLegendConfig* legendConfig() const          = 0;
     virtual void                    updateLegend()                = 0;

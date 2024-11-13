@@ -23,8 +23,11 @@
 
 #include "RimContourMapProjection.h"
 
+#include <map>
+
 class RimEclipseCase;
 class RimEclipseResultDefinition;
+class RimEclipseCaseEnsemble;
 
 //==================================================================================================
 //
@@ -36,15 +39,41 @@ class RimStatisticsContourMap : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class StatisticsType
+    {
+        P10,
+        P50,
+        P90,
+        MEAN,
+        MIN,
+        MAX
+    };
+
     RimStatisticsContourMap();
 
-    void setEclipseCase( RimEclipseCase* eclipseCase );
+    void            setEclipseCase( RimEclipseCase* eclipseCase );
+    RimEclipseCase* eclipseCase() const;
+
+    RimEclipseCaseEnsemble* ensemble() const;
+
+    RigContourMapGrid*  contourMapGrid() const;
+    std::vector<double> result( StatisticsType statisticsType ) const;
+
+    std::vector<std::vector<std::pair<size_t, double>>> gridMapping() const;
+
+    void ensureResultsComputed();
+
+    QString resultAggregationText() const;
+    QString resultVariable() const;
+    double  sampleSpacingFactor() const;
+    bool    isColumnResult() const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void initAfterRead() override;
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
@@ -56,4 +85,8 @@ private:
 
     caf::PdmChildField<RimEclipseResultDefinition*> m_resultDefinition;
     caf::PdmField<bool>                             m_computeStatisticsButton;
+
+    std::unique_ptr<RigContourMapGrid>                  m_contourMapGrid;
+    std::map<StatisticsType, std::vector<double>>       m_result;
+    std::vector<std::vector<std::pair<size_t, double>>> m_gridMapping;
 };

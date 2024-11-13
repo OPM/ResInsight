@@ -150,7 +150,8 @@ void RimReloadCaseTools::updateAll3dViews( RimEclipseCase* eclipseCase )
             // computations are updated based on new data.
             // See RimEclipseContourMapProjection::generateResults()
             contourMap->contourMapProjection()->clearGeometry();
-            contourMap->contourMapProjection()->clearGridMappingAndRedraw();
+            if ( auto projection = dynamic_cast<RimEclipseContourMapProjection*>( contourMap->contourMapProjection() ) )
+                projection->clearGridMappingAndRedraw();
         }
 
         contourMap->loadDataAndUpdate();

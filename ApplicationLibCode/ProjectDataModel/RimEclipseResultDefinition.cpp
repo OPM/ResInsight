@@ -326,7 +326,8 @@ void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
         if ( contourMapView )
         {
-            contourMapView->contourMapProjection()->clearGridMappingAndRedraw();
+            if ( auto projection = dynamic_cast<RimEclipseContourMapProjection*>( contourMapView->contourMapProjection() ) )
+                projection->clearGridMappingAndRedraw();
         }
 
         loadDataAndUpdate();
@@ -336,7 +337,8 @@ void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
     {
         if ( contourMapView )
         {
-            contourMapView->contourMapProjection()->clearGridMappingAndRedraw();
+            if ( auto projection = dynamic_cast<RimEclipseContourMapProjection*>( contourMapView->contourMapProjection() ) )
+                projection->clearGridMappingAndRedraw();
         }
 
         loadDataAndUpdate();

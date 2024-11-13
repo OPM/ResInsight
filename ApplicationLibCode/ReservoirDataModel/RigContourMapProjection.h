@@ -80,7 +80,7 @@ public:
     void                      setCellVisibility( cvf::ref<cvf::UByteArray> cellVisibility );
     cvf::ref<cvf::UByteArray> getCellVisibility() const;
 
-    std::vector<std::vector<std::pair<size_t, double>>>
+    virtual std::vector<std::vector<std::pair<size_t, double>>>
         generateGridMapping( RigContourMapCalculator::ResultAggregationType resultAggregation, const std::vector<double>& weights );
 
     double interpolateValue( const cvf::Vec2d& gridPosition2d ) const;
@@ -90,7 +90,7 @@ public:
     const std::vector<std::vector<std::pair<size_t, double>>>& projected3dGridIndices() const;
 
     // Cell index and position conversion
-    std::vector<CellIndexAndResult> cellsAtIJ( unsigned int i, unsigned int j ) const;
+    virtual std::vector<CellIndexAndResult> cellsAtIJ( unsigned int i, unsigned int j ) const;
 
     static double maxValue( const std::vector<double>& aggregatedResults );
     static double minValue( const std::vector<double>& aggregatedResults );
