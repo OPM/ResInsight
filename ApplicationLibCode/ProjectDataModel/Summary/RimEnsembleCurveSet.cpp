@@ -1671,21 +1671,9 @@ void RimEnsembleCurveSet::appendOptionItemsForSummaryAddresses( QList<caf::PdmOp
     if ( hash != m_hash )
     {
         m_hash = hash;
-
-        std::set<RifEclipseSummaryAddress> addressesForEnsemble;
-        for ( RimSummaryCase* summaryCase : allSummaryCases )
-        {
-            if ( !summaryCase ) continue;
-
-            if ( auto reader = summaryCase->summaryReader() )
-            {
-                const auto& addrs = reader->allResultAddresses();
-                addressesForEnsemble.insert( addrs.begin(), addrs.end() );
-            }
-        }
-
         m_cachedAddressOptions.clear();
 
+        auto addressesForEnsemble = summaryCaseGroup->ensembleSummaryAddresses();
         for ( const auto& addr : addressesForEnsemble )
         {
             std::string name = addr.uiText();
