@@ -1,8 +1,10 @@
 #include "gtest/gtest.h"
 
+#include "RiaLogging.h"
 #include "RiaRftDefines.h"
 #include "RiaTestDataDirectory.h"
 
+#include "RifEclipseSummaryTools.h"
 #include "RifOpmCommonSummary.h"
 #include "RifReaderOpmRft.h"
 
@@ -19,6 +21,47 @@
 #include <QFile>
 
 static const QString H5_TEST_DATA_DIRECTORY = QString( "%1/h5-file/" ).arg( TEST_DATA_DIR );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( OpmSummaryTests, DISABLED_PerformanceReadOfRestartFilename )
+{
+    // 2024-11-14
+    // This test is intended to measure the performance of reading restart filenames from a summary file
+    // Both resdata and opm-common are used, and for some cases resdata is much slower than opm-common
+    //
+    // Performance comparison
+    // BRENT-PRED_IAM_NSA_F - 100 iterations
+    // opm-common:   10 ms
+    // resdata:   10000 ms
+
+    QString filePath = H5_TEST_DATA_DIRECTORY + "NORNE_ATW2013_RFTPLT_V2.SMSPEC";
+    filePath         = "C:/gitroot/ResInsight-regression-test/ModelData/ensemble_reek_with_params/realization-7/iter-0/eclipse/model/"
+                       "3_R001_REEK-7.SMSPEC";
+
+    filePath = "c:/gitroot/ResInsight-regression-test/ModelData/TestCase_MultiCaseStatistics/SIMPLE_R1.SMSPEC";
+    filePath = "f:/Models/equinor_azure/Sum_File/BRENT-PRED_IAM_NSA_F.SMSPEC";
+
+    const int N = 100;
+
+    RiaLogging::resetTimer( "Starting opm-common" );
+    for ( int i = 0; i < N; i++ )
+    {
+        std::vector<QString> warnings;
+        auto                 restartFileInfos = RifEclipseSummaryTools::getRestartFileNamesOpm( filePath, warnings );
+    }
+    RiaLogging::logTimeElapsed( "Completed opm-common" );
+
+    RiaLogging::resetTimer( "Starting resdata" );
+    for ( int i = 0; i < N; i++ )
+    {
+        std::vector<QString> warnings;
+        auto                 restartFileInfos = RifEclipseSummaryTools::getRestartFileNames( filePath, warnings );
+    }
+
+    RiaLogging::logTimeElapsed( "Completed resdata" );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

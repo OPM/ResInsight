@@ -32,6 +32,8 @@
 #include "ert/ecl/ecl_util.h"
 #include "ert/ecl/smspec_node.hpp"
 
+#include "opm/io/eclipse/EclFile.hpp"
+
 #include <QDateTime>
 #include <QDir>
 #include <QString>
@@ -150,15 +152,23 @@ void RifEclipseSummaryTools::dumpMetaData( RifSummaryReaderInterface* readerEcli
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifRestartFileInfo> RifEclipseSummaryTools::getRestartFiles( const QString& headerFileName, std::vector<QString>& warnings )
+std::vector<QString> RifEclipseSummaryTools::getRestartFileNames( const QString& headerFileName, std::vector<QString>& warnings )
 {
-    std::vector<RifRestartFileInfo> restartFiles;
+    return getRestartFileNames( headerFileName, false, warnings );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString>
+    RifEclipseSummaryTools::getRestartFileNames( const QString& headerFileName, bool useOpmReader, std::vector<QString>& warnings )
+{
+    std::vector<QString> restartFiles;
 
     std::set<QString> restartFilesOpened;
 
-    RifRestartFileInfo currFile;
-    currFile.fileName = headerFileName;
-    while ( !currFile.fileName.isEmpty() )
+    QString currentFileName = headerFileName;
+    while ( !currentFileName.isEmpty() )
     {
         // Due to a weakness in resdata regarding restart summary header file selection,
         // do some extra checking
@@ -167,14 +177,14 @@ std::vector<RifRestartFileInfo> RifEclipseSummaryTools::getRestartFiles( const Q
             QString nonformattedHeaderExtension = ".SMSPEC";
             QString formattedDataFileExtension  = ".FUNSMRY";
 
-            if ( currFile.fileName.endsWith( nonformattedHeaderExtension, Qt::CaseInsensitive ) )
+            if ( currentFileName.endsWith( nonformattedHeaderExtension, Qt::CaseInsensitive ) )
             {
-                QString formattedHeaderFile = currFile.fileName;
+                QString formattedHeaderFile = currentFileName;
                 formattedHeaderFile.replace( nonformattedHeaderExtension, formattedHeaderExtension, Qt::CaseInsensitive );
-                QString formattedDateFile = currFile.fileName;
+                QString formattedDateFile = currentFileName;
                 formattedDateFile.replace( nonformattedHeaderExtension, formattedDataFileExtension, Qt::CaseInsensitive );
 
-                QFileInfo nonformattedHeaderFileInfo = QFileInfo( currFile.fileName );
+                QFileInfo nonformattedHeaderFileInfo = QFileInfo( currentFileName );
                 QFileInfo formattedHeaderFileInfo    = QFileInfo( formattedHeaderFile );
                 QFileInfo formattedDateFileInfo      = QFileInfo( formattedDateFile );
                 if ( formattedHeaderFileInfo.lastModified() < nonformattedHeaderFileInfo.lastModified() &&
@@ -187,23 +197,31 @@ std::vector<RifRestartFileInfo> RifEclipseSummaryTools::getRestartFiles( const Q
                     break;
                 }
             }
-            QString prevFile = currFile.fileName;
-            currFile         = getRestartFile( currFile.fileName );
+            QString prevFileName = currentFileName;
+
+            if ( useOpmReader )
+            {
+                currentFileName = getRestartFileNameOpm( currentFileName );
+            }
+            else
+            {
+                currentFileName = getRestartFileName( currentFileName );
+            }
 
             // Fix to stop potential infinite loop
-            if ( currFile.fileName == prevFile )
+            if ( currentFileName == prevFileName )
             {
                 warnings.push_back( "RifReaderEclipseSummary: Restart file reference loop detected" );
                 break;
             }
-            if ( restartFilesOpened.count( currFile.fileName ) != 0u )
+            if ( restartFilesOpened.count( currentFileName ) != 0u )
             {
                 warnings.push_back( "RifReaderEclipseSummary: Same restart file being opened multiple times" );
             }
-            restartFilesOpened.insert( currFile.fileName );
+            restartFilesOpened.insert( currentFileName );
         }
 
-        if ( !currFile.fileName.isEmpty() ) restartFiles.push_back( currFile );
+        if ( !currentFileName.isEmpty() ) restartFiles.push_back( currentFileName );
     }
     return restartFiles;
 }
@@ -211,7 +229,7 @@ std::vector<RifRestartFileInfo> RifEclipseSummaryTools::getRestartFiles( const Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifRestartFileInfo RifEclipseSummaryTools::getFileInfo( const QString& headerFileName )
+RifRestartFileInfo RifEclipseSummaryTools::getFileInfoAndTimeSteps( const QString& headerFileName )
 {
     RifRestartFileInfo  fileInfo;
     ecl_sum_type*       ecl_sum   = openEclSum( headerFileName, false );
@@ -225,6 +243,14 @@ RifRestartFileInfo RifEclipseSummaryTools::getFileInfo( const QString& headerFil
     closeEclSum( ecl_sum );
 
     return fileInfo;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RifEclipseSummaryTools::getRestartFileNamesOpm( const QString& headerFileName, std::vector<QString>& warnings )
+{
+    return getRestartFileNames( headerFileName, true, warnings );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -261,7 +287,7 @@ void RifEclipseSummaryTools::findSummaryHeaderFileInfo( const QString& inputFile
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifRestartFileInfo RifEclipseSummaryTools::getRestartFile( const QString& headerFileName )
+QString RifEclipseSummaryTools::getRestartFileName( const QString& headerFileName )
 {
     ecl_sum_type* ecl_sum = openEclSum( headerFileName, true );
 
@@ -283,11 +309,52 @@ RifRestartFileInfo RifEclipseSummaryTools::getRestartFile( const QString& header
         QString restartFileName = RiaFilePathTools::toInternalSeparator( RiaStringEncodingTools::fromNativeEncoded( smspec_header ) );
         free( smspec_header );
 
-        return getFileInfo( restartFileName );
+        return restartFileName;
     }
-    return RifRestartFileInfo();
+    return {};
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RifEclipseSummaryTools::getRestartFileNameOpm( const QString& headerFileName )
+{
+    try
+    {
+        Opm::EclIO::EclFile eclFile( headerFileName.toStdString() );
+        eclFile.loadData( "RESTART" );
+
+        std::string fullRestartFileName;
+
+        auto restartData = eclFile.get<std::string>( "RESTART" );
+        for ( const auto& string : restartData )
+        {
+            fullRestartFileName += string;
+        }
+
+        if ( fullRestartFileName.empty() ) return {};
+
+        QFileInfo sourceFileInfo( headerFileName );
+        QString   suffix = sourceFileInfo.suffix();
+
+        QString filePath = sourceFileInfo.absolutePath() + RiaFilePathTools::separator() + QString::fromStdString( fullRestartFileName ) +
+                           "." + suffix;
+
+        QFileInfo restartFileInfo( filePath );
+        QString   restartFileName = RiaFilePathTools::toInternalSeparator( restartFileInfo.absoluteFilePath() );
+
+        return restartFileName;
+    }
+    catch ( ... )
+    {
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<time_t> RifEclipseSummaryTools::getTimeSteps( ecl_sum_type* ecl_sum )
 {
     std::vector<time_t> timeSteps;
@@ -309,6 +376,9 @@ std::vector<time_t> RifEclipseSummaryTools::getTimeSteps( ecl_sum_type* ecl_sum 
     return timeSteps;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaDefines::EclipseUnitSystem RifEclipseSummaryTools::readUnitSystem( ecl_sum_type* ecl_sum )
 {
     ert_ecl_unit_enum eclUnitEnum = ecl_sum_get_unit_system( ecl_sum );
