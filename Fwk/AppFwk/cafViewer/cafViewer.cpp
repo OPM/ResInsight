@@ -98,7 +98,7 @@ public:
     }
 
     cvf::UniformSet* uniformSet() override { return m_uniformSet.p(); }
-    void             update( cvf::Rendering* rendering ) override{};
+    void             update( cvf::Rendering* rendering ) override {};
 
 private:
     cvf::ref<cvf::UniformSet>   m_uniformSet;
@@ -334,7 +334,9 @@ void caf::Viewer::setComparisonViewVisibleNormalizedRect( const cvf::Rectf& visi
 {
     m_comparisonWindowNormalizedRect = visibleRect;
 
-    updateCamera( width(), height() );
+    const auto ratio = displayScalingRatio();
+
+    updateCamera( (int)( ratio * width() ), (int)( ratio * height() ) );
     update();
 }
 
