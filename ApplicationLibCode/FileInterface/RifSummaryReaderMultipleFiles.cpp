@@ -23,6 +23,7 @@
 #include "cafAssert.h"
 
 #include <memory>
+#include <ranges>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -152,11 +153,28 @@ void RifSummaryReaderMultipleFiles::calculateOverlappingTimeSteps()
 {
     if ( m_summaryReaders.empty() ) return;
 
-    auto lastRestartCase                   = m_summaryReaders.back().get();
-    auto lastRestartCaseTimeSteps          = lastRestartCase->timeSteps( {} );
-    m_valueCountForReader[lastRestartCase] = lastRestartCaseTimeSteps.size();
+    time_t cutOffTime = 0;
 
-    time_t cutOffTime = lastRestartCaseTimeSteps.front();
+    for ( const auto& it : std::ranges::reverse_view( m_summaryReaders ) )
+    {
+        if ( cutOffTime != 0 ) break; // Stop when we have found a valid cut-off time
+
+        auto currentReader    = it.get();
+        auto currentTimeSteps = currentReader->timeSteps( {} );
+
+        m_valueCountForReader[currentReader] = currentTimeSteps.size();
+
+        if ( !currentTimeSteps.empty() )
+        {
+            cutOffTime = currentTimeSteps.front();
+        }
+    }
+
+    if ( cutOffTime == 0 )
+    {
+        return;
+    }
+
     for ( int i = static_cast<int>( m_summaryReaders.size() - 2 ); i >= 0; i-- )
     {
         auto currentReader    = m_summaryReaders.at( static_cast<size_t>( i ) ).get();
@@ -170,7 +188,7 @@ void RifSummaryReaderMultipleFiles::calculateOverlappingTimeSteps()
 
         m_valueCountForReader[currentReader] = timeStepIndex;
 
-        if ( currentTimeSteps.front() < cutOffTime )
+        if ( !currentTimeSteps.empty() && currentTimeSteps.front() < cutOffTime )
         {
             cutOffTime = currentTimeSteps.front();
         }
@@ -181,6 +199,9 @@ void RifSummaryReaderMultipleFiles::calculateOverlappingTimeSteps()
     {
         auto currentTimeSteps = reader->timeSteps( {} );
         auto valueCount       = m_valueCountForReader[reader.get()];
+
+        if ( currentTimeSteps.empty() || valueCount == 0 ) continue;
+
         currentTimeSteps.resize( valueCount );
 
         m_aggregatedTimeSteps.insert( m_aggregatedTimeSteps.end(), currentTimeSteps.begin(), currentTimeSteps.end() );
