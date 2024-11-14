@@ -299,7 +299,7 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs( const std:
                 }
             }
         }
-        
+
         if ( handleGridFile )
         {
             m_gridFiles.push_back( initialGridFile );
