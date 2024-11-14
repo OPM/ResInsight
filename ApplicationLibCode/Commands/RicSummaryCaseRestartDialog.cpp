@@ -234,7 +234,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
     RifRestartFileInfo currentFileInfo;
     if ( !initialSummaryFile.isEmpty() )
     {
-        currentFileInfo = RifEclipseSummaryTools::getFileInfo( initialSummaryFile );
+        currentFileInfo = RifEclipseSummaryTools::getFileInfoAndTimeSteps( initialSummaryFile );
 
         if ( !currentFileInfo.valid() )
         {
@@ -268,11 +268,11 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
                                                   useFirstSummaryCaseAsTemplate || ( lastResult && lastResult->applyToAll ) );
     }
 
-    std::vector<QString>            warnings;
-    std::vector<RifRestartFileInfo> originFileInfos = RifEclipseSummaryTools::getRestartFiles( initialSummaryFile, warnings );
+    std::vector<QString> warnings;
+    auto                 restartFileNames = RifEclipseSummaryTools::getRestartFileNames( initialSummaryFile, warnings );
 
     // If no restart files are found and no warnings, do not show dialog
-    if ( originFileInfos.empty() && warnings.empty() )
+    if ( restartFileNames.empty() && warnings.empty() )
     {
         return RicSummaryCaseRestartDialogResult( RicSummaryCaseRestartDialogResult::SUMMARY_OK,
                                                   ImportOptions::NOT_IMPORT,
@@ -303,20 +303,22 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
             dialog.m_currentFilesGroup->setTitle( "Current Grid and Summary Files" );
             currentFileInfos.push_back( RifRestartFileInfo( initialGridFile, currentFileInfo.startDate, currentFileInfo.endDate ) );
 
-            for ( const auto& ofi : originFileInfos )
+            for ( const auto& fileName : restartFileNames )
             {
-                QString gridFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( ofi.fileName );
+                QString gridFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( fileName );
                 if ( QFileInfo( gridFile ).exists() )
                 {
-                    originGridFileInfos.push_back( RifRestartFileInfo( gridFile, ofi.startDate, ofi.endDate ) );
+                    auto fileInfoWithTime = RifEclipseSummaryTools::getFileInfoAndTimeSteps( fileName );
+
+                    originGridFileInfos.push_back( RifRestartFileInfo( gridFile, fileInfoWithTime.startDate, fileInfoWithTime.endDate ) );
                 }
             }
         }
 
         currentFileInfos.push_back( currentFileInfo );
-        for ( const auto& ofi : originFileInfos )
+        for ( const auto& fileName : restartFileNames )
         {
-            originSummaryFileInfos.push_back( ofi );
+            originSummaryFileInfos.push_back( RifRestartFileInfo( fileName, 0, 0 ) );
         }
 
         if ( hideSplitCases )
@@ -409,9 +411,9 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
     dialogResult.summaryFiles.push_back( RiaFilePathTools::toInternalSeparator( initialSummaryFile ) );
     if ( dialogResult.summaryImportOption == ImportOptions::SEPARATE_CASES )
     {
-        for ( const auto& ofi : originFileInfos )
+        for ( const auto& fileName : restartFileNames )
         {
-            dialogResult.summaryFiles.push_back( RiaFilePathTools::toInternalSeparator( ofi.fileName ) );
+            dialogResult.summaryFiles.push_back( RiaFilePathTools::toInternalSeparator( fileName ) );
         }
     }
 
@@ -421,9 +423,9 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
 
         if ( dialogResult.gridImportOption == ImportOptions::SEPARATE_CASES )
         {
-            for ( const auto& ofi : originFileInfos )
+            for ( const auto& fileName : restartFileNames )
             {
-                QString gridFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( ofi.fileName );
+                QString gridFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( fileName );
                 dialogResult.gridFiles.push_back( gridFile );
             }
         }
