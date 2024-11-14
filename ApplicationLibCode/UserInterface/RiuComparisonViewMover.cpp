@@ -61,9 +61,8 @@ bool RiuComparisonViewMover::eventFilter( QObject* watched, QEvent* event )
 
                 if ( m_dragState == LEFT_EDGE )
                 {
-                    const auto ratio      = m_viewer->displayScalingRatio();
-                    int        viewWidth  = (int)( m_viewer->width() );
-                    int        viewHeight = (int)( m_viewer->height() );
+                    const int viewWidth  = m_viewer->width();
+                    const int viewHeight = m_viewer->height();
 
                     QPointF    mousePos          = mEv->localPos();
                     QPointF    normMousePos      = { mousePos.x() / viewWidth, mousePos.y() / viewHeight };
@@ -132,9 +131,8 @@ RiuComparisonViewMover::DragState RiuComparisonViewMover::findHandleUnderMouse( 
 {
     const int  handleThickness          = 7;
     cvf::Rectf normalizedComparisonRect = m_viewer->comparisonViewVisibleNormalizedRect();
-    const auto ratio                    = m_viewer->displayScalingRatio();
-    int        viewerWidth              = (int)( m_viewer->width() );
-    int        viewerHeight             = (int)( m_viewer->height() );
+    int        viewerWidth              = m_viewer->width();
+    int        viewerHeight             = m_viewer->height();
 
     int leftEdgePos     = viewerWidth * normalizedComparisonRect.min().x();
     int height          = viewerHeight * normalizedComparisonRect.height();

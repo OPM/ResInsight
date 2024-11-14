@@ -182,7 +182,7 @@ public:
     void setComparisonViewToFollowAnimation( bool isToFollow );
 
     // display scaling ratio (should be 1 if DPI scaling is not enabled)
-    inline double displayScalingRatio() const;
+    double displayScalingRatio() const;
 
 public slots:
     virtual void slotSetCurrentFrame( int frameIndex );
@@ -193,7 +193,7 @@ public:
 
 protected:
     // Method to override if painting directly on the OpenGl Canvas is needed.
-    virtual void paintOverlayItems( QPainter* painter ){};
+    virtual void paintOverlayItems( QPainter* painter ) {};
 
     void onWidgetOpenGLReady() override;
 
