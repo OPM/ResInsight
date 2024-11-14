@@ -287,11 +287,11 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs( const std:
             {
                 m_summaryFileInfos.push_back( RifSummaryCaseFileResultInfo( initialSummaryFile, false ) );
 
-                std::vector<QString>            warnings;
-                std::vector<RifRestartFileInfo> restartFileInfos = RifEclipseSummaryTools::getRestartFiles( initialSummaryFile, warnings );
-                for ( const auto& rfi : restartFileInfos )
+                std::vector<QString> warnings;
+                auto                 fileNames = RifEclipseSummaryTools::getRestartFileNames( initialSummaryFile, warnings );
+                for ( const auto& fileName : fileNames )
                 {
-                    RifSummaryCaseFileResultInfo resultFileInfo( RiaFilePathTools::toInternalSeparator( rfi.fileName ), false );
+                    RifSummaryCaseFileResultInfo resultFileInfo( RiaFilePathTools::toInternalSeparator( fileName ), false );
                     if ( !vectorContains( m_summaryFileInfos, resultFileInfo ) )
                     {
                         m_summaryFileInfos.push_back( resultFileInfo );
@@ -299,7 +299,7 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs( const std:
                 }
             }
         }
-
+        
         if ( handleGridFile )
         {
             m_gridFiles.push_back( initialGridFile );
@@ -309,10 +309,10 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs( const std:
             {
                 std::vector<QString> warnings;
 
-                std::vector<RifRestartFileInfo> restartFileInfos = RifEclipseSummaryTools::getRestartFiles( initialSummaryFile, warnings );
-                for ( const auto& rfi : restartFileInfos )
+                auto fileNames = RifEclipseSummaryTools::getRestartFileNames( initialSummaryFile, warnings );
+                for ( const auto& fileName : fileNames )
                 {
-                    QString gridFileName = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( rfi.fileName );
+                    QString gridFileName = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( fileName );
                     if ( !m_gridFiles.contains( gridFileName ) && QFileInfo( gridFileName ).exists() )
                     {
                         m_gridFiles.push_back( gridFileName );

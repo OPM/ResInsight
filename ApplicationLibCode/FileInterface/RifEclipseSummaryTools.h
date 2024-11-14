@@ -68,8 +68,10 @@ public:
 
     static void dumpMetaData( RifSummaryReaderInterface* readerEclipseSummary );
 
-    static std::vector<RifRestartFileInfo> getRestartFiles( const QString& headerFileName, std::vector<QString>& warnings );
-    static RifRestartFileInfo              getFileInfo( const QString& headerFileName );
+    static std::vector<QString> getRestartFileNames( const QString& headerFileName, std::vector<QString>& warnings );
+    static std::vector<QString> getRestartFileNamesOpm( const QString& headerFileName, std::vector<QString>& warnings );
+
+    static RifRestartFileInfo getFileInfoAndTimeSteps( const QString& headerFileName );
 
     static void                          closeEclSum( ecl_sum_type* ecl_sum );
     static ecl_sum_type*                 openEclSum( const QString& inHeaderFileName, bool includeRestartFiles );
@@ -77,8 +79,10 @@ public:
     static std::vector<time_t>           getTimeSteps( ecl_sum_type* ecl_sum );
 
 private:
-    static void               findSummaryFiles( const QString& inputFile, QString* headerFile, QStringList* dataFiles );
-    static RifRestartFileInfo getRestartFile( const QString& headerFileName );
+    static void                 findSummaryFiles( const QString& inputFile, QString* headerFile, QStringList* dataFiles );
+    static QString              getRestartFileName( const QString& headerFileName );
+    static QString              getRestartFileNameOpm( const QString& headerFileName );
+    static std::vector<QString> getRestartFileNames( const QString& headerFileName, bool useOpmReader, std::vector<QString>& warnings );
 
     static void findSummaryHeaderFileInfo( const QString& inputFile, QString* headerFile, QString* path, QString* base, bool* isFormatted );
 };

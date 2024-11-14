@@ -234,7 +234,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
     RifRestartFileInfo currentFileInfo;
     if ( !initialSummaryFile.isEmpty() )
     {
-        currentFileInfo = RifEclipseSummaryTools::getFileInfo( initialSummaryFile );
+        currentFileInfo = RifEclipseSummaryTools::getFileInfoAndTimeSteps( initialSummaryFile );
 
         if ( !currentFileInfo.valid() )
         {
@@ -268,8 +268,8 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
                                                   useFirstSummaryCaseAsTemplate || ( lastResult && lastResult->applyToAll ) );
     }
 
-    std::vector<QString>            warnings;
-    std::vector<RifRestartFileInfo> originFileInfos = RifEclipseSummaryTools::getRestartFiles( initialSummaryFile, warnings );
+    std::vector<QString> warnings;
+    auto                 originFileInfos = RifEclipseSummaryTools::getRestartFileNames( initialSummaryFile, warnings );
 
     // If no restart files are found and no warnings, do not show dialog
     if ( originFileInfos.empty() && warnings.empty() )
@@ -305,10 +305,12 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
 
             for ( const auto& ofi : originFileInfos )
             {
-                QString gridFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( ofi.fileName );
+                QString gridFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( ofi );
                 if ( QFileInfo( gridFile ).exists() )
                 {
-                    originGridFileInfos.push_back( RifRestartFileInfo( gridFile, ofi.startDate, ofi.endDate ) );
+                    auto fileInfoWithTime = RifEclipseSummaryTools::getFileInfoAndTimeSteps( ofi );
+
+                    originGridFileInfos.push_back( RifRestartFileInfo( gridFile, fileInfoWithTime.startDate, fileInfoWithTime.endDate ) );
                 }
             }
         }
@@ -316,7 +318,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
         currentFileInfos.push_back( currentFileInfo );
         for ( const auto& ofi : originFileInfos )
         {
-            originSummaryFileInfos.push_back( ofi );
+            originSummaryFileInfos.push_back( RifRestartFileInfo( ofi, 0, 0 ) );
         }
 
         if ( hideSplitCases )
@@ -411,7 +413,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
     {
         for ( const auto& ofi : originFileInfos )
         {
-            dialogResult.summaryFiles.push_back( RiaFilePathTools::toInternalSeparator( ofi.fileName ) );
+            dialogResult.summaryFiles.push_back( RiaFilePathTools::toInternalSeparator( ofi ) );
         }
     }
 
@@ -423,7 +425,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
         {
             for ( const auto& ofi : originFileInfos )
             {
-                QString gridFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( ofi.fileName );
+                QString gridFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( ofi );
                 dialogResult.gridFiles.push_back( gridFile );
             }
         }

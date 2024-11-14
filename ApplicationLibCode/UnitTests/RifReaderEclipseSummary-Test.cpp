@@ -22,11 +22,11 @@
 
 #include "RifEclipseSummaryTools.h"
 #include "RifReaderEclipseSummary.h"
+#include "RifSummaryReaderMultipleFiles.h"
 
 #include <QDateTime>
 #include <QDir>
 
-#include "RifSummaryReaderMultipleFiles.h"
 #include <memory>
 
 //--------------------------------------------------------------------------------------------------
@@ -38,9 +38,9 @@ TEST( DISABLED_RifEclipseSummaryTest, TestRestartSummaryFileReferences_01 )
                               "courses/intro2020_data/reek_ensemble/3_r001_reek_50/realization-0/base_pred/eclipse/model/"
                               "3_R001_REEK-0.SMSPEC";
 
-    std::vector<QString>            warnings;
-    std::vector<RifRestartFileInfo> originFileInfos = RifEclipseSummaryTools::getRestartFiles( summaryFileName, warnings );
-    EXPECT_TRUE( originFileInfos.empty() );
+    std::vector<QString> warnings;
+    auto                 fileNames = RifEclipseSummaryTools::getRestartFileNames( summaryFileName, warnings );
+    EXPECT_TRUE( fileNames.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,16 +50,16 @@ TEST( DISABLED_RifEclipseSummaryTest, TestRestartSummaryFileReferences_02 )
 {
     QString summaryFileName = "e:/models/reek_ensemble/3_r001_reek_50/realization-0/base_pred/eclipse/model/3_R001_REEK-0.SMSPEC";
 
-    std::vector<QString>            warnings;
-    std::vector<RifRestartFileInfo> originFileInfos = RifEclipseSummaryTools::getRestartFiles( summaryFileName, warnings );
+    std::vector<QString> warnings;
+    auto                 fileNames = RifEclipseSummaryTools::getRestartFileNames( summaryFileName, warnings );
 
-    if ( !originFileInfos.empty() )
+    if ( !fileNames.empty() )
     {
         std::vector<std::string> smspecFilesNewFirst;
         smspecFilesNewFirst.push_back( summaryFileName.toStdString() );
-        for ( const auto& s : originFileInfos )
+        for ( const auto& s : fileNames )
         {
-            smspecFilesNewFirst.push_back( s.fileName.toStdString() );
+            smspecFilesNewFirst.push_back( s.toStdString() );
         }
 
         RifSummaryReaderMultipleFiles multipleSummaryFiles( smspecFilesNewFirst );
@@ -67,7 +67,7 @@ TEST( DISABLED_RifEclipseSummaryTest, TestRestartSummaryFileReferences_02 )
         std::cout << ts.size();
     }
 
-    EXPECT_TRUE( originFileInfos.empty() );
+    EXPECT_TRUE( fileNames.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,9 +79,9 @@ TEST( DISABLED_RifEclipseSummaryTest, BasicTestSetCurrentFolder )
 
     QString summaryFileName = testDataRootFolder + "3_R001_REEK-1.SMSPEC";
 
-    std::vector<QString>            warnings;
-    std::vector<RifRestartFileInfo> originFileInfos = RifEclipseSummaryTools::getRestartFiles( summaryFileName, warnings );
-    EXPECT_TRUE( originFileInfos.empty() );
+    std::vector<QString> warnings;
+    auto                 fileNames = RifEclipseSummaryTools::getRestartFileNames( summaryFileName, warnings );
+    EXPECT_TRUE( fileNames.empty() );
 }
 
 /*
