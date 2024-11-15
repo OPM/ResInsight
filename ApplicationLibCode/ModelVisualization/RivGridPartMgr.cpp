@@ -144,10 +144,19 @@ void RivGridPartMgr::generatePartGeometry( cvf::StructGridGeometryGenerator& geo
 
     // Surface geometry
     {
-        auto text = caf::AppEnum<RivCellSetEnum>::text( m_cellSetType );
-        RiaLogging::resetTimer( "Compute surface for " + text );
+        bool showDebugTiming = false;
+        if ( showDebugTiming )
+        {
+            auto text = caf::AppEnum<RivCellSetEnum>::text( m_cellSetType );
+            RiaLogging::resetTimer( "Compute surface for " + text );
+        }
+
         cvf::ref<cvf::DrawableGeo> geo = geoBuilder.generateSurface();
-        RiaLogging::logTimeElapsed( "" );
+
+        if ( showDebugTiming )
+        {
+            RiaLogging::logTimeElapsed( "" );
+        }
 
         if ( geo.notNull() )
         {
