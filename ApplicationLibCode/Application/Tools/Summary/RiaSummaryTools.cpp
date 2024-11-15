@@ -430,3 +430,15 @@ void RiaSummaryTools::reloadSummaryEnsemble( RimSummaryEnsemble* ensemble )
         multiPlot->updatePlotTitles();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+time_t RiaSummaryTools::calculateTimeThreshold( const time_t& minimum, const time_t& maximum )
+{
+    // The cutoff time is the time where the time step is less than 1% of the total time range
+    const auto epsilon       = 0.01;
+    const auto timeThreshold = maximum - ( maximum - minimum ) * epsilon;
+
+    return timeThreshold;
+}

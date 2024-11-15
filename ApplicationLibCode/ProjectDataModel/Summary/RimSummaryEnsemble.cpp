@@ -32,6 +32,7 @@
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsembleTools.h"
+#include "RimSummaryPlot.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -103,7 +104,7 @@ void RimSummaryEnsemble::removeCase( RimSummaryCase* summaryCase, bool notifyCha
 
     if ( notifyChange )
     {
-        updateReferringCurveSets();
+        updateReferringCurveSetsZoomAll();
     }
 
     if ( m_isEnsemble && m_cases.size() != caseCountBeforeRemove )
@@ -134,7 +135,7 @@ void RimSummaryEnsemble::addCase( RimSummaryCase* summaryCase )
         if ( !derivedEnsemble ) continue;
 
         derivedEnsemble->createDerivedEnsembleCases();
-        derivedEnsemble->updateReferringCurveSets();
+        derivedEnsemble->updateReferringCurveSetsZoomAll();
     }
 
     if ( m_isEnsemble )
@@ -143,7 +144,7 @@ void RimSummaryEnsemble::addCase( RimSummaryCase* summaryCase )
         calculateEnsembleParametersIntersectionHash();
     }
 
-    updateReferringCurveSets();
+    updateReferringCurveSetsZoomAll();
 
     clearChildNodes();
 }
@@ -616,7 +617,7 @@ void RimSummaryEnsemble::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsemble::updateReferringCurveSets()
+void RimSummaryEnsemble::updateReferringCurveSets( bool doZoomAll )
 {
     // Update curve set referring to this group
     std::vector<caf::PdmObject*> referringObjects = objectsWithReferringPtrFieldsOfType<PdmObject>();
@@ -629,8 +630,32 @@ void RimSummaryEnsemble::updateReferringCurveSets()
         if ( curveSet )
         {
             curveSet->loadDataAndUpdate( updateParentPlot );
+
+            if ( doZoomAll )
+            {
+                if ( auto parentPlot = curveSet->firstAncestorOrThisOfType<RimSummaryPlot>() )
+                {
+                    parentPlot->zoomAll();
+                }
+            }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::updateReferringCurveSets()
+{
+    updateReferringCurveSets( false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::updateReferringCurveSetsZoomAll()
+{
+    updateReferringCurveSets( true );
 }
 
 //--------------------------------------------------------------------------------------------------

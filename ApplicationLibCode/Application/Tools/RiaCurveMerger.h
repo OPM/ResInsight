@@ -44,7 +44,7 @@ public:
     void   addCurveData( const std::vector<XValueType>& xValues, const std::vector<double>& yValues );
     size_t curveCount() const;
 
-    void computeInterpolatedValues( bool includeValuesFromPartialCurves = true );
+    void computeInterpolatedValues( bool includeValuesFromPartialCurves );
 
     RiaCurveDataTools::CurveIntervals validIntervalsForAllXValues() const;
     const std::vector<XValueType>&    allXValues() const;

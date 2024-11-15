@@ -75,7 +75,8 @@ public:
                                                                                        RifSummaryReaderInterface*      reader2,
                                                                                        int                             fixedTimeStepCase2,
                                                                                        DerivedSummaryOperator          m_operator,
-                                                                                       const RifEclipseSummaryAddress& address );
+                                                                                       const RifEclipseSummaryAddress& address,
+                                                                                       bool includeIncompleteCurves );
 
     void                       createSummaryReaderInterface() override;
     RifSummaryReaderInterface* summaryReader() override;
@@ -97,6 +98,8 @@ private:
 
     void calculate( const RifEclipseSummaryAddress& address ) const;
     void clearData( const RifEclipseSummaryAddress& address ) const;
+
+    void clearCache();
 
 private:
     caf::PdmPtrField<RimSummaryCase*> m_summaryCase1;

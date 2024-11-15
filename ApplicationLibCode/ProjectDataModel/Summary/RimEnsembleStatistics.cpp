@@ -167,6 +167,14 @@ void RimEnsembleStatistics::enableCurveLabels( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleStatistics::enableIncludeIncompleteCurves( bool enable )
+{
+    m_includeIncompleteCurves.uiCapability()->setUiReadOnly( !enable );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleStatistics::setColor( const cvf::Color3f& color )
 {
     m_color = color;

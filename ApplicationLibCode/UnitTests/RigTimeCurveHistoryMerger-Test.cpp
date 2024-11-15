@@ -56,7 +56,7 @@ TEST( RiaTimeHistoryCurveMergerTest, ExtractIntervalsWithSameTimeSteps )
     RiaTimeHistoryCurveMerger interpolate;
     interpolate.addCurveData( timeSteps, valuesA );
     interpolate.addCurveData( timeSteps, valuesB );
-    interpolate.computeInterpolatedValues();
+    interpolate.computeInterpolatedValues( true );
 
     auto interpolatedTimeSteps = interpolate.allXValues();
     auto intervals             = interpolate.validIntervalsForAllXValues();
@@ -84,7 +84,7 @@ TEST( RiaTimeHistoryCurveMergerTest, ExtractIntervalsWithSameTimeStepsOneComplet
     RiaTimeHistoryCurveMerger interpolate;
     interpolate.addCurveData( timeSteps, valuesA );
     interpolate.addCurveData( timeSteps, valuesB );
-    interpolate.computeInterpolatedValues();
+    interpolate.computeInterpolatedValues( true );
 
     auto interpolatedTimeSteps = interpolate.allXValues();
     auto intervals             = interpolate.validIntervalsForAllXValues();
@@ -112,7 +112,7 @@ TEST( RiaTimeHistoryCurveMergerTest, ExtractIntervalsWithSameTimeStepsBothComple
     RiaTimeHistoryCurveMerger interpolate;
     interpolate.addCurveData( timeSteps, valuesA );
     interpolate.addCurveData( timeSteps, valuesB );
-    interpolate.computeInterpolatedValues();
+    interpolate.computeInterpolatedValues( true );
 
     auto interpolatedTimeSteps = interpolate.allXValues();
     auto intervals             = interpolate.validIntervalsForAllXValues();
@@ -137,7 +137,7 @@ TEST( RiaTimeHistoryCurveMergerTest, OverlappintTimes )
     RiaTimeHistoryCurveMerger interpolate;
     interpolate.addCurveData( timeStepsA, valuesA );
     interpolate.addCurveData( timeStepsB, valuesB );
-    interpolate.computeInterpolatedValues();
+    interpolate.computeInterpolatedValues( true );
     EXPECT_EQ( 2, static_cast<int>( interpolate.curveCount() ) );
 
     auto interpolatedTimeSteps = interpolate.allXValues();
@@ -154,7 +154,7 @@ TEST( RiaTimeHistoryCurveMergerTest, RobustUse )
 {
     {
         RiaTimeHistoryCurveMerger curveMerger;
-        curveMerger.computeInterpolatedValues();
+        curveMerger.computeInterpolatedValues( true );
         EXPECT_EQ( 0, static_cast<int>( curveMerger.allXValues().size() ) );
     }
 
@@ -167,7 +167,7 @@ TEST( RiaTimeHistoryCurveMergerTest, RobustUse )
     {
         RiaTimeHistoryCurveMerger curveMerger;
         curveMerger.addCurveData( timeStepsA, valuesA );
-        curveMerger.computeInterpolatedValues();
+        curveMerger.computeInterpolatedValues( true );
         EXPECT_EQ( timeStepsA.size(), curveMerger.allXValues().size() );
         EXPECT_EQ( timeStepsA.size(), curveMerger.interpolatedYValuesForAllXValues( 0 ).size() );
     }
@@ -178,8 +178,8 @@ TEST( RiaTimeHistoryCurveMergerTest, RobustUse )
         curveMerger.addCurveData( timeStepsB, valuesB );
 
         // Execute interpolation twice is allowed
-        curveMerger.computeInterpolatedValues();
-        curveMerger.computeInterpolatedValues();
+        curveMerger.computeInterpolatedValues( true );
+        curveMerger.computeInterpolatedValues( true );
         EXPECT_EQ( 8, static_cast<int>( curveMerger.allXValues().size() ) );
         EXPECT_EQ( 8, static_cast<int>( curveMerger.interpolatedYValuesForAllXValues( 0 ).size() ) );
         EXPECT_EQ( 8, static_cast<int>( curveMerger.interpolatedYValuesForAllXValues( 1 ).size() ) );
@@ -203,7 +203,7 @@ TEST( RiaTimeHistoryCurveMergerTest, NoTimeStepOverlap )
         curveMerger.addCurveData( timeStepsB, valuesB );
 
         // Execute interpolation twice is allowed
-        curveMerger.computeInterpolatedValues();
+        curveMerger.computeInterpolatedValues( true );
         EXPECT_EQ( 8, static_cast<int>( curveMerger.allXValues().size() ) );
         EXPECT_EQ( 0, static_cast<int>( curveMerger.validIntervalsForAllXValues().size() ) );
     }

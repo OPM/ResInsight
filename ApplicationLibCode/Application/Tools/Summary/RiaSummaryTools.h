@@ -97,6 +97,8 @@ public:
     static void reloadSummaryCase( RimSummaryCase* summaryCase );
     static void reloadSummaryEnsemble( RimSummaryEnsemble* ensemble );
 
+    static time_t calculateTimeThreshold( const time_t& minimum, const time_t& maximum );
+
 private:
     static void updateRequiredCalculatedCurves( RimSummaryCase* sourceSummaryCase );
     static bool isCalculationRequired( const RimUserDefinedCalculation* summaryCalculation, const RimSummaryCase* summaryCase );
