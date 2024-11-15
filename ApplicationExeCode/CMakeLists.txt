@@ -434,15 +434,16 @@ if(RESINSIGHT_PRIVATE_INSTALL)
     # TODO: This command copies all required dlls, so we should probably not use
     # the Install() command to copy external dlls dependencies.
     #
-    # The statements " >NUL 2>NUL" are used to suppress text output from windeployqt.
-    #   ">NUL" suppresses standard output.
-    #   "2>NUL" suppresses standard error.
+    # The statements " >NUL 2>NUL" are used to suppress text output from
+    # windeployqt. ">NUL" suppresses standard output. "2>NUL" suppresses
+    # standard error.
     #
     add_custom_command(
       TARGET ResInsight
       POST_BUILD
-      COMMAND ${WINDEPLOYQT_EXECUTABLE} $<TARGET_FILE:ResInsight>
-              "$<IF:$<CONFIG:Debug>,--debug,--release>" --no-translations >NUL 2>NUL
+      COMMAND
+        ${WINDEPLOYQT_EXECUTABLE} $<TARGET_FILE:ResInsight>
+        "$<IF:$<CONFIG:Debug>,--debug,--release>" --no-translations >NUL 2>NUL
       COMMENT
         "Running windeployqt to deploy Qt dependencies to the build folder, required by install()"
     )
