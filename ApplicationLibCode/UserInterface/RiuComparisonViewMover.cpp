@@ -61,8 +61,11 @@ bool RiuComparisonViewMover::eventFilter( QObject* watched, QEvent* event )
 
                 if ( m_dragState == LEFT_EDGE )
                 {
+                    const int viewWidth  = m_viewer->width();
+                    const int viewHeight = m_viewer->height();
+
                     QPointF    mousePos          = mEv->localPos();
-                    QPointF    normMousePos      = { mousePos.x() / m_viewer->width(), mousePos.y() / m_viewer->height() };
+                    QPointF    normMousePos      = { mousePos.x() / viewWidth, mousePos.y() / viewHeight };
                     cvf::Rectf orgCompViewWindow = m_viewer->comparisonViewVisibleNormalizedRect();
 
                     float minx   = normMousePos.x();
@@ -97,8 +100,9 @@ void RiuComparisonViewMover::paintMoverHandles( QPainter* painter )
 
     const int  handleThickness          = 7;
     cvf::Rectf normalizedComparisonRect = m_viewer->comparisonViewVisibleNormalizedRect();
-    int        viewerWidth              = m_viewer->width();
-    int        viewerHeight             = m_viewer->height();
+    const auto ratio                    = m_viewer->displayScalingRatio();
+    int        viewerWidth              = (int)( ratio * m_viewer->width() );
+    int        viewerHeight             = (int)( ratio * m_viewer->height() );
 
     int leftEdgePos     = viewerWidth * normalizedComparisonRect.min().x();
     int width           = viewerWidth * normalizedComparisonRect.width();
