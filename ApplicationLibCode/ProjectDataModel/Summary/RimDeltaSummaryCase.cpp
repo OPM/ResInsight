@@ -21,6 +21,7 @@
 #include "RiaCurveMerger.h"
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RimDeltaSummaryEnsemble.h"
 #include "RimProject.h"
@@ -96,7 +97,7 @@ std::pair<bool, std::vector<double>> RimDeltaSummaryCase::values( const RifEclip
 
     if ( auto deltaEnsemble = firstAncestorOfType<RimDeltaSummaryEnsemble>() )
     {
-        if ( deltaEnsemble->discardSummaryAddressOnlyPresentInOneCase() )
+        if ( deltaEnsemble->discardMissingOrIncompleteRealizations() )
         {
             RifSummaryReaderInterface* reader1 = m_summaryCase1 ? m_summaryCase1->summaryReader() : nullptr;
             RifSummaryReaderInterface* reader2 = m_summaryCase2 ? m_summaryCase2->summaryReader() : nullptr;
@@ -123,6 +124,36 @@ std::pair<bool, std::vector<double>> RimDeltaSummaryCase::values( const RifEclip
     if ( m_dataCache.count( resultAddress ) == 0 )
     {
         return { false, {} };
+    }
+
+    if ( auto deltaEnsemble = firstAncestorOfType<RimDeltaSummaryEnsemble>() )
+    {
+        if ( deltaEnsemble->discardMissingOrIncompleteRealizations() )
+        {
+            auto ensembleTimeSteps = deltaEnsemble->ensembleTimeSteps();
+
+            auto caseTimeSteps = m_dataCache.at( resultAddress ).first;
+
+            if ( !ensembleTimeSteps.empty() && !caseTimeSteps.empty() )
+            {
+                const auto minTime = *std::min_element( ensembleTimeSteps.begin(), ensembleTimeSteps.end() );
+                const auto maxTime = *std::max_element( ensembleTimeSteps.begin(), ensembleTimeSteps.end() );
+
+                // The last time step for the individual realizations in an ensemble is usually identical. Add a small threshold to improve
+                // robustness.
+                const auto timeThreshold = RiaSummaryTools::calculateTimeThreshold( minTime, maxTime );
+
+                if ( *caseTimeSteps.rbegin() < timeThreshold )
+                {
+                    QString txt = "Summary vector " + QString::fromStdString( resultAddress.toEclipseTextAddress() ) +
+                                  " has different time steps in the source ensembles, no values are calculated for this vector.";
+
+                    RiaLogging::warning( txt );
+
+                    return { false, {} };
+                }
+            }
+        }
     }
 
     return { true, m_dataCache.at( resultAddress ).second };
@@ -187,6 +218,8 @@ void RimDeltaSummaryCase::setSummaryCases( RimSummaryCase* sumCase1, RimSummaryC
 {
     m_summaryCase1 = sumCase1;
     m_summaryCase2 = sumCase2;
+
+    clearCache();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -218,8 +251,15 @@ void RimDeltaSummaryCase::calculate( const RifEclipseSummaryAddress& address ) c
         fixedTimeStepCase2 = m_fixedTimeStepIndex;
     }
 
+    bool includeIncompleteCurves = true;
+    if ( auto deltaEnsemble = firstAncestorOfType<RimDeltaSummaryEnsemble>() )
+    {
+        includeIncompleteCurves = !deltaEnsemble->discardMissingOrIncompleteRealizations();
+    }
+
     auto itAndIsInsertedPair = m_dataCache.insert(
-        std::make_pair( address, calculateDerivedValues( reader1, fixedTimeStepCase1, reader2, fixedTimeStepCase2, m_operator(), address ) ) );
+        std::make_pair( address,
+                        calculateDerivedValues( reader1, fixedTimeStepCase1, reader2, fixedTimeStepCase2, m_operator(), address, includeIncompleteCurves ) ) );
 
     // Check if we got any data. If not, erase the map entry to comply with previous behavior
 
@@ -237,7 +277,8 @@ std::pair<std::vector<time_t>, std::vector<double>> RimDeltaSummaryCase::calcula
                                                                                                  RifSummaryReaderInterface* reader2,
                                                                                                  int                    fixedTimeStepCase2,
                                                                                                  DerivedSummaryOperator summaryOperator,
-                                                                                                 const RifEclipseSummaryAddress& address )
+                                                                                                 const RifEclipseSummaryAddress& address,
+                                                                                                 bool includeIncompleteCurves )
 {
     using ResultPair = std::pair<std::vector<time_t>, std::vector<double>>;
 
@@ -278,7 +319,7 @@ std::pair<std::vector<time_t>, std::vector<double>> RimDeltaSummaryCase::calcula
     RiaTimeHistoryCurveMerger merger;
     merger.addCurveData( reader1->timeSteps( address ), values1 );
     merger.addCurveData( reader2->timeSteps( address ), values2 );
-    merger.computeInterpolatedValues();
+    merger.computeInterpolatedValues( includeIncompleteCurves );
 
     const std::vector<double>& allValues1 = merger.interpolatedYValuesForAllXValues( 0 );
     const std::vector<double>& allValues2 = merger.interpolatedYValuesForAllXValues( 1 );
@@ -321,11 +362,19 @@ QString RimDeltaSummaryCase::caseName() const
 //--------------------------------------------------------------------------------------------------
 void RimDeltaSummaryCase::createSummaryReaderInterface()
 {
+    m_allResultAddresses.clear();
+
     if ( m_summaryCase1 )
     {
         if ( !m_summaryCase1->summaryReader() )
         {
             m_summaryCase1->createSummaryReaderInterface();
+        }
+
+        if ( m_summaryCase1->summaryReader() )
+        {
+            auto adr = m_summaryCase1->summaryReader()->allResultAddresses();
+            m_allResultAddresses.insert( adr.begin(), adr.end() );
         }
     }
     if ( m_summaryCase2 )
@@ -333,6 +382,12 @@ void RimDeltaSummaryCase::createSummaryReaderInterface()
         if ( !m_summaryCase2->summaryReader() )
         {
             m_summaryCase2->createSummaryReaderInterface();
+        }
+
+        if ( m_summaryCase2->summaryReader() )
+        {
+            auto adr = m_summaryCase2->summaryReader()->allResultAddresses();
+            m_allResultAddresses.insert( adr.begin(), adr.end() );
         }
     }
 }
@@ -351,6 +406,8 @@ RifSummaryReaderInterface* RimDeltaSummaryCase::summaryReader()
 void RimDeltaSummaryCase::setOperator( DerivedSummaryOperator oper )
 {
     m_operator = oper;
+
+    clearCache();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -378,6 +435,14 @@ void RimDeltaSummaryCase::setFixedTimeSteps( int fixedTimeStepCase1, int fixedTi
 void RimDeltaSummaryCase::clearData( const RifEclipseSummaryAddress& address ) const
 {
     m_dataCache.erase( address );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDeltaSummaryCase::clearCache()
+{
+    m_dataCache.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

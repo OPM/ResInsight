@@ -201,7 +201,7 @@ void RimSummaryCaseMainCollection::removeCases( std::vector<RimSummaryCase*>& ca
 
     for ( RimSummaryEnsemble* summaryCaseCollection : m_caseCollections )
     {
-        summaryCaseCollection->updateReferringCurveSets();
+        summaryCaseCollection->updateReferringCurveSetsZoomAll();
     }
 
     dataSourceHasChanged.send();

@@ -76,11 +76,11 @@ RimDeltaSummaryEnsemble::RimDeltaSummaryEnsemble()
     CAF_PDM_InitField( &m_matchOnParameters, "MatchOnParameters", false, "Match On Parameters" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_matchOnParameters );
 
-    CAF_PDM_InitField( &m_discardAddressPresentInOneSourceCase,
-                       "DiscardAddressPresentInOneSourceCase",
-                       false,
-                       "Discard Vectors if Missing in One of the Source Ensembles" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_discardAddressPresentInOneSourceCase );
+    CAF_PDM_InitField( &m_discardMissingOrIncompleteRealizations,
+                       "DiscardMissingOrIncompleteRealizations",
+                       true,
+                       "Discard Missing or Incomplete Realizations" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_discardMissingOrIncompleteRealizations );
 
     CAF_PDM_InitFieldNoDefault( &m_useFixedTimeStep, "UseFixedTimeStep", "Use Fixed Time Step" );
     CAF_PDM_InitField( &m_fixedTimeStepIndex, "FixedTimeStepIndex", 0, "Time Step" );
@@ -206,9 +206,9 @@ void RimDeltaSummaryEnsemble::createDerivedEnsembleCases()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimDeltaSummaryEnsemble::discardSummaryAddressOnlyPresentInOneCase() const
+bool RimDeltaSummaryEnsemble::discardMissingOrIncompleteRealizations() const
 {
-    return m_discardAddressPresentInOneSourceCase();
+    return m_discardMissingOrIncompleteRealizations();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -314,7 +314,7 @@ void RimDeltaSummaryEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmUi
     }
 
     uiOrdering.add( &m_matchOnParameters );
-    uiOrdering.add( &m_discardAddressPresentInOneSourceCase );
+    uiOrdering.add( &m_discardMissingOrIncompleteRealizations );
 
     uiOrdering.skipRemainingFields( true );
 
@@ -337,7 +337,8 @@ void RimDeltaSummaryEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* chang
         doUpdateCases = true;
         doShowDialog  = true;
     }
-    else if ( changedField == &m_operator || changedField == &m_useFixedTimeStep || changedField == &m_fixedTimeStepIndex )
+    else if ( changedField == &m_operator || changedField == &m_useFixedTimeStep || changedField == &m_fixedTimeStepIndex ||
+              changedField == &m_discardMissingOrIncompleteRealizations )
     {
         doUpdate      = true;
         doUpdateCases = true;
@@ -370,12 +371,12 @@ void RimDeltaSummaryEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* chang
             }
         }
 
-        updateReferringCurveSets();
+        updateReferringCurveSetsZoomAll();
 
         // If other derived ensembles are referring to this ensemble, update their cases as well
         for ( auto refering : findReferringEnsembles() )
         {
-            refering->updateReferringCurveSets();
+            refering->updateReferringCurveSetsZoomAll();
         }
     }
 }

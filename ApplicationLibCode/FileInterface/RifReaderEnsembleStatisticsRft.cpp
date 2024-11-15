@@ -294,7 +294,8 @@ void RifReaderEnsembleStatisticsRft::extractStatisticsFromCurveMerger( const QSt
 
     clearCache( wellName, timeStep );
 
-    curveMerger.computeInterpolatedValues( false );
+    bool includeValuesFromPartialCurves = false;
+    curveMerger.computeInterpolatedValues( includeValuesFromPartialCurves );
 
     const std::vector<double>& allDepths = curveMerger.allXValues();
     if ( !allDepths.empty() )

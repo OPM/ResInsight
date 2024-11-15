@@ -1447,7 +1447,8 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
                                                              referenceCaseReader,
                                                              -1,
                                                              DerivedSummaryOperator::DERIVED_OPERATOR_SUB,
-                                                             curveDef.summaryAddressY() );
+                                                             curveDef.summaryAddressY(),
+                                                             true );
             timeSteps.swap( timeAndValues.first );
             values.swap( timeAndValues.second );
         }

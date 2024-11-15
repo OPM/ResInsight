@@ -62,7 +62,7 @@ public:
 
     void createDerivedEnsembleCases();
 
-    bool discardSummaryAddressOnlyPresentInOneCase() const;
+    bool discardMissingOrIncompleteRealizations() const;
 
 private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -93,7 +93,7 @@ private:
     caf::PdmField<bool>                                 m_swapEnsemblesButton;
     caf::PdmField<QString>                              m_caseCount;
     caf::PdmField<bool>                                 m_matchOnParameters;
-    caf::PdmField<bool>                                 m_discardAddressPresentInOneSourceCase;
+    caf::PdmField<bool>                                 m_discardMissingOrIncompleteRealizations;
 
     caf::PdmField<caf::AppEnum<FixedTimeStepMode>> m_useFixedTimeStep;
     caf::PdmField<int>                             m_fixedTimeStepIndex;

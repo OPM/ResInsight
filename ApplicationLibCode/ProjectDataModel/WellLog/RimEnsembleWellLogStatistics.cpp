@@ -125,8 +125,9 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogLasFil
             RiaLogging::error( errorMessage );
         }
     }
-    curveMerger.computeInterpolatedValues( true );
-    tvdCurveMerger.computeInterpolatedValues( true );
+    bool includeValuesFromPartialCurves = true;
+    curveMerger.computeInterpolatedValues( includeValuesFromPartialCurves );
+    tvdCurveMerger.computeInterpolatedValues( includeValuesFromPartialCurves );
 
     clearData();
 
