@@ -132,8 +132,6 @@ protected:
     bool mapCellVisibilityNeedsUpdating( int timeStep );
 
     void generateVertexResults();
-    void generateTrianglesWithVertexValues();
-    void generateContourPolygons();
 
     double       gridEdgeOffset() const;
     virtual void updateAfterResultGeneration( int timeStep ) = 0;
