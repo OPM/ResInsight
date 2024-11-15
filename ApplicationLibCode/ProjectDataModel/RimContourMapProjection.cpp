@@ -18,12 +18,10 @@
 
 #include "RimContourMapProjection.h"
 
-#include "RiaOpenMPTools.h"
-
-#include "RigCellGeometryTools.h"
 #include "RigContourMapCalculator.h"
 #include "RigContourMapGrid.h"
 #include "RigContourMapProjection.h"
+#include "RigContourMapTrianglesGenerator.h"
 
 #include "RimCase.h"
 #include "RimGridView.h"
@@ -31,18 +29,14 @@
 #include "RimRegularLegendConfig.h"
 #include "RimTextAnnotation.h"
 
-#include "cafContourLines.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
 #include "cvfArray.h"
-#include "cvfGeometryUtils.h"
 #include "cvfScalarMapper.h"
 #include "cvfStructGridGeometryGenerator.h"
 #include "cvfVector2.h"
-
-#include <algorithm>
 
 namespace caf
 {
@@ -157,9 +151,39 @@ void RimContourMapProjection::generateGeometryIfNecessary()
 
     if ( geometryNeedsUpdating() )
     {
-        generateContourPolygons();
-        progress.setProgress( 25 );
-        generateTrianglesWithVertexValues();
+        std::vector<double> contourLevels;
+
+        bool discrete = false;
+        if ( legendConfig()->mappingMode() != RimRegularLegendConfig::MappingType::CATEGORY_INTEGER )
+        {
+            legendConfig()->scalarMapper()->majorTickValues( &contourLevels );
+
+            if ( resultRangeIsValid() )
+            {
+                std::tie( m_contourPolygons, m_contourLevelCumulativeAreas ) =
+                    RigContourMapTrianglesGenerator::generateContourPolygons( *m_contourMapGrid,
+                                                                              *m_contourMapProjection,
+                                                                              contourLevels,
+                                                                              sampleSpacing(),
+                                                                              sampleSpacingFactor(),
+                                                                              m_smoothContourLines() );
+            }
+            progress.setProgress( 25 );
+
+            if ( legendConfig()->mappingMode() == RimRegularLegendConfig::MappingType::LINEAR_DISCRETE ||
+                 legendConfig()->mappingMode() == RimRegularLegendConfig::MappingType::LOG10_DISCRETE )
+            {
+                discrete = true;
+            }
+        }
+
+        m_trianglesWithVertexValues = RigContourMapTrianglesGenerator::generateTrianglesWithVertexValues( *m_contourMapGrid,
+                                                                                                          *m_contourMapProjection,
+                                                                                                          m_contourPolygons,
+                                                                                                          contourLevels,
+                                                                                                          m_contourLevelCumulativeAreas,
+                                                                                                          discrete,
+                                                                                                          sampleSpacing() );
     }
     progress.setProgress( 100 );
 }
@@ -505,333 +529,6 @@ bool RimContourMapProjection::mapCellVisibilityNeedsUpdating( int timestep )
 void RimContourMapProjection::generateVertexResults()
 {
     if ( m_contourMapProjection ) m_contourMapProjection->generateVertexResults();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::generateTrianglesWithVertexValues()
-{
-    std::vector<cvf::Vec3d> vertices = m_contourMapGrid->generateVertices();
-
-    cvf::Vec2ui              patchSize = numberOfVerticesIJ();
-    cvf::ref<cvf::UIntArray> faceList  = new cvf::UIntArray;
-    cvf::GeometryUtils::tesselatePatchAsTriangles( patchSize.x(), patchSize.y(), 0u, true, faceList.p() );
-
-    bool                discrete = false;
-    std::vector<double> contourLevels;
-    if ( legendConfig()->mappingMode() != RimRegularLegendConfig::MappingType::CATEGORY_INTEGER )
-    {
-        legendConfig()->scalarMapper()->majorTickValues( &contourLevels );
-        if ( legendConfig()->mappingMode() == RimRegularLegendConfig::MappingType::LINEAR_DISCRETE ||
-             legendConfig()->mappingMode() == RimRegularLegendConfig::MappingType::LOG10_DISCRETE )
-        {
-            discrete = true;
-        }
-    }
-
-    const double cellArea      = sampleSpacing() * sampleSpacing();
-    const double areaThreshold = 1.0e-5 * 0.5 * cellArea;
-
-    std::vector<std::vector<std::vector<cvf::Vec3d>>> subtractPolygons;
-    if ( !m_contourPolygons.empty() )
-    {
-        subtractPolygons.resize( m_contourPolygons.size() );
-        for ( size_t i = 0; i < m_contourPolygons.size() - 1; ++i )
-        {
-            for ( size_t j = 0; j < m_contourPolygons[i + 1].size(); ++j )
-            {
-                subtractPolygons[i].push_back( m_contourPolygons[i + 1][j].vertices );
-            }
-        }
-    }
-
-    int numberOfThreads = RiaOpenMPTools::availableThreadCount();
-
-    std::vector<std::vector<std::vector<cvf::Vec4d>>> threadTriangles( numberOfThreads );
-
-    const std::vector<double>& aggregatedVertexResults = m_contourMapProjection->aggregatedVertexResults();
-
-#pragma omp parallel
-    {
-        int myThread = RiaOpenMPTools::currentThreadIndex();
-        threadTriangles[myThread].resize( std::max( (size_t)1, m_contourPolygons.size() ) );
-
-#pragma omp for schedule( dynamic )
-        for ( int64_t i = 0; i < (int64_t)faceList->size(); i += 3 )
-        {
-            std::vector<cvf::Vec3d> triangle( 3 );
-            std::vector<cvf::Vec4d> triangleWithValues( 3 );
-            bool                    anyValidVertex = false;
-            for ( size_t n = 0; n < 3; ++n )
-            {
-                uint   vn    = ( *faceList )[i + n];
-                double value = vn < aggregatedVertexResults.size() ? aggregatedVertexResults[vn] : std::numeric_limits<double>::infinity();
-                triangle[n]  = vertices[vn];
-                triangleWithValues[n] = cvf::Vec4d( vertices[vn], value );
-                if ( value != std::numeric_limits<double>::infinity() )
-                {
-                    anyValidVertex = true;
-                }
-            }
-
-            if ( !anyValidVertex )
-            {
-                continue;
-            }
-
-            if ( m_contourPolygons.empty() )
-            {
-                threadTriangles[myThread][0].insert( threadTriangles[myThread][0].end(), triangleWithValues.begin(), triangleWithValues.end() );
-                continue;
-            }
-
-            bool outsideOuterLimit = false;
-            for ( size_t c = 0; c < m_contourPolygons.size() && !outsideOuterLimit; ++c )
-            {
-                std::vector<std::vector<cvf::Vec3d>> intersectPolygons;
-                for ( size_t j = 0; j < m_contourPolygons[c].size(); ++j )
-                {
-                    bool containsAtLeastOne = false;
-                    for ( size_t t = 0; t < 3; ++t )
-                    {
-                        if ( m_contourPolygons[c][j].bbox.contains( triangle[t] ) )
-                        {
-                            containsAtLeastOne = true;
-                        }
-                    }
-                    if ( containsAtLeastOne )
-                    {
-                        std::vector<std::vector<cvf::Vec3d>> clippedPolygons =
-                            RigCellGeometryTools::intersectionWithPolygon( triangle, m_contourPolygons[c][j].vertices );
-                        intersectPolygons.insert( intersectPolygons.end(), clippedPolygons.begin(), clippedPolygons.end() );
-                    }
-                }
-
-                if ( intersectPolygons.empty() )
-                {
-                    outsideOuterLimit = true;
-                    continue;
-                }
-
-                std::vector<std::vector<cvf::Vec3d>> clippedPolygons;
-
-                if ( !subtractPolygons[c].empty() )
-                {
-                    for ( const std::vector<cvf::Vec3d>& polygon : intersectPolygons )
-                    {
-                        std::vector<std::vector<cvf::Vec3d>> fullyClippedPolygons =
-                            RigCellGeometryTools::subtractPolygons( polygon, subtractPolygons[c] );
-                        clippedPolygons.insert( clippedPolygons.end(), fullyClippedPolygons.begin(), fullyClippedPolygons.end() );
-                    }
-                }
-                else
-                {
-                    clippedPolygons.swap( intersectPolygons );
-                }
-
-                {
-                    std::vector<cvf::Vec4d> clippedTriangles;
-                    for ( std::vector<cvf::Vec3d>& clippedPolygon : clippedPolygons )
-                    {
-                        std::vector<std::vector<cvf::Vec3d>> polygonTriangles;
-                        if ( clippedPolygon.size() == 3u )
-                        {
-                            polygonTriangles.push_back( clippedPolygon );
-                        }
-                        else
-                        {
-                            cvf::Vec3d baryCenter = cvf::Vec3d::ZERO;
-                            for ( size_t v = 0; v < clippedPolygon.size(); ++v )
-                            {
-                                cvf::Vec3d& clippedVertex = clippedPolygon[v];
-                                baryCenter += clippedVertex;
-                            }
-                            baryCenter /= clippedPolygon.size();
-                            for ( size_t v = 0; v < clippedPolygon.size(); ++v )
-                            {
-                                std::vector<cvf::Vec3d> clippedTriangle;
-                                if ( v == clippedPolygon.size() - 1 )
-                                {
-                                    clippedTriangle = { clippedPolygon[v], clippedPolygon[0], baryCenter };
-                                }
-                                else
-                                {
-                                    clippedTriangle = { clippedPolygon[v], clippedPolygon[v + 1], baryCenter };
-                                }
-                                polygonTriangles.push_back( clippedTriangle );
-                            }
-                        }
-                        for ( const std::vector<cvf::Vec3d>& polygonTriangle : polygonTriangles )
-                        {
-                            // Check triangle area
-                            double area =
-                                0.5 * ( ( polygonTriangle[1] - polygonTriangle[0] ) ^ ( polygonTriangle[2] - polygonTriangle[0] ) ).length();
-                            if ( area < areaThreshold ) continue;
-                            for ( const cvf::Vec3d& localVertex : polygonTriangle )
-                            {
-                                double value = std::numeric_limits<double>::infinity();
-                                if ( discrete )
-                                {
-                                    value = contourLevels[c] + 0.01 * ( contourLevels.back() - contourLevels.front() ) / contourLevels.size();
-                                }
-                                else
-                                {
-                                    for ( size_t n = 0; n < 3; ++n )
-                                    {
-                                        if ( ( triangle[n] - localVertex ).length() < sampleSpacing() * 0.01 &&
-                                             triangleWithValues[n].w() != std::numeric_limits<double>::infinity() )
-                                        {
-                                            value = triangleWithValues[n].w();
-                                            break;
-                                        }
-                                    }
-                                    if ( value == std::numeric_limits<double>::infinity() )
-                                    {
-                                        value = m_contourMapProjection->interpolateValue( cvf::Vec2d( localVertex.x(), localVertex.y() ) );
-                                        if ( value == std::numeric_limits<double>::infinity() )
-                                        {
-                                            value = contourLevels[c];
-                                        }
-                                    }
-                                }
-
-                                cvf::Vec4d globalVertex( localVertex, value );
-                                clippedTriangles.push_back( globalVertex );
-                            }
-                        }
-                    }
-
-                    {
-                        // Add critical section here due to a weird bug when running in a single thread
-                        // Running multi threaded does not require this critical section, as we use a thread local data
-                        // structure
-#pragma omp critical
-                        threadTriangles[myThread][c].insert( threadTriangles[myThread][c].end(),
-                                                             clippedTriangles.begin(),
-                                                             clippedTriangles.end() );
-                    }
-                }
-            }
-        }
-    }
-
-    std::vector<std::vector<cvf::Vec4d>> trianglesPerLevel( std::max( (size_t)1, m_contourPolygons.size() ) );
-    for ( size_t c = 0; c < trianglesPerLevel.size(); ++c )
-    {
-        std::vector<cvf::Vec4d> allTrianglesThisLevel;
-        for ( size_t i = 0; i < threadTriangles.size(); ++i )
-        {
-            allTrianglesThisLevel.insert( allTrianglesThisLevel.end(), threadTriangles[i][c].begin(), threadTriangles[i][c].end() );
-        }
-
-        double triangleAreasThisLevel = RigContourMapProjection::sumTriangleAreas( allTrianglesThisLevel );
-        if ( c >= m_contourLevelCumulativeAreas.size() || triangleAreasThisLevel > 1.0e-3 * m_contourLevelCumulativeAreas[c] )
-        {
-            trianglesPerLevel[c] = allTrianglesThisLevel;
-        }
-    }
-
-    std::vector<cvf::Vec4d> finalTriangles;
-    for ( size_t i = 0; i < trianglesPerLevel.size(); ++i )
-    {
-        finalTriangles.insert( finalTriangles.end(), trianglesPerLevel[i].begin(), trianglesPerLevel[i].end() );
-    }
-
-    m_trianglesWithVertexValues = finalTriangles;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::generateContourPolygons()
-{
-    std::vector<ContourPolygons> contourPolygons;
-
-    std::vector<double> contourLevels;
-    if ( resultRangeIsValid() && legendConfig()->mappingMode() != RimRegularLegendConfig::MappingType::CATEGORY_INTEGER )
-    {
-        const std::vector<double>& aggregatedVertexResults = m_contourMapProjection->aggregatedVertexResults();
-
-        legendConfig()->scalarMapper()->majorTickValues( &contourLevels );
-        int nContourLevels = static_cast<int>( contourLevels.size() );
-
-        if ( minValue() != std::numeric_limits<double>::infinity() && maxValue() != -std::numeric_limits<double>::infinity() &&
-             std::fabs( maxValue() - minValue() ) > 1.0e-8 )
-        {
-            if ( nContourLevels > 2 )
-            {
-                const size_t N = contourLevels.size();
-                // Adjust contour levels slightly to avoid weird visual artifacts due to numerical error.
-                double fudgeFactor    = 1.0e-3;
-                double fudgeAmountMin = fudgeFactor * ( contourLevels[1] - contourLevels[0] );
-                double fudgeAmountMax = fudgeFactor * ( contourLevels[N - 1u] - contourLevels[N - 2u] );
-
-                contourLevels.front() += fudgeAmountMin;
-                contourLevels.back() -= fudgeAmountMax;
-
-                double simplifyEpsilon = m_smoothContourLines() ? 5.0e-2 * sampleSpacing() : 1.0e-3 * sampleSpacing();
-
-                if ( nContourLevels >= 10 )
-                {
-                    simplifyEpsilon *= 2.0;
-                }
-                if ( numberOfCells() > 100000 )
-                {
-                    simplifyEpsilon *= 2.0;
-                }
-                else if ( numberOfCells() > 1000000 )
-                {
-                    simplifyEpsilon *= 4.0;
-                }
-
-                std::vector<caf::ContourLines::ListOfLineSegments> unorderedLineSegmentsPerLevel =
-                    caf::ContourLines::create( aggregatedVertexResults, xVertexPositions(), yVertexPositions(), contourLevels );
-
-                contourPolygons = std::vector<ContourPolygons>( unorderedLineSegmentsPerLevel.size() );
-                const double areaThreshold = 1.5 * ( sampleSpacing() * sampleSpacing() ) / ( sampleSpacingFactor() * sampleSpacingFactor() );
-
-#pragma omp parallel for
-                for ( int i = 0; i < (int)unorderedLineSegmentsPerLevel.size(); ++i )
-                {
-                    contourPolygons[i] = RigContourPolygonsTools::createContourPolygonsFromLineSegments( unorderedLineSegmentsPerLevel[i],
-                                                                                                         contourLevels[i],
-                                                                                                         areaThreshold );
-
-                    if ( m_smoothContourLines() )
-                    {
-                        RigContourPolygonsTools::smoothContourPolygons( contourPolygons[i], true, sampleSpacing() );
-                    }
-
-                    for ( RigContourPolygonsTools::ContourPolygon& polygon : contourPolygons[i] )
-                    {
-                        RigCellGeometryTools::simplifyPolygon( &polygon.vertices, simplifyEpsilon );
-                    }
-                }
-
-                // The clipping of contour polygons is intended to detect and fix a smoothed contour polygons
-                // crossing into an outer contour line. The current implementation has some side effects causing
-                // several contour lines to disappear. Disable this clipping for now
-                /*
-                if ( m_smoothContourLines() )
-                {
-                    for ( size_t i = 1; i < contourPolygons.size(); ++i )
-                    {
-                        RigContourPolygonsTools::clipContourPolygons(&contourPolygons[i], &contourPolygons[i - 1] );
-                    }
-                }
-                */
-
-                m_contourLevelCumulativeAreas.resize( contourPolygons.size(), 0.0 );
-                for ( int64_t i = (int64_t)contourPolygons.size() - 1; i >= 0; --i )
-                {
-                    double levelOuterArea            = RigContourPolygonsTools::sumPolygonArea( contourPolygons[i] );
-                    m_contourLevelCumulativeAreas[i] = levelOuterArea;
-                }
-            }
-        }
-    }
-    m_contourPolygons = contourPolygons;
 }
 
 //--------------------------------------------------------------------------------------------------
