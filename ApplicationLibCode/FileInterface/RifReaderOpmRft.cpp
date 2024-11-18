@@ -20,6 +20,7 @@
 
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaResultNames.h"
 #include "RiaRftDefines.h"
 #include "RiaStdStringTools.h"
 
@@ -138,7 +139,43 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
 
     try
     {
-        std::vector<float> data = resultAsFloat( resultName, wellName, y, m, d );
+        std::vector<float> data;
+
+        if ( rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::SOIL &&
+             !isNativeResultAvailable( RiaResultNames::soil().toStdString(), wellName, y, m, d ) )
+        {
+            // Compute SOIL from SWAT and SGAS
+            // There is a similar function in RigSoilResultCalculator, but they are too different to be merged
+            auto computeSoil = [&]( const std::string& wellName, int y, int m, int d ) -> std::vector<float>
+            {
+                auto swat = resultAsFloat( RiaResultNames::swat().toStdString(), wellName, y, m, d );
+                auto sgas = resultAsFloat( RiaResultNames::sgas().toStdString(), wellName, y, m, d );
+
+                auto               maxItems = std::max( swat.size(), sgas.size() );
+                std::vector<float> data( maxItems, 1.0f );
+
+                for ( size_t i = 0; i < maxItems; ++i )
+                {
+                    if ( i < swat.size() )
+                    {
+                        data[i] -= swat[i];
+                    }
+                    if ( i < sgas.size() )
+                    {
+                        data[i] -= sgas[i];
+                    }
+                    data[i] = std::clamp( data[i], 0.0f, 1.0f );
+                }
+
+                return data;
+            };
+
+            data = computeSoil( wellName, y, m, d );
+        }
+        else
+        {
+            data = resultAsFloat( resultName, wellName, y, m, d );
+        }
 
         if ( !data.empty() )
         {
@@ -241,6 +278,17 @@ std::set<QDateTime> RifReaderOpmRft::availableTimeSteps( const QString&         
             timeSteps.insert( address.timeStep() );
         }
     }
+
+    if ( timeSteps.empty() && wellLogChannelName == RifEclipseRftAddress::RftWellLogChannelType::SOIL )
+    {
+        auto sgasTimeSteps = availableTimeSteps( wellName, RifEclipseRftAddress::RftWellLogChannelType::SGAS );
+        auto swatTimeSteps = availableTimeSteps( wellName, RifEclipseRftAddress::RftWellLogChannelType::SWAT );
+
+        // Combine time steps from SGAS and SWAT
+        timeSteps.insert( sgasTimeSteps.begin(), sgasTimeSteps.end() );
+        timeSteps.insert( swatTimeSteps.begin(), swatTimeSteps.end() );
+    }
+
     return timeSteps;
 }
 
@@ -279,6 +327,13 @@ std::set<RifEclipseRftAddress::RftWellLogChannelType> RifReaderOpmRft::available
         {
             types.insert( a.wellLogChannel() );
         }
+    }
+
+    if ( types.contains( RifEclipseRftAddress::RftWellLogChannelType::SWAT ) ||
+         types.contains( RifEclipseRftAddress::RftWellLogChannelType::SGAS ) )
+    {
+        // Add SOIL if SGAS or SWAT are available, SOIL can be computed from these
+        types.insert( RifEclipseRftAddress::RftWellLogChannelType::SOIL );
     }
 
     return types;
@@ -473,8 +528,8 @@ std::vector<RifReaderOpmRft::SegmentConnectionStartEnd>
                     {
                         if ( !isFirstSegment && std::fabs( startMD[i] - endMD[i - 1] ) > 0.1 )
                         {
-                            // Insert a segment representing the connection between the segments. Assign infinity as value to this segment
-                            // to allow discontinuous plotting.
+                            // Insert a segment representing the connection between the segments. Assign infinity as value to this
+                            // segment to allow discontinuous plotting.
                             startEndValues.emplace_back( endMD[i - 1], startMD[i], false );
                         }
                         startEndValues.emplace_back( startMD[i], endMD[i], true );
@@ -1081,12 +1136,13 @@ RifEclipseRftAddress::RftWellLogChannelType RifReaderOpmRft::identifyChannelType
 {
     if ( resultName == "DEPTH" ) return RifEclipseRftAddress::RftWellLogChannelType::TVD;
     if ( resultName == "PRESSURE" ) return RifEclipseRftAddress::RftWellLogChannelType::PRESSURE;
-    if ( resultName == "SWAT" ) return RifEclipseRftAddress::RftWellLogChannelType::SWAT;
-    if ( resultName == "SOIL" ) return RifEclipseRftAddress::RftWellLogChannelType::SOIL;
-    if ( resultName == "SGAS" ) return RifEclipseRftAddress::RftWellLogChannelType::SGAS;
     if ( resultName == "WRAT" ) return RifEclipseRftAddress::RftWellLogChannelType::WRAT;
     if ( resultName == "ORAT" ) return RifEclipseRftAddress::RftWellLogChannelType::ORAT;
     if ( resultName == "GRAT" ) return RifEclipseRftAddress::RftWellLogChannelType::GRAT;
+
+    if ( resultName == RiaResultNames::swat().toStdString() ) return RifEclipseRftAddress::RftWellLogChannelType::SWAT;
+    if ( resultName == RiaResultNames::soil().toStdString() ) return RifEclipseRftAddress::RftWellLogChannelType::SOIL;
+    if ( resultName == RiaResultNames::sgas().toStdString() ) return RifEclipseRftAddress::RftWellLogChannelType::SGAS;
 
     return RifEclipseRftAddress::RftWellLogChannelType::NONE;
 }
@@ -1098,12 +1154,13 @@ std::string RifReaderOpmRft::resultNameFromChannelType( RifEclipseRftAddress::Rf
 {
     if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::TVD ) return "DEPTH";
     if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE ) return "PRESSURE";
-    if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::SWAT ) return "SWAT";
-    if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::SOIL ) return "SOIL";
-    if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::SGAS ) return "SGAS";
     if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::WRAT ) return "WRAT";
     if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::ORAT ) return "ORAT";
     if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::GRAT ) return "GRAT";
+
+    if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::SWAT ) return RiaResultNames::swat().toStdString();
+    if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::SOIL ) return RiaResultNames::soil().toStdString();
+    if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::SGAS ) return RiaResultNames::sgas().toStdString();
 
     return {};
 }
@@ -1143,6 +1200,22 @@ std::vector<float> RifReaderOpmRft::resultAsFloat( const std::string& resultName
     }
 
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifReaderOpmRft::isNativeResultAvailable( const std::string& resultName, const std::string& wellName, int year, int month, int day ) const
+{
+    if ( !m_opm_rft ) return false;
+
+    auto results = m_opm_rft->listOfRftArrays( wellName, year, month, day );
+    for ( const auto& [name, arrayType, size] : results )
+    {
+        if ( resultName == name ) return true;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
