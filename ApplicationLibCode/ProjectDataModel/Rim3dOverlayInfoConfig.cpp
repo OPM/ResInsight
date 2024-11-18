@@ -28,6 +28,7 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
+#include "RigContourMapProjection.h"
 #include "RigEclipseCaseData.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
@@ -313,10 +314,11 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimEclipseView* eclipseView )
         QLocale localeWithSpaceAsGroupSeparator( caf::norwegianLocale() );
 
         RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>( eclipseView );
-        if ( contourMap && contourMap->contourMapProjection() )
+        if ( contourMap && contourMap->contourMapProjection() && contourMap->contourMapProjection()->mapProjection() )
         {
-            QString   totCellCount        = localeWithSpaceAsGroupSeparator.toString( contourMap->contourMapProjection()->numberOfCells() );
-            cvf::uint validCellCount      = contourMap->contourMapProjection()->numberOfValidCells();
+            QString totCellCount =
+                localeWithSpaceAsGroupSeparator.toString( contourMap->contourMapProjection()->mapProjection()->numberOfCells() );
+            cvf::uint validCellCount      = contourMap->contourMapProjection()->mapProjection()->numberOfValidCells();
             QString   activeCellCountText = localeWithSpaceAsGroupSeparator.toString( validCellCount );
             QString   aggregationType     = contourMap->contourMapProjection()->resultAggregationText();
             QString   weightingParameterString;
@@ -380,10 +382,10 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimGeoMechView* geoMechView )
             QString                   caseName   = geoMechCase->caseUserDescription();
             RimGeoMechContourMapView* contourMap = dynamic_cast<RimGeoMechContourMapView*>( geoMechView );
 
-            if ( contourMap && contourMap->contourMapProjection() )
+            if ( contourMap && contourMap->contourMapProjection() && contourMap->contourMapProjection()->mapProjection() )
             {
-                QString   totCellCount        = QString::number( contourMap->contourMapProjection()->numberOfCells() );
-                cvf::uint validCellCount      = contourMap->contourMapProjection()->numberOfValidCells();
+                QString   totCellCount        = QString::number( contourMap->contourMapProjection()->mapProjection()->numberOfCells() );
+                cvf::uint validCellCount      = contourMap->contourMapProjection()->mapProjection()->numberOfValidCells();
                 QString   activeCellCountText = QString::number( validCellCount );
                 QString   aggregationType     = contourMap->contourMapProjection()->resultAggregationText();
 
@@ -445,9 +447,9 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
 
     RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>( eclipseView );
 
-    if ( contourMap )
+    if ( contourMap && contourMap->contourMapProjection() && contourMap->contourMapProjection()->mapProjection() )
     {
-        bool isResultsInfoRelevant = contourMap->contourMapProjection()->numberOfValidCells() > 0u;
+        bool isResultsInfoRelevant = contourMap->contourMapProjection()->mapProjection()->numberOfValidCells() > 0u;
         if ( isResultsInfoRelevant )
         {
             QString propName      = eclipseView->cellResult()->resultVariableUiShortName();

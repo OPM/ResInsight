@@ -24,6 +24,8 @@
 
 #include "RifTextDataTableFormatter.h"
 
+#include "RigContourMapProjection.h"
+
 #include "RimContourMapProjection.h"
 #include "RimEclipseContourMapProjection.h"
 #include "RimEclipseContourMapView.h"
@@ -149,7 +151,7 @@ void RicExportContourMapToTextFeature::writeMetaDataToStream( QTextStream&      
                                                               const QString&                 caseName,
                                                               bool                           exportLocalCoordinates )
 {
-    cvf::Vec2ui numVerticesIJ = contourMapProjection->numberOfVerticesIJ();
+    cvf::Vec2ui numVerticesIJ = contourMapProjection->mapProjection()->numberOfVerticesIJ();
     stream << "# case name : " << contourMapProjection->caseName() << "\n";
     stream << "# sampling points : nx=" << numVerticesIJ.x() << " ny=" << numVerticesIJ.y() << "\n";
     stream << "# time and date : " << contourMapProjection->currentTimeStepName() << "\n";
@@ -185,31 +187,35 @@ void RicExportContourMapToTextFeature::writeContourMapToStream( QTextStream&    
 
     formatter.header( header );
 
-    cvf::Vec2ui         numVerticesIJ    = contourMapProjection->numberOfVerticesIJ();
-    std::vector<double> xVertexPositions = contourMapProjection->xVertexPositions();
-    std::vector<double> yVertexPositions = contourMapProjection->yVertexPositions();
-
-    // Undefined values are positive inf in contour map projection.
-    double undefined = std::numeric_limits<double>::infinity();
-    for ( unsigned int j = 0; j < numVerticesIJ.y(); j++ )
+    const RigContourMapProjection* mapProjection = contourMapProjection->mapProjection();
+    if ( mapProjection )
     {
-        for ( unsigned int i = 0; i < numVerticesIJ.x(); i++ )
-        {
-            double value = contourMapProjection->valueAtVertex( i, j );
-            if ( !( std::isinf( value ) && excludeUndefinedValues ) )
-            {
-                double x = xVertexPositions.at( i );
-                double y = yVertexPositions.at( j );
-                if ( !exportLocalCoordinates )
-                {
-                    x += contourMapProjection->origin3d().x();
-                    y += contourMapProjection->origin3d().y();
-                }
+        cvf::Vec2ui         numVerticesIJ    = mapProjection->numberOfVerticesIJ();
+        std::vector<double> xVertexPositions = mapProjection->xVertexPositions();
+        std::vector<double> yVertexPositions = mapProjection->yVertexPositions();
 
-                formatter.add( x );
-                formatter.add( y );
-                formatter.addValueOrDefaultMarker( value, undefined );
-                formatter.rowCompleted();
+        // Undefined values are positive inf in contour map projection.
+        double undefined = std::numeric_limits<double>::infinity();
+        for ( unsigned int j = 0; j < numVerticesIJ.y(); j++ )
+        {
+            for ( unsigned int i = 0; i < numVerticesIJ.x(); i++ )
+            {
+                double value = mapProjection->valueAtVertex( i, j );
+                if ( !( std::isinf( value ) && excludeUndefinedValues ) )
+                {
+                    double x = xVertexPositions.at( i );
+                    double y = yVertexPositions.at( j );
+                    if ( !exportLocalCoordinates )
+                    {
+                        x += mapProjection->origin3d().x();
+                        y += mapProjection->origin3d().y();
+                    }
+
+                    formatter.add( x );
+                    formatter.add( y );
+                    formatter.addValueOrDefaultMarker( value, undefined );
+                    formatter.rowCompleted();
+                }
             }
         }
     }
