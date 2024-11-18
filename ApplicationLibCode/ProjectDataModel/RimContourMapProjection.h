@@ -70,30 +70,12 @@ public:
     QString caseName() const;
     QString currentTimeStepName() const;
 
-    double maxValue() const;
-    double minValue() const;
-
-    double meanValue() const;
-    double sumAllValues() const;
-
-    cvf::Vec2ui numberOfVerticesIJ() const;
-
     bool isColumnResult() const;
     bool isMeanResult() const;
     bool isStraightSummationResult() const;
 
-    double valueAtVertex( uint i, uint j ) const;
-
-    uint   numberOfCells() const;
-    uint   numberOfValidCells() const;
-    size_t numberOfVertices() const;
-
-    bool       checkForMapIntersection( const cvf::Vec3d& domainPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint ) const;
     void       setPickPoint( cvf::Vec2d globalPickPoint );
     cvf::Vec3d origin3d() const;
-
-    std::vector<double> xVertexPositions() const;
-    std::vector<double> yVertexPositions() const;
 
     // Pure-virtual public methods which should be overridden by Eclipse and Geo-mechanical contour map implementations
     virtual QString                 resultDescriptionText() const = 0;
@@ -106,6 +88,8 @@ public:
     virtual std::vector<double> retrieveParameterWeights() = 0;
 
     virtual cvf::ref<cvf::UByteArray> getCellVisibility() const;
+
+    const RigContourMapProjection* mapProjection() const;
 
 protected:
     // Protected virtual methods to be overridden by Eclipse and Geo-mechanical contour map implementations

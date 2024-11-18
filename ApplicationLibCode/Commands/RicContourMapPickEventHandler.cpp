@@ -17,12 +17,16 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicContourMapPickEventHandler.h"
+
+#include "RigContourMapProjection.h"
+
 #include "Rim3dView.h"
 #include "RimContourMapProjection.h"
 #include "RimEclipseContourMapView.h"
 #include "RimGeoMechContourMapView.h"
 
 #include "RiuMainWindow.h"
+
 #include "RivObjectSourceInfo.h"
 
 #include "cafDisplayCoordTransform.h"
@@ -69,7 +73,8 @@ bool RicContourMapPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
             cvf::Vec2d pickedPoint( cvf::Vec2d::UNDEFINED );
             double     valueAtPoint = 0.0;
 
-            if ( contourMap->checkForMapIntersection( targetPointInDomain, &pickedPoint, &valueAtPoint ) )
+            if ( contourMap->mapProjection() &&
+                 contourMap->mapProjection()->checkForMapIntersection( targetPointInDomain, &pickedPoint, &valueAtPoint ) )
             {
                 curveText += QString( "Picked Point X, Y: %1, %2\n" ).arg( pickedPoint.x(), 5, 'f', 0 ).arg( pickedPoint.y(), 5, 'f', 0 );
                 curveText += QString( "Result Type: %1\n" ).arg( contourMap->resultDescriptionText() );

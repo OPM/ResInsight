@@ -309,46 +309,9 @@ QString RimContourMapProjection::currentTimeStepName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::maxValue() const
+const RigContourMapProjection* RimContourMapProjection::mapProjection() const
 {
-    if ( m_contourMapProjection ) return m_contourMapProjection->maxValue();
-    return -std::numeric_limits<double>::infinity();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::minValue() const
-{
-    if ( m_contourMapProjection ) return m_contourMapProjection->minValue();
-    return std::numeric_limits<double>::infinity();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::meanValue() const
-{
-    if ( m_contourMapProjection ) return m_contourMapProjection->meanValue();
-    return std::numeric_limits<double>::infinity();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::sumAllValues() const
-{
-    if ( m_contourMapProjection ) return m_contourMapProjection->sumAllValues();
-    return 0.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Vec2ui RimContourMapProjection::numberOfVerticesIJ() const
-{
-    if ( m_contourMapGrid ) return m_contourMapGrid->numberOfVerticesIJ();
-    return cvf::Vec2ui( 0, 0 );
+    return m_contourMapProjection.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -357,51 +320,6 @@ cvf::Vec2ui RimContourMapProjection::numberOfVerticesIJ() const
 bool RimContourMapProjection::isColumnResult() const
 {
     return RigContourMapCalculator::isColumnResult( m_resultAggregation() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::valueAtVertex( uint i, uint j ) const
-{
-    if ( m_contourMapProjection ) return m_contourMapProjection->valueAtVertex( i, j );
-    return std::numeric_limits<double>::infinity();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-uint RimContourMapProjection::numberOfCells() const
-{
-    if ( m_contourMapGrid ) return m_contourMapGrid->numberOfCells();
-    return 0u;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-uint RimContourMapProjection::numberOfValidCells() const
-{
-    if ( m_contourMapProjection ) return m_contourMapProjection->numberOfValidCells();
-    return 0u;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RimContourMapProjection::numberOfVertices() const
-{
-    if ( m_contourMapGrid ) return m_contourMapGrid->numberOfVertices();
-    return 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::checkForMapIntersection( const cvf::Vec3d& domainPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint ) const
-{
-    if ( m_contourMapProjection ) return m_contourMapProjection->checkForMapIntersection( domainPoint3d, contourMapPoint, valueAtPoint );
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -444,7 +362,7 @@ bool RimContourMapProjection::gridMappingNeedsUpdating() const
 {
     if ( !m_contourMapProjection ) return true;
 
-    if ( m_contourMapProjection->projected3dGridIndices().size() != numberOfCells() ) return true;
+    if ( m_contourMapProjection->projected3dGridIndices().size() != m_contourMapProjection->numberOfCells() ) return true;
 
     auto cellGridIdxVisibility = m_contourMapProjection->getCellVisibility();
     if ( cellGridIdxVisibility.isNull() ) return true;
@@ -467,8 +385,9 @@ bool RimContourMapProjection::resultsNeedsUpdating( int timeStep ) const
 {
     if ( !m_contourMapProjection ) return true;
 
-    return ( m_contourMapProjection->aggregatedResults().size() != numberOfCells() ||
-             m_contourMapProjection->aggregatedVertexResults().size() != numberOfVertices() || timeStep != m_currentResultTimestep );
+    return ( m_contourMapProjection->aggregatedResults().size() != m_contourMapProjection->numberOfCells() ||
+             m_contourMapProjection->aggregatedVertexResults().size() != m_contourMapProjection->numberOfVertices() ||
+             timeStep != m_currentResultTimestep );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -545,24 +464,6 @@ bool RimContourMapProjection::isMeanResult() const
 bool RimContourMapProjection::isStraightSummationResult() const
 {
     return RigContourMapCalculator::isStraightSummationResult( m_resultAggregation() );
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Vertex positions in local coordinates (add origin2d.x() for UTM x)
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimContourMapProjection::xVertexPositions() const
-{
-    if ( m_contourMapGrid ) return m_contourMapGrid->xVertexPositions();
-    return {};
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Vertex positions in local coordinates (add origin2d.y() for UTM y)
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimContourMapProjection::yVertexPositions() const
-{
-    if ( m_contourMapGrid ) return m_contourMapGrid->yVertexPositions();
-    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

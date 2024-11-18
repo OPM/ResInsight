@@ -103,8 +103,8 @@ void RimEclipseContourMapProjection::updateLegend()
 {
     RimEclipseCellColors* cellColors = view()->cellResult();
 
-    double minVal = minValue();
-    double maxVal = maxValue();
+    double minVal = m_contourMapProjection ? m_contourMapProjection->minValue() : std::numeric_limits<double>::infinity();
+    double maxVal = m_contourMapProjection ? m_contourMapProjection->maxValue() : -std::numeric_limits<double>::infinity();
 
     auto [minValAllTimeSteps, maxValAllTimeSteps] = minmaxValuesAllTimeSteps();
 
