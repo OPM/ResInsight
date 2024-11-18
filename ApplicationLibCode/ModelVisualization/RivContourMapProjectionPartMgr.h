@@ -18,57 +18,96 @@
 
 #pragma once
 
-#include "RimContourMapProjection.h"
+#include "RigContourPolygonsTools.h"
+
+#include "RiaNumberFormat.h"
 
 #include "cafDisplayCoordTransform.h"
+#include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableText.h"
-#include "cvfModelBasicList.h"
 #include "cvfObject.h"
+#include "cvfVector2.h"
 #include "cvfVector4.h"
 
-class RimEclipseContourMapView;
+class RigContourMapGrid;
 
 namespace cvf
 {
 class Effect;
-}
+class ScalarMapper;
+class Color3f;
+class ModelBasicList;
+class Part;
+} // namespace cvf
 
 class RivContourMapProjectionPartMgr : public cvf::Object
 {
 public:
-    RivContourMapProjectionPartMgr( RimContourMapProjection* contourMapProjection, RimGridView* contourMap );
+    RivContourMapProjectionPartMgr( caf::PdmObject* contourMapProjection );
 
-    void createProjectionGeometry();
-    void appendProjectionToModel( cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform ) const;
-    void appendContourLinesToModel( const cvf::Camera*                camera,
-                                    cvf::ModelBasicList*              model,
-                                    const caf::DisplayCoordTransform* displayCoordTransform );
-    void appendPickPointVisToModel( cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform ) const;
+    void appendProjectionToModel( cvf::ModelBasicList*              model,
+                                  const caf::DisplayCoordTransform* displayCoordTransform,
+                                  const std::vector<cvf::Vec4d>&    vertices,
+                                  const RigContourMapGrid&          contourMapGrid,
+                                  const cvf::Color3f&               backgroundColor,
+                                  cvf::ScalarMapper*                scalarMapper ) const;
 
-    cvf::ref<cvf::Vec2fArray> createTextureCoords( const std::vector<double>& values ) const;
+    void appendContourLinesToModel( const cvf::Camera*                                           camera,
+                                    cvf::ModelBasicList*                                         model,
+                                    const caf::DisplayCoordTransform*                            displayCoordTransform,
+                                    const std::vector<RigContourPolygonsTools::ContourPolygons>& contourLinePolygons,
+                                    const RigContourMapGrid&                                     contourMapGrid,
+                                    cvf::ScalarMapper*                                           mapper,
+                                    bool                                                         showContourLines,
+                                    bool                                                         showContourLabels,
+                                    RiaNumberFormat::NumberFormatType                            numberFormat,
+                                    int                                                          precision );
+
+    void appendPickPointVisToModel( cvf::ModelBasicList*              model,
+                                    const caf::DisplayCoordTransform* displayCoordTransform,
+                                    const cvf::Vec2d&                 pickPoint,
+                                    const RigContourMapGrid&          contourMapGrid ) const;
+
+    cvf::ref<cvf::Vec2fArray> createTextureCoords( const std::vector<double>& values, cvf::ScalarMapper* scalarMapper ) const;
 
 private:
     static cvf::ref<cvf::DrawableText> createTextLabel( const cvf::Color3f& textColor, const cvf::Color3f& backgroundColor );
-    cvf::ref<cvf::Part>                createProjectionMapPart( const caf::DisplayCoordTransform* displayCoordTransform ) const;
-    std::vector<std::vector<cvf::ref<cvf::Drawable>>> createContourPolygons( const caf::DisplayCoordTransform* displayCoordTransform,
-                                                                             const std::vector<std::vector<cvf::BoundingBox>>& labelBBoxes ) const;
-    std::vector<cvf::ref<cvf::Drawable>>              createContourLabels( const cvf::Camera*                          camera,
-                                                                           const caf::DisplayCoordTransform*           displayCoordTransform,
-                                                                           std::vector<std::vector<cvf::BoundingBox>>* labelBBoxes ) const;
-    cvf::ref<cvf::DrawableGeo> createPickPointVisDrawable( const caf::DisplayCoordTransform* displayCoordTransform ) const;
-    static bool                lineOverlapsWithPreviousContourLevel( const cvf::Vec3d&                               lineCenter,
-                                                                     const RimContourMapProjection::ContourPolygons& previousLevel,
-                                                                     double                                          tolerance );
+    cvf::ref<cvf::Part>                createProjectionMapPart( const caf::DisplayCoordTransform* displayCoordTransform,
+                                                                const std::vector<cvf::Vec4d>&    vertices,
+                                                                const RigContourMapGrid&          contourMapGrid,
+                                                                const cvf::Color3f&               backgroundColor,
+                                                                cvf::ScalarMapper*                scalarMapper ) const;
+
+    std::vector<std::vector<cvf::ref<cvf::Drawable>>>
+        createContourPolygons( const caf::DisplayCoordTransform*                            displayCoordTransform,
+                               const std::vector<std::vector<cvf::BoundingBox>>&            labelBBoxes,
+                               const std::vector<RigContourPolygonsTools::ContourPolygons>& contourLinePolygons,
+                               cvf::ScalarMapper*                                           scalarMapper,
+                               const RigContourMapGrid&                                     contourMapGrid ) const;
+
+    std::vector<cvf::ref<cvf::Drawable>> createContourLabels( const cvf::Camera*                          camera,
+                                                              const caf::DisplayCoordTransform*           displayCoordTransform,
+                                                              std::vector<std::vector<cvf::BoundingBox>>* labelBBoxes,
+                                                              const std::vector<RigContourPolygonsTools::ContourPolygons>& contourLinePolygons,
+                                                              const RigContourMapGrid&          contourMapGrid,
+                                                              const cvf::ScalarMapper*          scalarMapper,
+                                                              RiaNumberFormat::NumberFormatType numberFormat,
+                                                              int                               precision ) const;
+
+    cvf::ref<cvf::DrawableGeo> createPickPointVisDrawable( const caf::DisplayCoordTransform* displayCoordTransform,
+                                                           const cvf::Vec2d&                 pickPoint,
+                                                           const RigContourMapGrid&          contourMapGrid ) const;
+
+    static bool lineOverlapsWithPreviousContourLevel( const cvf::Vec3d&                               lineCenter,
+                                                      const RigContourPolygonsTools::ContourPolygons& previousLevel,
+                                                      double                                          tolerance );
 
 private:
-    caf::PdmPointer<RimContourMapProjection> m_contourMapProjection;
-    caf::PdmPointer<RimGridView>             m_parentContourMap;
+    caf::PdmPointer<caf::PdmObject> m_pdmObject;
 
-    std::vector<RimContourMapProjection::ContourPolygons> m_contourLinePolygons;
-    std::vector<cvf::Vec4d>                               m_contourMapTriangles;
-    std::vector<std::vector<cvf::BoundingBox>>            m_labelBoundingBoxes;
-    cvf::ref<cvf::Effect>                                 m_labelEffect;
+    std::vector<std::vector<cvf::BoundingBox>> m_labelBoundingBoxes;
+    cvf::ref<cvf::Effect>                      m_labelEffect;
 };

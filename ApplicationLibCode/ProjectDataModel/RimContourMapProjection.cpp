@@ -191,37 +191,6 @@ void RimContourMapProjection::generateGeometryIfNecessary()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RimContourMapProjection::generatePickPointPolygon()
-{
-    std::vector<cvf::Vec3d> points;
-
-    if ( !m_pickPoint.isUndefined() )
-    {
-#ifndef NDEBUG
-        cvf::Vec2d  cellDiagonal( sampleSpacing() * 0.5, sampleSpacing() * 0.5 );
-        cvf::Vec2ui pickedCell = m_contourMapGrid->ijFromLocalPos( m_pickPoint );
-        cvf::Vec2d  cellCenter = m_contourMapGrid->cellCenterPosition( pickedCell.x(), pickedCell.y() );
-        cvf::Vec2d  cellCorner = cellCenter - cellDiagonal;
-        points.push_back( cvf::Vec3d( cellCorner, 0.0 ) );
-        points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( sampleSpacing(), 0.0 ), 0.0 ) );
-        points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( sampleSpacing(), 0.0 ), 0.0 ) );
-        points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( sampleSpacing(), sampleSpacing() ), 0.0 ) );
-        points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( sampleSpacing(), sampleSpacing() ), 0.0 ) );
-        points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( 0.0, sampleSpacing() ), 0.0 ) );
-        points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( 0.0, sampleSpacing() ), 0.0 ) );
-        points.push_back( cvf::Vec3d( cellCorner, 0.0 ) );
-#endif
-        points.push_back( cvf::Vec3d( m_pickPoint - cvf::Vec2d( 0.5 * sampleSpacing(), 0.0 ), 0.0 ) );
-        points.push_back( cvf::Vec3d( m_pickPoint + cvf::Vec2d( 0.5 * sampleSpacing(), 0.0 ), 0.0 ) );
-        points.push_back( cvf::Vec3d( m_pickPoint - cvf::Vec2d( 0.0, 0.5 * sampleSpacing() ), 0.0 ) );
-        points.push_back( cvf::Vec3d( m_pickPoint + cvf::Vec2d( 0.0, 0.5 * sampleSpacing() ), 0.0 ) );
-    }
-    return points;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::clearGeometry()
 {
     m_contourPolygons.clear();
@@ -317,6 +286,14 @@ const RigContourMapProjection* RimContourMapProjection::mapProjection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RigContourMapGrid* RimContourMapProjection::mapGrid() const
+{
+    return m_contourMapGrid.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimContourMapProjection::isColumnResult() const
 {
     return RigContourMapCalculator::isColumnResult( m_resultAggregation() );
@@ -333,9 +310,17 @@ void RimContourMapProjection::setPickPoint( cvf::Vec2d globalPickPoint )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Vec2d RimContourMapProjection::pickPoint() const
+{
+    return m_pickPoint;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimContourMapProjection::origin3d() const
 {
-    return m_contourMapGrid->expandedBoundingBox().min();
+    return m_contourMapGrid->origin3d();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -23,8 +23,6 @@
 #include "cvfBoundingBox.h"
 
 class RigContourMapGrid;
-class RimGridView;
-class RimRegularLegendConfig;
 
 //==================================================================================================
 ///
@@ -50,4 +48,6 @@ public:
     static void            clipContourPolygons( ContourPolygons& contourPolygons, const ContourPolygons& clipBy );
     static double          sumPolygonArea( const ContourPolygons& contourPolygons );
     static bool lineOverlapsWithContourPolygons( const cvf::Vec3d& lineCenter, const ContourPolygons& contourPolygons, double tolerance );
+
+    static std::vector<cvf::Vec3d> generatePickPointPolygon( const cvf::Vec2d& pickPoint, const RigContourMapGrid& contourMapGrid );
 };
