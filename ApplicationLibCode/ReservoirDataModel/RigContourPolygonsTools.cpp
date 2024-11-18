@@ -19,12 +19,11 @@
 #include "RigContourPolygonsTools.h"
 
 #include "RigCellGeometryTools.h"
+#include "RigContourMapGrid.h"
 
 #include "cafContourLines.h"
 
 #include "cvfGeometryTools.h"
-
-#include <algorithm>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -185,4 +184,36 @@ bool RigContourPolygonsTools::lineOverlapsWithContourPolygons( const cvf::Vec3d&
         }
     }
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RigContourPolygonsTools::generatePickPointPolygon( const cvf::Vec2d& pickPoint, const RigContourMapGrid& contourMapGrid )
+{
+    std::vector<cvf::Vec3d> points;
+
+    if ( !pickPoint.isUndefined() )
+    {
+        double sampleSpacing = contourMapGrid.sampleSpacing();
+#ifndef NDEBUG
+        cvf::Vec2d  cellDiagonal( sampleSpacing * 0.5, sampleSpacing * 0.5 );
+        cvf::Vec2ui pickedCell = contourMapGrid.ijFromLocalPos( pickPoint );
+        cvf::Vec2d  cellCenter = contourMapGrid.cellCenterPosition( pickedCell.x(), pickedCell.y() );
+        cvf::Vec2d  cellCorner = cellCenter - cellDiagonal;
+        points.push_back( cvf::Vec3d( cellCorner, 0.0 ) );
+        points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( sampleSpacing, 0.0 ), 0.0 ) );
+        points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( sampleSpacing, 0.0 ), 0.0 ) );
+        points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( sampleSpacing, sampleSpacing ), 0.0 ) );
+        points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( sampleSpacing, sampleSpacing ), 0.0 ) );
+        points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( 0.0, sampleSpacing ), 0.0 ) );
+        points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( 0.0, sampleSpacing ), 0.0 ) );
+        points.push_back( cvf::Vec3d( cellCorner, 0.0 ) );
+#endif
+        points.push_back( cvf::Vec3d( pickPoint - cvf::Vec2d( 0.5 * sampleSpacing, 0.0 ), 0.0 ) );
+        points.push_back( cvf::Vec3d( pickPoint + cvf::Vec2d( 0.5 * sampleSpacing, 0.0 ), 0.0 ) );
+        points.push_back( cvf::Vec3d( pickPoint - cvf::Vec2d( 0.0, 0.5 * sampleSpacing ), 0.0 ) );
+        points.push_back( cvf::Vec3d( pickPoint + cvf::Vec2d( 0.0, 0.5 * sampleSpacing ), 0.0 ) );
+    }
+    return points;
 }

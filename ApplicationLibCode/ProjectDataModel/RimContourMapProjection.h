@@ -53,8 +53,6 @@ public:
     void generateGeometryIfNecessary();
     void clearGeometry();
 
-    std::vector<cvf::Vec3d> generatePickPointPolygon();
-
     const std::vector<ContourPolygons>& contourPolygons() const;
     const std::vector<cvf::Vec4d>&      trianglesWithVertexValues();
 
@@ -75,6 +73,8 @@ public:
     bool isStraightSummationResult() const;
 
     void       setPickPoint( cvf::Vec2d globalPickPoint );
+    cvf::Vec2d pickPoint() const;
+
     cvf::Vec3d origin3d() const;
 
     // Pure-virtual public methods which should be overridden by Eclipse and Geo-mechanical contour map implementations
@@ -90,6 +90,7 @@ public:
     virtual cvf::ref<cvf::UByteArray> getCellVisibility() const;
 
     const RigContourMapProjection* mapProjection() const;
+    const RigContourMapGrid*       mapGrid() const;
 
 protected:
     // Protected virtual methods to be overridden by Eclipse and Geo-mechanical contour map implementations
