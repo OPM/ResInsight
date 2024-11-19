@@ -46,6 +46,7 @@
 #include "opm/io/eclipse/ERst.hpp"
 #include "opm/output/eclipse/VectorItems/intehead.hpp"
 
+#include <QDebug>
 #include <QStringList>
 
 using namespace Opm;
@@ -763,12 +764,31 @@ std::vector<RigEclipseTimeStepInfo> RifReaderOpmCommon::createFilteredTimeStepIn
 
     auto timeStepsOnFile = readTimeSteps();
 
+    if ( timeStepsOnFile.size() == 0 ) return timeStepInfos;
+
+    auto  startDayOffset = timeStepsOnFile[0].simulationTimeFromStart;
+    QDate startDate( timeStepsOnFile[0].year, timeStepsOnFile[0].month, timeStepsOnFile[0].day );
+
+    qDebug() << "opmcommon reader: ---------------";
+
     for ( size_t i = 0; i < timeStepsOnFile.size(); i++ )
     {
         if ( isTimeStepIncludedByFilter( i ) )
         {
-            QDate date( timeStepsOnFile[i].year, timeStepsOnFile[i].month, timeStepsOnFile[i].day );
-            auto  datetime = RiaQDateTimeTools::createDateTime( date, Qt::TimeSpec::UTC );
+            auto datetime = RiaQDateTimeTools::createDateTime( startDate, Qt::TimeSpec::UTC );
+
+            double    dayDoubleValue   = timeStepsOnFile[i].simulationTimeFromStart;
+            int       dayValue         = cvf::Math::floor( dayDoubleValue );
+            const int adjustedDayValue = dayValue - startDayOffset;
+            datetime                   = datetime.addDays( adjustedDayValue );
+
+            double dayFraction  = dayDoubleValue - dayValue;
+            double milliseconds = dayFraction * 24.0 * 60.0 * 60.0 * 1000.0;
+
+            datetime = datetime.addMSecs( milliseconds );
+
+            qDebug() << i << " " << datetime.toString() << " " << startDate << " " << dayDoubleValue << " " << dayValue << " "
+                     << dayFraction << " " << milliseconds;
 
             timeStepInfos.push_back(
                 RigEclipseTimeStepInfo( datetime, timeStepsOnFile[i].sequenceNumber, timeStepsOnFile[i].simulationTimeFromStart ) );
@@ -785,7 +805,6 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
 {
     setupInitAndRestartAccess();
 
-    std::vector<QDateTime>              timeSteps;
     std::vector<RigEclipseTimeStepInfo> filteredTimeStepInfos;
 
     RigEclipseTimeStepInfo firstTimeStepInfo{ QDateTime(), 0, 0.0 };

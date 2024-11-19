@@ -233,6 +233,8 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
         if ( uniqueDays.size() == dayValues.size() ) useStartOfSimulationDate = false;
     }
 
+    qDebug() << "Resdata reader: ---------------";
+
     std::set<QDateTime> existingTimesteps;
     for ( int i = 0; i < numINTEHEAD; i++ )
     {
@@ -253,7 +255,8 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
         int year  = 0;
         getDayMonthYear( kwINTEHEAD, &day, &month, &year );
 
-        QDateTime reportDateTime = RiaQDateTimeTools::createUtcDateTime( QDate( year, month, day ) );
+        auto      date           = QDate( year, month, day );
+        QDateTime reportDateTime = RiaQDateTimeTools::createUtcDateTime( date );
         CVF_ASSERT( reportDateTime.isValid() );
 
         double dayDoubleValue = dayValues[i];
@@ -273,6 +276,9 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
 
         if ( existingTimesteps.insert( reportDateTime ).second )
         {
+            qDebug() << i << " " << reportDateTime.toString() << " " << date << " " << dayDoubleValue << " " << dayValue << " "
+                     << dayFraction << " " << milliseconds;
+
             timeSteps->push_back( reportDateTime );
             daysSinceSimulationStart->push_back( dayDoubleValue );
         }
