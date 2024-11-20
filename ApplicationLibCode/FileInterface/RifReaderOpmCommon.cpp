@@ -791,7 +791,7 @@ QDateTime RifReaderOpmCommon::dateTimeFromTimeStepOnFile( RifReaderOpmCommon::Ti
     if ( timeOnFile.simulationTimeFromStart == 0 )
     {
         QDate date( timeOnFile.year, timeOnFile.month, timeOnFile.day );
-        dateTime = RiaQDateTimeTools::createDateTime( startDate, Qt::TimeSpec::UTC );
+        dateTime = RiaQDateTimeTools::createDateTime( date, Qt::TimeSpec::UTC );
     }
     else
     {
