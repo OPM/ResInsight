@@ -46,7 +46,6 @@
 #include "opm/io/eclipse/ERst.hpp"
 #include "opm/output/eclipse/VectorItems/intehead.hpp"
 
-#include <QDebug>
 #include <QStringList>
 
 using namespace Opm;
@@ -769,33 +768,47 @@ std::vector<RigEclipseTimeStepInfo> RifReaderOpmCommon::createFilteredTimeStepIn
     auto  startDayOffset = timeStepsOnFile[0].simulationTimeFromStart;
     QDate startDate( timeStepsOnFile[0].year, timeStepsOnFile[0].month, timeStepsOnFile[0].day );
 
-    qDebug() << "opmcommon reader: ---------------";
-
     for ( size_t i = 0; i < timeStepsOnFile.size(); i++ )
     {
         if ( isTimeStepIncludedByFilter( i ) )
         {
-            auto datetime = RiaQDateTimeTools::createDateTime( startDate, Qt::TimeSpec::UTC );
-
-            double    dayDoubleValue   = timeStepsOnFile[i].simulationTimeFromStart;
-            int       dayValue         = cvf::Math::floor( dayDoubleValue );
-            const int adjustedDayValue = dayValue - startDayOffset;
-            datetime                   = datetime.addDays( adjustedDayValue );
-
-            double dayFraction  = dayDoubleValue - dayValue;
-            double milliseconds = dayFraction * 24.0 * 60.0 * 60.0 * 1000.0;
-
-            datetime = datetime.addMSecs( milliseconds );
-
-            qDebug() << i << " " << datetime.toString() << " " << startDate << " " << dayDoubleValue << " " << dayValue << " "
-                     << dayFraction << " " << milliseconds;
+            auto dateTime = dateTimeFromTimeStepOnFile( timeStepsOnFile[i], startDate, startDayOffset );
 
             timeStepInfos.push_back(
-                RigEclipseTimeStepInfo( datetime, timeStepsOnFile[i].sequenceNumber, timeStepsOnFile[i].simulationTimeFromStart ) );
+                RigEclipseTimeStepInfo( dateTime, timeStepsOnFile[i].sequenceNumber, timeStepsOnFile[i].simulationTimeFromStart ) );
         }
     }
 
     return timeStepInfos;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QDateTime RifReaderOpmCommon::dateTimeFromTimeStepOnFile( RifReaderOpmCommon::TimeDataFile timeOnFile, QDate startDate, double startDayOffset )
+{
+    QDateTime dateTime;
+    if ( timeOnFile.simulationTimeFromStart == 0 )
+    {
+        QDate date( timeOnFile.year, timeOnFile.month, timeOnFile.day );
+        dateTime = RiaQDateTimeTools::createDateTime( startDate, Qt::TimeSpec::UTC );
+    }
+    else
+    {
+        dateTime = RiaQDateTimeTools::createDateTime( startDate, Qt::TimeSpec::UTC );
+
+        double    dayDoubleValue   = timeOnFile.simulationTimeFromStart;
+        int       dayValue         = cvf::Math::floor( dayDoubleValue );
+        const int adjustedDayValue = dayValue - startDayOffset;
+        dateTime                   = dateTime.addDays( adjustedDayValue );
+
+        double dayFraction  = dayDoubleValue - dayValue;
+        double milliseconds = dayFraction * 24.0 * 60.0 * 60.0 * 1000.0;
+
+        dateTime = dateTime.addMSecs( milliseconds );
+    }
+
+    return dateTime;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1003,14 +1016,15 @@ std::vector<QDateTime> RifReaderOpmCommon::timeStepsOnFile( QString gridFileName
 
     if ( m_restartFile == nullptr ) return {};
 
-    auto timeStepsFromFile = readTimeSteps();
+    auto  timeStepsOnFile = readTimeSteps();
+    auto  startDayOffset  = timeStepsOnFile[0].simulationTimeFromStart;
+    QDate startDate( timeStepsOnFile[0].year, timeStepsOnFile[0].month, timeStepsOnFile[0].day );
 
     std::vector<QDateTime> dateTimes;
 
-    for ( const auto& timeStep : timeStepsFromFile )
+    for ( const auto& timeStep : timeStepsOnFile )
     {
-        QDate     date( timeStep.year, timeStep.month, timeStep.day );
-        QDateTime dateTime = RiaQDateTimeTools::createDateTime( date, Qt::UTC );
+        auto dateTime = dateTimeFromTimeStepOnFile( timeStep, startDate, startDayOffset );
         dateTimes.push_back( dateTime );
     }
 
