@@ -18,6 +18,7 @@
 
 #include "RimWellPathFractureCollection.h"
 
+#include "Rim3dView.h"
 #include "RimProject.h"
 #include "RimWellPathFracture.h"
 
@@ -77,6 +78,18 @@ void RimWellPathFractureCollection::removeFracture( RimWellPathFracture* fractur
 void RimWellPathFractureCollection::deleteFractures()
 {
     m_fractures.deleteChildren();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathFractureCollection::updateAfterFractureIsAdded()
+{
+    // When a fracture is created, update Project Tree for a view to make sure the Fractures object becomes visible
+    for ( auto view : RimProject::current()->allViews() )
+    {
+        view->updateAllRequiredEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
