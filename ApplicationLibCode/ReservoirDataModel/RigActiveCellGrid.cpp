@@ -112,14 +112,16 @@ size_t RigActiveCellGrid::totalActiveCellCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RigActiveCellGrid::activeReservoirCellIndices() const
+std::vector<size_t> RigActiveCellGrid::activeLocalCellIndices() const
 {
     std::vector<size_t> indices;
     indices.reserve( m_nativeCells.size() );
+    const auto maxCellIdx = cellCount();
 
     for ( const auto& [index, cell] : m_nativeCells )
     {
-        indices.emplace_back( index );
+        // only add cells indexes that belongs to our grid, not subgrids
+        if ( index < maxCellIdx ) indices.emplace_back( index );
     }
 
     return indices;

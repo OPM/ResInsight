@@ -604,11 +604,11 @@ void RivReservoirViewPartMgr::computeNativeVisibility( cvf::UByteArray*         
 
     if ( auto activeGrid = dynamic_cast<const RigActiveCellGrid*>( grid ) )
     {
-        auto reservoirIndices = activeGrid->activeReservoirCellIndices();
+        auto cellIndices = activeGrid->activeLocalCellIndices();
 #pragma omp parallel for
-        for ( int i = 0; i < static_cast<int>( reservoirIndices.size() ); i++ )
+        for ( int i = 0; i < static_cast<int>( cellIndices.size() ); i++ )
         {
-            size_t cellIndex = reservoirIndices[i];
+            size_t cellIndex = cellIndices[i];
 
             if ( ( !activeCellsIsVisible ) || ( *cellIsInWellStatuses )[cellIndex] )
             {
