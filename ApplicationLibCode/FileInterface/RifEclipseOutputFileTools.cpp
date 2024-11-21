@@ -45,7 +45,6 @@
 #include "cvfMath.h"
 
 #include <QCryptographicHash>
-#include <QDebug>
 #include <QFileInfo>
 
 #include <algorithm>

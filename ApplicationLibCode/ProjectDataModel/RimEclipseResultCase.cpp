@@ -142,11 +142,6 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
     // dialog triggers a redraw with incomplete geometry data and causes a crash
     if ( m_gridAndWellDataIsReadFromFile ) return true;
 
-    caf::ProgressInfo progInfo( 50, "Reading Eclipse Grid File" );
-
-    progInfo.setProgressDescription( "Open Grid File" );
-    progInfo.setNextProgressIncrement( 48 );
-
     cvf::ref<RifReaderInterface> readerInterface;
 
     if ( gridFileName().contains( "Result Mock Debug Model" ) )
@@ -213,6 +208,11 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
             readerInterface->setTimeStepFilter( m_timeStepFilter->filteredTimeSteps() );
         }
 
+        // delay showing progress until we get here, to not have progress show up on top of time step selection
+        caf::ProgressInfo progInfo( 50, "Reading Eclipse Grid File" );
+        progInfo.setProgressDescription( "Open Grid File" );
+        progInfo.setNextProgressIncrement( 48 );
+
         readerInterface->setFilenamesWithFaults( filesContainingFaults() );
         readerInterface->setReaderSettings( m_readerSettings );
 
@@ -230,41 +230,43 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
     results( RiaDefines::PorosityModelType::MATRIX_MODEL )->setReaderInterface( readerInterface.p() );
     results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->setReaderInterface( readerInterface.p() );
 
-    progInfo.incrementProgress();
-
-    m_flowDagSolverInterface = new RigFlowDiagSolverInterface( this );
-
-    CVF_ASSERT( eclipseCaseData() );
-    CVF_ASSERT( readerInterface.notNull() );
-
-    progInfo.setProgressDescription( "Computing Case Cache" );
-    computeCachedData();
-    loadAndSynchronizeInputProperties( false );
-
-    m_gridAndWellDataIsReadFromFile = true;
-    m_activeCellInfoIsReadFromFile  = true;
-
-    ensureRftDataIsImported();
-
-    if ( m_flowDiagSolutions.empty() )
     {
-        m_flowDiagSolutions.push_back( new RimFlowDiagSolution() );
+        caf::ProgressInfo progInfo( 50, "Reading Eclipse Grid File", false /*do not delay*/ );
+        progInfo.setNextProgressIncrement( 49 );
+
+        m_flowDagSolverInterface = new RigFlowDiagSolverInterface( this );
+
+        CVF_ASSERT( eclipseCaseData() );
+        CVF_ASSERT( readerInterface.notNull() );
+
+        progInfo.setProgressDescription( "Computing Case Cache" );
+        computeCachedData();
+        loadAndSynchronizeInputProperties( false );
+
+        m_gridAndWellDataIsReadFromFile = true;
+        m_activeCellInfoIsReadFromFile  = true;
+
+        ensureRftDataIsImported();
+
+        if ( m_flowDiagSolutions.empty() )
+        {
+            m_flowDiagSolutions.push_back( new RimFlowDiagSolution() );
+        }
+
+        if ( !m_sourSimFileName().path().isEmpty() )
+        {
+            auto* outReader = dynamic_cast<RifReaderEclipseOutput*>( readerInterface.p() );
+            outReader->setHdf5FileName( m_sourSimFileName().path() );
+        }
+
+        if ( RiaPreferencesGrid::current()->autoComputeDepthRelatedProperties() )
+        {
+            results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeDepthRelatedResults();
+            results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->computeDepthRelatedResults();
+        }
+
+        results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeCellVolumes();
     }
-
-    if ( !m_sourSimFileName().path().isEmpty() )
-    {
-        auto* outReader = dynamic_cast<RifReaderEclipseOutput*>( readerInterface.p() );
-        outReader->setHdf5FileName( m_sourSimFileName().path() );
-    }
-
-    if ( RiaPreferencesGrid::current()->autoComputeDepthRelatedProperties() )
-    {
-        results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeDepthRelatedResults();
-        results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->computeDepthRelatedResults();
-    }
-
-    results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeCellVolumes();
-
     return true;
 }
 
