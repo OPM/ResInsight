@@ -808,6 +808,8 @@ void RimWellPathCollection::sortWellsByName()
 //--------------------------------------------------------------------------------------------------
 caf::AppEnum<RiaDefines::EclipseUnitSystem> RimWellPathCollection::findUnitSystemForWellPath( const RimWellPath* wellPath )
 {
+    if ( !wellPath || !wellPath->wellPathGeometry() ) return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+
     RimProject* project = RimProject::current();
     if ( project->activeOilField()->analysisModels->cases.empty() )
     {
@@ -815,8 +817,13 @@ caf::AppEnum<RiaDefines::EclipseUnitSystem> RimWellPathCollection::findUnitSyste
     }
 
     const RigEclipseCaseData* eclipseCaseData = project->activeOilField()->analysisModels->cases()[0]->eclipseCaseData();
-    cvf::BoundingBox          caseBoundingBox = eclipseCaseData->mainGrid()->boundingBox();
-    cvf::BoundingBox          wellPathBoundingBox;
+    if ( !eclipseCaseData || !eclipseCaseData->mainGrid() )
+    {
+        return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+    }
+
+    cvf::BoundingBox caseBoundingBox = eclipseCaseData->mainGrid()->boundingBox();
+    cvf::BoundingBox wellPathBoundingBox;
     for ( const auto& wellPathPoint : wellPath->wellPathGeometry()->wellPathPoints() )
     {
         wellPathBoundingBox.add( wellPathPoint );
