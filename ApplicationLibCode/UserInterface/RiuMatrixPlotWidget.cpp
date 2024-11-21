@@ -458,10 +458,9 @@ std::map<size_t, QString> RiuMatrixPlotWidget::createIndexLabelMap( const std::v
     }
 
     std::map<size_t, QString> indexLabelMap;
-    for ( size_t i = 0; i < std::min( labels.size(), size_t( maxLabelCount - 1 ) ); ++i )
+    for ( size_t i = 0; i < labels.size(); i += increment )
     {
-        auto index = i * increment;
-        indexLabelMap.emplace( index, labels[index] );
+        indexLabelMap.emplace( i, labels[i] );
     }
 
     indexLabelMap.emplace( labels.size() - 1, labels.back() );

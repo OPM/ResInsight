@@ -72,6 +72,7 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
@@ -94,7 +95,6 @@ private:
 
     QString createTableName() const;
 
-private:
     std::pair<double, double> createLegendMinMaxValues( const double maxTableValue ) const;
     QString                   dateFormatString() const;
 
@@ -106,6 +106,7 @@ private:
     QString                            getCategoryNameFromAddress( const RifEclipseSummaryAddress& address ) const;
 
     std::vector<RimSummaryCase*> getToplevelSummaryCases() const;
+    void                         initializeDateRange();
 
 private:
     // Matrix plot for visualizing table data
@@ -132,6 +133,10 @@ private:
 
     caf::PdmField<RimRegularLegendConfig::MappingEnum> m_mappingType;
     caf::PdmField<caf::AppEnum<RangeType>>             m_rangeType;
+
+    caf::PdmField<bool>      m_filterTimeSteps;
+    caf::PdmField<QDateTime> m_startDate;
+    caf::PdmField<QDateTime> m_endDate;
 
 private:
     using VectorData = RimSummaryTableTools::VectorData;
