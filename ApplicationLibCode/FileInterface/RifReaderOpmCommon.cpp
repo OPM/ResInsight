@@ -1016,8 +1016,10 @@ std::vector<QDateTime> RifReaderOpmCommon::timeStepsOnFile( QString gridFileName
 
     if ( m_restartFile == nullptr ) return {};
 
-    auto  timeStepsOnFile = readTimeSteps();
-    auto  startDayOffset  = timeStepsOnFile[0].simulationTimeFromStart;
+    auto timeStepsOnFile = readTimeSteps();
+    if ( timeStepsOnFile.size() == 0 ) return {};
+
+    auto  startDayOffset = timeStepsOnFile[0].simulationTimeFromStart;
     QDate startDate( timeStepsOnFile[0].year, timeStepsOnFile[0].month, timeStepsOnFile[0].day );
 
     std::vector<QDateTime> dateTimes;
