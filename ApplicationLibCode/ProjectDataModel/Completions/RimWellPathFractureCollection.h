@@ -46,6 +46,8 @@ public:
     void removeFracture( RimWellPathFracture* fracture );
     void deleteFractures();
 
+    static void updateAfterFractureIsAdded();
+
     std::vector<RimWellPathFracture*> allFractures() const;
     std::vector<RimWellPathFracture*> activeFractures() const;
 

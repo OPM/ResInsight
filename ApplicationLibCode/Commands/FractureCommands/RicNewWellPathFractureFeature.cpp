@@ -99,6 +99,8 @@ RimWellPathFracture* RicNewWellPathFractureFeature::addFracture( gsl::not_null<R
         project->reloadCompletionTypeResultsInAllViews();
     }
 
+    RimWellPathFractureCollection::updateAfterFractureIsAdded();
+
     // Update well path, as the completion collections are hidden if empty. This update will make sure that the folder
     // and completion is visible
     wellPath->updateAllRequiredEditors();

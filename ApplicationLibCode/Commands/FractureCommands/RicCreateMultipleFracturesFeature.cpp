@@ -150,6 +150,8 @@ void RicCreateMultipleFracturesFeature::slotAppendFractures()
         coll->updateConnectedEditors();
     }
 
+    RimWellPathFractureCollection::updateAfterFractureIsAdded();
+
     proj->reloadCompletionTypeResultsInAllViews();
 }
 
