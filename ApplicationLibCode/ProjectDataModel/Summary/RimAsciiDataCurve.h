@@ -53,20 +53,17 @@ public:
 
     void setTimeSteps( const std::vector<QDateTime>& timeSteps );
     void setValues( const std::vector<double>& values );
-    void setTitle( const QString& title ) override;
-
-protected:
-    // RimPlotCurve overrides
-
-    QString createCurveAutoName() override;
-    void    updateZoomInParentPlot() override;
-    void    onLoadDataAndUpdate( bool updateParentPlot ) override;
-    void    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
+    void updateZoomInParentPlot() override;
+    void onLoadDataAndUpdate( bool updateParentPlot ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void initAfterRead() override;
+
     bool curveData( std::vector<QDateTime>* timeSteps, std::vector<double>* values ) const;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
     // Fields
@@ -74,5 +71,5 @@ private:
 
     caf::PdmField<std::vector<QDateTime>> m_timeSteps;
     caf::PdmField<std::vector<double>>    m_values;
-    caf::PdmField<QString>                m_title;
+    caf::PdmField<QString>                m_title_OBSOLETE;
 };

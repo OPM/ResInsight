@@ -121,7 +121,7 @@ public:
     virtual bool xValueRange( double* minimumValue, double* maximumValue ) const;
     virtual bool yValueRange( double* minimumValue, double* maximumValue ) const;
 
-    virtual void setTitle( const QString& title );
+    void setTitle( const QString& title );
 
     int                        dataSize() const;
     std::pair<double, double>  sample( int index ) const;

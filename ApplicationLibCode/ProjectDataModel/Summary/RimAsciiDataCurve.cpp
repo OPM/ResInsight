@@ -19,6 +19,7 @@
 #include "RimAsciiDataCurve.h"
 
 #include "RiaDefines.h"
+
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -48,7 +49,7 @@ RimAsciiDataCurve::RimAsciiDataCurve()
     CAF_PDM_InitFieldNoDefault( &m_values, "Values", "Values" );
     m_values.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_title, "Title", "Title" );
+    CAF_PDM_InitFieldNoDefault( &m_title_OBSOLETE, "Title", "Title" );
 
     setSymbolSkipDistance( 10.0f );
     setLineThickness( 2 );
@@ -101,14 +102,6 @@ void RimAsciiDataCurve::setYAxis( RiaDefines::PlotAxis plotAxis )
 RiuPlotAxis RimAsciiDataCurve::yAxis() const
 {
     return RiuPlotAxis( m_plotAxis() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimAsciiDataCurve::createCurveAutoName()
-{
-    return m_title();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,6 +188,23 @@ void RimAsciiDataCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimAsciiDataCurve::initAfterRead()
+{
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2024.09.2" ) &&
+         ( m_namingMethod() == RiaDefines::ObjectNamingMethod::AUTO ) )
+    {
+        setCustomName( m_title_OBSOLETE );
+    }
+    else
+    {
+        // Use default curve name defined in base class. CUSTOM is the only valid naming method for this class, see calculateValueOptions()
+        setCustomName( createCurveAutoName() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimAsciiDataCurve::updateQwtPlotAxis()
 {
     if ( m_plotCurve ) updateYAxisInPlot( yAxis() );
@@ -214,14 +224,6 @@ void RimAsciiDataCurve::setTimeSteps( const std::vector<QDateTime>& timeSteps )
 void RimAsciiDataCurve::setValues( const std::vector<double>& values )
 {
     m_values = values;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAsciiDataCurve::setTitle( const QString& title )
-{
-    m_title = title;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -255,4 +257,18 @@ void RimAsciiDataCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     {
         plot->updateAxes();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimAsciiDataCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+    if ( fieldNeedingOptions == &m_namingMethod )
+    {
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText( RiaDefines::ObjectNamingMethod::CUSTOM ),
+                                                   RiaDefines::ObjectNamingMethod::CUSTOM ) );
+    }
+    return options;
 }
