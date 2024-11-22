@@ -180,11 +180,11 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
         curve->setValues( parser.columnInfo( i )->values );
         if ( curvePrefix.isEmpty() )
         {
-            curve->setTitle( QString::fromStdString( col->columnName() ) );
+            curve->setCustomName( QString::fromStdString( col->columnName() ) );
         }
         else
         {
-            curve->setTitle( QString( "%1: %2" ).arg( curvePrefix ).arg( QString::fromStdString( col->columnName() ) ) );
+            curve->setCustomName( QString( "%1: %2" ).arg( curvePrefix ).arg( QString::fromStdString( col->columnName() ) ) );
         }
         // Appearance
         curve->setSymbol( parseOptions.curveSymbol );
