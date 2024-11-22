@@ -65,6 +65,7 @@ def test_add_well_path_targets(rips_instance, initialize_test):
     assert target.azimuth == 0.0
     assert target.inclination == 25.6
 
+
 def test_add_well_path_completions(rips_instance, initialize_test):
     well_path_coll = rips_instance.project.descendants(rips.WellPathCollection)[0]
 
@@ -108,7 +109,3 @@ def test_add_well_path_completions(rips_instance, initialize_test):
     assert msw_settings_updated.reference_md_type == "UserDefined"
     assert msw_settings_updated.roughness_factor == 1.3
     assert msw_settings_updated.user_defined_reference_md == 1234.56
-
-
-
-
