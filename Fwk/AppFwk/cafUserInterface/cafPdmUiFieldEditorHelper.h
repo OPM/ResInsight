@@ -37,11 +37,13 @@
 #pragma once
 
 class QString;
+class QWidget;
 
 namespace caf
 {
 class PdmUiFieldEditorHandle;
 class PdmUiFieldHandle;
+class QShortenedLabel;
 
 //==================================================================================================
 ///
@@ -50,6 +52,7 @@ class PdmUiFieldEditorHelper
 {
 public:
     static PdmUiFieldEditorHandle* createFieldEditorForField( PdmUiFieldHandle* fieldHandle, const QString& uiConfigName );
+    static QShortenedLabel* createLabel( QWidget* parent, caf::PdmUiFieldEditorHandle* uiFieldEditorHandle );
 };
 
 } // end namespace caf

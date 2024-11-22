@@ -41,6 +41,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiFieldEditorHelper.h"
 #include "cafPdmUniqueIdValidator.h"
 #include "cafSelectionManager.h"
 #include "cafUiAppearanceSettings.h"
@@ -120,7 +121,8 @@ QWidget* PdmUiLineEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiLineEditor::createLabelWidget( QWidget* parent )
 {
-    m_label = new QShortenedLabel( parent );
+    m_label = PdmUiFieldEditorHelper::createLabel( parent, this );
+
     return m_label;
 }
 

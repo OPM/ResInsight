@@ -36,6 +36,8 @@
 #include "cafQShortenedLabel.h"
 
 #include <QApplication>
+#include <QClipboard>
+#include <QMenu>
 #include <QResizeEvent>
 
 using namespace caf;
@@ -140,6 +142,35 @@ void QShortenedLabel::resizeEvent( QResizeEvent* event )
     QSize paintSize = event->size();
     resizeText( paintSize );
     QLabel::resizeEvent( event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void QShortenedLabel::configureContextMenu( const QString& pythonParameterName )
+{
+    setContextMenuPolicy( Qt::CustomContextMenu );
+
+    auto createContextMenu = [pythonParameterName]( const QPoint& pos )
+    {
+        QMenu    menu;
+        QAction* action = menu.addAction( "Copy Python Parameter Name" );
+        action->setIcon( QIcon( ":/caf/duplicate.svg" ) );
+
+        connect( action,
+                 &QAction::triggered,
+                 [pythonParameterName]()
+                 {
+                     if ( QClipboard* clipboard = QApplication::clipboard() )
+                     {
+                         clipboard->setText( pythonParameterName );
+                     }
+                 } );
+
+        menu.exec( QCursor::pos() );
+    };
+
+    connect( this, &QLabel::customContextMenuRequested, this, createContextMenu );
 }
 
 //--------------------------------------------------------------------------------------------------

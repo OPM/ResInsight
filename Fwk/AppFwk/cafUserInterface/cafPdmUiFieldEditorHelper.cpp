@@ -38,6 +38,8 @@
 
 #include "cafClassTypeName.h"
 
+#include "cafPdmAbstractFieldScriptingCapability.h"
+#include "cafPdmPythonGenerator.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiFieldHandle.h"
@@ -94,4 +96,29 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFieldEditorHelper::createFieldEditorForFi
     }
 
     return fieldEditor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::QShortenedLabel* caf::PdmUiFieldEditorHelper::createLabel( QWidget*                     parent,
+                                                                caf::PdmUiFieldEditorHandle* uiFieldEditorHandle )
+{
+    caf::QShortenedLabel* label = new caf::QShortenedLabel( parent );
+    if ( !uiFieldEditorHandle || !uiFieldEditorHandle->uiField() ) return label;
+
+    if ( auto fieldHandle = uiFieldEditorHandle->uiField()->fieldHandle() )
+    {
+        if ( auto scriptingCapability = fieldHandle->capability<caf::PdmAbstractFieldScriptingCapability>() )
+        {
+            auto    scriptFieldName     = scriptingCapability->scriptFieldName();
+            QString pythonParameterName = caf::PdmPythonGenerator::camelToSnakeCase( scriptFieldName );
+            if ( !pythonParameterName.isEmpty() )
+            {
+                label->configureContextMenu( pythonParameterName );
+            }
+        }
+    }
+
+    return label;
 }
