@@ -22,6 +22,8 @@
 
 #include "RimWellPath.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiObjectEditorHandle.h"
 
 #include <limits>
@@ -31,8 +33,8 @@ namespace caf
 template <>
 void RimMswCompletionParameters::ReferenceMDEnum::setUp()
 {
-    addItem( RimMswCompletionParameters::ReferenceMDType::AUTO_REFERENCE_MD, "GridIntersectionRefMD", "Grid Entry Point" );
-    addItem( RimMswCompletionParameters::ReferenceMDType::MANUAL_REFERENCE_MD, "ManualRefMD", "User Defined" );
+    addItem( RimMswCompletionParameters::ReferenceMDType::AUTO_REFERENCE_MD, "GridEntryPoint", "Grid Entry Point", { "GridIntersectionRefMD" } );
+    addItem( RimMswCompletionParameters::ReferenceMDType::MANUAL_REFERENCE_MD, "UserDefined", "User Defined", { "ManualRefMD" } );
     setDefault( RimMswCompletionParameters::ReferenceMDType::AUTO_REFERENCE_MD );
 }
 
@@ -61,22 +63,33 @@ CAF_PDM_SOURCE_INIT( RimMswCompletionParameters, "RimMswCompletionParameters" );
 //--------------------------------------------------------------------------------------------------
 RimMswCompletionParameters::RimMswCompletionParameters()
 {
-    CAF_PDM_InitObject( "MSW Completion Parameters", ":/CompletionsSymbol16x16.png" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "MSW Completion Parameters",
+                                                    ":/CompletionsSymbol16x16.png",
+                                                    "",
+                                                    "",
+                                                    "MswSettings",
+                                                    "Multi Segment Well Completion Settings" );
 
-    CAF_PDM_InitFieldNoDefault( &m_refMDType, "RefMDType", "Reference MD" );
-    CAF_PDM_InitField( &m_refMD, "RefMD", 0.0, "" );
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_refMDType, "RefMDType", "ReferenceMdType", "" );
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_refMD, "RefMD", "UserDefinedReferenceMd", 0.0, "User Defined Reference MD" );
 
-    CAF_PDM_InitField( &m_customValuesForLateral, "CustomValuesForLateral", false, "Custom Values for Lateral" );
+    CAF_PDM_InitScriptableField( &m_customValuesForLateral, "CustomValuesForLateral", false, "Custom Values for Lateral" );
 
     const auto unitSystem = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
-    CAF_PDM_InitField( &m_linerDiameter, "LinerDiameter", RimMswCompletionParameters::defaultLinerDiameter( unitSystem ), "Liner Inner Diameter" );
-    CAF_PDM_InitField( &m_roughnessFactor, "RoughnessFactor", RimMswCompletionParameters::defaultRoughnessFactor( unitSystem ), "Roughness Factor" );
+    CAF_PDM_InitScriptableField( &m_linerDiameter,
+                                 "LinerDiameter",
+                                 RimMswCompletionParameters::defaultLinerDiameter( unitSystem ),
+                                 "Liner Inner Diameter" );
+    CAF_PDM_InitScriptableField( &m_roughnessFactor,
+                                 "RoughnessFactor",
+                                 RimMswCompletionParameters::defaultRoughnessFactor( unitSystem ),
+                                 "Roughness Factor" );
 
-    CAF_PDM_InitFieldNoDefault( &m_pressureDrop, "PressureDrop", "Pressure Drop" );
-    CAF_PDM_InitFieldNoDefault( &m_lengthAndDepth, "LengthAndDepth", "Length and Depth" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_pressureDrop, "PressureDrop", "Pressure Drop" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_lengthAndDepth, "LengthAndDepth", "Length and Depth" );
 
-    CAF_PDM_InitField( &m_enforceMaxSegmentLength, "EnforceMaxSegmentLength", false, "Enforce Max Segment Length" );
-    CAF_PDM_InitField( &m_maxSegmentLength, "MaxSegmentLength", 200.0, "Max Segment Length" );
+    CAF_PDM_InitScriptableField( &m_enforceMaxSegmentLength, "EnforceMaxSegmentLength", false, "Enforce Max Segment Length" );
+    CAF_PDM_InitScriptableField( &m_maxSegmentLength, "MaxSegmentLength", 200.0, "Max Segment Length" );
     m_maxSegmentLength.uiCapability()->setUiHidden( true );
 }
 
