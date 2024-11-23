@@ -146,8 +146,8 @@ private:
     bool isMultipleFieldsWithSameKeywordSelected( PdmFieldHandle* editorField ) const;
 
 protected:
-    QPointer<PdmUiLineEdit>   m_lineEdit;
-    QPointer<QShortenedLabel> m_label;
+    QPointer<PdmUiLineEdit> m_lineEdit;
+    QPointer<QLabel>        m_label;
 
     QPointer<QToolButton> m_autoValueToolButton;
 

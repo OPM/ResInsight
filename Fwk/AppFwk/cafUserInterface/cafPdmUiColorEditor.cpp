@@ -38,11 +38,11 @@
 
 #include "cafPdmUiDefaultObjectEditor.h"
 
+#include "cafFactory.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiFieldEditorHandle.h"
-
-#include "cafFactory.h"
+#include "cafQShortenedLabel.h"
 
 #include <QApplication>
 #include <QColor>

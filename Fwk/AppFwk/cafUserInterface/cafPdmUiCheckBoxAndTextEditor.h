@@ -70,7 +70,7 @@ protected slots:
 private:
     QPointer<QLineEdit>       m_lineEdit;
     QPointer<QCheckBox>       m_checkBox;
-    QPointer<QShortenedLabel> m_label;
+    QPointer<QLabel> m_label;
 };
 
 } // end namespace caf

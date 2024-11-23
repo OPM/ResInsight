@@ -78,7 +78,7 @@ private:
     QPointer<QLineEdit> m_lineEditMax;
     QPointer<QSlider>   m_sliderMax;
 
-    QPointer<QShortenedLabel> m_label;
+    QPointer<QLabel> m_label;
     double                    m_sliderValueMin;
     double                    m_sliderValueMax;
 

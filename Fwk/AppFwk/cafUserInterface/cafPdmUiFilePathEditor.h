@@ -99,7 +99,7 @@ protected slots:
 
 private:
     QPointer<QLineEdit>       m_lineEdit;
-    QPointer<QShortenedLabel> m_label;
+    QPointer<QLabel> m_label;
     QPointer<QToolButton>     m_button;
     QPointer<QToolButton>     m_copyToClipboardButton;
 

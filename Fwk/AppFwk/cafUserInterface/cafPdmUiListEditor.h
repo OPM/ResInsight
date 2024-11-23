@@ -53,14 +53,7 @@ namespace caf
 class PdmUiListEditorAttribute : public PdmUiEditorAttribute
 {
 public:
-    PdmUiListEditorAttribute()
-        : heightHint( 2000 )
-        , allowHorizontalScrollBar( true )
-    {
-        QPalette myPalette;
-
-        baseColor = myPalette.color( QPalette::Active, QPalette::Base );
-    }
+    PdmUiListEditorAttribute();
 
 public:
     QColor  baseColor;
@@ -101,7 +94,7 @@ private:
 
 private:
     QPointer<QListViewHeightHint> m_listView;
-    QPointer<QShortenedLabel>     m_label;
+    QPointer<QLabel>              m_label;
     QPointer<QStringListModel>    m_model;
 
     bool m_isEditOperationsAvailable;

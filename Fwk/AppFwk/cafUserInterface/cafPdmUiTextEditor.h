@@ -136,7 +136,7 @@ private:
 private:
     QPointer<TextEdit>        m_textEdit;
     QPointer<QPushButton>     m_saveButton;
-    QPointer<QShortenedLabel> m_label;
+    QPointer<QLabel> m_label;
 
     PdmUiTextEditorAttribute::TextMode m_textMode;
 };

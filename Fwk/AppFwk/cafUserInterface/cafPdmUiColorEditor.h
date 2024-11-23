@@ -93,7 +93,7 @@ private:
     QColor getFontColor( const QColor& backgroundColor ) const;
 
 private:
-    QPointer<QShortenedLabel> m_label;
+    QPointer<QLabel> m_label;
 
     QColor                m_color;
     QPointer<QLabel>      m_colorTextLabel;

@@ -36,12 +36,12 @@
 
 #include "cafPdmUiSliderEditor.h"
 
+#include "cafFactory.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
-
-#include "cafFactory.h"
+#include "cafQShortenedLabel.h"
 
 #include <QHBoxLayout>
 #include <QIntValidator>

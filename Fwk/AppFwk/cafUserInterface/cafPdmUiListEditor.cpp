@@ -40,6 +40,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
+#include "cafQShortenedLabel.h"
 
 #include <QApplication>
 #include <QBoxLayout>
@@ -521,6 +522,18 @@ bool PdmUiListEditor::eventFilter( QObject* object, QEvent* event )
 bool PdmUiListEditor::isMultiRowEditor() const
 {
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiListEditorAttribute::PdmUiListEditorAttribute()
+    : heightHint( 2000 )
+    , allowHorizontalScrollBar( true )
+{
+    QPalette myPalette;
+
+    baseColor = myPalette.color( QPalette::Active, QPalette::Base );
 }
 
 } // end namespace caf

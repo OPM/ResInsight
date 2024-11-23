@@ -112,7 +112,7 @@ private:
 
 private:
     QPointer<QLineEdit>       m_lineEdit;
-    QPointer<QShortenedLabel> m_label;
+    QPointer<QLabel> m_label;
 
     PdmUiDoubleValueEditorAttribute m_attributes;
 };

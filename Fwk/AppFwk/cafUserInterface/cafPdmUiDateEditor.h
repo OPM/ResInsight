@@ -80,7 +80,7 @@ protected slots:
 
 private:
     QPointer<QDateTimeEdit>   m_dateEdit;
-    QPointer<QShortenedLabel> m_label;
+    QPointer<QLabel> m_label;
 
     PdmUiDateEditorAttribute m_attributes;
 };

@@ -86,7 +86,7 @@ protected slots:
 
 private:
     QPointer<QPushButton> m_pushButton;
-    // QPointer<QShortenedLabel> m_label;
+    // QPointer<QLabel> m_label;
     QPointer<QHBoxLayout> m_buttonLayout;
 };
 

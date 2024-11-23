@@ -2,13 +2,12 @@
 
 #include "cafPdmUiCheckBoxTristateEditor.h"
 
-#include "cafPdmUiDefaultObjectEditor.h"
-
+#include "cafFactory.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
-
-#include "cafFactory.h"
+#include "cafQShortenedLabel.h"
 #include "cafTristate.h"
 
 namespace caf

@@ -39,9 +39,11 @@
 #include "cafPdmField.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
+#include "cafQShortenedLabel.h"
 
 #include <QDoubleValidator>
 #include <QHBoxLayout>
+#include <QLabel>
 
 namespace caf
 {

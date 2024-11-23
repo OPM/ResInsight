@@ -44,6 +44,7 @@
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiListEditor.h"
+#include "cafQShortenedLabel.h"
 
 //--------------------------------------------------------------------------------------------------
 ///

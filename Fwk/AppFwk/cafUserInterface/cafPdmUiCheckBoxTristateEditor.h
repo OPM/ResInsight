@@ -29,8 +29,8 @@ protected slots:
     void slotClicked( bool );
 
 private:
-    QPointer<QCheckBox>       m_checkBox;
-    QPointer<QShortenedLabel> m_label;
+    QPointer<QCheckBox> m_checkBox;
+    QPointer<QLabel>    m_label;
 };
 
 } // end namespace caf
