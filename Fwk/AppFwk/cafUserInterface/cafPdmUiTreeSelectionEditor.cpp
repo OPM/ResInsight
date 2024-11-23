@@ -386,15 +386,6 @@ QWidget* PdmUiTreeSelectionEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTreeSelectionEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QMargins PdmUiTreeSelectionEditor::calculateLabelContentMargins() const
 {
     QSize    editorSize     = m_textFilterLineEdit->sizeHint();

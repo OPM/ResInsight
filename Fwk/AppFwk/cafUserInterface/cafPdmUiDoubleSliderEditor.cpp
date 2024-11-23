@@ -128,15 +128,6 @@ QWidget* PdmUiDoubleSliderEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiDoubleSliderEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void PdmUiDoubleSliderEditor::slotEditingFinished()
 {
     QString textValue = m_lineEdit->text();

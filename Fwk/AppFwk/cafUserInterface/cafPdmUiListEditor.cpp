@@ -289,14 +289,6 @@ QWidget* PdmUiListEditor::createEditorWidget( QWidget* parent )
     return m_listView;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiListEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

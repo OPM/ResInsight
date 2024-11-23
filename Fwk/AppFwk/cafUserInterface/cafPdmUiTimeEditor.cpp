@@ -98,15 +98,6 @@ QWidget* PdmUiTimeEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTimeEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void PdmUiTimeEditor::slotEditingFinished()
 {
     this->setValueToField( m_timeEdit->time() );

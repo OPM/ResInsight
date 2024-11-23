@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiFieldLabelEditor.h"
 
 #include <QCheckBox>
 #include <QLabel>
@@ -50,7 +50,7 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiCheckBoxAndTextEditor : public PdmUiFieldEditorHandle
+class PdmUiCheckBoxAndTextEditor : public PdmUiFieldEditorHandleLabel
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -61,7 +61,6 @@ public:
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
-    QWidget* createLabelWidget( QWidget* parent ) override;
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
 
 protected slots:
@@ -70,7 +69,6 @@ protected slots:
 private:
     QPointer<QLineEdit> m_lineEdit;
     QPointer<QCheckBox> m_checkBox;
-    QPointer<QLabel>    m_label;
 };
 
 } // end namespace caf

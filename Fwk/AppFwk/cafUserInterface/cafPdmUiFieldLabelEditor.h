@@ -43,7 +43,6 @@ class QLabel;
 
 namespace caf
 {
-
 class QShortenedLabel;
 
 //--------------------------------------------------------------------------------------------------
@@ -52,8 +51,9 @@ class QShortenedLabel;
 class PdmUiFieldEditorHandleLabel : public PdmUiFieldEditorHandle
 {
 public:
-    QWidget* createLabelWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) final;
 
+private:
     static QShortenedLabel* createLabel( QWidget* parent, caf::PdmUiFieldEditorHandle* uiFieldEditorHandle );
 
 protected:

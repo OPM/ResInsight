@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiFieldLabelEditor.h"
 
 #include <QPointer>
 #include <QString>
@@ -60,7 +60,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiTimeEditor : public PdmUiFieldEditorHandle
+class PdmUiTimeEditor : public PdmUiFieldEditorHandleLabel
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -71,7 +71,6 @@ public:
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
-    QWidget* createLabelWidget( QWidget* parent ) override;
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
 
 protected slots:
@@ -80,7 +79,6 @@ protected slots:
 
 private:
     QPointer<QTimeEdit> m_timeEdit;
-    QPointer<QLabel>    m_label;
 
     PdmUiTimeEditorAttribute m_attributes;
 };

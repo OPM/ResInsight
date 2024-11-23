@@ -122,15 +122,6 @@ QWidget* PdmUiFilePathEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiFilePathEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void PdmUiFilePathEditor::slotEditingFinished()
 {
     QVariant v;

@@ -123,15 +123,6 @@ QWidget* PdmUiSliderEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiSliderEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void PdmUiSliderEditor::slotSliderValueChanged( int position )
 {
     m_spinBox->setValue( position );

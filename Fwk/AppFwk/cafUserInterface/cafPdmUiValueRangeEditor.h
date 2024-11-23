@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiFieldLabelEditor.h"
 #include "cafPdmUiSliderTools.h"
 
 class QLineEdit;
@@ -46,7 +46,7 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiValueRangeEditor : public PdmUiFieldEditorHandle
+class PdmUiValueRangeEditor : public PdmUiFieldEditorHandleLabel
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -57,7 +57,6 @@ public:
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
-    QWidget* createLabelWidget( QWidget* parent ) override;
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
 
 private slots:
@@ -78,9 +77,8 @@ private:
     QPointer<QLineEdit> m_lineEditMax;
     QPointer<QSlider>   m_sliderMax;
 
-    QPointer<QLabel> m_label;
-    double           m_sliderValueMin;
-    double           m_sliderValueMax;
+    double m_sliderValueMin;
+    double m_sliderValueMax;
 
     PdmUiDoubleSliderEditorAttribute m_attributes;
 };

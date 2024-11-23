@@ -55,14 +55,6 @@ QWidget* PdmUiCheckBoxTristateEditor::createEditorWidget( QWidget* parent )
     return m_checkBox;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiCheckBoxTristateEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

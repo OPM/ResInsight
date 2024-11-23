@@ -100,15 +100,6 @@ QWidget* PdmUiDateEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiDateEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void PdmUiDateEditor::slotEditingFinished()
 {
     this->setValueToField( m_dateEdit->dateTime() );

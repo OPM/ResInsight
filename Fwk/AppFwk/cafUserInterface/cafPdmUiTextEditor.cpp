@@ -209,14 +209,6 @@ QWidget* PdmUiTextEditor::createEditorWidget( QWidget* parent )
     return containerWidget;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTextEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

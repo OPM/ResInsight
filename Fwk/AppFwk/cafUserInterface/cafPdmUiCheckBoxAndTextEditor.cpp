@@ -116,14 +116,6 @@ QWidget* PdmUiCheckBoxAndTextEditor::createEditorWidget( QWidget* parent )
     return containerWidget;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiCheckBoxAndTextEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

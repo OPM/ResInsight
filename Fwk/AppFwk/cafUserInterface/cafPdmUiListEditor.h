@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiFieldLabelEditor.h"
 
 #include <QStringListModel>
 
@@ -65,7 +65,7 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiListEditor : public PdmUiFieldEditorHandle
+class PdmUiListEditor : public PdmUiFieldEditorHandleLabel
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -76,7 +76,6 @@ public:
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
-    QWidget* createLabelWidget( QWidget* parent ) override;
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
     bool     eventFilter( QObject* listView, QEvent* event ) override; // To catch delete key press in list view.
     bool     isMultiRowEditor() const override;
@@ -94,7 +93,6 @@ private:
 
 private:
     QPointer<QListViewHeightHint> m_listView;
-    QPointer<QLabel>              m_label;
     QPointer<QStringListModel>    m_model;
 
     bool m_isEditOperationsAvailable;

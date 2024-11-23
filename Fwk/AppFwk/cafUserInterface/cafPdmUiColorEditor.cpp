@@ -167,14 +167,6 @@ QWidget* PdmUiColorEditor::createEditorWidget( QWidget* parent )
     return placeholder;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiColorEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

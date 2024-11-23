@@ -173,15 +173,6 @@ QWidget* PdmUiPushButtonEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiPushButtonEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void PdmUiPushButtonEditor::slotClicked( bool checked )
 {
     if ( uiField() && dynamic_cast<PdmField<bool>*>( uiField()->fieldHandle() ) )

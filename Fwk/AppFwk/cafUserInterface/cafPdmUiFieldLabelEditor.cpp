@@ -48,7 +48,7 @@
 //--------------------------------------------------------------------------------------------------
 QWidget* caf::PdmUiFieldEditorHandleLabel::createLabelWidget( QWidget* parent )
 {
-    m_label = PdmUiFieldEditorHelper::createLabel( parent, this );
+    m_label = createLabel( parent, this );
 
     return m_label;
 }
