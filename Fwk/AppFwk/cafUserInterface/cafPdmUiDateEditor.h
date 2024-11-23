@@ -79,8 +79,8 @@ protected slots:
     void slotEditingFinished();
 
 private:
-    QPointer<QDateTimeEdit>   m_dateEdit;
-    QPointer<QLabel> m_label;
+    QPointer<QDateTimeEdit> m_dateEdit;
+    QPointer<QLabel>        m_label;
 
     PdmUiDateEditorAttribute m_attributes;
 };

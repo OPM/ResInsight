@@ -68,9 +68,9 @@ protected slots:
     void slotSetValueToField();
 
 private:
-    QPointer<QLineEdit>       m_lineEdit;
-    QPointer<QCheckBox>       m_checkBox;
-    QPointer<QLabel> m_label;
+    QPointer<QLineEdit> m_lineEdit;
+    QPointer<QCheckBox> m_checkBox;
+    QPointer<QLabel>    m_label;
 };
 
 } // end namespace caf

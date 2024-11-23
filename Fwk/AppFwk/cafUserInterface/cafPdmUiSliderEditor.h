@@ -92,9 +92,9 @@ private:
     void writeValueToField();
 
 private:
-    QPointer<QSpinBox>        m_spinBox;
-    QPointer<QSlider>         m_slider;
-    QPointer<QLabel> m_label;
+    QPointer<QSpinBox> m_spinBox;
+    QPointer<QSlider>  m_slider;
+    QPointer<QLabel>   m_label;
 
     PdmUiSliderEditorAttribute m_attributes;
 };

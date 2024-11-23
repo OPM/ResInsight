@@ -79,8 +79,8 @@ private:
     QPointer<QSlider>   m_sliderMax;
 
     QPointer<QLabel> m_label;
-    double                    m_sliderValueMin;
-    double                    m_sliderValueMax;
+    double           m_sliderValueMin;
+    double           m_sliderValueMax;
 
     PdmUiDoubleSliderEditorAttribute m_attributes;
 };

@@ -114,8 +114,8 @@ protected slots:
     void slotApplyAutoValue();
 
 private:
-    QPointer<QComboBox>       m_comboBox;
-    QPointer<QLabel> m_label;
+    QPointer<QComboBox> m_comboBox;
+    QPointer<QLabel>    m_label;
 
     QPointer<QToolButton> m_previousItemButton;
     QPointer<QToolButton> m_nextItemButton;

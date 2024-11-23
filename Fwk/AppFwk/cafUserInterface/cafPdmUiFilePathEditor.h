@@ -98,10 +98,10 @@ protected slots:
     void copyToClipboard();
 
 private:
-    QPointer<QLineEdit>       m_lineEdit;
-    QPointer<QLabel> m_label;
-    QPointer<QToolButton>     m_button;
-    QPointer<QToolButton>     m_copyToClipboardButton;
+    QPointer<QLineEdit>   m_lineEdit;
+    QPointer<QLabel>      m_label;
+    QPointer<QToolButton> m_button;
+    QPointer<QToolButton> m_copyToClipboardButton;
 
     PdmUiFilePathEditorAttribute m_attributes;
 };

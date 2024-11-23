@@ -79,8 +79,8 @@ protected slots:
     void slotTimeChanged( const QTime& time );
 
 private:
-    QPointer<QTimeEdit>       m_timeEdit;
-    QPointer<QLabel> m_label;
+    QPointer<QTimeEdit> m_timeEdit;
+    QPointer<QLabel>    m_label;
 
     PdmUiTimeEditorAttribute m_attributes;
 };

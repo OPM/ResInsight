@@ -41,8 +41,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
-#include "cafSelectionManager.h"
 #include "cafQShortenedLabel.h"
+#include "cafSelectionManager.h"
 
 #include <QApplication>
 #include <QGridLayout>

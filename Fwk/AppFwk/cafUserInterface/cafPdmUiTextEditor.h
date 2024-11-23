@@ -134,9 +134,9 @@ private:
     QTextOption::WrapMode toQTextOptionWrapMode( PdmUiTextEditorAttribute::WrapMode wrapMode );
 
 private:
-    QPointer<TextEdit>        m_textEdit;
-    QPointer<QPushButton>     m_saveButton;
-    QPointer<QLabel> m_label;
+    QPointer<TextEdit>    m_textEdit;
+    QPointer<QPushButton> m_saveButton;
+    QPointer<QLabel>      m_label;
 
     PdmUiTextEditorAttribute::TextMode m_textMode;
 };

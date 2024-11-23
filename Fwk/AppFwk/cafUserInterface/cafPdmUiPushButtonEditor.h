@@ -81,9 +81,9 @@ protected slots:
     void slotClicked( bool checked );
 
 private:
-    QPointer<QPushButton>     m_pushButton;
-    QPointer<QLabel> m_label;
-    QPointer<QHBoxLayout>     m_buttonLayout;
+    QPointer<QPushButton> m_pushButton;
+    QPointer<QLabel>      m_label;
+    QPointer<QHBoxLayout> m_buttonLayout;
 };
 
 } // end namespace caf
