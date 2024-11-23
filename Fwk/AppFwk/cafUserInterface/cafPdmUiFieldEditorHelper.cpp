@@ -105,12 +105,12 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFieldEditorHelper::createFieldEditorForFi
 caf::QShortenedLabel* caf::PdmUiFieldEditorHelper::createLabel( QWidget*                     parent,
                                                                 caf::PdmUiFieldEditorHandle* uiFieldEditorHandle )
 {
-    caf::QShortenedLabel* label = new caf::QShortenedLabel( parent );
-    if ( !uiFieldEditorHandle || !uiFieldEditorHandle->uiField() ) return label;
+    auto label = new caf::QShortenedLabel( parent );
 
-    if ( auto fieldHandle = uiFieldEditorHandle->uiField()->fieldHandle() )
+    if ( uiFieldEditorHandle && uiFieldEditorHandle->uiField() && uiFieldEditorHandle->uiField()->fieldHandle() )
     {
-        if ( auto scriptingCapability = fieldHandle->capability<caf::PdmAbstractFieldScriptingCapability>() )
+        if ( auto scriptingCapability =
+                 uiFieldEditorHandle->uiField()->fieldHandle()->capability<caf::PdmAbstractFieldScriptingCapability>() )
         {
             auto    scriptFieldName     = scriptingCapability->scriptFieldName();
             QString pythonParameterName = caf::PdmPythonGenerator::camelToSnakeCase( scriptFieldName );
