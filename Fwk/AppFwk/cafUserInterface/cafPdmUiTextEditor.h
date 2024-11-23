@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiFieldLabelEditor.h"
 
 #include <QLabel>
 #include <QPointer>
@@ -112,7 +112,7 @@ private:
 //==================================================================================================
 /// An editor to show (and possibly edit?) formatted larger portions of text
 //==================================================================================================
-class PdmUiTextEditor : public PdmUiFieldEditorHandle
+class PdmUiTextEditor : public PdmUiFieldEditorHandleLabel
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -123,7 +123,6 @@ public:
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
-    QWidget* createLabelWidget( QWidget* parent ) override;
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
     bool     isMultiRowEditor() const override;
 
@@ -134,9 +133,8 @@ private:
     QTextOption::WrapMode toQTextOptionWrapMode( PdmUiTextEditorAttribute::WrapMode wrapMode );
 
 private:
-    QPointer<TextEdit>        m_textEdit;
-    QPointer<QPushButton>     m_saveButton;
-    QPointer<QShortenedLabel> m_label;
+    QPointer<TextEdit>    m_textEdit;
+    QPointer<QPushButton> m_saveButton;
 
     PdmUiTextEditorAttribute::TextMode m_textMode;
 };

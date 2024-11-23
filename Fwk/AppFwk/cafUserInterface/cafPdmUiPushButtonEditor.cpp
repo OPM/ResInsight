@@ -36,13 +36,11 @@
 
 #include "cafPdmUiPushButtonEditor.h"
 
-#include "cafPdmUiDefaultObjectEditor.h"
-
+#include "cafFactory.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
-
-#include "cafFactory.h"
 
 #include <QBoxLayout>
 
@@ -169,15 +167,6 @@ QWidget* PdmUiPushButtonEditor::createEditorWidget( QWidget* parent )
     containerWidget->setLayout( m_buttonLayout );
 
     return containerWidget;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiPushButtonEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
 }
 
 //--------------------------------------------------------------------------------------------------

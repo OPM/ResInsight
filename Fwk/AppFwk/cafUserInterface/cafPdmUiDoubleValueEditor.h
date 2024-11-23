@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiFieldLabelEditor.h"
 
 #include <QDoubleValidator>
 #include <QGroupBox>
@@ -90,7 +90,7 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiDoubleValueEditor : public PdmUiFieldEditorHandle
+class PdmUiDoubleValueEditor : public PdmUiFieldEditorHandleLabel
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -102,7 +102,6 @@ public:
 protected:
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
     QWidget* createEditorWidget( QWidget* parent ) override;
-    QWidget* createLabelWidget( QWidget* parent ) override;
 
 protected slots:
     void slotEditingFinished();
@@ -111,8 +110,7 @@ private:
     void writeValueToField();
 
 private:
-    QPointer<QLineEdit>       m_lineEdit;
-    QPointer<QShortenedLabel> m_label;
+    QPointer<QLineEdit> m_lineEdit;
 
     PdmUiDoubleValueEditorAttribute m_attributes;
 };

@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) 2017 Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -34,67 +34,45 @@
 //
 //##################################################################################################
 
-#pragma once
-
 #include "cafPdmUiFieldLabelEditor.h"
+#include "cafPdmAbstractFieldScriptingCapability.h"
+#include "cafPdmPythonGenerator.h"
+#include "cafPdmUiFieldHandle.h"
+#include "cafQShortenedLabel.h"
 
-#include <QGroupBox>
-#include <QLabel>
-#include <QPointer>
-#include <QSlider>
-#include <QSpinBox>
-#include <QString>
 #include <QWidget>
 
-namespace caf
-{
-//==================================================================================================
+//--------------------------------------------------------------------------------------------------
 ///
-//==================================================================================================
-class PdmUiSliderEditorAttribute : public PdmUiEditorAttribute
+//--------------------------------------------------------------------------------------------------
+QWidget* caf::PdmUiFieldEditorHandleLabel::createLabelWidget( QWidget* parent )
 {
-public:
-    PdmUiSliderEditorAttribute()
+    m_label = createLabel( parent, this );
+
+    return m_label;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::QShortenedLabel* caf::PdmUiFieldEditorHandleLabel::createLabel( QWidget*                     parent,
+                                                                     caf::PdmUiFieldEditorHandle* uiFieldEditorHandle )
+{
+    auto label = new caf::QShortenedLabel( parent );
+
+    if ( uiFieldEditorHandle && uiFieldEditorHandle->uiField() && uiFieldEditorHandle->uiField()->fieldHandle() )
     {
-        m_minimum     = 0;
-        m_maximum     = 10;
-        m_showSpinBox = true;
-        m_step        = 1;
+        if ( auto scriptingCapability =
+                 uiFieldEditorHandle->uiField()->fieldHandle()->capability<caf::PdmAbstractFieldScriptingCapability>() )
+        {
+            auto    scriptFieldName     = scriptingCapability->scriptFieldName();
+            QString pythonParameterName = caf::PdmPythonGenerator::camelToSnakeCase( scriptFieldName );
+            if ( !pythonParameterName.isEmpty() )
+            {
+                label->configureContextMenu( pythonParameterName );
+            }
+        }
     }
 
-public:
-    int  m_minimum;
-    int  m_maximum;
-    bool m_showSpinBox;
-    int  m_step;
-};
-
-class PdmUiSliderEditor : public PdmUiFieldEditorHandleLabel
-{
-    Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
-
-public:
-    PdmUiSliderEditor() {}
-    ~PdmUiSliderEditor() override {}
-
-protected:
-    void     configureAndUpdateUi( const QString& uiConfigName ) override;
-    QWidget* createEditorWidget( QWidget* parent ) override;
-
-protected slots:
-    void slotSliderValueChanged( int position );
-    void slotSpinBoxValueChanged( int position );
-
-private:
-    void updateSliderPosition();
-    void writeValueToField();
-
-private:
-    QPointer<QSpinBox> m_spinBox;
-    QPointer<QSlider>  m_slider;
-
-    PdmUiSliderEditorAttribute m_attributes;
-};
-
-} // end namespace caf
+    return label;
+}

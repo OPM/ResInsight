@@ -118,15 +118,6 @@ QWidget* PdmUiCheckBoxAndTextEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiCheckBoxAndTextEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void PdmUiCheckBoxAndTextEditor::slotSetValueToField()
 {
     bool isChecked = m_checkBox->checkState() == Qt::CheckState::Checked;

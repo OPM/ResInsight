@@ -291,15 +291,6 @@ QWidget* PdmUiListEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiListEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void PdmUiListEditor::slotSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected )
 {
     if ( m_optionItemCount == 0 ) return;
@@ -521,6 +512,18 @@ bool PdmUiListEditor::eventFilter( QObject* object, QEvent* event )
 bool PdmUiListEditor::isMultiRowEditor() const
 {
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiListEditorAttribute::PdmUiListEditorAttribute()
+    : heightHint( 2000 )
+    , allowHorizontalScrollBar( true )
+{
+    QPalette myPalette;
+
+    baseColor = myPalette.color( QPalette::Active, QPalette::Base );
 }
 
 } // end namespace caf

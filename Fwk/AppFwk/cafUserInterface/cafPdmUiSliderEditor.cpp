@@ -36,12 +36,11 @@
 
 #include "cafPdmUiSliderEditor.h"
 
+#include "cafFactory.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
-
-#include "cafFactory.h"
 
 #include <QHBoxLayout>
 #include <QIntValidator>
@@ -118,15 +117,6 @@ QWidget* PdmUiSliderEditor::createEditorWidget( QWidget* parent )
     connect( m_slider, SIGNAL( valueChanged( int ) ), this, SLOT( slotSliderValueChanged( int ) ) );
 
     return containerWidget;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiSliderEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
 }
 
 //--------------------------------------------------------------------------------------------------

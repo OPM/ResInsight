@@ -36,12 +36,11 @@
 
 #include "cafPdmUiDoubleValueEditor.h"
 
+#include "cafFactory.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
-
-#include "cafFactory.h"
 
 #include <QDoubleValidator>
 #include <QHBoxLayout>
@@ -124,15 +123,6 @@ QWidget* PdmUiDoubleValueEditor::createEditorWidget( QWidget* parent )
     layout->addWidget( m_lineEdit );
 
     return containerWidget;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiDoubleValueEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
 }
 
 //--------------------------------------------------------------------------------------------------

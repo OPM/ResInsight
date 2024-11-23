@@ -287,13 +287,4 @@ QWidget* PdmUiValueRangeEditor::createEditorWidget( QWidget* parent )
     return containerWidget;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiValueRangeEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
-}
-
 } // end namespace caf

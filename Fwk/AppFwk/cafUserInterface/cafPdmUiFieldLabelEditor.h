@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) 2017 Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -38,53 +38,25 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
-#include <QLabel>
-#include <QPointer>
-#include <QString>
-#include <QWidget>
-
-class QGridLayout;
+class QWidget;
+class QLabel;
 
 namespace caf
 {
-//==================================================================================================
+class QShortenedLabel;
+
+//--------------------------------------------------------------------------------------------------
 ///
-//==================================================================================================
-class PdmUiLabelEditorAttribute : public PdmUiEditorAttribute
+//--------------------------------------------------------------------------------------------------
+class PdmUiFieldEditorHandleLabel : public PdmUiFieldEditorHandle
 {
 public:
-    PdmUiLabelEditorAttribute()
-        : m_useWordWrap( false )
-        , m_useSingleWidgetInsteadOfLabelAndEditorWidget( false )
-    {
-    }
-
-public:
-    bool m_useWordWrap;
-    bool m_useSingleWidgetInsteadOfLabelAndEditorWidget;
-};
-
-//==================================================================================================
-/// An editor to show (and possibly edit?) formatted larger portions of text
-//==================================================================================================
-class PdmUiLabelEditor : public PdmUiFieldEditorHandle
-{
-    Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
-
-public:
-    PdmUiLabelEditor();
-    ~PdmUiLabelEditor() override;
-
-protected:
-    QWidget* createEditorWidget( QWidget* parent ) override;
-    QWidget* createLabelWidget( QWidget* parent ) override;
-    void     configureAndUpdateUi( const QString& uiConfigName ) override;
-
-    QWidget* createCombinedWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) final;
 
 private:
+    static QShortenedLabel* createLabel( QWidget* parent, caf::PdmUiFieldEditorHandle* uiFieldEditorHandle );
+
+protected:
     QPointer<QLabel> m_label;
 };
-
 } // end namespace caf
