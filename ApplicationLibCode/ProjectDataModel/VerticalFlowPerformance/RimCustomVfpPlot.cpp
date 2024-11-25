@@ -662,6 +662,7 @@ void RimCustomVfpPlot::onLoadDataAndUpdate()
             QColor curveColor = curveColors().cycledQColor( colorIndex );
 
             curveNameContent.defaultName = true;
+            if ( tables.size() > 1 ) curveNameContent.tableNumber = true;
             populatePlotWidgetWithPlotData( m_plotWidget, vfpPlotData, VfpValueSelection(), tableNumber, curveColor, curveNameContent );
             colorIndex++;
 
