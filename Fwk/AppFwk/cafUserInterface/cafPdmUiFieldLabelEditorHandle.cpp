@@ -34,10 +34,10 @@
 //
 //##################################################################################################
 
+#include "cafPdmUiFieldLabelEditorHandle.h"
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmPythonGenerator.h"
 #include "cafPdmUiFieldHandle.h"
-#include "cafPdmUiFieldLabelEditorHandle.h"
 #include "cafQShortenedLabel.h"
 
 #include <QWidget>
