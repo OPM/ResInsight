@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2023 Ceetron Solutions AS
+//   Copyright (C) 2024 Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -34,41 +34,45 @@
 //
 //##################################################################################################
 
-#pragma once
-
 #include "cafPdmUiFieldLabelEditorHandle.h"
+#include "cafPdmAbstractFieldScriptingCapability.h"
+#include "cafPdmPythonGenerator.h"
+#include "cafPdmUiFieldHandle.h"
+#include "cafQShortenedLabel.h"
 
-#include <QCheckBox>
-#include <QLabel>
-#include <QLineEdit>
-#include <QPointer>
-#include <QString>
 #include <QWidget>
 
-namespace caf
-{
-//==================================================================================================
+//--------------------------------------------------------------------------------------------------
 ///
-//==================================================================================================
-class PdmUiCheckBoxAndTextEditor : public PdmUiFieldLabelEditorHandle
+//--------------------------------------------------------------------------------------------------
+QWidget* caf::PdmUiFieldLabelEditorHandle::createLabelWidget( QWidget* parent )
 {
-    Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+    m_label = createLabel( parent, this );
 
-public:
-    PdmUiCheckBoxAndTextEditor() {}
-    ~PdmUiCheckBoxAndTextEditor() override {}
+    return m_label;
+}
 
-protected:
-    QWidget* createEditorWidget( QWidget* parent ) override;
-    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::QShortenedLabel* caf::PdmUiFieldLabelEditorHandle::createLabel( QWidget*                     parent,
+                                                                     caf::PdmUiFieldEditorHandle* uiFieldEditorHandle )
+{
+    auto label = new caf::QShortenedLabel( parent );
 
-protected slots:
-    void slotSetValueToField();
+    if ( uiFieldEditorHandle && uiFieldEditorHandle->uiField() && uiFieldEditorHandle->uiField()->fieldHandle() )
+    {
+        if ( auto scriptingCapability =
+                 uiFieldEditorHandle->uiField()->fieldHandle()->capability<caf::PdmAbstractFieldScriptingCapability>() )
+        {
+            auto    scriptFieldName     = scriptingCapability->scriptFieldName();
+            QString pythonParameterName = caf::PdmPythonGenerator::camelToSnakeCase( scriptFieldName );
+            if ( !pythonParameterName.isEmpty() )
+            {
+                label->configureContextMenu( pythonParameterName );
+            }
+        }
+    }
 
-private:
-    QPointer<QLineEdit> m_lineEdit;
-    QPointer<QCheckBox> m_checkBox;
-};
-
-} // end namespace caf
+    return label;
+}

@@ -38,11 +38,10 @@
 
 #include "cafPdmUiDefaultObjectEditor.h"
 
+#include "cafFactory.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiFieldEditorHandle.h"
-
-#include "cafFactory.h"
 
 #include <QApplication>
 #include <QColor>
@@ -165,15 +164,6 @@ QWidget* PdmUiColorEditor::createEditorWidget( QWidget* parent )
     connect( m_colorSelectionButton, SIGNAL( clicked() ), this, SLOT( colorSelectionClicked() ) );
 
     return placeholder;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiColorEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
 }
 
 //--------------------------------------------------------------------------------------------------

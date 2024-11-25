@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiFieldLabelEditorHandle.h"
 
 #include <QLabel>
 #include <QLineEdit>
@@ -67,7 +67,7 @@ public:
 //==================================================================================================
 /// See cafPdmFieldCvfColor for conversion between cvf::Color3f and QColor
 //==================================================================================================
-class PdmUiColorEditor : public PdmUiFieldEditorHandle
+class PdmUiColorEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -80,7 +80,6 @@ public:
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
-    QWidget* createLabelWidget( QWidget* parent ) override;
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
 
     QMargins calculateLabelContentMargins() const override;
@@ -93,8 +92,6 @@ private:
     QColor getFontColor( const QColor& backgroundColor ) const;
 
 private:
-    QPointer<QShortenedLabel> m_label;
-
     QColor                m_color;
     QPointer<QLabel>      m_colorTextLabel;
     QPointer<QToolButton> m_colorSelectionButton;

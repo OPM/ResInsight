@@ -42,6 +42,7 @@
 
 #include <QDoubleValidator>
 #include <QHBoxLayout>
+#include <QLabel>
 
 namespace caf
 {
@@ -121,15 +122,6 @@ QWidget* PdmUiDoubleSliderEditor::createEditorWidget( QWidget* parent )
     connect( m_slider, SIGNAL( valueChanged( int ) ), this, SLOT( slotSliderValueChanged( int ) ) );
     connect( m_slider, SIGNAL( sliderReleased() ), this, SLOT( slotSliderReleased() ) );
     return containerWidget;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiDoubleSliderEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
 }
 
 //--------------------------------------------------------------------------------------------------

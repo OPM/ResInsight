@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiFieldLabelEditorHandle.h"
 
 #include <QGroupBox>
 #include <QLabel>
@@ -69,7 +69,7 @@ public:
     int  m_step;
 };
 
-class PdmUiSliderEditor : public PdmUiFieldEditorHandle
+class PdmUiSliderEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -81,7 +81,6 @@ public:
 protected:
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
     QWidget* createEditorWidget( QWidget* parent ) override;
-    QWidget* createLabelWidget( QWidget* parent ) override;
 
 protected slots:
     void slotSliderValueChanged( int position );
@@ -92,9 +91,8 @@ private:
     void writeValueToField();
 
 private:
-    QPointer<QSpinBox>        m_spinBox;
-    QPointer<QSlider>         m_slider;
-    QPointer<QShortenedLabel> m_label;
+    QPointer<QSpinBox> m_spinBox;
+    QPointer<QSlider>  m_slider;
 
     PdmUiSliderEditorAttribute m_attributes;
 };

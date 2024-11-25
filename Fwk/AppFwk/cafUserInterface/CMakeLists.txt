@@ -180,6 +180,8 @@ set(PROJECT_FILES
     cafUiIconFactory.cpp
     cafPdmUiSliderTools.h
     cafPdmUiSliderTools.cpp
+    cafPdmUiFieldLabelEditorHandle.h
+    cafPdmUiFieldLabelEditorHandle.cpp
 )
 
 add_library(
@@ -194,6 +196,8 @@ endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(${PROJECT_NAME} cafProjectDataModel ${QT_LIBRARIES})
+target_link_libraries(
+  ${PROJECT_NAME} cafProjectDataModel cafPdmScripting ${QT_LIBRARIES}
+)
 
 source_group("" FILES ${PROJECT_FILES})
