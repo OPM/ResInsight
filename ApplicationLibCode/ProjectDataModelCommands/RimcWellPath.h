@@ -90,3 +90,19 @@ private:
     caf::PdmField<double> m_diameter;
     caf::PdmField<double> m_skinFactor;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellPath_multiSegmentWellSettings : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellPath_multiSegmentWellSettings( caf::PdmObjectHandle* self );
+
+    caf::PdmObjectHandle*            execute() override;
+    bool                             resultIsPersistent() const override;
+    bool                             isNullptrValidResult() const override;
+    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+};
