@@ -78,15 +78,13 @@ public:
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
-    // QWidget*    createLabelWidget(QWidget * parent) override;
-    void configureAndUpdateUi( const QString& uiConfigName ) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
 
 protected slots:
     void slotClicked( bool checked );
 
 private:
     QPointer<QPushButton> m_pushButton;
-    // QPointer<QShortenedLabel> m_label;
     QPointer<QHBoxLayout> m_buttonLayout;
 };
 

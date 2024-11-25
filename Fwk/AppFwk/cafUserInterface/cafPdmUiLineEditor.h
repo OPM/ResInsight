@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiFieldLabelEditorHandle.h"
 
 #include <QHBoxLayout>
 #include <QLabel>
@@ -115,7 +115,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiLineEditor : public PdmUiFieldEditorHandle
+class PdmUiLineEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -131,7 +131,6 @@ public:
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
-    QWidget* createLabelWidget( QWidget* parent ) override;
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
     QMargins calculateLabelContentMargins() const override;
 
@@ -146,8 +145,7 @@ private:
     bool isMultipleFieldsWithSameKeywordSelected( PdmFieldHandle* editorField ) const;
 
 protected:
-    QPointer<PdmUiLineEdit>   m_lineEdit;
-    QPointer<QShortenedLabel> m_label;
+    QPointer<PdmUiLineEdit> m_lineEdit;
 
     QPointer<QToolButton> m_autoValueToolButton;
 

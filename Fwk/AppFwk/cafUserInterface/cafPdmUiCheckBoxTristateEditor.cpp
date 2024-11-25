@@ -2,13 +2,11 @@
 
 #include "cafPdmUiCheckBoxTristateEditor.h"
 
-#include "cafPdmUiDefaultObjectEditor.h"
-
+#include "cafFactory.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
-
-#include "cafFactory.h"
 #include "cafTristate.h"
 
 namespace caf
@@ -54,15 +52,6 @@ QWidget* PdmUiCheckBoxTristateEditor::createEditorWidget( QWidget* parent )
 
     connect( m_checkBox, SIGNAL( clicked( bool ) ), this, SLOT( slotClicked( bool ) ) );
     return m_checkBox;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiCheckBoxTristateEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -163,8 +163,8 @@ private slots:
 private:
     friend class FocusEventHandler;
 
-    QPointer<QShortenedLabel> m_tableHeading;
-    QPointer<QLabel>          m_tableHeadingIcon;
+    QPointer<QLabel> m_tableHeading;
+    QPointer<QLabel> m_tableHeadingIcon;
 
     TableView*            m_tableView;
     PdmUiTableViewQModel* m_tableModelPdm;
