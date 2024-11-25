@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldLabelEditor.h"
+#include "cafPdmUiFieldLabelEditorHandle.h"
 
 #include <QLabel>
 #include <QPointer>
@@ -112,7 +112,7 @@ private:
 //==================================================================================================
 /// An editor to show (and possibly edit?) formatted larger portions of text
 //==================================================================================================
-class PdmUiTextEditor : public PdmUiFieldEditorHandleLabel
+class PdmUiTextEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

@@ -34,29 +34,45 @@
 //
 //##################################################################################################
 
-#pragma once
+#include "cafPdmAbstractFieldScriptingCapability.h"
+#include "cafPdmPythonGenerator.h"
+#include "cafPdmUiFieldHandle.h"
+#include "cafPdmUiFieldLabelEditorHandle.h"
+#include "cafQShortenedLabel.h"
 
-#include "cafPdmUiFieldEditorHandle.h"
-
-class QWidget;
-class QLabel;
-
-namespace caf
-{
-class QShortenedLabel;
+#include <QWidget>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiFieldEditorHandleLabel : public PdmUiFieldEditorHandle
+QWidget* caf::PdmUiFieldLabelEditorHandle::createLabelWidget( QWidget* parent )
 {
-public:
-    QWidget* createLabelWidget( QWidget* parent ) final;
+    m_label = createLabel( parent, this );
 
-private:
-    static QShortenedLabel* createLabel( QWidget* parent, caf::PdmUiFieldEditorHandle* uiFieldEditorHandle );
+    return m_label;
+}
 
-protected:
-    QPointer<QLabel> m_label;
-};
-} // end namespace caf
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::QShortenedLabel* caf::PdmUiFieldLabelEditorHandle::createLabel( QWidget*                     parent,
+                                                                     caf::PdmUiFieldEditorHandle* uiFieldEditorHandle )
+{
+    auto label = new caf::QShortenedLabel( parent );
+
+    if ( uiFieldEditorHandle && uiFieldEditorHandle->uiField() && uiFieldEditorHandle->uiField()->fieldHandle() )
+    {
+        if ( auto scriptingCapability =
+                 uiFieldEditorHandle->uiField()->fieldHandle()->capability<caf::PdmAbstractFieldScriptingCapability>() )
+        {
+            auto    scriptFieldName     = scriptingCapability->scriptFieldName();
+            QString pythonParameterName = caf::PdmPythonGenerator::camelToSnakeCase( scriptFieldName );
+            if ( !pythonParameterName.isEmpty() )
+            {
+                label->configureContextMenu( pythonParameterName );
+            }
+        }
+    }
+
+    return label;
+}

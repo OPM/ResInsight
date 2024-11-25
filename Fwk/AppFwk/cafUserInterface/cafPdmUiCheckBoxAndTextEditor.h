@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldLabelEditor.h"
+#include "cafPdmUiFieldLabelEditorHandle.h"
 
 #include <QCheckBox>
 #include <QLabel>
@@ -50,7 +50,7 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiCheckBoxAndTextEditor : public PdmUiFieldEditorHandleLabel
+class PdmUiCheckBoxAndTextEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldLabelEditor.h"
+#include "cafPdmUiFieldLabelEditorHandle.h"
 
 #include <QComboBox>
 #include <QHBoxLayout>
@@ -90,7 +90,7 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiComboBoxEditor : public PdmUiFieldEditorHandleLabel
+class PdmUiComboBoxEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

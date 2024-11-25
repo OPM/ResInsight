@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldLabelEditor.h"
+#include "cafPdmUiFieldLabelEditorHandle.h"
 
 #include <QLabel>
 #include <QLineEdit>
@@ -78,7 +78,7 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiFilePathEditor : public PdmUiFieldEditorHandleLabel
+class PdmUiFilePathEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

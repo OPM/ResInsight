@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldLabelEditor.h"
+#include "cafPdmUiFieldLabelEditorHandle.h"
 
 #include <QDoubleValidator>
 #include <QGroupBox>
@@ -90,7 +90,7 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiDoubleValueEditor : public PdmUiFieldEditorHandleLabel
+class PdmUiDoubleValueEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

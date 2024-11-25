@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldLabelEditor.h"
+#include "cafPdmUiFieldLabelEditorHandle.h"
 #include "cafPdmUiSliderTools.h"
 
 class QLineEdit;
@@ -46,7 +46,7 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiValueRangeEditor : public PdmUiFieldEditorHandleLabel
+class PdmUiValueRangeEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

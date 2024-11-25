@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldLabelEditor.h"
+#include "cafPdmUiFieldLabelEditorHandle.h"
 
 #include <QStringListModel>
 
@@ -65,7 +65,7 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiListEditor : public PdmUiFieldEditorHandleLabel
+class PdmUiListEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

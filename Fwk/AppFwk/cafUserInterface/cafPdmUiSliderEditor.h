@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldLabelEditor.h"
+#include "cafPdmUiFieldLabelEditorHandle.h"
 
 #include <QGroupBox>
 #include <QLabel>
@@ -69,7 +69,7 @@ public:
     int  m_step;
 };
 
-class PdmUiSliderEditor : public PdmUiFieldEditorHandleLabel
+class PdmUiSliderEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

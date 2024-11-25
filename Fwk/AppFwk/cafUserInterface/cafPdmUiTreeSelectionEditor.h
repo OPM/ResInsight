@@ -35,7 +35,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldLabelEditor.h"
+#include "cafPdmUiFieldLabelEditorHandle.h"
 
 #include <QAbstractItemModel>
 
@@ -92,7 +92,7 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiTreeSelectionEditor : public PdmUiFieldEditorHandleLabel
+class PdmUiTreeSelectionEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;

@@ -180,8 +180,8 @@ set(PROJECT_FILES
     cafUiIconFactory.cpp
     cafPdmUiSliderTools.h
     cafPdmUiSliderTools.cpp
-    cafPdmUiFieldLabelEditor.h
-    cafPdmUiFieldLabelEditor.cpp
+    cafPdmUiFieldLabelEditorHandle.h
+    cafPdmUiFieldLabelEditorHandle.cpp
 )
 
 add_library(

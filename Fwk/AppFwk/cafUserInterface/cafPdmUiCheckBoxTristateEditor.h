@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldLabelEditor.h"
+#include "cafPdmUiFieldLabelEditorHandle.h"
 
 #include <QCheckBox>
 #include <QLabel>
@@ -11,7 +11,7 @@
 
 namespace caf
 {
-class PdmUiCheckBoxTristateEditor : public PdmUiFieldEditorHandleLabel
+class PdmUiCheckBoxTristateEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
