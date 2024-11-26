@@ -28,6 +28,7 @@
 #include "RiaFontCache.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
+#include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesSumo.h"
 #include "RiaPreferencesSystem.h"
@@ -801,6 +802,8 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         gridCalculation->calculate();
         gridCalculation->updateDependentObjects();
     }
+
+    RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdates();
 
     RiaLogging::info( QString( "Completed open of project file : '%1'" ).arg( projectFileName ) );
 
