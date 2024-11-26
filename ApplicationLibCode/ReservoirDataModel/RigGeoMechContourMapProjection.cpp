@@ -114,7 +114,8 @@ cvf::BoundingBox RigGeoMechContourMapProjection::calculateExpandedPorBarBBox( Ri
 std::vector<bool> RigGeoMechContourMapProjection::getMapCellVisibility( int                                            viewStepIndex,
                                                                         RigContourMapCalculator::ResultAggregationType resultAggregation )
 {
-    return getMapCellVisibility( m_currentResultAddr, viewStepIndex, resultAggregation );
+    m_mapCellVisibility = getMapCellVisibility( m_currentResultAddr, viewStepIndex, resultAggregation );
+    return m_mapCellVisibility;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -187,6 +188,7 @@ void RigGeoMechContourMapProjection::generateAndSaveResults( RigFemResultAddress
                                                              int                                            viewerStepIndex )
 {
     m_aggregatedResults = generateResultsFromAddress( resultAddress, m_mapCellVisibility, resultAggregation, viewerStepIndex );
+    m_currentResultAddr = resultAddress;
 }
 
 //--------------------------------------------------------------------------------------------------
