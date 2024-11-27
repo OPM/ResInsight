@@ -87,7 +87,8 @@ private:
                                  bool                                                         fixedXAxis,
                                  bool                                                         fixedLeftYAxis,
                                  QwtPlot*                                                     plot,
-                                 std::vector<QwtPlotMarker*>*                                 myPlotMarkers );
+                                 std::vector<QwtPlotMarker*>*                                 myPlotMarkers,
+                                 bool                                                         skipUnscaledLegends );
 
     static QString determineXAxisTitleFromCurveCollection( const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr );
 
@@ -135,6 +136,7 @@ private:
     QGroupBox*    m_groupBox;
     QButtonGroup* m_selectedCurvesButtonGroup;
     QCheckBox*    m_showUnscaledCheckBox;
+    QCheckBox*    m_showScaledCheckBox;
     QCheckBox*    m_logarithmicScaleKrAxisCheckBox;
     QCheckBox*    m_fixedXAxisCheckBox;
     QCheckBox*    m_fixedLeftYAxisCheckBox;
