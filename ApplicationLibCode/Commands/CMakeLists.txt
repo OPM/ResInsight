@@ -46,7 +46,7 @@ set(COMMAND_REFERENCED_CMAKE_FILES
     OctaveScriptCommands/CMakeLists_files.cmake
     OperationsUsingObjReferences/CMakeLists_files.cmake
     SummaryPlotCommands/CMakeLists_files.cmake
-    OsduImportCommands/CMakeLists_files.cmake
+    OsduCommands/CMakeLists_files.cmake
     StreamlineCommands/CMakeLists_files.cmake
     SurfaceCommands/CMakeLists_files.cmake
     SeismicCommands/CMakeLists_files.cmake
