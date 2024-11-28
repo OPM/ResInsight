@@ -24,7 +24,6 @@
 #include "RiaDateTimeDefines.h"
 #include "RiaDefines.h"
 #include "RiaFontCache.h"
-#include "RiaPreferencesOsdu.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
