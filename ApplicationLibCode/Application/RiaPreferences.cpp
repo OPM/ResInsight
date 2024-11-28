@@ -276,11 +276,13 @@ RiaPreferences::RiaPreferences()
     m_osduPreferences = new RiaPreferencesOsdu;
     CAF_PDM_InitField( &m_deleteOsduToken, "deleteOsduToken", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_deleteOsduToken );
+    m_deleteOsduToken.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_sumoPreferences, "sumoPreferences", "sumoPreferences" );
     m_sumoPreferences = new RiaPreferencesSumo;
     CAF_PDM_InitField( &m_deleteSumoToken, "deleteSumoToken", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_deleteSumoToken );
+    m_deleteSumoToken.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
