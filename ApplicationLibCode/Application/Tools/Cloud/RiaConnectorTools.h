@@ -22,6 +22,7 @@
 #include <map>
 
 class QOAuth2AuthorizationCodeFlow;
+class RiaPreferences;
 
 namespace RiaConnectorTools
 {
@@ -31,4 +32,7 @@ void    writeTokenData( const QString& filePath, const QString& tokenDataJson );
 QString readStringFromFile( const QString& filePath );
 
 std::map<QString, QString> readKeyValuePairs( const QString& filePath );
+
+void readCloudConfigFiles( RiaPreferences* preferences );
+
 } // namespace RiaConnectorTools

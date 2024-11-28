@@ -20,6 +20,7 @@
 
 #include "RiaGuiApplication.h"
 
+#include "Cloud/RiaConnectorTools.h"
 #include "RiaArgumentParser.h"
 #include "RiaBaseDefs.h"
 #include "RiaDefines.h"
@@ -445,6 +446,8 @@ void RiaGuiApplication::initialize()
         }
     }
     m_socketServer = new RiaSocketServer( this );
+
+    RiaConnectorTools::readCloudConfigFiles( m_preferences.get() );
 }
 
 //--------------------------------------------------------------------------------------------------

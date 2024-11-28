@@ -18,6 +18,11 @@
 
 #include "RiaConnectorTools.h"
 
+#include "RiaLogging.h"
+#include "RiaPreferences.h"
+#include "RiaPreferencesOsdu.h"
+#include "RiaPreferencesSumo.h"
+
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -25,6 +30,8 @@
 #include <QJsonObject>
 #include <QTextStream>
 #include <QtNetworkAuth/QOAuth2AuthorizationCodeFlow>
+
+#include <QCoreApplication>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -120,4 +127,61 @@ std::map<QString, QString> RiaConnectorTools::readKeyValuePairs( const QString& 
     }
 
     return keyValuePairs;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaConnectorTools::readCloudConfigFiles( RiaPreferences* preferences )
+{
+    if ( preferences == nullptr ) return;
+
+    // Check multiple locations for configuration files. The first valid configuration file is used. Currently, using Qt5 the ResInsight
+    // binary file is stored at the root of the installation folder. When moving to Qt6, we will probably use sub folders /bin /lib and
+    // others. Support both one and two search levels to support Qt6.
+    //
+    // home_folder/.resinsight/*_config.json
+    // location_of_resinsight_executable/../share/cloud_services/*_config.json
+    // location_of_resinsight_executable/../../share/cloud_services/*_config.json
+    //
+
+    {
+        QStringList osduFilePathCandidates;
+        osduFilePathCandidates << QDir::homePath() + "/.resinsight/osdu_config.json";
+        osduFilePathCandidates << QCoreApplication::applicationDirPath() + "/../share/cloud_services/osdu_config.json";
+        osduFilePathCandidates << QCoreApplication::applicationDirPath() + "/../../share/cloud_services/osdu_config.json";
+
+        for ( const auto& osduFileCandidate : osduFilePathCandidates )
+        {
+            auto keyValuePairs = RiaConnectorTools::readKeyValuePairs( osduFileCandidate );
+            if ( !keyValuePairs.empty() )
+            {
+                RiaLogging::info( QString( "Imported OSDU configuration from : '%1'" ).arg( osduFileCandidate ) );
+
+                preferences->osduPreferences()->setData( keyValuePairs );
+                preferences->osduPreferences()->setFieldsReadOnly();
+                break;
+            }
+        }
+    }
+
+    {
+        QStringList sumoFilePathCandidates;
+        sumoFilePathCandidates << QDir::homePath() + "/.resinsight/sumo_config.json";
+        sumoFilePathCandidates << QCoreApplication::applicationDirPath() + "/../share/cloud_services/sumo_config.json";
+        sumoFilePathCandidates << QCoreApplication::applicationDirPath() + "/../../share/cloud_services/sumo_config.json";
+
+        for ( const auto& sumoFileCandidate : sumoFilePathCandidates )
+        {
+            auto keyValuePairs = RiaConnectorTools::readKeyValuePairs( sumoFileCandidate );
+            if ( !keyValuePairs.empty() )
+            {
+                RiaLogging::info( QString( "Imported SUMO configuration from : '%1'" ).arg( sumoFileCandidate ) );
+
+                preferences->sumoPreferences()->setData( keyValuePairs );
+                preferences->sumoPreferences()->setFieldsReadOnly();
+                break;
+            }
+        }
+    }
 }

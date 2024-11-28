@@ -26,6 +26,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferencesGeoMech.h"
 #include "RiaPreferencesGrid.h"
+#include "RiaPreferencesOsdu.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaPreferencesSumo.h"
 #include "RiaPreferencesSystem.h"

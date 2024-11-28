@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiaConsoleApplication.h"
 
+#include "Cloud/RiaConnectorTools.h"
 #include "RiaArgumentParser.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
@@ -109,6 +110,8 @@ void RiaConsoleApplication::initialize()
     RiaLogging::appendLoggerInstance( std::move( logger ) );
 
     m_socketServer = new RiaSocketServer( this );
+
+    RiaConnectorTools::readCloudConfigFiles( m_preferences.get() );
 }
 
 //--------------------------------------------------------------------------------------------------
