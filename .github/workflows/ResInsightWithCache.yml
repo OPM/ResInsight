@@ -37,7 +37,7 @@ jobs:
               publish-to-pypi: false,
               vcpkg-bootstrap: bootstrap-vcpkg.bat,
               vcpkg-triplet: x64-windows-release,
-              qt-version: 6.7.0,
+              qt-version: 6.6.3,
               ri-unit-test-path: "ResInsight-tests",
             }
           - {
