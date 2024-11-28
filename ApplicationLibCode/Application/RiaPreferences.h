@@ -237,7 +237,11 @@ private:
 
     // Osdu settings
     caf::PdmChildField<RiaPreferencesOsdu*> m_osduPreferences;
+    caf::PdmField<bool>                     m_deleteOsduToken;
+
+    // sumo settings
     caf::PdmChildField<RiaPreferencesSumo*> m_sumoPreferences;
+    caf::PdmField<bool>                     m_deleteSumoToken;
 
     // 3d view
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>       m_defaultMeshModeType;

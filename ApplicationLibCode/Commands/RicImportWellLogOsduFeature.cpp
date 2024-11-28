@@ -31,7 +31,7 @@
 #include "RimProject.h"
 #include "RimWellPathCollection.h"
 
-#include "OsduImportCommands/RiuWellLogImportWizard.h"
+#include "OsduCommands/RiuWellLogImportWizard.h"
 #include "RiuMainWindow.h"
 
 #include "cafSelectionManager.h"

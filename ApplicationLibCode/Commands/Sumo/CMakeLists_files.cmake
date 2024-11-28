@@ -1,9 +1,11 @@
 set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSumoEnsembleFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicDeleteSumoTokenFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSumoEnsembleFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicDeleteSumoTokenFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
