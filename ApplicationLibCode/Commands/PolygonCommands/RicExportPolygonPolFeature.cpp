@@ -37,33 +37,32 @@ CAF_CMD_SOURCE_INIT( RicExportPolygonPolFeature, "RicExportPolygonPolFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RicExportPolygonPolFeature::RicExportPolygonPolFeature()
+    : RicBasicPolygonFeature( true /*multiselect*/ )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicExportPolygonPolFeature::onActionTriggered( bool isChecked )
 {
-    auto sourcePolygon = caf::SelectionManager::instance()->selectedItemOfType<RimPolygon>();
-    if ( !sourcePolygon )
-    {
-        auto sourcePolygonInView = caf::SelectionManager::instance()->selectedItemOfType<RimPolygonInView>();
-        if ( sourcePolygonInView )
-        {
-            sourcePolygon = sourcePolygonInView->polygon();
-        }
-    }
-
-    if ( !sourcePolygon ) return;
+    auto selPolygons = selectedPolygons();
+    if ( selPolygons.empty() ) return;
 
     auto app             = RiaGuiApplication::instance();
     auto fallbackPath    = app->lastUsedDialogDirectory( "BINARY_GRID" );
     auto polygonPath     = app->lastUsedDialogDirectoryWithFallback( RimPolygonTools::polygonCacheName(), fallbackPath );
-    auto polygonFileName = polygonPath + "/" + sourcePolygon->name() + ".pol";
+    auto polygonFileName = polygonPath + "/" + selPolygons[0]->name() + ".pol";
 
     auto fileName = RiuFileDialogTools::getSaveFileName( nullptr,
                                                          "Select File for Polygon Export to POL",
                                                          polygonFileName,
                                                          "POL Files (*.pol);;All files(*.*)" );
 
-    if ( !RimPolygonTools::exportPolygonPol( sourcePolygon, fileName ) )
+    if ( !RimPolygonTools::exportPolygonPol( selPolygons, fileName ) )
     {
-        RiaLogging::error( "Failed to export polygon to " + fileName );
+        RiaLogging::error( "Failed to export polygon(s) to " + fileName );
     }
     else
     {

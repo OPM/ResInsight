@@ -16,37 +16,59 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicReloadPolygonFileFeature.h"
+#include "RicBasicPolygonFeature.h"
 
-#include "Polygons/RimPolygonFile.h"
+#include "Polygons/RimPolygon.h"
+#include "Polygons/RimPolygonInView.h"
 
 #include "cafSelectionManager.h"
 #include <cafSelectionManagerTools.h>
 
-#include <QAction>
-
-CAF_CMD_SOURCE_INIT( RicReloadPolygonFileFeature, "RicReloadPolygonFileFeature" );
+#include <set>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicReloadPolygonFileFeature::onActionTriggered( bool isChecked )
+RicBasicPolygonFeature::RicBasicPolygonFeature( bool multiSelectSupported )
+    : m_multiSelectSupported( multiSelectSupported )
 {
-    auto polygonFiles = caf::selectedObjectsByType<RimPolygonFile*>();
-
-    for ( auto p : polygonFiles )
-    {
-        p->loadData();
-        p->objectChanged.send();
-        p->updateConnectedEditors();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicReloadPolygonFileFeature::setupActionLook( QAction* actionToSetup )
+bool RicBasicPolygonFeature::isCommandEnabled() const
 {
-    actionToSetup->setText( "Reload" );
-    actionToSetup->setIcon( QIcon( ":/Refresh.svg" ) );
+    auto polygons = selectedPolygons();
+
+    return m_multiSelectSupported ? polygons.size() > 0 : polygons.size() == 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolygon*> RicBasicPolygonFeature::selectedPolygons() const
+{
+    std::set<RimPolygon*> uniquePolygons;
+
+    auto polygons   = caf::selectedObjectsByType<RimPolygon*>();
+    auto polygonivs = caf::selectedObjectsByType<RimPolygonInView*>();
+    for ( auto piv : polygonivs )
+    {
+        polygons.push_back( piv->polygon() );
+    }
+
+    // make sure we avoid duplicates
+    for ( auto p : polygons )
+    {
+        uniquePolygons.insert( p );
+    }
+
+    std::vector<RimPolygon*> returnPolygons;
+    for ( auto p : uniquePolygons )
+    {
+        returnPolygons.push_back( p );
+    }
+
+    return returnPolygons;
 }

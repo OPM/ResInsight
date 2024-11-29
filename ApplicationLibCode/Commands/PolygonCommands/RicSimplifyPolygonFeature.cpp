@@ -33,19 +33,18 @@ CAF_CMD_SOURCE_INIT( RicSimplifyPolygonFeature, "RicSimplifyPolygonFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RicSimplifyPolygonFeature::RicSimplifyPolygonFeature()
+    : RicBasicPolygonFeature( true /*multiselect*/ )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicSimplifyPolygonFeature::onActionTriggered( bool isChecked )
 {
-    auto sourcePolygon = caf::SelectionManager::instance()->selectedItemOfType<RimPolygon>();
-    if ( !sourcePolygon )
-    {
-        auto sourcePolygonInView = caf::SelectionManager::instance()->selectedItemOfType<RimPolygonInView>();
-        if ( sourcePolygonInView )
-        {
-            sourcePolygon = sourcePolygonInView->polygon();
-        }
-    }
-
-    if ( !sourcePolygon ) return;
+    auto selPolygons = selectedPolygons();
+    if ( selPolygons.empty() ) return;
 
     const double defaultEpsilon = 10.0;
 
@@ -53,7 +52,9 @@ void RicSimplifyPolygonFeature::onActionTriggered( bool isChecked )
     auto epsilon =
         QInputDialog::getDouble( nullptr, "Simplify Polygon Threshold", "Threshold:", defaultEpsilon, 1.0, 1000.0, 1, &ok, Qt::WindowFlags(), 1 );
 
-    if ( ok )
+    if ( !ok ) return;
+
+    for ( auto sourcePolygon : selPolygons )
     {
         auto coords = sourcePolygon->pointsInDomainCoords();
         RigCellGeometryTools::simplifyPolygon( &coords, epsilon );

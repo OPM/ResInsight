@@ -1,6 +1,6 @@
-/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2024     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,20 +18,24 @@
 
 #pragma once
 
-#include "PolygonCommands/RicBasicPolygonFeature.h"
+#include "cafCmdFeature.h"
+
+#include <vector>
+
+class RimPolygon;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewPolygonFilterFeature : public RicBasicPolygonFeature
+class RicBasicPolygonFeature : public caf::CmdFeature
 {
-    CAF_CMD_HEADER_INIT;
-
 public:
-    RicNewPolygonFilterFeature();
+    RicBasicPolygonFeature( bool multiSelectSupported );
 
 protected:
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandEnabled() const override;
+    std::vector<RimPolygon*> selectedPolygons() const;
+    bool                     isCommandEnabled() const override;
+
+private:
+    bool m_multiSelectSupported;
 };

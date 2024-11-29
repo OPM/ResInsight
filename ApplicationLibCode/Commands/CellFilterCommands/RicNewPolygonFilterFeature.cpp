@@ -40,6 +40,14 @@ CAF_CMD_SOURCE_INIT( RicNewPolygonFilterFeature, "RicNewPolygonFilterFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RicNewPolygonFilterFeature::RicNewPolygonFilterFeature()
+    : RicBasicPolygonFeature( true /*multiselect*/ )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
 {
     RimPolygon* polygonDataSource = nullptr;
@@ -50,7 +58,6 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
     }
 
     auto cellFilterCollection = caf::SelectionManager::instance()->selectedItemOfType<RimCellFilterCollection>();
-
     if ( !cellFilterCollection )
     {
         RimGridView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
@@ -59,30 +66,39 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
             cellFilterCollection = activeView->cellFilterCollection();
         }
     }
-
     if ( !cellFilterCollection ) return;
 
-    if ( !polygonDataSource )
-    {
-        auto selectedPolygon = caf::SelectionManager::instance()->selectedItemOfType<RimPolygon>();
-        if ( !selectedPolygon )
-        {
-            if ( auto polygonInView = caf::SelectionManager::instance()->selectedItemOfType<RimPolygonInView>() )
-            {
-                selectedPolygon = polygonInView->polygon();
-            }
-        }
+    auto sourceCase = cellFilterCollection->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
+    if ( !sourceCase ) return;
 
-        polygonDataSource = selectedPolygon;
+    std::vector<RimPolygon*> polygons;
+
+    if ( polygonDataSource )
+    {
+        polygons.push_back( polygonDataSource );
+    }
+    else
+    {
+        polygons = selectedPolygons();
     }
 
-    auto sourceCase = cellFilterCollection->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
-    if ( sourceCase )
+    RimPolygonFilter* lastItem = nullptr;
+
+    if ( polygons.empty() )
     {
-        if ( auto lastCreatedOrUpdated = cellFilterCollection->addNewPolygonFilter( sourceCase, polygonDataSource ) )
+        lastItem = cellFilterCollection->addNewPolygonFilter( sourceCase, nullptr );
+    }
+    else
+    {
+        for ( auto polygon : polygons )
         {
-            Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
+            lastItem = cellFilterCollection->addNewPolygonFilter( sourceCase, polygon );
         }
+    }
+
+    if ( lastItem )
+    {
+        Riu3DMainWindowTools::selectAsCurrentItem( lastItem );
     }
 }
 
@@ -93,4 +109,12 @@ void RicNewPolygonFilterFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/CellFilter_Polygon.png" ) );
     actionToSetup->setText( "User Defined Polygon Filter" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicNewPolygonFilterFeature::isCommandEnabled() const
+{
+    return true;
 }

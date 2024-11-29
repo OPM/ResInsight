@@ -27,8 +27,6 @@
 
 #include "RiuFileDialogTools.h"
 
-#include "cafSelectionManager.h"
-
 #include <QAction>
 #include <QFileInfo>
 
@@ -37,19 +35,20 @@ CAF_CMD_SOURCE_INIT( RicExportPolygonCsvFeature, "RicExportPolygonCsvFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RicExportPolygonCsvFeature::RicExportPolygonCsvFeature()
+    : RicBasicPolygonFeature( false /*multiselect*/ )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicExportPolygonCsvFeature::onActionTriggered( bool isChecked )
 {
-    auto sourcePolygon = caf::SelectionManager::instance()->selectedItemOfType<RimPolygon>();
-    if ( !sourcePolygon )
-    {
-        auto sourcePolygonInView = caf::SelectionManager::instance()->selectedItemOfType<RimPolygonInView>();
-        if ( sourcePolygonInView )
-        {
-            sourcePolygon = sourcePolygonInView->polygon();
-        }
-    }
+    auto selPolygons = selectedPolygons();
+    if ( selPolygons.empty() ) return;
 
-    if ( !sourcePolygon ) return;
+    auto sourcePolygon = selPolygons[0];
 
     auto app             = RiaGuiApplication::instance();
     auto fallbackPath    = app->lastUsedDialogDirectory( "BINARY_GRID" );
