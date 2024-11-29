@@ -393,6 +393,8 @@ endif()
 # OpenVDS seismic file access
 # ##############################################################################
 
+message(STATUS "Starting download of external library OpenVDS ...")
+
 if(MSVC)
   FetchContent_Declare(
     openvds
@@ -406,6 +408,7 @@ else()
 endif()
 
 FetchContent_MakeAvailable(openvds)
+message(STATUS "... completed download of external library OpenVDS")
 
 set(RESINSIGHT_OPENVDS_API_DIR ${openvds_SOURCE_DIR})
 message(STATUS "Using OpenVDS api from : ${RESINSIGHT_OPENVDS_API_DIR}")
