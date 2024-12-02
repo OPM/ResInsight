@@ -640,7 +640,7 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
 
         for ( size_t targetCellIdx = 0; targetCellIdx < targetNumReservoirCells; targetCellIdx++ )
         {
-            const RigCell& nativeCell = targetCase.mainGrid()->globalCellArray()[targetCellIdx];
+            const RigCell& nativeCell = targetCase.mainGrid()->cell( targetCellIdx );
             cvf::Vec3d     cellCenter = nativeCell.center();
 
             size_t targetResultIndex = targetActiveCellInfo->cellResultIndex( targetCellIdx );
