@@ -209,7 +209,9 @@ bool RiaTextStringTools::isNumber( const QString& text, const QString& decimalPo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+#if QT_VERSION < QT_VERSION_CHECK( 6, 8, 0 )
 std::strong_ordering operator<=>( const QString& lhs, const QString& rhs )
 {
     return lhs.compare( rhs ) <=> 0;
 }
+#endif
