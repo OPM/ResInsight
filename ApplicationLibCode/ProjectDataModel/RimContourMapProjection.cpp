@@ -391,7 +391,9 @@ void RimContourMapProjection::clearGridMapping()
     clearResults();
     clearTimeStepRange();
 
-    if ( m_contourMapProjection ) m_contourMapProjection->clearGridMapping();
+    m_contourMapProjection.reset();
+    m_contourMapGrid.reset();
+
     m_mapCellVisibility.clear();
 }
 
