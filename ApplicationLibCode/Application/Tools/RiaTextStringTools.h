@@ -21,6 +21,7 @@
 #include <QRegularExpression>
 #include <QString>
 #include <QStringList>
+#include <QtGlobal>
 
 #include <map>
 
@@ -47,6 +48,7 @@ bool    isNumber( const QString& text, const QString& decimalPoint );
 
 } // namespace RiaTextStringTools
 
+#if QT_VERSION < QT_VERSION_CHECK( 6, 8, 0 )
 //--------------------------------------------------------------------------------------------------
 //
 // Add operator<=> for QString to global scope
@@ -60,3 +62,4 @@ bool    isNumber( const QString& text, const QString& decimalPoint );
 //
 //--------------------------------------------------------------------------------------------------
 std::strong_ordering operator<=>( const QString& lhs, const QString& rhs );
+#endif
