@@ -21,7 +21,7 @@
 #include "Polygons/RimPolygonFile.h"
 
 #include "cafSelectionManager.h"
-#include <cafSelectionManagerTools.h>
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
 

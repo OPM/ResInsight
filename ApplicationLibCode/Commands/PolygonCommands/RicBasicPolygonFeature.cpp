@@ -22,7 +22,7 @@
 #include "Polygons/RimPolygonInView.h"
 
 #include "cafSelectionManager.h"
-#include <cafSelectionManagerTools.h>
+#include "cafSelectionManagerTools.h"
 
 #include <set>
 
