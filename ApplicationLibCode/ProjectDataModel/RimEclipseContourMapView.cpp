@@ -169,14 +169,23 @@ void RimEclipseContourMapView::updatePickPointAndRedraw()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseContourMapView::setCompatibleDrawStyle()
+{
+    surfaceMode = FAULTS;
+    meshMode    = RiaDefines::MeshModeType::NO_MESH;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapView::initAfterRead()
 {
     RimEclipseView::initAfterRead();
 
     disablePerspectiveProjectionField();
     setShowGridBox( false );
-    surfaceMode.setValue( FAULTS );
     setFaultVisParameters();
+    setCompatibleDrawStyle();
     scheduleCreateDisplayModelAndRedraw();
 }
 
