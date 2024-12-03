@@ -262,6 +262,8 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
     contourMap->faultCollection()->setActive( false );
     contourMap->wellCollection()->isActive = false;
 
+    contourMap->setCompatibleDrawStyle();
+
     // Set default values
     RimRegularLegendConfig* legendConfig = contourMap->cellResult()->legendConfig();
     if ( legendConfig && legendConfig->mappingMode() == RimRegularLegendConfig::MappingType::CATEGORY_INTEGER )
@@ -394,6 +396,7 @@ RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMapFr
     contourMap->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
 
     contourMap->setDefaultCustomName();
+    contourMap->setCompatibleDrawStyle();
 
     caf::PdmDocument::updateUiIconStateRecursively( contourMap );
 

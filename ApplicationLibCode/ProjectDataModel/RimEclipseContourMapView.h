@@ -46,6 +46,8 @@ public:
     RimSurfaceInViewCollection* surfaceInViewCollection() const override;
     void                        zoomAll() override;
 
+    void setCompatibleDrawStyle();
+
 protected:
     void initAfterRead() override;
     void onCreateDisplayModel() override;

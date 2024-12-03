@@ -174,6 +174,15 @@ bool RimGeoMechContourMapView::isTimeStepDependentDataVisible() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGeoMechContourMapView::setCompatibleDrawStyle()
+{
+    surfaceMode = FAULTS;
+    meshMode    = RiaDefines::MeshModeType::NO_MESH;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechContourMapView::initAfterRead()
 {
     RimGeoMechView::initAfterRead();
@@ -181,8 +190,7 @@ void RimGeoMechContourMapView::initAfterRead()
     m_gridCollection->setActive( false ); // This is also not added to the tree view, so cannot be enabled.
     disablePerspectiveProjectionField();
     setShowGridBox( false );
-    meshMode.setValue( RiaDefines::MeshModeType::NO_MESH );
-    surfaceMode.setValue( FAULTS );
+    setCompatibleDrawStyle();
     scheduleCreateDisplayModelAndRedraw();
 }
 
