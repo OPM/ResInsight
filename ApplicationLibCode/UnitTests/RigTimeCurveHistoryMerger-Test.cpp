@@ -208,3 +208,27 @@ TEST( RiaTimeHistoryCurveMergerTest, NoTimeStepOverlap )
         EXPECT_EQ( 0, static_cast<int>( curveMerger.validIntervalsForAllXValues().size() ) );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaTimeHistoryCurveMergerTest, SharedXValues )
+{
+    std::vector<double> valuesA{ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 };
+    std::vector<double> valuesB{ 10, 20, 30, 40, 50, 60, 70 };
+    std::vector<time_t> timeSteps{ 1, 2, 3, 4, 5, 6, 7 };
+
+    RiaTimeHistoryCurveMerger interpolate;
+    interpolate.addCurveData( timeSteps, valuesA );
+    interpolate.addCurveData( timeSteps, valuesB );
+    interpolate.computeInterpolatedValues( true );
+
+    auto interpolatedTimeSteps = interpolate.allXValues();
+    EXPECT_TRUE( std::equal( timeSteps.begin(), timeSteps.end(), interpolatedTimeSteps.begin() ) );
+
+    auto generatedYValuesA = interpolate.interpolatedYValuesForAllXValues( 0 );
+    EXPECT_TRUE( std::equal( valuesA.begin(), valuesA.end(), generatedYValuesA.begin() ) );
+
+    auto generatedYValuesB = interpolate.interpolatedYValuesForAllXValues( 1 );
+    EXPECT_TRUE( std::equal( valuesB.begin(), valuesB.end(), generatedYValuesB.begin() ) );
+}

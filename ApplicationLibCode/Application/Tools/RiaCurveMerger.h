@@ -67,7 +67,8 @@ public:
         interpolatedYValue( const XValueType& xValue, const std::vector<XValueType>& curveXValues, const std::vector<double>& curveYValues );
 
 private:
-    void computeUnionOfXValues( bool includeValuesFromPartialCurves );
+    void        computeUnionOfXValues( bool includeValuesFromPartialCurves );
+    static bool isMonotonicallyIncreasing( const std::vector<XValueType>& curveXValues );
 
 private:
     std::vector<std::pair<std::vector<XValueType>, std::vector<double>>> m_originalValues;
@@ -76,6 +77,9 @@ private:
 
     std::vector<XValueType>          m_allXValues;
     std::vector<std::vector<double>> m_interpolatedValuesForAllCurves;
+
+    bool m_isXValuesSharedBetweenCurves;
+    bool m_isXValuesMonotonicallyIncreasing;
 };
 
 using RiaTimeHistoryCurveMerger = RiaCurveMerger<time_t>;
