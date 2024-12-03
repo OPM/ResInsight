@@ -31,6 +31,8 @@
 #include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
+
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicDuplicatePolygonFeature, "RicDuplicatePolygonFeature" );
@@ -38,19 +40,20 @@ CAF_CMD_SOURCE_INIT( RicDuplicatePolygonFeature, "RicDuplicatePolygonFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RicDuplicatePolygonFeature::RicDuplicatePolygonFeature()
+    : RicBasicPolygonFeature( false /*multiselect*/ )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicDuplicatePolygonFeature::onActionTriggered( bool isChecked )
 {
-    auto sourcePolygon = caf::SelectionManager::instance()->selectedItemOfType<RimPolygon>();
-    if ( !sourcePolygon )
-    {
-        auto sourcePolygonInView = caf::SelectionManager::instance()->selectedItemOfType<RimPolygonInView>();
-        if ( sourcePolygonInView )
-        {
-            sourcePolygon = sourcePolygonInView->polygon();
-        }
-    }
+    auto selPolygons = selectedPolygons();
+    if ( selPolygons.empty() ) return;
 
-    if ( !sourcePolygon ) return;
+    auto sourcePolygon = selPolygons[0];
 
     auto proj              = RimProject::current();
     auto polygonCollection = proj->activeOilField()->polygonCollection();

@@ -16,59 +16,59 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicSimplifyPolygonFeature.h"
+#include "RicBasicPolygonFeature.h"
 
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonInView.h"
 
-#include "RigCellGeometryTools.h"
-
 #include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
-#include <QAction>
-#include <QInputDialog>
-
-CAF_CMD_SOURCE_INIT( RicSimplifyPolygonFeature, "RicSimplifyPolygonFeature" );
+#include <set>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSimplifyPolygonFeature::RicSimplifyPolygonFeature()
-    : RicBasicPolygonFeature( true /*multiselect*/ )
+RicBasicPolygonFeature::RicBasicPolygonFeature( bool multiSelectSupported )
+    : m_multiSelectSupported( multiSelectSupported )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSimplifyPolygonFeature::onActionTriggered( bool isChecked )
+bool RicBasicPolygonFeature::isCommandEnabled() const
 {
-    auto selPolygons = selectedPolygons();
-    if ( selPolygons.empty() ) return;
+    auto polygons = selectedPolygons();
 
-    const double defaultEpsilon = 10.0;
+    return m_multiSelectSupported ? polygons.size() > 0 : polygons.size() == 1;
+}
 
-    bool ok;
-    auto epsilon =
-        QInputDialog::getDouble( nullptr, "Simplify Polygon Threshold", "Threshold:", defaultEpsilon, 1.0, 1000.0, 1, &ok, Qt::WindowFlags(), 1 );
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolygon*> RicBasicPolygonFeature::selectedPolygons() const
+{
+    std::set<RimPolygon*> uniquePolygons;
 
-    if ( !ok ) return;
-
-    for ( auto sourcePolygon : selPolygons )
+    auto polygons   = caf::selectedObjectsByType<RimPolygon*>();
+    auto polygonivs = caf::selectedObjectsByType<RimPolygonInView*>();
+    for ( auto piv : polygonivs )
     {
-        auto coords = sourcePolygon->pointsInDomainCoords();
-        RigCellGeometryTools::simplifyPolygon( &coords, epsilon );
-
-        sourcePolygon->setPointsInDomainCoords( coords );
-        sourcePolygon->coordinatesChanged.send();
+        polygons.push_back( piv->polygon() );
     }
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicSimplifyPolygonFeature::setupActionLook( QAction* actionToSetup )
-{
-    actionToSetup->setText( "Simplify Polygon" );
-    actionToSetup->setIcon( QIcon( ":/PolylinesFromFile16x16.png" ) );
+    // make sure we avoid duplicates
+    for ( auto p : polygons )
+    {
+        uniquePolygons.insert( p );
+    }
+
+    std::vector<RimPolygon*> returnPolygons;
+    for ( auto p : uniquePolygons )
+    {
+        returnPolygons.push_back( p );
+    }
+
+    return returnPolygons;
 }

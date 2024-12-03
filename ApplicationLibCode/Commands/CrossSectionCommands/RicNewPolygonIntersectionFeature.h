@@ -18,14 +18,17 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "PolygonCommands/RicBasicPolygonFeature.h"
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewPolygonIntersectionFeature : public caf::CmdFeature
+class RicNewPolygonIntersectionFeature : public RicBasicPolygonFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    RicNewPolygonIntersectionFeature();
 
 protected:
     void onActionTriggered( bool isChecked ) override;

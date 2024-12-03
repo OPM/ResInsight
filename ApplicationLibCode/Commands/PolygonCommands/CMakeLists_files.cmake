@@ -6,6 +6,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicExportPolygonCsvFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicExportPolygonPolFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicSimplifyPolygonFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicBasicPolygonFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -16,6 +17,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicExportPolygonCsvFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportPolygonPolFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSimplifyPolygonFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicBasicPolygonFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

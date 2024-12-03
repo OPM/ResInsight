@@ -18,14 +18,17 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "RicBasicPolygonFeature.h"
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicExportPolygonCsvFeature : public caf::CmdFeature
+class RicExportPolygonCsvFeature : public RicBasicPolygonFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    RicExportPolygonCsvFeature();
 
 protected:
     void onActionTriggered( bool isChecked ) override;
