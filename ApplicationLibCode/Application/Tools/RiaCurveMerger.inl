@@ -56,6 +56,7 @@ bool XValueComparator<XValueType>::equals( const XValueType& lhs, const XValueTy
 template <typename XValueType>
 RiaCurveMerger<XValueType>::RiaCurveMerger()
     : m_isXValuesSharedBetweenCurves( false )
+    , m_isXValuesMonotonicallyIncreasing( true )
 {
 }
 
@@ -71,14 +72,20 @@ void RiaCurveMerger<XValueType>::addCurveData( const std::vector<XValueType>& xV
     {
         if ( m_originalValues.empty() )
         {
-            m_isXValuesSharedBetweenCurves = true;
+            m_isXValuesSharedBetweenCurves     = true;
+            m_isXValuesMonotonicallyIncreasing = isMonotonicallyIncreasing( xValues );
         }
         else
         {
             if ( m_isXValuesSharedBetweenCurves )
             {
-                const auto& firstXValues = m_originalValues.front().first;
-                m_isXValuesSharedBetweenCurves       = std::equal( firstXValues.begin(), firstXValues.end(), xValues.begin() );
+                const auto& firstXValues       = m_originalValues.front().first;
+                m_isXValuesSharedBetweenCurves = std::equal( firstXValues.begin(), firstXValues.end(), xValues.begin() );
+            }
+
+            if ( m_isXValuesMonotonicallyIncreasing )
+            {
+                m_isXValuesMonotonicallyIncreasing = isMonotonicallyIncreasing( xValues );
             }
         }
         m_originalValues.push_back( std::make_pair( xValues, yValues ) );
@@ -270,16 +277,26 @@ double RiaCurveMerger<XValueType>::interpolatedYValue( const XValueType&        
     if ( xValues.empty() ) return HUGE_VAL;
     if ( yValues.size() != xValues.size() ) return HUGE_VAL;
 
+    size_t startIndex = 0;
+
+    if ( isMonotonicallyIncreasing( xValues ) )
+    {
+        // Use lower_bound to find the first element that is not less than the interpolation value using a threshold that is larger than
+        // the threshold used in XComparator::equals
+        //
+        // Using this method will improve the performance significantly for large datasets, as std::lower_bound is much faster than the
+        // search in the loop below. One relevant use case is computation of delta summary values for large datasets. Here the time
+        // steps are specified in increasing order
+        //
+        XValueType threshold = 1.0e-6 * xValues.back();
+        auto       it        = std::lower_bound( xValues.begin(), xValues.end(), interpolationXValue - threshold );
+        if ( it == xValues.end() ) return HUGE_VAL;
+
+        startIndex = it - xValues.begin();
+        if ( startIndex > 0 ) startIndex--;
+    }
+
     const bool removeInterpolatedValues = false;
-
-    // Use lower_bound to find the first element that is not less than the interpolation value using a threshold that is larger than the
-    // threshold used in XComparator::equals
-    XValueType threshold = 1.0e-6 * xValues.back();
-    auto       it        = std::lower_bound( xValues.begin(), xValues.end(), interpolationXValue - threshold );
-    if ( it == xValues.end() ) return HUGE_VAL;
-
-    size_t startIndex = it - xValues.begin();
-    if ( startIndex > 0 ) startIndex--;
 
     for ( size_t firstI = startIndex; firstI < xValues.size(); firstI++ )
     {
@@ -336,4 +353,18 @@ double RiaCurveMerger<XValueType>::interpolatedYValue( const XValueType&        
     }
 
     return HUGE_VAL;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename XValueType>
+bool RiaCurveMerger<XValueType>::isMonotonicallyIncreasing( const std::vector<XValueType>& container )
+{
+    return std::adjacent_find( container.begin(),
+                               container.end(),
+                               []( const auto& a, const auto& b )
+                               {
+                                   return b < a; // Returns true if not monotonically increasing
+                               } ) == container.end();
 }
