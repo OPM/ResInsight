@@ -76,6 +76,8 @@ private:
 
     std::vector<XValueType>          m_allXValues;
     std::vector<std::vector<double>> m_interpolatedValuesForAllCurves;
+
+    bool m_isXValuesSharedBetweenCurves;
 };
 
 using RiaTimeHistoryCurveMerger = RiaCurveMerger<time_t>;

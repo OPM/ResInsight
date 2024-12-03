@@ -55,6 +55,7 @@ bool XValueComparator<XValueType>::equals( const XValueType& lhs, const XValueTy
 //--------------------------------------------------------------------------------------------------
 template <typename XValueType>
 RiaCurveMerger<XValueType>::RiaCurveMerger()
+    : m_isXValuesSharedBetweenCurves( false )
 {
 }
 
@@ -68,6 +69,18 @@ void RiaCurveMerger<XValueType>::addCurveData( const std::vector<XValueType>& xV
 
     if ( !xValues.empty() )
     {
+        if ( m_originalValues.empty() )
+        {
+            m_isXValuesSharedBetweenCurves = true;
+        }
+        else
+        {
+            if ( m_isXValuesSharedBetweenCurves )
+            {
+                const auto& firstXValues = m_originalValues.front().first;
+                m_isXValuesSharedBetweenCurves       = std::equal( firstXValues.begin(), firstXValues.end(), xValues.begin() );
+            }
+        }
         m_originalValues.push_back( std::make_pair( xValues, yValues ) );
     }
 }
@@ -131,13 +144,13 @@ void RiaCurveMerger<XValueType>::computeInterpolatedValues( bool includeValuesFr
     m_allXValues.clear();
     m_interpolatedValuesForAllCurves.clear();
 
-    computeUnionOfXValues( includeValuesFromPartialCurves );
-
     const size_t curveCount = m_originalValues.size();
     if ( curveCount == 0 )
     {
         return;
     }
+
+    computeUnionOfXValues( includeValuesFromPartialCurves );
 
     const size_t dataValueCount = m_allXValues.size();
     if ( dataValueCount == 0 )
@@ -157,8 +170,18 @@ void RiaCurveMerger<XValueType>::computeInterpolatedValues( bool includeValuesFr
 #pragma omp parallel for
         for ( int valueIndex = 0; valueIndex < static_cast<int>( dataValueCount ); valueIndex++ )
         {
-            double interpolValue =
-                interpolatedYValue( m_allXValues[valueIndex], m_originalValues[curveIdx].first, m_originalValues[curveIdx].second );
+            double interpolValue = 0.0;
+
+            if ( m_isXValuesSharedBetweenCurves )
+            {
+                interpolValue = m_originalValues[curveIdx].second[valueIndex];
+            }
+            else
+            {
+                interpolValue =
+                    interpolatedYValue( m_allXValues[valueIndex], m_originalValues[curveIdx].first, m_originalValues[curveIdx].second );
+            }
+
             if ( !RiaCurveDataTools::isValidValue( interpolValue, false ) )
             {
 #pragma omp critical
@@ -179,6 +202,13 @@ template <typename XValueType>
 void RiaCurveMerger<XValueType>::computeUnionOfXValues( bool includeValuesForPartialCurves )
 {
     m_allXValues.clear();
+
+    if ( m_isXValuesSharedBetweenCurves && !m_originalValues.empty() )
+    {
+        // If all curves have the same X values, use the X values from the first curve.
+        m_allXValues = m_originalValues.front().first;
+        return;
+    }
 
     std::set<XValueType, XComparator> unionOfXValues;
 
