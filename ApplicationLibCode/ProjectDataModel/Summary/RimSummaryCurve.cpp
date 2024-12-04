@@ -1269,9 +1269,9 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         m_xPushButtonSelectSummaryAddress = false;
     }
-    else if ( changedField == &m_yCurveTypeMode )
+    else if ( changedField == &m_yCurveTypeMode || changedField == &m_yCurveType )
     {
-        calculateCurveTypeFromAddress();
+        calculateCurveInterpolationFromAddress();
     }
 
     if ( crossPlotTestForMatchingTimeSteps )

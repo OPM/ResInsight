@@ -988,6 +988,9 @@ bool RifEclipseSummaryAddress::hasAccumulatedData() const
 
     QString qBaseName = QString::fromStdString( baseVectorName( quantityForInspection.toStdString() ) );
 
+    if ( RiaTextStringTools::isTextEqual( qBaseName, QString( "TCPU" ) ) ) return true;
+    if ( RiaTextStringTools::isTextEqual( qBaseName, QString( "ELAPSED" ) ) ) return true;
+
     if ( qBaseName.endsWith( "WCT" ) || qBaseName.endsWith( "WCTH" ) )
     {
         // https://github.com/OPM/ResInsight/issues/5808
