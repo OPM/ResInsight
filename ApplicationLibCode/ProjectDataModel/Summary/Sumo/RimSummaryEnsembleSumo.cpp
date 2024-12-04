@@ -43,7 +43,7 @@ RimSummaryEnsembleSumo::RimSummaryEnsembleSumo()
 {
     CAF_PDM_InitObject( "Sumo Ensemble", ":/SummaryCase.svg", "", "The Base Class for all Summary Cases" );
 
-    CAF_PDM_InitFieldNoDefault( &m_sumoDataSource, "SumoDataSource", "Sumo Data Source" );
+    CAF_PDM_InitFieldNoDefault( &m_sumoDataSource, "SumoDataSource", "Sumo Data Source" + RiaDefines::betaFeaturePostfix() );
 
     // Disable IO for cases, as the reconstruction is done by loading data from Sumo
     // Will also reduce the amount of data stored in the project file
