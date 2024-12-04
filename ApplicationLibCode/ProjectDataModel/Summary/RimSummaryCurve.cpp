@@ -1433,7 +1433,7 @@ void RimSummaryCurve::updateTimeAnnotations()
 void RimSummaryCurve::updateLegendEntryVisibilityNoPlotUpdate()
 {
     if ( !m_plotCurve ) return;
-    if ( !firstAncestorOrThisOfType<RimEnsembleCurveSet>() ) return;
+    if ( firstAncestorOrThisOfType<RimEnsembleCurveSet>() ) return;
 
     bool showLegendInPlot = m_showLegend();
     if ( auto summaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>() )
