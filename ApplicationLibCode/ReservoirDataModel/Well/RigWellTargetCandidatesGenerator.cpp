@@ -53,6 +53,8 @@ void RigWellTargetCandidatesGenerator::generateCandidates( RimEclipseCase*      
                                                            VolumeResultType        volumeResultType,
                                                            const ClusteringLimits& limits )
 {
+    if ( !eclipseCase->ensureReservoirCaseIsOpen() ) return;
+
     auto activeCellCount = getActiveCellCount( eclipseCase );
     if ( !activeCellCount )
     {
