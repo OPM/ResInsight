@@ -1079,7 +1079,7 @@ else(RESINSIGHT_USE_EXTERNAL_OCTAVE_PLUGINS)
 
     # The build of Octave Plugins is currently not working when Ninja is used as
     # build tool A separate build job is configured to build the Octave Plugins,
-    # and the build is cached at GitHub 
+    # and the build is cached at GitHub
     #
     # add_subdirectory(Octave/OctavePlugin)
   else(OCTAVE_MKOCTFILE)
