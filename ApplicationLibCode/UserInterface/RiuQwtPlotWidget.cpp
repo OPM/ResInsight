@@ -935,9 +935,19 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
     {
         bool updateCurveOrder = false;
         resetPlotItemHighlighting( updateCurveOrder );
-        if ( auto curve = dynamic_cast<RiuPlotCurve*>( closestItem ) )
+
+        auto curve = dynamic_cast<RiuPlotCurve*>( closestItem );
+        if ( curve && curve->ownerRimCurve() )
         {
-            RimSummaryEnsembleTools::highlightCurvesForSameRealization( curve->ownerRimCurve() );
+            const auto rimCurve = curve->ownerRimCurve();
+            if ( RimSummaryEnsembleTools::isEnsembleCurve( rimCurve ) )
+            {
+                RimSummaryEnsembleTools::highlightCurvesForSameRealization( rimCurve );
+            }
+            else
+            {
+                highlightCurvesUpdateOrder( { rimCurve } );
+            }
         }
         else
         {

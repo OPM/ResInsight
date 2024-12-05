@@ -338,6 +338,17 @@ size_t RimSummaryEnsembleTools::calculateEnsembleParametersIntersectionHash( con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSummaryEnsembleTools::isEnsembleCurve( RimPlotCurve* sourceCurve )
+{
+    auto summaryCurve = dynamic_cast<RimSummaryCurve*>( sourceCurve );
+    if ( !summaryCurve ) return false;
+
+    return summaryCurve->isEnsembleCurve();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryEnsembleTools::highlightCurvesForSameRealization( RimPlotCurve* sourceCurve )
 {
     auto sourceSummaryCurve = dynamic_cast<RimSummaryCurve*>( sourceCurve );
