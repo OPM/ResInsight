@@ -953,6 +953,14 @@ void RiuViewer::enableNavigationRotation( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiuViewer::isNavigationRotationEnabled() const
+{
+    return m_isNavigationRotationEnabled;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuViewer::updateNavigationPolicy()
 {
     switch ( RiaGuiApplication::instance()->navigationPolicy() )

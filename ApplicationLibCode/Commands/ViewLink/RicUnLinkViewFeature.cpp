@@ -29,6 +29,8 @@
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 
+#include "RiuViewer.h"
+
 #include "cafCmdFeatureManager.h"
 #include "cafSelectionManager.h"
 
@@ -90,11 +92,36 @@ void RicUnLinkViewFeature::onActionTriggered( bool isChecked )
             RimProject::current()->viewLinkerCollection->viewLinker.removeChild( viewLinker );
 
             delete viewLinker;
+            viewLinker = nullptr;
         }
         activeView->updateAutoName();
     }
 
-    if ( dynamic_cast<RimEclipseContourMapView*>( activeView ) ) activeView->zoomAll();
+    if ( dynamic_cast<RimEclipseContourMapView*>( activeView ) )
+    {
+        activeView->zoomAll();
+    }
+    else
+    {
+        activeView->viewer()->enableNavigationRotation( true );
+    }
+
+    if ( viewLinker )
+    {
+        Rim3dView* primaryView = viewLinker->masterView();
+
+        bool enableRotation = dynamic_cast<RimEclipseContourMapView*>( primaryView ) != nullptr;
+        auto linkedViews    = viewLinker->allViews();
+        for ( auto v : linkedViews )
+        {
+            enableRotation = enableRotation && dynamic_cast<RimEclipseContourMapView*>( v ) != nullptr;
+        }
+        if ( primaryView && primaryView->viewer() ) primaryView->viewer()->enableNavigationRotation( enableRotation );
+        for ( auto v : linkedViews )
+        {
+            if ( v->viewer() ) v->viewer()->enableNavigationRotation( enableRotation );
+        }
+    }
 
     RimProject::current()->viewLinkerCollection.uiCapability()->updateConnectedEditors();
     RimProject::current()->uiCapability()->updateConnectedEditors();

@@ -954,6 +954,10 @@ void RiuMainWindow::slotRefreshViewActions()
     RimGridView*              gridView = RiaApplication::instance()->activeGridView();
     RimEclipseContourMapView* view2d   = dynamic_cast<RimEclipseContourMapView*>( gridView );
     bool                      enabled  = gridView != nullptr && view2d == nullptr;
+    if ( ( gridView != nullptr ) && gridView->viewer() )
+    {
+        enabled = enabled && gridView->viewer()->isNavigationRotationEnabled();
+    }
     m_viewFromNorth->setEnabled( enabled );
     m_viewFromSouth->setEnabled( enabled );
     m_viewFromEast->setEnabled( enabled );

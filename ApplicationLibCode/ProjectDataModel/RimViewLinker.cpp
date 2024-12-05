@@ -314,15 +314,17 @@ void RimViewLinker::allViewsForCameraSync( const Rim3dView* source, std::vector<
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::updateDependentViews()
+void RimViewLinker::updateDependentViews( bool enableRotation /*=true*/ )
 {
     if ( m_viewControllers.empty() ) return;
+
+    m_masterView->viewer()->enableNavigationRotation( enableRotation );
 
     updateOverrides();
     updateDuplicatedPropertyFilters();
     updateCellResult();
     updateScaleZ( m_masterView, m_masterView->scaleZ() );
-    updateCamera( m_masterView );
+    updateCamera( m_masterView, enableRotation );
     updateTimeStep( m_masterView, m_masterView->currentTimeStep() );
 }
 
@@ -592,7 +594,7 @@ QList<caf::PdmOptionItemInfo> RimViewLinker::calculateValueOptions( const caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::updateCamera( Rim3dView* sourceView )
+void RimViewLinker::updateCamera( Rim3dView* sourceView, bool enableRotation /*=true*/ )
 {
     if ( !sourceView || !sourceView->viewer() ) return;
 
@@ -609,6 +611,10 @@ void RimViewLinker::updateCamera( Rim3dView* sourceView )
 
     std::vector<Rim3dView*> viewsToUpdate;
     allViewsForCameraSync( sourceView, viewsToUpdate );
+    for ( auto v : viewsToUpdate )
+    {
+        v->viewer()->enableNavigationRotation( enableRotation );
+    }
 
     RimViewManipulator::applySourceViewCameraOnDestinationViews( sourceView, viewsToUpdate );
 }

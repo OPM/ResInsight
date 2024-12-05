@@ -62,7 +62,7 @@ public:
     Rim3dView* masterView() const;
     void       addDependentView( Rim3dView* view );
     bool       isFirstViewDependentOnSecondView( const Rim3dView* firstView, const Rim3dView* secondView ) const;
-    void       updateDependentViews();
+    void       updateDependentViews( bool enableRotation = true );
     void       removeViewController( RimViewController* viewController );
     Rim3dView* firstControlledView();
 
@@ -70,7 +70,7 @@ public:
     void updateWindowTitles();
     void updateDuplicatedPropertyFilters();
 
-    void updateCamera( Rim3dView* sourceView );
+    void updateCamera( Rim3dView* sourceView, bool enableRoatation = true );
     void updateTimeStep( Rim3dView* sourceView, int timeStep );
     void updateScaleZ( Rim3dView* sourceView, double scaleZ );
 

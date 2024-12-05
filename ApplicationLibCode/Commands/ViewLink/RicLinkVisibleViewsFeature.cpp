@@ -28,6 +28,7 @@
 #include "RimViewLinkerCollection.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuViewer.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
 
@@ -113,13 +114,15 @@ void RicLinkVisibleViewsFeature::linkViews( std::vector<Rim3dView*>& linkableVie
 
     Rim3dView* primaryView = viewLinker->masterView();
 
-    auto matchingViews = RicLinkVisibleViewsFeature::matchingViews( primaryView, linkableViews );
+    bool enableRotation = primaryView->viewer()->isNavigationRotationEnabled();
+    auto matchingViews  = RicLinkVisibleViewsFeature::matchingViews( primaryView, linkableViews );
     for ( auto v : matchingViews )
     {
+        enableRotation = enableRotation && v->viewer()->isNavigationRotationEnabled();
         viewLinker->addDependentView( v );
     }
 
-    viewLinker->updateDependentViews();
+    viewLinker->updateDependentViews( enableRotation );
     viewLinker->updateUiNameAndIcon();
 
     proj->viewLinkerCollection.uiCapability()->updateConnectedEditors();

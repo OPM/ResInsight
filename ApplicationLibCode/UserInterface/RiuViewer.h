@@ -110,8 +110,9 @@ public:
     void addColorLegendToBottomLeftCorner( caf::TitledOverlayFrame* legend, bool isForComparisonView );
     void removeColorLegend( caf::TitledOverlayFrame* legend );
 
-    void enableNavigationRotation( bool disable );
+    void enableNavigationRotation( bool enable );
     void updateNavigationPolicy();
+    bool isNavigationRotationEnabled() const;
 
     void navigationPolicyUpdate() override;
 
