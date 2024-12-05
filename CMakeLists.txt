@@ -1049,7 +1049,7 @@ if(RESINSIGHT_USE_EXTERNAL_OCTAVE_PLUGINS)
 
   if(MSVC)
     set(OCTAVE_PLUGINS_URL
-        "https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2024.11/OctavePlugins-0.1.1-win64.zip"
+        "https://github.com/CeetronSolutions/resinsight-dependencies/releases/latest/download/OctavePlugins-0.1.1-win64.zip"
     )
   else()
     set(OCTAVE_PLUGINS_URL
@@ -1079,7 +1079,9 @@ else(RESINSIGHT_USE_EXTERNAL_OCTAVE_PLUGINS)
 
     # The build of Octave Plugins is currently not working when Ninja is used as
     # build tool A separate build job is configured to build the Octave Plugins,
-    # and the build is cached at GitHub add_subdirectory(Octave/OctavePlugin)
+    # and the build is cached at GitHub 
+    #
+    # add_subdirectory(Octave/OctavePlugin)
   else(OCTAVE_MKOCTFILE)
     message(
       STATUS "Could not find OCTAVE_MKOCTFILE, skipping OctavePlugin library"
