@@ -186,7 +186,7 @@ void RimPolygon::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
     if ( changedField == &m_pointsInDomainCoords )
     {
         coordinatesChanged.send();
-        objectChanged.send();
+        // objectChanged.send();
     }
 
     if ( changedField == &m_editPolygonButton )
@@ -198,6 +198,7 @@ void RimPolygon::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
 
         return;
     }
+    objectChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

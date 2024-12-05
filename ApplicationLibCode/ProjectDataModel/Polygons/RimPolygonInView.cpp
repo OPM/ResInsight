@@ -389,6 +389,7 @@ void RimPolygonInView::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder 
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInView::onObjectChanged( const caf::SignalEmitter* emitter )
 {
+    updateConnectedEditors();
     updateVisualization();
 }
 
