@@ -1046,10 +1046,24 @@ add_subdirectory(ApplicationExeCode)
 
 option(RESINSIGHT_USE_EXTERNAL_OCTAVE_PLUGINS "Use external Octave plugins" OFF)
 if(RESINSIGHT_USE_EXTERNAL_OCTAVE_PLUGINS)
-  FetchContent_Declare(
-    external-octave_plugins
-    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/latest/download/OctavePlugins-0.1.1-Linux.tar.gz
+
+  if(MSVC)
+    set(OCTAVE_PLUGINS_URL
+        "https://github.com/CeetronSolutions/resinsight-dependencies/releases/latest/download/OctavePlugins-0.1.1-win64.zip"
+    )
+  else()
+    set(OCTAVE_PLUGINS_URL
+        "https://github.com/CeetronSolutions/resinsight-dependencies/releases/latest/download/OctavePlugins-0.1.1-Linux.tar.gz"
+    )
+  endif(MSVC)
+
+  message(
+    STATUS "Starting to fetch OctavePlugin binaries from ${OCTAVE_PLUGINS_URL}"
   )
+
+  FetchContent_Declare(external-octave_plugins URL ${OCTAVE_PLUGINS_URL})
+
+  message(STATUS "Completed fetching of OctavePlugin")
 
   FetchContent_MakeAvailable(external-octave_plugins)
 
@@ -1063,6 +1077,10 @@ else(RESINSIGHT_USE_EXTERNAL_OCTAVE_PLUGINS)
   if(OCTAVE_MKOCTFILE)
     message(STATUS "Adding OctavePlugin library")
 
+    # The build of Octave Plugins is currently not working when Ninja is used as
+    # build tool A separate build job is configured to build the Octave Plugins,
+    # and the build is cached at GitHub
+    #
     # add_subdirectory(Octave/OctavePlugin)
   else(OCTAVE_MKOCTFILE)
     message(
