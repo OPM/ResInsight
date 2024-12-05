@@ -79,6 +79,7 @@ public:
     bool isFilterEnabled() const override;
 
     void enablePicking( bool enable );
+    bool pickingEnabled() const override;
 
     void updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex ) override;
     void onGridChanged() override;
@@ -124,7 +125,6 @@ private:
     void updateEditorsAndVisualization() override;
     void updateVisualization() override;
     std::vector<RimPolylineTarget*> activeTargets() const override;
-    bool                            pickingEnabled() const override;
     caf::PickEventHandler*          pickEventHandler() const override;
 
     caf::AppEnum<GeometricalShape> geometricalShape() const;

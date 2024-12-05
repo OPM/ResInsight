@@ -58,6 +58,8 @@ public:
     cvf::Color3f color() const;
     void         setColor( const cvf::Color3f& color );
 
+    bool showLines() const;
+
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
     void uiOrderingForLocalPolygon( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );

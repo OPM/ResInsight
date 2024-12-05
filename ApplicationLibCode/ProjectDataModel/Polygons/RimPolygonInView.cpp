@@ -168,6 +168,18 @@ void RimPolygonInView::updateVisualization()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimPolygonInView::showLines() const
+{
+    if ( auto poly = polygon() )
+    {
+        return poly->showLines() && isChecked();
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimPolylineTarget*> RimPolygonInView::activeTargets() const
 {
     return m_targets.childrenByType();

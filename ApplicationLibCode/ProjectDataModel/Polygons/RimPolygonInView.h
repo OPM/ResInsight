@@ -67,6 +67,8 @@ public:
 
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
+    bool showLines() const;
+
     void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
