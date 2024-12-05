@@ -29,7 +29,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
-#include "RigSimWellData.h"
+#include "Well/RigSimWellData.h"
 
 #include "RimCaseCollection.h"
 #include "RimEclipseCellColors.h"

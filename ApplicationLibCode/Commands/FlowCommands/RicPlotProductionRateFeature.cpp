@@ -25,9 +25,8 @@
 #include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
 
-#include "RigSimWellData.h"
+#include "Well/RigSimWellData.h"
 
-#include "RiaSummaryTools.h"
 #include "Rim3dView.h"
 #include "RimEclipseResultCase.h"
 #include "RimMainPlotCollection.h"
@@ -41,6 +40,7 @@
 #include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RiuPlotMainWindow.h"
 
@@ -260,7 +260,7 @@ RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* 
     plot->addCurveAndUpdate( newCurve );
 
     newCurve->setSummaryCaseY( summaryCase );
-    newCurve->setSummaryAddressYAndApplyInterpolation( addr );
+    newCurve->setSummaryAddressY( addr );
     newCurve->setColor( color );
     newCurve->setLeftOrRightAxisY( RiuPlotAxis( plotAxis ) );
     newCurve->loadDataAndUpdate( true );

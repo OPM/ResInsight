@@ -23,41 +23,36 @@ option(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS
        "Treat warnings as errors (stops build)" OFF
 )
 
-find_package(Qt5 ${RI_QT_MINIMUM_VERSION} COMPONENTS Core)
-
-if(Qt5Core_FOUND)
-  find_package(
-    Qt5 ${RI_QT_MINIMUM_VERSION}
-    COMPONENTS Core
-               Gui
-               OpenGL
-               Network
-               NetworkAuth
-               Widgets
-               Xml
-               Concurrent
-               PrintSupport
-               Svg
-               Sql
-    OPTIONAL_COMPONENTS Charts
-  )
-  set(QT_LIBRARIES
-      Qt5::Core
-      Qt5::Gui
-      Qt5::Network
-      Qt5::NetworkAuth
-      Qt5::OpenGL
-      Qt5::Widgets
-      Qt5::Xml
-      Qt5::Concurrent
-      Qt5::PrintSupport
-      Qt5::Svg
-      Qt5::Sql
-  )
-  if(Qt5Charts_FOUND)
-    list(APPEND QT_LIBRARIES Qt5::Charts)
-  endif(Qt5Charts_FOUND)
-endif(Qt5Core_FOUND)
+find_package(
+  Qt6
+  COMPONENTS Core
+             Gui
+             OpenGL
+             Network
+             NetworkAuth
+             Widgets
+             Xml
+             Concurrent
+             PrintSupport
+             Svg
+             Sql
+  OPTIONAL_COMPONENTS Charts
+)
+set(QT_LIBRARIES
+    Qt6::Core
+    Qt6::Gui
+    Qt6::OpenGL
+    Qt6::Network
+    Qt6::NetworkAuth
+    Qt6::Widgets
+    Qt6::Xml
+    Qt6::Concurrent
+    Qt6::PrintSupport
+    Qt6::Svg
+    Qt6::Sql
+    Qt6::Charts
+)
+qt_standard_project_setup()
 
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
   set(Python3_EXECUTABLE ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
@@ -94,11 +89,13 @@ list(
   Application/Tools/CMakeLists_files.cmake
   Application/Tools/WellPathTools/CMakeLists_files.cmake
   Application/Tools/Cloud/CMakeLists_files.cmake
+  Application/Tools/Summary/CMakeLists_files.cmake
   ReservoirDataModel/CMakeLists_files.cmake
   ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
   ReservoirDataModel/Completions/CMakeLists_files.cmake
   ReservoirDataModel/ResultAccessors/CMakeLists_files.cmake
   ReservoirDataModel/ResultCalculators/CMakeLists_files.cmake
+  ReservoirDataModel/Well/CMakeLists_files.cmake
   FileInterface/CMakeLists_files.cmake
   ProjectDataModel/CMakeLists_files.cmake
   ProjectDataModel/AnalysisPlots/CMakeLists_files.cmake
@@ -131,6 +128,7 @@ list(
   ProjectDataModelCommands/CMakeLists_files.cmake
   ProjectDataModelCommands/CommandRouter/CMakeLists_files.cmake
   ProjectDataModel/VerticalFlowPerformance/CMakeLists_files.cmake
+  ProjectDataModel/QuickAccess/CMakeLists_files.cmake
   GeoMech/GeoMechVisualization/CMakeLists_files.cmake
   ModelVisualization/CMakeLists_files.cmake
   ModelVisualization/Faults/CMakeLists_files.cmake
@@ -219,25 +217,14 @@ if(RESINSIGHT_FOUND_HDF5)
 endif()
 
 # ##############################################################################
-# Qt specifics: Moc, ui, resources
-# ##############################################################################
-
-set(QT_MOC_HEADERS
-    ${QT_MOC_HEADERS} ProjectDataModel/RimMimeData.h
-    ProjectDataModel/Intersections/RimBoxIntersection.h
-    SocketInterface/RiaSocketServer.h
-)
-
-qt5_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS})
-qt5_wrap_ui(FORM_FILES_CPP ${QT_UI_FILES})
-
-# ##############################################################################
 # Create source groups - see also included CMakeLists_files.cmake
 # ##############################################################################
 source_group("ModelVisualization" FILES ${MODEL_VISUALIZATION_FILES})
 
+qt_add_resources(QRC_FILES Application/Resources/ApplicationLibCode.qrc)
+
 list(APPEND ALL_SOURCE_FILES ${CPP_SOURCES} ${MOC_SOURCE_FILES}
-     ${FORM_FILES_CPP}
+     ${FORM_FILES_CPP} ${QRC_FILES}
 )
 
 add_library(${PROJECT_NAME} OBJECT ${ALL_SOURCE_FILES})
@@ -267,6 +254,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             -Wno-call-to-pure-virtual-from-ctor-dtor
             -Wno-delete-non-abstract-non-virtual-dtor
             -Wno-ambiguous-reversed-operator
+            -Wno-deprecated-declarations
   )
 endif()
 
@@ -291,13 +279,6 @@ if(MSVC)
   set(BUILD_FLAGS_FOR_MSVC "/W3 /wd4190 /wd4100 /wd4127")
 
   message(STATUS "CMAKE_CXX_COMPILER_VERSION ${CMAKE_CXX_COMPILER_VERSION}")
-
-  if(CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 19.14)
-    # The following warning is generated over 800 times from a qwt header only
-    # using VS2015 Disabling temporarily warning C4505 'function' : unreferenced
-    # local function has been removed
-    set(BUILD_FLAGS_FOR_MSVC "${BUILD_FLAGS_FOR_MSVC} /wd4505")
-  endif()
 
   if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 19.38)
     # https://github.com/OPM/ResInsight/issues/10844
@@ -411,15 +392,21 @@ set(UNITY_EXCLUDE_FILES
     qrc_cafAnimControl.cpp
     qrc_ResInsight.cpp
     qrc_cafCommandFeatures.cpp
+    qrc_ApplicationLibCode.cpp
     # Exclude files including opm-common
     ProjectDataModel/RimVfpTableExtractor.cpp
     ProjectDataModel/RimVfpPlot.cpp
+    # Exclude moc files as they cause template instanciation issues
+    # https://cmake.org/cmake/help/latest/prop_tgt/AUTOGEN_BUILD_DIR.html
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_autogen/mocs_compilation.cpp
     ProjectDataModel/RiaOpmParserTools.cpp
     FileInterface/RifOsduWellPathReader.cpp
     FileInterface/RifOsduWellLogReader.cpp
     FileInterface/RifByteArrayArrowRandomAccessFile.cpp
     FileInterface/RifArrowTools.cpp
 )
+
+message("Files excluded from UNITY_BUILD : ${UNITY_EXCLUDE_FILES}")
 
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
   foreach(fileToExclude ${UNITY_EXCLUDE_FILES})

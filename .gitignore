@@ -25,7 +25,7 @@ CMakeCache.txt
 cmake_install.cmake
 CPack*.cmake
 CTest*.cmake
-cmakebuild/
+cmakebuild*/
 
 #Unit test binaries
 *_UnitTests
@@ -64,7 +64,7 @@ out
 build
 CMakeSettings.json
 enc_temp_folder
-CMakePresets.json
+CMakeUserPresets.json
 
 #Visual Studio Code files
 .vscode

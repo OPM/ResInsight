@@ -27,14 +27,6 @@
 #include <QProcess>
 #include <QProcessEnvironment>
 
-// Disable deprecation warning for QProcess::start()
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )
-#endif
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 CAF_PDM_SOURCE_INIT( RimProcess, "RimProcess" );
 
 int RimProcess::m_nextProcessId = 1;
@@ -83,9 +75,8 @@ void RimProcess::addParameter( QString paramStr )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProcess::setParameters( QStringList parameterList )
+void RimProcess::addParameters( QStringList parameterList )
 {
-    m_arguments.clear();
     for ( int i = 0; i < parameterList.size(); i++ )
     {
         addParameter( parameterList[i] );
@@ -97,7 +88,16 @@ void RimProcess::setParameters( QStringList parameterList )
 //--------------------------------------------------------------------------------------------------
 void RimProcess::setCommand( QString cmdStr )
 {
-    m_command = cmdStr;
+    m_command = cmdStr.trimmed();
+
+    QString shell = optionalCommandInterpreter();
+    if ( shell.isEmpty() ) return;
+
+    QString preParam = optionalPreParameters();
+    if ( !preParam.isEmpty() ) m_arguments.append( preParam );
+
+    m_arguments.append( cmdStr.trimmed() );
+    m_command = shell;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -156,7 +156,8 @@ bool RimProcess::execute( bool enableStdOut, bool enableStdErr )
     }
     proc->setProcessEnvironment( env );
 
-    proc->start( cmd );
+    proc->start( m_command, m_arguments );
+    auto error = proc->errorString();
     if ( proc->waitForStarted( -1 ) )
     {
         while ( !proc->waitForFinished( 500 ) )
@@ -167,7 +168,7 @@ bool RimProcess::execute( bool enableStdOut, bool enableStdErr )
     }
     else
     {
-        RiaLogging::error( QString( "Failed to start process %1." ).arg( m_id ) );
+        RiaLogging::error( QString( "Failed to start process %1. %2." ).arg( m_id ).arg( error ) );
     }
 
     proc->deleteLater();
@@ -182,17 +183,17 @@ QString RimProcess::optionalCommandInterpreter() const
 {
     if ( m_command.value().isNull() ) return "";
 
-    if ( m_command.value().endsWith( ".cmd", Qt::CaseInsensitive ) || m_command.value().endsWith( ".bat", Qt::CaseInsensitive ) )
+    if ( isWindowsBatchFile() )
     {
-        return "cmd.exe /c ";
+        return "cmd.exe";
     }
     if ( m_command.value().endsWith( ".sh", Qt::CaseInsensitive ) )
     {
-        return "bash ";
+        return "bash";
     }
     if ( m_command.value().endsWith( ".csh", Qt::CaseInsensitive ) )
     {
-        return "csh ";
+        return "csh";
     }
     return "";
 }
@@ -200,13 +201,32 @@ QString RimProcess::optionalCommandInterpreter() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimProcess::optionalPreParameters() const
+{
+    if ( m_command.value().isNull() ) return "";
+
+    if ( isWindowsBatchFile() )
+    {
+        return "/c";
+    }
+
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimProcess::isWindowsBatchFile() const
+{
+    return ( m_command.value().endsWith( ".cmd", Qt::CaseInsensitive ) || m_command.value().endsWith( ".bat", Qt::CaseInsensitive ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimProcess::commandLine() const
 {
-    QString cmdline;
-
-    cmdline += optionalCommandInterpreter();
-
-    cmdline += handleSpaces( m_command );
+    QString cmdline = handleSpaces( m_command );
 
     for ( int i = 0; i < m_arguments.size(); i++ )
     {

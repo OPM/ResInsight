@@ -34,7 +34,7 @@
 #include "RimWellPathCollection.h"
 #include "RiuPlotMainWindowTools.h"
 
-#include "RigWellLogLasFile.h"
+#include "Well/RigWellLogLasFile.h"
 
 #include "RiuQwtPlotWidget.h"
 

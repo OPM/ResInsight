@@ -173,7 +173,6 @@ private:
 
     QAction* m_snapshotAllViewsToFile;
 
-    QAction* m_createCommandObject;
     QAction* m_showRegressionTestDialog;
     QAction* m_executePaintEventPerformanceTest;
 
@@ -235,8 +234,6 @@ private slots:
     // Debug slots
     void slotSnapshotAllViewsToFile();
 
-    void slotCreateCommandObject();
-
     void slotShowRegressionTestDialog();
     void slotExecutePaintEventPerformanceTest();
 
@@ -264,6 +261,7 @@ public:
 private:
     caf::PdmObject*         m_pdmRoot;
     caf::PdmUiPropertyView* m_pdmUiPropertyView;
+    caf::PdmUiPropertyView* m_quickAccessView;
 
     QComboBox* m_scaleFactor;
 

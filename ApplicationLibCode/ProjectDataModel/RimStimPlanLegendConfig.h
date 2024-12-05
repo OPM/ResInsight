@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"

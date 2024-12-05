@@ -20,6 +20,7 @@
 
 #include "RivGridPartMgr.h"
 
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
 
@@ -65,6 +66,32 @@
 #include "cvfStructGrid.h"
 #include "cvfTransform.h"
 #include "cvfUniform.h"
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RivCellSetEnum>::setUp()
+{
+    addItem( RivCellSetEnum::OVERRIDDEN_CELL_VISIBILITY, "OVERRIDDEN_CELL_VISIBILITY", "OVERRIDDEN_CELL_VISIBILITY" );
+    addItem( RivCellSetEnum::ALL_CELLS, "ALL_CELLS", "ALL_CELLS" );
+    addItem( RivCellSetEnum::ACTIVE, "ACTIVE", "ACTIVE" );
+    addItem( RivCellSetEnum::ALL_WELL_CELLS, "ALL_WELL_CELLS", "ALL_WELL_CELLS" );
+    addItem( RivCellSetEnum::VISIBLE_WELL_CELLS, "VISIBLE_WELL_CELLS", "VISIBLE_WELL_CELLS" );
+    addItem( RivCellSetEnum::VISIBLE_WELL_FENCE_CELLS, "VISIBLE_WELL_FENCE_CELLS", "VISIBLE_WELL_FENCE_CELLS" );
+    addItem( RivCellSetEnum::INACTIVE, "INACTIVE", "INACTIVE" );
+    addItem( RivCellSetEnum::RANGE_FILTERED, "RANGE_FILTERED", "RANGE_FILTERED" );
+    addItem( RivCellSetEnum::RANGE_FILTERED_INACTIVE, "RANGE_FILTERED_INACTIVE", "RANGE_FILTERED_INACTIVE" );
+    addItem( RivCellSetEnum::RANGE_FILTERED_WELL_CELLS, "RANGE_FILTERED_WELL_CELLS", "RANGE_FILTERED_WELL_CELLS" );
+    addItem( RivCellSetEnum::VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER,
+             "VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER",
+             "VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER" );
+    addItem( RivCellSetEnum::VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER,
+             "VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER",
+             "VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER" );
+    addItem( RivCellSetEnum::PROPERTY_FILTERED, "PROPERTY_FILTERED", "PROPERTY_FILTERED" );
+    addItem( RivCellSetEnum::PROPERTY_FILTERED_WELL_CELLS, "PROPERTY_FILTERED_WELL_CELLS", "PROPERTY_FILTERED_WELL_CELLS" );
+}
+} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -117,7 +144,20 @@ void RivGridPartMgr::generatePartGeometry( cvf::StructGridGeometryGenerator& geo
 
     // Surface geometry
     {
+        bool showDebugTiming = false;
+        if ( showDebugTiming )
+        {
+            auto text = caf::AppEnum<RivCellSetEnum>::text( m_cellSetType );
+            RiaLogging::resetTimer( "Compute surface for " + text );
+        }
+
         cvf::ref<cvf::DrawableGeo> geo = geoBuilder.generateSurface();
+
+        if ( showDebugTiming )
+        {
+            RiaLogging::logTimeElapsed( "" );
+        }
+
         if ( geo.notNull() )
         {
             geo->computeNormals();

@@ -26,9 +26,9 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
-#include "RigEclipseWellLogExtractor.h"
-#include "RigGeoMechWellLogExtractor.h"
 #include "RigResultAccessorFactory.h"
+#include "Well/RigEclipseWellLogExtractor.h"
+#include "Well/RigGeoMechWellLogExtractor.h"
 
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
@@ -39,6 +39,8 @@
 #include "RimWellPath.h"
 
 #include "NRLib/nrlib/well/laswell.hpp"
+
+#include <QRegularExpression>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -248,9 +250,9 @@ void RicCreateDepthAdjustedLasFilesImpl::createDestinationWellLasFile( const QSt
 
     // Replace white space from well names in file name
     QString sourceWell      = sourceWellLogData->wellName();
-    sourceWell              = sourceWell.replace( QRegExp( "[\\s]+" ), "_" );
+    sourceWell              = sourceWell.replace( QRegularExpression( "[\\s]+" ), "_" );
     QString destinationWell = wellName;
-    destinationWell         = destinationWell.replace( QRegExp( "[\\s]+" ), "_" );
+    destinationWell         = destinationWell.replace( QRegularExpression( "[\\s]+" ), "_" );
 
     // Create full file path name
     QString fullPathName = exportFolder + "/" + destinationWell + "_Depth_Adjusted_Using_" + sourceWell + "_" + caseDescription +

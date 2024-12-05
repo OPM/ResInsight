@@ -103,9 +103,9 @@ bool RimPolygonTools::exportPolygonCsv( const RimPolygon* polygon, const QString
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPolygonTools::exportPolygonPol( const RimPolygon* polygon, const QString& filePath )
+bool RimPolygonTools::exportPolygonPol( const std::vector<RimPolygon*> polygons, const QString& filePath )
 {
-    if ( !polygon ) return false;
+    if ( polygons.empty() ) return false;
 
     QFile file( filePath );
     if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) ) return false;
@@ -122,19 +122,22 @@ bool RimPolygonTools::exportPolygonPol( const RimPolygon* polygon, const QString
     header.emplace_back( " ", RifTextDataTableDoubleFormatting( RIF_FLOAT, precision ) );
     formatter.header( header );
 
-    for ( const auto& point : polygon->pointsInDomainCoords() )
+    for ( auto polygon : polygons )
     {
-        formatter.add( point.x() );
-        formatter.add( point.y() );
-        formatter.add( -point.z() );
+        for ( const auto& point : polygon->pointsInDomainCoords() )
+        {
+            formatter.add( point.x() );
+            formatter.add( point.y() );
+            formatter.add( -point.z() );
+            formatter.rowCompleted();
+        }
+
+        const double endOfPolygon = 999.0;
+        formatter.add( endOfPolygon );
+        formatter.add( endOfPolygon );
+        formatter.add( endOfPolygon );
         formatter.rowCompleted();
     }
-
-    const double endOfPolygon = 999.0;
-    formatter.add( endOfPolygon );
-    formatter.add( endOfPolygon );
-    formatter.add( endOfPolygon );
-    formatter.rowCompleted();
 
     formatter.tableCompleted();
 

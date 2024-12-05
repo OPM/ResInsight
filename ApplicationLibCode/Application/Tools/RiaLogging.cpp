@@ -163,13 +163,52 @@ void RiaDefaultConsoleLogger::writeToConsole( const std::string& str )
 #endif
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaLogging::setLastMessage( const QString& message )
+{
+#pragma omp critical( critical_section_logging )
+    {
+        sm_lastMessage     = message;
+        sm_lastMessageTime = std::chrono::high_resolution_clock::now();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaLogging::isSameMessage( const QString& message )
+{
+    bool isSame = false;
+
+#pragma omp critical( critical_section_logging )
+    {
+        if ( message == sm_lastMessage )
+        {
+            auto now      = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( now - sm_lastMessageTime );
+
+            if ( duration.count() < 1000 )
+            {
+                isSame = true;
+            }
+        }
+    }
+
+    return isSame;
+}
+
 //==================================================================================================
 //
 //
 //
 //==================================================================================================
 
-std::vector<std::unique_ptr<RiaLogger>> RiaLogging::sm_logger;
+std::vector<std::unique_ptr<RiaLogger>>                     RiaLogging::sm_logger;
+std::chrono::time_point<std::chrono::high_resolution_clock> RiaLogging::sm_startTime;
+QString                                                     RiaLogging::sm_lastMessage;
+std::chrono::time_point<std::chrono::high_resolution_clock> RiaLogging::sm_lastMessageTime;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -208,6 +247,8 @@ RILogLevel RiaLogging::logLevelBasedOnPreferences()
 //--------------------------------------------------------------------------------------------------
 void RiaLogging::error( const QString& message )
 {
+    if ( isSameMessage( message ) ) return;
+
     for ( const auto& logger : sm_logger )
     {
         if ( logger && logger->level() >= int( RILogLevel::RI_LL_ERROR ) )
@@ -216,6 +257,8 @@ void RiaLogging::error( const QString& message )
             logger->error( message.toLatin1().constData() );
         }
     }
+
+    setLastMessage( message );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,6 +266,8 @@ void RiaLogging::error( const QString& message )
 //--------------------------------------------------------------------------------------------------
 void RiaLogging::warning( const QString& message )
 {
+    if ( isSameMessage( message ) ) return;
+
     for ( const auto& logger : sm_logger )
     {
         if ( logger && logger->level() >= int( RILogLevel::RI_LL_WARNING ) )
@@ -231,6 +276,8 @@ void RiaLogging::warning( const QString& message )
             logger->warning( message.toLatin1().constData() );
         }
     }
+
+    setLastMessage( message );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -238,6 +285,8 @@ void RiaLogging::warning( const QString& message )
 //--------------------------------------------------------------------------------------------------
 void RiaLogging::info( const QString& message )
 {
+    if ( isSameMessage( message ) ) return;
+
     for ( const auto& logger : sm_logger )
     {
         if ( logger && logger->level() >= int( RILogLevel::RI_LL_INFO ) )
@@ -246,6 +295,8 @@ void RiaLogging::info( const QString& message )
             logger->info( message.toLatin1().constData() );
         }
     }
+
+    setLastMessage( message );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -253,6 +304,8 @@ void RiaLogging::info( const QString& message )
 //--------------------------------------------------------------------------------------------------
 void RiaLogging::debug( const QString& message )
 {
+    if ( isSameMessage( message ) ) return;
+
     for ( const auto& logger : sm_logger )
     {
         if ( logger && logger->level() >= int( RILogLevel::RI_LL_DEBUG ) )
@@ -261,6 +314,8 @@ void RiaLogging::debug( const QString& message )
             logger->debug( message.toLatin1().constData() );
         }
     }
+
+    setLastMessage( message );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -274,6 +329,29 @@ void RiaLogging::errorInMessageBox( QWidget* parent, const QString& title, const
     }
 
     RiaLogging::error( text );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaLogging::resetTimer( const QString& message )
+{
+    sm_startTime = std::chrono::high_resolution_clock::now();
+
+    if ( !message.isEmpty() ) RiaLogging::debug( message );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaLogging::logTimeElapsed( const QString& message )
+{
+    auto end = std::chrono::high_resolution_clock::now();
+
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( end - sm_startTime );
+    auto text     = message + QString( " (duration : %1 milliseconds)" ).arg( duration.count() );
+
+    RiaLogging::debug( text );
 }
 
 //--------------------------------------------------------------------------------------------------

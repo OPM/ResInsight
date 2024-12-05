@@ -37,11 +37,12 @@ jobs:
               publish-to-pypi: false,
               vcpkg-bootstrap: bootstrap-vcpkg.bat,
               vcpkg-triplet: x64-windows-release,
-              qt-version: 5.12.12,
+              qt-version: 6.6.3,
+              ri-unit-test-path: "ResInsight-tests",
             }
           - {
-              name: "Ubuntu 22.04 gcc",
-              os: ubuntu-22.04,
+              name: "Ubuntu 24.04 gcc",
+              os: ubuntu-24.04,
               cc: "gcc",
               cxx: "g++",
               build-python-module: true,
@@ -51,7 +52,8 @@ jobs:
               publish-to-pypi: true,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
               vcpkg-triplet: x64-linux-release,
-              qt-version: 5.12.12,
+              qt-version: 6.7.0,
+              ri-unit-test-path: "ResInsight-tests",
             }
           - {
               name: "Ubuntu 22.04 clang-16",
@@ -65,7 +67,8 @@ jobs:
               publish-to-pypi: false,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
               vcpkg-triplet: x64-linux-release,
-              qt-version: 5.12.12,
+              qt-version: 6.7.0,
+              ri-unit-test-path: "ResInsight-tests",
             }
     steps:
       - name: Checkout
@@ -95,6 +98,8 @@ jobs:
 
       - name: Use CMake
         uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: "~3.28.0"
 
       - name: Use MSVC (Windows)
         uses: ilammy/msvc-dev-cmd@v1
@@ -158,11 +163,6 @@ jobs:
           sudo apt-get update --option="APT::Acquire::Retries=3"
           sudo apt-get install --option="APT::Acquire::Retries=3" libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
 
-      - name: Install gcc-10
-        if: contains( matrix.config.cc, 'gcc')
-        run: |
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10 --slave /usr/bin/gcov gcov /usr/bin/gcov-10
-  
       - name: Install clang-16
         if: contains( matrix.config.cc, 'clang')
         run: |
@@ -178,7 +178,7 @@ jobs:
           version: ${{ matrix.config.qt-version }}
           dir: "${{ github.workspace }}/Qt/"
           cache: true
-          modules: "qtnetworkauth"
+          modules: "qtnetworkauth qtcharts"
 
       - name: Export GitHub Actions cache environment variables
         uses: actions/github-script@v7
@@ -226,7 +226,9 @@ jobs:
         if: matrix.config.execute-unit-tests
         shell: bash
         run: |
-          cmakebuild/ApplicationLibCode/UnitTests/ResInsight-tests
+          echo "Content of unit test folder "
+          ls cmakebuild/${{ matrix.config.ri-unit-test-path }}
+          cmakebuild/${{ matrix.config.ri-unit-test-path }}
 
       - name: (Python) Check types using mypy
         if: matrix.config.build-python-module
@@ -239,7 +241,7 @@ jobs:
       - name: Run pytest
         if: matrix.config.execute-pytests
         env:
-          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationExeCode/ResInsight
+          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ResInsight
         run: |
           cd GrpcInterface/Python
           python setup.py sdist          

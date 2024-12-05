@@ -32,7 +32,6 @@ RimVfpPlotCollection::RimVfpPlotCollection()
 {
     CAF_PDM_InitObject( "VFP Plots", ":/VfpPlotCollection.svg" );
 
-    CAF_PDM_InitFieldNoDefault( &m_vfpPlots_deprecated, "VfpPlots", "Vertical Flow Performance Plots" );
     CAF_PDM_InitFieldNoDefault( &m_customVfpPlots, "CustomVfpPlots", "Vertical Flow Performance Plots" );
 }
 
@@ -57,25 +56,25 @@ RimCustomVfpPlot* RimVfpPlotCollection::createAndAppendPlots( RimVfpTable* mainD
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlotCollection::addPlot( RimVfpPlot_deprecated* newPlot )
+void RimVfpPlotCollection::addPlot( RimCustomVfpPlot* newPlot )
 {
-    m_vfpPlots_deprecated.push_back( newPlot );
+    m_customVfpPlots.push_back( newPlot );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlotCollection::insertPlot( RimVfpPlot_deprecated* vfpPlot, size_t index )
+void RimVfpPlotCollection::insertPlot( RimCustomVfpPlot* vfpPlot, size_t index )
 {
-    m_vfpPlots_deprecated.insert( index, vfpPlot );
+    m_customVfpPlots.insert( index, vfpPlot );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimVfpPlot_deprecated*> RimVfpPlotCollection::plots() const
+std::vector<RimCustomVfpPlot*> RimVfpPlotCollection::plots() const
 {
-    return m_vfpPlots_deprecated.childrenByType();
+    return m_customVfpPlots.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,15 +82,15 @@ std::vector<RimVfpPlot_deprecated*> RimVfpPlotCollection::plots() const
 //--------------------------------------------------------------------------------------------------
 size_t RimVfpPlotCollection::plotCount() const
 {
-    return m_vfpPlots_deprecated.size() + m_customVfpPlots.size();
+    return m_customVfpPlots.size() + m_customVfpPlots.size();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlotCollection::removePlot( RimVfpPlot_deprecated* vfpPlot )
+void RimVfpPlotCollection::removePlot( RimCustomVfpPlot* vfpPlot )
 {
-    m_vfpPlots_deprecated.removeChild( vfpPlot );
+    m_customVfpPlots.removeChild( vfpPlot );
     updateAllRequiredEditors();
 }
 
@@ -100,7 +99,6 @@ void RimVfpPlotCollection::removePlot( RimVfpPlot_deprecated* vfpPlot )
 //--------------------------------------------------------------------------------------------------
 void RimVfpPlotCollection::deleteAllPlots()
 {
-    m_vfpPlots_deprecated.deleteChildren();
     m_customVfpPlots.deleteChildren();
 }
 

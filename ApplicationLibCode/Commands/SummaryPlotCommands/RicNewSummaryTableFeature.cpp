@@ -18,7 +18,7 @@
 
 #include "RicNewSummaryTableFeature.h"
 
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimSummaryAddress.h"

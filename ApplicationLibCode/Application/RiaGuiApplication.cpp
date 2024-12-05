@@ -20,6 +20,7 @@
 
 #include "RiaGuiApplication.h"
 
+#include "Cloud/RiaConnectorTools.h"
 #include "RiaArgumentParser.h"
 #include "RiaBaseDefs.h"
 #include "RiaDefines.h"
@@ -35,9 +36,9 @@
 #include "RiaProjectModifier.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaSocketServer.h"
-#include "RiaSummaryTools.h"
 #include "RiaVersionInfo.h"
 #include "RiaViewRedrawScheduler.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
@@ -50,7 +51,6 @@
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimAnnotationTextAppearance.h"
-#include "RimCommandObject.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
 #include "RimFlowPlotCollection.h"
@@ -125,7 +125,6 @@
 #include "cvfqtUtils.h"
 
 #include <QDebug>
-#include <QDesktopWidget>
 #include <QDir>
 #include <QErrorMessage>
 #include <QGridLayout>
@@ -447,6 +446,8 @@ void RiaGuiApplication::initialize()
         }
     }
     m_socketServer = new RiaSocketServer( this );
+
+    RiaConnectorTools::readCloudConfigFiles( m_preferences.get() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -959,6 +960,9 @@ void RiaGuiApplication::createMainWindow()
             messagePanelLogger->addMessagePanel( m_mainWindow->messagePanel() );
         }
     }
+
+    // Initialize OpenGL here to avoid flickering when creating the first 3D view
+    QOpenGLWidget openGLWidget( m_mainWindow );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1142,8 +1146,8 @@ void RiaGuiApplication::showFormattedTextInMessageBoxOrConsole( const QString& t
     // Resize dialog to fit text etc.
     textEdit->document()->adjustSize();
     QSizeF docSize = textEdit->document()->size();
-    dlg.resize( 20 + docSize.width() + 2 * layout->margin(),
-                20 + docSize.height() + 2 * layout->margin() + layout->spacing() + okButton->sizeHint().height() );
+    dlg.resize( 20 + docSize.width() + 2 * layout->contentsMargins().left(),
+                20 + docSize.height() + 2 * layout->contentsMargins().left() + layout->spacing() + okButton->sizeHint().height() );
 
     dlg.exec();
 }
@@ -1529,7 +1533,13 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
 //--------------------------------------------------------------------------------------------------
 int RiaGuiApplication::applicationResolution()
 {
-    return QApplication::desktop()->logicalDpiX();
+    if ( auto screen = QGuiApplication::primaryScreen() )
+    {
+        return screen->logicalDotsPerInchX();
+    }
+
+    const int defaultDPI = 96;
+    return defaultDPI;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1568,9 +1578,6 @@ void RiaGuiApplication::slotWorkerProcessFinished( int exitCode, QProcess::ExitS
         m_workerProcess->close();
     }
     m_workerProcess = nullptr;
-
-    // Always make sure the command objects are executed before any return statement
-    executeCommandObjects();
 
     // Either the work process crashed or was aborted by the user
     if ( exitStatus == QProcess::CrashExit )

@@ -1066,7 +1066,7 @@ void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                       m
 
     if ( eclipseCase )
     {
-        const RigCell& cell = eclipseCase->mainGrid()->globalCellArray()[globalCellIndex];
+        const RigCell& cell = eclipseCase->mainGrid()->cell( globalCellIndex );
         *cellIndex          = cell.gridLocalCellIndex();
         *gridIndex          = cell.hostGrid()->gridIndex();
     }

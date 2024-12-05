@@ -26,8 +26,8 @@
 #include "RiaWellLogUnitTools.h"
 
 #include "RigStatisticsMath.h"
-#include "RigWellLogIndexDepthOffset.h"
-#include "RigWellLogLasFile.h"
+#include "Well/RigWellLogIndexDepthOffset.h"
+#include "Well/RigWellLogLasFile.h"
 
 #include "RimWellLogLasFile.h"
 
@@ -125,8 +125,9 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogLasFil
             RiaLogging::error( errorMessage );
         }
     }
-    curveMerger.computeInterpolatedValues( true );
-    tvdCurveMerger.computeInterpolatedValues( true );
+    bool includeValuesFromPartialCurves = true;
+    curveMerger.computeInterpolatedValues( includeValuesFromPartialCurves );
+    tvdCurveMerger.computeInterpolatedValues( includeValuesFromPartialCurves );
 
     clearData();
 

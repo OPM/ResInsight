@@ -45,6 +45,8 @@ public:
 
     bool isTimeStepDependentDataVisible() const override;
 
+    void setCompatibleDrawStyle();
+
 protected:
     void initAfterRead() override;
     void onCreateDisplayModel() override;

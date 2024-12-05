@@ -26,7 +26,7 @@
 #include "RigFemResultAddress.h"
 #include "RigFemScalarResultFrames.h"
 #include "RigGeoMechBoreHoleStressCalculator.h"
-#include "RigGeoMechWellLogExtractor.h"
+#include "Well/RigGeoMechWellLogExtractor.h"
 
 #include "RiaOffshoreSphericalCoords.h"
 

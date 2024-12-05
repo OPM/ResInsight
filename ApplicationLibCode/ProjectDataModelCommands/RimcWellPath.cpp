@@ -23,6 +23,7 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseTools.h"
+#include "RimMswCompletionParameters.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimStimPlanFractureTemplate.h"
@@ -31,6 +32,7 @@
 #include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathCompletionSettings.h"
 #include "RimWellPathFracture.h"
 
 #include "RigStimPlanModelTools.h"
@@ -222,4 +224,60 @@ bool RimcWellPath_appendPerforationInterval::resultIsPersistent() const
 std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_appendPerforationInterval::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimPerforationInterval );
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_multiSegmentWellSettings, "MswSettings" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellPath_multiSegmentWellSettings::RimcWellPath_multiSegmentWellSettings( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
+{
+    CAF_PDM_InitObject( "MSW Settings", "", "", "Multi Segment Well Settings" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* RimcWellPath_multiSegmentWellSettings::execute()
+{
+    auto wellPath = self<RimWellPath>();
+
+    // RimMswCompletionParameters is a child object of RimWellPathCompletionSettings. To simplify the Python API, we return
+    // RimMswCompletionParameters directly from a well path object in Python. Two parameters are already exposed as part of the completion
+    // settings object, see RimWellPathCompletionSettings and the proxy fields liner_diameter and roughness. These fields are kept to
+    // ensure backward compatibility with existing scripts.
+    //
+    // https://github.com/OPM/ResInsight/issues/11901
+
+    if ( auto completionSettings = wellPath->completionSettings() )
+    {
+        return completionSettings->mswCompletionParameters();
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcWellPath_multiSegmentWellSettings::resultIsPersistent() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcWellPath_multiSegmentWellSettings::isNullptrValidResult() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_multiSegmentWellSettings::defaultResult() const
+{
+    return std::unique_ptr<caf::PdmObjectHandle>( new RimMswCompletionParameters );
 }

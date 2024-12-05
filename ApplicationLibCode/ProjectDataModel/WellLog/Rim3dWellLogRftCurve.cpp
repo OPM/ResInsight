@@ -22,7 +22,7 @@
 
 #include "RifReaderEclipseRft.h"
 
-#include "RigWellLogCurveData.h"
+#include "Well/RigWellLogCurveData.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimRftTools.h"

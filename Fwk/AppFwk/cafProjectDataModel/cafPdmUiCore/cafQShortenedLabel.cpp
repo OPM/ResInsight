@@ -36,6 +36,8 @@
 #include "cafQShortenedLabel.h"
 
 #include <QApplication>
+#include <QClipboard>
+#include <QMenu>
 #include <QResizeEvent>
 
 using namespace caf;
@@ -79,7 +81,7 @@ QSize QShortenedLabel::minimumSizeHint() const
 {
     const int minimumNumberOfCharacters = 10;
 
-    QFontMetrics fontMetrics   = QApplication::fontMetrics();
+    QFontMetrics fontMetrics( QApplication::font() );
     QString      fullLabelText = fullText();
     QString      shortenedText = fullLabelText.left( minimumNumberOfCharacters );
     int          minimumWidth  = fontMetrics.horizontalAdvance( shortenedText );
@@ -118,8 +120,8 @@ QSize QShortenedLabel::minimumSizeHint() const
 //--------------------------------------------------------------------------------------------------
 QSize QShortenedLabel::sizeHint() const
 {
-    QFontMetrics fontMetrics = QApplication::fontMetrics();
-    QString      labelText   = fullText();
+    QFontMetrics fontMetrics( QApplication::font() );
+    QString      labelText = fullText();
 
     QStringList labelLines   = labelText.split( "\n" );
     int         maxLineWidth = 0;
@@ -145,10 +147,39 @@ void QShortenedLabel::resizeEvent( QResizeEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void QShortenedLabel::configureContextMenu( const QString& pythonParameterName )
+{
+    setContextMenuPolicy( Qt::CustomContextMenu );
+
+    auto createContextMenu = [pythonParameterName]( const QPoint& pos )
+    {
+        QMenu    menu;
+        QAction* action = menu.addAction( "Copy Python Parameter Name" );
+        action->setIcon( QIcon( ":/caf/duplicate.svg" ) );
+
+        connect( action,
+                 &QAction::triggered,
+                 [pythonParameterName]()
+                 {
+                     if ( QClipboard* clipboard = QApplication::clipboard() )
+                     {
+                         clipboard->setText( pythonParameterName );
+                     }
+                 } );
+
+        menu.exec( QCursor::pos() );
+    };
+
+    connect( this, &QLabel::customContextMenuRequested, this, createContextMenu );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void caf::QShortenedLabel::resizeText( QSize paintSize )
 {
-    QString      labelText   = fullText();
-    QFontMetrics fontMetrics = QApplication::fontMetrics();
+    QString      labelText = fullText();
+    QFontMetrics fontMetrics( QApplication::font() );
 
     QStringList labelLines   = labelText.split( "\n" );
     int         maxLineWidth = 0;

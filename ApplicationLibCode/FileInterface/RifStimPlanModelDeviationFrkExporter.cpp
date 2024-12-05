@@ -23,7 +23,7 @@
 #include "RimStimPlanModel.h"
 #include "RimWellPath.h"
 
-#include "RigWellPathGeometryExporter.h"
+#include "Well/RigWellPathGeometryExporter.h"
 
 #include <QFile>
 #include <QTextStream>

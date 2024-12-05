@@ -31,7 +31,7 @@
 #include "RifWellPathFormationsImporter.h"
 #include "RifWellPathImporter.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "Rim3dWellLogCurve.h"
 #include "Rim3dWellLogCurveCollection.h"

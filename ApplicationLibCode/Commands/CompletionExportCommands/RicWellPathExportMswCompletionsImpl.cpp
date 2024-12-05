@@ -34,9 +34,9 @@
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 #include "RigMainGrid.h"
-#include "RigWellLogExtractor.h"
-#include "RigWellPath.h"
-#include "RigWellPathIntersectionTools.h"
+#include "Well/RigWellLogExtractor.h"
+#include "Well/RigWellPath.h"
+#include "Well/RigWellPathIntersectionTools.h"
 
 #include "RimEclipseCase.h"
 #include "RimFishbones.h"
@@ -694,7 +694,7 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo( const 
                     for ( auto intersectionIndex : indices )
                     {
                         auto intersection = filteredIntersections[intersectionIndex];
-                        if ( intersection.globCellIndex >= mainGrid->globalCellArray().size() ) continue;
+                        if ( intersection.globCellIndex >= mainGrid->totalCellCount() ) continue;
 
                         size_t             localGridCellIndex = 0u;
                         const RigGridBase* localGrid =

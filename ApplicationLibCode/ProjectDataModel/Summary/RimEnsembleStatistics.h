@@ -48,6 +48,8 @@ public:
     bool showCurveLabels() const;
     void enableCurveLabels( bool enable );
 
+    void enableIncludeIncompleteCurves( bool enable );
+
     cvf::Color3f color() const { return m_color; }
     void         setColor( const cvf::Color3f& color );
 

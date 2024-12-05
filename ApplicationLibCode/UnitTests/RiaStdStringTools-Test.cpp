@@ -10,7 +10,7 @@
 //--------------------------------------------------------------------------------------------------
 TEST( RiaStdStringToolsTest, ParseNumbers )
 {
-    auto decimalPoint = QLocale::c().decimalPoint().toLatin1();
+    auto decimalPoint = QLocale::c().decimalPoint().toLatin1()[0];
 
     {
         std::string text = "8.73705e+06";

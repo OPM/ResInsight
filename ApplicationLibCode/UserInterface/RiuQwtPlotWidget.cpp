@@ -28,6 +28,7 @@
 
 #include "RimPlot.h"
 #include "RimPlotCurve.h"
+#include "RimSummaryEnsembleTools.h"
 
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuGuiTheme.h"
@@ -934,14 +935,34 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
     {
         bool updateCurveOrder = false;
         resetPlotItemHighlighting( updateCurveOrder );
-        std::set<const QwtPlotItem*> plotItems = { closestItem };
-        highlightPlotItems( plotItems );
+
+        auto curve = dynamic_cast<RiuPlotCurve*>( closestItem );
+        if ( curve && curve->ownerRimCurve() )
+        {
+            const auto rimCurve = curve->ownerRimCurve();
+            if ( RimSummaryEnsembleTools::isEnsembleCurve( rimCurve ) )
+            {
+                RimSummaryEnsembleTools::highlightCurvesForSameRealization( rimCurve );
+            }
+            else
+            {
+                highlightCurvesUpdateOrder( { rimCurve } );
+            }
+        }
+        else
+        {
+            // Currently used from the matrix plot to highlight the selected cell in the matrix plot, see
+            // RimCorrelationMatrixPlot::createMatrix()
+            highlightPlotShapeItems( { closestItem } );
+        }
+
         auto plotItem = std::make_shared<RiuQwtPlotItem>( closestItem );
         emit plotItemSelected( plotItem, toggleItemInSelection, distanceFromClick < 10 ? closestCurvePoint : -1 );
     }
     else
     {
-        resetPlotItemHighlighting();
+        RimSummaryEnsembleTools::resetHighlightAllPlots();
+
         emit plotSelected( toggleItemInSelection );
     }
 
@@ -968,10 +989,9 @@ void RiuQwtPlotWidget::replot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& closestItems )
+void RiuQwtPlotWidget::highlightCurvesUpdateOrder( const std::set<RimPlotCurve*>& curves )
 {
-    highlightPlotCurves( closestItems );
-    highlightPlotShapeItems( closestItems );
+    highlightPlotCurves( curves );
 
     updateCurveOrder();
 }
@@ -979,7 +999,7 @@ void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::highlightPlotCurves( const std::set<const QwtPlotItem*>& closestItems )
+void RiuQwtPlotWidget::highlightPlotCurves( const std::set<RimPlotCurve*>& curves )
 {
     if ( !m_plotDefinition || !m_plotDefinition->isCurveHighlightSupported() )
     {
@@ -990,10 +1010,12 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::set<const QwtPlotItem*>& 
     for ( QwtPlotItem* plotItem : plotItemList )
     {
         auto* riuPlotCurve = dynamic_cast<RiuPlotCurve*>( plotItem );
-        auto  pdmObject    = m_plotDefinition->findPdmObjectFromPlotCurve( riuPlotCurve );
+        if ( !riuPlotCurve ) continue;
+
+        auto currentRimPlotCurve = riuPlotCurve->ownerRimCurve();
 
         // Do not modify curve objects with no associated Rim object, as the Rim object is used to restore color after highlight manipulation
-        if ( !pdmObject ) continue;
+        if ( !currentRimPlotCurve ) continue;
 
         auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem );
         if ( plotCurve )
@@ -1014,7 +1036,7 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::set<const QwtPlotItem*>& 
             }
 
             double zValue = plotCurve->z();
-            if ( closestItems.count( plotCurve ) > 0 )
+            if ( curves.count( currentRimPlotCurve ) > 0 )
             {
                 auto highlightColor = curveColor;
 
@@ -1101,14 +1123,12 @@ void RiuQwtPlotWidget::resetPlotCurveHighlighting()
     const auto& plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
-        if ( auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem ) )
+        if ( auto* riuPlotCurve = dynamic_cast<RiuQwtPlotCurve*>( plotItem ) )
         {
-            auto* riuPlotCurve = dynamic_cast<RiuPlotCurve*>( plotItem );
-
-            if ( auto rimPlotCurve = dynamic_cast<RimPlotCurve*>( m_plotDefinition->findPdmObjectFromPlotCurve( riuPlotCurve ) ) )
+            if ( auto rimPlotCurve = riuPlotCurve->ownerRimCurve() )
             {
                 rimPlotCurve->updateCurveAppearance();
-                double zValue = m_originalZValues[plotCurve];
+                double zValue = m_originalZValues[riuPlotCurve];
                 riuPlotCurve->setZ( zValue );
                 continue;
             }
@@ -1172,23 +1192,27 @@ void RiuQwtPlotWidget::resetPlotAxisHighlighting()
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::highlightPlotItemsForQwtAxis( QwtAxisId axisId )
 {
-    std::set<const QwtPlotItem*> plotItems;
-    auto                         plotItemList = m_plot->itemList();
+    std::set<RimPlotCurve*> curves;
+
+    auto plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
-        auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem );
-        if ( plotCurve )
+        auto* qwtPlotCurve = dynamic_cast<RiuQwtPlotCurve*>( plotItem );
+        if ( qwtPlotCurve )
         {
-            QwtAxisId xAxis = plotCurve->xAxis();
-            QwtAxisId yAxis = plotCurve->yAxis();
+            QwtAxisId xAxis = qwtPlotCurve->xAxis();
+            QwtAxisId yAxis = qwtPlotCurve->yAxis();
             if ( xAxis == axisId || yAxis == axisId )
             {
-                plotItems.insert( plotItem );
+                if ( auto curve = qwtPlotCurve->ownerRimCurve() )
+                {
+                    curves.insert( curve );
+                }
             }
         }
     }
 
-    highlightPlotItems( plotItems );
+    highlightCurvesUpdateOrder( curves );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1550,9 +1574,14 @@ void RiuQwtPlotWidget::highlightPlotItem( const QwtPlotItem* plotItem )
     bool refreshCurveOrder = false;
     resetPlotItemHighlighting( refreshCurveOrder );
 
-    std::set<const QwtPlotItem*> items;
-    items.insert( plotItem );
-    highlightPlotItems( items );
+    if ( auto curve = dynamic_cast<RiuQwtPlotCurve*>( const_cast<QwtPlotItem*>( plotItem ) ) )
+    {
+        highlightCurvesUpdateOrder( { curve->ownerRimCurve() } );
+    }
+    else
+    {
+        highlightPlotShapeItems( { plotItem } );
+    }
 
     replot();
 }

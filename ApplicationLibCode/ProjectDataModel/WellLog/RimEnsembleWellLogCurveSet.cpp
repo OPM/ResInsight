@@ -47,7 +47,7 @@
 #include "RimWellPath.h"
 
 #include "RigFormationNames.h"
-#include "RigWellLogIndexDepthOffset.h"
+#include "Well/RigWellLogIndexDepthOffset.h"
 
 #include "RiuAbstractLegendFrame.h"
 #include "RiuDraggableOverlayFrame.h"

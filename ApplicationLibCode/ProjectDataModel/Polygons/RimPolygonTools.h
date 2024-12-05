@@ -23,6 +23,8 @@ class RimPolygonInView;
 
 class QString;
 
+#include <vector>
+
 namespace caf
 {
 class PdmObject;
@@ -34,7 +36,7 @@ public:
     static void activate3dEditOfPolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject );
     static void selectPolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject );
     static bool exportPolygonCsv( const RimPolygon* polygon, const QString& filePath );
-    static bool exportPolygonPol( const RimPolygon* polygon, const QString& filePath );
+    static bool exportPolygonPol( const std::vector<RimPolygon*> polygons, const QString& filePath );
 
     static QString polygonCacheName();
 

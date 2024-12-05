@@ -21,7 +21,7 @@
 #include "RigCellGeometryTools.h"
 #include "RigFractureCell.h"
 #include "RigFractureGrid.h"
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "RimFracture.h"
 #include "RimFractureTemplate.h"

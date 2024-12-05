@@ -26,6 +26,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiaScheduler::RiaScheduler()
+    : m_blockUpdate( false )
 {
 }
 
@@ -39,6 +40,18 @@ RiaScheduler::~RiaScheduler()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaScheduler::blockUpdate( bool blockUpdate )
+{
+    m_blockUpdate = blockUpdate;
+    if ( !m_blockUpdate )
+    {
+        startTimer( 0 );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaScheduler::slotUpdateScheduledItemsWhenReady()
 {
     if ( caf::ProgressState::isActive() )
@@ -47,7 +60,7 @@ void RiaScheduler::slotUpdateScheduledItemsWhenReady()
         return;
     }
 
-    performScheduledUpdates();
+    if ( !m_blockUpdate ) performScheduledUpdates();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,19 +78,5 @@ void RiaScheduler::startTimer( int msecs )
     {
         m_updateTimer->setSingleShot( true );
         m_updateTimer->start( msecs );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaScheduler::waitUntilWorkIsDone()
-{
-    if ( m_updateTimer )
-    {
-        while ( m_updateTimer->isActive() )
-        {
-            QCoreApplication::processEvents();
-        }
     }
 }

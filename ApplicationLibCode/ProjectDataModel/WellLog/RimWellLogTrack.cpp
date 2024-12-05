@@ -30,20 +30,20 @@
 
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
-#include "RigEclipseWellLogExtractor.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
 #include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
-#include "RigGeoMechWellLogExtractor.h"
 #include "RigResultAccessorFactory.h"
-#include "RigSimWellData.h"
-#include "RigSimulationWellCenterLineCalculator.h"
-#include "RigSimulationWellCoordsAndMD.h"
 #include "RigStatisticsCalculator.h"
-#include "RigWellLogCurveData.h"
-#include "RigWellPath.h"
-#include "RigWellPathFormations.h"
+#include "Well/RigEclipseWellLogExtractor.h"
+#include "Well/RigGeoMechWellLogExtractor.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigSimulationWellCenterLineCalculator.h"
+#include "Well/RigSimulationWellCoordsAndMD.h"
+#include "Well/RigWellLogCurveData.h"
+#include "Well/RigWellPath.h"
+#include "Well/RigWellPathFormations.h"
 
 #include "RimCase.h"
 #include "RimColorLegend.h"
@@ -1992,22 +1992,6 @@ void RimWellLogTrack::zoomAll()
     RimDepthTrackPlot* plot = firstAncestorOrThisOfType<RimDepthTrackPlot>();
 
     if ( plot ) plot->zoomAll();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmObject* RimWellLogTrack::findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const
-{
-    for ( size_t idx = 0; idx < m_curves.size(); idx++ )
-    {
-        if ( m_curves[idx]->isSameCurve( curve ) )
-        {
-            return m_curves[idx];
-        }
-    }
-
-    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

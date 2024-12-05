@@ -229,7 +229,7 @@ void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultF
 
     cvf::BoundingBox      bb;
     std::array<size_t, 4> sourceFaceIndices;
-    mainGrid->globalCellArray()[sourceReservoirCellIndex].faceIndices( sourceCellFace, &sourceFaceIndices );
+    mainGrid->cell( sourceReservoirCellIndex ).faceIndices( sourceCellFace, &sourceFaceIndices );
 
     bb.add( mainGridNodes[sourceFaceIndices[0]] );
     bb.add( mainGridNodes[sourceFaceIndices[1]] );
@@ -333,7 +333,7 @@ void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultF
         std::vector<cvf::Vec3d> intersections;
 
         std::array<size_t, 4> candidateFaceIndices;
-        mainGrid->globalCellArray()[candidateCellIndex].faceIndices( candidateFace, &candidateFaceIndices );
+        mainGrid->cell( candidateCellIndex ).faceIndices( candidateFace, &candidateFaceIndices );
 
         bool foundOverlap = cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( &polygon,
                                                                                    &intersections,

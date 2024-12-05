@@ -267,8 +267,8 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
         return;
     }
 
-    m_unionOfMatrixActiveCells->setReservoirCellCount( m_mainGrid->globalCellArray().size() );
-    m_unionOfFractureActiveCells->setReservoirCellCount( m_mainGrid->globalCellArray().size() );
+    m_unionOfMatrixActiveCells->setReservoirCellCount( m_mainGrid->totalCellCount() );
+    m_unionOfFractureActiveCells->setReservoirCellCount( m_mainGrid->totalCellCount() );
     m_unionOfMatrixActiveCells->setGridCount( m_mainGrid->gridCount() );
     m_unionOfFractureActiveCells->setGridCount( m_mainGrid->gridCount() );
 

@@ -36,8 +36,8 @@
 
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
-#include "RigOsduWellLogData.h"
-#include "RigWellPath.h"
+#include "Well/RigOsduWellLogData.h"
+#include "Well/RigWellPath.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
@@ -397,7 +397,7 @@ std::vector<RimWellLogLasFile*> RimWellPathCollection::addWellLogs( const QStrin
 
     std::vector<RimWellLogLasFile*> logFileInfos;
 
-    foreach ( QString filePath, filePaths )
+    for ( const QString& filePath : filePaths )
     {
         QString            errorMessage;
         RimWellLogLasFile* logFileInfo = RimWellLogLasFile::readWellLogFile( filePath, &errorMessage );
@@ -808,6 +808,8 @@ void RimWellPathCollection::sortWellsByName()
 //--------------------------------------------------------------------------------------------------
 caf::AppEnum<RiaDefines::EclipseUnitSystem> RimWellPathCollection::findUnitSystemForWellPath( const RimWellPath* wellPath )
 {
+    if ( !wellPath || !wellPath->wellPathGeometry() ) return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+
     RimProject* project = RimProject::current();
     if ( project->activeOilField()->analysisModels->cases.empty() )
     {
@@ -815,8 +817,13 @@ caf::AppEnum<RiaDefines::EclipseUnitSystem> RimWellPathCollection::findUnitSyste
     }
 
     const RigEclipseCaseData* eclipseCaseData = project->activeOilField()->analysisModels->cases()[0]->eclipseCaseData();
-    cvf::BoundingBox          caseBoundingBox = eclipseCaseData->mainGrid()->boundingBox();
-    cvf::BoundingBox          wellPathBoundingBox;
+    if ( !eclipseCaseData || !eclipseCaseData->mainGrid() )
+    {
+        return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+    }
+
+    cvf::BoundingBox caseBoundingBox = eclipseCaseData->mainGrid()->boundingBox();
+    cvf::BoundingBox wellPathBoundingBox;
     for ( const auto& wellPathPoint : wellPath->wellPathGeometry()->wellPathPoints() )
     {
         wellPathBoundingBox.add( wellPathPoint );
@@ -943,13 +950,14 @@ std::map<QString, std::vector<RimWellPath*>>
 {
     std::map<QString, std::vector<RimWellPath*>> rootWells;
 
-    QString multiLateralWellPathPattern = RiaPreferences::current()->multiLateralWellNamePattern();
-    QRegExp re( multiLateralWellPathPattern, Qt::CaseInsensitive, QRegExp::Wildcard );
+    QString            multiLateralWellPathPattern = RiaPreferences::current()->multiLateralWellNamePattern();
+    QString            regexPattern                = QRegularExpression::wildcardToRegularExpression( multiLateralWellPathPattern );
+    QRegularExpression re( regexPattern, QRegularExpression::CaseInsensitiveOption );
 
     for ( auto wellPath : sourceWellPaths )
     {
         QString name = wellPath->name();
-        if ( re.exactMatch( name ) )
+        if ( re.match( name ).hasMatch() )
         {
             int indexOfLateralStart = name.indexOf( 'Y' );
             if ( indexOfLateralStart > 0 )

@@ -196,7 +196,7 @@ void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
         strListModel->setStringList( texts );
 
         QVariant fieldValue = uiField()->uiValue();
-        if ( fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt )
+        if ( fieldValue.metaType().id() == QMetaType::Int || fieldValue.metaType().id() == QMetaType::UInt )
         {
             int col = 0;
             int row = uiField()->uiValue().toInt();
@@ -217,7 +217,7 @@ void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
 
             m_listView->selectionModel()->blockSignals( false );
         }
-        else if ( fieldValue.type() == QVariant::List )
+        else if ( fieldValue.metaType().id() == QMetaType::QVariantList )
         {
             QList<QVariant> valuesSelectedInField = fieldValue.toList();
             QItemSelection  selection;
@@ -291,15 +291,6 @@ QWidget* PdmUiListEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiListEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void PdmUiListEditor::slotSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected )
 {
     if ( m_optionItemCount == 0 ) return;
@@ -307,7 +298,7 @@ void PdmUiListEditor::slotSelectionChanged( const QItemSelection& selected, cons
     m_isScrollToItemAllowed = false;
 
     QVariant fieldValue = uiField()->uiValue();
-    if ( fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt )
+    if ( fieldValue.metaType().id() == QMetaType::Int || fieldValue.metaType().id() == QMetaType::UInt )
     {
         // NOTE : Workaround for update issue seen on RHEL6 with Qt 4.6.2
         // An invalid call to setSelection() from QAbstractItemView::keyPressEvent() causes the stepping using arrow
@@ -327,7 +318,7 @@ void PdmUiListEditor::slotSelectionChanged( const QItemSelection& selected, cons
             }
         }
     }
-    else if ( fieldValue.type() == QVariant::List )
+    else if ( fieldValue.metaType().id() == QMetaType::QVariantList )
     {
         QModelIndexList idxList = m_listView->selectionModel()->selectedIndexes();
 
@@ -521,6 +512,18 @@ bool PdmUiListEditor::eventFilter( QObject* object, QEvent* event )
 bool PdmUiListEditor::isMultiRowEditor() const
 {
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiListEditorAttribute::PdmUiListEditorAttribute()
+    : heightHint( 2000 )
+    , allowHorizontalScrollBar( true )
+{
+    QPalette myPalette;
+
+    baseColor = myPalette.color( QPalette::Active, QPalette::Base );
 }
 
 } // end namespace caf

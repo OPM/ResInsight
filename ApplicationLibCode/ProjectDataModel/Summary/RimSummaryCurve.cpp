@@ -26,9 +26,9 @@
 #include "RiaPreferencesSummary.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaResultNames.h"
-#include "RiaSummaryCurveDefinition.h"
-#include "RiaSummaryDefines.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryDefines.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimEnsembleCurveSet.h"
@@ -247,16 +247,6 @@ RifEclipseSummaryAddress RimSummaryCurve::summaryAddressY() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::setSummaryAddressYAndApplyInterpolation( const RifEclipseSummaryAddress& address )
-{
-    setSummaryAddressY( address );
-
-    calculateCurveInterpolationFromAddress();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setSummaryAddressY( const RifEclipseSummaryAddress& address )
 {
     if ( m_yValuesSummaryAddress->address() != address )
@@ -265,6 +255,10 @@ void RimSummaryCurve::setSummaryAddressY( const RifEclipseSummaryAddress& addres
     }
 
     m_yValuesSummaryAddress->setAddress( address );
+
+    // Always calculate curve interpolation when address is changed
+    // This will ensure that the curve type (Rate or Accumulated) is correctly set based on the address
+    calculateCurveInterpolationFromAddress();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -661,7 +655,9 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     RiaTimeHistoryCurveMerger curveMerger;
                     curveMerger.addCurveData( curveTimeStepsX, curveValuesX );
                     curveMerger.addCurveData( curveTimeStepsY, curveValuesY );
-                    curveMerger.computeInterpolatedValues();
+
+                    bool includeValuesFromPartialCurves = true;
+                    curveMerger.computeInterpolatedValues( includeValuesFromPartialCurves );
 
                     if ( !curveMerger.allXValues().empty() )
                     {
@@ -1273,9 +1269,9 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         m_xPushButtonSelectSummaryAddress = false;
     }
-    else if ( changedField == &m_yCurveTypeMode )
+    else if ( changedField == &m_yCurveTypeMode || changedField == &m_yCurveType )
     {
-        calculateCurveTypeFromAddress();
+        calculateCurveInterpolationFromAddress();
     }
 
     if ( crossPlotTestForMatchingTimeSteps )
@@ -1291,7 +1287,9 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
             RiaTimeHistoryCurveMerger curveMerger;
             curveMerger.addCurveData( curveTimeStepsX, curveValuesX );
             curveMerger.addCurveData( curveTimeStepsY, curveValuesY );
-            curveMerger.computeInterpolatedValues();
+
+            bool includeValuesFromPartialCurves = true;
+            curveMerger.computeInterpolatedValues( includeValuesFromPartialCurves );
 
             if ( curveMerger.validIntervalsForAllXValues().empty() )
             {
@@ -1435,7 +1433,7 @@ void RimSummaryCurve::updateTimeAnnotations()
 void RimSummaryCurve::updateLegendEntryVisibilityNoPlotUpdate()
 {
     if ( !m_plotCurve ) return;
-    if ( !firstAncestorOrThisOfType<RimEnsembleCurveSet>() ) return;
+    if ( firstAncestorOrThisOfType<RimEnsembleCurveSet>() ) return;
 
     bool showLegendInPlot = m_showLegend();
     if ( auto summaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>() )

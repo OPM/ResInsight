@@ -6,6 +6,22 @@ if(RESINSIGHT_ENABLE_UNITY_BUILD)
   set(CMAKE_UNITY_BUILD true)
 endif()
 
+set(UNITY_EXCLUDE_FILES
+    # Exclude moc files as they cause template instanciation issues
+    # https://cmake.org/cmake/help/latest/prop_tgt/AUTOGEN_BUILD_DIR.html
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_autogen/mocs_compilation.cpp
+)
+
+message("Files excluded from UNITY_BUILD : ${UNITY_EXCLUDE_FILES}")
+
+if(RESINSIGHT_ENABLE_UNITY_BUILD)
+  foreach(fileToExclude ${UNITY_EXCLUDE_FILES})
+    set_source_files_properties(
+      ${fileToExclude} PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE
+    )
+  endforeach(fileToExclude)
+endif()
+
 set(COMMAND_REFERENCED_CMAKE_FILES
     CMakeLists_files.cmake
     AnalysisPlotCommands/CMakeLists_files.cmake
@@ -30,7 +46,7 @@ set(COMMAND_REFERENCED_CMAKE_FILES
     OctaveScriptCommands/CMakeLists_files.cmake
     OperationsUsingObjReferences/CMakeLists_files.cmake
     SummaryPlotCommands/CMakeLists_files.cmake
-    OsduImportCommands/CMakeLists_files.cmake
+    OsduCommands/CMakeLists_files.cmake
     StreamlineCommands/CMakeLists_files.cmake
     SurfaceCommands/CMakeLists_files.cmake
     SeismicCommands/CMakeLists_files.cmake
@@ -43,6 +59,7 @@ set(COMMAND_REFERENCED_CMAKE_FILES
     PlotBuilderCommands/CMakeLists_files.cmake
     PolygonCommands/CMakeLists_files.cmake
     Sumo/CMakeLists_files.cmake
+    ToolCommands/CMakeLists_files.cmake
 )
 
 # Include source file lists from *.cmake files
@@ -51,9 +68,6 @@ foreach(referencedfile ${COMMAND_REFERENCED_CMAKE_FILES})
 endforeach(referencedfile)
 
 find_package(Eigen3 REQUIRED)
-
-# Prefix files with COMMAND_ to avoid clash with application global lists
-qt5_wrap_cpp(COMMAND_MOC_SOURCE_FILES ${COMMAND_QT_MOC_HEADERS})
 
 add_library(
   ${PROJECT_NAME} OBJECT
@@ -82,7 +96,12 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             -Wno-call-to-pure-virtual-from-ctor-dtor
             -Wno-delete-non-abstract-non-virtual-dtor
             -Wno-ambiguous-reversed-operator
+            -Wno-deprecated-declarations
   )
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_compile_options(Commands PRIVATE -Wno-deprecated-declarations)
 endif()
 
 if(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS)
@@ -104,13 +123,6 @@ if(MSVC)
   # /wd4100 /wd4127")
 
   set(BUILD_FLAGS_FOR_MSVC "/W3 /wd4190 /wd4100 /wd4127")
-
-  if(CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 19.14)
-    # The following warning is generated over 800 times from a qwt header only
-    # using VS2015 Disabling temporarily warning C4505 'function' : unreferenced
-    # local function has been removed
-    set(BUILD_FLAGS_FOR_MSVC "${BUILD_FLAGS_FOR_MSVC} /wd4505")
-  endif()
 
   if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 19.38)
     # https://github.com/OPM/ResInsight/issues/10844

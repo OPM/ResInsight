@@ -92,6 +92,7 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QWidget* par
     , m_groupBox( nullptr )
     , m_logarithmicScaleKrAxisCheckBox( nullptr )
     , m_showUnscaledCheckBox( nullptr )
+    , m_showScaledCheckBox( nullptr )
     , m_fixedXAxisCheckBox( nullptr )
     , m_fixedLeftYAxisCheckBox( nullptr )
 
@@ -125,10 +126,13 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QWidget* par
 
     m_logarithmicScaleKrAxisCheckBox = new QCheckBox( "Log Scale Kr Axis" );
     m_showUnscaledCheckBox           = new QCheckBox( "Show Unscaled" );
+    m_showScaledCheckBox             = new QCheckBox( "Show Scaled" );
     m_fixedXAxisCheckBox             = new QCheckBox( "Fixed [0, 1] X-axis" );
     m_fixedLeftYAxisCheckBox         = new QCheckBox( "Fixed [0, 1] Kr-axis" );
+
     m_fixedXAxisCheckBox->setChecked( true );
     m_fixedLeftYAxisCheckBox->setChecked( true );
+    m_showScaledCheckBox->setChecked( true );
 
     QCheckBox* showCurveSelection = new QCheckBox( "Show Curve Selection" );
     showCurveSelection->setCheckState( Qt::Unchecked );
@@ -138,6 +142,7 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QWidget* par
     leftLayout->addWidget( showCurveSelection );
     leftLayout->addWidget( m_groupBox );
     leftLayout->addWidget( m_logarithmicScaleKrAxisCheckBox );
+    leftLayout->addWidget( m_showScaledCheckBox );
     leftLayout->addWidget( m_showUnscaledCheckBox );
     leftLayout->addWidget( m_fixedXAxisCheckBox );
     leftLayout->addWidget( m_fixedLeftYAxisCheckBox );
@@ -150,9 +155,10 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QWidget* par
 
     setLayout( mainLayout );
 
-    connect( m_selectedCurvesButtonGroup, SIGNAL( buttonClicked( int ) ), SLOT( slotButtonInButtonGroupClicked( int ) ) );
+    connect( m_selectedCurvesButtonGroup, SIGNAL( idClicked( int ) ), SLOT( slotButtonInButtonGroupClicked( int ) ) );
     connect( m_logarithmicScaleKrAxisCheckBox, SIGNAL( stateChanged( int ) ), SLOT( slotSomeCheckBoxStateChanged( int ) ) );
     connect( m_showUnscaledCheckBox, SIGNAL( stateChanged( int ) ), SLOT( slotSomeCheckBoxStateChanged( int ) ) );
+    connect( m_showScaledCheckBox, SIGNAL( stateChanged( int ) ), SLOT( slotSomeCheckBoxStateChanged( int ) ) );
     connect( m_fixedXAxisCheckBox, SIGNAL( stateChanged( int ) ), SLOT( slotSomeCheckBoxStateChanged( int ) ) );
     connect( m_fixedLeftYAxisCheckBox, SIGNAL( stateChanged( int ) ), SLOT( slotSomeCheckBoxStateChanged( int ) ) );
 
@@ -233,7 +239,7 @@ void RiuRelativePermeabilityPlotPanel::clearPlot()
     m_caseName.clear();
     m_cellReferenceText.clear();
 
-    plotCurvesInQwt( m_unitSystem, m_allCurvesArr, m_swat, m_sgas, m_cellReferenceText, false, true, true, m_qwtPlot, &m_myPlotMarkers );
+    plotCurvesInQwt( m_unitSystem, m_allCurvesArr, m_swat, m_sgas, m_cellReferenceText, false, true, true, m_qwtPlot, &m_myPlotMarkers, false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -259,10 +265,21 @@ void RiuRelativePermeabilityPlotPanel::plotUiSelectedCurves()
 {
     std::vector<RigFlowDiagSolverInterface::RelPermCurve> selectedCurves = gatherUiSelectedCurves();
 
-    const bool useLogScale = m_logarithmicScaleKrAxisCheckBox->isChecked();
-    const bool fixedXAxis  = m_fixedXAxisCheckBox->isChecked();
-    const bool fixedYAxis  = m_fixedLeftYAxisCheckBox->isChecked();
-    plotCurvesInQwt( m_unitSystem, selectedCurves, m_swat, m_sgas, m_cellReferenceText, useLogScale, fixedXAxis, fixedYAxis, m_qwtPlot, &m_myPlotMarkers );
+    const bool useLogScale        = m_logarithmicScaleKrAxisCheckBox->isChecked();
+    const bool fixedXAxis         = m_fixedXAxisCheckBox->isChecked();
+    const bool fixedYAxis         = m_fixedLeftYAxisCheckBox->isChecked();
+    const bool skipUnscaledLegend = m_showUnscaledCheckBox->isChecked() && m_showScaledCheckBox->isChecked();
+    plotCurvesInQwt( m_unitSystem,
+                     selectedCurves,
+                     m_swat,
+                     m_sgas,
+                     m_cellReferenceText,
+                     useLogScale,
+                     fixedXAxis,
+                     fixedYAxis,
+                     m_qwtPlot,
+                     &m_myPlotMarkers,
+                     skipUnscaledLegend );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -324,7 +341,8 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
                                                         bool                                                         fixedXAxis,
                                                         bool                                                         fixedLeftYAxis,
                                                         QwtPlot*                                                     plot,
-                                                        std::vector<QwtPlotMarker*>*                                 myPlotMarkers )
+                                                        std::vector<QwtPlotMarker*>*                                 myPlotMarkers,
+                                                        bool                                                         skipUnscaledLegends )
 {
     plot->detachItems( QwtPlotItem::Rtti_PlotCurve );
 
@@ -349,6 +367,8 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
     for ( size_t i = 0; i < curveArr.size(); i++ )
     {
         const RigFlowDiagSolverInterface::RelPermCurve& curve = curveArr[i];
+
+        const auto unscaledCurve = ( curve.epsMode == RigFlowDiagSolverInterface::RelPermCurve::EPS_OFF );
 
         // Which axis should this curve be plotted on
         WhichYAxis plotOnWhichYAxis = LEFT_YAXIS;
@@ -394,7 +414,8 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
         const QPen curvePen( QBrush(), 1, penStyle );
         qwtCurve->setPen( curvePen );
 
-        auto* curveSymbol = new RiuQwtSymbol( RiuPlotCurveSymbol::SYMBOL_ELLIPSE );
+        auto* curveSymbol = unscaledCurve ? new RiuQwtSymbol( RiuPlotCurveSymbol::SYMBOL_CROSS )
+                                          : new RiuQwtSymbol( RiuPlotCurveSymbol::SYMBOL_ELLIPSE );
         curveSymbol->setSize( 6, 6 );
         curveSymbol->setBrush( Qt::NoBrush );
         qwtCurve->setSymbol( curveSymbol );
@@ -402,6 +423,9 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
         qwtCurve->setLegendAttribute( QwtPlotCurve::LegendShowLine, true );
         qwtCurve->setLegendAttribute( QwtPlotCurve::LegendShowSymbol, true );
         qwtCurve->setLegendAttribute( QwtPlotCurve::LegendShowBrush, true );
+
+        const bool showLegend = !( unscaledCurve && skipUnscaledLegends );
+        qwtCurve->setItemAttribute( QwtPlotItem::Legend, showLegend );
 
         qwtCurve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
 
@@ -665,18 +689,18 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RiuRelativePermeabilityPlo
     std::vector<RigFlowDiagSolverInterface::RelPermCurve> selectedCurves;
 
     // Determine which curves to actually plot based on selection in GUI
-    const RigFlowDiagSolverInterface::RelPermCurve::EpsMode epsModeToShow = m_showUnscaledCheckBox->isChecked()
-                                                                                ? RigFlowDiagSolverInterface::RelPermCurve::EPS_OFF
-                                                                                : RigFlowDiagSolverInterface::RelPermCurve::EPS_ON;
+    const bool showScaled   = m_showScaledCheckBox->isChecked();
+    const bool showUnscaled = m_showUnscaledCheckBox->isChecked();
 
     for ( size_t i = 0; i < m_allCurvesArr.size(); i++ )
     {
         const RigFlowDiagSolverInterface::RelPermCurve::Ident   curveIdent   = m_allCurvesArr[i].ident;
         const RigFlowDiagSolverInterface::RelPermCurve::EpsMode curveEpsMode = m_allCurvesArr[i].epsMode;
 
-        if ( curveEpsMode == epsModeToShow )
+        if ( m_selectedCurvesButtonGroup->button( curveIdent ) && m_selectedCurvesButtonGroup->button( curveIdent )->isChecked() )
         {
-            if ( m_selectedCurvesButtonGroup->button( curveIdent ) && m_selectedCurvesButtonGroup->button( curveIdent )->isChecked() )
+            if ( ( ( curveEpsMode == RigFlowDiagSolverInterface::RelPermCurve::EPS_ON ) && showScaled ) ||
+                 ( ( curveEpsMode == RigFlowDiagSolverInterface::RelPermCurve::EPS_OFF ) && showUnscaled ) )
             {
                 selectedCurves.push_back( m_allCurvesArr[i] );
             }
@@ -786,6 +810,7 @@ void RiuRelativePermeabilityPlotPanel::slotShowCurveSelectionWidgets( int state 
 
     m_groupBox->setVisible( setVisible );
     m_showUnscaledCheckBox->setVisible( setVisible );
+    m_showScaledCheckBox->setVisible( setVisible );
     m_logarithmicScaleKrAxisCheckBox->setVisible( setVisible );
     m_fixedXAxisCheckBox->setVisible( setVisible );
     m_fixedLeftYAxisCheckBox->setVisible( setVisible );

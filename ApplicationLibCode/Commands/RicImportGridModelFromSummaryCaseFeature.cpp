@@ -63,10 +63,5 @@ void RicImportGridModelFromSummaryCaseFeature::setupActionLook( QAction* actionT
         txt = "Import Grid Model";
     }
 
-    if ( !summaryCaseName.isEmpty() )
-    {
-        txt += QString( " for '%1'" ).arg( summaryCaseName );
-    }
-
     actionToSetup->setText( txt );
 }

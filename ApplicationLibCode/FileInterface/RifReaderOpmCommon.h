@@ -24,6 +24,8 @@
 #include <string>
 #include <vector>
 
+#include <QDateTime>
+
 namespace Opm::EclIO
 {
 class EInit;
@@ -101,6 +103,7 @@ private:
     };
 
     std::vector<TimeDataFile> readTimeSteps();
+    QDateTime dateTimeFromTimeStepOnFile( RifReaderOpmCommon::TimeDataFile timeOnFile, QDate startDate, double startDayOffset );
 
 protected:
     enum class ActiveType

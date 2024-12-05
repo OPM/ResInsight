@@ -20,7 +20,6 @@
 
 #include "RimFractureTemplate.h"
 
-#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmFieldHandle.h"

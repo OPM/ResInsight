@@ -24,9 +24,9 @@
 
 #include "RiaQDateTimeTools.h"
 #include "RiaResultNames.h"
-#include "RigWellLogCurveData.h"
-#include "RigWellLogIndexDepthOffset.h"
-#include "RigWellPath.h"
+#include "Well/RigWellLogCurveData.h"
+#include "Well/RigWellLogIndexDepthOffset.h"
+#include "Well/RigWellPath.h"
 
 #include "RimProject.h"
 #include "RimTools.h"

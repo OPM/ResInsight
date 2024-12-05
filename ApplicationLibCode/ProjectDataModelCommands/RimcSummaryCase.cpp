@@ -18,7 +18,7 @@
 
 #include "RimcSummaryCase.h"
 
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifSummaryReaderInterface.h"
 

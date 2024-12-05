@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiFieldLabelEditorHandle.h"
 
 #include <QLabel>
 #include <QLineEdit>
@@ -78,7 +78,7 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiFilePathEditor : public PdmUiFieldEditorHandle
+class PdmUiFilePathEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -89,7 +89,6 @@ public:
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
-    QWidget* createLabelWidget( QWidget* parent ) override;
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
 
 protected slots:
@@ -98,10 +97,9 @@ protected slots:
     void copyToClipboard();
 
 private:
-    QPointer<QLineEdit>       m_lineEdit;
-    QPointer<QShortenedLabel> m_label;
-    QPointer<QToolButton>     m_button;
-    QPointer<QToolButton>     m_copyToClipboardButton;
+    QPointer<QLineEdit>   m_lineEdit;
+    QPointer<QToolButton> m_button;
+    QPointer<QToolButton> m_copyToClipboardButton;
 
     PdmUiFilePathEditorAttribute m_attributes;
 };

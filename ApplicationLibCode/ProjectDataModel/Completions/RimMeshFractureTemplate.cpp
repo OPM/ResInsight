@@ -28,8 +28,8 @@
 #include "RigFractureCell.h"
 #include "RigFractureGrid.h"
 #include "RigTransmissibilityEquations.h"
-#include "RigWellPath.h"
 #include "RigWellPathStimplanIntersector.h"
+#include "Well/RigWellPath.h"
 
 #include "RimEclipseView.h"
 #include "RimFracture.h"

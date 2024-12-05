@@ -62,8 +62,6 @@ void RiaViewRedrawScheduler::scheduleDisplayModelUpdateAndRedraw( Rim3dView* res
 //--------------------------------------------------------------------------------------------------
 void RiaViewRedrawScheduler::clearViewsScheduledForUpdate()
 {
-    waitUntilWorkIsDone();
-
     m_resViewsToUpdate.clear();
 }
 

@@ -98,6 +98,7 @@ public:
     void onCalculationUpdated();
 
     void updateReferringCurveSets();
+    void updateReferringCurveSetsZoomAll();
 
     RiaSummaryAddressAnalyzer* addressAnalyzer();
 
@@ -109,6 +110,8 @@ private:
     caf::PdmFieldHandle* userDescriptionField() override;
     QString              nameAndItemCount() const;
     void                 updateIcon();
+
+    void updateReferringCurveSets( bool doZoomAll );
 
     void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

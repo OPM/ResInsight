@@ -22,6 +22,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 
+#include <QRegularExpression>
+
 class RimMswCompletionParameters;
 class RimWellPathCompletionsLegacy;
 
@@ -82,7 +84,7 @@ public:
     QString hydrostaticDensityForExport() const;
     QString fluidInPlaceRegionForExport() const;
 
-    static QRegExp wellNameForExportRegExp();
+    static QRegularExpression wellNameForExportRegExp();
 
     RimMswCompletionParameters* mswCompletionParameters() const;
 

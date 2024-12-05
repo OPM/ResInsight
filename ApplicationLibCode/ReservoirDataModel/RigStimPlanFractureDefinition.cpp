@@ -30,6 +30,8 @@
 
 #include "cafAssert.h"
 
+#include <QStringList>
+
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -680,8 +682,6 @@ const std::vector<std::vector<double>>&
             return m_stimPlanResults[resIndex].parameterValues[timeStepIndex];
         }
     }
-
-    RiaLogging::error( "Requested parameter does not exists in stimPlan data" );
 
     static std::vector<std::vector<double>> emptyVector;
     return emptyVector;

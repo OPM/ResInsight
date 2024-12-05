@@ -99,8 +99,7 @@ public:
     virtual void updatePlotWidgetFromAxisRanges();
     virtual void updateAxisRangesFromPlotWidget();
 
-    virtual caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const;
-    virtual void            handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects );
+    virtual void handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects );
 
     virtual std::vector<RimPlotCurve*> visibleCurvesForLegend();
     virtual bool                       isCurveHighlightSupported() const;

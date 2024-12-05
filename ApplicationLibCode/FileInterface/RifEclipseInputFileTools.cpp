@@ -1419,31 +1419,31 @@ void RifEclipseInputFileTools::readKeywordDataContent( QFile& data, qint64 fileP
         QString line = data.readLine();
         line         = line.trimmed();
 
-        if ( line.startsWith( "--", Qt::CaseInsensitive ) )
-        {
-            // Skip comment lines
-            continue;
-        }
-        else if ( line.startsWith( "/", Qt::CaseInsensitive ) )
-        {
-            // Detected end of keyword data section
-            return;
-        }
-        else if ( line.startsWith( editKeyword, Qt::CaseInsensitive ) )
-        {
-            // End parsing when edit keyword is detected
-            isStopParsingKeywordDetected = true;
-
-            return;
-        }
-        else if ( line[0].isLetter() )
-        {
-            // If a letter is starting the line, this is a new keyword
-            return;
-        }
-
         if ( !line.isEmpty() )
         {
+            if ( line.startsWith( "--", Qt::CaseInsensitive ) )
+            {
+                // Skip comment lines
+                continue;
+            }
+            else if ( line.startsWith( "/", Qt::CaseInsensitive ) )
+            {
+                // Detected end of keyword data section
+                return;
+            }
+            else if ( line.startsWith( editKeyword, Qt::CaseInsensitive ) )
+            {
+                // End parsing when edit keyword is detected
+                isStopParsingKeywordDetected = true;
+
+                return;
+            }
+            else if ( line[0].isLetter() )
+            {
+                // If a letter is starting the line, this is a new keyword
+                return;
+            }
+
             textContent.push_back( line );
         }
 

@@ -24,12 +24,12 @@
 
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
-#include "RigEclipseWellLogExtractor.h"
 #include "RigElasticProperties.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
-#include "RigWellLogCurveData.h"
-#include "RigWellPath.h"
+#include "Well/RigEclipseWellLogExtractor.h"
+#include "Well/RigWellLogCurveData.h"
+#include "Well/RigWellPath.h"
 
 #include "RimCase.h"
 #include "RimColorLegend.h"

@@ -28,7 +28,9 @@
 #include "RiaFontCache.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
+#include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesOsdu.h"
 #include "RiaPreferencesSumo.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaProjectModifier.h"
@@ -45,10 +47,9 @@
 
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "Polygons/RimPolygonCollection.h"
-
+#include "QuickAccess/RimQuickAccessCollection.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCellFilterCollection.h"
-#include "RimCommandObject.h"
 #include "RimCommandRouter.h"
 #include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCaseCollection.h"
@@ -516,6 +517,12 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
     m_project->resolveReferencesRecursively();
     m_project->initAfterReadRecursively();
 
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2024.09.2" ) )
+    {
+        // Traverse objects recursively and add quick access fields for old projects
+        RimQuickAccessCollection::instance()->addQuickAccessFieldsRecursively( m_project.get() );
+    }
+
     // Migrate all RimGridCases to RimFileSummaryCase
     RimGridSummaryCase_obsolete::convertGridCasesToSummaryFileCases( m_project.get() );
 
@@ -789,18 +796,6 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
     // Default behavior for scripts is to use current active view for data read/write
     onProjectOpened();
 
-    // Loop over command objects and execute them
-    for ( size_t i = 0; i < m_project->commandObjects.size(); i++ )
-    {
-        m_commandQueue.push_back( m_project->commandObjects[i] );
-    }
-
-    // Lock the command queue
-    m_commandQueueLock.lock();
-
-    // Execute command objects, and release the mutex when the queue is empty
-    executeCommandObjects();
-
     // Recalculate the results from grid property calculations.
     // Has to be done late since the results are filtered by view cell visibility
     for ( auto gridCalculation : m_project->gridCalculationCollection()->sortedGridCalculations() )
@@ -808,6 +803,8 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         gridCalculation->calculate();
         gridCalculation->updateDependentObjects();
     }
+
+    RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdates();
 
     RiaLogging::info( QString( "Completed open of project file : '%1'" ).arg( projectFileName ) );
 
@@ -883,7 +880,6 @@ void RiaApplication::closeProject()
     onProjectBeingClosed();
 
     m_project->close();
-    m_commandQueue.clear();
 
     RiaWellNameComparer::clearCache();
 
@@ -1386,81 +1382,6 @@ void RiaApplication::executeCommandFile( const QString& commandFile )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::addCommandObject( RimCommandObject* commandObject )
-{
-    m_commandQueue.push_back( commandObject );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::executeCommandObjects()
-{
-    {
-        auto currentCommandQueue = m_commandQueue;
-        for ( auto command : currentCommandQueue )
-        {
-            if ( !command->isAsyncronous() )
-            {
-                command->redo();
-                m_commandQueue.remove( command );
-            }
-        }
-    }
-
-    if ( !m_commandQueue.empty() )
-    {
-        auto it = m_commandQueue.begin();
-        if ( it->notNull() )
-        {
-            RimCommandObject* first = *it;
-            first->redo();
-        }
-        m_commandQueue.pop_front();
-    }
-    else
-    {
-        // Unlock the command queue lock when the command queue is empty
-        // Required to lock the mutex before unlocking to avoid undefined behavior
-        m_commandQueueLock.tryLock();
-        m_commandQueueLock.unlock();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::waitUntilCommandObjectsHasBeenProcessed()
-{
-    auto         start            = std::chrono::system_clock::now();
-    const double timeoutThreshold = 5.0;
-
-    // Wait until all command objects have completed
-    bool mutexLockedSuccessfully = m_commandQueueLock.tryLock();
-
-    while ( !mutexLockedSuccessfully )
-    {
-        invokeProcessEvents();
-
-        mutexLockedSuccessfully = m_commandQueueLock.tryLock();
-
-        std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - start;
-        if ( timeoutThreshold < elapsed_seconds.count() )
-        {
-            // This can happen if the octave plugins fails to execute during regression testing.
-
-            RiaLogging::warning(
-                QString( "Timeout waiting for command objects to complete, timeout set to %1 seconds." ).arg( timeoutThreshold ) );
-            break;
-        }
-    }
-
-    m_commandQueueLock.unlock();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 const QString RiaApplication::startDir() const
 {
     return m_startupDefaultDirectory;
@@ -1560,59 +1481,6 @@ cvf::Font* RiaApplication::defaultWellLabelFont()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-auto readCloudConfigFiles = []( RiaPreferences* preferences )
-{
-    if ( preferences == nullptr ) return;
-
-    // Check multiple locations for configuration files. The first valid configuration file is used. Currently, using Qt5 the ResInsight
-    // binary file is stored at the root of the installation folder. When moving to Qt6, we will probably use sub folders /bin /lib and
-    // others. Support both one and two search levels to support Qt6.
-    //
-    // home_folder/.resinsight/*_config.json
-    // location_of_resinsight_executable/../share/cloud_services/*_config.json
-    // location_of_resinsight_executable/../../share/cloud_services/*_config.json
-    //
-
-    {
-        QStringList osduFilePathCandidates;
-        osduFilePathCandidates << QDir::homePath() + "/.resinsight/osdu_config.json";
-        osduFilePathCandidates << QCoreApplication::applicationDirPath() + "/../share/cloud_services/osdu_config.json";
-        osduFilePathCandidates << QCoreApplication::applicationDirPath() + "/../../share/cloud_services/osdu_config.json";
-
-        for ( const auto& osduFileCandidate : osduFilePathCandidates )
-        {
-            auto keyValuePairs = RiaConnectorTools::readKeyValuePairs( osduFileCandidate );
-            if ( !keyValuePairs.empty() )
-            {
-                preferences->osduPreferences()->setData( keyValuePairs );
-                preferences->osduPreferences()->setFieldsReadOnly();
-                break;
-            }
-        }
-    }
-
-    {
-        QStringList sumoFilePathCandidates;
-        sumoFilePathCandidates << QDir::homePath() + "/.resinsight/sumo_config.json";
-        sumoFilePathCandidates << QCoreApplication::applicationDirPath() + "/../share/cloud_services/sumo_config.json";
-        sumoFilePathCandidates << QCoreApplication::applicationDirPath() + "/../../share/cloud_services/sumo_config.json";
-
-        for ( const auto& sumoFileCandidate : sumoFilePathCandidates )
-        {
-            auto keyValuePairs = RiaConnectorTools::readKeyValuePairs( sumoFileCandidate );
-            if ( !keyValuePairs.empty() )
-            {
-                preferences->sumoPreferences()->setData( keyValuePairs );
-                preferences->sumoPreferences()->setFieldsReadOnly();
-                break;
-            }
-        }
-    }
-};
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiaApplication::initialize()
 {
     m_preferences = std::make_unique<RiaPreferences>();
@@ -1628,8 +1496,6 @@ void RiaApplication::initialize()
     caf::SelectionManager::instance()->setPdmRootObject( project() );
 
     initializeDataLoadController();
-
-    readCloudConfigFiles( m_preferences.get() );
 }
 
 //--------------------------------------------------------------------------------------------------

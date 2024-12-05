@@ -77,7 +77,7 @@ RimEclipseContourMapView::RimEclipseContourMapView()
 
     setDefaultCustomName();
 
-    m_contourMapProjectionPartMgr = new RivContourMapProjectionPartMgr( contourMapProjection(), this );
+    m_contourMapProjectionPartMgr = new RivContourMapProjectionPartMgr( contourMapProjection() );
 
     setCameraPosition( sm_defaultViewMatrix );
 
@@ -169,14 +169,23 @@ void RimEclipseContourMapView::updatePickPointAndRedraw()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseContourMapView::setCompatibleDrawStyle()
+{
+    surfaceMode = FAULTS;
+    meshMode    = RiaDefines::MeshModeType::NO_MESH;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapView::initAfterRead()
 {
     RimEclipseView::initAfterRead();
 
     disablePerspectiveProjectionField();
     setShowGridBox( false );
-    surfaceMode.setValue( FAULTS );
     setFaultVisParameters();
+    setCompatibleDrawStyle();
     scheduleCreateDisplayModelAndRedraw();
 }
 
@@ -272,6 +281,7 @@ void RimEclipseContourMapView::updateGeometry()
         {
             m_contourMapProjection->generateResultsIfNecessary( m_currentTimeStep() );
         }
+        onUpdateLegends();
         progress.setProgress( 30 );
     }
 
@@ -313,7 +323,7 @@ void RimEclipseContourMapView::createContourMapGeometry()
 {
     if ( nativeOrOverrideViewer() && m_contourMapProjection->isChecked() )
     {
-        m_contourMapProjectionPartMgr->createProjectionGeometry();
+        m_contourMapProjection->generateGeometryIfNecessary();
     }
 }
 
@@ -335,7 +345,13 @@ void RimEclipseContourMapView::appendContourMapProjectionToModel()
 
             cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
-            m_contourMapProjectionPartMgr->appendProjectionToModel( contourMapProjectionModelBasicList.p(), transForm.p() );
+            m_contourMapProjectionPartMgr->appendProjectionToModel( contourMapProjectionModelBasicList.p(),
+                                                                    transForm.p(),
+                                                                    m_contourMapProjection->trianglesWithVertexValues(),
+                                                                    *m_contourMapProjection->mapGrid(),
+                                                                    backgroundColor(),
+                                                                    m_contourMapProjection->legendConfig()->scalarMapper() );
+
             contourMapProjectionModelBasicList->updateBoundingBoxesRecursive();
             frameScene->addModel( contourMapProjectionModelBasicList.p() );
         }
@@ -360,7 +376,17 @@ void RimEclipseContourMapView::appendContourLinesToModel()
 
             cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
-            m_contourMapProjectionPartMgr->appendContourLinesToModel( viewer()->mainCamera(), contourMapLabelModelBasicList.p(), transForm.p() );
+            m_contourMapProjectionPartMgr->appendContourLinesToModel( viewer()->mainCamera(),
+                                                                      contourMapLabelModelBasicList.p(),
+                                                                      transForm.p(),
+                                                                      m_contourMapProjection->contourPolygons(),
+                                                                      *m_contourMapProjection->mapGrid(),
+                                                                      m_contourMapProjection->legendConfig()->scalarMapper(),
+                                                                      m_contourMapProjection->showContourLines(),
+                                                                      m_contourMapProjection->showContourLabels(),
+                                                                      m_contourMapProjection->legendConfig()->tickNumberFormat(),
+                                                                      m_contourMapProjection->legendConfig()->significantDigitsInData() );
+
             contourMapLabelModelBasicList->updateBoundingBoxesRecursive();
             frameScene->addModel( contourMapLabelModelBasicList.p() );
         }
@@ -385,7 +411,10 @@ void RimEclipseContourMapView::appendPickPointVisToModel()
 
             cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
-            m_contourMapProjectionPartMgr->appendPickPointVisToModel( contourMapProjectionModelBasicList.p(), transForm.p() );
+            m_contourMapProjectionPartMgr->appendPickPointVisToModel( contourMapProjectionModelBasicList.p(),
+                                                                      transForm.p(),
+                                                                      m_contourMapProjection->pickPoint(),
+                                                                      *m_contourMapProjection->mapGrid() );
             contourMapProjectionModelBasicList->updateBoundingBoxesRecursive();
             frameScene->addModel( contourMapProjectionModelBasicList.p() );
         }

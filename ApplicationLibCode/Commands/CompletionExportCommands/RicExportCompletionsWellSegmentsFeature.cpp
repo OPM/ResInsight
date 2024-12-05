@@ -39,7 +39,7 @@
 
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "Riu3DMainWindowTools.h"
 

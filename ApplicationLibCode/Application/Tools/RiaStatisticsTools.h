@@ -21,7 +21,7 @@
 #pragma once
 
 #include <cmath>
-#include <numeric>
+#include <limits>
 #include <vector>
 
 //==================================================================================================
@@ -41,10 +41,37 @@ public:
     template <class NumberType>
     static bool isValidNumber( NumberType value )
     {
-        if ( std::isinf( value ) ) return false;
-        if ( std::isnan( value ) ) return false;
+        return !std::isinf( value ) && !std::isnan( value );
+    }
 
-        return true;
+    template <class NumberType>
+    static NumberType minimumValue( const std::vector<NumberType>& values )
+    {
+        NumberType minValue = std::numeric_limits<NumberType>::max();
+        for ( NumberType value : values )
+        {
+            if ( RiaStatisticsTools::isValidNumber<NumberType>( value ) )
+            {
+                minValue = std::min( minValue, value );
+            }
+        }
+
+        return minValue;
+    }
+
+    template <class NumberType>
+    static NumberType maximumValue( const std::vector<NumberType>& values )
+    {
+        NumberType maxValue = -std::numeric_limits<NumberType>::max();
+        for ( NumberType value : values )
+        {
+            if ( RiaStatisticsTools::isValidNumber<NumberType>( value ) )
+            {
+                maxValue = std::max( maxValue, value );
+            }
+        }
+
+        return maxValue;
     }
 
     static double pearsonCorrelation( const std::vector<double>& xValues, const std::vector<double>& yValues );

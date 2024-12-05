@@ -45,7 +45,6 @@
 #include "cvfMath.h"
 
 #include <QCryptographicHash>
-#include <QDebug>
 #include <QFileInfo>
 
 #include <algorithm>
@@ -260,7 +259,10 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
         int    dayValue       = cvf::Math::floor( dayDoubleValue );
         if ( useStartOfSimulationDate )
         {
-            reportDateTime = reportDateTime.addDays( dayValue );
+            // Do not assume the first day value is zero. Adjust the day value to be relative to the first day value
+            // https://github.com/OPM/ResInsight/issues/11867
+            const int adjustedDayValue = dayValue - dayValues.front();
+            reportDateTime             = reportDateTime.addDays( adjustedDayValue );
         }
 
         double dayFraction  = dayDoubleValue - dayValue;
@@ -668,7 +670,7 @@ bool RifEclipseOutputFileTools::assignActiveCellData( std::vector<std::vector<in
     }
 
     // Check if number of cells is matching
-    if ( eclipseCaseData->mainGrid()->globalCellArray().size() != reservoirCellCount )
+    if ( eclipseCaseData->mainGrid()->totalCellCount() != reservoirCellCount )
     {
         return false;
     }

@@ -20,6 +20,8 @@
 
 #include "RifWellPathImporter.h"
 
+#include "RiaQDateTimeTools.h"
+
 #include "RifJsonEncodeDecode.h"
 
 #include "cafUtils.h"
@@ -140,7 +142,7 @@ RifWellPathImporter::WellMetaData RifWellPathImporter::readJsonWellMetaData( con
     QString updateDateStr  = jsonMap["updateDate"].toString().trimmed();
     uint    updateDateUint = updateDateStr.toULongLong() / 1000; // Should be within 32 bit, maximum number is 4294967295
                                                               // which corresponds to year 2106
-    metadata.m_updateDate.setTime_t( updateDateUint );
+    metadata.m_updateDate = RiaQDateTimeTools::fromTime_t( updateDateUint );
 
     return metadata;
 }
@@ -159,7 +161,7 @@ RifWellPathImporter::WellData RifWellPathImporter::readJsonWellData( const QStri
     wellData.m_wellPathGeometry->setDatumElevation( datumElevation );
     wellData.m_name = jsonMap["name"].toString();
 
-    foreach ( QVariant point, pathList )
+    for ( const QVariant& point : pathList )
     {
         QMap<QString, QVariant> coordinateMap = point.toMap();
         cvf::Vec3d              vec3d( coordinateMap["east"].toDouble(),

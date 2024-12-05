@@ -118,15 +118,6 @@ QWidget* PdmUiLineEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiLineEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
     if ( !m_label.isNull() )
@@ -172,7 +163,7 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
                                                                       : UiAppearanceSettings::localValueButtonText();
                 m_autoValueToolButton->setToolTip( tooltipText );
 
-                m_layout->insertWidget( 1, m_autoValueToolButton );
+                m_layout->addWidget( m_autoValueToolButton );
                 m_autoValueToolButton->show();
             }
             else

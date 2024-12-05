@@ -27,11 +27,21 @@
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonInView.h"
 
+#include "Riu3DMainWindowTools.h"
+
 #include "cafSelectionManager.h"
 
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicNewPolygonIntersectionFeature, "RicNewPolygonIntersectionFeature" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicNewPolygonIntersectionFeature::RicNewPolygonIntersectionFeature()
+    : RicBasicPolygonFeature( true /*multiselect*/ )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -44,18 +54,21 @@ void RicNewPolygonIntersectionFeature::onActionTriggered( bool isChecked )
     auto collection = activeView->intersectionCollection();
     if ( !collection ) return;
 
-    auto polygon = caf::SelectionManager::instance()->selectedItemOfType<RimPolygon>();
-    if ( !polygon )
+    auto polygons = selectedPolygons();
+
+    RimExtrudedCurveIntersection* lastItem = nullptr;
+
+    for ( auto polygon : polygons )
     {
-        if ( auto polygonInView = caf::SelectionManager::instance()->selectedItemOfType<RimPolygonInView>() )
-        {
-            polygon = polygonInView->polygon();
-        }
+        auto intersection = new RimExtrudedCurveIntersection();
+        intersection->configureForProjectPolyLine( polygon );
+        collection->appendIntersectionAndUpdate( intersection );
     }
 
-    auto intersection = new RimExtrudedCurveIntersection();
-    intersection->configureForProjectPolyLine( polygon );
-    collection->appendIntersectionAndUpdate( intersection );
+    if ( lastItem != nullptr )
+    {
+        Riu3DMainWindowTools::selectAsCurrentItem( lastItem );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

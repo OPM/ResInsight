@@ -36,13 +36,11 @@
 
 #include "cafPdmUiPushButtonEditor.h"
 
-#include "cafPdmUiDefaultObjectEditor.h"
-
+#include "cafFactory.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
-
-#include "cafFactory.h"
 
 #include <QBoxLayout>
 
@@ -57,10 +55,12 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiPushButtonEditor );
 //--------------------------------------------------------------------------------------------------
 void PdmUiPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    CAF_ASSERT( !m_pushButton.isNull() );
-    CAF_ASSERT( !m_label.isNull() );
+    if ( !m_pushButton ) return;
 
-    PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    if ( m_label )
+    {
+        PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    }
 
     m_pushButton->setCheckable( true );
     m_pushButton->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
@@ -86,7 +86,7 @@ void PdmUiPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
     }
     else
     {
-        if ( variantFieldValue.type() == QVariant::Bool )
+        if ( variantFieldValue.metaType().id() == QMetaType::Bool )
         {
             m_pushButton->setText( variantFieldValue.toBool() ? "On" : "Off" );
         }
@@ -103,7 +103,7 @@ void PdmUiPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
         m_buttonLayout->setAlignment( m_pushButton, Qt::AlignRight );
     }
 
-    if ( variantFieldValue.type() == QVariant::Bool )
+    if ( variantFieldValue.metaType().id() == QMetaType::Bool )
     {
         m_pushButton->setChecked( uiField()->uiValue().toBool() );
     }
@@ -167,15 +167,6 @@ QWidget* PdmUiPushButtonEditor::createEditorWidget( QWidget* parent )
     containerWidget->setLayout( m_buttonLayout );
 
     return containerWidget;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiPushButtonEditor::createLabelWidget( QWidget* parent )
-{
-    m_label = new QShortenedLabel( parent );
-    return m_label;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -27,7 +27,6 @@
 
 class RimFlowCharacteristicsPlot;
 class RiuNightchartsWidget;
-class RiuResultQwtPlot;
 class RiuQwtPlotCurve;
 
 class QLabel;

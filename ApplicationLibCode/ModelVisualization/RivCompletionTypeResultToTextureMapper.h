@@ -21,7 +21,7 @@
 
 #include "RivResultToTextureMapper.h"
 
-#include "RigPipeInCellEvaluator.h"
+#include "Well/RigPipeInCellEvaluator.h"
 
 #include "cvfScalarMapper.h"
 #include "cvfVector2.h"

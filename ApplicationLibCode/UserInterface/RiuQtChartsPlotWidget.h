@@ -49,15 +49,12 @@ class QPaintDevice;
 class QWheelEvent;
 class RiuQwtDateScaleWrapper;
 
-namespace QtCharts
-{
 class QValueAxis;
 class QChart;
 class QAbstractSeries;
 class QAbstractAxis;
 class QChartView;
 class QCategoryAxis;
-}; // namespace QtCharts
 
 //==================================================================================================
 //
@@ -159,22 +156,22 @@ public:
 
     RiuPlotCurve* createPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title ) override;
 
-    QtCharts::QChart* qtChart();
+    QChart* qtChart();
 
-    void attach( RiuPlotCurve*              plotCurve,
-                 QtCharts::QAbstractSeries* lineSeries,
-                 QtCharts::QAbstractSeries* areaSeries,
-                 QtCharts::QAbstractSeries* scatterSeries,
-                 RiuPlotAxis                xAxis,
-                 RiuPlotAxis                yAxis );
+    void attach( RiuPlotCurve*    plotCurve,
+                 QAbstractSeries* lineSeries,
+                 QAbstractSeries* areaSeries,
+                 QAbstractSeries* scatterSeries,
+                 RiuPlotAxis      xAxis,
+                 RiuPlotAxis      yAxis );
     void detach( RiuPlotCurve* plotCurve );
 
-    QtCharts::QAbstractSeries* getLineSeries( const RiuPlotCurve* plotCurve ) const;
-    QtCharts::QAbstractSeries* getAreaSeries( const RiuPlotCurve* plotCurve ) const;
-    QtCharts::QAbstractSeries* getScatterSeries( const RiuPlotCurve* plotCurve ) const;
+    QAbstractSeries* getLineSeries( const RiuPlotCurve* plotCurve ) const;
+    QAbstractSeries* getAreaSeries( const RiuPlotCurve* plotCurve ) const;
+    QAbstractSeries* getScatterSeries( const RiuPlotCurve* plotCurve ) const;
 
-    void setXAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series, RiuQtChartsPlotCurve* plotCurve );
-    void setYAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series, RiuQtChartsPlotCurve* plotCurve );
+    void setXAxis( RiuPlotAxis axis, QAbstractSeries* series, RiuQtChartsPlotCurve* plotCurve );
+    void setYAxis( RiuPlotAxis axis, QAbstractSeries* series, RiuQtChartsPlotCurve* plotCurve );
 
     const QColor& backgroundColor() const override;
 
@@ -190,7 +187,7 @@ public:
                            RiaDefines::TimeFormatComponents timeComponents );
 
 protected:
-    void attachSeriesToAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series, RiuQtChartsPlotCurve* plotCurve );
+    void attachSeriesToAxis( RiuPlotAxis axis, QAbstractSeries* series, RiuQtChartsPlotCurve* plotCurve );
 
     void resizeEvent( QResizeEvent* event ) override;
     void keyPressEvent( QKeyEvent* event ) override;
@@ -206,9 +203,9 @@ protected:
     virtual bool isZoomerActive() const;
     virtual void endZoomOperations();
 
-    void                     rescaleAxis( RiuPlotAxis axis );
-    QtCharts::QAbstractAxis* plotAxis( RiuPlotAxis axis ) const;
-    Qt::Orientation          orientation( RiaDefines::PlotAxis axis ) const;
+    void            rescaleAxis( RiuPlotAxis axis );
+    QAbstractAxis*  plotAxis( RiuPlotAxis axis ) const;
+    Qt::Orientation orientation( RiaDefines::PlotAxis axis ) const;
 
     void dragEnterEvent( QDragEnterEvent* event ) override;
     void dropEvent( QDropEvent* event ) override;
@@ -230,20 +227,20 @@ private:
     static int defaultMinimumWidth();
     void       replot() override;
 
-    QtCharts::QCategoryAxis* categoryAxis();
+    QCategoryAxis* categoryAxis();
 
-    QString createNameFromSeries( QtCharts::QAbstractSeries* series ) const;
+    QString createNameFromSeries( QAbstractSeries* series ) const;
 
 private:
-    QPointer<QtCharts::QChartView> m_viewer;
+    QPointer<QChartView> m_viewer;
 
-    std::map<RiuPlotAxis, QtCharts::QAbstractAxis*> m_axes;
-    std::map<RiuPlotAxis, bool>                     m_axesEnabled;
-    std::map<RiuPlotAxis, bool>                     m_axesAutoScale;
+    std::map<RiuPlotAxis, QAbstractAxis*> m_axes;
+    std::map<RiuPlotAxis, bool>           m_axesEnabled;
+    std::map<RiuPlotAxis, bool>           m_axesAutoScale;
 
-    std::map<RiuPlotCurve*, QtCharts::QAbstractSeries*> m_lineSeriesMap;
-    std::map<RiuPlotCurve*, QtCharts::QAbstractSeries*> m_areaSeriesMap;
-    std::map<RiuPlotCurve*, QtCharts::QAbstractSeries*> m_scatterSeriesMap;
+    std::map<RiuPlotCurve*, QAbstractSeries*> m_lineSeriesMap;
+    std::map<RiuPlotCurve*, QAbstractSeries*> m_areaSeriesMap;
+    std::map<RiuPlotCurve*, QAbstractSeries*> m_scatterSeriesMap;
 
     RiuQwtDateScaleWrapper*       m_dateScaleWrapper;
     RiuQtChartsToolTip*           m_toolTip;

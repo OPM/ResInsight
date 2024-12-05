@@ -37,10 +37,10 @@
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
-#include "RigSimWellData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
-#include "RigWellResultFrame.h"
-#include "RigWellResultPoint.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigWellResultFrame.h"
+#include "Well/RigWellResultPoint.h"
 
 #include "Polygons/RimPolygonInViewCollection.h"
 #include "Rim2dIntersectionView.h"
@@ -1139,19 +1139,22 @@ void RimEclipseView::appendElementVectorResultToModel()
             cvf::String name = "ElementVectorModelMod";
             RimEclipseView::removeModelByName( frameScene, name );
 
-            cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
-            frameParts->setName( name );
+            if ( m_elementVectorResult->showResult() )
+            {
+                cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
+                frameParts->setName( name );
 
-            m_reservoirGridPartManager->appendElementVectorResultDynamicGeometryPartsToModel( frameParts.p(),
-                                                                                              PROPERTY_FILTERED,
-                                                                                              m_currentTimeStep );
+                m_reservoirGridPartManager->appendElementVectorResultDynamicGeometryPartsToModel( frameParts.p(),
+                                                                                                  PROPERTY_FILTERED,
+                                                                                                  m_currentTimeStep );
 
-            // TODO: should this be ACTIVE?
-            m_reservoirGridPartManager->appendElementVectorResultDynamicGeometryPartsToModel( frameParts.p(),
-                                                                                              PROPERTY_FILTERED_WELL_CELLS,
-                                                                                              m_currentTimeStep );
+                // TODO: should this be ACTIVE?
+                m_reservoirGridPartManager->appendElementVectorResultDynamicGeometryPartsToModel( frameParts.p(),
+                                                                                                  PROPERTY_FILTERED_WELL_CELLS,
+                                                                                                  m_currentTimeStep );
 
-            frameScene->addModel( frameParts.p() );
+                frameScene->addModel( frameParts.p() );
+            }
         }
     }
 }
@@ -1759,6 +1762,17 @@ std::vector<RigEclipseResultAddress> RimEclipseView::additionalResultsForResultI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::map<QString, std::vector<caf::PdmFieldHandle*>> RimEclipseView::quickAccessFields()
+{
+    std::map<QString, std::vector<caf::PdmFieldHandle*>> fields;
+    fields[""].push_back( &m_eclipseCase );
+
+    return fields;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimStreamlineInViewCollection* RimEclipseView::streamlineCollection() const
 {
     return m_streamlineCollection;
@@ -2334,7 +2348,7 @@ void RimEclipseView::setOverridePropertyFilterCollection( RimEclipsePropertyFilt
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStep )
 {
-    size_t cellCount = mainGrid()->globalCellArray().size();
+    size_t cellCount = mainGrid()->totalCellCount();
 
     totalVisibility->resize( cellCount );
     totalVisibility->setAll( false );
@@ -2365,7 +2379,7 @@ void RimEclipseView::calculateCellVisibility( cvf::UByteArray* visibility, std::
 {
     if ( !mainGrid() ) return;
 
-    size_t cellCount = mainGrid()->globalCellArray().size();
+    size_t cellCount = mainGrid()->totalCellCount();
 
     visibility->resize( cellCount );
     visibility->setAll( false );

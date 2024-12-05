@@ -20,11 +20,11 @@
 
 #include "RiaColorTables.h"
 #include "RiaColorTools.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifReaderOpmRft.h"
 
-#include "RigWellLogCurveData.h"
+#include "Well/RigWellLogCurveData.h"
 
 #include "RimDepthTrackPlot.h"
 #include "RimProject.h"

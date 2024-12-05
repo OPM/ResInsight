@@ -43,11 +43,10 @@ public:
     RigMainGrid();
     ~RigMainGrid() override;
 
+    virtual size_t totalCellCount() const;
+
     std::vector<cvf::Vec3d>&       nodes();
     const std::vector<cvf::Vec3d>& nodes() const;
-
-    std::vector<RigCell>&       globalCellArray();
-    const std::vector<RigCell>& globalCellArray() const;
 
     virtual RigGridBase*       gridAndGridLocalIdxFromGlobalCellIdx( size_t globalCellIdx, size_t* gridLocalCellIdx );
     virtual const RigGridBase* gridAndGridLocalIdxFromGlobalCellIdx( size_t globalCellIdx, size_t* gridLocalCellIdx ) const;
@@ -113,6 +112,19 @@ public:
 
     bool isDualPorosity() const;
     void setDualPorosity( bool enable );
+
+protected: // only for use by file readers and internal services. TODO: replace with a better API
+    friend class RigGridBase;
+    friend class RigReservoirBuilder;
+    friend class RifRoffFileTools;
+    friend class RifEclipseOutputFileTools;
+    friend class RifReaderEclipseOutput;
+    friend class RifReaderOpmCommon;
+    friend class RiaGrpcCaseService;
+    friend class RiaActiveCellInfoStateHandler;
+    friend class RicCreateTemporaryLgrFeature;
+    std::vector<RigCell>&       reservoirCells();
+    const std::vector<RigCell>& reservoirCells() const;
 
 protected:
     void initAllSubCellsMainGridCellIndex();

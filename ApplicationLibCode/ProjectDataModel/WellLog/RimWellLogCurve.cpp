@@ -23,7 +23,7 @@
 #include "RiaCurveDataTools.h"
 #include "RiaPlotDefines.h"
 
-#include "RigWellLogCurveData.h"
+#include "Well/RigWellLogCurveData.h"
 
 #include "RimDepthTrackPlot.h"
 #include "RimMainPlotCollection.h"

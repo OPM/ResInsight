@@ -208,7 +208,7 @@ QVariant PdmUiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::
         if ( uiFieldHandle )
         {
             QVariant fieldValue = uiFieldHandle->uiValue();
-            if ( fieldValue.type() == QVariant::List )
+            if ( fieldValue.metaType().id() == QMetaType::QVariantList )
             {
                 QString         displayText;
                 QList<QVariant> valuesSelectedInField = fieldValue.toList();
@@ -621,7 +621,7 @@ bool PdmUiTableViewQModel::isRepresentingBoolean( const QModelIndex& index ) con
         }
 
         QVariant val = fieldHandle->uiCapability()->uiValue();
-        if ( val.type() == QVariant::Bool )
+        if ( val.metaType().id() == QMetaType::Bool )
         {
             return true;
         }
@@ -794,7 +794,7 @@ void TableViewPushButton::slotPressed()
     if ( m_fieldHandle )
     {
         QVariant val = m_fieldHandle->uiValue();
-        if ( val.type() == QVariant::Bool )
+        if ( val.metaType().id() == QMetaType::Bool )
         {
             bool currentValue = val.toBool();
             caf::PdmUiCommandSystemProxy::instance()->setUiValueToField( m_fieldHandle, !currentValue );

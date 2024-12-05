@@ -31,10 +31,10 @@
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
-#include "RigSimulationWellCenterLineCalculator.h"
 #include "RigTracer.h"
 #include "RigTracerPoint.h"
-#include "RigWellResultPoint.h"
+#include "Well/RigSimulationWellCenterLineCalculator.h"
+#include "Well/RigWellResultPoint.h"
 
 #include "RiuViewer.h"
 

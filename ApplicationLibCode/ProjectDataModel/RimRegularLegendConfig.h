@@ -127,10 +127,16 @@ public:
     RimColorLegend* colorLegend() const;
     void            setMappingMode( MappingType mappingType );
     MappingType     mappingMode() { return m_mappingMode(); }
-    void            setTickNumberFormat( RiaNumberFormat::NumberFormatType numberFormat );
-    void            resetUserDefinedValues();
-    void            setCenterLegendAroundZero( bool enable );
-    void            setUserDefinedRange( double minVal, double maxVal );
+
+    void setTickNumberFormat( RiaNumberFormat::NumberFormatType numberFormat );
+
+    RiaNumberFormat::NumberFormatType tickNumberFormat() const;
+
+    int significantDigitsInData() const;
+
+    void resetUserDefinedValues();
+    void setCenterLegendAroundZero( bool enable );
+    void setUserDefinedRange( double minVal, double maxVal );
 
     void disableAllTimeStepsRange( bool doDisable );
 

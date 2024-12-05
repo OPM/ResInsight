@@ -21,7 +21,7 @@
 #include "RiaDefines.h"
 
 #include "RigFlowDiagResults.h"
-#include "RigSimWellData.h"
+#include "Well/RigSimWellData.h"
 
 #include "RimFlowDiagSolution.h"
 

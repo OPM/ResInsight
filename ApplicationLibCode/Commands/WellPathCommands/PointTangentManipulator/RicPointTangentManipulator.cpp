@@ -128,8 +128,9 @@ bool RicPointTangentManipulator::eventFilter( QObject* obj, QEvent* inputEvent )
         {
             auto* mouseEvent = static_cast<QMouseEvent*>( inputEvent );
 
-            cvf::ref<cvf::RayIntersectSpec> rayIs =
-                m_viewer->rayIntersectSpecFromWindowCoordinates( mouseEvent->pos().x(), mouseEvent->pos().y(), m_isDraggingInComparisonView );
+            cvf::ref<cvf::RayIntersectSpec> rayIs = m_viewer->rayIntersectSpecFromWindowCoordinates( mouseEvent->position().x(),
+                                                                                                     mouseEvent->position().y(),
+                                                                                                     m_isDraggingInComparisonView );
 
             if ( !rayIs.isNull() && rayIs->ray() )
             {

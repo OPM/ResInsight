@@ -21,9 +21,11 @@
 #include "RiaApplication.h"
 #include "RiaPreferencesGeoMech.h"
 
+#include "RifParameterXmlReader.h"
+
 #include "RigFemAddressDefines.h"
-#include "RigWellPath.h"
-#include "RigWellPathGeometryTools.h"
+#include "Well/RigWellPath.h"
+#include "Well/RigWellPathGeometryTools.h"
 
 #include "RimDoubleParameter.h"
 #include "RimGenericParameter.h"
@@ -36,8 +38,6 @@
 #include "RimWellIADataAccess.h"
 #include "RimWellIAModelData.h"
 #include "RimWellPath.h"
-
-#include "RifParameterXmlReader.h"
 
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmFieldScriptingCapability.h"

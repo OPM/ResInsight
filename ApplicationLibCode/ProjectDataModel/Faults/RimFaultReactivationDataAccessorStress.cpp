@@ -28,9 +28,9 @@
 #include "RigFemResultAddress.h"
 #include "RigFemScalarResultFrames.h"
 #include "RigGeoMechCaseData.h"
-#include "RigGeoMechWellLogExtractor.h"
 #include "RigGriddedPart3d.h"
-#include "RigWellPath.h"
+#include "Well/RigGeoMechWellLogExtractor.h"
+#include "Well/RigWellPath.h"
 
 #include "RimFaultReactivationDataAccessorWellLogExtraction.h"
 #include "RimFaultReactivationEnums.h"

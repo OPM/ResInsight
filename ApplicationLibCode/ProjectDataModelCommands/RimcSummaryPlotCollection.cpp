@@ -18,6 +18,7 @@
 
 #include "RimcSummaryPlotCollection.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "SummaryPlotCommands/RicNewDefaultSummaryPlotFeature.h"
 #include "SummaryPlotCommands/RicNewSummaryEnsembleCurveSetFeature.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
@@ -83,6 +84,7 @@ caf::PdmObjectHandle* RimcSummaryPlotCollection_newSummaryPlot::execute()
     if ( newPlot )
     {
         newPlot->loadDataAndUpdate();
+        RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
     }
 
     return newPlot;

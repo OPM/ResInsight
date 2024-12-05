@@ -29,6 +29,8 @@ class RimCaseCollection;
 class RimEclipseCase;
 class RimEclipseView;
 class RimEclipseViewCollection;
+class RimWellTargetCandidatesGenerator;
+class RimStatisticsContourMap;
 
 //==================================================================================================
 //
@@ -54,14 +56,20 @@ public:
 
     RimEclipseViewCollection* viewCollection() const;
 
+    void addWellTargetsGenerator( RimWellTargetCandidatesGenerator* generator );
+
+    void addStatisticsContourMap( RimStatisticsContourMap* statisticsContourMap );
+
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
-    caf::PdmField<int>                            m_groupId;
-    caf::PdmChildField<RimCaseCollection*>        m_caseCollection;
-    caf::PdmChildField<RimEclipseViewCollection*> m_viewCollection;
-    caf::PdmPtrField<RimEclipseCase*>             m_selectedCase;
+    caf::PdmField<int>                                         m_groupId;
+    caf::PdmChildField<RimCaseCollection*>                     m_caseCollection;
+    caf::PdmChildField<RimEclipseViewCollection*>              m_viewCollection;
+    caf::PdmChildArrayField<RimWellTargetCandidatesGenerator*> m_wellTargetGenerators;
+    caf::PdmChildArrayField<RimStatisticsContourMap*>          m_statisticsContourMaps;
+    caf::PdmPtrField<RimEclipseCase*>                          m_selectedCase;
 };

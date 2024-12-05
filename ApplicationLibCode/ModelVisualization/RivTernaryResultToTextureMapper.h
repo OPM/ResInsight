@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RigPipeInCellEvaluator.h"
+#include "Well/RigPipeInCellEvaluator.h"
 
 #include "RivTernaryScalarMapper.h"
 

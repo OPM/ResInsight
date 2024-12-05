@@ -18,16 +18,20 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "PolygonCommands/RicBasicPolygonFeature.h"
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewPolygonFilterFeature : public caf::CmdFeature
+class RicNewPolygonFilterFeature : public RicBasicPolygonFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    RicNewPolygonFilterFeature();
 
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+    bool isCommandEnabled() const override;
 };

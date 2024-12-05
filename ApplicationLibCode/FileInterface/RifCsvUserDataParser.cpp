@@ -349,7 +349,7 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                        
             QStringList candidateColumnHeaders = RifFileParseTools::splitLineAndTrim( candidateLine, parseOptions.cellSeparator );
             for ( const auto& text : candidateColumnHeaders )
             {
-                if ( RiaStdStringTools::isNumber( text.toStdString(), parseOptions.locale.decimalPoint().toLatin1() ) )
+                if ( RiaTextStringTools::isNumber( text, parseOptions.locale.decimalPoint() ) )
                 {
                     hasDataValues = true;
                 }
@@ -392,11 +392,12 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                        
             // "VECTOR_NAME [unit]"
             {
                 // "VECTORNAME (unit)" ==> "(unit)"
-                QRegExp exp( "[[]([^]]+)[]]" );
-                if ( exp.indexIn( colName ) >= 0 )
+                QRegularExpression      exp( R"(\[([^\]]+)\])" );
+                QRegularExpressionMatch match = exp.match( colName );
+                if ( match.hasMatch() )
                 {
-                    QString fullCapture = exp.cap( 0 );
-                    QString unitCapture = exp.cap( 1 );
+                    QString fullCapture = match.captured( 0 );
+                    QString unitCapture = match.captured( 1 );
 
                     unit    = unitCapture;
                     colName = RiaTextStringTools::trimAndRemoveDoubleSpaces( colName.remove( fullCapture ) );
@@ -405,11 +406,12 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                        
 
             {
                 // "VECTOR_NAME [unit]" ==> "[unit]"
-                QRegExp exp( "[(]([^)]+)[)]" );
-                if ( exp.indexIn( colName ) >= 0 )
+                QRegularExpression      exp( R"(\(([^)]+)\))" );
+                QRegularExpressionMatch match = exp.match( colName );
+                if ( match.hasMatch() )
                 {
-                    QString fullCapture = exp.cap( 0 );
-                    QString unitCapture = exp.cap( 1 );
+                    QString fullCapture = match.captured( 0 );
+                    QString unitCapture = match.captured( 1 );
 
                     unit    = unitCapture;
                     colName = RiaTextStringTools::trimAndRemoveDoubleSpaces( colName.remove( fullCapture ) );
@@ -504,8 +506,8 @@ bool RifCsvUserDataParser::parseColumnBasedData( const RifAsciiDataParseOptions&
         {
             for ( int iCol = 0; iCol < colCount; iCol++ )
             {
-                std::string colData = lineColumns[iCol].toStdString();
-                Column&     col     = columnInfoList[iCol];
+                auto    colData = lineColumns[iCol];
+                Column& col     = columnInfoList[iCol];
 
                 // Determine column data type
                 if ( col.dataType == Column::NONE )
@@ -517,7 +519,7 @@ bool RifCsvUserDataParser::parseColumnBasedData( const RifAsciiDataParseOptions&
                     else
                     {
                         if ( parseOptions.assumeNumericDataColumns ||
-                             RiaStdStringTools::isNumber( colData, parseOptions.locale.decimalPoint().toLatin1() ) )
+                             RiaTextStringTools::isNumber( colData, parseOptions.locale.decimalPoint() ) )
                         {
                             col.dataType = Column::NUMERIC;
                         }

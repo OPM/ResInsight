@@ -29,7 +29,8 @@
 #include "RimWellPathAttributeCollection.h"
 #include "RimWellPathValve.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
+
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtSymbol.h"
 

@@ -43,8 +43,6 @@ class RimPolylinesAnnotation;
 class RimSummaryCalculationCollection;
 class RimSummaryCalculation;
 class RimCase;
-class RimCommandObject;
-class RimCommandObject;
 class RimDialogData;
 class RimEclipseCase;
 class RimGeoMechCase;
@@ -73,6 +71,7 @@ class RimValveTemplate;
 class RimCompletionTemplateCollection;
 class RimPlotTemplateFolderItem;
 class RimGridCalculationCollection;
+class RimQuickAccessCollection;
 
 namespace caf
 {
@@ -101,7 +100,6 @@ public:
     caf::PdmChildField<RimViewLinkerCollection*>         viewLinkerCollection;
     caf::PdmChildField<RimSummaryCalculationCollection*> calculationCollection;
     caf::PdmChildField<RimGridCalculationCollection*>    gridCalculationCollection;
-    caf::PdmChildArrayField<RimCommandObject*>           commandObjects;
 
     RimMainPlotCollection* mainPlotCollection() const;
 
@@ -193,6 +191,8 @@ public:
 
     void updatesAfterProjectFileIsRead();
 
+    RimQuickAccessCollection* pinnedFieldCollection() const;
+
 protected:
     void initAfterRead() override;
     void setupBeforeSave() override;
@@ -205,7 +205,8 @@ private:
     QString updatedFilePathFromPathId( QString filePath, RiaVariableMapper* pathListMapper = nullptr ) const;
 
 private:
-    caf::PdmChildField<RimMainPlotCollection*> m_mainPlotCollection;
+    caf::PdmChildField<RimMainPlotCollection*>    m_mainPlotCollection;
+    caf::PdmChildField<RimQuickAccessCollection*> m_pinnedFieldCollection;
 
     caf::PdmField<QString> m_globalPathList;
     caf::PdmField<QString> m_projectFileVersionString;

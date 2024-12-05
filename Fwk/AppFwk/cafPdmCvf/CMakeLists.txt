@@ -6,23 +6,12 @@ if(CAF_ENABLE_UNITY_BUILD)
   set(CMAKE_UNITY_BUILD true)
 endif()
 
-if(CEE_USE_QT6)
-  find_package(
-    Qt6
-    COMPONENTS
-    REQUIRED Core Gui Widgets
-  )
-  set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets)
-else()
-  find_package(
-    Qt5
-    COMPONENTS
-    REQUIRED Core Gui Widgets
-  )
-  set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-  qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
-  qt5_add_resources(QRC_FILES_CPP ${QRC_FILES})
-endif()
+find_package(
+  Qt6
+  COMPONENTS
+  REQUIRED Core Gui Widgets
+)
+set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets)
 
 add_library(
   ${PROJECT_NAME}

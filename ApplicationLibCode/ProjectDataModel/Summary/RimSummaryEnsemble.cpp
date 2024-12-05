@@ -22,16 +22,17 @@
 #include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
 #include "RiaStatisticsTools.h"
-#include "RiaSummaryAddressAnalyzer.h"
+#include "Summary/RiaSummaryAddressAnalyzer.h"
 
 #include "RifSummaryReaderInterface.h"
 
-#include "RimDerivedEnsembleCaseCollection.h"
+#include "RimDeltaSummaryEnsemble.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimProject.h"
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsembleTools.h"
+#include "RimSummaryPlot.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -103,12 +104,12 @@ void RimSummaryEnsemble::removeCase( RimSummaryCase* summaryCase, bool notifyCha
 
     if ( notifyChange )
     {
-        updateReferringCurveSets();
+        updateReferringCurveSetsZoomAll();
     }
 
     if ( m_isEnsemble && m_cases.size() != caseCountBeforeRemove )
     {
-        if ( dynamic_cast<RimDerivedSummaryCase*>( summaryCase ) == nullptr ) calculateEnsembleParametersIntersectionHash();
+        if ( dynamic_cast<RimDeltaSummaryCase*>( summaryCase ) == nullptr ) calculateEnsembleParametersIntersectionHash();
     }
 
     clearChildNodes();
@@ -128,13 +129,13 @@ void RimSummaryEnsemble::addCase( RimSummaryCase* summaryCase )
     m_analyzer.reset();
 
     // Update derived ensemble cases (if any)
-    std::vector<RimDerivedEnsembleCaseCollection*> referringObjects = objectsWithReferringPtrFieldsOfType<RimDerivedEnsembleCaseCollection>();
+    std::vector<RimDeltaSummaryEnsemble*> referringObjects = objectsWithReferringPtrFieldsOfType<RimDeltaSummaryEnsemble>();
     for ( auto derivedEnsemble : referringObjects )
     {
         if ( !derivedEnsemble ) continue;
 
         derivedEnsemble->createDerivedEnsembleCases();
-        derivedEnsemble->updateReferringCurveSets();
+        derivedEnsemble->updateReferringCurveSetsZoomAll();
     }
 
     if ( m_isEnsemble )
@@ -143,7 +144,7 @@ void RimSummaryEnsemble::addCase( RimSummaryCase* summaryCase )
         calculateEnsembleParametersIntersectionHash();
     }
 
-    updateReferringCurveSets();
+    updateReferringCurveSetsZoomAll();
 
     clearChildNodes();
 }
@@ -223,7 +224,7 @@ void RimSummaryEnsemble::setAsEnsemble( bool isEnsemble )
         m_isEnsemble = isEnsemble;
         updateIcon();
 
-        if ( m_isEnsemble && dynamic_cast<RimDerivedEnsembleCaseCollection*>( this ) == nullptr )
+        if ( m_isEnsemble && dynamic_cast<RimDeltaSummaryEnsemble*>( this ) == nullptr )
         {
             validateEnsembleCases( allSummaryCases() );
             calculateEnsembleParametersIntersectionHash();
@@ -616,7 +617,7 @@ void RimSummaryEnsemble::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsemble::updateReferringCurveSets()
+void RimSummaryEnsemble::updateReferringCurveSets( bool doZoomAll )
 {
     // Update curve set referring to this group
     std::vector<caf::PdmObject*> referringObjects = objectsWithReferringPtrFieldsOfType<PdmObject>();
@@ -629,8 +630,32 @@ void RimSummaryEnsemble::updateReferringCurveSets()
         if ( curveSet )
         {
             curveSet->loadDataAndUpdate( updateParentPlot );
+
+            if ( doZoomAll )
+            {
+                if ( auto parentPlot = curveSet->firstAncestorOrThisOfType<RimSummaryPlot>() )
+                {
+                    parentPlot->zoomAll();
+                }
+            }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::updateReferringCurveSets()
+{
+    updateReferringCurveSets( false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::updateReferringCurveSetsZoomAll()
+{
+    updateReferringCurveSets( true );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -26,9 +26,9 @@
 #include "RigEclipseResultInfo.h"
 #include "RigGridBase.h"
 #include "RigMainGrid.h"
-#include "RigSimWellData.h"
-#include "RigWellResultFrame.h"
-#include "RigWellResultPoint.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigWellResultFrame.h"
+#include "Well/RigWellResultPoint.h"
 
 #include "cafProgressInfo.h"
 
@@ -429,7 +429,9 @@ private:
         while ( gridIndex > 0 ) // is lgr
         {
             const RigCell& connectionCell = m_mainGrid->cellByGridAndGridLocalCellIdx( gridIndex, gridCellIndex );
-            RigGridBase*   hostGrid       = connectionCell.hostGrid();
+            if ( connectionCell.isInvalid() ) break;
+
+            RigGridBase* hostGrid = connectionCell.hostGrid();
 
             RigLocalGrid* lgrHost = static_cast<RigLocalGrid*>( hostGrid );
             gridIndex             = lgrHost->parentGrid()->gridIndex();

@@ -18,7 +18,7 @@
 
 #include "RiuSummaryVectorSelectionDialog.h"
 
-#include "RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
 
 #include "RimSummaryEnsemble.h"
 

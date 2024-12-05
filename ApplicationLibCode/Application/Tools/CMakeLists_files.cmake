@@ -12,11 +12,9 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTest.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaImportEclipseCaseTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaQDateTimeTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaWellNameComparer.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaStdStringTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaInterpolationTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryAddressAnalyzer.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaSimWellBranchTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaProjectFileTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaStringEncodingTools.h
@@ -48,13 +46,13 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaValidRegExpValidator.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaVec3Tools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaEnsembleNameTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryStringTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaNetworkTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaOpenMPTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaNumericalTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTextTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaFileLogger.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaProjectBackupTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaQuantityInfoTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaHashTools.h
 )
 
@@ -72,11 +70,9 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTest.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaImportEclipseCaseTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaQDateTimeTools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaWellNameComparer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaStdStringTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaInterpolationTools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryAddressAnalyzer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaSimWellBranchTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaProjectFileTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaStringEncodingTools.cpp
@@ -101,13 +97,13 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaValidRegExpValidator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaEnsembleNameTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaVec3Tools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryStringTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaNetworkTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaOpenMPTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaNumericalTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTextTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaFileLogger.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaProjectBackupTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaQuantityInfoTools.cpp
 )
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

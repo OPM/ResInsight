@@ -21,6 +21,7 @@
 
 #include "RiaLogging.h"
 #include "RiaStdStringTools.h"
+#include "RiaTextStringTools.h"
 
 #include <QDir>
 #include <QString>
@@ -120,7 +121,7 @@ void RifCaseRealizationParametersReader::parse()
         QString line = dataStream.readLine();
 
         lineNo++;
-        QStringList cols = RifFileParseTools::splitLineAndTrim( line, QRegExp( "[ \t]" ), true );
+        QStringList cols = RifFileParseTools::splitLineAndTrim( line, QRegularExpression( "[ \t]" ), true );
 
         if ( cols.size() != 2 )
         {
@@ -132,7 +133,7 @@ void RifCaseRealizationParametersReader::parse()
         QString& name     = cols[0];
         QString& strValue = cols[1];
 
-        if ( RiaStdStringTools::isNumber( strValue.toStdString(), QLocale::c().decimalPoint().toLatin1() ) )
+        if ( RiaTextStringTools::isNumber( strValue, QLocale::c().decimalPoint() ) )
         {
             bool   parseOk = true;
             double value   = QLocale::c().toDouble( strValue, &parseOk );
@@ -192,23 +193,23 @@ void RifCaseRealizationRunspecificationReader::parse()
 
         if ( xml.isStartElement() )
         {
-            if ( xml.name() == "modifier" )
+            if ( RiaTextStringTools::isTextEqual( xml.name(), QString( "modifier" ) ) )
             {
                 paramName = "";
             }
 
-            if ( xml.name() == "id" )
+            if ( RiaTextStringTools::isTextEqual( xml.name(), QString( "id" ) ) )
             {
                 paramName = xml.readElementText();
             }
 
-            if ( xml.name() == "value" )
+            if ( RiaTextStringTools::isTextEqual( xml.name(), QString( "value" ) ) )
             {
                 QString paramStrValue = xml.readElementText();
 
                 if ( paramName.isEmpty() ) continue;
 
-                if ( RiaStdStringTools::isNumber( paramStrValue.toStdString(), QLocale::c().decimalPoint().toLatin1() ) )
+                if ( RiaTextStringTools::isNumber( paramStrValue, QLocale::c().decimalPoint() ) )
                 {
                     bool   parseOk = true;
                     double value   = QLocale::c().toDouble( paramStrValue, &parseOk );
@@ -230,7 +231,7 @@ void RifCaseRealizationRunspecificationReader::parse()
         }
         else if ( xml.isEndElement() )
         {
-            if ( xml.name() == "modifier" )
+            if ( RiaTextStringTools::isTextEqual( xml.name(), QString( "modifier" ) ) )
             {
                 paramName = "";
             }
@@ -286,22 +287,22 @@ int RifCaseRealizationParametersFileLocator::realizationNumber( const QString& m
     QDir    dir( modelPath );
     QString absolutePath = dir.absolutePath();
 
+    return realizationNumberFromFullPath( absolutePath );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RifCaseRealizationParametersFileLocator::realizationNumberFromFullPath( const QString& path )
+{
     int resultIndex = -1;
 
-    // Use parenthesis to indicate capture of sub string
-    QString pattern = "(realization-\\d+)";
+    QRegularExpression      pattern( "realization-(\\d+)", QRegularExpression::CaseInsensitiveOption );
+    QRegularExpressionMatch match = pattern.match( path );
 
-    QRegExp regexp( pattern, Qt::CaseInsensitive );
-    if ( regexp.indexIn( absolutePath ) )
+    if ( match.hasMatch() )
     {
-        QString tempText = regexp.cap( 1 );
-
-        QRegExp rx( "(\\d+)" ); // Find number
-        int     digitPos = rx.indexIn( tempText );
-        if ( digitPos > -1 )
-        {
-            resultIndex = rx.cap( 0 ).toInt();
-        }
+        resultIndex = match.captured( 1 ).toInt();
     }
 
     return resultIndex;

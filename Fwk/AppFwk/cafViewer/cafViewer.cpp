@@ -69,6 +69,7 @@
 #include "cvfqtPerformanceInfoHud.h"
 #include "cvfqtUtils.h"
 
+#include <QApplication>
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QInputEvent>
@@ -182,6 +183,14 @@ caf::Viewer::Viewer( QWidget* parent )
 caf::Viewer::~Viewer()
 {
     if ( m_layoutWidget ) m_layoutWidget->deleteLater();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double caf::Viewer::displayScalingRatio() const
+{
+    return qApp->primaryScreen()->devicePixelRatio();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -325,7 +334,9 @@ void caf::Viewer::setComparisonViewVisibleNormalizedRect( const cvf::Rectf& visi
 {
     m_comparisonWindowNormalizedRect = visibleRect;
 
-    updateCamera( width(), height() );
+    const auto ratio = displayScalingRatio();
+
+    updateCamera( (int)( ratio * width() ), (int)( ratio * height() ) );
     update();
 }
 
@@ -639,8 +650,9 @@ cvf::ref<cvf::RayIntersectSpec> caf::Viewer::rayIntersectSpecFromWindowCoordinat
 cvf::ref<cvf::RayIntersectSpec>
     caf::Viewer::rayIntersectSpecFromWindowCoordinates( int winPosX, int winPosY, bool isForComparisonView )
 {
-    int translatedMousePosX = winPosX;
-    int translatedMousePosY = height() - winPosY;
+    const auto ratio               = displayScalingRatio();
+    int        translatedMousePosX = (int)( ratio * winPosX );
+    int        translatedMousePosY = (int)( ratio * ( height() - winPosY ) );
 
     cvf::Rendering* renderingToInvestigate = isForComparisonView ? m_comparisonMainRendering.p() : m_mainRendering.p();
 
@@ -711,6 +723,10 @@ bool caf::Viewer::isMousePosWithinComparisonView( int winPosX, int winPosY )
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::resizeGL( int width, int height )
 {
+    auto ratio = displayScalingRatio();
+    width      = (int)( ratio * width );
+    height     = (int)( ratio * height );
+
     if ( width < 1 || height < 1 ) return;
 
     if ( m_offscreenFbo.notNull() )
@@ -755,6 +771,11 @@ void caf::Viewer::paintGL()
     CVF_CHECK_OGL( myOglContext.p() );
     CVF_ASSERT( myOglContext->isContextValid() );
 
+    auto ratio    = displayScalingRatio();
+    auto thisSize = this->size();
+    thisSize.setHeight( (int)( ratio * thisSize.height() ) );
+    thisSize.setWidth( (int)( ratio * thisSize.width() ) );
+
     QPainter painter( this );
 
     if ( m_renderingSequence.isNull() || !canRender() )
@@ -769,9 +790,9 @@ void caf::Viewer::paintGL()
     if ( m_isOverlayPaintingEnabled || m_showPerfInfoHud )
     {
         // Set up image to draw to, and painter
-        if ( m_overlayPaintingQImage.size() != this->size() )
+        if ( m_overlayPaintingQImage.size() != thisSize )
         {
-            m_overlayPaintingQImage = QImage( this->size(), QImage::Format_ARGB32 );
+            m_overlayPaintingQImage = QImage( thisSize, QImage::Format_ARGB32 );
         }
 
         m_overlayPaintingQImage.fill( Qt::transparent );
@@ -798,16 +819,16 @@ void caf::Viewer::paintGL()
         // Convert the QImage into the cvf::TextureImage,
         // handling vertical mirroring and (possible) byteswapping
 
-        if ( ( (int)m_overlayTextureImage->height() ) != this->height() ||
-             ( (int)m_overlayTextureImage->width() != this->width() ) )
+        if ( ( (int)m_overlayTextureImage->height() ) != thisSize.height() ||
+             ( (int)m_overlayTextureImage->width() != thisSize.width() ) )
         {
-            m_overlayTextureImage->allocate( this->width(), this->height() );
+            m_overlayTextureImage->allocate( thisSize.width(), thisSize.height() );
         }
 
         cvfqt::Utils::toTextureImage( m_overlayPaintingQImage, m_overlayTextureImage.p() );
 
         m_overlayImage->setImage( m_overlayTextureImage.p() );
-        m_overlayImage->setPixelSize( cvf::Vec2ui( this->width(), this->height() ) );
+        m_overlayImage->setPixelSize( cvf::Vec2ui( thisSize.width(), thisSize.height() ) );
     }
 
     painter.beginNativePainting();

@@ -21,11 +21,11 @@
 #include "RiaColorTables.h"
 #include "RiaCurveSetDefinition.h"
 #include "RiaGuiApplication.h"
-#include "RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
 
 #include "RiuSummaryCurveDefinitionKeywords.h"
 
-#include "RimDerivedEnsembleCaseCollection.h"
+#include "RimDeltaSummaryEnsemble.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimEnsembleCurveSetColorManager.h"
@@ -532,7 +532,7 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions( const std:
                 curve->setShowInLegend( false );
             }
             curve->setSummaryCaseY( currentCase );
-            curve->setSummaryAddressYAndApplyInterpolation( curveDef.summaryAddressY() );
+            curve->setSummaryAddressY( curveDef.summaryAddressY() );
             curve->applyCurveAutoNameSettings( *m_curveNameConfig() );
             if ( currentCase && currentCase->isObservedData() ) curve->setSymbolSkipDistance( 0 );
 

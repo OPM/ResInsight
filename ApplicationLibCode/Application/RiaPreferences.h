@@ -24,7 +24,6 @@
 #include "RiaDateTimeDefines.h"
 #include "RiaDefines.h"
 #include "RiaFontCache.h"
-#include "RiaPreferencesOsdu.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -237,7 +236,11 @@ private:
 
     // Osdu settings
     caf::PdmChildField<RiaPreferencesOsdu*> m_osduPreferences;
+    caf::PdmField<bool>                     m_deleteOsduToken;
+
+    // sumo settings
     caf::PdmChildField<RiaPreferencesSumo*> m_sumoPreferences;
+    caf::PdmField<bool>                     m_deleteSumoToken;
 
     // 3d view
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>       m_defaultMeshModeType;

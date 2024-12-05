@@ -22,6 +22,8 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
+#include "RimStatisticsContourMap.h"
+#include "RimWellTargetCandidatesGenerator.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -49,6 +51,10 @@ RimEclipseCaseEnsemble::RimEclipseCaseEnsemble()
 
     CAF_PDM_InitFieldNoDefault( &m_viewCollection, "ViewCollection", "Views" );
     m_viewCollection = new RimEclipseViewCollection;
+
+    CAF_PDM_InitFieldNoDefault( &m_wellTargetGenerators, "WellTargetGenerators", "Well Target Candidates Generators" );
+
+    CAF_PDM_InitFieldNoDefault( &m_statisticsContourMaps, "StatisticsContourMaps", "Statistics Contour maps" );
 
     setDeletable( true );
 }
@@ -169,6 +175,8 @@ void RimEclipseCaseEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* change
 void RimEclipseCaseEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicNewViewForGridEnsembleFeature";
+    menuBuilder << "RicNewWellTargetCandidatesGeneratorFeature";
+    menuBuilder << "RicNewStatisticsContourMapFeature";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,4 +185,20 @@ void RimEclipseCaseEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBu
 RimEclipseViewCollection* RimEclipseCaseEnsemble::viewCollection() const
 {
     return m_viewCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCaseEnsemble::addWellTargetsGenerator( RimWellTargetCandidatesGenerator* generator )
+{
+    m_wellTargetGenerators.push_back( generator );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCaseEnsemble::addStatisticsContourMap( RimStatisticsContourMap* statisticsContourMap )
+{
+    m_statisticsContourMaps.push_back( statisticsContourMap );
 }

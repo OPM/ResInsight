@@ -36,8 +36,8 @@
 #include "RigEclipseResultInfo.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
-#include "RigSimWellData.h"
-#include "RigWellResultFrame.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigWellResultFrame.h"
 
 #include "cafProgressInfo.h"
 
@@ -147,9 +147,6 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
 
     Opm::EclIO::EGrid opmGrid( m_gridFileName );
 
-    RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
-
     const auto& dims = opmGrid.dimension();
     mainGrid->setGridPointDimensions( cvf::Vec3st( dims[0] + 1, dims[1] + 1, dims[2] + 1 ) );
     mainGrid->setGridName( "Main grid" );
@@ -184,26 +181,24 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
 
         const auto& lgrDims = lgrGrids[lgrIdx].dimension();
         localGrid->setGridPointDimensions( cvf::Vec3st( lgrDims[0] + 1, lgrDims[1] + 1, lgrDims[2] + 1 ) );
-
         localGrid->setGridId( lgrIdx + 1 );
         localGrid->setGridName( lgr_names[lgrIdx] );
-        mainGrid->addLocalGrid( localGrid );
-
         localGrid->setIndexToStartOfCells( totalCellCount );
+        mainGrid->addLocalGrid( localGrid );
 
         totalCellCount += lgrGrids[lgrIdx].totalNumberOfCells();
     }
 
-    activeCellInfo->setReservoirCellCount( totalCellCount );
-    fractureActiveCellInfo->setReservoirCellCount( totalCellCount );
-
-    mainGrid->globalCellArray().reserve( (size_t)totalCellCount );
-    mainGrid->nodes().reserve( (size_t)totalCellCount * 8 );
-
-    activeCellInfo->setGridCount( 1 + numLGRs );
-    fractureActiveCellInfo->setGridCount( 1 + numLGRs );
-
+    // active cell information
     {
+        RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+
+        activeCellInfo->setReservoirCellCount( totalCellCount );
+        fractureActiveCellInfo->setReservoirCellCount( totalCellCount );
+        activeCellInfo->setGridCount( 1 + numLGRs );
+        fractureActiveCellInfo->setGridCount( 1 + numLGRs );
+
         auto task = progInfo.task( "Getting Active Cell Information", 1 );
 
         for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
@@ -242,23 +237,24 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
         fractureActiveCellInfo->computeDerivedData();
     }
 
+    // grid geometry
     {
         auto task = progInfo.task( "Loading Main Grid Geometry", 1 );
         transferGeometry( opmGrid, opmGrid, mainGrid, mainGrid, eclipseCaseData );
-    }
 
-    bool hasParentInfo = ( lgr_parent_names.size() >= (size_t)numLGRs );
+        bool hasParentInfo = ( lgr_parent_names.size() >= (size_t)numLGRs );
 
-    auto task = progInfo.task( "Loading LGR Grid Geometry ", 1 );
+        auto task2 = progInfo.task( "Loading LGR Grid Geometry ", 1 );
 
-    for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
-    {
-        RigGridBase* parentGrid = hasParentInfo ? mainGrid->gridByName( lgr_parent_names[lgrIdx] ) : mainGrid;
+        for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
+        {
+            RigGridBase* parentGrid = hasParentInfo ? mainGrid->gridByName( lgr_parent_names[lgrIdx] ) : mainGrid;
 
-        RigLocalGrid* localGrid = static_cast<RigLocalGrid*>( mainGrid->gridById( lgrIdx + 1 ) );
-        localGrid->setParentGrid( parentGrid );
+            RigLocalGrid* localGrid = static_cast<RigLocalGrid*>( mainGrid->gridById( lgrIdx + 1 ) );
+            localGrid->setParentGrid( parentGrid );
 
-        transferGeometry( opmGrid, lgrGrids[lgrIdx], mainGrid, localGrid, eclipseCaseData );
+            transferGeometry( opmGrid, lgrGrids[lgrIdx], mainGrid, localGrid, eclipseCaseData );
+        }
     }
 
     mainGrid->initAllSubGridsParentGridPointer();
@@ -411,7 +407,7 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
                                            RigEclipseCaseData* eclipseCaseData )
 {
     int    cellCount      = opmGrid.totalNumberOfCells();
-    size_t cellStartIndex = mainGrid->globalCellArray().size();
+    size_t cellStartIndex = mainGrid->reservoirCells().size();
     size_t nodeStartIndex = mainGrid->nodes().size();
 
     const bool invalidateLongPyramidCells = invalidateLongThinCells();
@@ -419,7 +415,7 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
     RigCell defaultCell;
     defaultCell.setHostGrid( localGrid );
 
-    mainGrid->globalCellArray().resize( cellStartIndex + cellCount, defaultCell );
+    mainGrid->reservoirCells().resize( cellStartIndex + cellCount, defaultCell );
 
     mainGrid->nodes().resize( nodeStartIndex + cellCount * 8, cvf::Vec3d( 0, 0, 0 ) );
 
@@ -456,7 +452,7 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
         }
 
         auto     riReservoirIndex = localGrid->cellIndexFromIJK( opmIJK[0], opmIJK[1], opmIJK[2] );
-        RigCell& cell             = mainGrid->globalCellArray()[cellStartIndex + riReservoirIndex];
+        RigCell& cell             = mainGrid->cell( cellStartIndex + riReservoirIndex );
         cell.setGridLocalCellIndex( riReservoirIndex );
 
         // parent cell index
@@ -745,7 +741,9 @@ void RifReaderOpmCommon::setupInitAndRestartAccess()
     {
         try
         {
+            RiaLogging::resetTimer( "Starting import of meta data from " + QString::fromStdString( m_restartFileName ) );
             m_restartFile = std::make_unique<EclIO::ERst>( m_restartFileName );
+            RiaLogging::logTimeElapsed( "Completed import of meta data" );
         }
         catch ( ... )
         {
@@ -765,15 +763,19 @@ std::vector<RigEclipseTimeStepInfo> RifReaderOpmCommon::createFilteredTimeStepIn
 
     auto timeStepsOnFile = readTimeSteps();
 
+    if ( timeStepsOnFile.size() == 0 ) return timeStepInfos;
+
+    auto  startDayOffset = timeStepsOnFile[0].simulationTimeFromStart;
+    QDate startDate( timeStepsOnFile[0].year, timeStepsOnFile[0].month, timeStepsOnFile[0].day );
+
     for ( size_t i = 0; i < timeStepsOnFile.size(); i++ )
     {
         if ( isTimeStepIncludedByFilter( i ) )
         {
-            QDate date( timeStepsOnFile[i].year, timeStepsOnFile[i].month, timeStepsOnFile[i].day );
-            auto  datetime = RiaQDateTimeTools::createDateTime( date, Qt::TimeSpec::UTC );
+            auto dateTime = dateTimeFromTimeStepOnFile( timeStepsOnFile[i], startDate, startDayOffset );
 
             timeStepInfos.push_back(
-                RigEclipseTimeStepInfo( datetime, timeStepsOnFile[i].sequenceNumber, timeStepsOnFile[i].simulationTimeFromStart ) );
+                RigEclipseTimeStepInfo( dateTime, timeStepsOnFile[i].sequenceNumber, timeStepsOnFile[i].simulationTimeFromStart ) );
         }
     }
 
@@ -783,11 +785,39 @@ std::vector<RigEclipseTimeStepInfo> RifReaderOpmCommon::createFilteredTimeStepIn
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QDateTime RifReaderOpmCommon::dateTimeFromTimeStepOnFile( RifReaderOpmCommon::TimeDataFile timeOnFile, QDate startDate, double startDayOffset )
+{
+    QDateTime dateTime;
+    if ( timeOnFile.simulationTimeFromStart == 0 )
+    {
+        QDate date( timeOnFile.year, timeOnFile.month, timeOnFile.day );
+        dateTime = RiaQDateTimeTools::createDateTime( date, Qt::TimeSpec::UTC );
+    }
+    else
+    {
+        dateTime = RiaQDateTimeTools::createDateTime( startDate, Qt::TimeSpec::UTC );
+
+        double    dayDoubleValue   = timeOnFile.simulationTimeFromStart;
+        int       dayValue         = cvf::Math::floor( dayDoubleValue );
+        const int adjustedDayValue = dayValue - startDayOffset;
+        dateTime                   = dateTime.addDays( adjustedDayValue );
+
+        double dayFraction  = dayDoubleValue - dayValue;
+        double milliseconds = dayFraction * 24.0 * 60.0 * 60.0 * 1000.0;
+
+        dateTime = dateTime.addMSecs( milliseconds );
+    }
+
+    return dateTime;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf::ProgressInfo& progress )
 {
     setupInitAndRestartAccess();
 
-    std::vector<QDateTime>              timeSteps;
     std::vector<RigEclipseTimeStepInfo> filteredTimeStepInfos;
 
     RigEclipseTimeStepInfo firstTimeStepInfo{ QDateTime(), 0, 0.0 };
@@ -894,6 +924,8 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
     auto task = progress.task( "Handling well information", 10 );
     if ( loadWellDataEnabled() && !m_restartFileName.empty() )
     {
+        RiaLogging::resetTimer( "Start import of simulation well data" );
+
         auto restartAccess = std::make_unique<RifEclipseUnifiedRestartFileAccess>();
         restartAccess->setRestartFiles( QStringList( QString::fromStdString( m_restartFileName ) ) );
         restartAccess->open();
@@ -911,6 +943,8 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
                                              isImportOfCompleteMswDataEnabled() );
 
         restartAccess->close();
+
+        RiaLogging::logTimeElapsed( "Completed import of simulation well data" );
     }
     else
     {
@@ -982,14 +1016,17 @@ std::vector<QDateTime> RifReaderOpmCommon::timeStepsOnFile( QString gridFileName
 
     if ( m_restartFile == nullptr ) return {};
 
-    auto timeStepsFromFile = readTimeSteps();
+    auto timeStepsOnFile = readTimeSteps();
+    if ( timeStepsOnFile.size() == 0 ) return {};
+
+    auto  startDayOffset = timeStepsOnFile[0].simulationTimeFromStart;
+    QDate startDate( timeStepsOnFile[0].year, timeStepsOnFile[0].month, timeStepsOnFile[0].day );
 
     std::vector<QDateTime> dateTimes;
 
-    for ( const auto& timeStep : timeStepsFromFile )
+    for ( const auto& timeStep : timeStepsOnFile )
     {
-        QDate     date( timeStep.year, timeStep.month, timeStep.day );
-        QDateTime dateTime = RiaQDateTimeTools::createDateTime( date, Qt::UTC );
+        auto dateTime = dateTimeFromTimeStepOnFile( timeStep, startDate, startDayOffset );
         dateTimes.push_back( dateTime );
     }
 

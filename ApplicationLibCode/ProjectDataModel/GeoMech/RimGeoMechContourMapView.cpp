@@ -67,7 +67,7 @@ RimGeoMechContourMapView::RimGeoMechContourMapView()
 
     setDefaultCustomName();
 
-    m_contourMapProjectionPartMgr = new RivContourMapProjectionPartMgr( contourMapProjection(), this );
+    m_contourMapProjectionPartMgr = new RivContourMapProjectionPartMgr( contourMapProjection() );
 
     ( (RiuViewerToViewInterface*)this )->setCameraPosition( sm_defaultViewMatrix );
 
@@ -174,6 +174,15 @@ bool RimGeoMechContourMapView::isTimeStepDependentDataVisible() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGeoMechContourMapView::setCompatibleDrawStyle()
+{
+    surfaceMode = FAULTS;
+    meshMode    = RiaDefines::MeshModeType::NO_MESH;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechContourMapView::initAfterRead()
 {
     RimGeoMechView::initAfterRead();
@@ -181,8 +190,7 @@ void RimGeoMechContourMapView::initAfterRead()
     m_gridCollection->setActive( false ); // This is also not added to the tree view, so cannot be enabled.
     disablePerspectiveProjectionField();
     setShowGridBox( false );
-    meshMode.setValue( RiaDefines::MeshModeType::NO_MESH );
-    surfaceMode.setValue( FAULTS );
+    setCompatibleDrawStyle();
     scheduleCreateDisplayModelAndRedraw();
 }
 
@@ -283,7 +291,7 @@ void RimGeoMechContourMapView::createContourMapGeometry()
 {
     if ( nativeOrOverrideViewer() && m_contourMapProjection->isChecked() )
     {
-        m_contourMapProjectionPartMgr->createProjectionGeometry();
+        m_contourMapProjection->generateGeometryIfNecessary();
     }
 }
 
@@ -305,7 +313,13 @@ void RimGeoMechContourMapView::appendContourMapProjectionToModel()
 
             cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
-            m_contourMapProjectionPartMgr->appendProjectionToModel( contourMapProjectionModelBasicList.p(), transForm.p() );
+            m_contourMapProjectionPartMgr->appendProjectionToModel( contourMapProjectionModelBasicList.p(),
+                                                                    transForm.p(),
+                                                                    m_contourMapProjection->trianglesWithVertexValues(),
+                                                                    *m_contourMapProjection->mapGrid(),
+                                                                    backgroundColor(),
+                                                                    m_contourMapProjection->legendConfig()->scalarMapper() );
+
             contourMapProjectionModelBasicList->updateBoundingBoxesRecursive();
             frameScene->addModel( contourMapProjectionModelBasicList.p() );
         }
@@ -330,7 +344,17 @@ void RimGeoMechContourMapView::appendContourLinesToModel()
 
             cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
-            m_contourMapProjectionPartMgr->appendContourLinesToModel( viewer()->mainCamera(), contourMapLabelModelBasicList.p(), transForm.p() );
+            m_contourMapProjectionPartMgr->appendContourLinesToModel( viewer()->mainCamera(),
+                                                                      contourMapLabelModelBasicList.p(),
+                                                                      transForm.p(),
+                                                                      m_contourMapProjection->contourPolygons(),
+                                                                      *m_contourMapProjection->mapGrid(),
+                                                                      m_contourMapProjection->legendConfig()->scalarMapper(),
+                                                                      m_contourMapProjection->showContourLines(),
+                                                                      m_contourMapProjection->showContourLabels(),
+                                                                      m_contourMapProjection->legendConfig()->tickNumberFormat(),
+                                                                      m_contourMapProjection->legendConfig()->significantDigitsInData() );
+
             contourMapLabelModelBasicList->updateBoundingBoxesRecursive();
             frameScene->addModel( contourMapLabelModelBasicList.p() );
         }
@@ -355,7 +379,11 @@ void RimGeoMechContourMapView::appendPickPointVisToModel()
 
             cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
-            m_contourMapProjectionPartMgr->appendPickPointVisToModel( contourMapProjectionModelBasicList.p(), transForm.p() );
+            m_contourMapProjectionPartMgr->appendPickPointVisToModel( contourMapProjectionModelBasicList.p(),
+                                                                      transForm.p(),
+                                                                      m_contourMapProjection->pickPoint(),
+                                                                      *m_contourMapProjection->mapGrid() );
+
             contourMapProjectionModelBasicList->updateBoundingBoxesRecursive();
             frameScene->addModel( contourMapProjectionModelBasicList.p() );
         }

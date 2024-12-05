@@ -26,7 +26,7 @@
 
 #include "RifOsduWellPathReader.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "cafProgressInfo.h"
 

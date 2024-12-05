@@ -18,11 +18,10 @@
 
 #pragma once
 
-#include "RiaSummaryCurveDefinition.h" // use of caf::Signal requires this include
+#include "Summary/RiaSummaryCurveDefinition.h" // use of caf::Signal requires this include
 
 #include "RimAbstractCorrelationPlot.h"
 
-#include "cafAppEnum.h"
 #include "cafPdmFieldCvfColor.h"
 
 #include <QDateTime>

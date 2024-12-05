@@ -23,8 +23,8 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCell.h"
-#include "RigSimWellData.h"
-#include "RigWellResultFrame.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigWellResultFrame.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"

@@ -32,6 +32,8 @@ RigGridBase::RigGridBase( RigMainGrid* mainGrid )
     : m_gridPointDimensions( 0, 0, 0 )
     , m_indexToStartOfCells( 0 )
     , m_mainGrid( mainGrid )
+    , m_cellCountIJK( 0 )
+    , m_cellCountIJ( 0 )
 {
     if ( mainGrid == nullptr )
     {
@@ -59,6 +61,9 @@ void RigGridBase::setGridPointDimensions( const cvf::Vec3st& gridDimensions )
     m_cellCount.x() = ( m_gridPointDimensions.x() > 0 ? m_gridPointDimensions.x() - 1 : 0 );
     m_cellCount.y() = ( m_gridPointDimensions.y() > 0 ? m_gridPointDimensions.y() - 1 : 0 );
     m_cellCount.z() = ( m_gridPointDimensions.z() > 0 ? m_gridPointDimensions.z() - 1 : 0 );
+
+    m_cellCountIJ  = cellCountI() * cellCountJ();
+    m_cellCountIJK = m_cellCountIJ * cellCountK();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,15 +83,14 @@ std::string RigGridBase::gridName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Do we need this ?
+///
 //--------------------------------------------------------------------------------------------------
 RigCell& RigGridBase::cell( size_t gridLocalCellIndex )
 {
-    CVF_ASSERT( m_mainGrid );
+    CVF_TIGHT_ASSERT( m_mainGrid );
+    CVF_TIGHT_ASSERT( m_indexToStartOfCells + gridLocalCellIndex < m_mainGrid->reservoirCells().size() );
 
-    CVF_ASSERT( m_indexToStartOfCells + gridLocalCellIndex < m_mainGrid->globalCellArray().size() );
-
-    return m_mainGrid->globalCellArray()[m_indexToStartOfCells + gridLocalCellIndex];
+    return m_mainGrid->reservoirCells()[m_indexToStartOfCells + gridLocalCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,9 +98,9 @@ RigCell& RigGridBase::cell( size_t gridLocalCellIndex )
 //--------------------------------------------------------------------------------------------------
 const RigCell& RigGridBase::cell( size_t gridLocalCellIndex ) const
 {
-    CVF_ASSERT( m_mainGrid );
+    CVF_TIGHT_ASSERT( m_mainGrid );
 
-    return m_mainGrid->globalCellArray()[m_indexToStartOfCells + gridLocalCellIndex];
+    return m_mainGrid->reservoirCells()[m_indexToStartOfCells + gridLocalCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,7 +189,7 @@ size_t RigGridBase::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
     CVF_TIGHT_ASSERT( i != cvf::UNDEFINED_SIZE_T && j != cvf::UNDEFINED_SIZE_T && k != cvf::UNDEFINED_SIZE_T );
     CVF_TIGHT_ASSERT( i < m_gridPointDimensions.x() && j < m_gridPointDimensions.y() && k < m_gridPointDimensions.z() );
 
-    return i + j * cellCountI() + k * cellCountI() * cellCountJ();
+    return i + j * m_cellCount.x() + k * m_cellCountIJ;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -193,7 +197,7 @@ size_t RigGridBase::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
 //--------------------------------------------------------------------------------------------------
 size_t RigGridBase::cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const
 {
-    return i + j * cellCountI() + k * cellCountI() * cellCountJ();
+    return i + j * m_cellCount.x() + k * m_cellCountIJ;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -208,7 +212,7 @@ void RigGridBase::cellMinMaxCordinates( size_t cellIndex, cvf::Vec3d* minCoordin
 //--------------------------------------------------------------------------------------------------
 bool RigGridBase::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const
 {
-    CVF_TIGHT_ASSERT( cellIndex < RigGridBase::cellCount() );
+    CVF_TIGHT_ASSERT( cellIndex < m_cellCountIJK );
 
     size_t index = cellIndex;
 
@@ -217,8 +221,8 @@ bool RigGridBase::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size
         return false;
     }
 
-    const size_t cellCountI = this->cellCountI();
-    const size_t cellCountJ = this->cellCountJ();
+    const size_t cellCountI = m_cellCount.x();
+    const size_t cellCountJ = m_cellCount.y();
 
     *i = index % cellCountI;
     index /= cellCountI;
@@ -264,8 +268,8 @@ void RigGridBase::ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t
 {
     size_t index = cellIndex;
 
-    const size_t cellCountI = this->cellCountI();
-    const size_t cellCountJ = this->cellCountJ();
+    const size_t cellCountI = m_cellCount.x();
+    const size_t cellCountJ = m_cellCount.y();
 
     *i = index % cellCountI;
     index /= cellCountI;
@@ -334,7 +338,7 @@ cvf::Vec3d RigGridBase::maxCoordinate() const
 //--------------------------------------------------------------------------------------------------
 bool RigGridBase::isCellValid( size_t i, size_t j, size_t k ) const
 {
-    if ( i >= cellCountI() || j >= cellCountJ() || k >= cellCountK() )
+    if ( i >= m_cellCount.x() || j >= m_cellCount.y() || k >= m_cellCount.z() )
     {
         return false;
     }
@@ -522,38 +526,6 @@ cvf::BoundingBox RigGridBase::boundingBox()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigGridBase::cellCountI() const
-{
-    return m_cellCount.x();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RigGridBase::cellCountJ() const
-{
-    return m_cellCount.y();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RigGridBase::cellCountK() const
-{
-    return m_cellCount.z();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RigGridBase::cellCount() const
-{
-    return cellCountI() * cellCountJ() * cellCountK();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RigGridCellFaceVisibilityFilter::isFaceVisible( size_t                             i,
                                                      size_t                             j,
                                                      size_t                             k,
@@ -563,7 +535,7 @@ bool RigGridCellFaceVisibilityFilter::isFaceVisible( size_t                     
     CVF_TIGHT_ASSERT( m_grid );
 
     size_t cellIndex = m_grid->cellIndexFromIJK( i, j, k );
-    if ( m_grid->cell( cellIndex ).subGrid() )
+    if ( m_grid->mainGrid()->gridCount() > 1 && m_grid->cell( cellIndex ).subGrid() )
     {
         // Do not show any faces in the place where a LGR is present
         return false;
@@ -578,15 +550,6 @@ bool RigGridCellFaceVisibilityFilter::isFaceVisible( size_t                     
         return true;
     }
 
-    size_t neighborCellIndex = m_grid->cellIndexFromIJK( ni, nj, nk );
-
-    // Do show the faces in the boarder between this grid and a possible LGR. Some of the LGR cells
-    // might not be visible.
-    if ( m_grid->cell( neighborCellIndex ).subGrid() )
-    {
-        return true;
-    }
-
     // Do not show cell geometry if a fault is present to avoid z fighting between surfaces
     // It will always be a better solution to avoid geometry creation instead of part priority and polygon offset
     size_t          nativeResvCellIndex = m_grid->reservoirCellIndex( cellIndex );
@@ -596,8 +559,16 @@ bool RigGridCellFaceVisibilityFilter::isFaceVisible( size_t                     
         return false;
     }
 
+    size_t neighborCellIndex = m_grid->cellIndexFromIJK( ni, nj, nk );
     // If the neighbour cell is invisible, we need to draw the face
     if ( ( cellVisibility != nullptr ) && !( *cellVisibility )[neighborCellIndex] )
+    {
+        return true;
+    }
+
+    // Do show the faces in the border between this grid and a possible LGR. Some of the LGR cells
+    // might not be visible.
+    if ( m_grid->mainGrid()->gridCount() > 1 && m_grid->cell( neighborCellIndex ).subGrid() )
     {
         return true;
     }

@@ -26,7 +26,7 @@
 
 #include "RifOsduWellLogReader.h"
 
-#include "RigWellLogData.h"
+#include "Well/RigWellLogData.h"
 
 #include "cafProgressInfo.h"
 

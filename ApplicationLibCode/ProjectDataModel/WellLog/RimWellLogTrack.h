@@ -22,7 +22,8 @@
 #include "RimWellLogPlot.h"
 
 #include "RiaPlotDefines.h"
-#include "RigWellPathFormations.h"
+
+#include "Well/RigWellPathFormations.h"
 
 #include "RimPlot.h"
 
@@ -187,8 +188,6 @@ public:
     void setUnderburdenHeight( double underburdenHeight );
 
     RimWellPath* wellPathAttributeSource() const;
-
-    caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const override;
 
     void setLogarithmicScale( bool enable );
     bool isLogarithmicScale() const;

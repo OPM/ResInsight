@@ -21,19 +21,13 @@
 #include "RigFemPart.h"
 #include "RigFemResultAddress.h"
 
-#include "RimCheckableNamedObject.h"
 #include "RimContourMapProjection.h"
 
-#include "cafDisplayCoordTransform.h"
-#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
 #include "cvfArray.h"
 #include "cvfBoundingBox.h"
-#include "cvfGeometryBuilderFaceList.h"
-#include "cvfString.h"
-#include "cvfVector2.h"
 
 class RimGeoMechContourMapView;
 class RimGeoMechCase;
@@ -58,27 +52,19 @@ public:
     double sampleSpacing() const override;
 
 protected:
-    using CellIndexAndResult = RimContourMapProjection::CellIndexAndResult;
-
     // GeoMech implementation specific data generation methods
     cvf::ref<cvf::UByteArray> getCellVisibility() const override;
     cvf::BoundingBox          calculateExpandedPorBarBBox( int timeStep, int frameIndex ) const;
     void                      updateGridInformation() override;
-    std::vector<bool>         getMapCellVisibility() override;
-    std::vector<double>       retrieveParameterWeights() override;
-    std::vector<double>       generateResults( int viewerStepIndex ) override;
+
+    std::vector<double> retrieveParameterWeights() override;
+    std::vector<double> generateResults( int timeStep ) const override;
+    void                generateAndSaveResults( int timeStep ) override;
     std::vector<double>
-         generateResultsFromAddress( RigFemResultAddress resultAddress, const std::vector<bool>& mapCellVisibility, int viewerStepIndex );
-    bool resultVariableChanged() const override;
-    void clearResultVariable() override;
-    RimGridView*        baseView() const override;
-    std::vector<size_t> findIntersectingCells( const cvf::BoundingBox& bbox ) const override;
-    size_t              kLayer( size_t globalCellIdx ) const override;
-    size_t              kLayers() const override;
-    double              calculateOverlapVolume( size_t globalCellIdx, const cvf::BoundingBox& bbox ) const override;
-    double calculateRayLengthInCell( size_t globalCellIdx, const cvf::Vec3d& highestPoint, const cvf::Vec3d& lowestPoint ) const override;
-    double getParameterWeightForCell( size_t globalCellIdx, const std::vector<double>& parameterWeights ) const override;
-    std::vector<double>       gridCellValues( RigFemResultAddress resAddr, std::vector<float>& resultValues ) const;
+        generateResultsFromAddress( RigFemResultAddress resultAddress, const std::vector<bool>& mapCellVisibility, int viewerStepIndex ) const;
+    bool                      resultVariableChanged() const override;
+    void                      clearResultVariable() override;
+    RimGridView*              baseView() const override;
     RimGeoMechCase*           geoMechCase() const;
     RimGeoMechContourMapView* view() const;
 
@@ -100,5 +86,4 @@ protected:
     cvf::ref<RigFemPart>      m_femPart;
     cvf::cref<RigFemPartGrid> m_femPartGrid;
     RigFemResultAddress       m_currentResultAddr;
-    size_t                    m_kLayers;
 };

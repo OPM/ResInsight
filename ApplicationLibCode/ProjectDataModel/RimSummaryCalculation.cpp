@@ -22,8 +22,8 @@
 
 #include "RiaCurveMerger.h"
 #include "RiaLogging.h"
-#include "RiaSummaryCurveDefinition.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifSummaryReaderInterface.h"
 #include "RimDataSourceSteppingTools.h"
@@ -345,7 +345,8 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
         }
     }
 
-    timeHistoryCurveMerger.computeInterpolatedValues();
+    bool includeValuesFromPartialCurves = true;
+    timeHistoryCurveMerger.computeInterpolatedValues( includeValuesFromPartialCurves );
 
     ExpressionParser parser;
     for ( size_t i = 0; i < variables.size(); i++ )

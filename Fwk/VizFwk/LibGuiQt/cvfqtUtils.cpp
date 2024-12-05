@@ -66,13 +66,13 @@ QString Utils::toQString(const cvf::String& cvfString)
 
     if (sizeof(wchar_t) == 2)
     {
-        const unsigned short* strPtr = reinterpret_cast<const unsigned short*>(cvfString.c_str());
+        const char16_t* strPtr = reinterpret_cast<const char16_t*>(cvfString.c_str());
 
         return QString::fromUtf16(strPtr);
     }
     else if (sizeof(wchar_t) == 4)
     {
-        const unsigned int* strPtr = reinterpret_cast<const unsigned int*>(cvfString.c_str());
+        const char32_t* strPtr = reinterpret_cast<const char32_t*>(cvfString.c_str());
 
         return QString::fromUcs4(strPtr);
     }
@@ -119,7 +119,7 @@ std::vector<cvf::String> Utils::toStringVector(const QStringList& stringList)
 {
     std::vector<cvf::String> strVec;
 
-    foreach (QString s, stringList)
+    for (const QString& s : stringList)
     {
         strVec.push_back(toString(s));
     }
@@ -136,7 +136,7 @@ QStringList Utils::toQStringList(const std::vector<cvf::String>& stringVector)
 {
     QStringList strList;
 
-    foreach (cvf::String s, stringVector)
+    for (const cvf::String& s : stringVector)
     {
         strList.push_back(toQString(s));
     }

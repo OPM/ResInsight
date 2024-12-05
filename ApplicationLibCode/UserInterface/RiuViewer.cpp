@@ -401,6 +401,11 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
     // and when they are shared between views the positions are overwritten.
     updateLegendLayout();
 
+    // adjust for possible DPI scaling
+    auto       ratio      = displayScalingRatio();
+    const auto trueWidth  = (int)( ratio * this->width() );
+    const auto trueHeight = (int)( ratio * this->height() );
+
     int columnWidth = 200;
 
     int edgeAxisFrameBorderWidth  = m_showWindowEdgeAxes ? m_windowEdgeAxisOverlay->frameBorderWidth() : 0;
@@ -415,7 +420,7 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
 
     if ( m_showInfoText ) columnWidth = std::max( columnWidth, m_infoLabel->sizeHint().width() );
 
-    int columnPos = width() - columnWidth - margin - edgeAxisFrameBorderWidth;
+    int columnPos = trueWidth - columnWidth - margin - edgeAxisFrameBorderWidth;
 
     if ( isComparisonViewActive() )
     {
@@ -424,9 +429,8 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
         {
             columnWidth = 200;
 
-            // int sliderPos = width() * comparisonViewVisibleNormalizedRect().min().x();
-            int sliderPos         = 0.5 * width();
-            int compViewItemsXPos = sliderPos + 0.5 * ( width() - sliderPos ) - 0.5 * columnWidth;
+            int sliderPos         = 0.5 * trueWidth;
+            int compViewItemsXPos = sliderPos + 0.5 * ( trueWidth - sliderPos ) - 0.5 * columnWidth;
             columnPos             = 0.5 * sliderPos - 0.5 * columnWidth;
 
             if ( m_showInfoText )
@@ -520,13 +524,13 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
     {
         m_histogramWidget->resize( columnWidth, 40 );
         m_histogramWidget->render( painter, QPoint( columnPos, yPos ) );
-        // yPos +=  m_histogramWidget->height() + margin;
     }
 
     if ( m_showVersionInfo ) // Version Label
     {
-        QSize size( m_versionInfoLabel->sizeHint().width(), m_versionInfoLabel->sizeHint().height() );
-        QPoint pos( width() - size.width() - margin - edgeAxisFrameBorderWidth, height() - size.height() - margin - edgeAxisFrameBorderHeight );
+        QSize  size( m_versionInfoLabel->sizeHint().width(), m_versionInfoLabel->sizeHint().height() );
+        QPoint pos( trueWidth - size.width() - margin - edgeAxisFrameBorderWidth,
+                    trueHeight - size.height() - margin - edgeAxisFrameBorderHeight );
         m_versionInfoLabel->resize( size.width(), size.height() );
         m_versionInfoLabel->render( painter, pos );
     }
@@ -550,8 +554,9 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
             cvf::Vec3d screenCoords;
             if ( mainCamera()->project( displayCoord, &screenCoords ) )
             {
-                int    translatedMousePosY = height() - screenCoords.y();
-                QPoint centerPos( screenCoords.x(), translatedMousePosY );
+                int    translatedMousePosX = (int)( ratio * screenCoords.x() );
+                int    translatedMousePosY = (int)( ratio * ( height() - screenCoords.y() ) );
+                QPoint centerPos( translatedMousePosX, translatedMousePosY );
 
                 // Draw a cross hair marker
                 int markerHalfLength = 6;
@@ -926,8 +931,9 @@ void RiuViewer::updateLegendLayout()
         auto scaleLegendSize  = m_scaleLegend->renderSize();
         auto otherItemsHeight = m_versionInfoLabel->sizeHint().height();
 
-        const int xPos = width() - (int)scaleLegendSize.x() - margin - edgeAxisBorderWidth;
-        const int yPos = margin + edgeAxisBorderHeight + margin + otherItemsHeight;
+        const auto ratio = displayScalingRatio();
+        const int  xPos  = (int)( ratio * width() ) - (int)scaleLegendSize.x() - margin - edgeAxisBorderWidth;
+        const int  yPos  = margin + edgeAxisBorderHeight + margin + otherItemsHeight;
 
         m_scaleLegend->setLayoutFixedPosition( { xPos, yPos } );
     }
@@ -1061,14 +1067,6 @@ void RiuViewer::optimizeClippingPlanes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::resizeGL( int width, int height )
-{
-    caf::Viewer::resizeGL( width, height );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuViewer::mouseMoveEvent( QMouseEvent* mouseEvent )
 {
     if ( m_rimView )
@@ -1076,8 +1074,8 @@ void RiuViewer::mouseMoveEvent( QMouseEvent* mouseEvent )
         RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
         if ( viewLinker )
         {
-            int translatedMousePosX = mouseEvent->pos().x();
-            int translatedMousePosY = height() - mouseEvent->pos().y();
+            int translatedMousePosX = mouseEvent->position().x();
+            int translatedMousePosY = height() - mouseEvent->position().y();
 
             cvf::Vec3d displayCoord( 0, 0, 0 );
             if ( mainCamera()->unproject( cvf::Vec3d( static_cast<double>( translatedMousePosX ), static_cast<double>( translatedMousePosY ), 0 ),
@@ -1107,7 +1105,7 @@ void RiuViewer::mouseMoveEvent( QMouseEvent* mouseEvent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::enterEvent( QEvent* e )
+void RiuViewer::enterEvent( QEnterEvent* e )
 {
     if ( s_hoverCursor )
     {

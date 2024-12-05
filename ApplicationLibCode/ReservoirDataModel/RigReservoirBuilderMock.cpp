@@ -25,9 +25,11 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
-#include "RigSimWellData.h"
-#include "RigWellResultFrame.h"
-#include "RigWellResultPoint.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigWellResultFrame.h"
+#include "Well/RigWellResultPoint.h"
+
+#include <QRegularExpression>
 
 /* rand example: guess the number */
 #include <cstdio>
@@ -114,7 +116,7 @@ bool RigReservoirBuilderMock::inputProperty( RigEclipseCaseData* eclipseCase, co
     /* generate secret number: */
     int iSecret = rand() % 20 + 1;
 
-    for ( k = 0; k < eclipseCase->mainGrid()->globalCellArray().size(); k++ )
+    for ( k = 0; k < eclipseCase->mainGrid()->totalCellCount(); k++ )
     {
         values->push_back( k * iSecret );
     }
@@ -127,12 +129,12 @@ bool RigReservoirBuilderMock::inputProperty( RigEclipseCaseData* eclipseCase, co
 //--------------------------------------------------------------------------------------------------
 bool RigReservoirBuilderMock::staticResult( RigEclipseCaseData* eclipseCase, const QString& result, std::vector<double>* values )
 {
-    values->resize( eclipseCase->mainGrid()->globalCellArray().size() );
+    values->resize( eclipseCase->mainGrid()->totalCellCount() );
 
 #pragma omp parallel for
-    for ( long long k = 0; k < static_cast<long long>( eclipseCase->mainGrid()->globalCellArray().size() ); k++ )
+    for ( long long k = 0; k < static_cast<long long>( eclipseCase->mainGrid()->totalCellCount() ); k++ )
     {
-        values->at( k ) = ( k * 2 ) % eclipseCase->mainGrid()->globalCellArray().size();
+        values->at( k ) = ( k * 2 ) % eclipseCase->mainGrid()->totalCellCount();
     }
 
     return false;
@@ -145,22 +147,22 @@ bool RigReservoirBuilderMock::dynamicResult( RigEclipseCaseData* eclipseCase, co
 {
     int resultIndex = 1;
 
-    QRegExp rx( "[0-9]{1,2}" ); // Find number 0-99
-    int     digitPos = rx.indexIn( result );
-    if ( digitPos > -1 )
+    QRegularExpression      rx( "[0-9]{1,2}" ); // Find number 0-99
+    QRegularExpressionMatch match = rx.match( result );
+    if ( match.hasMatch() )
     {
-        resultIndex = rx.cap( 0 ).toInt() + 1;
+        resultIndex = match.captured( 0 ).toInt() + 1;
     }
 
     double scaleValue  = 1.0 + resultIndex * 0.1;
     double offsetValue = 100 * resultIndex;
 
-    values->resize( eclipseCase->mainGrid()->globalCellArray().size() );
+    values->resize( eclipseCase->mainGrid()->totalCellCount() );
 
 #pragma omp parallel for
-    for ( long long k = 0; k < static_cast<long long>( eclipseCase->mainGrid()->globalCellArray().size() ); k++ )
+    for ( long long k = 0; k < static_cast<long long>( eclipseCase->mainGrid()->totalCellCount() ); k++ )
     {
-        double val      = offsetValue + scaleValue * ( ( stepIndex * 1000 + k ) % eclipseCase->mainGrid()->globalCellArray().size() );
+        double val      = offsetValue + scaleValue * ( ( stepIndex * 1000 + k ) % eclipseCase->mainGrid()->totalCellCount() );
         values->at( k ) = val;
     }
 

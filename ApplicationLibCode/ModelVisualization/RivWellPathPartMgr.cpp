@@ -25,7 +25,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigVirtualPerforationTransmissibilities.h"
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "Rim3dWellLogCurveCollection.h"
 #include "RimEclipseCase.h"

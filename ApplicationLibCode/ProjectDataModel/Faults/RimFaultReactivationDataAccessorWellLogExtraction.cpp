@@ -22,7 +22,6 @@
 #include "RiaInterpolationTools.h"
 #include "RiaLogging.h"
 
-#include "RigEclipseWellLogExtractor.h"
 #include "RigFaultReactivationModel.h"
 #include "RigFemAddressDefines.h"
 #include "RigFemPartCollection.h"
@@ -30,10 +29,11 @@
 #include "RigFemResultAddress.h"
 #include "RigFemScalarResultFrames.h"
 #include "RigGeoMechCaseData.h"
-#include "RigGeoMechWellLogExtractor.h"
 #include "RigGriddedPart3d.h"
 #include "RigResultAccessorFactory.h"
-#include "RigWellPath.h"
+#include "Well/RigEclipseWellLogExtractor.h"
+#include "Well/RigGeoMechWellLogExtractor.h"
+#include "Well/RigWellPath.h"
 
 #include "RimFaultReactivationEnums.h"
 #include "RimFracture.h"

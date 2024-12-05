@@ -27,6 +27,7 @@
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryEnsemble.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -231,6 +232,42 @@ int RimSummaryCase::serialNumber()
 {
     auto reader = summaryReader();
     return reader ? reader->serialNumber() : -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    appendMenuItems( menuBuilder, true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder, bool showCurveCalculator ) const
+{
+    menuBuilder << "RicShowDataSourcesForRealization";
+    menuBuilder.addSeparator();
+
+    menuBuilder.subMenuStart( "Import" );
+    menuBuilder << "RicImportSummaryCaseFeature";
+    menuBuilder << "RicImportSummaryCasesFeature";
+    menuBuilder << "RicImportSummaryGroupFeature";
+    menuBuilder << "RicImportEnsembleFeature";
+    menuBuilder.subMenuEnd();
+    menuBuilder.addSeparator();
+    menuBuilder << "RicNewSummaryMultiPlotFeature";
+    menuBuilder << "RicOpenSummaryPlotEditorFeature";
+    menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
+    menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
+    menuBuilder.addSeparator();
+    menuBuilder << "RicImportGridModelFromSummaryCaseFeature";
+
+    if ( showCurveCalculator )
+    {
+        menuBuilder << "RicShowSummaryCurveCalculatorFeature";
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

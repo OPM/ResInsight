@@ -89,7 +89,7 @@ RiaPreferencesGrid::RiaPreferencesGrid()
     CAF_PDM_InitField( &m_loadAndShowSoil, "loadAndShowSoil", true, "Load and Show SOIL" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_loadAndShowSoil );
 
-    CAF_PDM_InitField( &m_onlyLoadActiveCells, "onlyLoadActiveCells", false, "Only Load Active Cell Geometry (Experimental)" );
+    CAF_PDM_InitField( &m_onlyLoadActiveCells, "onlyLoadActiveCells", false, "Only Load Active Cell Geometry" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_onlyLoadActiveCells );
 
     CAF_PDM_InitField( &m_invalidateLongThinCells, "invalidateLongThinCells", false, "Skip Long, Thin Cells" );
@@ -128,18 +128,20 @@ void RiaPreferencesGrid::appendItems( caf::PdmUiOrdering& uiOrdering )
     wellGrp->add( &m_skipWellData );
     wellGrp->add( &m_importAdvancedMswData );
 
+    auto egridGrp = uiOrdering.addNewGroup( "EGRID Settings" );
+
     if ( m_gridModelReaderOverride == RiaDefines::GridModelReader::NOT_SET )
     {
-        auto egridGrp = uiOrdering.addNewGroup( "EGRID Settings" );
         egridGrp->add( &m_gridModelReader );
     }
-
-    auto resdataGrp = uiOrdering.addNewGroup( "ResData Reader Settings" );
-    resdataGrp->add( &m_useResultIndexFile );
-
-    // TODO: Disabled for the 2024.09 release, enable after release
-    // auto opmcGrp = uiOrdering.addNewGroup( "OPM Common Reader Settings" );
-    // opmcGrp->add( &m_onlyLoadActiveCells );
+    if ( gridModelReader() == RiaDefines::GridModelReader::OPM_COMMON )
+    {
+        egridGrp->add( &m_onlyLoadActiveCells );
+    }
+    if ( gridModelReader() == RiaDefines::GridModelReader::RESDATA )
+    {
+        egridGrp->add( &m_useResultIndexFile );
+    }
 
     const bool setFaultImportSettingsReadOnly = !importFaults();
 
@@ -264,8 +266,7 @@ bool RiaPreferencesGrid::autoComputeDepthRelatedProperties() const
 //--------------------------------------------------------------------------------------------------
 bool RiaPreferencesGrid::onlyLoadActiveCells() const
 {
-    return false;
-    // return m_onlyLoadActiveCells;
+    return m_onlyLoadActiveCells;
 }
 
 //--------------------------------------------------------------------------------------------------

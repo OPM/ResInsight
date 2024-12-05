@@ -151,13 +151,13 @@ foreach(riFileName ${RI_FILENAMES})
     -E
     copy_if_different
     ${riFileName}
-    $<TARGET_FILE_DIR:ResInsightDummyTestTarget>
+    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
   )
 endforeach()
 add_custom_target(PreBuildFileCopyTest ${copyCommands})
 set_property(TARGET PreBuildFileCopyTest PROPERTY FOLDER "FileCopyTargetsTest")
 
-add_executable(ResInsight-tests ${SOURCE_UNITTEST_FILES} main.cpp)
+qt_add_executable(ResInsight-tests ${SOURCE_UNITTEST_FILES} main.cpp)
 
 # Make ResInsight-tests depend on the prebuild target.
 add_dependencies(ResInsight-tests PreBuildFileCopyTest)
@@ -210,8 +210,10 @@ if(MSVC)
   add_custom_command(
     TARGET ResInsight-tests
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:ResInsight-tests>
-            $<TARGET_FILE_DIR:ResInsight-tests>
+    COMMAND
+      ${CMAKE_COMMAND} -E copy_if_different
+      $<TARGET_RUNTIME_DLLS:ResInsight-tests>
+      $<TARGET_FILE_DIR:ResInsight-tests>
     COMMAND_EXPAND_LISTS
   )
 

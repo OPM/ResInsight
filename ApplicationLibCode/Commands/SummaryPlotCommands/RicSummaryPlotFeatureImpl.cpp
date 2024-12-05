@@ -26,8 +26,8 @@
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
-#include "RiaSummaryStringTools.h"
 #include "RiaTextStringTools.h"
+#include "Summary/RiaSummaryStringTools.h"
 
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "RicCreateSummaryCaseCollectionFeature.h"
@@ -689,7 +689,7 @@ RimSummaryCurve* RicSummaryPlotFeatureImpl::createCurve( RimSummaryCase* summary
 {
     auto curve = new RimSummaryCurve();
     curve->setSummaryCaseY( summaryCase );
-    curve->setSummaryAddressYAndApplyInterpolation( address );
+    curve->setSummaryAddressY( address );
 
     return curve;
 }

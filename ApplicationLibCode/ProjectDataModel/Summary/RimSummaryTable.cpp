@@ -21,8 +21,9 @@
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaStdStringTools.h"
-#include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
+#include "RiaTimeTTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifSummaryReaderInterface.h"
 
@@ -35,6 +36,7 @@
 #include "RiuMatrixPlotWidget.h"
 
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiDateEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -105,6 +107,10 @@ RimSummaryTable::RimSummaryTable()
     CAF_PDM_InitFieldNoDefault( &m_mappingType, "MappingType", "Mapping Type" );
     CAF_PDM_InitFieldNoDefault( &m_rangeType, "RangeType", "Range Type" );
 
+    CAF_PDM_InitField( &m_filterTimeSteps, "FilterTimeSteps", false, "Filter Time Steps" );
+    CAF_PDM_InitField( &m_startDate, "StartDate", QDateTime::currentDateTime(), "Start Date" );
+    CAF_PDM_InitField( &m_endDate, "EndDate", QDateTime::currentDateTime(), "End Date" );
+
     setLegendsVisible( true );
     setAsPlotMdiWindow();
     setShowWindow( true );
@@ -145,6 +151,8 @@ void RimSummaryTable::setDefaultCaseAndCategoryAndVectorName()
         m_vector = *categoryVectors.begin();
     }
     m_tableName = createTableName();
+
+    initializeDateRange();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,6 +166,9 @@ void RimSummaryTable::setFromCaseAndCategoryAndVectorName( RimSummaryCase*      
     m_category  = category;
     m_vector    = vectorName;
     m_tableName = createTableName();
+
+    initializeDateRange();
+
     onLoadDataAndUpdate();
 }
 
@@ -285,7 +296,8 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         }
         onLoadDataAndUpdate();
     }
-    else if ( changedField == &m_maxTimeLabelCount )
+    else if ( changedField == &m_maxTimeLabelCount || changedField == &m_startDate || changedField == &m_endDate ||
+              changedField == &m_filterTimeSteps )
     {
         onLoadDataAndUpdate();
     }
@@ -316,6 +328,14 @@ void RimSummaryTable::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     dataGroup.add( &m_thresholdValue );
     dataGroup.add( &m_excludedRowsUiField );
 
+    caf::PdmUiGroup* timeFilterGroup = dataGroup.addNewGroup( "Time Filter" );
+    timeFilterGroup->add( &m_filterTimeSteps );
+    timeFilterGroup->add( &m_startDate );
+    timeFilterGroup->add( &m_endDate );
+
+    m_startDate.uiCapability()->setUiReadOnly( !m_filterTimeSteps() );
+    m_endDate.uiCapability()->setUiReadOnly( !m_filterTimeSteps() );
+
     caf::PdmUiGroup* tableSettingsGroup = uiOrdering.addNewGroup( "Table Settings" );
     tableSettingsGroup->add( &m_showValueLabels );
     m_legendConfig->uiOrdering( "FlagAndColorsOnly", *tableSettingsGroup );
@@ -332,6 +352,32 @@ void RimSummaryTable::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     fontGroup->add( &m_maxTimeLabelCount );
 
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryTable::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_startDate || field == &m_endDate )
+    {
+        if ( auto myAttr = dynamic_cast<caf::PdmUiDateEditorAttribute*>( attribute ) )
+        {
+            QString dateFormat = "yyyy-MM-dd";
+            if ( m_resamplingSelection() == RiaDefines::DateTimePeriod::DECADE || m_resamplingSelection() == RiaDefines::DateTimePeriod::YEAR )
+            {
+                dateFormat = "yyyy";
+            }
+            else if ( m_resamplingSelection() == RiaDefines::DateTimePeriod::MONTH ||
+                      m_resamplingSelection() == RiaDefines::DateTimePeriod::QUARTER ||
+                      m_resamplingSelection() == RiaDefines::DateTimePeriod::HALFYEAR )
+            {
+                dateFormat = "yyyy-MM";
+            }
+
+            myAttr->dateFormat = dateFormat;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -400,6 +446,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryTable::calculateValueOptions( const caf:
             options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RimRegularLegendConfig::MappingType>::uiText( mappingType ), mappingType ) );
         }
     }
+
     return options;
 }
 
@@ -677,6 +724,25 @@ std::vector<RimSummaryCase*> RimSummaryTable::getToplevelSummaryCases() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryTable::initializeDateRange()
+{
+    if ( !m_case ) return;
+    const auto summaryReader = m_case->summaryReader();
+    if ( !summaryReader ) return;
+
+    const std::set<RifEclipseSummaryAddress> allResultAddresses = summaryReader->allResultAddresses();
+    if ( allResultAddresses.empty() ) return;
+
+    auto timeSteps = summaryReader->timeSteps( *allResultAddresses.begin() );
+    if ( timeSteps.empty() ) return;
+
+    m_startDate = RiaQDateTimeTools::fromTime_t( timeSteps.front() );
+    m_endDate   = RiaQDateTimeTools::fromTime_t( timeSteps.back() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryTable::createTableData()
 {
     m_tableData                = TableData();
@@ -700,11 +766,48 @@ void RimSummaryTable::createTableData()
         const QString             vectorName   = QString::fromStdString( adr.vectorName() );
         const QString             categoryName = getCategoryNameFromAddress( adr );
 
-        // Get re-sampled time steps and values
-        const auto& [resampledTimeSteps, resampledValues] =
+        // Get resampled time steps and values
+        auto [resampledTimeSteps, resampledValues] =
             RiaSummaryTools::resampledValuesForPeriod( adr, timeSteps, values, m_resamplingSelection() );
 
         if ( resampledValues.empty() ) continue;
+
+        if ( m_filterTimeSteps() )
+        {
+            auto filterTimeStepsAndValues = []( auto& resampledTimeSteps, auto& resampledValues, time_t startTime, time_t endTime )
+            {
+                auto lowerBound = std::lower_bound( resampledTimeSteps.begin(), resampledTimeSteps.end(), startTime );
+                if ( lowerBound != resampledTimeSteps.end() )
+                {
+                    const auto baseIndex = lowerBound - resampledTimeSteps.begin();
+
+                    // Use one time step less to make sure the start date is included
+                    const auto startIndex = ( baseIndex > 1 ) ? baseIndex - 1 : 0;
+
+                    resampledTimeSteps.erase( resampledTimeSteps.begin(), resampledTimeSteps.begin() + startIndex );
+                    resampledValues.erase( resampledValues.begin(), resampledValues.begin() + startIndex );
+                }
+
+                const auto upperBound = std::upper_bound( resampledTimeSteps.begin(), resampledTimeSteps.end(), endTime );
+                if ( upperBound != resampledTimeSteps.end() )
+                {
+                    const auto endIndex = ( upperBound - resampledTimeSteps.begin() ) + 1;
+
+                    if ( endIndex < (int)resampledTimeSteps.size() )
+                    {
+                        resampledTimeSteps.erase( resampledTimeSteps.begin() + endIndex, resampledTimeSteps.end() );
+                        resampledValues.erase( resampledValues.begin() + endIndex, resampledValues.end() );
+                    }
+                }
+            };
+
+            auto startTime = RiaTimeTTools::fromQDateTime( m_startDate );
+            auto endTime   = std::max( startTime, RiaTimeTTools::fromQDateTime( m_endDate ) );
+
+            filterTimeStepsAndValues( resampledTimeSteps, resampledValues, startTime, endTime );
+
+            if ( resampledValues.empty() ) continue;
+        }
 
         // Exclude vectors with values BELOW threshold - to include visualization of values equal to threshold!
         const auto maxRowValue = *std::max_element( resampledValues.begin(), resampledValues.end() );
@@ -722,6 +825,7 @@ void RimSummaryTable::createTableData()
             std::find_if( resampledValues.rbegin(), resampledValues.rend(), [&]( double value ) { return value > 0.0; } );
         const auto firstIdx = static_cast<size_t>( std::distance( resampledValues.begin(), firstTimeStepItr ) );
         const auto lastIdx = resampledValues.size() - static_cast<size_t>( std::distance( resampledValues.rbegin(), lastTimeStepItr ) ) - 1;
+
         const auto firstTimeStep = hasValueAboveThreshold ? resampledTimeSteps[firstIdx] : invalidTimeStep;
         const auto lastTimeStep  = hasValueAboveThreshold ? resampledTimeSteps[lastIdx] : invalidTimeStep;
 

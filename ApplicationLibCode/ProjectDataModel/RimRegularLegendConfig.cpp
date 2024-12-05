@@ -1164,6 +1164,22 @@ QString RimRegularLegendConfig::valueToText( double value ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaNumberFormat::NumberFormatType RimRegularLegendConfig::tickNumberFormat() const
+{
+    return m_tickNumberFormat();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimRegularLegendConfig::significantDigitsInData() const
+{
+    return m_significantDigitsInData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::setDefaultConfigForResultName( int caseId, const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult )
 {
     bool useLog = RiaResultNames::isLogarithmicResult( resultName );

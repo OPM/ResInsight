@@ -18,6 +18,7 @@
 
 #include "RimHistogramCalculator.h"
 
+#include "RigContourMapProjection.h"
 #include "RigEclipseMultiPropertyStatCalc.h"
 #include "RigEclipseNativeVisibleCellsStatCalc.h"
 #include "RigFemNativeVisibleCellsStatCalc.h"
@@ -94,16 +95,16 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseContourMapView
 {
     RigHistogramData histData;
 
-    if ( contourMap )
+    if ( contourMap && contourMap->contourMapProjection() && contourMap->contourMapProjection()->mapProjection() )
     {
-        bool isResultsInfoRelevant = contourMap->contourMapProjection()->numberOfValidCells() > 0u;
+        bool isResultsInfoRelevant = contourMap->contourMapProjection()->mapProjection()->numberOfValidCells() > 0u;
 
         if ( isResultsInfoRelevant )
         {
-            histData.min  = contourMap->contourMapProjection()->minValue();
-            histData.max  = contourMap->contourMapProjection()->maxValue();
-            histData.mean = contourMap->contourMapProjection()->meanValue();
-            histData.sum  = contourMap->contourMapProjection()->sumAllValues();
+            histData.min  = contourMap->contourMapProjection()->mapProjection()->minValue();
+            histData.max  = contourMap->contourMapProjection()->mapProjection()->maxValue();
+            histData.mean = contourMap->contourMapProjection()->mapProjection()->meanValue();
+            histData.sum  = contourMap->contourMapProjection()->mapProjection()->sumAllValues();
         }
     }
     return histData;
@@ -116,16 +117,16 @@ RigHistogramData RimHistogramCalculator::histogramData( RimGeoMechContourMapView
 {
     RigHistogramData histData;
 
-    if ( contourMap )
+    if ( contourMap && contourMap->contourMapProjection() && contourMap->contourMapProjection()->mapProjection() )
     {
-        bool isResultsInfoRelevant = contourMap->contourMapProjection()->numberOfValidCells() > 0u;
+        bool isResultsInfoRelevant = contourMap->contourMapProjection()->mapProjection()->numberOfValidCells() > 0u;
 
         if ( isResultsInfoRelevant )
         {
-            histData.min  = contourMap->contourMapProjection()->minValue();
-            histData.max  = contourMap->contourMapProjection()->maxValue();
-            histData.mean = contourMap->contourMapProjection()->meanValue();
-            histData.sum  = contourMap->contourMapProjection()->sumAllValues();
+            histData.min  = contourMap->contourMapProjection()->mapProjection()->minValue();
+            histData.max  = contourMap->contourMapProjection()->mapProjection()->maxValue();
+            histData.mean = contourMap->contourMapProjection()->mapProjection()->meanValue();
+            histData.sum  = contourMap->contourMapProjection()->mapProjection()->sumAllValues();
         }
     }
     return histData;

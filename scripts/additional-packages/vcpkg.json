@@ -1,0 +1,6 @@
+{
+  "description":"This file is used to build OpenSSL 3 on platforms where this is missing",
+  "dependencies": [
+    "openssl"
+  ]
+}

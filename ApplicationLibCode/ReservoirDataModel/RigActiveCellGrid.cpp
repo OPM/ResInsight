@@ -25,7 +25,17 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigActiveCellGrid::RigActiveCellGrid()
+    : m_totalCellCount( 0 )
+    , m_totalActiveCellCount( 0 )
 {
+    m_invalidCell.setInvalid( true );
+    m_invalidCell.setHostGrid( this );
+    m_invalidCell.setSubGrid( nullptr );
+
+    for ( size_t i = 0; i < 8; i++ )
+    {
+        m_invalidCell.cornerIndices()[i] = 0;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -38,113 +48,13 @@ RigActiveCellGrid::~RigActiveCellGrid()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellGrid::transferActiveInformation( RigEclipseCaseData*     eclipseCaseData,
-                                                   size_t                  totalActiveCells,
-                                                   size_t                  matrixActiveCells,
-                                                   size_t                  fractureActiveCells,
-                                                   const std::vector<int>& activeMatrixIndexes,
-                                                   const std::vector<int>& activeFracIndexes )
-{
-    const auto totalCells = activeMatrixIndexes.size();
-
-    m_globalToActiveMap.resize( totalCells );
-    size_t activeCells       = 0;
-    size_t anInactiveCellIdx = 0;
-
-    for ( size_t i = 0; i < totalCells; i++ )
-    {
-        if ( ( activeMatrixIndexes[i] < 0 ) && ( activeFracIndexes[i] < 0 ) )
-        {
-            m_globalToActiveMap[i] = totalActiveCells;
-            anInactiveCellIdx      = i;
-            continue;
-        }
-        m_activeToGlobalMap.push_back( i );
-        m_globalToActiveMap[i] = activeCells++;
-    }
-    m_activeToGlobalMap.push_back( anInactiveCellIdx );
-
-    RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
-
-    activeCellInfo->setReservoirCellCount( totalActiveCells + 1 );
-    fractureActiveCellInfo->setReservoirCellCount( totalActiveCells + 1 );
-
-    activeCellInfo->setGridCount( 1 );
-    fractureActiveCellInfo->setGridCount( 1 );
-
-    activeCellInfo->setGridActiveCellCounts( 0, matrixActiveCells );
-    fractureActiveCellInfo->setGridActiveCellCounts( 0, fractureActiveCells );
-
-#pragma omp parallel for
-    for ( int opmCellIndex = 0; opmCellIndex < (int)totalCells; opmCellIndex++ )
-    {
-        auto activeCellIndex = m_globalToActiveMap[opmCellIndex];
-
-        // active cell index
-        int matrixActiveIndex = activeMatrixIndexes[opmCellIndex];
-        if ( matrixActiveIndex != -1 )
-        {
-            activeCellInfo->setCellResultIndex( activeCellIndex, matrixActiveIndex );
-        }
-
-        int fractureActiveIndex = activeFracIndexes[opmCellIndex];
-        if ( fractureActiveIndex != -1 )
-        {
-            fractureActiveCellInfo->setCellResultIndex( activeCellIndex, fractureActiveIndex );
-        }
-    }
-
-    activeCellInfo->computeDerivedData();
-    fractureActiveCellInfo->computeDerivedData();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RigActiveCellGrid::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
-{
-    auto index = RigGridBase::cellIndexFromIJK( i, j, k );
-    return m_globalToActiveMap[index];
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RigActiveCellGrid::cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const
-{
-    auto index = RigGridBase::cellIndexFromIJKUnguarded( i, j, k );
-    return m_globalToActiveMap[index];
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RigActiveCellGrid::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const
-{
-    if ( cellIndex >= m_activeToGlobalMap.size() )
-    {
-        return false;
-    }
-    auto index = m_activeToGlobalMap[cellIndex];
-    return RigGridBase::ijkFromCellIndex( index, i, j, k );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigActiveCellGrid::ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const
-{
-    auto index = m_activeToGlobalMap[cellIndex];
-    RigGridBase::ijkFromCellIndexUnguarded( index, i, j, k );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RigCell& RigActiveCellGrid::cell( size_t gridLocalCellIndex )
 {
-    return m_cells[gridLocalCellIndex];
+    if ( auto it = m_nativeCells.find( gridLocalCellIndex ); it != m_nativeCells.end() )
+    {
+        return it->second;
+    }
+    return m_invalidCell;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -152,13 +62,75 @@ RigCell& RigActiveCellGrid::cell( size_t gridLocalCellIndex )
 //--------------------------------------------------------------------------------------------------
 const RigCell& RigActiveCellGrid::cell( size_t gridLocalCellIndex ) const
 {
-    return m_cells[gridLocalCellIndex];
+    if ( const auto it = m_nativeCells.find( gridLocalCellIndex ); it != m_nativeCells.end() )
+    {
+        return it->second;
+    }
+    return m_invalidCell;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigActiveCellGrid::cellCount() const
+std::map<size_t, RigCell>& RigActiveCellGrid::nativeCells()
 {
-    return m_cells.size();
+    return m_nativeCells;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::map<size_t, RigCell>& RigActiveCellGrid::nativeCells() const
+{
+    return m_nativeCells;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigActiveCellGrid::totalCellCount() const
+{
+    return m_totalCellCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigActiveCellGrid::setTotalCellCount( size_t totalCellCount )
+{
+    m_totalCellCount = totalCellCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigActiveCellGrid::totalActiveCellCount() const
+{
+    return m_totalActiveCellCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RigActiveCellGrid::activeLocalCellIndices() const
+{
+    std::vector<size_t> indices;
+    indices.reserve( m_nativeCells.size() );
+    const auto maxCellIdx = cellCount();
+
+    for ( const auto& [index, cell] : m_nativeCells )
+    {
+        // only add cells indexes that belongs to our grid, not subgrids
+        if ( index < maxCellIdx ) indices.emplace_back( index );
+    }
+
+    return indices;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigActiveCellGrid::setTotalActiveCellCount( size_t totalActiveCellCount )
+{
+    m_totalActiveCellCount = totalActiveCellCount;
 }

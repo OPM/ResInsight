@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <memory>
 #include <string>
 #include <vector>
@@ -72,8 +73,18 @@ public:
 
     static void errorInMessageBox( QWidget* parent, const QString& title, const QString& text );
 
+    static void resetTimer( const QString& message );
+    static void logTimeElapsed( const QString& message );
+
 private:
-    static std::vector<std::unique_ptr<RiaLogger>> sm_logger;
+    static void setLastMessage( const QString& message );
+    static bool isSameMessage( const QString& message );
+
+private:
+    static std::vector<std::unique_ptr<RiaLogger>>                     sm_logger;
+    static std::chrono::time_point<std::chrono::high_resolution_clock> sm_startTime;
+    static QString                                                     sm_lastMessage;
+    static std::chrono::time_point<std::chrono::high_resolution_clock> sm_lastMessageTime;
 };
 
 //==================================================================================================

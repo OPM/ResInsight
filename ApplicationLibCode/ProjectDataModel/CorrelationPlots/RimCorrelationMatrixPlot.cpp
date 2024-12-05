@@ -22,14 +22,14 @@
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaStatisticsTools.h"
-#include "RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
 
 #include "RifCsvDataTableFormatter.h"
 #include "RifSummaryReaderInterface.h"
 
 #include "RigEnsembleParameter.h"
 
-#include "RimDerivedSummaryCase.h"
+#include "RimDeltaSummaryCase.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimPlotAxisProperties.h"
 #include "RimPlotAxisPropertiesInterface.h"

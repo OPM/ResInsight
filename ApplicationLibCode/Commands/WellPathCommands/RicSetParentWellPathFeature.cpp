@@ -18,7 +18,7 @@
 
 #include "RicSetParentWellPathFeature.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "RimTools.h"
 #include "RimWellPath.h"

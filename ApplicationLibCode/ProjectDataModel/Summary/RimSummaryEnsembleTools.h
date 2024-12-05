@@ -24,6 +24,7 @@
 #include <vector>
 
 class RimSummaryCase;
+class RimPlotCurve;
 class RigEnsembleParameter;
 
 namespace RimSummaryEnsembleTools
@@ -36,5 +37,9 @@ std::vector<RigEnsembleParameter> alphabeticEnsembleParameters( const std::vecto
 std::vector<RigEnsembleParameter> createVariationSortedEnsembleParameters( const std::vector<RimSummaryCase*>& summaryCases );
 
 size_t calculateEnsembleParametersIntersectionHash( const std::vector<RimSummaryCase*>& summaryCases );
+
+bool isEnsembleCurve( RimPlotCurve* sourceCurve );
+void highlightCurvesForSameRealization( RimPlotCurve* sourceCurve );
+void resetHighlightAllPlots();
 
 } // namespace RimSummaryEnsembleTools

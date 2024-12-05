@@ -20,14 +20,12 @@
 #include "RiaLineArcWellPathCalculator.h"
 #include "RiaWellPlanCalculator.h"
 
-#include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmObject.h"
-#include "cafPdmPtrField.h"
 
 #include "cvfColor3.h"
 #include "cvfObject.h"

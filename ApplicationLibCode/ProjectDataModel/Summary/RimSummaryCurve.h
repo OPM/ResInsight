@@ -21,13 +21,12 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmPointer.h"
 #include "cafPdmPtrField.h"
 
 #include "RiaDateTimeDefines.h"
 #include "RiaDefines.h"
-#include "RiaSummaryCurveAddress.h"
-#include "RiaSummaryDefines.h"
+#include "Summary/RiaSummaryCurveAddress.h"
+#include "Summary/RiaSummaryDefines.h"
 
 #include "RifEclipseSummaryAddressDefines.h"
 #include "RifEclipseSummaryAddressQMetaType.h"
@@ -66,7 +65,6 @@ public:
     virtual std::vector<double> valuesY() const;
 
     void setSummaryCaseY( RimSummaryCase* sumCase );
-    void setSummaryAddressYAndApplyInterpolation( const RifEclipseSummaryAddress& address );
     void setSummaryAddressY( const RifEclipseSummaryAddress& address );
     void setResampling( RiaDefines::DateTimePeriodEnum resampling );
 

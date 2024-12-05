@@ -26,11 +26,15 @@
 #include "RiaLogging.h"
 #include "RiaPreferencesGeoMech.h"
 #include "RiaPreferencesGrid.h"
+#include "RiaPreferencesOsdu.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaPreferencesSumo.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaValidRegExpValidator.h"
+
+#include "OsduCommands//RicDeleteOsduTokenFeature.h"
+#include "Sumo/RicDeleteSumoTokenFeature.h"
 
 #include "RiuGuiTheme.h"
 
@@ -42,12 +46,12 @@
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
 
 #include <QCoreApplication>
 #include <QDate>
 #include <QDir>
 #include <QLocale>
-#include <QRegExp>
 #include <QStandardPaths>
 #include <QValidator>
 
@@ -271,9 +275,15 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitFieldNoDefault( &m_osduPreferences, "osduPreferences", "osduPreferences" );
     m_osduPreferences = new RiaPreferencesOsdu;
+    CAF_PDM_InitField( &m_deleteOsduToken, "deleteOsduToken", false, "" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_deleteOsduToken );
+    m_deleteOsduToken.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_sumoPreferences, "sumoPreferences", "sumoPreferences" );
     m_sumoPreferences = new RiaPreferencesSumo;
+    CAF_PDM_InitField( &m_deleteSumoToken, "deleteSumoToken", false, "" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_deleteSumoToken );
+    m_deleteSumoToken.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -337,6 +347,14 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field, QS
         if ( myAttr )
         {
             myAttr->validator = new QDoubleValidator( 0.000001, 100000.0, 6 );
+        }
+    }
+    else if ( ( field == &m_deleteOsduToken ) || ( field == &m_deleteSumoToken ) )
+    {
+        auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        if ( pbAttribute )
+        {
+            pbAttribute->m_buttonText = "Delete Token";
         }
     }
 }
@@ -477,10 +495,12 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         caf::PdmUiGroup* osduGroup = uiOrdering.addNewGroup( "OSDU" );
         osduGroup->setCollapsedByDefault();
         m_osduPreferences()->uiOrdering( uiConfigName, *osduGroup );
+        osduGroup->add( &m_deleteOsduToken );
 
         caf::PdmUiGroup* sumoGroup = uiOrdering.addNewGroup( "SUMO" );
         sumoGroup->setCollapsedByDefault();
         m_sumoPreferences()->uiOrdering( uiConfigName, *sumoGroup );
+        sumoGroup->add( &m_deleteSumoToken );
     }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {
@@ -547,6 +567,16 @@ void RiaPreferences::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
     else if ( changedField == &m_guiTheme )
     {
         RiuGuiTheme::updateGuiTheme( m_guiTheme() );
+    }
+    else if ( changedField == &m_deleteOsduToken )
+    {
+        RicDeleteOsduTokenFeature::deleteUserToken();
+        m_deleteOsduToken = false;
+    }
+    else if ( changedField == &m_deleteSumoToken )
+    {
+        RicDeleteSumoTokenFeature::deleteUserToken();
+        m_deleteSumoToken = false;
     }
     else
     {

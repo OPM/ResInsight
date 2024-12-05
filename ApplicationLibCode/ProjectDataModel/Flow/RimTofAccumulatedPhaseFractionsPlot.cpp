@@ -24,8 +24,8 @@
 #include "RimSimWellInViewCollection.h"
 #include "RimWellAllocationPlot.h"
 
-#include "RigSimWellData.h"
 #include "RigTofAccumulatedPhaseFractionsCalculator.h"
+#include "Well/RigSimWellData.h"
 
 #include "RimProject.h"
 #include "RimWellLogPlot.h"

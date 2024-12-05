@@ -37,7 +37,7 @@ CAF_PDM_SOURCE_INIT( RimPolygonFile, "RimPolygonFileFile" );
 RimPolygonFile::RimPolygonFile()
     : objectChanged( this )
 {
-    CAF_PDM_InitObject( "PolygonFile", ":/PolylinesFromFile16x16.png" );
+    CAF_PDM_InitObject( "PolygonFile", ":/Folder.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_fileName, "StimPlanFileName", "File Name" );
     CAF_PDM_InitFieldNoDefault( &m_polygons, "Polygons", "Polygons" );

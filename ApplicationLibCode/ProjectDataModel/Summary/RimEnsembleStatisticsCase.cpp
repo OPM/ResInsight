@@ -20,8 +20,8 @@
 
 #include "RiaCurveMerger.h"
 #include "RiaHashTools.h"
-#include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RigStatisticsMath.h"
 
@@ -143,14 +143,14 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
     // Use first summary case to get unit system and other meta data
     m_firstSummaryCase = summaryCases.front();
 
-    const auto [minTime, maxTime]     = findMinMaxTime( summaryCases, inputAddress );
-    RiaDefines::DateTimePeriod period = findBestResamplingPeriod( minTime, maxTime );
+    const auto [minTime, maxTime] = findMinMaxTime( summaryCases, inputAddress );
 
     // The last time step for the individual realizations in an ensemble is usually identical. Add a small threshold to improve robustness.
-    const auto timeThreshold = maxTime - ( maxTime - minTime ) * 0.01;
+    const auto timeThreshold = RiaSummaryTools::calculateTimeThreshold( minTime, maxTime );
+
+    RiaDefines::DateTimePeriod period = findBestResamplingPeriod( minTime, maxTime );
 
     RiaTimeHistoryCurveMerger curveMerger;
-
     for ( const auto& sumCase : summaryCases )
     {
         const auto& reader = sumCase->summaryReader();
@@ -169,7 +169,7 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
         }
     }
 
-    curveMerger.computeInterpolatedValues();
+    curveMerger.computeInterpolatedValues( includeIncompleteCurves );
 
     std::vector<std::vector<double>> curveValues;
     for ( size_t i = 0; i < curveMerger.curveCount(); i++ )

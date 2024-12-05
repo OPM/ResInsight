@@ -174,7 +174,7 @@ bool RicImportSeismicFeature::runSEGYConversion( RimSEGYConvertOptions* options 
     }
 
     process.setCommand( command );
-    process.setParameters( parameters );
+    process.addParameters( parameters );
 
     bool showStdOut = false;
     bool showStdErr = true;

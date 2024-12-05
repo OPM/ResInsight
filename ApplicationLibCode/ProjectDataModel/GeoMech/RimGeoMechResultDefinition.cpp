@@ -34,7 +34,7 @@
 #include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
 #include "RigWbsParameter.h"
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "Rim3dWellLogCurve.h"
 #include "RimGeoMechCase.h"
@@ -361,7 +361,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
          &m_timeLapseBaseTimestep == changedField || &m_normalizeByHydrostaticPressure == changedField ||
          &m_normalizationAirGap == changedField || &m_referenceTimeStep == changedField || &m_isChecked == changedField )
     {
-        QStringList fieldComponentNames = m_resultVariableUiField().split( QRegExp( "\\s+" ) );
+        QStringList fieldComponentNames = m_resultVariableUiField().split( QRegularExpression( "\\s+" ) );
         if ( !fieldComponentNames.empty() )
         {
             m_resultPositionType = m_resultPositionTypeUiField;

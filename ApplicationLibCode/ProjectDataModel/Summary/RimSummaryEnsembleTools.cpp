@@ -18,12 +18,23 @@
 
 #include "RimSummaryEnsembleTools.h"
 
+#include "Summary/RiaSummaryTools.h"
+
 #include "RifReaderRftInterface.h"
 #include "RifSummaryReaderInterface.h"
 
 #include "RigEnsembleParameter.h"
 
+#include "RimEnsembleCurveSet.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCurve.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
+#include "RimSummaryPlot.h"
+
+#include "RiuPlotMainWindow.h"
+
+#include "cafPdmUiTreeView.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -300,7 +311,7 @@ size_t RimSummaryEnsembleTools::calculateEnsembleParametersIntersectionHash( con
 
     size_t commonAddressCount = 0;
 
-    // Find common addess count
+    // Find common address count
     for ( const auto sumCase : summaryCases )
     {
         const auto reader = sumCase->summaryReader();
@@ -322,4 +333,92 @@ size_t RimSummaryEnsembleTools::calculateEnsembleParametersIntersectionHash( con
     }
 
     return commonAddressCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryEnsembleTools::isEnsembleCurve( RimPlotCurve* sourceCurve )
+{
+    auto summaryCurve = dynamic_cast<RimSummaryCurve*>( sourceCurve );
+    if ( !summaryCurve ) return false;
+
+    return summaryCurve->isEnsembleCurve();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsembleTools::highlightCurvesForSameRealization( RimPlotCurve* sourceCurve )
+{
+    auto sourceSummaryCurve = dynamic_cast<RimSummaryCurve*>( sourceCurve );
+    if ( !sourceSummaryCurve ) return;
+
+    auto ensembleCurveSet = sourceSummaryCurve->firstAncestorOfType<RimEnsembleCurveSet>();
+    if ( !ensembleCurveSet ) return;
+
+    auto sourceCase = sourceSummaryCurve->summaryCaseY();
+    if ( !sourceCase ) return;
+
+    // Select the realization object in Data Sources Tree view
+    if ( auto mainWindow = RiuPlotMainWindow::instance() )
+    {
+        if ( auto treeView = mainWindow->getTreeViewWithItem( sourceCase ) )
+        {
+            treeView->selectAsCurrentItem( sourceCase );
+        }
+    }
+
+    auto summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
+
+    for ( auto multiPlot : summaryPlotColl->multiPlots() )
+    {
+        for ( auto plot : multiPlot->summaryPlots() )
+        {
+            auto plotWidget = dynamic_cast<RiuQwtPlotWidget*>( plot->plotWidget() );
+            if ( !plotWidget ) continue;
+
+            auto summaryCurves = plot->summaryAndEnsembleCurves();
+
+            std::vector<RimSummaryCurve*> curvesForSameRealization;
+
+            for ( auto curve : summaryCurves )
+            {
+                if ( sourceCase == curve->summaryCaseY() )
+                {
+                    curvesForSameRealization.push_back( curve );
+                }
+            }
+
+            if ( !curvesForSameRealization.empty() )
+            {
+                bool updateCurveOrder = false;
+                plotWidget->resetPlotItemHighlighting( updateCurveOrder );
+
+                std::set<RimPlotCurve*> realizationCurvesSet( curvesForSameRealization.begin(), curvesForSameRealization.end() );
+                plotWidget->highlightCurvesUpdateOrder( realizationCurvesSet );
+                plotWidget->replot();
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsembleTools::resetHighlightAllPlots()
+{
+    auto summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
+
+    for ( auto multiPlot : summaryPlotColl->multiPlots() )
+    {
+        for ( auto plot : multiPlot->summaryPlots() )
+        {
+            if ( auto plotWidget = dynamic_cast<RiuQwtPlotWidget*>( plot->plotWidget() ) )
+            {
+                plotWidget->resetPlotItemHighlighting();
+                plotWidget->replot();
+            }
+        }
+    }
 }

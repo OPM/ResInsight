@@ -19,7 +19,7 @@
 
 #include "RivWellPathSourceInfo.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "Rim3dView.h"
 #include "RimCase.h"

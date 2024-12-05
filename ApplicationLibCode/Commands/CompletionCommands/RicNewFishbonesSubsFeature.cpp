@@ -23,7 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
-#include "RigWellPath.h"
+#include "Well/RigWellPath.h"
 
 #include "Rim3dView.h"
 #include "RimFishbones.h"

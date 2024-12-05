@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "RiaPlotDefines.h"
-
 #include "RiuPlotAxis.h"
 
 #include "cafAppEnum.h"

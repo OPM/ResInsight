@@ -26,9 +26,9 @@
 class RiuQtChartsToolTip : public QGraphicsItem
 {
 public:
-    RiuQtChartsToolTip( QtCharts::QChart* parent, QtCharts::QAbstractSeries* series );
+    RiuQtChartsToolTip( QChart* parent, QAbstractSeries* series );
 
-    void setSeries( QtCharts::QAbstractSeries* series );
+    void setSeries( QAbstractSeries* series );
     void setText( const QString& text );
     void setAnchor( QPointF point );
     void updateGeometry();
@@ -37,12 +37,12 @@ public:
     void   paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget ) override;
 
 private:
-    QString                    m_text;
-    QRectF                     m_textRect;
-    QRectF                     m_rect;
-    QPointF                    m_anchor;
-    QFont                      m_font;
-    int                        m_radius;
-    QtCharts::QChart*          m_chart;
-    QtCharts::QAbstractSeries* m_series;
+    QString          m_text;
+    QRectF           m_textRect;
+    QRectF           m_rect;
+    QPointF          m_anchor;
+    QFont            m_font;
+    int              m_radius;
+    QChart*          m_chart;
+    QAbstractSeries* m_series;
 };

@@ -22,14 +22,14 @@
 #include "RiaLogging.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaStdStringTools.h"
-#include "RiaSummaryAddressAnalyzer.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryAddressAnalyzer.h"
+#include "Summary/RiaSummaryAddressModifier.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RicSummaryPlotBuilder.h"
 
 #include "RimEnsembleCurveSet.h"
 #include "RimSummaryAddressCollection.h"
-#include "RimSummaryAddressModifier.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryEnsemble.h"
@@ -70,7 +70,7 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
     caf::ProgressInfo info( sumAddressCollections.size(), "Appending plots..." );
 
     summaryMultiPlot->startBatchAddOperation();
-    RiaPlotWindowRedrawScheduler::instance()->blockScheduledUpdatesAndReplots();
+    RiaPlotWindowRedrawScheduler::instance()->blockUpdate( true );
 
     for ( auto summaryAdrCollection : sumAddressCollections )
     {
@@ -106,8 +106,8 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
             {
                 const auto objectName     = summaryAdrCollection->name().toStdString();
                 auto       contentType    = summaryAdrCollection->contentType();
-                auto       curveProviders = RimSummaryAddressModifier::createAddressProviders( duplicatedPlot );
-                RimSummaryAddressModifier::updateAddressesByObjectName( curveProviders, objectName, contentType );
+                auto       curveProviders = RiaSummaryAddressModifier::createAddressProviders( duplicatedPlot );
+                RiaSummaryAddressModifier::updateAddressesByObjectName( curveProviders, objectName, contentType );
 
                 summaryMultiPlot->addPlot( duplicatedPlot );
                 duplicatedPlot->resolveReferencesRecursively();
@@ -119,7 +119,7 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
     summaryMultiPlot->endBatchAddOperation();
 
     RiaPlotWindowRedrawScheduler::instance()->clearAllScheduledUpdates();
-    RiaPlotWindowRedrawScheduler::instance()->unblockScheduledUpdatesAndReplots();
+    RiaPlotWindowRedrawScheduler::instance()->blockUpdate( false );
 
     summaryMultiPlot->loadDataAndUpdate();
 
@@ -255,7 +255,7 @@ bool RicAppendSummaryPlotsForObjectsFeature::isSelectionCompatibleWithPlot( cons
 
         for ( auto plot : plotsForObjectType )
         {
-            auto addresses = RimSummaryAddressModifier::allSummaryAddressesY( plot );
+            auto addresses = RiaSummaryAddressModifier::allSummaryAddressesY( plot );
             analyzer.appendAddresses( addresses );
         }
     }
@@ -318,7 +318,7 @@ std::vector<RimSummaryPlot*>
     RiaSummaryAddressAnalyzer myAnalyser;
     for ( auto sourcePlot : sourcePlots )
     {
-        auto addresses = RimSummaryAddressModifier::allSummaryAddressesY( sourcePlot );
+        auto addresses = RiaSummaryAddressModifier::allSummaryAddressesY( sourcePlot );
         myAnalyser.appendAddresses( addresses );
     }
 
@@ -377,7 +377,7 @@ std::vector<RimSummaryPlot*>
         }
         else
         {
-            auto addresses = RimSummaryAddressModifier::allSummaryAddressesY( sourcePlot );
+            auto addresses = RiaSummaryAddressModifier::allSummaryAddressesY( sourcePlot );
 
             for ( const auto& a : addresses )
             {

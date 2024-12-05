@@ -21,10 +21,10 @@
 #include "RifReaderMockModel.h"
 
 #include "RigEclipseCaseData.h"
-#include "RigEclipseWellLogExtractor.h"
 #include "RigGridManager.h"
 #include "RigMainGrid.h"
-#include "RigWellPath.h"
+#include "Well/RigEclipseWellLogExtractor.h"
+#include "Well/RigWellPath.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -45,10 +45,9 @@ TEST( RigEclipseWellLogExtractor, ShortWellPathInsideOneCell )
         reservoir->mainGrid()->computeCachedData();
     }
 
-    auto cells = reservoir->mainGrid()->globalCellArray();
-    EXPECT_FALSE( cells.empty() );
+    EXPECT_FALSE( reservoir->mainGrid()->totalCellCount() == 0 );
 
-    auto firstCell = reservoir->mainGrid()->globalCellArray()[0];
+    auto firstCell = reservoir->mainGrid()->cell( 0 );
     auto center    = firstCell.center();
 
     cvf::ref<RigWellPath> wellPathGeometry = new RigWellPath;

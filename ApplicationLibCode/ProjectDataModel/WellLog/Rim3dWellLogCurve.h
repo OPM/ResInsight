@@ -22,7 +22,6 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "cafPdmChildField.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"

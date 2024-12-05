@@ -76,7 +76,7 @@ void RiuQtChartsPlotCurveSymbol::setPixmap( const QPixmap& pixmap )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotCurveSymbol::applyToScatterSeries( QtCharts::QScatterSeries* series ) const
+void RiuQtChartsPlotCurveSymbol::applyToScatterSeries( QScatterSeries* series ) const
 {
     if ( m_style == PointSymbolEnum::SYMBOL_NONE )
     {
@@ -99,9 +99,9 @@ void RiuQtChartsPlotCurveSymbol::applyToScatterSeries( QtCharts::QScatterSeries*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotCurveSymbol::setImageBrush( QtCharts::QScatterSeries* series, const QImage& image ) const
+void RiuQtChartsPlotCurveSymbol::setImageBrush( QScatterSeries* series, const QImage& image ) const
 {
-    series->setMarkerShape( QtCharts::QScatterSeries::MarkerShapeRectangle );
+    series->setMarkerShape( QScatterSeries::MarkerShapeRectangle );
     series->setBrush( image );
     series->setPen( QColor( Qt::transparent ) );
 }

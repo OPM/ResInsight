@@ -405,7 +405,7 @@ QString VdeVizDataExtractor::createModelMetaJsonString( const std::vector<std::u
 
         QMap<QString, QVariant> jsonLabelEntry;
         jsonLabelEntry["position"] = jsonPos;
-        jsonLabelEntry["text"]     = txt.toAscii().ptr();
+        jsonLabelEntry["text"]     = QString::fromLatin1( txt.toAscii().ptr() );
 
         jsonLabelList.push_back( jsonLabelEntry );
     }

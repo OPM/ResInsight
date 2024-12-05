@@ -51,6 +51,8 @@ public:
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
 
+    void configureContextMenu( const QString& pythonParameterName );
+
 protected:
     void resizeEvent( QResizeEvent* event ) override;
     void resizeText( QSize paintSize );

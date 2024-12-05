@@ -31,9 +31,9 @@
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 #include "RigVirtualPerforationTransmissibilities.h"
-#include "RigWellLogExtractor.h"
-#include "RigWellPath.h"
-#include "RigWellPathIntersectionTools.h"
+#include "Well/RigWellLogExtractor.h"
+#include "Well/RigWellPath.h"
+#include "Well/RigWellPathIntersectionTools.h"
 
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"

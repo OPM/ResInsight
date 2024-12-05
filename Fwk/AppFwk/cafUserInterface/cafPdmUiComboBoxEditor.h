@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiFieldLabelEditorHandle.h"
 
 #include <QComboBox>
 #include <QHBoxLayout>
@@ -90,7 +90,7 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiComboBoxEditor : public PdmUiFieldEditorHandle
+class PdmUiComboBoxEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -101,7 +101,6 @@ public:
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
-    QWidget* createLabelWidget( QWidget* parent ) override;
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
     QMargins calculateLabelContentMargins() const override;
 
@@ -114,8 +113,7 @@ protected slots:
     void slotApplyAutoValue();
 
 private:
-    QPointer<QComboBox>       m_comboBox;
-    QPointer<QShortenedLabel> m_label;
+    QPointer<QComboBox> m_comboBox;
 
     QPointer<QToolButton> m_previousItemButton;
     QPointer<QToolButton> m_nextItemButton;

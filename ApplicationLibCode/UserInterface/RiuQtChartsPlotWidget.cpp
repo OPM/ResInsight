@@ -51,8 +51,6 @@
 #include <cmath>
 #include <limits>
 
-using namespace QtCharts;
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -435,12 +433,11 @@ void RiuQtChartsPlotWidget::setAutoTickIntervalCounts( RiuPlotAxis axis, int max
 //--------------------------------------------------------------------------------------------------
 double RiuQtChartsPlotWidget::majorTickInterval( RiuPlotAxis axis ) const
 {
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 12, 0 )
-    // QValueAxis::tickInterval was introduced in 5.12
-    QAbstractAxis* ax        = plotAxis( axis );
-    QValueAxis*    valueAxis = dynamic_cast<QValueAxis*>( ax );
-    if ( valueAxis ) return valueAxis->tickInterval();
-#endif
+    if ( QValueAxis* valueAxis = dynamic_cast<QValueAxis*>( plotAxis( axis ) ) )
+    {
+        return valueAxis->tickInterval();
+    }
+
     return 0.0;
 }
 

@@ -94,7 +94,7 @@ grpc::Status RiaActiveCellInfoStateHandler::init( const rips::CellInfoRequest* r
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaActiveCellInfoStateHandler::assignNextActiveCellInfoData( rips::CellInfo* cellInfo )
 {
-    const std::vector<RigCell>& reservoirCells = m_eclipseCase->eclipseCaseData()->mainGrid()->globalCellArray();
+    const std::vector<RigCell>& reservoirCells = m_eclipseCase->eclipseCaseData()->mainGrid()->reservoirCells();
 
     while ( m_currentCellIdx < reservoirCells.size() )
     {
@@ -182,7 +182,7 @@ RigActiveCellInfo* RiaActiveCellInfoStateHandler::activeCellInfo() const
 //--------------------------------------------------------------------------------------------------
 const std::vector<RigCell>& RiaActiveCellInfoStateHandler::reservoirCells() const
 {
-    const std::vector<RigCell>& reservoirCells = m_eclipseCase->eclipseCaseData()->mainGrid()->globalCellArray();
+    const std::vector<RigCell>& reservoirCells = m_eclipseCase->eclipseCaseData()->mainGrid()->reservoirCells();
     return reservoirCells;
 }
 
@@ -223,7 +223,7 @@ grpc::Status RiaActiveCellInfoStateHandler::assignReply( rips::CellInfoArray* re
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaActiveCellInfoStateHandler::assignNextActiveCellCenter( rips::Vec3d* cellCenter )
 {
-    const std::vector<RigCell>& reservoirCells = m_eclipseCase->eclipseCaseData()->mainGrid()->globalCellArray();
+    const std::vector<RigCell>& reservoirCells = m_eclipseCase->eclipseCaseData()->mainGrid()->reservoirCells();
 
     while ( m_currentCellIdx < reservoirCells.size() )
     {
@@ -288,7 +288,7 @@ grpc::Status RiaActiveCellInfoStateHandler::assignCellCentersReply( rips::CellCe
 //--------------------------------------------------------------------------------------------------
 Status RiaActiveCellInfoStateHandler::assignNextActiveCellCorners( rips::CellCorners* cellCorners )
 {
-    const std::vector<RigCell>& reservoirCells = m_eclipseCase->eclipseCaseData()->mainGrid()->globalCellArray();
+    const std::vector<RigCell>& reservoirCells = m_eclipseCase->eclipseCaseData()->mainGrid()->reservoirCells();
 
     while ( m_currentCellIdx < reservoirCells.size() )
     {

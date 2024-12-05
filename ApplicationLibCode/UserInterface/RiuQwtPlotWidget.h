@@ -165,6 +165,10 @@ public:
     QwtAxisId toQwtPlotAxis( RiuPlotAxis axis ) const;
 
     void highlightPlotItem( const QwtPlotItem* plotItem );
+    void highlightCurvesUpdateOrder( const std::set<RimPlotCurve*>& curves );
+    void resetPlotItemHighlighting( bool doUpdateCurveOrder = true );
+
+    void replot() override;
 
 public slots:
     void onLegendClicked( const QVariant& itemInfo, int index );
@@ -202,14 +206,11 @@ protected:
 private:
     void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
     static int defaultMinimumWidth();
-    void       replot() override;
 
     void highlightPlotAxes( QwtAxisId axisIdX, QwtAxisId axisIdY );
     void highlightPlotItemsForQwtAxis( QwtAxisId axisId );
-    void highlightPlotItems( const std::set<const QwtPlotItem*>& closestItems );
-    void highlightPlotCurves( const std::set<const QwtPlotItem*>& closestItems );
+    void highlightPlotCurves( const std::set<RimPlotCurve*>& curves );
     void highlightPlotShapeItems( const std::set<const QwtPlotItem*>& closestItems );
-    void resetPlotItemHighlighting( bool doUpdateCurveOrder = true );
     void resetPlotCurveHighlighting();
     void resetPlotShapeItemHighlighting();
     void resetPlotAxisHighlighting();

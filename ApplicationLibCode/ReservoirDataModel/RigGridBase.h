@@ -45,11 +45,11 @@ public:
 
     void setGridPointDimensions( const cvf::Vec3st& gridDimensions );
 
-    size_t cellCountI() const override;
-    size_t cellCountJ() const override;
-    size_t cellCountK() const override;
+    size_t         cellCountI() const override { return m_cellCount.x(); }
+    size_t         cellCountJ() const override { return m_cellCount.y(); }
+    size_t         cellCountK() const override { return m_cellCount.z(); }
+    virtual size_t cellCount() const { return m_cellCountIJK; }
 
-    virtual size_t         cellCount() const;
     virtual RigCell&       cell( size_t gridLocalCellIndex );
     virtual const RigCell& cell( size_t gridLocalCellIndex ) const;
 
@@ -114,11 +114,15 @@ public:
     bool cellIJKNeighbor( size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const override;
     void cellIJKNeighborUnguarded( size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const;
 
+protected:
+    size_t m_indexToStartOfCells; ///< Index into the global cell array stored in main-grid where this grids cells starts.
+    size_t m_cellCountIJK;
+    size_t m_cellCountIJ;
+
 private:
     std::string      m_gridName;
     cvf::Vec3st      m_gridPointDimensions;
     cvf::Vec3st      m_cellCount;
-    size_t           m_indexToStartOfCells; ///< Index into the global cell array stored in main-grid where this grids cells starts.
     size_t           m_gridIndex; ///< The LGR index of this grid. Starts with 1. Main grid has index 0.
     int              m_gridId; ///< The LGR id of this grid. Main grid has id 0.
     RigMainGrid*     m_mainGrid;

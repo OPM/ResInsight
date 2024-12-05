@@ -30,6 +30,9 @@
 class RiuQtChartsPlotWidget;
 class RiuPlotCurveSymbol;
 
+class QLineSeries;
+class QScatterSeries;
+class QAreaSeries;
 //==================================================================================================
 //
 //==================================================================================================
@@ -91,17 +94,17 @@ public slots:
 private:
     void setSamplesInPlot( const std::vector<double>&, const std::vector<double>& ) override;
 
-    bool                      isQtChartObjectsPresent() const;
-    QtCharts::QLineSeries*    lineSeries() const;
-    QtCharts::QScatterSeries* scatterSeries() const;
-    QtCharts::QAreaSeries*    areaSeries() const;
+    bool            isQtChartObjectsPresent() const;
+    QLineSeries*    lineSeries() const;
+    QScatterSeries* scatterSeries() const;
+    QAreaSeries*    areaSeries() const;
 
     cvf::BoundingBox computeBoundingBox() const;
 
 private:
-    QtCharts::QLineSeries*              m_lineSeries;
-    QtCharts::QScatterSeries*           m_scatterSeries;
-    QtCharts::QAreaSeries*              m_areaSeries;
+    QLineSeries*                        m_lineSeries;
+    QScatterSeries*                     m_scatterSeries;
+    QAreaSeries*                        m_areaSeries;
     std::shared_ptr<RiuPlotCurveSymbol> m_symbol;
     QPointer<RiuQtChartsPlotWidget>     m_plotWidget;
     RiuPlotAxis                         m_axisX;

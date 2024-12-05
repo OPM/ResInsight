@@ -145,13 +145,8 @@ void QMWidget::mouseMoveEvent(QMouseEvent* event)
     if (m_renderSequence.isNull()) return;
 
     Qt::MouseButtons mouseBn = event->buttons();
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
     const int posX = event->position().toPoint().x();
     const int posY = height() - event->position().toPoint().y();
-#else
-    const int posX = event->x();
-    const int posY = height() - event->y();
-#endif
 
     cvf::ManipulatorTrackball::NavigationType navType = cvf::ManipulatorTrackball::NONE;
     if (mouseBn == Qt::LeftButton)
@@ -186,13 +181,8 @@ void QMWidget::mousePressEvent(QMouseEvent* event)
 {
     if (m_renderSequence.isNull()) return;
 
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
     const int posX = event->position().toPoint().x();
     const int posY = height() - event->position().toPoint().y();
-#else
-    const int posX = event->x();
-    const int posY = height() - event->y();
-#endif
 
     if (event->buttons() == Qt::LeftButton && 
         event->modifiers() == Qt::ControlModifier)

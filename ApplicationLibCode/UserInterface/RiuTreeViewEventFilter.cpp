@@ -55,7 +55,7 @@ RiuTreeViewEventFilter::RiuTreeViewEventFilter( QObject* parent, caf::PdmUiTreeV
 //--------------------------------------------------------------------------------------------------
 bool RiuTreeViewEventFilter::activateFeatureFromKeyEvent( QKeyEvent* keyEvent )
 {
-    QKeySequence keySeq( keyEvent->modifiers() + keyEvent->key() );
+    QKeySequence keySeq( keyEvent->keyCombination() );
 
     bool wasFeatureActivated = false;
 
@@ -137,7 +137,7 @@ bool RiuTreeViewEventFilter::eventFilter( QObject* obj, QEvent* event )
             }
             else
             {
-                QKeySequence keySeq( keyEvent->modifiers() + keyEvent->key() );
+                QKeySequence keySeq( keyEvent->keyCombination() );
 
                 matches = caf::CmdFeatureManager::instance()->commandFeaturesMatchingKeyboardShortcut( keySeq );
             }

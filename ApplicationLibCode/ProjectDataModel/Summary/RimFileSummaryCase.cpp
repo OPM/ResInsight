@@ -167,16 +167,24 @@ RifSummaryReaderInterface* RimFileSummaryCase::findRelatedFilesAndCreateReader( 
 {
     if ( lookForRestartFiles )
     {
-        std::vector<QString>            warnings;
-        std::vector<RifRestartFileInfo> restartFileInfos = RifEclipseSummaryTools::getRestartFiles( headerFileName, warnings );
+        std::vector<QString> warnings;
+        std::vector<QString> restartFileNames;
+        if ( RiaPreferencesSummary::current()->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON )
+        {
+            restartFileNames = RifEclipseSummaryTools::getRestartFileNamesOpm( headerFileName, warnings );
+        }
+        else
+        {
+            restartFileNames = RifEclipseSummaryTools::getRestartFileNames( headerFileName, warnings );
+        }
 
-        if ( !restartFileInfos.empty() )
+        if ( !restartFileNames.empty() )
         {
             std::vector<std::string> summaryFileNames;
             summaryFileNames.push_back( headerFileName.toStdString() );
-            for ( const auto& s : restartFileInfos )
+            for ( const auto& fileName : restartFileNames )
             {
-                summaryFileNames.push_back( s.fileName.toStdString() );
+                summaryFileNames.push_back( fileName.toStdString() );
             }
 
             // The ordering in intended to be start of history first, so we reverse the ordering

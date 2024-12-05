@@ -24,7 +24,7 @@
 #include "RiaPreferences.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaRegressionTestRunner.h"
-#include "RiaSummaryTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
@@ -466,7 +466,7 @@ void RiuPlotMainWindow::refreshToolbars()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::createDockPanels()
 {
-    const std::vector<QString> treeViewTitles    = { "Plots", "Data Sources", "Templates", "Scripts", "Cloud" };
+    const std::vector<QString> treeViewTitles = { "Plots", "Data Sources", "Templates", "Scripts", "Cloud" + RiaDefines::betaFeaturePostfix() };
     const std::vector<QString> treeViewConfigs   = { "PlotWindow.Plots",
                                                      "PlotWindow.DataSources",
                                                      "PlotWindow.Templates",

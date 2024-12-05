@@ -24,16 +24,16 @@
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaResultNames.h"
-#include "RiaSummaryAddressAnalyzer.h"
-#include "RiaSummaryCurveDefinition.h"
 #include "RiaTimeTTools.h"
+#include "Summary/RiaSummaryAddressAnalyzer.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
 
 #include "RimSummaryCalculationCollection.h"
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
 #include "RimCustomObjectiveFunction.h"
 #include "RimCustomObjectiveFunctionCollection.h"
-#include "RimDerivedEnsembleCaseCollection.h"
+#include "RimDeltaSummaryEnsemble.h"
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSetCollection.h"
@@ -340,6 +340,9 @@ void RimEnsembleCurveSet::enableStatisticsLables( bool enable )
 void RimEnsembleCurveSet::loadDataAndUpdate( bool updateParentPlot )
 {
     m_yValuesSummaryAddressUiField = m_yValuesSummaryAddress->address();
+
+    // Recreate the statistics case, as the statistics data is cached internally
+    m_ensembleStatCaseY = std::make_unique<RimEnsembleStatisticsCase>();
 
     m_curveFilters->loadDataAndUpdate();
 
@@ -1168,6 +1171,13 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 
     m_statistics->defaultUiOrdering( isXAxisSummaryVector(), *statGroup );
 
+    bool enableIncomplete = true;
+    if ( dynamic_cast<RimDeltaSummaryEnsemble*>( m_yValuesSummaryEnsemble() ) )
+    {
+        enableIncomplete = false;
+    }
+    m_statistics->enableIncludeIncompleteCurves( enableIncomplete );
+
     caf::PdmUiGroup* statAppearance = statGroup->addNewGroupWithKeyword( "Appearance", "StatisticsAppearance" );
     statAppearance->add( &m_statisticsUseCustomAppearance );
     if ( m_statisticsUseCustomAppearance() == AppearanceMode::CUSTOM )
@@ -1671,21 +1681,9 @@ void RimEnsembleCurveSet::appendOptionItemsForSummaryAddresses( QList<caf::PdmOp
     if ( hash != m_hash )
     {
         m_hash = hash;
-
-        std::set<RifEclipseSummaryAddress> addressesForEnsemble;
-        for ( RimSummaryCase* summaryCase : allSummaryCases )
-        {
-            if ( !summaryCase ) continue;
-
-            if ( auto reader = summaryCase->summaryReader() )
-            {
-                const auto& addrs = reader->allResultAddresses();
-                addressesForEnsemble.insert( addrs.begin(), addrs.end() );
-            }
-        }
-
         m_cachedAddressOptions.clear();
 
+        auto addressesForEnsemble = summaryCaseGroup->ensembleSummaryAddresses();
         for ( const auto& addr : addressesForEnsemble )
         {
             std::string name = addr.uiText();
@@ -2056,7 +2054,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
             {
                 RimSummaryCurve* curve = new RimSummaryCurve();
                 curve->setSummaryCaseY( sumCase );
-                curve->setSummaryAddressYAndApplyInterpolation( addr->address() );
+                curve->setSummaryAddressY( addr->address() );
                 curve->setResampling( m_resampling() );
 
                 int lineThickness = 1;
@@ -2259,7 +2257,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
             }
 
             curve->setSummaryCaseY( summaryCase );
-            curve->setSummaryAddressYAndApplyInterpolation( address.summaryAddressY() );
+            curve->setSummaryAddressY( address.summaryAddressY() );
             curve->setLeftOrRightAxisY( axisY() );
 
             if ( isXAxisSummaryVector() )

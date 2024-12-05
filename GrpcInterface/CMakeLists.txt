@@ -20,15 +20,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
 
-find_package(
-  Qt5
-  COMPONENTS Core Network
-  QUIET)
-
-set(QT_LIBRARIES
-    Qt5::Core
-    Qt5::Network)
-
 set(SOURCE_GROUP_HEADER_FILES
     RiaGrpcServer.h
     RiaGrpcHelper.h
@@ -250,7 +241,7 @@ if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE)
   message(STATUS "Installing Python modules (dev-requirements.txt)")
   add_custom_command(
     TARGET PipInstall
-    COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m pip install -r ${GRPC_PYTHON_SOURCE_PATH}/dev-requirements.txt --user )
+    COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m pip install -r ${GRPC_PYTHON_SOURCE_PATH}/dev-requirements.txt )
 endif()
 
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)

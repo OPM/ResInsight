@@ -203,11 +203,7 @@ QDateTime RiaQDateTimeTools::subtractPeriod( const QDateTime& dt, RiaDefines::Da
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::createDateTime( const QDate& date, Qt::TimeSpec timeSpec /*= Qt::LocalTime*/ )
 {
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
     return date.startOfDay( timeSpec );
-#else
-    return QDateTime( date, QTime( 0, 0 ), timeSpec );
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------

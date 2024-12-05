@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaTextStringTools.h"
+#include "RiaStdStringTools.h"
 
 #include <QRegularExpression>
 #include <QString>
@@ -128,11 +129,33 @@ QString RiaTextStringTools::trimNonAlphaNumericCharacters( const QString& s )
 //--------------------------------------------------------------------------------------------------
 QStringList RiaTextStringTools::splitSkipEmptyParts( const QString& text, const QString& sep /*= " " */ )
 {
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
-    return text.split( sep, Qt::SkipEmptyParts, Qt::CaseInsensitive );
-#else
-    return text.split( sep, QString::SkipEmptyParts, Qt::CaseInsensitive );
-#endif
+    bool skipEmptyParts = true;
+    return splitString( text, sep, skipEmptyParts );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RiaTextStringTools::splitSkipEmptyParts( const QString& text, const QRegularExpression& regularExpression )
+{
+    bool skipEmptyParts = true;
+    return splitString( text, regularExpression, skipEmptyParts );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RiaTextStringTools::splitString( const QString& text, const QString& sep, bool skipEmptyParts )
+{
+    return text.split( sep, skipEmptyParts ? Qt::SkipEmptyParts : Qt::KeepEmptyParts, Qt::CaseInsensitive );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RiaTextStringTools::splitString( const QString& text, const QRegularExpression& regularExpression, bool skipEmptyParts )
+{
+    return text.split( regularExpression, skipEmptyParts ? Qt::SkipEmptyParts : Qt::KeepEmptyParts );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,21 +182,36 @@ QString RiaTextStringTools::replaceTemplateTextWithValues( const QString& templa
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Qt recommends pass-by-value instead of pass-by-const-ref for QStringView
+/// https://doc.qt.io/qt-6/qstringview.html
 //--------------------------------------------------------------------------------------------------
-QStringList RiaTextStringTools::splitSkipEmptyParts( const QString& text, const QRegExp& regExp )
+bool RiaTextStringTools::isTextEqual( QStringView text, QStringView compareText )
 {
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
-    return text.split( regExp, Qt::SkipEmptyParts );
-#else
-    return text.split( regExp, QString::SkipEmptyParts );
-#endif
+    return text.compare( compareText, Qt::CaseInsensitive ) == 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaTextStringTools::isNumber( const QString& text, const QString& decimalPoint )
+{
+    if ( text.isEmpty() || decimalPoint.isEmpty() )
+    {
+        return false;
+    }
+
+    auto stdString   = text.toStdString();
+    auto decimalChar = decimalPoint.toLatin1()[0];
+
+    return RiaStdStringTools::isNumber( stdString, decimalChar );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+#if QT_VERSION < QT_VERSION_CHECK( 6, 8, 0 )
 std::strong_ordering operator<=>( const QString& lhs, const QString& rhs )
 {
     return lhs.compare( rhs ) <=> 0;
 }
+#endif

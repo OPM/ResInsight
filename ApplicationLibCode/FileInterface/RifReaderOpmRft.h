@@ -87,6 +87,7 @@ private:
     static std::string                                 resultNameFromChannelType( RifEclipseRftAddress::RftWellLogChannelType channelType );
 
     std::vector<float> resultAsFloat( const std::string& resultName, const std::string& wellName, int year, int month, int day ) const;
+    bool isNativeResultAvailable( const std::string& resultName, const std::string& wellName, int year, int month, int day ) const;
 
     bool openFiles();
 

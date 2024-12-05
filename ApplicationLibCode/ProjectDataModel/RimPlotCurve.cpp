@@ -789,6 +789,9 @@ void RimPlotCurve::updateLegendsInPlot()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setTitle( const QString& title )
 {
     if ( m_plotCurve ) m_plotCurve->setTitle( title );

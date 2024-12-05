@@ -86,8 +86,7 @@ void RifReaderEclipseRft::open()
 
         time_t timeStepTime_t = ecl_rft_node_get_date( node );
 
-        QDateTime timeStep = RiaQDateTimeTools::createUtcDateTime();
-        timeStep.setTime_t( timeStepTime_t );
+        QDateTime timeStep = RiaQDateTimeTools::fromTime_t( timeStepTime_t );
 
         RifEclipseRftAddress addressPressure =
             RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );

@@ -73,8 +73,8 @@ public:
         {
             RigConnection connection = mainGrid->nncData()->allConnections()[i];
 
-            const RigCell& cell1 = mainGrid->globalCellArray()[connection.c1GlobIdx()];
-            const RigCell& cell2 = mainGrid->globalCellArray()[connection.c2GlobIdx()];
+            const RigCell& cell1 = mainGrid->cell( connection.c1GlobIdx() );
+            const RigCell& cell2 = mainGrid->cell( connection.c2GlobIdx() );
 
             sendCellInfo( socketStream, cell1 );
             sendCellInfo( socketStream, cell2 );

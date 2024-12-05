@@ -28,10 +28,10 @@
 #include "RigFemResultAddress.h"
 #include "RigFemScalarResultFrames.h"
 #include "RigGeoMechCaseData.h"
-#include "RigGeoMechWellLogExtractor.h"
 #include "RigGriddedPart3d.h"
 #include "RigResultAccessorFactory.h"
-#include "RigWellPath.h"
+#include "Well/RigGeoMechWellLogExtractor.h"
+#include "Well/RigWellPath.h"
 
 #include "RimFaultReactivationDataAccessorStress.h"
 #include "RimFaultReactivationDataAccessorWellLogExtraction.h"

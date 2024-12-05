@@ -21,8 +21,9 @@
 #include "RiaColorTables.h"
 #include "RiaEclipseUnitTools.h"
 
-#include "RigFishbonesGeometry.h"
-#include "RigWellPath.h"
+#include "Well/RigFishbonesGeometry.h"
+#include "Well/RigWellPath.h"
+
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesPipeProperties.h"
 #include "RimMultipleValveLocations.h"

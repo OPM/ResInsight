@@ -21,6 +21,7 @@
 #include "Polygons/RimPolygonFile.h"
 
 #include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
 
@@ -31,13 +32,13 @@ CAF_CMD_SOURCE_INIT( RicReloadPolygonFileFeature, "RicReloadPolygonFileFeature" 
 //--------------------------------------------------------------------------------------------------
 void RicReloadPolygonFileFeature::onActionTriggered( bool isChecked )
 {
-    auto polygonFile = caf::SelectionManager::instance()->selectedItemOfType<RimPolygonFile>();
-    if ( polygonFile )
-    {
-        polygonFile->loadData();
-        polygonFile->objectChanged.send();
+    auto polygonFiles = caf::selectedObjectsByType<RimPolygonFile*>();
 
-        polygonFile->updateConnectedEditors();
+    for ( auto p : polygonFiles )
+    {
+        p->loadData();
+        p->objectChanged.send();
+        p->updateConnectedEditors();
     }
 }
 

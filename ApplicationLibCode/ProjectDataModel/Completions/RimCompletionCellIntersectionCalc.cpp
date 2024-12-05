@@ -23,8 +23,8 @@
 
 #include "RigCompletionData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
-#include "RigWellPath.h"
-#include "RigWellPathIntersectionTools.h"
+#include "Well/RigWellPath.h"
+#include "Well/RigWellPathIntersectionTools.h"
 
 #include "RimEclipseCase.h"
 #include "RimOilField.h"

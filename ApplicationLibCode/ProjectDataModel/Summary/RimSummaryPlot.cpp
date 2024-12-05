@@ -21,29 +21,21 @@
 #include "RiaColorTables.h"
 #include "RiaColorTools.h"
 #include "RiaDefines.h"
-#include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
 #include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaStdStringTools.h"
-#include "RiaSummaryAddressAnalyzer.h"
-#include "RiaSummaryCurveDefinition.h"
-#include "RiaSummaryDefines.h"
-#include "RiaSummaryTools.h"
-#include "RiaTimeHistoryCurveResampler.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryDefines.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifEclipseSummaryAddressDefines.h"
-#include "RifReaderEclipseSummary.h"
-
-#include "RicfCommandObject.h"
 
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
-#include "PlotTemplates/RimPlotTemplateFileItem.h"
-#include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "RimAsciiDataCurve.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
@@ -70,7 +62,6 @@
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotItem.h"
 #include "RiuSummaryQwtPlot.h"
-#include "RiuTreeViewEventFilter.h"
 
 #ifdef USE_QTCHARTS
 #include "RiuSummaryQtChartsPlot.h"
@@ -79,7 +70,7 @@
 #include "cvfColor3.h"
 
 #include "cafPdmFieldScriptingCapability.h"
-#include "cafPdmUiCheckBoxEditor.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafSelectionManager.h"
 
@@ -366,51 +357,6 @@ QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaDefines::DateTimePerio
     text += RimSummaryCurvesData::createTextForCrossPlotCurves( crossPlotCurves );
 
     return text;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmObject* RimSummaryPlot::findPdmObjectFromPlotCurve( const RiuPlotCurve* plotCurve ) const
-{
-    for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
-    {
-        if ( curve->isSameCurve( plotCurve ) )
-        {
-            return curve;
-        }
-    }
-
-    for ( RimAsciiDataCurve* curve : m_asciiDataCurves )
-    {
-        if ( curve->isSameCurve( plotCurve ) )
-        {
-            return curve;
-        }
-    }
-
-    if ( m_summaryCurveCollection )
-    {
-        RimSummaryCurve* foundCurve = m_summaryCurveCollection->findRimCurveFromPlotCurve( plotCurve );
-
-        if ( foundCurve )
-        {
-            m_summaryCurveCollection->setCurrentSummaryCurve( foundCurve );
-
-            return foundCurve;
-        }
-    }
-
-    if ( m_ensembleCurveSetCollection )
-    {
-        RimSummaryCurve* foundCurve = m_ensembleCurveSetCollection->findRimCurveFromPlotCurve( plotCurve );
-
-        if ( foundCurve )
-        {
-            return foundCurve;
-        }
-    }
-    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2607,7 +2553,7 @@ RimSummaryCurve* RimSummaryPlot::addNewCurve( const RifEclipseSummaryAddress& ad
 {
     auto* newCurve = new RimSummaryCurve();
     newCurve->setSummaryCaseY( summaryCase );
-    newCurve->setSummaryAddressYAndApplyInterpolation( address );
+    newCurve->setSummaryAddressY( address );
 
     // This address is RifEclipseSummaryAddress::time() if the curve is a time plot. Otherwise it is the address of the summary vector used
     // for the x-axis

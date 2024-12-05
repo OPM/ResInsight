@@ -27,8 +27,10 @@
 
 #include <QLegend>
 #include <QLegendMarker>
+#include <QtCharts/QChart>
 #include <QtCharts/QChartView>
 #include <QtCharts/QDateTimeAxis>
+#include <QtCharts/QLineSeries>
 #include <QtCharts/QValueAxis>
 
 #include <limits>
@@ -41,13 +43,13 @@ RiuQtChartsPlotCurve::RiuQtChartsPlotCurve( RimPlotCurve* ownerRimCurve, const Q
 {
     m_plotWidget = nullptr;
 
-    m_lineSeries = new QtCharts::QLineSeries();
+    m_lineSeries = new QLineSeries();
     m_lineSeries->setName( title );
 
-    m_areaSeries = new QtCharts::QAreaSeries();
+    m_areaSeries = new QAreaSeries();
     m_areaSeries->setName( title );
 
-    m_scatterSeries = new QtCharts::QScatterSeries();
+    m_scatterSeries = new QScatterSeries();
     m_scatterSeries->setName( title );
 
     m_axisX = RiuPlotAxis::defaultBottom();
@@ -188,16 +190,16 @@ void RiuQtChartsPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
 
     if ( m_plotWidget->getLineSeries( this ) && m_plotWidget->getScatterSeries( this ) )
     {
-        m_plotWidget->qtChart()->legend()->setMarkerShape( QtCharts::QLegend::MarkerShape::MarkerShapeFromSeries );
+        m_plotWidget->qtChart()->legend()->setMarkerShape( QLegend::MarkerShape::MarkerShapeFromSeries );
         setVisibleInLegend( true );
 
         lineSeries()->show();
     }
     else
     {
-        if ( !m_lineSeries ) m_lineSeries = new QtCharts::QLineSeries();
-        if ( !m_areaSeries ) m_areaSeries = new QtCharts::QAreaSeries();
-        if ( !m_scatterSeries ) m_scatterSeries = new QtCharts::QScatterSeries();
+        if ( !m_lineSeries ) m_lineSeries = new QLineSeries();
+        if ( !m_areaSeries ) m_areaSeries = new QAreaSeries();
+        if ( !m_scatterSeries ) m_scatterSeries = new QScatterSeries();
 
         m_plotWidget->attach( this, m_lineSeries, m_areaSeries, m_scatterSeries, m_axisX, m_axisY );
         // Plot widget takes ownership.
@@ -227,13 +229,13 @@ void RiuQtChartsPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurve::detach()
 {
-    QtCharts::QLineSeries* line = lineSeries();
+    QLineSeries* line = lineSeries();
     if ( line )
     {
         line->hide();
     }
 
-    QtCharts::QAreaSeries* area = areaSeries();
+    QAreaSeries* area = areaSeries();
     if ( area )
     {
         area->hide();
@@ -275,10 +277,10 @@ void RiuQtChartsPlotCurve::setSamplesInPlot( const std::vector<double>& xValues,
         values[i] = QPointF( xValues[i], yValues[i] );
     }
 
-    QtCharts::QLineSeries* line = lineSeries();
+    QLineSeries* line = lineSeries();
     line->replace( values );
 
-    QtCharts::QLineSeries* upper = new QtCharts::QLineSeries;
+    QLineSeries* upper = new QLineSeries;
     upper->replace( values );
     areaSeries()->setUpperSeries( upper );
 
@@ -308,8 +310,8 @@ void RiuQtChartsPlotCurve::updateScatterSeries()
         {
             if ( axis->orientation() == Qt::Orientation::Horizontal )
             {
-                QtCharts::QValueAxis*    valueAxis    = dynamic_cast<QtCharts::QValueAxis*>( axis );
-                QtCharts::QDateTimeAxis* dateTimeAxis = dynamic_cast<QtCharts::QDateTimeAxis*>( axis );
+                QValueAxis*    valueAxis    = dynamic_cast<QValueAxis*>( axis );
+                QDateTimeAxis* dateTimeAxis = dynamic_cast<QDateTimeAxis*>( axis );
                 if ( valueAxis )
                 {
                     minX      = valueAxis->min();
@@ -520,10 +522,10 @@ void RiuQtChartsPlotCurve::setVisibleInLegend( bool isVisibleInLegend )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QtCharts::QLineSeries* RiuQtChartsPlotCurve::lineSeries() const
+QLineSeries* RiuQtChartsPlotCurve::lineSeries() const
 {
     if ( m_lineSeries ) return m_lineSeries;
-    if ( m_plotWidget ) return dynamic_cast<QtCharts::QLineSeries*>( m_plotWidget->getLineSeries( this ) );
+    if ( m_plotWidget ) return dynamic_cast<QLineSeries*>( m_plotWidget->getLineSeries( this ) );
 
     return nullptr;
 }
@@ -531,10 +533,10 @@ QtCharts::QLineSeries* RiuQtChartsPlotCurve::lineSeries() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QtCharts::QScatterSeries* RiuQtChartsPlotCurve::scatterSeries() const
+QScatterSeries* RiuQtChartsPlotCurve::scatterSeries() const
 {
     if ( m_scatterSeries ) return m_scatterSeries;
-    if ( m_plotWidget ) return dynamic_cast<QtCharts::QScatterSeries*>( m_plotWidget->getScatterSeries( this ) );
+    if ( m_plotWidget ) return dynamic_cast<QScatterSeries*>( m_plotWidget->getScatterSeries( this ) );
 
     return nullptr;
 }
@@ -542,10 +544,10 @@ QtCharts::QScatterSeries* RiuQtChartsPlotCurve::scatterSeries() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QtCharts::QAreaSeries* RiuQtChartsPlotCurve::areaSeries() const
+QAreaSeries* RiuQtChartsPlotCurve::areaSeries() const
 {
     if ( m_areaSeries ) return m_areaSeries;
-    if ( m_plotWidget ) return dynamic_cast<QtCharts::QAreaSeries*>( m_plotWidget->getAreaSeries( this ) );
+    if ( m_plotWidget ) return dynamic_cast<QAreaSeries*>( m_plotWidget->getAreaSeries( this ) );
 
     return nullptr;
 }
