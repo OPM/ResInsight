@@ -43,6 +43,7 @@
 #include "WellPathCommands/RicPolylineTargetsPickEventHandler.h"
 
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafSelectionManager.h"
 
 #include <limits>
 
