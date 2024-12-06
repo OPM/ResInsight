@@ -27,6 +27,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
+#include "RigStatisticsMath.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseEnsemble.h"
@@ -188,6 +189,9 @@ void RigWellTargetCandidatesGenerator::generateCandidates( RimEclipseCase*      
         RiaLogging::info( QString( "Total FIPGAS: %1" ).arg( s.totalFipGas ) );
         RiaLogging::info( QString( "Average Permeability: %1" ).arg( s.permeability ) );
         RiaLogging::info( QString( "Average Pressure: %1" ).arg( s.pressure ) );
+
+        QString clusterPorvSoil = "CLUSTER_TOTAL_PORV_SOIL";
+        createResultVector( *eclipseCase, clusterPorvSoil, clusters, s.totalPorvSoil );
     }
 }
 
@@ -398,6 +402,58 @@ void RigWellTargetCandidatesGenerator::createResultVector( RimEclipseCase&      
         if ( clusterIds[idx] > 0 )
         {
             resultVector->at( idx ) = clusterIds[idx];
+        }
+    }
+
+    resultsData->recalculateStatistics( resultAddress );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellTargetCandidatesGenerator::createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<double>& values )
+{
+    RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::GENERATED, resultName );
+
+    auto resultsData = eclipseCase.results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+    resultsData->addStaticScalarResult( RiaDefines::ResultCatType::GENERATED, resultName, false, values.size() );
+
+    std::vector<double>* resultVector = resultsData->modifiableCellScalarResult( resultAddress, 0 );
+    resultVector->resize( values.size(), std::numeric_limits<double>::infinity() );
+
+    for ( size_t idx = 0; idx < values.size(); idx++ )
+    {
+        resultVector->at( idx ) = values[idx];
+    }
+
+    resultsData->recalculateStatistics( resultAddress );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellTargetCandidatesGenerator::createResultVector( RimEclipseCase&         eclipseCase,
+                                                           const QString&          resultName,
+                                                           const std::vector<int>& clusterIds,
+                                                           double                  value )
+{
+    RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::GENERATED, resultName );
+
+    auto resultsData = eclipseCase.results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+    resultsData->addStaticScalarResult( RiaDefines::ResultCatType::GENERATED, resultName, false, clusterIds.size() );
+
+    std::vector<double>* resultVector = resultsData->modifiableCellScalarResult( resultAddress, 0 );
+    resultVector->resize( clusterIds.size(), std::numeric_limits<double>::infinity() );
+
+    std::fill( resultVector->begin(), resultVector->end(), std::numeric_limits<double>::infinity() );
+
+    for ( size_t idx = 0; idx < clusterIds.size(); idx++ )
+    {
+        if ( clusterIds[idx] > 0 )
+        {
+            resultVector->at( idx ) = value;
         }
     }
 
@@ -623,7 +679,7 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
 
     for ( auto eclipseCase : ensemble.cases() )
     {
-        auto task = progInfo.task( "Generating statistics", 1 );
+        auto task = progInfo.task( "Generating realization statistics.", 1 );
 
         generateCandidates( eclipseCase, timeStepIdx, volumeType, volumesType, volumeResultType, limits );
     }
@@ -635,6 +691,9 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
     const size_t targetNumActiveCells    = targetActiveCellInfo->reservoirActiveCellCount();
 
     std::vector<int> occupancy( targetNumActiveCells, 0 );
+
+    std::vector<std::vector<double>> porvSoilSamples;
+
     for ( auto eclipseCase : ensemble.cases() )
     {
         auto task = progInfo.task( "Accumulating results.", 1 );
@@ -646,6 +705,13 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
         RigEclipseResultAddress clustersNumAddress( RiaDefines::ResultCatType::GENERATED, "CLUSTERS_NUM" );
         resultsData->ensureKnownResultLoaded( clustersNumAddress );
         const std::vector<double>& clusterNum = resultsData->cellScalarResults( clustersNumAddress, 0 );
+
+        QString                 clusterPorvSoil = "CLUSTER_TOTAL_PORV_SOIL";
+        RigEclipseResultAddress clusterPorvSoilAddress( RiaDefines::ResultCatType::GENERATED, clusterPorvSoil );
+        resultsData->ensureKnownResultLoaded( clusterPorvSoilAddress );
+        const std::vector<double>& porvSoil = resultsData->cellScalarResults( clusterPorvSoilAddress, 0 );
+
+        std::vector<double> totalPorvSoil( targetNumActiveCells, std::numeric_limits<double>::infinity() );
 
         for ( size_t targetCellIdx = 0; targetCellIdx < targetNumReservoirCells; targetCellIdx++ )
         {
@@ -661,10 +727,43 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
                 if ( !std::isinf( clusterNum[resultIndex] ) && clusterNum[resultIndex] > 0 )
                 {
                     occupancy[targetResultIndex]++;
+                    totalPorvSoil[targetResultIndex] = porvSoil[resultIndex];
                 }
             }
         }
+
+        porvSoilSamples.push_back( totalPorvSoil );
+    }
+
+    int                 nCells = static_cast<int>( targetNumActiveCells );
+    std::vector<double> p10Results( nCells, std::numeric_limits<double>::infinity() );
+    std::vector<double> p50Results( nCells, std::numeric_limits<double>::infinity() );
+    std::vector<double> p90Results( nCells, std::numeric_limits<double>::infinity() );
+    std::vector<double> meanResults( nCells, std::numeric_limits<double>::infinity() );
+    std::vector<double> minResults( nCells, std::numeric_limits<double>::infinity() );
+    std::vector<double> maxResults( nCells, std::numeric_limits<double>::infinity() );
+
+#pragma omp parallel for
+    for ( int i = 0; i < nCells; i++ )
+    {
+        size_t              numSamples = porvSoilSamples.size();
+        std::vector<double> samples( numSamples, 0.0 );
+        for ( size_t s = 0; s < numSamples; s++ )
+            samples[s] = porvSoilSamples[s][i];
+
+        double p10, p50, p90, mean;
+        RigStatisticsMath::calculateStatisticsCurves( samples, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
+
+        p10Results[i] = p10;
+        p50Results[i] = p50;
+        p90Results[i] = p90;
+        printf( "P90[%d] => %f\n", i, p90 );
+        meanResults[i] = mean;
+
+        minResults[i] = RiaStatisticsTools::minimumValue( samples );
+        maxResults[i] = RiaStatisticsTools::maximumValue( samples );
     }
 
     createResultVector( targetCase, "OCCUPANCY", occupancy );
+    createResultVector( targetCase, "CLUSTER_TOTAL_PORV_SOIL_P90", p90Results );
 }

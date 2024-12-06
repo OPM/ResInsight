@@ -165,6 +165,10 @@ private:
 
     static void createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<int>& clusterIds );
 
+    static void createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<double>& values );
+
+    static void createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<int>& clusterIds, double value );
+
     static double getValueForFace( const std::vector<double>&         x,
                                    const std::vector<double>&         y,
                                    const std::vector<double>&         z,
