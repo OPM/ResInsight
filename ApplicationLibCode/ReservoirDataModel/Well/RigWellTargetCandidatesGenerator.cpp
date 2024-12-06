@@ -704,12 +704,12 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
 
     std::vector<int> occupancy( targetNumActiveCells, 0 );
 
-    std::map<QString, std::vector<std::vector<double>>> porvSoilSamples;
-    porvSoilSamples["TOTAL_PORV_SOIL"]      = {};
-    porvSoilSamples["TOTAL_PORV_SGAS"]      = {};
-    porvSoilSamples["TOTAL_PORV_SOIL_SGAS"] = {};
-    porvSoilSamples["TOTAL_FIPOIL"]         = {};
-    porvSoilSamples["TOTAL_FIPGAS"]         = {};
+    std::map<QString, std::vector<std::vector<double>>> resultNamesAndSamples;
+    resultNamesAndSamples["TOTAL_PORV_SOIL"]      = {};
+    resultNamesAndSamples["TOTAL_PORV_SGAS"]      = {};
+    resultNamesAndSamples["TOTAL_PORV_SOIL_SGAS"] = {};
+    resultNamesAndSamples["TOTAL_FIPOIL"]         = {};
+    resultNamesAndSamples["TOTAL_FIPGAS"]         = {};
 
     for ( auto eclipseCase : ensemble.cases() )
     {
@@ -723,20 +723,20 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
         resultsData->ensureKnownResultLoaded( clustersNumAddress );
         const std::vector<double>& clusterNum = resultsData->cellScalarResults( clustersNumAddress, 0 );
 
-        std::map<QString, const std::vector<double>*> porvSoil;
+        std::map<QString, const std::vector<double>*> namedInputVector;
 
-        for ( auto [resultName, vec] : porvSoilSamples )
+        for ( auto [resultName, vec] : resultNamesAndSamples )
         {
-            RigEclipseResultAddress clusterPorvSoilAddress( RiaDefines::ResultCatType::GENERATED, resultName );
-            resultsData->ensureKnownResultLoaded( clusterPorvSoilAddress );
-            const std::vector<double>& resultVector = resultsData->cellScalarResults( clusterPorvSoilAddress, 0 );
-            porvSoil[resultName]                    = &resultVector;
+            RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::GENERATED, resultName );
+            resultsData->ensureKnownResultLoaded( resultAddress );
+            const std::vector<double>& resultVector = resultsData->cellScalarResults( resultAddress, 0 );
+            namedInputVector[resultName]                    = &resultVector;
         }
 
-        std::map<QString, std::vector<double>> totalPorvSoil;
-        for ( auto [resultName, vec] : porvSoilSamples )
+        std::map<QString, std::vector<double>> namedOutputVector;
+        for ( auto [resultName, vec] : resultNamesAndSamples )
         {
-            totalPorvSoil[resultName] = std::vector( targetNumActiveCells, std::numeric_limits<double>::infinity() );
+            namedOutputVector[resultName] = std::vector( targetNumActiveCells, std::numeric_limits<double>::infinity() );
         }
 
         for ( size_t targetCellIdx = 0; targetCellIdx < targetNumReservoirCells; targetCellIdx++ )
@@ -753,23 +753,23 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
                 if ( !std::isinf( clusterNum[resultIndex] ) && clusterNum[resultIndex] > 0 )
                 {
                     occupancy[targetResultIndex]++;
-                    for ( auto [resultName, vec] : porvSoilSamples )
+                    for ( auto [resultName, vec] : resultNamesAndSamples )
                     {
-                        totalPorvSoil[resultName][targetResultIndex] = porvSoil[resultName]->at( resultIndex );
+                        namedOutputVector[resultName][targetResultIndex] = namedInputVector[resultName]->at( resultIndex );
                     }
                 }
             }
         }
 
-        for ( auto [resultName, vec] : porvSoilSamples )
+        for ( auto [resultName, vec] : resultNamesAndSamples )
         {
-            porvSoilSamples[resultName].push_back( totalPorvSoil[resultName] );
+            resultNamesAndSamples[resultName].push_back( namedOutputVector[resultName] );
         }
     }
 
     createResultVector( targetCase, "OCCUPANCY", occupancy );
 
-    for ( auto [resultName, vec] : porvSoilSamples )
+    for ( auto [resultName, vec] : resultNamesAndSamples )
     {
         int                 nCells = static_cast<int>( targetNumActiveCells );
         std::vector<double> p10Results( nCells, std::numeric_limits<double>::infinity() );
