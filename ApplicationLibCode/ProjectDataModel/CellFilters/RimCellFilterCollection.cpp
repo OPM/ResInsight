@@ -620,8 +620,10 @@ std::vector<RimPolygonInView*> RimCellFilterCollection::enabledCellFilterPolygon
 
         if ( auto polygonFilter = dynamic_cast<RimPolygonFilter*>( filter.p() ) )
         {
+            if ( !polygonFilter->isSelected() ) continue;
+
             auto piv = polygonFilter->polygonInView();
-            if ( piv->showLines() )
+            if ( piv && piv->showLines() )
             {
                 polyInView.push_back( piv );
             }

@@ -561,27 +561,6 @@ std::pair<int, int> RiuMultiPlotPage::rowAndColumnCount( int plotWidgetCount ) c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels )
-{
-    if ( !m_plotDefinition ) return;
-
-    for ( RiuPlotWidget* plotWidget : m_plotWidgets )
-    {
-        if ( !plotWidget ) continue;
-        RimPlot* plot = plotWidget->plotDefinition();
-        if ( !plot ) continue;
-
-        bool isSelected = false;
-        for ( int changedLevel : changedSelectionLevels )
-        {
-            isSelected = isSelected || caf::SelectionManager::instance()->isSelected( plot, changedLevel );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RiuMultiPlotPage::showYAxis( int row, int column ) const
 {
     return true;
