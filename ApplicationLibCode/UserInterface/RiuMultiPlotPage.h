@@ -23,7 +23,6 @@
 #include "RiaDefines.h"
 
 #include "cafPdmPointer.h"
-#include "cafSelectionChangedReceiver.h"
 
 #include "qwt_axis_id.h"
 
