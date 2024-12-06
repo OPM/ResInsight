@@ -35,6 +35,7 @@
 #include "RimPropertyFilterCollection.h"
 #include "RimTools.h"
 
+#include "cafProgressInfo.h"
 #include "cafVecIjk.h"
 
 #include "cvfMath.h"
@@ -618,8 +619,12 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
 {
     RiaLogging::debug( "Generating ensemble statistics" );
 
+    caf::ProgressInfo progInfo( ensemble.cases().size() * 2, "Generating ensemble statistics" );
+
     for ( auto eclipseCase : ensemble.cases() )
     {
+        auto task = progInfo.task( "Generating statistics", 1 );
+
         generateCandidates( eclipseCase, timeStepIdx, volumeType, volumesType, volumeResultType, limits );
     }
 
@@ -632,6 +637,8 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
     std::vector<int> occupancy( targetNumActiveCells, 0 );
     for ( auto eclipseCase : ensemble.cases() )
     {
+        auto task = progInfo.task( "Accumulating results.", 1 );
+
         RigCaseCellResultsData*  resultsData    = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
         const RigMainGrid*       mainGrid       = eclipseCase->mainGrid();
         const RigActiveCellInfo* activeCellInfo = resultsData->activeCellInfo();
