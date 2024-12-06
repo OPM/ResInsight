@@ -730,7 +730,7 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
             RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::GENERATED, resultName );
             resultsData->ensureKnownResultLoaded( resultAddress );
             const std::vector<double>& resultVector = resultsData->cellScalarResults( resultAddress, 0 );
-            namedInputVector[resultName]                    = &resultVector;
+            namedInputVector[resultName]            = &resultVector;
         }
 
         std::map<QString, std::vector<double>> namedOutputVector;
