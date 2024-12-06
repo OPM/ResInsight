@@ -190,4 +190,9 @@ private:
                                                                                                 int                        numClustersFound,
                                                                                                 size_t                     timeStepIdx,
                                                                                                 const QString& clusterResultName );
+
+    static void computeStatisticsAndCreateVectors( RimEclipseCase&                         targetCase,
+                                                   size_t                                  targetNumActiveCells,
+                                                   const QString&                          resultName,
+                                                   const std::vector<std::vector<double>>& vec );
 };

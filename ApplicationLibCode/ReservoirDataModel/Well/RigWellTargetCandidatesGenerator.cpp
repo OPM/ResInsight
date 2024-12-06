@@ -730,7 +730,7 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
             RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::GENERATED, resultName );
             resultsData->ensureKnownResultLoaded( resultAddress );
             const std::vector<double>& resultVector = resultsData->cellScalarResults( resultAddress, 0 );
-            namedInputVector[resultName]                    = &resultVector;
+            namedInputVector[resultName]            = &resultVector;
         }
 
         std::map<QString, std::vector<double>> namedOutputVector;
@@ -771,42 +771,53 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
 
     for ( auto [resultName, vec] : resultNamesAndSamples )
     {
-        int                 nCells = static_cast<int>( targetNumActiveCells );
-        std::vector<double> p10Results( nCells, std::numeric_limits<double>::infinity() );
-        std::vector<double> p50Results( nCells, std::numeric_limits<double>::infinity() );
-        std::vector<double> p90Results( nCells, std::numeric_limits<double>::infinity() );
-        std::vector<double> meanResults( nCells, std::numeric_limits<double>::infinity() );
-        std::vector<double> minResults( nCells, std::numeric_limits<double>::infinity() );
-        std::vector<double> maxResults( nCells, std::numeric_limits<double>::infinity() );
+        computeStatisticsAndCreateVectors( targetCase, targetNumActiveCells, resultName, vec );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellTargetCandidatesGenerator::computeStatisticsAndCreateVectors( RimEclipseCase&                         targetCase,
+                                                                          size_t                                  targetNumActiveCells,
+                                                                          const QString&                          resultName,
+                                                                          const std::vector<std::vector<double>>& vec )
+{
+    int                 nCells = static_cast<int>( targetNumActiveCells );
+    std::vector<double> p10Results( nCells, std::numeric_limits<double>::infinity() );
+    std::vector<double> p50Results( nCells, std::numeric_limits<double>::infinity() );
+    std::vector<double> p90Results( nCells, std::numeric_limits<double>::infinity() );
+    std::vector<double> meanResults( nCells, std::numeric_limits<double>::infinity() );
+    std::vector<double> minResults( nCells, std::numeric_limits<double>::infinity() );
+    std::vector<double> maxResults( nCells, std::numeric_limits<double>::infinity() );
 
 #pragma omp parallel for
-        for ( int i = 0; i < nCells; i++ )
-        {
-            size_t              numSamples = vec.size();
-            std::vector<double> samples( numSamples, 0.0 );
-            for ( size_t s = 0; s < numSamples; s++ )
-                samples[s] = vec[s][i];
+    for ( int i = 0; i < nCells; i++ )
+    {
+        size_t              numSamples = vec.size();
+        std::vector<double> samples( numSamples, 0.0 );
+        for ( size_t s = 0; s < numSamples; s++ )
+            samples[s] = vec[s][i];
 
-            double p10, p50, p90, mean;
-            RigStatisticsMath::calculateStatisticsCurves( samples, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
+        double p10, p50, p90, mean;
+        RigStatisticsMath::calculateStatisticsCurves( samples, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
 
-            if ( RiaStatisticsTools::isValidNumber( p10 ) ) p10Results[i] = p10;
-            if ( RiaStatisticsTools::isValidNumber( p50 ) ) p50Results[i] = p50;
-            if ( RiaStatisticsTools::isValidNumber( p90 ) ) p90Results[i] = p90;
-            if ( RiaStatisticsTools::isValidNumber( mean ) ) meanResults[i] = mean;
+        if ( RiaStatisticsTools::isValidNumber( p10 ) ) p10Results[i] = p10;
+        if ( RiaStatisticsTools::isValidNumber( p50 ) ) p50Results[i] = p50;
+        if ( RiaStatisticsTools::isValidNumber( p90 ) ) p90Results[i] = p90;
+        if ( RiaStatisticsTools::isValidNumber( mean ) ) meanResults[i] = mean;
 
-            double minValue = RiaStatisticsTools::minimumValue( samples );
-            if ( RiaStatisticsTools::isValidNumber( minValue ) && minValue < std::numeric_limits<double>::max() ) minResults[i] = minValue;
+        double minValue = RiaStatisticsTools::minimumValue( samples );
+        if ( RiaStatisticsTools::isValidNumber( minValue ) && minValue < std::numeric_limits<double>::max() ) minResults[i] = minValue;
 
-            double maxValue = RiaStatisticsTools::maximumValue( samples );
-            if ( RiaStatisticsTools::isValidNumber( maxValue ) && maxValue > -std::numeric_limits<double>::max() ) maxResults[i] = maxValue;
-        }
-
-        createResultVector( targetCase, "ENSEMBLE_" + resultName + "_P10", p10Results );
-        createResultVector( targetCase, "ENSEMBLE_" + resultName + "_P50", p50Results );
-        createResultVector( targetCase, "ENSEMBLE_" + resultName + "_P90", p90Results );
-        createResultVector( targetCase, "ENSEMBLE_" + resultName + "_MEAN", meanResults );
-        createResultVector( targetCase, "ENSEMBLE_" + resultName + "_MIN", minResults );
-        createResultVector( targetCase, "ENSEMBLE_" + resultName + "_MAX", maxResults );
+        double maxValue = RiaStatisticsTools::maximumValue( samples );
+        if ( RiaStatisticsTools::isValidNumber( maxValue ) && maxValue > -std::numeric_limits<double>::max() ) maxResults[i] = maxValue;
     }
+
+    createResultVector( targetCase, "ENSEMBLE_" + resultName + "_P10", p10Results );
+    createResultVector( targetCase, "ENSEMBLE_" + resultName + "_P50", p50Results );
+    createResultVector( targetCase, "ENSEMBLE_" + resultName + "_P90", p90Results );
+    createResultVector( targetCase, "ENSEMBLE_" + resultName + "_MEAN", meanResults );
+    createResultVector( targetCase, "ENSEMBLE_" + resultName + "_MIN", minResults );
+    createResultVector( targetCase, "ENSEMBLE_" + resultName + "_MAX", maxResults );
 }
