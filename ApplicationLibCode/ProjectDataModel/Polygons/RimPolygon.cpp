@@ -162,6 +162,14 @@ void RimPolygon::setColor( const cvf::Color3f& color )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimPolygon::showLines() const
+{
+    return m_appearance->showLines();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygon::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( nameField() );
@@ -186,7 +194,6 @@ void RimPolygon::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
     if ( changedField == &m_pointsInDomainCoords )
     {
         coordinatesChanged.send();
-        objectChanged.send();
     }
 
     if ( changedField == &m_editPolygonButton )
@@ -195,9 +202,9 @@ void RimPolygon::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
         RimPolygonTools::activate3dEditOfPolygonInView( this, activeView );
 
         m_editPolygonButton = false;
-
         return;
     }
+    objectChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

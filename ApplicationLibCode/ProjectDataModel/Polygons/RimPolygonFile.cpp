@@ -39,7 +39,10 @@ RimPolygonFile::RimPolygonFile()
 {
     CAF_PDM_InitObject( "PolygonFile", ":/Folder.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fileName, "StimPlanFileName", "File Name" );
+    CAF_PDM_InitFieldNoDefault( &m_fileName, "FileName", "File Name" );
+    m_fileName.registerKeywordAlias( "StimPlanFileName" );
+    m_fileName.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitFieldNoDefault( &m_polygons, "Polygons", "Polygons" );
 
     setDeletable( true );
@@ -62,12 +65,18 @@ void RimPolygonFile::loadData()
 {
     auto polygonsFromFile = importDataFromFile( m_fileName().path() );
 
+    if ( polygonsFromFile.size() == 1 )
+    {
+        polygonsFromFile[0]->setName( name() );
+    }
+
     if ( m_polygons.size() == polygonsFromFile.size() )
     {
         for ( size_t i = 0; i < m_polygons.size(); i++ )
         {
             auto projectPoly = m_polygons()[i];
-            auto filePoly    = polygonsFromFile[i];
+            projectPoly->setDeletable( false );
+            auto filePoly = polygonsFromFile[i];
             projectPoly->setPointsInDomainCoords( filePoly->pointsInDomainCoords() );
             projectPoly->coordinatesChanged.send(); // updates editors
             projectPoly->objectChanged.send(); // updates filters
@@ -157,14 +166,18 @@ std::vector<RimPolygon*> RimPolygonFile::importDataFromFile( const QString& file
 
     std::vector<RimPolygon*> polygons;
 
+    QFileInfo     fi( fileName );
+    const QString basename = fi.baseName();
+
     for ( const auto& [polygonId, filePolygon] : filePolygons )
     {
         auto polygon = new RimPolygon();
         polygon->disableStorageOfPolygonPoints();
         polygon->setReadOnly( true );
+        polygon->setDeletable( false );
 
         int id = ( polygonId != -1 ) ? polygonId : static_cast<int>( polygons.size() + 1 );
-        polygon->setName( QString( "Polygon %1" ).arg( id ) );
+        polygon->setName( QString( "%1 (%2)" ).arg( basename ).arg( id ) );
         polygon->setPointsInDomainCoords( filePolygon );
         polygons.push_back( polygon );
     }
@@ -183,7 +196,7 @@ std::vector<RimPolygon*> RimPolygonFile::importDataFromFile( const QString& file
 void RimPolygonFile::updateName()
 {
     QFileInfo fileInfo( m_fileName().path() );
-    setName( fileInfo.fileName() );
+    setName( fileInfo.baseName() );
 }
 
 //--------------------------------------------------------------------------------------------------

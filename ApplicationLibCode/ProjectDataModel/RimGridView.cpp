@@ -101,6 +101,7 @@ RimGridView::RimGridView()
 
     CAF_PDM_InitFieldNoDefault( &m_polygonInViewCollection, "PolygonInViewCollection", "Polygon Collection Field" );
     m_polygonInViewCollection = new RimPolygonInViewCollection();
+    m_polygonInViewCollection->uiCapability()->setUiIcon( caf::IconProvider( ":/PolylinesFromFile16x16.png" ) );
 
     CAF_PDM_InitFieldNoDefault( &m_cellFilterCollection, "RangeFilters", "Cell Filter Collection Field" );
     m_cellFilterCollection = new RimCellFilterCollection();

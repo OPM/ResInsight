@@ -34,6 +34,7 @@
 
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonCollection.h"
+#include "Polygons/RimPolygonInView.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldReorderCapability.h"
@@ -619,7 +620,13 @@ std::vector<RimPolygonInView*> RimCellFilterCollection::enabledCellFilterPolygon
 
         if ( auto polygonFilter = dynamic_cast<RimPolygonFilter*>( filter.p() ) )
         {
-            polyInView.push_back( polygonFilter->polygonInView() );
+            if ( !polygonFilter->isSelected() ) continue;
+
+            auto piv = polygonFilter->polygonInView();
+            if ( piv && piv->showLines() )
+            {
+                polyInView.push_back( piv );
+            }
         }
     }
 

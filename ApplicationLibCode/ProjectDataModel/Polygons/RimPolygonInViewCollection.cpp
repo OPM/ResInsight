@@ -32,7 +32,7 @@ CAF_PDM_SOURCE_INIT( RimPolygonInViewCollection, "RimPolygonInViewCollection" );
 //--------------------------------------------------------------------------------------------------
 RimPolygonInViewCollection::RimPolygonInViewCollection()
 {
-    CAF_PDM_InitObject( "Polygons", ":/PolylinesFromFile16x16.png" );
+    CAF_PDM_InitObject( "Polygons", ":/Folder.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_polygonsInView, "Polygons", "Polygons" );
     CAF_PDM_InitFieldNoDefault( &m_collectionsInView, "Collections", "Collections" );
@@ -172,6 +172,7 @@ void RimPolygonInViewCollection::syncCollectionsWithView()
             for ( auto polygonFile : polygonCollection->polygonFiles() )
             {
                 if ( polygonFile->polygons().empty() ) continue;
+                if ( polygonFile->polygons().size() == 1 ) continue;
 
                 auto viewPolygonFile = getCollectionInViewForPolygonFile( polygonFile );
                 if ( viewPolygonFile == nullptr )
@@ -217,6 +218,13 @@ void RimPolygonInViewCollection::syncPolygonsWithView()
     {
         auto polygonCollection = RimTools::polygonCollection();
         polygons               = polygonCollection->userDefinedPolygons();
+        for ( auto polyfile : polygonCollection->polygonFiles() )
+        {
+            if ( polyfile->polygons().size() == 1 )
+            {
+                polygons.push_back( polyfile->polygons()[0] );
+            }
+        }
     }
 
     std::vector<RimPolygonInView*> newPolygonsInView;

@@ -27,6 +27,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+#include "cafSelectionChangedReceiver.h"
 
 class RimPolygon;
 class RimPolylineTarget;
@@ -40,7 +41,7 @@ class RicPolylineTargetsPickEventHandler;
 ///
 ///
 //==================================================================================================
-class RimPolygonFilter : public RimCellFilter, public RimPolylinePickerInterface
+class RimPolygonFilter : public RimCellFilter, public RimPolylinePickerInterface, public caf::SelectionChangedReceiver
 {
     CAF_PDM_HEADER_INIT;
 
@@ -77,8 +78,10 @@ public:
     void setPolygon( RimPolygon* polygon );
 
     bool isFilterEnabled() const override;
+    bool isSelected() const;
 
     void enablePicking( bool enable );
+    bool pickingEnabled() const override;
 
     void updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex ) override;
     void onGridChanged() override;
@@ -95,6 +98,8 @@ protected:
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
 
     QString fullName() const override;
+
+    void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
 
 private:
     void updateCells();
@@ -124,7 +129,6 @@ private:
     void updateEditorsAndVisualization() override;
     void updateVisualization() override;
     std::vector<RimPolylineTarget*> activeTargets() const override;
-    bool                            pickingEnabled() const override;
     caf::PickEventHandler*          pickEventHandler() const override;
 
     caf::AppEnum<GeometricalShape> geometricalShape() const;
@@ -143,6 +147,8 @@ private:
     std::vector<std::vector<size_t>> m_cells;
 
     RimCellFilterIntervalTool m_intervalTool;
+
+    bool m_isSelected;
 
     // Local polygon and polygon editor
     caf::PdmPtrField<RimPolygon*>         m_cellFilterPolygon;

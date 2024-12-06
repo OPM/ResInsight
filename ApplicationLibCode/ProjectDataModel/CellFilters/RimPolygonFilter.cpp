@@ -43,6 +43,7 @@
 #include "WellPathCommands/RicPolylineTargetsPickEventHandler.h"
 
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafSelectionManager.h"
 
 #include <limits>
 
@@ -92,6 +93,7 @@ RimPolygonFilter::RimPolygonFilter()
     : RimCellFilter( RimCellFilter::INDEX )
     , m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
     , m_intervalTool( true )
+    , m_isSelected( false )
 {
     CAF_PDM_InitObject( "Polyline Filter", ":/CellFilter_Polygon.png" );
 
@@ -172,6 +174,14 @@ void RimPolygonFilter::setPolygon( RimPolygon* polygon )
 bool RimPolygonFilter::isFilterEnabled() const
 {
     return m_isActive() && m_enableFiltering;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPolygonFilter::isSelected() const
+{
+    return m_isSelected;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1001,6 +1011,21 @@ void RimPolygonFilter::onObjectChanged( const caf::SignalEmitter* emitter )
     updateCells();
     filterChanged.send();
     updateIconState();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonFilter::onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels )
+{
+    bool selectedState  = m_isSelected;
+    auto selectedFilter = dynamic_cast<RimPolygonFilter*>( caf::SelectionManager::instance()->selectedItem() );
+    m_isSelected        = ( selectedFilter == this );
+
+    if ( selectedState != m_isSelected )
+    {
+        filterChanged.send();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

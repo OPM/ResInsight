@@ -168,6 +168,18 @@ void RimPolygonInView::updateVisualization()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimPolygonInView::showLines() const
+{
+    if ( auto poly = polygon() )
+    {
+        return poly->showLines() && isChecked();
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimPolylineTarget*> RimPolygonInView::activeTargets() const
 {
     return m_targets.childrenByType();
@@ -389,6 +401,11 @@ void RimPolygonInView::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder 
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInView::onObjectChanged( const caf::SignalEmitter* emitter )
 {
+    // make sure name is in sync
+    if ( dynamic_cast<const RimPolygon*>( emitter ) )
+    {
+        setName( m_polygon->name() );
+    }
     updateVisualization();
 }
 
