@@ -202,7 +202,6 @@ void RimPolygon::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
         RimPolygonTools::activate3dEditOfPolygonInView( this, activeView );
 
         m_editPolygonButton = false;
-
         return;
     }
     objectChanged.send();

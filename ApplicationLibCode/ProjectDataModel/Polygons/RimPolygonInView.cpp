@@ -401,7 +401,11 @@ void RimPolygonInView::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder 
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInView::onObjectChanged( const caf::SignalEmitter* emitter )
 {
-    updateConnectedEditors();
+    // make sure name is in sync
+    if ( dynamic_cast<const RimPolygon*>( emitter ) )
+    {
+        setName( m_polygon->name() );
+    }
     updateVisualization();
 }
 
