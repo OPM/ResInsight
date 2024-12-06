@@ -643,9 +643,9 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
         const RigMainGrid*       mainGrid       = eclipseCase->mainGrid();
         const RigActiveCellInfo* activeCellInfo = resultsData->activeCellInfo();
 
-        RigEclipseResultAddress pressureAddress( RiaDefines::ResultCatType::GENERATED, "CLUSTERS_NUM" );
-        resultsData->ensureKnownResultLoaded( pressureAddress );
-        const std::vector<double>& clusterNum = resultsData->cellScalarResults( pressureAddress, 0 );
+        RigEclipseResultAddress clustersNumAddress( RiaDefines::ResultCatType::GENERATED, "CLUSTERS_NUM" );
+        resultsData->ensureKnownResultLoaded( clustersNumAddress );
+        const std::vector<double>& clusterNum = resultsData->cellScalarResults( clustersNumAddress, 0 );
 
         for ( size_t targetCellIdx = 0; targetCellIdx < targetNumReservoirCells; targetCellIdx++ )
         {
