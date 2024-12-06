@@ -40,6 +40,8 @@ public:
     cvf::Color3f lineColor() const;
     void         setLineColor( const cvf::Color3f& color );
 
+    bool showLines() const;
+
 public:
     RimPolygonAppearance();
 

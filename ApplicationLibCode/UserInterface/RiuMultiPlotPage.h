@@ -23,7 +23,6 @@
 #include "RiaDefines.h"
 
 #include "cafPdmPointer.h"
-#include "cafSelectionChangedReceiver.h"
 
 #include "qwt_axis_id.h"
 
@@ -55,7 +54,7 @@ class QwtPlot;
 // RiuMultiPlotPage
 //
 //==================================================================================================
-class RiuMultiPlotPage : public QWidget, public caf::SelectionChangedReceiver, public RiuInterfaceToViewWindow
+class RiuMultiPlotPage : public QWidget, public RiuInterfaceToViewWindow
 {
     Q_OBJECT
 
@@ -116,8 +115,6 @@ protected:
 
     void alignAxes();
     void alignAxis( QwtAxisId axis, int row, std::function<bool( int, int, int )> positionMatcher );
-
-    void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
 
     virtual bool showYAxis( int row, int column ) const;
 
