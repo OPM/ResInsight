@@ -190,8 +190,20 @@ void RigWellTargetCandidatesGenerator::generateCandidates( RimEclipseCase*      
         RiaLogging::info( QString( "Average Permeability: %1" ).arg( s.permeability ) );
         RiaLogging::info( QString( "Average Pressure: %1" ).arg( s.pressure ) );
 
-        QString clusterPorvSoil = "CLUSTER_TOTAL_PORV_SOIL";
+        QString clusterPorvSoil = "TOTAL_PORV_SOIL";
         createResultVector( *eclipseCase, clusterPorvSoil, clusters, s.totalPorvSoil );
+
+        QString clusterPorvSgas = "TOTAL_PORV_SGAS";
+        createResultVector( *eclipseCase, clusterPorvSgas, clusters, s.totalPorvSgas );
+
+        QString clusterPorvSoilAndSgas = "TOTAL_PORV_SOIL_SGAS";
+        createResultVector( *eclipseCase, clusterPorvSoilAndSgas, clusters, s.totalPorvSoilAndSgas );
+
+        QString clusterFipOil = "TOTAL_FIPOIL";
+        createResultVector( *eclipseCase, clusterFipOil, clusters, s.totalFipOil );
+
+        QString clusterFipGas = "TOTAL_FIPGAS";
+        createResultVector( *eclipseCase, clusterFipGas, clusters, s.totalFipGas );
     }
 }
 
@@ -692,7 +704,12 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
 
     std::vector<int> occupancy( targetNumActiveCells, 0 );
 
-    std::vector<std::vector<double>> porvSoilSamples;
+    std::map<QString, std::vector<std::vector<double>>> porvSoilSamples;
+    porvSoilSamples["TOTAL_PORV_SOIL"]      = {};
+    porvSoilSamples["TOTAL_PORV_SGAS"]      = {};
+    porvSoilSamples["TOTAL_PORV_SOIL_SGAS"] = {};
+    porvSoilSamples["TOTAL_FIPOIL"]         = {};
+    porvSoilSamples["TOTAL_FIPGAS"]         = {};
 
     for ( auto eclipseCase : ensemble.cases() )
     {
@@ -706,12 +723,21 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
         resultsData->ensureKnownResultLoaded( clustersNumAddress );
         const std::vector<double>& clusterNum = resultsData->cellScalarResults( clustersNumAddress, 0 );
 
-        QString                 clusterPorvSoil = "CLUSTER_TOTAL_PORV_SOIL";
-        RigEclipseResultAddress clusterPorvSoilAddress( RiaDefines::ResultCatType::GENERATED, clusterPorvSoil );
-        resultsData->ensureKnownResultLoaded( clusterPorvSoilAddress );
-        const std::vector<double>& porvSoil = resultsData->cellScalarResults( clusterPorvSoilAddress, 0 );
+        std::map<QString, const std::vector<double>*> porvSoil;
 
-        std::vector<double> totalPorvSoil( targetNumActiveCells, std::numeric_limits<double>::infinity() );
+        for ( auto [resultName, vec] : porvSoilSamples )
+        {
+            RigEclipseResultAddress clusterPorvSoilAddress( RiaDefines::ResultCatType::GENERATED, resultName );
+            resultsData->ensureKnownResultLoaded( clusterPorvSoilAddress );
+            const std::vector<double>& resultVector = resultsData->cellScalarResults( clusterPorvSoilAddress, 0 );
+            porvSoil[resultName]                    = &resultVector;
+        }
+
+        std::map<QString, std::vector<double>> totalPorvSoil;
+        for ( auto [resultName, vec] : porvSoilSamples )
+        {
+            totalPorvSoil[resultName] = std::vector( targetNumActiveCells, std::numeric_limits<double>::infinity() );
+        }
 
         for ( size_t targetCellIdx = 0; targetCellIdx < targetNumReservoirCells; targetCellIdx++ )
         {
@@ -727,43 +753,60 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
                 if ( !std::isinf( clusterNum[resultIndex] ) && clusterNum[resultIndex] > 0 )
                 {
                     occupancy[targetResultIndex]++;
-                    totalPorvSoil[targetResultIndex] = porvSoil[resultIndex];
+                    for ( auto [resultName, vec] : porvSoilSamples )
+                    {
+                        totalPorvSoil[resultName][targetResultIndex] = porvSoil[resultName]->at( resultIndex );
+                    }
                 }
             }
         }
 
-        porvSoilSamples.push_back( totalPorvSoil );
-    }
-
-    int                 nCells = static_cast<int>( targetNumActiveCells );
-    std::vector<double> p10Results( nCells, std::numeric_limits<double>::infinity() );
-    std::vector<double> p50Results( nCells, std::numeric_limits<double>::infinity() );
-    std::vector<double> p90Results( nCells, std::numeric_limits<double>::infinity() );
-    std::vector<double> meanResults( nCells, std::numeric_limits<double>::infinity() );
-    std::vector<double> minResults( nCells, std::numeric_limits<double>::infinity() );
-    std::vector<double> maxResults( nCells, std::numeric_limits<double>::infinity() );
-
-#pragma omp parallel for
-    for ( int i = 0; i < nCells; i++ )
-    {
-        size_t              numSamples = porvSoilSamples.size();
-        std::vector<double> samples( numSamples, 0.0 );
-        for ( size_t s = 0; s < numSamples; s++ )
-            samples[s] = porvSoilSamples[s][i];
-
-        double p10, p50, p90, mean;
-        RigStatisticsMath::calculateStatisticsCurves( samples, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
-
-        p10Results[i] = p10;
-        p50Results[i] = p50;
-        p90Results[i] = p90;
-        printf( "P90[%d] => %f\n", i, p90 );
-        meanResults[i] = mean;
-
-        minResults[i] = RiaStatisticsTools::minimumValue( samples );
-        maxResults[i] = RiaStatisticsTools::maximumValue( samples );
+        for ( auto [resultName, vec] : porvSoilSamples )
+        {
+            porvSoilSamples[resultName].push_back( totalPorvSoil[resultName] );
+        }
     }
 
     createResultVector( targetCase, "OCCUPANCY", occupancy );
-    createResultVector( targetCase, "CLUSTER_TOTAL_PORV_SOIL_P90", p90Results );
+
+    for ( auto [resultName, vec] : porvSoilSamples )
+    {
+        int                 nCells = static_cast<int>( targetNumActiveCells );
+        std::vector<double> p10Results( nCells, std::numeric_limits<double>::infinity() );
+        std::vector<double> p50Results( nCells, std::numeric_limits<double>::infinity() );
+        std::vector<double> p90Results( nCells, std::numeric_limits<double>::infinity() );
+        std::vector<double> meanResults( nCells, std::numeric_limits<double>::infinity() );
+        std::vector<double> minResults( nCells, std::numeric_limits<double>::infinity() );
+        std::vector<double> maxResults( nCells, std::numeric_limits<double>::infinity() );
+
+#pragma omp parallel for
+        for ( int i = 0; i < nCells; i++ )
+        {
+            size_t              numSamples = vec.size();
+            std::vector<double> samples( numSamples, 0.0 );
+            for ( size_t s = 0; s < numSamples; s++ )
+                samples[s] = vec[s][i];
+
+            double p10, p50, p90, mean;
+            RigStatisticsMath::calculateStatisticsCurves( samples, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
+
+            if ( RiaStatisticsTools::isValidNumber( p10 ) ) p10Results[i] = p10;
+            if ( RiaStatisticsTools::isValidNumber( p50 ) ) p50Results[i] = p50;
+            if ( RiaStatisticsTools::isValidNumber( p90 ) ) p90Results[i] = p90;
+            if ( RiaStatisticsTools::isValidNumber( mean ) ) meanResults[i] = mean;
+
+            double minValue = RiaStatisticsTools::minimumValue( samples );
+            if ( RiaStatisticsTools::isValidNumber( minValue ) && minValue < std::numeric_limits<double>::max() ) minResults[i] = minValue;
+
+            double maxValue = RiaStatisticsTools::maximumValue( samples );
+            if ( RiaStatisticsTools::isValidNumber( maxValue ) && maxValue > -std::numeric_limits<double>::max() ) maxResults[i] = maxValue;
+        }
+
+        createResultVector( targetCase, "ENSEMBLE_" + resultName + "_P10", p10Results );
+        createResultVector( targetCase, "ENSEMBLE_" + resultName + "_P50", p50Results );
+        createResultVector( targetCase, "ENSEMBLE_" + resultName + "_P90", p90Results );
+        createResultVector( targetCase, "ENSEMBLE_" + resultName + "_MEAN", meanResults );
+        createResultVector( targetCase, "ENSEMBLE_" + resultName + "_MIN", minResults );
+        createResultVector( targetCase, "ENSEMBLE_" + resultName + "_MAX", maxResults );
+    }
 }
