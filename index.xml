@@ -386,6 +386,18 @@ Change Data Source for View</description>
     </item>
     
     <item>
+      <title>What&#39;s New in 2024.12</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2024_12/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2024_12/</guid>
+      <description>Grid Import Performance ResInsight now offers the option to import geometry exclusively for active cells. This feature is particularly beneficial for large grids where active cells constitute only a small fraction of the total, significantly reducing memory usage. This optimization ensures efficient handling of large models while maintaining full functionality for active cells.
+Preferences
+Performance Hints
+Quick Access View For large projects with numerous views and grid models, navigating to specific information can sometimes be time-consuming.</description>
+    </item>
+    
+    <item>
       <title>Data Sources</title>
       <link>https://resinsight.org/plot-window/summaryplotdatasources/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -448,13 +460,13 @@ Restore Revision from Backup All revisions in the project database can be restor
     </item>
     
     <item>
-      <title>Python interface</title>
+      <title>Python Interface</title>
       <link>https://resinsight.org/scripting/pythoninterface/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/scripting/pythoninterface/</guid>
-      <description>ResInsight offers a powerful programming interface which allows you to interact with a running ResInsight instance from Python 3. This enables you to:
-start ResInsight from Python communicate with an a running ResInsight instance load a ResInsight project file load data files such as Eclipse EGRID files and summary files extract data to Python for further processing and automation export snapshots of graphics Please refer to the ResInsight Python API for configuration and details.</description>
+      <description>ResInsight provides a robust programming interface that allows you to interact with a running ResInsight instance using Python 3. This interface enables you to:
+Start ResInsight from Python Communicate with a running ResInsight instance Load a ResInsight project file Load data files such as Eclipse EGRID files and summary files Extract data to Python for further processing and automation Export snapshots of graphics For configuration and detailed information, please refer to the ResInsight Python API.</description>
     </item>
     
     <item>
@@ -668,40 +680,9 @@ Import an ensemble of grid models with identical IJK into a Grid Case Group. Cre
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/getting-started/download-and-install/build-instructions-ubuntu/</guid>
-      <description>Dependencies and Prerequisites This page is mainly build instructions for Ubuntu, but some comments are also added for RHEL8 and Windows.
-Configuration and build Tool Minimum version git 2.7.4 gcc 10 python 3 Update apt installer
-sudo apt updateInstall GCC and related tools
-sudo apt install build-essential curl zip unzip tar flex bisonAs gcc 10 is required, it can be useful to set the default compiler. Set default compiler</description>
-    </item>
-    
-    <item>
-      <title>Build Instructions Ubuntu Qt6 - Basic</title>
-      <link>https://resinsight.org/getting-started/download-and-install/build-instructions-ubuntu-qt6/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/getting-started/download-and-install/build-instructions-ubuntu-qt6/</guid>
-      <description>Dependencies and Prerequisites This page is mainly build instructions for Ubuntu, but some comments are also added for RHEL8 and Windows.
+      <description>Dependencies and Prerequisites This page is mainly build instructions for Ubuntu, but some comments are also added for RHEL8.
 Basic instructions without Python binding and GRPC.
-Configuration and build Tool Minimum version gcc 11 python 3.8 Qt 6.5 Update apt installer
-sudo apt updateInstall GCC and related tools
-sudo apt install build-essential curl zip unzip tar flex bisonSet default compiler
-Dependencies for RHEL8
-yum install curl zip unzip tar flex bison perl-IPC-Cmd gcc-toolset-10 freeglutClone and update sub modules git clone https://github.</description>
-    </item>
-    
-    <item>
-      <title>Building ResInsight from Source</title>
-      <link>https://resinsight.org/getting-started/download-and-install/buildinstructions/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/getting-started/download-and-install/buildinstructions/</guid>
-      <description>Source code The source code is hosted at GitHub
-In a git enabled shell do: git clone https://github.com/OPM/ResInsight.git
-Dependencies and Prerequisites Windows Compiler Visual Studio 2019 and later is supported.
-GCC Compiler On RedHat Linux 7 or CentOS 7 you need to install devtoolset-10, and enable it with
-source /opt/rh/devtoolset-10/enableQt 5 Qt 5.12 or later is supported, Qt 5.15 is recommended.
-Qt download
-On some configurations you will be asked to specify the location of Qt.</description>
+Configuration and build Tool Minimum version gcc 11 python 3.8 Qt 6.4 It is possible to use Qt 6.4 for building ResInsight, but some install features introduced in Qt 6.5 are not supported. Qt 6.7 has some changes related to theming that is causing some unwanted visual effects.</description>
     </item>
     
     <item>
@@ -827,6 +808,16 @@ Here highlighted means marked item with different background color, while select
     </item>
     
     <item>
+      <title>Build Instructions Windows</title>
+      <link>https://resinsight.org/getting-started/download-and-install/build-instructions-windows/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/download-and-install/build-instructions-windows/</guid>
+      <description>Dependencies and Prerequisites Configuration and build Tool Minimum version Recommended Visual Studio 2019 2022 python 3.8 3.10 Qt 6.5 6.6 It is possible to use Qt 6.4 for to build ResInsight, but some install features introduced in Qt 6.5 are not available. Qt 6.7 has some changes related to theming that is causing some unwanted visual effects. This is currently investigated.
+Clone and update sub modules git clone https://github.com/OPM/ResInsightcd ResInsightgit submodule update --initBuild and install required dependencies using vcpkg Open a command prompt using &amp;ldquo;Run as Administrator&amp;rdquo; for Visual Studio x64.</description>
+    </item>
+    
+    <item>
       <title>Color Legends</title>
       <link>https://resinsight.org/3d-main-window/colorlegends/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -844,6 +835,17 @@ Standard Color Legends ResInsight offers an extensive set of built-in color lege
       <guid>https://resinsight.org/wells-and-completions/createmultilateralwellpaths/</guid>
       <description>ResInsight lets the user create additional well path laterals by clicking in the 3D view. Completions can be added to laterals, and the complete specification of the well can be exported using the Completion Export
 Building a well path Start from an existing well path, either imported or create a new well path In the 3D view, right-click on the well path at the depth location for your lateral A new well path lateral is created, and click in the 3D scene to define targets for the lateral Repeat from 2.</description>
+    </item>
+    
+    <item>
+      <title>CMake Configuration</title>
+      <link>https://resinsight.org/getting-started/download-and-install/cmake-configuration/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/download-and-install/cmake-configuration/</guid>
+      <description>CMake CMake version 3.15 or later is supported.
+Build Overview The ResInsight build may be configured in different ways, with optional support for Octave plugins, ABAQUS ODB API, HDF5, Pyton, and OpenMP. This is configured using options in CMake.
+CMake Options for ResInsight CMake Name Default Description RESINSIGHT_BUILD_DOCUMENTATION OFF Use Doxygen to create the HTML based API documentation. Doxygen must be properly installed. RESINSIGHT_ENABLE_GRPC OFF Enable gRPC scripting server. Required to be able to use ResInsight from Python RESINSIGHT_ENABLE_HDF5 ON Windows Only: Download and use HDF5 library RESINSIGHT_ODB_API_DIR Blank Optional path to the ABAQUS ODB API from Simulia.</description>
     </item>
     
     <item>
@@ -1147,6 +1149,17 @@ A new plot with a single Track and Curve is created matching active case and sel
       <description>ResInsight can import well measurements from a comma-separated values file.
 Importing Well Measurements The command File -&amp;gt; Import -&amp;gt; Well Data -&amp;gt; Import Measurements will read well measurements from the selected files, and create one entry for each file under the Wells -&amp;gt; Well Measurements item in the Project Tree.
 File Format The format is comma-separated values with one measurement per line. The following requirements have to be met:</description>
+    </item>
+    
+    <item>
+      <title>Quick Access</title>
+      <link>https://resinsight.org/3d-main-window/quickaccess/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/3d-main-window/quickaccess/</guid>
+      <description>For large projects with numerous views and grid models, navigating to the desired information can be time-consuming. To address this, we have introduced a special dialog named Quick Access, which displays selected information from a view. By default, this dialog is located to the right of the 3D views.
+When a 3D view is selected, the Quick Access dialog will display the following information:
+The connected grid case IJK value for an IJK cell range filter The minimum and maximum range for a property filter You can now collapse the 3D view in the Property Editor and still manipulate some properties of the view.</description>
     </item>
     
     <item>

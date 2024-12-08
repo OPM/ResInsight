@@ -12,18 +12,18 @@
     <title>Preferences :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1727432415" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1727432415" rel="stylesheet">
-    <link href="/css/hybrid.css?1727432415" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1727432415" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1727432415" rel="stylesheet">
-    <link href="/css/auto-complete.css?1727432415" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1727432415" rel="stylesheet">
-    <link href="/css/theme.css?1727432415" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1727432415" rel="stylesheet">
+    <link href="/css/nucleus.css?1733653802" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1733653802" rel="stylesheet">
+    <link href="/css/hybrid.css?1733653802" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1733653802" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1733653802" rel="stylesheet">
+    <link href="/css/auto-complete.css?1733653802" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1733653802" rel="stylesheet">
+    <link href="/css/theme.css?1733653802" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1733653802" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1727432415"></script>
+    <script src="/js/jquery-3.3.1.min.js?1733653802"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -257,7 +257,23 @@
 
             
           
-             
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/getting-started/download-and-install/build-instructions-windows/" title="Build Instructions Windows" class="dd-item ">
+        <a href="/getting-started/download-and-install/build-instructions-windows/">
+        Build Instructions Windows
+        
+        </a>
+    </li>
+     
+  
+ 
+
             
           
             
@@ -267,9 +283,9 @@
  
   
     
-      <li data-nav-id="/getting-started/download-and-install/buildinstructions/" title="Building ResInsight from Source" class="dd-item ">
-        <a href="/getting-started/download-and-install/buildinstructions/">
-        Building ResInsight from Source
+      <li data-nav-id="/getting-started/download-and-install/cmake-configuration/" title="CMake Configuration" class="dd-item ">
+        <a href="/getting-started/download-and-install/cmake-configuration/">
+        CMake Configuration
         
         </a>
     </li>
@@ -286,6 +302,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -636,6 +655,25 @@
       <li data-nav-id="/3d-main-window/filters/" title="Filters" class="dd-item ">
         <a href="/3d-main-window/filters/">
         Filters
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/quickaccess/" title="Quick Access" class="dd-item ">
+        <a href="/3d-main-window/quickaccess/">
+        Quick Access
         
         </a>
     </li>
@@ -2493,9 +2531,9 @@
  
   
     
-      <li data-nav-id="/scripting/pythoninterface/" title="Python interface" class="dd-item ">
+      <li data-nav-id="/scripting/pythoninterface/" title="Python Interface" class="dd-item ">
         <a href="/scripting/pythoninterface/">
-        Python interface
+        Python Interface
         
         </a>
     </li>
@@ -3043,7 +3081,11 @@ if (!doNotTrack) {
         <li><a href="#summary">Summary</a></li>
         <li><a href="#plotting">Plotting</a></li>
         <li><a href="#scripting">Scripting</a></li>
-        <li><a href="#importexport">Import/Export</a></li>
+        <li><a href="#importexport">Import/Export</a>
+          <ul>
+            <li><a href="#cloud-services">Cloud Services</a></li>
+          </ul>
+        </li>
       </ul>
     </li>
   </ul>
@@ -3142,9 +3184,9 @@ Essential preferences are listed below.</p>
 </ul>
 </li>
 <li>
-<p>EGRID Settings</p>
+<p>Model Reader</p>
 <ul>
-<li><strong>Use Result Index File</strong> &ndash; If enabled ResInsight will try to save a result index file when opening a new case (stored in the same directory as the <em><code>*.EGRID</code></em> file with filename <em><code>&lt;casename&gt;.RESINSIGHT_IDX</code></em>) If existing, ResInsight will use the index file when loading the case resulting in a significant speedup.</li>
+<li>Select between <strong>ResData</strong> and <strong>opm-common</strong></li>
 </ul>
 </li>
 </ul>
@@ -3230,7 +3272,9 @@ Essential preferences are listed below.</p>
 </ul>
 <h2 id="importexport">Import/Export</h2>
 <p><img src="/images/misc/PreferencesImportExport.png" alt=""></p>
-<p>Logging to file can be enabled by specifying the destination log file.</p>
+<h3 id="cloud-services">Cloud Services</h3>
+<p>An authorization token is created and stored in your home folder for access to cloud services. If you experience issues with the cloud service, the token can be deleted using a button. The standard authentication dialog will be displayed the next time you try to access the related cloud service.</p>
+<p><a href="/import/cloudservices/">Cloud Services</a></p>
 
 
 <footer class="footline">
@@ -3393,135 +3437,6 @@ Essential preferences are listed below.</p>
                         
             
             
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
                 
                     
                 
@@ -3551,18 +3466,118 @@ Essential preferences are listed below.</p>
             
         
                     
+            
+        
+                    
                         
             
             
-                
+        
                     
-                
-                
-
+                        
+            
+            
+        
                     
+                        
+            
+            
+        
                     
+                        
+            
+            
+        
                     
-
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
                     
                         
             
@@ -3596,6 +3611,51 @@ Essential preferences are listed below.</p>
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -3614,6 +3674,22 @@ Essential preferences are listed below.</p>
                     
                     
 
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
                     
                         
             
@@ -5569,19 +5645,19 @@ Essential preferences are listed below.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1727432415"></script>
-    <script src="/js/perfect-scrollbar.min.js?1727432415"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1727432415"></script>
-    <script src="/js/jquery.sticky.js?1727432415"></script>
-    <script src="/js/featherlight.min.js?1727432415"></script>
-    <script src="/js/highlight.pack.js?1727432415"></script>
+    <script src="/js/clipboard.min.js?1733653802"></script>
+    <script src="/js/perfect-scrollbar.min.js?1733653802"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1733653802"></script>
+    <script src="/js/jquery.sticky.js?1733653802"></script>
+    <script src="/js/featherlight.min.js?1733653802"></script>
+    <script src="/js/highlight.pack.js?1733653802"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1727432415"></script>
-    <script src="/js/learn.js?1727432415"></script>
-    <script src="/js/hugo-learn.js?1727432415"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1733653802"></script>
+    <script src="/js/learn.js?1733653802"></script>
+    <script src="/js/hugo-learn.js?1733653802"></script>
 
-    <link href="/mermaid/mermaid.css?1727432415" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1727432415"></script>
+    <link href="/mermaid/mermaid.css?1733653802" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1733653802"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

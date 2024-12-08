@@ -246,6 +246,18 @@ Change Data Source for View</description>
     </item>
     
     <item>
+      <title>What&#39;s New in 2024.12</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2024_12/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2024_12/</guid>
+      <description>Grid Import Performance ResInsight now offers the option to import geometry exclusively for active cells. This feature is particularly beneficial for large grids where active cells constitute only a small fraction of the total, significantly reducing memory usage. This optimization ensures efficient handling of large models while maintaining full functionality for active cells.
+Preferences
+Performance Hints
+Quick Access View For large projects with numerous views and grid models, navigating to specific information can sometimes be time-consuming.</description>
+    </item>
+    
+    <item>
       <title>What&#39;s New in 2018.11</title>
       <link>https://resinsight.org/getting-started/whats-new/releasenotes_2018_11/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

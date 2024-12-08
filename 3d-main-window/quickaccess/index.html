@@ -9,21 +9,21 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>Building ResInsight from Source :: ResInsight</title>
+    <title>Quick Access :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1727432415" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1727432415" rel="stylesheet">
-    <link href="/css/hybrid.css?1727432415" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1727432415" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1727432415" rel="stylesheet">
-    <link href="/css/auto-complete.css?1727432415" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1727432415" rel="stylesheet">
-    <link href="/css/theme.css?1727432415" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1727432415" rel="stylesheet">
+    <link href="/css/nucleus.css?1733653802" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1733653802" rel="stylesheet">
+    <link href="/css/hybrid.css?1733653802" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1733653802" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1733653802" rel="stylesheet">
+    <link href="/css/auto-complete.css?1733653802" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1733653802" rel="stylesheet">
+    <link href="/css/theme.css?1733653802" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1733653802" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1727432415"></script>
+    <script src="/js/jquery-3.3.1.min.js?1733653802"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -62,7 +62,7 @@
 </script>
 
   </head>
-  <body class="" data-url="/getting-started/download-and-install/buildinstructions/">
+  <body class="" data-url="/3d-main-window/quickaccess/">
     <nav id="sidebar" class="">
 
 
@@ -99,7 +99,7 @@
   
     
     <li data-nav-id="/getting-started/" title="Getting Started" class="dd-item 
-        parent
+        
         
         
         ">
@@ -164,7 +164,7 @@
   
     
     <li data-nav-id="/getting-started/download-and-install/" title="Download and Install" class="dd-item 
-        parent
+        
         
         
         ">
@@ -257,7 +257,23 @@
 
             
           
-             
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/getting-started/download-and-install/build-instructions-windows/" title="Build Instructions Windows" class="dd-item ">
+        <a href="/getting-started/download-and-install/build-instructions-windows/">
+        Build Instructions Windows
+        
+        </a>
+    </li>
+     
+  
+ 
+
             
           
             
@@ -267,9 +283,9 @@
  
   
     
-      <li data-nav-id="/getting-started/download-and-install/buildinstructions/" title="Building ResInsight from Source" class="dd-item active">
-        <a href="/getting-started/download-and-install/buildinstructions/">
-        Building ResInsight from Source
+      <li data-nav-id="/getting-started/download-and-install/cmake-configuration/" title="CMake Configuration" class="dd-item ">
+        <a href="/getting-started/download-and-install/cmake-configuration/">
+        CMake Configuration
         
         </a>
     </li>
@@ -286,6 +302,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -476,7 +495,7 @@
   
     
     <li data-nav-id="/3d-main-window/" title="3D Main Window" class="dd-item 
-        
+        parent
         
         
         ">
@@ -636,6 +655,25 @@
       <li data-nav-id="/3d-main-window/filters/" title="Filters" class="dd-item ">
         <a href="/3d-main-window/filters/">
         Filters
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/quickaccess/" title="Quick Access" class="dd-item active">
+        <a href="/3d-main-window/quickaccess/">
+        Quick Access
         
         </a>
     </li>
@@ -2493,9 +2531,9 @@
  
   
     
-      <li data-nav-id="/scripting/pythoninterface/" title="Python interface" class="dd-item ">
+      <li data-nav-id="/scripting/pythoninterface/" title="Python Interface" class="dd-item ">
         <a href="/scripting/pythoninterface/">
-        Python interface
+        Python Interface
         
         </a>
     </li>
@@ -3021,13 +3059,7 @@ if (!doNotTrack) {
             
           
           
-            
-            
-          
-          
-            <a href='/'>ResInsight</a> > <a href='/getting-started/'>Getting Started</a> > <a href='/getting-started/download-and-install/'>Download and Install</a> > Building ResInsight from Source
-          
-         
+            <a href='/'>ResInsight</a> > <a href='/3d-main-window/'>3D Main Window</a> > Quick Access
           
          
           
@@ -3040,31 +3072,7 @@ if (!doNotTrack) {
                 
                     <div class="progress">
     <div class="wrapper">
-<nav id="TableOfContents">
-  <ul>
-    <li>
-      <ul>
-        <li><a href="#source-code">Source code</a></li>
-        <li><a href="#dependencies-and-prerequisites">Dependencies and Prerequisites</a>
-          <ul>
-            <li><a href="#windows-compiler">Windows Compiler</a></li>
-            <li><a href="#gcc-compiler">GCC Compiler</a></li>
-            <li><a href="#qt-5">Qt 5</a></li>
-            <li><a href="#cmake">CMake</a></li>
-          </ul>
-        </li>
-        <li><a href="#build-overview">Build Overview</a>
-          <ul>
-            <li><a href="#windows">Windows</a></li>
-            <li><a href="#linux">Linux</a></li>
-            <li><a href="#cmake-options-for-resinsight">CMake Options for ResInsight</a></li>
-            <li><a href="#optional-libraries-and-features">Optional Libraries and features</a></li>
-          </ul>
-        </li>
-      </ul>
-    </li>
-  </ul>
-</nav>
+<nav id="TableOfContents"></nav>
     </div>
 </div>
 
@@ -3087,7 +3095,7 @@ if (!doNotTrack) {
           
             <h1>
               
-              Building ResInsight from Source
+              Quick Access
             </h1>
           
 
@@ -3095,200 +3103,15 @@ if (!doNotTrack) {
 
 
 
-<h2 id="source-code">Source code</h2>
-<p>The source code is hosted at <a href="https://github.com/opm/resinsight">GitHub</a></p>
-<p>In a git enabled shell do: <code>git clone https://github.com/OPM/ResInsight.git</code></p>
-<h2 id="dependencies-and-prerequisites">Dependencies and Prerequisites</h2>
-<h3 id="windows-compiler">Windows Compiler</h3>
-<p>Visual Studio 2019 and later is supported.</p>
-<h3 id="gcc-compiler">GCC Compiler</h3>
-<p>On RedHat Linux 7 or CentOS 7 you need to install devtoolset-10, and enable it with</p>
-<pre><code>source /opt/rh/devtoolset-10/enable
-</code></pre>
-<h3 id="qt-5">Qt 5</h3>
-<p>Qt 5.12 or later is supported, Qt 5.15 is recommended.</p>
-<p><a href="http://download.qt.io/archive/qt/">Qt download</a></p>
-<p>On some configurations you will be asked to specify the location of Qt. Preferred method is to add Qt path to CMake variable <strong>CMAKE_PREFIX_PATH</strong></p>
-<p>Example for Windows : <code>CMAKE_PREFIX_PATH=F:/Qt/5.15.2/msvc2019_64</code></p>
-<h3 id="cmake">CMake</h3>
-<p><a href="https://cmake.org/download/">CMake</a> version 3.15 or later is supported.</p>
-<h2 id="build-overview">Build Overview</h2>
-<p>The ResInsight build may be configured in different ways, with optional support for Octave plugins,
-ABAQUS ODB API, HDF5, Pyton, and OpenMP. This is configured using options in CMake.</p>
-<p>If you check the button &lsquo;Grouped&rsquo; in the CMake GUI, the CMake variables are grouped by prefix.
-This makes it easier to see all of the options for ResInsight.</p>
+<p><img src="/images/3d-main-window/quick-access-main.png" alt=""></p>
+<p>For large projects with numerous views and grid models, navigating to the desired information can be time-consuming. To address this, we have introduced a special dialog named <strong>Quick Access</strong>, which displays selected information from a view. By default, this dialog is located to the right of the 3D views.</p>
+<p>When a 3D view is selected, the <strong>Quick Access</strong> dialog will display the following information:</p>
 <ul>
-<li>Open the CMake GUI</li>
-<li>Set the path to the source code</li>
-<li>Set the path to the build directory</li>
-<li>Click <strong>Configure</strong> and select your preferred compiler</li>
-<li>Set the build options and click &ldquo;Configure&rdquo; again (see ResInsight specific options below)</li>
-<li>Click <strong>Generate</strong> to generate the makefiles or solution file and project files in the build directory</li>
-<li>Run the compiler using the generated makefiles or solution file/project files to build ResInsight</li>
+<li>The connected grid case</li>
+<li>IJK value for an IJK cell range filter</li>
+<li>The minimum and maximum range for a property filter</li>
 </ul>
-<h3 id="windows">Windows</h3>
-<p>ResInsight has been verified to build and run on Windows 10/11 using Microsoft Visual Studio 2019/2022. Typical usage on Windows is to follow the build instructions above, and then open the generated solution file in Visual Studio to build the application.</p>
-<h3 id="linux">Linux</h3>
-<p>For a reference build instruction for Ubuntu, see <a href="/getting-started/download-and-install/build-instructions-ubuntu/">Reference installation description for Ubuntu</a></p>
-<h3 id="cmake-options-for-resinsight">CMake Options for ResInsight</h3>
-<table>
-<thead>
-<tr>
-<th>CMake Name</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>RESINSIGHT_BUILD_DOCUMENTATION</code></td>
-<td>OFF</td>
-<td>Use Doxygen to create the HTML based API documentation. Doxygen must be properly installed.</td>
-</tr>
-<tr>
-<td><code>RESINSIGHT_ENABLE_GRPC</code></td>
-<td>OFF</td>
-<td>Enable gRPC scripting server. Required to be able to use ResInsight from Python</td>
-</tr>
-<tr>
-<td><code>RESINSIGHT_ENABLE_HDF5</code></td>
-<td>ON</td>
-<td>Windows Only: Download and use HDF5 library</td>
-</tr>
-<tr>
-<td><code>RESINSIGHT_ODB_API_DIR</code></td>
-<td>Blank</td>
-<td>Optional path to the ABAQUS ODB API from Simulia. Needed for support of geomechanical models</td>
-</tr>
-<tr>
-<td><code>RESINSIGHT_USE_OPENMP</code></td>
-<td>ON</td>
-<td>Enable OpenMP parallellization in the code</td>
-</tr>
-</tbody>
-</table>
-<h4 id="advanced-options">Advanced Options</h4>
-<p>To be able to modify <strong>Advanced Options</strong> from the CMake User Interface, tick the checkbox <strong>Advanced</strong></p>
-<table>
-<thead>
-<tr>
-<th>CMake Name</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>RESINSIGHT_QT5_BUNDLE_LIBRARIES</code></td>
-<td>OFF</td>
-<td>Linux only: Include Qt5 libraries in the installation package</td>
-</tr>
-<tr>
-<td><code>RESINSIGHT_BUILD_LIBS_FROM_SOURCE</code></td>
-<td>ON</td>
-<td>If ON: Build some ThirdParty libs locally. If OFF: Download precompiled libraries</td>
-</tr>
-<tr>
-<td><code>RESINSIGHT_BUNDLE_OPENSSL</code></td>
-<td>OFF</td>
-<td>Bundle the OpenSSL library binaries</td>
-</tr>
-<tr>
-<td><code>RESINSIGHT_ENABLE_UNITY_BUILD</code></td>
-<td>OFF</td>
-<td>Activate use of CMAKE_UNITY_BUILD on some libraries to improve build speed</td>
-</tr>
-<tr>
-<td><code>RESINSIGHT_INCLUDE_APPFWK_TESTS</code></td>
-<td>OFF</td>
-<td>Include unit tests from thirdparty libraries AppFwk and VizFwk</td>
-</tr>
-<tr>
-<td><code>RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS</code></td>
-<td>OFF</td>
-<td>Include Application Code Unit Tests</td>
-</tr>
-<tr>
-<td><code>RESINSIGHT_PRIVATE_INSTALL</code></td>
-<td>ON</td>
-<td>Linux only: Include resdata libraries in the installation package</td>
-</tr>
-<tr>
-<td><code>RESINSIGHT_HDF5_BUNDLE_LIBRARIES</code></td>
-<td>OFF</td>
-<td>Linux only: Include HDF5 libraries in the installation package</td>
-</tr>
-<tr>
-<td><code>RESINSIGHT_TREAT_WARNINGS_AS_ERRORS</code></td>
-<td>OFF</td>
-<td>Enable warnings as errors</td>
-</tr>
-<tr>
-<td><code>RESINSIGHT_UPDATE_SUBMODULES</code></td>
-<td>ON</td>
-<td>Automatically issue &lsquo;git submodule update &ndash;init &ndash;recursively&rsquo; on ThirdParty folder</td>
-</tr>
-<tr>
-<td><code>RESINSIGHT_VCPKG_AUTO_INSTALL</code></td>
-<td>OFF</td>
-<td>Automatically build required dependencies using &lsquo;vcpkg&rsquo;</td>
-</tr>
-</tbody>
-</table>
-<h4 id="configuration-parameters-for-python">Configuration parameters for Python</h4>
-<table>
-<thead>
-<tr>
-<th>CMake Name</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>RESINSIGHT_ENABLE_GRPC</code></td>
-<td>OFF</td>
-<td>Enable gRPC scripting server. Required to be able to use ResInsight from Python</td>
-</tr>
-<tr>
-<td><code>RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE</code></td>
-<td>OFF</td>
-<td>Bundle GRPC Python module in install folder</td>
-</tr>
-<tr>
-<td><code>RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE</code></td>
-<td>ON</td>
-<td>Download GRPC Python module</td>
-</tr>
-<tr>
-<td><code>RESINSIGHT_GRPC_PYTHON_EXECUTABLE</code></td>
-<td>Blank</td>
-<td>Location of Python3 executable</td>
-</tr>
-</tbody>
-</table>
-<h3 id="optional-libraries-and-features">Optional Libraries and features</h3>
-<h4 id="python">Python</h4>
-<p>Please see <a href="https://api.resinsight.org">ResInsight Python API</a> for installation and configuration.</p>
-<h4 id="octave">Octave</h4>
-<p>Octave is now detected searching the file system. If Octave is not detected, the following file path variable must be defined:</p>
-<p><code>OCTAVE_CONFIG_EXECUTABLE : d:\octave\Octave-4.0.0\bin\octave-config.exe</code></p>
-<p>It is possible to build ResInsight without compiling the Octave plugins. This can be done by specifying blank for
-the Octave CMake options. The Octave plugin module will not be built, and CMake will show warnings like &lsquo;Failed to find mkoctfile&rsquo;.
-This will not break the build or compilation of ResInsight.</p>
-<p>ResInsight has been verified to build and run with Octave versions 3.4.3, 3.8.1, and 4.0.0 on RedHat linux, and 4.0.0 on Windows.</p>
-<h5 id="octave-dependencies-for-debian-based-distributions">Octave Dependencies for Debian Based Distributions</h5>
-<p>The following command line can be used as a starting point to install required libraries
-<code>sudo apt-get install git cmake build-essential octave liboctave-dev qtbase5-dev qtscript5-dev libqt5svg5-dev qtbase5-private-dev</code></p>
-<h4 id="odb-support">ODB support</h4>
-<p>ResInsight can be built with support for ABAQUS ODB files. This requires an installation of the ABAQUS ODB API
-from Simulia on the build computer. The path to an ABAQUS ODB API folder containing header files in an <em>include</em> sub-folder and the library
-files in a <em>lib</em> sub-folder must be specified in the CMake option <em>RESINSIGHT_ODB_API_DIR</em>. Leaving this option blank gives a build without ODB support.
-ResInsight has been built and tested with ABAQUS ODB versions 2020 and 2024 on Windows 10/11, Redhat Linux 7/8 and Ubuntu 22/24.</p>
-<h4 id="hdf5">HDF5</h4>
-<p>HDF5 is used to read SourSimRL result files. On Windows this is optional, while on Linux the installed HDF5 library will be used if present.</p>
-<p>Use an advanced flag RESINSIGHT_HDF5_BUNDLE_LIBRARIES to include HDF5 libraries in the installation package.</p>
-<p>Tested with 1.8.18 on windows, and default installation on RedHat 6.</p>
+<p>You can now collapse the 3D view in the <strong>Property Editor</strong> and still manipulate some properties of the view.</p>
 
 
 <footer class="footline">
@@ -3326,22 +3149,6 @@ ResInsight has been built and tested with ABAQUS ODB versions 2020 and 2024 on W
             
                 
                     
-                    
-                
-                
-
-                    
-                    
-                        
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
                         
                         
                     
@@ -3350,283 +3157,7 @@ ResInsight has been built and tested with ABAQUS ODB versions 2020 and 2024 on W
 
                     
                     
-                    
-
-                    
-            
-        
-                    
                         
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
                     
                     
 
@@ -3659,12 +3190,6 @@ ResInsight has been built and tested with ABAQUS ODB versions 2020 and 2024 on W
                     
                     
 
-                    
-            
-        
-                    
-            
-        
                     
             
         
@@ -3778,6 +3303,251 @@ ResInsight has been built and tested with ABAQUS ODB versions 2020 and 2024 on W
             
         
                     
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
                         
             
             
@@ -3814,6 +3584,90 @@ ResInsight has been built and tested with ABAQUS ODB versions 2020 and 2024 on W
             
             
                 
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
                     
                 
                 
@@ -5618,10 +5472,10 @@ ResInsight has been built and tested with ABAQUS ODB versions 2020 and 2024 on W
 	 
 	 
 		
-			<a class="nav nav-prev" href="/getting-started/download-and-install/build-instructions-ubuntu/" title="Build Instructions Ubuntu"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/3d-main-window/filters/" title="Filters"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/getting-started/helpmenuanddocumentation/" title="Help Menu and Documentation" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/3d-main-window/intersections/" title="Intersections" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -5631,19 +5485,19 @@ ResInsight has been built and tested with ABAQUS ODB versions 2020 and 2024 on W
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1727432415"></script>
-    <script src="/js/perfect-scrollbar.min.js?1727432415"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1727432415"></script>
-    <script src="/js/jquery.sticky.js?1727432415"></script>
-    <script src="/js/featherlight.min.js?1727432415"></script>
-    <script src="/js/highlight.pack.js?1727432415"></script>
+    <script src="/js/clipboard.min.js?1733653802"></script>
+    <script src="/js/perfect-scrollbar.min.js?1733653802"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1733653802"></script>
+    <script src="/js/jquery.sticky.js?1733653802"></script>
+    <script src="/js/featherlight.min.js?1733653802"></script>
+    <script src="/js/highlight.pack.js?1733653802"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1727432415"></script>
-    <script src="/js/learn.js?1727432415"></script>
-    <script src="/js/hugo-learn.js?1727432415"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1733653802"></script>
+    <script src="/js/learn.js?1733653802"></script>
+    <script src="/js/hugo-learn.js?1733653802"></script>
 
-    <link href="/mermaid/mermaid.css?1727432415" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1727432415"></script>
+    <link href="/mermaid/mermaid.css?1733653802" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1733653802"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

@@ -7,13 +7,13 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language><atom:link href="https://resinsight.org/scripting/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Python interface</title>
+      <title>Python Interface</title>
       <link>https://resinsight.org/scripting/pythoninterface/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/scripting/pythoninterface/</guid>
-      <description>ResInsight offers a powerful programming interface which allows you to interact with a running ResInsight instance from Python 3. This enables you to:
-start ResInsight from Python communicate with an a running ResInsight instance load a ResInsight project file load data files such as Eclipse EGRID files and summary files extract data to Python for further processing and automation export snapshots of graphics Please refer to the ResInsight Python API for configuration and details.</description>
+      <description>ResInsight provides a robust programming interface that allows you to interact with a running ResInsight instance using Python 3. This interface enables you to:
+Start ResInsight from Python Communicate with a running ResInsight instance Load a ResInsight project file Load data files such as Eclipse EGRID files and summary files Extract data to Python for further processing and automation Export snapshots of graphics For configuration and detailed information, please refer to the ResInsight Python API.</description>
     </item>
     
     <item>

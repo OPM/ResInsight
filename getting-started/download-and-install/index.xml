@@ -46,40 +46,30 @@ ResInsight has been successfully installed and used on Ubuntu in WSL. The instal
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/getting-started/download-and-install/build-instructions-ubuntu/</guid>
-      <description>Dependencies and Prerequisites This page is mainly build instructions for Ubuntu, but some comments are also added for RHEL8 and Windows.
-Configuration and build Tool Minimum version git 2.7.4 gcc 10 python 3 Update apt installer
-sudo apt updateInstall GCC and related tools
-sudo apt install build-essential curl zip unzip tar flex bisonAs gcc 10 is required, it can be useful to set the default compiler. Set default compiler</description>
-    </item>
-    
-    <item>
-      <title>Build Instructions Ubuntu Qt6 - Basic</title>
-      <link>https://resinsight.org/getting-started/download-and-install/build-instructions-ubuntu-qt6/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/getting-started/download-and-install/build-instructions-ubuntu-qt6/</guid>
-      <description>Dependencies and Prerequisites This page is mainly build instructions for Ubuntu, but some comments are also added for RHEL8 and Windows.
+      <description>Dependencies and Prerequisites This page is mainly build instructions for Ubuntu, but some comments are also added for RHEL8.
 Basic instructions without Python binding and GRPC.
-Configuration and build Tool Minimum version gcc 11 python 3.8 Qt 6.5 Update apt installer
-sudo apt updateInstall GCC and related tools
-sudo apt install build-essential curl zip unzip tar flex bisonSet default compiler
-Dependencies for RHEL8
-yum install curl zip unzip tar flex bison perl-IPC-Cmd gcc-toolset-10 freeglutClone and update sub modules git clone https://github.</description>
+Configuration and build Tool Minimum version gcc 11 python 3.8 Qt 6.4 It is possible to use Qt 6.4 for building ResInsight, but some install features introduced in Qt 6.5 are not supported. Qt 6.7 has some changes related to theming that is causing some unwanted visual effects.</description>
     </item>
     
     <item>
-      <title>Building ResInsight from Source</title>
-      <link>https://resinsight.org/getting-started/download-and-install/buildinstructions/</link>
+      <title>Build Instructions Windows</title>
+      <link>https://resinsight.org/getting-started/download-and-install/build-instructions-windows/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/download-and-install/buildinstructions/</guid>
-      <description>Source code The source code is hosted at GitHub
-In a git enabled shell do: git clone https://github.com/OPM/ResInsight.git
-Dependencies and Prerequisites Windows Compiler Visual Studio 2019 and later is supported.
-GCC Compiler On RedHat Linux 7 or CentOS 7 you need to install devtoolset-10, and enable it with
-source /opt/rh/devtoolset-10/enableQt 5 Qt 5.12 or later is supported, Qt 5.15 is recommended.
-Qt download
-On some configurations you will be asked to specify the location of Qt.</description>
+      <guid>https://resinsight.org/getting-started/download-and-install/build-instructions-windows/</guid>
+      <description>Dependencies and Prerequisites Configuration and build Tool Minimum version Recommended Visual Studio 2019 2022 python 3.8 3.10 Qt 6.5 6.6 It is possible to use Qt 6.4 for to build ResInsight, but some install features introduced in Qt 6.5 are not available. Qt 6.7 has some changes related to theming that is causing some unwanted visual effects. This is currently investigated.
+Clone and update sub modules git clone https://github.com/OPM/ResInsightcd ResInsightgit submodule update --initBuild and install required dependencies using vcpkg Open a command prompt using &amp;ldquo;Run as Administrator&amp;rdquo; for Visual Studio x64.</description>
+    </item>
+    
+    <item>
+      <title>CMake Configuration</title>
+      <link>https://resinsight.org/getting-started/download-and-install/cmake-configuration/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/download-and-install/cmake-configuration/</guid>
+      <description>CMake CMake version 3.15 or later is supported.
+Build Overview The ResInsight build may be configured in different ways, with optional support for Octave plugins, ABAQUS ODB API, HDF5, Pyton, and OpenMP. This is configured using options in CMake.
+CMake Options for ResInsight CMake Name Default Description RESINSIGHT_BUILD_DOCUMENTATION OFF Use Doxygen to create the HTML based API documentation. Doxygen must be properly installed. RESINSIGHT_ENABLE_GRPC OFF Enable gRPC scripting server. Required to be able to use ResInsight from Python RESINSIGHT_ENABLE_HDF5 ON Windows Only: Download and use HDF5 library RESINSIGHT_ODB_API_DIR Blank Optional path to the ABAQUS ODB API from Simulia.</description>
     </item>
     
   </channel>

@@ -12,18 +12,18 @@
     <title>Build Instructions Ubuntu :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1727432415" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1727432415" rel="stylesheet">
-    <link href="/css/hybrid.css?1727432415" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1727432415" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1727432415" rel="stylesheet">
-    <link href="/css/auto-complete.css?1727432415" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1727432415" rel="stylesheet">
-    <link href="/css/theme.css?1727432415" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1727432415" rel="stylesheet">
+    <link href="/css/nucleus.css?1733653802" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1733653802" rel="stylesheet">
+    <link href="/css/hybrid.css?1733653802" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1733653802" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1733653802" rel="stylesheet">
+    <link href="/css/auto-complete.css?1733653802" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1733653802" rel="stylesheet">
+    <link href="/css/theme.css?1733653802" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1733653802" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1727432415"></script>
+    <script src="/js/jquery-3.3.1.min.js?1733653802"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -257,7 +257,23 @@
 
             
           
-             
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/getting-started/download-and-install/build-instructions-windows/" title="Build Instructions Windows" class="dd-item ">
+        <a href="/getting-started/download-and-install/build-instructions-windows/">
+        Build Instructions Windows
+        
+        </a>
+    </li>
+     
+  
+ 
+
             
           
             
@@ -267,9 +283,9 @@
  
   
     
-      <li data-nav-id="/getting-started/download-and-install/buildinstructions/" title="Building ResInsight from Source" class="dd-item ">
-        <a href="/getting-started/download-and-install/buildinstructions/">
-        Building ResInsight from Source
+      <li data-nav-id="/getting-started/download-and-install/cmake-configuration/" title="CMake Configuration" class="dd-item ">
+        <a href="/getting-started/download-and-install/cmake-configuration/">
+        CMake Configuration
         
         </a>
     </li>
@@ -286,6 +302,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -636,6 +655,25 @@
       <li data-nav-id="/3d-main-window/filters/" title="Filters" class="dd-item ">
         <a href="/3d-main-window/filters/">
         Filters
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/quickaccess/" title="Quick Access" class="dd-item ">
+        <a href="/3d-main-window/quickaccess/">
+        Quick Access
         
         </a>
     </li>
@@ -2493,9 +2531,9 @@
  
   
     
-      <li data-nav-id="/scripting/pythoninterface/" title="Python interface" class="dd-item ">
+      <li data-nav-id="/scripting/pythoninterface/" title="Python Interface" class="dd-item ">
         <a href="/scripting/pythoninterface/">
-        Python interface
+        Python Interface
         
         </a>
     </li>
@@ -3049,9 +3087,8 @@ if (!doNotTrack) {
             <li><a href="#configuration-and-build">Configuration and build</a></li>
             <li><a href="#clone-and-update-sub-modules">Clone and update sub modules</a></li>
             <li><a href="#build-and-install-required-dependencies-using-vcpkg">Build and install required dependencies using vcpkg</a></li>
-            <li><a href="#windows-build-and-install-required-dependencies-using-vcpkg">(Windows) Build and install required dependencies using vcpkg</a></li>
-            <li><a href="#python-dependencies">Python dependencies</a></li>
-            <li><a href="#qt">Qt</a></li>
+            <li><a href="#qt---package-manager">Qt - package manager</a></li>
+            <li><a href="#qt---aqtinstall">Qt - aqtinstall</a></li>
             <li><a href="#build-resinsight">Build ResInsight</a></li>
           </ul>
         </li>
@@ -3090,7 +3127,8 @@ if (!doNotTrack) {
 
 
 <h2 id="dependencies-and-prerequisites">Dependencies and Prerequisites</h2>
-<p>This page is mainly build instructions for Ubuntu, but some comments are also added for RHEL8 and Windows.</p>
+<p>This page is mainly build instructions for Ubuntu, but some comments are also added for <strong>RHEL8</strong>.</p>
+<p>Basic instructions without Python binding and GRPC.</p>
 <h3 id="configuration-and-build">Configuration and build</h3>
 <table>
 <thead>
@@ -3101,27 +3139,27 @@ if (!doNotTrack) {
 </thead>
 <tbody>
 <tr>
-<td>git</td>
-<td>2.7.4</td>
-</tr>
-<tr>
 <td>gcc</td>
-<td>10</td>
+<td>11</td>
 </tr>
 <tr>
 <td>python</td>
-<td>3</td>
+<td>3.8</td>
+</tr>
+<tr>
+<td>Qt</td>
+<td>6.4</td>
 </tr>
 </tbody>
 </table>
+<p>It is possible to use Qt 6.4 for building ResInsight, but some install features introduced in Qt 6.5 are not supported. Qt 6.7 has some changes related to theming that is causing some unwanted visual effects. This is currently investigated.</p>
 <p>Update apt installer</p>
 <pre><code>sudo apt update
 </code></pre>
 <p>Install GCC and related tools</p>
 <pre><code>sudo apt install build-essential curl zip unzip tar flex bison
 </code></pre>
-<p>As gcc 10 is required, it can be useful to set the default compiler.
-<a href="https://linuxconfig.org/how-to-switch-between-multiple-gcc-and-g-compiler-versions-on-ubuntu-20-04-lts-focal-fossa">Set default compiler</a></p>
+<p><a href="https://linuxconfig.org/how-to-switch-between-multiple-gcc-and-g-compiler-versions-on-ubuntu-20-04-lts-focal-fossa">Set default compiler</a></p>
 <p>Dependencies for RHEL8</p>
 <pre><code>yum install curl zip unzip tar flex bison perl-IPC-Cmd gcc-toolset-10 freeglut
 </code></pre>
@@ -3134,41 +3172,38 @@ git submodule update --init
 <p>vcpkg is located in the folder ThirdParty/vcpkg. The packages to be installed is specified in vcpkg.json. The actual install of the selected packages are done in the CMake configure step.</p>
 <pre><code>ThirdParty/vcpkg/bootstrap-vcpkg.sh
 </code></pre>
-<h3 id="windows-build-and-install-required-dependencies-using-vcpkg">(Windows) Build and install required dependencies using vcpkg</h3>
-<p>Open a command prompt using &ldquo;Run as Administrator&rdquo; for Visual Studio x64.</p>
-<p><a href="https://ceetronsolutions.github.io/resinsight-system-doc/editor/vcpkg">Detailed Developer notes</a></p>
-<pre><code>ThirdParty/vcpkg/bootstrap-vcpkg.bat
+<h3 id="qt---package-manager">Qt - package manager</h3>
+<p>Qt6 can be installed using the package manager for Ubuntu</p>
+<pre><code>apt install qt6-base-dev qt6-base-private-dev qt6-charts-dev qt6-networkauth-dev libqt6svg6-dev
+
+Ubuntu 22.04 : Qt 6.2.4
+Ubuntu 24.04 : Qt 6.4.2
 </code></pre>
-<h3 id="python-dependencies">Python dependencies</h3>
-<p>Install Python version 3.8 or newer, and use dev-requirements.txt</p>
-<pre><code>python3 -m pip install -r GrpcInterface/Python/dev-requirements.txt
-</code></pre>
-<h3 id="qt">Qt</h3>
-<p>System packages Ubuntu</p>
-<pre><code>sudo apt install -y qtbase5-dev libqt5svg5-dev qtbase5-private-dev libqt5networkauth5-dev
-</code></pre>
-<p>System packages RHEL8</p>
-<pre><code>sudo yum install -y qt5-devel qt5-qtnetworkauth-devel qt5-qtcharts-devel qt5-qtbase-private-devel gcc-toolset-10 gcc-toolset-10-libatomic-devel
-</code></pre>
-<p>Installation of custom Qt</p>
-<p>Go to a folder to install custom Qt
-In this folder, execute</p>
-<pre><code>python3 -m pip install aqtinstall
-aqt install-qt linux desktop 5.15.2 -m qtcharts qtnetworkauth
+<p>Please note that 6.4 is fully supported for build, but some install features are not supported.</p>
+<h3 id="qt---aqtinstall">Qt - aqtinstall</h3>
+<p>Here is a short description on how to install a custom Qt version.</p>
+<p><a href="https://github.com/miurahr/aqtinstall">aqtinstall</a> is a Python tool used to install precompiled versions of Qt. Other ways to install Qt is described <a href="https://www.qt.io/download-qt-installer-oss">official Qt documentation</a></p>
+<p>Create a root folder for Qt installations. In this folder, create a virtual environment for <strong>aqtinstall</strong>:</p>
+<pre><code>python3 -m venv myvenv
+source myvenv/bin/activate
+pip3 install aqtinstall
+aqt install-qt linux desktop 6.6.3 -m qtcharts qtnetworkauth
 </code></pre>
 <h3 id="build-resinsight">Build ResInsight</h3>
-<pre><code>mkdir cmakebuild
-cd cmakebuild
-cmake \
--DCMAKE_PREFIX_PATH=/your_qt_path/5.15.2/gcc_64/lib/cmake \
--DRESINSIGHT_ENABLE_GRPC=true \
--DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=python \
--DCMAKE_TOOLCHAIN_FILE=../ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake \
--DVCPKG_TARGET_TRIPLET=x64-linux-release \
-..
-
-make -j8
+<p>Install Ninja build tool</p>
+<pre><code>sudo apt-get install ninja-build
 </code></pre>
+<p>The configuration flags for a basic build is given in <code>CMakePresets.json</code> in the root of the repository. Configuration flags specific for the system to build on can be specified in <code>CMakeUserPresets.json</code>. This file is ignored by git.</p>
+<ul>
+<li>Create a copy of <code>CMakeUserPresets-example.json</code> and rename to <code>CMakeUserPresets.json</code></li>
+<li>Update the path to your local installation of Qt6 for the key <code>CMAKE_PREFIX_PATH</code> in <code>CMakeUserPresets.json</code></li>
+</ul>
+<p>Set current working folder to the root folder of the ResInsight repository. Execute the following commands to build ResInsight:</p>
+<pre><code>cmake . --preset=linux-base
+cd build
+ninja
+</code></pre>
+<p><a href="/getting-started/download-and-install/cmake-configuration/">CMake Configuration</a></p>
 
 
 <footer class="footline">
@@ -3337,15 +3372,26 @@ make -j8
                         
             
             
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
         
                     
                         
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -3469,17 +3515,6 @@ make -j8
                         
             
             
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
         
                     
                         
@@ -3511,6 +3546,22 @@ make -j8
                     
 
                     
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
                         
             
             
@@ -3561,6 +3612,22 @@ make -j8
                     
                     
 
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
                     
                         
             
@@ -5501,7 +5568,7 @@ make -j8
 			<a class="nav nav-prev" href="/getting-started/download-and-install/windows-subsystem-for-linux/" title="Windows Subsystem for Linux"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/getting-started/download-and-install/buildinstructions/" title="Building ResInsight from Source" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/getting-started/download-and-install/build-instructions-windows/" title="Build Instructions Windows" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -5511,19 +5578,19 @@ make -j8
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1727432415"></script>
-    <script src="/js/perfect-scrollbar.min.js?1727432415"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1727432415"></script>
-    <script src="/js/jquery.sticky.js?1727432415"></script>
-    <script src="/js/featherlight.min.js?1727432415"></script>
-    <script src="/js/highlight.pack.js?1727432415"></script>
+    <script src="/js/clipboard.min.js?1733653802"></script>
+    <script src="/js/perfect-scrollbar.min.js?1733653802"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1733653802"></script>
+    <script src="/js/jquery.sticky.js?1733653802"></script>
+    <script src="/js/featherlight.min.js?1733653802"></script>
+    <script src="/js/highlight.pack.js?1733653802"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1727432415"></script>
-    <script src="/js/learn.js?1727432415"></script>
-    <script src="/js/hugo-learn.js?1727432415"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1733653802"></script>
+    <script src="/js/learn.js?1733653802"></script>
+    <script src="/js/hugo-learn.js?1733653802"></script>
 
-    <link href="/mermaid/mermaid.css?1727432415" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1727432415"></script>
+    <link href="/mermaid/mermaid.css?1733653802" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1733653802"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>
