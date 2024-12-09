@@ -22,6 +22,7 @@
 
 #include "cvfStructGrid.h"
 
+#include <map>
 #include <optional>
 
 class RigActiveCellInfo;
@@ -192,7 +193,11 @@ private:
                                                                                                 const QString& clusterResultName );
 
     static void computeStatisticsAndCreateVectors( RimEclipseCase&                         targetCase,
-                                                   size_t                                  targetNumActiveCells,
                                                    const QString&                          resultName,
                                                    const std::vector<std::vector<double>>& vec );
+
+    static void accumulateResultsForSingleCase( RimEclipseCase&                                      eclipseCase,
+                                                RimEclipseCase&                                      targetCase,
+                                                std::map<QString, std::vector<std::vector<double>>>& resultNamesAndSamples,
+                                                std::vector<int>&                                    occupancy );
 };
