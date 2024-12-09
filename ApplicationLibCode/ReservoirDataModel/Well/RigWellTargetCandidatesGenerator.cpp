@@ -178,6 +178,22 @@ void RigWellTargetCandidatesGenerator::generateCandidates( RimEclipseCase*      
 
     std::vector<ClusterStatistics> statistics =
         generateStatistics( eclipseCase, pressure, permeabilityX, permeabilityY, permeabilityZ, numClustersFound, timeStepIdx, resultName );
+    std::vector<double> totalPorvSoil( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double> totalPorvSgas( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double> totalPorvSoilAndSgas( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double> totalFipOil( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double> totalFipGas( clusters.size(), std::numeric_limits<double>::infinity() );
+
+    auto addValuesForClusterId = []( std::vector<double>& values, const std::vector<int>& clusters, int clusterId, double value )
+    {
+#pragma omp parallel for
+        for ( size_t i = 0; i < clusters.size(); i++ )
+        {
+            if ( clusters[i] == clusterId ) values[i] = value;
+        }
+    };
+
+    int clusterId = 1;
     for ( auto s : statistics )
     {
         RiaLogging::info( QString( "Cluster #%1 Statistics" ).arg( s.id ) );
@@ -190,21 +206,29 @@ void RigWellTargetCandidatesGenerator::generateCandidates( RimEclipseCase*      
         RiaLogging::info( QString( "Average Permeability: %1" ).arg( s.permeability ) );
         RiaLogging::info( QString( "Average Pressure: %1" ).arg( s.pressure ) );
 
-        QString clusterPorvSoil = "TOTAL_PORV_SOIL";
-        createResultVector( *eclipseCase, clusterPorvSoil, clusters, s.totalPorvSoil );
+        addValuesForClusterId( totalPorvSoil, clusters, clusterId, s.totalPorvSoil );
+        addValuesForClusterId( totalPorvSgas, clusters, clusterId, s.totalPorvSgas );
+        addValuesForClusterId( totalPorvSoilAndSgas, clusters, clusterId, s.totalPorvSoilAndSgas );
+        addValuesForClusterId( totalFipOil, clusters, clusterId, s.totalFipOil );
+        addValuesForClusterId( totalFipGas, clusters, clusterId, s.totalFipGas );
 
-        QString clusterPorvSgas = "TOTAL_PORV_SGAS";
-        createResultVector( *eclipseCase, clusterPorvSgas, clusters, s.totalPorvSgas );
-
-        QString clusterPorvSoilAndSgas = "TOTAL_PORV_SOIL_SGAS";
-        createResultVector( *eclipseCase, clusterPorvSoilAndSgas, clusters, s.totalPorvSoilAndSgas );
-
-        QString clusterFipOil = "TOTAL_FIPOIL";
-        createResultVector( *eclipseCase, clusterFipOil, clusters, s.totalFipOil );
-
-        QString clusterFipGas = "TOTAL_FIPGAS";
-        createResultVector( *eclipseCase, clusterFipGas, clusters, s.totalFipGas );
+        clusterId++;
     }
+
+    QString clusterPorvSoil = "TOTAL_PORV_SOIL";
+    createResultVector( *eclipseCase, clusterPorvSoil, totalPorvSoil );
+
+    QString clusterPorvSgas = "TOTAL_PORV_SGAS";
+    createResultVector( *eclipseCase, clusterPorvSgas, totalPorvSgas );
+
+    QString clusterPorvSoilAndSgas = "TOTAL_PORV_SOIL_SGAS";
+    createResultVector( *eclipseCase, clusterPorvSoilAndSgas, totalPorvSoilAndSgas );
+
+    QString clusterFipOil = "TOTAL_FIPOIL";
+    createResultVector( *eclipseCase, clusterFipOil, totalFipOil );
+
+    QString clusterFipGas = "TOTAL_FIPGAS";
+    createResultVector( *eclipseCase, clusterFipGas, totalFipGas );
 }
 
 //--------------------------------------------------------------------------------------------------
