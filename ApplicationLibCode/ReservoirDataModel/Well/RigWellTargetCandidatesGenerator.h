@@ -20,6 +20,7 @@
 
 #include "cafVecIjk.h"
 
+#include "cvfBoundingBox.h"
 #include "cvfStructGrid.h"
 
 #include <map>
@@ -200,4 +201,6 @@ private:
                                                 RimEclipseCase&                                      targetCase,
                                                 std::map<QString, std::vector<std::vector<double>>>& resultNamesAndSamples,
                                                 std::vector<int>&                                    occupancy );
+
+    static cvf::BoundingBox computeBoundingBoxForResult( RimEclipseCase& eclipseCase, const QString& resultName, size_t timeStepIndex );
 };

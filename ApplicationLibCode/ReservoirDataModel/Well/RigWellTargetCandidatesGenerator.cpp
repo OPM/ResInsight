@@ -39,6 +39,7 @@
 #include "cafProgressInfo.h"
 #include "cafVecIjk.h"
 
+#include "cvfBoundingBox.h"
 #include "cvfMath.h"
 #include "cvfStructGrid.h"
 
@@ -720,6 +721,18 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
         generateCandidates( eclipseCase, timeStepIdx, volumeType, volumesType, volumeResultType, limits );
     }
 
+    cvf::BoundingBox boundingBox;
+    for ( auto eclipseCase : ensemble.cases() )
+    {
+        cvf::BoundingBox bb = computeBoundingBoxForResult( *eclipseCase, "CLUSTERS_NUM", 0 );
+        boundingBox.add( bb );
+    }
+
+    RiaLogging::debug(
+        QString( "Clusters bounding box min: [%1 %2 %3]" ).arg( boundingBox.min().x() ).arg( boundingBox.min().y() ).arg( boundingBox.min().z() ) );
+    RiaLogging::debug(
+        QString( "Clusters bounding box max: [%1 %2 %3]" ).arg( boundingBox.max().x() ).arg( boundingBox.max().y() ).arg( boundingBox.max().z() ) );
+
     std::vector<int> occupancy;
 
     std::map<QString, std::vector<std::vector<double>>> resultNamesAndSamples;
@@ -863,4 +876,35 @@ void RigWellTargetCandidatesGenerator::accumulateResultsForSingleCase( RimEclips
     {
         resultNamesAndSamples[resultName].push_back( namedOutputVector[resultName] );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RigWellTargetCandidatesGenerator::computeBoundingBoxForResult( RimEclipseCase& eclipseCase,
+                                                                                const QString&  resultName,
+                                                                                size_t          timeStepIndex )
+{
+    RigCaseCellResultsData*  resultsData       = eclipseCase.results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    const RigMainGrid*       mainGrid          = eclipseCase.mainGrid();
+    const RigActiveCellInfo* activeCellInfo    = resultsData->activeCellInfo();
+    const size_t             numReservoirCells = activeCellInfo->reservoirCellCount();
+
+    RigEclipseResultAddress clustersNumAddress( RiaDefines::ResultCatType::GENERATED, resultName );
+    resultsData->ensureKnownResultLoaded( clustersNumAddress );
+    const std::vector<double>& clusterNum = resultsData->cellScalarResults( clustersNumAddress, timeStepIndex );
+
+    cvf::BoundingBox boundingBox;
+    for ( size_t reservoirCellIndex = 0; reservoirCellIndex < numReservoirCells; reservoirCellIndex++ )
+    {
+        size_t targetResultIndex = activeCellInfo->cellResultIndex( reservoirCellIndex );
+        if ( reservoirCellIndex != cvf::UNDEFINED_SIZE_T && activeCellInfo->isActive( reservoirCellIndex ) &&
+             targetResultIndex != cvf::UNDEFINED_SIZE_T && !std::isinf( clusterNum[targetResultIndex] ) && clusterNum[targetResultIndex] > 0 )
+        {
+            const RigCell& nativeCell = mainGrid->cell( reservoirCellIndex );
+            boundingBox.add( nativeCell.boundingBox() );
+        }
+    }
+
+    return boundingBox;
 }
