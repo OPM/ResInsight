@@ -600,17 +600,33 @@ bool RifSurfaceImporter::generateTriangleIndices( const std::vector<std::vector<
                                                   std::vector<unsigned>&                    triangleIndices,
                                                   unsigned                                  resolution /*= 1 */ )
 {
-    unsigned topI = unsigned( std::min( indexToPointData.size() - 1, i + resolution ) );
-    unsigned topJ = unsigned( std::min( indexToPointData[topI].size() - 1, j + resolution ) );
+    if ( i >= indexToPointData.size() || j >= indexToPointData[i].size() )
+    {
+        return false;
+    }
 
+    unsigned topI = unsigned( std::min( indexToPointData.size() - 1, i + resolution ) );
+    if ( topI >= indexToPointData.size() )
+    {
+        return false;
+    }
+
+    unsigned topJ = unsigned( std::min( indexToPointData[topI].size() - 1, j + resolution ) );
+    if ( topJ >= indexToPointData[topI].size() || topJ >= indexToPointData[i].size() )
+    {
+        return false;
+    }
+
+    // Prevent degenerate cases
     if ( topI == i || topJ == j ) return false;
 
-    unsigned q1 = indexToPointData[i + 0][j + 0];
-    unsigned q2 = indexToPointData[i + 0][topJ];
-    unsigned q3 = indexToPointData[topI][j + 0];
+    unsigned q1 = indexToPointData[i][j];
+    unsigned q2 = indexToPointData[i][topJ];
+    unsigned q3 = indexToPointData[topI][j];
     unsigned q4 = indexToPointData[topI][topJ];
 
-    if ( q1 != ( (unsigned)-1 ) && q2 != ( (unsigned)-1 ) && q3 != ( (unsigned)-1 ) && q4 != ( (unsigned)-1 ) )
+    const auto invalidIndex = static_cast<unsigned>( -1 );
+    if ( q1 != invalidIndex && q2 != invalidIndex && q3 != invalidIndex && q4 != invalidIndex )
     {
         triangleIndices.push_back( q1 );
         triangleIndices.push_back( q2 );
@@ -620,10 +636,8 @@ bool RifSurfaceImporter::generateTriangleIndices( const std::vector<std::vector<
         triangleIndices.push_back( q3 );
         return true;
     }
-    else
-    {
-        return false;
-    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
