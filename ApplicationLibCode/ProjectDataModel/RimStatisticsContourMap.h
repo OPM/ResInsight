@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RimNamedObject.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 
 #include "RimContourMapProjection.h"
@@ -28,6 +29,8 @@
 class RimEclipseCase;
 class RimEclipseResultDefinition;
 class RimEclipseCaseEnsemble;
+class RimEclipseContourMapView;
+class RimStatisticsContourMapView;
 
 //==================================================================================================
 //
@@ -59,7 +62,9 @@ public:
     RigContourMapGrid*  contourMapGrid() const;
     std::vector<double> result( StatisticsType statisticsType ) const;
 
-    std::vector<std::vector<std::pair<size_t, double>>> gridMapping() const;
+    void addView( RimStatisticsContourMapView* view );
+
+    // std::vector<std::vector<std::pair<size_t, double>>> gridMapping() const;
 
     void ensureResultsComputed();
 
@@ -90,4 +95,6 @@ private:
     std::unique_ptr<RigContourMapGrid>                  m_contourMapGrid;
     std::map<StatisticsType, std::vector<double>>       m_result;
     std::vector<std::vector<std::pair<size_t, double>>> m_gridMapping;
+
+    caf::PdmChildArrayField<RimStatisticsContourMapView*> m_views;
 };

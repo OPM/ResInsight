@@ -114,11 +114,29 @@ QString RimStatisticsContourMapView::createAutoName() const
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMapView::setDefaultCustomName()
 {
-    nameConfig()->setCustomName( "Contour Map" );
+    nameConfig()->setCustomName( "" );
     nameConfig()->hideCaseNameField( false );
     nameConfig()->hideAggregationTypeField( false );
     nameConfig()->hidePropertyField( false );
     nameConfig()->hideSampleSpacingField( false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsContourMapView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Contour Map Name" );
+    nameConfig()->uiOrdering( uiConfigName, *nameGroup );
+
+    caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup( "Viewer" );
+    viewGroup->add( userDescriptionField() );
+    viewGroup->add( backgroundColorField() );
+    viewGroup->add( &m_showAxisLines );
+    viewGroup->add( &m_showScaleLegend );
+    viewGroup->add( &m_showFaultLines );
+
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------

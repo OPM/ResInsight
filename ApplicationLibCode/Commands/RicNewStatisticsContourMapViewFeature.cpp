@@ -58,7 +58,9 @@ void RicNewStatisticsContourMapViewFeature::onActionTriggered( bool isChecked )
     auto contourMap = caf::SelectionManager::instance()->selectedItemOfType<RimStatisticsContourMap>();
     if ( !contourMap ) return;
 
+    contourMap->ensureResultsComputed();
     createAndAddView( contourMap );
+    contourMap->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,26 +80,26 @@ RimStatisticsContourMapView* RicNewStatisticsContourMapViewFeature::createStatis
     RimEclipseCase* eclipseCase = statisticsContourMap->eclipseCase();
     if ( !eclipseCase ) return nullptr;
 
-    RimStatisticsContourMapView* contourMap = new RimStatisticsContourMapView;
-    contourMap->setStatisticsContourMap( statisticsContourMap );
-    contourMap->setEclipseCase( eclipseCase );
+    RimStatisticsContourMapView* contourMapView = new RimStatisticsContourMapView;
+    contourMapView->setStatisticsContourMap( statisticsContourMap );
+    contourMapView->setEclipseCase( eclipseCase );
 
-    caf::PdmDocument::updateUiIconStateRecursively( contourMap );
+    caf::PdmDocument::updateUiIconStateRecursively( contourMapView );
 
-    size_t i = eclipseCase->contourMapCollection()->views().size();
-    contourMap->setName( QString( "Contour Map %1" ).arg( i + 1 ) );
+    // size_t i = eclipseCase->contourMapCollection()->views().size();
+    // contourMapView->setName( QString( "Contour Map %1" ).arg( i + 1 ) );
 
-    contourMap->faultCollection()->setActive( false );
-    contourMap->wellCollection()->isActive = false;
+    contourMapView->faultCollection()->setActive( false );
+    contourMapView->wellCollection()->isActive = false;
 
-    eclipseCase->contourMapCollection()->addView( contourMap );
+    statisticsContourMap->addView( contourMapView );
 
     auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
-    contourMap->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
+    contourMapView->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
 
-    contourMap->initAfterReadRecursively();
+    contourMapView->initAfterReadRecursively();
 
-    return contourMap;
+    return contourMapView;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,34 +107,34 @@ RimStatisticsContourMapView* RicNewStatisticsContourMapViewFeature::createStatis
 //--------------------------------------------------------------------------------------------------
 RimStatisticsContourMapView* RicNewStatisticsContourMapViewFeature::createAndAddView( RimStatisticsContourMap* statisticsContourMap )
 {
-    if ( auto eclipseContourMap = createStatisticsContourMapView( statisticsContourMap ) )
+    if ( auto contourMapView = createStatisticsContourMapView( statisticsContourMap ) )
     {
         // Must be run before buildViewItems, as wells are created in this function
-        eclipseContourMap->loadDataAndUpdate();
+        contourMapView->loadDataAndUpdate();
 
         // make sure no surfaces are shown in the view when the contourmap is generated
-        if ( eclipseContourMap->surfaceInViewCollection() ) eclipseContourMap->surfaceInViewCollection()->setCheckState( Qt::Unchecked );
+        if ( contourMapView->surfaceInViewCollection() ) contourMapView->surfaceInViewCollection()->setCheckState( Qt::Unchecked );
 
         if ( auto eclipseCase = statisticsContourMap->eclipseCase() )
         {
             eclipseCase->updateConnectedEditors();
-            eclipseContourMap->cellFilterCollection()->setCase( eclipseCase );
+            contourMapView->cellFilterCollection()->setCase( eclipseCase );
         }
-        caf::SelectionManager::instance()->setSelectedItem( eclipseContourMap );
+        caf::SelectionManager::instance()->setSelectedItem( contourMapView );
 
-        eclipseContourMap->createDisplayModelAndRedraw();
-        eclipseContourMap->zoomAll();
+        contourMapView->createDisplayModelAndRedraw();
+        contourMapView->zoomAll();
 
         RimProject* project = RimProject::current();
 
-        RimOilField* oilField = project->activeOilField();
+        // RimOilField* oilField = project->activeOilField();
+        // oilField->eclipseContourMapCollection()->updateConnectedEditors();
 
-        oilField->eclipseContourMapCollection()->updateConnectedEditors();
+        Riu3DMainWindowTools::setExpanded( statisticsContourMap );
+        Riu3DMainWindowTools::selectAsCurrentItem( contourMapView );
+        Riu3DMainWindowTools::setExpanded( contourMapView );
 
-        Riu3DMainWindowTools::setExpanded( eclipseContourMap );
-        Riu3DMainWindowTools::selectAsCurrentItem( eclipseContourMap );
-
-        return eclipseContourMap;
+        return contourMapView;
     }
 
     return nullptr;

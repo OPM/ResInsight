@@ -37,8 +37,9 @@ public:
 
 protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    void createContourMapGeometry();
+    // void createContourMapGeometry();
     void onUpdateLegends() override;
 
 private:

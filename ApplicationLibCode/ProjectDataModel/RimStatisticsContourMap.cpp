@@ -37,6 +37,7 @@
 #include "RimEclipseContourMapProjection.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimProject.h"
+#include "RimStatisticsContourMapView.h"
 #include "RimTools.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -91,6 +92,8 @@ RimStatisticsContourMap::RimStatisticsContourMap()
     caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_computeStatisticsButton );
     m_computeStatisticsButton = false;
 
+    CAF_PDM_InitFieldNoDefault( &m_views, "ContourMapViews", "Contour Maps", ":/CrossSection16x16.png" );
+
     setDeletable( true );
 }
 
@@ -136,6 +139,7 @@ void RimStatisticsContourMap::fieldChangedByUi( const caf::PdmFieldHandle* chang
     {
         computeStatistics();
         m_computeStatisticsButton = false;
+        RicNewStatisticsContourMapViewFeature::createAndAddView( this );
     }
 }
 
@@ -313,8 +317,6 @@ void RimStatisticsContourMap::computeStatistics()
         m_result[StatisticsType::MEAN] = meanResults;
         m_result[StatisticsType::MIN]  = minResults;
         m_result[StatisticsType::MAX]  = maxResults;
-
-        RicNewStatisticsContourMapViewFeature::createAndAddView( this );
     }
 }
 
@@ -392,4 +394,12 @@ bool RimStatisticsContourMap::isColumnResult() const
 double RimStatisticsContourMap::sampleSpacingFactor() const
 {
     return m_relativeSampleSpacing;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsContourMap::addView( RimStatisticsContourMapView* view )
+{
+    m_views.push_back( view );
 }
