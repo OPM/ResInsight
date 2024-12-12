@@ -260,3 +260,67 @@ TEST( RifSurfaceImporter, ReadLargeOpenWorksXyzFile )
         }
     }
 }
+
+// Test fixture for RifSurfaceImporter
+class RifSurfaceImporterTest : public ::testing::Test
+{
+protected:
+    RifSurfaceImporter                 rifSurfaceImporter;
+    std::vector<std::vector<unsigned>> indexToPointData;
+    std::vector<unsigned>              triangleIndices;
+};
+
+TEST_F( RifSurfaceImporterTest, HandlesEmptyInput )
+{
+    // Empty indexToPointData
+    indexToPointData = {};
+    EXPECT_FALSE( rifSurfaceImporter.generateTriangleIndices( indexToPointData, 0, 0, triangleIndices ) );
+    EXPECT_TRUE( triangleIndices.empty() );
+}
+
+TEST_F( RifSurfaceImporterTest, HandlesOutOfBoundsInput )
+{
+    // Non-empty indexToPointData but invalid indices
+    indexToPointData = { { 0, 1 }, { 2, 3 } };
+    EXPECT_FALSE( rifSurfaceImporter.generateTriangleIndices( indexToPointData, 2, 0, triangleIndices ) );
+    EXPECT_FALSE( rifSurfaceImporter.generateTriangleIndices( indexToPointData, 0, 2, triangleIndices ) );
+    EXPECT_TRUE( triangleIndices.empty() );
+}
+
+TEST_F( RifSurfaceImporterTest, HandlesSingleResolution )
+{
+    // Valid input with resolution 1
+    indexToPointData = { { 0, 1, 2 }, { 3, 4, 5 }, { 6, 7, 8 } };
+    EXPECT_TRUE( rifSurfaceImporter.generateTriangleIndices( indexToPointData, 0, 0, triangleIndices, 1 ) );
+
+    // Check expected triangle indices
+    std::vector<unsigned> expected = { 0, 1, 4, 0, 4, 3 };
+    EXPECT_EQ( triangleIndices, expected );
+}
+
+TEST_F( RifSurfaceImporterTest, HandlesLargerResolution )
+{
+    // Valid input with larger resolution
+    indexToPointData = { { 0, 1, 2 }, { 3, 4, 5 }, { 6, 7, 8 } };
+    EXPECT_TRUE( rifSurfaceImporter.generateTriangleIndices( indexToPointData, 0, 0, triangleIndices, 2 ) );
+
+    // Check expected triangle indices
+    std::vector<unsigned> expected = { 0, 2, 8, 0, 8, 6 };
+    EXPECT_EQ( triangleIndices, expected );
+}
+
+TEST_F( RifSurfaceImporterTest, HandlesInvalidPoints )
+{
+    // Input with invalid points (-1 as unsigned max value)
+    indexToPointData = { { 0, 1, 2 }, { 3, (unsigned)-1, 5 }, { 6, 7, 8 } };
+    EXPECT_FALSE( rifSurfaceImporter.generateTriangleIndices( indexToPointData, 0, 1, triangleIndices ) );
+    EXPECT_TRUE( triangleIndices.empty() );
+}
+
+TEST_F( RifSurfaceImporterTest, PreventsDegenerateTriangles )
+{
+    // Degenerate case where resolution leads to topI == i or topJ == j
+    indexToPointData = { { 0, 1, 2 }, { 3, 4, 5 }, { 6, 7, 8 } };
+    EXPECT_FALSE( rifSurfaceImporter.generateTriangleIndices( indexToPointData, 2, 2, triangleIndices, 1 ) );
+    EXPECT_TRUE( triangleIndices.empty() );
+}
