@@ -210,4 +210,5 @@ void RimEclipseCaseEnsemble::addWellTargetsGenerator( RimWellTargetCandidatesGen
 void RimEclipseCaseEnsemble::addStatisticsContourMap( RimStatisticsContourMap* statisticsContourMap )
 {
     m_statisticsContourMaps.push_back( statisticsContourMap );
+    statisticsContourMap->setName( QString( "Statisics Contour Map #%1" ).arg( m_statisticsContourMaps.size() ) );
 }

@@ -18,8 +18,8 @@
 
 #pragma once
 
+#include "RimNamedObject.h"
 #include "cafPdmField.h"
-#include "cafPdmObject.h"
 
 #include "RimContourMapProjection.h"
 
@@ -34,7 +34,7 @@ class RimEclipseCaseEnsemble;
 //
 //
 //==================================================================================================
-class RimStatisticsContourMap : public caf::PdmObject
+class RimStatisticsContourMap : public RimNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -82,6 +82,7 @@ private:
     caf::PdmField<double>                                     m_relativeSampleSpacing;
     caf::PdmField<RimContourMapProjection::ResultAggregation> m_resultAggregation;
     caf::PdmField<int>                                        m_timeStep;
+    caf::PdmField<double>                                     m_boundingBoxExpPercent;
 
     caf::PdmChildField<RimEclipseResultDefinition*> m_resultDefinition;
     caf::PdmField<bool>                             m_computeStatisticsButton;

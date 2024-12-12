@@ -27,6 +27,7 @@
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellEdgeColors.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimFaultInViewCollection.h"
@@ -92,13 +93,6 @@ RimEclipseView* RimEclipseViewCollection::addView( RimEclipseCase* eclipseCase )
 
     view->setEclipseCase( eclipseCase );
 
-    // Set default values
-    if ( view->currentGridCellResults() )
-    {
-        auto defaultResult = view->currentGridCellResults()->defaultResult();
-        view->cellResult()->setFromEclipseResultAddress( defaultResult );
-    }
-
     auto prefs = RiaPreferences::current();
     view->faultCollection()->setActive( prefs->enableFaultsByDefault() );
 
@@ -113,6 +107,13 @@ RimEclipseView* RimEclipseViewCollection::addView( RimEclipseCase* eclipseCase )
     RimQuickAccessCollection::instance()->addQuickAccessFields( view );
 
     view->loadDataAndUpdate();
+
+    // Set default values
+    if ( view->currentGridCellResults() )
+    {
+        auto defaultResult = view->currentGridCellResults()->defaultResult();
+        view->cellResult()->setFromEclipseResultAddress( defaultResult );
+    }
 
     updateConnectedEditors();
 

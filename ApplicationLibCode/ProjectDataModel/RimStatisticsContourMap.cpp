@@ -21,6 +21,8 @@
 #include "RiaLogging.h"
 #include "RiaStatisticsTools.h"
 
+#include "RicNewStatisticsContourMapViewFeature.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigContourMapCalculator.h"
 #include "RigContourMapGrid.h"
@@ -66,7 +68,10 @@ void caf::AppEnum<RimStatisticsContourMap::StatisticsType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimStatisticsContourMap::RimStatisticsContourMap()
 {
-    CAF_PDM_InitObject( "StatisticsContourMap", ":/Histogram16x16.png" );
+    CAF_PDM_InitObject( "Statistics Contour Map", ":/Histogram16x16.png" );
+
+    CAF_PDM_InitField( &m_boundingBoxExpPercent, "BoundingBoxExpPercent", 5.0, "Bounding Box Expansion (%)" );
+    m_boundingBoxExpPercent.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_relativeSampleSpacing, "SampleSpacing", 0.9, "Sample Spacing Factor" );
     m_relativeSampleSpacing.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -85,6 +90,8 @@ RimStatisticsContourMap::RimStatisticsContourMap()
     CAF_PDM_InitFieldNoDefault( &m_computeStatisticsButton, "ComputeStatisticsButton", "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_computeStatisticsButton );
     m_computeStatisticsButton = false;
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,9 +99,11 @@ RimStatisticsContourMap::RimStatisticsContourMap()
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_relativeSampleSpacing );
+    uiOrdering.add( nameField() );
     uiOrdering.add( &m_resultAggregation );
     uiOrdering.add( &m_timeStep );
+    uiOrdering.add( &m_relativeSampleSpacing );
+    uiOrdering.add( &m_boundingBoxExpPercent );
 
     caf::PdmUiGroup* resultDefinitionGroup = uiOrdering.addNewGroup( "Result Definition" );
     m_resultDefinition->uiOrdering( uiConfigName, *resultDefinitionGroup );
@@ -162,14 +171,22 @@ void RimStatisticsContourMap::defineEditorAttribute( const caf::PdmFieldHandle* 
             attrib->m_buttonText = "Compute";
         }
     }
-
-    if ( &m_relativeSampleSpacing == field )
+    else if ( &m_relativeSampleSpacing == field )
     {
         if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
         {
             myAttr->m_minimum                       = 0.2;
             myAttr->m_maximum                       = 2.0;
             myAttr->m_sliderTickCount               = 9;
+            myAttr->m_delaySliderUpdateUntilRelease = true;
+        }
+    }
+    else if ( &m_boundingBoxExpPercent == field )
+    {
+        if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
+        {
+            myAttr->m_minimum                       = 0.0;
+            myAttr->m_maximum                       = 25.0;
             myAttr->m_delaySliderUpdateUntilRelease = true;
         }
     }
@@ -206,6 +223,7 @@ void RimStatisticsContourMap::computeStatistics()
     RigContourMapCalculator::ResultAggregationType resultAggregation = m_resultAggregation();
 
     cvf::BoundingBox gridBoundingBox = firstEclipseCase->activeCellsBoundingBox();
+    gridBoundingBox.expandPercent( m_boundingBoxExpPercent() );
 
     auto computeSampleSpacing = []( auto ec, double relativeSampleSpacing )
     {
@@ -216,7 +234,6 @@ void RimStatisticsContourMap::computeStatistics()
                 return relativeSampleSpacing * mainGrid->characteristicIJCellSize();
             }
         }
-
         return 0.0;
     };
 
@@ -229,6 +246,8 @@ void RimStatisticsContourMap::computeStatistics()
 
     RigEclipseContourMapProjection contourMapProjection( *contourMapGrid, *firstEclipseCaseData, *firstResultData );
     m_gridMapping = contourMapProjection.generateGridMapping( resultAggregation, {} );
+
+    caf::ProgressInfo progInfo( ensemble->cases().size() + 1, "Reading Eclipse Ensemble" );
 
     std::vector<std::vector<double>> results;
     for ( RimEclipseCase* eclipseCase : ensemble->cases() )
@@ -247,6 +266,7 @@ void RimStatisticsContourMap::computeStatistics()
                 contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(), resultAggregation, m_timeStep() );
             results.push_back( result );
         }
+        progInfo.incrementProgress();
     }
 
     if ( !results.empty() )
@@ -293,6 +313,8 @@ void RimStatisticsContourMap::computeStatistics()
         m_result[StatisticsType::MEAN] = meanResults;
         m_result[StatisticsType::MIN]  = minResults;
         m_result[StatisticsType::MAX]  = maxResults;
+
+        RicNewStatisticsContourMapViewFeature::createAndAddView( this );
     }
 }
 
