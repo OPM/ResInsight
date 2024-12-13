@@ -83,11 +83,11 @@ public:
                                                 size_t                  timeStepIdx );
 
     static RimRegularGridCase* generateEnsembleCandidates( RimEclipseCaseEnsemble& ensemble,
-                                                                  size_t                  timeStepIdx,
-                                                                  VolumeType              volumeType,
-                                                                  VolumesType             volumesType,
-                                                                  VolumeResultType        volumeResultType,
-                                                                  const ClusteringLimits& limits );
+                                                           size_t                  timeStepIdx,
+                                                           VolumeType              volumeType,
+                                                           VolumesType             volumesType,
+                                                           VolumeResultType        volumeResultType,
+                                                           const ClusteringLimits& limits );
 
     class ClusterStatistics
     {
