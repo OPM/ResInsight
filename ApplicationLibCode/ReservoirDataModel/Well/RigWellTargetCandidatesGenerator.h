@@ -30,6 +30,8 @@ class RigActiveCellInfo;
 class RigCaseCellResultsData;
 class RimEclipseCase;
 class RimEclipseCaseEnsemble;
+class RimEclipseBoundingBoxCase;
+
 //==================================================================================================
 ///
 ///
@@ -80,13 +82,12 @@ public:
                                                 VolumeResultType        volumeResultType,
                                                 size_t                  timeStepIdx );
 
-    static void generateEnsembleCandidates( RimEclipseCase&         targetCase,
-                                            RimEclipseCaseEnsemble& ensemble,
-                                            size_t                  timeStepIdx,
-                                            VolumeType              volumeType,
-                                            VolumesType             volumesType,
-                                            VolumeResultType        volumeResultType,
-                                            const ClusteringLimits& limits );
+    static RimEclipseBoundingBoxCase* generateEnsembleCandidates( RimEclipseCaseEnsemble& ensemble,
+                                                                  size_t                  timeStepIdx,
+                                                                  VolumeType              volumeType,
+                                                                  VolumesType             volumesType,
+                                                                  VolumeResultType        volumeResultType,
+                                                                  const ClusteringLimits& limits );
 
     class ClusterStatistics
     {

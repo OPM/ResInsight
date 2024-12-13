@@ -1,0 +1,217 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2024-     Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RifReaderBoundingBoxModel.h"
+
+#include "RiaQDateTimeTools.h"
+
+#include "RigActiveCellInfo.h"
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
+#include "RigEclipseResultInfo.h"
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifReaderBoundingBoxModel::open( const QString& fileName, RigEclipseCaseData* eclipseCase )
+{
+    m_reservoirBuilder.createGridsAndCells( eclipseCase );
+
+    m_reservoir = eclipseCase;
+
+    RigCaseCellResultsData* cellResults = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+    int timeStepCount = 3;
+    int resultCount   = 3;
+
+    std::vector<RigEclipseTimeStepInfo> timeStepInfos;
+    {
+        std::vector<QDateTime> dates;
+        std::vector<double>    days;
+        std::vector<int>       repNumbers;
+
+        for ( int i = 0; i < timeStepCount; i++ )
+        {
+            dates.push_back( RiaQDateTimeTools::createDateTime( QDate( 2012 + i, 6, 1 ) ) );
+            days.push_back( i );
+            repNumbers.push_back( i );
+        }
+
+        timeStepInfos = RigEclipseTimeStepInfo::createTimeStepInfos( dates, repNumbers, days );
+    }
+
+    for ( int i = 0; i < resultCount; i++ )
+    {
+        RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, QString( "Dynamic_Result_%1" ).arg( i ) );
+        cellResults->createResultEntry( resAddr, false );
+        cellResults->setTimeStepInfos( resAddr, timeStepInfos );
+    }
+
+    if ( timeStepCount == 0 ) return true;
+
+    std::vector<RigEclipseTimeStepInfo> staticResultTimeStepInfos;
+    staticResultTimeStepInfos.push_back( timeStepInfos[0] );
+
+    for ( int i = 0; i < resultCount; i++ )
+    {
+        QString varEnd;
+        if ( i == 0 ) varEnd = "X";
+        if ( i == 1 ) varEnd = "Y";
+        int resIndex = 0;
+        if ( i > 1 ) resIndex = i;
+
+        RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                         QString( "Static_Result_%1%2" ).arg( resIndex ).arg( varEnd ) );
+
+        cellResults->createResultEntry( resAddr, false );
+        cellResults->setTimeStepInfos( resAddr, staticResultTimeStepInfos );
+    }
+
+    // RigCaseCellResultsData* cellResults = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+    // int                                 resultCount = 2;
+    // std::vector<RigEclipseTimeStepInfo> timeStepInfos;
+    // {
+    //     std::vector<QDateTime> dates;
+    //     std::vector<double>    days;
+    //     std::vector<int>       repNumbers;
+
+    //     for ( int i = 0; i < resultCount; i++ )
+    //     {
+    //         dates.push_back( RiaQDateTimeTools::createDateTime( QDate( 2012 + i, 6, 1 ) ) );
+    //         days.push_back( i );
+    //         repNumbers.push_back( i );
+    //     }
+
+    //     timeStepInfos = RigEclipseTimeStepInfo::createTimeStepInfos( dates, repNumbers, days );
+    // }
+
+    // for ( int i = 0; i < resultCount; i++ )
+    // {
+    //     RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, QString( "Dynamic_Result_%1" ).arg( i ) );
+    //     cellResults->createResultEntry( resAddr, false );
+    //     cellResults->setTimeStepInfos( resAddr, timeStepInfos );
+    // }
+
+    // // if ( m_reservoirBuilder.timeStepCount() == 0 ) return true;
+
+    // std::vector<RigEclipseTimeStepInfo> staticResultTimeStepInfos;
+    // staticResultTimeStepInfos.push_back( timeStepInfos[0] );
+
+    // for ( int i = 0; i < static_cast<int>( 1 ); i++ )
+    // {
+    //     QString varEnd;
+    //     if ( i == 0 ) varEnd = "X";
+    //     if ( i == 1 ) varEnd = "Y";
+    //     int resIndex = 0;
+    //     if ( i > 1 ) resIndex = i;
+
+    //     RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::STATIC_NATIVE,
+    //                                      QString( "Static_Result_%1%2" ).arg( resIndex ).arg( varEnd ) );
+
+    //     cellResults->createResultEntry( resAddr, false );
+    //     cellResults->setTimeStepInfos( resAddr, staticResultTimeStepInfos );
+    // }
+
+    //     ADD_INPUT_PROPERTY( "PORO" );
+    //     ADD_INPUT_PROPERTY( "PERM" );
+    //     ADD_INPUT_PROPERTY( "MULTX" );
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifReaderBoundingBoxModel::inputProperty( const QString& propertyName, std::vector<double>* values )
+
+{
+    CAF_ASSERT( false );
+    //    return m_reservoirBuilder.inputProperty( m_reservoir, propertyName, values );
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifReaderBoundingBoxModel::staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values )
+{
+    //    CAF_ASSERT( false );
+    //    m_reservoirBuilder.staticResult( m_reservoir, result, values );
+    values->resize( m_reservoir->activeCellInfo( matrixOrFracture )->reservoirCellCount() );
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifReaderBoundingBoxModel::dynamicResult( const QString&                result,
+                                               RiaDefines::PorosityModelType matrixOrFracture,
+                                               size_t                        stepIndex,
+                                               std::vector<double>*          values )
+{
+    // CAF_ASSERT( false );
+    //    m_reservoirBuilder.dynamicResult( m_reservoir, result, stepIndex, values );
+
+    values->resize( m_reservoir->activeCellInfo( matrixOrFracture )->reservoirCellCount() );
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifReaderBoundingBoxModel::RifReaderBoundingBoxModel()
+    : m_reservoir( nullptr )
+{
+    /*
+    m_cellResults.push_back("Dummy results");
+    m_cellProperties.push_back("Dummy static result");
+    */
+}
+
+RifReaderBoundingBoxModel::~RifReaderBoundingBoxModel()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderBoundingBoxModel::setWorldCoordinates( cvf::Vec3d minWorldCoordinate, cvf::Vec3d maxWorldCoordinate )
+{
+    m_reservoirBuilder.setWorldCoordinates( minWorldCoordinate, maxWorldCoordinate );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderBoundingBoxModel::setGridPointDimensions( const cvf::Vec3st& gridPointDimensions )
+{
+    m_reservoirBuilder.setIJKCount( gridPointDimensions );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderBoundingBoxModel::addLocalGridRefinement( const cvf::Vec3st& minCellPosition,
+                                                        const cvf::Vec3st& maxCellPosition,
+                                                        const cvf::Vec3st& singleCellRefinementFactors )
+{
+    m_reservoirBuilder.addLocalGridRefinement( minCellPosition, maxCellPosition, singleCellRefinementFactors );
+}

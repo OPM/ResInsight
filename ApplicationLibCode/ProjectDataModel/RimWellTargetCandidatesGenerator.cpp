@@ -24,11 +24,14 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseResultAddress.h"
+#include "RimEclipseBoundingBoxCase.h"
 #include "Well/RigWellTargetCandidatesGenerator.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseView.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimTools.h"
 
@@ -304,13 +307,33 @@ void RimWellTargetCandidatesGenerator::generateEnsembleStatistics()
     if ( !ensemble ) return;
 
     RigWellTargetCandidatesGenerator::ClusteringLimits limits = getClusteringLimits();
-    RigWellTargetCandidatesGenerator::generateEnsembleCandidates( *m_targetCase(),
-                                                                  *ensemble,
-                                                                  m_timeStep(),
-                                                                  m_volumeType(),
-                                                                  m_volumesType(),
-                                                                  m_volumeResultType(),
-                                                                  limits );
+    RimEclipseBoundingBoxCase* boundingBoxCase                = RigWellTargetCandidatesGenerator::generateEnsembleCandidates( *ensemble,
+                                                                                                               m_timeStep(),
+                                                                                                               m_volumeType(),
+                                                                                                               m_volumesType(),
+                                                                                                               m_volumeResultType(),
+                                                                                                               limits );
+
+    RimProject* project = RimProject::current();
+    if ( !project ) return;
+
+    RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
+    if ( !analysisModels ) return;
+
+    analysisModels->cases.push_back( boundingBoxCase );
+
+    auto eclipseView = boundingBoxCase->createAndAddReservoirView();
+
+    // eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::INPUT_PROPERTY );
+
+    // if ( RiaGuiApplication::isRunning() )
+    // {
+    //     if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
+    // }
+
+    eclipseView->loadDataAndUpdate();
+
+    analysisModels->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -29,6 +29,7 @@
 #include "RigMainGrid.h"
 #include "RigStatisticsMath.h"
 
+#include "RimEclipseBoundingBoxCase.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseView.h"
@@ -702,13 +703,12 @@ std::vector<RigWellTargetCandidatesGenerator::ClusterStatistics>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCase&         targetCase,
-                                                                   RimEclipseCaseEnsemble& ensemble,
-                                                                   size_t                  timeStepIdx,
-                                                                   VolumeType              volumeType,
-                                                                   VolumesType             volumesType,
-                                                                   VolumeResultType        volumeResultType,
-                                                                   const ClusteringLimits& limits )
+RimEclipseBoundingBoxCase* RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCaseEnsemble& ensemble,
+                                                                                         size_t                  timeStepIdx,
+                                                                                         VolumeType              volumeType,
+                                                                                         VolumesType             volumesType,
+                                                                                         VolumeResultType        volumeResultType,
+                                                                                         const ClusteringLimits& limits )
 {
     RiaLogging::debug( "Generating ensemble statistics" );
 
@@ -733,6 +733,10 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
     RiaLogging::debug(
         QString( "Clusters bounding box max: [%1 %2 %3]" ).arg( boundingBox.max().x() ).arg( boundingBox.max().y() ).arg( boundingBox.max().z() ) );
 
+    RimEclipseBoundingBoxCase* targetCase = new RimEclipseBoundingBoxCase;
+    targetCase->setBoundingBox( boundingBox );
+    targetCase->createModel( "" );
+
     std::vector<int> occupancy;
 
     std::map<QString, std::vector<std::vector<double>>> resultNamesAndSamples;
@@ -746,15 +750,17 @@ void RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCas
     {
         auto task = progInfo.task( "Accumulating results.", 1 );
 
-        accumulateResultsForSingleCase( *eclipseCase, targetCase, resultNamesAndSamples, occupancy );
+        accumulateResultsForSingleCase( *eclipseCase, *targetCase, resultNamesAndSamples, occupancy );
     }
 
-    createResultVector( targetCase, "OCCUPANCY", occupancy );
+    createResultVector( *targetCase, "OCCUPANCY", occupancy );
 
     for ( auto [resultName, vec] : resultNamesAndSamples )
     {
-        computeStatisticsAndCreateVectors( targetCase, resultName, vec );
+        computeStatisticsAndCreateVectors( *targetCase, resultName, vec );
     }
+
+    return targetCase;
 }
 
 //--------------------------------------------------------------------------------------------------
