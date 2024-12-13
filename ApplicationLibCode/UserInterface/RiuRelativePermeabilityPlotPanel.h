@@ -32,6 +32,7 @@ class QButtonGroup;
 class QCheckBox;
 class QwtPlot;
 class QwtPlotMarker;
+class QwtPlotCurve;
 class QPointF;
 class QGroupBox;
 
@@ -88,7 +89,10 @@ private:
                                  bool                                                         fixedLeftYAxis,
                                  QwtPlot*                                                     plot,
                                  std::vector<QwtPlotMarker*>*                                 myPlotMarkers,
-                                 bool                                                         skipUnscaledLegends );
+                                 bool                                                         showScaled,
+                                 bool                                                         showUnscaled );
+
+    static QwtPlotCurve* getLegendCurve( QString title, bool scaled );
 
     static QString determineXAxisTitleFromCurveCollection( const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr );
 

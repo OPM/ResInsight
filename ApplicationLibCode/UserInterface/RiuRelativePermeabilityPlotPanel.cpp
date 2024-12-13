@@ -239,7 +239,7 @@ void RiuRelativePermeabilityPlotPanel::clearPlot()
     m_caseName.clear();
     m_cellReferenceText.clear();
 
-    plotCurvesInQwt( m_unitSystem, m_allCurvesArr, m_swat, m_sgas, m_cellReferenceText, false, true, true, m_qwtPlot, &m_myPlotMarkers, false );
+    plotCurvesInQwt( m_unitSystem, m_allCurvesArr, m_swat, m_sgas, m_cellReferenceText, false, true, true, m_qwtPlot, &m_myPlotMarkers, false, false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -265,10 +265,9 @@ void RiuRelativePermeabilityPlotPanel::plotUiSelectedCurves()
 {
     std::vector<RigFlowDiagSolverInterface::RelPermCurve> selectedCurves = gatherUiSelectedCurves();
 
-    const bool useLogScale        = m_logarithmicScaleKrAxisCheckBox->isChecked();
-    const bool fixedXAxis         = m_fixedXAxisCheckBox->isChecked();
-    const bool fixedYAxis         = m_fixedLeftYAxisCheckBox->isChecked();
-    const bool skipUnscaledLegend = m_showUnscaledCheckBox->isChecked() && m_showScaledCheckBox->isChecked();
+    const bool useLogScale = m_logarithmicScaleKrAxisCheckBox->isChecked();
+    const bool fixedXAxis  = m_fixedXAxisCheckBox->isChecked();
+    const bool fixedYAxis  = m_fixedLeftYAxisCheckBox->isChecked();
     plotCurvesInQwt( m_unitSystem,
                      selectedCurves,
                      m_swat,
@@ -279,7 +278,8 @@ void RiuRelativePermeabilityPlotPanel::plotUiSelectedCurves()
                      fixedYAxis,
                      m_qwtPlot,
                      &m_myPlotMarkers,
-                     skipUnscaledLegend );
+                     m_showScaledCheckBox->isChecked(),
+                     m_showUnscaledCheckBox->isChecked() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -342,8 +342,11 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
                                                         bool                                                         fixedLeftYAxis,
                                                         QwtPlot*                                                     plot,
                                                         std::vector<QwtPlotMarker*>*                                 myPlotMarkers,
-                                                        bool                                                         skipUnscaledLegends )
+                                                        bool                                                         showScaled,
+                                                        bool                                                         showUnscaled )
 {
+    bool skipUnscaledLegends = showScaled && showUnscaled;
+
     plot->detachItems( QwtPlotItem::Rtti_PlotCurve );
 
     // Workaround for detaching only plot markers that we have added
@@ -421,7 +424,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
         qwtCurve->setSymbol( curveSymbol );
 
         qwtCurve->setLegendAttribute( QwtPlotCurve::LegendShowLine, true );
-        qwtCurve->setLegendAttribute( QwtPlotCurve::LegendShowSymbol, true );
+        qwtCurve->setLegendAttribute( QwtPlotCurve::LegendShowSymbol, false );
         qwtCurve->setLegendAttribute( QwtPlotCurve::LegendShowBrush, true );
 
         const bool showLegend = !( unscaledCurve && skipUnscaledLegends );
@@ -524,6 +527,18 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
         plot->setAxisAutoScale( QwtAxis::YLeft, true );
     }
 
+    if ( showScaled )
+    {
+        QwtPlotCurve* curve = getLegendCurve( "Scaled", true /*scaled*/ );
+        curve->attach( plot );
+    }
+
+    if ( showUnscaled )
+    {
+        QwtPlotCurve* curve = getLegendCurve( "Unscaled", false /*scaled*/ );
+        curve->attach( plot );
+    }
+
     QString titleStr = "Relative Permeability";
     if ( !cellReferenceText.isEmpty() )
     {
@@ -535,6 +550,30 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
     plot->setAxisTitle( QwtAxis::YLeft, "Kr" );
     plot->setAxisTitle( QwtAxis::YRight, QString( "Pc [%1]" ).arg( RiaEclipseUnitTools::unitStringPressure( unitSystem ) ) );
     plot->replot();
+}
+
+QwtPlotCurve* RiuRelativePermeabilityPlotPanel::getLegendCurve( QString title, bool scaled )
+{
+    QwtPlotCurve* curve = new QwtPlotCurve( title );
+
+    curve->setTitle( title );
+
+    curve->setStyle( QwtPlotCurve::Lines );
+
+    const QPen curvePen( QBrush(), 1, Qt::SolidLine );
+    curve->setPen( curvePen );
+
+    auto* curveSymbol = scaled ? new RiuQwtSymbol( RiuPlotCurveSymbol::SYMBOL_ELLIPSE ) : new RiuQwtSymbol( RiuPlotCurveSymbol::SYMBOL_CROSS );
+    curveSymbol->setSize( 6, 6 );
+    curveSymbol->setBrush( QBrush() );
+    curve->setSymbol( curveSymbol );
+
+    curve->setLegendAttribute( QwtPlotCurve::LegendShowLine, true );
+    curve->setLegendAttribute( QwtPlotCurve::LegendShowSymbol, true );
+    curve->setLegendAttribute( QwtPlotCurve::LegendShowBrush, false );
+    curve->setItemAttribute( QwtPlotItem::Legend, true );
+
+    return curve;
 }
 
 //--------------------------------------------------------------------------------------------------
