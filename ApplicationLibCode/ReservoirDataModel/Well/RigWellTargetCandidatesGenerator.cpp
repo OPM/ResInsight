@@ -29,12 +29,12 @@
 #include "RigMainGrid.h"
 #include "RigStatisticsMath.h"
 
-#include "RimRegularGridCase.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseView.h"
 #include "RimProject.h"
 #include "RimPropertyFilterCollection.h"
+#include "RimRegularGridCase.h"
 #include "RimTools.h"
 
 #include "cafProgressInfo.h"
@@ -189,7 +189,7 @@ void RigWellTargetCandidatesGenerator::generateCandidates( RimEclipseCase*      
     auto addValuesForClusterId = []( std::vector<double>& values, const std::vector<int>& clusters, int clusterId, double value )
     {
 #pragma omp parallel for
-        for ( size_t i = 0; i < clusters.size(); i++ )
+        for ( int i = 0; i < static_cast<int>( clusters.size() ); i++ )
         {
             if ( clusters[i] == clusterId ) values[i] = value;
         }
@@ -704,11 +704,11 @@ std::vector<RigWellTargetCandidatesGenerator::ClusterStatistics>
 ///
 //--------------------------------------------------------------------------------------------------
 RimRegularGridCase* RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCaseEnsemble& ensemble,
-                                                                                         size_t                  timeStepIdx,
-                                                                                         VolumeType              volumeType,
-                                                                                         VolumesType             volumesType,
-                                                                                         VolumeResultType        volumeResultType,
-                                                                                         const ClusteringLimits& limits )
+                                                                                  size_t                  timeStepIdx,
+                                                                                  VolumeType              volumeType,
+                                                                                  VolumesType             volumesType,
+                                                                                  VolumeResultType        volumeResultType,
+                                                                                  const ClusteringLimits& limits )
 {
     RiaLogging::debug( "Generating ensemble statistics" );
 
