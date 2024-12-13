@@ -49,63 +49,14 @@ class RimEclipseBoundingBoxCase : public RimEclipseResultCase
 
 public:
     RimEclipseBoundingBoxCase();
-    //    ~RimEclipseBoundingBoxCase() override;
 
     void setBoundingBox( const cvf::BoundingBox& boundingBox );
 
-    // void setCaseInfo( const QString& userDescription, const QString& fileName );
-
     bool openEclipseGridFile() override;
 
-    //     bool importGridAndResultMetaData( bool showTimeStepFilter );
-    //     bool importAsciiInputProperties( const QStringList& fileNames ) override;
-
-    //     void reloadEclipseGridFile() override;
-    //     bool openAndReadActiveCellData( RigEclipseCaseData* mainEclipseCase );
-    //     void readGridDimensions( std::vector<std::vector<int>>& gridDimensions );
-
-    //     caf::AppEnum<RiaDefines::EclipseUnitSystem> unitSystem();
-
-    //     QString locationOnDisc() const override;
-
-    //     RimFlowDiagSolution*              defaultFlowDiagSolution();
-    //     std::vector<RimFlowDiagSolution*> flowDiagSolutions();
-    //     RigFlowDiagSolverInterface*       flowDiagSolverInterface();
-
-    //     RifReaderRftInterface* rftReader();
-
-    //     // A multi segment well can have multiple well paths. Valves can be modeled using short branches. This threshold defines the
-    //     limit for
-    //     // merging branches into the upstream branch.
-    //     int mswMergeThreshold() const;
-
-    // protected:
-    //     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    //     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-
-    // private:
-    //     void loadAndUpdateSourSimData();
-    //     void ensureRftDataIsImported();
-    //     bool showTimeStepFilterGUI();
-
     cvf::ref<RifReaderInterface> createModel( QString modelName );
-    //     void                         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    // cvf::ref<RigFlowDiagSolverInterface> m_flowDagSolverInterface;
-
-    // cvf::ref<RifReaderEclipseRft> m_readerEclipseRft;
-    // cvf::ref<RifReaderOpmRft>     m_readerOpmRft;
-
-    // caf::PdmProxyValueField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_unitSystem;
-    // caf::PdmChildArrayField<RimFlowDiagSolution*>                        m_flowDiagSolutions;
     caf::PdmField<cvf::Vec3d> m_minimum;
     caf::PdmField<cvf::Vec3d> m_maximum;
-
-    // caf::PdmField<std::pair<bool, int>> m_mswMergeThreshold;
-
-    // bool m_gridAndWellDataIsReadFromFile;
-    // bool m_activeCellInfoIsReadFromFile;
-    // bool m_useOpmRftReader;
-    // bool m_rftDataIsReadFromFile;
 };
