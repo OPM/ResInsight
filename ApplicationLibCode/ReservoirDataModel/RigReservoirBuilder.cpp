@@ -79,22 +79,18 @@ void RigReservoirBuilder::createGridsAndCells( RigEclipseCaseData* eclipseCase )
 
     size_t totalCellCount = mainGridCellCount;
 
-    size_t lgrIdx;
-    for ( lgrIdx = 0; lgrIdx < m_localGridRefinements.size(); lgrIdx++ )
+    for ( size_t lgrIdx = 0; lgrIdx < m_localGridRefinements.size(); lgrIdx++ )
     {
         LocalGridRefinement& lgr = m_localGridRefinements[lgrIdx];
 
         // Compute all global cell indices to be replaced by local grid refinement
         std::vector<size_t> mainGridIndicesWithSubGrid;
         {
-            size_t i;
-            for ( i = lgr.m_mainGridMinCellPosition.x(); i <= lgr.m_mainGridMaxCellPosition.x(); i++ )
+            for ( size_t i = lgr.m_mainGridMinCellPosition.x(); i <= lgr.m_mainGridMaxCellPosition.x(); i++ )
             {
-                size_t j;
-                for ( j = lgr.m_mainGridMinCellPosition.y(); j <= lgr.m_mainGridMaxCellPosition.y(); j++ )
+                for ( size_t j = lgr.m_mainGridMinCellPosition.y(); j <= lgr.m_mainGridMaxCellPosition.y(); j++ )
                 {
-                    size_t k;
-                    for ( k = lgr.m_mainGridMinCellPosition.z(); k <= lgr.m_mainGridMaxCellPosition.z(); k++ )
+                    for ( size_t k = lgr.m_mainGridMinCellPosition.z(); k <= lgr.m_mainGridMaxCellPosition.z(); k++ )
                     {
                         mainGridIndicesWithSubGrid.push_back( cellIndexFromIJK( i, j, k ) );
                     }
@@ -122,14 +118,12 @@ void RigReservoirBuilder::createGridsAndCells( RigEclipseCaseData* eclipseCase )
         localGrid->setGridPointDimensions( gridPointDimensions );
 
         cvf::BoundingBox bb;
-        size_t           cellIdx;
-        for ( cellIdx = 0; cellIdx < mainGridIndicesWithSubGrid.size(); cellIdx++ )
+        for ( size_t cellIdx = 0; cellIdx < mainGridIndicesWithSubGrid.size(); cellIdx++ )
         {
             RigCell& cell = eclipseCase->mainGrid()->cell( mainGridIndicesWithSubGrid[cellIdx] );
 
             std::array<size_t, 8>& indices = cell.cornerIndices();
-            int                    nodeIdx;
-            for ( nodeIdx = 0; nodeIdx < 8; nodeIdx++ )
+            for ( int nodeIdx = 0; nodeIdx < 8; nodeIdx++ )
             {
                 bb.add( eclipseCase->mainGrid()->nodes()[indices[nodeIdx]] );
             }
@@ -203,18 +197,15 @@ void RigReservoirBuilder::appendNodes( const cvf::Vec3d& min, const cvf::Vec3d& 
 
     double zPos = min.z();
 
-    size_t k;
-    for ( k = 0; k < cubeDimension.z(); k++ )
+    for ( size_t k = 0; k < cubeDimension.z(); k++ )
     {
         double yPos = min.y();
 
-        size_t j;
-        for ( j = 0; j < cubeDimension.y(); j++ )
+        for ( size_t j = 0; j < cubeDimension.y(); j++ )
         {
             double xPos = min.x();
 
-            size_t i;
-            for ( i = 0; i < cubeDimension.x(); i++ )
+            for ( size_t i = 0; i < cubeDimension.x(); i++ )
             {
                 cvf::Vec3d cornerA( xPos, yPos, zPos );
                 cvf::Vec3d cornerB( xPos + dx, yPos + dy, zPos + dz );
