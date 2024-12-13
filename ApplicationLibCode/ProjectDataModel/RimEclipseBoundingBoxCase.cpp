@@ -18,54 +18,10 @@
 
 #include "RimEclipseBoundingBoxCase.h"
 
-#include "RiaApplication.h"
-#include "RiaLogging.h"
-#include "RiaPreferencesGrid.h"
-#include "RiaRegressionTestRunner.h"
-#include "RiaResultNames.h"
-
-#include "RicfCommandObject.h"
-
-#include "RifEclipseOutputFileTools.h"
-#include "RifEclipseRestartDataAccess.h"
-#include "RifInputPropertyLoader.h"
 #include "RifReaderBoundingBoxModel.h"
-#include "RifReaderEclipseOutput.h"
-#include "RifReaderEclipseRft.h"
-#include "RifReaderOpmCommon.h"
-#include "RifReaderOpmCommonActive.h"
-#include "RifReaderOpmRft.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RigFlowDiagSolverInterface.h"
-#include "RigMainGrid.h"
-
-#include "RimDialogData.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipseInputProperty.h"
-#include "RimEclipseInputPropertyCollection.h"
-#include "RimEclipseView.h"
-#include "RimFlowDiagSolution.h"
-#include "RimMockModelSettings.h"
-#include "RimProject.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "RimTimeStepFilter.h"
-#include "RimTools.h"
-
-#include "cafPdmUiCheckBoxAndTextEditor.h"
-#include "cafPdmUiFilePathEditor.h"
-#include "cafPdmUiPropertyViewDialog.h"
-#include "cafProgressInfo.h"
-#include "cafUtils.h"
-
-#include <QApplication>
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
-
-#include <fstream>
-#include <string>
 
 CAF_PDM_SOURCE_INIT( RimEclipseBoundingBoxCase, "EclipseBoundingBoxCase" );
 //--------------------------------------------------------------------------------------------------
@@ -73,16 +29,13 @@ CAF_PDM_SOURCE_INIT( RimEclipseBoundingBoxCase, "EclipseBoundingBoxCase" );
 //--------------------------------------------------------------------------------------------------
 RimEclipseBoundingBoxCase::RimEclipseBoundingBoxCase()
 {
-    CAF_PDM_InitScriptableObject( "Bounding Box Case", ":/Case48x48.png", "", "Bounding Box Case" );
+    CAF_PDM_InitObject( "Bounding Box Case", ":/Case48x48.png", "", "Bounding Box Case" );
 
     CAF_PDM_InitFieldNoDefault( &m_minimum, "Minimum", "Minimum" );
     m_minimum.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_maximum, "Maximum", "Maximum" );
     m_maximum.uiCapability()->setUiReadOnly( true );
-
-    m_minimum = cvf::Vec3d( 461275, 5.93004e+06, -1697.72 );
-    m_maximum = cvf::Vec3d( 466164, 5.9355e+06, -1556.65 );
 }
 
 //--------------------------------------------------------------------------------------------------

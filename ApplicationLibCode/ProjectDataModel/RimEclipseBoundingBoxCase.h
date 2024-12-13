@@ -22,21 +22,8 @@
 
 #include "RimEclipseResultCase.h"
 
-#include "cafFilePath.h"
-#include "cafPdmProxyValueField.h"
-
 #include "cafPdmFieldCvfVec3d.h"
 #include "cvfBoundingBox.h"
-
-class RifReaderRftInterface;
-class RifReaderEclipseRft;
-class RifReaderOpmRft;
-class RifReaderInterface;
-class RigFlowDiagSolverInterface;
-class RigMainGrid;
-class RimEclipseInputProperty;
-class RimEclipseInputPropertyCollection;
-class RimFlowDiagSolution;
 
 //==================================================================================================
 //
