@@ -18,18 +18,21 @@
 
 #include "RimWellTargetCandidatesGenerator.h"
 
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPorosityModel.h"
 #include "RiaResultNames.h"
+#include "RiuMainWindow.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseResultAddress.h"
-#include "RimEclipseBoundingBoxCase.h"
+#include "RimRegularGridCase.h"
 #include "Well/RigWellTargetCandidatesGenerator.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -307,12 +310,12 @@ void RimWellTargetCandidatesGenerator::generateEnsembleStatistics()
     if ( !ensemble ) return;
 
     RigWellTargetCandidatesGenerator::ClusteringLimits limits = getClusteringLimits();
-    RimEclipseBoundingBoxCase* boundingBoxCase                = RigWellTargetCandidatesGenerator::generateEnsembleCandidates( *ensemble,
-                                                                                                               m_timeStep(),
-                                                                                                               m_volumeType(),
-                                                                                                               m_volumesType(),
-                                                                                                               m_volumeResultType(),
-                                                                                                               limits );
+    RimRegularGridCase* regularGridCase                       = RigWellTargetCandidatesGenerator::generateEnsembleCandidates( *ensemble,
+                                                                                                        m_timeStep(),
+                                                                                                        m_volumeType(),
+                                                                                                        m_volumesType(),
+                                                                                                        m_volumeResultType(),
+                                                                                                        limits );
 
     RimProject* project = RimProject::current();
     if ( !project ) return;
@@ -320,16 +323,16 @@ void RimWellTargetCandidatesGenerator::generateEnsembleStatistics()
     RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
     if ( !analysisModels ) return;
 
-    analysisModels->cases.push_back( boundingBoxCase );
+    analysisModels->cases.push_back( regularGridCase );
 
-    auto eclipseView = boundingBoxCase->createAndAddReservoirView();
+    auto eclipseView = regularGridCase->createAndAddReservoirView();
 
     // eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::INPUT_PROPERTY );
 
-    // if ( RiaGuiApplication::isRunning() )
-    // {
-    //     if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
-    // }
+    if ( RiaGuiApplication::isRunning() || RiuMainWindow::instance() )
+    {
+        RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
+    }
 
     eclipseView->loadDataAndUpdate();
 

@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RifReaderBoundingBoxModel.h"
+#include "RifReaderRegularGridModel.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -24,7 +24,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderBoundingBoxModel::RifReaderBoundingBoxModel()
+RifReaderRegularGridModel::RifReaderRegularGridModel()
     : m_reservoir( nullptr )
 {
 }
@@ -32,14 +32,14 @@ RifReaderBoundingBoxModel::RifReaderBoundingBoxModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderBoundingBoxModel::~RifReaderBoundingBoxModel()
+RifReaderRegularGridModel::~RifReaderRegularGridModel()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderBoundingBoxModel::open( const QString& fileName, RigEclipseCaseData* eclipseCase )
+bool RifReaderRegularGridModel::open( const QString& fileName, RigEclipseCaseData* eclipseCase )
 {
     m_reservoirBuilder.createGridsAndCells( eclipseCase );
     m_reservoir = eclipseCase;
@@ -49,7 +49,7 @@ bool RifReaderBoundingBoxModel::open( const QString& fileName, RigEclipseCaseDat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderBoundingBoxModel::inputProperty( const QString& propertyName, std::vector<double>* values )
+bool RifReaderRegularGridModel::inputProperty( const QString& propertyName, std::vector<double>* values )
 
 {
     CAF_ASSERT( false );
@@ -59,7 +59,7 @@ bool RifReaderBoundingBoxModel::inputProperty( const QString& propertyName, std:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderBoundingBoxModel::staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values )
+bool RifReaderRegularGridModel::staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values )
 {
     CAF_ASSERT( false );
     return true;
@@ -68,7 +68,7 @@ bool RifReaderBoundingBoxModel::staticResult( const QString& result, RiaDefines:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderBoundingBoxModel::dynamicResult( const QString&                result,
+bool RifReaderRegularGridModel::dynamicResult( const QString&                result,
                                                RiaDefines::PorosityModelType matrixOrFracture,
                                                size_t                        stepIndex,
                                                std::vector<double>*          values )
@@ -80,7 +80,7 @@ bool RifReaderBoundingBoxModel::dynamicResult( const QString&                res
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderBoundingBoxModel::setWorldCoordinates( cvf::Vec3d minWorldCoordinate, cvf::Vec3d maxWorldCoordinate )
+void RifReaderRegularGridModel::setWorldCoordinates( cvf::Vec3d minWorldCoordinate, cvf::Vec3d maxWorldCoordinate )
 {
     m_reservoirBuilder.setWorldCoordinates( minWorldCoordinate, maxWorldCoordinate );
 }
@@ -88,7 +88,7 @@ void RifReaderBoundingBoxModel::setWorldCoordinates( cvf::Vec3d minWorldCoordina
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderBoundingBoxModel::setGridPointDimensions( const cvf::Vec3st& gridPointDimensions )
+void RifReaderRegularGridModel::setGridPointDimensions( const cvf::Vec3st& gridPointDimensions )
 {
     m_reservoirBuilder.setIJKCount( gridPointDimensions );
 }
@@ -96,7 +96,7 @@ void RifReaderBoundingBoxModel::setGridPointDimensions( const cvf::Vec3st& gridP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderBoundingBoxModel::addLocalGridRefinement( const cvf::Vec3st& minCellPosition,
+void RifReaderRegularGridModel::addLocalGridRefinement( const cvf::Vec3st& minCellPosition,
                                                         const cvf::Vec3st& maxCellPosition,
                                                         const cvf::Vec3st& singleCellRefinementFactors )
 {

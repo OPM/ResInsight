@@ -21,11 +21,11 @@
 #include "RifReaderInterface.h"
 #include "RigReservoirBuilder.h"
 
-class RifReaderBoundingBoxModel : public RifReaderInterface
+class RifReaderRegularGridModel : public RifReaderInterface
 {
 public:
-    RifReaderBoundingBoxModel();
-    ~RifReaderBoundingBoxModel() override;
+    RifReaderRegularGridModel();
+    ~RifReaderRegularGridModel() override;
 
     void setWorldCoordinates( cvf::Vec3d minWorldCoordinate, cvf::Vec3d maxWorldCoordinate );
     void setGridPointDimensions( const cvf::Vec3st& gridPointDimensions );

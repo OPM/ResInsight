@@ -137,7 +137,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMap.h
     ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMapProjection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMapView.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseBoundingBoxCase.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimRegularGridCase.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -275,7 +275,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMap.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMapProjection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMapView.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseBoundingBoxCase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimRegularGridCase.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)

@@ -16,18 +16,18 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimEclipseBoundingBoxCase.h"
+#include "RimRegularGridCase.h"
 
-#include "RifReaderBoundingBoxModel.h"
+#include "RifReaderRegularGridModel.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 
-CAF_PDM_SOURCE_INIT( RimEclipseBoundingBoxCase, "EclipseBoundingBoxCase" );
+CAF_PDM_SOURCE_INIT( RimRegularGridCase, "EclipseBoundingBoxCase" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseBoundingBoxCase::RimEclipseBoundingBoxCase()
+RimRegularGridCase::RimRegularGridCase()
 {
     CAF_PDM_InitObject( "Bounding Box Case", ":/Case48x48.png", "", "Bounding Box Case" );
 
@@ -42,7 +42,7 @@ RimEclipseBoundingBoxCase::RimEclipseBoundingBoxCase()
 ///
 //--------------------------------------------------------------------------------------------------
 
-void RimEclipseBoundingBoxCase::setBoundingBox( const cvf::BoundingBox& boundingBox )
+void RimRegularGridCase::setBoundingBox( const cvf::BoundingBox& boundingBox )
 {
     m_minimum = boundingBox.min();
     m_maximum = boundingBox.max();
@@ -51,9 +51,9 @@ void RimEclipseBoundingBoxCase::setBoundingBox( const cvf::BoundingBox& bounding
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RifReaderInterface> RimEclipseBoundingBoxCase::createModel( QString modelName )
+cvf::ref<RifReaderInterface> RimRegularGridCase::createModel( QString modelName )
 {
-    cvf::ref<RifReaderBoundingBoxModel> reader    = new RifReaderBoundingBoxModel;
+    cvf::ref<RifReaderRegularGridModel> reader    = new RifReaderRegularGridModel;
     cvf::ref<RigEclipseCaseData>        reservoir = new RigEclipseCaseData( this );
 
     reader->setWorldCoordinates( m_minimum, m_maximum );
@@ -71,7 +71,7 @@ cvf::ref<RifReaderInterface> RimEclipseBoundingBoxCase::createModel( QString mod
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseBoundingBoxCase::openEclipseGridFile()
+bool RimRegularGridCase::openEclipseGridFile()
 {
     if ( eclipseCaseData() ) return true;
 

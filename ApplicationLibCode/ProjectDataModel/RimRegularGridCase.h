@@ -30,12 +30,12 @@
 //
 //
 //==================================================================================================
-class RimEclipseBoundingBoxCase : public RimEclipseResultCase
+class RimRegularGridCase : public RimEclipseResultCase
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimEclipseBoundingBoxCase();
+    RimRegularGridCase();
 
     void setBoundingBox( const cvf::BoundingBox& boundingBox );
 

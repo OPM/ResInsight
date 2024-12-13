@@ -29,7 +29,7 @@
 #include "RigMainGrid.h"
 #include "RigStatisticsMath.h"
 
-#include "RimEclipseBoundingBoxCase.h"
+#include "RimRegularGridCase.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseView.h"
@@ -703,7 +703,7 @@ std::vector<RigWellTargetCandidatesGenerator::ClusterStatistics>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseBoundingBoxCase* RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCaseEnsemble& ensemble,
+RimRegularGridCase* RigWellTargetCandidatesGenerator::generateEnsembleCandidates( RimEclipseCaseEnsemble& ensemble,
                                                                                          size_t                  timeStepIdx,
                                                                                          VolumeType              volumeType,
                                                                                          VolumesType             volumesType,
@@ -733,7 +733,7 @@ RimEclipseBoundingBoxCase* RigWellTargetCandidatesGenerator::generateEnsembleCan
     RiaLogging::debug(
         QString( "Clusters bounding box max: [%1 %2 %3]" ).arg( boundingBox.max().x() ).arg( boundingBox.max().y() ).arg( boundingBox.max().z() ) );
 
-    RimEclipseBoundingBoxCase* targetCase = new RimEclipseBoundingBoxCase;
+    RimRegularGridCase* targetCase = new RimRegularGridCase;
     targetCase->setBoundingBox( boundingBox );
     targetCase->createModel( "" );
 

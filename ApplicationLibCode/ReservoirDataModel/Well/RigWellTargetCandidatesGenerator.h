@@ -30,7 +30,7 @@ class RigActiveCellInfo;
 class RigCaseCellResultsData;
 class RimEclipseCase;
 class RimEclipseCaseEnsemble;
-class RimEclipseBoundingBoxCase;
+class RimRegularGridCase;
 
 //==================================================================================================
 ///
@@ -82,7 +82,7 @@ public:
                                                 VolumeResultType        volumeResultType,
                                                 size_t                  timeStepIdx );
 
-    static RimEclipseBoundingBoxCase* generateEnsembleCandidates( RimEclipseCaseEnsemble& ensemble,
+    static RimRegularGridCase* generateEnsembleCandidates( RimEclipseCaseEnsemble& ensemble,
                                                                   size_t                  timeStepIdx,
                                                                   VolumeType              volumeType,
                                                                   VolumesType             volumesType,
