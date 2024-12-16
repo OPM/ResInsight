@@ -25,6 +25,7 @@
 
 #include "Well/RigWellTargetCandidatesGenerator.h"
 
+class RimEclipseResultDefinition;
 class RimEclipseCase;
 
 //==================================================================================================
@@ -39,16 +40,20 @@ public:
     RimWellTargetCandidatesGenerator();
     ~RimWellTargetCandidatesGenerator() override;
 
+    void updateResultDefinition();
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          initAfterRead() override;
 
 private:
-    void generateCandidates( RimEclipseCase* eclipseCase );
-    void updateAllBoundaries();
-    void generateEnsembleStatistics();
+    void        generateCandidates( RimEclipseCase* eclipseCase );
+    void        updateAllBoundaries();
+    void        generateEnsembleStatistics();
+    cvf::Vec3st getResultGridCellCount() const;
 
     RimEclipseCase* firstCase() const;
 
@@ -65,8 +70,15 @@ private:
     caf::PdmField<double> m_permeability;
     caf::PdmField<double> m_transmissibility;
 
-    caf::PdmField<int>  m_maxIterations;
-    caf::PdmField<int>  m_maxClusters;
+    caf::PdmField<int> m_maxIterations;
+    caf::PdmField<int> m_maxClusters;
+
+    caf::PdmChildField<RimEclipseResultDefinition*> m_resultDefinition;
+
+    caf::PdmField<int> m_cellCountI;
+    caf::PdmField<int> m_cellCountJ;
+    caf::PdmField<int> m_cellCountK;
+
     caf::PdmField<bool> m_generateEnsembleStatistics;
 
     double m_minimumVolume;

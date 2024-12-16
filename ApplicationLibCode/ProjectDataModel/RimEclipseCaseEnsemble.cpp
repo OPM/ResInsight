@@ -193,6 +193,7 @@ RimEclipseViewCollection* RimEclipseCaseEnsemble::viewCollection() const
 void RimEclipseCaseEnsemble::addWellTargetsGenerator( RimWellTargetCandidatesGenerator* generator )
 {
     m_wellTargetGenerators.push_back( generator );
+    generator->updateResultDefinition();
 }
 
 //--------------------------------------------------------------------------------------------------

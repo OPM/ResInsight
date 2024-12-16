@@ -36,16 +36,34 @@ RimRegularGridCase::RimRegularGridCase()
 
     CAF_PDM_InitFieldNoDefault( &m_maximum, "Maximum", "Maximum" );
     m_maximum.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_cellCountI, "CellCountI", 100, "Cell Count I" );
+    m_cellCountI.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_cellCountJ, "CellCountJ", 100, "Cell Count J" );
+    m_cellCountJ.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_cellCountK, "CellCountK", 10, "Cell Count K" );
+    m_cellCountK.uiCapability()->setUiReadOnly( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
 void RimRegularGridCase::setBoundingBox( const cvf::BoundingBox& boundingBox )
 {
     m_minimum = boundingBox.min();
     m_maximum = boundingBox.max();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRegularGridCase::setCellCount( const cvf::Vec3st& cellCount )
+{
+    m_cellCountI = static_cast<int>( cellCount.x() );
+    m_cellCountJ = static_cast<int>( cellCount.y() );
+    m_cellCountK = static_cast<int>( cellCount.z() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,7 +76,7 @@ cvf::ref<RifReaderInterface> RimRegularGridCase::createModel( QString modelName 
 
     reader->setWorldCoordinates( m_minimum, m_maximum );
 
-    cvf::Vec3st gridPointDimensions( 50, 50, 10 );
+    cvf::Vec3st gridPointDimensions( m_cellCountI, m_cellCountJ, m_cellCountK );
     reader->setGridPointDimensions( gridPointDimensions );
 
     reader->open( "", reservoir.p() );

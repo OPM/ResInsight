@@ -188,6 +188,7 @@ void RimStatisticsContourMap::initAfterRead()
     RimEclipseCase* eclipseCase = ensemble->cases().front();
     setEclipseCase( eclipseCase );
 }
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

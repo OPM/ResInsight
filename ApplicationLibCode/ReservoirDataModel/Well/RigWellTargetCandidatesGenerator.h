@@ -23,6 +23,8 @@
 #include "cvfBoundingBox.h"
 #include "cvfStructGrid.h"
 
+#include "RigEclipseResultAddress.h"
+
 #include <map>
 #include <optional>
 
@@ -61,12 +63,13 @@ public:
 
     struct ClusteringLimits
     {
-        double volume;
-        double permeability;
-        double pressure;
-        double transmissibility;
-        int    maxClusters;
-        int    maxIterations;
+        double                  volume;
+        double                  permeability;
+        double                  pressure;
+        double                  transmissibility;
+        int                     maxClusters;
+        int                     maxIterations;
+        RigEclipseResultAddress filterAddress;
     };
 
     static void generateCandidates( RimEclipseCase*         eclipseCase,
@@ -84,6 +87,7 @@ public:
 
     static RimRegularGridCase* generateEnsembleCandidates( RimEclipseCaseEnsemble& ensemble,
                                                            size_t                  timeStepIdx,
+                                                           const cvf::Vec3st&      resultGridCellCount,
                                                            VolumeType              volumeType,
                                                            VolumesType             volumesType,
                                                            VolumeResultType        volumeResultType,
@@ -128,6 +132,7 @@ private:
                                                      const std::vector<double>& transmissibilityX,
                                                      const std::vector<double>& transmissibilityY,
                                                      const std::vector<double>& transmissibilityZ,
+                                                     const std::vector<double>& filterVector,
                                                      const std::vector<int>&    clusters );
 
     static void growCluster( RimEclipseCase*            eclipseCase,
@@ -141,6 +146,7 @@ private:
                              const std::vector<double>& transmissibilityX,
                              const std::vector<double>& transmissibilityY,
                              const std::vector<double>& transmissibilityZ,
+                             const std::vector<double>& filterVector,
                              std::vector<int>&          clusters,
                              int                        clusterId,
                              size_t                     timeStepIdx,
@@ -157,6 +163,7 @@ private:
                                                const std::vector<double>& transmissibilityX,
                                                const std::vector<double>& transmissibilityY,
                                                const std::vector<double>& transmissibilityZ,
+                                               const std::vector<double>& filterVector,
                                                std::vector<int>&          clusters );
 
     static void assignClusterIdToCells( const RigActiveCellInfo&   activeCellInfo,

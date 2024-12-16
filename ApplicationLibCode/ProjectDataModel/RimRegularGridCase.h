@@ -39,6 +39,8 @@ public:
 
     void setBoundingBox( const cvf::BoundingBox& boundingBox );
 
+    void setCellCount( const cvf::Vec3st& cellCount );
+
     bool openEclipseGridFile() override;
 
     cvf::ref<RifReaderInterface> createModel( QString modelName );
@@ -46,4 +48,8 @@ public:
 private:
     caf::PdmField<cvf::Vec3d> m_minimum;
     caf::PdmField<cvf::Vec3d> m_maximum;
+
+    caf::PdmField<int> m_cellCountI;
+    caf::PdmField<int> m_cellCountJ;
+    caf::PdmField<int> m_cellCountK;
 };
