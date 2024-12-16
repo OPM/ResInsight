@@ -33,6 +33,7 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -107,6 +108,17 @@ RimWellTargetCandidatesGenerator::RimWellTargetCandidatesGenerator()
 
     CAF_PDM_InitField( &m_maxIterations, "Iterations", 10000, "Max Iterations" );
     CAF_PDM_InitField( &m_maxClusters, "MaxClusters", 5, "Max Clusters" );
+
+    CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "" );
+    m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
+    m_resultDefinition = new RimEclipseResultDefinition;
+    m_resultDefinition->findField( "MResultType" )->uiCapability()->setUiName( "Result" );
+    m_resultDefinition->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
+    m_resultDefinition->setResultVariable( "SOIL" );
+
+    CAF_PDM_InitField( &m_cellCountI, "CellCountI", 100, "Cell Count I" );
+    CAF_PDM_InitField( &m_cellCountJ, "CellCountJ", 100, "Cell Count J" );
+    CAF_PDM_InitField( &m_cellCountK, "CellCountK", 10, "Cell Count K" );
 
     CAF_PDM_InitField( &m_generateEnsembleStatistics, "GenerateEnsembleStatistics", true, "Generate Ensemble Statistics" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_generateEnsembleStatistics );
@@ -282,6 +294,14 @@ void RimWellTargetCandidatesGenerator::defineEditorAttribute( const caf::PdmFiel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Vec3st RimWellTargetCandidatesGenerator::getResultGridCellCount() const
+{
+    return cvf::Vec3st( m_cellCountI, m_cellCountJ, m_cellCountK );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellTargetCandidatesGenerator::generateCandidates( RimEclipseCase* eclipseCase )
 {
     RigWellTargetCandidatesGenerator::ClusteringLimits limits = getClusteringLimits();
@@ -296,9 +316,11 @@ void RimWellTargetCandidatesGenerator::generateEnsembleStatistics()
     auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
     if ( !ensemble ) return;
 
-    RigWellTargetCandidatesGenerator::ClusteringLimits limits = getClusteringLimits();
-    RimRegularGridCase* regularGridCase                       = RigWellTargetCandidatesGenerator::generateEnsembleCandidates( *ensemble,
+    const cvf::Vec3st&                                 resultGridCellCount = getResultGridCellCount();
+    RigWellTargetCandidatesGenerator::ClusteringLimits limits              = getClusteringLimits();
+    RimRegularGridCase* regularGridCase = RigWellTargetCandidatesGenerator::generateEnsembleCandidates( *ensemble,
                                                                                                         m_timeStep(),
+                                                                                                        resultGridCellCount,
                                                                                                         m_volumeType(),
                                                                                                         m_volumesType(),
                                                                                                         m_volumeResultType(),
@@ -331,7 +353,31 @@ void RimWellTargetCandidatesGenerator::generateEnsembleStatistics()
 //--------------------------------------------------------------------------------------------------
 void RimWellTargetCandidatesGenerator::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    PdmObject::defineUiOrdering( uiConfigName, uiOrdering );
+    caf::PdmUiGroup* resultGroup = uiOrdering.addNewGroup( "Result" );
+    resultGroup->add( &m_timeStep );
+    resultGroup->add( &m_volumeType );
+    resultGroup->add( &m_volumeResultType );
+    resultGroup->add( &m_volumesType );
+
+    caf::PdmUiGroup* clusterLimitsGroup = uiOrdering.addNewGroup( "Cluster Growth Limits" );
+    clusterLimitsGroup->add( &m_volume );
+    clusterLimitsGroup->add( &m_pressure );
+    clusterLimitsGroup->add( &m_permeability );
+    clusterLimitsGroup->add( &m_transmissibility );
+
+    caf::PdmUiGroup* resultDefinitionGroup = uiOrdering.addNewGroup( "Cluster Filter" );
+    m_resultDefinition->uiOrdering( uiConfigName, *resultDefinitionGroup );
+
+    caf::PdmUiGroup* ensembleGridGroup = uiOrdering.addNewGroup( "Ensemble Statistics Grid" );
+    ensembleGridGroup->add( &m_cellCountI );
+    ensembleGridGroup->add( &m_cellCountJ );
+    ensembleGridGroup->add( &m_cellCountK );
+
+    caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup( "Advanced" );
+    advancedGroup->add( &m_maxIterations );
+    advancedGroup->add( &m_maxClusters );
+
+    uiOrdering.add( &m_generateEnsembleStatistics );
 
     if ( m_minimumVolume == cvf::UNDEFINED_DOUBLE || m_maximumVolume == cvf::UNDEFINED_DOUBLE )
     {
@@ -349,7 +395,8 @@ RigWellTargetCandidatesGenerator::ClusteringLimits RimWellTargetCandidatesGenera
              .pressure         = m_pressure,
              .transmissibility = m_transmissibility,
              .maxClusters      = m_maxClusters,
-             .maxIterations    = m_maxIterations };
+             .maxIterations    = m_maxIterations,
+             .filterAddress    = m_resultDefinition->eclipseResultAddress() };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -360,4 +407,22 @@ RimEclipseCase* RimWellTargetCandidatesGenerator::firstCase() const
     auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
     if ( !ensemble || ensemble->cases().empty() ) return nullptr;
     return ensemble->cases()[0];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellTargetCandidatesGenerator::initAfterRead()
+{
+    RimEclipseCase* eclipseCase = firstCase();
+    if ( eclipseCase ) m_resultDefinition->setEclipseCase( eclipseCase );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellTargetCandidatesGenerator::updateResultDefinition()
+{
+    RimEclipseCase* eclipseCase = firstCase();
+    if ( eclipseCase ) m_resultDefinition->setEclipseCase( eclipseCase );
 }
