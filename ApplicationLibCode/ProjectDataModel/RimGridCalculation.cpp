@@ -37,6 +37,7 @@
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseCaseTools.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultAddress.h"
@@ -77,6 +78,7 @@ void caf::AppEnum<RimGridCalculation::AdditionalCasesType>::setUp()
 {
     addItem( RimGridCalculation::AdditionalCasesType::NONE, "NONE", "None" );
     addItem( RimGridCalculation::AdditionalCasesType::GRID_CASE_GROUP, "GRID_CASE_GROUP", "Case Group" );
+    addItem( RimGridCalculation::AdditionalCasesType::ENSEMBLE, "ENSEMBLE", "Ensemble" );
     addItem( RimGridCalculation::AdditionalCasesType::ALL_CASES, "NONE", "All Cases" );
     setDefault( RimGridCalculation::AdditionalCasesType::NONE );
 }
@@ -98,6 +100,7 @@ RimGridCalculation::RimGridCalculation()
 
     CAF_PDM_InitFieldNoDefault( &m_additionalCasesType, "AdditionalCasesType", "Apply To Additional Cases" );
     CAF_PDM_InitFieldNoDefault( &m_additionalCaseGroup, "AdditionalCaseGroup", "Case Group" );
+    CAF_PDM_InitFieldNoDefault( &m_additionalEnsemble, "AdditionalEnsemble", "Ensemble" );
 
     CAF_PDM_InitFieldNoDefault( &m_nonVisibleResultAddress, "NonVisibleResultAddress", "" );
     m_nonVisibleResultAddress = new RimEclipseResultAddress;
@@ -175,7 +178,8 @@ bool RimGridCalculation::calculate()
 {
     // Equal grid size is required if there is more than one grid case in the expression. If a cell filter view is active, the visibility is
     // based on one view and reused for all other grid models, and requires equal grid size.
-    bool checkIfGridSizeIsEqual = !allSourceCasesAreEqualToDestinationCase() || m_cellFilterView != nullptr;
+    bool checkIfGridSizeIsEqual = ( !allSourceCasesAreEqualToDestinationCase() || m_cellFilterView != nullptr ) &&
+                                  m_additionalCasesType != AdditionalCasesType::ENSEMBLE;
 
     for ( auto calculationCase : outputEclipseCases() )
     {
@@ -183,9 +187,16 @@ bool RimGridCalculation::calculate()
 
         if ( !calculationCase->eclipseCaseData() )
         {
-            QString msg = QString( "No data available for case %1, aborting calculation" ).arg( calculationCase->caseUserDescription() );
-            RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
-            return false;
+            if ( m_additionalCasesType == AdditionalCasesType::ENSEMBLE )
+            {
+                calculationCase->ensureReservoirCaseIsOpen();
+            }
+            else
+            {
+                QString msg = QString( "No data available for case %1, aborting calculation" ).arg( calculationCase->caseUserDescription() );
+                RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
+                return false;
+            }
         }
 
         if ( !calculationCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
@@ -275,6 +286,11 @@ std::vector<RimEclipseCase*> RimGridCalculation::outputEclipseCases() const
             return m_additionalCaseGroup()->caseCollection()->reservoirs.childrenByType();
     }
 
+    if ( m_additionalCasesType() == RimGridCalculation::AdditionalCasesType::ENSEMBLE )
+    {
+        if ( m_additionalEnsemble() ) return m_additionalEnsemble()->cases();
+    }
+
     return { m_destinationCase };
 }
 
@@ -332,6 +348,9 @@ void RimGridCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     uiOrdering.add( &m_additionalCasesType );
     uiOrdering.add( &m_additionalCaseGroup );
     m_additionalCaseGroup.uiCapability()->setUiHidden( m_additionalCasesType() != RimGridCalculation::AdditionalCasesType::GRID_CASE_GROUP );
+
+    uiOrdering.add( &m_additionalEnsemble );
+    m_additionalEnsemble.uiCapability()->setUiHidden( m_additionalCasesType() != RimGridCalculation::AdditionalCasesType::ENSEMBLE );
 
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup( "Cell Filter" );
     filterGroup->setCollapsedByDefault();
@@ -439,6 +458,20 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
             for ( RimIdenticalGridCaseGroup* cg : analysisModels->caseGroups() )
             {
                 options.push_back( caf::PdmOptionItemInfo( cg->name(), cg, false, cg->uiIconProvider() ) );
+            }
+        }
+    }
+    else if ( &m_additionalEnsemble == fieldNeedingOptions )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+
+        RimProject* proj = RimProject::current();
+        if ( proj->activeOilField() && proj->activeOilField()->analysisModels() )
+        {
+            auto analysisModels = proj->activeOilField()->analysisModels();
+            for ( RimEclipseCaseEnsemble* e : analysisModels->caseEnsembles() )
+            {
+                options.push_back( caf::PdmOptionItemInfo( e->name(), e, false, e->uiIconProvider() ) );
             }
         }
     }
@@ -903,8 +936,9 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                 RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
                 CAF_ASSERT( v != nullptr );
 
-                bool useDataFromSourceCase = ( v->eclipseCase() == m_destinationCase );
-                auto sourceCase            = useDataFromSourceCase ? calculationCase : v->eclipseCase();
+                bool useDataFromSourceCase = ( v->eclipseCase() == m_destinationCase ) ||
+                                             m_additionalCasesType == AdditionalCasesType::ENSEMBLE;
+                auto sourceCase = useDataFromSourceCase ? calculationCase : v->eclipseCase();
 
                 auto dataForVariable = getActiveCellValuesForVariable( v, tsId, porosityModel, sourceCase, calculationCase );
                 if ( dataForVariable.empty() )
