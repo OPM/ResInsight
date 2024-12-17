@@ -26,6 +26,7 @@
 
 class RimEclipsePropertyFilter;
 class RimEclipseView;
+class RimEclipseCellColors;
 
 //==================================================================================================
 ///
@@ -53,8 +54,12 @@ public:
     void updateIconState() override;
     void updateFromCurrentTimeStep();
 
+    void                      updateDefaultResult( const RimEclipseCellColors* result );
+    RimEclipsePropertyFilter* addFilterLinkedToCellResult();
+
 protected:
     void initAfterRead() override;
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
     caf::PdmChildArrayField<RimEclipsePropertyFilter*> m_propertyFilters;

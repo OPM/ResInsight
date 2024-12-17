@@ -542,6 +542,8 @@ void RimEclipseView::childFieldChangedByUi( const caf::PdmFieldHandle* changedCh
     if ( changedChildField == &m_cellResult )
     {
         updateMdiWindowTitle();
+
+        m_propertyFilterCollection->updateDefaultResult( m_cellResult() );
     }
 }
 

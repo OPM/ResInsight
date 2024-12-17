@@ -51,7 +51,6 @@
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipsePropertyFilter.h"
-#include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultAddress.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
@@ -316,10 +315,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimEclipseInputProperty*>( firstUiItem ) )
         {
             menuBuilder << "RicSaveEclipseInputPropertyFeature";
-        }
-        else if ( dynamic_cast<RimEclipsePropertyFilterCollection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicEclipsePropertyFilterNewFeature";
         }
         else if ( dynamic_cast<RimEclipsePropertyFilter*>( firstUiItem ) )
         {
