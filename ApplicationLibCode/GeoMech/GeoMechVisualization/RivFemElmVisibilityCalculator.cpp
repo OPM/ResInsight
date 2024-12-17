@@ -157,19 +157,19 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility( cvf::UByteArray* 
 
         RigGeoMechCaseData* caseData = propFilterColl->reservoirView()->geoMechCase()->geoMechData();
 
-        RigFemResultAddress resVarAddress = RigFemAddressDefines::getResultLookupAddress( propertyFilter->resultDefinition->resultAddress() );
+        RigFemResultAddress resVarAddress = RigFemAddressDefines::getResultLookupAddress( propertyFilter->resultDefinition()->resultAddress() );
 
         const std::vector<float>& resVals =
             caseData->femPartResults()->resultValues( resVarAddress, part->elementPartId(), timeStepIndex, frameIndex );
 
         if ( !propertyFilter->isActive() ) continue;
-        if ( !propertyFilter->resultDefinition->hasResult() ) continue;
+        if ( !propertyFilter->resultDefinition()->hasResult() ) continue;
         if ( resVals.empty() ) continue;
 
         const double lowerBound = propertyFilter->lowerBound();
         const double upperBound = propertyFilter->upperBound();
 
-        if ( propertyFilter->resultDefinition->resultAddress().resultPosType == RIG_FORMATION_NAMES )
+        if ( propertyFilter->resultDefinition()->resultAddress().resultPosType == RIG_FORMATION_NAMES )
         {
             std::vector<int> integerVector = propertyFilter->selectedCategoryValues();
             std::set<int>    integerSet;

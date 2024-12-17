@@ -27,6 +27,7 @@
 
 class RimGeoMechPropertyFilter;
 class RimGeoMechView;
+class RimGeoMechResultDefinition;
 
 //==================================================================================================
 ///
@@ -51,6 +52,8 @@ public:
 
     void loadAndInitializePropertyFilters() override;
     void updateIconState() override;
+
+    void updateFromResult( const RimGeoMechResultDefinition* resultDefinition );
 
 protected:
     // Overridden methods

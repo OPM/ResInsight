@@ -38,10 +38,13 @@ public:
     RimGeoMechPropertyFilter();
     ~RimGeoMechPropertyFilter() override;
 
-    caf::PdmChildField<RimGeoMechResultDefinition*> resultDefinition;
+    RimGeoMechResultDefinition* resultDefinition() const;
 
-    caf::PdmField<double> lowerBound;
-    caf::PdmField<double> upperBound;
+    bool isLinkedWithCellResult() const;
+    void setLinkedWithCellResult( bool linkedWithCellResult );
+
+    double lowerBound() const;
+    double upperBound() const;
 
     void                                setParentContainer( RimGeoMechPropertyFilterCollection* parentContainer );
     RimGeoMechPropertyFilterCollection* parentContainer();
@@ -63,6 +66,12 @@ private:
     bool isPropertyFilterControlled();
 
 private:
+    caf::PdmChildField<RimGeoMechResultDefinition*> m_resultDefinition;
+    caf::PdmField<bool>                             m_linkedWithCellResult;
+
+    caf::PdmField<double> m_lowerBound;
+    caf::PdmField<double> m_upperBound;
+
     RimGeoMechPropertyFilterCollection* m_parentContainer;
     double                              m_minimumResultValue;
     double                              m_maximumResultValue;
