@@ -165,7 +165,7 @@ void RimStatisticsContourMapProjection::generateAndSaveResults( int timeStep )
     if ( auto statistics = statisticsContourMap() )
     {
         dynamic_cast<RigStatisticsContourMapProjection*>( m_contourMapProjection.get() )
-            ->generateAndSaveResults( statistics->result( m_statisticsType() ) );
+            ->generateAndSaveResults( statistics->result( timeStep, m_statisticsType() ) );
     }
 }
 
@@ -260,7 +260,8 @@ std::pair<double, double> RimStatisticsContourMapProjection::minmaxValuesAllTime
     {
         clearTimeStepRange();
 
-        std::vector<double> aggregatedResults = statisticsContourMap()->result( m_statisticsType() );
+        // TODO - step through all time steps here!
+        std::vector<double> aggregatedResults = statisticsContourMap()->result( 0, m_statisticsType() );
         m_minResultAllTimeSteps               = RigContourMapProjection::minValue( aggregatedResults );
         m_maxResultAllTimeSteps               = RigContourMapProjection::maxValue( aggregatedResults );
     }

@@ -43,6 +43,7 @@
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 #include "cafProgressInfo.h"
 
 #include <limits>
@@ -79,7 +80,8 @@ RimStatisticsContourMap::RimStatisticsContourMap()
 
     CAF_PDM_InitFieldNoDefault( &m_resultAggregation, "ResultAggregation", "Result Aggregation" );
 
-    CAF_PDM_InitField( &m_timeStep, "TimeStep", 0, "Time Step" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "SelectedTimeSteps", "Time Step Selection" );
+    m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "" );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
@@ -104,7 +106,13 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
 {
     uiOrdering.add( nameField() );
     uiOrdering.add( &m_resultAggregation );
-    uiOrdering.add( &m_timeStep );
+
+    {
+        auto group = uiOrdering.addNewGroup( "Time Step Selection" );
+        group->setCollapsedByDefault();
+        group->add( &m_selectedTimeSteps );
+    }
+
     uiOrdering.add( &m_relativeSampleSpacing );
     uiOrdering.add( &m_boundingBoxExpPercent );
 
@@ -150,14 +158,23 @@ QList<caf::PdmOptionItemInfo> RimStatisticsContourMap::calculateValueOptions( co
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_timeStep )
+    auto eCase = m_resultDefinition->eclipseCase();
+
+    if ( eCase == nullptr ) return options;
+
+    if ( &m_selectedTimeSteps == fieldNeedingOptions )
     {
-        auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
-        if ( ensemble && !ensemble->cases().empty() )
+        QList<caf::PdmOptionItemInfo> options;
+
+        const auto timeStepStrings = eCase->timeStepStrings();
+
+        int index = 0;
+        for ( const auto& text : timeStepStrings )
         {
-            RimEclipseCase* firstEclipseCase = ensemble->cases().front();
-            RimTools::timeStepsForCase( firstEclipseCase, &options );
+            options.push_back( caf::PdmOptionItemInfo( text, index++ ) );
         }
+
+        return options;
     }
 
     return options;
@@ -253,7 +270,10 @@ void RimStatisticsContourMap::computeStatistics()
 
     caf::ProgressInfo progInfo( ensemble->cases().size() + 1, "Reading Eclipse Ensemble" );
 
-    std::vector<std::vector<double>> results;
+    // std::vector<std::vector<double>> results;
+
+    std::map<size_t, std::vector<std::vector<double>>> timestep_results;
+
     for ( RimEclipseCase* eclipseCase : ensemble->cases() )
     {
         if ( eclipseCase->ensureReservoirCaseIsOpen() )
@@ -266,57 +286,76 @@ void RimStatisticsContourMap::computeStatistics()
             RigEclipseContourMapProjection contourMapProjection( *contourMapGrid, *eclipseCaseData, *resultData );
             contourMapProjection.generateGridMapping( resultAggregation, {} );
 
-            std::vector<double> result =
-                contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(), resultAggregation, m_timeStep() );
-            results.push_back( result );
+            if ( m_resultDefinition()->hasDynamicResult() )
+            {
+                for ( auto ts : m_selectedTimeSteps() )
+                {
+                    std::vector<double> result =
+                        contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(), resultAggregation, ts );
+                    timestep_results[ts].push_back( result );
+                }
+            }
+            else
+            {
+                std::vector<double> result =
+                    contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(), resultAggregation, 0 );
+                timestep_results[0].push_back( result );
+            }
         }
         progInfo.incrementProgress();
     }
 
-    if ( !results.empty() )
+    m_contourMapGrid = std::move( contourMapGrid );
+    m_timeResults.clear();
+
+    for ( auto [timeStep, results] : timestep_results )
     {
-        int                 nCells = static_cast<int>( results[0].size() );
-        std::vector<double> p10Results( nCells, std::numeric_limits<double>::infinity() );
-        std::vector<double> p50Results( nCells, std::numeric_limits<double>::infinity() );
-        std::vector<double> p90Results( nCells, std::numeric_limits<double>::infinity() );
-        std::vector<double> meanResults( nCells, std::numeric_limits<double>::infinity() );
-        std::vector<double> minResults( nCells, std::numeric_limits<double>::infinity() );
-        std::vector<double> maxResults( nCells, std::numeric_limits<double>::infinity() );
+        if ( !results.empty() )
+        {
+            int                 nCells = static_cast<int>( results[0].size() );
+            std::vector<double> p10Results( nCells, std::numeric_limits<double>::infinity() );
+            std::vector<double> p50Results( nCells, std::numeric_limits<double>::infinity() );
+            std::vector<double> p90Results( nCells, std::numeric_limits<double>::infinity() );
+            std::vector<double> meanResults( nCells, std::numeric_limits<double>::infinity() );
+            std::vector<double> minResults( nCells, std::numeric_limits<double>::infinity() );
+            std::vector<double> maxResults( nCells, std::numeric_limits<double>::infinity() );
 
 #pragma omp parallel for
-        for ( int i = 0; i < nCells; i++ )
-        {
-            size_t              numSamples = results.size();
-            std::vector<double> samples( numSamples, 0.0 );
-            for ( size_t s = 0; s < numSamples; s++ )
-                samples[s] = results[s][i];
+            for ( int i = 0; i < nCells; i++ )
+            {
+                size_t              numSamples = results.size();
+                std::vector<double> samples( numSamples, 0.0 );
+                for ( size_t s = 0; s < numSamples; s++ )
+                    samples[s] = results[s][i];
 
-            double p10  = std::numeric_limits<double>::infinity();
-            double p50  = std::numeric_limits<double>::infinity();
-            double p90  = std::numeric_limits<double>::infinity();
-            double mean = std::numeric_limits<double>::infinity();
+                double p10  = std::numeric_limits<double>::infinity();
+                double p50  = std::numeric_limits<double>::infinity();
+                double p90  = std::numeric_limits<double>::infinity();
+                double mean = std::numeric_limits<double>::infinity();
 
-            RigStatisticsMath::calculateStatisticsCurves( samples, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
+                RigStatisticsMath::calculateStatisticsCurves( samples, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
 
-            if ( RiaStatisticsTools::isValidNumber( p10 ) ) p10Results[i] = p10;
-            if ( RiaStatisticsTools::isValidNumber( p50 ) ) p50Results[i] = p50;
-            if ( RiaStatisticsTools::isValidNumber( p90 ) ) p90Results[i] = p90;
-            if ( RiaStatisticsTools::isValidNumber( mean ) ) meanResults[i] = mean;
+                if ( RiaStatisticsTools::isValidNumber( p10 ) ) p10Results[i] = p10;
+                if ( RiaStatisticsTools::isValidNumber( p50 ) ) p50Results[i] = p50;
+                if ( RiaStatisticsTools::isValidNumber( p90 ) ) p90Results[i] = p90;
+                if ( RiaStatisticsTools::isValidNumber( mean ) ) meanResults[i] = mean;
 
-            double minValue = RiaStatisticsTools::minimumValue( samples );
-            if ( RiaStatisticsTools::isValidNumber( minValue ) && minValue < std::numeric_limits<double>::max() ) minResults[i] = minValue;
+                double minValue = RiaStatisticsTools::minimumValue( samples );
+                if ( RiaStatisticsTools::isValidNumber( minValue ) && minValue < std::numeric_limits<double>::max() )
+                    minResults[i] = minValue;
 
-            double maxValue = RiaStatisticsTools::maximumValue( samples );
-            if ( RiaStatisticsTools::isValidNumber( maxValue ) && maxValue > -std::numeric_limits<double>::max() ) maxResults[i] = maxValue;
+                double maxValue = RiaStatisticsTools::maximumValue( samples );
+                if ( RiaStatisticsTools::isValidNumber( maxValue ) && maxValue > -std::numeric_limits<double>::max() )
+                    maxResults[i] = maxValue;
+            }
+
+            m_timeResults[timeStep][StatisticsType::P10]  = p10Results;
+            m_timeResults[timeStep][StatisticsType::P50]  = p50Results;
+            m_timeResults[timeStep][StatisticsType::P90]  = p90Results;
+            m_timeResults[timeStep][StatisticsType::MEAN] = meanResults;
+            m_timeResults[timeStep][StatisticsType::MIN]  = minResults;
+            m_timeResults[timeStep][StatisticsType::MAX]  = maxResults;
         }
-
-        m_contourMapGrid               = std::move( contourMapGrid );
-        m_result[StatisticsType::P10]  = p10Results;
-        m_result[StatisticsType::P50]  = p50Results;
-        m_result[StatisticsType::P90]  = p90Results;
-        m_result[StatisticsType::MEAN] = meanResults;
-        m_result[StatisticsType::MIN]  = minResults;
-        m_result[StatisticsType::MAX]  = maxResults;
     }
 }
 
@@ -350,10 +389,21 @@ RigContourMapGrid* RimStatisticsContourMap::contourMapGrid() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimStatisticsContourMap::result( StatisticsType statisticsType ) const
+int RimStatisticsContourMap::maxTimeStepCount() const
 {
-    if ( auto it = m_result.find( statisticsType ); it != m_result.end() ) return it->second;
-    return {};
+    return m_selectedTimeSteps().size();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimStatisticsContourMap::result( size_t timeStep, StatisticsType statisticsType ) const
+{
+    if ( !m_timeResults.contains( timeStep ) ) return {};
+
+    if ( !m_timeResults.at( timeStep ).contains( statisticsType ) ) return {};
+
+    return m_timeResults.at( timeStep ).at( statisticsType );
 }
 
 //--------------------------------------------------------------------------------------------------

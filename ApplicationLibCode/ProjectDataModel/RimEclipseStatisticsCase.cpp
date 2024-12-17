@@ -561,7 +561,10 @@ void RimEclipseStatisticsCase::defineUiOrdering( QString uiConfigName, caf::PdmU
     uiOrdering.skipRemainingFields();
 }
 
-QList<caf::PdmOptionItemInfo> toOptionList( const QStringList& varList )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::toOptionList( const QStringList& varList )
 {
     QList<caf::PdmOptionItemInfo> optionList;
     int                           i;
@@ -904,9 +907,7 @@ void RimEclipseStatisticsCase::updateSelectionListVisibilities()
 {
     bool isLocked = hasComputedStatistics();
     m_resultType.uiCapability()->setUiHidden( isLocked );
-    m_porosityModel.uiCapability()->setUiHidden(
-        isLocked ); // ||
-                    // !caseGroup()->mainCase()->reservoirData()->results(RiaDefines::FRACTURE_MODEL)->resultCount()
+    m_porosityModel.uiCapability()->setUiHidden( isLocked );
 
     m_selectedDynamicProperties.uiCapability()->setUiHidden( isLocked || m_porosityModel() != RiaDefines::PorosityModelType::MATRIX_MODEL ||
                                                              m_resultType() != RiaDefines::ResultCatType::DYNAMIC_NATIVE );

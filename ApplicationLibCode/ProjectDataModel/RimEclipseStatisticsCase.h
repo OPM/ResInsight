@@ -106,6 +106,8 @@ private:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void initializeSelectedTimeSteps();
 
+    static QList<caf::PdmOptionItemInfo> toOptionList( const QStringList& varList );
+
 private:
     caf::PdmField<caf::AppEnum<DataSourceType>> m_dataSourceForStatistics;
 

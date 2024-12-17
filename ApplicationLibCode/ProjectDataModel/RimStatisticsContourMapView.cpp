@@ -210,3 +210,32 @@ RimStatisticsContourMap* RimStatisticsContourMapView::statisticsContourMap() con
 {
     return m_statisticsContourMap;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Clamp the current timestep to actual possibilities
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsContourMapView::onClampCurrentTimestep()
+{
+    if ( statisticsContourMap() )
+    {
+        if ( m_currentTimeStep() >= statisticsContourMap()->maxTimeStepCount() )
+        {
+            m_currentTimeStep = statisticsContourMap()->maxTimeStepCount() - 1;
+        }
+    }
+
+    if ( m_currentTimeStep < 0 ) m_currentTimeStep = 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimStatisticsContourMapView::onTimeStepCountRequested()
+{
+    if ( statisticsContourMap() )
+    {
+        return (size_t)statisticsContourMap()->maxTimeStepCount();
+    }
+
+    return 0;
+}

@@ -60,7 +60,7 @@ public:
     RimEclipseCaseEnsemble* ensemble() const;
 
     RigContourMapGrid*  contourMapGrid() const;
-    std::vector<double> result( StatisticsType statisticsType ) const;
+    std::vector<double> result( size_t timeStep, StatisticsType statisticsType ) const;
 
     void addView( RimStatisticsContourMapView* view );
 
@@ -73,6 +73,8 @@ public:
     double  sampleSpacingFactor() const;
     bool    isColumnResult() const;
 
+    int maxTimeStepCount() const;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -84,16 +86,18 @@ protected:
 private:
     void computeStatistics();
 
+    caf::PdmField<double>                                     m_boundingBoxExpPercent;
     caf::PdmField<double>                                     m_relativeSampleSpacing;
     caf::PdmField<RimContourMapProjection::ResultAggregation> m_resultAggregation;
-    caf::PdmField<int>                                        m_timeStep;
-    caf::PdmField<double>                                     m_boundingBoxExpPercent;
+    caf::PdmField<std::vector<int>>                           m_selectedTimeSteps;
 
     caf::PdmChildField<RimEclipseResultDefinition*> m_resultDefinition;
     caf::PdmField<bool>                             m_computeStatisticsButton;
 
-    std::unique_ptr<RigContourMapGrid>                  m_contourMapGrid;
-    std::map<StatisticsType, std::vector<double>>       m_result;
+    std::unique_ptr<RigContourMapGrid> m_contourMapGrid;
+    // std::map<StatisticsType, std::vector<double>>                   m_result;
+    std::map<size_t, std::map<StatisticsType, std::vector<double>>> m_timeResults;
+
     std::vector<std::vector<std::pair<size_t, double>>> m_gridMapping;
 
     caf::PdmChildArrayField<RimStatisticsContourMapView*> m_views;
