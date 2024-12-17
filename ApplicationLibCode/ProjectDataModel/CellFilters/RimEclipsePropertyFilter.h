@@ -41,6 +41,8 @@ public:
     ~RimEclipsePropertyFilter() override;
 
     RimEclipseResultDefinition* resultDefinition() const;
+    bool                        isLinkedWithCellResult() const;
+    void                        setLinkedWithCellResult( bool linkedWithCellResult );
 
     void rangeValues( double* lower, double* upper ) const;
     bool isCategorySelectionActive() const;
@@ -84,10 +86,12 @@ private:
 
 private:
     caf::PdmChildField<RimEclipseResultDefinition*> m_resultDefinition;
-    caf::PdmField<QString>                          m_rangeLabelText;
 
-    caf::PdmField<double> m_lowerBound;
-    caf::PdmField<double> m_upperBound;
+    caf::PdmField<bool> m_linkedWithCellResult;
+
+    caf::PdmField<QString> m_rangeLabelText;
+    caf::PdmField<double>  m_lowerBound;
+    caf::PdmField<double>  m_upperBound;
 
     caf::PdmProxyValueField<int> m_integerLowerBound;
     caf::PdmProxyValueField<int> m_integerUpperBound;
