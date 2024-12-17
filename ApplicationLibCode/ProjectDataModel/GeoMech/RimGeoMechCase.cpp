@@ -922,7 +922,7 @@ void RimGeoMechCase::updateFormationNamesData()
                 RimGeoMechPropertyFilterCollection* eclFilColl = geomView->geoMechPropertyFilterCollection();
                 for ( RimGeoMechPropertyFilter* propFilter : eclFilColl->propertyFilters )
                 {
-                    if ( propFilter->resultDefinition->resultPositionType() == RIG_FORMATION_NAMES )
+                    if ( propFilter->resultDefinition()->resultPositionType() == RIG_FORMATION_NAMES )
                     {
                         propFilter->setToDefaultValues();
                         propFilter->updateConnectedEditors();
@@ -1021,9 +1021,9 @@ void RimGeoMechCase::closeSelectedElementPropertyFiles()
 
             for ( RimGeoMechPropertyFilter* propertyFilter : view->geoMechPropertyFilterCollection()->propertyFilters() )
             {
-                if ( address == propertyFilter->resultDefinition->resultAddress() )
+                if ( address == propertyFilter->resultDefinition()->resultAddress() )
                 {
-                    propertyFilter->resultDefinition->setResultAddress( RigFemResultAddress() );
+                    propertyFilter->resultDefinition()->setResultAddress( RigFemResultAddress() );
                 }
             }
         }

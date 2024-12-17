@@ -25,6 +25,8 @@
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
+#include "RigFemResultAddress.h"
+
 #include "cvfAssert.h"
 
 CAF_PDM_SOURCE_INIT( RimGeoMechPropertyFilterCollection, "GeoMechPropertyFilters" );
@@ -55,8 +57,8 @@ void RimGeoMechPropertyFilterCollection::loadAndInitializePropertyFilters()
     for ( size_t i = 0; i < propertyFilters.size(); i++ )
     {
         RimGeoMechPropertyFilter* propertyFilter = propertyFilters[i];
-        propertyFilter->resultDefinition->setGeoMechCase( reservoirView()->geoMechCase() );
-        propertyFilter->resultDefinition->loadResult();
+        propertyFilter->resultDefinition()->setGeoMechCase( reservoirView()->geoMechCase() );
+        propertyFilter->resultDefinition()->loadResult();
         propertyFilter->computeResultValueRange();
     }
 }
@@ -71,7 +73,7 @@ void RimGeoMechPropertyFilterCollection::initAfterRead()
         RimGeoMechPropertyFilter* propertyFilter = propertyFilters[i];
 
         propertyFilter->setParentContainer( this );
-        propertyFilter->resultDefinition->setGeoMechCase( reservoirView()->geoMechCase() );
+        propertyFilter->resultDefinition()->setGeoMechCase( reservoirView()->geoMechCase() );
         propertyFilter->updateIconState();
     }
 
@@ -88,7 +90,7 @@ bool RimGeoMechPropertyFilterCollection::hasActiveFilters() const
     for ( size_t i = 0; i < propertyFilters.size(); i++ )
     {
         RimGeoMechPropertyFilter* propertyFilter = propertyFilters[i];
-        if ( propertyFilter->isActive() && propertyFilter->resultDefinition->hasResult() ) return true;
+        if ( propertyFilter->isActive() && propertyFilter->resultDefinition()->hasResult() ) return true;
     }
 
     return false;
@@ -112,8 +114,8 @@ bool RimGeoMechPropertyFilterCollection::isUsingFormationNames() const
     for ( size_t i = 0; i < propertyFilters.size(); i++ )
     {
         RimGeoMechPropertyFilter* propertyFilter = propertyFilters[i];
-        if ( propertyFilter->isActive() && propertyFilter->resultDefinition->resultPositionType() == RIG_FORMATION_NAMES &&
-             propertyFilter->resultDefinition->resultFieldName() != "" )
+        if ( propertyFilter->isActive() && propertyFilter->resultDefinition()->resultPositionType() == RIG_FORMATION_NAMES &&
+             propertyFilter->resultDefinition()->resultFieldName() != "" )
             return true;
     }
 
@@ -148,5 +150,25 @@ void RimGeoMechPropertyFilterCollection::updateIconState()
         RimGeoMechPropertyFilter* propFilter = propertyFilters[i];
         propFilter->updateActiveState();
         propFilter->updateIconState();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechPropertyFilterCollection::updateFromResult( const RimGeoMechResultDefinition* resultDefinition )
+{
+    if ( !resultDefinition ) return;
+
+    for ( auto filter : propertyFilters )
+    {
+        if ( filter->isLinkedWithCellResult() )
+        {
+            filter->resultDefinition()->setResultAddress( resultDefinition->resultAddress() );
+            filter->setToDefaultValues();
+            filter->updateFilterName();
+
+            updateDisplayModelNotifyManagedViews( filter );
+        }
     }
 }

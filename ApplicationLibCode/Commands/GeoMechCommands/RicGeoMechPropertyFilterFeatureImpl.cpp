@@ -124,9 +124,9 @@ void RicGeoMechPropertyFilterFeatureImpl::setDefaults( RimGeoMechPropertyFilter*
     RimGeoMechView* reservoirView = propertyFilterCollection->reservoirView();
     CVF_ASSERT( reservoirView );
 
-    propertyFilter->resultDefinition->setGeoMechCase( reservoirView->geoMechCase() );
-    propertyFilter->resultDefinition->setResultAddress( reservoirView->cellResultResultDefinition()->resultAddress() );
-    propertyFilter->resultDefinition->loadResult();
+    propertyFilter->resultDefinition()->setGeoMechCase( reservoirView->geoMechCase() );
+    propertyFilter->resultDefinition()->setResultAddress( reservoirView->cellResultResultDefinition()->resultAddress() );
+    propertyFilter->resultDefinition()->loadResult();
     propertyFilter->setToDefaultValues();
     propertyFilter->updateFilterName();
 }

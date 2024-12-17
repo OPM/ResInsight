@@ -507,6 +507,14 @@ void RimGeoMechView::onUpdateStaticCellColors()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGeoMechView::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    m_propertyFilterCollection->updateFromResult( cellResult() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechView::setGeoMechCase( RimGeoMechCase* gmCase )
 {
     m_geomechCase = gmCase;
