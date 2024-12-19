@@ -234,6 +234,39 @@ TEST( RiaStdStringToolsTest, ValuesFromRangeSelectionMinMax )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( RiaStdStringToolsTest, ValuesWithStep )
+{
+    {
+        std::string   testString     = "1, 4-10:2,13-15";
+        std::set<int> expectedValues = { 1, 4, 6, 8, 10, 13, 14, 15 };
+
+        auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
+
+    {
+        std::string   testString     = "4-6:invalid";
+        std::set<int> expectedValues = { 4, 5, 6 };
+
+        auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
+
+    {
+        std::string   testString     = "b-5";
+        std::set<int> expectedValues = {};
+
+        auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( RiaStdStringToolsTest, TestInvalidRangeStrings )
 {
     int minimumValue = 1;
