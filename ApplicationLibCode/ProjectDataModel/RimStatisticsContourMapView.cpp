@@ -219,7 +219,7 @@ void RimStatisticsContourMapView::onClampCurrentTimestep()
     if ( statisticsContourMap() )
     {
         auto maxSteps = statisticsContourMap()->selectedTimeSteps().size();
-        if ( m_currentTimeStep() >= maxSteps )
+        if ( m_currentTimeStep() >= (int)maxSteps )
         {
             m_currentTimeStep = maxSteps - 1;
         }
@@ -249,7 +249,7 @@ QString RimStatisticsContourMapView::timeStepName( int frameIdx ) const
     if ( !statisticsContourMap() ) return "";
 
     auto steps = statisticsContourMap()->selectedTimeSteps();
-    if ( frameIdx >= steps.size() ) return "";
+    if ( frameIdx >= (int)steps.size() ) return "";
     auto realTimeStep = steps[frameIdx];
     return statisticsContourMap()->timeStepName( realTimeStep );
 }
