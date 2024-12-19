@@ -677,8 +677,9 @@ std::vector<RigWellTargetCandidatesGenerator::ClusterStatistics>
                 statistics[i].totalPorvSoil += porvSoil[idx];
                 statistics[i].totalPorvSgas += porvSgas[idx];
                 statistics[i].totalPorvSoilAndSgas += porvSoilAndSgas[idx];
-                statistics[i].totalFipOil += fipOil[idx];
-                statistics[i].totalFipGas += fipGas[idx];
+
+                if ( idx < fipOil.size() ) statistics[i].totalFipOil += fipOil[idx];
+                if ( idx < fipGas.size() ) statistics[i].totalFipGas += fipGas[idx];
 
                 double meanPermeability = ( permeabilityX[idx] + permeabilityY[idx] + permeabilityZ[idx] ) / 3.0;
                 permeabilityCalculators[i].addValueAndWeight( meanPermeability, porv[idx] );
