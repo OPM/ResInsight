@@ -239,3 +239,11 @@ size_t RimStatisticsContourMapView::onTimeStepCountRequested()
 
     return 0;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimStatisticsContourMapView::timeStepName( int frameIdx ) const
+{
+    return QString( "Step %1" ).arg( frameIdx );
+}

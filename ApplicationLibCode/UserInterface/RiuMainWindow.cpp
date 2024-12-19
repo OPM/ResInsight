@@ -1009,7 +1009,7 @@ void RiuMainWindow::refreshAnimationActions()
 
         if ( activeView->isTimeStepDependentDataVisibleInThisOrComparisonView() )
         {
-            timeStepStrings = activeView->ownerCase()->timeStepStrings();
+            timeStepStrings = activeView->timeStepStrings();
         }
         else
         {

@@ -150,12 +150,13 @@ public:
     void   forceShowWindowOn();
 
     // Timestep control
-    int     currentTimeStep() const;
-    void    setCurrentTimeStep( int frameIdx );
-    void    setCurrentTimeStepAndUpdate( int frameIdx ) override;
-    bool    isTimeStepDependentDataVisibleInThisOrComparisonView() const;
-    size_t  timeStepCount();
-    QString timeStepName( int frameIdx ) const override;
+    int                 currentTimeStep() const;
+    void                setCurrentTimeStep( int frameIdx );
+    void                setCurrentTimeStepAndUpdate( int frameIdx ) override;
+    bool                isTimeStepDependentDataVisibleInThisOrComparisonView() const;
+    size_t              timeStepCount();
+    QString             timeStepName( int frameIdx ) const override;
+    virtual QStringList timeStepStrings() const;
 
     // Animation control
     caf::Signal<> updateAnimations;

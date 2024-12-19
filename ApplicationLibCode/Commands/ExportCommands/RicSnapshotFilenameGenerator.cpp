@@ -62,7 +62,7 @@ QString RicSnapshotFilenameGenerator::generateSnapshotFileName( RimViewWindow* v
 //--------------------------------------------------------------------------------------------------
 QString RicSnapshotFilenameGenerator::generateSnapshotFilenameForRimView( Rim3dView* rimView )
 {
-    QStringList timeSteps = rimView->ownerCase()->timeStepStrings();
+    QStringList timeSteps = rimView->timeStepStrings();
     int         timeStep  = rimView->currentTimeStep();
 
     QString fileName =
