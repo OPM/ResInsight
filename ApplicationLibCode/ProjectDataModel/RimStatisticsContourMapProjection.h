@@ -77,6 +77,7 @@ protected:
 protected:
     // Framework overrides
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 protected:
     caf::PdmField<caf::AppEnum<RimStatisticsContourMap::StatisticsType>> m_statisticsType;

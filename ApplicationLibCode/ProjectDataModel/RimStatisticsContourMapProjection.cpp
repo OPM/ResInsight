@@ -147,6 +147,13 @@ double RimStatisticsContourMapProjection::sampleSpacing() const
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMapProjection::clearGridMappingAndRedraw()
 {
+    clearGridMapping();
+    updateConnectedEditors();
+    generateResultsIfNecessary( view()->currentTimeStep() );
+    updateLegend();
+
+    RimEclipseView* parentView = firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
+    parentView->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -260,10 +267,15 @@ std::pair<double, double> RimStatisticsContourMapProjection::minmaxValuesAllTime
     {
         clearTimeStepRange();
 
-        // TODO - step through all time steps here!
-        std::vector<double> aggregatedResults = statisticsContourMap()->result( 0, m_statisticsType() );
-        m_minResultAllTimeSteps               = RigContourMapProjection::minValue( aggregatedResults );
-        m_maxResultAllTimeSteps               = RigContourMapProjection::maxValue( aggregatedResults );
+        if ( auto map = statisticsContourMap() )
+        {
+            for ( auto ts : map->selectedTimeSteps() )
+            {
+                std::vector<double> aggregatedResults = statisticsContourMap()->result( ts, m_statisticsType() );
+                m_minResultAllTimeSteps = std::min( m_minResultAllTimeSteps, RigContourMapProjection::minValue( aggregatedResults ) );
+                m_maxResultAllTimeSteps = std::max( m_maxResultAllTimeSteps, RigContourMapProjection::maxValue( aggregatedResults ) );
+            }
+        }
     }
 
     return std::make_pair( m_minResultAllTimeSteps, m_maxResultAllTimeSteps );
@@ -302,4 +314,21 @@ QString RimStatisticsContourMapProjection::resultAggregationText() const
         return statisticsContourMap()->resultAggregationText();
     else
         return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                          const QVariant&            oldValue,
+                                                          const QVariant&            newValue )
+{
+    if ( changedField == &m_statisticsType )
+    {
+        clearGridMappingAndRedraw();
+    }
+    else
+    {
+        RimContourMapProjection::fieldChangedByUi( changedField, oldValue, newValue );
+    }
 }
