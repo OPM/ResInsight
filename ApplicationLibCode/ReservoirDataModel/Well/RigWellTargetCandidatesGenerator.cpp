@@ -873,7 +873,7 @@ void RigWellTargetCandidatesGenerator::accumulateResultsForSingleCase( RimEclips
             if ( !std::isinf( clusterNum[resultIndex] ) && clusterNum[resultIndex] > 0 )
             {
                 occupancy[targetResultIndex]++;
-                for ( auto [resultName, vec] : resultNamesAndSamples )
+                for ( const auto& [resultName, vec] : resultNamesAndSamples )
                 {
                     namedOutputVector[resultName][targetResultIndex] = namedInputVector[resultName]->at( resultIndex );
                 }
