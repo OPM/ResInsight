@@ -288,7 +288,7 @@ void RimStatisticsContourMap::computeStatistics()
 
             if ( m_resultDefinition()->hasDynamicResult() )
             {
-                for ( auto ts : m_selectedTimeSteps() )
+                for ( auto ts : selectedTimeSteps() )
                 {
                     std::vector<double> result =
                         contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(), resultAggregation, ts );
@@ -389,14 +389,6 @@ RigContourMapGrid* RimStatisticsContourMap::contourMapGrid() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimStatisticsContourMap::maxTimeStepCount() const
-{
-    return m_selectedTimeSteps().size();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<double> RimStatisticsContourMap::result( size_t timeStep, StatisticsType statisticsType ) const
 {
     if ( !m_timeResults.contains( timeStep ) ) return {};
@@ -404,6 +396,33 @@ std::vector<double> RimStatisticsContourMap::result( size_t timeStep, Statistics
     if ( !m_timeResults.at( timeStep ).contains( statisticsType ) ) return {};
 
     return m_timeResults.at( timeStep ).at( statisticsType );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RimStatisticsContourMap::selectedTimeSteps() const
+{
+    if ( m_selectedTimeSteps().empty() )
+    {
+        std::vector<int> retVec;
+        for ( int i = 0; i < (int)eclipseCase()->timeStepStrings().size(); i++ )
+            retVec.push_back( i );
+        return retVec;
+    }
+    return m_selectedTimeSteps();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimStatisticsContourMap::timeStepName( int timeStep ) const
+{
+    if ( eclipseCase() == nullptr ) return "";
+
+    if ( ( timeStep < 0 ) || ( timeStep >= eclipseCase()->timeStepStrings().size() ) ) return "";
+
+    return eclipseCase()->timeStepName( timeStep );
 }
 
 //--------------------------------------------------------------------------------------------------

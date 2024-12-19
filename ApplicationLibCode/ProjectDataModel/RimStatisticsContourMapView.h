@@ -39,9 +39,10 @@ protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    void    onClampCurrentTimestep() override;
-    size_t  onTimeStepCountRequested() override;
-    QString timeStepName( int frameIdx ) const override;
+    void        onClampCurrentTimestep() override;
+    size_t      onTimeStepCountRequested() override;
+    QString     timeStepName( int frameIdx ) const override;
+    QStringList timeStepStrings() const override;
 
     // void createContourMapGeometry();
     void onUpdateLegends() override;

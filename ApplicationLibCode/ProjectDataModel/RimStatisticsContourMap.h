@@ -73,7 +73,8 @@ public:
     double  sampleSpacingFactor() const;
     bool    isColumnResult() const;
 
-    int maxTimeStepCount() const;
+    std::vector<int> selectedTimeSteps() const;
+    QString          timeStepName( int timeStep ) const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

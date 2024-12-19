@@ -38,6 +38,7 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
+#include <QCoreApplication>
 
 CAF_CMD_SOURCE_INIT( RicNewStatisticsContourMapViewFeature, "RicNewStatisticsContourMapViewFeature" );
 
@@ -120,7 +121,6 @@ RimStatisticsContourMapView* RicNewStatisticsContourMapViewFeature::createAndAdd
             eclipseCase->updateConnectedEditors();
             contourMapView->cellFilterCollection()->setCase( eclipseCase );
         }
-        caf::SelectionManager::instance()->setSelectedItem( contourMapView );
 
         contourMapView->createDisplayModelAndRedraw();
         contourMapView->zoomAll();
@@ -130,8 +130,13 @@ RimStatisticsContourMapView* RicNewStatisticsContourMapViewFeature::createAndAdd
         // RimOilField* oilField = project->activeOilField();
         // oilField->eclipseContourMapCollection()->updateConnectedEditors();
 
-        Riu3DMainWindowTools::setExpanded( statisticsContourMap );
+        statisticsContourMap->updateConnectedEditors();
+
+        // caf::SelectionManager::instance()->setSelectedItem( contourMapView );
+        QCoreApplication::processEvents();
+
         Riu3DMainWindowTools::selectAsCurrentItem( contourMapView );
+        Riu3DMainWindowTools::setExpanded( statisticsContourMap );
         Riu3DMainWindowTools::setExpanded( contourMapView );
 
         return contourMapView;

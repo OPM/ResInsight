@@ -1048,7 +1048,7 @@ QString Rim3dOverlayInfoConfig::timeStepText( RimEclipseView* eclipseView )
             QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale( timeSteps[currTimeStepIndex], dateFormat );
 
             dateTimeString =
-                QString( "Time Step: %1/%2  %3" ).arg( QString::number( currTimeStepIndex ), QString::number( timeSteps.size() - 1 ), dateString );
+                QString( "Time Step: %1/%2  %3" ).arg( QString::number( currTimeStepIndex + 1 ), QString::number( timeSteps.size() ), dateString );
         }
     }
 
@@ -1071,7 +1071,7 @@ QString Rim3dOverlayInfoConfig::timeStepText( RimGeoMechView* geoMechView )
     {
         dateTimeString =
             QString( "Time Step: %1/%2  %3" )
-                .arg( QString::number( currTimeStepIndex ), QString::number( timeSteps.size() - 1 ), timeSteps[currTimeStepIndex] );
+                .arg( QString::number( currTimeStepIndex + 1 ), QString::number( timeSteps.size() ), timeSteps[currTimeStepIndex] );
     }
 
     return QString( "<p><b><center>-- %1 --</center></b>" ).arg( dateTimeString ) +

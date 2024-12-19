@@ -218,9 +218,10 @@ void RimStatisticsContourMapView::onClampCurrentTimestep()
 {
     if ( statisticsContourMap() )
     {
-        if ( m_currentTimeStep() >= statisticsContourMap()->maxTimeStepCount() )
+        auto maxSteps = statisticsContourMap()->selectedTimeSteps().size();
+        if ( m_currentTimeStep() >= maxSteps )
         {
-            m_currentTimeStep = statisticsContourMap()->maxTimeStepCount() - 1;
+            m_currentTimeStep = maxSteps - 1;
         }
     }
 
@@ -234,7 +235,7 @@ size_t RimStatisticsContourMapView::onTimeStepCountRequested()
 {
     if ( statisticsContourMap() )
     {
-        return (size_t)statisticsContourMap()->maxTimeStepCount();
+        return (size_t)statisticsContourMap()->selectedTimeSteps().size();
     }
 
     return 0;
@@ -245,5 +246,27 @@ size_t RimStatisticsContourMapView::onTimeStepCountRequested()
 //--------------------------------------------------------------------------------------------------
 QString RimStatisticsContourMapView::timeStepName( int frameIdx ) const
 {
-    return QString( "Step %1" ).arg( frameIdx );
+    if ( !statisticsContourMap() ) return "";
+
+    auto steps = statisticsContourMap()->selectedTimeSteps();
+    if ( frameIdx >= steps.size() ) return "";
+    auto realTimeStep = steps[frameIdx];
+    return statisticsContourMap()->timeStepName( realTimeStep );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimStatisticsContourMapView::timeStepStrings() const
+{
+    QStringList retList;
+
+    if ( !statisticsContourMap() ) return retList;
+
+    for ( auto ts : statisticsContourMap()->selectedTimeSteps() )
+    {
+        retList.append( statisticsContourMap()->timeStepName( ts ) );
+    }
+
+    return retList;
 }
