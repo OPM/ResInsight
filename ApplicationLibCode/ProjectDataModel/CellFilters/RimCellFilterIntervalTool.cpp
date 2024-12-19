@@ -107,6 +107,9 @@ size_t RimCellFilterIntervalTool::numberFromPart( std::string strVal ) const
 // Define a range with the comma separated format A,B,C-D, etc.,  i.e. 1,4,5-8
 // Only numbers > 0 are supported.
 // For a range with increment > 1, use i.e. 4-8:2
+//
+// Related code in RiaStdStringTools::valuesFromRangeSelection( const std::string& s )
+//
 //--------------------------------------------------------------------------------------------------
 void RimCellFilterIntervalTool::setInterval( bool enabled, std::string intervalText )
 {

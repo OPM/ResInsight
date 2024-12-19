@@ -309,19 +309,30 @@ std::set<int> RiaStdStringTools::valuesFromRangeSelection( const std::string& s 
 
             std::istringstream tokenStream( token );
             int                startIndex, endIndex;
-            char               dash;
+            char               dash, colon;
+            int                step = 1;
 
             if ( tokenStream >> startIndex )
             {
                 if ( tokenStream >> dash && dash == '-' && tokenStream >> endIndex )
                 {
+                    if ( tokenStream >> colon && colon == ':' )
+                    {
+                        tokenStream >> step;
+                    }
+
+                    if ( step <= 0 )
+                    {
+                        step = 1; // Ensure step is positive
+                    }
+
                     if ( startIndex > endIndex )
                     {
                         // If start is greater than end, swap them
                         std::swap( startIndex, endIndex );
                     }
 
-                    for ( int i = startIndex; i <= endIndex; ++i )
+                    for ( int i = startIndex; i <= endIndex; i += step )
                     {
                         result.insert( i );
                     }
