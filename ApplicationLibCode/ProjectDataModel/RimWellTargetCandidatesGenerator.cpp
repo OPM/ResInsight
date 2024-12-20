@@ -35,8 +35,6 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
-#include "RimOilField.h"
-#include "RimProject.h"
 #include "RimRegularGridCase.h"
 #include "RimTools.h"
 
@@ -122,6 +120,8 @@ RimWellTargetCandidatesGenerator::RimWellTargetCandidatesGenerator()
 
     CAF_PDM_InitField( &m_generateEnsembleStatistics, "GenerateEnsembleStatistics", true, "Generate Ensemble Statistics" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_generateEnsembleStatistics );
+
+    CAF_PDM_InitFieldNoDefault( &m_ensembleStatisticsCase, "EnsembleStatisticsCase", "Ensemble Statistics Case" );
 
     m_minimumVolume = cvf::UNDEFINED_DOUBLE;
     m_maximumVolume = cvf::UNDEFINED_DOUBLE;
@@ -326,17 +326,14 @@ void RimWellTargetCandidatesGenerator::generateEnsembleStatistics()
                                                                                                         m_volumeResultType(),
                                                                                                         limits );
 
-    RimProject* project = RimProject::current();
-    if ( !project ) return;
+    regularGridCase->setCustomCaseName( "Ensemble Grid" );
 
-    RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
-    if ( !analysisModels ) return;
-
-    analysisModels->cases.push_back( regularGridCase );
+    m_ensembleStatisticsCase = regularGridCase;
 
     auto eclipseView = regularGridCase->createAndAddReservoirView();
 
     eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::GENERATED );
+    eclipseView->cellResult()->setResultVariable( "TOTAL_PORV_SOIL_P10" );
 
     if ( RiaGuiApplication::isRunning() || RiuMainWindow::instance() )
     {
@@ -345,7 +342,7 @@ void RimWellTargetCandidatesGenerator::generateEnsembleStatistics()
 
     eclipseView->loadDataAndUpdate();
 
-    analysisModels->updateConnectedEditors();
+    m_ensembleStatisticsCase->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

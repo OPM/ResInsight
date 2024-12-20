@@ -81,6 +81,8 @@ private:
 
     caf::PdmField<bool> m_generateEnsembleStatistics;
 
+    caf::PdmChildField<RimEclipseCase*> m_ensembleStatisticsCase;
+
     double m_minimumVolume;
     double m_maximumVolume;
 
