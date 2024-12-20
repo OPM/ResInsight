@@ -21,6 +21,8 @@
 #include "RimEclipseCaseEnsemble.h"
 #include "RimWellTargetCandidatesGenerator.h"
 
+#include "RiuMainWindow.h"
+
 #include "cafSelectionManagerTools.h"
 
 #include <QAction>
@@ -35,9 +37,13 @@ void RicNewWellTargetCandidatesGeneratorFeature::onActionTriggered( bool isCheck
     auto ensembles = caf::selectedObjectsByTypeStrict<RimEclipseCaseEnsemble*>();
     if ( ensembles.empty() ) return;
 
-    auto ensemble = ensembles.front();
-    ensemble->addWellTargetsGenerator( new RimWellTargetCandidatesGenerator() );
+    auto ensemble  = ensembles.front();
+    auto generator = new RimWellTargetCandidatesGenerator();
+    ensemble->addWellTargetsGenerator( generator );
+
     ensemble->updateConnectedEditors();
+
+    RiuMainWindow::instance()->selectAsCurrentItem( generator );
 }
 
 //--------------------------------------------------------------------------------------------------
