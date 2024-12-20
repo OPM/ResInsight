@@ -423,3 +423,11 @@ void RimWellTargetCandidatesGenerator::updateResultDefinition()
     RimEclipseCase* eclipseCase = firstCase();
     if ( eclipseCase ) m_resultDefinition->setEclipseCase( eclipseCase );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimWellTargetCandidatesGenerator::ensembleStatisticsCase() const
+{
+    return m_ensembleStatisticsCase;
+}

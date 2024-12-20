@@ -119,6 +119,14 @@ std::vector<RimEclipseCase*> RimEclipseCaseEnsemble::cases() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimWellTargetCandidatesGenerator*> RimEclipseCaseEnsemble::wellTargetsGenerators() const
+{
+    return m_wellTargetGenerators.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseCaseEnsemble::addView( RimEclipseView* view )
 {
     m_viewCollection->addView( view );

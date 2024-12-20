@@ -56,7 +56,8 @@ public:
 
     RimEclipseViewCollection* viewCollection() const;
 
-    void addWellTargetsGenerator( RimWellTargetCandidatesGenerator* generator );
+    void                                           addWellTargetsGenerator( RimWellTargetCandidatesGenerator* generator );
+    std::vector<RimWellTargetCandidatesGenerator*> wellTargetsGenerators() const;
 
     void addStatisticsContourMap( RimStatisticsContourMap* statisticsContourMap );
 
