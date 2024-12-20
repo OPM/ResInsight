@@ -882,7 +882,7 @@ void RigWellTargetCandidatesGenerator::accumulateResultsForSingleCase( RimEclips
 
     std::map<QString, const std::vector<double>*> namedInputVector;
 
-    for ( auto [resultName, vec] : resultNamesAndSamples )
+    for ( const auto& [resultName, vec] : resultNamesAndSamples )
     {
         RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::GENERATED, resultName );
         resultsData->ensureKnownResultLoaded( resultAddress );
@@ -891,7 +891,7 @@ void RigWellTargetCandidatesGenerator::accumulateResultsForSingleCase( RimEclips
     }
 
     std::map<QString, std::vector<double>> namedOutputVector;
-    for ( auto [resultName, vec] : resultNamesAndSamples )
+    for ( const auto& [resultName, vec] : resultNamesAndSamples )
     {
         namedOutputVector[resultName] = std::vector( targetNumActiveCells, std::numeric_limits<double>::infinity() );
     }
@@ -918,7 +918,7 @@ void RigWellTargetCandidatesGenerator::accumulateResultsForSingleCase( RimEclips
         }
     }
 
-    for ( auto [resultName, vec] : resultNamesAndSamples )
+    for ( const auto& [resultName, vec] : resultNamesAndSamples )
     {
         resultNamesAndSamples[resultName].push_back( namedOutputVector[resultName] );
     }
