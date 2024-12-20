@@ -82,6 +82,7 @@ cvf::ref<RifReaderInterface> RimRegularGridCase::createModel( QString modelName 
     reader->open( "", reservoir.p() );
 
     setReservoirData( reservoir.p() );
+    computeCachedData();
 
     return reader.p();
 }
@@ -93,12 +94,7 @@ bool RimRegularGridCase::openEclipseGridFile()
 {
     if ( eclipseCaseData() ) return true;
 
-    auto readerInterface = createModel( "" );
-
-    results( RiaDefines::PorosityModelType::MATRIX_MODEL )->setReaderInterface( readerInterface.p() );
-    results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->setReaderInterface( readerInterface.p() );
-
-    computeCachedData();
+    createModel( "" );
 
     return true;
 }
