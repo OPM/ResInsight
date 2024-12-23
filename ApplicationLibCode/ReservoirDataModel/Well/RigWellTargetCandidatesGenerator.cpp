@@ -757,7 +757,7 @@ RimRegularGridCase* RigWellTargetCandidatesGenerator::generateEnsembleCandidates
     RimRegularGridCase* targetCase = new RimRegularGridCase;
     targetCase->setBoundingBox( boundingBox );
     targetCase->setCellCount( resultGridCellCount );
-    targetCase->createModel( "" );
+    targetCase->createModel();
 
     std::vector<int> occurrence;
 
