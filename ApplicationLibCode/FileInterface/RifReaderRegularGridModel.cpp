@@ -18,77 +18,91 @@
 
 #include "RifReaderRegularGridModel.h"
 
+#include "RiaDefines.h"
+#include "RiaLogging.h"
+
+#include "RifEclipseInputFileTools.h"
+#include "RifEclipseInputPropertyLoader.h"
+#include "RifEclipseKeywordContent.h"
+#include "RifEclipseTextFileReader.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
+
+#include "RimEclipseCase.h"
+
+#include <QDir>
+#include <QFileInfo>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderRegularGridModel::RifReaderRegularGridModel()
-    : m_reservoir( nullptr )
+void RifReaderRegularGridModel::writeCache( const QString& fileName, RimEclipseCase* eclipseCase )
 {
+    if ( !eclipseCase ) return;
+
+    QFileInfo storageFileInfo( fileName );
+    if ( storageFileInfo.exists() )
+    {
+        QDir storageDir = storageFileInfo.dir();
+        storageDir.remove( storageFileInfo.fileName() );
+    }
+
+    QDir::root().mkpath( storageFileInfo.absolutePath() );
+
+    QFile cacheFile( fileName );
+    if ( !cacheFile.open( QIODevice::WriteOnly ) )
+    {
+        RiaLogging::error( "Saving project: Can't open the cache file : " + fileName );
+        return;
+    }
+
+    auto rigCellResults = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    if ( !rigCellResults ) return;
+
+    auto resultNames = rigCellResults->resultNames( RiaDefines::ResultCatType::GENERATED );
+
+    std::vector<QString> keywords;
+    for ( const auto& resultName : resultNames )
+    {
+        keywords.push_back( resultName );
+    }
+
+    const bool writeEchoKeywords = false;
+    if ( !RifEclipseInputFileTools::exportKeywords( fileName, eclipseCase->eclipseCaseData(), keywords, writeEchoKeywords ) )
+    {
+        RiaLogging::error( "Error detected when writing the cache file : " + fileName );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderRegularGridModel::~RifReaderRegularGridModel()
+void RifReaderRegularGridModel::ensureDataIsReadFromCache( const QString& fileName, RimEclipseCase* eclipseCase )
 {
-}
+    if ( !eclipseCase ) return;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RifReaderRegularGridModel::open( const QString& fileName, RigEclipseCaseData* eclipseCase )
-{
-    m_reservoirBuilder.createGridsAndCells( eclipseCase );
-    m_reservoir = eclipseCase;
-    return true;
-}
+    auto rigCellResults = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    if ( !rigCellResults ) return;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RifReaderRegularGridModel::staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values )
-{
-    CAF_ASSERT( false );
-    return true;
-}
+    // Early return if we have already read the data from the cache
+    auto existingResultNames = rigCellResults->resultNames( RiaDefines::ResultCatType::GENERATED );
+    if ( !existingResultNames.empty() ) return;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RifReaderRegularGridModel::dynamicResult( const QString&                result,
-                                               RiaDefines::PorosityModelType matrixOrFracture,
-                                               size_t                        stepIndex,
-                                               std::vector<double>*          values )
-{
-    CAF_ASSERT( false );
-    return true;
-}
+    auto keywordsAndData = RifEclipseTextFileReader::readKeywordAndValues( fileName.toStdString() );
+    for ( const auto& content : keywordsAndData )
+    {
+        const auto resultName = QString::fromStdString( content.keyword );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifReaderRegularGridModel::setWorldCoordinates( cvf::Vec3d minWorldCoordinate, cvf::Vec3d maxWorldCoordinate )
-{
-    m_reservoirBuilder.setWorldCoordinates( minWorldCoordinate, maxWorldCoordinate );
-}
+        RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::FLOAT, resultName );
+        rigCellResults->createResultEntry( resAddr, false );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifReaderRegularGridModel::setGridPointDimensions( const cvf::Vec3st& gridPointDimensions )
-{
-    m_reservoirBuilder.setIJKCount( gridPointDimensions );
-}
+        auto newPropertyData = rigCellResults->modifiableCellScalarResultTimesteps( resAddr );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifReaderRegularGridModel::addLocalGridRefinement( const cvf::Vec3st& minCellPosition,
-                                                        const cvf::Vec3st& maxCellPosition,
-                                                        const cvf::Vec3st& singleCellRefinementFactors )
-{
-    m_reservoirBuilder.addLocalGridRefinement( minCellPosition, maxCellPosition, singleCellRefinementFactors );
+        std::vector<double> doubleVals;
+        doubleVals.insert( doubleVals.begin(), content.values.begin(), content.values.end() );
+
+        newPropertyData->push_back( doubleVals );
+    }
 }

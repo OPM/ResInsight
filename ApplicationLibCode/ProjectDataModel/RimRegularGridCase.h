@@ -43,7 +43,11 @@ public:
 
     bool openEclipseGridFile() override;
 
-    cvf::ref<RifReaderInterface> createModel( QString modelName );
+    void createModel();
+
+private:
+    void    setupBeforeSave() override;
+    QString cacheFileName() const;
 
 private:
     caf::PdmField<cvf::Vec3d> m_minimum;

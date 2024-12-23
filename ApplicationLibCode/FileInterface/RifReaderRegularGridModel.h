@@ -18,28 +18,13 @@
 
 #pragma once
 
-#include "RifReaderInterface.h"
-#include "RigReservoirBuilder.h"
+#include <QString>
 
-class RifReaderRegularGridModel : public RifReaderInterface
+class RimEclipseCase;
+
+namespace RifReaderRegularGridModel
 {
-public:
-    RifReaderRegularGridModel();
-    ~RifReaderRegularGridModel() override;
+void writeCache( const QString& fileName, RimEclipseCase* eclipseCase );
+void ensureDataIsReadFromCache( const QString& fileName, RimEclipseCase* eclipseCase );
 
-    void setWorldCoordinates( cvf::Vec3d minWorldCoordinate, cvf::Vec3d maxWorldCoordinate );
-    void setGridPointDimensions( const cvf::Vec3st& gridPointDimensions );
-
-    void addLocalGridRefinement( const cvf::Vec3st& minCellPosition,
-                                 const cvf::Vec3st& maxCellPosition,
-                                 const cvf::Vec3st& singleCellRefinementFactors );
-
-    bool open( const QString& fileName, RigEclipseCaseData* eclipseCase ) override;
-
-    bool staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values ) override;
-    bool dynamicResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values ) override;
-
-private:
-    RigReservoirBuilder m_reservoirBuilder;
-    RigEclipseCaseData* m_reservoir;
-};
+}; // namespace RifReaderRegularGridModel

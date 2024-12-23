@@ -22,6 +22,9 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigReservoirBuilder.h"
+
+#include "RimTools.h"
 
 CAF_PDM_SOURCE_INIT( RimRegularGridCase, "EclipseBoundingBoxCase" );
 //--------------------------------------------------------------------------------------------------
@@ -69,22 +72,39 @@ void RimRegularGridCase::setCellCount( const cvf::Vec3st& cellCount )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RifReaderInterface> RimRegularGridCase::createModel( QString modelName )
+void RimRegularGridCase::createModel()
 {
-    cvf::ref<RifReaderRegularGridModel> reader    = new RifReaderRegularGridModel;
-    cvf::ref<RigEclipseCaseData>        reservoir = new RigEclipseCaseData( this );
+    cvf::ref<RigEclipseCaseData> reservoir = new RigEclipseCaseData( this );
 
-    reader->setWorldCoordinates( m_minimum, m_maximum );
+    RigReservoirBuilder reservoirBuilder;
+    reservoirBuilder.setWorldCoordinates( m_minimum, m_maximum );
 
     cvf::Vec3st gridPointDimensions( m_cellCountI, m_cellCountJ, m_cellCountK );
-    reader->setGridPointDimensions( gridPointDimensions );
+    reservoirBuilder.setIJKCount( gridPointDimensions );
 
-    reader->open( "", reservoir.p() );
+    reservoirBuilder.createGridsAndCells( reservoir.p() );
 
     setReservoirData( reservoir.p() );
     computeCachedData();
+}
 
-    return reader.p();
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRegularGridCase::setupBeforeSave()
+{
+    auto fileName = cacheFileName();
+    RifReaderRegularGridModel::writeCache( fileName, this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimRegularGridCase::cacheFileName() const
+{
+    auto cacheDirPath = RimTools::getCacheRootDirectoryPathFromProject();
+    cacheDirPath += "_welltarget/welltargetdata.GRDECL";
+    return cacheDirPath;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,9 +112,13 @@ cvf::ref<RifReaderInterface> RimRegularGridCase::createModel( QString modelName 
 //--------------------------------------------------------------------------------------------------
 bool RimRegularGridCase::openEclipseGridFile()
 {
-    if ( eclipseCaseData() ) return true;
+    if ( !eclipseCaseData() )
+    {
+        createModel();
+    }
 
-    createModel( "" );
+    auto fileName = cacheFileName();
+    RifReaderRegularGridModel::ensureDataIsReadFromCache( fileName, this );
 
     return true;
 }
