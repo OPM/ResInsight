@@ -38,6 +38,7 @@
 #include "RimRegularGridCase.h"
 #include "RimTools.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiSliderTools.h"
@@ -430,4 +431,12 @@ void RimWellTargetCandidatesGenerator::updateResultDefinition()
 RimEclipseCase* RimWellTargetCandidatesGenerator::ensembleStatisticsCase() const
 {
     return m_ensembleStatisticsCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellTargetCandidatesGenerator::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicCreateWellTargetClusterPolygonsFeature";
 }

@@ -99,6 +99,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellTargetCandidatesGeneratorFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStatisticsContourMapFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStatisticsContourMapViewFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateWellTargetClusterPolygonsFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -202,6 +203,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellTargetCandidatesGeneratorFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStatisticsContourMapFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStatisticsContourMapViewFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateWellTargetClusterPolygonsFeature.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)
