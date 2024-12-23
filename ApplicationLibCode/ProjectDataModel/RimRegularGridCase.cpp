@@ -91,6 +91,26 @@ void RimRegularGridCase::createModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimRegularGridCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_caseUserDescription );
+    uiOrdering.add( &m_displayNameOption );
+    uiOrdering.add( &m_caseId );
+
+    auto group = uiOrdering.addNewGroup( "Regular Grid Definition" );
+    group->add( &m_minimum );
+    group->add( &m_maximum );
+
+    group->add( &m_cellCountI );
+    group->add( &m_cellCountJ );
+    group->add( &m_cellCountK );
+
+    uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimRegularGridCase::setupBeforeSave()
 {
     auto fileName = cacheFileName();

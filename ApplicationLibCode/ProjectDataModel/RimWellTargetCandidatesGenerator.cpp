@@ -84,7 +84,7 @@ void caf::AppEnum<RigWellTargetCandidatesGenerator::VolumesType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimWellTargetCandidatesGenerator::RimWellTargetCandidatesGenerator()
 {
-    CAF_PDM_InitObject( "Well Target Candidates Generator" );
+    CAF_PDM_InitObject( "Well Target Candidates Generator", ":/WellTargets.png" );
 
     CAF_PDM_InitField( &m_timeStep, "TimeStep", 0, "Time Step" );
 

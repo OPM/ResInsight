@@ -46,6 +46,8 @@ public:
     void createModel();
 
 private:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
     void    setupBeforeSave() override;
     QString cacheFileName() const;
 
