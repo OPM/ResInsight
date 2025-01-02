@@ -292,9 +292,7 @@ std::vector<size_t> RicCreateWellTargetClusterPolygonsFeature::findCandidates( c
 
         RigGridBase* grid               = cell.hostGrid();
         size_t       gridLocalCellIndex = cell.gridLocalCellIndex();
-        size_t       resultIndex        = resultsData->activeCellInfo()->cellResultIndex( cellIdx );
-
-        size_t i, j, k;
+        size_t       i, j, k;
 
         grid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
 
