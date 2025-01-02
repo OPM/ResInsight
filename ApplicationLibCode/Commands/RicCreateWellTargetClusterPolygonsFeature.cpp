@@ -380,6 +380,7 @@ void RicCreateWellTargetClusterPolygonsFeature::createWellTargetClusterPolygons(
 
             auto newPolygon = polygonCollection->appendUserDefinedPolygon();
             newPolygon->setPointsInDomainCoords( polygonBoundary );
+            newPolygon->coordinatesChanged.send();
 
             polygonCollection->uiCapability()->updateAllRequiredEditors();
         }
