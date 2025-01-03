@@ -57,8 +57,8 @@ bool RigFaultDistanceResultCalculator::isMatching( const RigEclipseResultAddress
 //--------------------------------------------------------------------------------------------------
 void RigFaultDistanceResultCalculator::calculate( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex )
 {
-    size_t reservoirCellCount = m_resultsData->activeCellInfo()->reservoirCellCount();
-    if ( reservoirCellCount == 0 ) return;
+    size_t activeCellCount = m_resultsData->activeCellInfo()->reservoirActiveCellCount();
+    if ( activeCellCount == 0 ) return;
 
     size_t resultIndex = m_resultsData->findScalarResultIndexFromAddress(
         RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::faultDistanceName() ) );
@@ -70,32 +70,29 @@ void RigFaultDistanceResultCalculator::calculate( const RigEclipseResultAddress&
     if ( result.empty() ) result.resize( 1 );
 
     bool shouldCompute = false;
-    if ( result[0].size() < reservoirCellCount )
+    if ( result[0].size() < activeCellCount )
     {
-        result[0].resize( reservoirCellCount, std::numeric_limits<double>::infinity() );
+        result[0].resize( activeCellCount, std::numeric_limits<double>::infinity() );
         shouldCompute = true;
     }
 
     if ( !shouldCompute ) return;
 
     const auto mainGrid = m_resultsData->m_ownerMainGrid;
-    long long  numCells = static_cast<long long>( mainGrid->totalCellCount() );
 
     std::vector<cvf::StructGridInterface::FaceType> faceTypes = cvf::StructGridInterface::validFaceTypes();
 
     // Preprocessing: create vector of all fault face centers.
     std::vector<cvf::Vec3d> faultFaceCenters;
-    for ( long long cellIdx = 0; cellIdx < numCells; cellIdx++ )
+    const auto              activeCells = m_resultsData->activeCellInfo()->activeReservoirCellIndices();
+    for ( auto cellIdx : activeCells )
     {
-        if ( m_resultsData->activeCellInfo()->isActive( cellIdx ) )
+        const RigCell& cell = mainGrid->cell( cellIdx );
+        if ( cell.isInvalid() ) continue;
+        for ( auto faceType : faceTypes )
         {
-            const RigCell& cell = mainGrid->cell( cellIdx );
-            if ( cell.isInvalid() ) continue;
-            for ( auto faceType : faceTypes )
-            {
-                if ( m_resultsData->m_ownerMainGrid->findFaultFromCellIndexAndCellFace( cellIdx, faceType ) )
-                    faultFaceCenters.push_back( cell.faceCenter( faceType ) );
-            }
+            if ( m_resultsData->m_ownerMainGrid->findFaultFromCellIndexAndCellFace( cellIdx, faceType ) )
+                faultFaceCenters.push_back( cell.faceCenter( faceType ) );
         }
     }
 
@@ -122,13 +119,13 @@ void RigFaultDistanceResultCalculator::calculate( const RigEclipseResultAddress&
     const auto mainGridBB = m_resultsData->m_ownerMainGrid->boundingBox();
 
 #pragma omp parallel for
-    for ( long long cellIdx = 0; cellIdx < numCells; cellIdx++ )
+    for ( int activeIndex = 0; activeIndex < static_cast<int>( activeCells.size() ); activeIndex++ )
     {
+        auto cellIdx = activeCells[activeIndex];
+        if ( cellIdx == cvf::UNDEFINED_SIZE_T ) continue;
+
         const RigCell& cell = mainGrid->cell( cellIdx );
         if ( cell.isInvalid() ) continue;
-
-        size_t resultIndex = cellIdx;
-        if ( resultIndex == cvf::UNDEFINED_SIZE_T || !m_resultsData->activeCellInfo()->isActive( cellIdx ) ) continue;
 
         std::vector<size_t> candidateFaceIndices;
         {
@@ -169,6 +166,6 @@ void RigFaultDistanceResultCalculator::calculate( const RigEclipseResultAddress&
             shortestDistance                  = std::min( cell.center().pointDistance( faultFaceCenter ), shortestDistance );
         }
 
-        result[0][resultIndex] = shortestDistance;
+        result[0][activeIndex] = shortestDistance;
     }
 }
