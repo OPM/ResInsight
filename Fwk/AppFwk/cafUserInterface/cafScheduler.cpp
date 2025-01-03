@@ -16,16 +16,16 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaScheduler.h"
-
+#include "cafScheduler.h"
 #include "cafProgressState.h"
 
-#include <QCoreApplication>
+namespace caf
+{
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaScheduler::RiaScheduler()
+Scheduler::Scheduler()
     : m_blockUpdate( false )
 {
 }
@@ -33,14 +33,14 @@ RiaScheduler::RiaScheduler()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaScheduler::~RiaScheduler()
+Scheduler::~Scheduler()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaScheduler::blockUpdate( bool blockUpdate )
+void Scheduler::blockUpdate( bool blockUpdate )
 {
     m_blockUpdate = blockUpdate;
     if ( !m_blockUpdate )
@@ -52,7 +52,7 @@ void RiaScheduler::blockUpdate( bool blockUpdate )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaScheduler::slotUpdateScheduledItemsWhenReady()
+void Scheduler::slotUpdateScheduledItemsWhenReady()
 {
     if ( caf::ProgressState::isActive() )
     {
@@ -66,7 +66,7 @@ void RiaScheduler::slotUpdateScheduledItemsWhenReady()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaScheduler::startTimer( int msecs )
+void Scheduler::startTimer( int msecs )
 {
     if ( !m_updateTimer )
     {
@@ -80,3 +80,4 @@ void RiaScheduler::startTimer( int msecs )
         m_updateTimer->start( msecs );
     }
 }
+} // namespace caf

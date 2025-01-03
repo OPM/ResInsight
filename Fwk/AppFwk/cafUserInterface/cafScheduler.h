@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2022- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,28 +18,36 @@
 
 #pragma once
 
-#include "cafScheduler.h"
+#include <QObject>
+#include <QScopedPointer>
+#include <QTimer>
 
-#include "cafPdmPointer.h"
-
-#include <vector>
-
-class Rim3dView;
-
-class RiaViewRedrawScheduler : public caf::Scheduler
+namespace caf
 {
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class Scheduler : public QObject
+{
+    Q_OBJECT
+
 public:
-    RiaViewRedrawScheduler();
-    ~RiaViewRedrawScheduler() override;
+    Scheduler();
+    ~Scheduler() override;
 
-    static RiaViewRedrawScheduler* instance();
+    virtual void performScheduledUpdates() = 0;
 
-    void scheduleDisplayModelUpdateAndRedraw( Rim3dView* resViewToUpdate );
-    void clearViewsScheduledForUpdate();
-    void updateAndRedrawScheduledViews();
+    void blockUpdate( bool blockUpdate );
 
-    void performScheduledUpdates() override;
+protected:
+    void startTimer( int msecs );
+
+private slots:
+    void slotUpdateScheduledItemsWhenReady();
 
 private:
-    std::vector<caf::PdmPointer<Rim3dView>> m_resViewsToUpdate;
+    QScopedPointer<QTimer> m_updateTimer;
+    bool                   m_blockUpdate;
 };
+} // namespace caf

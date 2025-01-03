@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2022- Equinor ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,32 +18,27 @@
 
 #pragma once
 
-#include <QObject>
-#include <QScopedPointer>
-#include <QTimer>
+#include "cafScheduler.h"
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-class RiaScheduler : public QObject
+#include <set>
+
+namespace caf
 {
-    Q_OBJECT
 
+class PdmUiItem;
+
+class UpdateEditorsScheduler : public Scheduler
+{
 public:
-    RiaScheduler();
-    ~RiaScheduler() override;
+    UpdateEditorsScheduler();
 
-    virtual void performScheduledUpdates() = 0;
+    static UpdateEditorsScheduler* instance();
 
-    void blockUpdate( bool blockUpdate );
-
-protected:
-    void startTimer( int msecs );
-
-private slots:
-    void slotUpdateScheduledItemsWhenReady();
+    void scheduleUpdateConnectedEditors( PdmUiItem* uiItem );
+    void performScheduledUpdates() override;
 
 private:
-    QScopedPointer<QTimer> m_updateTimer;
-    bool                   m_blockUpdate;
+    std::set<PdmUiItem*> m_itemsToUpdate;
 };
+
+} // namespace caf

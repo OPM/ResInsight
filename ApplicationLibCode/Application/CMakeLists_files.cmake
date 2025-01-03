@@ -31,7 +31,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaRftDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaDateTimeDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaPlotCollectionScheduler.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaScheduler.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaSeismicDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaLasDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaOsduDefines.h
@@ -73,7 +72,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaRftDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaDateTimeDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPlotCollectionScheduler.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaScheduler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaSeismicDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaLasDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaOsduDefines.cpp
@@ -85,15 +83,6 @@ set(SOURCE_GROUP_SOURCE_FILES
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
-
-set(QT_MOC_HEADERS
-    ${QT_MOC_HEADERS}
-    ${CMAKE_CURRENT_LIST_DIR}/RiaConsoleApplication.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGuiApplication.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaCompletionTypeCalculationScheduler.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaPlotWindowRedrawScheduler.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaScheduler.h
-)
 
 source_group(
   "Application" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
