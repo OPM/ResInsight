@@ -283,7 +283,7 @@ std::vector<size_t> RimStatisticsContourMapView::activeTimeStepIndices( bool pro
     // add any timesteps with dynamic data
     if ( !statisticsContourMap() ) return timeStepIndices;
 
-    for ( auto i = 0; i < statisticsContourMap()->selectedTimeSteps().size(); i++ )
+    for ( size_t i = 0; i < statisticsContourMap()->selectedTimeSteps().size(); i++ )
     {
         timeStepIndices.push_back( i );
     }

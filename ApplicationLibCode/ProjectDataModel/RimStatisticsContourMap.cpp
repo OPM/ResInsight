@@ -407,7 +407,8 @@ RigContourMapGrid* RimStatisticsContourMap::contourMapGrid() const
 std::vector<double> RimStatisticsContourMap::result( size_t timeStep, StatisticsType statisticsType ) const
 {
     auto realTimeSteps = selectedTimeSteps();
-    if ( timeStep >= (int)realTimeSteps.size() ) return {};
+    if ( timeStep >= realTimeSteps.size() ) return {};
+
     timeStep = (size_t)realTimeSteps[timeStep];
 
     if ( !m_timeResults.contains( timeStep ) ) return {};
