@@ -299,6 +299,8 @@ std::pair<std::vector<RigContourMapTrianglesGenerator::ContourPolygons>, std::ve
 
             const std::vector<double>& aggregatedVertexResults = contourMapProjection.aggregatedVertexResults();
 
+            if ( aggregatedVertexResults.empty() ) return {};
+
             std::vector<caf::ContourLines::ListOfLineSegments> unorderedLineSegmentsPerLevel =
                 caf::ContourLines::create( aggregatedVertexResults,
                                            contourMapProjection.xVertexPositions(),

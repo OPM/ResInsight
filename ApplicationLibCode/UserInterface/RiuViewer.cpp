@@ -461,7 +461,7 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
 
                 m_animationProgressCompView->setFormat( "Time Step: %v/%m " + stepName );
                 m_animationProgressCompView->setMinimum( 1 );
-                m_animationProgressCompView->setMaximum( static_cast<int>( compView->timeStepCount() + 1 ) );
+                m_animationProgressCompView->setMaximum( static_cast<int>( compView->timeStepCount() ) );
                 m_animationProgressCompView->setValue( compView->currentTimeStep() + 1 );
 
                 m_animationProgressCompView->resize( columnWidth, m_animationProgressCompView->sizeHint().height() );
@@ -493,7 +493,7 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
 
             m_animationProgress->setFormat( "Time Step: %v/%m " + stepName );
             m_animationProgress->setMinimum( 1 );
-            m_animationProgress->setMaximum( static_cast<int>( view->timeStepCount() + 1 ) );
+            m_animationProgress->setMaximum( static_cast<int>( view->timeStepCount() ) );
             m_animationProgress->setValue( view->currentTimeStep() + 1 );
 
             m_animationProgress->resize( columnWidth, m_animationProgress->sizeHint().height() );

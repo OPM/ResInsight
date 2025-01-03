@@ -562,6 +562,38 @@ void RimEclipseView::onUpdateScaleTransform()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RimEclipseView::activeTimeStepIndices( bool propertyFiltersActive )
+{
+    std::vector<size_t> timeStepIndices;
+
+    // First entry in this vector is used to define the geometry only result mode with no results.
+    timeStepIndices.push_back( 0 );
+
+    // Find the number of time frames the animation needs to show the requested data.
+    if ( ( isTimeStepDependentDataVisibleInThisOrComparisonView() && currentGridCellResults()->maxTimeStepCount() > 0 ) )
+    {
+        CVF_ASSERT( currentGridCellResults() );
+
+        size_t i;
+        for ( i = 0; i < currentGridCellResults()->maxTimeStepCount(); i++ )
+        {
+            timeStepIndices.push_back( i );
+        }
+    }
+    else if ( cellResult()->hasStaticResult() || cellEdgeResult()->hasResult() || propertyFiltersActive ||
+              intersectionCollection()->hasAnyActiveSeparateResults() ||
+              ( surfaceInViewCollection() && surfaceInViewCollection()->hasAnyActiveSeparateResults() ) )
+    {
+        // The one and only static result entry
+        timeStepIndices.push_back( 0 );
+    }
+
+    return timeStepIndices;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Create display model,
 /// or at least empty scenes as frames that is delivered to the viewer
 /// The real geometry generation is done inside RivReservoirViewGeometry and friends
@@ -585,30 +617,7 @@ void RimEclipseView::onCreateDisplayModel()
 
     // Define a vector containing time step indices to produce geometry for.
     // First entry in this vector is used to define the geometry only result mode with no results.
-    std::vector<size_t> timeStepIndices;
-
-    // The one and only geometry entry
-    timeStepIndices.push_back( 0 );
-
-    // Find the number of time frames the animation needs to show the requested data.
-
-    if ( ( isTimeStepDependentDataVisibleInThisOrComparisonView() && currentGridCellResults()->maxTimeStepCount() > 0 ) )
-    {
-        CVF_ASSERT( currentGridCellResults() );
-
-        size_t i;
-        for ( i = 0; i < currentGridCellResults()->maxTimeStepCount(); i++ )
-        {
-            timeStepIndices.push_back( i );
-        }
-    }
-    else if ( cellResult()->hasStaticResult() || cellEdgeResult()->hasResult() || propertyFiltersActive ||
-              intersectionCollection()->hasAnyActiveSeparateResults() ||
-              ( surfaceInViewCollection() && surfaceInViewCollection()->hasAnyActiveSeparateResults() ) )
-    {
-        // The one and only static result entry
-        timeStepIndices.push_back( 0 );
-    }
+    std::vector<size_t> timeStepIndices = activeTimeStepIndices( propertyFiltersActive );
 
     cvf::Collection<cvf::ModelBasicList> frameModels;
     size_t                               timeIdx;

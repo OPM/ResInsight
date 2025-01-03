@@ -40,6 +40,8 @@
 #include "RimStatisticsContourMapView.h"
 #include "RimTools.h"
 
+#include "Riu3DMainWindowTools.h"
+
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -107,16 +109,14 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
     uiOrdering.add( nameField() );
     uiOrdering.add( &m_resultAggregation );
 
-    {
-        auto group = uiOrdering.addNewGroup( "Time Step Selection" );
-        group->setCollapsedByDefault();
-        group->add( &m_selectedTimeSteps );
-    }
+    auto tsGroup = uiOrdering.addNewGroup( "Time Step Selection" );
+    tsGroup->setCollapsedByDefault();
+    tsGroup->add( &m_selectedTimeSteps );
 
     uiOrdering.add( &m_relativeSampleSpacing );
     uiOrdering.add( &m_boundingBoxExpPercent );
 
-    caf::PdmUiGroup* resultDefinitionGroup = uiOrdering.addNewGroup( "Result Definition" );
+    auto resultDefinitionGroup = uiOrdering.addNewGroup( "Result Definition" );
     m_resultDefinition->uiOrdering( uiConfigName, *resultDefinitionGroup );
 
     uiOrdering.add( &m_computeStatisticsButton );
@@ -147,7 +147,22 @@ void RimStatisticsContourMap::fieldChangedByUi( const caf::PdmFieldHandle* chang
     {
         computeStatistics();
         m_computeStatisticsButton = false;
-        RicNewStatisticsContourMapViewFeature::createAndAddView( this );
+
+        if ( m_views.empty() )
+        {
+            auto view = RicNewStatisticsContourMapViewFeature::createAndAddView( this );
+            updateConnectedEditors();
+            Riu3DMainWindowTools::selectAsCurrentItem( view );
+            Riu3DMainWindowTools::setExpanded( this );
+            Riu3DMainWindowTools::setExpanded( view );
+        }
+        else
+        {
+            for ( auto view : m_views )
+            {
+                view->scheduleCreateDisplayModelAndRedraw();
+            }
+        }
     }
 }
 
@@ -391,6 +406,10 @@ RigContourMapGrid* RimStatisticsContourMap::contourMapGrid() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimStatisticsContourMap::result( size_t timeStep, StatisticsType statisticsType ) const
 {
+    auto realTimeSteps = selectedTimeSteps();
+    if ( timeStep >= (int)realTimeSteps.size() ) return {};
+    timeStep = (size_t)realTimeSteps[timeStep];
+
     if ( !m_timeResults.contains( timeStep ) ) return {};
 
     if ( !m_timeResults.at( timeStep ).contains( statisticsType ) ) return {};
@@ -403,14 +422,19 @@ std::vector<double> RimStatisticsContourMap::result( size_t timeStep, Statistics
 //--------------------------------------------------------------------------------------------------
 std::vector<int> RimStatisticsContourMap::selectedTimeSteps() const
 {
+    auto steps = m_selectedTimeSteps();
     if ( m_selectedTimeSteps().empty() )
     {
-        std::vector<int> retVec;
         for ( int i = 0; i < (int)eclipseCase()->timeStepStrings().size(); i++ )
-            retVec.push_back( i );
-        return retVec;
+        {
+            steps.push_back( i );
+        }
     }
-    return m_selectedTimeSteps();
+    else
+    {
+        std::sort( steps.begin(), steps.end() );
+    }
+    return steps;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -470,5 +494,10 @@ double RimStatisticsContourMap::sampleSpacingFactor() const
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMap::addView( RimStatisticsContourMapView* view )
 {
+    // make sure to update the other views as the calculated data might have changed
+    for ( auto view : m_views )
+    {
+        view->scheduleCreateDisplayModelAndRedraw();
+    }
     m_views.push_back( view );
 }

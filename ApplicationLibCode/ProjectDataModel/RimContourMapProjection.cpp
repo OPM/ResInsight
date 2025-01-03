@@ -403,6 +403,8 @@ void RimContourMapProjection::clearResults()
     m_currentResultTimestep = -1;
 
     clearResultVariable();
+
+    clearTimeStepRange();
 }
 
 //--------------------------------------------------------------------------------------------------

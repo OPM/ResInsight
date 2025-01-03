@@ -60,8 +60,12 @@ void RicNewStatisticsContourMapViewFeature::onActionTriggered( bool isChecked )
     if ( !contourMap ) return;
 
     contourMap->ensureResultsComputed();
-    createAndAddView( contourMap );
+    auto view = createAndAddView( contourMap );
     contourMap->updateConnectedEditors();
+
+    Riu3DMainWindowTools::selectAsCurrentItem( view );
+    Riu3DMainWindowTools::setExpanded( contourMap );
+    Riu3DMainWindowTools::setExpanded( view );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,9 +91,6 @@ RimStatisticsContourMapView* RicNewStatisticsContourMapViewFeature::createStatis
 
     caf::PdmDocument::updateUiIconStateRecursively( contourMapView );
 
-    // size_t i = eclipseCase->contourMapCollection()->views().size();
-    // contourMapView->setName( QString( "Contour Map %1" ).arg( i + 1 ) );
-
     contourMapView->faultCollection()->setActive( false );
     contourMapView->wellCollection()->isActive = false;
 
@@ -97,7 +98,6 @@ RimStatisticsContourMapView* RicNewStatisticsContourMapViewFeature::createStatis
 
     auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
     contourMapView->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
-
     contourMapView->initAfterReadRecursively();
 
     return contourMapView;
@@ -125,19 +125,7 @@ RimStatisticsContourMapView* RicNewStatisticsContourMapViewFeature::createAndAdd
         contourMapView->createDisplayModelAndRedraw();
         contourMapView->zoomAll();
 
-        RimProject* project = RimProject::current();
-
-        // RimOilField* oilField = project->activeOilField();
-        // oilField->eclipseContourMapCollection()->updateConnectedEditors();
-
         statisticsContourMap->updateConnectedEditors();
-
-        // caf::SelectionManager::instance()->setSelectedItem( contourMapView );
-        QCoreApplication::processEvents();
-
-        Riu3DMainWindowTools::selectAsCurrentItem( contourMapView );
-        Riu3DMainWindowTools::setExpanded( statisticsContourMap );
-        Riu3DMainWindowTools::setExpanded( contourMapView );
 
         return contourMapView;
     }

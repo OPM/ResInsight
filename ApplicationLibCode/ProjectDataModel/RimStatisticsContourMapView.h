@@ -39,6 +39,8 @@ protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
+    std::vector<size_t> activeTimeStepIndices( bool propertyFiltersActive ) override;
+
     void        onClampCurrentTimestep() override;
     size_t      onTimeStepCountRequested() override;
     QString     timeStepName( int frameIdx ) const override;

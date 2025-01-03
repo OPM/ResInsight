@@ -184,6 +184,8 @@ protected:
     void                 onLoadDataAndUpdate() override;
     caf::PdmFieldHandle* userDescriptionField() override;
 
+    virtual std::vector<size_t> activeTimeStepIndices( bool propertyFiltersActive );
+
     bool isShowingActiveCellsOnly() override;
     void onUpdateDisplayModelForCurrentTimeStep() override;
     void updateVisibleCellColors();

@@ -269,7 +269,7 @@ std::pair<double, double> RimStatisticsContourMapProjection::minmaxValuesAllTime
 
         if ( auto map = statisticsContourMap() )
         {
-            for ( auto ts : map->selectedTimeSteps() )
+            for ( size_t ts = 0; ts < map->selectedTimeSteps().size(); ts++ )
             {
                 std::vector<double> aggregatedResults = statisticsContourMap()->result( ts, m_statisticsType() );
                 m_minResultAllTimeSteps = std::min( m_minResultAllTimeSteps, RigContourMapProjection::minValue( aggregatedResults ) );
@@ -323,7 +323,8 @@ void RimStatisticsContourMapProjection::fieldChangedByUi( const caf::PdmFieldHan
                                                           const QVariant&            oldValue,
                                                           const QVariant&            newValue )
 {
-    if ( changedField == &m_statisticsType )
+    if ( ( changedField == &m_statisticsType ) || ( changedField == &m_showContourLines ) || ( changedField == &m_showContourLabels ) ||
+         ( changedField == &m_smoothContourLines ) )
     {
         clearGridMappingAndRedraw();
     }

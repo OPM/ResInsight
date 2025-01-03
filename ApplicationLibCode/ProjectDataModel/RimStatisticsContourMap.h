@@ -64,8 +64,6 @@ public:
 
     void addView( RimStatisticsContourMapView* view );
 
-    // std::vector<std::vector<std::pair<size_t, double>>> gridMapping() const;
-
     void ensureResultsComputed();
 
     QString resultAggregationText() const;
@@ -95,8 +93,7 @@ private:
     caf::PdmChildField<RimEclipseResultDefinition*> m_resultDefinition;
     caf::PdmField<bool>                             m_computeStatisticsButton;
 
-    std::unique_ptr<RigContourMapGrid> m_contourMapGrid;
-    // std::map<StatisticsType, std::vector<double>>                   m_result;
+    std::unique_ptr<RigContourMapGrid>                              m_contourMapGrid;
     std::map<size_t, std::map<StatisticsType, std::vector<double>>> m_timeResults;
 
     std::vector<std::vector<std::pair<size_t, double>>> m_gridMapping;
