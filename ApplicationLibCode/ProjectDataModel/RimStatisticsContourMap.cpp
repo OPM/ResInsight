@@ -285,8 +285,6 @@ void RimStatisticsContourMap::computeStatistics()
 
     caf::ProgressInfo progInfo( ensemble->cases().size() + 1, "Reading Eclipse Ensemble" );
 
-    // std::vector<std::vector<double>> results;
-
     std::map<size_t, std::vector<std::vector<double>>> timestep_results;
 
     for ( RimEclipseCase* eclipseCase : ensemble->cases() )
