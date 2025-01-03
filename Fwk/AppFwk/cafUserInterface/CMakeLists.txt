@@ -143,9 +143,7 @@ set(PROJECT_FILES
     cafUpdateEditorsScheduler.cpp
 )
 
-add_library(
-  ${PROJECT_NAME} ${PROJECT_FILES} ${QRC_FILES_CPP}
-)
+add_library(${PROJECT_NAME} ${PROJECT_FILES} ${QRC_FILES_CPP})
 
 if(MSVC)
   set_target_properties(
