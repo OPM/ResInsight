@@ -37,6 +37,7 @@
 #include "cafPdmUiItem.h"
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiObjectEditorHandle.h"
+#include "cafUpdateEditorsScheduler.h"
 
 namespace caf
 {
@@ -660,6 +661,14 @@ void PdmUiItem::updateConnectedEditors() const
     {
         ( *it )->updateUi();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiItem::scheduleUpdateConnectedEditors() const
+{
+    UpdateEditorsScheduler::instance()->scheduleUpdateConnectedEditors( this );
 }
 
 //--------------------------------------------------------------------------------------------------
