@@ -63,6 +63,7 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 #include "cafTitledOverlayFrame.h"
+
 #include "cvfScalarMapper.h"
 
 #include <QString>
@@ -1421,7 +1422,12 @@ void RimGridCrossPlotDataSet::triggerPlotNameUpdateAndReplot()
     {
         parent->updateCurveNamesAndPlotTitle();
         parent->reattachAllCurves();
-        parent->updateConnectedEditors();
+
+        // updateConnectedEditors() causes the UI editor to be recreated (and the widgets contained in the UI editor). The function
+        // calling this function can in some cases comes from the widget to be destroyed, typically the tree view selection editor
+        // displaying available result properties. Using a scheduler will ensure that all other slots are processed before the
+        // updateConnectedEditors() is called.
+        parent->scheduleUpdateConnectedEditors();
     }
 }
 
