@@ -6,11 +6,6 @@ if(CAF_ENABLE_UNITY_BUILD)
   set(CMAKE_UNITY_BUILD true)
 endif()
 
-# These headers need to go through Qt's MOC compiler
-set(MOC_HEADER_FILES cafPdmUiEditorHandle.h cafPdmUiFieldEditorHandle.h
-                     cafPdmUiSelection3dEditorVisualizer.h cafQShortenedLabel.h
-)
-
 find_package(
   Qt6
   COMPONENTS
@@ -67,6 +62,10 @@ set(PROJECT_FILES
     cafFontTools.h
     caf.h
     caf.cpp
+    cafScheduler.h
+    cafScheduler.cpp
+    cafUpdateEditorsScheduler.h
+    cafUpdateEditorsScheduler.cpp
 )
 
 # NOTE! Resources in this subfolder appends to the variable QRC_FILES in parent

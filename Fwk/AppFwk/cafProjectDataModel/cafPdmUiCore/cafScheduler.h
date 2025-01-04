@@ -22,16 +22,50 @@
 #include <QScopedPointer>
 #include <QTimer>
 
+namespace caf
+{
+
+//--------------------------------------------------------------------------------------------------
+/// This class is used to block the scheduled task when a blocking operation is in ongoing. Currently this is used when
+/// a progress dialog is visible. See ProgressInfoStatic::start()
+//--------------------------------------------------------------------------------------------------
+class SchedulerCallable
+{
+public:
+    void registerCallable( const std::function<bool()>& func ) { m_callable = func; }
+
+    static SchedulerCallable* instance()
+    {
+        static SchedulerCallable instance;
+        return &instance;
+    }
+
+    bool isScheduledTaskBlocked()
+    {
+        if ( m_callable )
+        {
+            return m_callable();
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+private:
+    std::function<bool()> m_callable;
+};
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class RiaScheduler : public QObject
+class Scheduler : public QObject
 {
     Q_OBJECT
 
 public:
-    RiaScheduler();
-    ~RiaScheduler() override;
+    Scheduler();
+    ~Scheduler() override;
 
     virtual void performScheduledUpdates() = 0;
 
@@ -47,3 +81,4 @@ private:
     QScopedPointer<QTimer> m_updateTimer;
     bool                   m_blockUpdate;
 };
+} // namespace caf

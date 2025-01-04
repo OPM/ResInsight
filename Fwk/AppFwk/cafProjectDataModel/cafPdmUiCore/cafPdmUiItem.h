@@ -295,6 +295,7 @@ public:
 
     /// Intended to be called when fields in an object has been changed
     void updateConnectedEditors() const;
+    void scheduleUpdateConnectedEditors() const;
 
     /// Intended to be called when an object has been created or deleted
     void updateAllRequiredEditors() const;
