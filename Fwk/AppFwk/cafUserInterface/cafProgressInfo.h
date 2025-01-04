@@ -114,7 +114,9 @@ private:
 private:
     friend class ProgressInfoBlocker;
     friend class ProgressInfoEventProcessingBlocker;
-    static bool s_running;
+
+    static std::atomic<bool> s_running;
+
     static bool s_disabled;
     static bool s_isButtonConnected;
     static bool s_shouldProcessEvents;

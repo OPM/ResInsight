@@ -18,7 +18,8 @@
 #pragma once
 
 #include "RiaDefines.h"
-#include "RiaScheduler.h"
+
+#include "cafScheduler.h"
 
 #include <QPointer>
 
@@ -29,7 +30,7 @@ class RiuMultiPlotPage;
 class RiuMultiPlotBook;
 class RiuPlotWidget;
 
-class RiaPlotWindowRedrawScheduler : public RiaScheduler
+class RiaPlotWindowRedrawScheduler : public caf::Scheduler
 {
     Q_OBJECT
 

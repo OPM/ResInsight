@@ -18,9 +18,9 @@
 
 #pragma once
 
-#include "RiaScheduler.h"
+#include "cafScheduler.h"
 
-class RiaQuickAccessScheduler : public RiaScheduler
+class RiaQuickAccessScheduler : public caf::Scheduler
 {
 public:
     RiaQuickAccessScheduler();

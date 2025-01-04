@@ -21,8 +21,6 @@
 #include "RimAbstractPlotCollection.h"
 #include "RimViewWindow.h"
 
-#include "cafProgressState.h"
-
 #include <QTimer>
 
 //--------------------------------------------------------------------------------------------------

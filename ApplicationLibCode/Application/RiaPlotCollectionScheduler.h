@@ -18,14 +18,14 @@
 
 #pragma once
 
-#include "RiaScheduler.h"
+#include "cafScheduler.h"
 
 class RimPlotCollection;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class RiaPlotCollectionScheduler : public RiaScheduler
+class RiaPlotCollectionScheduler : public caf::Scheduler
 {
 public:
     RiaPlotCollectionScheduler();
