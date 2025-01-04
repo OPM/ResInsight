@@ -21,7 +21,6 @@
 #include "RimAbstractPlotCollection.h"
 #include "RimViewWindow.h"
 
-
 #include <QTimer>
 
 //--------------------------------------------------------------------------------------------------
