@@ -16,34 +16,25 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaPlotCollectionScheduler.h"
+#include "cafUpdateEditorsScheduler.h"
+#include "cafPdmUiItem.h"
 
-#include "RimAbstractPlotCollection.h"
-#include "RimViewWindow.h"
-
-
-#include <QTimer>
+namespace caf
+{
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaPlotCollectionScheduler::RiaPlotCollectionScheduler()
+UpdateEditorsScheduler::UpdateEditorsScheduler()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaPlotCollectionScheduler::~RiaPlotCollectionScheduler()
+UpdateEditorsScheduler* UpdateEditorsScheduler::instance()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiaPlotCollectionScheduler* RiaPlotCollectionScheduler::instance()
-{
-    static RiaPlotCollectionScheduler theInstance;
+    static UpdateEditorsScheduler theInstance;
 
     return &theInstance;
 }
@@ -51,9 +42,9 @@ RiaPlotCollectionScheduler* RiaPlotCollectionScheduler::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPlotCollectionScheduler::schedulePlotCollectionUpdate( const std::vector<RimPlotCollection*> plotCollections )
+void UpdateEditorsScheduler::scheduleUpdateConnectedEditors( const PdmUiItem* uiItem )
 {
-    m_plotCollectionsToUpdate.insert( m_plotCollectionsToUpdate.end(), plotCollections.begin(), plotCollections.end() );
+    m_itemsToUpdate.insert( uiItem );
 
     startTimer( 0 );
 }
@@ -61,12 +52,17 @@ void RiaPlotCollectionScheduler::schedulePlotCollectionUpdate( const std::vector
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPlotCollectionScheduler::performScheduledUpdates()
+void UpdateEditorsScheduler::performScheduledUpdates()
 {
-    for ( auto p : m_plotCollectionsToUpdate )
+    for ( auto uiItem : m_itemsToUpdate )
     {
-        if ( p == nullptr ) continue;
-
-        p->loadDataAndUpdateAllPlots();
+        if ( uiItem )
+        {
+            uiItem->updateConnectedEditors();
+        }
     }
+
+    m_itemsToUpdate.clear();
 }
+
+} //namespace caf

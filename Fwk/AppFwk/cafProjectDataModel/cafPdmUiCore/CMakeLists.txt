@@ -62,6 +62,10 @@ set(PROJECT_FILES
     cafFontTools.h
     caf.h
     caf.cpp
+    cafScheduler.h
+    cafScheduler.cpp
+    cafUpdateEditorsScheduler.h
+    cafUpdateEditorsScheduler.cpp
 )
 
 # NOTE! Resources in this subfolder appends to the variable QRC_FILES in parent

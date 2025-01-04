@@ -137,10 +137,6 @@ set(PROJECT_FILES
     cafPdmUiSliderTools.cpp
     cafPdmUiFieldLabelEditorHandle.h
     cafPdmUiFieldLabelEditorHandle.cpp
-    cafScheduler.h
-    cafScheduler.cpp
-    cafUpdateEditorsScheduler.h
-    cafUpdateEditorsScheduler.cpp
 )
 
 add_library(${PROJECT_NAME} ${PROJECT_FILES} ${QRC_FILES_CPP})

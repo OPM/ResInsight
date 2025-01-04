@@ -34,11 +34,11 @@ public:
 
     static UpdateEditorsScheduler* instance();
 
-    void scheduleUpdateConnectedEditors( PdmUiItem* uiItem );
+    void scheduleUpdateConnectedEditors( const PdmUiItem* uiItem );
     void performScheduledUpdates() override;
 
 private:
-    std::set<PdmUiItem*> m_itemsToUpdate;
+    std::set<const PdmUiItem*> m_itemsToUpdate;
 };
 
 } // namespace caf

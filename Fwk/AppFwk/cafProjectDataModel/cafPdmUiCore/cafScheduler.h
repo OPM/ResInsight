@@ -16,53 +16,69 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "cafUpdateEditorsScheduler.h"
-#include "cafPdmUiItem.h"
+#pragma once
+
+#include <QObject>
+#include <QScopedPointer>
+#include <QTimer>
 
 namespace caf
 {
 
 //--------------------------------------------------------------------------------------------------
-///
+/// This class is used to block the scheduled task when a blocking operation is in ongoing. Currently this is used when
+/// a progress dialog is visible. See ProgressInfoStatic::start()
 //--------------------------------------------------------------------------------------------------
-UpdateEditorsScheduler::UpdateEditorsScheduler()
+class SchedulerCallable
 {
-}
+public:
+    void registerCallable( const std::function<bool()>& func ) { m_callable = func; }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-UpdateEditorsScheduler* UpdateEditorsScheduler::instance()
-{
-    static UpdateEditorsScheduler theInstance;
-
-    return &theInstance;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void UpdateEditorsScheduler::scheduleUpdateConnectedEditors( PdmUiItem* uiItem )
-{
-    m_itemsToUpdate.insert( uiItem );
-
-    startTimer( 0 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void UpdateEditorsScheduler::performScheduledUpdates()
-{
-    for ( auto uiItem : m_itemsToUpdate )
+    static SchedulerCallable* instance()
     {
-        if ( uiItem )
+        static SchedulerCallable instance;
+        return &instance;
+    }
+
+    bool isScheduledTaskBlocked()
+    {
+        if ( m_callable )
         {
-            uiItem->updateConnectedEditors();
+            return m_callable();
+        }
+        else
+        {
+            return false;
         }
     }
 
-    m_itemsToUpdate.clear();
-}
+private:
+    std::function<bool()> m_callable;
+};
 
-} //namespace caf
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class Scheduler : public QObject
+{
+    Q_OBJECT
+
+public:
+    Scheduler();
+    ~Scheduler() override;
+
+    virtual void performScheduledUpdates() = 0;
+
+    void blockUpdate( bool blockUpdate );
+
+protected:
+    void startTimer( int msecs );
+
+private slots:
+    void slotUpdateScheduledItemsWhenReady();
+
+private:
+    QScopedPointer<QTimer> m_updateTimer;
+    bool                   m_blockUpdate;
+};
+} // namespace caf

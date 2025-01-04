@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "cafScheduler.h"
-#include "cafProgressState.h"
 
 namespace caf
 {
@@ -54,7 +53,7 @@ void Scheduler::blockUpdate( bool blockUpdate )
 //--------------------------------------------------------------------------------------------------
 void Scheduler::slotUpdateScheduledItemsWhenReady()
 {
-    if ( caf::ProgressState::isActive() )
+    if ( SchedulerCallable::instance()->isScheduledTaskBlocked() )
     {
         startTimer( 100 );
         return;

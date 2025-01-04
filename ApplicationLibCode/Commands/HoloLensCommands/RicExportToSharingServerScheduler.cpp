@@ -23,7 +23,7 @@
 #include "RicHoloLensSessionManager.h"
 
 #include "cafCmdFeatureManager.h"
-#include "cafProgressState.h"
+#include "cafScheduler.h"
 
 #include <QCoreApplication>
 #include <QTimer>
@@ -86,7 +86,7 @@ void RicExportToSharingServerScheduler::triggerUpdateSession()
 //--------------------------------------------------------------------------------------------------
 void RicExportToSharingServerScheduler::slotTriggerUpdateSessionWhenReady()
 {
-    if ( caf::ProgressState::isActive() )
+    if ( caf::SchedulerCallable::instance()->isScheduledTaskBlocked() )
     {
         startTimer( 100 );
         return;
