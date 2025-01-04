@@ -32,7 +32,6 @@
 #include "RiuViewer.h"
 
 #include "cafPdmUiTreeView.h"
-#include "cafProgressState.h"
 
 #include <QTimer>
 #include <QTreeView>

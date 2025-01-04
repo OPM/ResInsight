@@ -11,51 +11,6 @@ if(MSVC)
   add_definitions(-DNOMINMAX)
 endif(MSVC)
 
-# These headers need to go through Qt's MOC compiler
-set(MOC_HEADER_FILES
-    cafPdmUiCheckBoxDelegate.h
-    cafPdmUiCheckBoxEditor.h
-    cafPdmUiCheckBoxTristateEditor.h
-    cafPdmUiColorEditor.h
-    cafPdmUiComboBoxEditor.h
-    cafPdmUiDateEditor.h
-    cafPdmUiTimeEditor.h
-    cafPdmUiDefaultObjectEditor.h
-    cafPdmUiDoubleSliderEditor.h
-    cafPdmUiFilePathEditor.h
-    cafPdmUiLineEditor.h
-    cafPdmUiListEditor.h
-    cafPdmUiListView.h
-    cafPdmUiListViewEditor.h
-    cafPdmUiPropertyView.h
-    cafPdmUiPushButtonEditor.h
-    cafPdmUiActionPushButtonEditor.h
-    cafPdmUiSliderEditor.h
-    cafPdmUiTableView.h
-    cafPdmUiTableViewDelegate.h
-    cafPdmUiTableViewEditor.h
-    cafPdmUiTableViewQModel.h
-    cafPdmUiTextEditor.h
-    cafPdmUiToolButtonEditor.h
-    cafPdmUiToolButtonCallbackEditor.h
-    cafPdmUiTreeView.h
-    cafPdmUiTreeViewQModel.h
-    cafPdmUiTreeViewEditor.h
-    cafUiProcess.h
-    QMinimizePanel.h
-    cafQStyledProgressBar.h
-    cafPdmUiTreeSelectionEditor.h
-    cafPdmUiTreeSelectionQModel.h
-    cafPdmUiFormLayoutObjectEditor.h
-    cafPdmUiDoubleValueEditor.h
-    cafPdmUniqueIdValidator.h
-    cafPdmDoubleStringValidator.h
-    cafPdmUiPickableLineEditor.h
-    cafPdmUiLabelEditor.h
-    cafPdmUiCheckBoxAndTextEditor.h
-    cafPdmUiValueRangeEditor.h
-)
-
 find_package(
   Qt6
   COMPONENTS
@@ -184,9 +139,7 @@ set(PROJECT_FILES
     cafPdmUiFieldLabelEditorHandle.cpp
 )
 
-add_library(
-  ${PROJECT_NAME} ${PROJECT_FILES} ${MOC_SOURCE_FILES} ${QRC_FILES_CPP}
-)
+add_library(${PROJECT_NAME} ${PROJECT_FILES} ${QRC_FILES_CPP})
 
 if(MSVC)
   set_target_properties(

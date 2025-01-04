@@ -43,7 +43,7 @@
 
 #include "cafAssert.h"
 #include "cafMemoryInspector.h"
-#include "cafProgressState.h"
+#include "cafScheduler.h"
 
 #include <QApplication>
 #include <QCoreApplication>
@@ -378,14 +378,6 @@ static QString currentComposedLabel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ProgressState::isActive()
-{
-    return !maxProgressStack().empty();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void openDebugWindow()
 {
 #ifdef _MSC_VER
@@ -476,8 +468,9 @@ ProgressInfoBlocker::~ProgressInfoBlocker()
 ///
 //==================================================================================================
 
+std::atomic<bool> ProgressInfoStatic::s_running = false;
+
 bool ProgressInfoStatic::s_disabled            = false;
-bool ProgressInfoStatic::s_running             = false;
 bool ProgressInfoStatic::s_isButtonConnected   = false;
 bool ProgressInfoStatic::s_shouldProcessEvents = true;
 
@@ -535,6 +528,8 @@ void ProgressInfoStatic::start( ProgressInfo&  progressInfo,
     progressSpanStack_v.push_back( 1 );
     titleStack().push_back( title );
     descriptionStack().push_back( "" );
+
+    caf::SchedulerCallable::instance()->registerCallable( []() { return s_running.load(); } );
 
     if ( dialog )
     {

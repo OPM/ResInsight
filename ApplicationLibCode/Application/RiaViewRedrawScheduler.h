@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaScheduler.h"
+#include "cafScheduler.h"
 
 #include "cafPdmPointer.h"
 
@@ -26,7 +26,7 @@
 
 class Rim3dView;
 
-class RiaViewRedrawScheduler : public RiaScheduler
+class RiaViewRedrawScheduler : public caf::Scheduler
 {
 public:
     RiaViewRedrawScheduler();

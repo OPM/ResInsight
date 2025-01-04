@@ -18,9 +18,8 @@
 
 #pragma once
 
-#include "RiaScheduler.h"
-
 #include "cafPdmPointer.h"
+#include "cafScheduler.h"
 
 #include <vector>
 
@@ -29,7 +28,7 @@ class RimEclipseCase;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class RiaCompletionTypeCalculationScheduler : public RiaScheduler
+class RiaCompletionTypeCalculationScheduler : public caf::Scheduler
 {
     Q_OBJECT;
 
