@@ -60,7 +60,9 @@
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTextEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 
 #include "cvfMath.h"
@@ -183,6 +185,9 @@ RimRegularLegendConfig::RimRegularLegendConfig()
                        "",
                        "Min value of the legend (if mapping is logarithmic only positive values are valid)",
                        "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_userDefinedLevels, "UserDefinedLevels", "User Defined Levels" );
+    m_userDefinedLevels.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_categoryColorMode, "CategoryColorMode", "Category Mode" );
 
@@ -495,33 +500,53 @@ void RimRegularLegendConfig::updateLegend()
         m_logDiscreteScalarMapper->setColors( legendColors );
         m_logSmoothScalarMapper->setColors( legendColors );
         m_linSmoothScalarMapper->setColors( legendColors );
+    }
 
+    if ( m_rangeMode == RangeModeType::USER_DEFINED_LEVELS )
+    {
+        std::set<double> levelValues;
+
+        auto levels = RifEclipseUserDataParserTools::splitLineToDoubles( m_userDefinedLevels().toStdString() );
+        for ( auto l : levels )
+        {
+            levelValues.insert( l );
+        }
+
+        if ( levelValues.empty() ) levelValues.insert( 0.0 );
+
+        m_linDiscreteScalarMapper->setLevelsFromValues( levelValues );
+        m_logDiscreteScalarMapper->setLevelsFromValues( levelValues );
+        m_logSmoothScalarMapper->setLevelsFromValues( levelValues );
+        m_linSmoothScalarMapper->setLevelsFromValues( levelValues );
+    }
+    else
+    {
         m_linDiscreteScalarMapper->setLevelCount( m_numLevels, true );
         m_logDiscreteScalarMapper->setLevelCount( m_numLevels, true );
         m_logSmoothScalarMapper->setLevelCount( m_numLevels, true );
         m_linSmoothScalarMapper->setLevelCount( m_numLevels, true );
+    }
 
-        switch ( m_mappingMode() )
-        {
-            case MappingType::LINEAR_DISCRETE:
-                m_currentScalarMapper = m_linDiscreteScalarMapper.p();
-                break;
-            case MappingType::LINEAR_CONTINUOUS:
-                m_currentScalarMapper = m_linSmoothScalarMapper.p();
-                break;
-            case MappingType::LOG10_CONTINUOUS:
-                m_currentScalarMapper = m_logSmoothScalarMapper.p();
-                break;
-            case MappingType::LOG10_DISCRETE:
-                m_currentScalarMapper = m_logDiscreteScalarMapper.p();
-                break;
-            case MappingType::CATEGORY_INTEGER:
-                configureCategoryMapper();
-                m_currentScalarMapper = m_categoryMapper.p();
-                break;
-            default:
-                break;
-        }
+    switch ( m_mappingMode() )
+    {
+        case MappingType::LINEAR_DISCRETE:
+            m_currentScalarMapper = m_linDiscreteScalarMapper.p();
+            break;
+        case MappingType::LINEAR_CONTINUOUS:
+            m_currentScalarMapper = m_linSmoothScalarMapper.p();
+            break;
+        case MappingType::LOG10_CONTINUOUS:
+            m_currentScalarMapper = m_logSmoothScalarMapper.p();
+            break;
+        case MappingType::LOG10_DISCRETE:
+            m_currentScalarMapper = m_logDiscreteScalarMapper.p();
+            break;
+        case MappingType::CATEGORY_INTEGER:
+            configureCategoryMapper();
+            m_currentScalarMapper = m_categoryMapper.p();
+            break;
+        default:
+            break;
     }
 
     if ( m_currentScalarMapper != m_categoryMapper.p() )
@@ -717,6 +742,8 @@ void RimRegularLegendConfig::updateFieldVisibility()
         m_userDefinedMaxValue.uiCapability()->setUiHidden( true );
         m_userDefinedMinValue.uiCapability()->setUiHidden( true );
     }
+
+    m_userDefinedLevels.uiCapability()->setUiHidden( m_rangeMode != RangeModeType::USER_DEFINED_LEVELS );
 
     bool isCategoryMappingMode = ( m_mappingMode == MappingType::CATEGORY_INTEGER );
     m_categoryColorMode.uiCapability()->setUiHidden( !isCategoryMappingMode );
@@ -1298,6 +1325,7 @@ void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         mappingGr->add( &m_rangeMode );
         mappingGr->add( &m_userDefinedMaxValue );
         mappingGr->add( &m_userDefinedMinValue );
+        mappingGr->add( &m_userDefinedLevels );
         mappingGr->add( &m_categoryColorMode );
         mappingGr->add( &m_centerLegendAroundZero );
 
@@ -1394,6 +1422,8 @@ QList<caf::PdmOptionItemInfo> RimRegularLegendConfig::calculateValueOptions( con
         }
         options.push_back( caf::PdmOptionItemInfo( RangeModeEnum::uiText( RimRegularLegendConfig::RangeModeType::USER_DEFINED ),
                                                    RimRegularLegendConfig::RangeModeType::USER_DEFINED ) );
+        options.push_back( caf::PdmOptionItemInfo( RangeModeEnum::uiText( RimRegularLegendConfig::RangeModeType::USER_DEFINED_LEVELS ),
+                                                   RimRegularLegendConfig::RangeModeType::USER_DEFINED_LEVELS ) );
     }
 
     return options;

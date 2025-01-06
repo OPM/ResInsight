@@ -43,7 +43,8 @@ public:
     {
         AUTOMATIC_ALLTIMESTEPS,
         AUTOMATIC_CURRENT_TIMESTEP,
-        USER_DEFINED
+        USER_DEFINED,
+        USER_DEFINED_LEVELS,
     };
 
     using RangeModeEnum = caf::AppEnum<RangeModeType>;

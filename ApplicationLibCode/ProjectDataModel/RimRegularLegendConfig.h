@@ -236,6 +236,7 @@ private:
     caf::PdmField<RangeModeEnum>                                   m_rangeMode;
     caf::PdmField<double>                                          m_userDefinedMaxValue;
     caf::PdmField<double>                                          m_userDefinedMinValue;
+    caf::PdmField<QString>                                         m_userDefinedLevels;
     caf::PdmField<caf::AppEnum<ColorRangesType>>                   m_colorRangeMode_OBSOLETE;
     caf::PdmField<caf::AppEnum<MappingType>>                       m_mappingMode;
     caf::PdmField<caf::AppEnum<CategoryColorModeType>>             m_categoryColorMode;

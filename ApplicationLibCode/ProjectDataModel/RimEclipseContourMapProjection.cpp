@@ -27,6 +27,8 @@
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 
+#include "../Application/Tools/RiaLogging.h"
+#include "../Application/Tools/RiaStatisticsTools.h"
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -105,6 +107,48 @@ RimRegularLegendConfig* RimEclipseContourMapProjection::legendConfig() const
     return view()->cellResult()->legendConfig();
 }
 
+// Function to compute a histogram
+std::map<int, int> computeHistogram( const std::vector<double>& values, double resolution )
+{
+    std::map<int, int> histogram;
+    for ( const auto& value : values )
+    {
+        int bin = static_cast<int>( value / resolution );
+        histogram[bin]++;
+    }
+    return histogram;
+}
+
+// Function to dynamically define ranges based on histogram analysis
+std::vector<std::pair<float, float>> defineDynamicRanges( const std::map<int, int>& histogram, float resolution, int minBinCount )
+{
+    std::vector<std::pair<float, float>> ranges;
+    int                                  prevBin  = -1;
+    int                                  binStart = -1;
+
+    for ( const auto& [bin, count] : histogram )
+    {
+        if ( count >= minBinCount )
+        {
+            if ( binStart == -1 ) binStart = bin; // Start of a new range
+            prevBin = bin; // Continue the range
+        }
+        else if ( binStart != -1 )
+        {
+            // End the current range when encountering a bin with low count
+            ranges.emplace_back( binStart * resolution, ( prevBin + 1 ) * resolution );
+            binStart = -1;
+        }
+    }
+
+    // Add the last range if it was not closed
+    if ( binStart != -1 )
+    {
+        ranges.emplace_back( binStart * resolution, ( prevBin + 1 ) * resolution );
+    }
+
+    return ranges;
+}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -114,6 +158,35 @@ void RimEclipseContourMapProjection::updateLegend()
 
     double minVal = m_contourMapProjection ? m_contourMapProjection->minValue() : std::numeric_limits<double>::infinity();
     double maxVal = m_contourMapProjection ? m_contourMapProjection->maxValue() : -std::numeric_limits<double>::infinity();
+
+    // Histogram computations
+    {
+        auto                original = m_contourMapProjection->aggregatedResults();
+        std::vector<double> allValues;
+        for ( auto v : original )
+        {
+            if ( RiaStatisticsTools::isValidNumber( v ) ) allValues.emplace_back( v );
+        }
+
+        // remove inf values
+
+        double resolution = ( maxVal - minVal ) / 50.0; // Smaller resolution for finer binning
+        auto   histogram  = computeHistogram( allValues, resolution );
+
+        // Step 2: Define ranges dynamically based on histogram
+        int                                  minBinCount = allValues.size() / 10.0; // Minimum count to consider a bin as significant
+        std::vector<std::pair<float, float>> ranges      = defineDynamicRanges( histogram, resolution, minBinCount );
+
+        QString txt;
+
+        txt += "\nDynamic Ranges:\n";
+        for ( const auto& [start, end] : ranges )
+        {
+            txt += QString( "[ %1, %2])\n" ).arg( start ).arg( end );
+        }
+
+        RiaLogging::info( txt );
+    }
 
     auto [minValAllTimeSteps, maxValAllTimeSteps] = minmaxValuesAllTimeSteps();
 

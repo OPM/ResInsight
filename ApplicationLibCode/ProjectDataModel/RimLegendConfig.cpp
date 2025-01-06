@@ -31,6 +31,7 @@ void AppEnum<RimLegendConfig::RangeModeType>::setUp()
     addItem( RimLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS, "AUTOMATIC_ALLTIMESTEPS", "Min and Max for All Timesteps" );
     addItem( RimLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP, "AUTOMATIC_CURRENT_TIMESTEP", "Min and Max for Current Timestep" );
     addItem( RimLegendConfig::RangeModeType::USER_DEFINED, "USER_DEFINED_MAX_MIN", "User Defined Range" );
+    addItem( RimLegendConfig::RangeModeType::USER_DEFINED_LEVELS, "USER_DEFINED_LEVELS", "User Defined Levels" );
     setDefault( RimLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS );
 }
 } // namespace caf
