@@ -678,19 +678,18 @@ bool ScalarMapperEffectGenerator::isImagesEqual( const cvf::TextureImage* texImg
 {
     if ( texImg1 == nullptr && texImg2 == nullptr ) return true;
 
-    if ( texImg1 != nullptr && texImg2 != nullptr && texImg1->height() == texImg2->height() &&
-         texImg1->width() == texImg2->width() && texImg1->width() > 0 && texImg1->height() > 0 &&
-         texImg1->pixel( 0, 0 ) == texImg2->pixel( 0, 0 ) &&
-         texImg1->pixel( texImg1->width() - 1, texImg1->height() - 1 ) ==
-             texImg2->pixel( texImg1->width() - 1, texImg1->height() - 1 ) &&
-         texImg1->pixel( texImg1->width() / 2, texImg1->height() / 2 ) ==
-             texImg2->pixel( texImg1->width() / 2, texImg1->height() / 2 ) &&
-         texImg1->pixel( texImg1->width() / 4, texImg1->height() / 4 ) ==
-             texImg2->pixel( texImg1->width() / 4, texImg1->height() / 4 ) &&
-         texImg1->pixel( texImg1->width() / 2 + texImg1->width() / 4, texImg1->height() / 2 + texImg1->height() / 4 ) ==
-             texImg2->pixel( texImg1->width() / 2 + texImg1->width() / 4, texImg1->height() / 2 + texImg1->height() / 4 ) )
+    if ( texImg1 && texImg2 )
     {
-        return true;
+        auto                    bytesImg1 = texImg1->toRgb();
+        std::vector<cvf::ubyte> rgbBytes1;
+        bytesImg1->toStdVector( &rgbBytes1 );
+
+        auto                    bytesImg2 = texImg2->toRgb();
+        std::vector<cvf::ubyte> rgbBytes2;
+        bytesImg2->toStdVector( &rgbBytes2 );
+
+        // Use std::vector equals operator, and we do not have any numerical issues as the values are byte values
+        return rgbBytes1 == rgbBytes2;
     }
 
     return false;
