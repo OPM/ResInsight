@@ -115,6 +115,8 @@ void RivFemPartPartMgr::setDisplacements( bool useDisplacements, double scalingF
     m_displacedNodeCoordinates.resize( nodeCount );
     const auto coords = m_part->nodes().coordinates;
 
+    useDisplacements = useDisplacements && ( displacements.size() == coords.size() );
+
     if ( useDisplacements )
     {
         for ( size_t i = 0; i < nodeCount; i++ )
