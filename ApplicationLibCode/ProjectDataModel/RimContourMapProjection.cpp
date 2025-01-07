@@ -104,9 +104,6 @@ void RimContourMapProjection::generateResultsIfNecessary( int timeStep )
 
     if ( !m_contourMapGrid || !m_contourMapProjection ) updateGridInformation();
 
-    auto cellVisibility = getCellVisibility();
-    m_contourMapProjection->setCellVisibility( cellVisibility );
-
     progress.setProgress( 10 );
 
     if ( gridMappingNeedsUpdating() || mapCellVisibilityNeedsUpdating( timeStep ) || resultVariableChanged() )
@@ -114,11 +111,9 @@ void RimContourMapProjection::generateResultsIfNecessary( int timeStep )
         clearResults();
         clearTimeStepRange();
 
-        auto cellVisibility = getCellVisibility();
-        m_contourMapProjection->setCellVisibility( cellVisibility );
-
         if ( gridMappingNeedsUpdating() )
         {
+            m_contourMapProjection->setCellVisibility( getCellVisibility() );
             m_contourMapProjection->generateGridMapping( m_resultAggregation(), retrieveParameterWeights() );
         }
         progress.setProgress( 20 );
