@@ -287,8 +287,15 @@ std::map<QString, std::vector<caf::PdmFieldHandle*>> RimEclipsePropertyFilter::q
 
     auto name = "Property Filter : " + m_resultDefinition->resultVariableUiName();
 
-    fields[name].push_back( &m_lowerBound );
-    fields[name].push_back( &m_upperBound );
+    if ( m_resultDefinition->hasCategoryResult() && m_useCategorySelection() )
+    {
+        fields[name].push_back( &m_selectedCategoryValues );
+    }
+    else
+    {
+        fields[name].push_back( &m_lowerBound );
+        fields[name].push_back( &m_upperBound );
+    }
 
     return fields;
 }
