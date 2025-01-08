@@ -186,8 +186,12 @@ void RimWellTargetCandidatesGenerator::updateAllBoundaries()
     if ( ensemble->cases().empty() ) return;
 
     RimEclipseCase* eclipseCase = ensemble->cases().front();
+    eclipseCase->ensureReservoirCaseIsOpen();
 
-    int timeStepIdx = m_timeStep();
+    auto resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    if ( !resultsData ) return;
+
+    const int timeStepIdx = m_timeStep();
 
     auto updateBoundaryValues =
         []( auto resultsData, const std::vector<RigEclipseResultAddress>& addresses, size_t timeStepIdx ) -> std::pair<double, double>
@@ -206,7 +210,6 @@ void RimWellTargetCandidatesGenerator::updateAllBoundaries()
         return { globalMin, globalMax };
     };
 
-    auto resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     std::tie( m_minimumPressure, m_maximumPressure ) =
         updateBoundaryValues( resultsData, { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) }, timeStepIdx );
 

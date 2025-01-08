@@ -35,6 +35,8 @@
 #include "RimEclipseView.h"
 #include "RimRegularLegendConfig.h"
 
+#include <algorithm>
+
 CAF_PDM_SOURCE_INIT( RimEclipseContourMapProjection, "RimEclipseContourMapProjection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -365,7 +367,7 @@ std::pair<double, double> RimEclipseContourMapProjection::minmaxValuesAllTimeSte
     {
         clearTimeStepRange();
 
-        int timeStepCount = static_cast<int>( eclipseCase()->timeStepStrings().size() );
+        int timeStepCount = std::max( static_cast<int>( eclipseCase()->timeStepStrings().size() ), 1 );
         for ( int i = 0; i < (int)timeStepCount; ++i )
         {
             std::vector<double> aggregatedResults = generateResults( i );
