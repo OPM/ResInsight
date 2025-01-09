@@ -40,6 +40,8 @@
 #include "RimEclipseContourMapProjection.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimProject.h"
+#include "RimSimWellInViewCollection.h"
+#include "RimStatisticsContourMapProjection.h"
 #include "RimStatisticsContourMapView.h"
 #include "RimTools.h"
 
@@ -95,6 +97,8 @@ RimStatisticsContourMap::RimStatisticsContourMap()
     m_resultDefinition->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
     m_resultDefinition->setResultVariable( "SOIL" );
 
+    CAF_PDM_InitField( &m_uiDataSourceCase, "UiDataSourceCase", RiaResultNames::undefinedResultName(), "UI Data Source Case" );
+
     CAF_PDM_InitFieldNoDefault( &m_computeStatisticsButton, "ComputeStatisticsButton", "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_computeStatisticsButton );
     m_computeStatisticsButton = false;
@@ -109,8 +113,16 @@ RimStatisticsContourMap::RimStatisticsContourMap()
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    if ( ( eclipseCase() == nullptr ) && ( ensemble()->cases().size() > 0 ) )
+    {
+        auto selCase = ensemble()->cases().front();
+        setEclipseCase( selCase );
+        m_uiDataSourceCase = selCase->caseUserDescription();
+    }
+
     uiOrdering.add( nameField() );
     uiOrdering.add( &m_resultAggregation );
+    uiOrdering.add( &m_uiDataSourceCase );
 
     auto tsGroup = uiOrdering.addNewGroup( "Time Step Selection" );
     tsGroup->setCollapsedByDefault();
@@ -131,6 +143,12 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
 void RimStatisticsContourMap::setEclipseCase( RimEclipseCase* eclipseCase )
 {
     m_resultDefinition->setEclipseCase( eclipseCase );
+
+    for ( auto& view : m_views )
+    {
+        view->setEclipseCase( eclipseCase );
+    }
+    m_resultDefinition->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -161,12 +179,55 @@ void RimStatisticsContourMap::fieldChangedByUi( const caf::PdmFieldHandle* chang
         }
         else
         {
-            for ( auto view : m_views )
+            for ( auto& view : m_views )
             {
-                view->scheduleCreateDisplayModelAndRedraw();
+                auto proj = dynamic_cast<RimStatisticsContourMapProjection*>( view->contourMapProjection() );
+                if ( proj != nullptr )
+                    proj->clearGridMappingAndRedraw();
+                else
+                    view->scheduleCreateDisplayModelAndRedraw();
             }
         }
     }
+    else if ( &m_uiDataSourceCase == changedField )
+    {
+        switchToSelectedSourceCase();
+
+        // Update views
+        for ( auto& view : m_views )
+        {
+            view->wellCollection()->wells.deleteChildren();
+            view->updateDisplayModelForWellResults();
+            view->wellCollection()->updateConnectedEditors();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimStatisticsContourMap::switchToSelectedSourceCase()
+{
+    RimEclipseCase* sourceResultCase = ensemble()->findByDescription( m_uiDataSourceCase );
+    if ( sourceResultCase == nullptr )
+    {
+        setEclipseCase( nullptr );
+        return nullptr;
+    }
+
+    if ( sourceResultCase != eclipseCase() )
+    {
+        auto oldCase = eclipseCase();
+        sourceResultCase->ensureReservoirCaseIsOpen();
+        setEclipseCase( sourceResultCase );
+
+        if ( oldCase )
+        {
+            oldCase->closeReservoirCase();
+        }
+    }
+
+    return sourceResultCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -176,22 +237,29 @@ QList<caf::PdmOptionItemInfo> RimStatisticsContourMap::calculateValueOptions( co
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    auto eCase = m_resultDefinition->eclipseCase();
-
-    if ( eCase == nullptr ) return options;
-
     if ( &m_selectedTimeSteps == fieldNeedingOptions )
     {
-        QList<caf::PdmOptionItemInfo> options;
-
-        const auto timeStepStrings = eCase->timeStepStrings();
-
-        int index = 0;
-        for ( const auto& text : timeStepStrings )
+        if ( auto eCase = eclipseCase() )
         {
-            options.push_back( caf::PdmOptionItemInfo( text, index++ ) );
-        }
+            const auto timeStepStrings = eCase->timeStepStrings();
 
+            int index = 0;
+            for ( const auto& text : timeStepStrings )
+            {
+                options.push_back( caf::PdmOptionItemInfo( text, index++ ) );
+            }
+        }
+        return options;
+    }
+    else if ( &m_uiDataSourceCase == fieldNeedingOptions )
+    {
+        QStringList sourceCaseNames;
+        sourceCaseNames += RiaResultNames::undefinedResultName();
+
+        for ( auto eCase : ensemble()->cases() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( eCase->caseUserDescription(), eCase->caseUserDescription() ) );
+        }
         return options;
     }
 
@@ -239,10 +307,12 @@ void RimStatisticsContourMap::initAfterRead()
     auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
     if ( !ensemble ) return;
 
-    if ( ensemble->cases().empty() ) return;
+    switchToSelectedSourceCase();
 
-    RimEclipseCase* eclipseCase = ensemble->cases().front();
-    setEclipseCase( eclipseCase );
+    for ( auto view : m_views )
+    {
+        view->loadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -255,13 +325,11 @@ void RimStatisticsContourMap::computeStatistics()
     if ( !ensemble ) return;
 
     if ( ensemble->cases().empty() ) return;
-
-    RimEclipseCase* firstEclipseCase = ensemble->cases().front();
-    firstEclipseCase->ensureReservoirCaseIsOpen();
+    if ( eclipseCase() == nullptr ) return;
 
     RigContourMapCalculator::ResultAggregationType resultAggregation = m_resultAggregation();
 
-    cvf::BoundingBox gridBoundingBox = firstEclipseCase->activeCellsBoundingBox();
+    cvf::BoundingBox gridBoundingBox = eclipseCase()->activeCellsBoundingBox();
     gridBoundingBox.expandPercent( m_boundingBoxExpPercent() );
 
     auto computeSampleSpacing = []( auto ec, double relativeSampleSpacing )
@@ -276,11 +344,11 @@ void RimStatisticsContourMap::computeStatistics()
         return 0.0;
     };
 
-    double sampleSpacing = computeSampleSpacing( firstEclipseCase, m_relativeSampleSpacing() );
+    double sampleSpacing = computeSampleSpacing( eclipseCase(), m_relativeSampleSpacing() );
 
     auto contourMapGrid = std::make_unique<RigContourMapGrid>( gridBoundingBox, sampleSpacing );
 
-    auto firstEclipseCaseData = firstEclipseCase->eclipseCaseData();
+    auto firstEclipseCaseData = eclipseCase()->eclipseCaseData();
     auto firstResultData      = firstEclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     RigEclipseContourMapProjection contourMapProjection( *contourMapGrid, *firstEclipseCaseData, *firstResultData );
@@ -291,17 +359,18 @@ void RimStatisticsContourMap::computeStatistics()
     std::map<size_t, std::vector<std::vector<double>>> timestep_results;
 
     auto readerSettings = RiaPreferencesGrid::current()->gridOnlyReaderSettings();
+    auto casesInViews   = ensemble->casesInViews();
 
-    for ( RimEclipseCase* eclipseCase : ensemble->cases() )
+    for ( RimEclipseCase* eCase : ensemble->cases() )
     {
-        RifReaderSettings oldSettings = eclipseCase->readerSettings();
-        eclipseCase->setReaderSettings( readerSettings );
+        RifReaderSettings oldSettings = eCase->readerSettings();
+        eCase->setReaderSettings( readerSettings );
 
-        if ( eclipseCase->ensureReservoirCaseIsOpen() )
+        if ( eCase->ensureReservoirCaseIsOpen() )
         {
-            RiaLogging::info( QString( "Grid: %1" ).arg( eclipseCase->caseUserDescription() ) );
+            RiaLogging::info( QString( "Grid: %1" ).arg( eCase->caseUserDescription() ) );
 
-            auto eclipseCaseData = eclipseCase->eclipseCaseData();
+            auto eclipseCaseData = eCase->eclipseCaseData();
             auto resultData      = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
             RigEclipseContourMapProjection contourMapProjection( *contourMapGrid, *eclipseCaseData, *resultData );
@@ -323,11 +392,11 @@ void RimStatisticsContourMap::computeStatistics()
                 timestep_results[0].push_back( result );
             }
         }
-        eclipseCase->setReaderSettings( oldSettings );
+        eCase->setReaderSettings( oldSettings );
 
-        if ( eclipseCase->views().empty() )
+        if ( eCase->views().empty() && eCase != eclipseCase() && !casesInViews.contains( eCase ) )
         {
-            eclipseCase->closeReservoirCase();
+            eCase->closeReservoirCase();
         }
 
         progInfo.incrementProgress();
@@ -336,7 +405,7 @@ void RimStatisticsContourMap::computeStatistics()
     m_contourMapGrid = std::move( contourMapGrid );
     m_timeResults.clear();
 
-    for ( auto [timeStep, results] : timestep_results )
+    for ( auto& [timeStep, results] : timestep_results )
     {
         if ( !results.empty() )
         {
@@ -392,10 +461,9 @@ void RimStatisticsContourMap::computeStatistics()
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimStatisticsContourMap::eclipseCase() const
 {
-    auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
-    if ( !ensemble || ensemble->cases().empty() ) return nullptr;
+    if ( !m_resultDefinition() ) return nullptr;
 
-    return ensemble->cases().front();
+    return m_resultDefinition->eclipseCase();
 }
 
 //--------------------------------------------------------------------------------------------------

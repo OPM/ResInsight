@@ -82,6 +82,8 @@ protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
+    RimEclipseCase* switchToSelectedSourceCase();
+
 private:
     void computeStatistics();
 
@@ -89,9 +91,10 @@ private:
     caf::PdmField<double>                                     m_relativeSampleSpacing;
     caf::PdmField<RimContourMapProjection::ResultAggregation> m_resultAggregation;
     caf::PdmField<std::vector<int>>                           m_selectedTimeSteps;
+    caf::PdmChildField<RimEclipseResultDefinition*>           m_resultDefinition;
+    caf::PdmField<bool>                                       m_computeStatisticsButton;
 
-    caf::PdmChildField<RimEclipseResultDefinition*> m_resultDefinition;
-    caf::PdmField<bool>                             m_computeStatisticsButton;
+    caf::PdmField<QString> m_uiDataSourceCase;
 
     std::unique_ptr<RigContourMapGrid>                              m_contourMapGrid;
     std::map<size_t, std::map<StatisticsType, std::vector<double>>> m_timeResults;

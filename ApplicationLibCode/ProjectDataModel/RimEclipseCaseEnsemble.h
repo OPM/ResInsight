@@ -25,6 +25,8 @@
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
+#include <set>
+
 class RimCaseCollection;
 class RimEclipseCase;
 class RimEclipseView;
@@ -49,7 +51,11 @@ public:
     void removeCase( RimEclipseCase* reservoir );
     bool contains( RimEclipseCase* reservoir ) const;
 
+    RimEclipseCase* findByDescription( const QString& description ) const;
+
     std::vector<RimEclipseCase*> cases() const;
+
+    std::set<RimEclipseCase*> casesInViews() const;
 
     void            addView( RimEclipseView* view );
     RimEclipseView* addViewForCase( RimEclipseCase* eclipseCase );

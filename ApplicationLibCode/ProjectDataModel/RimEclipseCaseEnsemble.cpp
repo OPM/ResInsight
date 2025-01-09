@@ -109,11 +109,39 @@ bool RimEclipseCaseEnsemble::contains( RimEclipseCase* reservoir ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimEclipseCaseEnsemble::findByDescription( const QString& caseDescription ) const
+{
+    if ( !m_caseCollection ) return nullptr;
+
+    return m_caseCollection->findByDescription( caseDescription );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimEclipseCase*> RimEclipseCaseEnsemble::cases() const
 {
     if ( !m_caseCollection ) return {};
 
     return m_caseCollection->reservoirs.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RimEclipseCase*> RimEclipseCaseEnsemble::casesInViews() const
+{
+    if ( !m_caseCollection ) return {};
+    if ( !m_viewCollection || m_viewCollection->isEmpty() ) return {};
+
+    std::set<RimEclipseCase*> retCases;
+
+    for ( auto view : m_viewCollection->views() )
+    {
+        if ( view->eclipseCase() != nullptr ) retCases.insert( view->eclipseCase() );
+    }
+
+    return retCases;
 }
 
 //--------------------------------------------------------------------------------------------------
