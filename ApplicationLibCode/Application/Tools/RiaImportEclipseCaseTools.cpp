@@ -391,8 +391,8 @@ int RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( const QStr
     else
     {
         // Make sure the placeholder result entries are created, as this functionality is triggered when creating a
-        // view. See RimEclipseView::onLoadDataAndUpdate() and the call to openReserviorCase()
-        rimResultReservoir->openReserviorCase();
+        // view. See RimEclipseView::onLoadDataAndUpdate() and the call to openReservoirCase()
+        rimResultReservoir->openReservoirCase();
 
         analysisModels->updateConnectedEditors();
     }

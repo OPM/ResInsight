@@ -238,10 +238,9 @@ bool RimEclipseInputCase::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseInputCase::reloadEclipseGridFile()
+void RimEclipseInputCase::closeReservoirCase()
 {
     setReservoirData( nullptr );
-    openReserviorCase();
 }
 
 //--------------------------------------------------------------------------------------------------

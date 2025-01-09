@@ -1204,7 +1204,7 @@ void RimEclipseView::onLoadDataAndUpdate()
 
     if ( eclipseCase() )
     {
-        if ( !eclipseCase()->openReserviorCase() )
+        if ( !eclipseCase()->openReservoirCase() )
         {
             RiaLogging::warning( "Could not open the Eclipse Grid file: \n" + eclipseCase()->gridFileName() );
             setEclipseCase( nullptr );

@@ -287,12 +287,11 @@ bool RimEclipseResultCase::importAsciiInputProperties( const QStringList& fileNa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseResultCase::reloadEclipseGridFile()
+void RimEclipseResultCase::closeReservoirCase()
 {
     m_gridAndWellDataIsReadFromFile = false;
     m_activeCellInfoIsReadFromFile  = false;
     setReservoirData( nullptr );
-    openReserviorCase();
 }
 
 //--------------------------------------------------------------------------------------------------

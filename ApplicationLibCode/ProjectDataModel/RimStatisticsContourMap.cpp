@@ -19,9 +19,12 @@
 #include "RimStatisticsContourMap.h"
 
 #include "RiaLogging.h"
+#include "RiaPreferencesGrid.h"
 #include "RiaStatisticsTools.h"
 
 #include "RicNewStatisticsContourMapViewFeature.h"
+
+#include "RifReaderSettings.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigContourMapCalculator.h"
@@ -287,8 +290,13 @@ void RimStatisticsContourMap::computeStatistics()
 
     std::map<size_t, std::vector<std::vector<double>>> timestep_results;
 
+    auto readerSettings = RiaPreferencesGrid::current()->gridOnlyReaderSettings();
+
     for ( RimEclipseCase* eclipseCase : ensemble->cases() )
     {
+        RifReaderSettings oldSettings = eclipseCase->readerSettings();
+        eclipseCase->setReaderSettings( readerSettings );
+
         if ( eclipseCase->ensureReservoirCaseIsOpen() )
         {
             RiaLogging::info( QString( "Grid: %1" ).arg( eclipseCase->caseUserDescription() ) );
@@ -315,6 +323,13 @@ void RimStatisticsContourMap::computeStatistics()
                 timestep_results[0].push_back( result );
             }
         }
+        eclipseCase->setReaderSettings( oldSettings );
+
+        if ( eclipseCase->views().empty() )
+        {
+            eclipseCase->closeReservoirCase();
+        }
+
         progInfo.incrementProgress();
     }
 
@@ -469,6 +484,7 @@ QString RimStatisticsContourMap::resultAggregationText() const
 //--------------------------------------------------------------------------------------------------
 QString RimStatisticsContourMap::resultVariable() const
 {
+    if ( m_resultDefinition().isNull() ) return "";
     return m_resultDefinition()->resultVariable();
 }
 

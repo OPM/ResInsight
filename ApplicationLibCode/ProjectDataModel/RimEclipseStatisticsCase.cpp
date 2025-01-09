@@ -205,10 +205,9 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseStatisticsCase::reloadEclipseGridFile()
+void RimEclipseStatisticsCase::closeReservoirCase()
 {
     setReservoirData( nullptr );
-    openReserviorCase();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -75,8 +75,10 @@ public:
     void                 setFilesContainingFaults( const std::vector<QString>& val );
 
     bool         ensureReservoirCaseIsOpen();
-    bool         openReserviorCase();
+    bool         openReservoirCase();
+    virtual void closeReservoirCase()  = 0;
     virtual bool openEclipseGridFile() = 0;
+    virtual void reloadEclipseGridFile();
     virtual bool importAsciiInputProperties( const QStringList& fileNames );
 
     RigEclipseCaseData*       eclipseCaseData();
@@ -114,8 +116,6 @@ public:
     cvf::BoundingBox allCellsBoundingBox() const override;
     cvf::Vec3d       displayModelOffset() const override;
 
-    virtual void reloadEclipseGridFile() = 0;
-
     double characteristicCellSize() const override;
 
     std::set<QString> sortedSimWellNames() const;
@@ -127,7 +127,8 @@ public:
     void createDisplayModelAndUpdateAllViews();
     void computeActiveCellsBoundingBox();
 
-    void setReaderSettings( RifReaderSettings& readerSettings );
+    void              setReaderSettings( RifReaderSettings& readerSettings );
+    RifReaderSettings readerSettings() const;
 
     void updateResultAddressCollection();
 

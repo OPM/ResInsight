@@ -72,7 +72,7 @@ public:
     void updateConnectedEditorsAndReservoirViews();
 
     bool openEclipseGridFile() override;
-    void reloadEclipseGridFile() override;
+    void closeReservoirCase() override;
 
     RimCaseCollection* parentStatisticsCaseCollection() const;
 

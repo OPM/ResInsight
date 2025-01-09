@@ -46,7 +46,7 @@ public:
     ~RimEmCase() override;
 
     bool openEclipseGridFile() override;
-    void reloadEclipseGridFile() override;
+    void closeReservoirCase() override;
 
     QString locationOnDisc() const override;
 
