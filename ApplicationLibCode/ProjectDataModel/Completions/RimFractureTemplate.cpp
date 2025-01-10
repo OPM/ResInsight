@@ -156,34 +156,37 @@ RimFractureTemplate::RimFractureTemplate()
     m_fractureContainment.uiCapability()->setUiTreeChildrenHidden( true );
 
     // Non-Darcy Flow options
-    CAF_PDM_InitFieldNoDefault( &m_nonDarcyFlowType, "NonDarcyFlowType", "Non-Darcy Flow" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_nonDarcyFlowType, "NonDarcyFlowType", "Non-Darcy Flow" );
 
-    CAF_PDM_InitField( &m_userDefinedDFactor, "UserDefinedDFactor", 1.0, "D Factor" );
+    CAF_PDM_InitScriptableField( &m_userDefinedDFactor, "UserDefinedDFactor", 1.0, "D Factor" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureWidthType, "FractureWidthType", "Type" );
-    CAF_PDM_InitField( &m_fractureWidth, "FractureWidth", 0.01, "Fracture Width (h)" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fractureWidthType, "FractureWidthType", "Type" );
+    CAF_PDM_InitScriptableField( &m_fractureWidth, "FractureWidth", 0.01, "Fracture Width (h)" );
 
-    CAF_PDM_InitFieldNoDefault( &m_betaFactorType, "BetaFactorType", "Type" );
-    CAF_PDM_InitField( &m_inertialCoefficient, "InertialCoefficient", 0.006083236, "<html>Inertial Coefficient (&beta;)</html> [Forch. unit]" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_betaFactorType, "BetaFactorType", "Type" );
+    CAF_PDM_InitScriptableField( &m_inertialCoefficient,
+                                 "InertialCoefficient",
+                                 0.006083236,
+                                 "<html>Inertial Coefficient (&beta;)</html> [Forch. unit]" );
 
-    CAF_PDM_InitFieldNoDefault( &m_permeabilityType, "PermeabilityType", "Type" );
-    CAF_PDM_InitField( &m_relativePermeability, "RelativePermeability", 1.0, "Relative Permeability" );
-    CAF_PDM_InitField( &m_userDefinedEffectivePermeability, "EffectivePermeability", 0.0, "Effective Permeability (Ke) [mD]" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_permeabilityType, "PermeabilityType", "Type" );
+    CAF_PDM_InitScriptableField( &m_relativePermeability, "RelativePermeability", 1.0, "Relative Permeability" );
+    CAF_PDM_InitScriptableField( &m_userDefinedEffectivePermeability, "EffectivePermeability", 0.0, "Effective Permeability (Ke) [mD]" );
 
-    CAF_PDM_InitField( &m_relativeGasDensity,
-                       "RelativeGasDensity",
-                       0.8,
-                       "<html>Relative Gas Density (&gamma;)</html>",
-                       "",
-                       "Relative density of gas at surface conditions with respect to air at STP",
-                       "" );
-    CAF_PDM_InitField( &m_gasViscosity,
-                       "GasViscosity",
-                       0.02,
-                       "<html>Gas Viscosity (&mu;)</html> [cP]",
-                       "",
-                       "Gas viscosity at bottom hole pressure",
-                       "" );
+    CAF_PDM_InitScriptableField( &m_relativeGasDensity,
+                                 "RelativeGasDensity",
+                                 0.8,
+                                 "<html>Relative Gas Density (&gamma;)</html>",
+                                 "",
+                                 "Relative density of gas at surface conditions with respect to air at STP",
+                                 "" );
+    CAF_PDM_InitScriptableField( &m_gasViscosity,
+                                 "GasViscosity",
+                                 0.02,
+                                 "<html>Gas Viscosity (&mu;)</html> [cP]",
+                                 "",
+                                 "Gas viscosity at bottom hole pressure",
+                                 "" );
 
     CAF_PDM_InitFieldNoDefault( &m_dFactorDisplayField, "dFactorDisplayField", "D Factor" );
     m_dFactorDisplayField.registerGetMethod( this, &RimFractureTemplate::dFactorForTemplate );
