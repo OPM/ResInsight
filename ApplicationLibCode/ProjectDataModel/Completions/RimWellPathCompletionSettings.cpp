@@ -88,11 +88,19 @@ RimWellPathCompletionSettings::RimWellPathCompletionSettings()
     CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_groupName, "WellGroupNameForExport", "GroupNameForExport", QString(), "Group Name" );
     CAF_PDM_InitScriptableField( &m_referenceDepth, "ReferenceDepthForExport", QString(), "Reference Depth for BHP" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_preferredFluidPhase, "WellTypeForExport", "Preferred Fluid Phase" );
-    CAF_PDM_InitScriptableField( &m_drainageRadiusForPI, "DrainageRadiusForPI", QString( "0.0" ), "Drainage Radius for PI" );
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_drainageRadiusForPI,
+                                                  "DrainageRadiusForPI",
+                                                  "DrainageRadiusForPi",
+                                                  QString( "0.0" ),
+                                                  "Drainage Radius for PI" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_gasInflowEquation, "GasInflowEq", "Gas Inflow Equation" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_automaticWellShutIn, "AutoWellShutIn", "Automatic well shut-in" );
     CAF_PDM_InitScriptableField( &m_allowWellCrossFlow, "AllowWellCrossFlow", true, "Allow Well Cross-Flow" );
-    CAF_PDM_InitScriptableField( &m_wellBoreFluidPVTTable, "WellBoreFluidPVTTable", 0, "Wellbore Fluid PVT table" );
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_wellBoreFluidPVTTable,
+                                                  "WellBoreFluidPVTTable",
+                                                  "WellBoreFluidPvtTable",
+                                                  0,
+                                                  "Wellbore Fluid PVT table" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_hydrostaticDensity, "HydrostaticDensity", "Hydrostatic Density" );
     CAF_PDM_InitScriptableField( &m_fluidInPlaceRegion, "FluidInPlaceRegion", 0, "Fluid In-Place Region" );
 

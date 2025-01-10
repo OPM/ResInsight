@@ -47,6 +47,75 @@
 #include <QIODevice>
 #include <QTextStream>
 
+namespace
+{
+constexpr bool isUpper( char c )
+{
+    return c >= 'A' && c <= 'Z';
+}
+
+constexpr bool isLower( char c )
+{
+    return c >= 'a' && c <= 'z';
+}
+
+constexpr bool isNumber( char c )
+{
+    return c >= '0' && c <= '9';
+}
+
+constexpr bool isCamelCase( std::string_view str )
+{
+    if ( str.empty() ) return false;
+
+    bool hasLower       = false;
+    int  prevUpperCount = 0;
+
+    if ( isUpper( str[0] ) || isNumber( str[0] ) ) prevUpperCount++;
+
+    for ( size_t i = 1; i < str.size(); ++i )
+    {
+        if ( isUpper( str[i] ) || isNumber( str[i] ) )
+        {
+            if ( prevUpperCount >= 2 )
+            {
+                // Three consecutive uppercase letters/numbers
+                return false;
+            }
+            prevUpperCount++;
+        }
+        else if ( isLower( str[i] ) )
+        {
+            prevUpperCount = 0;
+            hasLower       = true;
+        }
+        else
+        {
+            // Invalid character
+            return false;
+        }
+    }
+
+    if ( prevUpperCount > 1 )
+    {
+        // Two or more consecutive uppercase letters/numbers at the end
+        return false;
+    }
+
+    return hasLower;
+}
+
+} //namespace
+
+// The scripting system converts from camel case to snake case by inserting an underscore before each uppercase letter.
+// When an object is updated in Python, the keyword is converted back to camel case. This operation does not work if
+// there are three or more consecutive uppercase letters.
+// See PdmPythonGenerator::camelToSnakeCase()
+// See snake_to_camel() and camel_to_snake() in pdmObject.py
+// Conversion of values from rips object to caf object is done in RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf
+#define CAF_PDM_CheckScriptableKeyword( keyword ) \
+    static_assert( isCamelCase( keyword ), "Keyword used for scripting must be in compatible formatted camel casing" );
+
 #define CAF_PDM_InitScriptableField( field, keyword, default, uiName, ... )                          \
     {                                                                                                \
         std::vector<QString> arguments = { __VA_ARGS__ };                                            \
@@ -64,6 +133,7 @@
                            iconResourceName,                                                         \
                            caf::PdmAbstractFieldScriptingCapability::helpString( toolTip, keyword ), \
                            whatsThis );                                                              \
+        CAF_PDM_CheckScriptableKeyword( keyword );                                                   \
         caf::AddScriptingCapabilityToField( field, keyword );                                        \
     }
 
@@ -83,6 +153,7 @@
                                     iconResourceName,                                                         \
                                     caf::PdmAbstractFieldScriptingCapability::helpString( toolTip, keyword ), \
                                     whatsThis );                                                              \
+        CAF_PDM_CheckScriptableKeyword( keyword );                                                            \
         caf::AddScriptingCapabilityToField( field, keyword );                                                 \
     }
 
@@ -103,6 +174,7 @@
                            iconResourceName,                                                                \
                            caf::PdmAbstractFieldScriptingCapability::helpString( toolTip, scriptKeyword ),  \
                            whatsThis );                                                                     \
+        CAF_PDM_CheckScriptableKeyword( scriptKeyword );                                                    \
         caf::AddScriptingCapabilityToField( field, scriptKeyword );                                         \
     }
 
@@ -122,6 +194,7 @@
                                     iconResourceName,                                                               \
                                     caf::PdmAbstractFieldScriptingCapability::helpString( toolTip, scriptKeyword ), \
                                     whatsThis );                                                                    \
+        CAF_PDM_CheckScriptableKeyword( scriptKeyword );                                                            \
         caf::AddScriptingCapabilityToField( field, scriptKeyword );                                                 \
     }
 
@@ -196,7 +269,7 @@ struct PdmFieldScriptingCapabilityIOHandler<AppEnum<T>>
         while ( !inputStream.atEnd() )
         {
             nextChar = errorMessageContainer->peekNextChar( inputStream );
-            if ( nextChar.isLetterOrNumber() || nextChar == QChar( '_' ) )
+            if ( nextChar.isLetterOrNumber() || nextChar == QChar( '_' ) || nextChar == QChar( '-' ) )
             {
                 currentChar = errorMessageContainer->readCharWithLineNumberCount( inputStream );
                 accumulatedFieldValue += currentChar;
