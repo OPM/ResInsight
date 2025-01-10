@@ -24,6 +24,7 @@ def test_10k(rips_instance, initialize_test):
         file_split="UNIFIED_FILE",
     )
 
+
 def test_add_well_path_completions(rips_instance, initialize_test):
     well_path_coll = rips_instance.project.descendants(rips.WellPathCollection)[0]
 
@@ -68,20 +69,21 @@ def test_add_well_path_completions(rips_instance, initialize_test):
     assert msw_settings_updated.roughness_factor == 1.3
     assert msw_settings_updated.user_defined_reference_md == 1234.56
 
+
 def test_add_well_path_fracture_template(rips_instance, initialize_test):
 
     # Add test for all properties
     # Some properties depend on availablility of other data and is not tested, these tests are commented out
-    
+
     fracture_template = rips_instance.project.descendants(rips.FractureTemplate)[0]
     fracture_template.azimuth_angle = 23.0
-    #fracture_template.beta_factor_type = "FractureBetaFactor"
+    # fracture_template.beta_factor_type = "FractureBetaFactor"
     fracture_template.conductivity_factor = 12.5
     fracture_template.conductivity_type = "FiniteConductivity"
     fracture_template.d_factor_scale_factor = 1.2
     fracture_template.effective_permeability = 55
     fracture_template.fracture_width = 0.5
-    fracture_template.fracture_width_type ="UserDefinedWidth"
+    fracture_template.fracture_width_type = "UserDefinedWidth"
     fracture_template.gas_viscosity = 0.1
     fracture_template.height_scale_factor = 1.2
     fracture_template.height_scale_factor = 4
@@ -89,7 +91,7 @@ def test_add_well_path_fracture_template(rips_instance, initialize_test):
     fracture_template.non_darcy_flow_type = "Computed"
     fracture_template.orientation = "Azimuth"
     fracture_template.perforation_length = 5
-    fracture_template.permeability_type ="UserDefinedPermeability"
+    fracture_template.permeability_type = "UserDefinedPermeability"
     fracture_template.relative_gas_density = 0.1
     fracture_template.relative_permeability = 0.2
     fracture_template.user_defined_d_factor = 14
@@ -99,9 +101,11 @@ def test_add_well_path_fracture_template(rips_instance, initialize_test):
 
     fracture_template.update()
 
-    fracture_template_updated = rips_instance.project.descendants(rips.FractureTemplate)[0]
+    fracture_template_updated = rips_instance.project.descendants(
+        rips.FractureTemplate
+    )[0]
     assert fracture_template_updated.azimuth_angle == 23.0
-    #assert fracture_template_updated.beta_factor_type == "FractureBetaFactor"
+    # assert fracture_template_updated.beta_factor_type == "FractureBetaFactor"
     assert fracture_template_updated.conductivity_factor == 12.5
     assert fracture_template_updated.conductivity_type == "FiniteConductivity"
     assert fracture_template_updated.d_factor_scale_factor == 1.2
@@ -121,6 +125,3 @@ def test_add_well_path_fracture_template(rips_instance, initialize_test):
     assert fracture_template_updated.user_defined_perforation_length == True
     assert fracture_template_updated.user_description == "my frac name"
     assert fracture_template_updated.width_scale_factor == 7
-
-
-
