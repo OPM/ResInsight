@@ -64,5 +64,3 @@ def test_add_well_path_targets(rips_instance, initialize_test):
     assert target.use_fixed_azimuth == False
     assert target.azimuth == 0.0
     assert target.inclination == 25.6
-
-
