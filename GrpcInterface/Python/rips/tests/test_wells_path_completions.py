@@ -63,7 +63,6 @@ def test_add_well_path_completions(rips_instance, initialize_test):
     assert completions_settings_updated.well_bore_fluid_pvt_table == 33
     assert completions_settings_updated.well_name_for_export == "TestWellName"
     assert completions_settings_updated.well_type_for_export == "LIQUID"
-    
 
     msw_settings = well_path.msw_settings()
     msw_settings.custom_values_for_lateral = True
