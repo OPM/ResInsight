@@ -66,11 +66,16 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
 
     CAF_PDM_InitScriptableField( &m_performTransScaling, "performTransScaling", false, "Perform Transmissibility Scaling" );
     CAF_PDM_InitScriptableField( &m_transScalingTimeStep, "transScalingTimeStep", 0, "Transmissibility Scaling Pressure Time Step" );
-    CAF_PDM_InitScriptableField( &m_transScalingInitialWBHP,
-                                 "transScalingWBHPFromSummary",
-                                 RicExportCompletionDataSettingsUi::TransScalingWBHPSource(),
-                                 "Transmissibility Scaling WBHP from summary" );
-    CAF_PDM_InitScriptableField( &m_transScalingWBHP, "transScalingWBHP", 200.0, "Transmissibility Scaling Constant WBHP Value" );
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_transScalingInitialWBHP,
+                                                  "transScalingWBHPFromSummary",
+                                                  "transScalingWbhpFromSummary",
+                                                  RicExportCompletionDataSettingsUi::TransScalingWBHPSource(),
+                                                  "Transmissibility Scaling WBHP from summary" );
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_transScalingWBHP,
+                                                  "transScalingWBHP",
+                                                  "transScalingWbhp",
+                                                  200.0,
+                                                  "Transmissibility Scaling Constant WBHP Value" );
 
     CAF_PDM_InitScriptableField( &m_exportDataSourceAsComments, "exportComments", true, "Export Data Source as Comments" );
     CAF_PDM_InitScriptableField( &m_exportWelspec, "exportWelspec", true, "Export WELSPEC keyword" );

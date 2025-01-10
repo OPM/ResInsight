@@ -134,7 +134,28 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
 
     auto parametersMap = source->parameters();
 
-    bool printContent = false; // Flag to control debug output to debugger
+    // Check for duplicate lowercase keywords. If this happens, the script checking in CAF_PDM_CheckScriptableKeyword in
+    // cafPdmFieldScriptingCapability.h is not working as expected
+    {
+        std::set<QString> uniqueNames;
+
+        for ( const auto& p : parametersMap )
+        {
+            auto lowerCase = QString::fromStdString( p.first ).toLower();
+            if ( uniqueNames.count( lowerCase ) > 0 )
+            {
+                QString txt = "When receiving an object from Python, multiple key/values for a field keyword was "
+                              "detected. This is an error will most likely fail to update the object as intende. "
+                              "Keyword name : " +
+                              QString::fromStdString( p.first );
+                RiaLogging::error( txt );
+            }
+            uniqueNames.insert( lowerCase );
+        }
+    }
+
+    bool printContent = false; // Flag to control debug output to debugger. Do not remove this code, as it is useful for
+                               // debugging
     if ( printContent )
     {
         for ( const auto& p : parametersMap )
