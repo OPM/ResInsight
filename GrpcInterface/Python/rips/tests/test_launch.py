@@ -14,6 +14,10 @@ import dataroot
 
 
 def launch_resinsight(sec=1):
+    resinsight_executable_from_env = os.environ.get("RESINSIGHT_EXECUTABLE")
+    if resinsight_executable_from_env is None:
+        print("RESINSIGHT_EXECUTABLE environment variable is not set")
+        return
     instance = rips.Instance.launch(console=True, launch_port=0)
     print(instance.location)
 
@@ -25,6 +29,10 @@ def launch_resinsight(sec=1):
 
 
 def test_launch_sequential(rips_instance, initialize_test):
+    resinsight_executable_from_env = os.environ.get("RESINSIGHT_EXECUTABLE")
+    if resinsight_executable_from_env is None:
+        print("RESINSIGHT_EXECUTABLE environment variable is not set")
+        return
     instance_list = []
     for i in range(4):
         rips_instance = rips.Instance.launch(console=True)
@@ -36,6 +44,11 @@ def test_launch_sequential(rips_instance, initialize_test):
 
 
 def test_launch_parallell(rips_instance, initialize_test):
+    resinsight_executable_from_env = os.environ.get("RESINSIGHT_EXECUTABLE")
+    if resinsight_executable_from_env is None:
+        print("RESINSIGHT_EXECUTABLE environment variable is not set")
+        return
+
     process_list = []
 
     instance_count = 10
