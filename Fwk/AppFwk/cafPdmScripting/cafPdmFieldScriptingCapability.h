@@ -269,7 +269,7 @@ struct PdmFieldScriptingCapabilityIOHandler<AppEnum<T>>
         while ( !inputStream.atEnd() )
         {
             nextChar = errorMessageContainer->peekNextChar( inputStream );
-            if ( nextChar.isLetterOrNumber() || nextChar == QChar( '_' ) )
+            if ( nextChar.isLetterOrNumber() || nextChar == QChar( '_' ) || nextChar == QChar( '-' ) )
             {
                 currentChar = errorMessageContainer->readCharWithLineNumberCount( inputStream );
                 accumulatedFieldValue += currentChar;
