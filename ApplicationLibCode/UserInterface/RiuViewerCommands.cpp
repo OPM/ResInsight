@@ -20,6 +20,7 @@
 #include "RiuViewerCommands.h"
 
 #include "RiaDefines.h"
+#include "RiaOptionItemFactory.h"
 
 #include "GeoMechCommands/RicGeoMechPropertyFilterNewExec.h"
 #include "MeasurementCommands/RicMeasurementPickEventHandler.h"
@@ -39,13 +40,13 @@
 #include "RigMainGrid.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 
-#include "RiaOptionItemFactory.h"
 #include "Rim2dIntersectionView.h"
 #include "RimBoxIntersection.h"
 #include "RimCellEdgeColors.h"
 #include "RimContextCommandBuilder.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseContourMapView.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
@@ -55,6 +56,7 @@
 #include "RimFracture.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
+#include "RimGeoMechContourMapView.h"
 #include "RimGeoMechView.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimLegendConfig.h"
@@ -593,28 +595,36 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 
     if ( gridView )
     {
-        menuBuilder.addSeparator();
-        menuBuilder << "RicNewGridTimeHistoryCurveFeature";
-        menuBuilder << "RicShowFlowCharacteristicsPlotFeature";
-        if ( dynamic_cast<RimEclipseView*>( gridView ) )
+        bool isContourView = dynamic_cast<RimEclipseContourMapView*>( gridView ) || dynamic_cast<RimGeoMechContourMapView*>( gridView );
+        if ( isContourView )
         {
-            menuBuilder << "RicCreateGridCrossPlotFeature";
+            menuBuilder << "RicExportContourMapToTextFeature";
+            menuBuilder << "RicCreateContourMapPolygonFeature";
         }
-        menuBuilder.addSeparator();
-        menuBuilder.subMenuStart( "Export" );
-        menuBuilder << "RicExportEclipseInputGridFeature";
-        menuBuilder << "RicSaveEclipseInputActiveVisibleCellsFeature";
-        menuBuilder << "RicSaveEclipseResultAsInputPropertyFeature";
-        menuBuilder << "RicExportContourMapToTextFeature";
-        menuBuilder.subMenuEnd();
-        menuBuilder.addSeparator();
+        else
+        {
+            menuBuilder.addSeparator();
+            menuBuilder << "RicNewGridTimeHistoryCurveFeature";
+            menuBuilder << "RicShowFlowCharacteristicsPlotFeature";
+            if ( dynamic_cast<RimEclipseView*>( gridView ) )
+            {
+                menuBuilder << "RicCreateGridCrossPlotFeature";
+            }
+            menuBuilder.addSeparator();
+            menuBuilder.subMenuStart( "Export" );
+            menuBuilder << "RicExportEclipseInputGridFeature";
+            menuBuilder << "RicSaveEclipseInputActiveVisibleCellsFeature";
+            menuBuilder << "RicSaveEclipseResultAsInputPropertyFeature";
+            menuBuilder.subMenuEnd();
+            menuBuilder.addSeparator();
 
 #ifdef USE_QTCHARTS
-        menuBuilder << "RicCreateGridStatisticsPlotFeature";
+            menuBuilder << "RicCreateGridStatisticsPlotFeature";
 #endif
-        menuBuilder << "RicShowGridStatisticsFeature";
-        menuBuilder << "RicCopyGridStatisticsToClipboardFeature";
-        menuBuilder << "RicSelectColorResult";
+            menuBuilder << "RicShowGridStatisticsFeature";
+            menuBuilder << "RicCopyGridStatisticsToClipboardFeature";
+            menuBuilder << "RicSelectColorResult";
+        }
     }
 
     if ( firstHitPart )
