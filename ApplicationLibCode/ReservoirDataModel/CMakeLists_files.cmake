@@ -89,6 +89,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseContourMapProjection.h
     ${CMAKE_CURRENT_LIST_DIR}/RigGeoMechContourMapProjection.h
     ${CMAKE_CURRENT_LIST_DIR}/RigStatisticsContourMapProjection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigPolygonTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -180,6 +181,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseContourMapProjection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGeoMechContourMapProjection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigStatisticsContourMapProjection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigPolygonTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
