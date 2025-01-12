@@ -23,6 +23,7 @@
 
 enum class RimLegendConfigChangeType;
 class RimGeoMechContourMapProjection;
+class RimContourMapProjection;
 class RimRegularLegendConfig;
 class RimViewNameConfig;
 class RimScaleLegendConfig;
@@ -34,7 +35,7 @@ class RimGeoMechContourMapView : public RimGeoMechView
 
 public:
     RimGeoMechContourMapView();
-    RimGeoMechContourMapProjection* contourMapProjection() const;
+    RimContourMapProjection* contourMapProjection() const;
 
     RiaDefines::View3dContent viewContent() const override;
 

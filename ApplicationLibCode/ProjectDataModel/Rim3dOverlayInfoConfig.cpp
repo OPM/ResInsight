@@ -52,7 +52,6 @@
 #include "RimEclipseView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
-#include "RimGeoMechContourMapProjection.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"

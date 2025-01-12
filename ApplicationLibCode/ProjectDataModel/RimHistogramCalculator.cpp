@@ -33,7 +33,6 @@
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
-#include "RimGeoMechContourMapProjection.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
