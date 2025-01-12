@@ -27,9 +27,7 @@
 #include "RigContourMapProjection.h"
 
 #include "RimContourMapProjection.h"
-#include "RimEclipseContourMapProjection.h"
 #include "RimEclipseContourMapView.h"
-#include "RimGeoMechContourMapProjection.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimProject.h"
 #include "RimViewWindow.h"
