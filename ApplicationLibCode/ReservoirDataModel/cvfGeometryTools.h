@@ -41,7 +41,8 @@ public:
     static Vec3Type   computePolygonCenter( const std::vector<Vec3Type>& polygon );
     static cvf::Mat3f computePlaneHorizontalRotationMx( const cvf::Vec3f& inPlaneVec0, const cvf::Vec3f& inPlaneVec1 );
 
-    static cvf::Vec3d projectPointOnLine( const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3, double* normalizedIntersection );
+    static cvf::Vec3d
+        projectPointOnLine( const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3, double* normalizedIntersection = nullptr );
 
     static double     linePointSquareDist( const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3 );
     static int        intersectLineSegmentTriangle( const cvf::Vec3d& p0,

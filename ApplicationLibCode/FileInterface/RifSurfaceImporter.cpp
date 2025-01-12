@@ -492,9 +492,7 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
                                                                                    const cvf::Vec2d linePoint2,
                                                                                    const cvf::Vec2d point ) -> int
     {
-        double     normalizedIntersection = 0.0;
-        cvf::Vec2d projectedPoint =
-            to2d( cvf::GeometryTools::projectPointOnLine( to3d( linePoint1 ), to3d( linePoint2 ), to3d( point ), &normalizedIntersection ) );
+        cvf::Vec2d projectedPoint = to2d( cvf::GeometryTools::projectPointOnLine( to3d( linePoint1 ), to3d( linePoint2 ), to3d( point ) ) );
         if ( vectorFuzzyCompare( ( projectedPoint - to2d( surfacePoints[0] ) ).getNormalized(), primaryAxisVector.getNormalized(), epsilon ) )
             return static_cast<int>( ( projectedPoint - to2d( surfacePoints[0] ) ).length() / primaryAxisVector.length() );
         else
