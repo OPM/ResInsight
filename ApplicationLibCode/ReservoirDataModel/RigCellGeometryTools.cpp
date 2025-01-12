@@ -703,7 +703,7 @@ double RigCellGeometryTools::getLengthOfPolygonAlongLine( const std::pair<cvf::V
 
     for ( const cvf::Vec3d& polygonPoint : polygon )
     {
-        cvf::Vec3d pointOnLine = cvf::GeometryTools::projectPointOnLine( line.first, line.second, polygonPoint, nullptr );
+        cvf::Vec3d pointOnLine = cvf::GeometryTools::projectPointOnLine( line.first, line.second, polygonPoint );
         lineBoundingBox.add( pointOnLine );
     }
 

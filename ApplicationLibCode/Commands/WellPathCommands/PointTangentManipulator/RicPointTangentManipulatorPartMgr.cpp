@@ -197,8 +197,7 @@ void RicPointTangentManipulatorPartMgr::updateManipulatorFromRay( const cvf::Ray
             const auto& p1 = m_polyline[i];
             const auto& p2 = m_polyline[i - 1];
 
-            double     normalizedIntersection;
-            const auto pointOnLine = cvf::GeometryTools::projectPointOnLine( p1, p2, newOrigin, &normalizedIntersection );
+            const auto pointOnLine = cvf::GeometryTools::projectPointOnLine( p1, p2, newOrigin );
 
             const double candidateDistance = pointOnLine.pointDistanceSquared( newOrigin );
             if ( candidateDistance < closestDistance )
