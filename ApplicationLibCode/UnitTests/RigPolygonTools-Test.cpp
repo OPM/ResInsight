@@ -137,3 +137,37 @@ TEST( RigPolygonToolsTest, BoundaryInvalidInputTest )
     EXPECT_TRUE( RigPolygonTools::boundary( emptyImage ).empty() );
     EXPECT_TRUE( RigPolygonTools::boundary( { { 1, 1 }, { 1 } } ).empty() ); // Inconsistent row sizes
 }
+
+// Test for simplifyPolygon function
+TEST( RigPolygonToolsTest, SimplifyPolygonTest )
+{
+    // Arrange
+    std::vector<cvf::Vec3d> vertices =
+        { { 0.0, 0.0, 0.0 }, { 1.0, 0.1, 0.0 }, { 1.5, -0.1, 0.0 }, { 3.0, 5.0, 0.0 }, { 5.0, 6.0, 0.0 }, { 7.0, 7.0, 0.0 }, { 8.0, 8.0, 0.0 } };
+    double                  epsilon  = 1;
+    std::vector<cvf::Vec3d> expected = { { 0.0, 0.0, 0.0 }, { 1.5, -0.1, 0.0 }, { 3.0, 5.0, 0.0 }, { 8.0, 8.0, 0.0 } };
+
+    // Act
+    RigPolygonTools::simplifyPolygon( vertices, epsilon );
+
+    // Assert
+    EXPECT_EQ( vertices.size(), expected.size() );
+    for ( size_t i = 0; i < vertices.size(); ++i )
+    {
+        EXPECT_DOUBLE_EQ( vertices[i].x(), expected[i].x() );
+        EXPECT_DOUBLE_EQ( vertices[i].y(), expected[i].y() );
+        EXPECT_DOUBLE_EQ( vertices[i].z(), expected[i].z() );
+    }
+}
+
+// Test for simplifyPolygon function with invalid input
+TEST( RigPolygonToolsTest, SimplifyPolygonInvalidInputTest )
+{
+    // Arrange
+    std::vector<cvf::Vec3d> emptyVertices;
+    double                  epsilon = 1.0;
+
+    // Act & Assert
+    EXPECT_NO_THROW( RigPolygonTools::simplifyPolygon( emptyVertices, epsilon ) );
+    EXPECT_EQ( emptyVertices.size(), 0 );
+}

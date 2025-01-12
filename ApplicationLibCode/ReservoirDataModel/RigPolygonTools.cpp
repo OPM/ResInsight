@@ -18,6 +18,9 @@
 
 #include "RigPolygonTools.h"
 
+#include "cvfGeometryTools.h"
+
+#include <optional>
 #include <stack>
 #include <utility>
 
@@ -50,8 +53,8 @@ namespace internal
     {
         if ( !isValidImage( image ) ) return;
 
-        auto                            rows = image.size();
-        auto                            cols = image[0].size();
+        auto                            rows = static_cast<int>( image.size() );
+        auto                            cols = static_cast<int>( image[0].size() );
         std::stack<std::pair<int, int>> stack;
         stack.push( { x, y } );
 
@@ -81,8 +84,8 @@ IntegerImage erode( IntegerImage image, int kernelSize )
     if ( !internal::isValidImage( image ) ) return {};
     if ( kernelSize <= 0 ) return {};
 
-    auto         rows   = image.size();
-    auto         cols   = image[0].size();
+    auto         rows   = static_cast<int>( image.size() );
+    auto         cols   = static_cast<int>( image[0].size() );
     int          offset = kernelSize / 2;
     IntegerImage eroded( rows, std::vector<int>( cols, 0 ) );
 
@@ -118,8 +121,8 @@ IntegerImage dilate( IntegerImage image, int kernelSize )
     if ( !internal::isValidImage( image ) ) return {};
     if ( kernelSize <= 0 ) return {};
 
-    auto         rows   = image.size();
-    auto         cols   = image[0].size();
+    auto         rows   = static_cast<int>( image.size() );
+    auto         cols   = static_cast<int>( image[0].size() );
     int          offset = kernelSize / 2;
     IntegerImage dilated( rows, std::vector<int>( cols, 0 ) );
 
@@ -270,5 +273,55 @@ std::vector<std::pair<int, int>> boundary( const IntegerImage& image )
     } while ( current != start ); // Stop when we loop back to the start
 
     return boundaries;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Ramer-Douglas-Peucker simplification algorithm
+///
+/// https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm
+//--------------------------------------------------------------------------------------------------
+void simplifyPolygon( std::vector<cvf::Vec3d>& vertices, double epsilon )
+{
+    // If the polygon has fewer than 3 vertices, it cannot be simplified.
+    if ( vertices.size() < 3 ) return;
+
+    // Find the point with the maximum perpendicular distance from the line connecting the endpoints.
+    std::optional<std::pair<size_t, double>> maxDistPoint;
+
+    for ( size_t i = 1; i < vertices.size() - 1; ++i )
+    {
+        const cvf::Vec3d& point     = vertices[i];
+        cvf::Vec3d        projected = cvf::GeometryTools::projectPointOnLine( vertices.front(), vertices.back(), point );
+        double            distance  = ( projected - point ).length();
+
+        if ( !maxDistPoint || distance > maxDistPoint->second )
+        {
+            maxDistPoint = std::make_pair( i, distance );
+        }
+    }
+
+    // If the maximum distance exceeds epsilon, split and simplify recursively.
+    if ( maxDistPoint && maxDistPoint->second > epsilon )
+    {
+        size_t splitIndex = maxDistPoint->first;
+
+        // Divide the vertices into two segments.
+        std::vector<cvf::Vec3d> segment1( vertices.begin(), vertices.begin() + splitIndex + 1 );
+        std::vector<cvf::Vec3d> segment2( vertices.begin() + splitIndex, vertices.end() );
+
+        // Recursively simplify both segments.
+        simplifyPolygon( segment1, epsilon );
+        simplifyPolygon( segment2, epsilon );
+
+        // Combine the simplified segments, avoiding duplication at the split point.
+        vertices = std::move( segment1 );
+        vertices.pop_back(); // Remove duplicate at the split point.
+        vertices.insert( vertices.end(), segment2.begin(), segment2.end() );
+    }
+    else
+    {
+        // If no point exceeds the threshold, reduce to endpoints.
+        vertices = { vertices.front(), vertices.back() };
+    }
 }
 } // namespace RigPolygonTools
