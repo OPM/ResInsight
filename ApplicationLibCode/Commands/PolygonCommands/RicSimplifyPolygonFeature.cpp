@@ -21,7 +21,7 @@
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonInView.h"
 
-#include "RigCellGeometryTools.h"
+#include "RigPolygonTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -57,7 +57,7 @@ void RicSimplifyPolygonFeature::onActionTriggered( bool isChecked )
     for ( auto sourcePolygon : selPolygons )
     {
         auto coords = sourcePolygon->pointsInDomainCoords();
-        RigCellGeometryTools::simplifyPolygon( &coords, epsilon );
+        RigPolygonTools::simplifyPolygon( coords, epsilon );
 
         sourcePolygon->setPointsInDomainCoords( coords );
         sourcePolygon->coordinatesChanged.send();

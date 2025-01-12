@@ -18,7 +18,9 @@
 
 #pragma once
 
-#include "vector"
+#include "cvfVector3.h"
+
+#include <vector>
 
 namespace RigPolygonTools
 {
@@ -30,5 +32,8 @@ IntegerImage dilate( IntegerImage image, int kernelSize );
 IntegerImage fillInterior( IntegerImage sourceImage );
 
 std::vector<std::pair<int, int>> boundary( const IntegerImage& image );
+
+// Recursive function modifying the incoming vertices
+void simplifyPolygon( std::vector<cvf::Vec3d>& vertices, double epsilon );
 
 } // namespace RigPolygonTools
