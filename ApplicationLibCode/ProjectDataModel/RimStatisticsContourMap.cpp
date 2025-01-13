@@ -420,10 +420,11 @@ void RimStatisticsContourMap::computeStatistics()
             std::vector<double> minResults( nCells, std::numeric_limits<double>::infinity() );
             std::vector<double> maxResults( nCells, std::numeric_limits<double>::infinity() );
 
+            const size_t numSamples = results.size();
+
 #pragma omp parallel for
             for ( int i = 0; i < nCells; i++ )
             {
-                size_t              numSamples = results.size();
                 std::vector<double> samples( numSamples, 0.0 );
                 for ( size_t s = 0; s < numSamples; s++ )
                     samples[s] = results[s][i];
