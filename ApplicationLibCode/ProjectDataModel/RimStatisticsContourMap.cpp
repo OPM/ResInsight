@@ -408,7 +408,7 @@ void RimStatisticsContourMap::computeStatistics()
     m_contourMapGrid = std::move( contourMapGrid );
     m_timeResults.clear();
 
-    for ( auto& [timeStep, results] : timestep_results )
+    for ( const auto& [timeStep, results] : timestep_results )
     {
         if ( !results.empty() )
         {
