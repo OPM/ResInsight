@@ -354,15 +354,20 @@ void RimStatisticsContourMap::computeStatistics()
     RigEclipseContourMapProjection contourMapProjection( *contourMapGrid, *firstEclipseCaseData, *firstResultData );
     m_gridMapping = contourMapProjection.generateGridMapping( resultAggregation, {} );
 
-    caf::ProgressInfo progInfo( ensemble->cases().size() + 1, "Reading Eclipse Ensemble" );
+    const size_t nCases = ensemble->cases().size();
 
     std::map<size_t, std::vector<std::vector<double>>> timestep_results;
+
+    caf::ProgressInfo progInfo( nCases, QString( "Reading Eclipse Ensemble" ) );
 
     auto readerSettings = RiaPreferencesGrid::current()->gridOnlyReaderSettings();
     auto casesInViews   = ensemble->casesInViews();
 
+    int i = 1;
     for ( RimEclipseCase* eCase : ensemble->cases() )
     {
+        auto task = progInfo.task( QString( "Processing Case %1 of %2" ).arg( i++ ).arg( nCases ) );
+
         RifReaderSettings oldSettings = eCase->readerSettings();
         eCase->setReaderSettings( readerSettings );
 
@@ -398,8 +403,6 @@ void RimStatisticsContourMap::computeStatistics()
         {
             eCase->closeReservoirCase();
         }
-
-        progInfo.incrementProgress();
     }
 
     m_contourMapGrid = std::move( contourMapGrid );
