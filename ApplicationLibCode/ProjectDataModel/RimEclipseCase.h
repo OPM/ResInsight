@@ -76,7 +76,7 @@ public:
 
     bool         ensureReservoirCaseIsOpen();
     bool         openReservoirCase();
-    virtual void closeReservoirCase()  = 0;
+    virtual void closeReservoirCase();
     virtual bool openEclipseGridFile() = 0;
     virtual void reloadEclipseGridFile();
     virtual bool importAsciiInputProperties( const QStringList& fileNames );

@@ -93,9 +93,6 @@ public:
     const RigContourMapProjection* mapProjection() const;
     const RigContourMapGrid*       mapGrid() const;
 
-    void clearGridMapping();
-    void clearResults();
-
 protected:
     // Protected virtual methods to be overridden by Eclipse and Geo-mechanical contour map implementations
     virtual void                updateGridInformation()                = 0;
@@ -113,6 +110,8 @@ protected:
     bool geometryNeedsUpdating() const;
     bool resultRangeIsValid() const;
     void clearTimeStepRange();
+    void clearGridMapping();
+    void clearResults();
 
     virtual std::pair<double, double> minmaxValuesAllTimeSteps() = 0;
 

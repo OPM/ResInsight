@@ -114,14 +114,6 @@ bool RimRoffCase::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRoffCase::closeReservoirCase()
-{
-    setReservoirData( nullptr );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimRoffCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_caseUserDescription );

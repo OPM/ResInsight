@@ -221,7 +221,7 @@ RimEclipseCase* RimStatisticsContourMap::switchToSelectedSourceCase()
         sourceResultCase->ensureReservoirCaseIsOpen();
         setEclipseCase( sourceResultCase );
 
-        if ( oldCase )
+        if ( oldCase && !ensemble()->casesInViews().contains( oldCase ) )
         {
             oldCase->closeReservoirCase();
         }
@@ -335,6 +335,8 @@ void RimStatisticsContourMap::doStatisticsCalculation( std::map<size_t, std::vec
         std::vector<double> maxResults( nCells, std::numeric_limits<double>::infinity() );
 
         const size_t numSamples = res.size();
+
+// Clang version 16.0.6 does not handle OpenMP here, the compiler crashes.
 #ifndef __clang__
 #pragma omp parallel for
 #endif

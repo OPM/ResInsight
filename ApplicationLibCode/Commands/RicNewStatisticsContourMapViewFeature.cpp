@@ -38,7 +38,6 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include <QCoreApplication>
 
 CAF_CMD_SOURCE_INIT( RicNewStatisticsContourMapViewFeature, "RicNewStatisticsContourMapViewFeature" );
 

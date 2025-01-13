@@ -46,7 +46,6 @@ protected:
     QString     timeStepName( int frameIdx ) const override;
     QStringList timeStepStrings() const override;
 
-    // void createContourMapGeometry();
     void onUpdateLegends() override;
 
 private:
