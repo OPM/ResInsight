@@ -55,6 +55,18 @@ completions_settings.group_name_for_export = "msj"
 completions_settings.well_type_for_export = "GAS"
 completions_settings.update()  # Commit updates back to ResInsight
 
+# Optionally update the MSW settings
+msw_settings = well_path.msw_settings()
+msw_settings.custom_values_for_lateral = False
+msw_settings.enforce_max_segment_length = False
+msw_settings.liner_diameter = 0.152
+msw_settings.max_segment_length = 200
+msw_settings.pressure_drop = "HF-"
+msw_settings.reference_md_type = "GridEntryPoint"
+msw_settings.roughness_factor = 1e-05
+msw_settings.user_defined_reference_md = 0
+msw_settings.update()
+
 # export completions
 cases = resinsight.project.cases()
 
