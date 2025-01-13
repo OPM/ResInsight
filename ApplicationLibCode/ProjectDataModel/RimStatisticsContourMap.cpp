@@ -318,6 +318,64 @@ void RimStatisticsContourMap::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimStatisticsContourMap::doStatisticsCalculation( std::map<size_t, std::vector<std::vector<double>>>& timestepResults )
+{
+    m_timeResults.clear();
+
+    for ( const auto& [timeStep, res] : timestepResults )
+    {
+        if ( res.empty() ) continue;
+
+        int                 nCells = static_cast<int>( res[0].size() );
+        std::vector<double> p10Results( nCells, std::numeric_limits<double>::infinity() );
+        std::vector<double> p50Results( nCells, std::numeric_limits<double>::infinity() );
+        std::vector<double> p90Results( nCells, std::numeric_limits<double>::infinity() );
+        std::vector<double> meanResults( nCells, std::numeric_limits<double>::infinity() );
+        std::vector<double> minResults( nCells, std::numeric_limits<double>::infinity() );
+        std::vector<double> maxResults( nCells, std::numeric_limits<double>::infinity() );
+
+        const size_t numSamples = res.size();
+
+#pragma omp parallel for
+        for ( int i = 0; i < nCells; i++ )
+        {
+            std::vector<double> samples( numSamples, 0.0 );
+            for ( size_t s = 0; s < numSamples; s++ )
+            {
+                samples[s] = res[s][i];
+            }
+
+            double p10  = std::numeric_limits<double>::infinity();
+            double p50  = std::numeric_limits<double>::infinity();
+            double p90  = std::numeric_limits<double>::infinity();
+            double mean = std::numeric_limits<double>::infinity();
+
+            RigStatisticsMath::calculateStatisticsCurves( samples, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
+
+            if ( RiaStatisticsTools::isValidNumber( p10 ) ) p10Results[i] = p10;
+            if ( RiaStatisticsTools::isValidNumber( p50 ) ) p50Results[i] = p50;
+            if ( RiaStatisticsTools::isValidNumber( p90 ) ) p90Results[i] = p90;
+            if ( RiaStatisticsTools::isValidNumber( mean ) ) meanResults[i] = mean;
+
+            double minValue = RiaStatisticsTools::minimumValue( samples );
+            if ( RiaStatisticsTools::isValidNumber( minValue ) && minValue < std::numeric_limits<double>::max() ) minResults[i] = minValue;
+
+            double maxValue = RiaStatisticsTools::maximumValue( samples );
+            if ( RiaStatisticsTools::isValidNumber( maxValue ) && maxValue > -std::numeric_limits<double>::max() ) maxResults[i] = maxValue;
+        }
+
+        m_timeResults[timeStep][StatisticsType::P10]  = p10Results;
+        m_timeResults[timeStep][StatisticsType::P50]  = p50Results;
+        m_timeResults[timeStep][StatisticsType::P90]  = p90Results;
+        m_timeResults[timeStep][StatisticsType::MEAN] = meanResults;
+        m_timeResults[timeStep][StatisticsType::MIN]  = minResults;
+        m_timeResults[timeStep][StatisticsType::MAX]  = maxResults;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMap::computeStatistics()
 {
     RiaLogging::info( "Computing statistics" );
@@ -406,57 +464,8 @@ void RimStatisticsContourMap::computeStatistics()
     }
 
     m_contourMapGrid = std::move( contourMapGrid );
-    m_timeResults.clear();
 
-    for ( const auto& [timeStep, res] : timestep_results )
-    {
-        if ( res.empty() ) continue;
-
-        int                 nCells = static_cast<int>( res[0].size() );
-        std::vector<double> p10Results( nCells, std::numeric_limits<double>::infinity() );
-        std::vector<double> p50Results( nCells, std::numeric_limits<double>::infinity() );
-        std::vector<double> p90Results( nCells, std::numeric_limits<double>::infinity() );
-        std::vector<double> meanResults( nCells, std::numeric_limits<double>::infinity() );
-        std::vector<double> minResults( nCells, std::numeric_limits<double>::infinity() );
-        std::vector<double> maxResults( nCells, std::numeric_limits<double>::infinity() );
-
-        const size_t numSamples = res.size();
-
-#pragma omp parallel for
-        for ( int i = 0; i < nCells; i++ )
-        {
-            std::vector<double> samples( numSamples, 0.0 );
-            for ( size_t s = 0; s < numSamples; s++ )
-            {
-                samples[s] = res[s][i];
-            }
-
-            double p10  = std::numeric_limits<double>::infinity();
-            double p50  = std::numeric_limits<double>::infinity();
-            double p90  = std::numeric_limits<double>::infinity();
-            double mean = std::numeric_limits<double>::infinity();
-
-            RigStatisticsMath::calculateStatisticsCurves( samples, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
-
-            if ( RiaStatisticsTools::isValidNumber( p10 ) ) p10Results[i] = p10;
-            if ( RiaStatisticsTools::isValidNumber( p50 ) ) p50Results[i] = p50;
-            if ( RiaStatisticsTools::isValidNumber( p90 ) ) p90Results[i] = p90;
-            if ( RiaStatisticsTools::isValidNumber( mean ) ) meanResults[i] = mean;
-
-            double minValue = RiaStatisticsTools::minimumValue( samples );
-            if ( RiaStatisticsTools::isValidNumber( minValue ) && minValue < std::numeric_limits<double>::max() ) minResults[i] = minValue;
-
-            double maxValue = RiaStatisticsTools::maximumValue( samples );
-            if ( RiaStatisticsTools::isValidNumber( maxValue ) && maxValue > -std::numeric_limits<double>::max() ) maxResults[i] = maxValue;
-        }
-
-        m_timeResults[timeStep][StatisticsType::P10]  = p10Results;
-        m_timeResults[timeStep][StatisticsType::P50]  = p50Results;
-        m_timeResults[timeStep][StatisticsType::P90]  = p90Results;
-        m_timeResults[timeStep][StatisticsType::MEAN] = meanResults;
-        m_timeResults[timeStep][StatisticsType::MIN]  = minResults;
-        m_timeResults[timeStep][StatisticsType::MAX]  = maxResults;
-    }
+    doStatisticsCalculation( timestep_results );
 }
 
 //--------------------------------------------------------------------------------------------------

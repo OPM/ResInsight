@@ -86,6 +86,7 @@ protected:
 
 private:
     void computeStatistics();
+    void doStatisticsCalculation( std::map<size_t, std::vector<std::vector<double>>>& timestep_results );
 
     caf::PdmField<double>                                     m_boundingBoxExpPercent;
     caf::PdmField<double>                                     m_relativeSampleSpacing;
