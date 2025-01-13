@@ -53,8 +53,8 @@ namespace internal
     {
         if ( !isValidImage( image ) ) return;
 
-        auto                            rows = static_cast<int>(image.size());
-        auto                            cols = static_cast<int>(image[0].size());
+        auto                            rows = static_cast<int>( image.size() );
+        auto                            cols = static_cast<int>( image[0].size() );
         std::stack<std::pair<int, int>> stack;
         stack.push( { x, y } );
 
@@ -84,8 +84,8 @@ IntegerImage erode( IntegerImage image, int kernelSize )
     if ( !internal::isValidImage( image ) ) return {};
     if ( kernelSize <= 0 ) return {};
 
-    auto         rows   = static_cast<int>(image.size());
-    auto         cols   = static_cast<int>(image[0].size());
+    auto         rows   = static_cast<int>( image.size() );
+    auto         cols   = static_cast<int>( image[0].size() );
     int          offset = kernelSize / 2;
     IntegerImage eroded( rows, std::vector<int>( cols, 0 ) );
 
@@ -121,8 +121,8 @@ IntegerImage dilate( IntegerImage image, int kernelSize )
     if ( !internal::isValidImage( image ) ) return {};
     if ( kernelSize <= 0 ) return {};
 
-    auto         rows   = static_cast<int>(image.size());
-    auto         cols   = static_cast<int>(image[0].size());
+    auto         rows   = static_cast<int>( image.size() );
+    auto         cols   = static_cast<int>( image[0].size() );
     int          offset = kernelSize / 2;
     IntegerImage dilated( rows, std::vector<int>( cols, 0 ) );
 
