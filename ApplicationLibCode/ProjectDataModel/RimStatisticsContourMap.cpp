@@ -335,8 +335,9 @@ void RimStatisticsContourMap::doStatisticsCalculation( std::map<size_t, std::vec
         std::vector<double> maxResults( nCells, std::numeric_limits<double>::infinity() );
 
         const size_t numSamples = res.size();
-
+#ifndef __clang__
 #pragma omp parallel for
+#endif
         for ( int i = 0; i < nCells; i++ )
         {
             std::vector<double> samples( numSamples, 0.0 );
@@ -390,19 +391,11 @@ void RimStatisticsContourMap::computeStatistics()
     cvf::BoundingBox gridBoundingBox = eclipseCase()->activeCellsBoundingBox();
     gridBoundingBox.expandPercent( m_boundingBoxExpPercent() );
 
-    auto computeSampleSpacing = []( auto ec, double relativeSampleSpacing )
+    double sampleSpacing = 1.0;
+    if ( auto mainGrid = eclipseCase()->mainGrid() )
     {
-        if ( ec )
-        {
-            if ( auto mainGrid = ec->mainGrid() )
-            {
-                return relativeSampleSpacing * mainGrid->characteristicIJCellSize();
-            }
-        }
-        return 0.0;
-    };
-
-    double sampleSpacing = computeSampleSpacing( eclipseCase(), m_relativeSampleSpacing() );
+        sampleSpacing = m_relativeSampleSpacing * mainGrid->characteristicIJCellSize();
+    }
 
     auto contourMapGrid = std::make_unique<RigContourMapGrid>( gridBoundingBox, sampleSpacing );
 
