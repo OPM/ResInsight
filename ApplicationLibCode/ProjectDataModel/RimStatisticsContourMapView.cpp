@@ -92,9 +92,16 @@ QString RimStatisticsContourMapView::createAutoName() const
         generatedAutoTags.push_back( m_statisticsContourMap->resultAggregationText() );
     }
 
-    if ( nameConfig()->addProperty() && !m_statisticsContourMap->isColumnResult() )
+    if ( nameConfig()->addProperty() )
     {
-        generatedAutoTags.push_back( m_statisticsContourMap->resultVariable() );
+        if ( auto proj = dynamic_cast<RimStatisticsContourMapProjection*>( m_contourMapProjection().p() ) )
+        {
+            if ( !m_statisticsContourMap->isColumnResult() )
+            {
+                generatedAutoTags.push_back( m_statisticsContourMap->resultVariable() );
+            }
+            generatedAutoTags.push_back( proj->statisticsType() );
+        }
     }
 
     if ( nameConfig()->addSampleSpacing() )

@@ -47,6 +47,7 @@ public:
 
     void clearGridMappingAndRedraw();
 
+    QString                 statisticsType() const;
     QString                 resultVariableName() const override;
     QString                 resultDescriptionText() const override;
     RimRegularLegendConfig* legendConfig() const override;

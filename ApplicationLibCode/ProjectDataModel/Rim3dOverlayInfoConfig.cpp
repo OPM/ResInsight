@@ -330,9 +330,13 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimEclipseView* eclipseView )
             }
 
             infoText += QString( "<p><b>-- Contour Map: %1 --</b><p>  "
-                                 "<b>Sample Count. Total:</b> %2 <b>Valid Results:</b> %3 <br>"
-                                 "<b>Projection Type:</b> %4%5<br>" )
-                            .arg( caseName, totCellCount, activeCellCountText, aggregationType, weightingParameterString );
+                                 "<b>Sample Count. Total:</b> %2 <b>Valid Results:</b> %3 <br>" )
+                            .arg( caseName, totCellCount, activeCellCountText );
+
+            if ( !contourMap->contourMapProjection()->isColumnResult() )
+            {
+                infoText += QString( "<b>Projection Type:</b> %1%2<br>" ).arg( aggregationType, weightingParameterString );
+            }
         }
         else if ( eclipseView->mainGrid() )
         {
@@ -392,9 +396,13 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimGeoMechView* geoMechView )
                 QString   aggregationType     = contourMap->contourMapProjection()->resultAggregationText();
 
                 infoText += QString( "<p><b>-- Contour Map: %1 --</b><p>  "
-                                     "<b>Sample Count. Total:</b> %2 <b>Valid Results:</b> %3 <br>"
-                                     "<b>Projection Type:</b> %4<br>" )
-                                .arg( caseName, totCellCount, activeCellCountText, aggregationType );
+                                     "<b>Sample Count. Total:</b> %2 <b>Valid Results:</b> %3 <br>" )
+                                .arg( caseName, totCellCount, activeCellCountText );
+
+                if ( !contourMap->contourMapProjection()->isColumnResult() )
+                {
+                    infoText += QString( "<b>Projection Type:</b> %1<br>" ).arg( aggregationType );
+                }
             }
             else
             {
@@ -456,10 +464,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
         {
             QString propName      = contourMap->contourMapProjection()->resultVariableName();
             QString diffResString = eclipseView->cellResult()->additionalResultText();
-            if ( !contourMap->contourMapProjection()->isColumnResult() )
-            {
-                infoText += QString( "<b>Cell Property:</b> %1<br>" ).arg( propName );
-            }
+            infoText += QString( "<b>Cell Property:</b> %1<br>" ).arg( propName );
             if ( !diffResString.isEmpty() )
             {
                 infoText += QString( "%1<br>" ).arg( diffResString );

@@ -63,17 +63,24 @@ QString RimStatisticsContourMapProjection::resultDescriptionText() const
     QString resultText;
     if ( auto scm = statisticsContourMap() )
     {
-        resultText             = scm->resultAggregationText();
-        QString statisticsText = m_statisticsType().uiText();
+        resultText = scm->resultAggregationText();
 
         if ( !scm->isColumnResult() )
         {
             resultText += QString( ", %1" ).arg( scm->resultVariable() );
         }
-        resultText += ", " + statisticsText;
+        resultText += ", " + statisticsType();
     }
 
     return resultText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimStatisticsContourMapProjection::statisticsType() const
+{
+    return m_statisticsType().uiText();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,11 +90,10 @@ QString RimStatisticsContourMapProjection::resultVariableName() const
 {
     if ( auto scm = statisticsContourMap() )
     {
-        QString stasticsText = m_statisticsType().uiText();
         if ( !scm->isColumnResult() )
-            return scm->resultVariable() + ", " + stasticsText;
+            return scm->resultVariable() + ", " + statisticsType();
         else
-            return scm->resultAggregationText() + ", " + stasticsText;
+            return scm->resultAggregationText() + ", " + statisticsType();
     }
 
     return "";
@@ -310,10 +316,9 @@ bool RimStatisticsContourMapProjection::isColumnResult() const
 //--------------------------------------------------------------------------------------------------
 QString RimStatisticsContourMapProjection::resultAggregationText() const
 {
-    if ( statisticsContourMap() )
-        return statisticsContourMap()->resultAggregationText();
-    else
-        return "";
+    if ( statisticsContourMap() ) return statisticsContourMap()->resultAggregationText();
+
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------

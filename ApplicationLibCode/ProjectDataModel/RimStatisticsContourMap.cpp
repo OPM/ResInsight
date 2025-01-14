@@ -131,8 +131,11 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
     uiOrdering.add( &m_relativeSampleSpacing );
     uiOrdering.add( &m_boundingBoxExpPercent );
 
-    auto resultDefinitionGroup = uiOrdering.addNewGroup( "Result Definition" );
-    m_resultDefinition->uiOrdering( uiConfigName, *resultDefinitionGroup );
+    if ( !isColumnResult() )
+    {
+        auto resultDefinitionGroup = uiOrdering.addNewGroup( "Result Definition" );
+        m_resultDefinition->uiOrdering( uiConfigName, *resultDefinitionGroup );
+    }
 
     uiOrdering.add( &m_computeStatisticsButton );
 }
