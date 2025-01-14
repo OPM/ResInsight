@@ -21,6 +21,8 @@
 #include "RimEclipseCaseEnsemble.h"
 #include "RimStatisticsContourMap.h"
 
+#include "Riu3DMainWindowTools.h"
+
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -41,6 +43,8 @@ void RicNewStatisticsContourMapFeature::addStatisticsContourMap( RimEclipseCaseE
     statisticsContourMap->setEclipseCase( cases[0] );
     eclipseCaseEnsemble->addStatisticsContourMap( statisticsContourMap );
     eclipseCaseEnsemble->updateConnectedEditors();
+
+    Riu3DMainWindowTools::selectAsCurrentItem( statisticsContourMap );
 }
 
 //--------------------------------------------------------------------------------------------------
