@@ -598,8 +598,10 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
         bool isContourView = dynamic_cast<RimEclipseContourMapView*>( gridView ) || dynamic_cast<RimGeoMechContourMapView*>( gridView );
         if ( isContourView )
         {
-            menuBuilder << "RicExportContourMapToTextFeature";
             menuBuilder << "RicCreateContourMapPolygonFeature";
+            menuBuilder << "RicCreateContourMapPolygonAdvancedFeature";
+            menuBuilder.addSeparator();
+            menuBuilder << "RicExportContourMapToTextFeature";
         }
         else
         {

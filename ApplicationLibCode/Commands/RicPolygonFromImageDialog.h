@@ -40,8 +40,8 @@ class ImageProcessingDialog : public QDialog
 public:
     ImageProcessingDialog( QWidget* parent = nullptr );
 
-    std::vector<std::vector<int>> finalImageData() const;
-    void                          setImageData( std::vector<std::vector<int>> imageData );
+    std::vector<std::vector<int>> processedImageData() const;
+    void                          setSourceImageData( std::vector<std::vector<int>> imageData );
 
 public slots:
     void updateAndShowImages();
@@ -56,6 +56,8 @@ private:
     void computeFinal();
     void resizeAndCenterDialog( double scale );
 
+    void resizeEvent( QResizeEvent* event ) override;
+
 private:
     QSpinBox*       kernelSpinBox;
     QSlider*        transparencySlider;
@@ -67,5 +69,5 @@ private:
     QCheckBox* showEroded;
     QCheckBox* showFinal;
 
-    std::vector<std::vector<int>> inputData, dilatedData, erodedData, finalData;
+    std::vector<std::vector<int>> sourceData, dilatedData, erodedData, processedData;
 };

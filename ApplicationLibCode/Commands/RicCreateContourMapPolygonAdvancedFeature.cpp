@@ -16,34 +16,36 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicCreateContourMapPolygonFeature.h"
+#include "RicCreateContourMapPolygonAdvancedFeature.h"
 
 #include "RicCreateContourMapPolygonTools.h"
-
-#include "RigPolygonTools.h"
+#include "RicPolygonFromImageDialog.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicCreateContourMapPolygonFeature, "RicCreateContourMapPolygonFeature" );
+CAF_CMD_SOURCE_INIT( RicCreateContourMapPolygonAdvancedFeature, "RicCreateContourMapPolygonAdvancedFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateContourMapPolygonFeature::onActionTriggered( bool isChecked )
+void RicCreateContourMapPolygonAdvancedFeature::onActionTriggered( bool isChecked )
 {
     auto rigContourMapProjection = RicCreateContourMapPolygonTools::findCurrentContourMapProjection();
     if ( !rigContourMapProjection ) return;
 
     auto sourceImage = RicCreateContourMapPolygonTools::convertToBinaryImage( rigContourMapProjection );
 
-    const int kernelSize  = 3;
-    auto      floodFilled = RigPolygonTools::fillInterior( sourceImage );
-    auto      eroded      = RigPolygonTools::erode( floodFilled, kernelSize );
-    auto      dilated     = RigPolygonTools::dilate( eroded, kernelSize );
+    ImageProcessingDialog dlg;
+    dlg.setSourceImageData( sourceImage );
+    dlg.show();
+    dlg.updateAndShowImages();
 
-    if ( dilated.empty() ) return;
+    if ( dlg.exec() == QDialog::Rejected ) return;
 
-    RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonFromImage( dilated, rigContourMapProjection );
+    auto processedImage = dlg.processedImageData();
+    if ( processedImage.empty() ) return;
+
+    RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonFromImage( processedImage, rigContourMapProjection );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,8 +53,8 @@ void RicCreateContourMapPolygonFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateContourMapPolygonFeature::setupActionLook( QAction* actionToSetup )
+void RicCreateContourMapPolygonAdvancedFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/PolylinesFromFile16x16.png" ) );
-    actionToSetup->setText( "Create Polygon From Contour Map" );
+    actionToSetup->setText( "Create Polygon From Contour Map - Interactive" );
 }

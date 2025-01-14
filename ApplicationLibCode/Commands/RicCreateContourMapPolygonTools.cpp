@@ -18,6 +18,20 @@
 
 #include "RicCreateContourMapPolygonTools.h"
 
+#include "RicExportContourMapToTextFeature.h"
+
+#include "RigContourMapProjection.h"
+#include "RigPolygonTools.h"
+
+#include "Polygons/RimPolygon.h"
+#include "Polygons/RimPolygonCollection.h"
+#include "RimContourMapProjection.h"
+#include "RimEclipseContourMapView.h"
+#include "RimGeoMechContourMapView.h"
+#include "RimTools.h"
+
+#include "cvfBase.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -141,4 +155,95 @@ std::vector<std::vector<int>> RicCreateContourMapPolygonTools::convertImageToBin
         }
     }
     return binaryImage;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<int>> RicCreateContourMapPolygonTools::convertToBinaryImage( const RigContourMapProjection* rigContourMapProjection )
+{
+    if ( !rigContourMapProjection ) return {};
+
+    auto vertexSizeIJ = rigContourMapProjection->numberOfVerticesIJ();
+
+    std::vector<std::vector<int>> image( vertexSizeIJ.x(), std::vector<int>( vertexSizeIJ.y(), 0 ) );
+
+    for ( cvf::uint i = 0; i < vertexSizeIJ.x(); i++ )
+    {
+        for ( cvf::uint j = 0; j < vertexSizeIJ.y(); j++ )
+        {
+            double valueAtVertex = rigContourMapProjection->valueAtVertex( i, j );
+
+            if ( !std::isinf( valueAtVertex ) )
+            {
+                image[i][j] = 1;
+            }
+            else
+            {
+                image[i][j] = 0;
+            }
+        }
+    }
+
+    return image;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPolygon* RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonFromImage( std::vector<std::vector<int>>  image,
+                                                                                   const RigContourMapProjection* contourMapProjection )
+{
+    if ( !contourMapProjection ) return nullptr;
+    if ( image.empty() ) return nullptr;
+
+    std::vector<cvf::Vec3d> polygonDomainCoords;
+    auto                    xVertexPositions = contourMapProjection->xVertexPositions();
+    auto                    yVertexPositions = contourMapProjection->yVertexPositions();
+    auto                    origin3d         = contourMapProjection->origin3d();
+
+    auto boundaryPoints = RigPolygonTools::boundary( image );
+    for ( auto [i, j] : boundaryPoints )
+    {
+        double xDomain = xVertexPositions.at( i ) + origin3d.x();
+        double yDomain = yVertexPositions.at( j ) + origin3d.y();
+
+        polygonDomainCoords.emplace_back( cvf::Vec3d( xDomain, yDomain, origin3d.z() ) );
+    }
+
+    // Epsilon used to simplify polygon. Useful range typical value in [5..30]
+    const double defaultEpsilon = 20.0;
+    RigPolygonTools::simplifyPolygon( polygonDomainCoords, defaultEpsilon );
+
+    if ( polygonDomainCoords.size() >= 3 )
+    {
+        auto polygonCollection = RimTools::polygonCollection();
+
+        auto newPolygon = polygonCollection->appendUserDefinedPolygon();
+
+        newPolygon->setPointsInDomainCoords( polygonDomainCoords );
+        newPolygon->coordinatesChanged.send();
+
+        polygonCollection->uiCapability()->updateAllRequiredEditors();
+
+        return newPolygon;
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RigContourMapProjection* RicCreateContourMapPolygonTools::findCurrentContourMapProjection()
+{
+    RimContourMapProjection* contourMapProjection = nullptr;
+
+    auto [existingEclipseContourMap, existingGeoMechContourMap] = RicExportContourMapToTextFeature::findContourMapView();
+    if ( existingEclipseContourMap ) contourMapProjection = existingEclipseContourMap->contourMapProjection();
+    if ( existingGeoMechContourMap ) contourMapProjection = existingGeoMechContourMap->contourMapProjection();
+
+    if ( !contourMapProjection ) return nullptr;
+
+    return contourMapProjection->mapProjection();
 }

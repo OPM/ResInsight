@@ -100,6 +100,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStatisticsContourMapFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStatisticsContourMapViewFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonAdvancedFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RicPolygonFromImageDialog.h
 )
@@ -206,6 +207,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStatisticsContourMapFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStatisticsContourMapViewFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonAdvancedFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicPolygonFromImageDialog.cpp
 )

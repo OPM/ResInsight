@@ -20,7 +20,11 @@
 
 #include <QImage>
 #include <QString>
+
 #include <vector>
+
+class RigContourMapProjection;
+class RimPolygon;
 
 //==================================================================================================
 ///
@@ -34,5 +38,10 @@ void exportVectorAsImage( const std::vector<std::vector<int>>& data, int transpa
 void exportVectorAsGrayscaleImage( const std::vector<std::vector<int>>& data, const QString& filename );
 
 std::vector<std::vector<int>> convertImageToBinary( QImage image );
+std::vector<std::vector<int>> convertToBinaryImage( const RigContourMapProjection* contourMapProjection );
+
+RimPolygon* createAndAddBoundaryPolygonFromImage( std::vector<std::vector<int>> image, const RigContourMapProjection* contourMapProjection );
+
+const RigContourMapProjection* findCurrentContourMapProjection();
 
 }; // namespace RicCreateContourMapPolygonTools

@@ -73,8 +73,6 @@ ImageProcessingDialog::ImageProcessingDialog( QWidget* parent /*= nullptr */ )
     showFinal->setChecked( true );
     settingsLayout->addWidget( showFinal );
 
-    QPushButton* showButton = new QPushButton( "Show Images", this );
-    settingsLayout->addWidget( showButton );
     settingsLayout->addStretch();
 
     graphicsView  = new QGraphicsView( this );
@@ -95,7 +93,6 @@ ImageProcessingDialog::ImageProcessingDialog( QWidget* parent /*= nullptr */ )
     connect( buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject );
 
     // Connect signals and slots
-    connect( showButton, &QPushButton::clicked, this, &ImageProcessingDialog::showImages );
     connect( showInput, &QCheckBox::clicked, this, &ImageProcessingDialog::showImages );
     connect( showEroded, &QCheckBox::clicked, this, &ImageProcessingDialog::showImages );
     connect( showDilated, &QCheckBox::clicked, this, &ImageProcessingDialog::showImages );
@@ -104,7 +101,7 @@ ImageProcessingDialog::ImageProcessingDialog( QWidget* parent /*= nullptr */ )
     connect( kernelSpinBox, &QSpinBox::valueChanged, this, &ImageProcessingDialog::updateAndShowImages );
     connect( transparencySlider, &QSlider::valueChanged, this, &ImageProcessingDialog::updateAndShowImages );
 
-    resizeAndCenterDialog( 0.8 ); // 80% of screen size
+    resizeAndCenterDialog( 0.6 ); // 1.0 means to the full screen size
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,14 +109,14 @@ ImageProcessingDialog::ImageProcessingDialog( QWidget* parent /*= nullptr */ )
 //--------------------------------------------------------------------------------------------------
 void ImageProcessingDialog::performDilation()
 {
-    if ( inputData.empty() )
+    if ( sourceData.empty() )
     {
         QMessageBox::warning( this, "Error", "No image loaded." );
         return;
     }
 
     int kernelSize = kernelAdjustedSize();
-    dilatedData    = RigPolygonTools::dilate( inputData, kernelSize );
+    dilatedData    = RigPolygonTools::dilate( sourceData, kernelSize );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,14 +124,14 @@ void ImageProcessingDialog::performDilation()
 //--------------------------------------------------------------------------------------------------
 void ImageProcessingDialog::performErosion()
 {
-    if ( inputData.empty() )
+    if ( sourceData.empty() )
     {
         QMessageBox::warning( this, "Error", "No image loaded." );
         return;
     }
 
     int kernelSize = kernelAdjustedSize();
-    erodedData     = RigPolygonTools::erode( inputData, kernelSize );
+    erodedData     = RigPolygonTools::erode( sourceData, kernelSize );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,17 +150,17 @@ void ImageProcessingDialog::updateAndShowImages()
 //--------------------------------------------------------------------------------------------------
 void ImageProcessingDialog::showImages()
 {
-    if ( inputData.empty() )
+    if ( sourceData.empty() )
     {
         QMessageBox::warning( this, "Error", "No image loaded." );
         return;
     }
 
     const auto transparency = 180;
-    auto       original     = RicCreateContourMapPolygonTools::convertBinaryToGrayscaleImage( inputData, transparency );
+    auto       original     = RicCreateContourMapPolygonTools::convertBinaryToGrayscaleImage( sourceData, transparency );
     auto       dilatedImage = RicCreateContourMapPolygonTools::convertBinaryToImage( dilatedData, QColorConstants::Green, transparency );
     auto       erodedImage  = RicCreateContourMapPolygonTools::convertBinaryToImage( erodedData, QColorConstants::Red, transparency );
-    auto       finalImage   = RicCreateContourMapPolygonTools::convertBinaryToImage( finalData, QColorConstants::Yellow, transparency );
+    auto       finalImage   = RicCreateContourMapPolygonTools::convertBinaryToImage( processedData, QColorConstants::Yellow, transparency );
 
     graphicsScene->clear();
 
@@ -217,17 +214,17 @@ void ImageProcessingDialog::showImages()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<int>> ImageProcessingDialog::finalImageData() const
+std::vector<std::vector<int>> ImageProcessingDialog::processedImageData() const
 {
-    return finalData;
+    return processedData;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ImageProcessingDialog::setImageData( std::vector<std::vector<int>> imageData )
+void ImageProcessingDialog::setSourceImageData( std::vector<std::vector<int>> imageData )
 {
-    inputData = imageData;
+    sourceData = imageData;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -244,18 +241,18 @@ int ImageProcessingDialog::kernelAdjustedSize() const
 //--------------------------------------------------------------------------------------------------
 void ImageProcessingDialog::computeFinal()
 {
-    if ( inputData.empty() )
+    if ( sourceData.empty() )
     {
         QMessageBox::warning( this, "Error", "No image loaded." );
         return;
     }
 
-    auto floodFilled = RigPolygonTools::fillInterior( inputData );
+    auto floodFilled = RigPolygonTools::fillInterior( sourceData );
 
     int  kernelSize = kernelAdjustedSize();
     auto eroded     = RigPolygonTools::erode( floodFilled, kernelSize );
     auto dilated    = RigPolygonTools::dilate( eroded, kernelSize );
-    finalData       = dilated;
+    processedData   = dilated;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -277,4 +274,13 @@ void ImageProcessingDialog::resizeAndCenterDialog( double scale )
     int y = screenGeometry.y() + ( screenGeometry.height() - height ) / 2;
 
     move( x, y );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void ImageProcessingDialog::resizeEvent( QResizeEvent* event )
+{
+    QDialog::resizeEvent( event );
+    showImages();
 }
