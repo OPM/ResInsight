@@ -18,8 +18,9 @@
 
 #pragma once
 
+#include "RimNamedObject.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
-#include "cafPdmObject.h"
 
 #include "RimContourMapProjection.h"
 
@@ -28,13 +29,15 @@
 class RimEclipseCase;
 class RimEclipseResultDefinition;
 class RimEclipseCaseEnsemble;
+class RimEclipseContourMapView;
+class RimStatisticsContourMapView;
 
 //==================================================================================================
 //
 //
 //
 //==================================================================================================
-class RimStatisticsContourMap : public caf::PdmObject
+class RimStatisticsContourMap : public RimNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -57,9 +60,9 @@ public:
     RimEclipseCaseEnsemble* ensemble() const;
 
     RigContourMapGrid*  contourMapGrid() const;
-    std::vector<double> result( StatisticsType statisticsType ) const;
+    std::vector<double> result( size_t timeStep, StatisticsType statisticsType ) const;
 
-    std::vector<std::vector<std::pair<size_t, double>>> gridMapping() const;
+    void addView( RimStatisticsContourMapView* view );
 
     void ensureResultsComputed();
 
@@ -67,6 +70,9 @@ public:
     QString resultVariable() const;
     double  sampleSpacingFactor() const;
     bool    isColumnResult() const;
+
+    std::vector<int> selectedTimeSteps() const;
+    QString          timeStepName( int timeStep ) const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -76,17 +82,25 @@ protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
+    RimEclipseCase* switchToSelectedSourceCase();
+
 private:
     void computeStatistics();
+    void doStatisticsCalculation( std::map<size_t, std::vector<std::vector<double>>>& timestep_results );
 
+    caf::PdmField<double>                                     m_boundingBoxExpPercent;
     caf::PdmField<double>                                     m_relativeSampleSpacing;
     caf::PdmField<RimContourMapProjection::ResultAggregation> m_resultAggregation;
-    caf::PdmField<int>                                        m_timeStep;
+    caf::PdmField<std::vector<int>>                           m_selectedTimeSteps;
+    caf::PdmChildField<RimEclipseResultDefinition*>           m_resultDefinition;
+    caf::PdmField<bool>                                       m_computeStatisticsButton;
 
-    caf::PdmChildField<RimEclipseResultDefinition*> m_resultDefinition;
-    caf::PdmField<bool>                             m_computeStatisticsButton;
+    caf::PdmField<QString> m_primaryCase;
 
-    std::unique_ptr<RigContourMapGrid>                  m_contourMapGrid;
-    std::map<StatisticsType, std::vector<double>>       m_result;
+    std::unique_ptr<RigContourMapGrid>                              m_contourMapGrid;
+    std::map<size_t, std::map<StatisticsType, std::vector<double>>> m_timeResults;
+
     std::vector<std::vector<std::pair<size_t, double>>> m_gridMapping;
+
+    caf::PdmChildArrayField<RimStatisticsContourMapView*> m_views;
 };

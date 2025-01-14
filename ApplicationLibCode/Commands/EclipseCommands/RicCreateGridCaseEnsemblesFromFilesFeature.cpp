@@ -107,7 +107,7 @@ RimEclipseCaseEnsemble* RicCreateGridCaseEnsemblesFromFilesFeature::importSingle
 
     caf::ProgressInfo progInfo( fileNames.size() + 1, "Creating Grid Ensembles" );
 
-    for ( auto caseFileName : fileNames )
+    for ( const auto& caseFileName : fileNames )
     {
         auto task = progInfo.task( "Loading files", 1 );
 

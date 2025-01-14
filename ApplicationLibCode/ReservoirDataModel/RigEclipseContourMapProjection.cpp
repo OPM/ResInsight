@@ -124,7 +124,6 @@ std::pair<bool, std::vector<double>>
         }
         else
         {
-            // TODO: this was RimEclipseCellColors->hasStaticResult()
             if ( resultAddress.resultCatType() == RiaDefines::ResultCatType::STATIC_NATIVE && timeStep > 0 ) timeStep = 0;
 
             resultData.ensureKnownResultLoaded( resultAddress );

@@ -92,9 +92,16 @@ QString RimStatisticsContourMapView::createAutoName() const
         generatedAutoTags.push_back( m_statisticsContourMap->resultAggregationText() );
     }
 
-    if ( nameConfig()->addProperty() && !m_statisticsContourMap->isColumnResult() )
+    if ( nameConfig()->addProperty() )
     {
-        generatedAutoTags.push_back( m_statisticsContourMap->resultVariable() );
+        if ( auto proj = dynamic_cast<RimStatisticsContourMapProjection*>( m_contourMapProjection().p() ) )
+        {
+            if ( !m_statisticsContourMap->isColumnResult() )
+            {
+                generatedAutoTags.push_back( m_statisticsContourMap->resultVariable() );
+            }
+            generatedAutoTags.push_back( proj->statisticsType() );
+        }
     }
 
     if ( nameConfig()->addSampleSpacing() )
@@ -114,11 +121,29 @@ QString RimStatisticsContourMapView::createAutoName() const
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMapView::setDefaultCustomName()
 {
-    nameConfig()->setCustomName( "Contour Map" );
+    nameConfig()->setCustomName( "" );
     nameConfig()->hideCaseNameField( false );
     nameConfig()->hideAggregationTypeField( false );
     nameConfig()->hidePropertyField( false );
     nameConfig()->hideSampleSpacingField( false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsContourMapView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Contour Map Name" );
+    nameConfig()->uiOrdering( uiConfigName, *nameGroup );
+
+    caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup( "Viewer" );
+    viewGroup->add( userDescriptionField() );
+    viewGroup->add( backgroundColorField() );
+    viewGroup->add( &m_showAxisLines );
+    viewGroup->add( &m_showScaleLegend );
+    viewGroup->add( &m_showFaultLines );
+
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,15 +166,15 @@ void RimStatisticsContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& 
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMapView::onUpdateLegends()
 {
-    if ( nativeOrOverrideViewer() )
+    if ( auto viewer = nativeOrOverrideViewer() )
     {
         if ( !isUsingOverrideViewer() )
         {
-            nativeOrOverrideViewer()->removeAllColorLegends();
+            viewer->removeAllColorLegends();
         }
         else if ( cellResult() && cellResult()->legendConfig() )
         {
-            nativeOrOverrideViewer()->removeColorLegend( cellResult()->legendConfig()->titledOverlayFrame() );
+            viewer->removeColorLegend( cellResult()->legendConfig()->titledOverlayFrame() );
         }
 
         if ( m_contourMapProjection && m_contourMapProjection->isChecked() )
@@ -160,8 +185,7 @@ void RimStatisticsContourMapView::onUpdateLegends()
                 m_contourMapProjection->updateLegend();
                 if ( projectionLegend->showLegend() )
                 {
-                    nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( projectionLegend->titledOverlayFrame(),
-                                                                                isUsingOverrideViewer() );
+                    viewer->addColorLegendToBottomLeftCorner( projectionLegend->titledOverlayFrame(), isUsingOverrideViewer() );
                 }
             }
         }
@@ -181,7 +205,7 @@ void RimStatisticsContourMapView::onUpdateLegends()
             }
         }
 
-        nativeOrOverrideViewer()->showScaleLegend( any3DViewsLinked ? false : m_showScaleLegend() );
+        viewer->showScaleLegend( any3DViewsLinked ? false : m_showScaleLegend() );
     }
 }
 
@@ -191,4 +215,85 @@ void RimStatisticsContourMapView::onUpdateLegends()
 RimStatisticsContourMap* RimStatisticsContourMapView::statisticsContourMap() const
 {
     return m_statisticsContourMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Clamp the current timestep to actual possibilities
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsContourMapView::onClampCurrentTimestep()
+{
+    if ( statisticsContourMap() )
+    {
+        auto maxSteps = (int)statisticsContourMap()->selectedTimeSteps().size();
+        if ( m_currentTimeStep() >= maxSteps )
+        {
+            m_currentTimeStep = maxSteps - 1;
+        }
+    }
+
+    if ( m_currentTimeStep < 0 ) m_currentTimeStep = 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimStatisticsContourMapView::onTimeStepCountRequested()
+{
+    if ( statisticsContourMap() )
+    {
+        return (size_t)statisticsContourMap()->selectedTimeSteps().size();
+    }
+
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimStatisticsContourMapView::timeStepName( int frameIdx ) const
+{
+    if ( !statisticsContourMap() ) return "";
+
+    auto steps = statisticsContourMap()->selectedTimeSteps();
+    if ( frameIdx >= (int)steps.size() ) return "";
+    auto realTimeStep = steps[frameIdx];
+    return statisticsContourMap()->timeStepName( realTimeStep );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimStatisticsContourMapView::timeStepStrings() const
+{
+    QStringList retList;
+
+    if ( !statisticsContourMap() ) return retList;
+
+    for ( auto ts : statisticsContourMap()->selectedTimeSteps() )
+    {
+        retList.append( statisticsContourMap()->timeStepName( ts ) );
+    }
+
+    return retList;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RimStatisticsContourMapView::activeTimeStepIndices( bool propertyFiltersActive )
+{
+    std::vector<size_t> timeStepIndices;
+
+    // First entry in this vector is used to define the geometry only result mode with no results.
+    timeStepIndices.push_back( 0 );
+
+    // add any timesteps with dynamic data
+    if ( !statisticsContourMap() ) return timeStepIndices;
+
+    for ( size_t i = 0; i < statisticsContourMap()->selectedTimeSteps().size(); i++ )
+    {
+        timeStepIndices.push_back( i );
+    }
+
+    return timeStepIndices;
 }

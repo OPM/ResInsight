@@ -162,7 +162,7 @@ void RimAdvancedSnapshotExportDefinition::getTimeStepStrings( QList<caf::PdmOpti
 
     QStringList timeSteps;
 
-    timeSteps = view->ownerCase()->timeStepStrings();
+    timeSteps = view->timeStepStrings();
 
     for ( int i = 0; i < timeSteps.size(); i++ )
     {

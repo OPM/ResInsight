@@ -58,36 +58,13 @@ void RicNewStatisticsContourMapViewFeature::onActionTriggered( bool isChecked )
     auto contourMap = caf::SelectionManager::instance()->selectedItemOfType<RimStatisticsContourMap>();
     if ( !contourMap ) return;
 
-    RimEclipseCase* eclipseCase = contourMap->eclipseCase();
-    if ( !eclipseCase ) return;
+    contourMap->ensureResultsComputed();
+    auto view = createAndAddView( contourMap );
+    contourMap->updateConnectedEditors();
 
-    if ( auto eclipseContourMap = createStatisticsContourMapView( contourMap, eclipseCase ) )
-    {
-        // Must be run before buildViewItems, as wells are created in this function
-        eclipseContourMap->loadDataAndUpdate();
-
-        // make sure no surfaces are shown in the view when the contourmap is generated
-        if ( eclipseContourMap->surfaceInViewCollection() ) eclipseContourMap->surfaceInViewCollection()->setCheckState( Qt::Unchecked );
-
-        if ( eclipseCase )
-        {
-            eclipseCase->updateConnectedEditors();
-            eclipseContourMap->cellFilterCollection()->setCase( eclipseCase );
-        }
-        caf::SelectionManager::instance()->setSelectedItem( eclipseContourMap );
-
-        eclipseContourMap->createDisplayModelAndRedraw();
-        eclipseContourMap->zoomAll();
-
-        RimProject* project = RimProject::current();
-
-        RimOilField* oilField = project->activeOilField();
-
-        oilField->eclipseContourMapCollection()->updateConnectedEditors();
-
-        Riu3DMainWindowTools::setExpanded( eclipseContourMap );
-        Riu3DMainWindowTools::selectAsCurrentItem( eclipseContourMap );
-    }
+    Riu3DMainWindowTools::selectAsCurrentItem( view );
+    Riu3DMainWindowTools::setExpanded( contourMap );
+    Riu3DMainWindowTools::setExpanded( view );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,27 +79,55 @@ void RicNewStatisticsContourMapViewFeature::setupActionLook( QAction* actionToSe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStatisticsContourMapView* RicNewStatisticsContourMapViewFeature::createStatisticsContourMapView( RimStatisticsContourMap* statisticsContourMap,
-                                                                                                    RimEclipseCase* eclipseCase )
+RimStatisticsContourMapView* RicNewStatisticsContourMapViewFeature::createStatisticsContourMapView( RimStatisticsContourMap* statisticsContourMap )
 {
-    RimStatisticsContourMapView* contourMap = new RimStatisticsContourMapView;
-    contourMap->setStatisticsContourMap( statisticsContourMap );
-    contourMap->setEclipseCase( eclipseCase );
+    RimEclipseCase* eclipseCase = statisticsContourMap->eclipseCase();
+    if ( !eclipseCase ) return nullptr;
 
-    caf::PdmDocument::updateUiIconStateRecursively( contourMap );
+    RimStatisticsContourMapView* contourMapView = new RimStatisticsContourMapView;
+    contourMapView->setStatisticsContourMap( statisticsContourMap );
+    contourMapView->setEclipseCase( eclipseCase );
 
-    size_t i = eclipseCase->contourMapCollection()->views().size();
-    contourMap->setName( QString( "Contour Map %1" ).arg( i + 1 ) );
+    caf::PdmDocument::updateUiIconStateRecursively( contourMapView );
 
-    contourMap->faultCollection()->setActive( false );
-    contourMap->wellCollection()->isActive = false;
+    contourMapView->faultCollection()->setActive( false );
+    contourMapView->wellCollection()->isActive = false;
 
-    eclipseCase->contourMapCollection()->addView( contourMap );
+    statisticsContourMap->addView( contourMapView );
 
     auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
-    contourMap->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
+    contourMapView->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
+    contourMapView->initAfterReadRecursively();
 
-    contourMap->initAfterReadRecursively();
+    return contourMapView;
+}
 
-    return contourMap;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimStatisticsContourMapView* RicNewStatisticsContourMapViewFeature::createAndAddView( RimStatisticsContourMap* statisticsContourMap )
+{
+    if ( auto contourMapView = createStatisticsContourMapView( statisticsContourMap ) )
+    {
+        // Must be run before buildViewItems, as wells are created in this function
+        contourMapView->loadDataAndUpdate();
+
+        // make sure no surfaces are shown in the view when the contourmap is generated
+        if ( contourMapView->surfaceInViewCollection() ) contourMapView->surfaceInViewCollection()->setCheckState( Qt::Unchecked );
+
+        if ( auto eclipseCase = statisticsContourMap->eclipseCase() )
+        {
+            eclipseCase->updateConnectedEditors();
+            contourMapView->cellFilterCollection()->setCase( eclipseCase );
+        }
+
+        contourMapView->createDisplayModelAndRedraw();
+        contourMapView->zoomAll();
+
+        statisticsContourMap->updateConnectedEditors();
+
+        return contourMapView;
+    }
+
+    return nullptr;
 }

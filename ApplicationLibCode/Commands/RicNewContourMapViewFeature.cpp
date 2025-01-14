@@ -43,6 +43,7 @@
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInViewCollection.h"
+#include "RimStatisticsContourMapView.h"
 #include "RimSurfaceInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -67,6 +68,8 @@ const size_t largeSamplingThresholdCellCount  = 5000000u;
 //--------------------------------------------------------------------------------------------------
 bool RicNewContourMapViewFeature::isCommandEnabled() const
 {
+    if ( caf::SelectionManager::instance()->selectedItemOfType<RimStatisticsContourMapView>() != nullptr ) return false;
+
     bool selectedView = caf::SelectionManager::instance()->selectedItemOfType<RimGridView>() != nullptr;
     bool selectedCase = caf::SelectionManager::instance()->selectedItemOfType<RimCase>() != nullptr;
 

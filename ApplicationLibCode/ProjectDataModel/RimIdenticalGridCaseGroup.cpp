@@ -176,7 +176,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     // When reading active cell info, only the total cell count is tested for consistency
 
     RimEclipseCase* mainCase = caseCollection()->reservoirs[0];
-    if ( !mainCase->openReserviorCase() )
+    if ( !mainCase->openReservoirCase() )
     {
         QString errorMessage = QString( "Could not open the Eclipse Grid file: \n" ) + mainCase->gridFileName() + "\n" +
                                "Current working directory is: \n" + QDir::currentPath();

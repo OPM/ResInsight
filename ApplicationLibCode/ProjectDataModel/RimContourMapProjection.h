@@ -109,9 +109,9 @@ protected:
     bool resultsNeedsUpdating( int timeStep ) const;
     bool geometryNeedsUpdating() const;
     bool resultRangeIsValid() const;
+    void clearTimeStepRange();
     void clearGridMapping();
     void clearResults();
-    void clearTimeStepRange();
 
     virtual std::pair<double, double> minmaxValuesAllTimeSteps() = 0;
 

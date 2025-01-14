@@ -154,7 +154,7 @@ std::vector<RimEclipseCase*> openEclipseCasesForCellPlotting( QStringList gridFi
 
         analysisModels->cases.push_back( rimResultReservoir );
 
-        if ( !rimResultReservoir->openReserviorCase() )
+        if ( !rimResultReservoir->openReservoirCase() )
         {
             analysisModels->removeCaseFromAllGroups( rimResultReservoir );
 

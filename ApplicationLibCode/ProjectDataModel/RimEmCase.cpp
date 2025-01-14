@@ -177,15 +177,6 @@ bool RimEmCase::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEmCase::reloadEclipseGridFile()
-{
-    setReservoirData( nullptr );
-    openReserviorCase();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimEmCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_caseUserDescription );

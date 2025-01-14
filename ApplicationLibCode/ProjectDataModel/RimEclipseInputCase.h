@@ -50,7 +50,6 @@ public:
 
     // RimCase overrides
     bool openEclipseGridFile() override;
-    void reloadEclipseGridFile() override;
 
     // Overrides from RimCase
     QString locationOnDisc() const override;

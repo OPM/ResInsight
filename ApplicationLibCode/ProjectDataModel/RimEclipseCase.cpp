@@ -955,16 +955,16 @@ void RimEclipseCase::setFilesContainingFaults( const std::vector<QString>& pathS
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseCase::ensureReservoirCaseIsOpen()
 {
-    // Call openReserviorCase, as this is a cheap method to call multiple times
+    // Call openReservoirCase, as this is a cheap method to call multiple times
     // Add extra testing here if performance issues are seen
 
-    return openReserviorCase();
+    return openReservoirCase();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseCase::openReserviorCase()
+bool RimEclipseCase::openReservoirCase()
 {
     if ( !openEclipseGridFile() )
     {
@@ -1048,20 +1048,40 @@ bool RimEclipseCase::openReserviorCase()
 
     createTimeStepFormatString();
 
-    // Associate existing well paths with simulation wells
-    RimProject* proj = RimProject::current();
-    for ( const auto& oilField : proj->oilFields() )
+    if ( !m_readerSettings.skipWellData )
     {
-        for ( const auto& wellPath : oilField->wellPathCollection()->allWellPaths() )
+        // Associate existing well paths with simulation wells
+        RimProject* proj = RimProject::current();
+        for ( const auto& oilField : proj->oilFields() )
         {
-            if ( !wellPath->isAssociatedWithSimulationWell() )
+            for ( const auto& wellPath : oilField->wellPathCollection()->allWellPaths() )
             {
-                wellPath->tryAssociateWithSimulationWell();
+                if ( !wellPath->isAssociatedWithSimulationWell() )
+                {
+                    wellPath->tryAssociateWithSimulationWell();
+                }
             }
         }
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::reloadEclipseGridFile()
+{
+    closeReservoirCase();
+    openReservoirCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::closeReservoirCase()
+{
+    setReservoirData( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1178,6 +1198,14 @@ bool RimEclipseCase::importAsciiInputProperties( const QStringList& fileNames )
 void RimEclipseCase::setReaderSettings( RifReaderSettings& readerSettings )
 {
     m_readerSettings = readerSettings;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifReaderSettings RimEclipseCase::readerSettings() const
+{
+    return m_readerSettings;
 }
 
 //--------------------------------------------------------------------------------------------------

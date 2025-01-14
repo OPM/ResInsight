@@ -76,7 +76,7 @@ caf::PdmScriptResponse RicfExportProperty::execute()
 
         if ( !eclipseCase->eclipseCaseData() )
         {
-            if ( !eclipseCase->openReserviorCase() )
+            if ( !eclipseCase->openReservoirCase() )
             {
                 QString error = QString( "exportProperty: Could not find eclipseCaseData with ID %1" ).arg( m_caseId() );
                 RiaLogging::error( error );

@@ -238,15 +238,6 @@ bool RimEclipseInputCase::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseInputCase::reloadEclipseGridFile()
-{
-    setReservoirData( nullptr );
-    openReserviorCase();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 cvf::ref<RifReaderInterface> RimEclipseInputCase::createMockModel( QString modelName )
 {
     cvf::ref<RigEclipseCaseData> reservoir         = new RigEclipseCaseData( this );

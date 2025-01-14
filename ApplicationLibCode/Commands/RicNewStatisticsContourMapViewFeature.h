@@ -20,7 +20,6 @@
 
 #include "cafCmdFeature.h"
 
-class RimEclipseCase;
 class RimStatisticsContourMapView;
 class RimStatisticsContourMap;
 
@@ -31,11 +30,12 @@ class RicNewStatisticsContourMapViewFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+    static RimStatisticsContourMapView* createAndAddView( RimStatisticsContourMap* statisticsContourMap );
+
 protected:
     bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    static RimStatisticsContourMapView* createStatisticsContourMapView( RimStatisticsContourMap* statisticsContourMap,
-                                                                        RimEclipseCase*          eclipseCase );
+    static RimStatisticsContourMapView* createStatisticsContourMapView( RimStatisticsContourMap* statisticsContourMap );
 };

@@ -63,17 +63,24 @@ QString RimStatisticsContourMapProjection::resultDescriptionText() const
     QString resultText;
     if ( auto scm = statisticsContourMap() )
     {
-        resultText             = scm->resultAggregationText();
-        QString statisticsText = m_statisticsType().uiText();
+        resultText = scm->resultAggregationText();
 
         if ( !scm->isColumnResult() )
         {
             resultText += QString( ", %1" ).arg( scm->resultVariable() );
         }
-        resultText += ", " + statisticsText;
+        resultText += ", " + statisticsType();
     }
 
     return resultText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimStatisticsContourMapProjection::statisticsType() const
+{
+    return m_statisticsType().uiText();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,11 +90,10 @@ QString RimStatisticsContourMapProjection::resultVariableName() const
 {
     if ( auto scm = statisticsContourMap() )
     {
-        QString stasticsText = m_statisticsType().uiText();
         if ( !scm->isColumnResult() )
-            return scm->resultVariable() + ", " + stasticsText;
+            return scm->resultVariable() + ", " + statisticsType();
         else
-            return scm->resultAggregationText() + ", " + stasticsText;
+            return scm->resultAggregationText() + ", " + statisticsType();
     }
 
     return "";
@@ -147,6 +153,13 @@ double RimStatisticsContourMapProjection::sampleSpacing() const
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMapProjection::clearGridMappingAndRedraw()
 {
+    clearGridMapping();
+    updateConnectedEditors();
+    generateResultsIfNecessary( view()->currentTimeStep() );
+    updateLegend();
+
+    RimEclipseView* parentView = firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
+    parentView->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,7 +178,7 @@ void RimStatisticsContourMapProjection::generateAndSaveResults( int timeStep )
     if ( auto statistics = statisticsContourMap() )
     {
         dynamic_cast<RigStatisticsContourMapProjection*>( m_contourMapProjection.get() )
-            ->generateAndSaveResults( statistics->result( m_statisticsType() ) );
+            ->generateAndSaveResults( statistics->result( timeStep, m_statisticsType() ) );
     }
 }
 
@@ -260,9 +273,15 @@ std::pair<double, double> RimStatisticsContourMapProjection::minmaxValuesAllTime
     {
         clearTimeStepRange();
 
-        std::vector<double> aggregatedResults = statisticsContourMap()->result( m_statisticsType() );
-        m_minResultAllTimeSteps               = RigContourMapProjection::minValue( aggregatedResults );
-        m_maxResultAllTimeSteps               = RigContourMapProjection::maxValue( aggregatedResults );
+        if ( auto map = statisticsContourMap() )
+        {
+            for ( size_t ts = 0; ts < map->selectedTimeSteps().size(); ts++ )
+            {
+                std::vector<double> aggregatedResults = statisticsContourMap()->result( ts, m_statisticsType() );
+                m_minResultAllTimeSteps = std::min( m_minResultAllTimeSteps, RigContourMapProjection::minValue( aggregatedResults ) );
+                m_maxResultAllTimeSteps = std::max( m_maxResultAllTimeSteps, RigContourMapProjection::maxValue( aggregatedResults ) );
+            }
+        }
     }
 
     return std::make_pair( m_minResultAllTimeSteps, m_maxResultAllTimeSteps );
@@ -297,8 +316,25 @@ bool RimStatisticsContourMapProjection::isColumnResult() const
 //--------------------------------------------------------------------------------------------------
 QString RimStatisticsContourMapProjection::resultAggregationText() const
 {
-    if ( statisticsContourMap() )
-        return statisticsContourMap()->resultAggregationText();
+    if ( statisticsContourMap() ) return statisticsContourMap()->resultAggregationText();
+
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                          const QVariant&            oldValue,
+                                                          const QVariant&            newValue )
+{
+    if ( ( changedField == &m_statisticsType ) || ( changedField == &m_showContourLines ) || ( changedField == &m_showContourLabels ) ||
+         ( changedField == &m_smoothContourLines ) )
+    {
+        clearGridMappingAndRedraw();
+    }
     else
-        return "";
+    {
+        RimContourMapProjection::fieldChangedByUi( changedField, oldValue, newValue );
+    }
 }

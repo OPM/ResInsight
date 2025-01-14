@@ -403,6 +403,8 @@ void RimContourMapProjection::clearResults()
     m_currentResultTimestep = -1;
 
     clearResultVariable();
+
+    clearTimeStepRange();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -502,8 +504,8 @@ void RimContourMapProjection::defineEditorAttribute( const caf::PdmFieldHandle* 
         if ( myAttr )
         {
             myAttr->m_minimum                       = 0.2;
-            myAttr->m_maximum                       = 2.0;
-            myAttr->m_sliderTickCount               = 9;
+            myAttr->m_maximum                       = 20.0;
+            myAttr->m_sliderTickCount               = 20;
             myAttr->m_delaySliderUpdateUntilRelease = true;
         }
     }
