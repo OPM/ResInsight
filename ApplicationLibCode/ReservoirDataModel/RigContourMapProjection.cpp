@@ -190,6 +190,14 @@ cvf::Vec3d RigContourMapProjection::origin3d() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RigContourMapProjection::topDepthBoundingBox() const
+{
+    return m_contourMapGrid.expandedBoundingBox().max().z();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 size_t RigContourMapProjection::gridResultIndex( size_t globalCellIdx ) const
 {
     return globalCellIdx;

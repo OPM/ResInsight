@@ -48,7 +48,6 @@ public:
     cvf::Vec2ui numberOfVerticesIJ() const;
 
     cvf::uint numberOfCells() const;
-    cvf::uint numberOfValidCells() const;
     size_t    numberOfVertices() const;
 
     cvf::Vec3d origin3d() const;

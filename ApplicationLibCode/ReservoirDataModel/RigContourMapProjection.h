@@ -66,6 +66,7 @@ public:
 
     bool       checkForMapIntersection( const cvf::Vec3d& domainPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint ) const;
     cvf::Vec3d origin3d() const;
+    double     topDepthBoundingBox() const;
 
     std::vector<double> xVertexPositions() const;
     std::vector<double> yVertexPositions() const;

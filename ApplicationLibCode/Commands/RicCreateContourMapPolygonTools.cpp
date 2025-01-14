@@ -201,6 +201,7 @@ RimPolygon* RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonFromImag
     auto                    xVertexPositions = contourMapProjection->xVertexPositions();
     auto                    yVertexPositions = contourMapProjection->yVertexPositions();
     auto                    origin3d         = contourMapProjection->origin3d();
+    auto                    depth            = contourMapProjection->topDepthBoundingBox();
 
     auto boundaryPoints = RigPolygonTools::boundary( image );
     for ( auto [i, j] : boundaryPoints )
@@ -208,7 +209,7 @@ RimPolygon* RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonFromImag
         double xDomain = xVertexPositions.at( i ) + origin3d.x();
         double yDomain = yVertexPositions.at( j ) + origin3d.y();
 
-        polygonDomainCoords.emplace_back( cvf::Vec3d( xDomain, yDomain, origin3d.z() ) );
+        polygonDomainCoords.emplace_back( cvf::Vec3d( xDomain, yDomain, depth ) );
     }
 
     // Epsilon used to simplify polygon. Useful range typical value in [5..30]
