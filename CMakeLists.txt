@@ -398,12 +398,12 @@ message(STATUS "Starting download of external library OpenVDS ...")
 if(MSVC)
   FetchContent_Declare(
     openvds
-    URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.4/openvds+-3.4.5-win.zip
+    URL https://downloads.bluware.com/artifactory/Releases-OpenVDSPlus/3.4/openvds+-3.4.5-win.zip
   )
 else()
   FetchContent_Declare(
     openvds
-    URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.4/openvds+-3.4.5-manylinux_2014.tar.gz
+    URL https://downloads.bluware.com/artifactory/Releases-OpenVDSPlus/3.4/openvds+-3.4.5-manylinux_2014.tar.gz
   )
 endif()
 
