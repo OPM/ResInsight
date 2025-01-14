@@ -47,8 +47,6 @@ RimEclipseCaseEnsemble::RimEclipseCaseEnsemble()
     m_caseCollection->uiCapability()->setUiName( "Cases" );
     m_caseCollection->uiCapability()->setUiIconFromResourceString( ":/Cases16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedCase, "SelectedCase", "Selected Case" );
-
     CAF_PDM_InitFieldNoDefault( &m_viewCollection, "ViewCollection", "Views" );
     m_viewCollection = new RimEclipseViewCollection;
 
@@ -171,43 +169,6 @@ RimEclipseView* RimEclipseCaseEnsemble::addViewForCase( RimEclipseCase* eclipseC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimEclipseCaseEnsemble::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
-{
-    QList<caf::PdmOptionItemInfo> options;
-
-    if ( fieldNeedingOptions == &m_selectedCase )
-    {
-        for ( auto eclCase : cases() )
-        {
-            options.push_back( caf::PdmOptionItemInfo( eclCase->caseUserDescription(), eclCase, false, eclCase->uiIconProvider() ) );
-        }
-
-        return options;
-    }
-
-    return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseCaseEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
-{
-    if ( changedField == &m_selectedCase )
-    {
-        for ( auto view : m_viewCollection->views() )
-        {
-            view->setEclipseCase( m_selectedCase() );
-            view->loadDataAndUpdate();
-            view->updateGridBoxData();
-            view->updateAnnotationItems();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimEclipseCaseEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicNewViewForGridEnsembleFeature";
@@ -239,4 +200,13 @@ void RimEclipseCaseEnsemble::addStatisticsContourMap( RimStatisticsContourMap* s
 {
     m_statisticsContourMaps.push_back( statisticsContourMap );
     statisticsContourMap->setName( QString( "Statistics Contour Map #%1" ).arg( m_statisticsContourMaps.size() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCaseEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( nameField() );
+    uiOrdering.skipRemainingFields();
 }

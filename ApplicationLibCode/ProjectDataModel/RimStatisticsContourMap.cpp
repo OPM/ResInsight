@@ -82,7 +82,7 @@ RimStatisticsContourMap::RimStatisticsContourMap()
     CAF_PDM_InitField( &m_boundingBoxExpPercent, "BoundingBoxExpPercent", 5.0, "Bounding Box Expansion (%)" );
     m_boundingBoxExpPercent.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_relativeSampleSpacing, "SampleSpacing", 0.9, "Sample Spacing Factor" );
+    CAF_PDM_InitField( &m_relativeSampleSpacing, "SampleSpacing", 2.0, "Sample Spacing Factor" );
     m_relativeSampleSpacing.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_resultAggregation, "ResultAggregation", "Result Aggregation" );
@@ -97,7 +97,12 @@ RimStatisticsContourMap::RimStatisticsContourMap()
     m_resultDefinition->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
     m_resultDefinition->setResultVariable( "SOIL" );
 
-    CAF_PDM_InitField( &m_uiDataSourceCase, "UiDataSourceCase", RiaResultNames::undefinedResultName(), "UI Data Source Case" );
+    CAF_PDM_InitField( &m_primaryCase,
+                       "PrimaryCase",
+                       RiaResultNames::undefinedResultName(),
+                       "Primary Case",
+                       "",
+                       "Eclipse Case used for wells and faults shown in views, initializing available result list, timesteps, etc." );
 
     CAF_PDM_InitFieldNoDefault( &m_computeStatisticsButton, "ComputeStatisticsButton", "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_computeStatisticsButton );
@@ -117,19 +122,21 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
     {
         auto selCase = ensemble()->cases().front();
         setEclipseCase( selCase );
-        m_uiDataSourceCase = selCase->caseUserDescription();
+        m_primaryCase = selCase->caseUserDescription();
     }
 
     uiOrdering.add( nameField() );
-    uiOrdering.add( &m_resultAggregation );
-    uiOrdering.add( &m_uiDataSourceCase );
+
+    auto genGrp = uiOrdering.addNewGroup( "General" );
+
+    genGrp->add( &m_resultAggregation );
+    genGrp->add( &m_primaryCase );
+    genGrp->add( &m_relativeSampleSpacing );
+    genGrp->add( &m_boundingBoxExpPercent );
 
     auto tsGroup = uiOrdering.addNewGroup( "Time Step Selection" );
     tsGroup->setCollapsedByDefault();
     tsGroup->add( &m_selectedTimeSteps );
-
-    uiOrdering.add( &m_relativeSampleSpacing );
-    uiOrdering.add( &m_boundingBoxExpPercent );
 
     if ( !isColumnResult() )
     {
@@ -146,6 +153,7 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
 void RimStatisticsContourMap::setEclipseCase( RimEclipseCase* eclipseCase )
 {
     m_resultDefinition->setEclipseCase( eclipseCase );
+    if ( eclipseCase ) m_primaryCase = eclipseCase->caseUserDescription();
 
     for ( auto& view : m_views )
     {
@@ -192,7 +200,7 @@ void RimStatisticsContourMap::fieldChangedByUi( const caf::PdmFieldHandle* chang
             }
         }
     }
-    else if ( &m_uiDataSourceCase == changedField )
+    else if ( &m_primaryCase == changedField )
     {
         switchToSelectedSourceCase();
 
@@ -211,7 +219,7 @@ void RimStatisticsContourMap::fieldChangedByUi( const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimStatisticsContourMap::switchToSelectedSourceCase()
 {
-    RimEclipseCase* sourceResultCase = ensemble()->findByDescription( m_uiDataSourceCase );
+    RimEclipseCase* sourceResultCase = ensemble()->findByDescription( m_primaryCase );
     if ( sourceResultCase == nullptr )
     {
         setEclipseCase( nullptr );
@@ -254,7 +262,7 @@ QList<caf::PdmOptionItemInfo> RimStatisticsContourMap::calculateValueOptions( co
         }
         return options;
     }
-    else if ( &m_uiDataSourceCase == fieldNeedingOptions )
+    else if ( &m_primaryCase == fieldNeedingOptions )
     {
         QStringList sourceCaseNames;
         sourceCaseNames += RiaResultNames::undefinedResultName();
@@ -286,8 +294,8 @@ void RimStatisticsContourMap::defineEditorAttribute( const caf::PdmFieldHandle* 
         if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
         {
             myAttr->m_minimum                       = 0.2;
-            myAttr->m_maximum                       = 2.0;
-            myAttr->m_sliderTickCount               = 9;
+            myAttr->m_maximum                       = 20.0;
+            myAttr->m_sliderTickCount               = 20;
             myAttr->m_delaySliderUpdateUntilRelease = true;
         }
     }
@@ -517,9 +525,12 @@ std::vector<int> RimStatisticsContourMap::selectedTimeSteps() const
     auto steps = m_selectedTimeSteps();
     if ( m_selectedTimeSteps().empty() )
     {
-        for ( int i = 0; i < (int)eclipseCase()->timeStepStrings().size(); i++ )
+        if ( eclipseCase() )
         {
-            steps.push_back( i );
+            for ( int i = 0; i < (int)eclipseCase()->timeStepStrings().size(); i++ )
+            {
+                steps.push_back( i );
+            }
         }
     }
     else

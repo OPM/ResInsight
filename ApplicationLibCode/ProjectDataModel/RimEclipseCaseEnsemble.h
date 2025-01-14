@@ -54,8 +54,7 @@ public:
     RimEclipseCase* findByDescription( const QString& description ) const;
 
     std::vector<RimEclipseCase*> cases() const;
-
-    std::set<RimEclipseCase*> casesInViews() const;
+    std::set<RimEclipseCase*>    casesInViews() const;
 
     void            addView( RimEclipseView* view );
     RimEclipseView* addViewForCase( RimEclipseCase* eclipseCase );
@@ -68,9 +67,8 @@ public:
     void addStatisticsContourMap( RimStatisticsContourMap* statisticsContourMap );
 
 protected:
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
     caf::PdmField<int>                                         m_groupId;

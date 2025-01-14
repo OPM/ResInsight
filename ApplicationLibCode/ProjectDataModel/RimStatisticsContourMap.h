@@ -95,7 +95,7 @@ private:
     caf::PdmChildField<RimEclipseResultDefinition*>           m_resultDefinition;
     caf::PdmField<bool>                                       m_computeStatisticsButton;
 
-    caf::PdmField<QString> m_uiDataSourceCase;
+    caf::PdmField<QString> m_primaryCase;
 
     std::unique_ptr<RigContourMapGrid>                              m_contourMapGrid;
     std::map<size_t, std::map<StatisticsType, std::vector<double>>> m_timeResults;
