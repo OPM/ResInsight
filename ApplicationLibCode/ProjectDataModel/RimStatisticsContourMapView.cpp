@@ -22,6 +22,7 @@
 
 #include "RivContourMapProjectionPartMgr.h"
 
+#include "Polygons/RimPolygonInViewCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"
@@ -157,6 +158,7 @@ void RimStatisticsContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& 
     uiTreeOrdering.add( wellCollection() );
     uiTreeOrdering.add( faultCollection() );
     uiTreeOrdering.add( annotationCollection() );
+    uiTreeOrdering.add( polygonInViewCollection() );
 
     uiTreeOrdering.skipRemainingChildren();
 }
