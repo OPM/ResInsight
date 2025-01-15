@@ -79,11 +79,16 @@ RimStatisticsContourMap::RimStatisticsContourMap()
 {
     CAF_PDM_InitObject( "Statistics Contour Map", ":/Histogram16x16.png" );
 
-    CAF_PDM_InitField( &m_boundingBoxExpPercent, "BoundingBoxExpPercent", 5.0, "Bounding Box Expansion (%)" );
+    CAF_PDM_InitField( &m_boundingBoxExpPercent,
+                       "BoundingBoxExpPercent",
+                       5.0,
+                       "Bounding Box Expansion (%)",
+                       "",
+                       "How much to increase the bounding box of the primary case to cover for any grid size differences across the "
+                       "ensemble." );
     m_boundingBoxExpPercent.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_relativeSampleSpacing, "SampleSpacing", 2.0, "Sample Spacing Factor" );
-    m_relativeSampleSpacing.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitFieldNoDefault( &m_resolution, "Resolution", "Sampling Resolution" );
 
     CAF_PDM_InitFieldNoDefault( &m_resultAggregation, "ResultAggregation", "Result Aggregation" );
 
@@ -130,8 +135,8 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
     auto genGrp = uiOrdering.addNewGroup( "General" );
 
     genGrp->add( &m_resultAggregation );
+    genGrp->add( &m_resolution );
     genGrp->add( &m_primaryCase );
-    genGrp->add( &m_relativeSampleSpacing );
     genGrp->add( &m_boundingBoxExpPercent );
 
     auto tsGroup = uiOrdering.addNewGroup( "Time Step Selection" );
@@ -289,16 +294,6 @@ void RimStatisticsContourMap::defineEditorAttribute( const caf::PdmFieldHandle* 
             attrib->m_buttonText = "Compute";
         }
     }
-    else if ( &m_relativeSampleSpacing == field )
-    {
-        if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_minimum                       = 0.2;
-            myAttr->m_maximum                       = 20.0;
-            myAttr->m_sliderTickCount               = 20;
-            myAttr->m_delaySliderUpdateUntilRelease = true;
-        }
-    }
     else if ( &m_boundingBoxExpPercent == field )
     {
         if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
@@ -407,7 +402,7 @@ void RimStatisticsContourMap::computeStatistics()
     double sampleSpacing = 1.0;
     if ( auto mainGrid = eclipseCase()->mainGrid() )
     {
-        sampleSpacing = m_relativeSampleSpacing * mainGrid->characteristicIJCellSize();
+        sampleSpacing = sampleSpacingFactor() * mainGrid->characteristicIJCellSize();
     }
 
     auto contourMapGrid = std::make_unique<RigContourMapGrid>( gridBoundingBox, sampleSpacing );
@@ -590,7 +585,7 @@ bool RimStatisticsContourMap::isColumnResult() const
 //--------------------------------------------------------------------------------------------------
 double RimStatisticsContourMap::sampleSpacingFactor() const
 {
-    return m_relativeSampleSpacing;
+    return RimContourMapResolutionTools::resolutionFromEnumValue( m_resolution() );
 }
 
 //--------------------------------------------------------------------------------------------------
