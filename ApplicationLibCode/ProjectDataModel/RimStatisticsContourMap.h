@@ -22,6 +22,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 
+#include "ContourMap/RimContourMapResolutionTools.h"
 #include "RimContourMapProjection.h"
 
 #include <map>
@@ -89,13 +90,14 @@ private:
     void doStatisticsCalculation( std::map<size_t, std::vector<std::vector<double>>>& timestep_results );
 
     caf::PdmField<double>                                     m_boundingBoxExpPercent;
-    caf::PdmField<double>                                     m_relativeSampleSpacing;
     caf::PdmField<RimContourMapProjection::ResultAggregation> m_resultAggregation;
     caf::PdmField<std::vector<int>>                           m_selectedTimeSteps;
     caf::PdmChildField<RimEclipseResultDefinition*>           m_resultDefinition;
     caf::PdmField<bool>                                       m_computeStatisticsButton;
 
     caf::PdmField<QString> m_primaryCase;
+
+    caf::PdmField<caf::AppEnum<RimContourMapResolutionTools::SamplingResolution>> m_resolution;
 
     std::unique_ptr<RigContourMapGrid>                              m_contourMapGrid;
     std::map<size_t, std::map<StatisticsType, std::vector<double>>> m_timeResults;
