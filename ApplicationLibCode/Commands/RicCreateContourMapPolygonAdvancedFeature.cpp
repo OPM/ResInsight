@@ -56,5 +56,5 @@ void RicCreateContourMapPolygonAdvancedFeature::onActionTriggered( bool isChecke
 void RicCreateContourMapPolygonAdvancedFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/PolylinesFromFile16x16.png" ) );
-    actionToSetup->setText( "Create Polygon From Contour Map - Interactive" );
+    actionToSetup->setText( "Create Polygon From Contour Map (Developers Only)" );
 }

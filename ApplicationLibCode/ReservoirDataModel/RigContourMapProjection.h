@@ -59,6 +59,7 @@ public:
     cvf::Vec2ui numberOfVerticesIJ() const;
 
     double valueAtVertex( unsigned int i, unsigned int j ) const;
+    double filteredValueAtVertex( unsigned int i, unsigned int j ) const;
 
     unsigned int numberOfCells() const;
     unsigned int numberOfValidCells() const;

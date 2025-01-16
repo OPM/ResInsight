@@ -172,7 +172,7 @@ std::vector<std::vector<int>> RicCreateContourMapPolygonTools::convertToBinaryIm
     {
         for ( cvf::uint j = 0; j < vertexSizeIJ.y(); j++ )
         {
-            double valueAtVertex = rigContourMapProjection->valueAtVertex( i, j );
+            double valueAtVertex = rigContourMapProjection->filteredValueAtVertex( i, j );
 
             if ( !std::isinf( valueAtVertex ) )
             {
@@ -212,8 +212,8 @@ RimPolygon* RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonFromImag
         polygonDomainCoords.emplace_back( cvf::Vec3d( xDomain, yDomain, depth ) );
     }
 
-    // Epsilon used to simplify polygon. Useful range typical value in [5..30]
-    const double defaultEpsilon = 20.0;
+    // Epsilon used to simplify polygon. Useful range typical value in [5..50]
+    const double defaultEpsilon = 40.0;
     RigPolygonTools::simplifyPolygon( polygonDomainCoords, defaultEpsilon );
 
     if ( polygonDomainCoords.size() >= 3 )

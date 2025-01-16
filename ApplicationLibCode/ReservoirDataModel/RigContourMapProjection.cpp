@@ -124,6 +124,20 @@ double RigContourMapProjection::valueAtVertex( unsigned int i, unsigned int j ) 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RigContourMapProjection::filteredValueAtVertex( unsigned int i, unsigned int j ) const
+{
+    size_t index = m_contourMapGrid.vertexIndexFromIJ( i, j );
+    if ( index < numberOfVertices() )
+    {
+        auto values = aggregatedVertexResultsFiltered();
+        return values.at( index );
+    }
+    return std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 unsigned int RigContourMapProjection::numberOfCells() const
 {
     return m_contourMapGrid.numberOfCells();
@@ -448,9 +462,9 @@ const std::vector<double>& RigContourMapProjection::aggregatedResults() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigContourMapProjection::aggregatedVertexResultsFiltered() const
 {
-    std::vector<double> filteredResults = m_aggregatedVertexResults;
     if ( m_valueFilter )
     {
+        std::vector<double> filteredResults = m_aggregatedVertexResults;
         std::transform( filteredResults.begin(),
                         filteredResults.end(),
                         filteredResults.begin(),
@@ -458,9 +472,10 @@ std::vector<double> RigContourMapProjection::aggregatedVertexResultsFiltered() c
                             return ( value < m_valueFilter->first || value > m_valueFilter->second ) ? std::numeric_limits<double>::infinity()
                                                                                                      : value;
                         } );
+        return filteredResults;
     }
 
-    return filteredResults;
+    return m_aggregatedVertexResults;
 }
 
 //--------------------------------------------------------------------------------------------------
