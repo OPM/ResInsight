@@ -587,19 +587,7 @@ void RimContourMapProjection::defineUiOrdering( QString uiConfigName, caf::PdmUi
     mainGroup->add( &m_smoothContourLines );
     m_smoothContourLines.uiCapability()->setUiReadOnly( !m_showContourLines() );
 
-    auto valueFilterGroup = uiOrdering.addNewGroup( "Value Filter" );
-    valueFilterGroup->add( &m_valueFilterType );
-    valueFilterGroup->add( &m_lowerThreshold );
-    valueFilterGroup->add( &m_upperThreshold );
-
-    bool isMinimumUsed = m_valueFilterType() == RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE ||
-                         m_valueFilterType() == RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN;
-
-    m_lowerThreshold.uiCapability()->setUiReadOnly( !isMinimumUsed );
-
-    bool isMaximumUsed = m_valueFilterType() == RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW ||
-                         m_valueFilterType() == RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN;
-    m_upperThreshold.uiCapability()->setUiReadOnly( !isMaximumUsed );
+    appendValueFilterGroup( uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -615,8 +603,34 @@ void RimContourMapProjection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::initAfterRead()
+void RimContourMapProjection::appendValueFilterGroup( caf::PdmUiOrdering& uiOrdering )
 {
+    auto valueFilterGroup = uiOrdering.addNewGroup( "Value Filter" );
+    valueFilterGroup->add( &m_valueFilterType );
+
+    switch ( m_valueFilterType() )
+    {
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
+            m_upperThreshold.uiCapability()->setUiName( "Threshold" );
+            valueFilterGroup->add( &m_upperThreshold );
+            break;
+
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
+            m_lowerThreshold.uiCapability()->setUiName( "Lower Threshold" );
+            valueFilterGroup->add( &m_lowerThreshold );
+            m_upperThreshold.uiCapability()->setUiName( "Upper Threshold" );
+            valueFilterGroup->add( &m_upperThreshold );
+            break;
+
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
+            m_lowerThreshold.uiCapability()->setUiName( "Threshold" );
+            valueFilterGroup->add( &m_lowerThreshold );
+            break;
+
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
+        default:
+            break;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
