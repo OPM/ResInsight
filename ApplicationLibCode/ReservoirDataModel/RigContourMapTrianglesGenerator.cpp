@@ -64,7 +64,7 @@ std::vector<cvf::Vec4d>
 
     std::vector<std::vector<std::vector<cvf::Vec4d>>> threadTriangles( numberOfThreads );
 
-    const std::vector<double>& aggregatedVertexResults = contourMapProjection.aggregatedVertexResults();
+    auto aggregatedVertexResults = contourMapProjection.aggregatedVertexResultsFiltered();
 
 #pragma omp parallel
     {
@@ -297,8 +297,7 @@ std::pair<std::vector<RigContourMapTrianglesGenerator::ContourPolygons>, std::ve
                 simplifyEpsilon *= 4.0;
             }
 
-            const std::vector<double>& aggregatedVertexResults = contourMapProjection.aggregatedVertexResults();
-
+            auto aggregatedVertexResults = contourMapProjection.aggregatedVertexResultsFiltered();
             if ( aggregatedVertexResults.empty() ) return {};
 
             std::vector<caf::ContourLines::ListOfLineSegments> unorderedLineSegmentsPerLevel =

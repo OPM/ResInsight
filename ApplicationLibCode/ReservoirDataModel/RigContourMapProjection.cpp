@@ -262,6 +262,22 @@ void RigContourMapProjection::generateVertexResults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigContourMapProjection::setValueFilter( std::optional<std::pair<double, double>> valueFilter )
+{
+    m_valueFilter = valueFilter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<std::pair<double, double>> RigContourMapProjection::valueFilter() const
+{
+    return m_valueFilter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RigContourMapProjection::sumTriangleAreas( const std::vector<cvf::Vec4d>& triangles )
 {
     double sumArea = 0.0;
@@ -422,9 +438,21 @@ const std::vector<double>& RigContourMapProjection::aggregatedResults() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigContourMapProjection::aggregatedVertexResults() const
+std::vector<double> RigContourMapProjection::aggregatedVertexResultsFiltered() const
 {
-    return m_aggregatedVertexResults;
+    std::vector<double> filteredResults = m_aggregatedVertexResults;
+    if ( m_valueFilter )
+    {
+        std::transform( filteredResults.begin(),
+                        filteredResults.end(),
+                        filteredResults.begin(),
+                        [this]( double value ) {
+                            return ( value < m_valueFilter->first || value > m_valueFilter->second ) ? std::numeric_limits<double>::infinity()
+                                                                                                     : value;
+                        } );
+    }
+
+    return filteredResults;
 }
 
 //--------------------------------------------------------------------------------------------------

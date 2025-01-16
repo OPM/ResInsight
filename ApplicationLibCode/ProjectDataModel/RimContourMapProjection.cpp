@@ -84,6 +84,13 @@ RimContourMapProjection::RimContourMapProjection()
     CAF_PDM_InitField( &m_showContourLabels, "ContourLabels", true, "Show Contour Labels" );
     CAF_PDM_InitField( &m_smoothContourLines, "SmoothContourLines", true, "Smooth Contour Lines" );
 
+    auto defaultValue = caf::AppEnum<RimIntersectionFilterEnum>( RimIntersectionFilterEnum::INTERSECT_FILTER_NONE );
+    CAF_PDM_InitField( &m_valueFilterType, "ValueFilterType", defaultValue, "Value Filter" );
+    CAF_PDM_InitField( &m_upperThreshold, "UpperThreshold", 0.0, "Upper Threshold" );
+    m_upperThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_lowerThreshold, "LowerThreshold", 0.0, "Lower Threshold" );
+    m_lowerThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
     setName( "Map Projection" );
     nameField()->uiCapability()->setUiReadOnly( true );
 }
@@ -109,7 +116,7 @@ void RimContourMapProjection::generateResultsIfNecessary( int timeStep )
     if ( gridMappingNeedsUpdating() || mapCellVisibilityNeedsUpdating( timeStep ) || resultVariableChanged() )
     {
         clearResults();
-        clearTimeStepRange();
+        clearMinMaxValueRange();
 
         if ( gridMappingNeedsUpdating() )
         {
@@ -146,6 +153,8 @@ void RimContourMapProjection::generateGeometryIfNecessary()
 
     if ( geometryNeedsUpdating() )
     {
+        m_contourMapProjection->setValueFilter( valueFilterMinMax() );
+
         std::vector<double> contourLevels;
 
         bool discrete = false;
@@ -289,6 +298,31 @@ const RigContourMapGrid* RimContourMapProjection::mapGrid() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::optional<std::pair<double, double>> RimContourMapProjection::valueFilterMinMax() const
+{
+    if ( m_valueFilterType() == RimIntersectionFilterEnum::INTERSECT_FILTER_NONE ) return std::nullopt;
+
+    double minimum = m_minResultAllTimeSteps;
+    double maximum = m_maxResultAllTimeSteps;
+
+    if ( m_valueFilterType() == RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW ||
+         m_valueFilterType() == RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN )
+    {
+        maximum = m_upperThreshold;
+    }
+
+    if ( m_valueFilterType() == RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE ||
+         m_valueFilterType() == RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN )
+    {
+        minimum = m_lowerThreshold;
+    }
+
+    return std::pair<double, double>( minimum, maximum );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimContourMapProjection::isColumnResult() const
 {
     return RigContourMapCalculator::isColumnResult( m_resultAggregation() );
@@ -366,7 +400,7 @@ bool RimContourMapProjection::resultsNeedsUpdating( int timeStep ) const
     if ( !m_contourMapProjection ) return true;
 
     return ( m_contourMapProjection->aggregatedResults().size() != m_contourMapProjection->numberOfCells() ||
-             m_contourMapProjection->aggregatedVertexResults().size() != m_contourMapProjection->numberOfVertices() ||
+             m_contourMapProjection->aggregatedVertexResultsFiltered().size() != m_contourMapProjection->numberOfVertices() ||
              timeStep != m_currentResultTimestep );
 }
 
@@ -384,7 +418,7 @@ bool RimContourMapProjection::geometryNeedsUpdating() const
 void RimContourMapProjection::clearGridMapping()
 {
     clearResults();
-    clearTimeStepRange();
+    clearMinMaxValueRange();
 
     m_contourMapProjection.reset();
     m_contourMapGrid.reset();
@@ -404,7 +438,7 @@ void RimContourMapProjection::clearResults()
 
     clearResultVariable();
 
-    clearTimeStepRange();
+    clearMinMaxValueRange();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -413,6 +447,24 @@ void RimContourMapProjection::clearResults()
 cvf::ref<cvf::UByteArray> RimContourMapProjection::getCellVisibility() const
 {
     return baseView()->currentTotalCellVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimContourMapProjection::minmaxValuesAllTimeSteps()
+{
+    if ( !resultRangeIsValid() )
+    {
+        const auto [minVal, maxVal] = computeMinMaxValuesAllTimeSteps();
+        m_minResultAllTimeSteps     = minVal;
+        m_maxResultAllTimeSteps     = maxVal;
+
+        m_lowerThreshold = minVal;
+        m_upperThreshold = maxVal;
+    }
+
+    return std::pair<double, double>( m_minResultAllTimeSteps, m_maxResultAllTimeSteps );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -474,7 +526,7 @@ void RimContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* chang
         {
             clearResults();
         }
-        clearTimeStepRange();
+        clearMinMaxValueRange();
     }
     else if ( changedField == &m_smoothContourLines )
     {
@@ -484,7 +536,7 @@ void RimContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* chang
     {
         clearGridMapping();
         clearResults();
-        clearTimeStepRange();
+        clearMinMaxValueRange();
     }
 
     baseView()->updateConnectedEditors();
@@ -500,13 +552,22 @@ void RimContourMapProjection::defineEditorAttribute( const caf::PdmFieldHandle* 
 {
     if ( &m_relativeSampleSpacing == field )
     {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-        if ( myAttr )
+        if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
         {
             myAttr->m_minimum                       = 0.2;
             myAttr->m_maximum                       = 20.0;
             myAttr->m_sliderTickCount               = 20;
             myAttr->m_delaySliderUpdateUntilRelease = true;
+        }
+    }
+
+    if ( &m_lowerThreshold == field || &m_upperThreshold == field )
+    {
+        if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
+        {
+            myAttr->m_minimum         = m_minResultAllTimeSteps;
+            myAttr->m_maximum         = m_maxResultAllTimeSteps;
+            myAttr->m_sliderTickCount = 20;
         }
     }
 }
@@ -525,6 +586,9 @@ void RimContourMapProjection::defineUiOrdering( QString uiConfigName, caf::PdmUi
     m_showContourLabels.uiCapability()->setUiReadOnly( !m_showContourLines() );
     mainGroup->add( &m_smoothContourLines );
     m_smoothContourLines.uiCapability()->setUiReadOnly( !m_showContourLines() );
+
+    appendValueFilterGroup( uiOrdering );
+
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -539,8 +603,34 @@ void RimContourMapProjection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::initAfterRead()
+void RimContourMapProjection::appendValueFilterGroup( caf::PdmUiOrdering& uiOrdering )
 {
+    auto valueFilterGroup = uiOrdering.addNewGroup( "Value Filter" );
+    valueFilterGroup->add( &m_valueFilterType );
+
+    switch ( m_valueFilterType() )
+    {
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
+            m_upperThreshold.uiCapability()->setUiName( "Threshold" );
+            valueFilterGroup->add( &m_upperThreshold );
+            break;
+
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
+            m_lowerThreshold.uiCapability()->setUiName( "Lower Threshold" );
+            valueFilterGroup->add( &m_lowerThreshold );
+            m_upperThreshold.uiCapability()->setUiName( "Upper Threshold" );
+            valueFilterGroup->add( &m_upperThreshold );
+            break;
+
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
+            m_lowerThreshold.uiCapability()->setUiName( "Threshold" );
+            valueFilterGroup->add( &m_lowerThreshold );
+            break;
+
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
+        default:
+            break;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -555,7 +645,7 @@ bool RimContourMapProjection::resultRangeIsValid() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::clearTimeStepRange()
+void RimContourMapProjection::clearMinMaxValueRange()
 {
     m_minResultAllTimeSteps = std::numeric_limits<double>::infinity();
     m_maxResultAllTimeSteps = -std::numeric_limits<double>::infinity();

@@ -25,6 +25,8 @@
 #include "cvfBoundingBox.h"
 #include "cvfVector2.h"
 
+#include <optional>
+
 class RigContourMapGrid;
 class RimGridView;
 class RimRegularLegendConfig;
@@ -43,7 +45,9 @@ public:
     void clearResults();
     void clearGridMapping();
 
-    void generateVertexResults();
+    void                                     generateVertexResults();
+    void                                     setValueFilter( std::optional<std::pair<double, double>> valueFilter );
+    std::optional<std::pair<double, double>> valueFilter() const;
 
     double maxValue() const;
     double minValue() const;
@@ -86,7 +90,7 @@ public:
     double interpolateValue( const cvf::Vec2d& gridPosition2d ) const;
 
     const std::vector<double>&                                 aggregatedResults() const;
-    const std::vector<double>&                                 aggregatedVertexResults() const;
+    std::vector<double>                                        aggregatedVertexResultsFiltered() const;
     const std::vector<std::vector<std::pair<size_t, double>>>& projected3dGridIndices() const;
 
     // Cell index and position conversion
@@ -114,6 +118,8 @@ protected:
 
     int               m_currentResultTimestep;
     std::vector<bool> m_mapCellVisibility;
+
+    std::optional<std::pair<double, double>> m_valueFilter;
 
     const RigContourMapGrid& m_contourMapGrid;
 };

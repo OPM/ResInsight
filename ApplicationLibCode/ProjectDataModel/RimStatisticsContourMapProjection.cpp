@@ -112,10 +112,10 @@ RimRegularLegendConfig* RimStatisticsContourMapProjection::legendConfig() const
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMapProjection::updateLegend()
 {
+    auto [minValAllTimeSteps, maxValAllTimeSteps] = minmaxValuesAllTimeSteps();
+
     double minVal = m_contourMapProjection ? m_contourMapProjection->minValue() : std::numeric_limits<double>::infinity();
     double maxVal = m_contourMapProjection ? m_contourMapProjection->maxValue() : -std::numeric_limits<double>::infinity();
-
-    auto [minValAllTimeSteps, maxValAllTimeSteps] = minmaxValuesAllTimeSteps();
 
     legendConfig()->setAutomaticRanges( minValAllTimeSteps, maxValAllTimeSteps, minVal, maxVal );
 
@@ -267,24 +267,22 @@ void RimStatisticsContourMapProjection::updateAfterResultGeneration( int timeSte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double> RimStatisticsContourMapProjection::minmaxValuesAllTimeSteps()
+std::pair<double, double> RimStatisticsContourMapProjection::computeMinMaxValuesAllTimeSteps()
 {
-    if ( !resultRangeIsValid() )
-    {
-        clearTimeStepRange();
+    double minimum = std::numeric_limits<double>::infinity();
+    double maximum = -std::numeric_limits<double>::infinity();
 
-        if ( auto map = statisticsContourMap() )
+    if ( auto map = statisticsContourMap() )
+    {
+        for ( size_t ts = 0; ts < map->selectedTimeSteps().size(); ts++ )
         {
-            for ( size_t ts = 0; ts < map->selectedTimeSteps().size(); ts++ )
-            {
-                std::vector<double> aggregatedResults = statisticsContourMap()->result( ts, m_statisticsType() );
-                m_minResultAllTimeSteps = std::min( m_minResultAllTimeSteps, RigContourMapProjection::minValue( aggregatedResults ) );
-                m_maxResultAllTimeSteps = std::max( m_maxResultAllTimeSteps, RigContourMapProjection::maxValue( aggregatedResults ) );
-            }
+            std::vector<double> aggregatedResults = statisticsContourMap()->result( ts, m_statisticsType() );
+            minimum                               = std::min( minimum, RigContourMapProjection::minValue( aggregatedResults ) );
+            maximum                               = std::max( maximum, RigContourMapProjection::maxValue( aggregatedResults ) );
         }
     }
 
-    return std::make_pair( m_minResultAllTimeSteps, m_maxResultAllTimeSteps );
+    return std::make_pair( minimum, maximum );
 }
 
 //--------------------------------------------------------------------------------------------------
