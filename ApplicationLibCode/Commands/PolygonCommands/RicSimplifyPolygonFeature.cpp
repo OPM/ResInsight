@@ -21,7 +21,7 @@
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonInView.h"
 
-#include "RigCellGeometryTools.h"
+#include "RigPolygonTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -46,21 +46,47 @@ void RicSimplifyPolygonFeature::onActionTriggered( bool isChecked )
     auto selPolygons = selectedPolygons();
     if ( selPolygons.empty() ) return;
 
-    const double defaultEpsilon = 10.0;
-
-    bool ok;
-    auto epsilon =
-        QInputDialog::getDouble( nullptr, "Simplify Polygon Threshold", "Threshold:", defaultEpsilon, 1.0, 1000.0, 1, &ok, Qt::WindowFlags(), 1 );
-
-    if ( !ok ) return;
+    std::vector<std::vector<cvf::Vec3d>> originalCoords;
 
     for ( auto sourcePolygon : selPolygons )
     {
-        auto coords = sourcePolygon->pointsInDomainCoords();
-        RigCellGeometryTools::simplifyPolygon( &coords, epsilon );
+        originalCoords.push_back( sourcePolygon->pointsInDomainCoords() );
+    }
 
-        sourcePolygon->setPointsInDomainCoords( coords );
-        sourcePolygon->coordinatesChanged.send();
+    const int defaultEpsilon = 10;
+
+    QInputDialog inputDialog;
+    inputDialog.setWindowTitle( "Simplify Polygon" );
+    inputDialog.setLabelText( "Threshold (larger value removes more points) :" );
+    inputDialog.setInputMode( QInputDialog::IntInput );
+    inputDialog.setIntRange( 10, 200 );
+    inputDialog.setIntValue( defaultEpsilon );
+
+    connect( &inputDialog,
+             &QInputDialog::intValueChanged,
+             [&originalCoords, &selPolygons]( int value )
+             {
+                 for ( size_t i = 0; i < originalCoords.size(); i++ )
+                 {
+                     auto coords = originalCoords[i];
+                     RigPolygonTools::simplifyPolygon( coords, value );
+
+                     auto sourcePolygon = selPolygons[i];
+                     sourcePolygon->setPointsInDomainCoords( coords );
+                     sourcePolygon->coordinatesChanged.send();
+                 }
+             } );
+
+    if ( inputDialog.exec() == QDialog::Rejected )
+    {
+        for ( size_t i = 0; i < originalCoords.size(); i++ )
+        {
+            auto coords = originalCoords[i];
+
+            auto sourcePolygon = selPolygons[i];
+            sourcePolygon->setPointsInDomainCoords( coords );
+            sourcePolygon->coordinatesChanged.send();
+        }
     }
 }
 

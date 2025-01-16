@@ -106,6 +106,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifOsduWellPathReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigVfpTables-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaResultName-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigPolygonTools-Test.cpp
 )
 
 if(RESINSIGHT_ENABLE_GRPC)

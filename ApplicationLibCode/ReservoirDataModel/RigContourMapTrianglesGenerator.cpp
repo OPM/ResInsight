@@ -23,6 +23,7 @@
 #include "RigCellGeometryTools.h"
 #include "RigContourMapGrid.h"
 #include "RigContourMapProjection.h"
+#include "RigPolygonTools.h"
 
 #include "cvfGeometryUtils.h"
 
@@ -323,7 +324,7 @@ std::pair<std::vector<RigContourMapTrianglesGenerator::ContourPolygons>, std::ve
 
                 for ( RigContourPolygonsTools::ContourPolygon& polygon : contourPolygons[i] )
                 {
-                    RigCellGeometryTools::simplifyPolygon( &polygon.vertices, simplifyEpsilon );
+                    RigPolygonTools::simplifyPolygon( polygon.vertices, simplifyEpsilon );
                 }
             }
 

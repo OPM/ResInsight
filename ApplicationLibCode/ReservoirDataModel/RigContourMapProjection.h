@@ -59,6 +59,7 @@ public:
     cvf::Vec2ui numberOfVerticesIJ() const;
 
     double valueAtVertex( unsigned int i, unsigned int j ) const;
+    double filteredValueAtVertex( unsigned int i, unsigned int j ) const;
 
     unsigned int numberOfCells() const;
     unsigned int numberOfValidCells() const;
@@ -66,6 +67,7 @@ public:
 
     bool       checkForMapIntersection( const cvf::Vec3d& domainPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint ) const;
     cvf::Vec3d origin3d() const;
+    double     topDepthBoundingBox() const;
 
     std::vector<double> xVertexPositions() const;
     std::vector<double> yVertexPositions() const;
