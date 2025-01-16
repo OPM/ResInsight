@@ -41,6 +41,8 @@ public:
     RicExportContourMapToTextFeature();
     caf::PdmScriptResponse execute() override;
 
+    static std::pair<RimEclipseContourMapView*, RimGeoMechContourMapView*> findContourMapView();
+
 protected:
     bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
@@ -56,9 +58,6 @@ protected:
                                          bool                           exportLocalCoordinates,
                                          const QString&                 undefinedValueLabel,
                                          bool                           excludeUndefinedValues );
-
-private:
-    static std::pair<RimEclipseContourMapView*, RimGeoMechContourMapView*> findContourMapView();
 
 private:
     caf::PdmField<QString> m_exportFileName;

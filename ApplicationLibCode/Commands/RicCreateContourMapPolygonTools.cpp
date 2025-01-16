@@ -1,0 +1,250 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2024-     Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RicCreateContourMapPolygonTools.h"
+
+#include "RicExportContourMapToTextFeature.h"
+
+#include "RigContourMapProjection.h"
+#include "RigPolygonTools.h"
+
+#include "Polygons/RimPolygon.h"
+#include "Polygons/RimPolygonCollection.h"
+#include "RimContourMapProjection.h"
+#include "RimEclipseContourMapView.h"
+#include "RimGeoMechContourMapView.h"
+#include "RimTools.h"
+
+#include "cvfBase.h"
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QImage RicCreateContourMapPolygonTools::convertBinaryToImage( const std::vector<std::vector<int>>& data, QColor color, int transparency )
+{
+    if ( data.empty() || data[0].empty() )
+    {
+        qWarning( "Data is empty. Cannot export an image." );
+        return {};
+    }
+
+    // Get dimensions
+    int height = static_cast<int>( data[0].size() );
+    int width  = static_cast<int>( data.size() );
+
+    // Create a QImage
+    QImage image( width, height, QImage::Format_ARGB32 );
+
+    // Fill QImage with data
+    for ( int y = 0; y < height; ++y )
+    {
+        for ( int x = 0; x < width; ++x )
+        {
+            int value = std::clamp( data[x][y], 0, 255 );
+            if ( value > 0 )
+                image.setPixel( x, height - y - 1, qRgba( color.red(), color.green(), color.blue(), transparency ) ); // Grayscale
+            else
+            {
+                image.setPixel( x, height - y - 1, qRgba( 0, 0, 0, transparency ) );
+            }
+        }
+    }
+
+    return image;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QImage RicCreateContourMapPolygonTools::convertBinaryToGrayscaleImage( const std::vector<std::vector<int>>& data, int colorValue )
+{
+    if ( data.empty() || data[0].empty() )
+    {
+        qWarning( "Data is empty. Cannot export an image." );
+        return {};
+    }
+
+    // Get dimensions
+    int height = static_cast<int>( data[0].size() );
+    int width  = static_cast<int>( data.size() );
+
+    // Create a QImage
+    QImage image( width, height, QImage::Format_Grayscale8 );
+
+    // Fill QImage with data
+    for ( int y = 0; y < height; ++y )
+    {
+        for ( int x = 0; x < width; ++x )
+        {
+            int value = std::clamp( data[x][y] * colorValue, 0, 255 ); // Ensure value is in [0, 255]
+            image.setPixel( x, height - y - 1, qRgb( value, value, value ) ); // Grayscale
+        }
+    }
+
+    return image;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicCreateContourMapPolygonTools::exportVectorAsImage( const std::vector<std::vector<int>>& data, int transparency, const QString& filename )
+{
+    if ( data.empty() || data[0].empty() )
+    {
+        qWarning( "Data is empty. Cannot export an image." );
+        return;
+    }
+
+    auto image = convertBinaryToImage( data, QColorConstants::Green, transparency );
+
+    if ( !image.save( filename, "PNG" ) )
+    {
+        qWarning( "Failed to save image as PNG." );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicCreateContourMapPolygonTools::exportVectorAsGrayscaleImage( const std::vector<std::vector<int>>& data, const QString& filename )
+{
+    if ( data.empty() || data[0].empty() )
+    {
+        qWarning( "Data is empty. Cannot export an image." );
+        return;
+    }
+
+    auto image = convertBinaryToGrayscaleImage( data, 255 );
+
+    // Save the QImage as a PNG file
+    if ( !image.save( filename, "PNG" ) )
+    {
+        qWarning( "Failed to save image as PNG." );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<int>> RicCreateContourMapPolygonTools::convertImageToBinary( QImage image )
+{
+    std::vector<std::vector<int>> binaryImage( image.width(), std::vector<int>( image.height(), 0 ) );
+    for ( int i = 0; i < image.width(); ++i )
+    {
+        for ( int j = 0; j < image.height(); ++j )
+        {
+            auto pixelColor = image.pixel( i, j );
+            auto gray       = qGray( pixelColor );
+
+            binaryImage[i][image.height() - j - 1] = gray > 0 ? 1 : 0;
+        }
+    }
+    return binaryImage;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<int>> RicCreateContourMapPolygonTools::convertToBinaryImage( const RigContourMapProjection* rigContourMapProjection )
+{
+    if ( !rigContourMapProjection ) return {};
+
+    auto vertexSizeIJ = rigContourMapProjection->numberOfVerticesIJ();
+
+    std::vector<std::vector<int>> image( vertexSizeIJ.x(), std::vector<int>( vertexSizeIJ.y(), 0 ) );
+
+    for ( cvf::uint i = 0; i < vertexSizeIJ.x(); i++ )
+    {
+        for ( cvf::uint j = 0; j < vertexSizeIJ.y(); j++ )
+        {
+            double valueAtVertex = rigContourMapProjection->filteredValueAtVertex( i, j );
+
+            if ( !std::isinf( valueAtVertex ) )
+            {
+                image[i][j] = 1;
+            }
+            else
+            {
+                image[i][j] = 0;
+            }
+        }
+    }
+
+    return image;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPolygon* RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonFromImage( std::vector<std::vector<int>>  image,
+                                                                                   const RigContourMapProjection* contourMapProjection )
+{
+    if ( !contourMapProjection ) return nullptr;
+    if ( image.empty() ) return nullptr;
+
+    std::vector<cvf::Vec3d> polygonDomainCoords;
+    auto                    xVertexPositions = contourMapProjection->xVertexPositions();
+    auto                    yVertexPositions = contourMapProjection->yVertexPositions();
+    auto                    origin3d         = contourMapProjection->origin3d();
+    auto                    depth            = contourMapProjection->topDepthBoundingBox();
+
+    auto boundaryPoints = RigPolygonTools::boundary( image );
+    for ( auto [i, j] : boundaryPoints )
+    {
+        double xDomain = xVertexPositions.at( i ) + origin3d.x();
+        double yDomain = yVertexPositions.at( j ) + origin3d.y();
+
+        polygonDomainCoords.emplace_back( cvf::Vec3d( xDomain, yDomain, depth ) );
+    }
+
+    // Epsilon used to simplify polygon. Useful range typical value in [5..50]
+    const double defaultEpsilon = 40.0;
+    RigPolygonTools::simplifyPolygon( polygonDomainCoords, defaultEpsilon );
+
+    if ( polygonDomainCoords.size() >= 3 )
+    {
+        auto polygonCollection = RimTools::polygonCollection();
+
+        auto newPolygon = polygonCollection->appendUserDefinedPolygon();
+
+        newPolygon->setPointsInDomainCoords( polygonDomainCoords );
+        newPolygon->coordinatesChanged.send();
+
+        polygonCollection->uiCapability()->updateAllRequiredEditors();
+
+        return newPolygon;
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RigContourMapProjection* RicCreateContourMapPolygonTools::findCurrentContourMapProjection()
+{
+    RimContourMapProjection* contourMapProjection = nullptr;
+
+    auto [existingEclipseContourMap, existingGeoMechContourMap] = RicExportContourMapToTextFeature::findContourMapView();
+    if ( existingEclipseContourMap ) contourMapProjection = existingEclipseContourMap->contourMapProjection();
+    if ( existingGeoMechContourMap ) contourMapProjection = existingGeoMechContourMap->contourMapProjection();
+
+    if ( !contourMapProjection ) return nullptr;
+
+    return contourMapProjection->mapProjection();
+}
