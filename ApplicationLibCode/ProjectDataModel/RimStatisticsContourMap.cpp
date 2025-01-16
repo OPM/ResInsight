@@ -596,6 +596,14 @@ double RimStatisticsContourMap::sampleSpacingFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimStatisticsContourMapView*> RimStatisticsContourMap::views() const
+{
+    return m_views.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMap::addView( RimStatisticsContourMapView* view )
 {
     // make sure to update the other views as the calculated data might have changed

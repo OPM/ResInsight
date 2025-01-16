@@ -23,6 +23,7 @@
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
 #include "RimStatisticsContourMap.h"
+#include "RimStatisticsContourMapView.h"
 #include "RimWellTargetCandidatesGenerator.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -182,6 +183,30 @@ void RimEclipseCaseEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBu
 RimEclipseViewCollection* RimEclipseCaseEnsemble::viewCollection() const
 {
     return m_viewCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseView*> RimEclipseCaseEnsemble::allViews() const
+{
+    std::vector<RimEclipseView*> retList;
+    if ( !viewCollection() ) return retList;
+
+    for ( auto view : viewCollection()->views() )
+    {
+        retList.push_back( view );
+    }
+
+    for ( auto cmap : m_statisticsContourMaps.childrenByType() )
+    {
+        for ( auto view : cmap->views() )
+        {
+            retList.push_back( view );
+        }
+    }
+
+    return retList;
 }
 
 //--------------------------------------------------------------------------------------------------

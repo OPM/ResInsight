@@ -65,7 +65,7 @@ RimPolygonInView::RimPolygonInView()
     CAF_PDM_InitField( &m_selectPolygon, "SelectPolygon", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_selectPolygon );
 
-    CAF_PDM_InitField( &m_handleScalingFactor, "HandleScalingFactor", 1.0, "Handle Scaling Factor" );
+    CAF_PDM_InitField( &m_handleScalingFactor, "HandleScalingFactor", 2.0, "Handle Scaling Factor" );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );

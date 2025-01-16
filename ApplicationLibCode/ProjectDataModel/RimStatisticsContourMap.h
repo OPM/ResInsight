@@ -62,7 +62,8 @@ public:
     RigContourMapGrid*  contourMapGrid() const;
     std::vector<double> result( size_t timeStep, StatisticsType statisticsType ) const;
 
-    void addView( RimStatisticsContourMapView* view );
+    void                                      addView( RimStatisticsContourMapView* view );
+    std::vector<RimStatisticsContourMapView*> views() const;
 
     void ensureResultsComputed();
 

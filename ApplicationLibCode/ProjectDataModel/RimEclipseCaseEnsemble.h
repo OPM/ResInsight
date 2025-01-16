@@ -59,6 +59,8 @@ public:
     void            addView( RimEclipseView* view );
     RimEclipseView* addViewForCase( RimEclipseCase* eclipseCase );
 
+    std::vector<RimEclipseView*> allViews() const;
+
     RimEclipseViewCollection* viewCollection() const;
 
     void                                           addWellTargetsGenerator( RimWellTargetCandidatesGenerator* generator );
