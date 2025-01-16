@@ -292,6 +292,8 @@ void RimStatisticsContourMapProjection::defineUiOrdering( QString uiConfigName, 
 {
     uiOrdering.add( &m_statisticsType );
 
+    appendValueFilterGroup( uiOrdering );
+
     caf::PdmUiGroup* mainGroup = uiOrdering.addNewGroup( "Projection Settings" );
     mainGroup->add( &m_showContourLines );
     mainGroup->add( &m_showContourLabels );
@@ -330,6 +332,12 @@ void RimStatisticsContourMapProjection::fieldChangedByUi( const caf::PdmFieldHan
          ( changedField == &m_smoothContourLines ) )
     {
         clearGridMappingAndRedraw();
+    }
+    if ( ( changedField == &m_valueFilterType ) || ( changedField == &m_lowerThreshold ) || ( changedField == &m_upperThreshold ) )
+    {
+        // statisticsContourMap()->res
+        // clearGridMappingAndRedraw();
+        view()->scheduleCreateDisplayModelAndRedraw();
     }
     else
     {
