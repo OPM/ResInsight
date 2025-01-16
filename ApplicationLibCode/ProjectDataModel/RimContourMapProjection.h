@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
+#include "RimIntersectionEnums.h"
 
 #include "RigContourMapCalculator.h"
 #include "RigContourPolygonsTools.h"
@@ -130,6 +131,9 @@ protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void initAfterRead() override;
 
+private:
+    std::optional<std::pair<double, double>> valueFilterMinMax() const;
+
 protected:
     caf::PdmField<double> m_relativeSampleSpacing;
 
@@ -144,6 +148,10 @@ protected:
     std::vector<cvf::Vec4d>      m_trianglesWithVertexValues;
     int                          m_currentResultTimestep;
     std::vector<bool>            m_mapCellVisibility;
+
+    caf::PdmField<caf::AppEnum<RimIntersectionFilterEnum>> m_valueFilterType;
+    caf::PdmField<double>                                  m_upperThreshold;
+    caf::PdmField<double>                                  m_lowerThreshold;
 
     double m_minResultAllTimeSteps;
     double m_maxResultAllTimeSteps;
