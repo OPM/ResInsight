@@ -105,16 +105,10 @@ protected:
 
     double calculateValueInMapCell( uint i, uint j, const std::vector<double>& gridCellValues ) const;
 
-    // Keep track of whether cached data needs updating
-    bool gridMappingNeedsUpdating() const;
-    bool resultsNeedsUpdating( int timeStep ) const;
-    bool geometryNeedsUpdating() const;
-    bool resultRangeIsValid() const;
-    void clearTimeStepRange();
     void clearGridMapping();
-    void clearResults();
 
-    virtual std::pair<double, double> minmaxValuesAllTimeSteps() = 0;
+    virtual std::pair<double, double> computeMinMaxValuesAllTimeSteps() = 0;
+    std::pair<double, double>         minmaxValuesAllTimeSteps();
 
     bool mapCellVisibilityNeedsUpdating( int timeStep );
 
@@ -132,6 +126,12 @@ protected:
     void initAfterRead() override;
 
 private:
+    bool                                     resultsNeedsUpdating( int timeStep ) const;
+    bool                                     gridMappingNeedsUpdating() const;
+    bool                                     geometryNeedsUpdating() const;
+    void                                     clearResults();
+    void                                     clearMinMaxValueRange();
+    bool                                     resultRangeIsValid() const;
     std::optional<std::pair<double, double>> valueFilterMinMax() const;
 
 protected:
@@ -153,9 +153,10 @@ protected:
     caf::PdmField<double>                                  m_upperThreshold;
     caf::PdmField<double>                                  m_lowerThreshold;
 
-    double m_minResultAllTimeSteps;
-    double m_maxResultAllTimeSteps;
-
     std::unique_ptr<RigContourMapGrid>       m_contourMapGrid;
     std::unique_ptr<RigContourMapProjection> m_contourMapProjection;
+
+private:
+    double m_minResultAllTimeSteps;
+    double m_maxResultAllTimeSteps;
 };

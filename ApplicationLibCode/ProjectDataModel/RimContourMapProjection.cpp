@@ -116,7 +116,7 @@ void RimContourMapProjection::generateResultsIfNecessary( int timeStep )
     if ( gridMappingNeedsUpdating() || mapCellVisibilityNeedsUpdating( timeStep ) || resultVariableChanged() )
     {
         clearResults();
-        clearTimeStepRange();
+        clearMinMaxValueRange();
 
         if ( gridMappingNeedsUpdating() )
         {
@@ -418,7 +418,7 @@ bool RimContourMapProjection::geometryNeedsUpdating() const
 void RimContourMapProjection::clearGridMapping()
 {
     clearResults();
-    clearTimeStepRange();
+    clearMinMaxValueRange();
 
     m_contourMapProjection.reset();
     m_contourMapGrid.reset();
@@ -438,7 +438,7 @@ void RimContourMapProjection::clearResults()
 
     clearResultVariable();
 
-    clearTimeStepRange();
+    clearMinMaxValueRange();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -447,6 +447,24 @@ void RimContourMapProjection::clearResults()
 cvf::ref<cvf::UByteArray> RimContourMapProjection::getCellVisibility() const
 {
     return baseView()->currentTotalCellVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimContourMapProjection::minmaxValuesAllTimeSteps()
+{
+    if ( !resultRangeIsValid() )
+    {
+        const auto [minVal, maxVal] = computeMinMaxValuesAllTimeSteps();
+        m_minResultAllTimeSteps     = minVal;
+        m_maxResultAllTimeSteps     = maxVal;
+
+        m_lowerThreshold = minVal;
+        m_upperThreshold = maxVal;
+    }
+
+    return std::pair<double, double>( m_minResultAllTimeSteps, m_maxResultAllTimeSteps );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -508,7 +526,7 @@ void RimContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* chang
         {
             clearResults();
         }
-        clearTimeStepRange();
+        clearMinMaxValueRange();
     }
     else if ( changedField == &m_smoothContourLines )
     {
@@ -518,7 +536,7 @@ void RimContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* chang
     {
         clearGridMapping();
         clearResults();
-        clearTimeStepRange();
+        clearMinMaxValueRange();
     }
 
     baseView()->updateConnectedEditors();
@@ -613,7 +631,7 @@ bool RimContourMapProjection::resultRangeIsValid() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::clearTimeStepRange()
+void RimContourMapProjection::clearMinMaxValueRange()
 {
     m_minResultAllTimeSteps = std::numeric_limits<double>::infinity();
     m_maxResultAllTimeSteps = -std::numeric_limits<double>::infinity();

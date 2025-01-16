@@ -69,7 +69,7 @@ protected:
     RimGeoMechCase*           geoMechCase() const;
     RimGeoMechContourMapView* view() const;
 
-    std::pair<double, double> minmaxValuesAllTimeSteps() override;
+    std::pair<double, double> computeMinMaxValuesAllTimeSteps() override;
 
     void updateAfterResultGeneration( int timeStep ) override;
 
