@@ -1290,10 +1290,9 @@ void RiuSummaryVectorSelectionUi::defineEditorAttribute( const caf::PdmFieldHand
     {
         if ( &m_selectedSummaryCategories == field )
         {
-            attrib->currentIndexFieldHandle          = &m_currentSummaryCategory;
-            attrib->showTextFilter                   = false;
-            attrib->showToggleAllCheckbox            = false;
-            attrib->setCurrentIndexWhenItemIsChecked = true;
+            attrib->currentIndexFieldHandle = &m_currentSummaryCategory;
+            attrib->showTextFilter          = false;
+            attrib->showToggleAllCheckbox   = false;
         }
 
         // All tree selection editors are set in specified selection mode

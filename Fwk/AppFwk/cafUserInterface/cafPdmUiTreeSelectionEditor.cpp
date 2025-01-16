@@ -354,8 +354,6 @@ QWidget* PdmUiTreeSelectionEditor::createEditorWidget( QWidget* parent )
         headerLayout->setContentsMargins( 0, 0, 0, 0 );
         layout->addLayout( headerLayout );
 
-        PdmUiTreeSelectionEditorAttribute attrib;
-
         m_toggleAllCheckBox = new QCheckBox();
         headerLayout->addWidget( m_toggleAllCheckBox );
 
@@ -715,7 +713,7 @@ void PdmUiTreeSelectionEditor::slotClicked( const QModelIndex& index )
         return;
     }
 
-    if ( m_attributes.setCurrentIndexWhenItemIsChecked && index.isValid() )
+    if ( index.isValid() )
     {
         QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes();
         if ( selectedIndexes.size() < 2 )
@@ -723,6 +721,7 @@ void PdmUiTreeSelectionEditor::slotClicked( const QModelIndex& index )
             QVariant v = m_proxyModel->data( index, Qt::CheckStateRole );
             if ( v == Qt::Checked )
             {
+                // Make sure the activated item also is selected in the tree view
                 m_treeView->setCurrentIndex( index );
             }
         }
