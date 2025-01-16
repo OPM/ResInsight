@@ -438,8 +438,8 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 
             menuBuilder << "RicToggleMeasurementModeFeature";
             menuBuilder << "RicTogglePolyMeasurementModeFeature";
-            menuBuilder.addCmdFeature( "RicCreatePolygonFeature", "Polygon" );
         }
+        menuBuilder.addCmdFeature( "RicCreatePolygonFeature", "Polygon" );
     }
 
     // Well log curve creation commands

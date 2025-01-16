@@ -54,6 +54,7 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseContourMapViewCollection.h"
+#include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
 #include "RimEnsembleWellLogsCollection.h"
 #include "RimFileWellPath.h"
@@ -829,11 +830,26 @@ std::vector<Rim3dView*> RimProject::allViews() const
     for ( RimOilField* oilField : oilFields() )
     {
         if ( !oilField ) continue;
-        if ( !oilField->seismicViewCollection() ) continue;
 
-        for ( auto seisview : oilField->seismicViewCollection()->views() )
+        if ( oilField->seismicViewCollection() )
         {
-            views.push_back( seisview );
+            for ( auto seisview : oilField->seismicViewCollection()->views() )
+            {
+                views.push_back( seisview );
+            }
+        }
+
+        if ( oilField->analysisModels() )
+        {
+            for ( auto ensemble : oilField->analysisModels()->caseEnsembles.childrenByType() )
+            {
+                if ( !ensemble ) continue;
+
+                for ( auto view : ensemble->allViews() )
+                {
+                    views.push_back( view );
+                }
+            }
         }
     }
 
@@ -846,16 +862,12 @@ std::vector<Rim3dView*> RimProject::allViews() const
 std::vector<Rim3dView*> RimProject::allVisibleViews() const
 {
     std::vector<Rim3dView*> views;
-    for ( RimCase* rimCase : allGridCases() )
-    {
-        if ( !rimCase ) continue;
 
-        for ( Rim3dView* view : rimCase->views() )
+    for ( auto view : allViews() )
+    {
+        if ( view && view->viewer() )
         {
-            if ( view && view->viewer() )
-            {
-                views.push_back( view );
-            }
+            views.push_back( view );
         }
     }
 
@@ -882,22 +894,9 @@ std::vector<RimGridView*> RimProject::allVisibleGridViews() const
 //--------------------------------------------------------------------------------------------------
 void RimProject::scheduleCreateDisplayModelAndRedrawAllViews()
 {
-    for ( RimCase* rimCase : allGridCases() )
+    for ( auto view : allViews() )
     {
-        if ( !rimCase ) continue;
-        for ( Rim3dView* view : rimCase->views() )
-        {
-            view->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
-
-    auto seismicViewCollection = activeOilField()->seismicViewCollection();
-    if ( seismicViewCollection )
-    {
-        for ( auto seisview : seismicViewCollection->views() )
-        {
-            seisview->scheduleCreateDisplayModelAndRedraw();
-        }
+        if ( view ) view->scheduleCreateDisplayModelAndRedraw();
     }
 }
 
