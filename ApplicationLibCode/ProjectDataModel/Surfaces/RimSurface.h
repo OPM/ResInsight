@@ -60,6 +60,7 @@ public:
     QString     userDescription();
     void        setUserDescription( const QString& description );
 
+    virtual void        loadSurfaceDataForTimeStep( int timeStep );
     virtual QString     fullName() const;
     virtual bool        onLoadData() = 0;
     virtual RimSurface* createCopy() = 0;

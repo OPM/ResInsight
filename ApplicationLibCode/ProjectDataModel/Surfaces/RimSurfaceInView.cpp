@@ -32,6 +32,7 @@
 
 #include "RivSurfacePartMgr.h"
 
+#include "RiaApplication.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimSurfaceInView, "SurfaceInView" );
@@ -102,7 +103,7 @@ void RimSurfaceInView::setSurface( RimSurface* surf )
         m_resultDefinition->assignDefaultProperty();
     }
 
-    m_resultDefinition->updateMinMaxValues();
+    m_resultDefinition->updateMinMaxValues( -1 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,11 +167,12 @@ const RivIntersectionGeometryGeneratorInterface* RimSurfaceInView::intersectionG
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceInView::loadDataAndUpdate()
+void RimSurfaceInView::loadDataAndUpdate( int timeStep )
 {
     if ( surface() )
     {
         surface()->loadDataIfRequired();
+        surface()->loadSurfaceDataForTimeStep( timeStep );
 
         if ( surface()->surfaceData() && surface()->surfaceData()->propertyNames().empty() )
         {
@@ -183,7 +185,7 @@ void RimSurfaceInView::loadDataAndUpdate()
             m_resultDefinition->setCheckState( true );
         }
 
-        m_resultDefinition->updateMinMaxValues();
+        m_resultDefinition->updateMinMaxValues( timeStep );
     }
 }
 

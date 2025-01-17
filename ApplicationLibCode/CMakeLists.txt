@@ -234,6 +234,7 @@ endif()
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_compile_options(
     ApplicationLibCode PRIVATE -Wall -Wno-reorder -Wno-parentheses -Wno-switch
+                               -Wno-implicit-fallthrough
   )
 endif()
 
@@ -250,6 +251,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             -Wno-delete-non-abstract-non-virtual-dtor
             -Wno-ambiguous-reversed-operator
             -Wno-deprecated-declarations
+            -Wno-implicit-fallthrough
   )
 endif()
 
