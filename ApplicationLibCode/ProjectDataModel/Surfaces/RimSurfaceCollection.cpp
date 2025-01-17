@@ -41,6 +41,7 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
+#include "RimFractureSurface.h"
 #include <QFile>
 #include <QFileInfo>
 
@@ -142,14 +143,26 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
 
     for ( const QString& newFileName : fileNames )
     {
-        RimFileSurface* newSurface = new RimFileSurface;
+        RimSurface* newSurface = nullptr;
+
+        if ( newFileName.endsWith( ".pvd" ) )
+        {
+            RimFractureSurface* fractureSurface = new RimFractureSurface;
+            fractureSurface->setSurfaceFilePath( newFileName );
+
+            newSurface = fractureSurface;
+        }
+        else
+        {
+            RimFileSurface* fileSurface = new RimFileSurface;
+
+            fileSurface->setSurfaceFilePath( newFileName );
+            newSurface = fileSurface;
+        }
 
         auto newColor = RiaColorTables::categoryPaletteColors().cycledColor3f( existingSurfCount + newSurfCount );
-
-        newSurface->setSurfaceFilePath( newFileName );
-        newSurface->setUserDescription( QFileInfo( newFileName ).fileName() );
-
         newSurface->setColor( newColor );
+        newSurface->setUserDescription( QFileInfo( newFileName ).fileName() );
 
         if ( !newSurface->onLoadData() )
         {

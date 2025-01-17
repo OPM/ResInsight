@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFileSurface.h"
+#include "RimFractureSurface.h"
 
 #include "RiaPreferences.h"
 
@@ -34,12 +34,12 @@
 #include <QFileInfo>
 #include <memory>
 
-CAF_PDM_SOURCE_INIT( RimFileSurface, "Surface", "FileSurface" );
+CAF_PDM_SOURCE_INIT( RimFractureSurface, "RimFractureSurface" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFileSurface::RimFileSurface()
+RimFractureSurface::RimFractureSurface()
 {
     CAF_PDM_InitScriptableObject( "Surface", ":/ReservoirSurface16x16.png" );
 
@@ -49,14 +49,14 @@ RimFileSurface::RimFileSurface()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFileSurface::~RimFileSurface()
+RimFractureSurface::~RimFractureSurface()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFileSurface::setSurfaceFilePath( const QString& filePath )
+void RimFractureSurface::setSurfaceFilePath( const QString& filePath )
 {
     m_surfaceDefinitionFilePath = filePath;
 
@@ -66,7 +66,7 @@ void RimFileSurface::setSurfaceFilePath( const QString& filePath )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFileSurface::surfaceFilePath()
+QString RimFractureSurface::surfaceFilePath()
 {
     return m_surfaceDefinitionFilePath().path();
 }
@@ -74,7 +74,7 @@ QString RimFileSurface::surfaceFilePath()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFileSurface::onLoadData()
+bool RimFractureSurface::onLoadData()
 {
     return updateSurfaceData();
 }
@@ -82,9 +82,9 @@ bool RimFileSurface::onLoadData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSurface* RimFileSurface::createCopy()
+RimSurface* RimFractureSurface::createCopy()
 {
-    auto newSurface = copyObject<RimFileSurface>();
+    auto newSurface = copyObject<RimFractureSurface>();
     if ( !newSurface->onLoadData() )
     {
         delete newSurface;
@@ -97,7 +97,55 @@ RimSurface* RimFileSurface::createCopy()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFileSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+void RimFractureSurface::loadSurfaceDataForTimeStep( int timeStep )
+{
+    if ( m_surfacePerTimeStep.empty() )
+    {
+        loadDataFromFile();
+    }
+
+    if ( timeStep >= static_cast<int>( m_surfacePerTimeStep.size() ) ) return;
+
+    auto surface = new RigSurface;
+
+    auto gocadData                     = m_surfacePerTimeStep[timeStep];
+    const auto& [coordinates, indices] = gocadData.gocadGeometry();
+
+    surface->setTriangleData( indices, coordinates );
+    auto propertyNames = gocadData.propertyNames();
+    for ( const auto& name : propertyNames )
+    {
+        auto values = gocadData.propertyValues( name );
+        surface->addVerticeResult( name, values );
+    }
+    setSurfaceData( surface );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<double>> RimFractureSurface::valuesForProperty( const QString& propertyName ) const
+{
+    std::vector<std::vector<double>> values;
+    for ( auto allTimeStepValues : m_surfacePerTimeStep )
+    {
+        const auto& [coordinates, indices] = allTimeStepValues.gocadGeometry();
+
+        auto valuesOneTimeStep = allTimeStepValues.propertyValues( propertyName );
+
+        // convert to double vector
+        std::vector<double> valuesOneTimeStepDouble( valuesOneTimeStep.begin(), valuesOneTimeStep.end() );
+
+        values.push_back( valuesOneTimeStepDouble );
+    }
+
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimSurface::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -116,84 +164,43 @@ void RimFileSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 /// If the surface data hasn't been loaded from file yet, load it.
 /// Returns false for fatal failure
 //--------------------------------------------------------------------------------------------------
-bool RimFileSurface::updateSurfaceData()
+bool RimFractureSurface::updateSurfaceData()
 {
-    bool result = true;
-    if ( m_vertices.empty() )
+    loadSurfaceDataForTimeStep( 0 );
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureSurface::clearCachedNativeData()
+{
+    m_secondsSinceSimulationStart.clear();
+    m_surfacePerTimeStep.clear();
+
+    /*
+        m_vertices.clear();
+        m_tringleIndices.clear();
+    */
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFractureSurface::loadDataFromFile()
+{
+    auto surfaceInfo = RifVtkSurfaceImporter::parsePvdDatasets( m_surfaceDefinitionFilePath().path().toStdString() );
+
+    for ( const auto& s : surfaceInfo )
     {
-        result = loadDataFromFile();
-    }
-
-    std::vector<cvf::Vec3d> vertices{ m_vertices };
-    std::vector<unsigned>   tringleIndices{ m_tringleIndices };
-
-    auto surface = new RigSurface;
-    if ( !vertices.empty() && !tringleIndices.empty() )
-    {
-        RimSurface::applyDepthOffsetIfNeeded( &vertices );
-
-        surface->setTriangleData( tringleIndices, vertices );
-    }
-
-    if ( m_gocadData )
-    {
-        auto propertyNames = m_gocadData->propertyNames();
-        for ( const auto& name : propertyNames )
+        RigGocadData gocadData;
+        if ( RifVtkSurfaceImporter::importFromFile( s.filename, &gocadData ) )
         {
-            auto values = m_gocadData->propertyValues( name );
-            surface->addVerticeResult( name, values );
+            m_secondsSinceSimulationStart.push_back( s.timestep );
+            m_surfacePerTimeStep.push_back( gocadData );
         }
     }
 
-    setSurfaceData( surface );
-
-    return result;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFileSurface::clearCachedNativeData()
-{
-    m_vertices.clear();
-    m_tringleIndices.clear();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimFileSurface::loadDataFromFile()
-{
-    std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> surface;
-
-    QString filePath = surfaceFilePath();
-    if ( filePath.endsWith( "ptl", Qt::CaseInsensitive ) )
-    {
-        surface = RifSurfaceImporter::readPetrelFile( filePath );
-    }
-    else if ( filePath.endsWith( "ts", Qt::CaseInsensitive ) )
-    {
-        m_gocadData = std::make_unique<RigGocadData>();
-
-        RifSurfaceImporter::readGocadFile( filePath, m_gocadData.get() );
-
-        surface = m_gocadData->gocadGeometry();
-    }
-    else if ( filePath.endsWith( "vtu", Qt::CaseInsensitive ) )
-    {
-        m_gocadData = std::make_unique<RigGocadData>();
-        RifVtkSurfaceImporter::importFromFile( filePath.toStdString(), m_gocadData.get() );
-
-        surface = m_gocadData->gocadGeometry();
-    }
-    else if ( filePath.endsWith( "dat", Qt::CaseInsensitive ) || filePath.endsWith( "xyz", Qt::CaseInsensitive ) )
-    {
-        double resamplingDistance = RiaPreferences::current()->surfaceImportResamplingDistance();
-        surface                   = RifSurfaceImporter::readOpenWorksXyzFile( filePath, resamplingDistance );
-    }
-
-    m_vertices       = surface.first;
-    m_tringleIndices = surface.second;
-
-    return !( m_vertices.empty() || m_tringleIndices.empty() );
+    return false;
 }

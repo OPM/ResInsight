@@ -54,7 +54,7 @@ public:
     void                  setSurfaceCollection( RimSurfaceCollection* surfcoll );
 
     void updateFromSurfaceCollection();
-    void loadData();
+    void loadData( int timeStep );
     void clearGeometry();
 
     void appendPartsToModel( cvf::ModelBasicList* surfaceVizModel, cvf::Transform* scaleTransform, bool onlyNativeParts = false );

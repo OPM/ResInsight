@@ -9,6 +9,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleSurface.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatisticsSurface.h
     ${CMAKE_CURRENT_LIST_DIR}/RimDepthSurface.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFractureSurface.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -22,6 +23,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleSurface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatisticsSurface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDepthSurface.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFractureSurface.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

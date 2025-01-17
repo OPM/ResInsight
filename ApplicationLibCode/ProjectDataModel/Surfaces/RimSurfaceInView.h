@@ -56,7 +56,7 @@ public:
     RivSurfacePartMgr*                               nativeSurfacePartMgr();
     const RivIntersectionGeometryGeneratorInterface* intersectionGeometryGenerator() const override;
 
-    void loadDataAndUpdate();
+    void loadDataAndUpdate( int timeStep );
 
     void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
 
