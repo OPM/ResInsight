@@ -20,11 +20,13 @@
 
 #include "RiaPreferences.h"
 
+#include "RimSurfaceCollection.h"
+
 #include "RifSurfaceImporter.h"
+#include "RifVtkSurfaceImporter.h"
 
 #include "RigGocadData.h"
 #include "RigSurface.h"
-#include "RimSurfaceCollection.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -174,6 +176,13 @@ bool RimFileSurface::loadDataFromFile()
         m_gocadData = std::make_unique<RigGocadData>();
 
         RifSurfaceImporter::readGocadFile( filePath, m_gocadData.get() );
+
+        surface = m_gocadData->gocadGeometry();
+    }
+    else if ( filePath.endsWith( "vtu", Qt::CaseInsensitive ) )
+    {
+        m_gocadData = std::make_unique<RigGocadData>();
+        RifVtkSurfaceImporter::importFromFile( filePath.toStdString(), m_gocadData.get() );
 
         surface = m_gocadData->gocadGeometry();
     }
