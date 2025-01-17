@@ -166,54 +166,6 @@ void RimStatisticsContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsContourMapView::onUpdateLegends()
-{
-    if ( auto viewer = nativeOrOverrideViewer() )
-    {
-        if ( !isUsingOverrideViewer() )
-        {
-            viewer->removeAllColorLegends();
-        }
-        else if ( cellResult() && cellResult()->legendConfig() )
-        {
-            viewer->removeColorLegend( cellResult()->legendConfig()->titledOverlayFrame() );
-        }
-
-        if ( m_contourMapProjection && m_contourMapProjection->isChecked() )
-        {
-            RimRegularLegendConfig* projectionLegend = m_contourMapProjection->legendConfig();
-            if ( projectionLegend )
-            {
-                m_contourMapProjection->updateLegend();
-                if ( projectionLegend->showLegend() )
-                {
-                    viewer->addColorLegendToBottomLeftCorner( projectionLegend->titledOverlayFrame(), isUsingOverrideViewer() );
-                }
-            }
-        }
-
-        // Hide the scale widget if any 3D views are present, as the display of the scale widget is only working for
-        // default rotation. The update is triggered in RimViewLinker::updateScaleWidgetVisibility()
-
-        bool any3DViewsLinked = false;
-
-        if ( auto viewLinker = assosiatedViewLinker() )
-        {
-            auto views = viewLinker->allViews();
-            for ( auto v : views )
-            {
-                if ( dynamic_cast<RimStatisticsContourMapView*>( v ) ) continue;
-                any3DViewsLinked = true;
-            }
-        }
-
-        viewer->showScaleLegend( any3DViewsLinked ? false : m_showScaleLegend() );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimStatisticsContourMap* RimStatisticsContourMapView::statisticsContourMap() const
 {
     return m_statisticsContourMap;

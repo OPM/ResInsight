@@ -154,9 +154,9 @@ double RimStatisticsContourMapProjection::sampleSpacing() const
 void RimStatisticsContourMapProjection::clearGridMappingAndRedraw()
 {
     clearGridMapping();
-    updateConnectedEditors();
     generateResultsIfNecessary( view()->currentTimeStep() );
     updateLegend();
+    updateConnectedEditors();
 
     RimEclipseView* parentView = firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
     parentView->scheduleCreateDisplayModelAndRedraw();
@@ -343,4 +343,25 @@ void RimStatisticsContourMapProjection::fieldChangedByUi( const caf::PdmFieldHan
     {
         RimContourMapProjection::fieldChangedByUi( changedField, oldValue, newValue );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimStatisticsContourMapProjection::gridMappingNeedsUpdating() const
+{
+    if ( !m_contourMapProjection ) return true;
+
+    auto cellGridIdxVisibility = m_contourMapProjection->getCellVisibility();
+    if ( cellGridIdxVisibility.isNull() ) return true;
+
+    cvf::ref<cvf::UByteArray> currentVisibility = getCellVisibility();
+
+    CVF_ASSERT( currentVisibility->size() == cellGridIdxVisibility->size() );
+    for ( size_t i = 0; i < currentVisibility->size(); ++i )
+    {
+        if ( ( *currentVisibility )[i] != ( *cellGridIdxVisibility )[i] ) return true;
+    }
+
+    return false;
 }

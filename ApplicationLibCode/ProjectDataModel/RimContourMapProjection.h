@@ -125,9 +125,10 @@ protected:
 
     void appendValueFilterGroup( caf::PdmUiOrdering& uiOrdering );
 
+    virtual bool gridMappingNeedsUpdating() const;
+
 private:
     bool                                     resultsNeedsUpdating( int timeStep ) const;
-    bool                                     gridMappingNeedsUpdating() const;
     bool                                     geometryNeedsUpdating() const;
     void                                     clearResults();
     void                                     clearMinMaxValueRange();
