@@ -34,7 +34,8 @@ public:
     std::vector<float>                                        propertyValues( const QString& property );
 
     void setGeometryData( const std::vector<cvf::Vec3d>& nodeCoord, const std::vector<unsigned>& connectivities );
-    void addPropertyData( const std::vector<QString>& propertyNames, std::vector<std::vector<float>>& propertyValues );
+    void setPropertyData( const std::vector<QString>& propertyNames, std::vector<std::vector<float>>& propertyValues );
+    void addPropertyData( const QString& propertyName, std::vector<float>& propertyValues );
 
 private:
     std::vector<cvf::Vec3d>         m_vertices;
