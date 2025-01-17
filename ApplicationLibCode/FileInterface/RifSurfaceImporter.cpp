@@ -207,7 +207,7 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
     if ( gocadData )
     {
         gocadData->setGeometryData( vertices, triangleIndices );
-        gocadData->addPropertyData( propertyNames, propertyValues );
+        gocadData->setPropertyData( propertyNames, propertyValues );
     }
 }
 

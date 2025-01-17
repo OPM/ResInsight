@@ -413,7 +413,7 @@ void RimSeismicView::onLoadDataAndUpdate()
 
     updateMdiWindowVisibility();
 
-    if ( m_surfaceCollection ) m_surfaceCollection->loadData();
+    if ( m_surfaceCollection ) m_surfaceCollection->loadData( m_currentTimeStep );
 
     scheduleCreateDisplayModelAndRedraw();
 }

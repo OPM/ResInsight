@@ -195,7 +195,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
     geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
     m_wellMeasurementCollection->syncWithChangesInWellMeasurementCollection();
 
-    if ( m_surfaceCollection ) m_surfaceCollection->loadData();
+    if ( m_surfaceCollection ) m_surfaceCollection->loadData( m_currentTimeStep );
 
     if ( m_partsCollection ) m_partsCollection->syncWithCase( m_geomechCase );
 

@@ -243,18 +243,18 @@ void RimSurfaceInViewCollection::updateFromSurfaceCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceInViewCollection::loadData()
+void RimSurfaceInViewCollection::loadData( int timeStep )
 {
     for ( RimSurfaceInViewCollection* coll : m_collectionsInView )
     {
-        coll->loadData();
+        coll->loadData( timeStep );
     }
 
     for ( RimSurfaceInView* surf : m_surfacesInView )
     {
         if ( surf->isActive() )
         {
-            surf->loadDataAndUpdate();
+            surf->loadDataAndUpdate( timeStep );
         }
     }
 }
