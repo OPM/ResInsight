@@ -7,7 +7,8 @@
         "grpc",
         "type-lite",
         "fast-float",
-        "spdlog"
+        "spdlog",
+        "pybind11"
     ],
     "overrides": [
         {
