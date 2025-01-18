@@ -328,16 +328,9 @@ void RimStatisticsContourMapProjection::fieldChangedByUi( const caf::PdmFieldHan
                                                           const QVariant&            oldValue,
                                                           const QVariant&            newValue )
 {
-    if ( ( changedField == &m_statisticsType ) || ( changedField == &m_showContourLines ) || ( changedField == &m_showContourLabels ) ||
-         ( changedField == &m_smoothContourLines ) )
+    if ( ( changedField == &m_statisticsType ) )
     {
         clearGridMappingAndRedraw();
-    }
-    if ( ( changedField == &m_valueFilterType ) || ( changedField == &m_lowerThreshold ) || ( changedField == &m_upperThreshold ) )
-    {
-        // statisticsContourMap()->res
-        // clearGridMappingAndRedraw();
-        view()->scheduleCreateDisplayModelAndRedraw();
     }
     else
     {
