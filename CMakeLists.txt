@@ -1094,6 +1094,8 @@ install(TARGETS extract-projectfile-versions
         DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
 )
 
+add_subdirectory(native-python)
+
 # ##############################################################################
 # Visual Studio : Create the ruleset file to be used by Static Code Analysis
 # https://stackoverflow.com/questions/75031903/how-to-enable-static-analysis-with-custom-ruleset-in-msvc-via-cmakelists-txt
