@@ -328,7 +328,7 @@ void RimStatisticsContourMapProjection::fieldChangedByUi( const caf::PdmFieldHan
                                                           const QVariant&            oldValue,
                                                           const QVariant&            newValue )
 {
-    if ( ( changedField == &m_statisticsType ) )
+    if ( changedField == &m_statisticsType )
     {
         clearGridMappingAndRedraw();
     }
