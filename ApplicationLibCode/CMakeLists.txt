@@ -233,7 +233,8 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_compile_options(
-    ApplicationLibCode PRIVATE -Wall -Wno-reorder -Wno-parentheses -Wno-switch -Wno-implicit-fallthrough
+    ApplicationLibCode PRIVATE -Wall -Wno-reorder -Wno-parentheses -Wno-switch
+                               -Wno-implicit-fallthrough
   )
 endif()
 
