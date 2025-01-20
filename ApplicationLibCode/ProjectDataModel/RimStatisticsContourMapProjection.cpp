@@ -349,8 +349,8 @@ bool RimStatisticsContourMapProjection::gridMappingNeedsUpdating() const
     if ( cellGridIdxVisibility.isNull() ) return true;
 
     cvf::ref<cvf::UByteArray> currentVisibility = getCellVisibility();
+    if ( currentVisibility->size() != cellGridIdxVisibility->size() ) return true;
 
-    CVF_ASSERT( currentVisibility->size() == cellGridIdxVisibility->size() );
     for ( size_t i = 0; i < currentVisibility->size(); ++i )
     {
         if ( ( *currentVisibility )[i] != ( *cellGridIdxVisibility )[i] ) return true;
