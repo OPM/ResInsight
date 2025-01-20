@@ -3,6 +3,7 @@
         "arrow",
         "boost-filesystem",
         "boost-spirit",
+        "boost-test",
         "eigen3",
         "grpc",
         "type-lite",
