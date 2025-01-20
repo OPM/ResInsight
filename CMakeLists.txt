@@ -509,10 +509,19 @@ if((NOT RESINSIGHT_BUILD_LIBS_FROM_SOURCE) AND MSVC)
 
   message(STATUS "opm-common: Enabled use of precompiled library")
 else()
+  # CREATE_OPM_COMMON_KEYWORDS is used to create c++-code for the keywords in
+  # opm-common JSON files See description in
+  # ThirdParty/custom-opm-common/CMakeLists.txt When changing this flag, it is
+  # required to reopen the Visual Studio project
+  set(CREATE_OPM_COMMON_KEYWORDS OFF)
+
   add_subdirectory(ThirdParty/custom-opm-common)
-  add_subdirectory(ThirdParty/custom-opm-common/custom-opm-parser-tests)
-  list(APPEND OPM_LIBRARIES custom-opm-common)
-  set_property(TARGET opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM")
+
+  if(NOT CREATE_OPM_COMMON_KEYWORDS)
+    add_subdirectory(ThirdParty/custom-opm-common/custom-opm-parser-tests)
+    list(APPEND OPM_LIBRARIES custom-opm-common)
+    set_property(TARGET opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM")
+  endif()
 endif()
 
 list(APPEND OPM_LIBRARIES custom-opm-flowdiagnostics custom-opm-flowdiag-app)
