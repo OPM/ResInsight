@@ -22,6 +22,7 @@
 #include "RiaImportEclipseCaseTools.h"
 
 #include "RicCreateGridCaseGroupFromFilesFeature.h"
+#include "RicImportFormationNamesFeature.h"
 #include "RicNewViewFeature.h"
 #include "RicRecursiveFileSearchDialog.h"
 
@@ -29,14 +30,17 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseResultCase.h"
+#include "RimFormationNames.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimViewNameConfig.h"
 
 #include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
+#include "cafUtils.h"
 
 #include <QAction>
+#include <QDir>
 #include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicCreateGridCaseEnsemblesFromFilesFeature, "RicCreateGridCaseEnsemblesFromFilesFeature" );
@@ -115,9 +119,16 @@ RimEclipseCaseEnsemble* RicCreateGridCaseEnsemblesFromFilesFeature::importSingle
 
         QString caseName = gridFileName.completeBaseName();
 
-        auto* rimResultReservoir = new RimEclipseResultCase();
-        rimResultReservoir->setCaseInfo( caseName, caseFileName );
-        eclipseCaseEnsemble->addCase( rimResultReservoir );
+        auto* rimResultCase = new RimEclipseResultCase();
+        rimResultCase->setCaseInfo( caseName, caseFileName );
+        eclipseCaseEnsemble->addCase( rimResultCase );
+
+        QFileInfo fi( caseFileName );
+
+        // look for formation file two levels up from the egrid file
+        auto               formationFolder = QDir( fi.dir().path() + "/../../" );
+        RimFormationNames* formations      = loadFormationsFromEnsembleFolder( formationFolder.absolutePath() );
+        if ( formations != nullptr ) rimResultCase->setFormationNames( formations );
     }
 
     oilfield->analysisModels()->caseEnsembles.push_back( eclipseCaseEnsemble );
@@ -153,4 +164,18 @@ std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
     app->setLastUsedDialogDirectory( pathCacheName, QFileInfo( result.rootDir ).absoluteFilePath() );
 
     return std::make_pair( result.files, result.groupingMode );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFormationNames* RicCreateGridCaseEnsemblesFromFilesFeature::loadFormationsFromEnsembleFolder( const QString folderName )
+{
+    QStringList filters;
+    filters << "*.lyr";
+
+    QStringList fileList = caf::Utils::getFilesInDirectory( folderName, filters, true /*absolute filename*/ );
+    if ( fileList.isEmpty() ) return nullptr;
+
+    return RicImportFormationNamesFeature::importFormationFiles( fileList );
 }

@@ -25,6 +25,7 @@
 #include <vector>
 
 class RimEclipseCaseEnsemble;
+class RimFormationNames;
 
 //==================================================================================================
 ///
@@ -39,6 +40,8 @@ class RicCreateGridCaseEnsemblesFromFilesFeature : public caf::CmdFeature
         , m_fileNameFilter( "*" )
     {
     }
+
+    static RimFormationNames* loadFormationsFromEnsembleFolder( const QString folderName );
 
 protected:
     void onActionTriggered( bool isChecked ) override;

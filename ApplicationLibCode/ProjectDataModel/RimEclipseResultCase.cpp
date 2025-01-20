@@ -45,11 +45,13 @@
 #include "RigMainGrid.h"
 
 #include "RimDialogData.h"
+#include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
+#include "RimFormationNames.h"
 #include "RimMockModelSettings.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
@@ -694,4 +696,31 @@ void RimEclipseResultCase::defineEditorAttribute( const caf::PdmFieldHandle* fie
             myAttr->m_defaultPath         = QFileInfo( gridFileName() ).absolutePath();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimEclipseResultCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    // if this is part of an ensemble, use lyr file set during ensemble creating
+    if ( fieldNeedingOptions == &m_activeFormationNames )
+    {
+        auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
+        if ( ensemble != nullptr )
+        {
+            QList<caf::PdmOptionItemInfo> options;
+            if ( m_activeFormationNames() )
+            {
+                options.push_back( caf::PdmOptionItemInfo( m_activeFormationNames->fileNameWoPath(), m_activeFormationNames(), false ) );
+            }
+            else
+            {
+                options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+            }
+            return options;
+        }
+    }
+
+    return RimEclipseCase::calculateValueOptions( fieldNeedingOptions );
 }
