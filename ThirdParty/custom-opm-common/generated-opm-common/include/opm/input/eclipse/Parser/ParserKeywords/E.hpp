@@ -189,28 +189,28 @@ namespace ParserKeywords {
        EHYSTR();
        static const std::string keywordName;
 
-       class curvature_caplillary_pressure_hyst {
+       class curvature_capillary_pressure_hyst {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.100000;
        };
 
        class relative_perm_hyst {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class curvature_param_killough_wetting {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
 
        class mod_param_trapped {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.100000;
        };
 
        class limiting_hyst_flag {
@@ -258,13 +258,13 @@ namespace ParserKeywords {
        class threshold_saturation {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
 
        class FLAG_SOMETHING {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
    };
 
@@ -278,19 +278,19 @@ namespace ParserKeywords {
        class curvature_caplillary_pressure_hyst {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.100000;
        };
 
        class curvature_parameter_wetting_phase_hyst {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
 
        class mod_param_non_wet_phase_sat {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.100000;
        };
    };
 
@@ -390,19 +390,19 @@ namespace ParserKeywords {
        class NTENDP {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class NSENDP {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 20;
        };
 
        class COMB_MODE {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
    };
 
@@ -424,7 +424,7 @@ namespace ParserKeywords {
        class DATA {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = -1.000000;
        };
    };
 
@@ -438,7 +438,7 @@ namespace ParserKeywords {
        class DATA {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = -1.000000;
        };
    };
 
@@ -452,7 +452,7 @@ namespace ParserKeywords {
        class DATA {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = -1.000000;
        };
    };
 
@@ -466,7 +466,34 @@ namespace ParserKeywords {
        class DATA {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = -1.000000;
+       };
+   };
+
+
+
+   class EOS : public ParserKeyword {
+   public:
+       EOS();
+       static const std::string keywordName;
+
+       class EQUATION {
+       public:
+           static const std::string itemName;
+           static const std::string defaultValue;
+       };
+   };
+
+
+
+   class EOSNUM : public ParserKeyword {
+   public:
+       EOSNUM();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
        };
    };
 
@@ -480,13 +507,13 @@ namespace ParserKeywords {
        class TABLE_OUTPUT {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class CHECK_DRAIN_HYST {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class IX1 {
@@ -566,7 +593,7 @@ namespace ParserKeywords {
        class TABLE_OUTPUT {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class GRID_NAME {
@@ -578,7 +605,7 @@ namespace ParserKeywords {
        class CHECK_DRAIN_HYST {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
    };
 
@@ -592,31 +619,31 @@ namespace ParserKeywords {
        class NTEQUL {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class DEPTH_NODES_P {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 2000;
        };
 
        class DEPTH_NODES_TAB {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 20;
        };
 
        class NTTRVD {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class NSTRVD {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 20;
        };
    };
 
@@ -745,7 +772,7 @@ namespace ParserKeywords {
        class VALUE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
 
        class REGION_NUMBER {
@@ -818,7 +845,7 @@ namespace ParserKeywords {
        class DATUM_DEPTH {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
 
        class DATUM_PRESSURE {
@@ -829,43 +856,43 @@ namespace ParserKeywords {
        class OWC {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
 
        class PC_OWC {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
 
        class GOC {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
 
        class PC_GOC {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
 
        class BLACK_OIL_INIT {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class BLACK_OIL_INIT_WG {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class OIP_INIT {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = -5;
        };
 
        class EQLOPT04 {
@@ -876,6 +903,12 @@ namespace ParserKeywords {
        class EQLOPT5 {
        public:
            static const std::string itemName;
+       };
+
+       class BLACK_OIL_INIT_HG {
+       public:
+           static const std::string itemName;
+           static constexpr int defaultValue = 0;
        };
    };
 
@@ -923,7 +956,7 @@ namespace ParserKeywords {
        class STATUS_CODE {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
    };
 
@@ -1008,7 +1041,7 @@ namespace ParserKeywords {
        class LEVEL {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
    };
 

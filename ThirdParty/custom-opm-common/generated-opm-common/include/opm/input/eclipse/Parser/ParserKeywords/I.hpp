@@ -17,7 +17,7 @@ namespace ParserKeywords {
        class PROCESS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
    };
 
@@ -213,7 +213,7 @@ namespace ParserKeywords {
        class VALUE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
    };
 
@@ -232,7 +232,7 @@ namespace ParserKeywords {
        class ION_EXCH_CONST {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
    };
 

@@ -59,13 +59,9 @@ const std::string JFUNC::keywordName = "JFUNC";
 const std::string JFUNC::FLAG::itemName = "FLAG";
 const std::string JFUNC::FLAG::defaultValue = "BOTH";
 const std::string JFUNC::OW_SURFACE_TENSION::itemName = "OW_SURFACE_TENSION";
-const double JFUNC::OW_SURFACE_TENSION::defaultValue = -1.000000;
 const std::string JFUNC::GO_SURFACE_TENSION::itemName = "GO_SURFACE_TENSION";
-const double JFUNC::GO_SURFACE_TENSION::defaultValue = -1.000000;
 const std::string JFUNC::ALPHA_FACTOR::itemName = "ALPHA_FACTOR";
-const double JFUNC::ALPHA_FACTOR::defaultValue = 0.500000;
 const std::string JFUNC::BETA_FACTOR::itemName = "BETA_FACTOR";
-const double JFUNC::BETA_FACTOR::defaultValue = 0.500000;
 const std::string JFUNC::DIRECTION::itemName = "DIRECTION";
 const std::string JFUNC::DIRECTION::defaultValue = "XY";
 
@@ -118,9 +114,7 @@ const std::string JFUNCR::J_FUNCTION::defaultValue = "BOTH";
 const std::string JFUNCR::OIL_WAT_SURF_TENSTION::itemName = "OIL_WAT_SURF_TENSTION";
 const std::string JFUNCR::OIL_GAS_SURF_TENSTION::itemName = "OIL_GAS_SURF_TENSTION";
 const std::string JFUNCR::POROSITY_POWER::itemName = "POROSITY_POWER";
-const double JFUNCR::POROSITY_POWER::defaultValue = 0.500000;
 const std::string JFUNCR::PERMEABILITY_POWER::itemName = "PERMEABILITY_POWER";
-const double JFUNCR::PERMEABILITY_POWER::defaultValue = 0.500000;
 const std::string JFUNCR::PERM_DIRECTION::itemName = "PERM_DIRECTION";
 const std::string JFUNCR::PERM_DIRECTION::defaultValue = "XY";
 

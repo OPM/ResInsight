@@ -155,6 +155,7 @@ EDITNNCR::EDITNNCR() : ParserKeyword("EDITNNCR", KeywordSize(SLASH_TERMINATED)) 
      }
      {
         ParserItem item("TRANS", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Transmissibility");
         record.addItem(item);
      }
      {
@@ -213,7 +214,7 @@ EHYSTR::EHYSTR() : ParserKeyword("EHYSTR", KeywordSize(1, false)) {
   {
      ParserRecord record;
      {
-        ParserItem item("curvature_caplillary_pressure_hyst", ParserItem::itype::DOUBLE);
+        ParserItem item("curvature_capillary_pressure_hyst", ParserItem::itype::DOUBLE);
         item.setDefault( double(0.100000) );
         record.addItem(item);
      }
@@ -281,14 +282,10 @@ EHYSTR::EHYSTR() : ParserKeyword("EHYSTR", KeywordSize(1, false)) {
   }
 }
 const std::string EHYSTR::keywordName = "EHYSTR";
-const std::string EHYSTR::curvature_caplillary_pressure_hyst::itemName = "curvature_caplillary_pressure_hyst";
-const double EHYSTR::curvature_caplillary_pressure_hyst::defaultValue = 0.100000;
+const std::string EHYSTR::curvature_capillary_pressure_hyst::itemName = "curvature_capillary_pressure_hyst";
 const std::string EHYSTR::relative_perm_hyst::itemName = "relative_perm_hyst";
-const int EHYSTR::relative_perm_hyst::defaultValue = 0;
 const std::string EHYSTR::curvature_param_killough_wetting::itemName = "curvature_param_killough_wetting";
-const double EHYSTR::curvature_param_killough_wetting::defaultValue = 1.000000;
 const std::string EHYSTR::mod_param_trapped::itemName = "mod_param_trapped";
-const double EHYSTR::mod_param_trapped::defaultValue = 0.100000;
 const std::string EHYSTR::limiting_hyst_flag::itemName = "limiting_hyst_flag";
 const std::string EHYSTR::limiting_hyst_flag::defaultValue = "BOTH";
 const std::string EHYSTR::shape_cap_press_flag::itemName = "shape_cap_press_flag";
@@ -304,9 +301,7 @@ const std::string EHYSTR::baker_flag_gas::defaultValue = "NO";
 const std::string EHYSTR::baker_flag_water::itemName = "baker_flag_water";
 const std::string EHYSTR::baker_flag_water::defaultValue = "NO";
 const std::string EHYSTR::threshold_saturation::itemName = "threshold_saturation";
-const double EHYSTR::threshold_saturation::defaultValue = 0;
 const std::string EHYSTR::FLAG_SOMETHING::itemName = "FLAG_SOMETHING";
-const int EHYSTR::FLAG_SOMETHING::defaultValue = 0;
 
 
 EHYSTRR::EHYSTRR() : ParserKeyword("EHYSTRR", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
@@ -335,11 +330,8 @@ EHYSTRR::EHYSTRR() : ParserKeyword("EHYSTRR", KeywordSize("TABDIMS", "NTSFUN", f
 }
 const std::string EHYSTRR::keywordName = "EHYSTRR";
 const std::string EHYSTRR::curvature_caplillary_pressure_hyst::itemName = "curvature_caplillary_pressure_hyst";
-const double EHYSTRR::curvature_caplillary_pressure_hyst::defaultValue = 0.100000;
 const std::string EHYSTRR::curvature_parameter_wetting_phase_hyst::itemName = "curvature_parameter_wetting_phase_hyst";
-const double EHYSTRR::curvature_parameter_wetting_phase_hyst::defaultValue = 1.000000;
 const std::string EHYSTRR::mod_param_non_wet_phase_sat::itemName = "mod_param_non_wet_phase_sat";
-const double EHYSTRR::mod_param_non_wet_phase_sat::defaultValue = 0.100000;
 
 
 END::END() : ParserKeyword("END", KeywordSize(0, false)) {
@@ -682,11 +674,8 @@ const std::string ENDSCALE::DIRECT::defaultValue = "NODIR";
 const std::string ENDSCALE::IRREVERS::itemName = "IRREVERS";
 const std::string ENDSCALE::IRREVERS::defaultValue = "REVERS";
 const std::string ENDSCALE::NTENDP::itemName = "NTENDP";
-const int ENDSCALE::NTENDP::defaultValue = 1;
 const std::string ENDSCALE::NSENDP::itemName = "NSENDP";
-const int ENDSCALE::NSENDP::defaultValue = 20;
 const std::string ENDSCALE::COMB_MODE::itemName = "COMB_MODE";
-const int ENDSCALE::COMB_MODE::defaultValue = 0;
 
 
 ENDSKIP::ENDSKIP() : ParserKeyword("ENDSKIP", KeywordSize(0, false)) {
@@ -729,7 +718,6 @@ ENKRVD::ENKRVD() : ParserKeyword("ENKRVD", KeywordSize("ENDSCALE", "NTENDP", fal
 }
 const std::string ENKRVD::keywordName = "ENKRVD";
 const std::string ENKRVD::DATA::itemName = "DATA";
-const double ENKRVD::DATA::defaultValue = -1.000000;
 
 
 ENPCVD::ENPCVD() : ParserKeyword("ENPCVD", KeywordSize("ENDSCALE", "NTENDP", false, 0)) {
@@ -752,7 +740,6 @@ ENPCVD::ENPCVD() : ParserKeyword("ENPCVD", KeywordSize("ENDSCALE", "NTENDP", fal
 }
 const std::string ENPCVD::keywordName = "ENPCVD";
 const std::string ENPCVD::DATA::itemName = "DATA";
-const double ENPCVD::DATA::defaultValue = -1.000000;
 
 
 ENPTVD::ENPTVD() : ParserKeyword("ENPTVD", KeywordSize("ENDSCALE", "NTENDP", false, 0)) {
@@ -781,7 +768,6 @@ ENPTVD::ENPTVD() : ParserKeyword("ENPTVD", KeywordSize("ENDSCALE", "NTENDP", fal
 }
 const std::string ENPTVD::keywordName = "ENPTVD";
 const std::string ENPTVD::DATA::itemName = "DATA";
-const double ENPTVD::DATA::defaultValue = -1.000000;
 
 
 ENSPCVD::ENSPCVD() : ParserKeyword("ENSPCVD", KeywordSize("ENDSCALE", "NTENDP", false, 0)) {
@@ -804,7 +790,44 @@ ENSPCVD::ENSPCVD() : ParserKeyword("ENSPCVD", KeywordSize("ENDSCALE", "NTENDP", 
 }
 const std::string ENSPCVD::keywordName = "ENSPCVD";
 const std::string ENSPCVD::DATA::itemName = "DATA";
-const double ENSPCVD::DATA::defaultValue = -1.000000;
+
+
+EOS::EOS() : ParserKeyword("EOS", KeywordSize("TABDIMS", "NUM_EOS_RES", false, 0)) {
+  addValidSectionName("RUNSPEC");
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("EOS");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("EQUATION", ParserItem::itype::STRING);
+        item.setDefault( std::string("PR") );
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string EOS::keywordName = "EOS";
+const std::string EOS::EQUATION::itemName = "EQUATION";
+const std::string EOS::EQUATION::defaultValue = "PR";
+
+
+EOSNUM::EOSNUM() : ParserKeyword("EOSNUM", KeywordSize(1, false)) {
+  addValidSectionName("REGIONS");
+  clearDeckNames();
+  addDeckName("EOSNUM");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("data", ParserItem::itype::INT);
+        item.setSizeType(ParserItem::item_size::ALL);
+        record.addDataItem(item);
+     }
+     addDataRecord( record );
+  }
+}
+const std::string EOSNUM::keywordName = "EOSNUM";
+const std::string EOSNUM::data::itemName = "data";
 
 
 EPSDBGS::EPSDBGS() : ParserKeyword("EPSDBGS", KeywordSize(SLASH_TERMINATED)) {
@@ -862,9 +885,7 @@ EPSDBGS::EPSDBGS() : ParserKeyword("EPSDBGS", KeywordSize(SLASH_TERMINATED)) {
 }
 const std::string EPSDBGS::keywordName = "EPSDBGS";
 const std::string EPSDBGS::TABLE_OUTPUT::itemName = "TABLE_OUTPUT";
-const int EPSDBGS::TABLE_OUTPUT::defaultValue = 0;
 const std::string EPSDBGS::CHECK_DRAIN_HYST::itemName = "CHECK_DRAIN_HYST";
-const int EPSDBGS::CHECK_DRAIN_HYST::defaultValue = 0;
 const std::string EPSDBGS::IX1::itemName = "IX1";
 const std::string EPSDBGS::IX2::itemName = "IX2";
 const std::string EPSDBGS::JY1::itemName = "JY1";
@@ -932,11 +953,9 @@ const std::string EPSDEBUG::JY2::itemName = "JY2";
 const std::string EPSDEBUG::KZ1::itemName = "KZ1";
 const std::string EPSDEBUG::KZ2::itemName = "KZ2";
 const std::string EPSDEBUG::TABLE_OUTPUT::itemName = "TABLE_OUTPUT";
-const int EPSDEBUG::TABLE_OUTPUT::defaultValue = 0;
 const std::string EPSDEBUG::GRID_NAME::itemName = "GRID_NAME";
 const std::string EPSDEBUG::GRID_NAME::defaultValue = "";
 const std::string EPSDEBUG::CHECK_DRAIN_HYST::itemName = "CHECK_DRAIN_HYST";
-const int EPSDEBUG::CHECK_DRAIN_HYST::defaultValue = 0;
 
 
 EQLDIMS::EQLDIMS() : ParserKeyword("EQLDIMS", KeywordSize(1, false)) {
@@ -952,7 +971,7 @@ EQLDIMS::EQLDIMS() : ParserKeyword("EQLDIMS", KeywordSize(1, false)) {
      }
      {
         ParserItem item("DEPTH_NODES_P", ParserItem::itype::INT);
-        item.setDefault( 100 );
+        item.setDefault( 2000 );
         record.addItem(item);
      }
      {
@@ -975,15 +994,10 @@ EQLDIMS::EQLDIMS() : ParserKeyword("EQLDIMS", KeywordSize(1, false)) {
 }
 const std::string EQLDIMS::keywordName = "EQLDIMS";
 const std::string EQLDIMS::NTEQUL::itemName = "NTEQUL";
-const int EQLDIMS::NTEQUL::defaultValue = 1;
 const std::string EQLDIMS::DEPTH_NODES_P::itemName = "DEPTH_NODES_P";
-const int EQLDIMS::DEPTH_NODES_P::defaultValue = 100;
 const std::string EQLDIMS::DEPTH_NODES_TAB::itemName = "DEPTH_NODES_TAB";
-const int EQLDIMS::DEPTH_NODES_TAB::defaultValue = 20;
 const std::string EQLDIMS::NTTRVD::itemName = "NTTRVD";
-const int EQLDIMS::NTTRVD::defaultValue = 1;
 const std::string EQLDIMS::NSTRVD::itemName = "NSTRVD";
-const int EQLDIMS::NSTRVD::defaultValue = 20;
 
 
 EQLNUM::EQLNUM() : ParserKeyword("EQLNUM", KeywordSize(1, false)) {
@@ -1112,9 +1126,9 @@ const std::string EQLZCORN::ACTION_REQ::defaultValue = "TOP";
 
 
 EQUALREG::EQUALREG() : ParserKeyword("EQUALREG", KeywordSize(SLASH_TERMINATED)) {
-  addValidSectionName("PROPS");
-  addValidSectionName("EDIT");
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
+  addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
   addValidSectionName("SOLUTION");
   clearDeckNames();
@@ -1149,7 +1163,6 @@ EQUALREG::EQUALREG() : ParserKeyword("EQUALREG", KeywordSize(SLASH_TERMINATED)) 
 const std::string EQUALREG::keywordName = "EQUALREG";
 const std::string EQUALREG::ARRAY::itemName = "ARRAY";
 const std::string EQUALREG::VALUE::itemName = "VALUE";
-const double EQUALREG::VALUE::defaultValue = 0;
 const std::string EQUALREG::REGION_NUMBER::itemName = "REGION_NUMBER";
 const std::string EQUALREG::REGION_NAME::itemName = "REGION_NAME";
 const std::string EQUALREG::REGION_NAME::defaultValue = "M";
@@ -1276,29 +1289,27 @@ EQUIL::EQUIL() : ParserKeyword("EQUIL", KeywordSize("EQLDIMS", "NTEQUL", false, 
         ParserItem item("EQLOPT5", ParserItem::itype::INT);
         record.addItem(item);
      }
+     {
+        ParserItem item("BLACK_OIL_INIT_HG", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
      addRecord( record );
   }
 }
 const std::string EQUIL::keywordName = "EQUIL";
 const std::string EQUIL::DATUM_DEPTH::itemName = "DATUM_DEPTH";
-const double EQUIL::DATUM_DEPTH::defaultValue = 0;
 const std::string EQUIL::DATUM_PRESSURE::itemName = "DATUM_PRESSURE";
 const std::string EQUIL::OWC::itemName = "OWC";
-const double EQUIL::OWC::defaultValue = 0;
 const std::string EQUIL::PC_OWC::itemName = "PC_OWC";
-const double EQUIL::PC_OWC::defaultValue = 0;
 const std::string EQUIL::GOC::itemName = "GOC";
-const double EQUIL::GOC::defaultValue = 0;
 const std::string EQUIL::PC_GOC::itemName = "PC_GOC";
-const double EQUIL::PC_GOC::defaultValue = 0;
 const std::string EQUIL::BLACK_OIL_INIT::itemName = "BLACK_OIL_INIT";
-const int EQUIL::BLACK_OIL_INIT::defaultValue = 0;
 const std::string EQUIL::BLACK_OIL_INIT_WG::itemName = "BLACK_OIL_INIT_WG";
-const int EQUIL::BLACK_OIL_INIT_WG::defaultValue = 0;
 const std::string EQUIL::OIP_INIT::itemName = "OIP_INIT";
-const int EQUIL::OIP_INIT::defaultValue = -5;
 const std::string EQUIL::EQLOPT04::itemName = "EQLOPT04";
 const std::string EQUIL::EQLOPT5::itemName = "EQLOPT5";
+const std::string EQUIL::BLACK_OIL_INIT_HG::itemName = "BLACK_OIL_INIT_HG";
 
 
 ESSNODE::ESSNODE() : ParserKeyword("ESSNODE", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
@@ -1362,7 +1373,6 @@ EXIT::EXIT() : ParserKeyword("EXIT", KeywordSize(1, false)) {
 }
 const std::string EXIT::keywordName = "EXIT";
 const std::string EXIT::STATUS_CODE::itemName = "STATUS_CODE";
-const int EXIT::STATUS_CODE::defaultValue = 0;
 
 
 EXTFIN::EXTFIN() : ParserKeyword("EXTFIN", KeywordSize(1, false)) {
@@ -1468,7 +1478,6 @@ EXTRAPMS::EXTRAPMS() : ParserKeyword("EXTRAPMS", KeywordSize(1, false)) {
 }
 const std::string EXTRAPMS::keywordName = "EXTRAPMS";
 const std::string EXTRAPMS::LEVEL::itemName = "LEVEL";
-const int EXTRAPMS::LEVEL::defaultValue = 0;
 
 
 EXTREPGL::EXTREPGL() : ParserKeyword("EXTREPGL", KeywordSize(1, false)) {

@@ -12,73 +12,73 @@ namespace ParserKeywords {
        class NTSFUN {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class NTPVT {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class NSSFUN {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 20;
        };
 
        class NPPVT {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 20;
        };
 
        class NTFIP {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class NRPVT {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 20;
        };
 
        class MAX_RV_NODES {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 20;
        };
 
        class NTENDP {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class NUM_EOS_RES {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class NUM_EOS_SURFACE {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class MAX_FLUX_REGIONS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 10;
        };
 
        class MAX_THERMAL_REGIONS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class NTROCC {
@@ -89,13 +89,13 @@ namespace ParserKeywords {
        class MAX_PRESSURE_MAINTAINANCE_REGIONS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_KVALUE_TABLES {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class NTALPHA {
@@ -106,19 +106,19 @@ namespace ParserKeywords {
        class ASPHALTENE_ASPKDAM_MAX_ROWS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 10;
        };
 
        class ASPHALTENE_ASPREWG_MAX_ROWS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 10;
        };
 
        class ASPHALTENE_ASPVISO_MAX_ROWS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 10;
        };
 
        class ITEM20_NOT_USED {
@@ -129,25 +129,25 @@ namespace ParserKeywords {
        class ASPHALTENE_ASPPW2D_MAX_COLUMNS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 5;
        };
 
        class ASPHALTENE_ASPPW2D_MAX_ROWS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 5;
        };
 
        class ASPHALTENE_ASPWETF_MAX_ROWS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 5;
        };
 
        class NUM_KVALUE_TABLES {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class RESERVED {
@@ -164,6 +164,19 @@ namespace ParserKeywords {
        static const std::string keywordName;
 
        class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class TCRIT : public ParserKeyword {
+   public:
+       TCRIT();
+       static const std::string keywordName;
+
+       class DATA {
        public:
            static const std::string itemName;
        };
@@ -239,6 +252,32 @@ namespace ParserKeywords {
 
 
 
+   class THCO2MIX : public ParserKeyword {
+   public:
+       THCO2MIX();
+       static const std::string keywordName;
+
+       class MIXING_MODEL_SALT {
+       public:
+           static const std::string itemName;
+           static const std::string defaultValue;
+       };
+
+       class MIXING_MODEL_LIQUID {
+       public:
+           static const std::string itemName;
+           static const std::string defaultValue;
+       };
+
+       class MIXING_MODEL_GAS {
+       public:
+           static const std::string itemName;
+           static const std::string defaultValue;
+       };
+   };
+
+
+
    class THCOIL : public ParserKeyword {
    public:
        THCOIL();
@@ -304,10 +343,36 @@ namespace ParserKeywords {
 
 
 
+   class THELCOEF : public ParserKeyword {
+   public:
+       THELCOEF();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
    class THERMAL : public ParserKeyword {
    public:
        THERMAL();
        static const std::string keywordName;
+   };
+
+
+
+   class THERMEXR : public ParserKeyword {
+   public:
+       THERMEXR();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
    };
 
 
@@ -472,7 +537,7 @@ namespace ParserKeywords {
        class VALUE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1e-06;
        };
    };
 
@@ -605,25 +670,25 @@ namespace ParserKeywords {
        class MAX_OIL_TRACERS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_WATER_TRACERS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_GAS_TRACERS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_ENV_TRACERS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class NUMERIC_DIFF {
@@ -635,13 +700,13 @@ namespace ParserKeywords {
        class MAX_ITER {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 12;
        };
 
        class MIN_ITER {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class PASSIVE_NONLINEAR {
@@ -663,13 +728,13 @@ namespace ParserKeywords {
        class TIGHTENING_FACTORS {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
 
        class NTIGHTFACTORS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
    };
 
@@ -683,7 +748,7 @@ namespace ParserKeywords {
        class FLUX_LIMITER {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class BOTH_TIMESTEP {
@@ -832,7 +897,7 @@ namespace ParserKeywords {
        class HALF_TIME {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 100000000000000000000.000000;
        };
    };
 
@@ -846,7 +911,7 @@ namespace ParserKeywords {
        class HALF_TIME {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 100000000000000000000.000000;
        };
    };
 
@@ -983,7 +1048,7 @@ namespace ParserKeywords {
        class INIT_MODEL {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
    };
 
@@ -1010,55 +1075,55 @@ namespace ParserKeywords {
        class TSINIT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
 
        class TSMAXZ {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 365.000000;
        };
 
        class TSMINZ {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.100000;
        };
 
        class TSMCHP {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.150000;
        };
 
        class TSFMAX {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 3.000000;
        };
 
        class TSFMIN {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.300000;
        };
 
        class TSFCNV {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.100000;
        };
 
        class TFDIFF {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.250000;
        };
 
        class THRUPT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 100000000000000000000.000000;
        };
 
        class TMAXWC {
@@ -1069,61 +1134,61 @@ namespace ParserKeywords {
        class TRGTTE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.100000;
        };
 
        class TRGCNV {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.001000;
        };
 
        class TRGMBE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1e-07;
        };
 
        class TRGLCV {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.000100;
        };
 
        class XXXTTE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 10.000000;
        };
 
        class XXXCNV {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.010000;
        };
 
        class XXXMBE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1e-06;
        };
 
        class XXXLCV {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.001000;
        };
 
        class XXXWFL {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.001000;
        };
 
        class TRGFIP {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.025000;
        };
 
        class TRGSFT {
@@ -1134,67 +1199,67 @@ namespace ParserKeywords {
        class THIONX {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.010000;
        };
 
        class TRWGHT {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class NEWTMX {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 12;
        };
 
        class NEWTMN {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class LITMAX {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 25;
        };
 
        class LITMIN {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class MXWSIT {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 8;
        };
 
        class MXWPIT {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 8;
        };
 
        class DDPLIM {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1000000.000000;
        };
 
        class DDSLIM {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1000000.000000;
        };
 
        class TRGDPR {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1000000.000000;
        };
 
        class XXXDPR {
@@ -1241,31 +1306,31 @@ namespace ParserKeywords {
        class GRGLCV {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.000100;
        };
 
        class GXXLCV {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.001000;
        };
 
        class GMSLCV {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1e-20;
        };
 
        class LGTMIN {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class LGTMAX {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 25;
        };
    };
 
@@ -1279,55 +1344,55 @@ namespace ParserKeywords {
        class TSINIT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
 
        class TSMAXZ {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 365.000000;
        };
 
        class TSMINZ {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.100000;
        };
 
        class TSMCHP {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.150000;
        };
 
        class TSFMAX {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 3.000000;
        };
 
        class TSFMIN {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.300000;
        };
 
        class TSFCNV {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.100000;
        };
 
        class TFDIFF {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.250000;
        };
 
        class THRUPT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 100000000000000000000.000000;
        };
 
        class TMAXWC {
@@ -1338,61 +1403,61 @@ namespace ParserKeywords {
        class TRGTTE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.100000;
        };
 
        class TRGCNV {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.001000;
        };
 
        class TRGMBE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1e-07;
        };
 
        class TRGLCV {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.000100;
        };
 
        class XXXTTE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 10.000000;
        };
 
        class XXXCNV {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.010000;
        };
 
        class XXXMBE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1e-06;
        };
 
        class XXXLCV {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.001000;
        };
 
        class XXXWFL {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.001000;
        };
 
        class TRGFIP {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.025000;
        };
 
        class TRGSFT {
@@ -1403,67 +1468,67 @@ namespace ParserKeywords {
        class THIONX {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.010000;
        };
 
        class TRWGHT {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class NEWTMX {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 12;
        };
 
        class NEWTMN {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class LITMAX {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 25;
        };
 
        class LITMIN {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class MXWSIT {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 8;
        };
 
        class MXWPIT {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 8;
        };
 
        class DDPLIM {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1000000.000000;
        };
 
        class DDSLIM {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1000000.000000;
        };
 
        class TRGDPR {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1000000.000000;
        };
 
        class XXXDPR {
@@ -1487,55 +1552,55 @@ namespace ParserKeywords {
        class TSINIT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
 
        class TSMAXZ {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 365.000000;
        };
 
        class TSMINZ {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.100000;
        };
 
        class TSMCHP {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.150000;
        };
 
        class TSFMAX {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 3.000000;
        };
 
        class TSFMIN {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.300000;
        };
 
        class TSFCNV {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.100000;
        };
 
        class TFDIFF {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.250000;
        };
 
        class THRUPT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 100000000000000000000.000000;
        };
 
        class TMAXWC {
@@ -1546,61 +1611,61 @@ namespace ParserKeywords {
        class TRGTTE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.100000;
        };
 
        class TRGCNV {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.001000;
        };
 
        class TRGMBE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1e-07;
        };
 
        class TRGLCV {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.000100;
        };
 
        class XXXTTE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 10.000000;
        };
 
        class XXXCNV {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.010000;
        };
 
        class XXXMBE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1e-06;
        };
 
        class XXXLCV {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.001000;
        };
 
        class XXXWFL {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.001000;
        };
 
        class TRGFIP {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.025000;
        };
 
        class TRGSFT {
@@ -1611,67 +1676,67 @@ namespace ParserKeywords {
        class THIONX {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.010000;
        };
 
        class TRWGHT {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class NEWTMX {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 12;
        };
 
        class NEWTMN {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class LITMAX {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 25;
        };
 
        class LITMIN {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class MXWSIT {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 8;
        };
 
        class MXWPIT {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 8;
        };
 
        class DDPLIM {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1000000.000000;
        };
 
        class DDSLIM {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1000000.000000;
        };
 
        class TRGDPR {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1000000.000000;
        };
 
        class XXXDPR {

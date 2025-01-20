@@ -42,11 +42,11 @@ BC::BC() : ParserKeyword("BC", KeywordSize(SLASH_TERMINATED)) {
         record.addItem(item);
      }
      {
-        ParserItem item("TYPE", ParserItem::itype::STRING);
+        ParserItem item("DIRECTION", ParserItem::itype::STRING);
         record.addItem(item);
      }
      {
-        ParserItem item("DIRECTION", ParserItem::itype::STRING);
+        ParserItem item("TYPE", ParserItem::itype::STRING);
         record.addItem(item);
      }
      {
@@ -60,6 +60,17 @@ BC::BC() : ParserKeyword("BC", KeywordSize(SLASH_TERMINATED)) {
         item.push_backDimension("Mass/Time*Length*Length");
         record.addItem(item);
      }
+     {
+        ParserItem item("PRESSURE", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("Pressure");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("TEMPERATURE", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Temperature");
+        record.addItem(item);
+     }
      addRecord( record );
   }
 }
@@ -70,12 +81,181 @@ const std::string BC::J1::itemName = "J1";
 const std::string BC::J2::itemName = "J2";
 const std::string BC::K1::itemName = "K1";
 const std::string BC::K2::itemName = "K2";
-const std::string BC::TYPE::itemName = "TYPE";
 const std::string BC::DIRECTION::itemName = "DIRECTION";
+const std::string BC::TYPE::itemName = "TYPE";
 const std::string BC::COMPONENT::itemName = "COMPONENT";
 const std::string BC::COMPONENT::defaultValue = "NONE";
 const std::string BC::RATE::itemName = "RATE";
-const double BC::RATE::defaultValue = 0;
+const std::string BC::PRESSURE::itemName = "PRESSURE";
+const std::string BC::TEMPERATURE::itemName = "TEMPERATURE";
+
+
+BCCON::BCCON() : ParserKeyword("BCCON", KeywordSize(SLASH_TERMINATED)) {
+  addValidSectionName("GRID");
+  clearDeckNames();
+  addDeckName("BCCON");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("INDEX", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("I1", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("I2", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("J1", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("J2", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("K1", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("K2", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("DIRECTION", ParserItem::itype::STRING);
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string BCCON::keywordName = "BCCON";
+const std::string BCCON::INDEX::itemName = "INDEX";
+const std::string BCCON::I1::itemName = "I1";
+const std::string BCCON::I2::itemName = "I2";
+const std::string BCCON::J1::itemName = "J1";
+const std::string BCCON::J2::itemName = "J2";
+const std::string BCCON::K1::itemName = "K1";
+const std::string BCCON::K2::itemName = "K2";
+const std::string BCCON::DIRECTION::itemName = "DIRECTION";
+
+
+BCPROP::BCPROP() : ParserKeyword("BCPROP", KeywordSize(SLASH_TERMINATED)) {
+  addValidSectionName("SCHEDULE");
+  clearDeckNames();
+  addDeckName("BCPROP");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("INDEX", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("TYPE", ParserItem::itype::STRING);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("COMPONENT", ParserItem::itype::STRING);
+        item.setDefault( std::string("NONE") );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("RATE", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("Mass/Time*Length*Length");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("PRESSURE", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("Pressure");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("TEMPERATURE", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Temperature");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("MECHTYPE", ParserItem::itype::STRING);
+        item.setDefault( std::string("NONE") );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("FIXEDX", ParserItem::itype::INT);
+        item.setDefault( 1 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("FIXEDY", ParserItem::itype::INT);
+        item.setDefault( 1 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("FIXEDZ", ParserItem::itype::INT);
+        item.setDefault( 1 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("STRESSXX", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("Pressure");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("STRESSYY", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("Pressure");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("STRESSZZ", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("Pressure");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("DISPX", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("Length");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("DISPY", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("Length");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("DISPZ", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("Length");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string BCPROP::keywordName = "BCPROP";
+const std::string BCPROP::INDEX::itemName = "INDEX";
+const std::string BCPROP::TYPE::itemName = "TYPE";
+const std::string BCPROP::COMPONENT::itemName = "COMPONENT";
+const std::string BCPROP::COMPONENT::defaultValue = "NONE";
+const std::string BCPROP::RATE::itemName = "RATE";
+const std::string BCPROP::PRESSURE::itemName = "PRESSURE";
+const std::string BCPROP::TEMPERATURE::itemName = "TEMPERATURE";
+const std::string BCPROP::MECHTYPE::itemName = "MECHTYPE";
+const std::string BCPROP::MECHTYPE::defaultValue = "NONE";
+const std::string BCPROP::FIXEDX::itemName = "FIXEDX";
+const std::string BCPROP::FIXEDY::itemName = "FIXEDY";
+const std::string BCPROP::FIXEDZ::itemName = "FIXEDZ";
+const std::string BCPROP::STRESSXX::itemName = "STRESSXX";
+const std::string BCPROP::STRESSYY::itemName = "STRESSYY";
+const std::string BCPROP::STRESSZZ::itemName = "STRESSZZ";
+const std::string BCPROP::DISPX::itemName = "DISPX";
+const std::string BCPROP::DISPY::itemName = "DISPY";
+const std::string BCPROP::DISPZ::itemName = "DISPZ";
 
 
 BDENSITY::BDENSITY() : ParserKeyword("BDENSITY", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
@@ -122,12 +302,51 @@ const std::string BGGI::GAS_PRESSURE::itemName = "GAS_PRESSURE";
 const std::string BGGI::DATA::itemName = "DATA";
 
 
+BIC::BIC() : ParserKeyword("BIC", KeywordSize("TABDIMS", "NUM_EOS_RES", false, 0)) {
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("BIC");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("DATA", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.setDefault( double(0) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string BIC::keywordName = "BIC";
+const std::string BIC::DATA::itemName = "DATA";
+
+
 BIGMODEL::BIGMODEL() : ParserKeyword("BIGMODEL", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("BIGMODEL");
 }
 const std::string BIGMODEL::keywordName = "BIGMODEL";
+
+
+BIOTCOEF::BIOTCOEF() : ParserKeyword("BIOTCOEF", KeywordSize(1, false)) {
+  addValidSectionName("GRID");
+  clearDeckNames();
+  addDeckName("BIOTCOEF");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("data", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("1");
+        record.addDataItem(item);
+     }
+     addDataRecord( record );
+  }
+}
+const std::string BIOTCOEF::keywordName = "BIOTCOEF";
+const std::string BIOTCOEF::data::itemName = "data";
 
 
 BLACKOIL::BLACKOIL() : ParserKeyword("BLACKOIL", KeywordSize(0, false)) {
@@ -143,44 +362,46 @@ BLOCK_PROBE::BLOCK_PROBE() : ParserKeyword("BLOCK_PROBE", KeywordSize(SLASH_TERM
   clearDeckNames();
   addDeckName("BVELWK");
   addDeckName("BFLOOK");
-  addDeckName("BSOIL");
   addDeckName("BOSAT");
+  addDeckName("BSOIL");
   addDeckName("BGIP");
   addDeckName("BVOIL");
   addDeckName("BGKR");
   addDeckName("BOIP");
   addDeckName("BOIPL");
   addDeckName("BGPR");
-  addDeckName("BSCN_X");
   addDeckName("BGIPG");
+  addDeckName("BSCN_X");
   addDeckName("BOVIS");
-  addDeckName("BOIPG");
   addDeckName("BWVIS");
+  addDeckName("BOIPG");
   addDeckName("BRSSAT");
   addDeckName("BPPO");
   addDeckName("BPDEW");
   addDeckName("BDENO");
-  addDeckName("BVELOJ");
+  addDeckName("BFLOWJ");
   addDeckName("BODEN");
+  addDeckName("BVELOJ");
   addDeckName("BVELWI");
   addDeckName("BFLOOI");
   addDeckName("BGDEN");
   addDeckName("BVELWJ");
   addDeckName("BFLOOJ");
   addDeckName("BFLOWI");
-  addDeckName("LBHDF_X");
   addDeckName("BVELOI");
+  addDeckName("LBHDF_X");
+  addDeckName("BFLOWK");
   addDeckName("BVELOK");
   addDeckName("BPPC");
-  addDeckName("BTRADCAT");
   addDeckName("BFLOGK");
+  addDeckName("BTRADCAT");
   addDeckName("BWSAT");
-  addDeckName("BSWAT");
   addDeckName("BGSAT");
+  addDeckName("BSWAT");
   addDeckName("BPR");
   addDeckName("BWIP");
-  addDeckName("BEWV_SAL");
   addDeckName("BPPW");
+  addDeckName("BEWV_SAL");
   addDeckName("BWKR");
   addDeckName("BVWAT");
   addDeckName("BDENW");
@@ -212,8 +433,8 @@ BLOCK_PROBE::BLOCK_PROBE() : ParserKeyword("BLOCK_PROBE", KeywordSize(SLASH_TERM
   addDeckName("BGPC");
   addDeckName("BGTRP");
   addDeckName("BGTPD");
-  addDeckName("BOPV");
   addDeckName("BGSHY");
+  addDeckName("BOPV");
   addDeckName("BGSTRP");
   addDeckName("BWSHY");
   addDeckName("BWSMA");
@@ -234,14 +455,14 @@ BLOCK_PROBE::BLOCK_PROBE() : ParserKeyword("BLOCK_PROBE", KeywordSize(SLASH_TERM
   addDeckName("BRTM");
   addDeckName("BPORVMOD");
   addDeckName("BPERMMOD");
-  addDeckName("BSCN");
   addDeckName("BAPI");
+  addDeckName("BSCN");
   addDeckName("BSIP");
   addDeckName("BCAD");
   addDeckName("BTCNFANI");
   addDeckName("BTCNFCAT");
-  addDeckName("BTCASUR");
   addDeckName("BTSADCAT");
+  addDeckName("BTCASUR");
   addDeckName("BESALSUR");
   addDeckName("BESALPLY");
   addDeckName("BTCNFHEA");
@@ -259,8 +480,8 @@ BLOCK_PROBE::BLOCK_PROBE() : ParserKeyword("BLOCK_PROBE", KeywordSize(SLASH_TERM
   addDeckName("BNSAT");
   addDeckName("BNIP");
   addDeckName("BNKR");
-  addDeckName("BTPADALK");
   addDeckName("BTCNFSUR");
+  addDeckName("BTPADALK");
   addDeckName("BTIPTSUR");
   addDeckName("BTADSUR");
   addDeckName("BTSTSUR");
@@ -400,7 +621,6 @@ const std::string BOUNDARY::JY2::itemName = "JY2";
 const std::string BOUNDARY::KZ1::itemName = "KZ1";
 const std::string BOUNDARY::KZ2::itemName = "KZ2";
 const std::string BOUNDARY::ORIENTATION_INDEX::itemName = "ORIENTATION_INDEX";
-const int BOUNDARY::ORIENTATION_INDEX::defaultValue = 1;
 const std::string BOUNDARY::DUAL_PORO_FLAG::itemName = "DUAL_PORO_FLAG";
 const std::string BOUNDARY::DUAL_PORO_FLAG::defaultValue = "BOTH";
 
@@ -481,13 +701,17 @@ BPIDIMS::BPIDIMS() : ParserKeyword("BPIDIMS", KeywordSize(1, false)) {
 }
 const std::string BPIDIMS::keywordName = "BPIDIMS";
 const std::string BPIDIMS::MXNBIP::itemName = "MXNBIP";
-const int BPIDIMS::MXNBIP::defaultValue = 10;
 const std::string BPIDIMS::MXNLBI::itemName = "MXNLBI";
-const int BPIDIMS::MXNLBI::defaultValue = 1;
 
 
 BRANPROP::BRANPROP() : ParserKeyword("BRANPROP", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
+  setProhibitedKeywords({
+    "GRUPNET",
+  });
+  setRequiredKeywords({
+    "NETWORK",
+  });
   clearDeckNames();
   addDeckName("BRANPROP");
   {
@@ -522,7 +746,6 @@ const std::string BRANPROP::DOWNTREE_NODE::itemName = "DOWNTREE_NODE";
 const std::string BRANPROP::UPTREE_NODE::itemName = "UPTREE_NODE";
 const std::string BRANPROP::VFP_TABLE::itemName = "VFP_TABLE";
 const std::string BRANPROP::ALQ::itemName = "ALQ";
-const double BRANPROP::ALQ::defaultValue = 0;
 const std::string BRANPROP::ALQ_SURFACE_DENSITY::itemName = "ALQ_SURFACE_DENSITY";
 const std::string BRANPROP::ALQ_SURFACE_DENSITY::defaultValue = "NONE";
 

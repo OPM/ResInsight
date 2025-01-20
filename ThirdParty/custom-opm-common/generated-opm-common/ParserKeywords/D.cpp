@@ -98,10 +98,12 @@ DATUMRX::DATUMRX() : ParserKeyword("DATUMRX", KeywordSize(SLASH_TERMINATED)) {
      ParserRecord record;
      {
         ParserItem item("REGION_FAMILY", ParserItem::itype::STRING);
+        item.setDefault( std::string("") );
         record.addItem(item);
      }
      {
         ParserItem item("DEPTH", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
         item.push_backDimension("Length");
         record.addItem(item);
      }
@@ -110,6 +112,7 @@ DATUMRX::DATUMRX() : ParserKeyword("DATUMRX", KeywordSize(SLASH_TERMINATED)) {
 }
 const std::string DATUMRX::keywordName = "DATUMRX";
 const std::string DATUMRX::REGION_FAMILY::itemName = "REGION_FAMILY";
+const std::string DATUMRX::REGION_FAMILY::defaultValue = "";
 const std::string DATUMRX::DEPTH::itemName = "DEPTH";
 
 
@@ -585,179 +588,92 @@ DEBUG_::DEBUG_() : ParserKeyword("DEBUG_", KeywordSize(1, false)) {
 }
 const std::string DEBUG_::keywordName = "DEBUG_";
 const std::string DEBUG_::Item1::itemName = "Item1";
-const int DEBUG_::Item1::defaultValue = 0;
 const std::string DEBUG_::Item2::itemName = "Item2";
-const int DEBUG_::Item2::defaultValue = 0;
 const std::string DEBUG_::Item3::itemName = "Item3";
-const int DEBUG_::Item3::defaultValue = 0;
 const std::string DEBUG_::Item4::itemName = "Item4";
-const int DEBUG_::Item4::defaultValue = 0;
 const std::string DEBUG_::Item5::itemName = "Item5";
-const int DEBUG_::Item5::defaultValue = 0;
 const std::string DEBUG_::Item6::itemName = "Item6";
-const int DEBUG_::Item6::defaultValue = 0;
 const std::string DEBUG_::Item7::itemName = "Item7";
-const int DEBUG_::Item7::defaultValue = 0;
 const std::string DEBUG_::Item8::itemName = "Item8";
-const int DEBUG_::Item8::defaultValue = 0;
 const std::string DEBUG_::Item9::itemName = "Item9";
-const int DEBUG_::Item9::defaultValue = 0;
 const std::string DEBUG_::Item10::itemName = "Item10";
-const int DEBUG_::Item10::defaultValue = 0;
 const std::string DEBUG_::Item11::itemName = "Item11";
-const int DEBUG_::Item11::defaultValue = 0;
 const std::string DEBUG_::Item12::itemName = "Item12";
-const int DEBUG_::Item12::defaultValue = 0;
 const std::string DEBUG_::Item13::itemName = "Item13";
-const int DEBUG_::Item13::defaultValue = 0;
 const std::string DEBUG_::Item14::itemName = "Item14";
-const int DEBUG_::Item14::defaultValue = 0;
 const std::string DEBUG_::Item15::itemName = "Item15";
-const int DEBUG_::Item15::defaultValue = 0;
 const std::string DEBUG_::Item16::itemName = "Item16";
-const int DEBUG_::Item16::defaultValue = 0;
 const std::string DEBUG_::Item17::itemName = "Item17";
-const int DEBUG_::Item17::defaultValue = 0;
 const std::string DEBUG_::Item18::itemName = "Item18";
-const int DEBUG_::Item18::defaultValue = 0;
 const std::string DEBUG_::Item19::itemName = "Item19";
-const int DEBUG_::Item19::defaultValue = 0;
 const std::string DEBUG_::Item20::itemName = "Item20";
-const int DEBUG_::Item20::defaultValue = 0;
 const std::string DEBUG_::Item21::itemName = "Item21";
-const int DEBUG_::Item21::defaultValue = 0;
 const std::string DEBUG_::Item22::itemName = "Item22";
-const int DEBUG_::Item22::defaultValue = 0;
 const std::string DEBUG_::Item23::itemName = "Item23";
-const int DEBUG_::Item23::defaultValue = 0;
 const std::string DEBUG_::Item24::itemName = "Item24";
-const int DEBUG_::Item24::defaultValue = 0;
 const std::string DEBUG_::Item25::itemName = "Item25";
-const int DEBUG_::Item25::defaultValue = 0;
 const std::string DEBUG_::Item26::itemName = "Item26";
-const int DEBUG_::Item26::defaultValue = 0;
 const std::string DEBUG_::Item27::itemName = "Item27";
-const int DEBUG_::Item27::defaultValue = 0;
 const std::string DEBUG_::Item28::itemName = "Item28";
-const int DEBUG_::Item28::defaultValue = 0;
 const std::string DEBUG_::Item29::itemName = "Item29";
-const int DEBUG_::Item29::defaultValue = 0;
 const std::string DEBUG_::Item30::itemName = "Item30";
-const int DEBUG_::Item30::defaultValue = 0;
 const std::string DEBUG_::Item31::itemName = "Item31";
-const int DEBUG_::Item31::defaultValue = 0;
 const std::string DEBUG_::Item32::itemName = "Item32";
-const int DEBUG_::Item32::defaultValue = 0;
 const std::string DEBUG_::Item33::itemName = "Item33";
-const int DEBUG_::Item33::defaultValue = 0;
 const std::string DEBUG_::Item34::itemName = "Item34";
-const int DEBUG_::Item34::defaultValue = 0;
 const std::string DEBUG_::Item35::itemName = "Item35";
-const int DEBUG_::Item35::defaultValue = 0;
 const std::string DEBUG_::Item36::itemName = "Item36";
-const int DEBUG_::Item36::defaultValue = 0;
 const std::string DEBUG_::Item37::itemName = "Item37";
-const int DEBUG_::Item37::defaultValue = 0;
 const std::string DEBUG_::Item38::itemName = "Item38";
-const int DEBUG_::Item38::defaultValue = 0;
 const std::string DEBUG_::Item39::itemName = "Item39";
-const int DEBUG_::Item39::defaultValue = 0;
 const std::string DEBUG_::Item40::itemName = "Item40";
-const int DEBUG_::Item40::defaultValue = 0;
 const std::string DEBUG_::Item41::itemName = "Item41";
-const int DEBUG_::Item41::defaultValue = 0;
 const std::string DEBUG_::Item42::itemName = "Item42";
-const int DEBUG_::Item42::defaultValue = 0;
 const std::string DEBUG_::Item43::itemName = "Item43";
-const int DEBUG_::Item43::defaultValue = 0;
 const std::string DEBUG_::Item44::itemName = "Item44";
-const int DEBUG_::Item44::defaultValue = 0;
 const std::string DEBUG_::Item45::itemName = "Item45";
-const int DEBUG_::Item45::defaultValue = 0;
 const std::string DEBUG_::Item46::itemName = "Item46";
-const int DEBUG_::Item46::defaultValue = 0;
 const std::string DEBUG_::Item47::itemName = "Item47";
-const int DEBUG_::Item47::defaultValue = 0;
 const std::string DEBUG_::Item48::itemName = "Item48";
-const int DEBUG_::Item48::defaultValue = 0;
 const std::string DEBUG_::Item49::itemName = "Item49";
-const int DEBUG_::Item49::defaultValue = 0;
 const std::string DEBUG_::Item50::itemName = "Item50";
-const int DEBUG_::Item50::defaultValue = 0;
 const std::string DEBUG_::Item51::itemName = "Item51";
-const int DEBUG_::Item51::defaultValue = 0;
 const std::string DEBUG_::Item52::itemName = "Item52";
-const int DEBUG_::Item52::defaultValue = 0;
 const std::string DEBUG_::Item53::itemName = "Item53";
-const int DEBUG_::Item53::defaultValue = 0;
 const std::string DEBUG_::Item54::itemName = "Item54";
-const int DEBUG_::Item54::defaultValue = 0;
 const std::string DEBUG_::Item55::itemName = "Item55";
-const int DEBUG_::Item55::defaultValue = 0;
 const std::string DEBUG_::Item56::itemName = "Item56";
-const int DEBUG_::Item56::defaultValue = 0;
 const std::string DEBUG_::Item57::itemName = "Item57";
-const int DEBUG_::Item57::defaultValue = 0;
 const std::string DEBUG_::Item58::itemName = "Item58";
-const int DEBUG_::Item58::defaultValue = 0;
 const std::string DEBUG_::Item59::itemName = "Item59";
-const int DEBUG_::Item59::defaultValue = 0;
 const std::string DEBUG_::Item60::itemName = "Item60";
-const int DEBUG_::Item60::defaultValue = 0;
 const std::string DEBUG_::Item61::itemName = "Item61";
-const int DEBUG_::Item61::defaultValue = 0;
 const std::string DEBUG_::Item62::itemName = "Item62";
-const int DEBUG_::Item62::defaultValue = 0;
 const std::string DEBUG_::Item63::itemName = "Item63";
-const int DEBUG_::Item63::defaultValue = 0;
 const std::string DEBUG_::Item64::itemName = "Item64";
-const int DEBUG_::Item64::defaultValue = 0;
 const std::string DEBUG_::Item65::itemName = "Item65";
-const int DEBUG_::Item65::defaultValue = 0;
 const std::string DEBUG_::Item66::itemName = "Item66";
-const int DEBUG_::Item66::defaultValue = 0;
 const std::string DEBUG_::Item67::itemName = "Item67";
-const int DEBUG_::Item67::defaultValue = 0;
 const std::string DEBUG_::Item68::itemName = "Item68";
-const int DEBUG_::Item68::defaultValue = 0;
 const std::string DEBUG_::Item69::itemName = "Item69";
-const int DEBUG_::Item69::defaultValue = 0;
 const std::string DEBUG_::Item70::itemName = "Item70";
-const int DEBUG_::Item70::defaultValue = 0;
 const std::string DEBUG_::Item71::itemName = "Item71";
-const int DEBUG_::Item71::defaultValue = 0;
 const std::string DEBUG_::Item72::itemName = "Item72";
-const int DEBUG_::Item72::defaultValue = 0;
 const std::string DEBUG_::Item73::itemName = "Item73";
-const int DEBUG_::Item73::defaultValue = 0;
 const std::string DEBUG_::Item74::itemName = "Item74";
-const int DEBUG_::Item74::defaultValue = 0;
 const std::string DEBUG_::Item75::itemName = "Item75";
-const int DEBUG_::Item75::defaultValue = 0;
 const std::string DEBUG_::Item76::itemName = "Item76";
-const int DEBUG_::Item76::defaultValue = 0;
 const std::string DEBUG_::Item77::itemName = "Item77";
-const int DEBUG_::Item77::defaultValue = 0;
 const std::string DEBUG_::Item78::itemName = "Item78";
-const int DEBUG_::Item78::defaultValue = 0;
 const std::string DEBUG_::Item79::itemName = "Item79";
-const int DEBUG_::Item79::defaultValue = 0;
 const std::string DEBUG_::Item80::itemName = "Item80";
-const int DEBUG_::Item80::defaultValue = 0;
 const std::string DEBUG_::Item81::itemName = "Item81";
-const int DEBUG_::Item81::defaultValue = 0;
 const std::string DEBUG_::Item82::itemName = "Item82";
-const int DEBUG_::Item82::defaultValue = 0;
 const std::string DEBUG_::Item83::itemName = "Item83";
-const int DEBUG_::Item83::defaultValue = 0;
 const std::string DEBUG_::Item84::itemName = "Item84";
-const int DEBUG_::Item84::defaultValue = 0;
 const std::string DEBUG_::Item85::itemName = "Item85";
-const int DEBUG_::Item85::defaultValue = 0;
 const std::string DEBUG_::Item86::itemName = "Item86";
-const int DEBUG_::Item86::defaultValue = 0;
 const std::string DEBUG_::Item87::itemName = "Item87";
-const int DEBUG_::Item87::defaultValue = 0;
 
 
 DELAYACT::DELAYACT() : ParserKeyword("DELAYACT", KeywordSize(1, false)) {
@@ -798,9 +714,26 @@ const std::string DELAYACT::ACTION_NAME::itemName = "ACTION_NAME";
 const std::string DELAYACT::ACTION_TRIGGER::itemName = "ACTION_TRIGGER";
 const std::string DELAYACT::DELAY::itemName = "DELAY";
 const std::string DELAYACT::NUM_TIMES::itemName = "NUM_TIMES";
-const int DELAYACT::NUM_TIMES::defaultValue = 1;
 const std::string DELAYACT::INCREMENT::itemName = "INCREMENT";
-const double DELAYACT::INCREMENT::defaultValue = 0;
+
+
+DENAQA::DENAQA() : ParserKeyword("DENAQA", KeywordSize("TABDIMS", "NUM_EOS_RES", false, 0)) {
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("DENAQA");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("DATA", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string DENAQA::keywordName = "DENAQA";
+const std::string DENAQA::DATA::itemName = "DATA";
 
 
 DENSITY::DENSITY() : ParserKeyword("DENSITY", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
@@ -832,11 +765,8 @@ DENSITY::DENSITY() : ParserKeyword("DENSITY", KeywordSize("TABDIMS", "NTPVT", fa
 }
 const std::string DENSITY::keywordName = "DENSITY";
 const std::string DENSITY::OIL::itemName = "OIL";
-const double DENSITY::OIL::defaultValue = 600.000000;
 const std::string DENSITY::WATER::itemName = "WATER";
-const double DENSITY::WATER::defaultValue = 999.014000;
 const std::string DENSITY::GAS::itemName = "GAS";
-const double DENSITY::GAS::defaultValue = 1.000000;
 
 
 DEPTH::DEPTH() : ParserKeyword("DEPTH", KeywordSize(1, false)) {
@@ -924,7 +854,70 @@ DIFF::DIFF() : ParserKeyword("DIFF", KeywordSize(1, false)) {
 }
 const std::string DIFF::keywordName = "DIFF";
 const std::string DIFF::data::itemName = "data";
-const double DIFF::data::defaultValue = 1.000000;
+
+
+DIFFAGAS::DIFFAGAS() : ParserKeyword("DIFFAGAS", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
+  addValidSectionName("PROPS");
+  setProhibitedKeywords({
+    "DIFFCWAT",
+    "DIFFCGAS",
+  });
+  setRequiredKeywords({
+    "GAS",
+    "WATER",
+  });
+  clearDeckNames();
+  addDeckName("DIFFAGAS");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("CO2_IN_GAS", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Length*Length/Time");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("H20_IN_GAS", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Length*Length/Time");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string DIFFAGAS::keywordName = "DIFFAGAS";
+const std::string DIFFAGAS::CO2_IN_GAS::itemName = "CO2_IN_GAS";
+const std::string DIFFAGAS::H20_IN_GAS::itemName = "H20_IN_GAS";
+
+
+DIFFAWAT::DIFFAWAT() : ParserKeyword("DIFFAWAT", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
+  addValidSectionName("PROPS");
+  setProhibitedKeywords({
+    "DIFFCWAT",
+    "DIFFCGAS",
+  });
+  setRequiredKeywords({
+    "GAS",
+    "WATER",
+  });
+  clearDeckNames();
+  addDeckName("DIFFAWAT");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("CO2_IN_WATER", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Length*Length/Time");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("H20_IN_WATER", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Length*Length/Time");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string DIFFAWAT::keywordName = "DIFFAWAT";
+const std::string DIFFAWAT::CO2_IN_WATER::itemName = "CO2_IN_WATER";
+const std::string DIFFAWAT::H20_IN_WATER::itemName = "H20_IN_WATER";
 
 
 DIFFC::DIFFC() : ParserKeyword("DIFFC", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
@@ -986,9 +979,39 @@ const std::string DIFFC::OIL_GAS_DIFF_COEFF::itemName = "OIL_GAS_DIFF_COEFF";
 const std::string DIFFC::GAS_OIL_DIFF_COEFF::itemName = "GAS_OIL_DIFF_COEFF";
 const std::string DIFFC::OIL_OIL_DIFF_COEFF::itemName = "OIL_OIL_DIFF_COEFF";
 const std::string DIFFC::GAS_OIL_CROSS_DIFF_COEFF::itemName = "GAS_OIL_CROSS_DIFF_COEFF";
-const double DIFFC::GAS_OIL_CROSS_DIFF_COEFF::defaultValue = 0;
 const std::string DIFFC::OIL_OIL_CROSS_DIFF_COEFF::itemName = "OIL_OIL_CROSS_DIFF_COEFF";
-const double DIFFC::OIL_OIL_CROSS_DIFF_COEFF::defaultValue = 0;
+
+
+DIFFCGAS::DIFFCGAS() : ParserKeyword("DIFFCGAS", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
+  addValidSectionName("PROPS");
+  setProhibitedKeywords({
+    "DIFFAWAT",
+    "DIFFAGAS",
+  });
+  setRequiredKeywords({
+    "GAS",
+    "WATER",
+  });
+  clearDeckNames();
+  addDeckName("DIFFCGAS");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("CO2_IN_GAS", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Length*Length/Time");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("H20_IN_GAS", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Length*Length/Time");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string DIFFCGAS::keywordName = "DIFFCGAS";
+const std::string DIFFCGAS::CO2_IN_GAS::itemName = "CO2_IN_GAS";
+const std::string DIFFCGAS::H20_IN_GAS::itemName = "H20_IN_GAS";
 
 
 DIFFCOAL::DIFFCOAL() : ParserKeyword("DIFFCOAL", KeywordSize("REGDIMS", "NTCREG", false, 0)) {
@@ -1019,8 +1042,39 @@ DIFFCOAL::DIFFCOAL() : ParserKeyword("DIFFCOAL", KeywordSize("REGDIMS", "NTCREG"
 const std::string DIFFCOAL::keywordName = "DIFFCOAL";
 const std::string DIFFCOAL::GAS_DIFF_COEFF::itemName = "GAS_DIFF_COEFF";
 const std::string DIFFCOAL::RE_ADSORB_FRACTION::itemName = "RE_ADSORB_FRACTION";
-const double DIFFCOAL::RE_ADSORB_FRACTION::defaultValue = 1.000000;
 const std::string DIFFCOAL::SOL_DIFF_COEFF::itemName = "SOL_DIFF_COEFF";
+
+
+DIFFCWAT::DIFFCWAT() : ParserKeyword("DIFFCWAT", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
+  addValidSectionName("PROPS");
+  setProhibitedKeywords({
+    "DIFFAWAT",
+    "DIFFAGAS",
+  });
+  setRequiredKeywords({
+    "GAS",
+    "WATER",
+  });
+  clearDeckNames();
+  addDeckName("DIFFCWAT");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("CO2_IN_WATER", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Length*Length/Time");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("H20_IN_WATER", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Length*Length/Time");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string DIFFCWAT::keywordName = "DIFFCWAT";
+const std::string DIFFCWAT::CO2_IN_WATER::itemName = "CO2_IN_WATER";
+const std::string DIFFCWAT::H20_IN_WATER::itemName = "H20_IN_WATER";
 
 
 DIFFDP::DIFFDP() : ParserKeyword("DIFFDP", KeywordSize(0, false)) {
@@ -1050,7 +1104,6 @@ DIFFMMF::DIFFMMF() : ParserKeyword("DIFFMMF", KeywordSize(1, false)) {
 }
 const std::string DIFFMMF::keywordName = "DIFFMMF";
 const std::string DIFFMMF::data::itemName = "data";
-const double DIFFMMF::data::defaultValue = 1.000000;
 
 
 DIFFMR::DIFFMR() : ParserKeyword("DIFFMR", KeywordSize(1, false)) {
@@ -1071,7 +1124,6 @@ DIFFMR::DIFFMR() : ParserKeyword("DIFFMR", KeywordSize(1, false)) {
 }
 const std::string DIFFMR::keywordName = "DIFFMR";
 const std::string DIFFMR::data::itemName = "data";
-const double DIFFMR::data::defaultValue = 1.000000;
 
 
 DIFFMTHT::DIFFMTHT() : ParserKeyword("DIFFMTHT", KeywordSize(1, false)) {
@@ -1092,7 +1144,6 @@ DIFFMTHT::DIFFMTHT() : ParserKeyword("DIFFMTHT", KeywordSize(1, false)) {
 }
 const std::string DIFFMTHT::keywordName = "DIFFMTHT";
 const std::string DIFFMTHT::data::itemName = "data";
-const double DIFFMTHT::data::defaultValue = 1.000000;
 
 
 DIFFMX::DIFFMX() : ParserKeyword("DIFFMX", KeywordSize(1, false)) {
@@ -1113,7 +1164,6 @@ DIFFMX::DIFFMX() : ParserKeyword("DIFFMX", KeywordSize(1, false)) {
 }
 const std::string DIFFMX::keywordName = "DIFFMX";
 const std::string DIFFMX::data::itemName = "data";
-const double DIFFMX::data::defaultValue = 1.000000;
 
 
 DIFFMY::DIFFMY() : ParserKeyword("DIFFMY", KeywordSize(1, false)) {
@@ -1134,7 +1184,6 @@ DIFFMY::DIFFMY() : ParserKeyword("DIFFMY", KeywordSize(1, false)) {
 }
 const std::string DIFFMY::keywordName = "DIFFMY";
 const std::string DIFFMY::data::itemName = "data";
-const double DIFFMY::data::defaultValue = 1.000000;
 
 
 DIFFMZ::DIFFMZ() : ParserKeyword("DIFFMZ", KeywordSize(1, false)) {
@@ -1155,7 +1204,6 @@ DIFFMZ::DIFFMZ() : ParserKeyword("DIFFMZ", KeywordSize(1, false)) {
 }
 const std::string DIFFMZ::keywordName = "DIFFMZ";
 const std::string DIFFMZ::data::itemName = "data";
-const double DIFFMZ::data::defaultValue = 1.000000;
 
 
 DIFFR::DIFFR() : ParserKeyword("DIFFR", KeywordSize(1, false)) {
@@ -1317,11 +1365,8 @@ DIMPES::DIMPES() : ParserKeyword("DIMPES", KeywordSize(1, false)) {
 }
 const std::string DIMPES::keywordName = "DIMPES";
 const std::string DIMPES::DSTARG::itemName = "DSTARG";
-const double DIMPES::DSTARG::defaultValue = 0.050000;
 const std::string DIMPES::DSMAX::itemName = "DSMAX";
-const double DIMPES::DSMAX::defaultValue = 0.100000;
 const std::string DIMPES::DPMAX::itemName = "DPMAX";
-const double DIMPES::DPMAX::defaultValue = 13.790000;
 
 
 DIMPLICT::DIMPLICT() : ParserKeyword("DIMPLICT", KeywordSize(0, false)) {
@@ -1338,6 +1383,14 @@ DISGAS::DISGAS() : ParserKeyword("DISGAS", KeywordSize(0, false)) {
   addDeckName("DISGAS");
 }
 const std::string DISGAS::keywordName = "DISGAS";
+
+
+DISGASW::DISGASW() : ParserKeyword("DISGASW", KeywordSize(0, false)) {
+  addValidSectionName("RUNSPEC");
+  clearDeckNames();
+  addDeckName("DISGASW");
+}
+const std::string DISGASW::keywordName = "DISGASW";
 
 
 DISPDIMS::DISPDIMS() : ParserKeyword("DISPDIMS", KeywordSize(1, false)) {
@@ -1366,11 +1419,27 @@ DISPDIMS::DISPDIMS() : ParserKeyword("DISPDIMS", KeywordSize(1, false)) {
 }
 const std::string DISPDIMS::keywordName = "DISPDIMS";
 const std::string DISPDIMS::NUM_DISP_TABLES::itemName = "NUM_DISP_TABLES";
-const int DISPDIMS::NUM_DISP_TABLES::defaultValue = 1;
 const std::string DISPDIMS::MAX_VELOCITY_NODES::itemName = "MAX_VELOCITY_NODES";
-const int DISPDIMS::MAX_VELOCITY_NODES::defaultValue = 2;
 const std::string DISPDIMS::MAX_CONCENTRATION_NODES::itemName = "MAX_CONCENTRATION_NODES";
-const int DISPDIMS::MAX_CONCENTRATION_NODES::defaultValue = 1;
+
+
+DISPERC::DISPERC() : ParserKeyword("DISPERC", KeywordSize(1, false)) {
+  addValidSectionName("GRID");
+  clearDeckNames();
+  addDeckName("DISPERC");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("data", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("Length");
+        record.addDataItem(item);
+     }
+     addDataRecord( record );
+  }
+}
+const std::string DISPERC::keywordName = "DISPERC";
+const std::string DISPERC::data::itemName = "data";
 
 
 DISPERSE::DISPERSE() : ParserKeyword("DISPERSE", KeywordSize("DISPDIMS", "MXDIST", true, 0)) {
@@ -1454,9 +1523,7 @@ DPKRMOD::DPKRMOD() : ParserKeyword("DPKRMOD", KeywordSize("TABDIMS", "NTSFUN", f
 }
 const std::string DPKRMOD::keywordName = "DPKRMOD";
 const std::string DPKRMOD::MOD_OIL_WAT_PERM::itemName = "MOD_OIL_WAT_PERM";
-const double DPKRMOD::MOD_OIL_WAT_PERM::defaultValue = 0;
 const std::string DPKRMOD::MOD_OIL_GAS_PERM::itemName = "MOD_OIL_GAS_PERM";
-const double DPKRMOD::MOD_OIL_GAS_PERM::defaultValue = 0;
 const std::string DPKRMOD::SCALE_PERM_FRACTURE::itemName = "SCALE_PERM_FRACTURE";
 const std::string DPKRMOD::SCALE_PERM_FRACTURE::defaultValue = "YES";
 
@@ -1498,7 +1565,7 @@ const std::string DR::keywordName = "DR";
 const std::string DR::data::itemName = "data";
 
 
-DREF::DREF() : ParserKeyword("DREF", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
+DREF::DREF() : ParserKeyword("DREF", KeywordSize("TABDIMS", "NUM_EOS_RES", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("DREF");
@@ -1517,7 +1584,7 @@ const std::string DREF::keywordName = "DREF";
 const std::string DREF::DENSITY::itemName = "DENSITY";
 
 
-DREFS::DREFS() : ParserKeyword("DREFS", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
+DREFS::DREFS() : ParserKeyword("DREFS", KeywordSize("TABDIMS", "NUM_EOS_SURFACE", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("DREFS");
@@ -1604,25 +1671,15 @@ DRILPRI::DRILPRI() : ParserKeyword("DRILPRI", KeywordSize(1, false)) {
 }
 const std::string DRILPRI::keywordName = "DRILPRI";
 const std::string DRILPRI::INTERVAL::itemName = "INTERVAL";
-const double DRILPRI::INTERVAL::defaultValue = 0;
 const std::string DRILPRI::A::itemName = "A";
-const double DRILPRI::A::defaultValue = 0;
 const std::string DRILPRI::B::itemName = "B";
-const double DRILPRI::B::defaultValue = 0;
 const std::string DRILPRI::C::itemName = "C";
-const double DRILPRI::C::defaultValue = 0;
 const std::string DRILPRI::D::itemName = "D";
-const double DRILPRI::D::defaultValue = 0;
 const std::string DRILPRI::E::itemName = "E";
-const double DRILPRI::E::defaultValue = 0;
 const std::string DRILPRI::F::itemName = "F";
-const double DRILPRI::F::defaultValue = 0;
 const std::string DRILPRI::G::itemName = "G";
-const double DRILPRI::G::defaultValue = 0;
 const std::string DRILPRI::H::itemName = "H";
-const double DRILPRI::H::defaultValue = 0;
 const std::string DRILPRI::LOOK_AHEAD::itemName = "LOOK_AHEAD";
-const double DRILPRI::LOOK_AHEAD::defaultValue = 0;
 const std::string DRILPRI::CALCULATION::itemName = "CALCULATION";
 const std::string DRILPRI::CALCULATION::defaultValue = "SINGLE";
 
@@ -1652,7 +1709,7 @@ const std::string DRSDT::OPTION::itemName = "OPTION";
 const std::string DRSDT::OPTION::defaultValue = "ALL";
 
 
-DRSDTCON::DRSDTCON() : ParserKeyword("DRSDTCON", KeywordSize(1, false)) {
+DRSDTCON::DRSDTCON() : ParserKeyword("DRSDTCON", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("DRSDTCON");
@@ -1660,6 +1717,19 @@ DRSDTCON::DRSDTCON() : ParserKeyword("DRSDTCON", KeywordSize(1, false)) {
      ParserRecord record;
      {
         ParserItem item("DRSDT_MAX", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0.040000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("PSI", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0.340000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("OMEGA", ParserItem::itype::DOUBLE);
+        item.setDefault( double(3e-09) );
         item.push_backDimension("1");
         record.addItem(item);
      }
@@ -1673,6 +1743,8 @@ DRSDTCON::DRSDTCON() : ParserKeyword("DRSDTCON", KeywordSize(1, false)) {
 }
 const std::string DRSDTCON::keywordName = "DRSDTCON";
 const std::string DRSDTCON::DRSDT_MAX::itemName = "DRSDT_MAX";
+const std::string DRSDTCON::PSI::itemName = "PSI";
+const std::string DRSDTCON::OMEGA::itemName = "OMEGA";
 const std::string DRSDTCON::OPTION::itemName = "OPTION";
 const std::string DRSDTCON::OPTION::defaultValue = "ALL";
 
@@ -1956,11 +2028,8 @@ DYNRDIMS::DYNRDIMS() : ParserKeyword("DYNRDIMS", KeywordSize(1, false)) {
 }
 const std::string DYNRDIMS::keywordName = "DYNRDIMS";
 const std::string DYNRDIMS::MNUMDR::itemName = "MNUMDR";
-const int DYNRDIMS::MNUMDR::defaultValue = 0;
 const std::string DYNRDIMS::MXDYNF::itemName = "MXDYNF";
-const int DYNRDIMS::MXDYNF::defaultValue = 0;
 const std::string DYNRDIMS::MXDYNR::itemName = "MXDYNR";
-const int DYNRDIMS::MXDYNR::defaultValue = 0;
 
 
 DYV::DYV() : ParserKeyword("DYV", KeywordSize(1, false)) {
@@ -2022,7 +2091,6 @@ DZMATRIX::DZMATRIX() : ParserKeyword("DZMATRIX", KeywordSize(1, false)) {
 }
 const std::string DZMATRIX::keywordName = "DZMATRIX";
 const std::string DZMATRIX::data::itemName = "data";
-const double DZMATRIX::data::defaultValue = 0;
 
 
 DZMTRX::DZMTRX() : ParserKeyword("DZMTRX", KeywordSize(1, false)) {
@@ -2043,7 +2111,6 @@ DZMTRX::DZMTRX() : ParserKeyword("DZMTRX", KeywordSize(1, false)) {
 }
 const std::string DZMTRX::keywordName = "DZMTRX";
 const std::string DZMTRX::data::itemName = "data";
-const double DZMTRX::data::defaultValue = 0;
 
 
 DZMTRXV::DZMTRXV() : ParserKeyword("DZMTRXV", KeywordSize(1, false)) {
@@ -2064,7 +2131,6 @@ DZMTRXV::DZMTRXV() : ParserKeyword("DZMTRXV", KeywordSize(1, false)) {
 }
 const std::string DZMTRXV::keywordName = "DZMTRXV";
 const std::string DZMTRXV::data::itemName = "data";
-const double DZMTRXV::data::defaultValue = 0;
 
 
 DZNET::DZNET() : ParserKeyword("DZNET", KeywordSize(1, false)) {

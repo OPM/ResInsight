@@ -19,6 +19,23 @@ NARROW::NARROW() : ParserKeyword("NARROW", KeywordSize(0, false)) {
 const std::string NARROW::keywordName = "NARROW";
 
 
+NCOMPS::NCOMPS() : ParserKeyword("NCOMPS", KeywordSize(1, false)) {
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("NCOMPS");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("NUM_COMPS", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string NCOMPS::keywordName = "NCOMPS";
+const std::string NCOMPS::NUM_COMPS::itemName = "NUM_COMPS";
+
+
 NCONSUMP::NCONSUMP() : ParserKeyword("NCONSUMP", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
@@ -45,7 +62,6 @@ NCONSUMP::NCONSUMP() : ParserKeyword("NCONSUMP", KeywordSize(SLASH_TERMINATED)) 
 const std::string NCONSUMP::keywordName = "NCONSUMP";
 const std::string NCONSUMP::NODE::itemName = "NODE";
 const std::string NCONSUMP::GAS_CONSUMPTION_RATE::itemName = "GAS_CONSUMPTION_RATE";
-const double NCONSUMP::GAS_CONSUMPTION_RATE::defaultValue = 0;
 const std::string NCONSUMP::REMOVAL_GROUP::itemName = "REMOVAL_GROUP";
 
 
@@ -71,7 +87,6 @@ NEFAC::NEFAC() : ParserKeyword("NEFAC", KeywordSize(SLASH_TERMINATED)) {
 const std::string NEFAC::keywordName = "NEFAC";
 const std::string NEFAC::NODE::itemName = "NODE";
 const std::string NEFAC::EFF_FACTOR::itemName = "EFF_FACTOR";
-const double NEFAC::EFF_FACTOR::defaultValue = 1.000000;
 
 
 NETBALAN::NETBALAN() : ParserKeyword("NETBALAN", KeywordSize(1, false)) {
@@ -130,19 +145,12 @@ NETBALAN::NETBALAN() : ParserKeyword("NETBALAN", KeywordSize(1, false)) {
 }
 const std::string NETBALAN::keywordName = "NETBALAN";
 const std::string NETBALAN::TIME_INTERVAL::itemName = "TIME_INTERVAL";
-const double NETBALAN::TIME_INTERVAL::defaultValue = 0;
 const std::string NETBALAN::PRESSURE_CONVERGENCE_LIMIT::itemName = "PRESSURE_CONVERGENCE_LIMIT";
-const double NETBALAN::PRESSURE_CONVERGENCE_LIMIT::defaultValue = 0.100000;
 const std::string NETBALAN::MAX_ITER::itemName = "MAX_ITER";
-const int NETBALAN::MAX_ITER::defaultValue = 10;
 const std::string NETBALAN::THP_CONVERGENCE_LIMIT::itemName = "THP_CONVERGENCE_LIMIT";
-const double NETBALAN::THP_CONVERGENCE_LIMIT::defaultValue = 0.010000;
 const std::string NETBALAN::MAX_ITER_THP::itemName = "MAX_ITER_THP";
-const int NETBALAN::MAX_ITER_THP::defaultValue = 10;
 const std::string NETBALAN::TARGET_BALANCE_ERROR::itemName = "TARGET_BALANCE_ERROR";
-const double NETBALAN::TARGET_BALANCE_ERROR::defaultValue = 100000000000000000000.000000;
 const std::string NETBALAN::MAX_BALANCE_ERROR::itemName = "MAX_BALANCE_ERROR";
-const double NETBALAN::MAX_BALANCE_ERROR::defaultValue = 100000000000000000000.000000;
 const std::string NETBALAN::MIN_TIME_STEP::itemName = "MIN_TIME_STEP";
 
 
@@ -218,11 +226,8 @@ const std::string NETCOMPA::GROUP::defaultValue = "";
 const std::string NETCOMPA::PHASE::itemName = "PHASE";
 const std::string NETCOMPA::PHASE::defaultValue = "GAS";
 const std::string NETCOMPA::VFT_TABLE_NUM::itemName = "VFT_TABLE_NUM";
-const int NETCOMPA::VFT_TABLE_NUM::defaultValue = 0;
 const std::string NETCOMPA::ALQ::itemName = "ALQ";
-const double NETCOMPA::ALQ::defaultValue = 0;
 const std::string NETCOMPA::GAS_CONSUMPTION_RATE::itemName = "GAS_CONSUMPTION_RATE";
-const double NETCOMPA::GAS_CONSUMPTION_RATE::defaultValue = 0;
 const std::string NETCOMPA::EXTRACTION_GROUP::itemName = "EXTRACTION_GROUP";
 const std::string NETCOMPA::EXTRACTION_GROUP::defaultValue = "";
 const std::string NETCOMPA::COMPRESSOR_TYPE::itemName = "COMPRESSOR_TYPE";
@@ -233,6 +238,9 @@ const std::string NETCOMPA::COMP_SWITCH_SEQ_NUM::itemName = "COMP_SWITCH_SEQ_NUM
 
 NETWORK::NETWORK() : ParserKeyword("NETWORK", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
+  setProhibitedKeywords({
+    "GRUPNET",
+  });
   clearDeckNames();
   addDeckName("NETWORK");
   {
@@ -257,7 +265,26 @@ const std::string NETWORK::keywordName = "NETWORK";
 const std::string NETWORK::NODMAX::itemName = "NODMAX";
 const std::string NETWORK::NBRMAX::itemName = "NBRMAX";
 const std::string NETWORK::NBCMAX::itemName = "NBCMAX";
-const int NETWORK::NBCMAX::defaultValue = 20;
+
+
+NETWORK_PROBE::NETWORK_PROBE() : ParserKeyword("NETWORK_PROBE", KeywordSize(1, false)) {
+  addValidSectionName("SUMMARY");
+  clearDeckNames();
+  addDeckName("GNETPR");
+  addDeckName("NPR");
+  setMatchRegex("NU.+");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("NETWORK_NODES", ParserItem::itype::STRING);
+        item.setSizeType(ParserItem::item_size::ALL);
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string NETWORK_PROBE::keywordName = "NETWORK_PROBE";
+const std::string NETWORK_PROBE::NETWORK_NODES::itemName = "NETWORK_NODES";
 
 
 NEWTRAN::NEWTRAN() : ParserKeyword("NEWTRAN", KeywordSize(0, false)) {
@@ -374,7 +401,6 @@ const std::string NMATOPTS::keywordName = "NMATOPTS";
 const std::string NMATOPTS::GEOMETRY::itemName = "GEOMETRY";
 const std::string NMATOPTS::GEOMETRY::defaultValue = "LINEAR";
 const std::string NMATOPTS::FRACTION_PORE_VOL::itemName = "FRACTION_PORE_VOL";
-const double NMATOPTS::FRACTION_PORE_VOL::defaultValue = 0.100000;
 const std::string NMATOPTS::METHOD::itemName = "METHOD";
 const std::string NMATOPTS::METHOD::defaultValue = "FPORV";
 
@@ -462,12 +488,10 @@ NNC::NNC() : ParserKeyword("NNC", KeywordSize(SLASH_TERMINATED)) {
      }
      {
         ParserItem item("VE_FACE1", ParserItem::itype::STRING);
-        item.setDefault( std::string("") );
         record.addItem(item);
      }
      {
         ParserItem item("VE_FACE2", ParserItem::itype::STRING);
-        item.setDefault( std::string("") );
         record.addItem(item);
      }
      {
@@ -504,27 +528,16 @@ const std::string NNC::I2::itemName = "I2";
 const std::string NNC::J2::itemName = "J2";
 const std::string NNC::K2::itemName = "K2";
 const std::string NNC::TRAN::itemName = "TRAN";
-const double NNC::TRAN::defaultValue = 0;
 const std::string NNC::IST1::itemName = "IST1";
-const int NNC::IST1::defaultValue = 0;
 const std::string NNC::IST2::itemName = "IST2";
-const int NNC::IST2::defaultValue = 0;
 const std::string NNC::PRESSURE_TABLE1::itemName = "PRESSURE_TABLE1";
-const int NNC::PRESSURE_TABLE1::defaultValue = 0;
 const std::string NNC::PRESSURE_TABLE2::itemName = "PRESSURE_TABLE2";
-const int NNC::PRESSURE_TABLE2::defaultValue = 0;
 const std::string NNC::VE_FACE1::itemName = "VE_FACE1";
-const std::string NNC::VE_FACE1::defaultValue = "";
 const std::string NNC::VE_FACE2::itemName = "VE_FACE2";
-const std::string NNC::VE_FACE2::defaultValue = "";
 const std::string NNC::DIFFUSIVITY::itemName = "DIFFUSIVITY";
-const double NNC::DIFFUSIVITY::defaultValue = 0;
 const std::string NNC::SIM_DEPENDENT3::itemName = "SIM_DEPENDENT3";
-const double NNC::SIM_DEPENDENT3::defaultValue = 0;
 const std::string NNC::VDFLOW_AREA::itemName = "VDFLOW_AREA";
-const double NNC::VDFLOW_AREA::defaultValue = 0;
 const std::string NNC::VDFLOW_PERM::itemName = "VDFLOW_PERM";
-const double NNC::VDFLOW_PERM::defaultValue = 0;
 
 
 NNEWTF::NNEWTF() : ParserKeyword("NNEWTF", KeywordSize(1, false)) {
@@ -559,6 +572,13 @@ const std::string NOCASC::keywordName = "NOCASC";
 
 NODEPROP::NODEPROP() : ParserKeyword("NODEPROP", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
+  setProhibitedKeywords({
+    "GRUPNET",
+  });
+  setRequiredKeywords({
+    "NETWORK",
+    "BRANPROP",
+  });
   clearDeckNames();
   addDeckName("NODEPROP");
   {
@@ -620,9 +640,9 @@ const std::string NODPPM::keywordName = "NODPPM";
 
 NOECHO::NOECHO() : ParserKeyword("NOECHO", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
-  addValidSectionName("PROPS");
-  addValidSectionName("EDIT");
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
+  addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
   addValidSectionName("SOLUTION");
   addValidSectionName("SUMMARY");
@@ -739,9 +759,9 @@ const std::string NOSIM::keywordName = "NOSIM";
 
 NOWARN::NOWARN() : ParserKeyword("NOWARN", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
-  addValidSectionName("GRID");
-  addValidSectionName("EDIT");
   addValidSectionName("PROPS");
+  addValidSectionName("EDIT");
+  addValidSectionName("GRID");
   addValidSectionName("REGIONS");
   addValidSectionName("SOLUTION");
   addValidSectionName("SUMMARY");
@@ -776,7 +796,6 @@ NRSOUT::NRSOUT() : ParserKeyword("NRSOUT", KeywordSize(1, false)) {
 }
 const std::string NRSOUT::keywordName = "NRSOUT";
 const std::string NRSOUT::MAX_NUM::itemName = "MAX_NUM";
-const int NRSOUT::MAX_NUM::defaultValue = 3600;
 
 
 NSTACK::NSTACK() : ParserKeyword("NSTACK", KeywordSize(1, false)) {
@@ -796,7 +815,6 @@ NSTACK::NSTACK() : ParserKeyword("NSTACK", KeywordSize(1, false)) {
 }
 const std::string NSTACK::keywordName = "NSTACK";
 const std::string NSTACK::LINEAR_SOLVER_SIZE::itemName = "LINEAR_SOLVER_SIZE";
-const int NSTACK::LINEAR_SOLVER_SIZE::defaultValue = 10;
 
 
 NTG::NTG() : ParserKeyword("NTG", KeywordSize(1, false)) {
@@ -834,7 +852,6 @@ NUMRES::NUMRES() : ParserKeyword("NUMRES", KeywordSize(1, false)) {
 }
 const std::string NUMRES::keywordName = "NUMRES";
 const std::string NUMRES::num::itemName = "num";
-const int NUMRES::num::defaultValue = 1;
 
 
 NUPCOL::NUPCOL() : ParserKeyword("NUPCOL", KeywordSize(1, false)) {
@@ -854,7 +871,6 @@ NUPCOL::NUPCOL() : ParserKeyword("NUPCOL", KeywordSize(1, false)) {
 }
 const std::string NUPCOL::keywordName = "NUPCOL";
 const std::string NUPCOL::NUM_ITER::itemName = "NUM_ITER";
-const int NUPCOL::NUM_ITER::defaultValue = 12;
 
 
 NWATREM::NWATREM() : ParserKeyword("NWATREM", KeywordSize(SLASH_TERMINATED)) {
@@ -885,9 +901,7 @@ NWATREM::NWATREM() : ParserKeyword("NWATREM", KeywordSize(SLASH_TERMINATED)) {
 const std::string NWATREM::keywordName = "NWATREM";
 const std::string NWATREM::NODE::itemName = "NODE";
 const std::string NWATREM::WAX_RATE::itemName = "WAX_RATE";
-const double NWATREM::WAX_RATE::defaultValue = 10000000000000000159028911097599180468360808563945281389781327557747838772170381060813469985856815104.000000;
 const std::string NWATREM::MAX_FRAC_REMOVAL::itemName = "MAX_FRAC_REMOVAL";
-const double NWATREM::MAX_FRAC_REMOVAL::defaultValue = 1.000000;
 
 
 NXFIN::NXFIN() : ParserKeyword("NXFIN", KeywordSize(1, false)) {

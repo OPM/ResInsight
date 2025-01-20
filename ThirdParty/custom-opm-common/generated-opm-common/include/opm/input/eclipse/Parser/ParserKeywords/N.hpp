@@ -12,6 +12,19 @@ namespace ParserKeywords {
 
 
 
+   class NCOMPS : public ParserKeyword {
+   public:
+       NCOMPS();
+       static const std::string keywordName;
+
+       class NUM_COMPS {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
    class NCONSUMP : public ParserKeyword {
    public:
        NCONSUMP();
@@ -25,7 +38,7 @@ namespace ParserKeywords {
        class GAS_CONSUMPTION_RATE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
 
        class REMOVAL_GROUP {
@@ -49,7 +62,7 @@ namespace ParserKeywords {
        class EFF_FACTOR {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
    };
 
@@ -63,43 +76,43 @@ namespace ParserKeywords {
        class TIME_INTERVAL {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
 
        class PRESSURE_CONVERGENCE_LIMIT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.100000;
        };
 
        class MAX_ITER {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 10;
        };
 
        class THP_CONVERGENCE_LIMIT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.010000;
        };
 
        class MAX_ITER_THP {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 10;
        };
 
        class TARGET_BALANCE_ERROR {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 100000000000000000000.000000;
        };
 
        class MAX_BALANCE_ERROR {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 100000000000000000000.000000;
        };
 
        class MIN_TIME_STEP {
@@ -140,19 +153,19 @@ namespace ParserKeywords {
        class VFT_TABLE_NUM {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class ALQ {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
 
        class GAS_CONSUMPTION_RATE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
 
        class EXTRACTION_GROUP {
@@ -202,7 +215,20 @@ namespace ParserKeywords {
        class NBCMAX {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 20;
+       };
+   };
+
+
+
+   class NETWORK_PROBE : public ParserKeyword {
+   public:
+       NETWORK_PROBE();
+       static const std::string keywordName;
+
+       class NETWORK_NODES {
+       public:
+           static const std::string itemName;
        };
    };
 
@@ -289,7 +315,7 @@ namespace ParserKeywords {
        class FRACTION_PORE_VOL {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.100000;
        };
 
        class METHOD {
@@ -360,67 +386,65 @@ namespace ParserKeywords {
        class TRAN {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
 
        class IST1 {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class IST2 {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class PRESSURE_TABLE1 {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class PRESSURE_TABLE2 {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class VE_FACE1 {
        public:
            static const std::string itemName;
-           static const std::string defaultValue;
        };
 
        class VE_FACE2 {
        public:
            static const std::string itemName;
-           static const std::string defaultValue;
        };
 
        class DIFFUSIVITY {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
 
        class SIM_DEPENDENT3 {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
 
        class VDFLOW_AREA {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
 
        class VDFLOW_PERM {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
    };
 
@@ -627,7 +651,7 @@ namespace ParserKeywords {
        class MAX_NUM {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 3600;
        };
    };
 
@@ -641,7 +665,7 @@ namespace ParserKeywords {
        class LINEAR_SOLVER_SIZE {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 10;
        };
    };
 
@@ -668,7 +692,7 @@ namespace ParserKeywords {
        class num {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
    };
 
@@ -682,7 +706,7 @@ namespace ParserKeywords {
        class NUM_ITER {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 12;
        };
    };
 
@@ -701,13 +725,13 @@ namespace ParserKeywords {
        class WAX_RATE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 10000000000000000159028911097599180468360808563945281389781327557747838772170381060813469985856815104.000000;
        };
 
        class MAX_FRAC_REMOVAL {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
    };
 

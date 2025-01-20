@@ -11,6 +11,43 @@
 #include <opm/input/eclipse/Parser/ParserKeywords/A.hpp>
 namespace Opm {
 namespace ParserKeywords {
+ACF::ACF() : ParserKeyword("ACF", KeywordSize("TABDIMS", "NUM_EOS_RES", false, 0)) {
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("ACF");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("DATA", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string ACF::keywordName = "ACF";
+const std::string ACF::DATA::itemName = "DATA";
+
+
+ACTCO2S::ACTCO2S() : ParserKeyword("ACTCO2S", KeywordSize(1, false)) {
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("ACTCO2S");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("ACTIVITY_MODEL", ParserItem::itype::INT);
+        item.setDefault( 3 );
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string ACTCO2S::keywordName = "ACTCO2S";
+const std::string ACTCO2S::ACTIVITY_MODEL::itemName = "ACTIVITY_MODEL";
+
+
 ACTDIMS::ACTDIMS() : ParserKeyword("ACTDIMS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
@@ -42,13 +79,9 @@ ACTDIMS::ACTDIMS() : ParserKeyword("ACTDIMS", KeywordSize(1, false)) {
 }
 const std::string ACTDIMS::keywordName = "ACTDIMS";
 const std::string ACTDIMS::MAX_ACTION::itemName = "MAX_ACTION";
-const int ACTDIMS::MAX_ACTION::defaultValue = 2;
 const std::string ACTDIMS::MAX_ACTION_LINES::itemName = "MAX_ACTION_LINES";
-const int ACTDIMS::MAX_ACTION_LINES::defaultValue = 50;
 const std::string ACTDIMS::MAX_ACTION_LINE_CHARACTERS::itemName = "MAX_ACTION_LINE_CHARACTERS";
-const int ACTDIMS::MAX_ACTION_LINE_CHARACTERS::defaultValue = 80;
 const std::string ACTDIMS::MAX_ACTION_COND::itemName = "MAX_ACTION_COND";
-const int ACTDIMS::MAX_ACTION_COND::defaultValue = 3;
 
 
 ACTION::ACTION() : ParserKeyword("ACTION", KeywordSize(1, false)) {
@@ -129,9 +162,7 @@ const std::string ACTIONG::QUANTITY::itemName = "QUANTITY";
 const std::string ACTIONG::OPERATOR::itemName = "OPERATOR";
 const std::string ACTIONG::TRIGGER_VALUE::itemName = "TRIGGER_VALUE";
 const std::string ACTIONG::REPETITIONS::itemName = "REPETITIONS";
-const int ACTIONG::REPETITIONS::defaultValue = 1;
 const std::string ACTIONG::INCREMENT::itemName = "INCREMENT";
-const double ACTIONG::INCREMENT::defaultValue = 0;
 
 
 ACTIONR::ACTIONR() : ParserKeyword("ACTIONR", KeywordSize(1, false)) {
@@ -185,9 +216,7 @@ const std::string ACTIONR::QUANTITY::itemName = "QUANTITY";
 const std::string ACTIONR::OPERATOR::itemName = "OPERATOR";
 const std::string ACTIONR::TRIGGER_VALUE::itemName = "TRIGGER_VALUE";
 const std::string ACTIONR::REPETITIONS::itemName = "REPETITIONS";
-const int ACTIONR::REPETITIONS::defaultValue = 1;
 const std::string ACTIONR::INCREMENT::itemName = "INCREMENT";
-const double ACTIONR::INCREMENT::defaultValue = 0;
 
 
 ACTIONS::ACTIONS() : ParserKeyword("ACTIONS", KeywordSize(1, false)) {
@@ -241,9 +270,7 @@ const std::string ACTIONS::QUANTITY::itemName = "QUANTITY";
 const std::string ACTIONS::OPERATOR::itemName = "OPERATOR";
 const std::string ACTIONS::TRIGGER_VALUE::itemName = "TRIGGER_VALUE";
 const std::string ACTIONS::REPETITIONS::itemName = "REPETITIONS";
-const int ACTIONS::REPETITIONS::defaultValue = 1;
 const std::string ACTIONS::INCREMENT::itemName = "INCREMENT";
-const double ACTIONS::INCREMENT::defaultValue = 0;
 
 
 ACTIONW::ACTIONW() : ParserKeyword("ACTIONW", KeywordSize(1, false)) {
@@ -292,9 +319,7 @@ const std::string ACTIONW::QUANTITY::itemName = "QUANTITY";
 const std::string ACTIONW::OPERATOR::itemName = "OPERATOR";
 const std::string ACTIONW::TRIGGER_VALUE::itemName = "TRIGGER_VALUE";
 const std::string ACTIONW::REPETITIONS::itemName = "REPETITIONS";
-const int ACTIONW::REPETITIONS::defaultValue = 1;
 const std::string ACTIONW::INCREMENT::itemName = "INCREMENT";
-const double ACTIONW::INCREMENT::defaultValue = 0;
 
 
 ACTIONX::ACTIONX() : ParserKeyword("ACTIONX", KeywordSize(SLASH_TERMINATED)) {
@@ -333,9 +358,7 @@ ACTIONX::ACTIONX() : ParserKeyword("ACTIONX", KeywordSize(SLASH_TERMINATED)) {
 const std::string ACTIONX::keywordName = "ACTIONX";
 const std::string ACTIONX::NAME::itemName = "NAME";
 const std::string ACTIONX::NUM::itemName = "NUM";
-const int ACTIONX::NUM::defaultValue = 1;
 const std::string ACTIONX::MIN_WAIT::itemName = "MIN_WAIT";
-const double ACTIONX::MIN_WAIT::defaultValue = 0;
 const std::string ACTIONX::CONDITION::itemName = "CONDITION";
 
 
@@ -374,7 +397,6 @@ ACTPARAM::ACTPARAM() : ParserKeyword("ACTPARAM", KeywordSize(1, false)) {
 }
 const std::string ACTPARAM::keywordName = "ACTPARAM";
 const std::string ACTPARAM::data::itemName = "data";
-const double ACTPARAM::data::defaultValue = 0.000100;
 
 
 ADD::ADD() : ParserKeyword("ADD", KeywordSize(SLASH_TERMINATED)) {
@@ -471,7 +493,6 @@ ADDREG::ADDREG() : ParserKeyword("ADDREG", KeywordSize(SLASH_TERMINATED)) {
 const std::string ADDREG::keywordName = "ADDREG";
 const std::string ADDREG::ARRAY::itemName = "ARRAY";
 const std::string ADDREG::SHIFT::itemName = "SHIFT";
-const double ADDREG::SHIFT::defaultValue = 0;
 const std::string ADDREG::REGION_NUMBER::itemName = "REGION_NUMBER";
 const std::string ADDREG::REGION_NAME::itemName = "REGION_NAME";
 const std::string ADDREG::REGION_NAME::defaultValue = "M";
@@ -627,9 +648,7 @@ const std::string ADSORP::A1::itemName = "A1";
 const std::string ADSORP::A2::itemName = "A2";
 const std::string ADSORP::B::itemName = "B";
 const std::string ADSORP::M::itemName = "M";
-const double ADSORP::M::defaultValue = 0.500000;
 const std::string ADSORP::N::itemName = "N";
-const double ADSORP::N::defaultValue = 0.500000;
 const std::string ADSORP::K_REF::itemName = "K_REF";
 
 
@@ -806,7 +825,6 @@ APIGROUP::APIGROUP() : ParserKeyword("APIGROUP", KeywordSize(1, false)) {
 }
 const std::string APIGROUP::keywordName = "APIGROUP";
 const std::string APIGROUP::MAX_OIL_PVT_GROUP_COUNT::itemName = "MAX_OIL_PVT_GROUP_COUNT";
-const int APIGROUP::MAX_OIL_PVT_GROUP_COUNT::defaultValue = 1;
 
 
 APILIM::APILIM() : ParserKeyword("APILIM", KeywordSize(1, false)) {
@@ -849,7 +867,6 @@ const std::string APILIM::SCOPE::defaultValue = "BOTH";
 const std::string APILIM::LOWER_API_LIMIT::itemName = "LOWER_API_LIMIT";
 const std::string APILIM::UPPER_API_LIMIT::itemName = "UPPER_API_LIMIT";
 const std::string APILIM::NUM_ROWS::itemName = "NUM_ROWS";
-const int APILIM::NUM_ROWS::defaultValue = 10;
 
 
 APIVD::APIVD() : ParserKeyword("APIVD", KeywordSize("EQLDIMS", "NTEQUL", false, 0)) {
@@ -944,7 +961,6 @@ const std::string AQANCONL::UPPER_K::itemName = "UPPER_K";
 const std::string AQANCONL::FACE_INDX::itemName = "FACE_INDX";
 const std::string AQANCONL::AQUIFER_INFLUX_COEFF::itemName = "AQUIFER_INFLUX_COEFF";
 const std::string AQANCONL::AQUIFER_INFLUX_MULT::itemName = "AQUIFER_INFLUX_MULT";
-const double AQANCONL::AQUIFER_INFLUX_MULT::defaultValue = 1.000000;
 const std::string AQANCONL::ALLOW::itemName = "ALLOW";
 
 
@@ -985,7 +1001,6 @@ const std::string AQANNC::IX::itemName = "IX";
 const std::string AQANNC::IY::itemName = "IY";
 const std::string AQANNC::IZ::itemName = "IZ";
 const std::string AQANNC::AREA::itemName = "AREA";
-const double AQANNC::AREA::defaultValue = 0;
 
 
 AQANTRC::AQANTRC() : ParserKeyword("AQANTRC", KeywordSize(SLASH_TERMINATED)) {
@@ -1107,7 +1122,6 @@ const std::string AQUANCON::K2::itemName = "K2";
 const std::string AQUANCON::FACE::itemName = "FACE";
 const std::string AQUANCON::INFLUX_COEFF::itemName = "INFLUX_COEFF";
 const std::string AQUANCON::INFLUX_MULT::itemName = "INFLUX_MULT";
-const double AQUANCON::INFLUX_MULT::defaultValue = 1.000000;
 const std::string AQUANCON::CONNECT_ADJOINING_ACTIVE_CELL::itemName = "CONNECT_ADJOINING_ACTIVE_CELL";
 const std::string AQUANCON::CONNECT_ADJOINING_ACTIVE_CELL::defaultValue = "NO";
 
@@ -1157,7 +1171,6 @@ const std::string AQUCHGAS::DATUM_DEPTH::itemName = "DATUM_DEPTH";
 const std::string AQUCHGAS::GAS_PRESSURE::itemName = "GAS_PRESSURE";
 const std::string AQUCHGAS::AQUIFER_PROD_INDEX::itemName = "AQUIFER_PROD_INDEX";
 const std::string AQUCHGAS::TABLE_NUM::itemName = "TABLE_NUM";
-const int AQUCHGAS::TABLE_NUM::defaultValue = 1;
 const std::string AQUCHGAS::TEMPERATURE::itemName = "TEMPERATURE";
 
 
@@ -1253,23 +1266,16 @@ const std::string AQUCHWAT::INPUT_4::itemName = "INPUT_4";
 const std::string AQUCHWAT::ITEM4::itemName = "ITEM4";
 const std::string AQUCHWAT::AQUIFER_PROD_INDEX::itemName = "AQUIFER_PROD_INDEX";
 const std::string AQUCHWAT::TABLE_NUM::itemName = "TABLE_NUM";
-const int AQUCHWAT::TABLE_NUM::defaultValue = 1;
 const std::string AQUCHWAT::INIT_SALT_CONC::itemName = "INIT_SALT_CONC";
-const double AQUCHWAT::INIT_SALT_CONC::defaultValue = 1.000000;
 const std::string AQUCHWAT::MINIMUM::itemName = "MINIMUM";
-const double AQUCHWAT::MINIMUM::defaultValue = -99999999999999996973312221251036165947450327545502362648241750950346848435554075534196338404706251868027512415973882408182135734368278484639385041047239877871023591066789981811181813306167128854888448.000000;
 const std::string AQUCHWAT::MAXIMUM::itemName = "MAXIMUM";
-const double AQUCHWAT::MAXIMUM::defaultValue = 99999999999999996973312221251036165947450327545502362648241750950346848435554075534196338404706251868027512415973882408182135734368278484639385041047239877871023591066789981811181813306167128854888448.000000;
 const std::string AQUCHWAT::IGNORE_CAP_PRESSURE::itemName = "IGNORE_CAP_PRESSURE";
 const std::string AQUCHWAT::IGNORE_CAP_PRESSURE::defaultValue = "NO";
 const std::string AQUCHWAT::MIN_FLOW_PR_CONN::itemName = "MIN_FLOW_PR_CONN";
-const double AQUCHWAT::MIN_FLOW_PR_CONN::defaultValue = -99999999999999996973312221251036165947450327545502362648241750950346848435554075534196338404706251868027512415973882408182135734368278484639385041047239877871023591066789981811181813306167128854888448.000000;
 const std::string AQUCHWAT::MAX_FLOW_PR_CONN::itemName = "MAX_FLOW_PR_CONN";
-const double AQUCHWAT::MAX_FLOW_PR_CONN::defaultValue = 99999999999999996973312221251036165947450327545502362648241750950346848435554075534196338404706251868027512415973882408182135734368278484639385041047239877871023591066789981811181813306167128854888448.000000;
 const std::string AQUCHWAT::REMOVE_DEPTH_TERM::itemName = "REMOVE_DEPTH_TERM";
 const std::string AQUCHWAT::REMOVE_DEPTH_TERM::defaultValue = "NO";
 const std::string AQUCHWAT::IMPORT_MAX_MIN_FLOW_RATE::itemName = "IMPORT_MAX_MIN_FLOW_RATE";
-const int AQUCHWAT::IMPORT_MAX_MIN_FLOW_RATE::defaultValue = 0;
 const std::string AQUCHWAT::TEMPERATURE::itemName = "TEMPERATURE";
 
 
@@ -1349,15 +1355,11 @@ const std::string AQUCON::K1::itemName = "K1";
 const std::string AQUCON::K2::itemName = "K2";
 const std::string AQUCON::CONNECT_FACE::itemName = "CONNECT_FACE";
 const std::string AQUCON::TRANS_MULT::itemName = "TRANS_MULT";
-const double AQUCON::TRANS_MULT::defaultValue = 1.000000;
 const std::string AQUCON::TRANS_OPTION::itemName = "TRANS_OPTION";
-const int AQUCON::TRANS_OPTION::defaultValue = 0;
 const std::string AQUCON::ALLOW_INTERNAL_CELLS::itemName = "ALLOW_INTERNAL_CELLS";
 const std::string AQUCON::ALLOW_INTERNAL_CELLS::defaultValue = "NO";
 const std::string AQUCON::VEFRAC::itemName = "VEFRAC";
-const double AQUCON::VEFRAC::defaultValue = 1.000000;
 const std::string AQUCON::VEFRACP::itemName = "VEFRACP";
-const double AQUCON::VEFRACP::defaultValue = 1.000000;
 
 
 AQUCT::AQUCT() : ParserKeyword("AQUCT", KeywordSize(SLASH_TERMINATED)) {
@@ -1448,18 +1450,13 @@ const std::string AQUCT::DAT_DEPTH::itemName = "DAT_DEPTH";
 const std::string AQUCT::P_INI::itemName = "P_INI";
 const std::string AQUCT::PERM_AQ::itemName = "PERM_AQ";
 const std::string AQUCT::PORO_AQ::itemName = "PORO_AQ";
-const double AQUCT::PORO_AQ::defaultValue = 1.000000;
 const std::string AQUCT::C_T::itemName = "C_T";
 const std::string AQUCT::RAD::itemName = "RAD";
 const std::string AQUCT::THICKNESS_AQ::itemName = "THICKNESS_AQ";
 const std::string AQUCT::INFLUENCE_ANGLE::itemName = "INFLUENCE_ANGLE";
-const double AQUCT::INFLUENCE_ANGLE::defaultValue = 360.000000;
 const std::string AQUCT::TABLE_NUM_WATER_PRESS::itemName = "TABLE_NUM_WATER_PRESS";
-const int AQUCT::TABLE_NUM_WATER_PRESS::defaultValue = 1;
 const std::string AQUCT::TABLE_NUM_INFLUENCE_FN::itemName = "TABLE_NUM_INFLUENCE_FN";
-const int AQUCT::TABLE_NUM_INFLUENCE_FN::defaultValue = 1;
 const std::string AQUCT::INI_SALT::itemName = "INI_SALT";
-const double AQUCT::INI_SALT::defaultValue = 0;
 const std::string AQUCT::TEMP_AQUIFER::itemName = "TEMP_AQUIFER";
 
 
@@ -1486,9 +1483,7 @@ AQUCWFAC::AQUCWFAC() : ParserKeyword("AQUCWFAC", KeywordSize(SLASH_TERMINATED)) 
 }
 const std::string AQUCWFAC::keywordName = "AQUCWFAC";
 const std::string AQUCWFAC::ADD_TO_DEPTH::itemName = "ADD_TO_DEPTH";
-const double AQUCWFAC::ADD_TO_DEPTH::defaultValue = 0;
 const std::string AQUCWFAC::MULTIPLY::itemName = "MULTIPLY";
-const double AQUCWFAC::MULTIPLY::defaultValue = 1.000000;
 
 
 AQUDIMS::AQUDIMS() : ParserKeyword("AQUDIMS", KeywordSize(1, false)) {
@@ -1542,21 +1537,13 @@ AQUDIMS::AQUDIMS() : ParserKeyword("AQUDIMS", KeywordSize(1, false)) {
 }
 const std::string AQUDIMS::keywordName = "AQUDIMS";
 const std::string AQUDIMS::MXNAQN::itemName = "MXNAQN";
-const int AQUDIMS::MXNAQN::defaultValue = 1;
 const std::string AQUDIMS::MXNAQC::itemName = "MXNAQC";
-const int AQUDIMS::MXNAQC::defaultValue = 1;
 const std::string AQUDIMS::NIFTBL::itemName = "NIFTBL";
-const int AQUDIMS::NIFTBL::defaultValue = 1;
 const std::string AQUDIMS::NRIFTB::itemName = "NRIFTB";
-const int AQUDIMS::NRIFTB::defaultValue = 36;
 const std::string AQUDIMS::NANAQU::itemName = "NANAQU";
-const int AQUDIMS::NANAQU::defaultValue = 1;
 const std::string AQUDIMS::NCAMAX::itemName = "NCAMAX";
-const int AQUDIMS::NCAMAX::defaultValue = 1;
 const std::string AQUDIMS::MXNALI::itemName = "MXNALI";
-const int AQUDIMS::MXNALI::defaultValue = 0;
 const std::string AQUDIMS::MXAAQL::itemName = "MXAAQL";
-const int AQUDIMS::MXAAQL::defaultValue = 0;
 
 
 AQUFET::AQUFET() : ParserKeyword("AQUFET", KeywordSize(SLASH_TERMINATED)) {
@@ -1646,7 +1633,6 @@ const std::string AQUFET::LOWER_K::itemName = "LOWER_K";
 const std::string AQUFET::UPPER_K::itemName = "UPPER_K";
 const std::string AQUFET::FACE_INDX::itemName = "FACE_INDX";
 const std::string AQUFET::SC_0::itemName = "SC_0";
-const double AQUFET::SC_0::defaultValue = 0;
 
 
 AQUFETP::AQUFETP() : ParserKeyword("AQUFETP", KeywordSize(SLASH_TERMINATED)) {
@@ -1712,13 +1698,11 @@ const std::string AQUFETP::V0::itemName = "V0";
 const std::string AQUFETP::C_T::itemName = "C_T";
 const std::string AQUFETP::PI::itemName = "PI";
 const std::string AQUFETP::TABLE_NUM_WATER_PRESS::itemName = "TABLE_NUM_WATER_PRESS";
-const int AQUFETP::TABLE_NUM_WATER_PRESS::defaultValue = 1;
 const std::string AQUFETP::SALINITY::itemName = "SALINITY";
-const double AQUFETP::SALINITY::defaultValue = 0;
 const std::string AQUFETP::TEMP::itemName = "TEMP";
 
 
-AQUFLUX::AQUFLUX() : ParserKeyword("AQUFLUX", KeywordSize("AQUDIMS", "NANAQU", false, 0)) {
+AQUFLUX::AQUFLUX() : ParserKeyword("AQUFLUX", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SOLUTION");
   addValidSectionName("SCHEDULE");
   clearDeckNames();
@@ -1730,8 +1714,8 @@ AQUFLUX::AQUFLUX() : ParserKeyword("AQUFLUX", KeywordSize("AQUDIMS", "NANAQU", f
         record.addItem(item);
      }
      {
-        ParserItem item("DAT_DEPTH", ParserItem::itype::DOUBLE);
-        item.push_backDimension("Length");
+        ParserItem item("FLUX", ParserItem::itype::DOUBLE);
+        item.push_backDimension("LiquidSurfaceVolume/Time*Length*Length");
         record.addItem(item);
      }
      {
@@ -1755,9 +1739,8 @@ AQUFLUX::AQUFLUX() : ParserKeyword("AQUFLUX", KeywordSize("AQUDIMS", "NANAQU", f
 }
 const std::string AQUFLUX::keywordName = "AQUFLUX";
 const std::string AQUFLUX::AQUIFER_ID::itemName = "AQUIFER_ID";
-const std::string AQUFLUX::DAT_DEPTH::itemName = "DAT_DEPTH";
+const std::string AQUFLUX::FLUX::itemName = "FLUX";
 const std::string AQUFLUX::SC_0::itemName = "SC_0";
-const double AQUFLUX::SC_0::defaultValue = 0;
 const std::string AQUFLUX::TEMP::itemName = "TEMP";
 const std::string AQUFLUX::PRESSURE::itemName = "PRESSURE";
 
@@ -1907,7 +1890,6 @@ const std::string AQUNNC::JX::itemName = "JX";
 const std::string AQUNNC::JY::itemName = "JY";
 const std::string AQUNNC::JZ::itemName = "JZ";
 const std::string AQUNNC::TRAN::itemName = "TRAN";
-const double AQUNNC::TRAN::defaultValue = 0;
 const std::string AQUNNC::IST1::itemName = "IST1";
 const std::string AQUNNC::IST2::itemName = "IST2";
 const std::string AQUNNC::IPT1::itemName = "IPT1";
@@ -2103,13 +2085,9 @@ AUTOREF::AUTOREF() : ParserKeyword("AUTOREF", KeywordSize(SLASH_TERMINATED)) {
 }
 const std::string AUTOREF::keywordName = "AUTOREF";
 const std::string AUTOREF::NX::itemName = "NX";
-const int AUTOREF::NX::defaultValue = 1;
 const std::string AUTOREF::NY::itemName = "NY";
-const int AUTOREF::NY::defaultValue = 1;
 const std::string AUTOREF::NZ::itemName = "NZ";
-const int AUTOREF::NZ::defaultValue = 1;
 const std::string AUTOREF::OPTION_TRANS_MULT::itemName = "OPTION_TRANS_MULT";
-const double AUTOREF::OPTION_TRANS_MULT::defaultValue = 0;
 
 
 }
