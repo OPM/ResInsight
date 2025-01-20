@@ -491,7 +491,7 @@ if((NOT RESINSIGHT_BUILD_LIBS_FROM_SOURCE) AND MSVC)
   # https://docs.github.com/en/repositories/releasing-projects-on-github/linking-to-releases
   FetchContent_Declare(
     ri-dependencies
-    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/latest/download/custom-opm-common.zip
+    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2024.11/custom-opm-common.zip
   )
   FetchContent_MakeAvailable(ri-dependencies)
 
