@@ -27,6 +27,7 @@
 
 #include "opm/common/utility/OpmInputError.hpp"
 #include "opm/input/eclipse/Deck/Deck.hpp"
+#include "opm/input/eclipse/Parser/InputErrorAction.hpp"
 #include "opm/input/eclipse/Parser/ParseContext.hpp"
 #include "opm/input/eclipse/Parser/Parser.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/G.hpp"
@@ -115,7 +116,7 @@ std::pair<std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>> extract
             parser.addParserKeyword( kw );
         }
 
-        Opm::ParseContext parseContext( Opm::InputError::Action::WARN );
+        Opm::ParseContext parseContext( Opm::InputErrorAction::WARN );
         auto              deck = parser.parseFile( dataDeckFilename, parseContext );
 
         {
@@ -174,7 +175,7 @@ std::map<std::string, std::vector<std::pair<int, int>>> extractWseglink( const s
     parser.addParserKeyword( kw3 );
 
     std::stringstream ss;
-    Opm::ParseContext parseContext( Opm::InputError::Action::WARN );
+    Opm::ParseContext parseContext( Opm::InputErrorAction::WARN );
     auto              deck = parser.parseFile( filename, parseContext );
 
     std::string keyword     = "WSEGLINK";
@@ -246,7 +247,7 @@ std::vector<RiaOpmParserTools::AicdTemplateValues> extractWsegAicd( const std::s
         parser.addParserKeyword( kw3 );
 
         std::stringstream ss;
-        Opm::ParseContext parseContext( Opm::InputError::Action::WARN );
+        Opm::ParseContext parseContext( Opm::InputErrorAction::WARN );
         auto              deck = parser.parseFile( filename, parseContext );
 
         const std::string keyword     = "WSEGAICD";
