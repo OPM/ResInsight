@@ -16,8 +16,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
-
 #include "RifVtkSurfaceImporter.h"
 
 #include "../../Fwk/VizFwk/LibIo/cvfTinyXmlFused.hpp"
