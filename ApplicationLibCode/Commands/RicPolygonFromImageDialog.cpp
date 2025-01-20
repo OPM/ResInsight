@@ -22,6 +22,7 @@
 
 #include "RigPolygonTools.h"
 
+#include <QDialogButtonBox>
 #include <QGuiApplication>
 #include <QScreen>
 
