@@ -487,11 +487,14 @@ option(RESINSIGHT_BUILD_LIBS_FROM_SOURCE "Build opm-common from source" ON)
 mark_as_advanced(RESINSIGHT_BUILD_LIBS_FROM_SOURCE)
 
 if((NOT RESINSIGHT_BUILD_LIBS_FROM_SOURCE) AND MSVC)
+
+  message(STATUS "Starting download of external library opm-common ...")
+
   # See description of URL here
   # https://docs.github.com/en/repositories/releasing-projects-on-github/linking-to-releases
   FetchContent_Declare(
     ri-dependencies
-    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2024.11/custom-opm-common.zip
+    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2025.01/custom-opm-common.zip
   )
   FetchContent_MakeAvailable(ri-dependencies)
 
@@ -507,7 +510,7 @@ if((NOT RESINSIGHT_BUILD_LIBS_FROM_SOURCE) AND MSVC)
 
   list(APPEND EXTERNAL_LINK_LIBRARIES custom-opm-common)
 
-  message(STATUS "opm-common: Enabled use of precompiled library")
+  message(STATUS "... completed download of external library opm-common ")
 else()
   # CREATE_OPM_COMMON_KEYWORDS is used to create c++-code for the keywords in
   # opm-common JSON files See description in
