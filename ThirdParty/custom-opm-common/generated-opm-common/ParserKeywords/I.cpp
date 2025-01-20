@@ -32,13 +32,15 @@ IHOST::IHOST() : ParserKeyword("IHOST", KeywordSize(SLASH_TERMINATED)) {
 const std::string IHOST::keywordName = "IHOST";
 const std::string IHOST::LGR::itemName = "LGR";
 const std::string IHOST::PROCESS::itemName = "PROCESS";
-const int IHOST::PROCESS::defaultValue = 0;
 
 
 IMBNUM::IMBNUM() : ParserKeyword("IMBNUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("IMBNUM");
+  addDeckName("IMBNUMZ");
+  addDeckName("IMBNUMX");
+  addDeckName("IMBNUMY");
   {
      ParserRecord record;
      {
@@ -321,7 +323,6 @@ IONXROCK::IONXROCK() : ParserKeyword("IONXROCK", KeywordSize("TABDIMS", "NTSFUN"
 }
 const std::string IONXROCK::keywordName = "IONXROCK";
 const std::string IONXROCK::VALUE::itemName = "VALUE";
-const double IONXROCK::VALUE::defaultValue = 0;
 
 
 IONXSURF::IONXSURF() : ParserKeyword("IONXSURF", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
@@ -345,7 +346,6 @@ IONXSURF::IONXSURF() : ParserKeyword("IONXSURF", KeywordSize("TABDIMS", "NTSFUN"
 const std::string IONXSURF::keywordName = "IONXSURF";
 const std::string IONXSURF::MOLECULAR_WEIGHT::itemName = "MOLECULAR_WEIGHT";
 const std::string IONXSURF::ION_EXCH_CONST::itemName = "ION_EXCH_CONST";
-const double IONXSURF::ION_EXCH_CONST::defaultValue = 0;
 
 
 IPCG::IPCG() : ParserKeyword("IPCG", KeywordSize(1, false)) {

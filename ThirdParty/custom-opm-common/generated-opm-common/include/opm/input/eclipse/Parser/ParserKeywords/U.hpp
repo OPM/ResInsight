@@ -12,19 +12,19 @@ namespace ParserKeywords {
        class NUM_UDQ_REPLACE {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class IGNORED {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class TOTAL_UDQ_UNIQUE {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 100;
        };
    };
 
@@ -61,61 +61,61 @@ namespace ParserKeywords {
        class MAX_FUNCTIONS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 16;
        };
 
        class MAX_ITEMS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 16;
        };
 
        class MAX_CONNECTIONS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_FIELDS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_GROUP {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_REGION {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_SEGMENT {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_WELL {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_AQUIFER {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_BLOCK {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class RESTART_NEW_SEED {
@@ -135,25 +135,25 @@ namespace ParserKeywords {
        class RANDOM_SEED {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class RANGE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 100000000000000000000.000000;
        };
 
        class UNDEFINED_VALUE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
 
        class CMP_EPSILON {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.000100;
        };
    };
 
@@ -163,6 +163,31 @@ namespace ParserKeywords {
    public:
        UDT();
        static const std::string keywordName;
+
+       class TABLE_NAME {
+       public:
+           static const std::string itemName;
+       };
+
+       class DIMENSIONS {
+       public:
+           static const std::string itemName;
+       };
+
+       class INTERPOLATION_TYPE {
+       public:
+           static const std::string itemName;
+       };
+
+       class INTERPOLATION_POINTS {
+       public:
+           static const std::string itemName;
+       };
+
+       class TABLE_VALUES {
+       public:
+           static const std::string itemName;
+       };
    };
 
 
@@ -175,25 +200,25 @@ namespace ParserKeywords {
        class MAX_TABLES {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_ROWS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_INTERPOLATION_POINTS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_DIMENSIONS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
    };
 
