@@ -188,7 +188,7 @@ jobs:
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
       - name: Replace and use vcpkg.json without grpc
-        if: matrix.config.build-python-module == 'false' 
+        if: contains( matrix.config.os, 'windows')
         run: |
           cp vcpkg_no_grpc.json vcpkg.json
 
