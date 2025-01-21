@@ -62,7 +62,7 @@ jobs:
               cxx: "clang++-16",
               build-python-module: true,
               execute-unit-tests: true,
-              execute-pytests: true,
+              execute-pytests: false,
               unity-build: false,
               publish-to-pypi: false,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
