@@ -1,0 +1,11 @@
+{
+    "dependencies": [
+        "arrow",
+        "boost-filesystem",
+        "boost-spirit",
+        "eigen3",
+        "type-lite",
+        "fast-float",
+        "spdlog"
+    ]
+}

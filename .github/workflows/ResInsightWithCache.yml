@@ -30,9 +30,9 @@ jobs:
               os: windows-2022,
               cc: "cl",
               cxx: "cl",
-              build-python-module: true,
+              build-python-module: false,
               execute-unit-tests: true,
-              execute-pytests: true,
+              execute-pytests: false,
               unity-build: true,
               publish-to-pypi: false,
               vcpkg-bootstrap: bootstrap-vcpkg.bat,
@@ -45,9 +45,9 @@ jobs:
               os: ubuntu-24.04,
               cc: "gcc",
               cxx: "g++",
-              build-python-module: true,
+              build-python-module: false,
               execute-unit-tests: true,
-              execute-pytests: true,
+              execute-pytests: false,
               unity-build: false,
               publish-to-pypi: true,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
@@ -60,7 +60,7 @@ jobs:
               os: ubuntu-22.04,
               cc: "clang-16",
               cxx: "clang++-16",
-              build-python-module: true,
+              build-python-module: false,
               execute-unit-tests: true,
               execute-pytests: false,
               unity-build: false,
@@ -186,6 +186,10 @@ jobs:
           script: |
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+      - name: Replace and use vcpkg.json without grpc
+        run: |
+          cp vcpkg_no_grpc.json vcpkg.json
 
       - name: vcpkg bootstrap
         run: |
