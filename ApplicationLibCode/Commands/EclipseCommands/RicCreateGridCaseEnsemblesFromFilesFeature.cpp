@@ -20,17 +20,21 @@
 
 #include "RiaApplication.h"
 #include "RiaImportEclipseCaseTools.h"
+#include "RiaLogging.h"
 
 #include "RicCreateGridCaseGroupFromFilesFeature.h"
 #include "RicImportFormationNamesFeature.h"
 #include "RicNewViewFeature.h"
 #include "RicRecursiveFileSearchDialog.h"
 
+#include "RigFormationNames.h"
+
 #include "Rim3dView.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseResultCase.h"
 #include "RimFormationNames.h"
+#include "RimFormationNamesCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimViewNameConfig.h"
@@ -177,5 +181,22 @@ RimFormationNames* RicCreateGridCaseEnsemblesFromFilesFeature::loadFormationsFro
     QStringList fileList = caf::Utils::getFilesInDirectory( folderName, filters, true /*absolute filename*/ );
     if ( fileList.isEmpty() ) return nullptr;
 
-    return RicImportFormationNamesFeature::importFormationFiles( fileList );
+    RimFormationNamesCollection* fomNameColl = new RimFormationNamesCollection();
+
+    // For each file, find existing Formation names item, or create new
+    std::vector<RimFormationNames*> formationNames = fomNameColl->importFiles( fileList );
+    fomNameColl->updateConnectedEditors();
+
+    if ( formationNames.empty() )
+    {
+        RiaLogging::error( QString( "No formation name files found in ensemble folder %1" ).arg( folderName ) );
+        return nullptr;
+    }
+
+    if ( formationNames.size() > 1 )
+    {
+        RiaLogging::warning( QString( "Multiple formation name files found in ensemble folder %1" ).arg( folderName ) );
+    }
+
+    return formationNames.back();
 }

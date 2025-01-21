@@ -21,6 +21,7 @@
 #include "RimNamedObject.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
+#include "cafPdmPtrField.h"
 
 #include "ContourMap/RimContourMapResolutionTools.h"
 #include "RimContourMapProjection.h"
@@ -32,6 +33,7 @@ class RimEclipseResultDefinition;
 class RimEclipseCaseEnsemble;
 class RimEclipseContourMapView;
 class RimStatisticsContourMapView;
+class RimPolygon;
 
 //==================================================================================================
 //
@@ -76,6 +78,8 @@ public:
     std::vector<int> selectedTimeSteps() const;
     QString          timeStepName( int timeStep ) const;
 
+    std::vector<QString> selectedFormations() const;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -95,8 +99,9 @@ private:
     caf::PdmField<std::vector<int>>                           m_selectedTimeSteps;
     caf::PdmChildField<RimEclipseResultDefinition*>           m_resultDefinition;
     caf::PdmField<bool>                                       m_computeStatisticsButton;
-
-    caf::PdmField<QString> m_primaryCase;
+    caf::PdmField<std::vector<QString>>                       m_selectedFormations;
+    caf::PdmPtrField<RimPolygon*>                             m_selectedPolygon;
+    caf::PdmField<QString>                                    m_primaryCase;
 
     caf::PdmField<caf::AppEnum<RimContourMapResolutionTools::SamplingResolution>> m_resolution;
 

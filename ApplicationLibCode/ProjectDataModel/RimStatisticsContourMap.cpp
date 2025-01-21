@@ -32,13 +32,18 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseContourMapProjection.h"
 #include "RigEclipseResultAddress.h"
+#include "RigFormationNames.h"
 #include "RigMainGrid.h"
 #include "RigStatisticsMath.h"
 
+#include "Polygons/RimPolygon.h"
+#include "Polygons/RimPolygonCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseContourMapProjection.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimFormationNames.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStatisticsContourMapProjection.h"
@@ -115,6 +120,12 @@ RimStatisticsContourMap::RimStatisticsContourMap()
 
     CAF_PDM_InitFieldNoDefault( &m_views, "ContourMapViews", "Contour Maps", ":/CrossSection16x16.png" );
 
+    CAF_PDM_InitFieldNoDefault( &m_selectedPolygon, "Polygon", "Limit to Polygon" );
+
+    CAF_PDM_InitFieldNoDefault( &m_selectedFormations, "Formations", "Select Formations" );
+    m_selectedFormations.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_selectedFormations.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
     setDeletable( true );
 }
 
@@ -131,6 +142,7 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
     }
 
     uiOrdering.add( nameField() );
+    uiOrdering.add( &m_computeStatisticsButton );
 
     auto genGrp = uiOrdering.addNewGroup( "General" );
 
@@ -138,18 +150,24 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
     genGrp->add( &m_resolution );
     genGrp->add( &m_primaryCase );
     genGrp->add( &m_boundingBoxExpPercent );
+    genGrp->add( &m_selectedPolygon );
 
     auto tsGroup = uiOrdering.addNewGroup( "Time Step Selection" );
     tsGroup->setCollapsedByDefault();
     tsGroup->add( &m_selectedTimeSteps );
+
+    if ( eclipseCase() && eclipseCase()->activeFormationNames() )
+    {
+        auto formationGrp = uiOrdering.addNewGroup( "Formation Selection" );
+        formationGrp->setCollapsedByDefault();
+        formationGrp->add( &m_selectedFormations );
+    }
 
     if ( !isColumnResult() )
     {
         auto resultDefinitionGroup = uiOrdering.addNewGroup( "Result Definition" );
         m_resultDefinition->uiOrdering( uiConfigName, *resultDefinitionGroup );
     }
-
-    uiOrdering.add( &m_computeStatisticsButton );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -277,6 +295,35 @@ QList<caf::PdmOptionItemInfo> RimStatisticsContourMap::calculateValueOptions( co
             options.push_back( caf::PdmOptionItemInfo( eCase->caseUserDescription(), eCase->caseUserDescription() ) );
         }
         return options;
+    }
+    else if ( &m_selectedFormations == fieldNeedingOptions )
+    {
+        if ( auto eCase = eclipseCase() )
+        {
+            if ( auto formations = eCase->activeFormationNames() )
+            {
+                if ( formations->formationNamesData() )
+                {
+                    for ( auto f : formations->formationNamesData()->formationNames() )
+                    {
+                        options.push_back( caf::PdmOptionItemInfo( f, f, false ) );
+                    }
+                }
+            }
+        }
+    }
+    else if ( &m_selectedPolygon == fieldNeedingOptions )
+    {
+        RimProject* proj = RimProject::current();
+        if ( auto polygonCollection = proj->activeOilField()->polygonCollection() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( "None", nullptr, false ) );
+
+            for ( auto p : polygonCollection->allPolygons() )
+            {
+                options.push_back( caf::PdmOptionItemInfo( p->uiName(), p, false ) );
+            }
+        }
     }
 
     return options;
@@ -533,6 +580,25 @@ std::vector<int> RimStatisticsContourMap::selectedTimeSteps() const
         std::sort( steps.begin(), steps.end() );
     }
     return steps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimStatisticsContourMap::selectedFormations() const
+{
+    auto selection = m_selectedFormations();
+    if ( m_selectedFormations().empty() )
+    {
+        if ( eclipseCase() && eclipseCase()->activeFormationNames() && eclipseCase()->activeFormationNames()->formationNamesData() )
+        {
+            for ( auto& fname : eclipseCase()->activeFormationNames()->formationNamesData()->formationNames() )
+            {
+                selection.push_back( fname );
+            }
+        }
+    }
+    return selection;
 }
 
 //--------------------------------------------------------------------------------------------------
