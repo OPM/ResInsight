@@ -75,6 +75,8 @@ protected:
 
     void updateAfterResultGeneration( int timeStep ) override;
 
+    bool gridMappingNeedsUpdating() const override;
+
 protected:
     // Framework overrides
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

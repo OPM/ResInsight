@@ -154,9 +154,9 @@ double RimStatisticsContourMapProjection::sampleSpacing() const
 void RimStatisticsContourMapProjection::clearGridMappingAndRedraw()
 {
     clearGridMapping();
-    updateConnectedEditors();
     generateResultsIfNecessary( view()->currentTimeStep() );
     updateLegend();
+    updateConnectedEditors();
 
     RimEclipseView* parentView = firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
     parentView->scheduleCreateDisplayModelAndRedraw();
@@ -292,6 +292,8 @@ void RimStatisticsContourMapProjection::defineUiOrdering( QString uiConfigName, 
 {
     uiOrdering.add( &m_statisticsType );
 
+    appendValueFilterGroup( uiOrdering );
+
     caf::PdmUiGroup* mainGroup = uiOrdering.addNewGroup( "Projection Settings" );
     mainGroup->add( &m_showContourLines );
     mainGroup->add( &m_showContourLabels );
@@ -326,8 +328,7 @@ void RimStatisticsContourMapProjection::fieldChangedByUi( const caf::PdmFieldHan
                                                           const QVariant&            oldValue,
                                                           const QVariant&            newValue )
 {
-    if ( ( changedField == &m_statisticsType ) || ( changedField == &m_showContourLines ) || ( changedField == &m_showContourLabels ) ||
-         ( changedField == &m_smoothContourLines ) )
+    if ( changedField == &m_statisticsType )
     {
         clearGridMappingAndRedraw();
     }
@@ -335,4 +336,25 @@ void RimStatisticsContourMapProjection::fieldChangedByUi( const caf::PdmFieldHan
     {
         RimContourMapProjection::fieldChangedByUi( changedField, oldValue, newValue );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimStatisticsContourMapProjection::gridMappingNeedsUpdating() const
+{
+    if ( !m_contourMapProjection ) return true;
+
+    auto cellGridIdxVisibility = m_contourMapProjection->getCellVisibility();
+    if ( cellGridIdxVisibility.isNull() ) return true;
+
+    cvf::ref<cvf::UByteArray> currentVisibility = getCellVisibility();
+    if ( currentVisibility->size() != cellGridIdxVisibility->size() ) return true;
+
+    for ( size_t i = 0; i < currentVisibility->size(); ++i )
+    {
+        if ( ( *currentVisibility )[i] != ( *cellGridIdxVisibility )[i] ) return true;
+    }
+
+    return false;
 }

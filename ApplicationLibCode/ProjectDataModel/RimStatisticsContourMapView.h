@@ -46,8 +46,6 @@ protected:
     QString     timeStepName( int frameIdx ) const override;
     QStringList timeStepStrings() const override;
 
-    void onUpdateLegends() override;
-
 private:
     caf::PdmPtrField<RimStatisticsContourMap*> m_statisticsContourMap;
 };
