@@ -108,7 +108,5 @@ private:
     std::unique_ptr<RigContourMapGrid>                              m_contourMapGrid;
     std::map<size_t, std::map<StatisticsType, std::vector<double>>> m_timeResults;
 
-    std::vector<std::vector<std::pair<size_t, double>>> m_gridMapping;
-
     caf::PdmChildArrayField<RimStatisticsContourMapView*> m_views;
 };

@@ -59,6 +59,7 @@
 #include "cafProgressInfo.h"
 
 #include <limits>
+#include <set>
 
 CAF_PDM_SOURCE_INIT( RimStatisticsContourMap, "RimStatisticalContourMap" );
 
@@ -454,12 +455,6 @@ void RimStatisticsContourMap::computeStatistics()
 
     auto contourMapGrid = std::make_unique<RigContourMapGrid>( gridBoundingBox, sampleSpacing );
 
-    auto firstEclipseCaseData = eclipseCase()->eclipseCaseData();
-    auto firstResultData      = firstEclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-
-    RigEclipseContourMapProjection contourMapProjection( *contourMapGrid, *firstEclipseCaseData, *firstResultData );
-    m_gridMapping = contourMapProjection.generateGridMapping( resultAggregation, {} );
-
     const size_t nCases = ensemble->cases().size();
 
     std::map<size_t, std::vector<std::vector<double>>> timestep_results;
@@ -479,12 +474,21 @@ void RimStatisticsContourMap::computeStatistics()
 
         if ( eCase->ensureReservoirCaseIsOpen() )
         {
-            RiaLogging::info( QString( "Grid: %1" ).arg( eCase->caseUserDescription() ) );
+            RiaLogging::info( QString( "Processing Grid: %1" ).arg( eCase->caseUserDescription() ) );
 
             auto eclipseCaseData = eCase->eclipseCaseData();
             auto resultData      = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
             RigEclipseContourMapProjection contourMapProjection( *contourMapGrid, *eclipseCaseData, *resultData );
+
+            auto formationNames = selectedFormations();
+            if ( formationNames.size() > 0 )
+            {
+                std::set<int> usedKLayers = eCase->activeFormationNames()->formationNamesData()->findKLayers( formationNames );
+                qDebug() << usedKLayers.size();
+                // contourMapProjection.setKFilter( usedKLayers );
+            }
+
             contourMapProjection.generateGridMapping( resultAggregation, {} );
 
             if ( m_resultDefinition()->hasDynamicResult() )
