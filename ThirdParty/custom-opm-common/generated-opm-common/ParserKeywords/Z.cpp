@@ -33,7 +33,7 @@ const std::string ZCORN::keywordName = "ZCORN";
 const std::string ZCORN::data::itemName = "data";
 
 
-ZFACT1::ZFACT1() : ParserKeyword("ZFACT1", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
+ZFACT1::ZFACT1() : ParserKeyword("ZFACT1", KeywordSize("TABDIMS", "NUM_EOS_RES", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ZFACT1");
@@ -52,7 +52,7 @@ const std::string ZFACT1::keywordName = "ZFACT1";
 const std::string ZFACT1::Z0::itemName = "Z0";
 
 
-ZFACT1S::ZFACT1S() : ParserKeyword("ZFACT1S", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
+ZFACT1S::ZFACT1S() : ParserKeyword("ZFACT1S", KeywordSize("TABDIMS", "NUM_EOS_RES", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ZFACT1S");
@@ -71,7 +71,7 @@ const std::string ZFACT1S::keywordName = "ZFACT1S";
 const std::string ZFACT1S::Z0::itemName = "Z0";
 
 
-ZFACTOR::ZFACTOR() : ParserKeyword("ZFACTOR", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
+ZFACTOR::ZFACTOR() : ParserKeyword("ZFACTOR", KeywordSize("TABDIMS", "NUM_EOS_RES", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ZFACTOR");
@@ -90,7 +90,7 @@ const std::string ZFACTOR::keywordName = "ZFACTOR";
 const std::string ZFACTOR::Z0::itemName = "Z0";
 
 
-ZFACTORS::ZFACTORS() : ParserKeyword("ZFACTORS", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
+ZFACTORS::ZFACTORS() : ParserKeyword("ZFACTORS", KeywordSize("TABDIMS", "NUM_EOS_SURFACE", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ZFACTORS");
@@ -133,6 +133,46 @@ ZIPPY2::ZIPPY2() : ParserKeyword("ZIPPY2", KeywordSize(1, false)) {
 }
 const std::string ZIPPY2::keywordName = "ZIPPY2";
 const std::string ZIPPY2::SETTINGS::itemName = "SETTINGS";
+
+
+ZMF::ZMF() : ParserKeyword("ZMF", KeywordSize(1, false)) {
+  addValidSectionName("SOLUTION");
+  clearDeckNames();
+  addDeckName("ZMF");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("data", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("1");
+        record.addDataItem(item);
+     }
+     addDataRecord( record );
+  }
+}
+const std::string ZMF::keywordName = "ZMF";
+const std::string ZMF::data::itemName = "data";
+
+
+ZMFVD::ZMFVD() : ParserKeyword("ZMFVD", KeywordSize("EQLDIMS", "NTEQUL", false, 0)) {
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("ZMFVD");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("DATA", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("Length");
+        item.push_backDimension("1");
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string ZMFVD::keywordName = "ZMFVD";
+const std::string ZMFVD::DATA::itemName = "DATA";
 
 
 }

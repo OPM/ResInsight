@@ -182,7 +182,6 @@ const std::string CBMOPTS::APPLICATION::defaultValue = "PMPVK";
 const std::string CBMOPTS::PRESSURE_CHOP::itemName = "PRESSURE_CHOP";
 const std::string CBMOPTS::PRESSURE_CHOP::defaultValue = "NOPMPCHP";
 const std::string CBMOPTS::MIN_PORE_VOLUME::itemName = "MIN_PORE_VOLUME";
-const double CBMOPTS::MIN_PORE_VOLUME::defaultValue = 5e-06;
 
 
 CECON::CECON() : ParserKeyword("CECON", KeywordSize(SLASH_TERMINATED)) {
@@ -261,27 +260,18 @@ CECON::CECON() : ParserKeyword("CECON", KeywordSize(SLASH_TERMINATED)) {
 const std::string CECON::keywordName = "CECON";
 const std::string CECON::WELLNAME::itemName = "WELLNAME";
 const std::string CECON::I::itemName = "I";
-const int CECON::I::defaultValue = 0;
 const std::string CECON::J::itemName = "J";
-const int CECON::J::defaultValue = 0;
 const std::string CECON::K1::itemName = "K1";
-const int CECON::K1::defaultValue = 0;
 const std::string CECON::K2::itemName = "K2";
-const int CECON::K2::defaultValue = 0;
 const std::string CECON::MAX_WCUT::itemName = "MAX_WCUT";
-const double CECON::MAX_WCUT::defaultValue = 0;
 const std::string CECON::MAX_GOR::itemName = "MAX_GOR";
-const double CECON::MAX_GOR::defaultValue = 0;
 const std::string CECON::MAX_WGR::itemName = "MAX_WGR";
-const double CECON::MAX_WGR::defaultValue = 0;
 const std::string CECON::WORKOVER_PROCEDURE::itemName = "WORKOVER_PROCEDURE";
 const std::string CECON::WORKOVER_PROCEDURE::defaultValue = "CON";
 const std::string CECON::CHECK_STOPPED::itemName = "CHECK_STOPPED";
 const std::string CECON::CHECK_STOPPED::defaultValue = "NO";
 const std::string CECON::MIN_OIL::itemName = "MIN_OIL";
-const double CECON::MIN_OIL::defaultValue = -100000000000000000000.000000;
 const std::string CECON::MIN_GAS::itemName = "MIN_GAS";
-const double CECON::MIN_GAS::defaultValue = -100000000000000000000.000000;
 const std::string CECON::FOLLOW_ON_WELL::itemName = "FOLLOW_ON_WELL";
 const std::string CECON::FOLLOW_ON_WELL::defaultValue = "";
 
@@ -371,30 +361,20 @@ CECONT::CECONT() : ParserKeyword("CECONT", KeywordSize(DOUBLE_SLASH_TERMINATED))
 const std::string CECONT::keywordName = "CECONT";
 const std::string CECONT::WELL::itemName = "WELL";
 const std::string CECONT::I::itemName = "I";
-const int CECONT::I::defaultValue = 0;
 const std::string CECONT::J::itemName = "J";
-const int CECONT::J::defaultValue = 0;
 const std::string CECONT::K_UPPER::itemName = "K_UPPER";
-const int CECONT::K_UPPER::defaultValue = 0;
 const std::string CECONT::K_LOWER::itemName = "K_LOWER";
-const int CECONT::K_LOWER::defaultValue = 0;
 const std::string CECONT::PROCEDURE::itemName = "PROCEDURE";
 const std::string CECONT::PROCEDURE::defaultValue = "CON";
 const std::string CECONT::CHECK_STOPPED_WELLS::itemName = "CHECK_STOPPED_WELLS";
 const std::string CECONT::CHECK_STOPPED_WELLS::defaultValue = "NO";
 const std::string CECONT::TRACER::itemName = "TRACER";
 const std::string CECONT::MAX_TOTAL_TRACER_RATE::itemName = "MAX_TOTAL_TRACER_RATE";
-const double CECONT::MAX_TOTAL_TRACER_RATE::defaultValue = 99999999999999996973312221251036165947450327545502362648241750950346848435554075534196338404706251868027512415973882408182135734368278484639385041047239877871023591066789981811181813306167128854888448.000000;
 const std::string CECONT::MAX_TOTAL_TRACER_CONC::itemName = "MAX_TOTAL_TRACER_CONC";
-const double CECONT::MAX_TOTAL_TRACER_CONC::defaultValue = 99999999999999996973312221251036165947450327545502362648241750950346848435554075534196338404706251868027512415973882408182135734368278484639385041047239877871023591066789981811181813306167128854888448.000000;
 const std::string CECONT::MAX_FREE_TRACER_RATE::itemName = "MAX_FREE_TRACER_RATE";
-const double CECONT::MAX_FREE_TRACER_RATE::defaultValue = 99999999999999996973312221251036165947450327545502362648241750950346848435554075534196338404706251868027512415973882408182135734368278484639385041047239877871023591066789981811181813306167128854888448.000000;
 const std::string CECONT::MAX_FREE_TRACER_CONC::itemName = "MAX_FREE_TRACER_CONC";
-const double CECONT::MAX_FREE_TRACER_CONC::defaultValue = 99999999999999996973312221251036165947450327545502362648241750950346848435554075534196338404706251868027512415973882408182135734368278484639385041047239877871023591066789981811181813306167128854888448.000000;
 const std::string CECONT::MAX_SOL_TRACER_RATE::itemName = "MAX_SOL_TRACER_RATE";
-const double CECONT::MAX_SOL_TRACER_RATE::defaultValue = 99999999999999996973312221251036165947450327545502362648241750950346848435554075534196338404706251868027512415973882408182135734368278484639385041047239877871023591066789981811181813306167128854888448.000000;
 const std::string CECONT::MAX_SOL_TRACER_CONC::itemName = "MAX_SOL_TRACER_CONC";
-const double CECONT::MAX_SOL_TRACER_CONC::defaultValue = 99999999999999996973312221251036165947450327545502362648241750950346848435554075534196338404706251868027512415973882408182135734368278484639385041047239877871023591066789981811181813306167128854888448.000000;
 
 
 CIRCLE::CIRCLE() : ParserKeyword("CIRCLE", KeywordSize(0, false)) {
@@ -403,6 +383,32 @@ CIRCLE::CIRCLE() : ParserKeyword("CIRCLE", KeywordSize(0, false)) {
   addDeckName("CIRCLE");
 }
 const std::string CIRCLE::keywordName = "CIRCLE";
+
+
+CNAMES::CNAMES() : ParserKeyword("CNAMES", KeywordSize(1, false)) {
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("CNAMES");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("data", ParserItem::itype::STRING);
+        item.setSizeType(ParserItem::item_size::ALL);
+        record.addDataItem(item);
+     }
+     addDataRecord( record );
+  }
+}
+const std::string CNAMES::keywordName = "CNAMES";
+const std::string CNAMES::data::itemName = "data";
+
+
+CO2SOL::CO2SOL() : ParserKeyword("CO2SOL", KeywordSize(0, false)) {
+  addValidSectionName("RUNSPEC");
+  clearDeckNames();
+  addDeckName("CO2SOL");
+}
+const std::string CO2SOL::keywordName = "CO2SOL";
 
 
 CO2STOR::CO2STOR() : ParserKeyword("CO2STOR", KeywordSize(0, false)) {
@@ -562,7 +568,6 @@ COLLAPSE::COLLAPSE() : ParserKeyword("COLLAPSE", KeywordSize(SLASH_TERMINATED)) 
 }
 const std::string COLLAPSE::keywordName = "COLLAPSE";
 const std::string COLLAPSE::VALUE::itemName = "VALUE";
-const int COLLAPSE::VALUE::defaultValue = 1;
 
 
 COLUMNS::COLUMNS() : ParserKeyword("COLUMNS", KeywordSize(1, false)) {
@@ -593,9 +598,7 @@ COLUMNS::COLUMNS() : ParserKeyword("COLUMNS", KeywordSize(1, false)) {
 }
 const std::string COLUMNS::keywordName = "COLUMNS";
 const std::string COLUMNS::LEFT_MARGIN::itemName = "LEFT_MARGIN";
-const int COLUMNS::LEFT_MARGIN::defaultValue = 1;
 const std::string COLUMNS::RIGHT_MARGIN::itemName = "RIGHT_MARGIN";
-const int COLUMNS::RIGHT_MARGIN::defaultValue = 132;
 
 
 COMPDAT::COMPDAT() : ParserKeyword("COMPDAT", KeywordSize(SLASH_TERMINATED)) {
@@ -660,7 +663,8 @@ COMPDAT::COMPDAT() : ParserKeyword("COMPDAT", KeywordSize(SLASH_TERMINATED)) {
      }
      {
         ParserItem item("D_FACTOR", ParserItem::itype::DOUBLE);
-        item.push_backDimension("1");
+        item.setDefault( double(0) );
+        item.push_backDimension("Time/GasSurfaceVolume");
         record.addItem(item);
      }
      {
@@ -679,21 +683,16 @@ COMPDAT::COMPDAT() : ParserKeyword("COMPDAT", KeywordSize(SLASH_TERMINATED)) {
 const std::string COMPDAT::keywordName = "COMPDAT";
 const std::string COMPDAT::WELL::itemName = "WELL";
 const std::string COMPDAT::I::itemName = "I";
-const int COMPDAT::I::defaultValue = 0;
 const std::string COMPDAT::J::itemName = "J";
-const int COMPDAT::J::defaultValue = 0;
 const std::string COMPDAT::K1::itemName = "K1";
 const std::string COMPDAT::K2::itemName = "K2";
 const std::string COMPDAT::STATE::itemName = "STATE";
 const std::string COMPDAT::STATE::defaultValue = "OPEN";
 const std::string COMPDAT::SAT_TABLE::itemName = "SAT_TABLE";
-const int COMPDAT::SAT_TABLE::defaultValue = 0;
 const std::string COMPDAT::CONNECTION_TRANSMISSIBILITY_FACTOR::itemName = "CONNECTION_TRANSMISSIBILITY_FACTOR";
 const std::string COMPDAT::DIAMETER::itemName = "DIAMETER";
 const std::string COMPDAT::Kh::itemName = "Kh";
-const double COMPDAT::Kh::defaultValue = -1.000000;
 const std::string COMPDAT::SKIN::itemName = "SKIN";
-const double COMPDAT::SKIN::defaultValue = 0;
 const std::string COMPDAT::D_FACTOR::itemName = "D_FACTOR";
 const std::string COMPDAT::DIR::itemName = "DIR";
 const std::string COMPDAT::DIR::defaultValue = "Z";
@@ -787,21 +786,16 @@ const std::string COMPDATX::keywordName = "COMPDATX";
 const std::string COMPDATX::WELL::itemName = "WELL";
 const std::string COMPDATX::LGR::itemName = "LGR";
 const std::string COMPDATX::I::itemName = "I";
-const int COMPDATX::I::defaultValue = 0;
 const std::string COMPDATX::J::itemName = "J";
-const int COMPDATX::J::defaultValue = 0;
 const std::string COMPDATX::K1::itemName = "K1";
 const std::string COMPDATX::K2::itemName = "K2";
 const std::string COMPDATX::STATE::itemName = "STATE";
 const std::string COMPDATX::STATE::defaultValue = "OPEN";
 const std::string COMPDATX::SAT_TABLE::itemName = "SAT_TABLE";
-const int COMPDATX::SAT_TABLE::defaultValue = 0;
 const std::string COMPDATX::CONNECTION_TRANSMISSIBILITY_FACTOR::itemName = "CONNECTION_TRANSMISSIBILITY_FACTOR";
 const std::string COMPDATX::DIAMETER::itemName = "DIAMETER";
 const std::string COMPDATX::Kh::itemName = "Kh";
-const double COMPDATX::Kh::defaultValue = -1.000000;
 const std::string COMPDATX::SKIN::itemName = "SKIN";
-const double COMPDATX::SKIN::defaultValue = 0;
 const std::string COMPDATX::D_FACTOR::itemName = "D_FACTOR";
 const std::string COMPDATX::DIR::itemName = "DIR";
 const std::string COMPDATX::DIR::defaultValue = "Z";
@@ -861,19 +855,12 @@ COMPFLSH::COMPFLSH() : ParserKeyword("COMPFLSH", KeywordSize(SLASH_TERMINATED)) 
 const std::string COMPFLSH::keywordName = "COMPFLSH";
 const std::string COMPFLSH::WELL::itemName = "WELL";
 const std::string COMPFLSH::I::itemName = "I";
-const int COMPFLSH::I::defaultValue = 0;
 const std::string COMPFLSH::J::itemName = "J";
-const int COMPFLSH::J::defaultValue = 0;
 const std::string COMPFLSH::UPPER_K::itemName = "UPPER_K";
-const int COMPFLSH::UPPER_K::defaultValue = 0;
 const std::string COMPFLSH::LOWER_K::itemName = "LOWER_K";
-const int COMPFLSH::LOWER_K::defaultValue = 0;
 const std::string COMPFLSH::F1::itemName = "F1";
-const double COMPFLSH::F1::defaultValue = 1.000000;
 const std::string COMPFLSH::F2::itemName = "F2";
-const double COMPFLSH::F2::defaultValue = 1.000000;
 const std::string COMPFLSH::FLASH_PVTNUM::itemName = "FLASH_PVTNUM";
-const int COMPFLSH::FLASH_PVTNUM::defaultValue = 0;
 
 
 COMPIMB::COMPIMB() : ParserKeyword("COMPIMB", KeywordSize(SLASH_TERMINATED)) {
@@ -915,13 +902,10 @@ COMPIMB::COMPIMB() : ParserKeyword("COMPIMB", KeywordSize(SLASH_TERMINATED)) {
 const std::string COMPIMB::keywordName = "COMPIMB";
 const std::string COMPIMB::WELL::itemName = "WELL";
 const std::string COMPIMB::I::itemName = "I";
-const int COMPIMB::I::defaultValue = 0;
 const std::string COMPIMB::J::itemName = "J";
-const int COMPIMB::J::defaultValue = 0;
 const std::string COMPIMB::K1::itemName = "K1";
 const std::string COMPIMB::K2::itemName = "K2";
 const std::string COMPIMB::SAT_TABLE::itemName = "SAT_TABLE";
-const int COMPIMB::SAT_TABLE::defaultValue = 0;
 
 
 COMPINJK::COMPINJK() : ParserKeyword("COMPINJK", KeywordSize(SLASH_TERMINATED)) {
@@ -966,15 +950,10 @@ COMPINJK::COMPINJK() : ParserKeyword("COMPINJK", KeywordSize(SLASH_TERMINATED)) 
 const std::string COMPINJK::keywordName = "COMPINJK";
 const std::string COMPINJK::WELL::itemName = "WELL";
 const std::string COMPINJK::I::itemName = "I";
-const int COMPINJK::I::defaultValue = 0;
 const std::string COMPINJK::J::itemName = "J";
-const int COMPINJK::J::defaultValue = 0;
 const std::string COMPINJK::K_UPPER::itemName = "K_UPPER";
-const int COMPINJK::K_UPPER::defaultValue = 0;
 const std::string COMPINJK::K_LOWER::itemName = "K_LOWER";
-const int COMPINJK::K_LOWER::defaultValue = 0;
 const std::string COMPINJK::REL_PERM::itemName = "REL_PERM";
-const double COMPINJK::REL_PERM::defaultValue = 0;
 
 
 COMPLMPL::COMPLMPL() : ParserKeyword("COMPLMPL", KeywordSize(SLASH_TERMINATED)) {
@@ -1024,13 +1003,9 @@ const std::string COMPLMPL::WELL::itemName = "WELL";
 const std::string COMPLMPL::GRID::itemName = "GRID";
 const std::string COMPLMPL::GRID::defaultValue = "";
 const std::string COMPLMPL::I::itemName = "I";
-const int COMPLMPL::I::defaultValue = 0;
 const std::string COMPLMPL::J::itemName = "J";
-const int COMPLMPL::J::defaultValue = 0;
 const std::string COMPLMPL::UPPER_K::itemName = "UPPER_K";
-const int COMPLMPL::UPPER_K::defaultValue = 0;
 const std::string COMPLMPL::LOWER_K::itemName = "LOWER_K";
-const int COMPLMPL::LOWER_K::defaultValue = 0;
 const std::string COMPLMPL::COMPLETION_NUMBER::itemName = "COMPLETION_NUMBER";
 
 
@@ -1074,13 +1049,9 @@ COMPLUMP::COMPLUMP() : ParserKeyword("COMPLUMP", KeywordSize(SLASH_TERMINATED)) 
 const std::string COMPLUMP::keywordName = "COMPLUMP";
 const std::string COMPLUMP::WELL::itemName = "WELL";
 const std::string COMPLUMP::I::itemName = "I";
-const int COMPLUMP::I::defaultValue = 0;
 const std::string COMPLUMP::J::itemName = "J";
-const int COMPLUMP::J::defaultValue = 0;
 const std::string COMPLUMP::K1::itemName = "K1";
-const int COMPLUMP::K1::defaultValue = 0;
 const std::string COMPLUMP::K2::itemName = "K2";
-const int COMPLUMP::K2::defaultValue = 0;
 const std::string COMPLUMP::N::itemName = "N";
 
 
@@ -1208,13 +1179,9 @@ COMPRP::COMPRP() : ParserKeyword("COMPRP", KeywordSize(SLASH_TERMINATED)) {
 const std::string COMPRP::keywordName = "COMPRP";
 const std::string COMPRP::WELL::itemName = "WELL";
 const std::string COMPRP::I::itemName = "I";
-const int COMPRP::I::defaultValue = 0;
 const std::string COMPRP::J::itemName = "J";
-const int COMPRP::J::defaultValue = 0;
 const std::string COMPRP::K_UPPER::itemName = "K_UPPER";
-const int COMPRP::K_UPPER::defaultValue = 0;
 const std::string COMPRP::K_LOWER::itemName = "K_LOWER";
-const int COMPRP::K_LOWER::defaultValue = 0;
 const std::string COMPRP::SAT_TABLE_NUM::itemName = "SAT_TABLE_NUM";
 const std::string COMPRP::SWMIN::itemName = "SWMIN";
 const std::string COMPRP::SWMAX::itemName = "SWMAX";
@@ -1287,13 +1254,9 @@ const std::string COMPRPL::keywordName = "COMPRPL";
 const std::string COMPRPL::WELL::itemName = "WELL";
 const std::string COMPRPL::LOCAL_GRID::itemName = "LOCAL_GRID";
 const std::string COMPRPL::I::itemName = "I";
-const int COMPRPL::I::defaultValue = 0;
 const std::string COMPRPL::J::itemName = "J";
-const int COMPRPL::J::defaultValue = 0;
 const std::string COMPRPL::K_UPPER::itemName = "K_UPPER";
-const int COMPRPL::K_UPPER::defaultValue = 0;
 const std::string COMPRPL::K_LOWER::itemName = "K_LOWER";
-const int COMPRPL::K_LOWER::defaultValue = 0;
 const std::string COMPRPL::SAT_TABLE_NUM::itemName = "SAT_TABLE_NUM";
 const std::string COMPRPL::SWMIN::itemName = "SWMIN";
 const std::string COMPRPL::SWMAX::itemName = "SWMAX";
@@ -1400,7 +1363,6 @@ const std::string COMPSEGL::DISTANCE_END::itemName = "DISTANCE_END";
 const std::string COMPSEGL::DIRECTION::itemName = "DIRECTION";
 const std::string COMPSEGL::END_IJK::itemName = "END_IJK";
 const std::string COMPSEGL::CENTER_DEPTH::itemName = "CENTER_DEPTH";
-const double COMPSEGL::CENTER_DEPTH::defaultValue = 0;
 const std::string COMPSEGL::THERMAL_LENGTH::itemName = "THERMAL_LENGTH";
 const std::string COMPSEGL::SEGMENT_NUMBER::itemName = "SEGMENT_NUMBER";
 
@@ -1482,9 +1444,104 @@ const std::string COMPSEGS::DISTANCE_END::itemName = "DISTANCE_END";
 const std::string COMPSEGS::DIRECTION::itemName = "DIRECTION";
 const std::string COMPSEGS::END_IJK::itemName = "END_IJK";
 const std::string COMPSEGS::CENTER_DEPTH::itemName = "CENTER_DEPTH";
-const double COMPSEGS::CENTER_DEPTH::defaultValue = 0;
 const std::string COMPSEGS::THERMAL_LENGTH::itemName = "THERMAL_LENGTH";
 const std::string COMPSEGS::SEGMENT_NUMBER::itemName = "SEGMENT_NUMBER";
+
+
+COMPTRAJ::COMPTRAJ() : ParserKeyword("COMPTRAJ", KeywordSize(SLASH_TERMINATED)) {
+  addValidSectionName("SCHEDULE");
+  setRequiredKeywords({
+    "WELTRAJ",
+  });
+  clearDeckNames();
+  addDeckName("COMPTRAJ");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("WELL", ParserItem::itype::STRING);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("BRANCH_NUMBER", ParserItem::itype::INT);
+        item.setDefault( 1 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("PERF_TOP", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Length");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("PERF_BOT", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Length");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("PERF_REF", ParserItem::itype::STRING);
+        item.setDefault( std::string("TVD") );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("COMPLETION_NUMBER", ParserItem::itype::INT);
+        item.setDefault( 1 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("STATE", ParserItem::itype::STRING);
+        item.setDefault( std::string("OPEN") );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("SAT_TABLE", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("CONNECTION_TRANSMISSIBILITY_FACTOR", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Viscosity*ReservoirVolume/Time*Pressure");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("DIAMETER", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Length");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("Kh", ParserItem::itype::DOUBLE);
+        item.setDefault( double(-1.000000) );
+        item.push_backDimension("Permeability*Length");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("SKIN", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("D_FACTOR", ParserItem::itype::DOUBLE);
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string COMPTRAJ::keywordName = "COMPTRAJ";
+const std::string COMPTRAJ::WELL::itemName = "WELL";
+const std::string COMPTRAJ::BRANCH_NUMBER::itemName = "BRANCH_NUMBER";
+const std::string COMPTRAJ::PERF_TOP::itemName = "PERF_TOP";
+const std::string COMPTRAJ::PERF_BOT::itemName = "PERF_BOT";
+const std::string COMPTRAJ::PERF_REF::itemName = "PERF_REF";
+const std::string COMPTRAJ::PERF_REF::defaultValue = "TVD";
+const std::string COMPTRAJ::COMPLETION_NUMBER::itemName = "COMPLETION_NUMBER";
+const std::string COMPTRAJ::STATE::itemName = "STATE";
+const std::string COMPTRAJ::STATE::defaultValue = "OPEN";
+const std::string COMPTRAJ::SAT_TABLE::itemName = "SAT_TABLE";
+const std::string COMPTRAJ::CONNECTION_TRANSMISSIBILITY_FACTOR::itemName = "CONNECTION_TRANSMISSIBILITY_FACTOR";
+const std::string COMPTRAJ::DIAMETER::itemName = "DIAMETER";
+const std::string COMPTRAJ::Kh::itemName = "Kh";
+const std::string COMPTRAJ::SKIN::itemName = "SKIN";
+const std::string COMPTRAJ::D_FACTOR::itemName = "D_FACTOR";
 
 
 COMPVE::COMPVE() : ParserKeyword("COMPVE", KeywordSize(SLASH_TERMINATED)) {
@@ -1562,13 +1619,9 @@ COMPVE::COMPVE() : ParserKeyword("COMPVE", KeywordSize(SLASH_TERMINATED)) {
 const std::string COMPVE::keywordName = "COMPVE";
 const std::string COMPVE::WELL::itemName = "WELL";
 const std::string COMPVE::I::itemName = "I";
-const int COMPVE::I::defaultValue = 0;
 const std::string COMPVE::J::itemName = "J";
-const int COMPVE::J::defaultValue = 0;
 const std::string COMPVE::K_UPPER::itemName = "K_UPPER";
-const int COMPVE::K_UPPER::defaultValue = 0;
 const std::string COMPVE::K_LOWER::itemName = "K_LOWER";
-const int COMPVE::K_LOWER::defaultValue = 0;
 const std::string COMPVE::SAT_TABLE_NUM::itemName = "SAT_TABLE_NUM";
 const std::string COMPVE::CVEFRAC::itemName = "CVEFRAC";
 const std::string COMPVE::DTOP::itemName = "DTOP";
@@ -1576,7 +1629,6 @@ const std::string COMPVE::DBOT::itemName = "DBOT";
 const std::string COMPVE::FLAG::itemName = "FLAG";
 const std::string COMPVE::FLAG::defaultValue = "NO";
 const std::string COMPVE::S_D::itemName = "S_D";
-const double COMPVE::S_D::defaultValue = 0;
 const std::string COMPVE::GTOP::itemName = "GTOP";
 const std::string COMPVE::GBOT::itemName = "GBOT";
 
@@ -1661,13 +1713,9 @@ const std::string COMPVEL::keywordName = "COMPVEL";
 const std::string COMPVEL::WELL::itemName = "WELL";
 const std::string COMPVEL::LOCAL::itemName = "LOCAL";
 const std::string COMPVEL::I::itemName = "I";
-const int COMPVEL::I::defaultValue = 0;
 const std::string COMPVEL::J::itemName = "J";
-const int COMPVEL::J::defaultValue = 0;
 const std::string COMPVEL::K_UPPER::itemName = "K_UPPER";
-const int COMPVEL::K_UPPER::defaultValue = 0;
 const std::string COMPVEL::K_LOWER::itemName = "K_LOWER";
-const int COMPVEL::K_LOWER::defaultValue = 0;
 const std::string COMPVEL::SAT_TABLE_NUM::itemName = "SAT_TABLE_NUM";
 const std::string COMPVEL::CVEFRAC::itemName = "CVEFRAC";
 const std::string COMPVEL::DTOP::itemName = "DTOP";
@@ -1675,7 +1723,6 @@ const std::string COMPVEL::DBOT::itemName = "DBOT";
 const std::string COMPVEL::FLAG::itemName = "FLAG";
 const std::string COMPVEL::FLAG::defaultValue = "NO";
 const std::string COMPVEL::S_D::itemName = "S_D";
-const double COMPVEL::S_D::defaultValue = 0;
 const std::string COMPVEL::GTOP::itemName = "GTOP";
 const std::string COMPVEL::GBOT::itemName = "GBOT";
 
@@ -1826,6 +1873,45 @@ const std::string CONNECTION_PROBE::J::itemName = "J";
 const std::string CONNECTION_PROBE::K::itemName = "K";
 
 
+CONNECTION_PROBE_OPM::CONNECTION_PROBE_OPM() : ParserKeyword("CONNECTION_PROBE_OPM", KeywordSize(SLASH_TERMINATED)) {
+  addValidSectionName("SUMMARY");
+  clearDeckNames();
+  addDeckName("CINJFVT");
+  addDeckName("CFCPORO");
+  addDeckName("CFCPERM");
+  addDeckName("CFCRAD");
+  addDeckName("CFCSKIN");
+  addDeckName("CFCWIDTH");
+  addDeckName("CFCAOF");
+  addDeckName("CINJFVR");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("WELL", ParserItem::itype::STRING);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("I", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("J", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("K", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string CONNECTION_PROBE_OPM::keywordName = "CONNECTION_PROBE_OPM";
+const std::string CONNECTION_PROBE_OPM::WELL::itemName = "WELL";
+const std::string CONNECTION_PROBE_OPM::I::itemName = "I";
+const std::string CONNECTION_PROBE_OPM::J::itemName = "J";
+const std::string CONNECTION_PROBE_OPM::K::itemName = "K";
+
+
 COORD::COORD() : ParserKeyword("COORD", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   setProhibitedKeywords({
@@ -1893,9 +1979,7 @@ const std::string COORDSYS::CIRCLE_COMPLETION::defaultValue = "INCOMP";
 const std::string COORDSYS::CONNECTION::itemName = "CONNECTION";
 const std::string COORDSYS::CONNECTION::defaultValue = "SEPARATE";
 const std::string COORDSYS::R1::itemName = "R1";
-const int COORDSYS::R1::defaultValue = 0;
 const std::string COORDSYS::R2::itemName = "R2";
-const int COORDSYS::R2::defaultValue = 0;
 
 
 COPY::COPY() : ParserKeyword("COPY", KeywordSize(SLASH_TERMINATED)) {
@@ -2034,9 +2118,9 @@ const std::string COPYBOX::KY2D::itemName = "KY2D";
 
 
 COPYREG::COPYREG() : ParserKeyword("COPYREG", KeywordSize(SLASH_TERMINATED)) {
-  addValidSectionName("PROPS");
-  addValidSectionName("EDIT");
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
+  addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
   addValidSectionName("SOLUTION");
   clearDeckNames();
@@ -2207,7 +2291,7 @@ const std::string CPR::J::itemName = "J";
 const std::string CPR::K::itemName = "K";
 
 
-CREF::CREF() : ParserKeyword("CREF", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
+CREF::CREF() : ParserKeyword("CREF", KeywordSize("TABDIMS", "NUM_EOS_RES", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("CREF");
@@ -2226,10 +2310,10 @@ const std::string CREF::keywordName = "CREF";
 const std::string CREF::COMPRESSIBILITY::itemName = "COMPRESSIBILITY";
 
 
-CREFS::CREFS() : ParserKeyword("CREFS", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
+CREFW::CREFW() : ParserKeyword("CREFW", KeywordSize("TABDIMS", "NUM_EOS_RES", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
-  addDeckName("CREFS");
+  addDeckName("CREFW");
   {
      ParserRecord record;
      {
@@ -2241,8 +2325,27 @@ CREFS::CREFS() : ParserKeyword("CREFS", KeywordSize("TABDIMS", "NUM_STATE_EQ", f
      addRecord( record );
   }
 }
-const std::string CREFS::keywordName = "CREFS";
-const std::string CREFS::COMPRESSIBILITY::itemName = "COMPRESSIBILITY";
+const std::string CREFW::keywordName = "CREFW";
+const std::string CREFW::COMPRESSIBILITY::itemName = "COMPRESSIBILITY";
+
+
+CREFWS::CREFWS() : ParserKeyword("CREFWS", KeywordSize("TABDIMS", "NUM_EOS_SURFACE", false, 0)) {
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("CREFWS");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("COMPRESSIBILITY", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("1/Pressure");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string CREFWS::keywordName = "CREFWS";
+const std::string CREFWS::COMPRESSIBILITY::itemName = "COMPRESSIBILITY";
 
 
 CRITPERM::CRITPERM() : ParserKeyword("CRITPERM", KeywordSize(1, false)) {
@@ -2305,15 +2408,10 @@ CSKIN::CSKIN() : ParserKeyword("CSKIN", KeywordSize(SLASH_TERMINATED)) {
 const std::string CSKIN::keywordName = "CSKIN";
 const std::string CSKIN::WELL::itemName = "WELL";
 const std::string CSKIN::I::itemName = "I";
-const int CSKIN::I::defaultValue = 0;
 const std::string CSKIN::J::itemName = "J";
-const int CSKIN::J::defaultValue = 0;
 const std::string CSKIN::K_UPPER::itemName = "K_UPPER";
-const int CSKIN::K_UPPER::defaultValue = 0;
 const std::string CSKIN::K_LOWER::itemName = "K_LOWER";
-const int CSKIN::K_LOWER::defaultValue = 0;
 const std::string CSKIN::CONNECTION_SKIN_FACTOR::itemName = "CONNECTION_SKIN_FACTOR";
-const double CSKIN::CONNECTION_SKIN_FACTOR::defaultValue = 0;
 
 
 }

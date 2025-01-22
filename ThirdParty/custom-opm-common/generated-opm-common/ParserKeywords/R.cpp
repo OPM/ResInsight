@@ -89,12 +89,9 @@ const std::string RADFIN::NR::itemName = "NR";
 const std::string RADFIN::NTHETA::itemName = "NTHETA";
 const std::string RADFIN::NZ::itemName = "NZ";
 const std::string RADFIN::NWMAX::itemName = "NWMAX";
-const int RADFIN::NWMAX::defaultValue = 1;
 const std::string RADFIN::INNER_RADIUS::itemName = "INNER_RADIUS";
-const double RADFIN::INNER_RADIUS::defaultValue = 0.152400;
 const std::string RADFIN::OUTER_RADIUS::itemName = "OUTER_RADIUS";
 const std::string RADFIN::MINIMUM_RADIUS_REFINEMENT::itemName = "MINIMUM_RADIUS_REFINEMENT";
-const double RADFIN::MINIMUM_RADIUS_REFINEMENT::defaultValue = 1.524000;
 const std::string RADFIN::PARENT_LGR::itemName = "PARENT_LGR";
 const std::string RADFIN::PARENT_LGR::defaultValue = "GLOBAL";
 
@@ -166,7 +163,6 @@ const std::string RADFIN4::NR::itemName = "NR";
 const std::string RADFIN4::NTHETA::itemName = "NTHETA";
 const std::string RADFIN4::NZ::itemName = "NZ";
 const std::string RADFIN4::NWMAX::itemName = "NWMAX";
-const int RADFIN4::NWMAX::defaultValue = 1;
 
 
 RADIAL::RADIAL() : ParserKeyword("RADIAL", KeywordSize(0, false)) {
@@ -421,16 +417,12 @@ const std::string REACHES::BRANCH::itemName = "BRANCH";
 const std::string REACHES::LENGTH2::itemName = "LENGTH2";
 const std::string REACHES::DEPTH::itemName = "DEPTH";
 const std::string REACHES::PROFILE::itemName = "PROFILE";
-const int REACHES::PROFILE::defaultValue = 1;
 const std::string REACHES::ROUGHNESS::itemName = "ROUGHNESS";
 const std::string REACHES::XLENGTH::itemName = "XLENGTH";
 const std::string REACHES::YLENGTH::itemName = "YLENGTH";
 const std::string REACHES::REACH_LENGTH::itemName = "REACH_LENGTH";
-const double REACHES::REACH_LENGTH::defaultValue = 0;
 const std::string REACHES::NUM_REACHES::itemName = "NUM_REACHES";
-const int REACHES::NUM_REACHES::defaultValue = 1;
 const std::string REACHES::DEPTH_SOMETHING::itemName = "DEPTH_SOMETHING";
-const int REACHES::DEPTH_SOMETHING::defaultValue = 1;
 
 
 READDATA::READDATA() : ParserKeyword("READDATA", KeywordSize(1, false)) {
@@ -535,25 +527,15 @@ REGDIMS::REGDIMS() : ParserKeyword("REGDIMS", KeywordSize(1, false)) {
 }
 const std::string REGDIMS::keywordName = "REGDIMS";
 const std::string REGDIMS::NTFIP::itemName = "NTFIP";
-const int REGDIMS::NTFIP::defaultValue = 1;
 const std::string REGDIMS::NMFIPR::itemName = "NMFIPR";
-const int REGDIMS::NMFIPR::defaultValue = 1;
 const std::string REGDIMS::NRFREG::itemName = "NRFREG";
-const int REGDIMS::NRFREG::defaultValue = 0;
 const std::string REGDIMS::NTFREG::itemName = "NTFREG";
-const int REGDIMS::NTFREG::defaultValue = 0;
 const std::string REGDIMS::MAX_ETRACK::itemName = "MAX_ETRACK";
-const int REGDIMS::MAX_ETRACK::defaultValue = 0;
 const std::string REGDIMS::NTCREG::itemName = "NTCREG";
-const int REGDIMS::NTCREG::defaultValue = 1;
 const std::string REGDIMS::MAX_OPERNUM::itemName = "MAX_OPERNUM";
-const int REGDIMS::MAX_OPERNUM::defaultValue = 0;
 const std::string REGDIMS::MAX_OPERATE_DWORK::itemName = "MAX_OPERATE_DWORK";
-const int REGDIMS::MAX_OPERATE_DWORK::defaultValue = 0;
 const std::string REGDIMS::MAX_OPERATE_IWORK::itemName = "MAX_OPERATE_IWORK";
-const int REGDIMS::MAX_OPERATE_IWORK::defaultValue = 0;
 const std::string REGDIMS::NPLMIX::itemName = "NPLMIX";
-const int REGDIMS::NPLMIX::defaultValue = 1;
 
 
 REGION2REGION_PROBE::REGION2REGION_PROBE() : ParserKeyword("REGION2REGION_PROBE", KeywordSize(SLASH_TERMINATED)) {
@@ -610,19 +592,14 @@ const std::string REGIONS::keywordName = "REGIONS";
 REGION_PROBE::REGION_PROBE() : ParserKeyword("REGION_PROBE", KeywordSize(1, false)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
-  addDeckName("RRPV_[0-9A-Z][0-9A-Z][0-9A-Z]");
-  addDeckName("ROEIG");
-  addDeckName("ROEW_[0-9A-Z][0-9A-Z][0-9A-Z]");
-  addDeckName("RWIR");
-  addDeckName("RGPV");
-  addDeckName("RHPV_[0-9A-Z][0-9A-Z][0-9A-Z]");
-  addDeckName("RORFR");
+  addDeckName("RRPV");
   addDeckName("ROP");
-  addDeckName("ROEW");
   addDeckName("RGP");
+  addDeckName("ROEW");
   addDeckName("ROSAT");
-  addDeckName("ROIP");
   addDeckName("ROIPL");
+  addDeckName("RHPV");
+  addDeckName("ROIP");
   addDeckName("RWVIS");
   addDeckName("ROIPG");
   addDeckName("RPPO");
@@ -637,16 +614,19 @@ REGION_PROBE::REGION_PROBE() : ParserKeyword("REGION_PROBE", KeywordSize(1, fals
   addDeckName("ROIR");
   addDeckName("ROIT");
   addDeckName("RSIP");
-  addDeckName("RORME");
   addDeckName("RPPC");
   addDeckName("RWSAT");
+  addDeckName("RORME");
   addDeckName("RWIP");
   addDeckName("RRS");
   addDeckName("RWP");
   addDeckName("RPRGZ");
   addDeckName("RPPW");
+  addDeckName("RWIPG");
   addDeckName("RWPR");
   addDeckName("RWPT");
+  addDeckName("ROEIG");
+  addDeckName("RWIR");
   addDeckName("RORMR");
   addDeckName("RWIT");
   addDeckName("RGIP");
@@ -655,7 +635,9 @@ REGION_PROBE::REGION_PROBE() : ParserKeyword("REGION_PROBE", KeywordSize(1, fals
   addDeckName("RGPR");
   addDeckName("RGIPG");
   addDeckName("RPPG");
+  addDeckName("RGCDI");
   addDeckName("RGVIS");
+  addDeckName("RGCDM");
   addDeckName("RGDEN");
   addDeckName("RGPT");
   addDeckName("RGPRF");
@@ -669,10 +651,11 @@ REGION_PROBE::REGION_PROBE() : ParserKeyword("REGION_PROBE", KeywordSize(1, fals
   addDeckName("RGIT");
   addDeckName("RPR");
   addDeckName("RPRP");
-  addDeckName("RRPV");
   addDeckName("RORMW");
   addDeckName("ROPV");
-  addDeckName("RHPV");
+  addDeckName("RWIPL");
+  addDeckName("RWCD");
+  addDeckName("RGPV");
   addDeckName("ROEIW");
   addDeckName("ROEWW");
   addDeckName("ROEWG");
@@ -682,6 +665,7 @@ REGION_PROBE::REGION_PROBE() : ParserKeyword("REGION_PROBE", KeywordSize(1, fals
   addDeckName("RORMF");
   addDeckName("RORMX");
   addDeckName("RORMY");
+  addDeckName("RORFR");
   addDeckName("RORFW");
   addDeckName("RORFG");
   addDeckName("RORFE");
@@ -706,7 +690,8 @@ REGION_PROBE::REGION_PROBE() : ParserKeyword("REGION_PROBE", KeywordSize(1, fals
   addDeckName("RTIPTSUR");
   addDeckName("RTFTTSUR");
   addDeckName("RTADSUR");
-  setMatchRegex("R[OGW]?[OIP][EPRT]_.+|RU.+|RTIPF.+|RTIPS.+|RTFTF.+|RTFTS.+|RTFTT.+|RTIPT.+|RTIPF.+|RTIPS.+|RTIP[1-9][0-9]*.+|RTFTT.+|RTFTF.+|RTFTS.+|RTFT[1-9][0-9]*.+|RTADS.+|RTDCY.+");
+  setMatchRegex("RU.+|RTIPF.+|RTIPS.+|RTFTF.+|RTFTS.+|RTFTT.+|RTIPT.+|RTIPF.+|RTIPS.+|RTIP[1-9][0-9]*.+|RTFTT.+|RTFTF.+|RTFTS.+|RTFT[1-9][0-9]*.+|RTADS.+|RTDCY.+");
+  setMatchRegexSuffix("_{0,2}[A-Z0-9]{3}");
   {
      ParserRecord record;
      {
@@ -719,6 +704,35 @@ REGION_PROBE::REGION_PROBE() : ParserKeyword("REGION_PROBE", KeywordSize(1, fals
 }
 const std::string REGION_PROBE::keywordName = "REGION_PROBE";
 const std::string REGION_PROBE::data::itemName = "data";
+
+
+REGION_PROBE_OPM::REGION_PROBE_OPM() : ParserKeyword("REGION_PROBE_OPM", KeywordSize(1, false)) {
+  addValidSectionName("SUMMARY");
+  clearDeckNames();
+  addDeckName("RGMIP");
+  addDeckName("RGKDI");
+  addDeckName("RGMDS");
+  addDeckName("RGKDM");
+  addDeckName("RGKMO");
+  addDeckName("RGMMO");
+  addDeckName("RGKTR");
+  addDeckName("RGMGP");
+  addDeckName("RGMST");
+  addDeckName("RGMIM");
+  addDeckName("RGMUS");
+  setMatchRegexSuffix("_{0,2}[A-Z0-9]{3}");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("data", ParserItem::itype::INT);
+        item.setSizeType(ParserItem::item_size::ALL);
+        record.addDataItem(item);
+     }
+     addDataRecord( record );
+  }
+}
+const std::string REGION_PROBE_OPM::keywordName = "REGION_PROBE_OPM";
+const std::string REGION_PROBE_OPM::data::itemName = "data";
 
 
 RESIDNUM::RESIDNUM() : ParserKeyword("RESIDNUM", KeywordSize(1, false)) {
@@ -810,7 +824,6 @@ RHO::RHO() : ParserKeyword("RHO", KeywordSize(1, false)) {
 }
 const std::string RHO::keywordName = "RHO";
 const std::string RHO::data::itemName = "data";
-const double RHO::data::defaultValue = 0;
 
 
 RIVDEBUG::RIVDEBUG() : ParserKeyword("RIVDEBUG", KeywordSize(SLASH_TERMINATED)) {
@@ -954,31 +967,18 @@ RIVRDIMS::RIVRDIMS() : ParserKeyword("RIVRDIMS", KeywordSize(1, false)) {
 }
 const std::string RIVRDIMS::keywordName = "RIVRDIMS";
 const std::string RIVRDIMS::MAX_RIVERS::itemName = "MAX_RIVERS";
-const int RIVRDIMS::MAX_RIVERS::defaultValue = 0;
 const std::string RIVRDIMS::MAX_REACHES::itemName = "MAX_REACHES";
-const int RIVRDIMS::MAX_REACHES::defaultValue = 1;
 const std::string RIVRDIMS::MAX_BRANCHES::itemName = "MAX_BRANCHES";
-const int RIVRDIMS::MAX_BRANCHES::defaultValue = 1;
 const std::string RIVRDIMS::MAX_BLOCKS::itemName = "MAX_BLOCKS";
-const int RIVRDIMS::MAX_BLOCKS::defaultValue = 1;
 const std::string RIVRDIMS::MXTBPR::itemName = "MXTBPR";
-const int RIVRDIMS::MXTBPR::defaultValue = 1;
 const std::string RIVRDIMS::MXDPTB::itemName = "MXDPTB";
-const int RIVRDIMS::MXDPTB::defaultValue = 2;
 const std::string RIVRDIMS::MXTBGR::itemName = "MXTBGR";
-const int RIVRDIMS::MXTBGR::defaultValue = 1;
 const std::string RIVRDIMS::NMDEPT::itemName = "NMDEPT";
-const int RIVRDIMS::NMDEPT::defaultValue = 0;
 const std::string RIVRDIMS::MXDEPT::itemName = "MXDEPT";
-const int RIVRDIMS::MXDEPT::defaultValue = 2;
 const std::string RIVRDIMS::NMMAST::itemName = "NMMAST";
-const int RIVRDIMS::NMMAST::defaultValue = 0;
 const std::string RIVRDIMS::MXMAST::itemName = "MXMAST";
-const int RIVRDIMS::MXMAST::defaultValue = 2;
 const std::string RIVRDIMS::NRATTA::itemName = "NRATTA";
-const int RIVRDIMS::NRATTA::defaultValue = 0;
 const std::string RIVRDIMS::MXRATE::itemName = "MXRATE";
-const int RIVRDIMS::MXRATE::defaultValue = 2;
 
 
 RIVRPROP::RIVRPROP() : ParserKeyword("RIVRPROP", KeywordSize(SLASH_TERMINATED)) {
@@ -1127,7 +1127,7 @@ RKTRMDIR::RKTRMDIR() : ParserKeyword("RKTRMDIR", KeywordSize(0, false)) {
 const std::string RKTRMDIR::keywordName = "RKTRMDIR";
 
 
-ROCK::ROCK() : ParserKeyword("ROCK", KeywordSize(UNKNOWN)) {
+ROCK::ROCK() : ParserKeyword("ROCK", KeywordSize(SPECIAL_CASE_ROCK)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ROCK");
@@ -1150,9 +1150,7 @@ ROCK::ROCK() : ParserKeyword("ROCK", KeywordSize(UNKNOWN)) {
 }
 const std::string ROCK::keywordName = "ROCK";
 const std::string ROCK::PREF::itemName = "PREF";
-const double ROCK::PREF::defaultValue = 1.013200;
 const std::string ROCK::COMPRESSIBILITY::itemName = "COMPRESSIBILITY";
-const double ROCK::COMPRESSIBILITY::defaultValue = 0;
 
 
 ROCK2D::ROCK2D() : ParserKeyword("ROCK2D", KeywordSize("ROCKCOMP", "NTROCC", true, 0)) {
@@ -1242,12 +1240,10 @@ const std::string ROCKCOMP::keywordName = "ROCKCOMP";
 const std::string ROCKCOMP::HYSTERESIS::itemName = "HYSTERESIS";
 const std::string ROCKCOMP::HYSTERESIS::defaultValue = "REVERS";
 const std::string ROCKCOMP::NTROCC::itemName = "NTROCC";
-const int ROCKCOMP::NTROCC::defaultValue = 1;
 const std::string ROCKCOMP::WATER_COMPACTION::itemName = "WATER_COMPACTION";
 const std::string ROCKCOMP::WATER_COMPACTION::defaultValue = "NO";
 const std::string ROCKCOMP::PORTXROP::itemName = "PORTXROP";
 const std::string ROCKCOMP::CARKZEXP::itemName = "CARKZEXP";
-const double ROCKCOMP::CARKZEXP::defaultValue = 0;
 
 
 ROCKFRAC::ROCKFRAC() : ParserKeyword("ROCKFRAC", KeywordSize(1, false)) {
@@ -1387,21 +1383,13 @@ const std::string ROCKPAMA::keywordName = "ROCKPAMA";
 const std::string ROCKPAMA::K::itemName = "K";
 const std::string ROCKPAMA::M::itemName = "M";
 const std::string ROCKPAMA::G::itemName = "G";
-const double ROCKPAMA::G::defaultValue = 0;
 const std::string ROCKPAMA::B::itemName = "B";
-const double ROCKPAMA::B::defaultValue = 0;
 const std::string ROCKPAMA::E1::itemName = "E1";
-const double ROCKPAMA::E1::defaultValue = 0;
 const std::string ROCKPAMA::f::itemName = "f";
-const double ROCKPAMA::f::defaultValue = 0.500000;
 const std::string ROCKPAMA::n::itemName = "n";
-const double ROCKPAMA::n::defaultValue = 3.000000;
 const std::string ROCKPAMA::g::itemName = "g";
-const double ROCKPAMA::g::defaultValue = 1.000000;
 const std::string ROCKPAMA::Bs::itemName = "Bs";
-const double ROCKPAMA::Bs::defaultValue = 0;
 const std::string ROCKPAMA::Es::itemName = "Es";
-const double ROCKPAMA::Es::defaultValue = 0;
 
 
 ROCKTAB::ROCKTAB() : ParserKeyword("ROCKTAB", KeywordSize("ROCKCOMP", "NTROCC", false, 0)) {
@@ -1624,17 +1612,11 @@ RPTHMD::RPTHMD() : ParserKeyword("RPTHMD", KeywordSize(1, false)) {
 }
 const std::string RPTHMD::keywordName = "RPTHMD";
 const std::string RPTHMD::ITEM1::itemName = "ITEM1";
-const int RPTHMD::ITEM1::defaultValue = 0;
 const std::string RPTHMD::ITEM2::itemName = "ITEM2";
-const int RPTHMD::ITEM2::defaultValue = 0;
 const std::string RPTHMD::ITEM3::itemName = "ITEM3";
-const int RPTHMD::ITEM3::defaultValue = 0;
 const std::string RPTHMD::ITEM4::itemName = "ITEM4";
-const int RPTHMD::ITEM4::defaultValue = 0;
 const std::string RPTHMD::ITEM5::itemName = "ITEM5";
-const int RPTHMD::ITEM5::defaultValue = 0;
 const std::string RPTHMD::ITEM6::itemName = "ITEM6";
-const int RPTHMD::ITEM6::defaultValue = 0;
 
 
 RPTHMG::RPTHMG() : ParserKeyword("RPTHMG", KeywordSize(SLASH_TERMINATED)) {
@@ -1983,7 +1965,6 @@ RTEMP::RTEMP() : ParserKeyword("RTEMP", KeywordSize(1, false)) {
 }
 const std::string RTEMP::keywordName = "RTEMP";
 const std::string RTEMP::TEMP::itemName = "TEMP";
-const double RTEMP::TEMP::defaultValue = 15.555000;
 
 
 RTEMPA::RTEMPA() : ParserKeyword("RTEMPA", KeywordSize(1, false)) {
@@ -2004,7 +1985,6 @@ RTEMPA::RTEMPA() : ParserKeyword("RTEMPA", KeywordSize(1, false)) {
 }
 const std::string RTEMPA::keywordName = "RTEMPA";
 const std::string RTEMPA::TEMP::itemName = "TEMP";
-const double RTEMPA::TEMP::defaultValue = 15.555000;
 
 
 RTEMPVD::RTEMPVD() : ParserKeyword("RTEMPVD", KeywordSize("EQLDIMS", "NTEQUL", false, 0)) {
@@ -2168,16 +2148,40 @@ const std::string RVW::keywordName = "RVW";
 const std::string RVW::data::itemName = "data";
 
 
-RWGSALT::RWGSALT() : ParserKeyword("RWGSALT", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
+RVWVD::RVWVD() : ParserKeyword("RVWVD", KeywordSize("EQLDIMS", "NTEQUL", false, 0)) {
+  addValidSectionName("SOLUTION");
+  clearDeckNames();
+  addDeckName("RVWVD");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("DATA", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("Length");
+        item.push_backDimension("OilDissolutionFactor");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string RVWVD::keywordName = "RVWVD";
+const std::string RVWVD::DATA::itemName = "DATA";
+
+
+RWGSALT::RWGSALT() : ParserKeyword("RWGSALT", KeywordSize("TABDIMS", "NTPVT", true, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("RWGSALT");
   {
      ParserRecord record;
      {
+        ParserItem item("GAS_PRESSURE", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Pressure");
+        record.addItem(item);
+     }
+     {
         ParserItem item("DATA", ParserItem::itype::DOUBLE);
         item.setSizeType(ParserItem::item_size::ALL);
-        item.push_backDimension("Pressure");
         item.push_backDimension("Mass/Length*Length*Length");
         item.push_backDimension("OilDissolutionFactor");
         record.addItem(item);
@@ -2186,6 +2190,7 @@ RWGSALT::RWGSALT() : ParserKeyword("RWGSALT", KeywordSize("TABDIMS", "NTPVT", fa
   }
 }
 const std::string RWGSALT::keywordName = "RWGSALT";
+const std::string RWGSALT::GAS_PRESSURE::itemName = "GAS_PRESSURE";
 const std::string RWGSALT::DATA::itemName = "DATA";
 
 

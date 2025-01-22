@@ -50,6 +50,25 @@ VAPWAT::VAPWAT() : ParserKeyword("VAPWAT", KeywordSize(0, false)) {
 const std::string VAPWAT::keywordName = "VAPWAT";
 
 
+VCRIT::VCRIT() : ParserKeyword("VCRIT", KeywordSize("TABDIMS", "NUM_EOS_RES", false, 0)) {
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("VCRIT");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("DATA", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("GeometricVolume/Moles");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string VCRIT::keywordName = "VCRIT";
+const std::string VCRIT::DATA::itemName = "DATA";
+
+
 VDFLOW::VDFLOW() : ParserKeyword("VDFLOW", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
@@ -154,7 +173,6 @@ const std::string VEDEBUG::J2::itemName = "J2";
 const std::string VEDEBUG::K1::itemName = "K1";
 const std::string VEDEBUG::K2::itemName = "K2";
 const std::string VEDEBUG::DEBUG_LEVEL::itemName = "DEBUG_LEVEL";
-const int VEDEBUG::DEBUG_LEVEL::defaultValue = 0;
 const std::string VEDEBUG::LGR::itemName = "LGR";
 const std::string VEDEBUG::LGR::defaultValue = " ";
 
@@ -182,7 +200,6 @@ const std::string VEFIN::keywordName = "VEFIN";
 const std::string VEFIN::VE::itemName = "VE";
 const std::string VEFIN::VE::defaultValue = "NO";
 const std::string VEFIN::NVEPT::itemName = "NVEPT";
-const int VEFIN::NVEPT::defaultValue = 0;
 
 
 VEFRAC::VEFRAC() : ParserKeyword("VEFRAC", KeywordSize(1, false)) {
@@ -201,7 +218,6 @@ VEFRAC::VEFRAC() : ParserKeyword("VEFRAC", KeywordSize(1, false)) {
 }
 const std::string VEFRAC::keywordName = "VEFRAC";
 const std::string VEFRAC::FRAC::itemName = "FRAC";
-const double VEFRAC::FRAC::defaultValue = 10.000000;
 
 
 VEFRACP::VEFRACP() : ParserKeyword("VEFRACP", KeywordSize(1, false)) {
@@ -220,7 +236,6 @@ VEFRACP::VEFRACP() : ParserKeyword("VEFRACP", KeywordSize(1, false)) {
 }
 const std::string VEFRACP::keywordName = "VEFRACP";
 const std::string VEFRACP::FRAC::itemName = "FRAC";
-const double VEFRACP::FRAC::defaultValue = 1.000000;
 
 
 VEFRACPV::VEFRACPV() : ParserKeyword("VEFRACPV", KeywordSize(1, false)) {
@@ -276,7 +291,6 @@ VFPCHK::VFPCHK() : ParserKeyword("VFPCHK", KeywordSize(1, false)) {
 }
 const std::string VFPCHK::keywordName = "VFPCHK";
 const std::string VFPCHK::BHP_LIMIT::itemName = "BHP_LIMIT";
-const double VFPCHK::BHP_LIMIT::defaultValue = 10000000000.000000;
 
 
 VFPIDIMS::VFPIDIMS() : ParserKeyword("VFPIDIMS", KeywordSize(1, false)) {
@@ -305,11 +319,8 @@ VFPIDIMS::VFPIDIMS() : ParserKeyword("VFPIDIMS", KeywordSize(1, false)) {
 }
 const std::string VFPIDIMS::keywordName = "VFPIDIMS";
 const std::string VFPIDIMS::MAX_FLOW_TABLE::itemName = "MAX_FLOW_TABLE";
-const int VFPIDIMS::MAX_FLOW_TABLE::defaultValue = 0;
 const std::string VFPIDIMS::MAX_THP_TABLE::itemName = "MAX_THP_TABLE";
-const int VFPIDIMS::MAX_THP_TABLE::defaultValue = 0;
 const std::string VFPIDIMS::MAX_INJ_VFP_TABLE::itemName = "MAX_INJ_VFP_TABLE";
-const int VFPIDIMS::MAX_INJ_VFP_TABLE::defaultValue = 0;
 
 
 VFPINJ::VFPINJ() : ParserKeyword("VFPINJ", KeywordSize(UNKNOWN)) {
@@ -435,17 +446,11 @@ VFPPDIMS::VFPPDIMS() : ParserKeyword("VFPPDIMS", KeywordSize(1, false)) {
 }
 const std::string VFPPDIMS::keywordName = "VFPPDIMS";
 const std::string VFPPDIMS::MAX_FLOW_TABLE::itemName = "MAX_FLOW_TABLE";
-const int VFPPDIMS::MAX_FLOW_TABLE::defaultValue = 0;
 const std::string VFPPDIMS::MAX_THP_TABLE::itemName = "MAX_THP_TABLE";
-const int VFPPDIMS::MAX_THP_TABLE::defaultValue = 0;
 const std::string VFPPDIMS::MAX_WCT_TABLE::itemName = "MAX_WCT_TABLE";
-const int VFPPDIMS::MAX_WCT_TABLE::defaultValue = 0;
 const std::string VFPPDIMS::MAX_GCT_TABLE::itemName = "MAX_GCT_TABLE";
-const int VFPPDIMS::MAX_GCT_TABLE::defaultValue = 0;
 const std::string VFPPDIMS::MAX_ALQ_TABLE::itemName = "MAX_ALQ_TABLE";
-const int VFPPDIMS::MAX_ALQ_TABLE::defaultValue = 0;
 const std::string VFPPDIMS::MAX_PROD_VFP_TABLE::itemName = "MAX_PROD_VFP_TABLE";
-const int VFPPDIMS::MAX_PROD_VFP_TABLE::defaultValue = 0;
 
 
 VFPPROD::VFPPROD() : ParserKeyword("VFPPROD", KeywordSize(UNKNOWN)) {
@@ -615,6 +620,25 @@ VISAGE::VISAGE() : ParserKeyword("VISAGE", KeywordSize(0, false)) {
 const std::string VISAGE::keywordName = "VISAGE";
 
 
+VISCAQA::VISCAQA() : ParserKeyword("VISCAQA", KeywordSize("TABDIMS", "NUM_EOS_RES", false, 0)) {
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("VISCAQA");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("DATA", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string VISCAQA::keywordName = "VISCAQA";
+const std::string VISCAQA::DATA::itemName = "DATA";
+
+
 VISCD::VISCD() : ParserKeyword("VISCD", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
@@ -743,14 +767,13 @@ const std::string VISOPTS::EXIT::defaultValue = "NO";
 const std::string VISOPTS::ACTIVE::itemName = "ACTIVE";
 const std::string VISOPTS::ACTIVE::defaultValue = "NO";
 const std::string VISOPTS::REL_TOL::itemName = "REL_TOL";
-const double VISOPTS::REL_TOL::defaultValue = 0.050000;
 const std::string VISOPTS::UNUSED::itemName = "UNUSED";
 const std::string VISOPTS::RETAIN_RESTART_FREQUENCY::itemName = "RETAIN_RESTART_FREQUENCY";
 const std::string VISOPTS::RETAIN_RESTART_FREQUENCY::defaultValue = "NO";
 const std::string VISOPTS::RETAIN_RESTART_CONTENT::itemName = "RETAIN_RESTART_CONTENT";
 const std::string VISOPTS::RETAIN_RESTART_CONTENT::defaultValue = "NO";
-const std::string VISOPTS::msvc_prefix_ERROR::itemName = "ERROR";
-const std::string VISOPTS::msvc_prefix_ERROR::defaultValue = "ERROR";
+const std::string VISOPTS::ERROR::itemName = "ERROR";
+const std::string VISOPTS::ERROR::defaultValue = "ERROR";
 
 
 }

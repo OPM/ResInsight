@@ -212,7 +212,8 @@ void RifOpmRadialGridTools::lockToHostPillars( cvf::Vec3d&         riNode,
     std::array<double, 8> cellRadius{};
     std::array<double, 8> cellTheta{};
     std::array<double, 8> cellZ{};
-    opmGrid.getRadialCellCorners( ijkCell, cellRadius, cellTheta, cellZ );
+    bool                  convertToRadialCoords = false;
+    opmGrid.getCellCorners( ijkCell, cellRadius, cellTheta, cellZ, convertToRadialCoords );
 
     double maxRadius = *std::max_element( cellRadius.begin(), cellRadius.end() );
 

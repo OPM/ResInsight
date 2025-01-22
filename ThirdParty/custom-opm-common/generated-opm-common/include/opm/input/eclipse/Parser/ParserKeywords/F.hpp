@@ -12,7 +12,7 @@ namespace ParserKeywords {
        class MFSEGS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
    };
 
@@ -74,11 +74,13 @@ namespace ParserKeywords {
        class TARGET_BHP {
        public:
            static const std::string itemName;
+           static constexpr double defaultValue = 1.013250;
        };
 
        class LIMIT_BHP {
        public:
            static const std::string itemName;
+           static constexpr double defaultValue = 6895.000000;
        };
    };
 
@@ -105,9 +107,79 @@ namespace ParserKeywords {
 
 
 
+   class FIELDSEP : public ParserKeyword {
+   public:
+       FIELDSEP();
+       static const std::string keywordName;
+
+       class STAGE {
+       public:
+           static const std::string itemName;
+       };
+
+       class TEMPERATURE {
+       public:
+           static const std::string itemName;
+           static constexpr double defaultValue = 15.560000;
+       };
+
+       class PRESSURE {
+       public:
+           static const std::string itemName;
+           static constexpr double defaultValue = 1.013250;
+       };
+
+       class LIQ_DESTINATION {
+       public:
+           static const std::string itemName;
+       };
+
+       class VAP_DESTINATION {
+       public:
+           static const std::string itemName;
+       };
+
+       class KVALUE {
+       public:
+           static const std::string itemName;
+           static constexpr double defaultValue = 0;
+       };
+
+       class TABLE_NUM {
+       public:
+           static const std::string itemName;
+           static constexpr int defaultValue = 0;
+       };
+
+       class EOS_NUM {
+       public:
+           static const std::string itemName;
+       };
+
+       class REF_TEMP {
+       public:
+           static const std::string itemName;
+       };
+
+       class REF_PRESS {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
    class FIELD_PROBE : public ParserKeyword {
    public:
        FIELD_PROBE();
+       static const std::string keywordName;
+   };
+
+
+
+   class FIELD_PROBE_OPM : public ParserKeyword {
+   public:
+       FIELD_PROBE_OPM();
        static const std::string keywordName;
    };
 
@@ -173,37 +245,37 @@ namespace ParserKeywords {
        class STAGE_TEMPERATURE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 15.560000;
        };
 
        class STAGE_PRESSURE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.013250;
        };
 
        class DESTINATION_OUPUT {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class DESTINATION_STAGE {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class K_VAL_TABLE_NUM {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class GAS_PLANT_TABLE_NUM {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class SURF_EQ_STATE_NUM {
@@ -368,7 +440,7 @@ namespace ParserKeywords {
        class EXP {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
    };
 
@@ -400,19 +472,19 @@ namespace ParserKeywords {
        class EXPONENT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
 
        class MIN_SURF_CONC {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1e-20;
        };
 
        class MIN_WAT_SAT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1e-06;
        };
    };
 
@@ -524,7 +596,7 @@ namespace ParserKeywords {
        class ADSORPTION_INDEX {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class ROCK_DENSITY {
@@ -543,7 +615,7 @@ namespace ParserKeywords {
        class VALUE {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
    };
 
@@ -557,13 +629,13 @@ namespace ParserKeywords {
        class NWFRIC {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class NWFRIB {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
    };
 

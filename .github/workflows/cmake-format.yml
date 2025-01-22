@@ -30,6 +30,9 @@ jobs:
           cd Fwk/AppFwk
           find -name CMake*.txt | xargs ~/.local/bin/cmake-format -c ${{ github.workspace }}/cmake/cmake-format.py -i
           cd ..
+          cd ..
+
+          ~/.local/bin/cmake-format -c ${{ github.workspace }}/cmake/cmake-format.py -i ThirdParty/custom-opm-common/CMakeLists.txt
 
           git diff
       - uses: peter-evans/create-pull-request@v7

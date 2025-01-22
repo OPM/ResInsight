@@ -62,7 +62,6 @@ WAGHYSTR::WAGHYSTR() : ParserKeyword("WAGHYSTR", KeywordSize("TABDIMS", "NTSFUN"
 const std::string WAGHYSTR::keywordName = "WAGHYSTR";
 const std::string WAGHYSTR::LANDS_PARAMETER::itemName = "LANDS_PARAMETER";
 const std::string WAGHYSTR::SECONDARY_DRAINAGE_REDUCTION::itemName = "SECONDARY_DRAINAGE_REDUCTION";
-const double WAGHYSTR::SECONDARY_DRAINAGE_REDUCTION::defaultValue = 0;
 const std::string WAGHYSTR::GAS_MODEL::itemName = "GAS_MODEL";
 const std::string WAGHYSTR::GAS_MODEL::defaultValue = "YES";
 const std::string WAGHYSTR::RES_OIL::itemName = "RES_OIL";
@@ -70,11 +69,8 @@ const std::string WAGHYSTR::RES_OIL::defaultValue = "YES";
 const std::string WAGHYSTR::WATER_MODEL::itemName = "WATER_MODEL";
 const std::string WAGHYSTR::WATER_MODEL::defaultValue = "YES";
 const std::string WAGHYSTR::IMB_LINEAR_FRACTION::itemName = "IMB_LINEAR_FRACTION";
-const double WAGHYSTR::IMB_LINEAR_FRACTION::defaultValue = 0.100000;
 const std::string WAGHYSTR::THREEPHASE_SAT_LIMIT::itemName = "THREEPHASE_SAT_LIMIT";
-const double WAGHYSTR::THREEPHASE_SAT_LIMIT::defaultValue = 0.001000;
 const std::string WAGHYSTR::RES_OIL_MOD_FRACTION::itemName = "RES_OIL_MOD_FRACTION";
-const double WAGHYSTR::RES_OIL_MOD_FRACTION::defaultValue = 1.000000;
 
 
 WAITBAL::WAITBAL() : ParserKeyword("WAITBAL", KeywordSize(1, false)) {
@@ -209,11 +205,8 @@ WATDENT::WATDENT() : ParserKeyword("WATDENT", KeywordSize("TABDIMS", "NTPVT", fa
 }
 const std::string WATDENT::keywordName = "WATDENT";
 const std::string WATDENT::REFERENCE_TEMPERATURE::itemName = "REFERENCE_TEMPERATURE";
-const double WATDENT::REFERENCE_TEMPERATURE::defaultValue = 293.150000;
 const std::string WATDENT::EXPANSION_COEFF_LINEAR::itemName = "EXPANSION_COEFF_LINEAR";
-const double WATDENT::EXPANSION_COEFF_LINEAR::defaultValue = 0.000300;
 const std::string WATDENT::EXPANSION_COEFF_QUADRATIC::itemName = "EXPANSION_COEFF_QUADRATIC";
-const double WATDENT::EXPANSION_COEFF_QUADRATIC::defaultValue = 3e-06;
 
 
 WATER::WATER() : ParserKeyword("WATER", KeywordSize(0, false)) {
@@ -239,7 +232,7 @@ WATJT::WATJT() : ParserKeyword("WATJT", KeywordSize("TABDIMS", "NTPVT", false, 0
      {
         ParserItem item("JOULE_THOMSON_COEFFICIENT", ParserItem::itype::DOUBLE);
         item.setDefault( double(0) );
-        item.push_backDimension("Temperature/Pressure");
+        item.push_backDimension("AbsoluteTemperature/Pressure");
         record.addItem(item);
      }
      addRecord( record );
@@ -247,9 +240,7 @@ WATJT::WATJT() : ParserKeyword("WATJT", KeywordSize("TABDIMS", "NTPVT", false, 0
 }
 const std::string WATJT::keywordName = "WATJT";
 const std::string WATJT::PREF::itemName = "PREF";
-const double WATJT::PREF::defaultValue = 1.013200;
 const std::string WATJT::JOULE_THOMSON_COEFFICIENT::itemName = "JOULE_THOMSON_COEFFICIENT";
-const double WATJT::JOULE_THOMSON_COEFFICIENT::defaultValue = 0;
 
 
 WATVISCT::WATVISCT() : ParserKeyword("WATVISCT", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
@@ -326,15 +317,11 @@ WBHGLR::WBHGLR() : ParserKeyword("WBHGLR", KeywordSize(SLASH_TERMINATED)) {
 const std::string WBHGLR::keywordName = "WBHGLR";
 const std::string WBHGLR::WELL::itemName = "WELL";
 const std::string WBHGLR::MAX_GLR_CUTBACK::itemName = "MAX_GLR_CUTBACK";
-const double WBHGLR::MAX_GLR_CUTBACK::defaultValue = 100000000000000000000.000000;
 const std::string WBHGLR::MIN_GLR_CUTBACK_REVERSE::itemName = "MIN_GLR_CUTBACK_REVERSE";
-const double WBHGLR::MIN_GLR_CUTBACK_REVERSE::defaultValue = 100000000000000000000.000000;
 const std::string WBHGLR::RATE_CUTBACK_FACTOR::itemName = "RATE_CUTBACK_FACTOR";
-const double WBHGLR::RATE_CUTBACK_FACTOR::defaultValue = 1.000000;
 const std::string WBHGLR::PHASE::itemName = "PHASE";
 const std::string WBHGLR::PHASE::defaultValue = "RESV";
 const std::string WBHGLR::MAX_GLR_ELIMIT::itemName = "MAX_GLR_ELIMIT";
-const double WBHGLR::MAX_GLR_ELIMIT::defaultValue = 100000000000000000000.000000;
 const std::string WBHGLR::WORKOVER_ACTION::itemName = "WORKOVER_ACTION";
 const std::string WBHGLR::WORKOVER_ACTION::defaultValue = "NONE";
 const std::string WBHGLR::WORKOVER_REMOVE_CUTBACKS::itemName = "WORKOVER_REMOVE_CUTBACKS";
@@ -368,7 +355,6 @@ WBOREVOL::WBOREVOL() : ParserKeyword("WBOREVOL", KeywordSize(SLASH_TERMINATED)) 
 const std::string WBOREVOL::keywordName = "WBOREVOL";
 const std::string WBOREVOL::WELL::itemName = "WELL";
 const std::string WBOREVOL::WELLBORE_VOL::itemName = "WELLBORE_VOL";
-const double WBOREVOL::WELLBORE_VOL::defaultValue = 1e-05;
 const std::string WBOREVOL::START_BHP::itemName = "START_BHP";
 
 
@@ -481,7 +467,6 @@ const UDAValue WCONHIST::WRAT::defaultValue = UDAValue(0);
 const std::string WCONHIST::GRAT::itemName = "GRAT";
 const UDAValue WCONHIST::GRAT::defaultValue = UDAValue(0);
 const std::string WCONHIST::VFP_TABLE::itemName = "VFP_TABLE";
-const int WCONHIST::VFP_TABLE::defaultValue = 0;
 const std::string WCONHIST::ALQ::itemName = "ALQ";
 const UDAValue WCONHIST::ALQ::defaultValue = UDAValue(0);
 const std::string WCONHIST::THP::itemName = "THP";
@@ -489,9 +474,7 @@ const UDAValue WCONHIST::THP::defaultValue = UDAValue(0);
 const std::string WCONHIST::BHP::itemName = "BHP";
 const UDAValue WCONHIST::BHP::defaultValue = UDAValue(0);
 const std::string WCONHIST::WGASRAT_HIS::itemName = "WGASRAT_HIS";
-const double WCONHIST::WGASRAT_HIS::defaultValue = 0;
 const std::string WCONHIST::NGLRAT_HIS::itemName = "NGLRAT_HIS";
-const double WCONHIST::NGLRAT_HIS::defaultValue = 0;
 
 
 WCONINJ::WCONINJ() : ParserKeyword("WCONINJ", KeywordSize(0, false)) {
@@ -596,19 +579,12 @@ const std::string WCONINJE::BHP::itemName = "BHP";
 const UDAValue WCONINJE::BHP::defaultValue = UDAValue(6895.000000);
 const std::string WCONINJE::THP::itemName = "THP";
 const std::string WCONINJE::VFP_TABLE::itemName = "VFP_TABLE";
-const int WCONINJE::VFP_TABLE::defaultValue = 0;
 const std::string WCONINJE::VAPOIL_C::itemName = "VAPOIL_C";
-const double WCONINJE::VAPOIL_C::defaultValue = 0;
 const std::string WCONINJE::GAS_STEAM_RATIO::itemName = "GAS_STEAM_RATIO";
-const double WCONINJE::GAS_STEAM_RATIO::defaultValue = 0;
 const std::string WCONINJE::SURFACE_OIL_FRACTION::itemName = "SURFACE_OIL_FRACTION";
-const double WCONINJE::SURFACE_OIL_FRACTION::defaultValue = 0;
 const std::string WCONINJE::SURFACE_WATER_FRACTION::itemName = "SURFACE_WATER_FRACTION";
-const double WCONINJE::SURFACE_WATER_FRACTION::defaultValue = 0;
 const std::string WCONINJE::SURFACE_GAS_FRACTION::itemName = "SURFACE_GAS_FRACTION";
-const double WCONINJE::SURFACE_GAS_FRACTION::defaultValue = 0;
 const std::string WCONINJE::OIL_STEAM_RATIO::itemName = "OIL_STEAM_RATIO";
-const double WCONINJE::OIL_STEAM_RATIO::defaultValue = 0;
 
 
 WCONINJH::WCONINJH() : ParserKeyword("WCONINJH", KeywordSize(SLASH_TERMINATED)) {
@@ -688,15 +664,10 @@ const std::string WCONINJH::RATE::itemName = "RATE";
 const std::string WCONINJH::BHP::itemName = "BHP";
 const std::string WCONINJH::THP::itemName = "THP";
 const std::string WCONINJH::VFP_TABLE::itemName = "VFP_TABLE";
-const int WCONINJH::VFP_TABLE::defaultValue = 0;
 const std::string WCONINJH::VAPOIL_C::itemName = "VAPOIL_C";
-const double WCONINJH::VAPOIL_C::defaultValue = 0;
 const std::string WCONINJH::SURFACE_OIL_FRACTION::itemName = "SURFACE_OIL_FRACTION";
-const double WCONINJH::SURFACE_OIL_FRACTION::defaultValue = 0;
 const std::string WCONINJH::SURFACE_WATER_FRACTION::itemName = "SURFACE_WATER_FRACTION";
-const double WCONINJH::SURFACE_WATER_FRACTION::defaultValue = 0;
 const std::string WCONINJH::SURFACE_GAS_FRACTION::itemName = "SURFACE_GAS_FRACTION";
-const double WCONINJH::SURFACE_GAS_FRACTION::defaultValue = 0;
 const std::string WCONINJH::CMODE::itemName = "CMODE";
 const std::string WCONINJH::CMODE::defaultValue = "RATE";
 
@@ -781,22 +752,15 @@ const std::string WCONINJP::INJECTOR_TYPE::itemName = "INJECTOR_TYPE";
 const std::string WCONINJP::STATUS::itemName = "STATUS";
 const std::string WCONINJP::STATUS::defaultValue = "OPEN";
 const std::string WCONINJP::BHP_MAX::itemName = "BHP_MAX";
-const double WCONINJP::BHP_MAX::defaultValue = 6895.000000;
 const std::string WCONINJP::THP_MAX::itemName = "THP_MAX";
 const std::string WCONINJP::VFP_TABLE::itemName = "VFP_TABLE";
-const int WCONINJP::VFP_TABLE::defaultValue = 0;
 const std::string WCONINJP::VOIDAGE_TARGET_MULTIPLIER::itemName = "VOIDAGE_TARGET_MULTIPLIER";
-const double WCONINJP::VOIDAGE_TARGET_MULTIPLIER::defaultValue = 1.000000;
 const std::string WCONINJP::OIL_FRACTION::itemName = "OIL_FRACTION";
-const double WCONINJP::OIL_FRACTION::defaultValue = 0;
 const std::string WCONINJP::WATER_FRACTION::itemName = "WATER_FRACTION";
-const double WCONINJP::WATER_FRACTION::defaultValue = 0;
 const std::string WCONINJP::GAS_FRACTION::itemName = "GAS_FRACTION";
-const double WCONINJP::GAS_FRACTION::defaultValue = 0;
 const std::string WCONINJP::WELL::itemName = "WELL";
 const std::string WCONINJP::PROD_FRACTION::itemName = "PROD_FRACTION";
 const std::string WCONINJP::FIPNUM_VALUE::itemName = "FIPNUM_VALUE";
-const int WCONINJP::FIPNUM_VALUE::defaultValue = 0;
 
 
 WCONPROD::WCONPROD() : ParserKeyword("WCONPROD", KeywordSize(SLASH_TERMINATED)) {
@@ -925,7 +889,6 @@ const UDAValue WCONPROD::BHP::defaultValue = UDAValue(1.013250);
 const std::string WCONPROD::THP::itemName = "THP";
 const UDAValue WCONPROD::THP::defaultValue = UDAValue(0);
 const std::string WCONPROD::VFP_TABLE::itemName = "VFP_TABLE";
-const int WCONPROD::VFP_TABLE::defaultValue = 0;
 const std::string WCONPROD::ALQ::itemName = "ALQ";
 const UDAValue WCONPROD::ALQ::defaultValue = UDAValue(0);
 const std::string WCONPROD::E300_ITEM13::itemName = "E300_ITEM13";
@@ -1028,20 +991,13 @@ const std::string WCUTBACK::GOR_LIMIT::itemName = "GOR_LIMIT";
 const std::string WCUTBACK::GLR_LIMIT::itemName = "GLR_LIMIT";
 const std::string WCUTBACK::WGR_LIMIT::itemName = "WGR_LIMIT";
 const std::string WCUTBACK::RATE_CUTBACK::itemName = "RATE_CUTBACK";
-const double WCUTBACK::RATE_CUTBACK::defaultValue = 1.000000;
 const std::string WCUTBACK::PHASE::itemName = "PHASE";
 const std::string WCUTBACK::PRESSURE_LIMIT::itemName = "PRESSURE_LIMIT";
-const double WCUTBACK::PRESSURE_LIMIT::defaultValue = 0;
 const std::string WCUTBACK::PRESSURE_LIMIT_REVERSE::itemName = "PRESSURE_LIMIT_REVERSE";
-const double WCUTBACK::PRESSURE_LIMIT_REVERSE::defaultValue = 0;
 const std::string WCUTBACK::WCT_LIMIT_REVERSE::itemName = "WCT_LIMIT_REVERSE";
-const double WCUTBACK::WCT_LIMIT_REVERSE::defaultValue = 0;
 const std::string WCUTBACK::GOR_LIMIT_REVERSE::itemName = "GOR_LIMIT_REVERSE";
-const double WCUTBACK::GOR_LIMIT_REVERSE::defaultValue = 0;
 const std::string WCUTBACK::GLR_LIMIT_REVERSE::itemName = "GLR_LIMIT_REVERSE";
-const double WCUTBACK::GLR_LIMIT_REVERSE::defaultValue = 0;
 const std::string WCUTBACK::WGR_LIMIT_REVERSE::itemName = "WGR_LIMIT_REVERSE";
-const double WCUTBACK::WGR_LIMIT_REVERSE::defaultValue = 0;
 const std::string WCUTBACK::WORKOVER_REMOVE::itemName = "WORKOVER_REMOVE";
 const std::string WCUTBACK::WORKOVER_REMOVE::defaultValue = "NO";
 
@@ -1076,7 +1032,6 @@ WCUTBACT::WCUTBACT() : ParserKeyword("WCUTBACT", KeywordSize(SLASH_TERMINATED)) 
 const std::string WCUTBACT::keywordName = "WCUTBACT";
 const std::string WCUTBACT::WELL::itemName = "WELL";
 const std::string WCUTBACT::RATE_CUTBACK::itemName = "RATE_CUTBACK";
-const double WCUTBACT::RATE_CUTBACK::defaultValue = 1.000000;
 const std::string WCUTBACT::PHASE::itemName = "PHASE";
 const std::string WCUTBACT::WORKOVER_REMOVE::itemName = "WORKOVER_REMOVE";
 const std::string WCUTBACT::WORKOVER_REMOVE::defaultValue = "NO";
@@ -1127,13 +1082,9 @@ WCYCLE::WCYCLE() : ParserKeyword("WCYCLE", KeywordSize(SLASH_TERMINATED)) {
 const std::string WCYCLE::keywordName = "WCYCLE";
 const std::string WCYCLE::WELL::itemName = "WELL";
 const std::string WCYCLE::ON_TIME::itemName = "ON_TIME";
-const double WCYCLE::ON_TIME::defaultValue = 0;
 const std::string WCYCLE::OFF_TIME::itemName = "OFF_TIME";
-const double WCYCLE::OFF_TIME::defaultValue = 0;
 const std::string WCYCLE::START_TIME::itemName = "START_TIME";
-const double WCYCLE::START_TIME::defaultValue = 0;
 const std::string WCYCLE::MAX_TIMESTEP::itemName = "MAX_TIMESTEP";
-const double WCYCLE::MAX_TIMESTEP::defaultValue = 0;
 const std::string WCYCLE::CONTROLLED_TIMESTEP::itemName = "CONTROLLED_TIMESTEP";
 const std::string WCYCLE::CONTROLLED_TIMESTEP::defaultValue = "NO";
 
@@ -1160,7 +1111,6 @@ WDFAC::WDFAC() : ParserKeyword("WDFAC", KeywordSize(SLASH_TERMINATED)) {
 const std::string WDFAC::keywordName = "WDFAC";
 const std::string WDFAC::WELL::itemName = "WELL";
 const std::string WDFAC::DFACTOR::itemName = "DFACTOR";
-const double WDFAC::DFACTOR::defaultValue = 0;
 
 
 WDFACCOR::WDFACCOR() : ParserKeyword("WDFACCOR", KeywordSize(SLASH_TERMINATED)) {
@@ -1176,16 +1126,19 @@ WDFACCOR::WDFACCOR() : ParserKeyword("WDFACCOR", KeywordSize(SLASH_TERMINATED)) 
      {
         ParserItem item("A", ParserItem::itype::DOUBLE);
         item.setDefault( double(0) );
+        item.push_backDimension("Viscosity*Time*Area/Permeability*GasSurfaceVolume");
         record.addItem(item);
      }
      {
         ParserItem item("B", ParserItem::itype::DOUBLE);
         item.setDefault( double(0) );
+        item.push_backDimension("1");
         record.addItem(item);
      }
      {
         ParserItem item("C", ParserItem::itype::DOUBLE);
         item.setDefault( double(0) );
+        item.push_backDimension("1");
         record.addItem(item);
      }
      addRecord( record );
@@ -1194,11 +1147,8 @@ WDFACCOR::WDFACCOR() : ParserKeyword("WDFACCOR", KeywordSize(SLASH_TERMINATED)) 
 const std::string WDFACCOR::keywordName = "WDFACCOR";
 const std::string WDFACCOR::WELLNAME::itemName = "WELLNAME";
 const std::string WDFACCOR::A::itemName = "A";
-const double WDFACCOR::A::defaultValue = 0;
 const std::string WDFACCOR::B::itemName = "B";
-const double WDFACCOR::B::defaultValue = 0;
 const std::string WDFACCOR::C::itemName = "C";
-const double WDFACCOR::C::defaultValue = 0;
 
 
 WDRILPRI::WDRILPRI() : ParserKeyword("WDRILPRI", KeywordSize(SLASH_TERMINATED)) {
@@ -1227,9 +1177,7 @@ WDRILPRI::WDRILPRI() : ParserKeyword("WDRILPRI", KeywordSize(SLASH_TERMINATED)) 
 const std::string WDRILPRI::keywordName = "WDRILPRI";
 const std::string WDRILPRI::WELL::itemName = "WELL";
 const std::string WDRILPRI::PRIORITY::itemName = "PRIORITY";
-const double WDRILPRI::PRIORITY::defaultValue = -1.000000;
 const std::string WDRILPRI::DRILLING_UNIT::itemName = "DRILLING_UNIT";
-const int WDRILPRI::DRILLING_UNIT::defaultValue = 0;
 
 
 WDRILRES::WDRILRES() : ParserKeyword("WDRILRES", KeywordSize(0, false)) {
@@ -1387,15 +1335,11 @@ const std::string WECON::FOLLOW_ON_WELL::defaultValue = "'";
 const std::string WECON::LIMITED_QUANTITY::itemName = "LIMITED_QUANTITY";
 const std::string WECON::LIMITED_QUANTITY::defaultValue = "RATE";
 const std::string WECON::SECOND_MAX_WATER_CUT::itemName = "SECOND_MAX_WATER_CUT";
-const double WECON::SECOND_MAX_WATER_CUT::defaultValue = 0;
 const std::string WECON::WORKOVER_SECOND_WATER_CUT_LIMIT::itemName = "WORKOVER_SECOND_WATER_CUT_LIMIT";
 const std::string WECON::MAX_GAS_LIQUID_RATIO::itemName = "MAX_GAS_LIQUID_RATIO";
-const double WECON::MAX_GAS_LIQUID_RATIO::defaultValue = 0;
 const std::string WECON::MIN_LIQUID_PRODCUTION_RATE::itemName = "MIN_LIQUID_PRODCUTION_RATE";
-const double WECON::MIN_LIQUID_PRODCUTION_RATE::defaultValue = 0;
 const std::string WECON::MAX_TEMP::itemName = "MAX_TEMP";
 const std::string WECON::MIN_RES_FLUID_RATE::itemName = "MIN_RES_FLUID_RATE";
-const double WECON::MIN_RES_FLUID_RATE::defaultValue = 0;
 
 
 WECONINJ::WECONINJ() : ParserKeyword("WECONINJ", KeywordSize(SLASH_TERMINATED)) {
@@ -1424,7 +1368,6 @@ WECONINJ::WECONINJ() : ParserKeyword("WECONINJ", KeywordSize(SLASH_TERMINATED)) 
 const std::string WECONINJ::keywordName = "WECONINJ";
 const std::string WECONINJ::WELL::itemName = "WELL";
 const std::string WECONINJ::MIN_RATE::itemName = "MIN_RATE";
-const double WECONINJ::MIN_RATE::defaultValue = 0;
 const std::string WECONINJ::QUANTITY::itemName = "QUANTITY";
 const std::string WECONINJ::QUANTITY::defaultValue = "RATE";
 
@@ -1491,7 +1434,6 @@ WEFAC::WEFAC() : ParserKeyword("WEFAC", KeywordSize(SLASH_TERMINATED)) {
 const std::string WEFAC::keywordName = "WEFAC";
 const std::string WEFAC::WELLNAME::itemName = "WELLNAME";
 const std::string WEFAC::EFFICIENCY_FACTOR::itemName = "EFFICIENCY_FACTOR";
-const double WEFAC::EFFICIENCY_FACTOR::defaultValue = 1.000000;
 const std::string WEFAC::EXTENDED_NETWORK_OPT::itemName = "EXTENDED_NETWORK_OPT";
 const std::string WEFAC::EXTENDED_NETWORK_OPT::defaultValue = "YES";
 
@@ -1690,33 +1632,48 @@ WELLDIMS::WELLDIMS() : ParserKeyword("WELLDIMS", KeywordSize(1, false)) {
 }
 const std::string WELLDIMS::keywordName = "WELLDIMS";
 const std::string WELLDIMS::MAXWELLS::itemName = "MAXWELLS";
-const int WELLDIMS::MAXWELLS::defaultValue = 0;
 const std::string WELLDIMS::MAXCONN::itemName = "MAXCONN";
-const int WELLDIMS::MAXCONN::defaultValue = 0;
 const std::string WELLDIMS::MAXGROUPS::itemName = "MAXGROUPS";
-const int WELLDIMS::MAXGROUPS::defaultValue = 0;
 const std::string WELLDIMS::MAX_GROUPSIZE::itemName = "MAX_GROUPSIZE";
-const int WELLDIMS::MAX_GROUPSIZE::defaultValue = 0;
 const std::string WELLDIMS::MAX_STAGES::itemName = "MAX_STAGES";
-const int WELLDIMS::MAX_STAGES::defaultValue = 5;
 const std::string WELLDIMS::MAX_STREAMS::itemName = "MAX_STREAMS";
-const int WELLDIMS::MAX_STREAMS::defaultValue = 10;
 const std::string WELLDIMS::MAX_MIXTURES::itemName = "MAX_MIXTURES";
-const int WELLDIMS::MAX_MIXTURES::defaultValue = 5;
 const std::string WELLDIMS::MAX_SEPARATORS::itemName = "MAX_SEPARATORS";
-const int WELLDIMS::MAX_SEPARATORS::defaultValue = 4;
 const std::string WELLDIMS::MAX_MIXTURE_ITEMS::itemName = "MAX_MIXTURE_ITEMS";
-const int WELLDIMS::MAX_MIXTURE_ITEMS::defaultValue = 3;
 const std::string WELLDIMS::MAX_COMPLETION_X::itemName = "MAX_COMPLETION_X";
-const int WELLDIMS::MAX_COMPLETION_X::defaultValue = 0;
 const std::string WELLDIMS::MAX_WELLIST_PR_WELL::itemName = "MAX_WELLIST_PR_WELL";
-const int WELLDIMS::MAX_WELLIST_PR_WELL::defaultValue = 1;
 const std::string WELLDIMS::MAX_DYNAMIC_WELLIST::itemName = "MAX_DYNAMIC_WELLIST";
-const int WELLDIMS::MAX_DYNAMIC_WELLIST::defaultValue = 1;
 const std::string WELLDIMS::MAX_SECONDARY_WELLS::itemName = "MAX_SECONDARY_WELLS";
-const int WELLDIMS::MAX_SECONDARY_WELLS::defaultValue = 10;
 const std::string WELLDIMS::MAX_GPP_ROWS::itemName = "MAX_GPP_ROWS";
-const int WELLDIMS::MAX_GPP_ROWS::defaultValue = 201;
+
+
+WELLSTRE::WELLSTRE() : ParserKeyword("WELLSTRE", KeywordSize(SLASH_TERMINATED)) {
+  addValidSectionName("SCHEDULE");
+  clearDeckNames();
+  addDeckName("WELLSTRE");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("STREAM", ParserItem::itype::STRING);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("XMOLE1", ParserItem::itype::DOUBLE);
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("XMOLE2", ParserItem::itype::DOUBLE);
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string WELLSTRE::keywordName = "WELLSTRE";
+const std::string WELLSTRE::STREAM::itemName = "STREAM";
+const std::string WELLSTRE::XMOLE1::itemName = "XMOLE1";
+const std::string WELLSTRE::XMOLE2::itemName = "XMOLE2";
 
 
 WELL_COMPLETION_PROBE::WELL_COMPLETION_PROBE() : ParserKeyword("WELL_COMPLETION_PROBE", KeywordSize(SLASH_TERMINATED)) {
@@ -1803,6 +1760,7 @@ WELL_PROBE::WELL_PROBE() : ParserKeyword("WELL_PROBE", KeywordSize(1, false)) {
   addDeckName("WOPI");
   addDeckName("WOPI2");
   addDeckName("WTPTSUR");
+  addDeckName("WBHPT");
   addDeckName("WGIRT");
   addDeckName("WPI1");
   addDeckName("WWPI");
@@ -1992,6 +1950,55 @@ WELL_PROBE::WELL_PROBE() : ParserKeyword("WELL_PROBE", KeywordSize(1, false)) {
 }
 const std::string WELL_PROBE::keywordName = "WELL_PROBE";
 const std::string WELL_PROBE::WELLS::itemName = "WELLS";
+
+
+WELL_PROBE_COMP::WELL_PROBE_COMP() : ParserKeyword("WELL_PROBE_COMP", KeywordSize(SLASH_TERMINATED)) {
+  addValidSectionName("SUMMARY");
+  clearDeckNames();
+  addDeckName("WXMF");
+  addDeckName("WYMF");
+  addDeckName("WCOMR");
+  addDeckName("WCGMR");
+  addDeckName("WZMF");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("WELLS", ParserItem::itype::STRING);
+        item.setSizeType(ParserItem::item_size::ALL);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("COMP_NUM", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string WELL_PROBE_COMP::keywordName = "WELL_PROBE_COMP";
+const std::string WELL_PROBE_COMP::WELLS::itemName = "WELLS";
+const std::string WELL_PROBE_COMP::COMP_NUM::itemName = "COMP_NUM";
+
+
+WELL_PROBE_OPM::WELL_PROBE_OPM() : ParserKeyword("WELL_PROBE_OPM", KeywordSize(1, false)) {
+  addValidSectionName("SUMMARY");
+  clearDeckNames();
+  addDeckName("WINJFC");
+  addDeckName("WGMIR");
+  addDeckName("WINJFVR");
+  addDeckName("WGMIT");
+  addDeckName("WINJFVT");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("WELLS", ParserItem::itype::STRING);
+        item.setSizeType(ParserItem::item_size::ALL);
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string WELL_PROBE_OPM::keywordName = "WELL_PROBE_OPM";
+const std::string WELL_PROBE_OPM::WELLS::itemName = "WELLS";
 
 
 WELMOVEL::WELMOVEL() : ParserKeyword("WELMOVEL", KeywordSize(SLASH_TERMINATED)) {
@@ -2187,13 +2194,9 @@ WELPRI::WELPRI() : ParserKeyword("WELPRI", KeywordSize(SLASH_TERMINATED)) {
 const std::string WELPRI::keywordName = "WELPRI";
 const std::string WELPRI::WELL_NAME::itemName = "WELL_NAME";
 const std::string WELPRI::PRI1::itemName = "PRI1";
-const int WELPRI::PRI1::defaultValue = -1;
 const std::string WELPRI::SCALING1::itemName = "SCALING1";
-const double WELPRI::SCALING1::defaultValue = 1.000000;
 const std::string WELPRI::PRI2::itemName = "PRI2";
-const int WELPRI::PRI2::defaultValue = -1;
 const std::string WELPRI::SCALING2::itemName = "SCALING2";
-const double WELPRI::SCALING2::defaultValue = 1.000000;
 
 
 WELSEGS::WELSEGS() : ParserKeyword("WELSEGS", KeywordSize(SLASH_TERMINATED)) {
@@ -2207,12 +2210,12 @@ WELSEGS::WELSEGS() : ParserKeyword("WELSEGS", KeywordSize(SLASH_TERMINATED)) {
         record.addItem(item);
      }
      {
-        ParserItem item("DEPTH", ParserItem::itype::DOUBLE);
+        ParserItem item("TOP_DEPTH", ParserItem::itype::DOUBLE);
         item.push_backDimension("Length");
         record.addItem(item);
      }
      {
-        ParserItem item("LENGTH", ParserItem::itype::DOUBLE);
+        ParserItem item("TOP_LENGTH", ParserItem::itype::DOUBLE);
         item.setDefault( double(0) );
         item.push_backDimension("Length");
         record.addItem(item);
@@ -2270,12 +2273,12 @@ WELSEGS::WELSEGS() : ParserKeyword("WELSEGS", KeywordSize(SLASH_TERMINATED)) {
         record.addItem(item);
      }
      {
-        ParserItem item("SEGMENT_LENGTH", ParserItem::itype::DOUBLE);
+        ParserItem item("LENGTH", ParserItem::itype::DOUBLE);
         item.push_backDimension("Length");
         record.addItem(item);
      }
      {
-        ParserItem item("DEPTH_CHANGE", ParserItem::itype::DOUBLE);
+        ParserItem item("DEPTH", ParserItem::itype::DOUBLE);
         item.push_backDimension("Length");
         record.addItem(item);
      }
@@ -2316,34 +2319,28 @@ WELSEGS::WELSEGS() : ParserKeyword("WELSEGS", KeywordSize(SLASH_TERMINATED)) {
 }
 const std::string WELSEGS::keywordName = "WELSEGS";
 const std::string WELSEGS::WELL::itemName = "WELL";
-const std::string WELSEGS::DEPTH::itemName = "DEPTH";
-const std::string WELSEGS::LENGTH::itemName = "LENGTH";
-const double WELSEGS::LENGTH::defaultValue = 0;
+const std::string WELSEGS::TOP_DEPTH::itemName = "TOP_DEPTH";
+const std::string WELSEGS::TOP_LENGTH::itemName = "TOP_LENGTH";
 const std::string WELSEGS::WELLBORE_VOLUME::itemName = "WELLBORE_VOLUME";
-const double WELSEGS::WELLBORE_VOLUME::defaultValue = 1e-05;
 const std::string WELSEGS::INFO_TYPE::itemName = "INFO_TYPE";
 const std::string WELSEGS::PRESSURE_COMPONENTS::itemName = "PRESSURE_COMPONENTS";
 const std::string WELSEGS::PRESSURE_COMPONENTS::defaultValue = "HFA";
 const std::string WELSEGS::FLOW_MODEL::itemName = "FLOW_MODEL";
 const std::string WELSEGS::FLOW_MODEL::defaultValue = "HO";
 const std::string WELSEGS::TOP_X::itemName = "TOP_X";
-const double WELSEGS::TOP_X::defaultValue = 0;
 const std::string WELSEGS::TOP_Y::itemName = "TOP_Y";
-const double WELSEGS::TOP_Y::defaultValue = 0;
 const std::string WELSEGS::SEGMENT1::itemName = "SEGMENT1";
 const std::string WELSEGS::SEGMENT2::itemName = "SEGMENT2";
 const std::string WELSEGS::BRANCH::itemName = "BRANCH";
 const std::string WELSEGS::JOIN_SEGMENT::itemName = "JOIN_SEGMENT";
-const std::string WELSEGS::SEGMENT_LENGTH::itemName = "SEGMENT_LENGTH";
-const std::string WELSEGS::DEPTH_CHANGE::itemName = "DEPTH_CHANGE";
+const std::string WELSEGS::LENGTH::itemName = "LENGTH";
+const std::string WELSEGS::DEPTH::itemName = "DEPTH";
 const std::string WELSEGS::DIAMETER::itemName = "DIAMETER";
 const std::string WELSEGS::ROUGHNESS::itemName = "ROUGHNESS";
 const std::string WELSEGS::AREA::itemName = "AREA";
 const std::string WELSEGS::VOLUME::itemName = "VOLUME";
 const std::string WELSEGS::LENGTH_X::itemName = "LENGTH_X";
-const double WELSEGS::LENGTH_X::defaultValue = 0;
 const std::string WELSEGS::LENGTH_Y::itemName = "LENGTH_Y";
-const double WELSEGS::LENGTH_Y::defaultValue = 0;
 
 
 WELSOMIN::WELSOMIN() : ParserKeyword("WELSOMIN", KeywordSize(1, false)) {
@@ -2464,7 +2461,6 @@ const std::string WELSPECL::HEAD_J::itemName = "HEAD_J";
 const std::string WELSPECL::REF_DEPTH::itemName = "REF_DEPTH";
 const std::string WELSPECL::PHASE::itemName = "PHASE";
 const std::string WELSPECL::D_RADIUS::itemName = "D_RADIUS";
-const double WELSPECL::D_RADIUS::defaultValue = 0;
 const std::string WELSPECL::INFLOW_EQ::itemName = "INFLOW_EQ";
 const std::string WELSPECL::INFLOW_EQ::defaultValue = "STD";
 const std::string WELSPECL::AUTO_SHUTIN::itemName = "AUTO_SHUTIN";
@@ -2472,17 +2468,14 @@ const std::string WELSPECL::AUTO_SHUTIN::defaultValue = "SHUT";
 const std::string WELSPECL::CROSSFLOW::itemName = "CROSSFLOW";
 const std::string WELSPECL::CROSSFLOW::defaultValue = "YES";
 const std::string WELSPECL::P_TABLE::itemName = "P_TABLE";
-const int WELSPECL::P_TABLE::defaultValue = 0;
 const std::string WELSPECL::DENSITY_CALC::itemName = "DENSITY_CALC";
 const std::string WELSPECL::DENSITY_CALC::defaultValue = "SEG";
 const std::string WELSPECL::FIP_REGION::itemName = "FIP_REGION";
-const int WELSPECL::FIP_REGION::defaultValue = 0;
 const std::string WELSPECL::FRONTSIM1::itemName = "FRONTSIM1";
 const std::string WELSPECL::FRONTSIM2::itemName = "FRONTSIM2";
 const std::string WELSPECL::well_model::itemName = "well_model";
 const std::string WELSPECL::well_model::defaultValue = "STD";
 const std::string WELSPECL::POLYMER_TABLE::itemName = "POLYMER_TABLE";
-const int WELSPECL::POLYMER_TABLE::defaultValue = 0;
 
 
 WELSPECS::WELSPECS() : ParserKeyword("WELSPECS", KeywordSize(SLASH_TERMINATED)) {
@@ -2501,10 +2494,12 @@ WELSPECS::WELSPECS() : ParserKeyword("WELSPECS", KeywordSize(SLASH_TERMINATED)) 
      }
      {
         ParserItem item("HEAD_I", ParserItem::itype::INT);
+        item.setDefault( 0 );
         record.addItem(item);
      }
      {
         ParserItem item("HEAD_J", ParserItem::itype::INT);
+        item.setDefault( 0 );
         record.addItem(item);
      }
      {
@@ -2581,7 +2576,6 @@ const std::string WELSPECS::HEAD_J::itemName = "HEAD_J";
 const std::string WELSPECS::REF_DEPTH::itemName = "REF_DEPTH";
 const std::string WELSPECS::PHASE::itemName = "PHASE";
 const std::string WELSPECS::D_RADIUS::itemName = "D_RADIUS";
-const double WELSPECS::D_RADIUS::defaultValue = 0;
 const std::string WELSPECS::INFLOW_EQ::itemName = "INFLOW_EQ";
 const std::string WELSPECS::INFLOW_EQ::defaultValue = "STD";
 const std::string WELSPECS::AUTO_SHUTIN::itemName = "AUTO_SHUTIN";
@@ -2589,17 +2583,14 @@ const std::string WELSPECS::AUTO_SHUTIN::defaultValue = "SHUT";
 const std::string WELSPECS::CROSSFLOW::itemName = "CROSSFLOW";
 const std::string WELSPECS::CROSSFLOW::defaultValue = "YES";
 const std::string WELSPECS::P_TABLE::itemName = "P_TABLE";
-const int WELSPECS::P_TABLE::defaultValue = 0;
 const std::string WELSPECS::DENSITY_CALC::itemName = "DENSITY_CALC";
 const std::string WELSPECS::DENSITY_CALC::defaultValue = "SEG";
 const std::string WELSPECS::FIP_REGION::itemName = "FIP_REGION";
-const int WELSPECS::FIP_REGION::defaultValue = 0;
 const std::string WELSPECS::FRONTSIM1::itemName = "FRONTSIM1";
 const std::string WELSPECS::FRONTSIM2::itemName = "FRONTSIM2";
 const std::string WELSPECS::well_model::itemName = "well_model";
 const std::string WELSPECS::well_model::defaultValue = "STD";
 const std::string WELSPECS::POLYMER_TABLE::itemName = "POLYMER_TABLE";
-const int WELSPECS::POLYMER_TABLE::defaultValue = 0;
 
 
 WELTARG::WELTARG() : ParserKeyword("WELTARG", KeywordSize(SLASH_TERMINATED)) {
@@ -2627,6 +2618,53 @@ const std::string WELTARG::keywordName = "WELTARG";
 const std::string WELTARG::WELL::itemName = "WELL";
 const std::string WELTARG::CMODE::itemName = "CMODE";
 const std::string WELTARG::NEW_VALUE::itemName = "NEW_VALUE";
+
+
+WELTRAJ::WELTRAJ() : ParserKeyword("WELTRAJ", KeywordSize(SLASH_TERMINATED)) {
+  addValidSectionName("SCHEDULE");
+  clearDeckNames();
+  addDeckName("WELTRAJ");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("WELL", ParserItem::itype::STRING);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("BRANCH_NUMBER", ParserItem::itype::INT);
+        item.setDefault( 1 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("X", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Length");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("Y", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Length");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("TVD", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Length");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("MD", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Length");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string WELTRAJ::keywordName = "WELTRAJ";
+const std::string WELTRAJ::WELL::itemName = "WELL";
+const std::string WELTRAJ::BRANCH_NUMBER::itemName = "BRANCH_NUMBER";
+const std::string WELTRAJ::X::itemName = "X";
+const std::string WELTRAJ::Y::itemName = "Y";
+const std::string WELTRAJ::TVD::itemName = "TVD";
+const std::string WELTRAJ::MD::itemName = "MD";
 
 
 WFOAM::WFOAM() : ParserKeyword("WFOAM", KeywordSize(SLASH_TERMINATED)) {
@@ -2685,7 +2723,6 @@ const std::string WFRICSEG::WELL::itemName = "WELL";
 const std::string WFRICSEG::TUBINGD::itemName = "TUBINGD";
 const std::string WFRICSEG::ROUGHNESS::itemName = "ROUGHNESS";
 const std::string WFRICSEG::FLOW_SCALING::itemName = "FLOW_SCALING";
-const double WFRICSEG::FLOW_SCALING::defaultValue = 1.000000;
 
 
 WFRICSGL::WFRICSGL() : ParserKeyword("WFRICSGL", KeywordSize(SLASH_TERMINATED)) {
@@ -2721,7 +2758,6 @@ const std::string WFRICSGL::WELL::itemName = "WELL";
 const std::string WFRICSGL::TUBINGD::itemName = "TUBINGD";
 const std::string WFRICSGL::ROUGHNESS::itemName = "ROUGHNESS";
 const std::string WFRICSGL::FLOW_SCALING::itemName = "FLOW_SCALING";
-const double WFRICSGL::FLOW_SCALING::defaultValue = 1.000000;
 
 
 WFRICTN::WFRICTN() : ParserKeyword("WFRICTN", KeywordSize(SLASH_TERMINATED)) {
@@ -2757,7 +2793,6 @@ const std::string WFRICTN::WELL::itemName = "WELL";
 const std::string WFRICTN::TUBINGD::itemName = "TUBINGD";
 const std::string WFRICTN::ROUGHNESS::itemName = "ROUGHNESS";
 const std::string WFRICTN::FLOW_SCALING::itemName = "FLOW_SCALING";
-const double WFRICTN::FLOW_SCALING::defaultValue = 1.000000;
 
 
 WFRICTNL::WFRICTNL() : ParserKeyword("WFRICTNL", KeywordSize(SLASH_TERMINATED)) {
@@ -2793,7 +2828,6 @@ const std::string WFRICTNL::WELL::itemName = "WELL";
 const std::string WFRICTNL::TUBINGD::itemName = "TUBINGD";
 const std::string WFRICTNL::ROUGHNESS::itemName = "ROUGHNESS";
 const std::string WFRICTNL::FLOW_SCALING::itemName = "FLOW_SCALING";
-const double WFRICTNL::FLOW_SCALING::defaultValue = 1.000000;
 
 
 WGASPROD::WGASPROD() : ParserKeyword("WGASPROD", KeywordSize(SLASH_TERMINATED)) {
@@ -2893,10 +2927,8 @@ const std::string WGRUPCON::WELL::itemName = "WELL";
 const std::string WGRUPCON::GROUP_CONTROLLED::itemName = "GROUP_CONTROLLED";
 const std::string WGRUPCON::GROUP_CONTROLLED::defaultValue = "YES";
 const std::string WGRUPCON::GUIDE_RATE::itemName = "GUIDE_RATE";
-const double WGRUPCON::GUIDE_RATE::defaultValue = -1.000000;
 const std::string WGRUPCON::PHASE::itemName = "PHASE";
 const std::string WGRUPCON::SCALING_FACTOR::itemName = "SCALING_FACTOR";
-const double WGRUPCON::SCALING_FACTOR::defaultValue = 1.000000;
 
 
 WH2NUM::WH2NUM() : ParserKeyword("WH2NUM", KeywordSize(1, false)) {
@@ -3012,6 +3044,179 @@ const std::string WHTEMP::VFP_TABLE::itemName = "VFP_TABLE";
 const std::string WHTEMP::THP_TEMP::itemName = "THP_TEMP";
 
 
+WINJCLN::WINJCLN() : ParserKeyword("WINJCLN", KeywordSize(SLASH_TERMINATED)) {
+  addValidSectionName("SCHEDULE");
+  clearDeckNames();
+  addDeckName("WINJCLN");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("WELL_NAME", ParserItem::itype::STRING);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("FRAC_REMOVE", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("I", ParserItem::itype::INT);
+        item.setDefault( -1 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("J", ParserItem::itype::INT);
+        item.setDefault( -1 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("K", ParserItem::itype::INT);
+        item.setDefault( -1 );
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string WINJCLN::keywordName = "WINJCLN";
+const std::string WINJCLN::WELL_NAME::itemName = "WELL_NAME";
+const std::string WINJCLN::FRAC_REMOVE::itemName = "FRAC_REMOVE";
+const std::string WINJCLN::I::itemName = "I";
+const std::string WINJCLN::J::itemName = "J";
+const std::string WINJCLN::K::itemName = "K";
+
+
+WINJDAM::WINJDAM() : ParserKeyword("WINJDAM", KeywordSize(SLASH_TERMINATED)) {
+  addValidSectionName("SCHEDULE");
+  clearDeckNames();
+  addDeckName("WINJDAM");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("WELL_NAME", ParserItem::itype::STRING);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("GEOMETRY", ParserItem::itype::STRING);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("FILTER_CAKE_PERM", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Permeability");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("FILTER_CAKE_PORO", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0.300000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("FILTER_CAKE_RADIUS", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Length");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("FILTER_CAKE_AREA", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Length*Length");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("I", ParserItem::itype::INT);
+        item.setDefault( -1 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("J", ParserItem::itype::INT);
+        item.setDefault( -1 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("K", ParserItem::itype::INT);
+        item.setDefault( -1 );
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string WINJDAM::keywordName = "WINJDAM";
+const std::string WINJDAM::WELL_NAME::itemName = "WELL_NAME";
+const std::string WINJDAM::GEOMETRY::itemName = "GEOMETRY";
+const std::string WINJDAM::FILTER_CAKE_PERM::itemName = "FILTER_CAKE_PERM";
+const std::string WINJDAM::FILTER_CAKE_PORO::itemName = "FILTER_CAKE_PORO";
+const std::string WINJDAM::FILTER_CAKE_RADIUS::itemName = "FILTER_CAKE_RADIUS";
+const std::string WINJDAM::FILTER_CAKE_AREA::itemName = "FILTER_CAKE_AREA";
+const std::string WINJDAM::I::itemName = "I";
+const std::string WINJDAM::J::itemName = "J";
+const std::string WINJDAM::K::itemName = "K";
+
+
+WINJFCNC::WINJFCNC() : ParserKeyword("WINJFCNC", KeywordSize(SLASH_TERMINATED)) {
+  addValidSectionName("SCHEDULE");
+  clearDeckNames();
+  addDeckName("WINJFCNC");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("WELL", ParserItem::itype::STRING);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("VOL_CONCENTRATION", ParserItem::itype::UDA);
+        item.setDefault( UDAValue(0) );
+        item.push_backDimension("PPM");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string WINJFCNC::keywordName = "WINJFCNC";
+const std::string WINJFCNC::WELL::itemName = "WELL";
+const std::string WINJFCNC::VOL_CONCENTRATION::itemName = "VOL_CONCENTRATION";
+const UDAValue WINJFCNC::VOL_CONCENTRATION::defaultValue = UDAValue(0);
+
+
+WINJGAS::WINJGAS() : ParserKeyword("WINJGAS", KeywordSize(SLASH_TERMINATED)) {
+  addValidSectionName("SCHEDULE");
+  clearDeckNames();
+  addDeckName("WINJGAS");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("WELL", ParserItem::itype::STRING);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("FLUID", ParserItem::itype::STRING);
+        item.setDefault( std::string("GRUP") );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("STREAM", ParserItem::itype::STRING);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("MAKEUPGAS", ParserItem::itype::STRING);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("STAGE", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string WINJGAS::keywordName = "WINJGAS";
+const std::string WINJGAS::WELL::itemName = "WELL";
+const std::string WINJGAS::FLUID::itemName = "FLUID";
+const std::string WINJGAS::FLUID::defaultValue = "GRUP";
+const std::string WINJGAS::STREAM::itemName = "STREAM";
+const std::string WINJGAS::MAKEUPGAS::itemName = "MAKEUPGAS";
+const std::string WINJGAS::STAGE::itemName = "STAGE";
+
+
 WINJMULT::WINJMULT() : ParserKeyword("WINJMULT", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
@@ -3024,11 +3229,13 @@ WINJMULT::WINJMULT() : ParserKeyword("WINJMULT", KeywordSize(SLASH_TERMINATED)) 
      }
      {
         ParserItem item("FRACTURING_PRESSURE", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Pressure");
         record.addItem(item);
      }
      {
         ParserItem item("MULTIPLIER_GRADIENT", ParserItem::itype::DOUBLE);
         item.setDefault( double(0) );
+        item.push_backDimension("1/Pressure");
         record.addItem(item);
      }
      {
@@ -3058,15 +3265,11 @@ const std::string WINJMULT::keywordName = "WINJMULT";
 const std::string WINJMULT::WELL_NAME::itemName = "WELL_NAME";
 const std::string WINJMULT::FRACTURING_PRESSURE::itemName = "FRACTURING_PRESSURE";
 const std::string WINJMULT::MULTIPLIER_GRADIENT::itemName = "MULTIPLIER_GRADIENT";
-const double WINJMULT::MULTIPLIER_GRADIENT::defaultValue = 0;
 const std::string WINJMULT::MODE::itemName = "MODE";
 const std::string WINJMULT::MODE::defaultValue = "WREV";
 const std::string WINJMULT::I::itemName = "I";
-const int WINJMULT::I::defaultValue = -1;
 const std::string WINJMULT::J::itemName = "J";
-const int WINJMULT::J::defaultValue = -1;
 const std::string WINJMULT::K::itemName = "K";
-const int WINJMULT::K::defaultValue = -1;
 
 
 WINJTEMP::WINJTEMP() : ParserKeyword("WINJTEMP", KeywordSize(SLASH_TERMINATED)) {
@@ -3108,13 +3311,9 @@ WINJTEMP::WINJTEMP() : ParserKeyword("WINJTEMP", KeywordSize(SLASH_TERMINATED)) 
 const std::string WINJTEMP::keywordName = "WINJTEMP";
 const std::string WINJTEMP::WELL::itemName = "WELL";
 const std::string WINJTEMP::STEAM_QUALITY::itemName = "STEAM_QUALITY";
-const double WINJTEMP::STEAM_QUALITY::defaultValue = 1.000000;
 const std::string WINJTEMP::TEMPERATURE::itemName = "TEMPERATURE";
-const double WINJTEMP::TEMPERATURE::defaultValue = 15.560000;
 const std::string WINJTEMP::PRESSURE::itemName = "PRESSURE";
-const double WINJTEMP::PRESSURE::defaultValue = 0;
 const std::string WINJTEMP::ENTHALPY::itemName = "ENTHALPY";
-const double WINJTEMP::ENTHALPY::defaultValue = 0;
 
 
 WLIFT::WLIFT() : ParserKeyword("WLIFT", KeywordSize(SLASH_TERMINATED)) {
@@ -3234,11 +3433,8 @@ const std::string WLIFTOPT::WELL::itemName = "WELL";
 const std::string WLIFTOPT::USE_OPTIMIZER::itemName = "USE_OPTIMIZER";
 const std::string WLIFTOPT::MAX_LIFT_GAS_RATE::itemName = "MAX_LIFT_GAS_RATE";
 const std::string WLIFTOPT::WEIGHT_FACTOR::itemName = "WEIGHT_FACTOR";
-const double WLIFTOPT::WEIGHT_FACTOR::defaultValue = 1.000000;
 const std::string WLIFTOPT::MIN_LIFT_GAS_RATE::itemName = "MIN_LIFT_GAS_RATE";
-const double WLIFTOPT::MIN_LIFT_GAS_RATE::defaultValue = 0;
 const std::string WLIFTOPT::DELTA_GAS_RATE_WEIGHT_FACTOR::itemName = "DELTA_GAS_RATE_WEIGHT_FACTOR";
-const double WLIFTOPT::DELTA_GAS_RATE_WEIGHT_FACTOR::defaultValue = 0;
 const std::string WLIFTOPT::ALLOCATE_EXTRA_LIFT_GAS::itemName = "ALLOCATE_EXTRA_LIFT_GAS";
 const std::string WLIFTOPT::ALLOCATE_EXTRA_LIFT_GAS::defaultValue = "NO";
 
@@ -3420,7 +3616,6 @@ WNETDP::WNETDP() : ParserKeyword("WNETDP", KeywordSize(SLASH_TERMINATED)) {
 const std::string WNETDP::keywordName = "WNETDP";
 const std::string WNETDP::WELL::itemName = "WELL";
 const std::string WNETDP::DP::itemName = "DP";
-const double WNETDP::DP::defaultValue = 0;
 
 
 WORKLIM::WORKLIM() : ParserKeyword("WORKLIM", KeywordSize(1, false)) {
@@ -3495,9 +3690,7 @@ WPAVE::WPAVE() : ParserKeyword("WPAVE", KeywordSize(1, false)) {
 }
 const std::string WPAVE::keywordName = "WPAVE";
 const std::string WPAVE::F1::itemName = "F1";
-const double WPAVE::F1::defaultValue = 0.500000;
 const std::string WPAVE::F2::itemName = "F2";
-const double WPAVE::F2::defaultValue = 1.000000;
 const std::string WPAVE::DEPTH_CORRECTION::itemName = "DEPTH_CORRECTION";
 const std::string WPAVE::DEPTH_CORRECTION::defaultValue = "WELL";
 const std::string WPAVE::CONNECTION::itemName = "CONNECTION";
@@ -3568,7 +3761,6 @@ WPIMULT::WPIMULT() : ParserKeyword("WPIMULT", KeywordSize(SLASH_TERMINATED)) {
 const std::string WPIMULT::keywordName = "WPIMULT";
 const std::string WPIMULT::WELL::itemName = "WELL";
 const std::string WPIMULT::WELLPI::itemName = "WELLPI";
-const double WPIMULT::WELLPI::defaultValue = 1.000000;
 const std::string WPIMULT::I::itemName = "I";
 const std::string WPIMULT::J::itemName = "J";
 const std::string WPIMULT::K::itemName = "K";
@@ -3622,7 +3814,6 @@ WPIMULTL::WPIMULTL() : ParserKeyword("WPIMULTL", KeywordSize(SLASH_TERMINATED)) 
 const std::string WPIMULTL::keywordName = "WPIMULTL";
 const std::string WPIMULTL::WELL::itemName = "WELL";
 const std::string WPIMULTL::WELLPI::itemName = "WELLPI";
-const double WPIMULTL::WELLPI::defaultValue = 1.000000;
 const std::string WPIMULTL::GRID::itemName = "GRID";
 const std::string WPIMULTL::GRID::defaultValue = "";
 const std::string WPIMULTL::I::itemName = "I";
@@ -3653,7 +3844,6 @@ WPITAB::WPITAB() : ParserKeyword("WPITAB", KeywordSize(SLASH_TERMINATED)) {
 const std::string WPITAB::keywordName = "WPITAB";
 const std::string WPITAB::WELL::itemName = "WELL";
 const std::string WPITAB::PI::itemName = "PI";
-const double WPITAB::PI::defaultValue = 0;
 
 
 WPLUG::WPLUG() : ParserKeyword("WPLUG", KeywordSize(SLASH_TERMINATED)) {
@@ -3715,7 +3905,6 @@ const std::string WPMITAB::TABLE_NUMBER::itemName = "TABLE_NUMBER";
 
 
 WPOLYMER::WPOLYMER() : ParserKeyword("WPOLYMER", KeywordSize(SLASH_TERMINATED)) {
-  addValidSectionName("SPECIAL");
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("WPOLYMER");
@@ -3775,7 +3964,6 @@ WPOLYRED::WPOLYRED() : ParserKeyword("WPOLYRED", KeywordSize(SLASH_TERMINATED)) 
 const std::string WPOLYRED::keywordName = "WPOLYRED";
 const std::string WPOLYRED::WELL::itemName = "WELL";
 const std::string WPOLYRED::POLYMER_VISCOSITY_RED::itemName = "POLYMER_VISCOSITY_RED";
-const double WPOLYRED::POLYMER_VISCOSITY_RED::defaultValue = 1.000000;
 
 
 WPOTCALC::WPOTCALC() : ParserKeyword("WPOTCALC", KeywordSize(1, false)) {
@@ -3846,10 +4034,8 @@ const std::string WREGROUP::QUANTITY::itemName = "QUANTITY";
 const std::string WREGROUP::QUANTITY::defaultValue = " ";
 const std::string WREGROUP::GROUP_UPPER::itemName = "GROUP_UPPER";
 const std::string WREGROUP::UPPER_LIMIT::itemName = "UPPER_LIMIT";
-const double WREGROUP::UPPER_LIMIT::defaultValue = 100000000000000000000.000000;
 const std::string WREGROUP::GROUP_LOWER::itemName = "GROUP_LOWER";
 const std::string WREGROUP::LOWER_LIMIT::itemName = "LOWER_LIMIT";
-const double WREGROUP::LOWER_LIMIT::defaultValue = 0;
 
 
 WRFT::WRFT() : ParserKeyword("WRFT", KeywordSize(SLASH_TERMINATED)) {
@@ -3976,17 +4162,11 @@ WSCCLEAN::WSCCLEAN() : ParserKeyword("WSCCLEAN", KeywordSize(SLASH_TERMINATED)) 
 const std::string WSCCLEAN::keywordName = "WSCCLEAN";
 const std::string WSCCLEAN::WELL::itemName = "WELL";
 const std::string WSCCLEAN::SCALE_MULTIPLIER::itemName = "SCALE_MULTIPLIER";
-const double WSCCLEAN::SCALE_MULTIPLIER::defaultValue = 1.000000;
 const std::string WSCCLEAN::I::itemName = "I";
-const int WSCCLEAN::I::defaultValue = -1;
 const std::string WSCCLEAN::J::itemName = "J";
-const int WSCCLEAN::J::defaultValue = -1;
 const std::string WSCCLEAN::K::itemName = "K";
-const int WSCCLEAN::K::defaultValue = -1;
 const std::string WSCCLEAN::C1::itemName = "C1";
-const int WSCCLEAN::C1::defaultValue = -1;
 const std::string WSCCLEAN::C2::itemName = "C2";
-const int WSCCLEAN::C2::defaultValue = -1;
 
 
 WSCCLENL::WSCCLENL() : ParserKeyword("WSCCLENL", KeywordSize(SLASH_TERMINATED)) {
@@ -4039,18 +4219,12 @@ WSCCLENL::WSCCLENL() : ParserKeyword("WSCCLENL", KeywordSize(SLASH_TERMINATED)) 
 const std::string WSCCLENL::keywordName = "WSCCLENL";
 const std::string WSCCLENL::WELL::itemName = "WELL";
 const std::string WSCCLENL::SCALE_MULTIPLIER::itemName = "SCALE_MULTIPLIER";
-const double WSCCLENL::SCALE_MULTIPLIER::defaultValue = 1.000000;
 const std::string WSCCLENL::LGR::itemName = "LGR";
 const std::string WSCCLENL::I::itemName = "I";
-const int WSCCLENL::I::defaultValue = -1;
 const std::string WSCCLENL::J::itemName = "J";
-const int WSCCLENL::J::defaultValue = -1;
 const std::string WSCCLENL::K::itemName = "K";
-const int WSCCLENL::K::defaultValue = -1;
 const std::string WSCCLENL::C1::itemName = "C1";
-const int WSCCLENL::C1::defaultValue = -1;
 const std::string WSCCLENL::C2::itemName = "C2";
-const int WSCCLENL::C2::defaultValue = -1;
 
 
 WSCTAB::WSCTAB() : ParserKeyword("WSCTAB", KeywordSize(SLASH_TERMINATED)) {
@@ -4088,12 +4262,9 @@ WSCTAB::WSCTAB() : ParserKeyword("WSCTAB", KeywordSize(SLASH_TERMINATED)) {
 const std::string WSCTAB::keywordName = "WSCTAB";
 const std::string WSCTAB::WELL::itemName = "WELL";
 const std::string WSCTAB::SCALE_DEPOSITION_TABLE::itemName = "SCALE_DEPOSITION_TABLE";
-const int WSCTAB::SCALE_DEPOSITION_TABLE::defaultValue = 0;
 const std::string WSCTAB::SCALE_DAMAGE_TABLE::itemName = "SCALE_DAMAGE_TABLE";
-const int WSCTAB::SCALE_DAMAGE_TABLE::defaultValue = 0;
 const std::string WSCTAB::UNUSED::itemName = "UNUSED";
 const std::string WSCTAB::SCALE_DISSOLUTION_TABLE::itemName = "SCALE_DISSOLUTION_TABLE";
-const int WSCTAB::SCALE_DISSOLUTION_TABLE::defaultValue = 0;
 
 
 WSEGAICD::WSEGAICD() : ParserKeyword("WSEGAICD", KeywordSize(SLASH_TERMINATED)) {
@@ -4217,36 +4388,23 @@ const std::string WSEGAICD::SEGMENT1::itemName = "SEGMENT1";
 const std::string WSEGAICD::SEGMENT2::itemName = "SEGMENT2";
 const std::string WSEGAICD::STRENGTH::itemName = "STRENGTH";
 const std::string WSEGAICD::LENGTH::itemName = "LENGTH";
-const double WSEGAICD::LENGTH::defaultValue = 12.000000;
 const std::string WSEGAICD::DENSITY_CALI::itemName = "DENSITY_CALI";
-const double WSEGAICD::DENSITY_CALI::defaultValue = 1000.250000;
 const std::string WSEGAICD::VISCOSITY_CALI::itemName = "VISCOSITY_CALI";
-const double WSEGAICD::VISCOSITY_CALI::defaultValue = 1.450000;
 const std::string WSEGAICD::CRITICAL_VALUE::itemName = "CRITICAL_VALUE";
-const double WSEGAICD::CRITICAL_VALUE::defaultValue = 0.500000;
 const std::string WSEGAICD::WIDTH_TRANS::itemName = "WIDTH_TRANS";
-const double WSEGAICD::WIDTH_TRANS::defaultValue = 0.050000;
 const std::string WSEGAICD::MAX_VISC_RATIO::itemName = "MAX_VISC_RATIO";
-const double WSEGAICD::MAX_VISC_RATIO::defaultValue = 5.000000;
 const std::string WSEGAICD::METHOD_SCALING_FACTOR::itemName = "METHOD_SCALING_FACTOR";
-const int WSEGAICD::METHOD_SCALING_FACTOR::defaultValue = -1;
 const std::string WSEGAICD::MAX_ABS_RATE::itemName = "MAX_ABS_RATE";
 const std::string WSEGAICD::FLOW_RATE_EXPONENT::itemName = "FLOW_RATE_EXPONENT";
 const std::string WSEGAICD::VISC_EXPONENT::itemName = "VISC_EXPONENT";
 const std::string WSEGAICD::STATUS::itemName = "STATUS";
 const std::string WSEGAICD::STATUS::defaultValue = "OPEN";
 const std::string WSEGAICD::OIL_FLOW_FRACTION::itemName = "OIL_FLOW_FRACTION";
-const double WSEGAICD::OIL_FLOW_FRACTION::defaultValue = 1.000000;
 const std::string WSEGAICD::WATER_FLOW_FRACTION::itemName = "WATER_FLOW_FRACTION";
-const double WSEGAICD::WATER_FLOW_FRACTION::defaultValue = 1.000000;
 const std::string WSEGAICD::GAS_FLOW_FRACTION::itemName = "GAS_FLOW_FRACTION";
-const double WSEGAICD::GAS_FLOW_FRACTION::defaultValue = 1.000000;
 const std::string WSEGAICD::OIL_VISC_FRACTION::itemName = "OIL_VISC_FRACTION";
-const double WSEGAICD::OIL_VISC_FRACTION::defaultValue = 1.000000;
 const std::string WSEGAICD::WATER_VISC_FRACTION::itemName = "WATER_VISC_FRACTION";
-const double WSEGAICD::WATER_VISC_FRACTION::defaultValue = 1.000000;
 const std::string WSEGAICD::GAS_VISC_FRACTION::itemName = "GAS_VISC_FRACTION";
-const double WSEGAICD::GAS_VISC_FRACTION::defaultValue = 1.000000;
 
 
 WSEGDFIN::WSEGDFIN() : ParserKeyword("WSEGDFIN", KeywordSize(1, false)) {
@@ -4359,16 +4517,12 @@ WSEGDFPA::WSEGDFPA() : ParserKeyword("WSEGDFPA", KeywordSize(1, false)) {
 }
 const std::string WSEGDFPA::keywordName = "WSEGDFPA";
 const std::string WSEGDFPA::GAS_LIQUID_VD_FACTOR::itemName = "GAS_LIQUID_VD_FACTOR";
-const double WSEGDFPA::GAS_LIQUID_VD_FACTOR::defaultValue = 1.000000;
 const std::string WSEGDFPA::A1::itemName = "A1";
 const std::string WSEGDFPA::A2::itemName = "A2";
 const std::string WSEGDFPA::C0_A::itemName = "C0_A";
-const double WSEGDFPA::C0_A::defaultValue = 1.200000;
 const std::string WSEGDFPA::C0_B::itemName = "C0_B";
 const std::string WSEGDFPA::FV::itemName = "FV";
-const double WSEGDFPA::FV::defaultValue = 1.000000;
 const std::string WSEGDFPA::OIL_WATER_VD_FACTOR::itemName = "OIL_WATER_VD_FACTOR";
-const double WSEGDFPA::OIL_WATER_VD_FACTOR::defaultValue = -1.000000;
 const std::string WSEGDFPA::A::itemName = "A";
 const std::string WSEGDFPA::B1::itemName = "B1";
 const std::string WSEGDFPA::B2::itemName = "B2";
@@ -4406,13 +4560,9 @@ WSEGDIMS::WSEGDIMS() : ParserKeyword("WSEGDIMS", KeywordSize(1, false)) {
 }
 const std::string WSEGDIMS::keywordName = "WSEGDIMS";
 const std::string WSEGDIMS::NSWLMX::itemName = "NSWLMX";
-const int WSEGDIMS::NSWLMX::defaultValue = 0;
 const std::string WSEGDIMS::NSEGMX::itemName = "NSEGMX";
-const int WSEGDIMS::NSEGMX::defaultValue = 1;
 const std::string WSEGDIMS::NLBRMX::itemName = "NLBRMX";
-const int WSEGDIMS::NLBRMX::defaultValue = 1;
 const std::string WSEGDIMS::NCRDMX::itemName = "NCRDMX";
-const int WSEGDIMS::NCRDMX::defaultValue = 0;
 
 
 WSEGEXSS::WSEGEXSS() : ParserKeyword("WSEGEXSS", KeywordSize(SLASH_TERMINATED)) {
@@ -4461,9 +4611,7 @@ const std::string WSEGEXSS::TYPE::itemName = "TYPE";
 const std::string WSEGEXSS::TYPE::defaultValue = "NONE";
 const std::string WSEGEXSS::GAS_IMPORT_RATE::itemName = "GAS_IMPORT_RATE";
 const std::string WSEGEXSS::R::itemName = "R";
-const double WSEGEXSS::R::defaultValue = 0;
 const std::string WSEGEXSS::PEXT::itemName = "PEXT";
-const double WSEGEXSS::PEXT::defaultValue = 0;
 
 
 WSEGFLIM::WSEGFLIM() : ParserKeyword("WSEGFLIM", KeywordSize(SLASH_TERMINATED)) {
@@ -4701,13 +4849,9 @@ WSEGITER::WSEGITER() : ParserKeyword("WSEGITER", KeywordSize(1, false)) {
 }
 const std::string WSEGITER::keywordName = "WSEGITER";
 const std::string WSEGITER::MAX_WELL_ITERATIONS::itemName = "MAX_WELL_ITERATIONS";
-const int WSEGITER::MAX_WELL_ITERATIONS::defaultValue = 40;
 const std::string WSEGITER::MAX_TIMES_REDUCED::itemName = "MAX_TIMES_REDUCED";
-const int WSEGITER::MAX_TIMES_REDUCED::defaultValue = 5;
 const std::string WSEGITER::REDUCTION_FACTOR::itemName = "REDUCTION_FACTOR";
-const double WSEGITER::REDUCTION_FACTOR::defaultValue = 0.300000;
 const std::string WSEGITER::INCREASING_FACTOR::itemName = "INCREASING_FACTOR";
-const double WSEGITER::INCREASING_FACTOR::defaultValue = 2.000000;
 
 
 WSEGLABY::WSEGLABY() : ParserKeyword("WSEGLABY", KeywordSize(SLASH_TERMINATED)) {
@@ -4796,23 +4940,14 @@ const std::string WSEGLABY::SEGMENT1::itemName = "SEGMENT1";
 const std::string WSEGLABY::SEGMENT2::itemName = "SEGMENT2";
 const std::string WSEGLABY::NCONFIG::itemName = "NCONFIG";
 const std::string WSEGLABY::CHANNELS::itemName = "CHANNELS";
-const int WSEGLABY::CHANNELS::defaultValue = 2;
 const std::string WSEGLABY::A::itemName = "A";
-const double WSEGLABY::A::defaultValue = 6e-05;
 const std::string WSEGLABY::L1::itemName = "L1";
-const double WSEGLABY::L1::defaultValue = 0.186300;
 const std::string WSEGLABY::L2::itemName = "L2";
-const double WSEGLABY::L2::defaultValue = 0.283200;
 const std::string WSEGLABY::D::itemName = "D";
-const double WSEGLABY::D::defaultValue = 0.006316;
 const std::string WSEGLABY::R::itemName = "R";
-const double WSEGLABY::R::defaultValue = 1e-05;
 const std::string WSEGLABY::GAMMA_INLET::itemName = "GAMMA_INLET";
-const double WSEGLABY::GAMMA_INLET::defaultValue = 0.350000;
 const std::string WSEGLABY::GAMMA_OUTLET::itemName = "GAMMA_OUTLET";
-const double WSEGLABY::GAMMA_OUTLET::defaultValue = 0.500000;
 const std::string WSEGLABY::GAMMA_LAB::itemName = "GAMMA_LAB";
-const double WSEGLABY::GAMMA_LAB::defaultValue = 0.500000;
 const std::string WSEGLABY::STATUS::itemName = "STATUS";
 const std::string WSEGLABY::STATUS::defaultValue = "OPEN";
 
@@ -4900,17 +5035,11 @@ const std::string WSEGMULT::WELL::itemName = "WELL";
 const std::string WSEGMULT::SEGMENT1::itemName = "SEGMENT1";
 const std::string WSEGMULT::SEGMENT2::itemName = "SEGMENT2";
 const std::string WSEGMULT::A::itemName = "A";
-const double WSEGMULT::A::defaultValue = 1.000000;
 const std::string WSEGMULT::B::itemName = "B";
-const double WSEGMULT::B::defaultValue = 0;
 const std::string WSEGMULT::C::itemName = "C";
-const double WSEGMULT::C::defaultValue = 0;
 const std::string WSEGMULT::D::itemName = "D";
-const double WSEGMULT::D::defaultValue = 0;
 const std::string WSEGMULT::E::itemName = "E";
-const double WSEGMULT::E::defaultValue = 0;
 const std::string WSEGMULT::GOR::itemName = "GOR";
-const double WSEGMULT::GOR::defaultValue = 0;
 
 
 WSEGPROP::WSEGPROP() : ParserKeyword("WSEGPROP", KeywordSize(SLASH_TERMINATED)) {
@@ -5023,9 +5152,7 @@ const std::string WSEGSEP::SEGMENT2::itemName = "SEGMENT2";
 const std::string WSEGSEP::PHASE::itemName = "PHASE";
 const std::string WSEGSEP::PHASE::defaultValue = "NONE";
 const std::string WSEGSEP::EMAX::itemName = "EMAX";
-const double WSEGSEP::EMAX::defaultValue = 1.000000;
 const std::string WSEGSEP::HOLDUP_FRACTION::itemName = "HOLDUP_FRACTION";
-const double WSEGSEP::HOLDUP_FRACTION::defaultValue = 0.010000;
 
 
 WSEGSICD::WSEGSICD() : ParserKeyword("WSEGSICD", KeywordSize(SLASH_TERMINATED)) {
@@ -5111,19 +5238,12 @@ const std::string WSEGSICD::SEGMENT1::itemName = "SEGMENT1";
 const std::string WSEGSICD::SEGMENT2::itemName = "SEGMENT2";
 const std::string WSEGSICD::STRENGTH::itemName = "STRENGTH";
 const std::string WSEGSICD::LENGTH::itemName = "LENGTH";
-const double WSEGSICD::LENGTH::defaultValue = 12.000000;
 const std::string WSEGSICD::DENSITY_CALI::itemName = "DENSITY_CALI";
-const double WSEGSICD::DENSITY_CALI::defaultValue = 1000.250000;
 const std::string WSEGSICD::VISCOSITY_CALI::itemName = "VISCOSITY_CALI";
-const double WSEGSICD::VISCOSITY_CALI::defaultValue = 1.450000;
 const std::string WSEGSICD::CRITICAL_VALUE::itemName = "CRITICAL_VALUE";
-const double WSEGSICD::CRITICAL_VALUE::defaultValue = 0.500000;
 const std::string WSEGSICD::WIDTH_TRANS::itemName = "WIDTH_TRANS";
-const double WSEGSICD::WIDTH_TRANS::defaultValue = 0.050000;
 const std::string WSEGSICD::MAX_VISC_RATIO::itemName = "MAX_VISC_RATIO";
-const double WSEGSICD::MAX_VISC_RATIO::defaultValue = 5.000000;
 const std::string WSEGSICD::METHOD_SCALING_FACTOR::itemName = "METHOD_SCALING_FACTOR";
-const int WSEGSICD::METHOD_SCALING_FACTOR::defaultValue = -1;
 const std::string WSEGSICD::MAX_ABS_RATE::itemName = "MAX_ABS_RATE";
 const std::string WSEGSICD::STATUS::itemName = "STATUS";
 const std::string WSEGSICD::STATUS::defaultValue = "OPEN";
@@ -5183,19 +5303,12 @@ const std::string WSEGSOLV::keywordName = "WSEGSOLV";
 const std::string WSEGSOLV::USE_ITERATIVE_SOLVER::itemName = "USE_ITERATIVE_SOLVER";
 const std::string WSEGSOLV::USE_ITERATIVE_SOLVER::defaultValue = "NO";
 const std::string WSEGSOLV::MAX_LINEAR_ITER::itemName = "MAX_LINEAR_ITER";
-const int WSEGSOLV::MAX_LINEAR_ITER::defaultValue = 30;
 const std::string WSEGSOLV::CONVERGENCE_TARGET::itemName = "CONVERGENCE_TARGET";
-const double WSEGSOLV::CONVERGENCE_TARGET::defaultValue = 1e-10;
 const std::string WSEGSOLV::PC_FILL::itemName = "PC_FILL";
-const int WSEGSOLV::PC_FILL::defaultValue = 2;
 const std::string WSEGSOLV::DROP_TOL::itemName = "DROP_TOL";
-const double WSEGSOLV::DROP_TOL::defaultValue = 0;
 const std::string WSEGSOLV::P_LIMIT::itemName = "P_LIMIT";
-const double WSEGSOLV::P_LIMIT::defaultValue = 1e-08;
 const std::string WSEGSOLV::LOOP_THRESHOLD::itemName = "LOOP_THRESHOLD";
-const double WSEGSOLV::LOOP_THRESHOLD::defaultValue = -1.000000;
 const std::string WSEGSOLV::LOOP_MULTIPLIER::itemName = "LOOP_MULTIPLIER";
-const double WSEGSOLV::LOOP_MULTIPLIER::defaultValue = -1.000000;
 
 
 WSEGTABL::WSEGTABL() : ParserKeyword("WSEGTABL", KeywordSize(SLASH_TERMINATED)) {
@@ -5253,14 +5366,12 @@ const std::string WSEGTABL::WELL::itemName = "WELL";
 const std::string WSEGTABL::SEGMENT1::itemName = "SEGMENT1";
 const std::string WSEGTABL::SEGMENT2::itemName = "SEGMENT2";
 const std::string WSEGTABL::VFP::itemName = "VFP";
-const int WSEGTABL::VFP::defaultValue = 0;
 const std::string WSEGTABL::VFP_COMPONENTS::itemName = "VFP_COMPONENTS";
 const std::string WSEGTABL::VFP_COMPONENTS::defaultValue = "FH";
 const std::string WSEGTABL::VFP_OUTLIER::itemName = "VFP_OUTLIER";
 const std::string WSEGTABL::DP_SCALING::itemName = "DP_SCALING";
 const std::string WSEGTABL::DP_SCALING::defaultValue = "LEN";
 const std::string WSEGTABL::ALQ_VALUE::itemName = "ALQ_VALUE";
-const double WSEGTABL::ALQ_VALUE::defaultValue = 0;
 const std::string WSEGTABL::STATUS::itemName = "STATUS";
 const std::string WSEGTABL::STATUS::defaultValue = "OPEN";
 
@@ -5284,7 +5395,7 @@ WSEGVALV::WSEGVALV() : ParserKeyword("WSEGVALV", KeywordSize(SLASH_TERMINATED)) 
         record.addItem(item);
      }
      {
-        ParserItem item("AREA", ParserItem::itype::DOUBLE);
+        ParserItem item("AREA", ParserItem::itype::UDA);
         item.push_backDimension("Length*Length");
         record.addItem(item);
      }
@@ -5333,6 +5444,30 @@ const std::string WSEGVALV::PIPE_A::itemName = "PIPE_A";
 const std::string WSEGVALV::STATUS::itemName = "STATUS";
 const std::string WSEGVALV::STATUS::defaultValue = "OPEN";
 const std::string WSEGVALV::MAX_A::itemName = "MAX_A";
+
+
+WSF::WSF() : ParserKeyword("WSF", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
+  addValidSectionName("PROPS");
+  setProhibitedKeywords({
+    "SWOF",
+    "SWFN",
+  });
+  clearDeckNames();
+  addDeckName("WSF");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("DATA", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("1");
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string WSF::keywordName = "WSF";
+const std::string WSF::DATA::itemName = "DATA";
 
 
 WSKPTAB::WSKPTAB() : ParserKeyword("WSKPTAB", KeywordSize(SLASH_TERMINATED)) {
@@ -5439,7 +5574,6 @@ const std::string WTADD::WELL::itemName = "WELL";
 const std::string WTADD::CONTROL::itemName = "CONTROL";
 const std::string WTADD::SHIFT::itemName = "SHIFT";
 const std::string WTADD::NUM::itemName = "NUM";
-const int WTADD::NUM::defaultValue = 1;
 
 
 WTEMP::WTEMP() : ParserKeyword("WTEMP", KeywordSize(SLASH_TERMINATED)) {
@@ -5527,9 +5661,7 @@ const std::string WTEST::INTERVAL::itemName = "INTERVAL";
 const std::string WTEST::REASON::itemName = "REASON";
 const std::string WTEST::REASON::defaultValue = "";
 const std::string WTEST::TEST_NUM::itemName = "TEST_NUM";
-const int WTEST::TEST_NUM::defaultValue = 0;
 const std::string WTEST::START_TIME::itemName = "START_TIME";
-const double WTEST::START_TIME::defaultValue = 0;
 
 
 WTHPMAX::WTHPMAX() : ParserKeyword("WTHPMAX", KeywordSize(SLASH_TERMINATED)) {
@@ -5604,7 +5736,6 @@ const std::string WTMULT::WELL::itemName = "WELL";
 const std::string WTMULT::CONTROL::itemName = "CONTROL";
 const std::string WTMULT::FACTOR::itemName = "FACTOR";
 const std::string WTMULT::NUM::itemName = "NUM";
-const int WTMULT::NUM::defaultValue = 1;
 
 
 WTRACER::WTRACER() : ParserKeyword("WTRACER", KeywordSize(SLASH_TERMINATED)) {
@@ -5671,7 +5802,6 @@ const std::string WVFPDP::keywordName = "WVFPDP";
 const std::string WVFPDP::WELL::itemName = "WELL";
 const std::string WVFPDP::DELTA_P::itemName = "DELTA_P";
 const std::string WVFPDP::LOSS_SCALING_FACTOR::itemName = "LOSS_SCALING_FACTOR";
-const double WVFPDP::LOSS_SCALING_FACTOR::defaultValue = 1.000000;
 
 
 WVFPEXP::WVFPEXP() : ParserKeyword("WVFPEXP", KeywordSize(SLASH_TERMINATED)) {
@@ -5755,9 +5885,7 @@ WWPAVE::WWPAVE() : ParserKeyword("WWPAVE", KeywordSize(SLASH_TERMINATED)) {
 const std::string WWPAVE::keywordName = "WWPAVE";
 const std::string WWPAVE::WELL::itemName = "WELL";
 const std::string WWPAVE::F1::itemName = "F1";
-const double WWPAVE::F1::defaultValue = 0.500000;
 const std::string WWPAVE::F2::itemName = "F2";
-const double WWPAVE::F2::defaultValue = 0.500000;
 const std::string WWPAVE::DEPTH_CORRECTION::itemName = "DEPTH_CORRECTION";
 const std::string WWPAVE::DEPTH_CORRECTION::defaultValue = "WELL";
 const std::string WWPAVE::CONNECTION::itemName = "CONNECTION";

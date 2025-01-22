@@ -149,21 +149,14 @@ LGR::LGR() : ParserKeyword("LGR", KeywordSize(1, false)) {
 }
 const std::string LGR::keywordName = "LGR";
 const std::string LGR::MAXLGR::itemName = "MAXLGR";
-const int LGR::MAXLGR::defaultValue = 0;
 const std::string LGR::MAXCLS::itemName = "MAXCLS";
-const int LGR::MAXCLS::defaultValue = 0;
 const std::string LGR::MCOARS::itemName = "MCOARS";
-const int LGR::MCOARS::defaultValue = 0;
 const std::string LGR::MAMALG::itemName = "MAMALG";
-const int LGR::MAMALG::defaultValue = 0;
 const std::string LGR::MXLALG::itemName = "MXLALG";
-const int LGR::MXLALG::defaultValue = 0;
 const std::string LGR::LSTACK::itemName = "LSTACK";
-const int LGR::LSTACK::defaultValue = 0;
 const std::string LGR::INTERP::itemName = "INTERP";
 const std::string LGR::INTERP::defaultValue = "INTERP";
 const std::string LGR::NCHCOR::itemName = "NCHCOR";
-const int LGR::NCHCOR::defaultValue = 0;
 
 
 LGRCOPY::LGRCOPY() : ParserKeyword("LGRCOPY", KeywordSize(0, false)) {
@@ -231,7 +224,6 @@ LGROFF::LGROFF() : ParserKeyword("LGROFF", KeywordSize(1, false)) {
 const std::string LGROFF::keywordName = "LGROFF";
 const std::string LGROFF::LOCAL_GRID_REFINMENT::itemName = "LOCAL_GRID_REFINMENT";
 const std::string LGROFF::ACTIVE_WELLS::itemName = "ACTIVE_WELLS";
-const int LGROFF::ACTIVE_WELLS::defaultValue = 0;
 
 
 LGRON::LGRON() : ParserKeyword("LGRON", KeywordSize(1, false)) {
@@ -255,7 +247,6 @@ LGRON::LGRON() : ParserKeyword("LGRON", KeywordSize(1, false)) {
 const std::string LGRON::keywordName = "LGRON";
 const std::string LGRON::LOCAL_GRID_REFINMENT::itemName = "LOCAL_GRID_REFINMENT";
 const std::string LGRON::ACTIVE_WELLS::itemName = "ACTIVE_WELLS";
-const int LGRON::ACTIVE_WELLS::defaultValue = 0;
 
 
 LICENSES::LICENSES() : ParserKeyword("LICENSES", KeywordSize(SLASH_TERMINATED)) {
@@ -309,7 +300,6 @@ const std::string LIFTOPT::keywordName = "LIFTOPT";
 const std::string LIFTOPT::INCREMENT_SIZE::itemName = "INCREMENT_SIZE";
 const std::string LIFTOPT::MIN_ECONOMIC_GRADIENT::itemName = "MIN_ECONOMIC_GRADIENT";
 const std::string LIFTOPT::MIN_INTERVAL_BETWEEN_GAS_LIFT_OPTIMIZATIONS::itemName = "MIN_INTERVAL_BETWEEN_GAS_LIFT_OPTIMIZATIONS";
-const double LIFTOPT::MIN_INTERVAL_BETWEEN_GAS_LIFT_OPTIMIZATIONS::defaultValue = 0;
 const std::string LIFTOPT::OPTIMISE_ALL_ITERATIONS::itemName = "OPTIMISE_ALL_ITERATIONS";
 const std::string LIFTOPT::OPTIMISE_ALL_ITERATIONS::defaultValue = "YES";
 
@@ -749,13 +739,9 @@ LTOSIGMA::LTOSIGMA() : ParserKeyword("LTOSIGMA", KeywordSize(1, false)) {
 }
 const std::string LTOSIGMA::keywordName = "LTOSIGMA";
 const std::string LTOSIGMA::FX::itemName = "FX";
-const double LTOSIGMA::FX::defaultValue = 4.000000;
 const std::string LTOSIGMA::FY::itemName = "FY";
-const double LTOSIGMA::FY::defaultValue = 4.000000;
 const std::string LTOSIGMA::FZ::itemName = "FZ";
-const double LTOSIGMA::FZ::defaultValue = 4.000000;
 const std::string LTOSIGMA::FGD::itemName = "FGD";
-const double LTOSIGMA::FGD::defaultValue = 0;
 const std::string LTOSIGMA::OPTION::itemName = "OPTION";
 const std::string LTOSIGMA::OPTION::defaultValue = "XONLY";
 

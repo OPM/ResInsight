@@ -4,6 +4,19 @@
 namespace Opm {
 namespace ParserKeywords {
 
+   class XMF : public ParserKeyword {
+   public:
+       XMF();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
 }
 }
 #endif

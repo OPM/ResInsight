@@ -32,7 +32,6 @@ PARALLEL::PARALLEL() : ParserKeyword("PARALLEL", KeywordSize(1, false)) {
 }
 const std::string PARALLEL::keywordName = "PARALLEL";
 const std::string PARALLEL::NDMAIN::itemName = "NDMAIN";
-const int PARALLEL::NDMAIN::defaultValue = 1;
 const std::string PARALLEL::MACHINE_TYPE::itemName = "MACHINE_TYPE";
 const std::string PARALLEL::MACHINE_TYPE::defaultValue = "DISTRIBUTED";
 
@@ -94,19 +93,12 @@ const std::string PARAOPTS::keywordName = "PARAOPTS";
 const std::string PARAOPTS::METHOD::itemName = "METHOD";
 const std::string PARAOPTS::METHOD::defaultValue = "TREE";
 const std::string PARAOPTS::SET_PRINT::itemName = "SET_PRINT";
-const int PARAOPTS::SET_PRINT::defaultValue = 0;
 const std::string PARAOPTS::SIZE::itemName = "SIZE";
-const int PARAOPTS::SIZE::defaultValue = 0;
 const std::string PARAOPTS::NUM_BUFFERS::itemName = "NUM_BUFFERS";
-const int PARAOPTS::NUM_BUFFERS::defaultValue = 2;
 const std::string PARAOPTS::VALUE_MEM::itemName = "VALUE_MEM";
-const int PARAOPTS::VALUE_MEM::defaultValue = 0;
 const std::string PARAOPTS::VALUE_COARSE::itemName = "VALUE_COARSE";
-const int PARAOPTS::VALUE_COARSE::defaultValue = 0;
 const std::string PARAOPTS::VALUE_NNC::itemName = "VALUE_NNC";
-const int PARAOPTS::VALUE_NNC::defaultValue = 0;
 const std::string PARAOPTS::VALUE_PRT_FILE::itemName = "VALUE_PRT_FILE";
-const int PARAOPTS::VALUE_PRT_FILE::defaultValue = 1;
 const std::string PARAOPTS::RESERVED::itemName = "RESERVED";
 
 
@@ -136,11 +128,8 @@ PARTTRAC::PARTTRAC() : ParserKeyword("PARTTRAC", KeywordSize(1, false)) {
 }
 const std::string PARTTRAC::keywordName = "PARTTRAC";
 const std::string PARTTRAC::NPARTT::itemName = "NPARTT";
-const int PARTTRAC::NPARTT::defaultValue = 0;
 const std::string PARTTRAC::NKPTMX::itemName = "NKPTMX";
-const int PARTTRAC::NKPTMX::defaultValue = 0;
 const std::string PARTTRAC::NPKPMX::itemName = "NPKPMX";
-const int PARTTRAC::NPKPMX::defaultValue = 0;
 
 
 PATHS::PATHS() : ParserKeyword("PATHS", KeywordSize(SLASH_TERMINATED)) {
@@ -204,6 +193,29 @@ const std::string PBVD::keywordName = "PBVD";
 const std::string PBVD::DATA::itemName = "DATA";
 
 
+PCFACT::PCFACT() : ParserKeyword("PCFACT", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
+  addValidSectionName("PROPS");
+  setRequiredKeywords({
+    "PRECSALT",
+  });
+  clearDeckNames();
+  addDeckName("PCFACT");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("DATA", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("1");
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string PCFACT::keywordName = "PCFACT";
+const std::string PCFACT::DATA::itemName = "DATA";
+
+
 PCG::PCG() : ParserKeyword("PCG", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   setRequiredKeywords({
@@ -242,6 +254,25 @@ PCG32D::PCG32D() : ParserKeyword("PCG32D", KeywordSize("TABDIMS", "NTSFUN", true
 }
 const std::string PCG32D::keywordName = "PCG32D";
 const std::string PCG32D::SOME_DATA::itemName = "SOME_DATA";
+
+
+PCRIT::PCRIT() : ParserKeyword("PCRIT", KeywordSize("TABDIMS", "NUM_EOS_RES", false, 0)) {
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("PCRIT");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("DATA", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("Pressure");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string PCRIT::keywordName = "PCRIT";
+const std::string PCRIT::DATA::itemName = "DATA";
 
 
 PCW::PCW() : ParserKeyword("PCW", KeywordSize(1, false)) {
@@ -425,11 +456,8 @@ const std::string PECOEFS::C_0::itemName = "C_0";
 const std::string PECOEFS::C_K::itemName = "C_K";
 const std::string PECOEFS::SHEAR_MOD::itemName = "SHEAR_MOD";
 const std::string PECOEFS::ALPHA::itemName = "ALPHA";
-const double PECOEFS::ALPHA::defaultValue = 1.000000;
 const std::string PECOEFS::E::itemName = "E";
-const double PECOEFS::E::defaultValue = 1.000000;
 const std::string PECOEFS::METHOD::itemName = "METHOD";
-const int PECOEFS::METHOD::defaultValue = 0;
 
 
 PEDIMS::PEDIMS() : ParserKeyword("PEDIMS", KeywordSize(1, false)) {
@@ -453,9 +481,7 @@ PEDIMS::PEDIMS() : ParserKeyword("PEDIMS", KeywordSize(1, false)) {
 }
 const std::string PEDIMS::keywordName = "PEDIMS";
 const std::string PEDIMS::NUM_REGIONS::itemName = "NUM_REGIONS";
-const int PEDIMS::NUM_REGIONS::defaultValue = 0;
 const std::string PEDIMS::MAX_PRESSURE_POINTS::itemName = "MAX_PRESSURE_POINTS";
-const int PEDIMS::MAX_PRESSURE_POINTS::defaultValue = 0;
 
 
 PEGTABX::PEGTABX() : ParserKeyword("PEGTABX", KeywordSize("PEDIMS", "NUM_REGIONS", false, 0)) {
@@ -534,35 +560,35 @@ PERFORMANCE_PROBE::PERFORMANCE_PROBE() : ParserKeyword("PERFORMANCE_PROBE", Keyw
   addValidSectionName("SUMMARY");
   clearDeckNames();
   addDeckName("HLINEARS");
-  addDeckName("TCPUDAY");
   addDeckName("ELAPSED");
+  addDeckName("TCPUDAY");
   addDeckName("HSUMLINS");
-  addDeckName("WNEWTON");
   addDeckName("MAXDPR");
+  addDeckName("WNEWTON");
   addDeckName("MAXDSW");
   addDeckName("MAXDSO");
   addDeckName("MAXDSG");
   addDeckName("MEMORYTS");
   addDeckName("MLINEARS");
-  addDeckName("TELAPDAY");
   addDeckName("MSUMLINS");
+  addDeckName("TELAPDAY");
   addDeckName("MSUMNEWT");
   addDeckName("NBYTOT");
-  addDeckName("TCPUTSHT");
   addDeckName("NEWTON");
-  addDeckName("TCPUH");
+  addDeckName("TCPUTSHT");
   addDeckName("NLINEARS");
-  addDeckName("TCPU");
+  addDeckName("TCPUH");
   addDeckName("NLINSMIN");
+  addDeckName("TCPU");
   addDeckName("NLINSMAX");
   addDeckName("PERFORMA");
-  addDeckName("TCPUSCH");
   addDeckName("STEPTYPE");
+  addDeckName("TCPUSCH");
   addDeckName("TCPUHT");
   addDeckName("TCPUTS");
   addDeckName("TCPUTSH");
-  addDeckName("TIMESTEP");
   addDeckName("TELAPLIN");
+  addDeckName("TIMESTEP");
   addDeckName("TELAPTS");
   addDeckName("ZIPEFF");
   addDeckName("ZIPEFFC");
@@ -596,14 +622,11 @@ PERMAVE::PERMAVE() : ParserKeyword("PERMAVE", KeywordSize(1, false)) {
 }
 const std::string PERMAVE::keywordName = "PERMAVE";
 const std::string PERMAVE::EXPO_0::itemName = "EXPO_0";
-const int PERMAVE::EXPO_0::defaultValue = -1;
 const std::string PERMAVE::EXPO_1::itemName = "EXPO_1";
-const int PERMAVE::EXPO_1::defaultValue = -1;
 const std::string PERMAVE::EXPO_2::itemName = "EXPO_2";
-const int PERMAVE::EXPO_2::defaultValue = -1;
 
 
-PERMFACT::PERMFACT() : ParserKeyword("PERMFACT", KeywordSize("EQLDIMS", "NTEQUL", false, 0)) {
+PERMFACT::PERMFACT() : ParserKeyword("PERMFACT", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PERMFACT");
@@ -736,7 +759,6 @@ PERMY::PERMY() : ParserKeyword("PERMY", KeywordSize(1, false)) {
 }
 const std::string PERMY::keywordName = "PERMY";
 const std::string PERMY::data::itemName = "data";
-const double PERMY::data::defaultValue = 0;
 
 
 PERMYZ::PERMYZ() : ParserKeyword("PERMYZ", KeywordSize(1, false)) {
@@ -776,7 +798,6 @@ PERMZ::PERMZ() : ParserKeyword("PERMZ", KeywordSize(1, false)) {
 }
 const std::string PERMZ::keywordName = "PERMZ";
 const std::string PERMZ::data::itemName = "data";
-const double PERMZ::data::defaultValue = 0;
 
 
 PERMZX::PERMZX() : ParserKeyword("PERMZX", KeywordSize(1, false)) {
@@ -910,21 +931,15 @@ const std::string PICOND::keywordName = "PICOND";
 const std::string PICOND::MAX_INTERVAL_BELOW_DEWPOINT::itemName = "MAX_INTERVAL_BELOW_DEWPOINT";
 const std::string PICOND::MAX_INTERVAL_ABOVE_DEWPOINT::itemName = "MAX_INTERVAL_ABOVE_DEWPOINT";
 const std::string PICOND::D_F::itemName = "D_F";
-const double PICOND::D_F::defaultValue = 1.000000;
 const std::string PICOND::INCLUDE::itemName = "INCLUDE";
 const std::string PICOND::INCLUDE::defaultValue = "NO";
 const std::string PICOND::F_L::itemName = "F_L";
-const double PICOND::F_L::defaultValue = 0;
 const std::string PICOND::F_U::itemName = "F_U";
-const double PICOND::F_U::defaultValue = 1.100000;
 const std::string PICOND::DELTA_WAT_SAT::itemName = "DELTA_WAT_SAT";
 const std::string PICOND::DELTA_PRESSURE::itemName = "DELTA_PRESSURE";
 const std::string PICOND::DELTA_FRAC_COMP::itemName = "DELTA_FRAC_COMP";
-const double PICOND::DELTA_FRAC_COMP::defaultValue = 0.010000;
 const std::string PICOND::MAX_DELTA_TIME::itemName = "MAX_DELTA_TIME";
-const double PICOND::MAX_DELTA_TIME::defaultValue = -1.000000;
 const std::string PICOND::ADAPTIVE_ORD_CONTROL::itemName = "ADAPTIVE_ORD_CONTROL";
-const double PICOND::ADAPTIVE_ORD_CONTROL::defaultValue = -1.000000;
 const std::string PICOND::ADAPTIVE_ORD_MIN_SPACING::itemName = "ADAPTIVE_ORD_MIN_SPACING";
 
 
@@ -949,9 +964,7 @@ PIMTDIMS::PIMTDIMS() : ParserKeyword("PIMTDIMS", KeywordSize(1, false)) {
 }
 const std::string PIMTDIMS::keywordName = "PIMTDIMS";
 const std::string PIMTDIMS::NTPIMT::itemName = "NTPIMT";
-const int PIMTDIMS::NTPIMT::defaultValue = 0;
 const std::string PIMTDIMS::NPPIMT::itemName = "NPPIMT";
-const int PIMTDIMS::NPPIMT::defaultValue = 0;
 
 
 PIMULTAB::PIMULTAB() : ParserKeyword("PIMULTAB", KeywordSize("PIMTDIMS", "NTPIMT", false, 0)) {
@@ -1010,11 +1023,9 @@ PINCH::PINCH() : ParserKeyword("PINCH", KeywordSize(1, false)) {
 }
 const std::string PINCH::keywordName = "PINCH";
 const std::string PINCH::THRESHOLD_THICKNESS::itemName = "THRESHOLD_THICKNESS";
-const double PINCH::THRESHOLD_THICKNESS::defaultValue = 0.001000;
 const std::string PINCH::CONTROL_OPTION::itemName = "CONTROL_OPTION";
 const std::string PINCH::CONTROL_OPTION::defaultValue = "GAP";
 const std::string PINCH::MAX_EMPTY_GAP::itemName = "MAX_EMPTY_GAP";
-const double PINCH::MAX_EMPTY_GAP::defaultValue = 100000000000000000000.000000;
 const std::string PINCH::PINCHOUT_OPTION::itemName = "PINCHOUT_OPTION";
 const std::string PINCH::PINCHOUT_OPTION::defaultValue = "TOPBOT";
 const std::string PINCH::MULTZ_OPTION::itemName = "MULTZ_OPTION";
@@ -1085,11 +1096,9 @@ PINCHREG::PINCHREG() : ParserKeyword("PINCHREG", KeywordSize(SLASH_TERMINATED)) 
 }
 const std::string PINCHREG::keywordName = "PINCHREG";
 const std::string PINCHREG::THRESHOLD_THICKNESS::itemName = "THRESHOLD_THICKNESS";
-const double PINCHREG::THRESHOLD_THICKNESS::defaultValue = 0.001000;
 const std::string PINCHREG::OPTION1::itemName = "OPTION1";
 const std::string PINCHREG::OPTION1::defaultValue = "GAP";
 const std::string PINCHREG::MAX_GAP::itemName = "MAX_GAP";
-const double PINCHREG::MAX_GAP::defaultValue = 100000000000000000000.000000;
 const std::string PINCHREG::OPTION2::itemName = "OPTION2";
 const std::string PINCHREG::OPTION2::defaultValue = "TOPBOT";
 const std::string PINCHREG::OPTION3::itemName = "OPTION3";
@@ -1119,9 +1128,7 @@ PINCHXY::PINCHXY() : ParserKeyword("PINCHXY", KeywordSize(1, false)) {
 }
 const std::string PINCHXY::keywordName = "PINCHXY";
 const std::string PINCHXY::THRESHOLD_XR::itemName = "THRESHOLD_XR";
-const double PINCHXY::THRESHOLD_XR::defaultValue = 0.001000;
 const std::string PINCHXY::THRESHOLD_YTHETA::itemName = "THRESHOLD_YTHETA";
-const double PINCHXY::THRESHOLD_YTHETA::defaultValue = 0.001000;
 
 
 PINTDIMS::PINTDIMS() : ParserKeyword("PINTDIMS", KeywordSize(1, false)) {
@@ -1150,11 +1157,8 @@ PINTDIMS::PINTDIMS() : ParserKeyword("PINTDIMS", KeywordSize(1, false)) {
 }
 const std::string PINTDIMS::keywordName = "PINTDIMS";
 const std::string PINTDIMS::NTSKWAT::itemName = "NTSKWAT";
-const int PINTDIMS::NTSKWAT::defaultValue = 1;
 const std::string PINTDIMS::NTSKPOLY::itemName = "NTSKPOLY";
-const int PINTDIMS::NTSKPOLY::defaultValue = 1;
 const std::string PINTDIMS::NTPMWINJ::itemName = "NTPMWINJ";
-const int PINTDIMS::NTPMWINJ::defaultValue = 1;
 
 
 PLMIXNUM::PLMIXNUM() : ParserKeyword("PLMIXNUM", KeywordSize(1, false)) {
@@ -1432,7 +1436,6 @@ PLYOPTS::PLYOPTS() : ParserKeyword("PLYOPTS", KeywordSize(1, false)) {
 }
 const std::string PLYOPTS::keywordName = "PLYOPTS";
 const std::string PLYOPTS::MIN_SWAT::itemName = "MIN_SWAT";
-const double PLYOPTS::MIN_SWAT::defaultValue = 1e-06;
 
 
 PLYRMDEN::PLYRMDEN() : ParserKeyword("PLYRMDEN", KeywordSize(1, false)) {
@@ -1494,7 +1497,6 @@ const std::string PLYROCK::IPV::itemName = "IPV";
 const std::string PLYROCK::RRF::itemName = "RRF";
 const std::string PLYROCK::ROCK_DENSITY::itemName = "ROCK_DENSITY";
 const std::string PLYROCK::AI::itemName = "AI";
-const double PLYROCK::AI::defaultValue = 1.000000;
 const std::string PLYROCK::MAX_ADSORPTION::itemName = "MAX_ADSORPTION";
 
 
@@ -1538,7 +1540,6 @@ const std::string PLYROCKM::IPV::itemName = "IPV";
 const std::string PLYROCKM::RRF::itemName = "RRF";
 const std::string PLYROCKM::ROCK_DENSITY::itemName = "ROCK_DENSITY";
 const std::string PLYROCKM::AI::itemName = "AI";
-const double PLYROCKM::AI::defaultValue = 1.000000;
 const std::string PLYROCKM::MAX_ADSORPTION::itemName = "MAX_ADSORPTION";
 
 
@@ -1811,11 +1812,8 @@ PMAX::PMAX() : ParserKeyword("PMAX", KeywordSize(1, false)) {
 const std::string PMAX::keywordName = "PMAX";
 const std::string PMAX::MAX_PRESSURE::itemName = "MAX_PRESSURE";
 const std::string PMAX::MAX_PRESSURE_CHECK::itemName = "MAX_PRESSURE_CHECK";
-const double PMAX::MAX_PRESSURE_CHECK::defaultValue = 0;
 const std::string PMAX::MIN_PRESSURE_CHECK::itemName = "MIN_PRESSURE_CHECK";
-const double PMAX::MIN_PRESSURE_CHECK::defaultValue = 100000000000000000000.000000;
 const std::string PMAX::NUM_NODES::itemName = "NUM_NODES";
-const int PMAX::NUM_NODES::defaultValue = 30;
 
 
 PMISC::PMISC() : ParserKeyword("PMISC", KeywordSize("MISCIBLE", "NTMISC", false, 0)) {
@@ -1836,6 +1834,25 @@ PMISC::PMISC() : ParserKeyword("PMISC", KeywordSize("MISCIBLE", "NTMISC", false,
 }
 const std::string PMISC::keywordName = "PMISC";
 const std::string PMISC::DATA::itemName = "DATA";
+
+
+POELCOEF::POELCOEF() : ParserKeyword("POELCOEF", KeywordSize(1, false)) {
+  addValidSectionName("GRID");
+  clearDeckNames();
+  addDeckName("POELCOEF");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("data", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("1");
+        record.addDataItem(item);
+     }
+     addDataRecord( record );
+  }
+}
+const std::string POELCOEF::keywordName = "POELCOEF";
+const std::string POELCOEF::data::itemName = "data";
 
 
 POLYMER::POLYMER() : ParserKeyword("POLYMER", KeywordSize(0, false)) {
@@ -1872,7 +1889,6 @@ PORO::PORO() : ParserKeyword("PORO", KeywordSize(1, false)) {
 }
 const std::string PORO::keywordName = "PORO";
 const std::string PORO::data::itemName = "data";
-const double PORO::data::defaultValue = 0;
 
 
 PORV::PORV() : ParserKeyword("PORV", KeywordSize(1, false)) {
@@ -1903,6 +1919,7 @@ PPCWMAX::PPCWMAX() : ParserKeyword("PPCWMAX", KeywordSize("TABDIMS", "NTSFUN", f
      {
         ParserItem item("MAXIMUM_CAPILLARY_PRESSURE", ParserItem::itype::DOUBLE);
         item.setDefault( double(100000000000000000000.000000) );
+        item.push_backDimension("Pressure");
         record.addItem(item);
      }
      {
@@ -1915,9 +1932,27 @@ PPCWMAX::PPCWMAX() : ParserKeyword("PPCWMAX", KeywordSize("TABDIMS", "NTSFUN", f
 }
 const std::string PPCWMAX::keywordName = "PPCWMAX";
 const std::string PPCWMAX::MAXIMUM_CAPILLARY_PRESSURE::itemName = "MAXIMUM_CAPILLARY_PRESSURE";
-const double PPCWMAX::MAXIMUM_CAPILLARY_PRESSURE::defaultValue = 100000000000000000000.000000;
 const std::string PPCWMAX::MODIFY_CONNATE_SATURATION::itemName = "MODIFY_CONNATE_SATURATION";
 const std::string PPCWMAX::MODIFY_CONNATE_SATURATION::defaultValue = "NO";
+
+
+PRATIO::PRATIO() : ParserKeyword("PRATIO", KeywordSize(1, false)) {
+  addValidSectionName("GRID");
+  clearDeckNames();
+  addDeckName("PRATIO");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("data", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("1");
+        record.addDataItem(item);
+     }
+     addDataRecord( record );
+  }
+}
+const std::string PRATIO::keywordName = "PRATIO";
+const std::string PRATIO::data::itemName = "data";
 
 
 PRECSALT::PRECSALT() : ParserKeyword("PRECSALT", KeywordSize(0, false)) {
@@ -1928,7 +1963,7 @@ PRECSALT::PRECSALT() : ParserKeyword("PRECSALT", KeywordSize(0, false)) {
 const std::string PRECSALT::keywordName = "PRECSALT";
 
 
-PREF::PREF() : ParserKeyword("PREF", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
+PREF::PREF() : ParserKeyword("PREF", KeywordSize("TABDIMS", "NUM_EOS_RES", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PREF");
@@ -1947,7 +1982,7 @@ const std::string PREF::keywordName = "PREF";
 const std::string PREF::PRESSURE::itemName = "PRESSURE";
 
 
-PREFS::PREFS() : ParserKeyword("PREFS", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
+PREFS::PREFS() : ParserKeyword("PREFS", KeywordSize("TABDIMS", "NUM_EOS_SURFACE", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PREFS");
@@ -2082,37 +2117,21 @@ PRIORITY::PRIORITY() : ParserKeyword("PRIORITY", KeywordSize(1, false)) {
 const std::string PRIORITY::keywordName = "PRIORITY";
 const std::string PRIORITY::MIN_CALC_TIME::itemName = "MIN_CALC_TIME";
 const std::string PRIORITY::A1::itemName = "A1";
-const double PRIORITY::A1::defaultValue = 0;
 const std::string PRIORITY::B1::itemName = "B1";
-const double PRIORITY::B1::defaultValue = 0;
 const std::string PRIORITY::C1::itemName = "C1";
-const double PRIORITY::C1::defaultValue = 0;
 const std::string PRIORITY::D1::itemName = "D1";
-const double PRIORITY::D1::defaultValue = 0;
 const std::string PRIORITY::E1::itemName = "E1";
-const double PRIORITY::E1::defaultValue = 0;
 const std::string PRIORITY::F1::itemName = "F1";
-const double PRIORITY::F1::defaultValue = 0;
 const std::string PRIORITY::G1::itemName = "G1";
-const double PRIORITY::G1::defaultValue = 0;
 const std::string PRIORITY::H1::itemName = "H1";
-const double PRIORITY::H1::defaultValue = 0;
 const std::string PRIORITY::A2::itemName = "A2";
-const double PRIORITY::A2::defaultValue = 0;
 const std::string PRIORITY::B2::itemName = "B2";
-const double PRIORITY::B2::defaultValue = 0;
 const std::string PRIORITY::C2::itemName = "C2";
-const double PRIORITY::C2::defaultValue = 0;
 const std::string PRIORITY::D2::itemName = "D2";
-const double PRIORITY::D2::defaultValue = 0;
 const std::string PRIORITY::E2::itemName = "E2";
-const double PRIORITY::E2::defaultValue = 0;
 const std::string PRIORITY::F2::itemName = "F2";
-const double PRIORITY::F2::defaultValue = 0;
 const std::string PRIORITY::G2::itemName = "G2";
-const double PRIORITY::G2::defaultValue = 0;
 const std::string PRIORITY::H2::itemName = "H2";
-const double PRIORITY::H2::defaultValue = 0;
 
 
 PROPS::PROPS() : ParserKeyword("PROPS", KeywordSize(0, false)) {
@@ -2660,13 +2679,9 @@ PVTW::PVTW() : ParserKeyword("PVTW", KeywordSize("TABDIMS", "NTPVT", false, 0)) 
 const std::string PVTW::keywordName = "PVTW";
 const std::string PVTW::P_REF::itemName = "P_REF";
 const std::string PVTW::WATER_VOL_FACTOR::itemName = "WATER_VOL_FACTOR";
-const double PVTW::WATER_VOL_FACTOR::defaultValue = 1.000000;
 const std::string PVTW::WATER_COMPRESSIBILITY::itemName = "WATER_COMPRESSIBILITY";
-const double PVTW::WATER_COMPRESSIBILITY::defaultValue = 4e-05;
 const std::string PVTW::WATER_VISCOSITY::itemName = "WATER_VISCOSITY";
-const double PVTW::WATER_VISCOSITY::defaultValue = 0.500000;
 const std::string PVTW::WATER_VISCOSIBILITY::itemName = "WATER_VISCOSIBILITY";
-const double PVTW::WATER_VISCOSIBILITY::defaultValue = 0;
 
 
 PVTWSALT::PVTWSALT() : ParserKeyword("PVTWSALT", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
@@ -2707,7 +2722,6 @@ PVTWSALT::PVTWSALT() : ParserKeyword("PVTWSALT", KeywordSize("TABDIMS", "NTPVT",
 const std::string PVTWSALT::keywordName = "PVTWSALT";
 const std::string PVTWSALT::P_REF::itemName = "P_REF";
 const std::string PVTWSALT::SALT_CONCENTRATION_REF::itemName = "SALT_CONCENTRATION_REF";
-const double PVTWSALT::SALT_CONCENTRATION_REF::defaultValue = 0;
 const std::string PVTWSALT::DATA::itemName = "DATA";
 
 

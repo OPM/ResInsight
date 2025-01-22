@@ -90,6 +90,32 @@ namespace ParserKeywords {
 
 
 
+   class ZMF : public ParserKeyword {
+   public:
+       ZMF();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class ZMFVD : public ParserKeyword {
+   public:
+       ZMFVD();
+       static const std::string keywordName;
+
+       class DATA {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
 }
 }
 #endif
