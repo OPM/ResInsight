@@ -21,8 +21,8 @@
 
 #include "RicfCommandObject.h"
 
-#include "RimFormationNames.h"
-#include "RimFormationNamesCollection.h"
+#include "Formations/RimFormationNames.h"
+#include "Formations/RimFormationNamesCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimTimeStepFilter.h"

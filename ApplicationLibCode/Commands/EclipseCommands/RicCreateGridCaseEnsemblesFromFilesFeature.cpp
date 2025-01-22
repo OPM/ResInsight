@@ -29,12 +29,13 @@
 
 #include "RigFormationNames.h"
 
+#include "Formations/RimFormationNames.h"
+#include "Formations/RimFormationNamesCollection.h"
+#include "Formations/RimFormationTools.h"
 #include "Rim3dView.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseResultCase.h"
-#include "RimFormationNames.h"
-#include "RimFormationNamesCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimViewNameConfig.h"
@@ -127,11 +128,8 @@ RimEclipseCaseEnsemble* RicCreateGridCaseEnsemblesFromFilesFeature::importSingle
         rimResultCase->setCaseInfo( caseName, caseFileName );
         eclipseCaseEnsemble->addCase( rimResultCase );
 
-        QFileInfo fi( caseFileName );
-
-        // look for formation file two levels up from the egrid file
-        auto               formationFolder = QDir( fi.dir().path() + "/../../" );
-        RimFormationNames* formations      = loadFormationsFromEnsembleFolder( formationFolder.absolutePath() );
+        auto               folderName = RimFormationTools::formationFolderFromCaseFileName( caseFileName );
+        RimFormationNames* formations = RimFormationTools::loadFormationNamesFromFolder( folderName );
         if ( formations != nullptr ) rimResultCase->setFormationNames( formations );
     }
 
@@ -168,35 +166,4 @@ std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
     app->setLastUsedDialogDirectory( pathCacheName, QFileInfo( result.rootDir ).absoluteFilePath() );
 
     return std::make_pair( result.files, result.groupingMode );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimFormationNames* RicCreateGridCaseEnsemblesFromFilesFeature::loadFormationsFromEnsembleFolder( const QString folderName )
-{
-    QStringList filters;
-    filters << "*.lyr";
-
-    QStringList fileList = caf::Utils::getFilesInDirectory( folderName, filters, true /*absolute filename*/ );
-    if ( fileList.isEmpty() ) return nullptr;
-
-    RimFormationNamesCollection* fomNameColl = new RimFormationNamesCollection();
-
-    // For each file, find existing Formation names item, or create new
-    std::vector<RimFormationNames*> formationNames = fomNameColl->importFiles( fileList );
-    fomNameColl->updateConnectedEditors();
-
-    if ( formationNames.empty() )
-    {
-        RiaLogging::error( QString( "No formation name files found in ensemble folder %1" ).arg( folderName ) );
-        return nullptr;
-    }
-
-    if ( formationNames.size() > 1 )
-    {
-        RiaLogging::warning( QString( "Multiple formation name files found in ensemble folder %1" ).arg( folderName ) );
-    }
-
-    return formationNames.back();
 }

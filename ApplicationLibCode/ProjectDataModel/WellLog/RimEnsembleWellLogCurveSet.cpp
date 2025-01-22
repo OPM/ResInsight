@@ -23,6 +23,8 @@
 #include "RiaOptionItemFactory.h"
 #include "RiaResultNames.h"
 
+#include "Formations/RimFormationNames.h"
+#include "Formations/RimFormationNamesCollection.h"
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"
@@ -31,8 +33,6 @@
 #include "RimEnsembleWellLogStatisticsCurve.h"
 #include "RimEnsembleWellLogs.h"
 #include "RimEnsembleWellLogsCollection.h"
-#include "RimFormationNames.h"
-#include "RimFormationNamesCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"

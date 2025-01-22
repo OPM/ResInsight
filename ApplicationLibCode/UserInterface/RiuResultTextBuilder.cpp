@@ -32,6 +32,7 @@
 #include "Well/RigWellResultFrame.h"
 #include "Well/RigWellResultPoint.h"
 
+#include "Formations/RimFormationNames.h"
 #include "Rim2dIntersectionView.h"
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"
@@ -39,7 +40,6 @@
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
-#include "RimFormationNames.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimMultipleEclipseResults.h"
 #include "RimRegularLegendConfig.h"

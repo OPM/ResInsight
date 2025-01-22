@@ -44,6 +44,8 @@
 #include "RigFlowDiagSolverInterface.h"
 #include "RigMainGrid.h"
 
+#include "Formations/RimFormationNames.h"
+#include "Formations/RimFormationTools.h"
 #include "RimDialogData.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseCellColors.h"
@@ -51,7 +53,6 @@
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
-#include "RimFormationNames.h"
 #include "RimMockModelSettings.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
@@ -110,6 +111,22 @@ RimEclipseResultCase::RimEclipseResultCase()
 bool RimEclipseResultCase::openEclipseGridFile()
 {
     return importGridAndResultMetaData( false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase::initAfterRead()
+{
+    RimEclipseCase::initAfterRead();
+
+    // handle special formations for ensembles
+    auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
+    if ( ensemble != nullptr )
+    {
+        auto folderName        = RimFormationTools::formationFolderFromCaseFileName( m_caseFileName().path() );
+        m_activeFormationNames = RimFormationTools::loadFormationNamesFromFolder( folderName );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

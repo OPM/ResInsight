@@ -20,8 +20,8 @@
 
 #include "RiaLogging.h"
 
-#include "RimFormationNames.h"
-#include "RimFormationNamesCollection.h"
+#include "Formations/RimFormationNames.h"
+#include "Formations/RimFormationNamesCollection.h"
 
 #include "cafSelectionManager.h"
 

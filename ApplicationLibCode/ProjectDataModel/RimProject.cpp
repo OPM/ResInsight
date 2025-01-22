@@ -35,6 +35,7 @@
 #include "RigGridBase.h"
 
 #include "Cloud/RimCloudDataSourceCollection.h"
+#include "Formations/RimFormationNamesCollection.h"
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "Polygons/RimPolygonCollection.h"
 #include "QuickAccess/RimQuickAccessCollection.h"
@@ -59,7 +60,6 @@
 #include "RimEnsembleWellLogsCollection.h"
 #include "RimFileWellPath.h"
 #include "RimFlowPlotCollection.h"
-#include "RimFormationNamesCollection.h"
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"

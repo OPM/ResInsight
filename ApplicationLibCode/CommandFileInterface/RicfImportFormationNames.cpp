@@ -19,8 +19,8 @@
 
 #include "RicImportFormationNamesFeature.h"
 
+#include "Formations/RimFormationNames.h"
 #include "RimCase.h"
-#include "RimFormationNames.h"
 #include "RimProject.h"
 
 #include "cafPdmFieldScriptingCapability.h"

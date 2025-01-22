@@ -47,6 +47,7 @@
 #include "RicImportGeneralDataFeature.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
+#include "Formations/RimFormationNamesCollection.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
@@ -54,7 +55,6 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
 #include "RimFlowPlotCollection.h"
-#include "RimFormationNamesCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"

@@ -41,8 +41,6 @@ class RicCreateGridCaseEnsemblesFromFilesFeature : public caf::CmdFeature
     {
     }
 
-    static RimFormationNames* loadFormationsFromEnsembleFolder( const QString folderName );
-
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
