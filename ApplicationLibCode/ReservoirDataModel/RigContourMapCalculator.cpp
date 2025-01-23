@@ -304,10 +304,10 @@ std::vector<RigContourMapCalculator::CellIndexAndResult>
     {
         if ( cellGridIdxVisibility.isNull() || ( *cellGridIdxVisibility )[globalCellIdx] )
         {
-            int k = contourMapProjection.kLayer( globalCellIdx );
+            auto k = contourMapProjection.kLayer( globalCellIdx );
             if ( !kLayers.empty() )
             {
-                if ( !kLayers.contains( k ) ) continue;
+                if ( !kLayers.contains( (int)k ) ) continue;
             }
             kLayerCellIndexVector[contourMapProjection.kLayer( globalCellIdx )].push_back( globalCellIdx );
         }
@@ -370,10 +370,10 @@ std::vector<RigContourMapCalculator::CellIndexAndResult>
     {
         if ( cellGridIdxVisibility.isNull() || ( *cellGridIdxVisibility )[globalCellIdx] )
         {
-            int k = contourMapProjection.kLayer( globalCellIdx );
+            auto k = contourMapProjection.kLayer( globalCellIdx );
             if ( !kLayers.empty() )
             {
-                if ( !kLayers.contains( k ) ) continue;
+                if ( !kLayers.contains( (int)k ) ) continue;
             }
             kLayerIndexMap[k].push_back( globalCellIdx );
         }
