@@ -591,18 +591,7 @@ std::vector<int> RimStatisticsContourMap::selectedTimeSteps() const
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RimStatisticsContourMap::selectedFormations() const
 {
-    auto selection = m_selectedFormations();
-    if ( m_selectedFormations().empty() )
-    {
-        if ( eclipseCase() && eclipseCase()->activeFormationNames() && eclipseCase()->activeFormationNames()->formationNamesData() )
-        {
-            for ( auto& fname : eclipseCase()->activeFormationNames()->formationNamesData()->formationNames() )
-            {
-                selection.push_back( fname );
-            }
-        }
-    }
-    return selection;
+    return m_selectedFormations();
 }
 
 //--------------------------------------------------------------------------------------------------
