@@ -21,6 +21,7 @@
 #include "../../Fwk/VizFwk/LibIo/cvfTinyXmlFused.hpp"
 #include "RigGocadData.h"
 
+#include <filesystem>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -39,6 +40,21 @@ bool importFromFile( std::string filename, RigGocadData* gocadData )
     }
 
     return importFromXMLDoc( doc, gocadData );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool importFromPVDFile( const std::string& filename, RigGocadData* gocadData )
+{
+    auto datasets = parsePVDDatasets( filename );
+
+    if ( datasets.empty() ) return false;
+
+    // Sort and import the most recent dataset
+    std::sort( datasets.begin(), datasets.end(), []( const PVDDataset& a, const PVDDataset& b ) { return a.timestep < b.timestep; } );
+
+    return importDataset( datasets.back(), gocadData );
 }
 
 bool importFromXMLDoc( const TiXmlDocument& doc, RigGocadData* gocadData )
@@ -191,4 +207,57 @@ void readProperties( const TiXmlElement* piece, std::vector<std::string>& proper
         dataArray = dataArray->NextSiblingElement( "DataArray" );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RifVtkSurfaceImporter::PVDDataset> parsePVDDatasets( const std::string& filename )
+{
+    std::vector<PVDDataset> datasets;
+    TiXmlDocument           doc;
+
+    if ( !doc.LoadFile( filename.c_str() ) ) return datasets;
+
+    auto* root = doc.FirstChildElement( "VTKFile" );
+    if ( !root ) return datasets;
+
+    auto* collection = root->FirstChildElement( "Collection" );
+    if ( !collection ) return datasets;
+
+    std::string baseDir = std::filesystem::path( filename ).parent_path().string();
+
+    auto* datasetElem = collection->FirstChildElement( "DataSet" );
+    while ( datasetElem )
+    {
+        const char* file        = datasetElem->Attribute( "file" );
+        const char* timestepStr = datasetElem->Attribute( "timestep" );
+
+        if ( file && timestepStr )
+        {
+            double      timestep = std::stod( timestepStr );
+            std::string fullPath = std::filesystem::absolute( std::filesystem::path( baseDir ) / file ).string();
+
+            datasets.push_back( { timestep, fullPath, {} } );
+        }
+
+        datasetElem = datasetElem->NextSiblingElement( "DataSet" );
+    }
+
+    return datasets;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool importDataset( const PVDDataset& dataset, RigGocadData* gocadData )
+{
+    TiXmlDocument doc;
+    if ( !doc.LoadFile( dataset.filename.c_str() ) )
+    {
+        return false;
+    }
+
+    return importFromXMLDoc( doc, gocadData );
+}
+
 }; // namespace RifVtkSurfaceImporter

@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -37,13 +38,26 @@ class TiXmlElement;
 //==================================================================================================
 namespace RifVtkSurfaceImporter
 {
+
+struct PvdDataset
+{
+    double                                    timestep;
+    std::string                               filename;
+    std::map<std::string, std::vector<float>> properties;
+};
+
 bool importFromFile( std::string filename, RigGocadData* gocadData );
 
-bool importFromXMLDoc( const cvf_tinyXML::TiXmlDocument& doc, RigGocadData* gocadData );
+bool importFromPvdFile( const std::string& filename, RigGocadData* gocadData );
+bool importFromXmlDoc( const cvf_tinyXML::TiXmlDocument& doc, RigGocadData* gocadData );
+
 bool readPoints( const cvf_tinyXML::TiXmlElement* piece, std::vector<cvf::Vec3d>& vertices );
 bool readConnectivity( const cvf_tinyXML::TiXmlElement* piece, std::vector<unsigned>& connectivity );
 void readProperties( const cvf_tinyXML::TiXmlElement* piece,
                      std::vector<std::string>&        propertyNames,
                      std::vector<std::vector<float>>& propertyValues );
+
+std::vector<PvdDataset> parsePvdDatasets( const std::string& filename );
+bool                    importDataset( const PvdDataset& dataset, RigGocadData* gocadData );
 
 }; // namespace RifVtkSurfaceImporter
