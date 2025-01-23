@@ -151,7 +151,7 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
     genGrp->add( &m_resolution );
     genGrp->add( &m_primaryCase );
     genGrp->add( &m_boundingBoxExpPercent );
-    genGrp->add( &m_selectedPolygon );
+    // genGrp->add( &m_selectedPolygon );
 
     auto tsGroup = uiOrdering.addNewGroup( "Time Step Selection" );
     tsGroup->setCollapsedByDefault();
@@ -481,15 +481,15 @@ void RimStatisticsContourMap::computeStatistics()
 
             RigEclipseContourMapProjection contourMapProjection( *contourMapGrid, *eclipseCaseData, *resultData );
 
-            auto formationNames = selectedFormations();
+            std::set<int> usedKLayers;
+            auto          formationNames = selectedFormations();
+
             if ( formationNames.size() > 0 )
             {
-                std::set<int> usedKLayers = eCase->activeFormationNames()->formationNamesData()->findKLayers( formationNames );
-                qDebug() << usedKLayers.size();
-                // contourMapProjection.setKFilter( usedKLayers );
+                usedKLayers = eCase->activeFormationNames()->formationNamesData()->findKLayers( formationNames );
             }
 
-            contourMapProjection.generateGridMapping( resultAggregation, {} );
+            contourMapProjection.generateGridMapping( resultAggregation, {}, usedKLayers );
 
             if ( m_resultDefinition()->hasDynamicResult() )
             {

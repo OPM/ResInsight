@@ -228,7 +228,8 @@ std::vector<std::vector<std::pair<size_t, double>>>
     RigContourMapCalculator::generateGridMapping( RigContourMapProjection&   contourMapProjection,
                                                   const RigContourMapGrid&   contourMapGrid,
                                                   ResultAggregationType      resultAggregation,
-                                                  const std::vector<double>& weightingResultValues )
+                                                  const std::vector<double>& weightingResultValues,
+                                                  const std::set<int>&       kLayers )
 {
     int                                                 nCells = contourMapGrid.numberOfCells();
     std::vector<std::vector<std::pair<size_t, double>>> projected3dGridIndices( nCells );
@@ -242,7 +243,7 @@ std::vector<std::vector<std::pair<size_t, double>>>
 
             cvf::Vec2d globalPos = contourMapGrid.cellCenterPosition( ij.x(), ij.y() ) + contourMapGrid.origin2d();
             projected3dGridIndices[index] =
-                cellRayIntersectionAndResults( contourMapProjection, contourMapGrid, globalPos, weightingResultValues );
+                cellRayIntersectionAndResults( contourMapProjection, contourMapGrid, globalPos, weightingResultValues, kLayers );
         }
     }
     else
@@ -254,7 +255,7 @@ std::vector<std::vector<std::pair<size_t, double>>>
 
             cvf::Vec2d globalPos = contourMapGrid.cellCenterPosition( ij.x(), ij.y() ) + contourMapGrid.origin2d();
             projected3dGridIndices[index] =
-                cellOverlapVolumesAndResults( contourMapProjection, contourMapGrid, globalPos, weightingResultValues );
+                cellOverlapVolumesAndResults( contourMapProjection, contourMapGrid, globalPos, weightingResultValues, kLayers );
         }
     }
 
@@ -268,7 +269,8 @@ std::vector<RigContourMapCalculator::CellIndexAndResult>
     RigContourMapCalculator::cellOverlapVolumesAndResults( const RigContourMapProjection& contourMapProjection,
                                                            const RigContourMapGrid&       contourMapGrid,
                                                            const cvf::Vec2d&              globalPos2d,
-                                                           const std::vector<double>&     weightingResultValues )
+                                                           const std::vector<double>&     weightingResultValues,
+                                                           const std::set<int>&           kLayers )
 {
     const cvf::BoundingBox& expandedBoundingBox = contourMapGrid.expandedBoundingBox();
     cvf::Vec3d              top2dElementCentroid( globalPos2d, expandedBoundingBox.max().z() );
@@ -302,6 +304,11 @@ std::vector<RigContourMapCalculator::CellIndexAndResult>
     {
         if ( cellGridIdxVisibility.isNull() || ( *cellGridIdxVisibility )[globalCellIdx] )
         {
+            int k = contourMapProjection.kLayer( globalCellIdx );
+            if ( !kLayers.empty() )
+            {
+                if ( !kLayers.contains( k ) ) continue;
+            }
             kLayerCellIndexVector[contourMapProjection.kLayer( globalCellIdx )].push_back( globalCellIdx );
         }
     }
@@ -334,7 +341,8 @@ std::vector<RigContourMapCalculator::CellIndexAndResult>
     RigContourMapCalculator::cellRayIntersectionAndResults( const RigContourMapProjection& contourMapProjection,
                                                             const RigContourMapGrid&       contourMapGrid,
                                                             const cvf::Vec2d&              globalPos2d,
-                                                            const std::vector<double>&     weightingResultValues )
+                                                            const std::vector<double>&     weightingResultValues,
+                                                            const std::set<int>&           kLayers )
 {
     std::vector<std::pair<size_t, double>> matchingVisibleCellsAndWeight;
 
@@ -362,7 +370,12 @@ std::vector<RigContourMapCalculator::CellIndexAndResult>
     {
         if ( cellGridIdxVisibility.isNull() || ( *cellGridIdxVisibility )[globalCellIdx] )
         {
-            kLayerIndexMap[contourMapProjection.kLayer( globalCellIdx )].push_back( globalCellIdx );
+            int k = contourMapProjection.kLayer( globalCellIdx );
+            if ( !kLayers.empty() )
+            {
+                if ( !kLayers.contains( k ) ) continue;
+            }
+            kLayerIndexMap[k].push_back( globalCellIdx );
         }
     }
 

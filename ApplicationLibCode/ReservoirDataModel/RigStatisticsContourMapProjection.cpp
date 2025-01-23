@@ -43,7 +43,8 @@ RigStatisticsContourMapProjection::~RigStatisticsContourMapProjection()
 
 std::vector<std::vector<std::pair<size_t, double>>>
     RigStatisticsContourMapProjection::generateGridMapping( RigContourMapCalculator::ResultAggregationType resultAggregation,
-                                                            const std::vector<double>&                     weights )
+                                                            const std::vector<double>&                     weights,
+                                                            const std::set<int>&                           kLayers )
 {
     // The grid mapping is usually necessary to produce the data. For the statistics projection
     // the data is already available, so we can just ignore it.
