@@ -130,6 +130,7 @@ void RimCellFilterCollection::setCase( RimCase* theCase )
     for ( RimCellFilter* filter : m_cellFilters )
     {
         filter->setCase( theCase );
+        filter->filterChanged.connect( this, &RimCellFilterCollection::onFilterUpdated );
     }
 }
 
