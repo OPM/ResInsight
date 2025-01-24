@@ -532,6 +532,9 @@ void RiuMainWindow::createMenus()
     viewMenu->addAction( m_viewFromEast );
     viewMenu->addAction( m_viewFromBelow );
     viewMenu->addAction( m_viewFromAbove );
+    viewMenu->addSeparator();
+    viewMenu->addAction( cmdFeatureMgr->action( "RicApplyUserDefinedCameraFeature" ) );
+    viewMenu->addAction( cmdFeatureMgr->action( "RicStoreUserDefinedCameraFeature" ) );
 
     connect( viewMenu, SIGNAL( aboutToShow() ), SLOT( slotRefreshViewActions() ) );
 
@@ -640,6 +643,7 @@ void RiuMainWindow::createToolBars()
         toolbar->addAction( m_viewFromWest );
         toolbar->addAction( m_viewFromAbove );
         toolbar->addAction( m_viewFromBelow );
+        toolbar->addAction( cmdFeatureMgr->action( "RicApplyUserDefinedCameraFeature" ) );
 
         QLabel* scaleLabel = new QLabel( toolbar );
         scaleLabel->setText( "Scale" );
@@ -968,7 +972,9 @@ void RiuMainWindow::slotRefreshViewActions()
         commandIds << "RicLinkVisibleViewsFeature"
                    << "RicTileWindowsFeature"
                    << "RicTogglePerspectiveViewFeature"
-                   << "RicViewZoomAllFeature";
+                   << "RicViewZoomAllFeature"
+                   << "RicApplyUserDefinedCameraFeature"
+                   << "RicStoreUserDefinedCameraFeature";
 
         caf::CmdFeatureManager::instance()->refreshEnabledState( commandIds );
     }
