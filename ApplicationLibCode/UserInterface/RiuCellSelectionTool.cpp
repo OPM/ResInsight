@@ -74,8 +74,8 @@ void RiuCellSelectionTool::setupUI()
     QVBoxLayout* mainLayout = new QVBoxLayout( this );
 
     QButtonGroup* inputTypeGroup = new QButtonGroup( this );
-    m_xyzRadio                     = new QRadioButton( "XYZ Coordinates" );
-    m_ijkRadio                     = new QRadioButton( "IJK Cell Indices" );
+    m_xyzRadio                   = new QRadioButton( "XYZ Coordinates" );
+    m_ijkRadio                   = new QRadioButton( "IJK Cell Indices" );
     inputTypeGroup->addButton( m_xyzRadio );
     inputTypeGroup->addButton( m_ijkRadio );
     m_xyzRadio->setChecked( true );
