@@ -110,6 +110,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuMenuBarBuildTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotRectAnnotation.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotZoomerMultiAxes.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuCellSelectionTool.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -221,6 +222,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuMenuBarBuildTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotRectAnnotation.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotZoomerMultiAxes.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuCellSelectionTool.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)

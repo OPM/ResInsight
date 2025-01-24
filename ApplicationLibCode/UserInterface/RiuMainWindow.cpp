@@ -50,6 +50,7 @@
 #include "RimViewLinkerCollection.h"
 #include "RimViewWindow.h"
 
+#include "RiuCellSelectionTool.h"
 #include "RiuDepthQwtPlot.h"
 #include "RiuDockWidgetTools.h"
 #include "RiuMdiArea.h"
@@ -872,7 +873,6 @@ void RiuMainWindow::createDockPanels()
         dockManager()->addDockWidgetTabToArea( dockWidget, bottomArea );
     }
 
-    // result info
     {
         auto dockWidget = RiuDockWidgetTools::createDockWidget( "Result Info", RiuDockWidgetTools::mainWindowResultInfoName(), dockManager() );
 
@@ -881,8 +881,16 @@ void RiuMainWindow::createDockPanels()
         dockManager()->addDockWidget( ads::DockWidgetArea::LeftDockWidgetArea, dockWidget, bottomArea );
     }
 
+    {
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Cell Selection Tool", RiuDockWidgetTools::mainWindowCellSelectionToolName(), dockManager() );
+
+        m_cellSelectionTool = new RiuCellSelectionTool( dockWidget );
+        dockWidget->setWidget( m_cellSelectionTool );
+        dockManager()->addDockWidget( ads::DockWidgetArea::LeftDockWidgetArea, dockWidget, bottomArea );
+    }
+
     ads::CDockAreaWidget* procAndMsgTabs = nullptr;
-    // process monitor
     {
         auto dockWidget =
             RiuDockWidgetTools::createDockWidget( "Process Monitor", RiuDockWidgetTools::mainWindowProcessMonitorName(), dockManager() );
