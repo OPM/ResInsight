@@ -55,6 +55,7 @@ class RiuPvtPlotPanel;
 class RiuMohrsCirclePlot;
 class RiuMdiArea;
 class RiuSeismicHistogramPanel;
+class RiuCellSelectionTool;
 
 class RicGridCalculatorDialog;
 
@@ -182,12 +183,14 @@ private:
     RiuProcessMonitor*        m_processMonitor;
     QPointer<RiuMessagePanel> m_messagePanel;
 
-    RiuResultQwtPlot*                        m_resultQwtPlot;
-    RiuDepthQwtPlot*                         m_depthQwtPlot;
-    RiuMohrsCirclePlot*                      m_mohrsCirclePlot;
-    RiuRelativePermeabilityPlotPanel*        m_relPermPlotPanel;
-    RiuSeismicHistogramPanel*                m_seismicHistogramPanel;
-    RiuPvtPlotPanel*                         m_pvtPlotPanel;
+    RiuResultQwtPlot*                 m_resultQwtPlot;
+    RiuDepthQwtPlot*                  m_depthQwtPlot;
+    RiuMohrsCirclePlot*               m_mohrsCirclePlot;
+    RiuRelativePermeabilityPlotPanel* m_relPermPlotPanel;
+    RiuSeismicHistogramPanel*         m_seismicHistogramPanel;
+    RiuPvtPlotPanel*                  m_pvtPlotPanel;
+    RiuCellSelectionTool*             m_cellSelectionTool;
+
     std::unique_ptr<RicGridCalculatorDialog> m_gridCalculatorDialog;
 
     QLabel*      m_memoryCriticalWarning;

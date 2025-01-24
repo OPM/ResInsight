@@ -148,6 +148,8 @@ public:
                                       cvf::StructGridInterface::FaceType face,
                                       const cvf::Vec3d&                  localIntersectionPointInDisplay );
 
+    explicit RiuEclipseSelectionItem( RimEclipseView* view, size_t gridIndex, size_t gridLocalCellIndex );
+
     ~RiuEclipseSelectionItem() override{};
 
     RiuSelectionType type() const override { return ECLIPSE_SELECTION_OBJECT; }

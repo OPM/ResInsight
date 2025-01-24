@@ -50,6 +50,7 @@
 #include "RimViewLinkerCollection.h"
 #include "RimViewWindow.h"
 
+#include "RiuCellSelectionTool.h"
 #include "RiuDepthQwtPlot.h"
 #include "RiuDockWidgetTools.h"
 #include "RiuMdiArea.h"
@@ -874,6 +875,16 @@ void RiuMainWindow::createDockPanels()
 
         m_resultInfoPanel = new RiuResultInfoPanel( dockWidget );
         dockWidget->setWidget( m_resultInfoPanel );
+        dockManager()->addDockWidget( ads::DockWidgetArea::LeftDockWidgetArea, dockWidget, bottomArea );
+    }
+
+    // result info
+    {
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Cell Selection Tool", RiuDockWidgetTools::mainWindowCellSelectionToolName(), dockManager() );
+
+        m_cellSelectionTool = new RiuCellSelectionTool( dockWidget );
+        dockWidget->setWidget( m_cellSelectionTool );
         dockManager()->addDockWidget( ads::DockWidgetArea::LeftDockWidgetArea, dockWidget, bottomArea );
     }
 
