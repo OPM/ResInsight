@@ -297,6 +297,7 @@
         <file>pinned-remove.svg</file>
         <file>Select.svg</file>
         <file>NavigationProperty.svg</file>
+        <file>user-defined-view.svg</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>
