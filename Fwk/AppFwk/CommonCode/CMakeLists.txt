@@ -10,10 +10,6 @@ endif()
 find_package(OpenGL)
 
 # Qt
-
-# These headers need to go through Qt's MOC compiler
-set(MOC_HEADER_FILES cafMessagePanel.h)
-
 find_package(
   Qt6
   COMPONENTS
@@ -71,4 +67,4 @@ if(MSVC)
   )
 endif()
 
-source_group("" FILES ${PROJECT_FILES})
+

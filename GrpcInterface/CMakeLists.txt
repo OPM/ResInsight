@@ -267,9 +267,3 @@ if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
   install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH}/
           DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
 endif()
-
-source_group("Generated" FILES ${GRPC_PYTHON_GENERATED_SOURCES})
-source_group("Sources" FILES ${GRPC_PYTHON_RIPS_SOURCES})
-source_group("Protos" FILES ${GRPC_PROTO_FILES})
-source_group("PythonExamples" FILES ${GRPC_PYTHON_EXAMPLE_SOURCES})
-source_group("Tests" FILES ${GRPC_PYTHON_TEST_SOURCES})

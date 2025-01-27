@@ -212,15 +212,7 @@ if(RESINSIGHT_FOUND_HDF5)
   else()
     list(APPEND RI_PRIVATE_INCLUDES ${HDF5_INCLUDE_DIRS})
   endif() # MSVC
-
-  source_group("FileInterface\\HDF5" FILES ${HDF5_FILES})
-
 endif()
-
-# ##############################################################################
-# Create source groups - see also included CMakeLists_files.cmake
-# ##############################################################################
-source_group("ModelVisualization" FILES ${MODEL_VISUALIZATION_FILES})
 
 qt_add_resources(QRC_FILES Application/Resources/ApplicationLibCode.qrc)
 

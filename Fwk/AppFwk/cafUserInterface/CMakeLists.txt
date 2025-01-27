@@ -153,4 +153,4 @@ target_link_libraries(
   ${PROJECT_NAME} cafProjectDataModel cafPdmScripting ${QT_LIBRARIES}
 )
 
-source_group("" FILES ${PROJECT_FILES})
+

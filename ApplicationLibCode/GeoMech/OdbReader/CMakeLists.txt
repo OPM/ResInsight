@@ -81,4 +81,3 @@ target_link_libraries(
   LibCore
 )
 
-source_group("" FILES ${PROJECT_FILES})

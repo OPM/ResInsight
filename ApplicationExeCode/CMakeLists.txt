@@ -70,11 +70,6 @@ if(RESINSIGHT_ENABLE_GRPC)
   list(APPEND CODE_SOURCE_FILES RiaGrpcConsoleApplication.cpp
        RiaGrpcGuiApplication.cpp
   )
-
-  list(APPEND QT_MOC_HEADERS RiaGrpcConsoleApplication.h
-       RiaGrpcGuiApplication.h
-  )
-
 endif()
 
 list(APPEND CPP_SOURCES ${CODE_SOURCE_FILES})
@@ -308,7 +303,6 @@ if(RESINSIGHT_ENABLE_GRPC)
   add_custom_target(
     RipsGeneratedPythonClasses ALL SOURCES ${GENERATED_CLASSES_FILE}
   )
-  source_group("Source Files" ${GENERATED_CLASSES_FILE})
   add_dependencies(RipsGeneratedPythonClasses ResInsight)
 
   # Copy the Python folder to build folder. This will ease debugging of Python

@@ -50,4 +50,3 @@ if(MSVC)
   )
 endif()
 
-source_group("" FILES ${PROJECT_FILES})

@@ -6,11 +6,6 @@ if(CAF_ENABLE_UNITY_BUILD)
   set(CMAKE_UNITY_BUILD true)
 endif()
 
-# Qt
-
-# These headers need to go through Qt's MOC compiler
-set(MOC_HEADER_FILES cafViewer.h)
-
 find_package(
   Qt6
   COMPONENTS
@@ -56,4 +51,3 @@ if(MSVC)
   )
 endif()
 
-source_group("" FILES ${PROJECT_FILES})

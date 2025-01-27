@@ -18,4 +18,3 @@ set(LINK_LIBRARIES RigGeoMechDataModel LibCore)
 
 target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES})
 
-source_group("" FILES ${PROJECT_FILES})

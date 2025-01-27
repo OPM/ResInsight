@@ -139,4 +139,3 @@ set(LINK_LIBRARIES ApplicationLibCode ResultStatisticsCache)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LINK_LIBRARIES})
 
-source_group("" FILES ${PROJECT_FILES})

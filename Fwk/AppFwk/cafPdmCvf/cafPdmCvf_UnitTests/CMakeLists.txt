@@ -20,7 +20,6 @@ set(PROJECT_FILES
 # add the executable
 add_executable(${PROJECT_NAME} ${PROJECT_FILES})
 
-source_group("" FILES ${PROJECT_FILES})
 
 target_link_libraries(
   ${PROJECT_NAME} cafPdmCore cafPdmXml LibCore cafPdmCvf ${QT_LIBRARIES}

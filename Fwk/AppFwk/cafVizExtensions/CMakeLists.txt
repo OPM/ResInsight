@@ -67,4 +67,4 @@ target_link_libraries(
   ${QT_LIBRARIES}
 )
 
-source_group("" FILES ${PROJECT_FILES})
+

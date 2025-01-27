@@ -7,11 +7,6 @@ find_package(OpenGL)
 
 # Qt
 
-# Qt MOC
-set(MOC_HEADER_FILES MainWindow.h WidgetLayoutTest.h CustomObjectEditor.h
-                     MenuItemProducer.h
-)
-
 # Resource file
 set(QRC_FILES ${QRC_FILES} textedit.qrc)
 message("QRC_FILES: ${QRC_FILES}")
@@ -75,8 +70,6 @@ target_link_libraries(
   ${PROJECT_NAME} PRIVATE ${TAP_LINK_LIBRARIES} ${QT_LIBRARIES}
                           ${EXTERNAL_LINK_LIBRARIES}
 )
-
-source_group("" FILES ${PROJECT_FILES})
 
 foreach(qtlib ${QT_LIBRARIES})
   add_custom_command(
