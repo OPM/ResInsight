@@ -46,5 +46,3 @@ target_include_directories(
 )
 
 target_link_libraries(${PROJECT_NAME} cafUserInterface LibCore ${QT_LIBRARIES})
-
-

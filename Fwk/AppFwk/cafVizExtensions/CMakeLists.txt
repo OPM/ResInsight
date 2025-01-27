@@ -66,5 +66,3 @@ target_link_libraries(
   CommonCode
   ${QT_LIBRARIES}
 )
-
-

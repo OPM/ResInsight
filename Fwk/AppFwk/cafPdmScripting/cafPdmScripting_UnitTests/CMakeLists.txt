@@ -32,7 +32,6 @@ target_link_libraries(
   ${PROJECT_NAME} PRIVATE cafPdmScripting ${QT_LIBRARIES} ${THREAD_LIBRARY}
 )
 
-
 install(
   TARGETS ${PROJECT_NAME}
   BUNDLE DESTINATION .

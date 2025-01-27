@@ -44,7 +44,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   )
 endif()
 
-
 target_link_libraries(
   ${PROJECT_NAME} PRIVATE cafPdmCore ${QT_LIBRARIES} ${THREAD_LIBRARY}
 )

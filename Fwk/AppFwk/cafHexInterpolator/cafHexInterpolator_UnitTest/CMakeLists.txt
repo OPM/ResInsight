@@ -24,5 +24,3 @@ set(PROJECT_FILES cafHexInterpolatorBasicTest.cpp
 add_executable(${PROJECT_NAME} ${PROJECT_FILES} gtest/gtest-all.cpp)
 
 target_link_libraries(${PROJECT_NAME} LibCore)
-
-
