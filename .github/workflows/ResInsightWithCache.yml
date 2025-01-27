@@ -99,7 +99,7 @@ jobs:
       - name: Use CMake
         uses: lukka/get-cmake@latest
         with:
-          cmakeVersion: "~3.28.0"
+          cmakeVersion: "~3.26.0"
 
       - name: Use MSVC (Windows)
         uses: ilammy/msvc-dev-cmd@v1
