@@ -34,6 +34,7 @@
 #include "RigEclipseResultAddress.h"
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
+#include "RigPolyLinesData.h"
 #include "RigStatisticsMath.h"
 
 #include "Formations/RimFormationNames.h"
@@ -151,7 +152,7 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
     genGrp->add( &m_resolution );
     genGrp->add( &m_primaryCase );
     genGrp->add( &m_boundingBoxExpPercent );
-    // genGrp->add( &m_selectedPolygon );
+    genGrp->add( &m_selectedPolygon );
 
     auto tsGroup = uiOrdering.addNewGroup( "Time Step Selection" );
     tsGroup->setCollapsedByDefault();
@@ -322,7 +323,7 @@ QList<caf::PdmOptionItemInfo> RimStatisticsContourMap::calculateValueOptions( co
 
             for ( auto p : polygonCollection->allPolygons() )
             {
-                options.push_back( caf::PdmOptionItemInfo( p->uiName(), p, false ) );
+                options.push_back( caf::PdmOptionItemInfo( p->name(), p, false ) );
             }
         }
     }
@@ -489,7 +490,7 @@ void RimStatisticsContourMap::computeStatistics()
                 usedKLayers = eCase->activeFormationNames()->formationNamesData()->findKLayers( formationNames );
             }
 
-            contourMapProjection.generateGridMapping( resultAggregation, {}, usedKLayers );
+            contourMapProjection.generateGridMapping( resultAggregation, {}, usedKLayers, selectedPolygons() );
 
             if ( m_resultDefinition()->hasDynamicResult() )
             {
@@ -592,6 +593,27 @@ std::vector<int> RimStatisticsContourMap::selectedTimeSteps() const
 std::vector<QString> RimStatisticsContourMap::selectedFormations() const
 {
     return m_selectedFormations();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<cvf::Vec3d>> RimStatisticsContourMap::selectedPolygons() const
+{
+    std::vector<std::vector<cvf::Vec3d>> allLines;
+
+    if ( m_selectedPolygon() != nullptr )
+    {
+        auto                                       pData = m_selectedPolygon->polyLinesData();
+        const std::vector<std::vector<cvf::Vec3d>> lines = pData->completePolyLines();
+
+        for ( auto l : lines )
+        {
+            allLines.push_back( l );
+        }
+    }
+
+    return allLines;
 }
 
 //--------------------------------------------------------------------------------------------------

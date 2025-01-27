@@ -46,9 +46,11 @@ RigContourMapProjection::RigContourMapProjection( const RigContourMapGrid& conto
 std::vector<std::vector<std::pair<size_t, double>>>
     RigContourMapProjection::generateGridMapping( RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                   const std::vector<double>&                     weights,
-                                                  const std::set<int>&                           kLayers )
+                                                  const std::set<int>&                           kLayers,
+                                                  const std::vector<std::vector<cvf::Vec3d>>&    limitToPolygons )
 {
-    m_projected3dGridIndices = RigContourMapCalculator::generateGridMapping( *this, m_contourMapGrid, resultAggregation, weights, kLayers );
+    m_projected3dGridIndices =
+        RigContourMapCalculator::generateGridMapping( *this, m_contourMapGrid, resultAggregation, weights, kLayers, limitToPolygons );
     return m_projected3dGridIndices;
 }
 

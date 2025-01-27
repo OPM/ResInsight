@@ -24,7 +24,9 @@
 
 #include "RigContourMapGrid.h"
 
+#include "RigCellGeometryTools.h"
 #include "RigContourMapProjection.h"
+#include "RigPolyLinesData.h"
 
 #include <algorithm>
 #include <cmath>
@@ -224,41 +226,67 @@ double RigContourMapCalculator::calculateSum( const RigContourMapProjection&    
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RigContourMapCalculator::isPointInsidePolygons( cvf::Vec2d point, const std::vector<std::vector<cvf::Vec3d>>& polygons )
+{
+    cvf::Vec3d pos3D( point );
+
+    bool bIncludesCell = false;
+
+    for ( auto p : polygons )
+    {
+        if ( !bIncludesCell && RigCellGeometryTools::pointInsidePolygon2D( pos3D, p ) )
+        {
+            bIncludesCell = true;
+        }
+    }
+
+    return bIncludesCell;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<std::vector<std::pair<size_t, double>>>
-    RigContourMapCalculator::generateGridMapping( RigContourMapProjection&   contourMapProjection,
-                                                  const RigContourMapGrid&   contourMapGrid,
-                                                  ResultAggregationType      resultAggregation,
-                                                  const std::vector<double>& weightingResultValues,
-                                                  const std::set<int>&       kLayers )
+    RigContourMapCalculator::generateGridMapping( RigContourMapProjection&                    contourMapProjection,
+                                                  const RigContourMapGrid&                    contourMapGrid,
+                                                  ResultAggregationType                       resultAggregation,
+                                                  const std::vector<double>&                  weightingResultValues,
+                                                  const std::set<int>&                        kLayers,
+                                                  const std::vector<std::vector<cvf::Vec3d>>& limitToPolygons )
 {
     int                                                 nCells = contourMapGrid.numberOfCells();
     std::vector<std::vector<std::pair<size_t, double>>> projected3dGridIndices( nCells );
 
-    if ( RigContourMapCalculator::isStraightSummationResult( resultAggregation ) )
-    {
-#pragma omp parallel for
-        for ( int index = 0; index < nCells; ++index )
-        {
-            cvf::Vec2ui ij = contourMapGrid.ijFromCellIndex( index );
+    const bool isSummationResult = RigContourMapCalculator::isStraightSummationResult( resultAggregation );
+    const bool usePolygonLimits  = limitToPolygons.size() > 0;
 
-            cvf::Vec2d globalPos = contourMapGrid.cellCenterPosition( ij.x(), ij.y() ) + contourMapGrid.origin2d();
+#pragma omp parallel for
+    for ( int index = 0; index < nCells; ++index )
+    {
+        cvf::Vec2ui ij = contourMapGrid.ijFromCellIndex( index );
+
+        cvf::Vec2d globalPos = contourMapGrid.cellCenterPosition( ij.x(), ij.y() ) + contourMapGrid.origin2d();
+
+        if ( usePolygonLimits )
+        {
+            if ( !isPointInsidePolygons( globalPos, limitToPolygons ) )
+            {
+                projected3dGridIndices[index] = {};
+                continue;
+            }
+        }
+
+        if ( isSummationResult )
+        {
             projected3dGridIndices[index] =
                 cellRayIntersectionAndResults( contourMapProjection, contourMapGrid, globalPos, weightingResultValues, kLayers );
         }
-    }
-    else
-    {
-#pragma omp parallel for
-        for ( int index = 0; index < nCells; ++index )
+        else
         {
-            cvf::Vec2ui ij = contourMapGrid.ijFromCellIndex( index );
-
-            cvf::Vec2d globalPos = contourMapGrid.cellCenterPosition( ij.x(), ij.y() ) + contourMapGrid.origin2d();
             projected3dGridIndices[index] =
                 cellOverlapVolumesAndResults( contourMapProjection, contourMapGrid, globalPos, weightingResultValues, kLayers );
         }
     }
-
     return projected3dGridIndices;
 }
 

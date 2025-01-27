@@ -19,12 +19,15 @@
 #pragma once
 
 #include "RimNamedObject.h"
+
+#include "ContourMap/RimContourMapResolutionTools.h"
+#include "RimContourMapProjection.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
-#include "ContourMap/RimContourMapResolutionTools.h"
-#include "RimContourMapProjection.h"
+#include "cvfVector3.h"
 
 #include <map>
 
@@ -34,6 +37,7 @@ class RimEclipseCaseEnsemble;
 class RimEclipseContourMapView;
 class RimStatisticsContourMapView;
 class RimPolygon;
+class RigPolyLinesData;
 
 //==================================================================================================
 //
@@ -78,7 +82,8 @@ public:
     std::vector<int> selectedTimeSteps() const;
     QString          timeStepName( int timeStep ) const;
 
-    std::vector<QString> selectedFormations() const;
+    std::vector<QString>                 selectedFormations() const;
+    std::vector<std::vector<cvf::Vec3d>> selectedPolygons() const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

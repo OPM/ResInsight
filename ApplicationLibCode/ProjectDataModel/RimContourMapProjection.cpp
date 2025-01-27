@@ -121,7 +121,7 @@ void RimContourMapProjection::generateResultsIfNecessary( int timeStep )
         if ( gridMappingNeedsUpdating() )
         {
             m_contourMapProjection->setCellVisibility( getCellVisibility() );
-            m_contourMapProjection->generateGridMapping( m_resultAggregation(), retrieveParameterWeights(), m_selectedKLayers );
+            m_contourMapProjection->generateGridMapping( m_resultAggregation(), retrieveParameterWeights(), m_selectedKLayers, {} );
         }
         progress.setProgress( 20 );
         m_mapCellVisibility = m_contourMapProjection->getMapCellVisibility( timeStep, m_resultAggregation() );
