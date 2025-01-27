@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.15)
+# The way boost is configured and used in Boost 1.86 requires CMake 3.26
+cmake_minimum_required(VERSION 3.26)
 
 include(CheckCSourceCompiles)
 include(FetchContent)
