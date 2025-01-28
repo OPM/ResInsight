@@ -69,7 +69,8 @@ void RiuCellSelectionTool::setupUI()
 
     m_coordinateLabel = new QLabel( "Coordinates:" );
     m_coordinateEdit  = new QLineEdit();
-    m_coordinateEdit->setPlaceholderText( "Enter coordinates (space or comma separated)" );
+    m_coordinateEdit->setPlaceholderText( "Enter coordinates (space or comma separated), two or three coordinates." );
+    m_coordinateEdit->setToolTip( "Three doubles: Find cell for point. Two doubles, find top cell for EN coordinate." );
 
     m_cellLabel = new QLabel( "IJK:" );
     m_cellEdit  = new QLineEdit();
@@ -95,6 +96,75 @@ void RiuCellSelectionTool::setupUI()
     connect( m_xyzRadio, &QRadioButton::toggled, this, &RiuCellSelectionTool::updateVisibleUiItems );
 
     updateVisibleUiItems();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RiuCellSelectionTool::findTopCellIndex( double easting, double northing, const RigMainGrid* mainGrid )
+{
+    if ( !mainGrid ) return cvf::UNDEFINED_SIZE_T;
+
+    auto mainGridBoundingBox = mainGrid->boundingBox();
+
+    cvf::BoundingBox pointBBox;
+    pointBBox.add( cvf::Vec3d( easting, northing, mainGridBoundingBox.min().z() ) );
+    pointBBox.add( cvf::Vec3d( easting, northing, mainGridBoundingBox.max().z() ) );
+
+    std::vector<size_t> cellIndices = mainGrid->findIntersectingCells( pointBBox );
+
+    double topDepth     = mainGridBoundingBox.min().z();
+    size_t topCellIndex = cvf::UNDEFINED_SIZE_T;
+
+    for ( size_t cellIndex : cellIndices )
+    {
+        auto cell   = mainGrid->cell( cellIndex );
+        auto center = cell.center();
+
+        // The domain coordinates use negative z-values to represent depth
+        if ( center.z() > topDepth )
+        {
+            topDepth     = center.z();
+            topCellIndex = cellIndex;
+        }
+    }
+
+    return topCellIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RiuCellSelectionTool::findCellForPoint( const cvf::Vec3d& source, double distance, const RigMainGrid* mainGrid )
+{
+    if ( !mainGrid ) return cvf::UNDEFINED_SIZE_T;
+
+    std::vector<cvf::Vec3d> points = { source,
+                                       source + cvf::Vec3d( 0.0, 0.0, distance ),
+                                       source + cvf::Vec3d( distance, 0.0, 0.0 ),
+                                       source + cvf::Vec3d( -distance, 0.0, 0.0 ),
+                                       source + cvf::Vec3d( 0.0, distance, 0.0 ),
+                                       source + cvf::Vec3d( 0.0, -distance, 0.0 ),
+                                       source + cvf::Vec3d( 0.0, 0.0, -distance ) };
+
+    // Check if the point is inside a cell
+    for ( const auto& p : points )
+    {
+        auto candidate = mainGrid->findReservoirCellIndexFromPoint( p );
+        if ( candidate != cvf::UNDEFINED_SIZE_T ) return candidate;
+    }
+
+    // If the point is not inside a cell, check if it is close to a cell
+    cvf::BoundingBox pointBBox;
+    pointBBox.add( source );
+
+    std::vector<size_t> cellIndices = mainGrid->findIntersectingCells( pointBBox );
+    if ( !cellIndices.empty() )
+    {
+        return cellIndices.front();
+    }
+
+    return cvf::UNDEFINED_SIZE_T;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,42 +235,10 @@ RiuEclipseSelectionItem* RiuCellSelectionTool::createSelectionItemFromInput()
     if ( m_xyzRadio->isChecked() )
     {
         QVector<double> coords = parseDoubleValues( m_coordinateEdit->text().trimmed() );
-        if ( coords.size() != 3 )
+        if ( coords.size() < 2 )
         {
             return nullptr;
         }
-
-        // Use the main grid to find the cell index. Look at close points 0.5 in length along all main axis if the target point is not in a
-        // cell
-        auto findCandidateCell = [&]( const cvf::Vec3d& source, double distance ) -> size_t
-        {
-            std::vector<cvf::Vec3d> points = { source,
-                                               source + cvf::Vec3d( 0.0, 0.0, distance ),
-                                               source + cvf::Vec3d( distance, 0.0, 0.0 ),
-                                               source + cvf::Vec3d( -distance, 0.0, 0.0 ),
-                                               source + cvf::Vec3d( 0.0, distance, 0.0 ),
-                                               source + cvf::Vec3d( 0.0, -distance, 0.0 ),
-                                               source + cvf::Vec3d( 0.0, 0.0, -distance ) };
-
-            // Check if the point is inside a cell
-            for ( const auto& p : points )
-            {
-                auto candidate = mainGrid->findReservoirCellIndexFromPoint( p );
-                if ( candidate != cvf::UNDEFINED_SIZE_T ) return candidate;
-            }
-
-            // If the point is not inside a cell, check if it is close to a cell
-            cvf::BoundingBox pointBBox;
-            pointBBox.add( source );
-
-            std::vector<size_t> cellIndices = mainGrid->findIntersectingCells( pointBBox );
-            if ( !cellIndices.empty() )
-            {
-                return cellIndices.front();
-            }
-
-            return cvf::UNDEFINED_SIZE_T;
-        };
 
         m_cellEdit->clear();
 
@@ -209,10 +247,25 @@ RiuEclipseSelectionItem* RiuCellSelectionTool::createSelectionItemFromInput()
 
         auto distance = std::min( { iSize, jSize, kSize } ) * 0.4;
 
-        auto candidateCellIndex = findCandidateCell( cvf::Vec3d( coords[0], coords[1], -coords[2] ), distance );
-        if ( candidateCellIndex == cvf::UNDEFINED_SIZE_T ) return nullptr;
+        if ( coords.size() == 3 )
+        {
+            cellIndex = findCellForPoint( cvf::Vec3d( coords[0], coords[1], -coords[2] ), distance, mainGrid );
+        }
+        if ( cellIndex == cvf::UNDEFINED_SIZE_T )
+        {
+            cellIndex = findTopCellIndex( coords[0], coords[1], mainGrid );
+        }
 
-        cellIndex = candidateCellIndex;
+        if ( cellIndex == cvf::UNDEFINED_SIZE_T )
+        {
+            QString coordStr = coords.size() == 3 ? QString( "E:%1 N:%2 D:%3" ).arg( coords[0] ).arg( coords[1] ).arg( coords[2] )
+                                                  : QString( "E:%1 N:%2" ).arg( coords[0] ).arg( coords[1] );
+
+            QMessageBox::information( this, "Cell Selection", "No cell found for : " + coordStr );
+
+            return nullptr;
+        }
+
         if ( auto ijk = mainGrid->ijkFromCellIndex( cellIndex ) )
         {
             // 1-based for user input

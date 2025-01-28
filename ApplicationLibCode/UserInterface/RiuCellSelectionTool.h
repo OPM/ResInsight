@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "cvfVector3.h"
+
 #include <QDialog>
 
 class QRadioButton;
@@ -25,7 +27,13 @@ class QLineEdit;
 class QPushButton;
 class QLabel;
 
+namespace caf
+{
+class VecIjk;
+}
+
 class RiuEclipseSelectionItem;
+class RigMainGrid;
 
 //==================================================================================================
 //
@@ -48,6 +56,9 @@ private:
     RiuEclipseSelectionItem* createSelectionItemFromInput();
     void                     updateVisibleUiItems();
     void                     setupUI();
+
+    static size_t findTopCellIndex( double easting, double northing, const RigMainGrid* mainGrid );
+    static size_t findCellForPoint( const cvf::Vec3d& source, double distance, const RigMainGrid* mainGrid );
 
 private:
     QRadioButton* m_xyzRadio;
