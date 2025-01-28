@@ -612,7 +612,6 @@ std::vector<std::vector<cvf::Vec3d>> RimStatisticsContourMap::selectedPolygons()
 {
     std::vector<std::vector<cvf::Vec3d>> allLines;
 
-    RimProject* proj = RimProject::current();
     for ( auto p : m_selectedPolygons() )
     {
         auto pData = p->polyLinesData();
