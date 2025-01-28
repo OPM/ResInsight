@@ -122,11 +122,13 @@ RimStatisticsContourMap::RimStatisticsContourMap()
 
     CAF_PDM_InitFieldNoDefault( &m_views, "ContourMapViews", "Contour Maps", ":/CrossSection16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedPolygon, "Polygon", "Limit to Polygon" );
-
     CAF_PDM_InitFieldNoDefault( &m_selectedFormations, "Formations", "Select Formations" );
     m_selectedFormations.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedFormations.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
+    CAF_PDM_InitFieldNoDefault( &m_selectedPolygons, "Polygons", "Select Polygons" );
+    m_selectedPolygons.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_selectedPolygons.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
     setDeletable( true );
 }
@@ -152,7 +154,6 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
     genGrp->add( &m_resolution );
     genGrp->add( &m_primaryCase );
     genGrp->add( &m_boundingBoxExpPercent );
-    genGrp->add( &m_selectedPolygon );
 
     auto tsGroup = uiOrdering.addNewGroup( "Time Step Selection" );
     tsGroup->setCollapsedByDefault();
@@ -163,6 +164,17 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
         auto formationGrp = uiOrdering.addNewGroup( "Formation Selection" );
         formationGrp->setCollapsedByDefault();
         formationGrp->add( &m_selectedFormations );
+    }
+
+    RimProject* proj = RimProject::current();
+    if ( auto polygonCollection = proj->activeOilField()->polygonCollection().p() )
+    {
+        if ( !polygonCollection->allPolygons().empty() )
+        {
+            auto polyGrp = uiOrdering.addNewGroup( "Polygon Selection" );
+            polyGrp->setCollapsedByDefault();
+            polyGrp->add( &m_selectedPolygons );
+        }
     }
 
     if ( !isColumnResult() )
@@ -314,13 +326,11 @@ QList<caf::PdmOptionItemInfo> RimStatisticsContourMap::calculateValueOptions( co
             }
         }
     }
-    else if ( &m_selectedPolygon == fieldNeedingOptions )
+    else if ( &m_selectedPolygons == fieldNeedingOptions )
     {
         RimProject* proj = RimProject::current();
-        if ( auto polygonCollection = proj->activeOilField()->polygonCollection() )
+        if ( auto polygonCollection = proj->activeOilField()->polygonCollection().p() )
         {
-            options.push_back( caf::PdmOptionItemInfo( "None", nullptr, false ) );
-
             for ( auto p : polygonCollection->allPolygons() )
             {
                 options.push_back( caf::PdmOptionItemInfo( p->name(), p, false ) );
@@ -598,18 +608,23 @@ std::vector<QString> RimStatisticsContourMap::selectedFormations() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<cvf::Vec3d>> RimStatisticsContourMap::selectedPolygons() const
+std::vector<std::vector<cvf::Vec3d>> RimStatisticsContourMap::selectedPolygons()
 {
     std::vector<std::vector<cvf::Vec3d>> allLines;
 
-    if ( m_selectedPolygon() != nullptr )
+    RimProject* proj = RimProject::current();
+    if ( auto polygonCollection = proj->activeOilField()->polygonCollection().p() )
     {
-        auto                                       pData = m_selectedPolygon->polyLinesData();
-        const std::vector<std::vector<cvf::Vec3d>> lines = pData->completePolyLines();
-
-        for ( auto l : lines )
+        for ( auto p : m_selectedPolygons() )
         {
-            allLines.push_back( l );
+            auto pData = p->polyLinesData();
+            if ( pData.isNull() ) continue;
+
+            const std::vector<std::vector<cvf::Vec3d>> lines = pData->completePolyLines();
+            for ( auto l : lines )
+            {
+                allLines.push_back( l );
+            }
         }
     }
 

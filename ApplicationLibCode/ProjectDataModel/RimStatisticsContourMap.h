@@ -25,6 +25,7 @@
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
+#include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
 #include "cvfVector3.h"
@@ -83,7 +84,7 @@ public:
     QString          timeStepName( int timeStep ) const;
 
     std::vector<QString>                 selectedFormations() const;
-    std::vector<std::vector<cvf::Vec3d>> selectedPolygons() const;
+    std::vector<std::vector<cvf::Vec3d>> selectedPolygons();
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -105,8 +106,8 @@ private:
     caf::PdmChildField<RimEclipseResultDefinition*>           m_resultDefinition;
     caf::PdmField<bool>                                       m_computeStatisticsButton;
     caf::PdmField<std::vector<QString>>                       m_selectedFormations;
-    caf::PdmPtrField<RimPolygon*>                             m_selectedPolygon;
     caf::PdmField<QString>                                    m_primaryCase;
+    caf::PdmPtrArrayField<RimPolygon*>                        m_selectedPolygons;
 
     caf::PdmField<caf::AppEnum<RimContourMapResolutionTools::SamplingResolution>> m_resolution;
 
