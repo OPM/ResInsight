@@ -6,9 +6,6 @@ if(CAF_ENABLE_UNITY_BUILD)
   set(CMAKE_UNITY_BUILD true)
 endif()
 
-# These headers need to go through Qt's MOC compiler
-set(MOC_HEADER_FILES cafCmdFeature.h cafCmdFeatureManager.h)
-
 # Qt
 find_package(
   Qt6
@@ -49,5 +46,3 @@ if(MSVC)
     ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127 /wd4996"
   )
 endif()
-
-source_group("" FILES ${PROJECT_FILES})

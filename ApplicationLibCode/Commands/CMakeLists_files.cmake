@@ -226,23 +226,4 @@ if(RESINSIGHT_USE_QT_CHARTS)
 endif()
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
-
 list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
-
-list(
-  APPEND
-  COMMAND_QT_MOC_HEADERS
-  ${CMAKE_CURRENT_LIST_DIR}/RicGridStatisticsDialog.h
-  ${CMAKE_CURRENT_LIST_DIR}/RicRecursiveFileSearchDialog.h
-  ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.h
-  ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.h
-  ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorDialog.h
-  ${CMAKE_CURRENT_LIST_DIR}/RicGridCalculatorDialog.h
-  ${CMAKE_CURRENT_LIST_DIR}/RicCalculatorWidgetCreator.h
-)
-
-source_group(
-  "CommandFeature"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
-)

@@ -38,8 +38,6 @@ add_library(
   cafPdmMat3d/cafPdmXmlMat3d.cpp
   cafPdmMat3d/cafPdmXmlMat3d.h
   cafPdmMat3d/cafPdmFieldCvfMat3d.h
-  ${MOC_HEADER_FILES}
-  ${MOC_SOURCE_FILES}
 )
 
 target_include_directories(
@@ -48,5 +46,3 @@ target_include_directories(
 )
 
 target_link_libraries(${PROJECT_NAME} cafUserInterface LibCore ${QT_LIBRARIES})
-
-source_group("" FILES ${PROJECT_FILES})

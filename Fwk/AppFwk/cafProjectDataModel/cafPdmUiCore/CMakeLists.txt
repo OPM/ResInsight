@@ -93,5 +93,3 @@ if(MSVC)
     ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127"
   )
 endif()
-
-source_group("" FILES ${PROJECT_FILES})

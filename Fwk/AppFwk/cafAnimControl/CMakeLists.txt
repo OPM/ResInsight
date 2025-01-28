@@ -6,11 +6,6 @@ if(CAF_ENABLE_UNITY_BUILD)
   set(CMAKE_UNITY_BUILD true)
 endif()
 
-# Qt
-set(MOC_HEADER_FILES cafFrameAnimationControl.h cafAnimationToolBar.h
-                     cafPopupMenuButton.h
-)
-
 find_package(
   Qt6
   COMPONENTS
@@ -46,5 +41,3 @@ target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES})
 if(MSVC)
   set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4127")
 endif()
-
-source_group("" FILES ${PROJECT_FILES})

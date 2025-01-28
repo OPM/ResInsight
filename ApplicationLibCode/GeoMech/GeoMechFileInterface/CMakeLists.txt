@@ -17,5 +17,3 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 set(LINK_LIBRARIES RigGeoMechDataModel LibCore)
 
 target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES})
-
-source_group("" FILES ${PROJECT_FILES})

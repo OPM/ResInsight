@@ -27,8 +27,6 @@ set(PROJECT_FILES
 
 qt_add_executable(${PROJECT_NAME} ${PROJECT_FILES})
 
-source_group("" FILES ${PROJECT_FILES})
-
 target_link_libraries(
   ${PROJECT_NAME} PRIVATE cafPdmXml ${QT_LIBRARIES} ${THREAD_LIBRARY}
 )

@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.15)
 
 project(cafTestCvfApplication)
 
-# Qt MOC
-set(MOC_HEADER_FILES MainWindow.h WidgetLayoutTest.h)
-
 # Resource file
 set(QRC_FILES textedit.qrc)
 
@@ -42,8 +39,6 @@ if(USE_COMMAND_FRAMEWORK)
 endif(USE_COMMAND_FRAMEWORK)
 
 target_link_libraries(${PROJECT_NAME} ${TAP_LINK_LIBRARIES})
-
-source_group("" FILES ${PROJECT_FILES})
 
 foreach(qtlib ${QT_LIBRARIES})
   add_custom_command(
