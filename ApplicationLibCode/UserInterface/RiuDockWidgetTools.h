@@ -59,6 +59,7 @@ public:
     static QString mainWindowMohrsCirclePlotName();
     static QString mainWindowUndoStackName();
     static QString mainWindowQuickAccessName();
+    static QString mainWindowCellSelectionToolName();
 
     static QString mainWindowProjectTreeName();
     static QString mainWindowDataSourceTreeName();

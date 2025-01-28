@@ -150,6 +150,14 @@ QString RiuDockWidgetTools::mainWindowQuickAccessName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::mainWindowCellSelectionToolName()
+{
+    return "dockCellSelectionTool_mainWindow";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiuDockWidgetTools::plotMainWindowPlotManagerName()
 {
     return "dockSummaryPlotManager";

@@ -20,6 +20,7 @@
 #include "Riu3dSelectionManager.h"
 
 #include "Rim2dIntersectionView.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechResultDefinition.h"
@@ -176,6 +177,24 @@ RiuEclipseSelectionItem::RiuEclipseSelectionItem( RimGridView*                  
     , m_face( face )
     , m_localIntersectionPointInDisplay( localIntersectionPointInDisplay )
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuEclipseSelectionItem::RiuEclipseSelectionItem( RimEclipseView* view, size_t gridIndex, size_t gridLocalCellIndex )
+{
+    m_view = view;
+
+    m_resultDefinition = view ? view->cellResult() : nullptr;
+    m_timestepIdx      = view ? view->currentTimeStep() : 0;
+
+    m_gridIndex                       = gridIndex;
+    m_gridLocalCellIndex              = gridLocalCellIndex;
+    m_nncIndex                        = cvf::UNDEFINED_SIZE_T;
+    m_color                           = cvf::Color3f( 1.0f, 0.0f, 0.0f );
+    m_face                            = cvf::StructGridInterface::NO_FACE;
+    m_localIntersectionPointInDisplay = cvf::Vec3d::UNDEFINED;
 }
 
 //--------------------------------------------------------------------------------------------------
