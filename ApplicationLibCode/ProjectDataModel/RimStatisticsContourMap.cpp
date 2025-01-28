@@ -613,18 +613,15 @@ std::vector<std::vector<cvf::Vec3d>> RimStatisticsContourMap::selectedPolygons()
     std::vector<std::vector<cvf::Vec3d>> allLines;
 
     RimProject* proj = RimProject::current();
-    if ( auto polygonCollection = proj->activeOilField()->polygonCollection().p() )
+    for ( auto p : m_selectedPolygons() )
     {
-        for ( auto p : m_selectedPolygons() )
-        {
-            auto pData = p->polyLinesData();
-            if ( pData.isNull() ) continue;
+        auto pData = p->polyLinesData();
+        if ( pData.isNull() ) continue;
 
-            const std::vector<std::vector<cvf::Vec3d>> lines = pData->completePolyLines();
-            for ( auto l : lines )
-            {
-                allLines.push_back( l );
-            }
+        const std::vector<std::vector<cvf::Vec3d>> lines = pData->completePolyLines();
+        for ( auto l : lines )
+        {
+            allLines.push_back( l );
         }
     }
 
