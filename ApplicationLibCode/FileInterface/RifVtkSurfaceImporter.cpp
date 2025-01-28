@@ -237,7 +237,7 @@ std::vector<RifVtkSurfaceImporter::PvdDataset> parsePvdDatasets( const std::stri
             double      timestep = std::stod( timestepStr );
             std::string fullPath = std::filesystem::absolute( std::filesystem::path( baseDir ) / file ).string();
 
-            datasets.push_back( { timestep, fullPath, {} } );
+            datasets.push_back( { timestep, fullPath } );
         }
 
         datasetElem = datasetElem->NextSiblingElement( "DataSet" );

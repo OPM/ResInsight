@@ -119,6 +119,12 @@ void RimFractureSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 bool RimFractureSurface::updateSurfaceData()
 {
     bool result = true;
+
+    if ( m_surfacePerTimeStep.empty() )
+    {
+        loadDataFromFile();
+    }
+
     /*
         if ( m_vertices.empty() )
         {
@@ -157,6 +163,9 @@ bool RimFractureSurface::updateSurfaceData()
 //--------------------------------------------------------------------------------------------------
 void RimFractureSurface::clearCachedNativeData()
 {
+    m_secondsSinceSimulationStart.clear();
+    m_surfacePerTimeStep.clear();
+
     /*
         m_vertices.clear();
         m_tringleIndices.clear();
@@ -168,6 +177,18 @@ void RimFractureSurface::clearCachedNativeData()
 //--------------------------------------------------------------------------------------------------
 bool RimFractureSurface::loadDataFromFile()
 {
+    auto surfaceInfo = RifVtkSurfaceImporter::parsePvdDatasets( m_surfaceDefinitionFilePath().path().toStdString() );
+
+    for ( const auto& s : surfaceInfo )
+    {
+        RigGocadData gocadData;
+        if ( RifVtkSurfaceImporter::importFromFile( s.filename, &gocadData ) )
+        {
+            m_secondsSinceSimulationStart.push_back( s.timestep );
+            m_surfacePerTimeStep.push_back( gocadData );
+        }
+    }
+
     return false;
 
     /*
