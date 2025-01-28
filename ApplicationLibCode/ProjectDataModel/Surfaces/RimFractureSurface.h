@@ -20,6 +20,11 @@
 
 #include "RimSurface.h"
 
+#include "cafPdmChildArrayField.h"
+
+class RimFileSurface;
+class RigGocadData;
+
 class RimFractureSurface : public RimSurface
 {
     CAF_PDM_HEADER_INIT;
@@ -45,4 +50,7 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     caf::PdmField<caf::FilePath> m_surfaceDefinitionFilePath;
+
+    std::vector<size_t>       m_secondsSinceSimulationStart;
+    std::vector<RigGocadData> m_surfacePerTimeStep;
 };

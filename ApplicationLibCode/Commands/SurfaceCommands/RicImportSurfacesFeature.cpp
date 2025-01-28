@@ -45,7 +45,7 @@ void RicImportSurfacesFeature::onActionTriggered( bool isChecked )
     QStringList     fileNames  = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
                                                                   "Import Surfaces",
                                                                   defaultDir,
-                                                                  "Surface files (*.ptl *.ts *.dat *.vtu *.xyz);;All Files (*.*)" );
+                                                                  "Surface files (*.ptl *.ts *.dat *.vtu *.pvd *.xyz);;All Files (*.*)" );
 
     if ( fileNames.isEmpty() ) return;
 

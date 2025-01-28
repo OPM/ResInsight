@@ -41,9 +41,8 @@ namespace RifVtkSurfaceImporter
 
 struct PvdDataset
 {
-    double                                    timestep;
-    std::string                               filename;
-    std::map<std::string, std::vector<float>> properties;
+    double      timestep;
+    std::string filename;
 };
 
 bool importFromFile( std::string filename, RigGocadData* gocadData );
