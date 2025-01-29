@@ -20,7 +20,7 @@ When working with grid case results, the following two arguments are used in man
 result
 
 **Result Definition enums**::
-    
+
     property_type           |       | porosity_model
     (str enum)              |       | (str enum)
     ----------------------- | ----- | --------------
