@@ -15,6 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+#pragma once
 
 class RimContourMapResolutionTools
 {
@@ -23,7 +24,7 @@ public:
     {
         EXTRA_FINE,
         FINE,
-        BASE,
+        NORMAL,
         COARSE,
         EXTRA_COARSE
     };

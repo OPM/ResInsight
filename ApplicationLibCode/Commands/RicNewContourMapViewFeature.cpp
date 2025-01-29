@@ -247,14 +247,6 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
 
     const RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
     size_t                   activeCellCount = activeCellInfo->reservoirActiveCellCount();
-    if ( activeCellCount >= largeSamplingThresholdCellCount )
-    {
-        contourMap->contourMapProjection()->setSampleSpacingFactor( 1.5 );
-    }
-    else if ( activeCellCount >= mediumSamplingThresholdCellCount )
-    {
-        contourMap->contourMapProjection()->setSampleSpacingFactor( 1.2 );
-    }
 
     contourMap->setEclipseCase( eclipseCase );
 
@@ -332,14 +324,6 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMap( 
 
     const RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
     size_t                   activeCellCount = activeCellInfo->reservoirActiveCellCount();
-    if ( activeCellCount >= largeSamplingThresholdCellCount )
-    {
-        contourMap->contourMapProjection()->setSampleSpacingFactor( 1.5 );
-    }
-    else if ( activeCellCount >= mediumSamplingThresholdCellCount )
-    {
-        contourMap->contourMapProjection()->setSampleSpacingFactor( 1.2 );
-    }
 
     contourMap->faultCollection()->setActive( false );
     contourMap->wellCollection()->isActive = false;

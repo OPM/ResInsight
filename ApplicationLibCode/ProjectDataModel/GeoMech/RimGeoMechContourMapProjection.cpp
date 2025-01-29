@@ -146,7 +146,7 @@ double RimGeoMechContourMapProjection::sampleSpacing() const
     RimGeoMechCase* geoMechCase = this->geoMechCase();
     if ( geoMechCase )
     {
-        return m_relativeSampleSpacing * geoMechCase->characteristicCellSize();
+        return sampleSpacingFactor() * geoMechCase->characteristicCellSize();
     }
     return 0.0;
 }
