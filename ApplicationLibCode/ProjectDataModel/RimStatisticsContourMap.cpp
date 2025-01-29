@@ -182,6 +182,8 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
         auto resultDefinitionGroup = uiOrdering.addNewGroup( "Result Definition" );
         m_resultDefinition->uiOrdering( uiConfigName, *resultDefinitionGroup );
     }
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
