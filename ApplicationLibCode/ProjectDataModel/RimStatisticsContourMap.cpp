@@ -58,8 +58,6 @@
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafProgressInfo.h"
 
-#include <QMessageBox>
-
 #include <limits>
 #include <set>
 
