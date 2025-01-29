@@ -1,0 +1,15 @@
+set(SOURCE_GROUP_HEADER_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/RimFormationNames.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFormationNamesCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFormationTools.h
+)
+
+set(SOURCE_GROUP_SOURCE_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/RimFormationNames.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFormationNamesCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFormationTools.cpp
+)
+
+list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
+
+list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

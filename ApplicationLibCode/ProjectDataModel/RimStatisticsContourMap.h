@@ -19,11 +19,16 @@
 #pragma once
 
 #include "RimNamedObject.h"
-#include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
 
 #include "ContourMap/RimContourMapResolutionTools.h"
 #include "RimContourMapProjection.h"
+
+#include "cafPdmChildArrayField.h"
+#include "cafPdmField.h"
+#include "cafPdmPtrArrayField.h"
+#include "cafPdmPtrField.h"
+
+#include "cvfVector3.h"
 
 #include <map>
 
@@ -32,6 +37,8 @@ class RimEclipseResultDefinition;
 class RimEclipseCaseEnsemble;
 class RimEclipseContourMapView;
 class RimStatisticsContourMapView;
+class RimPolygon;
+class RigPolyLinesData;
 
 //==================================================================================================
 //
@@ -76,6 +83,9 @@ public:
     std::vector<int> selectedTimeSteps() const;
     QString          timeStepName( int timeStep ) const;
 
+    std::vector<QString>                 selectedFormations() const;
+    std::vector<std::vector<cvf::Vec3d>> selectedPolygons();
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -95,15 +105,14 @@ private:
     caf::PdmField<std::vector<int>>                           m_selectedTimeSteps;
     caf::PdmChildField<RimEclipseResultDefinition*>           m_resultDefinition;
     caf::PdmField<bool>                                       m_computeStatisticsButton;
-
-    caf::PdmField<QString> m_primaryCase;
+    caf::PdmField<std::vector<QString>>                       m_selectedFormations;
+    caf::PdmField<QString>                                    m_primaryCase;
+    caf::PdmPtrArrayField<RimPolygon*>                        m_selectedPolygons;
 
     caf::PdmField<caf::AppEnum<RimContourMapResolutionTools::SamplingResolution>> m_resolution;
 
     std::unique_ptr<RigContourMapGrid>                              m_contourMapGrid;
     std::map<size_t, std::map<StatisticsType, std::vector<double>>> m_timeResults;
-
-    std::vector<std::vector<std::pair<size_t, double>>> m_gridMapping;
 
     caf::PdmChildArrayField<RimStatisticsContourMapView*> m_views;
 };

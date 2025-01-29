@@ -20,13 +20,13 @@
 
 #include "RimOilField.h"
 
+#include "Formations/RimFormationNamesCollection.h"
 #include "RimAnnotationCollection.h"
 #include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseViewCollection.h"
 #include "RimEnsembleWellLogsCollection.h"
-#include "RimFormationNamesCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechModels.h"
 #include "RimMeasurement.h"

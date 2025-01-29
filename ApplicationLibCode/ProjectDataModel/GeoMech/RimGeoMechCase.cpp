@@ -34,9 +34,9 @@
 #include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
 
+#include "Formations/RimFormationNames.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCellFilterCollection.h"
-#include "RimFormationNames.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechContourMapViewCollection.h"

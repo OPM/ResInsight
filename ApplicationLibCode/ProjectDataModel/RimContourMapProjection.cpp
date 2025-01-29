@@ -121,7 +121,7 @@ void RimContourMapProjection::generateResultsIfNecessary( int timeStep )
         if ( gridMappingNeedsUpdating() )
         {
             m_contourMapProjection->setCellVisibility( getCellVisibility() );
-            m_contourMapProjection->generateGridMapping( m_resultAggregation(), retrieveParameterWeights() );
+            m_contourMapProjection->generateGridMapping( m_resultAggregation(), retrieveParameterWeights(), m_selectedKLayers, {} );
         }
         progress.setProgress( 20 );
         m_mapCellVisibility = m_contourMapProjection->getMapCellVisibility( timeStep, m_resultAggregation() );
@@ -647,4 +647,12 @@ void RimContourMapProjection::clearMinMaxValueRange()
 {
     m_minResultAllTimeSteps = std::numeric_limits<double>::infinity();
     m_maxResultAllTimeSteps = -std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapProjection::useKLayers( std::set<int> kLayers )
+{
+    m_selectedKLayers = kLayers;
 }

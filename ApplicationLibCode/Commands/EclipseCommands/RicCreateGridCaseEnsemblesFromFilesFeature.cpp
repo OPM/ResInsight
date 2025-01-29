@@ -20,11 +20,18 @@
 
 #include "RiaApplication.h"
 #include "RiaImportEclipseCaseTools.h"
+#include "RiaLogging.h"
 
 #include "RicCreateGridCaseGroupFromFilesFeature.h"
+#include "RicImportFormationNamesFeature.h"
 #include "RicNewViewFeature.h"
 #include "RicRecursiveFileSearchDialog.h"
 
+#include "RigFormationNames.h"
+
+#include "Formations/RimFormationNames.h"
+#include "Formations/RimFormationNamesCollection.h"
+#include "Formations/RimFormationTools.h"
 #include "Rim3dView.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
@@ -35,8 +42,10 @@
 
 #include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
+#include "cafUtils.h"
 
 #include <QAction>
+#include <QDir>
 #include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicCreateGridCaseEnsemblesFromFilesFeature, "RicCreateGridCaseEnsemblesFromFilesFeature" );
@@ -115,9 +124,13 @@ RimEclipseCaseEnsemble* RicCreateGridCaseEnsemblesFromFilesFeature::importSingle
 
         QString caseName = gridFileName.completeBaseName();
 
-        auto* rimResultReservoir = new RimEclipseResultCase();
-        rimResultReservoir->setCaseInfo( caseName, caseFileName );
-        eclipseCaseEnsemble->addCase( rimResultReservoir );
+        auto* rimResultCase = new RimEclipseResultCase();
+        rimResultCase->setCaseInfo( caseName, caseFileName );
+        eclipseCaseEnsemble->addCase( rimResultCase );
+
+        auto               folderName = RimFormationTools::formationFolderFromCaseFileName( caseFileName );
+        RimFormationNames* formations = RimFormationTools::loadFormationNamesFromFolder( folderName );
+        if ( formations != nullptr ) rimResultCase->setFormationNames( formations );
     }
 
     oilfield->analysisModels()->caseEnsembles.push_back( eclipseCaseEnsemble );

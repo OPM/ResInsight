@@ -44,7 +44,10 @@
 #include "RigFlowDiagSolverInterface.h"
 #include "RigMainGrid.h"
 
+#include "Formations/RimFormationNames.h"
+#include "Formations/RimFormationTools.h"
 #include "RimDialogData.h"
+#include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
@@ -108,6 +111,21 @@ RimEclipseResultCase::RimEclipseResultCase()
 bool RimEclipseResultCase::openEclipseGridFile()
 {
     return importGridAndResultMetaData( false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase::initAfterRead()
+{
+    RimEclipseCase::initAfterRead();
+
+    // handle special formations for ensembles
+    if ( firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr )
+    {
+        auto folderName        = RimFormationTools::formationFolderFromCaseFileName( m_caseFileName().path() );
+        m_activeFormationNames = RimFormationTools::loadFormationNamesFromFolder( folderName );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -694,4 +712,31 @@ void RimEclipseResultCase::defineEditorAttribute( const caf::PdmFieldHandle* fie
             myAttr->m_defaultPath         = QFileInfo( gridFileName() ).absolutePath();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimEclipseResultCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    // if this is part of an ensemble, use lyr file set during ensemble creating
+    if ( fieldNeedingOptions == &m_activeFormationNames )
+    {
+        auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
+        if ( ensemble != nullptr )
+        {
+            QList<caf::PdmOptionItemInfo> options;
+            if ( m_activeFormationNames() )
+            {
+                options.push_back( caf::PdmOptionItemInfo( m_activeFormationNames->fileNameWoPath(), m_activeFormationNames(), false ) );
+            }
+            else
+            {
+                options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+            }
+            return options;
+        }
+    }
+
+    return RimEclipseCase::calculateValueOptions( fieldNeedingOptions );
 }

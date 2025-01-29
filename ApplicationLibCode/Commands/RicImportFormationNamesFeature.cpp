@@ -26,6 +26,8 @@
 #include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
 
+#include "Formations/RimFormationNames.h"
+#include "Formations/RimFormationNamesCollection.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimColorLegend.h"
@@ -35,8 +37,6 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseView.h"
-#include "RimFormationNames.h"
-#include "RimFormationNamesCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechContourMapView.h"

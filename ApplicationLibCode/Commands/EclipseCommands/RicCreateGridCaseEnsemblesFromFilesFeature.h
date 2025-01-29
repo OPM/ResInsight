@@ -25,6 +25,7 @@
 #include <vector>
 
 class RimEclipseCaseEnsemble;
+class RimFormationNames;
 
 //==================================================================================================
 ///

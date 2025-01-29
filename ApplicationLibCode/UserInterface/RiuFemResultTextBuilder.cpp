@@ -28,8 +28,8 @@
 #include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
 
+#include "Formations/RimFormationNames.h"
 #include "Rim2dIntersectionView.h"
-#include "RimFormationNames.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"

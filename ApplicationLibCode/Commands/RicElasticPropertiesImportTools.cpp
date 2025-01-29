@@ -26,10 +26,10 @@
 
 #include "RigElasticProperties.h"
 
+#include "Formations/RimFormationNames.h"
+#include "Formations/RimFormationNamesCollection.h"
 #include "RigFormationNames.h"
 #include "RimElasticProperties.h"
-#include "RimFormationNames.h"
-#include "RimFormationNamesCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimStimPlanModelTemplate.h"

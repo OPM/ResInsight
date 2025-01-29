@@ -21,6 +21,8 @@
 
 #include "RiaApplication.h"
 
+#include "Formations/RimFormationNames.h"
+#include "Formations/RimFormationNamesCollection.h"
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "Rim3dOverlayInfoConfig.h"
@@ -69,8 +71,6 @@
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowDiagSolution.h"
 #include "RimFlowPlotCollection.h"
-#include "RimFormationNames.h"
-#include "RimFormationNamesCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"

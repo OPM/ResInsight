@@ -21,6 +21,7 @@
 #include "cvfObject.h"
 #include <QString>
 
+#include <set>
 #include <vector>
 
 #include "cvfColor3.h"
@@ -49,6 +50,8 @@ public:
 
     void appendFormationRange( const QString& name, cvf::Color3f color, int kStartIdx, int kEndIdx );
     void appendFormationRangeHeight( const QString& name, cvf::Color3f color, int kLayerCount );
+
+    std::set<int> findKLayers( std::vector<QString> formationNames );
 
 private:
     static cvf::Color3f undefinedColor();

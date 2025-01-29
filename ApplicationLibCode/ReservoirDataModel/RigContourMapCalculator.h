@@ -19,12 +19,15 @@
 #pragma once
 
 #include "cvfVector2.h"
+#include "cvfVector3.h"
 
+#include <set>
 #include <utility>
 #include <vector>
 
 class RigContourMapGrid;
 class RigContourMapProjection;
+class RigPolyLinesData;
 
 //==================================================================================================
 ///
@@ -50,10 +53,13 @@ public:
         HYDROCARBON_COLUMN
     };
 
-    static std::vector<std::vector<std::pair<size_t, double>>> generateGridMapping( RigContourMapProjection&   contourMapProjection,
-                                                                                    const RigContourMapGrid&   contourMapGrid,
-                                                                                    ResultAggregationType      resultAggregation,
-                                                                                    const std::vector<double>& weightingResultValues );
+    static std::vector<std::vector<std::pair<size_t, double>>>
+        generateGridMapping( RigContourMapProjection&                    contourMapProjection,
+                             const RigContourMapGrid&                    contourMapGrid,
+                             ResultAggregationType                       resultAggregation,
+                             const std::vector<double>&                  weightingResultValues,
+                             const std::set<int>&                        kLayers,
+                             const std::vector<std::vector<cvf::Vec3d>>& limitToPolygons );
 
     static double calculateValueInMapCell( const RigContourMapProjection&                contourMapProjection,
                                            const std::vector<std::pair<size_t, double>>& matchingCells,
@@ -63,12 +69,14 @@ public:
     static std::vector<CellIndexAndResult> cellOverlapVolumesAndResults( const RigContourMapProjection& contourMapProjection,
                                                                          const RigContourMapGrid&       contourMapGrid,
                                                                          const cvf::Vec2d&              globalPos2d,
-                                                                         const std::vector<double>&     weightingResultValues );
+                                                                         const std::vector<double>&     weightingResultValues,
+                                                                         const std::set<int>&           kLayers );
 
     static std::vector<CellIndexAndResult> cellRayIntersectionAndResults( const RigContourMapProjection& contourMapProjection,
                                                                           const RigContourMapGrid&       contourMapGrid,
                                                                           const cvf::Vec2d&              globalPos2d,
-                                                                          const std::vector<double>&     weightingResultValues );
+                                                                          const std::vector<double>&     weightingResultValues,
+                                                                          const std::set<int>&           kLayers );
 
     static bool isColumnResult( ResultAggregationType aggregationType );
     static bool isMeanResult( ResultAggregationType aggregationType );
@@ -97,4 +105,6 @@ private:
     static double calculateSum( const RigContourMapProjection&                contourMapProjection,
                                 const std::vector<std::pair<size_t, double>>& matchingCells,
                                 const std::vector<double>&                    gridCellValues );
+
+    static bool isPointInsidePolygons( cvf::Vec2d point, const std::vector<std::vector<cvf::Vec3d>>& polygons );
 };

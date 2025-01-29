@@ -32,13 +32,19 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseContourMapProjection.h"
 #include "RigEclipseResultAddress.h"
+#include "RigFormationNames.h"
 #include "RigMainGrid.h"
+#include "RigPolyLinesData.h"
 #include "RigStatisticsMath.h"
 
+#include "Formations/RimFormationNames.h"
+#include "Polygons/RimPolygon.h"
+#include "Polygons/RimPolygonCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseContourMapProjection.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStatisticsContourMapProjection.h"
@@ -54,6 +60,7 @@
 #include "cafProgressInfo.h"
 
 #include <limits>
+#include <set>
 
 CAF_PDM_SOURCE_INIT( RimStatisticsContourMap, "RimStatisticalContourMap" );
 
@@ -115,6 +122,14 @@ RimStatisticsContourMap::RimStatisticsContourMap()
 
     CAF_PDM_InitFieldNoDefault( &m_views, "ContourMapViews", "Contour Maps", ":/CrossSection16x16.png" );
 
+    CAF_PDM_InitFieldNoDefault( &m_selectedFormations, "Formations", "Select Formations" );
+    m_selectedFormations.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_selectedFormations.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
+    CAF_PDM_InitFieldNoDefault( &m_selectedPolygons, "Polygons", "Select Polygons" );
+    m_selectedPolygons.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_selectedPolygons.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
     setDeletable( true );
 }
 
@@ -131,6 +146,7 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
     }
 
     uiOrdering.add( nameField() );
+    uiOrdering.add( &m_computeStatisticsButton );
 
     auto genGrp = uiOrdering.addNewGroup( "General" );
 
@@ -143,13 +159,31 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
     tsGroup->setCollapsedByDefault();
     tsGroup->add( &m_selectedTimeSteps );
 
+    if ( eclipseCase() && eclipseCase()->activeFormationNames() )
+    {
+        auto formationGrp = uiOrdering.addNewGroup( "Formation Selection" );
+        formationGrp->setCollapsedByDefault();
+        formationGrp->add( &m_selectedFormations );
+    }
+
+    RimProject* proj = RimProject::current();
+    if ( auto polygonCollection = proj->activeOilField()->polygonCollection().p() )
+    {
+        if ( !polygonCollection->allPolygons().empty() )
+        {
+            auto polyGrp = uiOrdering.addNewGroup( "Polygon Selection" );
+            polyGrp->setCollapsedByDefault();
+            polyGrp->add( &m_selectedPolygons );
+        }
+    }
+
     if ( !isColumnResult() )
     {
         auto resultDefinitionGroup = uiOrdering.addNewGroup( "Result Definition" );
         m_resultDefinition->uiOrdering( uiConfigName, *resultDefinitionGroup );
     }
 
-    uiOrdering.add( &m_computeStatisticsButton );
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -277,6 +311,33 @@ QList<caf::PdmOptionItemInfo> RimStatisticsContourMap::calculateValueOptions( co
             options.push_back( caf::PdmOptionItemInfo( eCase->caseUserDescription(), eCase->caseUserDescription() ) );
         }
         return options;
+    }
+    else if ( &m_selectedFormations == fieldNeedingOptions )
+    {
+        if ( auto eCase = eclipseCase() )
+        {
+            if ( auto formations = eCase->activeFormationNames() )
+            {
+                if ( formations->formationNamesData() )
+                {
+                    for ( auto f : formations->formationNamesData()->formationNames() )
+                    {
+                        options.push_back( caf::PdmOptionItemInfo( f, f, false ) );
+                    }
+                }
+            }
+        }
+    }
+    else if ( &m_selectedPolygons == fieldNeedingOptions )
+    {
+        RimProject* proj = RimProject::current();
+        if ( auto polygonCollection = proj->activeOilField()->polygonCollection().p() )
+        {
+            for ( auto p : polygonCollection->allPolygons() )
+            {
+                options.push_back( caf::PdmOptionItemInfo( p->name(), p, false ) );
+            }
+        }
     }
 
     return options;
@@ -407,12 +468,6 @@ void RimStatisticsContourMap::computeStatistics()
 
     auto contourMapGrid = std::make_unique<RigContourMapGrid>( gridBoundingBox, sampleSpacing );
 
-    auto firstEclipseCaseData = eclipseCase()->eclipseCaseData();
-    auto firstResultData      = firstEclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-
-    RigEclipseContourMapProjection contourMapProjection( *contourMapGrid, *firstEclipseCaseData, *firstResultData );
-    m_gridMapping = contourMapProjection.generateGridMapping( resultAggregation, {} );
-
     const size_t nCases = ensemble->cases().size();
 
     std::map<size_t, std::vector<std::vector<double>>> timestep_results;
@@ -432,13 +487,22 @@ void RimStatisticsContourMap::computeStatistics()
 
         if ( eCase->ensureReservoirCaseIsOpen() )
         {
-            RiaLogging::info( QString( "Grid: %1" ).arg( eCase->caseUserDescription() ) );
+            RiaLogging::info( QString( "Processing Grid: %1" ).arg( eCase->caseUserDescription() ) );
 
             auto eclipseCaseData = eCase->eclipseCaseData();
             auto resultData      = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
             RigEclipseContourMapProjection contourMapProjection( *contourMapGrid, *eclipseCaseData, *resultData );
-            contourMapProjection.generateGridMapping( resultAggregation, {} );
+
+            std::set<int> usedKLayers;
+            auto          formationNames = selectedFormations();
+
+            if ( formationNames.size() > 0 )
+            {
+                usedKLayers = eCase->activeFormationNames()->formationNamesData()->findKLayers( formationNames );
+            }
+
+            contourMapProjection.generateGridMapping( resultAggregation, {}, usedKLayers, selectedPolygons() );
 
             if ( m_resultDefinition()->hasDynamicResult() )
             {
@@ -533,6 +597,36 @@ std::vector<int> RimStatisticsContourMap::selectedTimeSteps() const
         std::sort( steps.begin(), steps.end() );
     }
     return steps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimStatisticsContourMap::selectedFormations() const
+{
+    return m_selectedFormations();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<cvf::Vec3d>> RimStatisticsContourMap::selectedPolygons()
+{
+    std::vector<std::vector<cvf::Vec3d>> allLines;
+
+    for ( auto p : m_selectedPolygons() )
+    {
+        auto pData = p->polyLinesData();
+        if ( pData.isNull() ) continue;
+
+        const std::vector<std::vector<cvf::Vec3d>> lines = pData->completePolyLines();
+        for ( auto l : lines )
+        {
+            allLines.push_back( l );
+        }
+    }
+
+    return allLines;
 }
 
 //--------------------------------------------------------------------------------------------------

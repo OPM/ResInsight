@@ -43,6 +43,7 @@
 #include "Well/RigSimWellData.h"
 #include "Well/RigWellResultFrame.h"
 
+#include "Formations/RimFormationNames.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
@@ -59,7 +60,6 @@
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
 #include "RimFaultInViewCollection.h"
-#include "RimFormationNames.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimMainPlotCollection.h"

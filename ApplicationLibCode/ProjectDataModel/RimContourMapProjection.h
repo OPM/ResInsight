@@ -30,6 +30,8 @@
 #include "cvfArray.h"
 #include "cvfVector2.h"
 
+#include <set>
+
 class RigContourMapGrid;
 class RimGridView;
 class RimRegularLegendConfig;
@@ -63,6 +65,9 @@ public:
     void   setSampleSpacingFactor( double spacingFactor );
     bool   showContourLines() const;
     bool   showContourLabels() const;
+
+    // k layer filter, only consider kLayers in the given set (0-based index)
+    void useKLayers( std::set<int> kLayers );
 
     virtual QString resultAggregationText() const;
 
@@ -153,6 +158,8 @@ protected:
     caf::PdmField<caf::AppEnum<RimIntersectionFilterEnum>> m_valueFilterType;
     caf::PdmField<double>                                  m_upperThreshold;
     caf::PdmField<double>                                  m_lowerThreshold;
+
+    std::set<int> m_selectedKLayers;
 
     std::unique_ptr<RigContourMapGrid>       m_contourMapGrid;
     std::unique_ptr<RigContourMapProjection> m_contourMapProjection;

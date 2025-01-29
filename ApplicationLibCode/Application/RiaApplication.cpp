@@ -45,6 +45,7 @@
 #include "RicfCommandFileExecutor.h"
 #include "RicfCommandObject.h"
 
+#include "Formations/RimFormationNamesCollection.h"
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "Polygons/RimPolygonCollection.h"
 #include "QuickAccess/RimQuickAccessCollection.h"
@@ -60,7 +61,6 @@
 #include "RimFaultReactivationModelCollection.h"
 #include "RimFileWellPath.h"
 #include "RimFileWellPathDataLoader.h"
-#include "RimFormationNamesCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
