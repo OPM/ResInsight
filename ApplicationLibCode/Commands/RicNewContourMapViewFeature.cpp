@@ -60,9 +60,6 @@
 
 CAF_CMD_SOURCE_INIT( RicNewContourMapViewFeature, "RicNewContourMapViewFeature" );
 
-const size_t mediumSamplingThresholdCellCount = 500000u;
-const size_t largeSamplingThresholdCellCount  = 5000000u;
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
