@@ -245,9 +245,6 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
                                                                     caf::PdmDefaultObjectFactory::instance() ) );
     CVF_ASSERT( contourMap );
 
-    const RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    size_t                   activeCellCount = activeCellInfo->reservoirActiveCellCount();
-
     contourMap->setEclipseCase( eclipseCase );
 
     auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
@@ -321,9 +318,6 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMap( 
 
     size_t i = eclipseCase->contourMapCollection()->views().size();
     contourMap->setName( QString( "Contour Map %1" ).arg( i + 1 ) );
-
-    const RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    size_t                   activeCellCount = activeCellInfo->reservoirActiveCellCount();
 
     contourMap->faultCollection()->setActive( false );
     contourMap->wellCollection()->isActive = false;
