@@ -147,7 +147,7 @@ double RimEclipseContourMapProjection::sampleSpacing() const
     {
         if ( auto mainGrid = ec->mainGrid() )
         {
-            return m_relativeSampleSpacing * mainGrid->characteristicIJCellSize();
+            return sampleSpacingFactor() * mainGrid->characteristicIJCellSize();
         }
     }
 

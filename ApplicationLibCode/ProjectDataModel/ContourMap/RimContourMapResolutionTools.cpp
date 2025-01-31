@@ -27,10 +27,10 @@ void caf::AppEnum<RimContourMapResolutionTools::SamplingResolution>::setUp()
 {
     addItem( RimContourMapResolutionTools::SamplingResolution::EXTRA_FINE, "Extra Fine", "Extra Fine" );
     addItem( RimContourMapResolutionTools::SamplingResolution::FINE, "Fine", "Fine" );
-    addItem( RimContourMapResolutionTools::SamplingResolution::BASE, "Base", "Normal" );
+    addItem( RimContourMapResolutionTools::SamplingResolution::NORMAL, "Normal", "Normal" );
     addItem( RimContourMapResolutionTools::SamplingResolution::COARSE, "Coarse", "Coarse" );
     addItem( RimContourMapResolutionTools::SamplingResolution::EXTRA_COARSE, "Extra Coarse", "Extra Coarse" );
-    setDefault( RimContourMapResolutionTools::SamplingResolution::BASE );
+    setDefault( RimContourMapResolutionTools::SamplingResolution::NORMAL );
 }
 }; // namespace caf
 
@@ -49,7 +49,7 @@ double RimContourMapResolutionTools::resolutionFromEnumValue( SamplingResolution
             return 5.0;
         case RimContourMapResolutionTools::SamplingResolution::EXTRA_COARSE:
             return 8.0;
-        case RimContourMapResolutionTools::SamplingResolution::BASE:
+        case RimContourMapResolutionTools::SamplingResolution::NORMAL:
         default:
             return 2.0;
     }

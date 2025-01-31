@@ -75,8 +75,8 @@ RimContourMapProjection::RimContourMapProjection()
 {
     CAF_PDM_InitObject( "RimContourMapProjection", ":/2DMapProjection16x16.png" );
 
-    CAF_PDM_InitField( &m_relativeSampleSpacing, "SampleSpacing", 0.9, "Sample Spacing Factor" );
-    m_relativeSampleSpacing.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitFieldNoDefault( &m_resolution, "Resolution", "Sampling Resolution" );
+    m_resolution.setValue( RimContourMapResolutionTools::SamplingResolution::FINE );
 
     CAF_PDM_InitFieldNoDefault( &m_resultAggregation, "ResultAggregation", "Result Aggregation" );
 
@@ -222,15 +222,7 @@ const std::vector<cvf::Vec4d>& RimContourMapProjection::trianglesWithVertexValue
 //--------------------------------------------------------------------------------------------------
 double RimContourMapProjection::sampleSpacingFactor() const
 {
-    return m_relativeSampleSpacing();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::setSampleSpacingFactor( double spacingFactor )
-{
-    m_relativeSampleSpacing = spacingFactor;
+    return RimContourMapResolutionTools::resolutionFromEnumValue( m_resolution() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -532,7 +524,7 @@ void RimContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* chang
     {
         clearGeometry();
     }
-    else if ( changedField == &m_relativeSampleSpacing )
+    else if ( changedField == &m_resolution )
     {
         clearGridMapping();
         clearResults();
@@ -548,17 +540,6 @@ void RimContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    if ( &m_relativeSampleSpacing == field )
-    {
-        if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_minimum                       = 0.2;
-            myAttr->m_maximum                       = 20.0;
-            myAttr->m_sliderTickCount               = 20;
-            myAttr->m_delaySliderUpdateUntilRelease = true;
-        }
-    }
-
     if ( &m_lowerThreshold == field || &m_upperThreshold == field )
     {
         if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
@@ -578,7 +559,7 @@ void RimContourMapProjection::defineUiOrdering( QString uiConfigName, caf::PdmUi
     caf::PdmUiGroup* mainGroup = uiOrdering.addNewGroup( "Projection Settings" );
     mainGroup->add( &m_resultAggregation );
     legendConfig()->uiOrdering( "NumLevelsOnly", *mainGroup );
-    mainGroup->add( &m_relativeSampleSpacing );
+    mainGroup->add( &m_resolution );
     mainGroup->add( &m_showContourLines );
     mainGroup->add( &m_showContourLabels );
     m_showContourLabels.uiCapability()->setUiReadOnly( !m_showContourLines() );

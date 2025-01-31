@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "ContourMap/RimContourMapResolutionTools.h"
 #include "RimCheckableNamedObject.h"
 #include "RimIntersectionEnums.h"
 
@@ -62,9 +63,9 @@ public:
     virtual double sampleSpacing() const = 0;
 
     double sampleSpacingFactor() const;
-    void   setSampleSpacingFactor( double spacingFactor );
-    bool   showContourLines() const;
-    bool   showContourLabels() const;
+
+    bool showContourLines() const;
+    bool showContourLabels() const;
 
     // k layer filter, only consider kLayers in the given set (0-based index)
     void useKLayers( std::set<int> kLayers );
@@ -141,7 +142,7 @@ private:
     std::optional<std::pair<double, double>> valueFilterMinMax() const;
 
 protected:
-    caf::PdmField<double> m_relativeSampleSpacing;
+    caf::PdmField<caf::AppEnum<RimContourMapResolutionTools::SamplingResolution>> m_resolution;
 
     caf::PdmField<ResultAggregation> m_resultAggregation;
     caf::PdmField<bool>              m_showContourLines;
