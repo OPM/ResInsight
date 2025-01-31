@@ -54,7 +54,6 @@
 #include "Riu3DMainWindowTools.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
-#include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafProgressInfo.h"
@@ -93,7 +92,6 @@ RimStatisticsContourMap::RimStatisticsContourMap()
                        "",
                        "How much to increase the bounding box of the primary case to cover for any grid size differences across the "
                        "ensemble." );
-    m_boundingBoxExpPercent.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_resolution, "Resolution", "Sampling Resolution" );
 
@@ -122,6 +120,7 @@ RimStatisticsContourMap::RimStatisticsContourMap()
 
     CAF_PDM_InitFieldNoDefault( &m_views, "ContourMapViews", "Contour Maps", ":/CrossSection16x16.png" );
 
+    CAF_PDM_InitField( &m_enableFormationFilter, "EnableFormationFilter", false, "Enable Formation Filter" );
     CAF_PDM_InitFieldNoDefault( &m_selectedFormations, "Formations", "Select Formations" );
     m_selectedFormations.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedFormations.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
@@ -145,8 +144,20 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
         m_primaryCase = selCase->caseUserDescription();
     }
 
+    bool computeOK = !( m_enableFormationFilter && m_selectedFormations().empty() );
+    computeOK      = computeOK && !selectedTimeSteps().empty();
+
     uiOrdering.add( nameField() );
     uiOrdering.add( &m_computeStatisticsButton );
+    m_computeStatisticsButton.uiCapability()->setUiReadOnly( !computeOK );
+    if ( computeOK )
+    {
+        m_computeStatisticsButton.uiCapability()->setUiToolTip( "Start statistics computations." );
+    }
+    else
+    {
+        m_computeStatisticsButton.uiCapability()->setUiToolTip( "Please check your time step and/or formation filter selections." );
+    }
 
     auto genGrp = uiOrdering.addNewGroup( "General" );
 
@@ -162,8 +173,9 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
     if ( eclipseCase() && eclipseCase()->activeFormationNames() )
     {
         auto formationGrp = uiOrdering.addNewGroup( "Formation Selection" );
-        formationGrp->setCollapsedByDefault();
-        formationGrp->add( &m_selectedFormations );
+        if ( !m_enableFormationFilter ) formationGrp->setCollapsedByDefault();
+        formationGrp->add( &m_enableFormationFilter );
+        if ( m_enableFormationFilter ) formationGrp->add( &m_selectedFormations );
     }
 
     RimProject* proj = RimProject::current();
@@ -192,7 +204,19 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
 void RimStatisticsContourMap::setEclipseCase( RimEclipseCase* eclipseCase )
 {
     m_resultDefinition->setEclipseCase( eclipseCase );
-    if ( eclipseCase ) m_primaryCase = eclipseCase->caseUserDescription();
+    if ( eclipseCase )
+    {
+        m_primaryCase = eclipseCase->caseUserDescription();
+
+        if ( m_selectedTimeSteps().empty() )
+        {
+            int nSteps = (int)eclipseCase->timeStepStrings().size();
+            if ( nSteps > 0 )
+            {
+                m_selectedTimeSteps.setValue( { nSteps - 1 } );
+            }
+        }
+    }
 
     for ( auto& view : m_views )
     {
@@ -355,15 +379,6 @@ void RimStatisticsContourMap::defineEditorAttribute( const caf::PdmFieldHandle* 
             attrib->m_buttonText = "Compute";
         }
     }
-    else if ( &m_boundingBoxExpPercent == field )
-    {
-        if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_minimum                       = 0.0;
-            myAttr->m_maximum                       = 25.0;
-            myAttr->m_delaySliderUpdateUntilRelease = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -376,7 +391,7 @@ void RimStatisticsContourMap::initAfterRead()
 
     switchToSelectedSourceCase();
 
-    for ( auto view : m_views )
+    for ( auto view : m_views.childrenByType() )
     {
         view->loadDataAndUpdate();
     }
@@ -448,6 +463,8 @@ void RimStatisticsContourMap::doStatisticsCalculation( std::map<size_t, std::vec
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMap::computeStatistics()
 {
+    if ( m_computeStatisticsButton.isReadOnly() ) return;
+
     RiaLogging::info( "Computing statistics" );
     auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
     if ( !ensemble ) return;
@@ -582,20 +599,7 @@ std::vector<double> RimStatisticsContourMap::result( size_t timeStep, Statistics
 std::vector<int> RimStatisticsContourMap::selectedTimeSteps() const
 {
     auto steps = m_selectedTimeSteps();
-    if ( m_selectedTimeSteps().empty() )
-    {
-        if ( eclipseCase() )
-        {
-            for ( int i = 0; i < (int)eclipseCase()->timeStepStrings().size(); i++ )
-            {
-                steps.push_back( i );
-            }
-        }
-    }
-    else
-    {
-        std::sort( steps.begin(), steps.end() );
-    }
+    std::sort( steps.begin(), steps.end() );
     return steps;
 }
 
@@ -604,6 +608,7 @@ std::vector<int> RimStatisticsContourMap::selectedTimeSteps() const
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RimStatisticsContourMap::selectedFormations() const
 {
+    if ( !m_enableFormationFilter ) return {};
     return m_selectedFormations();
 }
 
