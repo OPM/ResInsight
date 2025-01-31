@@ -39,6 +39,8 @@ public:
     bool        onLoadData() override;
     RimSurface* createCopy() override;
 
+    void loadSurfaceDataForTimeStep( int timeStep ) override;
+
 protected:
     bool updateSurfaceData() override;
     void clearCachedNativeData() override;
