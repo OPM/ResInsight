@@ -32,6 +32,7 @@
 
 #include "RivSurfacePartMgr.h"
 
+#include "RiaApplication.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimSurfaceInView, "SurfaceInView" );
@@ -166,11 +167,12 @@ const RivIntersectionGeometryGeneratorInterface* RimSurfaceInView::intersectionG
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceInView::loadDataAndUpdate()
+void RimSurfaceInView::loadDataAndUpdate( int timeStep )
 {
     if ( surface() )
     {
         surface()->loadDataIfRequired();
+        surface()->loadSurfaceDataForTimeStep( timeStep );
 
         if ( surface()->surfaceData() && surface()->surfaceData()->propertyNames().empty() )
         {

@@ -877,6 +877,8 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
         appendIntersectionsForCurrentTimeStep();
     }
 
+    if ( surfaceInViewCollection() ) surfaceInViewCollection()->loadData( m_currentTimeStep );
+
     updateVisibleCellColors();
 
     wellCollection()->scaleWellDisks();
@@ -1197,7 +1199,7 @@ void RimEclipseView::onLoadDataAndUpdate()
 
     m_wellCollection->scaleWellDisks();
 
-    if ( m_surfaceCollection ) m_surfaceCollection->loadData();
+    if ( m_surfaceCollection ) m_surfaceCollection->loadData( m_currentTimeStep );
 
     scheduleReservoirGridGeometryRegen();
     m_simWellsPartManager->clearGeometryCache();

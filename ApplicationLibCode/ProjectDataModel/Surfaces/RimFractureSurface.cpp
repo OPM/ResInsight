@@ -97,6 +97,33 @@ RimSurface* RimFractureSurface::createCopy()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFractureSurface::loadSurfaceDataForTimeStep( int timeStep )
+{
+    if ( m_surfacePerTimeStep.empty() )
+    {
+        loadDataFromFile();
+    }
+
+    if ( timeStep >= m_surfacePerTimeStep.size() ) return;
+
+    auto surface = new RigSurface;
+
+    auto gocadData                     = m_surfacePerTimeStep[timeStep];
+    const auto& [coordinates, indices] = gocadData.gocadGeometry();
+
+    surface->setTriangleData( indices, coordinates );
+    auto propertyNames = gocadData.propertyNames();
+    for ( const auto& name : propertyNames )
+    {
+        auto values = gocadData.propertyValues( name );
+        surface->addVerticeResult( name, values );
+    }
+    setSurfaceData( surface );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFractureSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimSurface::fieldChangedByUi( changedField, oldValue, newValue );
@@ -118,44 +145,9 @@ void RimFractureSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 bool RimFractureSurface::updateSurfaceData()
 {
-    bool result = true;
+    loadSurfaceDataForTimeStep( 0 );
 
-    if ( m_surfacePerTimeStep.empty() )
-    {
-        loadDataFromFile();
-    }
-
-    /*
-        if ( m_vertices.empty() )
-        {
-            result = loadDataFromFile();
-        }
-
-        std::vector<cvf::Vec3d> vertices{ m_vertices };
-        std::vector<unsigned>   tringleIndices{ m_tringleIndices };
-
-        auto surface = new RigSurface;
-        if ( !vertices.empty() && !tringleIndices.empty() )
-        {
-            RimSurface::applyDepthOffsetIfNeeded( &vertices );
-
-            surface->setTriangleData( tringleIndices, vertices );
-        }
-
-        if ( m_gocadData )
-        {
-            auto propertyNames = m_gocadData->propertyNames();
-            for ( const auto& name : propertyNames )
-            {
-                auto values = m_gocadData->propertyValues( name );
-                surface->addVerticeResult( name, values );
-            }
-        }
-
-        setSurfaceData( surface );
-    */
-
-    return result;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -190,39 +182,4 @@ bool RimFractureSurface::loadDataFromFile()
     }
 
     return false;
-
-    /*
-    std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> surface;
-
-    QString filePath = surfaceFilePath();
-    if ( filePath.endsWith( "ptl", Qt::CaseInsensitive ) )
-    {
-        surface = RifSurfaceImporter::readPetrelFile( filePath );
-    }
-    else if ( filePath.endsWith( "ts", Qt::CaseInsensitive ) )
-    {
-        m_gocadData = std::make_unique<RigGocadData>();
-
-        RifSurfaceImporter::readGocadFile( filePath, m_gocadData.get() );
-
-        surface = m_gocadData->gocadGeometry();
-    }
-    else if ( filePath.endsWith( "vtu", Qt::CaseInsensitive ) )
-    {
-        m_gocadData = std::make_unique<RigGocadData>();
-        RifVtkSurfaceImporter::importFromFile( filePath.toStdString(), m_gocadData.get() );
-
-        surface = m_gocadData->gocadGeometry();
-    }
-    else if ( filePath.endsWith( "dat", Qt::CaseInsensitive ) || filePath.endsWith( "xyz", Qt::CaseInsensitive ) )
-    {
-        double resamplingDistance = RiaPreferences::current()->surfaceImportResamplingDistance();
-        surface                   = RifSurfaceImporter::readOpenWorksXyzFile( filePath, resamplingDistance );
-    }
-
-    m_vertices       = surface.first;
-    m_tringleIndices = surface.second;
-
-    return !( m_vertices.empty() || m_tringleIndices.empty() );
-*/
 }
