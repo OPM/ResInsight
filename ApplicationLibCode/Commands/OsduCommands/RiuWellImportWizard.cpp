@@ -108,7 +108,11 @@ void RiuWellImportWizard::downloadWellPaths( const QString& wellboreId )
 void RiuWellImportWizard::resetAuthenticationCount()
 {
     m_firstTimeRequestingAuthentication = true;
-    m_osduConnector->requestToken();
+
+    if ( !m_osduConnector->isGranted() )
+    {
+        m_osduConnector->requestTokenWithCancelButton();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -187,6 +191,8 @@ AuthenticationPage::AuthenticationPage( RiaOsduConnector* osduConnector, QWidget
     setLayout( layout );
 
     connect( osduConnector, SIGNAL( tokenReady( const QString& ) ), this, SLOT( accessOk() ) );
+
+    if ( osduConnector->isGranted() ) accessOk();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -49,6 +49,10 @@ public:
     QString server() const;
 
     QString requestTokenBlocking();
+    void    requestTokenWithCancelButton();
+    void    forceNewTokens();
+
+    bool isGranted() const;
 
 public slots:
     void requestToken();
