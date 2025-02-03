@@ -47,6 +47,10 @@ void RimContourMapProjection::ResultAggregation::setUp()
     addItem( RigContourMapCalculator::GAS_COLUMN, "GAS_COLUMN", "Gas Column" );
     addItem( RigContourMapCalculator::HYDROCARBON_COLUMN, "HC_COLUMN", "Hydrocarbon Column" );
 
+    addItem( RigContourMapCalculator::MOBILE_OIL_COLUMN, "MOBILE_OIL_COLUMN", "Mobile Oil Column" );
+    addItem( RigContourMapCalculator::MOBILE_GAS_COLUMN, "MOBILE_GAS_COLUMN", "Mobile Gas Column" );
+    addItem( RigContourMapCalculator::MOBILE_HYDROCARBON_COLUMN, "MOBILE_HC_COLUMN", "Mobile Hydrocarbon Column" );
+
     addItem( RigContourMapCalculator::MEAN, "MEAN_VALUE", "Arithmetic Mean" );
     addItem( RigContourMapCalculator::HARMONIC_MEAN, "HARM_VALUE", "Harmonic Mean" );
     addItem( RigContourMapCalculator::GEOMETRIC_MEAN, "GEOM_VALUE", "Geometric Mean" );

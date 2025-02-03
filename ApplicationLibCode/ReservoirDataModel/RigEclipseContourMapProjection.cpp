@@ -110,16 +110,30 @@ std::pair<bool, std::vector<double>>
             resultData.ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" ) );
             resultData.ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "NTG" ) );
             resultData.ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" ) );
-            if ( resultAggregation == RigContourMapCalculator::OIL_COLUMN || resultAggregation == RigContourMapCalculator::HYDROCARBON_COLUMN )
+            if ( resultAggregation == RigContourMapCalculator::OIL_COLUMN || resultAggregation == RigContourMapCalculator::HYDROCARBON_COLUMN ||
+                 resultAggregation == RigContourMapCalculator::MOBILE_OIL_COLUMN ||
+                 resultAggregation == RigContourMapCalculator::MOBILE_HYDROCARBON_COLUMN )
             {
                 resultData.ensureKnownResultLoaded(
                     RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ) );
             }
-            if ( resultAggregation == RigContourMapCalculator::GAS_COLUMN || resultAggregation == RigContourMapCalculator::HYDROCARBON_COLUMN )
+            if ( resultAggregation == RigContourMapCalculator::GAS_COLUMN || resultAggregation == RigContourMapCalculator::HYDROCARBON_COLUMN ||
+                 resultAggregation == RigContourMapCalculator::MOBILE_GAS_COLUMN ||
+                 resultAggregation == RigContourMapCalculator::MOBILE_HYDROCARBON_COLUMN )
             {
                 resultData.ensureKnownResultLoaded(
                     RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ) );
             }
+            if ( resultAggregation == RigContourMapCalculator::MOBILE_OIL_COLUMN ||
+                 resultAggregation == RigContourMapCalculator::MOBILE_GAS_COLUMN ||
+                 resultAggregation == RigContourMapCalculator::MOBILE_HYDROCARBON_COLUMN )
+            {
+                resultData.ensureKnownResultLoaded(
+                    RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sogcr() ) );
+                resultData.ensureKnownResultLoaded(
+                    RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sowcr() ) );
+            }
+
             gridResultValues = calculateColumnResult( resultData, resultAggregation, timeStep );
         }
         else
