@@ -39,8 +39,6 @@
 #include "RimExtrudedCurveIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimPropertyFilterCollection.h"
-#include "RimSimWellFracture.h"
-#include "RimSimWellFractureCollection.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimSimWellInViewTools.h"
 #include "RimSummaryCase.h"
@@ -88,26 +86,14 @@ RimSimWellInView::RimSimWellInView()
     CAF_PDM_InitField( &showWellCells, "ShowWellCells", false, "Well Cells" );
     CAF_PDM_InitField( &showWellCellFence, "ShowWellCellFence", false, "Well Cell Fence" );
 
-    CAF_PDM_InitFieldNoDefault( &simwellFractureCollection, "FractureCollection", "Fractures" );
-
     name.uiCapability()->setUiHidden( true );
     name.uiCapability()->setUiReadOnly( true );
 
     m_resultWellIndex = cvf::UNDEFINED_SIZE_T;
 
-    simwellFractureCollection = new RimSimWellFractureCollection();
-
     m_isInjector  = false;
     m_isValidDisk = false;
     m_diskScale   = 1.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSimWellInView::~RimSimWellInView()
-{
-    if ( simwellFractureCollection() ) delete simwellFractureCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -439,10 +425,6 @@ void RimSimWellInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    for ( RimSimWellFracture* fracture : simwellFractureCollection()->simwellFractures() )
-    {
-        uiTreeOrdering.add( fracture );
-    }
     uiTreeOrdering.skipRemainingChildren( true );
 
     const auto reservoirView = firstAncestorOrThisOfType<RimEclipseView>();

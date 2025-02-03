@@ -38,7 +38,6 @@
 class RigSimWellData;
 class RigWellResultFrame;
 
-class RimSimWellFractureCollection;
 class RigWellPath;
 class RimWellDiskConfig;
 
@@ -52,7 +51,6 @@ class RimSimWellInView : public caf::PdmObject, public Rim3dPropertiesInterface
 
 public:
     RimSimWellInView();
-    ~RimSimWellInView() override;
 
     void                  setSimWellData( RigSimWellData* simWellData, size_t resultWellIndex );
     RigSimWellData*       simWellData();
@@ -101,8 +99,6 @@ public:
 
     caf::PdmField<bool> showWellCells;
     caf::PdmField<bool> showWellCellFence;
-
-    caf::PdmChildField<RimSimWellFractureCollection*> simwellFractureCollection;
 
     double calculateInjectionProductionFractions( const RimWellDiskConfig& wellDiskConfig, bool* isOk );
     void   scaleDisk( double minValue, double maxValue );

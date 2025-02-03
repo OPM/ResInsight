@@ -79,7 +79,6 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSeismicSection.h"
 #include "RimSeismicSectionCollection.h"
-#include "RimSimWellFracture.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStimPlanColors.h"
@@ -1101,37 +1100,6 @@ void RimEclipseView::appendWellsAndFracturesToModel()
 
                 frameScene->addModel( wellPathModelBasicList.p() );
             }
-
-            // Sim Well Fractures
-            {
-                cvf::String name = "SimWellFracturesModel";
-                RimEclipseView::removeModelByName( frameScene, name );
-
-                cvf::ref<cvf::ModelBasicList> simWellFracturesModelBasicList = new cvf::ModelBasicList;
-                simWellFracturesModelBasicList->setName( name );
-
-                cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
-
-                std::vector<RimFracture*> fractures = descendantsIncludingThisOfType<RimFracture>();
-                for ( RimFracture* f : fractures )
-                {
-                    RimSimWellInView* simWell = f->firstAncestorOrThisOfType<RimSimWellInView>();
-                    if ( simWell )
-                    {
-                        bool isAnyGeometryPresent = simWell->isWellPipeVisible( m_currentTimeStep ) ||
-                                                    simWell->isWellSpheresVisible( m_currentTimeStep );
-                        if ( !isAnyGeometryPresent )
-                        {
-                            continue;
-                        }
-                    }
-
-                    f->fracturePartManager()->appendGeometryPartsToModel( simWellFracturesModelBasicList.p(), *this );
-                }
-
-                simWellFracturesModelBasicList->updateBoundingBoxesRecursive();
-                frameScene->addModel( simWellFracturesModelBasicList.p() );
-            }
         }
     }
 }
@@ -1237,16 +1205,6 @@ void RimEclipseView::onLoadDataAndUpdate()
     synchronizeWellsWithResults();
 
     synchronizeLocalAnnotationsFromGlobal();
-
-    {
-        // Update simulation well fractures after well cell results are imported
-
-        std::vector<RimSimWellFracture*> simFractures = descendantsIncludingThisOfType<RimSimWellFracture>();
-        for ( auto fracture : simFractures )
-        {
-            fracture->loadDataAndUpdate();
-        }
-    }
 
     if ( isVirtualConnectionFactorGeometryVisible() )
     {
