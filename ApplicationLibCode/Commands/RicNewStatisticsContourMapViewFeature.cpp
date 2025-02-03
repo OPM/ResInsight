@@ -18,15 +18,15 @@
 
 #include "RicNewStatisticsContourMapViewFeature.h"
 
+#include "ContourMap/RimEclipseContourMapViewCollection.h"
+#include "ContourMap/RimStatisticsContourMap.h"
+#include "ContourMap/RimStatisticsContourMapView.h"
 #include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseContourMapViewCollection.h"
 #include "RimFaultInViewCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSimWellInViewCollection.h"
-#include "RimStatisticsContourMap.h"
-#include "RimStatisticsContourMapView.h"
 #include "RimSurfaceInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"

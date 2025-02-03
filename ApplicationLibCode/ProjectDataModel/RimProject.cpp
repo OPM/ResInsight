@@ -35,6 +35,7 @@
 #include "RigGridBase.h"
 
 #include "Cloud/RimCloudDataSourceCollection.h"
+#include "ContourMap/RimEclipseContourMapViewCollection.h"
 #include "Formations/RimFormationNamesCollection.h"
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "Polygons/RimPolygonCollection.h"
@@ -54,7 +55,6 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
-#include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
 #include "RimEnsembleWellLogsCollection.h"

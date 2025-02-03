@@ -83,10 +83,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimLegendConfig.h
     ${CMAKE_CURRENT_LIST_DIR}/RimNameConfig.h
     ${CMAKE_CURRENT_LIST_DIR}/RimDataSourceSteppingTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimContourMapProjection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapProjection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapView.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapViewCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimMudWeightWindowParameters.h
     ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.h
     ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.h
@@ -132,9 +128,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseEnsemble.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCameraPosition.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellTargetCandidatesGenerator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMap.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMapProjection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMapView.h
     ${CMAKE_CURRENT_LIST_DIR}/RimRegularGridCase.h
 )
 
@@ -223,10 +216,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimLegendConfig.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimNameConfig.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDataSourceSteppingTools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimContourMapProjection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapProjection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapView.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapViewCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.cpp
@@ -268,9 +257,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseEnsemble.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCameraPosition.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellTargetCandidatesGenerator.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMap.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMapProjection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMapView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimRegularGridCase.cpp
 )
 

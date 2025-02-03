@@ -20,9 +20,9 @@
 
 #include "RiaApplication.h"
 
+#include "ContourMap/RimEclipseContourMapView.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"
-#include "RimEclipseContourMapView.h"
 #include "RimGridView.h"
 #include "RimTextAnnotation.h"
 

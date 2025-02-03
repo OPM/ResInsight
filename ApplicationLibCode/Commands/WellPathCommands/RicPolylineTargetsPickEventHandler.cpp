@@ -22,8 +22,8 @@
 
 #include "Well/RigWellPath.h"
 
+#include "ContourMap/RimEclipseContourMapView.h"
 #include "Rim3dView.h"
-#include "RimEclipseContourMapView.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimModeledWellPath.h"
 #include "RimPolylinePickerInterface.h"

@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 
+#include "ContourMap/RimEclipseContourMapViewCollection.h"
 #include "Formations/RimFormationNames.h"
 #include "Formations/RimFormationNamesCollection.h"
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
@@ -49,7 +50,6 @@
 #include "RimCustomObjectiveFunctionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
-#include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipsePropertyFilter.h"

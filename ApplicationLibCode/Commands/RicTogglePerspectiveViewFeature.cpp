@@ -19,9 +19,9 @@
 
 #include "RicTogglePerspectiveViewFeature.h"
 
+#include "ContourMap/RimEclipseContourMapView.h"
 #include "RiaApplication.h"
 #include "Rim3dView.h"
-#include "RimEclipseContourMapView.h"
 #include "RimGridView.h"
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
