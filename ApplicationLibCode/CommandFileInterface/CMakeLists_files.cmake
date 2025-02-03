@@ -5,7 +5,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicfExportMsw.h
     ${CMAKE_CURRENT_LIST_DIR}/RicfExportMultiCaseSnapshots.h
     ${CMAKE_CURRENT_LIST_DIR}/RicfExportProperty.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicfExportSimWellFractureCompletions.h
     ${CMAKE_CURRENT_LIST_DIR}/RicfExportSnapshots.h
     ${CMAKE_CURRENT_LIST_DIR}/RicfExportWellPathCompletions.h
     ${CMAKE_CURRENT_LIST_DIR}/RicfLoadCase.h
@@ -46,7 +45,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicfExportMsw.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicfExportMultiCaseSnapshots.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicfExportProperty.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicfExportSimWellFractureCompletions.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicfExportSnapshots.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicfExportWellPathCompletions.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicfLoadCase.cpp

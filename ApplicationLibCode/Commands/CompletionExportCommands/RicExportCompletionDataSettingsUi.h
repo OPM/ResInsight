@@ -81,8 +81,6 @@ public:
     caf::PdmField<bool> includeFractures;
 
     void enableIncludeMsw();
-    void showForSimWells();
-    void showForWellPath();
 
     void setCombinationMode( CombinationMode combinationMode );
 
@@ -121,7 +119,6 @@ private:
     caf::PdmField<bool>    m_useCustomFileName;
     caf::PdmField<QString> m_customFileName;
 
-    bool m_displayForSimWell;
     bool m_fracturesEnabled;
     bool m_perforationsEnabled;
     bool m_fishbonesEnabled;

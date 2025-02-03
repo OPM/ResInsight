@@ -35,9 +35,6 @@
 #include "RimObservedEclipseUserData.h"
 #include "RimProject.h"
 #include "RimReloadCaseTools.h"
-#include "RimSimWellFracture.h"
-#include "RimSimWellFractureCollection.h"
-#include "RimSimWellInView.h"
 #include "RimStimPlanFractureTemplate.h"
 #include "RimSummaryCase.h"
 #include "RimWellPath.h"
@@ -95,46 +92,6 @@ std::vector<RigCompletionData>
                                   fractureDataForReport,
                                   outputStreamForIntermediateResultsText,
                                   pdParams );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData>
-    RicExportFractureCompletionsImpl::generateCompdatValuesForSimWell( RimEclipseCase*             eclipseCase,
-                                                                       const RimSimWellInView*     well,
-                                                                       QTextStream*                outputStreamForIntermediateResultsText,
-                                                                       PressureDepletionParameters pdParams )
-{
-    std::vector<RigCompletionData> completionData;
-
-    auto branches = well->wellPipeBranches();
-
-    for ( size_t branchIndex = 0; branchIndex < branches.size(); ++branchIndex )
-    {
-        std::vector<const RimFracture*> fractures;
-        for ( RimSimWellFracture* fracture : well->simwellFractureCollection->simwellFractures() )
-        {
-            if ( fracture->isChecked() && static_cast<size_t>( fracture->branchIndex() ) == branchIndex )
-            {
-                fracture->ensureValidNonDarcyProperties();
-
-                fractures.push_back( fracture );
-            }
-        }
-
-        std::vector<RigCompletionData> branchCompletions = generateCompdatValues( eclipseCase,
-                                                                                  well->name(),
-                                                                                  branches[branchIndex],
-                                                                                  fractures,
-                                                                                  nullptr,
-                                                                                  outputStreamForIntermediateResultsText,
-                                                                                  pdParams );
-
-        completionData.insert( completionData.end(), branchCompletions.begin(), branchCompletions.end() );
-    }
-
-    return completionData;
 }
 
 //--------------------------------------------------------------------------------------------------

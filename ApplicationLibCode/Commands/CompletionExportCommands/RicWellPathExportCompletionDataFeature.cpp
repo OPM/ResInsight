@@ -29,9 +29,6 @@
 #include "RimFishbones.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
-#include "RimSimWellFracture.h"
-#include "RimSimWellInView.h"
-#include "RimSimWellInViewCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
@@ -51,24 +48,14 @@ CAF_CMD_SOURCE_INIT( RicWellPathExportCompletionDataFeature, "RicWellPathExportC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions( const QString&                        dialogTitle,
-                                                                                        const std::vector<RimWellPath*>&      wellPaths,
-                                                                                        const std::vector<RimSimWellInView*>& simWells )
+void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions( const QString&                   dialogTitle,
+                                                                                        const std::vector<RimWellPath*>& wellPaths )
 {
     RiaApplication* app        = RiaApplication::instance();
     RimProject*     project    = app->project();
     QString         defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "COMPLETIONS" );
 
     RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData();
-
-    if ( wellPaths.empty() )
-    {
-        exportSettings->showForSimWells();
-    }
-    else
-    {
-        exportSettings->showForWellPath();
-    }
 
     if ( !exportSettings->caseToApply() )
     {
@@ -86,16 +73,9 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
 
     if ( exportSettings->folder().isEmpty() ) exportSettings->folder = defaultDir;
 
-    std::vector<RimSimWellFracture*>     simWellFractures;
     std::vector<RimWellPathFracture*>    wellPathFractures;
     std::vector<RimFishbones*>           wellPathFishbones;
     std::vector<RimPerforationInterval*> wellPathPerforations;
-
-    for ( auto s : simWells )
-    {
-        auto fratures = s->descendantsIncludingThisOfType<RimSimWellFracture>();
-        simWellFractures.insert( simWellFractures.end(), fratures.begin(), fratures.end() );
-    }
 
     std::vector<RimWellPath*> topLevelWells;
     {
@@ -137,7 +117,7 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
         wellPathPerforations.insert( wellPathPerforations.end(), perforations.begin(), perforations.end() );
     }
 
-    if ( ( !simWellFractures.empty() ) || ( !wellPathFractures.empty() ) )
+    if ( !wellPathFractures.empty() )
     {
         exportSettings->showFractureInUi( true );
     }
@@ -194,7 +174,7 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
 
         RiaApplication::instance()->setLastUsedDialogDirectory( "COMPLETIONS", exportSettings->folder );
 
-        RicWellPathExportCompletionDataFeatureImpl::exportCompletions( topLevelWells, simWells, *exportSettings );
+        RicWellPathExportCompletionDataFeatureImpl::exportCompletions( topLevelWells, *exportSettings );
     }
 }
 
@@ -216,10 +196,8 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered( bool isChecked )
     std::vector<RimWellPath*> wellPaths = selectedWellPaths();
     CVF_ASSERT( !wellPaths.empty() );
 
-    std::vector<RimSimWellInView*> simWells;
-    QString                        dialogTitle = "Export Completion Data for Selected Well Paths";
-
-    RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions( dialogTitle, wellPaths, simWells );
+    QString dialogTitle = "Export Completion Data for Selected Well Paths";
+    RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions( dialogTitle, wellPaths );
 }
 
 //--------------------------------------------------------------------------------------------------
