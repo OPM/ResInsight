@@ -113,7 +113,6 @@
 #include "RimSeismicViewCollection.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellInView.h"
-#include "RimSimWellInViewCollection.h"
 #include "RimStimPlanFractureTemplate.h"
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCollection.h"
@@ -842,12 +841,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicShowWellAllocationPlotFeature";
             menuBuilder << "RicShowCumulativePhasePlotFeature";
             menuBuilder.subMenuEnd();
-
-            menuBuilder << "RicExportCompletionsForVisibleSimWellsFeature";
-        }
-        else if ( dynamic_cast<RimSimWellInViewCollection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicExportCompletionsForVisibleSimWellsFeature";
         }
         else if ( dynamic_cast<RimColorLegendCollection*>( firstUiItem ) )
         {
