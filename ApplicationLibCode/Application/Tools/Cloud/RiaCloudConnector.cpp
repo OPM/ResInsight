@@ -25,11 +25,15 @@
 
 #include <QDateTime>
 #include <QDesktopServices>
+#include <QDialog>
 #include <QEventLoop>
+#include <QLabel>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QPushButton>
 #include <QTimer>
 #include <QUrlQuery>
+#include <QVBoxLayout>
 #include <QtNetworkAuth/QOAuth2AuthorizationCodeFlow>
 
 //--------------------------------------------------------------------------------------------------
@@ -243,6 +247,25 @@ void RiaCloudConnector::setTokenDataFilePath( const QString& filePath )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaCloudConnector::forceNewTokens()
+{
+    if ( m_authCodeFlow )
+    {
+        m_authCodeFlow->grant();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaCloudConnector::isGranted() const
+{
+    return m_authCodeFlow->status() == QAbstractOAuth::Status::Granted;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaCloudConnector::constructAuthUrl( const QString& authority )
 {
     return authority + "/oauth2/v2.0/authorize";
@@ -274,6 +297,55 @@ QString RiaCloudConnector::requestTokenBlocking()
     loop.exec( QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents );
 
     return m_authCodeFlow->token();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaCloudConnector::requestTokenWithCancelButton()
+{
+    QDialog dialog;
+    dialog.setWindowTitle( "Requesting Token" );
+    dialog.setModal( true );
+
+    QVBoxLayout* layout = new QVBoxLayout( &dialog );
+
+    QLabel* label = new QLabel( "Requesting token. Please wait..." );
+    layout->addWidget( label );
+
+    QPushButton* cancelButton = new QPushButton( "Cancel" );
+    layout->addWidget( cancelButton );
+
+    QTimer timer;
+    timer.setSingleShot( true );
+
+    QEventLoop loop;
+
+    connect( this, &RiaCloudConnector::tokenReady, &loop, &QEventLoop::quit );
+    connect( &timer, &QTimer::timeout, &loop, &QEventLoop::quit );
+    connect( cancelButton,
+             &QPushButton::clicked,
+             [&]()
+             {
+                 RiaLogging::info( "Token request canceled by user." );
+                 timer.stop();
+                 loop.quit();
+             } );
+
+    connect( &dialog,
+             &QDialog::rejected,
+             [&]()
+             {
+                 timer.stop();
+                 loop.quit();
+             } );
+
+    requestToken();
+    timer.start( RiaCloudDefines::requestTokenTimeoutMillis() );
+
+    dialog.show();
+    loop.exec();
+    dialog.close();
 }
 
 //--------------------------------------------------------------------------------------------------
