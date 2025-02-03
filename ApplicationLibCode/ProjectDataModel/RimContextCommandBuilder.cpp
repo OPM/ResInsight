@@ -111,7 +111,6 @@
 #include "RimSeismicDataCollection.h"
 #include "RimSeismicSectionCollection.h"
 #include "RimSeismicViewCollection.h"
-#include "RimSimWellFracture.h"
 #include "RimSimWellInView.h"
 #include "RimStimPlanFractureTemplate.h"
 #include "RimStimPlanModel.h"
@@ -896,10 +895,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 #endif
             menuBuilder << "RicShowGridStatisticsFeature";
         }
-        else if ( dynamic_cast<RimSimWellFracture*>( firstUiItem ) )
-        {
-            menuBuilder << "RicNewSimWellFractureFeature";
-        }
         else if ( dynamic_cast<RimValveTemplateCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicNewValveTemplateFeature";
@@ -1215,7 +1210,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicEclipseWellShowWellCellsFeature";
             menuBuilder << "RicEclipseWellShowWellCellFenceFeature";
             menuBuilder << "Separator";
-            menuBuilder << "RicNewSimWellFractureFeature";
             menuBuilder << "RicNewSimWellIntersectionFeature";
         }
         else if ( dynamic_cast<RimSummaryAddress*>( firstUiItem ) )

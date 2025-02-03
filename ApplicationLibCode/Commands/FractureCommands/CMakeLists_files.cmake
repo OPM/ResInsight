@@ -6,8 +6,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateDuplicateTemplateInOtherUnitSystemFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicFractureNameGenerator.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewEllipseFractureTemplateFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewSimWellFractureAtPosFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewSimWellFractureFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanFractureTemplateFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewThermalFractureTemplateFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathFractureAtPosFeature.h
@@ -32,8 +30,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateDuplicateTemplateInOtherUnitSystemFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicFractureNameGenerator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewEllipseFractureTemplateFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewSimWellFractureAtPosFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewSimWellFractureFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanFractureTemplateFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewThermalFractureTemplateFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathFractureAtPosFeature.cpp
