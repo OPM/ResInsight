@@ -29,13 +29,13 @@
 
 #include "RicGridCalculatorDialog.h"
 
+#include "ContourMap/RimEclipseContourMapView.h"
 #include "QuickAccess/RimQuickAccessCollection.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
-#include "RimEclipseContourMapView.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultDefinition.h"

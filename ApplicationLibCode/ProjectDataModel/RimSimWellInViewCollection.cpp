@@ -27,8 +27,8 @@
 #include "Well/RigSimWellData.h"
 #include "Well/RigWellResultFrame.h"
 
+#include "ContourMap/RimEclipseContourMapView.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseContourMapView.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimProject.h"

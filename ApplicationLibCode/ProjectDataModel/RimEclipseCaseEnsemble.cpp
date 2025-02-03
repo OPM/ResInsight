@@ -18,12 +18,12 @@
 
 #include "RimEclipseCaseEnsemble.h"
 
+#include "ContourMap/RimStatisticsContourMap.h"
+#include "ContourMap/RimStatisticsContourMapView.h"
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
-#include "RimStatisticsContourMap.h"
-#include "RimStatisticsContourMapView.h"
 #include "RimWellTargetCandidatesGenerator.h"
 
 #include "cafCmdFeatureMenuBuilder.h"

@@ -21,7 +21,7 @@
 #include "RigFemPart.h"
 #include "RigFemResultAddress.h"
 
-#include "RimContourMapProjection.h"
+#include "ContourMap/RimContourMapProjection.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"

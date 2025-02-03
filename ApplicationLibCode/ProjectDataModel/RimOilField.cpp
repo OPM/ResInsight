@@ -20,11 +20,11 @@
 
 #include "RimOilField.h"
 
+#include "ContourMap/RimEclipseContourMapViewCollection.h"
 #include "Formations/RimFormationNamesCollection.h"
 #include "RimAnnotationCollection.h"
 #include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCaseCollection.h"
-#include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseViewCollection.h"
 #include "RimEnsembleWellLogsCollection.h"
 #include "RimFractureTemplateCollection.h"

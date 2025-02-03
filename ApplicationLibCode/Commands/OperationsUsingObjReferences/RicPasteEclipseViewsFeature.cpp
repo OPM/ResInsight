@@ -21,10 +21,10 @@
 
 #include "RicPasteFeatureImpl.h"
 
+#include "ContourMap/RimEclipseContourMapView.h"
+#include "ContourMap/RimEclipseContourMapViewCollection.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseContourMapView.h"
-#include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
 #include "RimSimWellInViewCollection.h"

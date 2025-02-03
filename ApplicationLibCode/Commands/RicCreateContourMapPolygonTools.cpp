@@ -23,10 +23,10 @@
 #include "RigContourMapProjection.h"
 #include "RigPolygonTools.h"
 
+#include "ContourMap/RimContourMapProjection.h"
+#include "ContourMap/RimEclipseContourMapView.h"
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonCollection.h"
-#include "RimContourMapProjection.h"
-#include "RimEclipseContourMapView.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimTools.h"
 

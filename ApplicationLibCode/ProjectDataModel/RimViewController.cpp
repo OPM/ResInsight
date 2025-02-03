@@ -28,6 +28,7 @@
 #include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
 
+#include "ContourMap/RimEclipseContourMapView.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellFilter.h"
@@ -35,7 +36,6 @@
 #include "RimCellRangeFilter.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
-#include "RimEclipseContourMapView.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"

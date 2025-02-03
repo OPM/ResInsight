@@ -18,8 +18,8 @@
 
 #include "RicNewStatisticsContourMapFeature.h"
 
+#include "ContourMap/RimStatisticsContourMap.h"
 #include "RimEclipseCaseEnsemble.h"
-#include "RimStatisticsContourMap.h"
 
 #include "Riu3DMainWindowTools.h"
 
