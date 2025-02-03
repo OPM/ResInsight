@@ -26,7 +26,7 @@
 #include <vector>
 
 class RigEclipseCaseData;
-class RigEclipseResultAddress;
+class RimEclipseResultDefinition;
 
 class QString;
 
@@ -41,11 +41,11 @@ struct RigEclipseCrossPlotResult
 class RigEclipseCrossPlotDataExtractor
 {
 public:
-    static RigEclipseCrossPlotResult extract( RigEclipseCaseData*            eclipseCase,
-                                              int                            resultTimeStep,
-                                              const RigEclipseResultAddress& xAddress,
-                                              const RigEclipseResultAddress& yAddress,
-                                              RigGridCrossPlotCurveGrouping  groupingType,
-                                              const RigEclipseResultAddress& groupAddress,
-                                              std::map<int, cvf::UByteArray> timeStepCellVisibilityMap );
+    static RigEclipseCrossPlotResult extract( RigEclipseCaseData*               eclipseCase,
+                                              int                               resultTimeStep,
+                                              const RimEclipseResultDefinition& xAddress,
+                                              const RimEclipseResultDefinition& yAddress,
+                                              RigGridCrossPlotCurveGrouping     groupingType,
+                                              const RimEclipseResultDefinition& groupAddress,
+                                              std::map<int, cvf::UByteArray>    timeStepCellVisibilityMap );
 };

@@ -15,9 +15,12 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RigEclipseCrossPlotDataExtractor.h"
 
 #include "RiaQDateTimeTools.h"
+
+#include "RimEclipseResultDefinition.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigActiveCellsResultAccessor.h"
@@ -33,44 +36,42 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract( RigEclipseCaseData*            caseData,
-                                                                     int                            resultTimeStep,
-                                                                     const RigEclipseResultAddress& xAddress,
-                                                                     const RigEclipseResultAddress& yAddress,
-                                                                     RigGridCrossPlotCurveGrouping  groupingType,
-                                                                     const RigEclipseResultAddress& groupAddress,
-                                                                     std::map<int, cvf::UByteArray> timeStepCellVisibilityMap )
+RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract( RigEclipseCaseData*               caseData,
+                                                                     int                               resultTimeStep,
+                                                                     const RimEclipseResultDefinition& xAddress,
+                                                                     const RimEclipseResultDefinition& yAddress,
+                                                                     RigGridCrossPlotCurveGrouping     groupingType,
+                                                                     const RimEclipseResultDefinition& groupAddress,
+                                                                     std::map<int, cvf::UByteArray>    timeStepCellVisibilityMap )
 {
     RigEclipseCrossPlotResult result;
 
-    RigCaseCellResultsData* resultData = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    if ( !resultData ) return result;
-
-    const std::vector<std::vector<double>>* catValuesForAllSteps = nullptr;
-
-    if ( xAddress.isValid() && yAddress.isValid() )
+    if ( xAddress.eclipseResultAddress().isValid() && yAddress.eclipseResultAddress().isValid() )
     {
-        RigActiveCellInfo* activeCellInfo = resultData->activeCellInfo();
-        const RigMainGrid* mainGrid       = caseData->mainGrid();
-
-        if ( !resultData->ensureKnownResultLoaded( xAddress ) )
+        RigCaseCellResultsData* xResultData = caseData->results( xAddress.porosityModel() );
+        if ( !xResultData->ensureKnownResultLoaded( xAddress.eclipseResultAddress() ) )
         {
             return result;
         }
 
-        if ( !resultData->ensureKnownResultLoaded( yAddress ) )
+        RigCaseCellResultsData* yResultData = caseData->results( yAddress.porosityModel() );
+        if ( !yResultData->ensureKnownResultLoaded( yAddress.eclipseResultAddress() ) )
         {
             return result;
         }
 
-        const std::vector<std::vector<double>>& xValuesForAllSteps = resultData->cellScalarResults( xAddress );
-        const std::vector<std::vector<double>>& yValuesForAllSteps = resultData->cellScalarResults( yAddress );
+        const std::vector<std::vector<double>>& xValuesForAllSteps = xResultData->cellScalarResults( xAddress.eclipseResultAddress() );
+        const std::vector<std::vector<double>>& yValuesForAllSteps = yResultData->cellScalarResults( yAddress.eclipseResultAddress() );
 
-        if ( groupingType == GROUP_BY_RESULT && groupAddress.isValid() )
+        RigCaseCellResultsData*                 groupResultData      = nullptr;
+        const std::vector<std::vector<double>>* catValuesForAllSteps = nullptr;
+
+        if ( groupingType == GROUP_BY_RESULT && groupAddress.eclipseResultAddress().isValid() )
         {
-            if ( resultData->ensureKnownResultLoaded( groupAddress ) )
+            groupResultData = caseData->results( groupAddress.porosityModel() );
+            if ( groupResultData->ensureKnownResultLoaded( groupAddress.eclipseResultAddress() ) )
             {
-                catValuesForAllSteps = &resultData->cellScalarResults( groupAddress );
+                catValuesForAllSteps = &groupResultData->cellScalarResults( groupAddress.eclipseResultAddress() );
             }
         }
 
@@ -104,17 +105,20 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract( RigEclipseC
             int xIndex = timeStep >= (int)xValuesForAllSteps.size() ? 0 : timeStep;
             int yIndex = timeStep >= (int)yValuesForAllSteps.size() ? 0 : timeStep;
 
-            RigActiveCellsResultAccessor                  xAccessor( mainGrid, &xValuesForAllSteps[xIndex], activeCellInfo );
-            RigActiveCellsResultAccessor                  yAccessor( mainGrid, &yValuesForAllSteps[yIndex], activeCellInfo );
+            const RigMainGrid* mainGrid = caseData->mainGrid();
+
+            RigActiveCellsResultAccessor                  xAccessor( mainGrid, &xValuesForAllSteps[xIndex], xResultData->activeCellInfo() );
+            RigActiveCellsResultAccessor                  yAccessor( mainGrid, &yValuesForAllSteps[yIndex], yResultData->activeCellInfo() );
             std::unique_ptr<RigActiveCellsResultAccessor> catAccessor;
             if ( catValuesForAllSteps )
             {
                 int catIndex = timeStep >= (int)catValuesForAllSteps->size() ? 0 : timeStep;
-                catAccessor =
-                    std::make_unique<RigActiveCellsResultAccessor>( mainGrid, &( catValuesForAllSteps->at( catIndex ) ), activeCellInfo );
+                catAccessor  = std::make_unique<RigActiveCellsResultAccessor>( mainGrid,
+                                                                              &( catValuesForAllSteps->at( catIndex ) ),
+                                                                              groupResultData->activeCellInfo() );
             }
 
-            for ( size_t globalCellIdx = 0; globalCellIdx < activeCellInfo->reservoirCellCount(); ++globalCellIdx )
+            for ( size_t globalCellIdx = 0; globalCellIdx < xResultData->activeCellInfo()->reservoirCellCount(); ++globalCellIdx )
             {
                 if ( cellVisibility && !( *cellVisibility )[globalCellIdx] ) continue;
 
@@ -132,8 +136,7 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract( RigEclipseC
                 }
                 else if ( groupingType == GROUP_BY_FORMATION )
                 {
-                    const RigFormationNames* activeFormationNames = resultData->activeFormationNames();
-
+                    const RigFormationNames* activeFormationNames = xResultData->activeFormationNames();
                     if ( activeFormationNames )
                     {
                         int    category = 0;

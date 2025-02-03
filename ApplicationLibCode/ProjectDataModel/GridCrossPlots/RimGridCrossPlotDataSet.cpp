@@ -508,20 +508,16 @@ void RimGridCrossPlotDataSet::onLoadDataAndUpdate( bool updateParentPlot )
         legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_DISCRETE );
     }
 
-    RigEclipseResultAddress xAddress( m_xAxisProperty->resultType(), m_xAxisProperty->resultVariable() );
-    RigEclipseResultAddress yAddress( m_yAxisProperty->resultType(), m_yAxisProperty->resultVariable() );
-    RigEclipseResultAddress groupAddress( m_groupingProperty->resultType(), m_groupingProperty->resultVariable() );
-
     std::map<int, cvf::UByteArray> timeStepCellVisibilityMap = calculateCellVisibility( eclipseCase );
 
     updateLegendRange();
 
     RigEclipseCrossPlotResult result = RigEclipseCrossPlotDataExtractor::extract( eclipseCase->eclipseCaseData(),
                                                                                   m_timeStep(),
-                                                                                  xAddress,
-                                                                                  yAddress,
+                                                                                  *m_xAxisProperty,
+                                                                                  *m_yAxisProperty,
                                                                                   m_grouping(),
-                                                                                  groupAddress,
+                                                                                  *m_groupingProperty,
                                                                                   timeStepCellVisibilityMap );
 
     if ( isXAxisLogarithmic() || isYAxisLogarithmic() )
