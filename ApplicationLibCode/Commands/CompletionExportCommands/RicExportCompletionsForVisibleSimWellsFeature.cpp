@@ -50,7 +50,7 @@ void RicExportCompletionsForVisibleSimWellsFeature::onActionTriggered( bool isCh
     std::vector<RimWellPath*> wellPaths;
     QString                   dialogTitle = "Export Completion Data for Visible Simulation Wells";
 
-    RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions( dialogTitle, wellPaths, simWells );
+    RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions( dialogTitle, wellPaths );
 }
 
 //--------------------------------------------------------------------------------------------------

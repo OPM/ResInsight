@@ -38,7 +38,6 @@ class RigEclipseCaseData;
 class RigMainGrid;
 class RimEclipseCase;
 class RimFishbones;
-class RimSimWellInView;
 class RimPerforationInterval;
 class RimWellPath;
 class RimWellPathValve;
@@ -117,9 +116,7 @@ public:
                                     const RimNonDarcyPerforationParameters* nonDarcyParameters,
                                     const double                            effectivePermeability );
 
-    static void exportCompletions( const std::vector<RimWellPath*>&         wellPaths,
-                                   const std::vector<RimSimWellInView*>&    simWells,
-                                   const RicExportCompletionDataSettingsUi& exportSettings );
+    static void exportCompletions( const std::vector<RimWellPath*>& wellPaths, const RicExportCompletionDataSettingsUi& exportSettings );
 
     static std::vector<RigCompletionData> computeStaticCompletionsForWellPath( RimWellPath* wellPath, RimEclipseCase* eclipseCase );
 

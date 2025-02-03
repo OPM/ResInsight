@@ -88,7 +88,6 @@
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::vector<RimWellPath*>&         wellPaths,
-                                                                    const std::vector<RimSimWellInView*>&    simWells,
                                                                     const RicExportCompletionDataSettingsUi& exportSettings )
 {
     if ( exportSettings.caseToApply() == nullptr )
@@ -281,28 +280,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
             }
         }
 
-        for ( auto simWell : simWells )
-        {
-            std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCell;
-
-            std::vector<RigCompletionData> fractureCompletionData = RicExportFractureCompletionsImpl::
-                generateCompdatValuesForSimWell( exportSettings.caseToApply(),
-                                                 simWell,
-                                                 fractureTransmissibilityExportInformationStream.get(),
-                                                 RicExportFractureCompletionsImpl::
-                                                     PressureDepletionParameters( exportSettings.performTransScaling(),
-                                                                                  exportSettings.transScalingTimeStep(),
-                                                                                  exportSettings.transScalingWBHPSource(),
-                                                                                  exportSettings.transScalingWBHP() ) );
-
-            appendCompletionData( &completionsPerEclipseCell, fractureCompletionData );
-
-            for ( auto& data : completionsPerEclipseCell )
-            {
-                completions.push_back( combineEclipseCellCompletions( data.second, exportSettings ) );
-            }
-        }
-
         const QString eclipseCaseName = exportSettings.caseToApply->caseUserDescription();
 
         if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::ExportSplit::UNIFIED_FILE )
@@ -411,35 +388,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                                         exportSettings.exportWelspec() );
                     }
                 }
-            }
-        }
-
-        // Export sim wells
-        if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL ||
-             exportSettings.fileSplit == RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL_AND_COMPLETION_TYPE )
-        {
-            for ( auto simWell : simWells )
-            {
-                std::vector<RigCompletionData> wellCompletions;
-                for ( const auto& completion : completions )
-                {
-                    if ( completion.wellName() == simWell->name() )
-                    {
-                        wellCompletions.push_back( completion );
-                    }
-                }
-
-                if ( wellCompletions.empty() ) continue;
-
-                QString fileName = QString( "%1_Fractures_%2" ).arg( simWell->name() ).arg( eclipseCaseName );
-                sortAndExportCompletionsToFile( exportSettings.caseToApply,
-                                                exportSettings.folder,
-                                                fileName,
-                                                wellCompletions,
-                                                fractureDataReportItems,
-                                                exportSettings.compdatExport,
-                                                exportSettings.exportDataSourceAsComment(),
-                                                exportSettings.exportWelspec() );
             }
         }
     }

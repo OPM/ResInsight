@@ -149,8 +149,7 @@ caf::PdmScriptResponse RicfExportSimWellFractureCompletions::execute()
     }
 
     std::vector<RimWellPath*> wellPaths;
-
-    RicWellPathExportCompletionDataFeatureImpl::exportCompletions( wellPaths, simWells, exportSettings );
+    RicWellPathExportCompletionDataFeatureImpl::exportCompletions( wellPaths, exportSettings );
 
     return response;
 }

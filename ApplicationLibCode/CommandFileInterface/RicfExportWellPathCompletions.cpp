@@ -187,9 +187,7 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
         }
     }
 
-    std::vector<RimSimWellInView*> simWells;
-
-    RicWellPathExportCompletionDataFeatureImpl::exportCompletions( wellPaths, simWells, exportSettings );
+    RicWellPathExportCompletionDataFeatureImpl::exportCompletions( wellPaths, exportSettings );
 
     return response;
 }

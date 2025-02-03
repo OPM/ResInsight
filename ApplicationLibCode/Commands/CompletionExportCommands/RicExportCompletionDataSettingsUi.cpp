@@ -112,8 +112,6 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
     CAF_PDM_InitField( &m_useCustomFileName, "UseCustomFileName", false, "Use Custom Filename" );
     CAF_PDM_InitField( &m_customFileName, "CustomFileName", {}, "Custom Filename" );
 
-    m_displayForSimWell = true;
-
     m_fracturesEnabled    = true;
     m_perforationsEnabled = true;
     m_fishbonesEnabled    = true;
@@ -125,22 +123,6 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 void RicExportCompletionDataSettingsUi::enableIncludeMsw()
 {
     includeMsw = true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicExportCompletionDataSettingsUi::showForSimWells()
-{
-    m_displayForSimWell = true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicExportCompletionDataSettingsUi::showForWellPath()
-{
-    m_displayForSimWell = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -381,17 +363,14 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering( QString uiConfigName, 
 
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Completions Export Selection" );
-        if ( !m_displayForSimWell )
+        if ( m_perforationsEnabled )
         {
-            if ( m_perforationsEnabled )
-            {
-                group->add( &includePerforations );
-                group->add( &timeStep );
-                if ( !includePerforations )
-                    timeStep.uiCapability()->setUiReadOnly( true );
-                else
-                    timeStep.uiCapability()->setUiReadOnly( false );
-            }
+            group->add( &includePerforations );
+            group->add( &timeStep );
+            if ( !includePerforations )
+                timeStep.uiCapability()->setUiReadOnly( true );
+            else
+                timeStep.uiCapability()->setUiReadOnly( false );
         }
 
         if ( m_fracturesEnabled )
@@ -442,19 +421,16 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering( QString uiConfigName, 
                                                           !includeMsw );
         }
 
-        if ( !m_displayForSimWell )
+        if ( m_fishbonesEnabled )
         {
-            if ( m_fishbonesEnabled )
-            {
-                group->add( &includeFishbones );
-                group->add( &excludeMainBoreForFishbones );
+            group->add( &includeFishbones );
+            group->add( &excludeMainBoreForFishbones );
 
-                // Set visibility
-                if ( !includeFishbones )
-                    excludeMainBoreForFishbones.uiCapability()->setUiReadOnly( true );
-                else
-                    excludeMainBoreForFishbones.uiCapability()->setUiReadOnly( false );
-            }
+            // Set visibility
+            if ( !includeFishbones )
+                excludeMainBoreForFishbones.uiCapability()->setUiReadOnly( true );
+            else
+                excludeMainBoreForFishbones.uiCapability()->setUiReadOnly( false );
         }
     }
 
