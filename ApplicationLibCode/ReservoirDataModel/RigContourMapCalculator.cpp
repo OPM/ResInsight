@@ -439,7 +439,7 @@ std::vector<RigContourMapCalculator::CellIndexAndResult>
 bool RigContourMapCalculator::isColumnResult( ResultAggregationType aggregationType )
 {
     return aggregationType == OIL_COLUMN || aggregationType == GAS_COLUMN || aggregationType == HYDROCARBON_COLUMN ||
-           aggregationType == MOBILE_OIL_COLUMN || aggregationType == MOBILE_GAS_COLUMN || aggregationType == MOBILE_HYDROCARBON_COLUMN;
+           isMobileColumnResult( aggregationType );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -456,4 +456,12 @@ bool RigContourMapCalculator::isMeanResult( ResultAggregationType aggregationTyp
 bool RigContourMapCalculator::isStraightSummationResult( ResultAggregationType aggregationType )
 {
     return isColumnResult( aggregationType ) || aggregationType == SUM;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigContourMapCalculator::isMobileColumnResult( ResultAggregationType aggregationType )
+{
+    return aggregationType == MOBILE_OIL_COLUMN || aggregationType == MOBILE_GAS_COLUMN || aggregationType == MOBILE_HYDROCARBON_COLUMN;
 }

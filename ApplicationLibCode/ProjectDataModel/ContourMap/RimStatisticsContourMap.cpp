@@ -96,6 +96,8 @@ RimStatisticsContourMap::RimStatisticsContourMap()
     CAF_PDM_InitFieldNoDefault( &m_resolution, "Resolution", "Sampling Resolution" );
 
     CAF_PDM_InitFieldNoDefault( &m_resultAggregation, "ResultAggregation", "Result Aggregation" );
+    CAF_PDM_InitFieldNoDefault( &m_floodingType, "FloodingType", "Residual Oil Given By" );
+    CAF_PDM_InitField( &m_userDefinedFlooding, "UserDefinedFlooding", 0.0, "Residual Oil" );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "SelectedTimeSteps", "Time Step Selection" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -162,6 +164,15 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
     auto genGrp = uiOrdering.addNewGroup( "General" );
 
     genGrp->add( &m_resultAggregation );
+
+    if ( RigContourMapCalculator::isMobileColumnResult( m_resultAggregation() ) )
+    {
+        genGrp->add( &m_floodingType );
+        if ( m_floodingType() == RigContourMapCalculator::FloodingType::USER_DEFINED )
+        {
+            genGrp->add( &m_userDefinedFlooding );
+        }
+    }
     genGrp->add( &m_resolution );
     genGrp->add( &m_primaryCase );
     genGrp->add( &m_boundingBoxExpPercent );
@@ -472,7 +483,9 @@ void RimStatisticsContourMap::computeStatistics()
     if ( ensemble->cases().empty() ) return;
     if ( eclipseCase() == nullptr ) return;
 
-    RigContourMapCalculator::ResultAggregationType resultAggregation = m_resultAggregation();
+    RigContourMapCalculator::ResultAggregationType resultAggregation   = m_resultAggregation();
+    RigContourMapCalculator::FloodingType          floodingType        = m_floodingType();
+    double                                         userDefinedFlooding = m_userDefinedFlooding();
 
     cvf::BoundingBox gridBoundingBox = eclipseCase()->activeCellsBoundingBox();
     gridBoundingBox.expandPercent( m_boundingBoxExpPercent() );
@@ -525,15 +538,21 @@ void RimStatisticsContourMap::computeStatistics()
             {
                 for ( auto ts : selectedTimeSteps() )
                 {
-                    std::vector<double> result =
-                        contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(), resultAggregation, ts );
+                    std::vector<double> result = contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(),
+                                                                                       resultAggregation,
+                                                                                       ts,
+                                                                                       floodingType,
+                                                                                       userDefinedFlooding );
                     timestep_results[ts].push_back( result );
                 }
             }
             else
             {
-                std::vector<double> result =
-                    contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(), resultAggregation, 0 );
+                std::vector<double> result = contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(),
+                                                                                   resultAggregation,
+                                                                                   0,
+                                                                                   floodingType,
+                                                                                   userDefinedFlooding );
                 timestep_results[0].push_back( result );
             }
         }

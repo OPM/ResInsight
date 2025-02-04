@@ -63,6 +63,17 @@ void RimContourMapProjection::ResultAggregation::setUp()
 
     setDefault( RigContourMapCalculator::MEAN );
 }
+
+template <>
+void RimContourMapProjection::FloodingType::setUp()
+{
+    addItem( RigContourMapCalculator::FloodingType::WATER_FLOODING, "WATER_FLOODING", "Water Flooding (SOWCR)" );
+    addItem( RigContourMapCalculator::FloodingType::GAS_FLOODING, "GAS_FLOODING", "Gas Flooding (SOGCR)" );
+    addItem( RigContourMapCalculator::FloodingType::USER_DEFINED, "USER_DEFINED", "User Defined Value" );
+
+    setDefault( RigContourMapCalculator::FloodingType::WATER_FLOODING );
+}
+
 } // namespace caf
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimContourMapProjection, "RimContourMapProjection" );
@@ -83,6 +94,9 @@ RimContourMapProjection::RimContourMapProjection()
     m_resolution.setValue( RimContourMapResolutionTools::SamplingResolution::FINE );
 
     CAF_PDM_InitFieldNoDefault( &m_resultAggregation, "ResultAggregation", "Result Aggregation" );
+
+    CAF_PDM_InitFieldNoDefault( &m_floodingType, "FloodingType", "Residual Oil Given By" );
+    CAF_PDM_InitField( &m_userDefinedFlooding, "UserDefinedFlooding", 0.0, "Residual Oil" );
 
     CAF_PDM_InitField( &m_showContourLines, "ContourLines", true, "Show Contour Lines" );
     CAF_PDM_InitField( &m_showContourLabels, "ContourLabels", true, "Show Contour Labels" );
@@ -511,7 +525,7 @@ double RimContourMapProjection::gridEdgeOffset() const
 //--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_resultAggregation )
+    if ( ( changedField == &m_resultAggregation ) || ( changedField == &m_floodingType ) || ( changedField == &m_userDefinedFlooding ) )
     {
         ResultAggregation previousAggregation = static_cast<RigContourMapCalculator::ResultAggregationType>( oldValue.toInt() );
         if ( RigContourMapCalculator::isStraightSummationResult( previousAggregation ) != isStraightSummationResult() )
@@ -562,6 +576,16 @@ void RimContourMapProjection::defineUiOrdering( QString uiConfigName, caf::PdmUi
 {
     caf::PdmUiGroup* mainGroup = uiOrdering.addNewGroup( "Projection Settings" );
     mainGroup->add( &m_resultAggregation );
+
+    if ( RigContourMapCalculator::isMobileColumnResult( m_resultAggregation() ) )
+    {
+        mainGroup->add( &m_floodingType );
+        if ( m_floodingType() == RigContourMapCalculator::FloodingType::USER_DEFINED )
+        {
+            mainGroup->add( &m_userDefinedFlooding );
+        }
+    }
+
     legendConfig()->uiOrdering( "NumLevelsOnly", *mainGroup );
     mainGroup->add( &m_resolution );
     mainGroup->add( &m_showContourLines );

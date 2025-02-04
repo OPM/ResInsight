@@ -42,8 +42,6 @@ class RigPolyLinesData;
 
 //==================================================================================================
 //
-//
-//
 //==================================================================================================
 class RimStatisticsContourMap : public RimNamedObject
 {
@@ -111,6 +109,8 @@ private:
     caf::PdmPtrArrayField<RimPolygon*>                        m_selectedPolygons;
 
     caf::PdmField<caf::AppEnum<RimContourMapResolutionTools::SamplingResolution>> m_resolution;
+    caf::PdmField<caf::AppEnum<RigContourMapCalculator::FloodingType>>            m_floodingType;
+    caf::PdmField<double>                                                         m_userDefinedFlooding;
 
     std::unique_ptr<RigContourMapGrid>                              m_contourMapGrid;
     std::map<size_t, std::map<StatisticsType, std::vector<double>>> m_timeResults;

@@ -49,6 +49,7 @@ class RimContourMapProjection : public RimCheckableNamedObject
 public:
     using ResultAggregation = caf::AppEnum<RigContourMapCalculator::ResultAggregationType>;
     using ContourPolygons   = std::vector<RigContourPolygonsTools::ContourPolygon>;
+    using FloodingType      = caf::AppEnum<RigContourMapCalculator::FloodingType>;
 
     RimContourMapProjection();
     ~RimContourMapProjection() override;
@@ -148,6 +149,8 @@ protected:
     caf::PdmField<bool>              m_showContourLines;
     caf::PdmField<bool>              m_showContourLabels;
     caf::PdmField<bool>              m_smoothContourLines;
+    caf::PdmField<FloodingType>      m_floodingType;
+    caf::PdmField<double>            m_userDefinedFlooding;
 
     cvf::Vec2d                   m_pickPoint;
     std::vector<ContourPolygons> m_contourPolygons;
