@@ -184,7 +184,7 @@ std::vector<double> RimEclipseContourMapProjection::generateResults( int timeSte
                                          cellColors->caseDiffIndex() );
 
         return dynamic_cast<RigEclipseContourMapProjection*>( m_contourMapProjection.get() )
-            ->generateResults( resAddr, m_resultAggregation(), timeStep, m_floodingType(), m_userDefinedFlooding() );
+            ->generateResults( resAddr, m_resultAggregation(), timeStep, m_oilFloodingType(), m_userDefinedFloodingOil() );
     }
 
     return {};
@@ -206,7 +206,7 @@ void RimEclipseContourMapProjection::generateAndSaveResults( int timeStep )
                                          cellColors->caseDiffIndex() );
 
         dynamic_cast<RigEclipseContourMapProjection*>( m_contourMapProjection.get() )
-            ->generateAndSaveResults( resAddr, m_resultAggregation(), timeStep, m_floodingType(), m_userDefinedFlooding() );
+            ->generateAndSaveResults( resAddr, m_resultAggregation(), timeStep, m_oilFloodingType(), m_userDefinedFloodingOil() );
     }
 }
 

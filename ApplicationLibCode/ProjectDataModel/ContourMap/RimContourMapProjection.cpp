@@ -70,8 +70,6 @@ void RimContourMapProjection::FloodingType::setUp()
     addItem( RigContourMapCalculator::FloodingType::WATER_FLOODING, "WATER_FLOODING", "Water Flooding (SOWCR)" );
     addItem( RigContourMapCalculator::FloodingType::GAS_FLOODING, "GAS_FLOODING", "Gas Flooding (SOGCR)" );
     addItem( RigContourMapCalculator::FloodingType::USER_DEFINED, "USER_DEFINED", "User Defined Value" );
-
-    setDefault( RigContourMapCalculator::FloodingType::WATER_FLOODING );
 }
 
 } // namespace caf
@@ -95,9 +93,15 @@ RimContourMapProjection::RimContourMapProjection()
 
     CAF_PDM_InitFieldNoDefault( &m_resultAggregation, "ResultAggregation", "Result Aggregation" );
 
-    CAF_PDM_InitFieldNoDefault( &m_floodingType, "FloodingType", "Residual Oil Given By" );
-    CAF_PDM_InitField( &m_userDefinedFlooding, "UserDefinedFlooding", 0.0, "Residual Oil" );
-    m_userDefinedFlooding.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitFieldNoDefault( &m_oilFloodingType, "OilFloodingType", "Residual Oil Given By" );
+    m_oilFloodingType.setDefaultValue( RigContourMapCalculator::FloodingType::WATER_FLOODING );
+    CAF_PDM_InitField( &m_userDefinedFloodingOil, "UserDefinedFloodingOil", 0.0, "User Defined Value" );
+    m_userDefinedFloodingOil.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_gasFloodingType, "GasFloodingType", "Residual Oil-in-Gas Given By" );
+    m_gasFloodingType.setDefaultValue( RigContourMapCalculator::FloodingType::GAS_FLOODING );
+    CAF_PDM_InitField( &m_userDefinedFloodingGas, "UserDefinedFloodingGas", 0.0, "User Defined Value" );
+    m_userDefinedFloodingGas.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_showContourLines, "ContourLines", true, "Show Contour Lines" );
     CAF_PDM_InitField( &m_showContourLabels, "ContourLabels", true, "Show Contour Labels" );
@@ -526,7 +530,8 @@ double RimContourMapProjection::gridEdgeOffset() const
 //--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( ( changedField == &m_resultAggregation ) || ( changedField == &m_floodingType ) || ( changedField == &m_userDefinedFlooding ) )
+    if ( ( changedField == &m_resultAggregation ) || ( changedField == &m_oilFloodingType ) || ( changedField == &m_gasFloodingType ) ||
+         ( changedField == &m_userDefinedFloodingOil ) || ( changedField == &m_userDefinedFloodingGas ) )
     {
         ResultAggregation previousAggregation = static_cast<RigContourMapCalculator::ResultAggregationType>( oldValue.toInt() );
         if ( RigContourMapCalculator::isStraightSummationResult( previousAggregation ) != isStraightSummationResult() )
@@ -557,6 +562,26 @@ void RimContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimContourMapProjection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( &m_gasFloodingType == fieldNeedingOptions )
+    {
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RigContourMapCalculator::FloodingType>::uiText(
+                                                       RigContourMapCalculator::FloodingType::GAS_FLOODING ),
+                                                   RigContourMapCalculator::FloodingType::GAS_FLOODING ) );
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RigContourMapCalculator::FloodingType>::uiText(
+                                                       RigContourMapCalculator::FloodingType::USER_DEFINED ),
+                                                   RigContourMapCalculator::FloodingType::USER_DEFINED ) );
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( &m_lowerThreshold == field || &m_upperThreshold == field )
@@ -568,7 +593,7 @@ void RimContourMapProjection::defineEditorAttribute( const caf::PdmFieldHandle* 
             myAttr->m_sliderTickCount = 20;
         }
     }
-    else if ( &m_userDefinedFlooding == field )
+    else if ( ( &m_userDefinedFloodingOil == field ) || ( &m_userDefinedFloodingGas == field ) )
     {
         if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
         {
@@ -590,10 +615,21 @@ void RimContourMapProjection::defineUiOrdering( QString uiConfigName, caf::PdmUi
 
     if ( RigContourMapCalculator::isMobileColumnResult( m_resultAggregation() ) )
     {
-        mainGroup->add( &m_floodingType );
-        if ( m_floodingType() == RigContourMapCalculator::FloodingType::USER_DEFINED )
+        if ( m_resultAggregation() != RigContourMapCalculator::MOBILE_GAS_COLUMN )
         {
-            mainGroup->add( &m_userDefinedFlooding );
+            mainGroup->add( &m_oilFloodingType );
+            if ( m_oilFloodingType() == RigContourMapCalculator::FloodingType::USER_DEFINED )
+            {
+                mainGroup->add( &m_userDefinedFloodingOil );
+            }
+        }
+        if ( m_resultAggregation() != RigContourMapCalculator::MOBILE_OIL_COLUMN )
+        {
+            mainGroup->add( &m_gasFloodingType );
+            if ( m_gasFloodingType() == RigContourMapCalculator::FloodingType::USER_DEFINED )
+            {
+                mainGroup->add( &m_userDefinedFloodingGas );
+            }
         }
     }
 
