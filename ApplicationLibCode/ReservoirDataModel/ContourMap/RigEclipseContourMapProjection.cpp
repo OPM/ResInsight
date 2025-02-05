@@ -61,11 +61,10 @@ RigEclipseContourMapProjection::~RigEclipseContourMapProjection()
 void RigEclipseContourMapProjection::generateAndSaveResults( const RigEclipseResultAddress&                 resultAddress,
                                                              RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                              int                                            timeStep,
-                                                             RigContourMapCalculator::FloodingType          floodingType,
-                                                             double                                         userDefinedFlooding )
+                                                             RigFloodingSettings&                           floodingSettings )
 {
     std::tie( m_useActiveCellInfo, m_aggregatedResults ) =
-        generateResults( *this, m_contourMapGrid, m_resultData, resultAddress, resultAggregation, timeStep, floodingType, userDefinedFlooding );
+        generateResults( *this, m_contourMapGrid, m_resultData, resultAddress, resultAggregation, timeStep, floodingSettings );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,11 +73,10 @@ void RigEclipseContourMapProjection::generateAndSaveResults( const RigEclipseRes
 std::vector<double> RigEclipseContourMapProjection::generateResults( const RigEclipseResultAddress&                 resultAddress,
                                                                      RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                                      int                                            timeStep,
-                                                                     RigContourMapCalculator::FloodingType          floodingType,
-                                                                     double userDefinedFlooding ) const
+                                                                     RigFloodingSettings&                           floodingSettings ) const
 {
     std::pair<bool, std::vector<double>> result =
-        generateResults( *this, m_contourMapGrid, m_resultData, resultAddress, resultAggregation, timeStep, floodingType, userDefinedFlooding );
+        generateResults( *this, m_contourMapGrid, m_resultData, resultAddress, resultAggregation, timeStep, floodingSettings );
     return result.second;
 }
 
@@ -92,8 +90,7 @@ std::pair<bool, std::vector<double>>
                                                      const RigEclipseResultAddress&                 resultAddress,
                                                      RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                      int                                            timeStep,
-                                                     RigContourMapCalculator::FloodingType          floodingType,
-                                                     double                                         userDefinedFlooding )
+                                                     RigFloodingSettings&                           floodingSettings )
 {
     size_t nCells = contourMapProjection.numberOfCells();
 
@@ -134,19 +131,19 @@ std::pair<bool, std::vector<double>>
                  resultAggregation == RigContourMapCalculator::MOBILE_GAS_COLUMN ||
                  resultAggregation == RigContourMapCalculator::MOBILE_HYDROCARBON_COLUMN )
             {
-                if ( floodingType == RigContourMapCalculator::FloodingType::GAS_FLOODING )
+                if ( floodingSettings.needsSogcr() )
                 {
                     resultData.ensureKnownResultLoaded(
                         RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sogcr() ) );
                 }
-                else if ( floodingType == RigContourMapCalculator::FloodingType::WATER_FLOODING )
+                if ( floodingSettings.needsSowcr() )
                 {
                     resultData.ensureKnownResultLoaded(
                         RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sowcr() ) );
                 }
             }
 
-            gridResultValues = calculateColumnResult( resultData, resultAggregation, timeStep, floodingType, userDefinedFlooding );
+            gridResultValues = calculateColumnResult( resultData, resultAggregation, timeStep, floodingSettings );
         }
         else
         {
@@ -179,10 +176,9 @@ std::pair<bool, std::vector<double>>
 
 std::vector<double> RigEclipseContourMapProjection::calculateColumnResult( RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                                            int                                            timeStep,
-                                                                           RigContourMapCalculator::FloodingType          floodingType,
-                                                                           double userDefinedFlooding ) const
+                                                                           RigFloodingSettings& floodingSettings ) const
 {
-    return calculateColumnResult( m_resultData, resultAggregation, timeStep, floodingType, userDefinedFlooding );
+    return calculateColumnResult( m_resultData, resultAggregation, timeStep, floodingSettings );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -191,8 +187,7 @@ std::vector<double> RigEclipseContourMapProjection::calculateColumnResult( RigCo
 std::vector<double> RigEclipseContourMapProjection::calculateColumnResult( RigCaseCellResultsData&                        resultData,
                                                                            RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                                            int                                            timeStep,
-                                                                           RigContourMapCalculator::FloodingType          floodingType,
-                                                                           double userDefinedFlooding )
+                                                                           RigFloodingSettings&                           floodingSettings )
 {
     bool hasPoroResult = resultData.hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" ) );
     bool hasNtgResult  = resultData.hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "NTG" ) );
@@ -209,8 +204,7 @@ std::vector<double> RigEclipseContourMapProjection::calculateColumnResult( RigCa
         bool hasSowcrResult = resultData.hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "SOWCR" ) );
         bool hasSogcrResult = resultData.hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "SOGCR" ) );
 
-        if ( ( ( floodingType == RigContourMapCalculator::FloodingType::GAS_FLOODING ) && !hasSogcrResult ) ||
-             ( ( floodingType == RigContourMapCalculator::FloodingType::WATER_FLOODING ) && !hasSowcrResult ) )
+        if ( ( ( floodingSettings.needsSowcr() ) && !hasSogcrResult ) || ( ( floodingSettings.needsSogcr() ) && !hasSowcrResult ) )
         {
             return std::vector<double>();
         }
@@ -226,22 +220,61 @@ std::vector<double> RigEclipseContourMapProjection::calculateColumnResult( RigCa
     CVF_ASSERT( poroResults.size() == ntgResults.size() && ntgResults.size() == dzResults.size() );
 
     std::vector<double> residualOil = {};
+    std::vector<double> residualGas = {};
+
+    // TODO - clean up this logic
 
     if ( mobileColumnResult )
     {
-        if ( floodingType == RigContourMapCalculator::FloodingType::GAS_FLOODING )
+        if ( ( resultAggregation == RigContourMapCalculator::MOBILE_OIL_COLUMN ) ||
+             ( resultAggregation == RigContourMapCalculator::MOBILE_HYDROCARBON_COLUMN ) )
         {
-            residualOil =
-                resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sogcr() ), 0 );
-        }
-        else if ( floodingType == RigContourMapCalculator::FloodingType::WATER_FLOODING )
-        {
-            residualOil =
-                resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sowcr() ), 0 );
+            if ( floodingSettings.oilFlooding() == RigFloodingSettings::FloodingType::GAS_FLOODING )
+            {
+                residualOil =
+                    resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sogcr() ),
+                                                  0 );
+            }
+            else if ( floodingSettings.oilFlooding() == RigFloodingSettings::FloodingType::WATER_FLOODING )
+            {
+                residualOil =
+                    resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sowcr() ),
+                                                  0 );
+            }
+            else
+            {
+                residualOil.resize( poroResults.size(), floodingSettings.oilUserDefFlooding() );
+            }
         }
         else
         {
-            residualOil.resize( poroResults.size(), userDefinedFlooding );
+            residualOil.resize( poroResults.size(), 0.0 );
+        }
+
+        if ( ( resultAggregation == RigContourMapCalculator::MOBILE_GAS_COLUMN ) ||
+             ( resultAggregation == RigContourMapCalculator::MOBILE_HYDROCARBON_COLUMN ) )
+        {
+            if ( floodingSettings.gasFlooding() == RigFloodingSettings::FloodingType::GAS_FLOODING )
+            {
+                residualGas =
+                    resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sogcr() ),
+                                                  0 );
+            }
+            else if ( floodingSettings.gasFlooding() == RigFloodingSettings::FloodingType::WATER_FLOODING )
+            {
+                // not really used
+                residualGas =
+                    resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sowcr() ),
+                                                  0 );
+            }
+            else
+            {
+                residualGas.resize( poroResults.size(), floodingSettings.gasUserDefFlooding() );
+            }
+        }
+        else
+        {
+            residualGas.resize( poroResults.size(), 0.0 );
         }
     }
 

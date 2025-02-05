@@ -20,7 +20,7 @@
 
 #include "RicExportContourMapToTextFeature.h"
 
-#include "RigContourMapProjection.h"
+#include "ContourMap/RigContourMapProjection.h"
 #include "RigPolygonTools.h"
 
 #include "ContourMap/RimContourMapProjection.h"

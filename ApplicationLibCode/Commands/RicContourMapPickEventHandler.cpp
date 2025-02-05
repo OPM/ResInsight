@@ -18,7 +18,7 @@
 
 #include "RicContourMapPickEventHandler.h"
 
-#include "RigContourMapProjection.h"
+#include "ContourMap/RigContourMapProjection.h"
 
 #include "ContourMap/RimContourMapProjection.h"
 #include "ContourMap/RimEclipseContourMapView.h"

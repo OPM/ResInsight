@@ -18,10 +18,11 @@
 
 #include "RimContourMapProjection.h"
 
-#include "RigContourMapCalculator.h"
-#include "RigContourMapGrid.h"
-#include "RigContourMapProjection.h"
-#include "RigContourMapTrianglesGenerator.h"
+#include "ContourMap//RigFloodingSettings.h"
+#include "ContourMap/RigContourMapCalculator.h"
+#include "ContourMap/RigContourMapGrid.h"
+#include "ContourMap/RigContourMapProjection.h"
+#include "ContourMap/RigContourMapTrianglesGenerator.h"
 
 #include "RimCase.h"
 #include "RimGridView.h"
@@ -67,9 +68,9 @@ void RimContourMapProjection::ResultAggregation::setUp()
 template <>
 void RimContourMapProjection::FloodingType::setUp()
 {
-    addItem( RigContourMapCalculator::FloodingType::WATER_FLOODING, "WATER_FLOODING", "Water Flooding (SOWCR)" );
-    addItem( RigContourMapCalculator::FloodingType::GAS_FLOODING, "GAS_FLOODING", "Gas Flooding (SOGCR)" );
-    addItem( RigContourMapCalculator::FloodingType::USER_DEFINED, "USER_DEFINED", "User Defined Value" );
+    addItem( RigFloodingSettings::FloodingType::WATER_FLOODING, "WATER_FLOODING", "Water Flooding (SOWCR)" );
+    addItem( RigFloodingSettings::FloodingType::GAS_FLOODING, "GAS_FLOODING", "Gas Flooding (SOGCR)" );
+    addItem( RigFloodingSettings::FloodingType::USER_DEFINED, "USER_DEFINED", "User Defined Value" );
 }
 
 } // namespace caf
@@ -94,12 +95,12 @@ RimContourMapProjection::RimContourMapProjection()
     CAF_PDM_InitFieldNoDefault( &m_resultAggregation, "ResultAggregation", "Result Aggregation" );
 
     CAF_PDM_InitFieldNoDefault( &m_oilFloodingType, "OilFloodingType", "Residual Oil Given By" );
-    m_oilFloodingType.setDefaultValue( RigContourMapCalculator::FloodingType::WATER_FLOODING );
+    m_oilFloodingType.setDefaultValue( RigFloodingSettings::FloodingType::WATER_FLOODING );
     CAF_PDM_InitField( &m_userDefinedFloodingOil, "UserDefinedFloodingOil", 0.0, "User Defined Value" );
     m_userDefinedFloodingOil.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_gasFloodingType, "GasFloodingType", "Residual Oil-in-Gas Given By" );
-    m_gasFloodingType.setDefaultValue( RigContourMapCalculator::FloodingType::GAS_FLOODING );
+    m_gasFloodingType.setDefaultValue( RigFloodingSettings::FloodingType::GAS_FLOODING );
     CAF_PDM_InitField( &m_userDefinedFloodingGas, "UserDefinedFloodingGas", 0.0, "User Defined Value" );
     m_userDefinedFloodingGas.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
@@ -568,12 +569,12 @@ QList<caf::PdmOptionItemInfo> RimContourMapProjection::calculateValueOptions( co
 
     if ( &m_gasFloodingType == fieldNeedingOptions )
     {
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RigContourMapCalculator::FloodingType>::uiText(
-                                                       RigContourMapCalculator::FloodingType::GAS_FLOODING ),
-                                                   RigContourMapCalculator::FloodingType::GAS_FLOODING ) );
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RigContourMapCalculator::FloodingType>::uiText(
-                                                       RigContourMapCalculator::FloodingType::USER_DEFINED ),
-                                                   RigContourMapCalculator::FloodingType::USER_DEFINED ) );
+        options.push_back(
+            caf::PdmOptionItemInfo( caf::AppEnum<RigFloodingSettings::FloodingType>::uiText( RigFloodingSettings::FloodingType::GAS_FLOODING ),
+                                    RigFloodingSettings::FloodingType::GAS_FLOODING ) );
+        options.push_back(
+            caf::PdmOptionItemInfo( caf::AppEnum<RigFloodingSettings::FloodingType>::uiText( RigFloodingSettings::FloodingType::USER_DEFINED ),
+                                    RigFloodingSettings::FloodingType::USER_DEFINED ) );
     }
 
     return options;
@@ -618,7 +619,7 @@ void RimContourMapProjection::defineUiOrdering( QString uiConfigName, caf::PdmUi
         if ( m_resultAggregation() != RigContourMapCalculator::MOBILE_GAS_COLUMN )
         {
             mainGroup->add( &m_oilFloodingType );
-            if ( m_oilFloodingType() == RigContourMapCalculator::FloodingType::USER_DEFINED )
+            if ( m_oilFloodingType() == RigFloodingSettings::FloodingType::USER_DEFINED )
             {
                 mainGroup->add( &m_userDefinedFloodingOil );
             }
@@ -626,7 +627,7 @@ void RimContourMapProjection::defineUiOrdering( QString uiConfigName, caf::PdmUi
         if ( m_resultAggregation() != RigContourMapCalculator::MOBILE_OIL_COLUMN )
         {
             mainGroup->add( &m_gasFloodingType );
-            if ( m_gasFloodingType() == RigContourMapCalculator::FloodingType::USER_DEFINED )
+            if ( m_gasFloodingType() == RigFloodingSettings::FloodingType::USER_DEFINED )
             {
                 mainGroup->add( &m_userDefinedFloodingGas );
             }

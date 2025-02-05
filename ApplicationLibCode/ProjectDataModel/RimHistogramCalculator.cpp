@@ -18,7 +18,7 @@
 
 #include "RimHistogramCalculator.h"
 
-#include "RigContourMapProjection.h"
+#include "ContourMap/RigContourMapProjection.h"
 #include "RigEclipseMultiPropertyStatCalc.h"
 #include "RigEclipseNativeVisibleCellsStatCalc.h"
 #include "RigFemNativeVisibleCellsStatCalc.h"

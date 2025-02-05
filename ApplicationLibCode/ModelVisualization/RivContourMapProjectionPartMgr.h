@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RigContourPolygonsTools.h"
+#include "ContourMap/RigContourPolygonsTools.h"
 
 #include "RiaNumberFormat.h"
 

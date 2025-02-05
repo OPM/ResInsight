@@ -17,16 +17,16 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGeoMechContourMapProjection.h"
 
-#include "RigContourMapCalculator.h"
-#include "RigContourMapGrid.h"
-#include "RigContourMapProjection.h"
+#include "ContourMap/RigContourMapCalculator.h"
+#include "ContourMap/RigContourMapGrid.h"
+#include "ContourMap/RigContourMapProjection.h"
+#include "ContourMap/RigGeoMechContourMapProjection.h"
 #include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
-#include "RigGeoMechContourMapProjection.h"
 
 #include "RimCellFilterCollection.h"
 #include "RimGeoMechCase.h"

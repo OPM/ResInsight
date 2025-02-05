@@ -20,6 +20,7 @@
 
 #include "RigContourMapCalculator.h"
 #include "RigContourMapProjection.h"
+#include "RigFloodingSettings.h"
 
 #include "cvfBoundingBox.h"
 
@@ -46,14 +47,12 @@ public:
     void generateAndSaveResults( const RigEclipseResultAddress&                 resultAddress,
                                  RigContourMapCalculator::ResultAggregationType resultAggregation,
                                  int                                            timeStep,
-                                 RigContourMapCalculator::FloodingType          floodingType,
-                                 double                                         userDefinedFlooding );
+                                 RigFloodingSettings&                           floodingSettings );
 
     std::vector<double> generateResults( const RigEclipseResultAddress&                 resultAddress,
                                          RigContourMapCalculator::ResultAggregationType resultAggregation,
                                          int                                            timeStep,
-                                         RigContourMapCalculator::FloodingType          floodingType,
-                                         double                                         userDefinedFlooding ) const;
+                                         RigFloodingSettings&                           floodingSettings ) const;
 
     static std::pair<bool, std::vector<double>> generateResults( const RigEclipseContourMapProjection&          contourMapProjection,
                                                                  const RigContourMapGrid&                       contourMapGrid,
@@ -61,8 +60,7 @@ public:
                                                                  const RigEclipseResultAddress&                 resultAddress,
                                                                  RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                                  int                                            timeStep,
-                                                                 RigContourMapCalculator::FloodingType          floodingType,
-                                                                 double                                         userDefinedFlooding );
+                                                                 RigFloodingSettings&                           floodingSettings );
 
     std::vector<bool> getMapCellVisibility( int viewStepIndex, RigContourMapCalculator::ResultAggregationType resultAggregation ) override;
 
@@ -80,14 +78,12 @@ protected:
     // Eclipse implementation specific data generation methods
     std::vector<double> calculateColumnResult( RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                int                                            timeStep,
-                                               RigContourMapCalculator::FloodingType          floodingType,
-                                               double                                         userDefinedFlooding ) const;
+                                               RigFloodingSettings&                           floodingSettings ) const;
 
     static std::vector<double> calculateColumnResult( RigCaseCellResultsData&                        resultData,
                                                       RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                       int                                            timeStep,
-                                                      RigContourMapCalculator::FloodingType          floodingType,
-                                                      double                                         userDefinedFlooding );
+                                                      RigFloodingSettings&                           floodingSettings );
 
 protected:
     RigEclipseCaseData&         m_eclipseCaseData;

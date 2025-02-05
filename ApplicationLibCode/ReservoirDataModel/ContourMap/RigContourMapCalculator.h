@@ -56,13 +56,6 @@ public:
         MOBILE_HYDROCARBON_COLUMN
     };
 
-    enum class FloodingType
-    {
-        WATER_FLOODING,
-        GAS_FLOODING,
-        USER_DEFINED
-    };
-
     static std::vector<std::vector<std::pair<size_t, double>>>
         generateGridMapping( RigContourMapProjection&                    contourMapProjection,
                              const RigContourMapGrid&                    contourMapGrid,
