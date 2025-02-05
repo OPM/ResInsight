@@ -88,7 +88,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisLogRangeCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.h
@@ -105,8 +104,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunction.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionWeight.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimEquilibriumAxisAnnotation.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPolylinesDataInterface.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSetInterface.h
     ${CMAKE_CURRENT_LIST_DIR}/cafTreeNode.h
@@ -122,7 +119,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPressureDepthData.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultDefinitionTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RimResultSelectionUi.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimPlotRectAnnotation.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEmCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseViewCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseEnsemble.h
@@ -220,7 +216,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisLogRangeCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.cpp
@@ -235,8 +230,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunction.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionWeight.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimEquilibriumAxisAnnotation.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafTreeNode.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimMultipleLocations.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceIntersectionBand.cpp
@@ -250,7 +243,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPressureDepthData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultDefinitionTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimResultSelectionUi.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimPlotRectAnnotation.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEmCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPolylinePickerInterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseViewCollection.cpp
