@@ -473,7 +473,8 @@ void RimDepthTrackPlot::setDepthMarkerPosition( double depth )
 
     if ( firstAnnotation == nullptr )
     {
-        firstAnnotation = RimPlotAxisAnnotation::createLineAnnotation();
+        firstAnnotation = new RimPlotAxisAnnotation();
+        firstAnnotation->setAnnotationType( RimPlotAxisAnnotation::AnnotationType::LINE );
         firstAnnotation->setPenStyle( Qt::DashLine );
         m_depthAnnotations.push_back( firstAnnotation );
     }

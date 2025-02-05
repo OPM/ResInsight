@@ -18,9 +18,13 @@
 
 #pragma once
 
+#include "RiaPlotDefines.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+
+#include "cvfColor3.h"
 
 #include <QString>
 
@@ -40,20 +44,26 @@ public:
     };
     RimPlotAxisAnnotation();
 
-    static RimPlotAxisAnnotation* createLineAnnotation();
+    void    setName( const QString& name );
+    QString name() const;
 
-    void setName( const QString& name );
-    void setValue( double value );
+    void           setValue( double value );
+    virtual double value() const;
 
-    AnnotationType  annotationType() const;
-    virtual QString name() const;
-    virtual double  value() const;
-    virtual double  rangeStart() const;
-    virtual double  rangeEnd() const;
-    virtual QColor  color() const;
+    AnnotationType annotationType() const;
+    void           setAnnotationType( AnnotationType annotationType );
 
     void         setPenStyle( Qt::PenStyle penStyle );
     Qt::PenStyle penStyle() const;
+
+    void           setColor( const cvf::Color3f& color );
+    virtual QColor color() const;
+
+    void                      setAlignment( RiaDefines::TextAlignment alignment );
+    RiaDefines::TextAlignment textAlignment() const;
+
+    double rangeStart() const;
+    double rangeEnd() const;
 
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
@@ -64,16 +74,14 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 protected:
-    caf::PdmField<bool>                       m_isActive;
-    caf::PdmField<QString>                    m_name;
-    caf::PdmField<double>                     m_value;
-    caf::PdmField<double>                     m_rangeStart;
-    caf::PdmField<double>                     m_rangeEnd;
-    caf::PdmField<caf::AppEnum<Qt::PenStyle>> m_penStyle;
+    caf::PdmField<bool>                                    m_isActive;
+    caf::PdmField<QString>                                 m_name;
+    caf::PdmField<double>                                  m_value;
+    caf::PdmField<double>                                  m_rangeStart;
+    caf::PdmField<double>                                  m_rangeEnd;
+    caf::PdmField<caf::AppEnum<Qt::PenStyle>>              m_penStyle;
+    caf::PdmField<caf::AppEnum<RiaDefines::TextAlignment>> m_textAlignment;
+    caf::PdmField<cvf::Color3f>                            m_color;
 
-protected:
-    void setAnnotationType( AnnotationType annotationType );
-
-private:
     AnnotationType m_annotationType;
 };

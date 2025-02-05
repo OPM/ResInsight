@@ -38,11 +38,9 @@ class RimTimeAxisAnnotation : public RimPlotAxisAnnotation
 public:
     RimTimeAxisAnnotation();
 
-    void   setTime( time_t time );
-    void   setTimeRange( time_t startTime, time_t endTime );
-    QColor color() const override;
+    void setTime( time_t time );
+    void setTimeRange( time_t startTime, time_t endTime );
 
-    void setColor( const cvf::Color3f& color );
     void setDefaultColor();
 
 protected:
@@ -50,6 +48,4 @@ protected:
     void initAfterRead() override;
 
     static QColor defaultColor( AnnotationType annotationType );
-
-    caf::PdmField<cvf::Color3f> m_color;
 };

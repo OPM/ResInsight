@@ -81,6 +81,13 @@ enum class WindowTileMode
     UNDEFINED,
 };
 
+enum class TextAlignment
+{
+    LEFT,
+    RIGHT,
+    CENTER
+};
+
 // Defines relate to curve and plot template names
 QString namingVariableCase();
 QString namingVariableWell();

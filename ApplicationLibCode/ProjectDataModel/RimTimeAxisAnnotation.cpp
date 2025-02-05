@@ -42,8 +42,6 @@ RimTimeAxisAnnotation::RimTimeAxisAnnotation()
     CAF_PDM_InitObject( "Time Axis Annotation", ":/LeftAxis16x16.png" );
 
     m_value.uiCapability()->setUiHidden( true );
-
-    CAF_PDM_InitField( &m_color, "Color", RiaColorTools::fromQColorTo3f( defaultColor( AnnotationType::LINE ) ), "Color" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,23 +108,7 @@ QColor RimTimeAxisAnnotation::defaultColor( AnnotationType annotationType )
 //--------------------------------------------------------------------------------------------------
 void RimTimeAxisAnnotation::setDefaultColor()
 {
-    m_color = RiaColorTools::fromQColorTo3f( defaultColor( annotationType() ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimTimeAxisAnnotation::setColor( const cvf::Color3f& color )
-{
-    m_color = color;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QColor RimTimeAxisAnnotation::color() const
-{
-    return RiaColorTools::toQColor( m_color );
+    setColor( RiaColorTools::fromQColorTo3f( defaultColor( annotationType() ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
