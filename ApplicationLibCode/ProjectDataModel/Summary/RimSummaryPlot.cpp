@@ -921,6 +921,7 @@ void RimSummaryPlot::updateTimeAxis( RimSummaryTimeAxisProperties* timeAxisPrope
     }
 
     plotWidget()->enableAxis( RimSummaryPlot::plotAxisForTime(), true );
+    plotWidget()->enableAxisNumberLabels( RimSummaryPlot::plotAxisForTime(), timeAxisProperties->showLabels() );
 
     {
         Qt::AlignmentFlag alignment = Qt::AlignCenter;
@@ -935,7 +936,7 @@ void RimSummaryPlot::updateTimeAxis( RimSummaryTimeAxisProperties* timeAxisPrope
                                                 true,
                                                 alignment );
         plotWidget()->setAxisTitleText( RimSummaryPlot::plotAxisForTime(), timeAxisProperties->title() );
-        plotWidget()->setAxisTitleEnabled( RimSummaryPlot::plotAxisForTime(), timeAxisProperties->showTitle );
+        plotWidget()->setAxisTitleEnabled( RimSummaryPlot::plotAxisForTime(), timeAxisProperties->showTitle() );
 
         if ( timeAxisProperties->tickmarkType() == RimSummaryTimeAxisProperties::TickmarkType::TICKMARK_COUNT )
         {
