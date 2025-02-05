@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2019- Equinor ASA
+//  Copyright (C) 2025     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,38 +18,49 @@
 
 #pragma once
 
-#include "RimPlotAxisAnnotation.h"
+#include "RiaPlotDefines.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmUiItem.h"
 
-#include "cvfColor3.h"
-
-#include <QString>
+class RimAnnotationLineAppearance;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimTimeAxisAnnotation : public RimPlotAxisAnnotation
+class RimSummaryPlotReadOut : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimTimeAxisAnnotation();
+    enum class ReadOutType
+    {
+        NONE,
+        SNAP_TO_POINT,
+        TIME_TRACKING,
+        TIME_VALUE_TRACKING
+    };
 
-    void   setTime( time_t time );
-    void   setTimeRange( time_t startTime, time_t endTime );
-    QColor color() const override;
+public:
+    RimSummaryPlotReadOut();
 
-    void setColor( const cvf::Color3f& color );
-    void setDefaultColor();
+    bool                         enableCurvePointTracking() const;
+    bool                         enableHorizontalLine() const;
+    bool                         enableVerticalLine() const;
+    RimAnnotationLineAppearance* lineAppearance() const;
+    RiaDefines::TextAlignment    verticalLineLabelAlignment() const;
+    RiaDefines::TextAlignment    horizontalLineLabelAlignment() const;
 
-protected:
+private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void initAfterRead() override;
 
-    static QColor defaultColor( AnnotationType annotationType );
+private:
+    caf::PdmField<caf::AppEnum<ReadOutType>> m_readOutType;
 
-    caf::PdmField<cvf::Color3f> m_color;
+    caf::PdmChildField<RimAnnotationLineAppearance*> m_lineAppearance;
+
+    caf::PdmField<caf::AppEnum<RiaDefines::TextAlignment>> m_verticalLineLabelAlignment;
+    caf::PdmField<caf::AppEnum<RiaDefines::TextAlignment>> m_horizontalLineLabelAlignment;
 };

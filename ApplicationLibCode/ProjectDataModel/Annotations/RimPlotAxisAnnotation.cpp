@@ -26,6 +26,10 @@
 #include "RimTools.h"
 #include "RimViewWindow.h"
 
+#include "RiaColorTools.h"
+
+#include "cafPdmFieldCvfColor.h"
+
 #include <cmath>
 
 CAF_PDM_SOURCE_INIT( RimPlotAxisAnnotation, "RimPlotAxisAnnotation" );
@@ -49,16 +53,12 @@ RimPlotAxisAnnotation::RimPlotAxisAnnotation()
 
     caf::AppEnum<Qt::PenStyle> defaultStyle = Qt::PenStyle::SolidLine;
     CAF_PDM_InitField( &m_penStyle, "PenStyle", defaultStyle, "Pen Style" );
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimPlotAxisAnnotation* RimPlotAxisAnnotation::createLineAnnotation()
-{
-    auto annotation = new RimPlotAxisAnnotation();
-    annotation->setAnnotationType( RimPlotAxisAnnotation::AnnotationType::LINE );
-    return annotation;
+    CAF_PDM_InitFieldNoDefault( &m_textAlignment, "TextAlignment", "Text Alignment" );
+    m_textAlignment = RiaDefines::TextAlignment::RIGHT;
+
+    CAF_PDM_InitFieldNoDefault( &m_color, "Color", "Color" );
+    m_color = cvf::Color3f( cvf::Color3f::BLACK );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,6 +128,14 @@ QColor RimPlotAxisAnnotation::color() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotAxisAnnotation::setAlignment( RiaDefines::TextAlignment alignment )
+{
+    m_textAlignment = alignment;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotAxisAnnotation::setPenStyle( Qt::PenStyle penStyle )
 {
     m_penStyle = penStyle;
@@ -139,6 +147,22 @@ void RimPlotAxisAnnotation::setPenStyle( Qt::PenStyle penStyle )
 Qt::PenStyle RimPlotAxisAnnotation::penStyle() const
 {
     return m_penStyle();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisAnnotation::setColor( const cvf::Color3f& color )
+{
+    m_color = color;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::TextAlignment RimPlotAxisAnnotation::textAlignment() const
+{
+    return m_textAlignment();
 }
 
 //--------------------------------------------------------------------------------------------------

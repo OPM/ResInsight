@@ -35,6 +35,7 @@ class RimSummaryPlotSourceStepping;
 class RimSummaryPlotNameHelper;
 class RimSummaryNameHelper;
 class RimPlotAxisProperties;
+class RimSummaryPlotReadOut;
 
 //==================================================================================================
 ///
@@ -113,6 +114,8 @@ public:
 
     void selectWell( QString wellName );
 
+    void updateReadOutLines( double qwtTimeValue, double yValue );
+
 protected:
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
     bool handleGlobalWheelEvent( QWheelEvent* wheelEvent ) override;
@@ -127,6 +130,8 @@ private:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+
     void populateNameHelper( RimSummaryPlotNameHelper* nameHelper );
 
     void computeAggregatedAxisRange();
@@ -151,6 +156,8 @@ private:
 
     void updateReadOnlyState();
 
+    void updateReadOutSettings();
+
     std::pair<double, double> adjustedMinMax( const RimPlotAxisProperties* axis, double min, double max ) const;
 
 private:
@@ -162,6 +169,8 @@ private:
     caf::PdmField<bool> m_linkTimeAxis;
     caf::PdmField<bool> m_autoAdjustAppearance;
     caf::PdmField<bool> m_allow3DSelectionLink;
+
+    caf::PdmChildField<RimSummaryPlotReadOut*> m_readOutSettings;
 
     caf::PdmField<bool>   m_hidePlotsWithValuesBelow;
     caf::PdmField<double> m_plotFilterYAxisThreshold;

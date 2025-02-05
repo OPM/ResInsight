@@ -58,9 +58,8 @@ public:
                                const QString&          annotationText,
                                Qt::PenStyle            penStyle,
                                const double            position,
-                               RiaDefines::Orientation orientation );
-
-    void attachAnnotation( QwtPlot* plot, RimPlotAxisAnnotation* annotation, RiaDefines::Orientation orientation );
+                               RiaDefines::Orientation orientation,
+                               Qt::Alignment           horizontalAlignment );
 
     void attachAnnotationRange( QwtPlot*                plot,
                                 const QColor&           color,
@@ -82,6 +81,8 @@ public:
                         Qt::Alignment                   horizontalAlignment = Qt::AlignRight );
 
     void detachAllAnnotations();
+
+    static Qt::Alignment textAlignment( RiaDefines::TextAlignment alignment );
 
 private:
     static Qt::Alignment trackTextAlignment( RiaDefines::TrackSpan trackSpan );

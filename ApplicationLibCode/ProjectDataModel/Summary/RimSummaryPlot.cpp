@@ -1120,6 +1120,14 @@ bool RimSummaryPlot::isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::enableCurvePointTracking( bool enable )
+{
+    m_summaryPlot->enableCurvePointTracking( enable );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuPlotAxis RimSummaryPlot::plotAxisForTime()
 {
     return RiuPlotAxis::defaultBottom();
@@ -1336,8 +1344,9 @@ RimTimeAxisAnnotation* RimSummaryPlot::addTimeAnnotation( time_t time )
     RimSummaryTimeAxisProperties* axisProps = timeAxisProperties();
     CAF_ASSERT( axisProps );
 
-    auto* annotation = new RimTimeAxisAnnotation;
-    annotation->setTime( time );
+    auto*         annotation = new RimTimeAxisAnnotation;
+    const QString formatString;
+    annotation->setTime( time, formatString );
     annotation->setDefaultColor();
 
     axisProps->appendAnnotation( annotation );

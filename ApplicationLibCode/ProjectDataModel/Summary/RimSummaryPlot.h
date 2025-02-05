@@ -209,6 +209,8 @@ public:
     RimSummaryPlotSourceStepping* sourceStepper();
     void                          scheduleReplotIfVisible();
 
+    void enableCurvePointTracking( bool enable );
+
 public:
     // RimViewWindow overrides
     void deleteViewWidget() override;

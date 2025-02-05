@@ -141,7 +141,8 @@ void RiuGridCrossQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterfac
                                                 annotation->name(),
                                                 annotation->penStyle(),
                                                 annotation->value(),
-                                                RiaDefines::Orientation::HORIZONTAL );
+                                                RiaDefines::Orientation::HORIZONTAL,
+                                                Qt::AlignRight );
     }
 }
 

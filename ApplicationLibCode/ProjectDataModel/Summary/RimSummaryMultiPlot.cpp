@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaNumericalTools.h"
 #include "RiaPlotDefines.h"
+#include "RiaTimeTTools.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
 #include "Summary/RiaSummaryAddressModifier.h"
 #include "Summary/RiaSummaryStringTools.h"
@@ -30,12 +31,11 @@
 #include "PlotBuilderCommands/RicAppendSummaryPlotsForSummaryCasesFeature.h"
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
-
 #include "RifEclEclipseSummary.h"
 #include "RifEclipseRftAddress.h"
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimAnnotationLineAppearance.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimMainPlotCollection.h"
 #include "RimMultiPlotCollection.h"
@@ -67,6 +67,9 @@
 
 #include <QKeyEvent>
 
+#include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
+#include "RimSummaryPlotReadOut.h"
 #include <cmath>
 
 namespace caf
@@ -145,6 +148,9 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_autoAdjustAppearance );
     CAF_PDM_InitField( &m_allow3DSelectionLink, "Allow3DSelectionLink", true, "Allow Well Selection from 3D View" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_allow3DSelectionLink );
+
+    CAF_PDM_InitFieldNoDefault( &m_readOutSettings, "ReadOutSettings", "Read Out Settings" );
+    m_readOutSettings = new RimSummaryPlotReadOut;
 
     CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Y Axis Range" );
 
@@ -389,6 +395,9 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     axesGroup->add( &m_linkTimeAxis );
     axesGroup->add( &m_autoAdjustAppearance );
 
+    auto readOutGroup = uiOrdering.addNewGroup( "Mouse Cursor Readout" );
+    m_readOutSettings->uiOrdering( uiConfigName, *readOutGroup );
+
     auto plotVisibilityFilterGroup = uiOrdering.addNewGroup( "Plot Visibility Filter" );
     plotVisibilityFilterGroup->add( &m_plotFilterYAxisThreshold );
     plotVisibilityFilterGroup->add( &m_hidePlotsWithValuesBelow );
@@ -496,6 +505,17 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
 
     RimMultiPlot::fieldChangedByUi( changedField, oldValue, newValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    if ( changedChildField == &m_readOutSettings )
+    {
+        updateReadOutSettings();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -832,9 +852,9 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
 
     m_sourceStepping->setStepDimension( stepDimension );
 
-    // Previously, when the stepping dimension was set to 'well' for range aggregation, it was based on all wells. If one of the wells had
-    // extreme values and was not visible, it would set the y-range to match the extreme value, making some curves invisible. We have now
-    // changed the default setting to use visible subplots to determine the y-range aggregation.
+    // Previously, when the stepping dimension was set to 'well' for range aggregation, it was based on all wells. If one of the wells
+    // had extreme values and was not visible, it would set the y-range to match the extreme value, making some curves invisible. We
+    // have now changed the default setting to use visible subplots to determine the y-range aggregation.
     // https://github.com/OPM/ResInsight/issues/10543
 
     m_axisRangeAggregation = AxisRangeAggregation::SUB_PLOTS;
@@ -1458,6 +1478,29 @@ void RimSummaryMultiPlot::updateReadOnlyState()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::updateReadOutSettings()
+{
+    for ( auto plot : summaryPlots() )
+    {
+        if ( !m_readOutSettings->enableVerticalLine() ) plot->removeAllTimeAnnotations();
+
+        if ( !m_readOutSettings->enableHorizontalLine() )
+        {
+            if ( auto axis = plot->axisPropertiesForPlotAxis( RiuPlotAxis::defaultLeft() ) )
+            {
+                axis->removeAllAnnotations();
+            }
+        }
+
+        plot->enableCurvePointTracking( m_readOutSettings->enableCurvePointTracking() );
+
+        plot->updateAxes();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<double, double> RimSummaryMultiPlot::adjustedMinMax( const RimPlotAxisProperties* axis, double min, double max ) const
 {
     if ( !axis->isLogarithmicScaleEnabled() )
@@ -1493,6 +1536,8 @@ QWidget* RimSummaryMultiPlot::createViewWidget( QWidget* mainWindowParent )
         m_viewer = new RiuSummaryMultiPlotBook( this, mainWindowParent );
     }
     recreatePlotWidgets();
+
+    updateReadOutSettings();
 
     return m_viewer;
 }
@@ -1671,4 +1716,73 @@ void RimSummaryMultiPlot::selectWell( QString wellName )
     if ( !m_allow3DSelectionLink ) return;
     if ( m_sourceStepping->stepDimension() != SourceSteppingDimension::WELL ) return;
     m_sourceStepping->setStep( wellName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::updateReadOutLines( double qwtTimeValue, double yValue )
+{
+    if ( !m_readOutSettings->enableVerticalLine() && !m_readOutSettings->enableHorizontalLine() ) return;
+
+    const auto    timeTValue       = RiaTimeTTools::fromDouble( qwtTimeValue );
+    const QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                                          RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
+
+    for ( auto plot : summaryPlots() )
+    {
+        if ( m_readOutSettings->enableVerticalLine() && plot->timeAxisProperties() )
+        {
+            plot->timeAxisProperties()->removeAllAnnotations();
+
+            auto anno = new RimTimeAxisAnnotation;
+
+            anno->setTime( timeTValue, dateFormatString );
+
+            auto lineAppearance = m_readOutSettings->lineAppearance();
+
+            Qt::PenStyle style = lineAppearance->isDashed() ? Qt::PenStyle::DashLine : Qt::PenStyle::SolidLine;
+            anno->setPenStyle( style );
+            anno->setColor( lineAppearance->color() );
+            anno->setAlignment( m_readOutSettings->verticalLineLabelAlignment() );
+
+            plot->timeAxisProperties()->appendAnnotation( anno );
+        }
+
+        if ( m_readOutSettings->enableHorizontalLine() )
+        {
+            if ( auto leftAxisProperties = dynamic_cast<RimPlotAxisProperties*>( plot->axisPropertiesForPlotAxis( RiuPlotAxis::defaultLeft() ) ) )
+            {
+                leftAxisProperties->removeAllAnnotations();
+
+                auto summaryCurves = plot->summaryCurves();
+                if ( !summaryCurves.empty() )
+                {
+                    auto firstCurve = summaryCurves.front();
+                    yValue          = firstCurve->yValueAtTimeT( timeTValue );
+                }
+
+                auto anno = new RimPlotAxisAnnotation();
+                anno->setAnnotationType( RimPlotAxisAnnotation::AnnotationType::LINE );
+
+                anno->setValue( yValue );
+
+                auto scaledValue = yValue / leftAxisProperties->scaleFactor();
+                auto valueText   = RiaNumberFormat::valueToText( scaledValue, RiaNumberFormat::NumberFormatType::FIXED, 2 );
+
+                anno->setName( valueText );
+
+                auto lineAppearance = m_readOutSettings->lineAppearance();
+
+                Qt::PenStyle style = lineAppearance->isDashed() ? Qt::PenStyle::DashLine : Qt::PenStyle::SolidLine;
+                anno->setPenStyle( style );
+                anno->setColor( lineAppearance->color() );
+                anno->setAlignment( m_readOutSettings->horizontalLineLabelAlignment() );
+
+                leftAxisProperties->appendAnnotation( anno );
+            }
+        }
+
+        plot->updateAxes();
+    }
 }

@@ -190,7 +190,8 @@ void RiuPlotAnnotationTool::attachAnnotationLine( QwtPlot*                plot,
                                                   const QString&          annotationText,
                                                   Qt::PenStyle            penStyle,
                                                   const double            position,
-                                                  RiaDefines::Orientation orientation )
+                                                  RiaDefines::Orientation orientation,
+                                                  Qt::Alignment           horizontalAlignment )
 {
     m_plot = plot;
 
@@ -202,20 +203,9 @@ void RiuPlotAnnotationTool::attachAnnotationLine( QwtPlot*                plot,
         textColor = RiuGuiTheme::getColorByVariableName( "textColor" );
     }
 
-    RiuPlotAnnotationTool::setLineProperties( line, annotationText, orientation, position, penStyle, color, textColor );
+    RiuPlotAnnotationTool::setLineProperties( line, annotationText, orientation, position, penStyle, color, textColor, horizontalAlignment );
     m_plotItems.push_back( line );
     line->attach( m_plot );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuPlotAnnotationTool::attachAnnotation( QwtPlot* plot, RimPlotAxisAnnotation* annotation, RiaDefines::Orientation orientation )
-{
-    if ( annotation->annotationType() == RimPlotAxisAnnotation::AnnotationType::LINE )
-    {
-        attachAnnotationLine( plot, annotation->color(), annotation->name(), annotation->penStyle(), annotation->value(), orientation );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -260,6 +250,23 @@ void RiuPlotAnnotationTool::detachAllAnnotations()
         }
     }
     m_plotItems.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Qt::Alignment RiuPlotAnnotationTool::textAlignment( RiaDefines::TextAlignment alignment )
+{
+    switch ( alignment )
+    {
+        case RiaDefines::TextAlignment::LEFT:
+            return Qt::AlignLeft;
+        case RiaDefines::TextAlignment::CENTER:
+            return Qt::AlignHCenter;
+        case RiaDefines::TextAlignment::RIGHT:
+            return Qt::AlignRight;
+    }
+    return Qt::AlignRight;
 }
 
 //--------------------------------------------------------------------------------------------------

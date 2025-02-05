@@ -48,6 +48,7 @@ public:
     RimAnnotationLineAppearance();
 
     void setLineFieldsHidden( bool hidden );
+    void configureForSummaryAnnotations();
 
     void         setColor( const cvf::Color3f& newColor );
     cvf::Color3f color() const;
