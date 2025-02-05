@@ -66,7 +66,7 @@ RimAnnotationLineAppearance::RimAnnotationLineAppearance()
     CAF_PDM_InitObject( "AnnotationLineAppearance", ":/WellCollection.png" );
 
     CAF_PDM_InitField( &m_lineFieldsHidden, "LineFieldsHidden", false, "Line Fields Hidden" );
-    CAF_PDM_InitField( &m_color, "Color", cvf::Color3f( cvf::Color3f::BLACK ), "Line Color" );
+    CAF_PDM_InitField( &m_color, "Color", cvf::Color3f( cvf::Color3f::DARK_GRAY ), "Line Color" );
     CAF_PDM_InitField( &m_thickness, "Thickness", 2, "Line Thickness" );
 
     // Stippling not yet supported. Needs new stuff in VizFwk
@@ -83,6 +83,20 @@ RimAnnotationLineAppearance::RimAnnotationLineAppearance()
 void RimAnnotationLineAppearance::setLineFieldsHidden( bool hidden )
 {
     m_lineFieldsHidden = hidden;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationLineAppearance::configureForSummaryAnnotations()
+{
+    m_style.uiCapability()->setUiHidden( false );
+    m_style.xmlCapability()->setIOReadable( true );
+    m_style.xmlCapability()->setIOWritable( true );
+
+    m_thickness.uiCapability()->setUiHidden( true );
+
+    m_style = STYLE_DASH;
 }
 
 //--------------------------------------------------------------------------------------------------

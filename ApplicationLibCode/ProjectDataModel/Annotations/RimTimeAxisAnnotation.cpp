@@ -47,19 +47,24 @@ RimTimeAxisAnnotation::RimTimeAxisAnnotation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTimeAxisAnnotation::setTime( time_t time )
+void RimTimeAxisAnnotation::setTime( time_t time, const QString& dateTimeFormatString )
 {
     m_value = RiaTimeTTools::toDouble( time );
 
-    QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                                    RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
+    QString formatString = dateTimeFormatString;
 
-    QString timeFormatString = RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
-                                                                    RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+    if ( formatString.isEmpty() )
+    {
+        QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                                        RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
 
-    QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
+        QString timeFormatString = RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
+                                                                        RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
 
-    m_name = RiaQDateTimeTools::toStringUsingApplicationLocale( RiaQDateTimeTools::fromTime_t( time ), dateTimeFormatString );
+        QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
+    }
+
+    m_name = RiaQDateTimeTools::toStringUsingApplicationLocale( RiaQDateTimeTools::fromTime_t( time ), formatString );
 
     setAnnotationType( AnnotationType::LINE );
 }
