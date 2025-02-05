@@ -97,6 +97,7 @@ RimContourMapProjection::RimContourMapProjection()
 
     CAF_PDM_InitFieldNoDefault( &m_floodingType, "FloodingType", "Residual Oil Given By" );
     CAF_PDM_InitField( &m_userDefinedFlooding, "UserDefinedFlooding", 0.0, "Residual Oil" );
+    m_userDefinedFlooding.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_showContourLines, "ContourLines", true, "Show Contour Lines" );
     CAF_PDM_InitField( &m_showContourLabels, "ContourLabels", true, "Show Contour Labels" );
@@ -565,6 +566,16 @@ void RimContourMapProjection::defineEditorAttribute( const caf::PdmFieldHandle* 
             myAttr->m_minimum         = m_minResultAllTimeSteps;
             myAttr->m_maximum         = m_maxResultAllTimeSteps;
             myAttr->m_sliderTickCount = 20;
+        }
+    }
+    else if ( &m_userDefinedFlooding == field )
+    {
+        if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
+        {
+            myAttr->m_minimum                       = 0.0;
+            myAttr->m_maximum                       = 1.0;
+            myAttr->m_sliderTickCount               = 20;
+            myAttr->m_delaySliderUpdateUntilRelease = true;
         }
     }
 }

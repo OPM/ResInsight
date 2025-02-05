@@ -54,6 +54,7 @@
 #include "Riu3DMainWindowTools.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafProgressInfo.h"
@@ -97,7 +98,9 @@ RimStatisticsContourMap::RimStatisticsContourMap()
 
     CAF_PDM_InitFieldNoDefault( &m_resultAggregation, "ResultAggregation", "Result Aggregation" );
     CAF_PDM_InitFieldNoDefault( &m_floodingType, "FloodingType", "Residual Oil Given By" );
+
     CAF_PDM_InitField( &m_userDefinedFlooding, "UserDefinedFlooding", 0.0, "Residual Oil" );
+    m_userDefinedFlooding.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "SelectedTimeSteps", "Time Step Selection" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -388,6 +391,16 @@ void RimStatisticsContourMap::defineEditorAttribute( const caf::PdmFieldHandle* 
         if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
         {
             attrib->m_buttonText = "Compute";
+        }
+    }
+    else if ( &m_userDefinedFlooding == field )
+    {
+        if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
+        {
+            myAttr->m_minimum                       = 0.0;
+            myAttr->m_maximum                       = 1.0;
+            myAttr->m_sliderTickCount               = 20;
+            myAttr->m_delaySliderUpdateUntilRelease = true;
         }
     }
 }
