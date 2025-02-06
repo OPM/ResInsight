@@ -19,6 +19,7 @@
 #include "RiuCellSelectionTool.h"
 
 #include "RiaApplication.h"
+#include "RiaTextStringTools.h"
 
 #include "Rim3dView.h"
 #include "RimEclipseView.h"
@@ -202,25 +203,6 @@ void RiuCellSelectionTool::validateAndAppend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QVector<double> RiuCellSelectionTool::parseDoubleValues( const QString& input )
-{
-    // Flexible regex to extract three double numbers with any surrounding text
-    QRegularExpression              coordRegex( R"([-+]?\d+\.?\d*)" );
-    QRegularExpressionMatchIterator it = coordRegex.globalMatch( input );
-
-    QVector<double> coords;
-    while ( it.hasNext() && coords.size() < 3 )
-    {
-        QRegularExpressionMatch match = it.next();
-        coords.append( match.captured().toDouble() );
-    }
-
-    return coords;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RiuEclipseSelectionItem* RiuCellSelectionTool::createSelectionItemFromInput()
 {
     auto eclipseView = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeReservoirView() );
@@ -234,7 +216,7 @@ RiuEclipseSelectionItem* RiuCellSelectionTool::createSelectionItemFromInput()
 
     if ( m_xyzRadio->isChecked() )
     {
-        QVector<double> coords = parseDoubleValues( m_coordinateEdit->text().trimmed() );
+        QVector<double> coords = RiaTextStringTools::parseDoubleValues( m_coordinateEdit->text().trimmed() );
         if ( coords.size() < 2 )
         {
             return nullptr;
@@ -274,7 +256,7 @@ RiuEclipseSelectionItem* RiuCellSelectionTool::createSelectionItemFromInput()
     }
     else
     {
-        QVector<double> ijkValues = parseDoubleValues( m_cellEdit->text().trimmed() );
+        QVector<double> ijkValues = RiaTextStringTools::parseDoubleValues( m_cellEdit->text().trimmed() );
         if ( ijkValues.size() != 3 )
         {
             return nullptr;
