@@ -34,7 +34,6 @@ class RimEclipseResultDefinition;
 class RimEclipseGeometrySelectionItem;
 class RimGeoMechResultDefinition;
 class RimGeoMechGeometrySelectionItem;
-class RimGeometrySelectionItem;
 class RiuFemTimeHistoryResultAccessor;
 class RiuSelectionItem;
 class RigEclipseResultAddress;
@@ -61,8 +60,6 @@ public:
     std::vector<double> yValues() const;
     std::vector<time_t> timeStepValues() const;
     std::vector<double> daysSinceSimulationStart() const;
-
-    RigGridCellResultAddress resultAddress();
 
     QString  quantityName() const;
     QString  caseName() const;
@@ -93,6 +90,8 @@ private:
     caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
     caf::PdmChildField<RimGeoMechResultDefinition*> m_geoMechResultDefinition;
 
-    caf::PdmChildField<RimGeometrySelectionItem*>     m_geometrySelectionItem;
     caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis;
+
+    caf::PdmChildField<RimEclipseGeometrySelectionItem*> m_eclipseDataSource;
+    caf::PdmChildField<RimGeoMechGeometrySelectionItem*> m_geoMechDataSource;
 };
