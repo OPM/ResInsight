@@ -151,6 +151,7 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_readOutSettings, "ReadOutSettings", "Read Out Settings" );
     m_readOutSettings = new RimSummaryPlotReadOut;
+    m_readOutSettings.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Y Axis Range" );
 
