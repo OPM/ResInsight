@@ -47,6 +47,9 @@ class VecIjk
 public:
     VecIjk( size_t i, size_t j, size_t k );
 
+    VecIjk toOneBased() const;
+    VecIjk toZeroBased() const;
+
     size_t i() const;
     size_t j() const;
     size_t k() const;
