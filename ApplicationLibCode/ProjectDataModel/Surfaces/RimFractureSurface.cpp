@@ -104,7 +104,7 @@ void RimFractureSurface::loadSurfaceDataForTimeStep( int timeStep )
         loadDataFromFile();
     }
 
-    if ( timeStep >= m_surfacePerTimeStep.size() ) return;
+    if ( timeStep >= static_cast<int>(m_surfacePerTimeStep.size()) ) return;
 
     auto surface = new RigSurface;
 
