@@ -69,7 +69,10 @@ public:
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
-    static QList<PdmOptionItemInfo> valueOptions( const cvf::Mat4d& ) { return QList<PdmOptionItemInfo>(); }
+    static QList<PdmOptionItemInfo> valueOptions( QString keyword, const cvf::Mat4d& )
+    {
+        return QList<PdmOptionItemInfo>();
+    }
 
     /// Methods to retrieve the possible PdmObject pointed to by a field
     static void childObjects( const PdmDataValueField<cvf::Mat4d>&, std::vector<PdmObjectHandle*>* ) {}

@@ -42,7 +42,10 @@ public:
         return variantValue.value<PdmPointer<PdmObjectHandle>>() == variantValue2.value<PdmPointer<PdmObjectHandle>>();
     }
 
-    static QList<PdmOptionItemInfo> valueOptions( const PdmPointer<T>& ) { return QList<PdmOptionItemInfo>(); }
+    static QList<PdmOptionItemInfo> valueOptions( QString keyword, const PdmPointer<T>& )
+    {
+        return QList<PdmOptionItemInfo>();
+    }
 };
 
 //==================================================================================================
@@ -87,7 +90,10 @@ public:
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
-    static QList<PdmOptionItemInfo> valueOptions( const std::list<T>& ) { return QList<PdmOptionItemInfo>(); }
+    static QList<PdmOptionItemInfo> valueOptions( QString keyword, const std::list<T>& )
+    {
+        return QList<PdmOptionItemInfo>();
+    }
 
     /// Methods to retrieve the possible PdmObject pointed to by a field
     static void childObjects( const PdmDataValueField<std::list<T>>&, std::vector<PdmObjectHandle*>* ) {}
@@ -120,7 +126,10 @@ public:
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
-    static QList<PdmOptionItemInfo> valueOptions( const std::vector<T>& ) { return QList<PdmOptionItemInfo>(); }
+    static QList<PdmOptionItemInfo> valueOptions( QString keyword, const std::vector<T>& )
+    {
+        return QList<PdmOptionItemInfo>();
+    }
 
     /// Methods to retrieve the possible PdmObject pointed to by a field
     static void childObjects( const PdmDataValueField<std::vector<T>>& field, std::vector<PdmObjectHandle*>* objects )
@@ -156,14 +165,23 @@ public:
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
-    static QList<PdmOptionItemInfo> valueOptions( const caf::AppEnum<T>& )
+    static QList<PdmOptionItemInfo> valueOptions( QString keyword, const caf::AppEnum<T>& appEnum )
     {
         QList<PdmOptionItemInfo> optionList;
 
-        for ( size_t i = 0; i < caf::AppEnum<T>::size(); ++i )
+        for ( auto e : caf::AppEnum<T>::enumSubset( keyword ) )
         {
-            T enumVal = caf::AppEnum<T>::fromIndex( i );
-            optionList.push_back( PdmOptionItemInfo( caf::AppEnum<T>::uiTextFromIndex( i ), static_cast<int>( enumVal ) ) );
+            optionList.push_back( PdmOptionItemInfo( caf::AppEnum<T>::uiText( e ), static_cast<int>( e ) ) );
+        }
+
+        if ( optionList.isEmpty() )
+        {
+            for ( size_t i = 0; i < caf::AppEnum<T>::size(); ++i )
+            {
+                T enumVal = caf::AppEnum<T>::fromIndex( i );
+                optionList.push_back(
+                    PdmOptionItemInfo( caf::AppEnum<T>::uiTextFromIndex( i ), static_cast<int>( enumVal ) ) );
+            }
         }
 
         return optionList;
@@ -197,7 +215,7 @@ public:
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
-    static QList<PdmOptionItemInfo> valueOptions( const std::pair<T, U>& )
+    static QList<PdmOptionItemInfo> valueOptions( QString keyword, const std::pair<T, U>& )
     {
         QList<PdmOptionItemInfo> optionList;
 
@@ -236,7 +254,10 @@ public:
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
-    static QList<PdmOptionItemInfo> valueOptions( const caf::FilePath& ) { return QList<PdmOptionItemInfo>(); }
+    static QList<PdmOptionItemInfo> valueOptions( QString keyword, const caf::FilePath& )
+    {
+        return QList<PdmOptionItemInfo>();
+    }
 
     /// Methods to retrieve the possible PdmObject pointed to by a field
     static void childObjects( const PdmDataValueField<caf::FilePath>& field, std::vector<PdmObjectHandle*>* objects ) {}

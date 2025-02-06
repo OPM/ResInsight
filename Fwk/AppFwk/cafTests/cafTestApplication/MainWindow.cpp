@@ -3,6 +3,7 @@
 
 #include "MainWindow.h"
 
+#include "ApplicationEnum.h"
 #include "CustomObjectEditor.h"
 #include "LineEditAndPushButtons.h"
 #include "ManyGroups.h"
@@ -1332,6 +1333,8 @@ void MainWindow::buildTestModel()
     demoObj2->m_objectList.push_back( new SmallDemoPdmObject() );
 
     delete smallObj3;
+
+    m_testRoot->objects.push_back( new ApplicationEnum );
 }
 
 //--------------------------------------------------------------------------------------------------

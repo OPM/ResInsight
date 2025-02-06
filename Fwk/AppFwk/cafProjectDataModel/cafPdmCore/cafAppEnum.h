@@ -41,6 +41,7 @@
 #include <QString>
 #include <QStringList>
 
+#include <map>
 #include <vector>
 
 namespace caf
@@ -117,6 +118,16 @@ public:
     {
     }
 
+    static void setEnumSubset( QString fieldKeyword, std::vector<T> subset ) { m_enumSubset[fieldKeyword] = subset; }
+
+    static std::vector<T> enumSubset( QString fieldKeyword )
+    {
+        auto it = m_enumSubset.find( fieldKeyword );
+        if ( it != m_enumSubset.end() ) return it->second;
+
+        return {};
+    }
+
     operator T() const { return m_value; }
 
     T       value() const { return m_value; }
@@ -175,6 +186,8 @@ private:
     static void setDefault( T defaultEnumValue ) { EnumMapper::instance()->setDefault( defaultEnumValue ); }
 
     T m_value;
+
+    static std::map<QString, std::vector<T>> m_enumSubset;
 
     //==================================================================================================
     /// A private class to handle the instance of the mapping vector.
@@ -353,5 +366,8 @@ private:
         bool                  m_defaultValueIsSet;
     };
 };
+
+template <class T>
+std::map<QString, std::vector<T>> AppEnum<T>::m_enumSubset;
 
 } // namespace caf
