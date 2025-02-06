@@ -204,10 +204,9 @@ RigWellResultPoint RifReaderEclipseWell::createWellResultPoint( const RigEclipse
 
         resultPoint.setConnectionFactor( connectionFactor );
 
-        auto ijkOneBased = grid->ijkFromCellIndexOneBased( gridCellIndex );
-        if ( ijkOneBased )
+        if ( auto ijk = grid->ijkFromCellIndex( gridCellIndex ) )
         {
-            resultPoint.setIjk( *ijkOneBased );
+            resultPoint.setIjk( ijk->toOneBased() );
         }
     }
 
