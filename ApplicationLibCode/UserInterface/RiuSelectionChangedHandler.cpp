@@ -37,7 +37,10 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
+#include "RimGridTimeHistoryCurve.h"
 #include "RimProject.h"
+#include "RimSummaryPlot.h"
+#include "Tools/RimAutomationSettings.h"
 
 #include "Riu3dSelectionManager.h"
 #include "RiuDepthQwtPlot.h"
@@ -99,6 +102,12 @@ void RiuSelectionChangedHandler::handleSelectionDeleted() const
     RiuMohrsCirclePlot* mohrsCirclePlot = RiuMainWindow::instance()->mohrsCirclePlot();
     if ( mohrsCirclePlot ) mohrsCirclePlot->clearPlot();
 
+    auto autoSettings = RimProject::current()->automationSettings();
+    if ( auto summaryPlot = autoSettings->cellSelectionDestination() )
+    {
+        summaryPlot->deleteAllGridTimeHistoryCurves();
+    }
+
     updateResultInfo( nullptr );
 
     scheduleUpdateForAllVisibleViews();
@@ -141,6 +150,12 @@ void RiuSelectionChangedHandler::handleSetSelectedItem( const RiuSelectionItem* 
 
     RiuMohrsCirclePlot* mohrsCirclePlot = RiuMainWindow::instance()->mohrsCirclePlot();
     if ( mohrsCirclePlot ) mohrsCirclePlot->clearPlot();
+
+    auto autoSettings = RimProject::current()->automationSettings();
+    if ( auto summaryPlot = autoSettings->cellSelectionDestination() )
+    {
+        summaryPlot->deleteAllGridTimeHistoryCurves();
+    }
 
     handleItemAppended( item );
 }
@@ -192,6 +207,12 @@ void RiuSelectionChangedHandler::addResultCurveFromSelectionItem( const RiuEclip
         if ( eclipseSelectionItem->m_timestepIdx < timeStepDates.size() )
         {
             RiuMainWindow::instance()->resultPlot()->showTimeStep( timeStepDates[eclipseSelectionItem->m_timestepIdx] );
+        }
+
+        auto autoSettings = RimProject::current()->automationSettings();
+        if ( auto summaryPlot = autoSettings->cellSelectionDestination() )
+        {
+            RimGridTimeHistoryCurve::createCurveFromSelectionItem( eclipseSelectionItem, summaryPlot );
         }
     }
 }

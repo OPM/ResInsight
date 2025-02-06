@@ -298,6 +298,7 @@
         <file>Select.svg</file>
         <file>NavigationProperty.svg</file>
         <file>user-defined-view.svg</file>
+        <file>gear.svg</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>

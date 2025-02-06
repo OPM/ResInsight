@@ -144,9 +144,14 @@ void RimSummaryMultiPlotCollection::summaryPlotItemInfos( QList<caf::PdmOptionIt
 {
     for ( RimSummaryMultiPlot* multiPlot : multiPlots() )
     {
+        auto mainPlotName = multiPlot->uiName( "" );
+
         for ( RimSummaryPlot* plot : multiPlot->summaryPlots() )
         {
-            QString displayName = plot->userDescriptionField()->uiCapability()->uiValue().toString();
+            QString displayName = mainPlotName;
+            if ( !displayName.isEmpty() ) displayName += " : ";
+
+            displayName += plot->userDescriptionField()->uiCapability()->uiValue().toString();
             optionInfos->push_back( caf::PdmOptionItemInfo( displayName, plot, false, plot->uiCapability()->uiIconProvider() ) );
         }
     }

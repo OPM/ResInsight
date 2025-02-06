@@ -25,7 +25,6 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
-#include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 #include <memory>
 
 class RigMainGrid;
@@ -38,6 +37,7 @@ class RiuFemTimeHistoryResultAccessor;
 class RiuSelectionItem;
 class RigEclipseResultAddress;
 class RimCase;
+class RimSummaryPlot;
 
 //==================================================================================================
 ///
@@ -47,7 +47,6 @@ class RimGridTimeHistoryCurve : public RimPlotCurve
 {
     CAF_PDM_HEADER_INIT;
 
-public:
 public:
     RimGridTimeHistoryCurve();
     ~RimGridTimeHistoryCurve() override;
@@ -65,6 +64,8 @@ public:
     QString  caseName() const;
     RimCase* gridCase() const;
 
+    static void createCurveFromSelectionItem( const RiuSelectionItem* selectionItem, RimSummaryPlot* plot );
+
 protected:
     QString createCurveAutoName() override;
     void    updateZoomInParentPlot() override;
@@ -73,6 +74,7 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
 
 private:
     RigMainGrid*                     mainGrid();
