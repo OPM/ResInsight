@@ -52,7 +52,6 @@ private slots:
     void validateAndAppend();
 
 private:
-    static QVector<double>   parseDoubleValues( const QString& input );
     RiuEclipseSelectionItem* createSelectionItemFromInput();
     void                     updateVisibleUiItems();
     void                     setupUI();
