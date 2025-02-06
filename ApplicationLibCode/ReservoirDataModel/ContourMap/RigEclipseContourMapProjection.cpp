@@ -110,40 +110,17 @@ std::pair<bool, std::vector<double>>
         std::vector<double> gridResultValues;
         if ( RigContourMapCalculator::isColumnResult( resultAggregation ) )
         {
-            resultData.ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" ) );
-            resultData.ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "NTG" ) );
-            resultData.ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" ) );
-            if ( resultAggregation == RigContourMapCalculator::OIL_COLUMN || resultAggregation == RigContourMapCalculator::HYDROCARBON_COLUMN ||
-                 resultAggregation == RigContourMapCalculator::MOBILE_OIL_COLUMN ||
-                 resultAggregation == RigContourMapCalculator::MOBILE_HYDROCARBON_COLUMN )
+            bool missingResults = false;
+
+            for ( const auto& resAddr : neededResults( resultAggregation, floodingSettings ) )
             {
-                resultData.ensureKnownResultLoaded(
-                    RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ) );
-            }
-            if ( resultAggregation == RigContourMapCalculator::GAS_COLUMN || resultAggregation == RigContourMapCalculator::HYDROCARBON_COLUMN ||
-                 resultAggregation == RigContourMapCalculator::MOBILE_GAS_COLUMN ||
-                 resultAggregation == RigContourMapCalculator::MOBILE_HYDROCARBON_COLUMN )
-            {
-                resultData.ensureKnownResultLoaded(
-                    RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ) );
-            }
-            if ( resultAggregation == RigContourMapCalculator::MOBILE_OIL_COLUMN ||
-                 resultAggregation == RigContourMapCalculator::MOBILE_GAS_COLUMN ||
-                 resultAggregation == RigContourMapCalculator::MOBILE_HYDROCARBON_COLUMN )
-            {
-                if ( floodingSettings.needsSogcr() )
-                {
-                    resultData.ensureKnownResultLoaded(
-                        RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sogcr() ) );
-                }
-                if ( floodingSettings.needsSowcr() )
-                {
-                    resultData.ensureKnownResultLoaded(
-                        RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sowcr() ) );
-                }
+                missingResults = missingResults || !resultData.ensureKnownResultLoaded( resAddr );
             }
 
-            gridResultValues = calculateColumnResult( resultData, resultAggregation, timeStep, floodingSettings );
+            if ( !missingResults )
+            {
+                gridResultValues = calculateColumnResult( resultData, resultAggregation, timeStep, floodingSettings );
+            }
         }
         else
         {
@@ -174,13 +151,6 @@ std::pair<bool, std::vector<double>>
     return { useActiveCellInfo, aggregatedResults };
 }
 
-std::vector<double> RigEclipseContourMapProjection::calculateColumnResult( RigContourMapCalculator::ResultAggregationType resultAggregation,
-                                                                           int                                            timeStep,
-                                                                           RigFloodingSettings& floodingSettings ) const
-{
-    return calculateColumnResult( m_resultData, resultAggregation, timeStep, floodingSettings );
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -189,27 +159,6 @@ std::vector<double> RigEclipseContourMapProjection::calculateColumnResult( RigCa
                                                                            int                                            timeStep,
                                                                            RigFloodingSettings&                           floodingSettings )
 {
-    bool hasPoroResult = resultData.hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" ) );
-    bool hasNtgResult  = resultData.hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "NTG" ) );
-    bool hasDzResult   = resultData.hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" ) );
-
-    if ( !( hasPoroResult && hasNtgResult && hasDzResult ) )
-    {
-        return std::vector<double>();
-    }
-    bool mobileColumnResult = RigContourMapCalculator::isMobileColumnResult( resultAggregation );
-
-    if ( mobileColumnResult )
-    {
-        bool hasSowcrResult = resultData.hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "SOWCR" ) );
-        bool hasSogcrResult = resultData.hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "SOGCR" ) );
-
-        if ( ( ( floodingSettings.needsSowcr() ) && !hasSogcrResult ) || ( ( floodingSettings.needsSogcr() ) && !hasSowcrResult ) )
-        {
-            return std::vector<double>();
-        }
-    }
-
     const std::vector<double>& poroResults =
         resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" ), 0 );
     const std::vector<double>& ntgResults =
@@ -219,66 +168,12 @@ std::vector<double> RigEclipseContourMapProjection::calculateColumnResult( RigCa
 
     CVF_ASSERT( poroResults.size() == ntgResults.size() && ntgResults.size() == dzResults.size() );
 
-    std::vector<double> residualOil = {};
-    std::vector<double> residualGas = {};
+    const auto nSamples = poroResults.size();
 
-    // TODO - clean up this logic
+    std::vector<double> residualOil = residualOilData( resultData, resultAggregation, floodingSettings, nSamples );
+    std::vector<double> residualGas = residualGasData( resultData, resultAggregation, floodingSettings, nSamples );
 
-    if ( mobileColumnResult )
-    {
-        if ( ( resultAggregation == RigContourMapCalculator::MOBILE_OIL_COLUMN ) ||
-             ( resultAggregation == RigContourMapCalculator::MOBILE_HYDROCARBON_COLUMN ) )
-        {
-            if ( floodingSettings.oilFlooding() == RigFloodingSettings::FloodingType::GAS_FLOODING )
-            {
-                residualOil =
-                    resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sogcr() ),
-                                                  0 );
-            }
-            else if ( floodingSettings.oilFlooding() == RigFloodingSettings::FloodingType::WATER_FLOODING )
-            {
-                residualOil =
-                    resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sowcr() ),
-                                                  0 );
-            }
-            else
-            {
-                residualOil.resize( poroResults.size(), floodingSettings.oilUserDefFlooding() );
-            }
-        }
-        else
-        {
-            residualOil.resize( poroResults.size(), 0.0 );
-        }
-
-        if ( ( resultAggregation == RigContourMapCalculator::MOBILE_GAS_COLUMN ) ||
-             ( resultAggregation == RigContourMapCalculator::MOBILE_HYDROCARBON_COLUMN ) )
-        {
-            if ( floodingSettings.gasFlooding() == RigFloodingSettings::FloodingType::GAS_FLOODING )
-            {
-                residualGas =
-                    resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sogcr() ),
-                                                  0 );
-            }
-            else if ( floodingSettings.gasFlooding() == RigFloodingSettings::FloodingType::WATER_FLOODING )
-            {
-                // not really used
-                residualGas =
-                    resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sowcr() ),
-                                                  0 );
-            }
-            else
-            {
-                residualGas.resize( poroResults.size(), floodingSettings.gasUserDefFlooding() );
-            }
-        }
-        else
-        {
-            residualGas.resize( poroResults.size(), 0.0 );
-        }
-    }
-
-    std::vector<double> resultValues( poroResults.size(), 0.0 );
+    std::vector<double> resultValues( nSamples, 0.0 );
 
     if ( ( resultAggregation == RigContourMapCalculator::OIL_COLUMN || resultAggregation == RigContourMapCalculator::HYDROCARBON_COLUMN ) ||
          ( resultAggregation == RigContourMapCalculator::MOBILE_OIL_COLUMN ||
@@ -287,9 +182,9 @@ std::vector<double> RigEclipseContourMapProjection::calculateColumnResult( RigCa
         const std::vector<double>& soilResults =
             resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ),
                                           timeStep );
-        for ( size_t cellResultIdx = 0; cellResultIdx < resultValues.size(); ++cellResultIdx )
+        for ( size_t n = 0; n < nSamples; n++ )
         {
-            resultValues[cellResultIdx] = soilResults[cellResultIdx];
+            resultValues[n] = std::max( soilResults[n] - residualOil[n], 0.0 );
         }
     }
 
@@ -297,32 +192,18 @@ std::vector<double> RigEclipseContourMapProjection::calculateColumnResult( RigCa
          ( resultAggregation == RigContourMapCalculator::MOBILE_GAS_COLUMN ||
            resultAggregation == RigContourMapCalculator::MOBILE_HYDROCARBON_COLUMN ) )
     {
-        bool hasGasResult =
-            resultData.hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ) );
-        if ( hasGasResult )
+        const std::vector<double>& sgasResults =
+            resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ),
+                                          timeStep );
+        for ( size_t n = 0; n < nSamples; n++ )
         {
-            const std::vector<double>& sgasResults =
-                resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ),
-                                              timeStep );
-            for ( size_t cellResultIdx = 0; cellResultIdx < resultValues.size(); ++cellResultIdx )
-            {
-                resultValues[cellResultIdx] += sgasResults[cellResultIdx];
-            }
+            resultValues[n] += std::max( sgasResults[n] - residualGas[n], 0.0 );
         }
     }
 
-    if ( mobileColumnResult )
+    for ( size_t n = 0; n < nSamples; n++ )
     {
-        for ( size_t cellResultIdx = 0; cellResultIdx < resultValues.size(); cellResultIdx++ )
-        {
-            resultValues[cellResultIdx] -= residualOil[cellResultIdx];
-            if ( resultValues[cellResultIdx] < 0.0 ) resultValues[cellResultIdx] = 0.0;
-        }
-    }
-
-    for ( size_t cellResultIdx = 0; cellResultIdx < resultValues.size(); ++cellResultIdx )
-    {
-        resultValues[cellResultIdx] *= poroResults[cellResultIdx] * ntgResults[cellResultIdx] * dzResults[cellResultIdx];
+        resultValues[n] *= poroResults[n] * ntgResults[n] * dzResults[n];
     }
 
     return resultValues;
@@ -438,4 +319,126 @@ std::vector<bool> RigEclipseContourMapProjection::getMapCellVisibility( int     
 
 {
     return std::vector<bool>( numberOfCells(), true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RigEclipseResultAddress> RigEclipseContourMapProjection::neededResults( RigContourMapCalculator::ResultAggregationType resultAggregation,
+                                                                                 RigFloodingSettings& floodingSettings )
+{
+    std::set<RigEclipseResultAddress> results;
+
+    if ( RigContourMapCalculator::isColumnResult( resultAggregation ) )
+    {
+        results.emplace( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" );
+        results.emplace( RiaDefines::ResultCatType::STATIC_NATIVE, "NTG" );
+        results.emplace( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" );
+
+        if ( resultAggregation == RigContourMapCalculator::OIL_COLUMN || resultAggregation == RigContourMapCalculator::HYDROCARBON_COLUMN ||
+             resultAggregation == RigContourMapCalculator::MOBILE_OIL_COLUMN ||
+             resultAggregation == RigContourMapCalculator::MOBILE_HYDROCARBON_COLUMN )
+        {
+            results.emplace( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() );
+        }
+        if ( resultAggregation == RigContourMapCalculator::GAS_COLUMN || resultAggregation == RigContourMapCalculator::HYDROCARBON_COLUMN ||
+             resultAggregation == RigContourMapCalculator::MOBILE_GAS_COLUMN ||
+             resultAggregation == RigContourMapCalculator::MOBILE_HYDROCARBON_COLUMN )
+        {
+            results.emplace( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() );
+        }
+    }
+
+    if ( RigContourMapCalculator::isMobileColumnResult( resultAggregation ) )
+    {
+        if ( ( resultAggregation == RigContourMapCalculator::ResultAggregationType::MOBILE_OIL_COLUMN ) ||
+             ( resultAggregation == RigContourMapCalculator::ResultAggregationType::MOBILE_HYDROCARBON_COLUMN ) )
+        {
+            if ( floodingSettings.oilFlooding() == RigFloodingSettings::FloodingType::WATER_FLOODING )
+            {
+                results.emplace( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sowcr() );
+            }
+            else if ( floodingSettings.oilFlooding() == RigFloodingSettings::FloodingType::GAS_FLOODING )
+            {
+                results.emplace( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sogcr() );
+            }
+        }
+        if ( ( resultAggregation == RigContourMapCalculator::ResultAggregationType::MOBILE_GAS_COLUMN ) ||
+             ( resultAggregation == RigContourMapCalculator::ResultAggregationType::MOBILE_HYDROCARBON_COLUMN ) )
+        {
+            if ( floodingSettings.gasFlooding() == RigFloodingSettings::FloodingType::WATER_FLOODING )
+            {
+                results.emplace( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sowcr() );
+            }
+            else if ( floodingSettings.gasFlooding() == RigFloodingSettings::FloodingType::GAS_FLOODING )
+            {
+                results.emplace( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sogcr() );
+            }
+        }
+    }
+
+    return results;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+
+std::vector<double> RigEclipseContourMapProjection::residualOilData( RigCaseCellResultsData&                        resultData,
+                                                                     RigContourMapCalculator::ResultAggregationType resultAggregation,
+                                                                     RigFloodingSettings&                           floodingSettings,
+                                                                     size_t                                         nSamples )
+{
+    std::vector<double> residualOil;
+
+    if ( ( resultAggregation == RigContourMapCalculator::MOBILE_OIL_COLUMN ) ||
+         ( resultAggregation == RigContourMapCalculator::MOBILE_HYDROCARBON_COLUMN ) )
+    {
+        if ( floodingSettings.oilFlooding() == RigFloodingSettings::FloodingType::GAS_FLOODING )
+        {
+            residualOil =
+                resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sogcr() ), 0 );
+        }
+        else if ( floodingSettings.oilFlooding() == RigFloodingSettings::FloodingType::WATER_FLOODING )
+        {
+            residualOil =
+                resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sowcr() ), 0 );
+        }
+        else
+        {
+            residualOil.resize( nSamples, floodingSettings.oilUserDefFlooding() );
+        }
+    }
+
+    if ( residualOil.empty() ) residualOil.resize( nSamples, 0.0 );
+
+    return residualOil;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigEclipseContourMapProjection::residualGasData( RigCaseCellResultsData&                        resultData,
+                                                                     RigContourMapCalculator::ResultAggregationType resultAggregation,
+                                                                     RigFloodingSettings&                           floodingSettings,
+                                                                     size_t                                         nSamples )
+{
+    std::vector<double> residualGas;
+
+    if ( ( resultAggregation == RigContourMapCalculator::MOBILE_GAS_COLUMN ) ||
+         ( resultAggregation == RigContourMapCalculator::MOBILE_HYDROCARBON_COLUMN ) )
+    {
+        if ( floodingSettings.gasFlooding() == RigFloodingSettings::FloodingType::GAS_FLOODING )
+        {
+            residualGas =
+                resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sogcr() ), 0 );
+        }
+        else if ( floodingSettings.gasFlooding() == RigFloodingSettings::FloodingType::USER_DEFINED )
+        {
+            residualGas.resize( nSamples, floodingSettings.gasUserDefFlooding() );
+        }
+    }
+    if ( residualGas.empty() ) residualGas.resize( nSamples, 0.0 );
+
+    return residualGas;
 }

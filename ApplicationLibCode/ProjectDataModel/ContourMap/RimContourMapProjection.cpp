@@ -95,13 +95,13 @@ RimContourMapProjection::RimContourMapProjection()
     CAF_PDM_InitFieldNoDefault( &m_resultAggregation, "ResultAggregation", "Result Aggregation" );
 
     CAF_PDM_InitFieldNoDefault( &m_oilFloodingType, "OilFloodingType", "Residual Oil Given By" );
-    m_oilFloodingType.setDefaultValue( RigFloodingSettings::FloodingType::WATER_FLOODING );
-    CAF_PDM_InitField( &m_userDefinedFloodingOil, "UserDefinedFloodingOil", 0.0, "User Defined Value" );
+    m_oilFloodingType.setValue( RigFloodingSettings::FloodingType::WATER_FLOODING );
+    CAF_PDM_InitField( &m_userDefinedFloodingOil, "UserDefinedFloodingOil", 0.0, "" );
     m_userDefinedFloodingOil.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_gasFloodingType, "GasFloodingType", "Residual Oil-in-Gas Given By" );
-    m_gasFloodingType.setDefaultValue( RigFloodingSettings::FloodingType::GAS_FLOODING );
-    CAF_PDM_InitField( &m_userDefinedFloodingGas, "UserDefinedFloodingGas", 0.0, "User Defined Value" );
+    m_gasFloodingType.setValue( RigFloodingSettings::FloodingType::GAS_FLOODING );
+    CAF_PDM_InitField( &m_userDefinedFloodingGas, "UserDefinedFloodingGas", 0.0, "" );
     m_userDefinedFloodingGas.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_showContourLines, "ContourLines", true, "Show Contour Lines" );
@@ -598,10 +598,9 @@ void RimContourMapProjection::defineEditorAttribute( const caf::PdmFieldHandle* 
     {
         if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
         {
-            myAttr->m_minimum                       = 0.0;
-            myAttr->m_maximum                       = 1.0;
-            myAttr->m_sliderTickCount               = 20;
-            myAttr->m_delaySliderUpdateUntilRelease = true;
+            myAttr->m_minimum         = 0.0;
+            myAttr->m_maximum         = 1.0;
+            myAttr->m_sliderTickCount = 20;
         }
     }
 }
