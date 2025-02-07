@@ -183,7 +183,7 @@ public:
         {
             optionList.push_back( PdmOptionItemInfo( caf::AppEnum<T>::uiText( enumValue ), static_cast<int>( enumValue ) ) );
         }
-     
+
         return optionList;
     }
 
