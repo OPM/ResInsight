@@ -18,11 +18,11 @@
 
 #include "RimContourMapProjection.h"
 
-#include "ContourMap//RigFloodingSettings.h"
 #include "ContourMap/RigContourMapCalculator.h"
 #include "ContourMap/RigContourMapGrid.h"
 #include "ContourMap/RigContourMapProjection.h"
 #include "ContourMap/RigContourMapTrianglesGenerator.h"
+#include "ContourMap/RigFloodingSettings.h"
 
 #include "RimCase.h"
 #include "RimGridView.h"
