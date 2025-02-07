@@ -102,9 +102,8 @@ namespace caf
 ///   Define a subset of the enum to be used in a field. Assign a value from the subset to make sure the field
 ///   contains a valid value when the constructor is done.
 ///
-///     CAF_PDM_InitFieldNoDefault( &m_enum2Field, "m_enum2Field", "Subset using setEnumSubset()" );
+///     CAF_PDM_InitField( &m_enum2Field, "Enum2Field", MyEnumType::T6, "Subset using setEnumSubset()" );
 ///     caf::AppEnum<MyEnumType>::setEnumSubset( m_enum2Field.keyword(), { MyEnumType::T2, MyEnumType::T6 } );
-///     m_enum2Field = MyEnumType::T6;
 ///
 ///
 //==================================================================================================

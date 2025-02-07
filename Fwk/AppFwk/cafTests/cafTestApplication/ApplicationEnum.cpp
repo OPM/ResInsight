@@ -27,15 +27,14 @@ ApplicationEnum::ApplicationEnum()
     CAF_PDM_InitObject( "Application Enum", "", "", "" );
 
     // Enum field displaying all defined enums
-    CAF_PDM_InitFieldNoDefault( &m_enumField, "m_enumField", "All Enums" );
+    CAF_PDM_InitFieldNoDefault( &m_enumField, "EnumField", "All Enums" );
 
     // Enum field displaying a subset of the defined enums using the static function setEnumSubset()
-    CAF_PDM_InitFieldNoDefault( &m_enum2Field, "m_enum2Field", "Subset using setEnumSubset()" );
+    CAF_PDM_InitField( &m_enum2Field, "Enum2Field", MyEnumType::T6, "Subset using setEnumSubset()" );
     caf::AppEnum<MyEnumType>::setEnumSubset( m_enum2Field.keyword(), { MyEnumType::T2, MyEnumType::T6 } );
-    m_enum2Field = MyEnumType::T6;
 
     // Enum field displaying a subset of the defined enums using calculateValueOptions()
-    CAF_PDM_InitFieldNoDefault( &m_enum3Field, "m_enum3Field", "Subset using calculateValueOptions()" );
+    CAF_PDM_InitFieldNoDefault( &m_enum3Field, "Enum3Field", "Subset using calculateValueOptions()" );
     m_enum3Field = MyEnumType::T2;
 }
 
