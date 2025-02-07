@@ -192,7 +192,9 @@ QList<PdmOptionItemInfo> PdmFieldUiCap<FieldType>::valueOptions() const
 
     if ( m_optionEntryCache.empty() )
     {
-        m_optionEntryCache = PdmUiFieldSpecialization<typename FieldType::FieldDataType>::valueOptions( m_field->value() );
+        auto keyword = m_field->keyword();
+        m_optionEntryCache =
+            PdmUiFieldSpecialization<typename FieldType::FieldDataType>::valueOptions( keyword, m_field->value() );
     }
 
     if ( !m_optionEntryCache.empty() && isAutoAddingOptionFromValue() )
