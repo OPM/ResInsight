@@ -61,6 +61,9 @@ double RigContourMapCalculator::calculateValueInMapCell( const RigContourMapProj
         case OIL_COLUMN:
         case GAS_COLUMN:
         case HYDROCARBON_COLUMN:
+        case MOBILE_OIL_COLUMN:
+        case MOBILE_GAS_COLUMN:
+        case MOBILE_HYDROCARBON_COLUMN:
             return calculateSum( contourMapProjection, matchingCells, gridCellValues );
         default:
         {
@@ -435,7 +438,8 @@ std::vector<RigContourMapCalculator::CellIndexAndResult>
 //--------------------------------------------------------------------------------------------------
 bool RigContourMapCalculator::isColumnResult( ResultAggregationType aggregationType )
 {
-    return aggregationType == OIL_COLUMN || aggregationType == GAS_COLUMN || aggregationType == HYDROCARBON_COLUMN;
+    return aggregationType == OIL_COLUMN || aggregationType == GAS_COLUMN || aggregationType == HYDROCARBON_COLUMN ||
+           isMobileColumnResult( aggregationType );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -451,5 +455,13 @@ bool RigContourMapCalculator::isMeanResult( ResultAggregationType aggregationTyp
 //--------------------------------------------------------------------------------------------------
 bool RigContourMapCalculator::isStraightSummationResult( ResultAggregationType aggregationType )
 {
-    return aggregationType == OIL_COLUMN || aggregationType == GAS_COLUMN || aggregationType == HYDROCARBON_COLUMN || aggregationType == SUM;
+    return isColumnResult( aggregationType ) || aggregationType == SUM;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigContourMapCalculator::isMobileColumnResult( ResultAggregationType aggregationType )
+{
+    return aggregationType == MOBILE_OIL_COLUMN || aggregationType == MOBILE_GAS_COLUMN || aggregationType == MOBILE_HYDROCARBON_COLUMN;
 }

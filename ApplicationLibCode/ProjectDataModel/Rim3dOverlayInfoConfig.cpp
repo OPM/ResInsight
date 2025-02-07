@@ -26,9 +26,9 @@
 
 #include "RicGridStatisticsDialog.h"
 
+#include "ContourMap/RigContourMapProjection.h"
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigContourMapProjection.h"
 #include "RigEclipseCaseData.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"

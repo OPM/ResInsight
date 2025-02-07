@@ -22,8 +22,9 @@
 #include "RimCheckableNamedObject.h"
 #include "RimIntersectionEnums.h"
 
-#include "RigContourMapCalculator.h"
-#include "RigContourPolygonsTools.h"
+#include "ContourMap/RigContourMapCalculator.h"
+#include "ContourMap/RigContourPolygonsTools.h"
+#include "ContourMap/RigFloodingSettings.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -49,6 +50,7 @@ class RimContourMapProjection : public RimCheckableNamedObject
 public:
     using ResultAggregation = caf::AppEnum<RigContourMapCalculator::ResultAggregationType>;
     using ContourPolygons   = std::vector<RigContourPolygonsTools::ContourPolygon>;
+    using FloodingType      = caf::AppEnum<RigFloodingSettings::FloodingType>;
 
     RimContourMapProjection();
     ~RimContourMapProjection() override;
@@ -128,6 +130,7 @@ protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void appendValueFilterGroup( caf::PdmUiOrdering& uiOrdering );
 
@@ -148,6 +151,11 @@ protected:
     caf::PdmField<bool>              m_showContourLines;
     caf::PdmField<bool>              m_showContourLabels;
     caf::PdmField<bool>              m_smoothContourLines;
+
+    caf::PdmField<FloodingType> m_oilFloodingType;
+    caf::PdmField<FloodingType> m_gasFloodingType;
+    caf::PdmField<double>       m_userDefinedFloodingGas;
+    caf::PdmField<double>       m_userDefinedFloodingOil;
 
     cvf::Vec2d                   m_pickPoint;
     std::vector<ContourPolygons> m_contourPolygons;

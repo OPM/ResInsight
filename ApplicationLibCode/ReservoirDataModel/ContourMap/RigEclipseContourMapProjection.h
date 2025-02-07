@@ -20,8 +20,12 @@
 
 #include "RigContourMapCalculator.h"
 #include "RigContourMapProjection.h"
+#include "RigEclipseResultAddress.h"
+#include "RigFloodingSettings.h"
 
 #include "cvfBoundingBox.h"
+
+#include <set>
 
 class RigActiveCellInfo;
 class RigMainGrid;
@@ -29,7 +33,6 @@ class RigContourMapGrid;
 class RigResultAccessor;
 class RigEclipseCaseData;
 class RigCaseCellResultsData;
-class RigEclipseResultAddress;
 
 //==================================================================================================
 ///
@@ -45,18 +48,21 @@ public:
 
     void generateAndSaveResults( const RigEclipseResultAddress&                 resultAddress,
                                  RigContourMapCalculator::ResultAggregationType resultAggregation,
-                                 int                                            timeStep );
+                                 int                                            timeStep,
+                                 RigFloodingSettings&                           floodingSettings );
 
     std::vector<double> generateResults( const RigEclipseResultAddress&                 resultAddress,
                                          RigContourMapCalculator::ResultAggregationType resultAggregation,
-                                         int                                            timeStep ) const;
+                                         int                                            timeStep,
+                                         RigFloodingSettings&                           floodingSettings ) const;
 
     static std::pair<bool, std::vector<double>> generateResults( const RigEclipseContourMapProjection&          contourMapProjection,
                                                                  const RigContourMapGrid&                       contourMapGrid,
                                                                  RigCaseCellResultsData&                        resultData,
                                                                  const RigEclipseResultAddress&                 resultAddress,
                                                                  RigContourMapCalculator::ResultAggregationType resultAggregation,
-                                                                 int                                            timeStep );
+                                                                 int                                            timeStep,
+                                                                 RigFloodingSettings&                           floodingSettings );
 
     std::vector<bool> getMapCellVisibility( int viewStepIndex, RigContourMapCalculator::ResultAggregationType resultAggregation ) override;
 
@@ -71,12 +77,23 @@ protected:
     double getParameterWeightForCell( size_t cellResultIdx, const std::vector<double>& parameterWeights ) const override;
     size_t gridResultIndex( size_t globalCellIdx ) const override;
 
-    // Eclipse implementation specific data generation methods
-    std::vector<double> calculateColumnResult( RigContourMapCalculator::ResultAggregationType resultAggregation, int timeStep ) const;
-
     static std::vector<double> calculateColumnResult( RigCaseCellResultsData&                        resultData,
                                                       RigContourMapCalculator::ResultAggregationType resultAggregation,
-                                                      int                                            timeStep );
+                                                      int                                            timeStep,
+                                                      RigFloodingSettings&                           floodingSettings );
+
+    static std::set<RigEclipseResultAddress> neededResults( RigContourMapCalculator::ResultAggregationType resultAggregation,
+                                                            RigFloodingSettings&                           floodingSettings );
+
+    static std::vector<double> residualOilData( RigCaseCellResultsData&                        resultData,
+                                                RigContourMapCalculator::ResultAggregationType resultAggregation,
+                                                RigFloodingSettings&                           floodingSettings,
+                                                size_t                                         nSamples );
+
+    static std::vector<double> residualGasData( RigCaseCellResultsData&                        resultData,
+                                                RigContourMapCalculator::ResultAggregationType resultAggregation,
+                                                RigFloodingSettings&                           floodingSettings,
+                                                size_t                                         nSamples );
 
 protected:
     RigEclipseCaseData&         m_eclipseCaseData;

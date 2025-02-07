@@ -87,6 +87,9 @@ QString soil();
 QString sgas();
 QString swat();
 
+QString sowcr();
+QString sogcr();
+
 // Well path derived results
 QString wbsAzimuthResult();
 QString wbsInclinationResult();

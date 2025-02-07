@@ -93,6 +93,7 @@ list(
   ReservoirDataModel/CMakeLists_files.cmake
   ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
   ReservoirDataModel/Completions/CMakeLists_files.cmake
+  ReservoirDataModel/ContourMap/CMakeLists_files.cmake
   ReservoirDataModel/ResultAccessors/CMakeLists_files.cmake
   ReservoirDataModel/ResultCalculators/CMakeLists_files.cmake
   ReservoirDataModel/Well/CMakeLists_files.cmake

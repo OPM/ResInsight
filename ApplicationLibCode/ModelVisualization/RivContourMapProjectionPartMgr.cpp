@@ -21,8 +21,8 @@
 #include "RiaColorTools.h"
 #include "RiaFontCache.h"
 
-#include "RigContourMapGrid.h"
-#include "RigContourPolygonsTools.h"
+#include "ContourMap/RigContourMapGrid.h"
+#include "ContourMap/RigContourPolygonsTools.h"
 
 #include "RivMeshLinesSourceInfo.h"
 #include "RivPartPriority.h"

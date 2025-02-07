@@ -26,11 +26,11 @@
 
 #include "RifReaderSettings.h"
 
+#include "ContourMap/RigContourMapCalculator.h"
+#include "ContourMap/RigContourMapGrid.h"
+#include "ContourMap/RigEclipseContourMapProjection.h"
 #include "RigCaseCellResultsData.h"
-#include "RigContourMapCalculator.h"
-#include "RigContourMapGrid.h"
 #include "RigEclipseCaseData.h"
-#include "RigEclipseContourMapProjection.h"
 #include "RigEclipseResultAddress.h"
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
@@ -54,6 +54,7 @@
 #include "Riu3DMainWindowTools.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafProgressInfo.h"
@@ -96,6 +97,16 @@ RimStatisticsContourMap::RimStatisticsContourMap()
     CAF_PDM_InitFieldNoDefault( &m_resolution, "Resolution", "Sampling Resolution" );
 
     CAF_PDM_InitFieldNoDefault( &m_resultAggregation, "ResultAggregation", "Result Aggregation" );
+
+    CAF_PDM_InitFieldNoDefault( &m_oilFloodingType, "OilFloodingType", "Residual Oil Given By" );
+    m_oilFloodingType.setValue( RigFloodingSettings::FloodingType::WATER_FLOODING );
+    CAF_PDM_InitField( &m_userDefinedFloodingOil, "UserDefinedFloodingOil", 0.0, "User Defined Value" );
+    m_userDefinedFloodingOil.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_gasFloodingType, "GasFloodingType", "Residual Oil-in-Gas Given By" );
+    m_gasFloodingType.setValue( RigFloodingSettings::FloodingType::GAS_FLOODING );
+    CAF_PDM_InitField( &m_userDefinedFloodingGas, "UserDefinedFloodingGas", 0.0, "User Defined Value" );
+    m_userDefinedFloodingGas.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "SelectedTimeSteps", "Time Step Selection" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -162,6 +173,27 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
     auto genGrp = uiOrdering.addNewGroup( "General" );
 
     genGrp->add( &m_resultAggregation );
+
+    if ( RigContourMapCalculator::isMobileColumnResult( m_resultAggregation() ) )
+    {
+        if ( m_resultAggregation() != RigContourMapCalculator::MOBILE_GAS_COLUMN )
+        {
+            genGrp->add( &m_oilFloodingType );
+            if ( m_oilFloodingType() == RigFloodingSettings::FloodingType::USER_DEFINED )
+            {
+                genGrp->add( &m_userDefinedFloodingOil );
+            }
+        }
+        if ( m_resultAggregation() != RigContourMapCalculator::MOBILE_OIL_COLUMN )
+        {
+            genGrp->add( &m_gasFloodingType );
+            if ( m_gasFloodingType() == RigFloodingSettings::FloodingType::USER_DEFINED )
+            {
+                genGrp->add( &m_userDefinedFloodingGas );
+            }
+        }
+    }
+
     genGrp->add( &m_resolution );
     genGrp->add( &m_primaryCase );
     genGrp->add( &m_boundingBoxExpPercent );
@@ -363,6 +395,15 @@ QList<caf::PdmOptionItemInfo> RimStatisticsContourMap::calculateValueOptions( co
             }
         }
     }
+    else if ( &m_gasFloodingType == fieldNeedingOptions )
+    {
+        options.push_back(
+            caf::PdmOptionItemInfo( caf::AppEnum<RigFloodingSettings::FloodingType>::uiText( RigFloodingSettings::FloodingType::GAS_FLOODING ),
+                                    RigFloodingSettings::FloodingType::GAS_FLOODING ) );
+        options.push_back(
+            caf::PdmOptionItemInfo( caf::AppEnum<RigFloodingSettings::FloodingType>::uiText( RigFloodingSettings::FloodingType::USER_DEFINED ),
+                                    RigFloodingSettings::FloodingType::USER_DEFINED ) );
+    }
 
     return options;
 }
@@ -377,6 +418,16 @@ void RimStatisticsContourMap::defineEditorAttribute( const caf::PdmFieldHandle* 
         if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
         {
             attrib->m_buttonText = "Compute";
+        }
+    }
+    else if ( ( &m_userDefinedFloodingOil == field ) || ( &m_userDefinedFloodingGas == field ) )
+    {
+        if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
+        {
+            myAttr->m_minimum                       = 0.0;
+            myAttr->m_maximum                       = 1.0;
+            myAttr->m_sliderTickCount               = 20;
+            myAttr->m_delaySliderUpdateUntilRelease = true;
         }
     }
 }
@@ -472,6 +523,7 @@ void RimStatisticsContourMap::computeStatistics()
     if ( ensemble->cases().empty() ) return;
     if ( eclipseCase() == nullptr ) return;
 
+    RigFloodingSettings floodSettings( m_oilFloodingType(), m_userDefinedFloodingOil(), m_gasFloodingType(), m_userDefinedFloodingGas() );
     RigContourMapCalculator::ResultAggregationType resultAggregation = m_resultAggregation();
 
     cvf::BoundingBox gridBoundingBox = eclipseCase()->activeCellsBoundingBox();
@@ -526,14 +578,14 @@ void RimStatisticsContourMap::computeStatistics()
                 for ( auto ts : selectedTimeSteps() )
                 {
                     std::vector<double> result =
-                        contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(), resultAggregation, ts );
+                        contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(), resultAggregation, ts, floodSettings );
                     timestep_results[ts].push_back( result );
                 }
             }
             else
             {
                 std::vector<double> result =
-                    contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(), resultAggregation, 0 );
+                    contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(), resultAggregation, 0, floodSettings );
                 timestep_results[0].push_back( result );
             }
         }

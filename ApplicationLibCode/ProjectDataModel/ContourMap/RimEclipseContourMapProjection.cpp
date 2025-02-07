@@ -18,12 +18,12 @@
 
 #include "RimEclipseContourMapProjection.h"
 
+#include "ContourMap/RigContourMapCalculator.h"
+#include "ContourMap/RigContourMapGrid.h"
+#include "ContourMap/RigEclipseContourMapProjection.h"
 #include "RiaPorosityModel.h"
 #include "RigCaseCellResultsData.h"
-#include "RigContourMapCalculator.h"
-#include "RigContourMapGrid.h"
 #include "RigEclipseCaseData.h"
-#include "RigEclipseContourMapProjection.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 
@@ -183,8 +183,10 @@ std::vector<double> RimEclipseContourMapProjection::generateResults( int timeSte
                                          cellColors->timeLapseBaseTimeStep(),
                                          cellColors->caseDiffIndex() );
 
+        RigFloodingSettings fl( m_oilFloodingType(), m_userDefinedFloodingOil(), m_gasFloodingType(), m_userDefinedFloodingGas() );
+
         return dynamic_cast<RigEclipseContourMapProjection*>( m_contourMapProjection.get() )
-            ->generateResults( resAddr, m_resultAggregation(), timeStep );
+            ->generateResults( resAddr, m_resultAggregation(), timeStep, fl );
     }
 
     return {};
@@ -205,8 +207,10 @@ void RimEclipseContourMapProjection::generateAndSaveResults( int timeStep )
                                          cellColors->timeLapseBaseTimeStep(),
                                          cellColors->caseDiffIndex() );
 
+        RigFloodingSettings fl( m_oilFloodingType(), m_userDefinedFloodingOil(), m_gasFloodingType(), m_userDefinedFloodingGas() );
+
         dynamic_cast<RigEclipseContourMapProjection*>( m_contourMapProjection.get() )
-            ->generateAndSaveResults( resAddr, m_resultAggregation(), timeStep );
+            ->generateAndSaveResults( resAddr, m_resultAggregation(), timeStep, fl );
     }
 }
 

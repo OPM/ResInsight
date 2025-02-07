@@ -50,7 +50,10 @@ public:
         SUM,
         OIL_COLUMN,
         GAS_COLUMN,
-        HYDROCARBON_COLUMN
+        HYDROCARBON_COLUMN,
+        MOBILE_OIL_COLUMN,
+        MOBILE_GAS_COLUMN,
+        MOBILE_HYDROCARBON_COLUMN
     };
 
     static std::vector<std::vector<std::pair<size_t, double>>>
@@ -81,6 +84,7 @@ public:
     static bool isColumnResult( ResultAggregationType aggregationType );
     static bool isMeanResult( ResultAggregationType aggregationType );
     static bool isStraightSummationResult( ResultAggregationType aggregationType );
+    static bool isMobileColumnResult( ResultAggregationType aggregationType );
 
 private:
     static double calculateTopValue( const RigContourMapProjection&                contourMapProjection,

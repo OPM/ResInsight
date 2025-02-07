@@ -18,12 +18,12 @@
 
 #include "RimStatisticsContourMapProjection.h"
 
+#include "ContourMap/RigContourMapCalculator.h"
+#include "ContourMap/RigContourMapGrid.h"
+#include "ContourMap/RigContourMapProjection.h"
+#include "ContourMap/RigStatisticsContourMapProjection.h"
 #include "RigCaseCellResultsData.h"
-#include "RigContourMapCalculator.h"
-#include "RigContourMapGrid.h"
-#include "RigContourMapProjection.h"
 #include "RigEclipseCaseData.h"
-#include "RigStatisticsContourMapProjection.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
