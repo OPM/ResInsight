@@ -74,7 +74,6 @@ else(CREATE_OPM_COMMON_KEYWORDS)
   )
 
   add_definitions(-DFMT_HEADER_ONLY)
-  include_directories(SYSTEM ../fmtlib/include)
 
   include(opm-common/CMakeLists_files.cmake)
 
