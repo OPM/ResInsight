@@ -1081,8 +1081,19 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
             break;
 
         case SummaryCategory::SUMMARY_WELL:
-            if ( !token1.empty() ) return wellAddress( vectorName, token1 );
+        {
+            auto wellName = token1;
+            if ( !token2.empty() )
+            {
+                // Well name can contain more than one token, indicates aggregation of a set of completions.
+                // Concatenate tokens using __ as separator as done in resdata
+                // https://github.com/OPM/ResInsight/issues/12141
+                vectorName += "__";
+                vectorName += token2;
+            }
+            if ( !wellName.empty() ) return wellAddress( vectorName, wellName );
             break;
+        }
 
         case SummaryCategory::SUMMARY_WELL_COMPLETION:
             if ( !token2.empty() )
