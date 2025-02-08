@@ -27,23 +27,9 @@ RicWellPathsUnitSystemSettingsUi::RicWellPathsUnitSystemSettingsUi()
 {
     CAF_PDM_InitObject( "RimWellPathsUnitSystemSettings" );
 
-    CAF_PDM_InitFieldNoDefault( &unitSystem, "UnitSystem", "Unit System" );
+    CAF_PDM_InitField( &unitSystem, "UnitSystem", RiaDefines::EclipseUnitSystem::UNITS_METRIC, "Unit System" );
+    caf::AppEnum<RiaDefines::EclipseUnitSystem>::setEnumSubset( unitSystem.keyword(),
+                                                                { RiaDefines::EclipseUnitSystem::UNITS_METRIC,
+                                                                  RiaDefines::EclipseUnitSystem::UNITS_FIELD } );
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RicWellPathsUnitSystemSettingsUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
-{
-    QList<caf::PdmOptionItemInfo> options;
-    if ( fieldNeedingOptions == &unitSystem )
-    {
-        options.push_back(
-            caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::EclipseUnitSystem>::uiText( RiaDefines::EclipseUnitSystem::UNITS_METRIC ),
-                                    RiaDefines::EclipseUnitSystem::UNITS_METRIC ) );
-        options.push_back(
-            caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::EclipseUnitSystem>::uiText( RiaDefines::EclipseUnitSystem::UNITS_FIELD ),
-                                    RiaDefines::EclipseUnitSystem::UNITS_FIELD ) );
-    }
-    return options;
-}

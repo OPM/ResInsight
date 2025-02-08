@@ -99,8 +99,11 @@ RimContourMapProjection::RimContourMapProjection()
     CAF_PDM_InitField( &m_userDefinedFloodingOil, "UserDefinedFloodingOil", 0.0, "" );
     m_userDefinedFloodingOil.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_gasFloodingType, "GasFloodingType", "Residual Oil-in-Gas Given By" );
-    m_gasFloodingType.setValue( RigFloodingSettings::FloodingType::GAS_FLOODING );
+    CAF_PDM_InitField( &m_gasFloodingType, "GasFloodingType", RigFloodingSettings::FloodingType::GAS_FLOODING, "Residual Oil-in-Gas Given By" );
+    caf::AppEnum<RigFloodingSettings::FloodingType>::setEnumSubset( m_gasFloodingType.keyword(),
+                                                                    { RigFloodingSettings::FloodingType::GAS_FLOODING,
+                                                                      RigFloodingSettings::FloodingType::USER_DEFINED } );
+
     CAF_PDM_InitField( &m_userDefinedFloodingGas, "UserDefinedFloodingGas", 0.0, "" );
     m_userDefinedFloodingGas.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
@@ -558,26 +561,6 @@ void RimContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* chang
 
     baseView()->updateConnectedEditors();
     baseView()->scheduleCreateDisplayModelAndRedraw();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimContourMapProjection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
-{
-    QList<caf::PdmOptionItemInfo> options;
-
-    if ( &m_gasFloodingType == fieldNeedingOptions )
-    {
-        options.push_back(
-            caf::PdmOptionItemInfo( caf::AppEnum<RigFloodingSettings::FloodingType>::uiText( RigFloodingSettings::FloodingType::GAS_FLOODING ),
-                                    RigFloodingSettings::FloodingType::GAS_FLOODING ) );
-        options.push_back(
-            caf::PdmOptionItemInfo( caf::AppEnum<RigFloodingSettings::FloodingType>::uiText( RigFloodingSettings::FloodingType::USER_DEFINED ),
-                                    RigFloodingSettings::FloodingType::USER_DEFINED ) );
-    }
-
-    return options;
 }
 
 //--------------------------------------------------------------------------------------------------

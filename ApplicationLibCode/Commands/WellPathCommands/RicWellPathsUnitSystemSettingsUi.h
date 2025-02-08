@@ -35,7 +35,4 @@ public:
     RicWellPathsUnitSystemSettingsUi();
 
     caf::PdmField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> unitSystem;
-
-protected:
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 };
