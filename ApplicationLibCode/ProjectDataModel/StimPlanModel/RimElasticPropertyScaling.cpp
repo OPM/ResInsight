@@ -44,8 +44,10 @@ RimElasticPropertyScaling::RimElasticPropertyScaling()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_formation, "Formation", "Formation" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_facies, "Facies", "Facies" );
-    caf::AppEnum<RiaDefines::CurveProperty> defaultProperty = RiaDefines::CurveProperty::YOUNGS_MODULUS;
-    CAF_PDM_InitScriptableField( &m_property, "Property", defaultProperty, "Property" );
+
+    CAF_PDM_InitScriptableField( &m_property, "Property", RiaDefines::CurveProperty::YOUNGS_MODULUS, "Property" );
+    caf::AppEnum<RiaDefines::CurveProperty>::setEnumSubset( m_property.keyword(), RimElasticProperties::scalableProperties() );
+
     CAF_PDM_InitScriptableField( &m_scale, "Scale", 1.0, "Scale" );
 
     nameField()->uiCapability()->setUiReadOnly( true );
@@ -83,14 +85,6 @@ QList<caf::PdmOptionItemInfo> RimElasticPropertyScaling::calculateValueOptions( 
         for ( RimColorLegendItem* item : faciesColors->colorLegendItems() )
         {
             options.push_back( caf::PdmOptionItemInfo( item->categoryName(), item->categoryName() ) );
-        }
-    }
-    else if ( fieldNeedingOptions == &m_property )
-    {
-        std::vector<RiaDefines::CurveProperty> properties = RimElasticProperties::scalableProperties();
-        for ( auto property : properties )
-        {
-            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::CurveProperty>::uiText( property ), property ) );
         }
     }
 

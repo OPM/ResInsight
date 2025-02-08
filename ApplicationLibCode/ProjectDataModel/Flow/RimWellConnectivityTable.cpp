@@ -188,7 +188,13 @@ RimWellConnectivityTable::RimWellConnectivityTable()
     m_legendConfig->setAutomaticRanges( 0.0, 100.0, 0.0, 100.0 );
     m_legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::HEAT_MAP ) );
 
-    CAF_PDM_InitFieldNoDefault( &m_mappingType, "MappingType", "Mapping Type" );
+    CAF_PDM_InitField( &m_mappingType, "MappingType", RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS, "Mapping Type" );
+    caf::AppEnum<RimRegularLegendConfig::MappingType>::setEnumSubset( m_mappingType.keyword(),
+                                                                      { RimRegularLegendConfig::MappingType::LINEAR_DISCRETE,
+                                                                        RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS,
+                                                                        RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS,
+                                                                        RimRegularLegendConfig::MappingType::LOG10_DISCRETE } );
+
     CAF_PDM_InitFieldNoDefault( &m_rangeType, "RangeType", "Range Type" );
 
     setLegendsVisible( true );
@@ -752,17 +758,6 @@ QList<caf::PdmOptionItemInfo> RimWellConnectivityTable::calculateValueOptions( c
               fieldNeedingOptions == &m_valueLabelFontSize )
     {
         options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
-    }
-    else if ( fieldNeedingOptions == &m_mappingType )
-    {
-        std::vector<RimRegularLegendConfig::MappingType> mappingTypes = { RimRegularLegendConfig::MappingType::LINEAR_DISCRETE,
-                                                                          RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS,
-                                                                          RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS,
-                                                                          RimRegularLegendConfig::MappingType::LOG10_DISCRETE };
-        for ( const auto mappingType : mappingTypes )
-        {
-            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RimRegularLegendConfig::MappingType>::uiText( mappingType ), mappingType ) );
-        }
     }
     return options;
 }
