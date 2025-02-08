@@ -187,11 +187,6 @@ jobs:
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
-      - name: Replace and use vcpkg.json without grpc
-        if: contains( matrix.config.os, 'windows')
-        run: |
-          cp vcpkg_no_grpc.json vcpkg.json
-
       - name: vcpkg bootstrap
         run: |
           ThirdParty/vcpkg/${{ matrix.config.vcpkg-bootstrap }}
