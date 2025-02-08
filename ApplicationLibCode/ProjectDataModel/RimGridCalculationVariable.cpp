@@ -50,7 +50,13 @@ RimGridCalculationVariable::RimGridCalculationVariable()
 {
     CAF_PDM_InitObject( "RimGridCalculationVariable", ":/octave.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_resultType, "ResultType", "Type" );
+    CAF_PDM_InitField( &m_resultType, "ResultType", RiaDefines::ResultCatType::STATIC_NATIVE, "Type" );
+    caf::AppEnum<RiaDefines::ResultCatType>::setEnumSubset( m_resultType.keyword(),
+                                                            { RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                              RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                              RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                                              RiaDefines::ResultCatType::GENERATED } );
+
     CAF_PDM_InitField( &m_resultVariable, "ResultVariable", RiaResultNames::undefinedResultName(), "Variable" );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseGridCase", "Grid Case" );
     CAF_PDM_InitField( &m_timeStep, "TimeStep", allTimeStepsValue(), "Time Step" );
@@ -145,19 +151,7 @@ QList<caf::PdmOptionItemInfo> RimGridCalculationVariable::calculateValueOptions(
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_resultType )
-    {
-        std::vector<RiaDefines::ResultCatType> resultCategories = { RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                    RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                    RiaDefines::ResultCatType::INPUT_PROPERTY,
-                                                                    RiaDefines::ResultCatType::GENERATED };
-
-        for ( auto c : resultCategories )
-        {
-            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ResultCatType>( c ).uiText(), c ) );
-        }
-    }
-    else if ( fieldNeedingOptions == &m_resultVariable )
+    if ( fieldNeedingOptions == &m_resultVariable )
     {
         auto results = currentGridCellResults();
         if ( results )

@@ -48,7 +48,11 @@ RimAdvancedSnapshotExportDefinition::RimAdvancedSnapshotExportDefinition()
 
     CAF_PDM_InitFieldNoDefault( &view, "View", "View" );
 
-    CAF_PDM_InitFieldNoDefault( &eclipseResultType, "EclipseResultType", "Result Type" );
+    CAF_PDM_InitField( &eclipseResultType, "EclipseResultType", RiaDefines::ResultCatType::STATIC_NATIVE, "Result Type" );
+    caf::AppEnum<RiaDefines::ResultCatType>::setEnumSubset( eclipseResultType.keyword(),
+                                                            { RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                              RiaDefines::ResultCatType::DYNAMIC_NATIVE } );
+
     CAF_PDM_InitFieldNoDefault( &m_selectedEclipseResult, "SelectedEclipseResults", "Properties" );
 
     CAF_PDM_InitField( &timeStepStart, "TimeStepStart", 0, "Start Time" );
@@ -118,13 +122,6 @@ QList<caf::PdmOptionItemInfo> RimAdvancedSnapshotExportDefinition::calculateValu
         {
             RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( rim3dView, &options );
         }
-    }
-    else if ( fieldNeedingOptions == &eclipseResultType )
-    {
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ResultCatType>( RiaDefines::ResultCatType::DYNAMIC_NATIVE ).uiText(),
-                                                   RiaDefines::ResultCatType::DYNAMIC_NATIVE ) );
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ResultCatType>( RiaDefines::ResultCatType::STATIC_NATIVE ).uiText(),
-                                                   RiaDefines::ResultCatType::STATIC_NATIVE ) );
     }
     else if ( fieldNeedingOptions == &m_selectedEclipseResult )
     {
