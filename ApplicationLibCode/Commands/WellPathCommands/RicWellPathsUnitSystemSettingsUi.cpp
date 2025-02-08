@@ -32,4 +32,3 @@ RicWellPathsUnitSystemSettingsUi::RicWellPathsUnitSystemSettingsUi()
                                                                 { RiaDefines::EclipseUnitSystem::UNITS_METRIC,
                                                                   RiaDefines::EclipseUnitSystem::UNITS_FIELD } );
 }
-
