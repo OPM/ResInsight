@@ -52,7 +52,7 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
     CAF_PDM_InitField( &m_wellName, "WellName", true, "Well Name" );
     CAF_PDM_InitField( &m_wellSegmentNumber, "WellSegmentNumber", true, "Well Segment Number" );
     CAF_PDM_InitField( &m_lgrName, "LgrName", true, "Lgr Name" );
-    CAF_PDM_InitField( &m_completion, "Completion", true, "I, J, K" );
+    CAF_PDM_InitField( &m_connection, "Completion", true, "I, J, K" );
     CAF_PDM_InitField( &m_aquiferNumber, "Aquifer", true, "Aquifer Number" );
 
     CAF_PDM_InitField( &m_caseName, "CaseName", true, "Case/Ensemble Name" );
@@ -180,7 +180,7 @@ void RimSummaryCurveAutoName::applySettings( const RimSummaryCurveAutoName& othe
     m_wellName          = other.m_wellName;
     m_wellSegmentNumber = other.m_wellSegmentNumber;
     m_lgrName           = other.m_lgrName;
-    m_completion        = other.m_completion;
+    m_connection        = other.m_connection;
     m_aquiferNumber     = other.m_aquiferNumber;
 }
 
@@ -356,13 +356,13 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             appendWellName( text, summaryAddress, nameHelper );
         }
         break;
-        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION:
         {
             appendWellName( text, summaryAddress, nameHelper );
 
-            if ( m_completion )
+            if ( m_connection )
             {
-                bool skipSubString = nameHelper && nameHelper->isCompletionInTitle();
+                bool skipSubString = nameHelper && nameHelper->isConnectionInTitle();
                 if ( !skipSubString )
                 {
                     if ( !text.empty() ) text += ":";
@@ -378,14 +378,14 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             appendWellName( text, summaryAddress, nameHelper );
         }
         break;
-        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION_LGR:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION_LGR:
         {
             appendLgrName( text, summaryAddress );
             appendWellName( text, summaryAddress, nameHelper );
 
-            if ( m_completion )
+            if ( m_connection )
             {
-                bool skipSubString = nameHelper && nameHelper->isCompletionInTitle();
+                bool skipSubString = nameHelper && nameHelper->isConnectionInTitle();
                 if ( !skipSubString )
                 {
                     if ( !text.empty() ) text += ":";
@@ -412,7 +412,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
         break;
         case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK:
         {
-            if ( m_completion )
+            if ( m_connection )
             {
                 bool skipSubString = nameHelper && nameHelper->isBlockInTitle();
                 if ( !skipSubString )
@@ -428,7 +428,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
         {
             appendLgrName( text, summaryAddress );
 
-            if ( m_completion )
+            if ( m_connection )
             {
                 bool skipSubString = nameHelper && nameHelper->isBlockInTitle();
                 if ( !skipSubString )
@@ -496,7 +496,7 @@ void RimSummaryCurveAutoName::defineUiOrdering( QString uiConfigName, caf::PdmUi
     advanced.setCollapsedByDefault();
     advanced.add( &m_regionNumber );
     advanced.add( &m_lgrName );
-    advanced.add( &m_completion );
+    advanced.add( &m_connection );
     advanced.add( &m_wellSegmentNumber );
     advanced.add( &m_aquiferNumber );
     advanced.add( &m_unit );

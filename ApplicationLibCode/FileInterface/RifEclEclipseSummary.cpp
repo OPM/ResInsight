@@ -168,7 +168,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
         break;
         case ECL_SMSPEC_COMPLETION_VAR:
         {
-            sumCategory = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION;
+            sumCategory = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION;
             wellName    = stringFromPointer( ertSumVarNode.get_wgname() );
 
             auto ijk = ertSumVarNode.get_ijk();
@@ -190,7 +190,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
         break;
         case ECL_SMSPEC_LOCAL_COMPLETION_VAR:
         {
-            sumCategory = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION_LGR;
+            sumCategory = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION_LGR;
             wellName    = stringFromPointer( ertSumVarNode.get_wgname() );
             lgrName     = stringFromPointer( ertSumVarNode.get_lgr_name() );
 

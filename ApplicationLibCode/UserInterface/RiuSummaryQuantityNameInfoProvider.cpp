@@ -113,7 +113,7 @@ RifEclipseSummaryAddressDefines::SummaryCategory RiuSummaryQuantityNameInfoProvi
     std::string firstTwoLetters = strippedQuantityName.substr( 0, 2 );
 
     if ( firstTwoLetters == "LB" ) return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK_LGR;
-    if ( firstTwoLetters == "LC" ) return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION_LGR;
+    if ( firstTwoLetters == "LC" ) return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION_LGR;
     if ( firstTwoLetters == "LW" ) return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_LGR;
 
     return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID;

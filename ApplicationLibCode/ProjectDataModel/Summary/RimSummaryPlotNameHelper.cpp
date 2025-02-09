@@ -184,9 +184,9 @@ bool RimSummaryPlotNameHelper::isSegmentInTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryPlotNameHelper::isCompletionInTitle() const
+bool RimSummaryPlotNameHelper::isConnectionInTitle() const
 {
-    return !m_titleCompletion.empty();
+    return !m_titleConnection.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -264,9 +264,9 @@ std::string RimSummaryPlotNameHelper::titleSegment() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RimSummaryPlotNameHelper::titleCompletion() const
+std::string RimSummaryPlotNameHelper::titleConnection() const
 {
-    return m_titleCompletion;
+    return m_titleConnection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -289,7 +289,7 @@ void RimSummaryPlotNameHelper::clearTitleSubStrings()
     m_titleRegion.clear();
     m_titleBlock.clear();
     m_titleSegment.clear();
-    m_titleCompletion.clear();
+    m_titleConnection.clear();
 
     m_titleCaseName.clear();
 }
@@ -325,10 +325,10 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
             }
 
             {
-                auto completions = m_analyzer->wellCompletions( m_titleWellName );
-                if ( completions.size() == 1 )
+                auto connections = m_analyzer->wellConnections( m_titleWellName );
+                if ( connections.size() == 1 )
                 {
-                    m_titleCompletion = *( completions.begin() );
+                    m_titleConnection = *( connections.begin() );
                 }
             }
         }

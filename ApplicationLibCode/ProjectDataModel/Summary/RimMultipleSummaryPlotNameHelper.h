@@ -38,7 +38,7 @@ public:
     bool isCaseInTitle() const override;
     bool isBlockInTitle() const override;
     bool isSegmentInTitle() const override;
-    bool isCompletionInTitle() const override;
+    bool isConnectionInTitle() const override;
 
     std::vector<std::string> vectorNames() const override;
     QString                  caseName() const override;
@@ -50,7 +50,7 @@ public:
     std::string titleRegion() const override;
     std::string titleBlock() const override;
     std::string titleSegment() const override;
-    std::string titleCompletion() const override;
+    std::string titleConnection() const override;
 
     size_t numberOfCases() const override;
 

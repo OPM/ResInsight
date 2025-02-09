@@ -59,7 +59,7 @@ public:
     std::set<std::string> networkNames() const;
     std::set<int>         regionNumbers() const;
 
-    std::set<std::string> wellCompletions( const std::string& wellName ) const;
+    std::set<std::string> wellConnections( const std::string& wellName ) const;
     std::set<int>         wellSegmentNumbers( const std::string& wellName ) const;
     std::set<std::string> blocks() const;
     std::set<int>         aquifers() const;
@@ -102,7 +102,7 @@ private:
     std::multimap<std::string, RifEclipseSummaryAddress> m_groupNames;
     std::multimap<std::string, RifEclipseSummaryAddress> m_networkNames;
     std::multimap<int, RifEclipseSummaryAddress>         m_regionNumbers;
-    std::set<std::pair<std::string, std::string>>        m_wellCompletions;
+    std::set<std::pair<std::string, std::string>>        m_wellConnections;
     std::set<std::pair<std::string, int>>                m_wellSegmentNumbers;
     std::multimap<std::string, RifEclipseSummaryAddress> m_blocks;
     std::multimap<int, RifEclipseSummaryAddress>         m_aquifers;

@@ -44,13 +44,13 @@ TEST( RiaSummaryAddressAnalyzer, WellCompletions )
 
     EXPECT_EQ( 2u, analyzer.wellNames().size() );
 
-    auto completionsForA = analyzer.wellCompletions( wellNameA );
-    EXPECT_EQ( 2u, completionsForA.size() );
+    auto connectionsForA = analyzer.wellConnections( wellNameA );
+    EXPECT_EQ( 2u, connectionsForA.size() );
 
-    auto completionsForB = analyzer.wellCompletions( wellNameB );
-    EXPECT_EQ( 3u, completionsForB.size() );
+    auto connectionsForB = analyzer.wellConnections( wellNameB );
+    EXPECT_EQ( 3u, connectionsForB.size() );
     std::string tupleToFind = "5,4,30";
-    EXPECT_TRUE( completionsForB.find( tupleToFind ) != completionsForB.end() );
+    EXPECT_TRUE( connectionsForB.find( tupleToFind ) != connectionsForB.end() );
 }
 
 //--------------------------------------------------------------------------------------------------

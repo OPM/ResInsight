@@ -202,11 +202,11 @@ std::set<int> RiaSummaryAddressAnalyzer::regionNumbers() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string> RiaSummaryAddressAnalyzer::wellCompletions( const std::string& wellName ) const
+std::set<std::string> RiaSummaryAddressAnalyzer::wellConnections( const std::string& wellName ) const
 {
     std::set<std::string> connections;
 
-    for ( const auto& conn : m_wellCompletions )
+    for ( const auto& conn : m_wellConnections )
     {
         if ( conn.first == wellName )
         {
@@ -340,9 +340,9 @@ std::vector<QString> RiaSummaryAddressAnalyzer::identifierTexts( RifEclipseSumma
             identifierStrings.push_back( QString::number( segment ) );
         }
     }
-    else if ( category == SummaryCategory::SUMMARY_WELL_COMPLETION )
+    else if ( category == SummaryCategory::SUMMARY_WELL_CONNECTION )
     {
-        auto connections = wellCompletions( secondaryIdentifier );
+        auto connections = wellConnections( secondaryIdentifier );
         for ( const auto& conn : connections )
         {
             identifierStrings.push_back( QString::fromStdString( conn ) );
@@ -417,7 +417,7 @@ void RiaSummaryAddressAnalyzer::clear()
     m_networkNames.clear();
     m_regionNumbers.clear();
     m_categories.clear();
-    m_wellCompletions.clear();
+    m_wellConnections.clear();
     m_wellSegmentNumbers.clear();
     m_blocks.clear();
     m_aquifers.clear();
@@ -517,10 +517,10 @@ void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAdd
         m_regionNumbers.insert( { address.regionNumber(), address } );
     }
 
-    if ( address.category() == SummaryCategory::SUMMARY_WELL_COMPLETION )
+    if ( address.category() == SummaryCategory::SUMMARY_WELL_CONNECTION )
     {
         auto wellNameAndCompletion = std::make_pair( wellName, address.blockAsString() );
-        m_wellCompletions.insert( wellNameAndCompletion );
+        m_wellConnections.insert( wellNameAndCompletion );
     }
     else if ( address.category() == SummaryCategory::SUMMARY_WELL_SEGMENT )
     {

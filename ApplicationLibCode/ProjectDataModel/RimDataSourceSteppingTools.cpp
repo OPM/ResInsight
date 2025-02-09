@@ -138,7 +138,7 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
         }
     }
     else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK ||
-              category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION )
+              category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION )
     {
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();

@@ -126,12 +126,12 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
             { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_WELL_NAME ),
               new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
               new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
-          { SummaryCategory::SUMMARY_WELL_COMPLETION,
+          { SummaryCategory::SUMMARY_WELL_CONNECTION,
             { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_WELL_NAME ),
               new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_CELL_IJK ),
               new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
               new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
-          { SummaryCategory::SUMMARY_WELL_COMPLETION_LGR,
+          { SummaryCategory::SUMMARY_WELL_CONNECTION_LGR,
             { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_LGR_NAME ),
               new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_WELL_NAME ),
               new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_CELL_IJK ),
@@ -211,30 +211,30 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL][1]->pdmField(), "WellVectors", "Well Vectors" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL][2]->pdmField(), "WellCalculationIds", "Calculation Ids" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][0]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION][0]->pdmField(),
                                 "WellCompletionWellName",
                                 "Wells" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][1]->pdmField(), "WellCompletionIjk", "Cell IJK" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][2]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION][1]->pdmField(), "WellCompletionIjk", "Cell IJK" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION][2]->pdmField(),
                                 "WellCompletionVectors",
                                 "Well Completion Vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][3]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION][3]->pdmField(),
                                 "WellCompletionCalculationIds",
                                 "Calculation Ids" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION_LGR][0]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION_LGR][0]->pdmField(),
                                 "WellCompletionLgrLgrName",
                                 "LGR Names" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION_LGR][1]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION_LGR][1]->pdmField(),
                                 "WellCompletionLgrWellName",
                                 "Wells" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION_LGR][2]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION_LGR][2]->pdmField(),
                                 "WellCompletionLgrIjk",
                                 "Cell IJK" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION_LGR][3]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION_LGR][3]->pdmField(),
                                 "WellCompletionLgrVectors",
                                 "Well Completion Vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION_LGR][4]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION_LGR][4]->pdmField(),
                                 "WellCompletionLgrCalculationIds",
                                 "Calculation Ids" );
 
@@ -900,26 +900,26 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
 
         summaryiesField = m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL][1]->pdmField();
     }
-    else if ( sumCategory == SummaryCategory::SUMMARY_WELL_COMPLETION )
+    else if ( sumCategory == SummaryCategory::SUMMARY_WELL_CONNECTION )
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryCompletion() + "s" );
-            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][0]->pdmField() );
-            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][1]->pdmField() );
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryConnection() + "s" );
+            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION][0]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION][1]->pdmField() );
         }
 
-        summaryiesField = m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][2]->pdmField();
+        summaryiesField = m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION][2]->pdmField();
     }
-    else if ( sumCategory == SummaryCategory::SUMMARY_WELL_COMPLETION_LGR )
+    else if ( sumCategory == SummaryCategory::SUMMARY_WELL_CONNECTION_LGR )
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryLgrCompletion() + "s" );
-            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION_LGR][0]->pdmField() );
-            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION_LGR][1]->pdmField() );
-            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION_LGR][2]->pdmField() );
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryLgrConnection() + "s" );
+            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION_LGR][0]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION_LGR][1]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION_LGR][2]->pdmField() );
         }
 
-        summaryiesField = m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION_LGR][3]->pdmField();
+        summaryiesField = m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION_LGR][3]->pdmField();
     }
     else if ( sumCategory == SummaryCategory::SUMMARY_WELL_LGR )
     {
@@ -1372,14 +1372,14 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForCategories( QList<caf::Pdm
     sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_REGION_2_REGION );
     sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_GROUP );
     sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL );
-    sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL_COMPLETION );
+    sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL_CONNECTION );
     sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_BLOCK );
 
     if ( !m_hideCalculationIncompatibleCategories )
     {
         sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL_SEGMENT );
         sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL_LGR );
-        sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL_COMPLETION_LGR );
+        sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL_CONNECTION_LGR );
         sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_BLOCK_LGR );
     }
 

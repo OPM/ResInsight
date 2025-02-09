@@ -230,7 +230,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
             }
             break;
         }
-        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION:
         {
             if ( columnHeaderText.size() > 1 )
             {
@@ -248,7 +248,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
                 lgrName  = columnHeaderText[1];
             }
             break;
-        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION_LGR:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION_LGR:
             if ( columnHeaderText.size() > 2 )
             {
                 wellName = columnHeaderText[0];

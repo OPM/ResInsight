@@ -277,7 +277,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
             else if ( fieldNeedingOptions == &m_completion )
             {
                 secondaryIdentifier = m_wellName().toStdString();
-                category            = SummaryCategory::SUMMARY_WELL_COMPLETION;
+                category            = SummaryCategory::SUMMARY_WELL_CONNECTION;
             }
             else if ( fieldNeedingOptions == &m_aquifer )
             {
@@ -482,7 +482,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         }
         else if ( changedField == &m_completion )
         {
-            summaryCategoryToModify = SummaryCategory::SUMMARY_WELL_COMPLETION;
+            summaryCategoryToModify = SummaryCategory::SUMMARY_WELL_CONNECTION;
         }
         else if ( changedField == &m_aquifer )
         {
@@ -840,9 +840,9 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
                 fieldsCommonForAllCurves.push_back( &m_cellBlock );
             }
 
-            if ( analyzer.wellCompletions( m_wellName().toStdString() ).size() == 1 )
+            if ( analyzer.wellConnections( m_wellName().toStdString() ).size() == 1 )
             {
-                QString txt  = QString::fromStdString( *( analyzer.wellCompletions( m_wellName().toStdString() ).begin() ) );
+                QString txt  = QString::fromStdString( *( analyzer.wellConnections( m_wellName().toStdString() ).begin() ) );
                 m_completion = txt;
 
                 fieldsCommonForAllCurves.push_back( &m_completion );

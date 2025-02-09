@@ -133,7 +133,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellCompletion )
     RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( addrString );
 
     EXPECT_TRUE( addr.isValid() );
-    EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION, addr.category() );
+    EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION, addr.category() );
     EXPECT_EQ( "COFRL", addr.vectorName() );
     EXPECT_EQ( "B-1H", addr.wellName() );
     EXPECT_EQ( 15, addr.cellI() );
@@ -163,7 +163,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellCompletionLgr 
     RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( addrString );
 
     EXPECT_TRUE( addr.isValid() );
-    EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION_LGR, addr.category() );
+    EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION_LGR, addr.category() );
     EXPECT_EQ( "LCGAS", addr.vectorName() );
     EXPECT_EQ( "LGR1", addr.lgrName() );
     EXPECT_EQ( "B-1H", addr.wellName() );
@@ -250,7 +250,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_ErrorResult2 )
     RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( addrString );
 
     EXPECT_TRUE( addr.isValid() );
-    EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION_LGR, addr.category() );
+    EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION_LGR, addr.category() );
     EXPECT_EQ( "LCGAS", addr.vectorName() );
     EXPECT_EQ( "LGR1", addr.lgrName() );
     EXPECT_EQ( "B-1H", addr.wellName() );
@@ -274,7 +274,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_ErrorResult3 )
 
 TEST( RifEclipseSummaryAddressTest, TestEclipseAddressIjkParsing )
 {
-    RifEclipseSummaryAddressDefines::SummaryCategory cat = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION;
+    RifEclipseSummaryAddressDefines::SummaryCategory cat = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION;
     std::map<RifEclipseSummaryAddressDefines::SummaryIdentifierType, std::string> identifiers( {
         { RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_WELL_NAME, "1-BH" },
         { RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_CELL_IJK, "6, 7, 8" },
@@ -284,7 +284,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressIjkParsing )
     RifEclipseSummaryAddress addr( cat, identifiers );
 
     EXPECT_TRUE( addr.isValid() );
-    EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION, addr.category() );
+    EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION, addr.category() );
     EXPECT_EQ( "WOPR", addr.vectorName() );
     EXPECT_EQ( "1-BH", addr.wellName() );
     EXPECT_EQ( 6, addr.cellI() );

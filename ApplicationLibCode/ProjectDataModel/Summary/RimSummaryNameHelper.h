@@ -46,7 +46,7 @@ public:
     virtual bool isCaseInTitle() const               = 0;
     virtual bool isBlockInTitle() const              = 0;
     virtual bool isSegmentInTitle() const            = 0;
-    virtual bool isCompletionInTitle() const         = 0;
+    virtual bool isConnectionInTitle() const         = 0;
 
     virtual std::vector<std::string> vectorNames() const = 0;
     virtual QString                  caseName() const    = 0;
@@ -58,7 +58,7 @@ public:
     virtual std::string titleRegion() const     = 0;
     virtual std::string titleBlock() const      = 0;
     virtual std::string titleSegment() const    = 0;
-    virtual std::string titleCompletion() const = 0;
+    virtual std::string titleConnection() const = 0;
 
     virtual size_t numberOfCases() const = 0;
 };

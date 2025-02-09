@@ -255,7 +255,7 @@ void RimSummaryCalculation::substituteVariables( std::vector<SummaryCalculationV
         newValue                 = address.aquiferNumber();
         isHandledBySteppingTools = true;
     }
-    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION ||
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION ||
               category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK )
     {
         oldValue                 = QString::fromStdString( firstVariable.summaryAddress.blockAsString() );
