@@ -3,7 +3,7 @@
 	url = https://github.com/CeetronSolutions/qwt.git
 [submodule "ThirdParty/vcpkg"]
 	path = ThirdParty/vcpkg
-	url = https://github.com/microsoft/vcpkg
+	url = https://github.com/CeetronSolutions/vcpkg
 [submodule "ThirdParty/custom-opm-common/opm-common"]
 	path = ThirdParty/custom-opm-common/opm-common
 	url = https://github.com/CeetronSolutions/opm-common
