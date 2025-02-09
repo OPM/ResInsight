@@ -573,11 +573,11 @@ QString RimSummaryAddressCollection::iconResourceText() const
         case RimSummaryAddressCollection::CollectionContentType::REGION_2_REGION:
             return ":/summary/components/images/region-region.svg";
         case RimSummaryAddressCollection::CollectionContentType::WELL_CONNECTION:
-            return ":/summary/components/images/well-completion.svg";
+            return ":/summary/components/images/block.svg";
         case RimSummaryAddressCollection::CollectionContentType::WELL_LGR:
             return ":/summary/components/images/well.svg";
         case RimSummaryAddressCollection::CollectionContentType::WELL_CONNECTION_LGR:
-            return ":/summary/components/images/well-completion.svg";
+            return ":/summary/components/images/block.svg";
         case RimSummaryAddressCollection::CollectionContentType::WELL_SEGMENT:
             return ":/summary/components/images/segment.svg";
         case RimSummaryAddressCollection::CollectionContentType::BLOCK_LGR:
