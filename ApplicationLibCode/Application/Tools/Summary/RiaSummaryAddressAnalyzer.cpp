@@ -512,9 +512,12 @@ void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAdd
         m_networkNames.insert( { address.networkName(), address } );
     }
 
-    if ( address.regionNumber() != -1 )
+    if ( address.category() == SummaryCategory::SUMMARY_REGION || address.category() == SummaryCategory::SUMMARY_REGION_2_REGION )
     {
-        m_regionNumbers.insert( { address.regionNumber(), address } );
+        if ( address.regionNumber() != -1 )
+        {
+            m_regionNumbers.insert( { address.regionNumber(), address } );
+        }
     }
 
     if ( address.category() == SummaryCategory::SUMMARY_WELL_CONNECTION )
