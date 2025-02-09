@@ -1032,11 +1032,11 @@
         "description": "Total Mole Fraction (Component 2) (Matrix 4)"
     },
     "CFGAS": {
-        "category": "SUMMARY_WELL_COMPLETION",
+        "category": "SUMMARY_WELL_CONNECTION",
         "description": "Gas Flow Rate"
     },
     "CPDIAM": {
-        "category": "SUMMARY_WELL_COMPLETION",
+        "category": "SUMMARY_WELL_CONNECTION",
         "description": "Perforation Diameter"
     },
     "FDG": {
@@ -1116,15 +1116,15 @@
         "description": "Liquid Injection Total"
     },
     "INFLOW0": {
-        "category": "SUMMARY_WELL_COMPLETION",
+        "category": "SUMMARY_WELL_CONNECTION",
         "description": "Inflow Rate (Component 0)"
     },
     "INFLOW1": {
-        "category": "SUMMARY_WELL_COMPLETION",
+        "category": "SUMMARY_WELL_CONNECTION",
         "description": "Inflow Rate (Component 1)"
     },
     "INFLOW2": {
-        "category": "SUMMARY_WELL_COMPLETION",
+        "category": "SUMMARY_WELL_CONNECTION",
         "description": "Inflow Rate (Component 2)"
     },
     "MEMORYTS": {
@@ -1136,7 +1136,7 @@
         "description": "Number of Tracer Linear Iterations at the Current Time-Step"
     },
     "MSDEPTH": {
-        "category": "SUMMARY_WELL_COMPLETION",
+        "category": "SUMMARY_WELL_CONNECTION",
         "description": "Depth of Well Completion"
     },
     "MSUMCHOP": {
