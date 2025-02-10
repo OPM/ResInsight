@@ -37,6 +37,7 @@
 #pragma once
 
 #include "cafAssert.h"
+#include "cafPdmFieldHandle.h"
 
 #include <QString>
 #include <QStringList>
@@ -103,7 +104,7 @@ namespace caf
 ///   contains a valid value when the constructor is done.
 ///
 ///     CAF_PDM_InitField( &m_enum2Field, "Enum2Field", MyEnumType::T6, "Subset using setEnumSubset()" );
-///     caf::AppEnum<MyEnumType>::setEnumSubset( m_enum2Field.keyword(), { MyEnumType::T2, MyEnumType::T6 } );
+///     caf::AppEnum<MyEnumType>::setEnumSubset( &m_enum2Field, { MyEnumType::T2, MyEnumType::T6 } );
 ///
 ///
 //==================================================================================================
@@ -128,7 +129,11 @@ public:
     {
     }
 
-    static void setEnumSubset( QString fieldKeyword, std::vector<T> subset ) { m_enumSubset[fieldKeyword] = subset; }
+    static void setEnumSubset( caf::PdmFieldHandle* fieldKeyword, std::vector<T> subset )
+    {
+        if ( !fieldKeyword ) return;
+        m_enumSubset[fieldKeyword->keyword()] = subset;
+    }
     static std::vector<T> enumSubset( QString fieldKeyword )
     {
         auto it = m_enumSubset.find( fieldKeyword );

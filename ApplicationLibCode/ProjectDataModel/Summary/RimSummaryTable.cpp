@@ -74,9 +74,13 @@ RimSummaryTable::RimSummaryTable()
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
     CAF_PDM_InitFieldNoDefault( &m_vector, "Vector", "Vector" );
     m_vector.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-    CAF_PDM_InitFieldNoDefault( &m_category, "Categories", "Category" );
+
+    CAF_PDM_InitField( &m_category, "Categories", RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL, "Category" );
     m_category.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-    m_category = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL;
+    caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::setEnumSubset( &m_category,
+                                                                                   { RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL,
+                                                                                     RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP,
+                                                                                     RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION } );
 
     CAF_PDM_InitFieldNoDefault( &m_resamplingSelection, "ResamplingSelection", "Date Resampling" );
     m_resamplingSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
@@ -104,7 +108,13 @@ RimSummaryTable::RimSummaryTable()
     m_legendConfig->setAutomaticRanges( 0.0, 100.0, 0.0, 100.0 );
     m_legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::HEAT_MAP ) );
 
-    CAF_PDM_InitFieldNoDefault( &m_mappingType, "MappingType", "Mapping Type" );
+    CAF_PDM_InitField( &m_mappingType, "MappingType", RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS, "Mapping Type" );
+    caf::AppEnum<RimRegularLegendConfig::MappingType>::setEnumSubset( &m_mappingType,
+                                                                      { RimRegularLegendConfig::MappingType::LINEAR_DISCRETE,
+                                                                        RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS,
+                                                                        RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS,
+                                                                        RimRegularLegendConfig::MappingType::LOG10_DISCRETE } );
+
     CAF_PDM_InitFieldNoDefault( &m_rangeType, "RangeType", "Range Type" );
 
     CAF_PDM_InitField( &m_filterTimeSteps, "FilterTimeSteps", false, "Filter Time Steps" );
@@ -398,18 +408,6 @@ QList<caf::PdmOptionItemInfo> RimSummaryTable::calculateValueOptions( const caf:
             options.push_back( caf::PdmOptionItemInfo( summaryCase->displayCaseName(), summaryCase, false, summaryCase->uiIconProvider() ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_category )
-    {
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::uiText(
-                                                       RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL ),
-                                                   RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL ) );
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::uiText(
-                                                       RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP ),
-                                                   RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP ) );
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::uiText(
-                                                       RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION ),
-                                                   RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION ) );
-    }
     else if ( fieldNeedingOptions == &m_vector && m_case )
     {
         auto* summaryReader = m_case->summaryReader();
@@ -434,17 +432,6 @@ QList<caf::PdmOptionItemInfo> RimSummaryTable::calculateValueOptions( const caf:
               fieldNeedingOptions == &m_valueLabelFontSize )
     {
         options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
-    }
-    else if ( fieldNeedingOptions == &m_mappingType )
-    {
-        std::vector<RimRegularLegendConfig::MappingType> mappingTypes = { RimRegularLegendConfig::MappingType::LINEAR_DISCRETE,
-                                                                          RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS,
-                                                                          RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS,
-                                                                          RimRegularLegendConfig::MappingType::LOG10_DISCRETE };
-        for ( const auto mappingType : mappingTypes )
-        {
-            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RimRegularLegendConfig::MappingType>::uiText( mappingType ), mappingType ) );
-        }
     }
 
     return options;

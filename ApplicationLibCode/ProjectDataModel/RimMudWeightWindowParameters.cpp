@@ -144,8 +144,9 @@ RimMudWeightWindowParameters::RimMudWeightWindowParameters()
     CAF_PDM_InitField( &m_K0_FGAddress, "K0_FGAddress", QString( "" ), "Value" );
     m_K0_FGAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
-    caf::AppEnum<SourceType> defaultOBG0SourceType = RimMudWeightWindowParameters::SourceType::GRID;
-    CAF_PDM_InitField( &m_obg0Type, "obg0SourceType", defaultOBG0SourceType, "Initial Overburden Gradient" );
+    CAF_PDM_InitField( &m_obg0Type, "obg0SourceType", RimMudWeightWindowParameters::SourceType::GRID, "Initial Overburden Gradient" );
+    caf::AppEnum<RimMudWeightWindowParameters::SourceType>::setEnumSubset( &m_obg0Type, { SourceType::GRID, SourceType::PER_ELEMENT } );
+
     CAF_PDM_InitField( &m_obg0Fixed, "obg0Fixed", 0.75, "Fixed Initial Overburden Gradient" );
     m_obg0Fixed.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
@@ -540,16 +541,8 @@ QList<caf::PdmOptionItemInfo> RimMudWeightWindowParameters::calculateValueOption
     auto geoMechCase = firstAncestorOrThisOfType<RimGeoMechCase>();
     if ( geoMechCase != nullptr )
     {
-        if ( fieldNeedingOptions == &m_obg0Type )
-        {
-            std::vector<SourceType> sourceTypes = { SourceType::GRID, SourceType::PER_ELEMENT };
-            for ( auto sourceType : sourceTypes )
-            {
-                options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<SourceType>::uiText( sourceType ), sourceType ) );
-            }
-        }
-        else if ( fieldNeedingOptions == &m_wellDeviationType || fieldNeedingOptions == &m_wellAzimuthType ||
-                  fieldNeedingOptions == &m_UCSType || fieldNeedingOptions == &m_poissonsRatioType || fieldNeedingOptions == &m_K0_FGType )
+        if ( fieldNeedingOptions == &m_wellDeviationType || fieldNeedingOptions == &m_wellAzimuthType ||
+             fieldNeedingOptions == &m_UCSType || fieldNeedingOptions == &m_poissonsRatioType || fieldNeedingOptions == &m_K0_FGType )
         {
             std::vector<SourceType> sourceTypes = { SourceType::FIXED, SourceType::PER_ELEMENT };
             for ( auto sourceType : sourceTypes )

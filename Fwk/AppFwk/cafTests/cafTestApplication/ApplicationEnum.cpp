@@ -31,7 +31,7 @@ ApplicationEnum::ApplicationEnum()
 
     // Enum field displaying a subset of the defined enums using the static function setEnumSubset()
     CAF_PDM_InitField( &m_enum2Field, "Enum2Field", MyEnumType::T6, "Subset using setEnumSubset()" );
-    caf::AppEnum<MyEnumType>::setEnumSubset( m_enum2Field.keyword(), { MyEnumType::T2, MyEnumType::T6 } );
+    caf::AppEnum<MyEnumType>::setEnumSubset( &m_enum2Field, { MyEnumType::T2, MyEnumType::T6 } );
 
     // Enum field displaying a subset of the defined enums using calculateValueOptions()
     CAF_PDM_InitFieldNoDefault( &m_enum3Field, "Enum3Field", "Subset using calculateValueOptions()" );

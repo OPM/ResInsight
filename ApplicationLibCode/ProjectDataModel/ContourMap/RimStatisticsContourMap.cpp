@@ -103,8 +103,11 @@ RimStatisticsContourMap::RimStatisticsContourMap()
     CAF_PDM_InitField( &m_userDefinedFloodingOil, "UserDefinedFloodingOil", 0.0, "User Defined Value" );
     m_userDefinedFloodingOil.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_gasFloodingType, "GasFloodingType", "Residual Oil-in-Gas Given By" );
-    m_gasFloodingType.setValue( RigFloodingSettings::FloodingType::GAS_FLOODING );
+    CAF_PDM_InitField( &m_gasFloodingType, "GasFloodingType", RigFloodingSettings::FloodingType::GAS_FLOODING, "Residual Oil-in-Gas Given By" );
+    caf::AppEnum<RigFloodingSettings::FloodingType>::setEnumSubset( &m_gasFloodingType,
+                                                                    { RigFloodingSettings::FloodingType::GAS_FLOODING,
+                                                                      RigFloodingSettings::FloodingType::USER_DEFINED } );
+
     CAF_PDM_InitField( &m_userDefinedFloodingGas, "UserDefinedFloodingGas", 0.0, "User Defined Value" );
     m_userDefinedFloodingGas.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
@@ -394,15 +397,6 @@ QList<caf::PdmOptionItemInfo> RimStatisticsContourMap::calculateValueOptions( co
                 options.push_back( caf::PdmOptionItemInfo( p->name(), p, false ) );
             }
         }
-    }
-    else if ( &m_gasFloodingType == fieldNeedingOptions )
-    {
-        options.push_back(
-            caf::PdmOptionItemInfo( caf::AppEnum<RigFloodingSettings::FloodingType>::uiText( RigFloodingSettings::FloodingType::GAS_FLOODING ),
-                                    RigFloodingSettings::FloodingType::GAS_FLOODING ) );
-        options.push_back(
-            caf::PdmOptionItemInfo( caf::AppEnum<RigFloodingSettings::FloodingType>::uiText( RigFloodingSettings::FloodingType::USER_DEFINED ),
-                                    RigFloodingSettings::FloodingType::USER_DEFINED ) );
     }
 
     return options;
