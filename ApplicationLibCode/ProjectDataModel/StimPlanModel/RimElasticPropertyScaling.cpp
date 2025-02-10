@@ -46,7 +46,7 @@ RimElasticPropertyScaling::RimElasticPropertyScaling()
     CAF_PDM_InitScriptableFieldNoDefault( &m_facies, "Facies", "Facies" );
 
     CAF_PDM_InitScriptableField( &m_property, "Property", RiaDefines::CurveProperty::YOUNGS_MODULUS, "Property" );
-    caf::AppEnum<RiaDefines::CurveProperty>::setEnumSubset( m_property.keyword(), RimElasticProperties::scalableProperties() );
+    caf::AppEnum<RiaDefines::CurveProperty>::setEnumSubset( &m_property, RimElasticProperties::scalableProperties() );
 
     CAF_PDM_InitScriptableField( &m_scale, "Scale", 1.0, "Scale" );
 

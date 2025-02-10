@@ -49,7 +49,7 @@ RimAdvancedSnapshotExportDefinition::RimAdvancedSnapshotExportDefinition()
     CAF_PDM_InitFieldNoDefault( &view, "View", "View" );
 
     CAF_PDM_InitField( &eclipseResultType, "EclipseResultType", RiaDefines::ResultCatType::STATIC_NATIVE, "Result Type" );
-    caf::AppEnum<RiaDefines::ResultCatType>::setEnumSubset( eclipseResultType.keyword(),
+    caf::AppEnum<RiaDefines::ResultCatType>::setEnumSubset( &eclipseResultType,
                                                             { RiaDefines::ResultCatType::STATIC_NATIVE,
                                                               RiaDefines::ResultCatType::DYNAMIC_NATIVE } );
 

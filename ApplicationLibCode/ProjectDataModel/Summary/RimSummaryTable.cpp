@@ -77,7 +77,7 @@ RimSummaryTable::RimSummaryTable()
 
     CAF_PDM_InitField( &m_category, "Categories", RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL, "Category" );
     m_category.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-    caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::setEnumSubset( m_category.keyword(),
+    caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::setEnumSubset( &m_category,
                                                                                    { RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL,
                                                                                      RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP,
                                                                                      RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION } );
@@ -109,7 +109,7 @@ RimSummaryTable::RimSummaryTable()
     m_legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::HEAT_MAP ) );
 
     CAF_PDM_InitField( &m_mappingType, "MappingType", RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS, "Mapping Type" );
-    caf::AppEnum<RimRegularLegendConfig::MappingType>::setEnumSubset( m_mappingType.keyword(),
+    caf::AppEnum<RimRegularLegendConfig::MappingType>::setEnumSubset( &m_mappingType,
                                                                       { RimRegularLegendConfig::MappingType::LINEAR_DISCRETE,
                                                                         RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS,
                                                                         RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS,

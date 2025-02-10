@@ -104,7 +104,7 @@ RimStatisticsContourMap::RimStatisticsContourMap()
     m_userDefinedFloodingOil.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_gasFloodingType, "GasFloodingType", RigFloodingSettings::FloodingType::GAS_FLOODING, "Residual Oil-in-Gas Given By" );
-    caf::AppEnum<RigFloodingSettings::FloodingType>::setEnumSubset( m_gasFloodingType.keyword(),
+    caf::AppEnum<RigFloodingSettings::FloodingType>::setEnumSubset( &m_gasFloodingType,
                                                                     { RigFloodingSettings::FloodingType::GAS_FLOODING,
                                                                       RigFloodingSettings::FloodingType::USER_DEFINED } );
 

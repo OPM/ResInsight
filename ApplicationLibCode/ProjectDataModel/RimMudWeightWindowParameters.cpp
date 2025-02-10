@@ -145,7 +145,7 @@ RimMudWeightWindowParameters::RimMudWeightWindowParameters()
     m_K0_FGAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_obg0Type, "obg0SourceType", RimMudWeightWindowParameters::SourceType::GRID, "Initial Overburden Gradient" );
-    caf::AppEnum<RimMudWeightWindowParameters::SourceType>::setEnumSubset( m_obg0Type.keyword(), { SourceType::GRID, SourceType::PER_ELEMENT } );
+    caf::AppEnum<RimMudWeightWindowParameters::SourceType>::setEnumSubset( &m_obg0Type, { SourceType::GRID, SourceType::PER_ELEMENT } );
 
     CAF_PDM_InitField( &m_obg0Fixed, "obg0Fixed", 0.75, "Fixed Initial Overburden Gradient" );
     m_obg0Fixed.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );

@@ -51,7 +51,7 @@ RimGridCalculationVariable::RimGridCalculationVariable()
     CAF_PDM_InitObject( "RimGridCalculationVariable", ":/octave.png" );
 
     CAF_PDM_InitField( &m_resultType, "ResultType", RiaDefines::ResultCatType::STATIC_NATIVE, "Type" );
-    caf::AppEnum<RiaDefines::ResultCatType>::setEnumSubset( m_resultType.keyword(),
+    caf::AppEnum<RiaDefines::ResultCatType>::setEnumSubset( &m_resultType,
                                                             { RiaDefines::ResultCatType::STATIC_NATIVE,
                                                               RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                               RiaDefines::ResultCatType::INPUT_PROPERTY,

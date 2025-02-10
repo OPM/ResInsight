@@ -189,7 +189,7 @@ RimWellConnectivityTable::RimWellConnectivityTable()
     m_legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::HEAT_MAP ) );
 
     CAF_PDM_InitField( &m_mappingType, "MappingType", RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS, "Mapping Type" );
-    caf::AppEnum<RimRegularLegendConfig::MappingType>::setEnumSubset( m_mappingType.keyword(),
+    caf::AppEnum<RimRegularLegendConfig::MappingType>::setEnumSubset( &m_mappingType,
                                                                       { RimRegularLegendConfig::MappingType::LINEAR_DISCRETE,
                                                                         RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS,
                                                                         RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS,

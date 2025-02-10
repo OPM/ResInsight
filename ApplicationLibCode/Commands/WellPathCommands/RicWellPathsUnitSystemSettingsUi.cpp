@@ -28,7 +28,7 @@ RicWellPathsUnitSystemSettingsUi::RicWellPathsUnitSystemSettingsUi()
     CAF_PDM_InitObject( "RimWellPathsUnitSystemSettings" );
 
     CAF_PDM_InitField( &unitSystem, "UnitSystem", RiaDefines::EclipseUnitSystem::UNITS_METRIC, "Unit System" );
-    caf::AppEnum<RiaDefines::EclipseUnitSystem>::setEnumSubset( unitSystem.keyword(),
+    caf::AppEnum<RiaDefines::EclipseUnitSystem>::setEnumSubset( &unitSystem,
                                                                 { RiaDefines::EclipseUnitSystem::UNITS_METRIC,
                                                                   RiaDefines::EclipseUnitSystem::UNITS_FIELD } );
 }
