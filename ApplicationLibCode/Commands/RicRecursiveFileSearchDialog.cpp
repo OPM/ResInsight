@@ -287,6 +287,7 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
 RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, const std::vector<FileType>& fileTypes )
     : QDialog( parent, RiuTools::defaultDialogFlags() )
     , m_incomingFileTypes( fileTypes )
+    , m_blockUpdateOfOtherItems( false )
 {
     // Create widgets
     m_browseButton = new QPushButton();
@@ -359,11 +360,24 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, con
 
     QObject::connect( &m_filePathModel,
                       &QStandardItemModel::itemChanged,
-                      []( QStandardItem* item )
+                      [this]( QStandardItem* item )
                       {
+                          if ( m_blockUpdateOfOtherItems ) return;
+
                           if ( item->isCheckable() )
                           {
                               setCheckedStateChildItems( item, item->checkState() );
+                          }
+
+                          if ( item->checkState() == Qt::Checked )
+                          {
+                              auto parent = item->parent();
+                              if ( parent )
+                              {
+                                  m_blockUpdateOfOtherItems = true;
+                                  parent->setCheckState( Qt::Checked );
+                                  m_blockUpdateOfOtherItems = false;
+                              }
                           }
                       } );
 
