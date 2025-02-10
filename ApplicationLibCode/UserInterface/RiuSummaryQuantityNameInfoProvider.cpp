@@ -223,5 +223,15 @@ std::string RiuSummaryQuantityNameInfoProvider::stringFromEnum( RifEclipseSummar
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddressDefines::SummaryCategory RiuSummaryQuantityNameInfoProvider::enumFromString( const std::string& category )
 {
-    return caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::fromText( QString::fromStdString( category ) );
+    auto qstring = QString::fromStdString( category );
+
+    auto valid = caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::isValid( qstring );
+    if ( !valid )
+    {
+        // The category strings in keywords*.json must be mapped to the enum values in the enum definition
+        // Ensure that the strings in the json file are correct in /ApplicationLibCode/Application/Resources/keyword-description
+        throw std::runtime_error( "Invalid category string: " + category );
+    }
+
+    return caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::fromText( qstring );
 }
