@@ -175,6 +175,7 @@ private:
     FileType              m_fileType;
 
     bool m_isCancelPressed;
+    bool m_blockUpdateOfOtherItems;
 };
 
 //==================================================================================================
