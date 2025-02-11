@@ -537,9 +537,8 @@ void RimStatisticsContourMap::computeStatistics()
 
     caf::ProgressInfo progInfo( nCases, QString( "Reading Eclipse Ensemble" ) );
 
-    auto readerSettings    = RiaPreferencesGrid::current()->gridOnlyReaderSettings();
-    auto casesInViews      = ensemble->casesInViews();
-    auto selectedTimeDates = selectedTimeStepDates();
+    auto readerSettings = RiaPreferencesGrid::current()->gridOnlyReaderSettings();
+    auto casesInViews   = ensemble->casesInViews();
 
     int i = 1;
     for ( RimEclipseCase* eCase : ensemble->cases() )
