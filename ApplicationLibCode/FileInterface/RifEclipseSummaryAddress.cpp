@@ -1066,9 +1066,9 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
     std::string token1;
     std::string token2;
 
-    int intValue0 = 0;
-    int intValue1 = 0;
-    int intValue2 = 0;
+    int intValue0 = -1;
+    int intValue1 = -1;
+    int intValue2 = -1;
 
     vectorName = tokens[0];
 
@@ -1076,15 +1076,11 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
     if ( tokens.size() > 2 ) token2 = tokens[2];
 
     SummaryCategory category = SummaryCategory::SUMMARY_INVALID;
-    if ( tokens.size() == 3 )
+    if ( ( tokens.size() == 3 ) && ( vectorName.starts_with( 'W' ) ) )
     {
-        if ( vectorName.starts_with( 'W' ) )
-        {
-            category = SummaryCategory::SUMMARY_WELL_COMPLETION;
-        }
+        category = SummaryCategory::SUMMARY_WELL_COMPLETION;
     }
-
-    if ( category == SummaryCategory::SUMMARY_INVALID )
+    else
     {
         category = RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( vectorName );
     }
