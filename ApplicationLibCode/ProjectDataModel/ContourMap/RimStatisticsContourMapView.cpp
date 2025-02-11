@@ -188,8 +188,6 @@ void RimStatisticsContourMapView::onClampCurrentTimestep()
     if ( m_currentTimeStep < 0 ) m_currentTimeStep = 0;
 }
 
-#pragma optimize( "", off )
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -197,8 +195,7 @@ size_t RimStatisticsContourMapView::onTimeStepCountRequested()
 {
     if ( statisticsContourMap() )
     {
-        auto count = statisticsContourMap()->selectedTimeSteps().size();
-        return count;
+        return statisticsContourMap()->selectedTimeSteps().size();
     }
 
     return 0;
