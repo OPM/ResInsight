@@ -38,7 +38,8 @@ public:
         VECTOR,
         BLOCK,
         AQUIFER,
-        WELL_SEGMENT
+        WELL_SEGMENT,
+        WELL_CONNECTION
     };
 
 public:

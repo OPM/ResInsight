@@ -1313,6 +1313,14 @@ std::string RifEclipseSummaryAddress::blockAsString() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::string RifEclipseSummaryAddress::connectionAsString() const
+{
+    return blockAsString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::tuple<int, int, int> RifEclipseSummaryAddress::ijkTupleFromUiText( const std::string& s )
 {
     auto ijk = RiaTextStringTools::splitSkipEmptyParts( QString::fromStdString( s ).trimmed(), QRegularExpression( "[,]" ) );

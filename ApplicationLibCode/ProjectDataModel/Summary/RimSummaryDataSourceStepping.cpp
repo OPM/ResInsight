@@ -31,13 +31,16 @@ void AppEnum<RimSummaryDataSourceStepping::SourceSteppingDimension>::setUp()
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::SUMMARY_CASE, "SUMMARY_CASE", "Summary Case" );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR, "VECTOR", "Vector" );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::WELL, "WELL", RiaDefines::summaryWell() );
-    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_COMPLETION_NUMBER, "WELL_COMPLETION", RiaDefines::summaryWellCompletion() );
+    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_COMPLETION_NUMBER,
+             "WELL_COMPLETION",
+             RiaDefines::summaryWellCompletion() );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP, "GROUP", RiaDefines::summaryWellGroup() );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::NETWORK, "NETWORK", RiaDefines::summaryNetwork() );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::REGION, "REGION", RiaDefines::summaryRegion() );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK, "BLOCK", RiaDefines::summaryBlock() );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER, "AQUIFER", RiaDefines::summaryAquifer() );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_SEGMENT, "WELL_SEGMENT", RiaDefines::summaryWellSegment() );
+    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_CONNECTION, "WELL_CONNECTION", RiaDefines::summaryConnection() );
     setDefault( RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR );
 }
 } // namespace caf

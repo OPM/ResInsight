@@ -121,6 +121,7 @@ public:
     int         aquiferNumber() const;
     int         id() const;
     std::string blockAsString() const;
+    std::string connectionAsString() const;
 
     std::string ensembleStatisticsVectorName() const;
 

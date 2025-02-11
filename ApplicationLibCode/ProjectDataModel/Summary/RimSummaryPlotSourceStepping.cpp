@@ -603,6 +603,9 @@ caf::PdmValueField* RimSummaryPlotSourceStepping::fieldToModify()
         case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_COMPLETION_NUMBER:
             return &m_wellCompletionNumber;
 
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_CONNECTION:
+            return &m_connection;
+
         default:
             break;
     }
@@ -1167,6 +1170,10 @@ void RimSummaryPlotSourceStepping::syncWithStepper( RimSummaryPlotSourceStepping
             m_wellSegment = other->m_wellSegment();
             break;
 
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_CONNECTION:
+            m_connection = other->m_connection();
+            break;
+
         default:
             break;
     }
@@ -1199,6 +1206,10 @@ void RimSummaryPlotSourceStepping::setStep( QString stepIdentifier )
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK:
             m_cellBlock.setValueWithFieldChanged( stepIdentifier );
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_CONNECTION:
+            m_connection.setValueWithFieldChanged( stepIdentifier );
             break;
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER:
@@ -1440,6 +1451,7 @@ std::vector<RimPlot*> RimSummaryPlotSourceStepping::plotsMatchingStepSettings( s
     int         regionToMatch = -1;
     std::string vectorToMatch;
     std::string blockToMatch;
+    std::string connectionToMatch;
     int         aquiferToMatch              = -1;
     int         wellCompletionNumberToMatch = -1;
 
@@ -1483,6 +1495,10 @@ std::vector<RimPlot*> RimSummaryPlotSourceStepping::plotsMatchingStepSettings( s
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_COMPLETION_NUMBER:
             wellCompletionNumberToMatch = m_wellCompletionNumber();
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_CONNECTION:
+            connectionToMatch = m_connection().toStdString();
             break;
 
         default:
@@ -1544,6 +1560,10 @@ std::vector<RimPlot*> RimSummaryPlotSourceStepping::plotsMatchingStepSettings( s
                     isMatching = true;
                 }
                 else if ( wellCompletionNumberToMatch != -1 && a.wellCompletionNumber() == wellCompletionNumberToMatch )
+                {
+                    isMatching = true;
+                }
+                else if ( !connectionToMatch.empty() && a.connectionAsString() == connectionToMatch )
                 {
                     isMatching = true;
                 }
