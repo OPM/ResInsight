@@ -31,6 +31,8 @@
 #include "cvfVector3.h"
 
 #include <map>
+#include <utility>
+#include <vector>
 
 class RimEclipseCase;
 class RimEclipseResultDefinition;
@@ -78,8 +80,9 @@ public:
     double  sampleSpacingFactor() const;
     bool    isColumnResult() const;
 
-    std::vector<int> selectedTimeSteps() const;
-    QString          timeStepName( int timeStep ) const;
+    std::vector<int>       selectedTimeSteps() const;
+    std::vector<QDateTime> selectedTimeStepDates() const;
+    QString                timeStepName( int timeStep ) const;
 
     std::vector<QString>                 selectedFormations() const;
     std::vector<std::vector<cvf::Vec3d>> selectedPolygons();
@@ -97,6 +100,8 @@ protected:
 private:
     void computeStatistics();
     void doStatisticsCalculation( std::map<size_t, std::vector<std::vector<double>>>& timestep_results );
+
+    std::vector<std::pair<int, int>> mapLocalToGlobalTimeSteps( std::vector<QDateTime> localDates ) const;
 
     caf::PdmField<double>                                     m_boundingBoxExpPercent;
     caf::PdmField<RimContourMapProjection::ResultAggregation> m_resultAggregation;

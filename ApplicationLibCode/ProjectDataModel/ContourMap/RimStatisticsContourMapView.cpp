@@ -195,7 +195,7 @@ size_t RimStatisticsContourMapView::onTimeStepCountRequested()
 {
     if ( statisticsContourMap() )
     {
-        return (size_t)statisticsContourMap()->selectedTimeSteps().size();
+        return statisticsContourMap()->selectedTimeSteps().size();
     }
 
     return 0;

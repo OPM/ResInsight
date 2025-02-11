@@ -100,7 +100,7 @@ RimStatisticsContourMap::RimStatisticsContourMap()
 
     CAF_PDM_InitFieldNoDefault( &m_oilFloodingType, "OilFloodingType", "Residual Oil Given By" );
     m_oilFloodingType.setValue( RigFloodingSettings::FloodingType::WATER_FLOODING );
-    CAF_PDM_InitField( &m_userDefinedFloodingOil, "UserDefinedFloodingOil", 0.0, "User Defined Value" );
+    CAF_PDM_InitField( &m_userDefinedFloodingOil, "UserDefinedFloodingOil", 0.0, "" );
     m_userDefinedFloodingOil.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_gasFloodingType, "GasFloodingType", RigFloodingSettings::FloodingType::GAS_FLOODING, "Residual Oil-in-Gas Given By" );
@@ -108,7 +108,7 @@ RimStatisticsContourMap::RimStatisticsContourMap()
                                                                     { RigFloodingSettings::FloodingType::GAS_FLOODING,
                                                                       RigFloodingSettings::FloodingType::USER_DEFINED } );
 
-    CAF_PDM_InitField( &m_userDefinedFloodingGas, "UserDefinedFloodingGas", 0.0, "User Defined Value" );
+    CAF_PDM_InitField( &m_userDefinedFloodingGas, "UserDefinedFloodingGas", 0.0, "" );
     m_userDefinedFloodingGas.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "SelectedTimeSteps", "Time Step Selection" );
@@ -569,11 +569,15 @@ void RimStatisticsContourMap::computeStatistics()
 
             if ( m_resultDefinition()->hasDynamicResult() )
             {
-                for ( auto ts : selectedTimeSteps() )
+                std::vector<std::pair<int, int>> timeSteps = mapLocalToGlobalTimeSteps( eCase->timeStepDates() );
+
+                for ( auto [localTs, globalTs] : timeSteps )
                 {
-                    std::vector<double> result =
-                        contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(), resultAggregation, ts, floodSettings );
-                    timestep_results[ts].push_back( result );
+                    std::vector<double> result = contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(),
+                                                                                       resultAggregation,
+                                                                                       localTs,
+                                                                                       floodSettings );
+                    timestep_results[globalTs].push_back( result );
                 }
             }
             else
@@ -647,6 +651,47 @@ std::vector<int> RimStatisticsContourMap::selectedTimeSteps() const
     auto steps = m_selectedTimeSteps();
     std::sort( steps.begin(), steps.end() );
     return steps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RimStatisticsContourMap::selectedTimeStepDates() const
+{
+    std::vector<QDateTime> retDates;
+
+    auto eCase = eclipseCase();
+    if ( eCase != nullptr )
+    {
+        auto allDates = eCase->timeStepDates();
+        for ( auto i : selectedTimeSteps() )
+        {
+            if ( i < (int)allDates.size() ) retDates.push_back( allDates[i] );
+        }
+    }
+    return retDates;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// returns pair of (local date index, matching global date index)
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<int, int>> RimStatisticsContourMap::mapLocalToGlobalTimeSteps( std::vector<QDateTime> localDates ) const
+{
+    std::vector<std::pair<int, int>> indexSubset;
+
+    auto globalDates   = selectedTimeStepDates();
+    auto globalIndexes = selectedTimeSteps();
+
+    for ( int i = 0; i < (int)localDates.size(); i++ )
+    {
+        auto pos = std::find( globalDates.begin(), globalDates.end(), localDates[i] );
+        if ( pos == globalDates.end() ) continue;
+
+        int foundIdx = (int)( pos - globalDates.begin() );
+        indexSubset.emplace_back( i, globalIndexes[foundIdx] );
+    }
+
+    return indexSubset;
 }
 
 //--------------------------------------------------------------------------------------------------
