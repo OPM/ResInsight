@@ -1076,8 +1076,8 @@
         "description": "Gas-Liquid Ratio"
     },
     "CPRL": {
-        "category": "SUMMARY_WELL_COMPLETION",
-        "description": "Average Connection Pressure in completion"
+        "category": "SUMMARY_WELL_CONNECTION",
+        "description": "Connection Pressure in completion"
     },
     "CKFRL": {
         "category": "SUMMARY_WELL_COMPLETION",
