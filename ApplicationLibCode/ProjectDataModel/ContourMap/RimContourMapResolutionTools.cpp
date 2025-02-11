@@ -44,13 +44,13 @@ double RimContourMapResolutionTools::resolutionFromEnumValue( SamplingResolution
         case RimContourMapResolutionTools::SamplingResolution::EXTRA_FINE:
             return 0.5;
         case RimContourMapResolutionTools::SamplingResolution::FINE:
-            return 1.0;
-        case RimContourMapResolutionTools::SamplingResolution::COARSE:
-            return 5.0;
-        case RimContourMapResolutionTools::SamplingResolution::EXTRA_COARSE:
-            return 8.0;
+            return 0.7;
         case RimContourMapResolutionTools::SamplingResolution::NORMAL:
         default:
+            return 0.9;
+        case RimContourMapResolutionTools::SamplingResolution::COARSE:
             return 2.0;
+        case RimContourMapResolutionTools::SamplingResolution::EXTRA_COARSE:
+            return 5.0;
     }
 }
