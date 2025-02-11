@@ -119,6 +119,14 @@ bool RimMultiSummaryPlotNameHelper::isSegmentInTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimMultiSummaryPlotNameHelper::isWellCompletionInTitle() const
+{
+    return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) { return nameHelper->isWellCompletionInTitle(); } );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimMultiSummaryPlotNameHelper::isConnectionInTitle() const
 {
     return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) { return nameHelper->isConnectionInTitle(); } );
@@ -239,6 +247,19 @@ std::string RimMultiSummaryPlotNameHelper::titleSegment() const
     for ( auto nameHelper : m_nameHelpers )
     {
         if ( nameHelper->isSegmentInTitle() ) return nameHelper->titleSegment();
+    }
+
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimMultiSummaryPlotNameHelper::titleWellCompletion() const
+{
+    for ( auto nameHelper : m_nameHelpers )
+    {
+        if ( nameHelper->isWellCompletionInTitle() ) return nameHelper->titleWellCompletion();
     }
 
     return "";

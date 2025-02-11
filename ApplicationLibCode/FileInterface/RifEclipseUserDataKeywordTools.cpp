@@ -179,7 +179,8 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
     std::string groupName;
     std::string networkName;
     std::string wellName;
-    int         wellSegmentNumber = -1;
+    int         wellSegmentNumber    = -1;
+    int         wellCompletionNumber = -1;
     std::string lgrName;
     int         cellI         = -1;
     int         cellJ         = -1;
@@ -257,6 +258,13 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
                 RifEclipseUserDataKeywordTools::extractThreeInts( &cellI, &cellJ, &cellK, columnHeaderText[2] );
             }
             break;
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION:
+            if ( columnHeaderText.size() > 1 )
+            {
+                wellName             = columnHeaderText[0];
+                wellCompletionNumber = RiaStdStringTools::toInt( columnHeaderText[1] );
+            }
+            break;
         case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_SEGMENT:
             if ( columnHeaderText.size() > 1 )
             {
@@ -295,6 +303,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
                                      cellJ,
                                      cellK,
                                      aquiferNumber,
+                                     wellSegmentNumber, 
                                      isErrorResult,
                                      id );
 }

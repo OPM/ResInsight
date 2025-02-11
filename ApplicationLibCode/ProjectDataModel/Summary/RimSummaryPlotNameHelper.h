@@ -60,6 +60,7 @@ public:
     bool isBlockInTitle() const override;
     bool isSegmentInTitle() const override;
     bool isConnectionInTitle() const override;
+    bool isWellCompletionInTitle() const override;
 
     std::vector<std::string> vectorNames() const override;
     QString                  caseName() const override;
@@ -72,6 +73,7 @@ public:
     std::string titleBlock() const override;
     std::string titleSegment() const override;
     std::string titleConnection() const override;
+    std::string titleWellCompletion() const override;
 
     size_t numberOfCases() const override;
 
@@ -96,6 +98,7 @@ private:
     std::string m_titleBlock;
     std::string m_titleSegment;
     std::string m_titleConnection;
+    std::string m_titleWellCompletion;
 
     QString m_titleCaseName;
 };

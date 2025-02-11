@@ -48,6 +48,7 @@ void caf::AppEnum<RimSummaryAddressCollection::CollectionContentType>::setUp()
     addItem( CollectionContentType::NETWORK, "NETWORK", RiaDefines::summaryNetwork() );
     addItem( CollectionContentType::REGION_2_REGION, "REGION_2_REGION", RiaDefines::summaryRegion2Region() );
     addItem( CollectionContentType::WELL_CONNECTION, "WELL_CONNECTION", RiaDefines::summaryConnection() );
+    addItem( CollectionContentType::WELL_COMPLETION, "WELL_COMPLETION", RiaDefines::summaryWellCompletion() );
     addItem( CollectionContentType::WELL_LGR, "WELL_LGR", RiaDefines::summaryLgrWell() );
     addItem( CollectionContentType::WELL_CONNECTION_LGR, "WELL_CONNECTION_LGR", RiaDefines::summaryLgrConnection() );
     addItem( CollectionContentType::WELL_SEGMENT, "WELL_SEGMENT", RiaDefines::summaryWellSegment() );
@@ -214,21 +215,22 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
 {
     if ( addresses.empty() ) return;
 
-    auto* fields         = getOrCreateSubfolder( CollectionContentType::FIELD );
-    auto* groups         = getOrCreateSubfolder( CollectionContentType::GROUP_FOLDER );
-    auto* wells          = getOrCreateSubfolder( CollectionContentType::WELL_FOLDER );
-    auto* aquifer        = getOrCreateSubfolder( CollectionContentType::AQUIFER );
-    auto* networks       = getOrCreateSubfolder( CollectionContentType::NETWORK_FOLDER );
-    auto* misc           = getOrCreateSubfolder( CollectionContentType::MISC );
-    auto* regions        = getOrCreateSubfolder( CollectionContentType::REGION_FOLDER );
-    auto* region2region  = getOrCreateSubfolder( CollectionContentType::REGION_2_REGION );
-    auto* wellConnection = getOrCreateSubfolder( CollectionContentType::WELL_CONNECTION );
-    auto* segment        = getOrCreateSubfolder( CollectionContentType::WELL_SEGMENT );
-    auto* blocks         = getOrCreateSubfolder( CollectionContentType::BLOCK );
-    auto* lgrwell        = getOrCreateSubfolder( CollectionContentType::WELL_LGR );
-    auto* lgrConnection  = getOrCreateSubfolder( CollectionContentType::WELL_CONNECTION_LGR );
-    auto* lgrblock       = getOrCreateSubfolder( CollectionContentType::BLOCK_LGR );
-    auto* imported       = getOrCreateSubfolder( CollectionContentType::IMPORTED );
+    auto* fields          = getOrCreateSubfolder( CollectionContentType::FIELD );
+    auto* groups          = getOrCreateSubfolder( CollectionContentType::GROUP_FOLDER );
+    auto* wells           = getOrCreateSubfolder( CollectionContentType::WELL_FOLDER );
+    auto* aquifer         = getOrCreateSubfolder( CollectionContentType::AQUIFER );
+    auto* networks        = getOrCreateSubfolder( CollectionContentType::NETWORK_FOLDER );
+    auto* misc            = getOrCreateSubfolder( CollectionContentType::MISC );
+    auto* regions         = getOrCreateSubfolder( CollectionContentType::REGION_FOLDER );
+    auto* region2region   = getOrCreateSubfolder( CollectionContentType::REGION_2_REGION );
+    auto* segment         = getOrCreateSubfolder( CollectionContentType::WELL_SEGMENT );
+    auto* wellCompletions = getOrCreateSubfolder( CollectionContentType::WELL_COMPLETION );
+    auto* blocks          = getOrCreateSubfolder( CollectionContentType::BLOCK );
+    auto* lgrwell         = getOrCreateSubfolder( CollectionContentType::WELL_LGR );
+    auto* lgrblock        = getOrCreateSubfolder( CollectionContentType::BLOCK_LGR );
+    auto* imported        = getOrCreateSubfolder( CollectionContentType::IMPORTED );
+    auto* wellConnection  = getOrCreateSubfolder( CollectionContentType::WELL_CONNECTION );
+    auto* lgrConnection   = getOrCreateSubfolder( CollectionContentType::WELL_CONNECTION_LGR );
 
     // Sort addresses to have calculated results last per category
     std::vector<RifEclipseSummaryAddress> sortedAddresses;
@@ -252,6 +254,7 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                    if ( a.cellI() != b.cellI() ) return a.cellI() < b.cellI();
                    if ( a.wellSegmentNumber() != b.wellSegmentNumber() ) return a.wellSegmentNumber() < b.wellSegmentNumber();
                    if ( a.aquiferNumber() != b.aquiferNumber() ) return a.aquiferNumber() < b.aquiferNumber();
+                   if ( a.wellCompletionNumber() != b.wellCompletionNumber() ) return a.wellCompletionNumber() < b.wellCompletionNumber();
                    if ( a.isErrorResult() != b.isErrorResult() ) return !a.isErrorResult();
 
                    // Calculated results are sorted last.
@@ -306,6 +309,15 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                                                     address,
                                                     caseId,
                                                     ensembleId );
+                break;
+
+            case SummaryCategory::SUMMARY_WELL_COMPLETION:
+                wellCompletions->addToSubfolderTree( { QString::fromStdString( address.wellName() ),
+                                                       QString::number( address.wellCompletionNumber() ) },
+                                                     CollectionContentType::WELL_COMPLETION,
+                                                     address,
+                                                     caseId,
+                                                     ensembleId );
                 break;
 
             case SummaryCategory::SUMMARY_WELL_SEGMENT:
@@ -555,6 +567,7 @@ QString RimSummaryAddressCollection::iconResourceText() const
         case RimSummaryAddressCollection::CollectionContentType::MISC:
             return ":/summary/components/images/misc.svg";
         case RimSummaryAddressCollection::CollectionContentType::WELL_FOLDER:
+        case RimSummaryAddressCollection::CollectionContentType::WELL_COMPLETION:
             return ":/summary/components/images/well.svg";
         case RimSummaryAddressCollection::CollectionContentType::GROUP_FOLDER:
             return ":/summary/components/images/group.svg";

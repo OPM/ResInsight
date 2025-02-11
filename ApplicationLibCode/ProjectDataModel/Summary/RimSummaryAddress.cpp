@@ -37,6 +37,7 @@ void caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::setUp()
     addItem( RifAdr::SUMMARY_REGION_2_REGION, "SUMMARY_REGION_2_REGION", RiaDefines::summaryRegion2Region() );
     addItem( RifAdr::SUMMARY_GROUP, "SUMMARY_WELL_GROUP", RiaDefines::summaryWellGroup() );
     addItem( RifAdr::SUMMARY_WELL, "SUMMARY_WELL", RiaDefines::summaryWell() );
+    addItem( RifAdr::SUMMARY_WELL_COMPLETION, "SUMMARY_WELL_COMPLETION", RiaDefines::summaryWellCompletion() );
     addItem( RifAdr::SUMMARY_WELL_CONNECTION, "SUMMARY_WELL_CONNECTION", RiaDefines::summaryConnection() );
     addItem( RifAdr::SUMMARY_WELL_CONNECTION_LGR, "SUMMARY_WELL_CONNECTION_LGR", RiaDefines::summaryLgrConnection() );
     addItem( RifAdr::SUMMARY_WELL_LGR, "SUMMARY_WELL_LGR", RiaDefines::summaryLgrWell() );
@@ -72,22 +73,24 @@ RimSummaryAddress::RimSummaryAddress()
     CAF_PDM_InitFieldNoDefault( &m_cellJ, "SummaryCellJ", "J" );
     CAF_PDM_InitFieldNoDefault( &m_cellK, "SummaryCellK", "K" );
     CAF_PDM_InitFieldNoDefault( &m_aquiferNumber, "SummaryAquifer", "Aquifer" );
+    CAF_PDM_InitFieldNoDefault( &m_wellCompletionNumber, "SummaryWellCompletionNumber", "Well Completion Number" );
     CAF_PDM_InitFieldNoDefault( &m_isErrorResult, "IsErrorResult", "Is Error Result" );
     CAF_PDM_InitFieldNoDefault( &m_calculationId, "CalculationId", "Calculation Id" );
 
     CAF_PDM_InitField( &m_caseId, "CaseId", -1, "CaseId" );
     CAF_PDM_InitField( &m_ensembleId, "EnsembleId", -1, "EnsembleId" );
 
-    m_category          = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID;
-    m_regionNumber      = -1;
-    m_regionNumber2     = -1;
-    m_wellSegmentNumber = -1;
-    m_cellI             = -1;
-    m_cellJ             = -1;
-    m_cellK             = -1;
-    m_aquiferNumber     = -1;
-    m_isErrorResult     = false;
-    m_calculationId     = -1;
+    m_category             = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID;
+    m_regionNumber         = -1;
+    m_regionNumber2        = -1;
+    m_wellSegmentNumber    = -1;
+    m_cellI                = -1;
+    m_cellJ                = -1;
+    m_cellK                = -1;
+    m_aquiferNumber        = -1;
+    m_wellCompletionNumber = -1;
+    m_isErrorResult        = false;
+    m_calculationId        = -1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -115,17 +118,18 @@ RimSummaryAddress*
 //--------------------------------------------------------------------------------------------------
 void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
 {
-    m_category          = addr.category();
-    m_vectorName        = addr.vectorName().c_str();
-    m_regionNumber      = addr.regionNumber();
-    m_regionNumber2     = addr.regionNumber2();
-    m_groupName         = addr.groupName().c_str();
-    m_networkName       = addr.networkName().c_str();
-    m_wellName          = addr.wellName().c_str();
-    m_wellSegmentNumber = addr.wellSegmentNumber();
-    m_lgrName           = addr.lgrName().c_str();
-    m_aquiferNumber     = addr.aquiferNumber();
-    m_isErrorResult     = addr.isErrorResult();
+    m_category             = addr.category();
+    m_vectorName           = addr.vectorName().c_str();
+    m_regionNumber         = addr.regionNumber();
+    m_regionNumber2        = addr.regionNumber2();
+    m_groupName            = addr.groupName().c_str();
+    m_networkName          = addr.networkName().c_str();
+    m_wellName             = addr.wellName().c_str();
+    m_wellSegmentNumber    = addr.wellSegmentNumber();
+    m_lgrName              = addr.lgrName().c_str();
+    m_aquiferNumber        = addr.aquiferNumber();
+    m_wellCompletionNumber = addr.wellCompletionNumber();
+    m_isErrorResult        = addr.isErrorResult();
 
     m_cellI         = addr.cellI();
     m_cellJ         = addr.cellJ();
@@ -154,6 +158,7 @@ RifEclipseSummaryAddress RimSummaryAddress::address() const
                                      m_cellJ(),
                                      m_cellK(),
                                      m_aquiferNumber,
+                                     m_wellCompletionNumber(),
                                      m_isErrorResult,
                                      m_calculationId );
 }

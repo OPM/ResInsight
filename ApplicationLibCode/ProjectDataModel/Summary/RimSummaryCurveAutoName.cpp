@@ -51,6 +51,7 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
     CAF_PDM_InitField( &m_groupName, "WellGroupName", true, "Group Name" );
     CAF_PDM_InitField( &m_wellName, "WellName", true, "Well Name" );
     CAF_PDM_InitField( &m_wellSegmentNumber, "WellSegmentNumber", true, "Well Segment Number" );
+    CAF_PDM_InitField( &m_wellCompletionNumber, "WellCompletionNumber", true, "Well Completion Number" );
     CAF_PDM_InitField( &m_lgrName, "LgrName", true, "Lgr Name" );
     CAF_PDM_InitField( &m_connection, "Completion", true, "I, J, K" );
     CAF_PDM_InitField( &m_aquiferNumber, "Aquifer", true, "Aquifer Number" );
@@ -171,17 +172,18 @@ QString RimSummaryCurveAutoName::curveNameX( const RifEclipseSummaryAddress& sum
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveAutoName::applySettings( const RimSummaryCurveAutoName& other )
 {
-    m_caseName          = other.m_caseName;
-    m_vectorName        = other.m_vectorName;
-    m_longVectorName    = other.m_longVectorName;
-    m_unit              = other.m_unit;
-    m_regionNumber      = other.m_regionNumber;
-    m_groupName         = other.m_groupName;
-    m_wellName          = other.m_wellName;
-    m_wellSegmentNumber = other.m_wellSegmentNumber;
-    m_lgrName           = other.m_lgrName;
-    m_connection        = other.m_connection;
-    m_aquiferNumber     = other.m_aquiferNumber;
+    m_caseName             = other.m_caseName;
+    m_vectorName           = other.m_vectorName;
+    m_longVectorName       = other.m_longVectorName;
+    m_unit                 = other.m_unit;
+    m_regionNumber         = other.m_regionNumber;
+    m_groupName            = other.m_groupName;
+    m_wellName             = other.m_wellName;
+    m_wellSegmentNumber    = other.m_wellSegmentNumber;
+    m_wellCompletionNumber = other.m_wellCompletionNumber;
+    m_lgrName              = other.m_lgrName;
+    m_aquiferNumber        = other.m_aquiferNumber;
+    m_connection           = other.m_connection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -395,6 +397,21 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             }
         }
         break;
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION:
+        {
+            appendWellName( text, summaryAddress, nameHelper );
+
+            if ( m_wellCompletionNumber )
+            {
+                bool skipSubString = nameHelper && nameHelper->isWellCompletionInTitle();
+                if ( !skipSubString )
+                {
+                    if ( !text.empty() ) text += ":";
+                    text += std::to_string( summaryAddress.wellCompletionNumber() );
+                }
+            }
+        }
+        break;
         case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_SEGMENT:
         {
             appendWellName( text, summaryAddress, nameHelper );
@@ -498,6 +515,7 @@ void RimSummaryCurveAutoName::defineUiOrdering( QString uiConfigName, caf::PdmUi
     advanced.add( &m_lgrName );
     advanced.add( &m_connection );
     advanced.add( &m_wellSegmentNumber );
+    advanced.add( &m_wellCompletionNumber );
     advanced.add( &m_aquiferNumber );
     advanced.add( &m_unit );
 

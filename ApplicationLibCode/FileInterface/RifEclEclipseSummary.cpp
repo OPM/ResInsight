@@ -120,6 +120,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
     int                                              cellJ( -1 );
     int                                              cellK( -1 );
     int                                              aquiferNumber( -1 );
+    int                                              wellCompletionNumber( -1 );
     bool                                             isErrorResult( false );
     int                                              id( -1 );
 
@@ -249,6 +250,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
                                      cellJ,
                                      cellK,
                                      aquiferNumber,
+                                     wellCompletionNumber,
                                      isErrorResult,
                                      id );
 }

@@ -254,6 +254,24 @@ std::set<int> RiaSummaryAddressAnalyzer::aquifers() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::set<int> RiaSummaryAddressAnalyzer::wellCompletionNumbers( const std::string& wellName ) const
+{
+    std::set<int> numbers;
+
+    for ( const auto& wellAndNumber : m_wellCompletionNumbers )
+    {
+        if ( wellName.empty() || std::get<0>( wellAndNumber ) == wellName )
+        {
+            numbers.insert( std::get<1>( wellAndNumber ) );
+        }
+    }
+
+    return numbers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddressDefines::SummaryCategory> RiaSummaryAddressAnalyzer::categories() const
 {
     return keysInMap( m_categories );
@@ -338,6 +356,14 @@ std::vector<QString> RiaSummaryAddressAnalyzer::identifierTexts( RifEclipseSumma
         for ( const auto& segment : segmentNumbers )
         {
             identifierStrings.push_back( QString::number( segment ) );
+        }
+    }
+    else if ( category == SummaryCategory::SUMMARY_WELL_COMPLETION )
+    {
+        auto numbers = wellCompletionNumbers( secondaryIdentifier );
+        for ( const auto& number : numbers )
+        {
+            identifierStrings.push_back( QString::number( number ) );
         }
     }
     else if ( category == SummaryCategory::SUMMARY_WELL_CONNECTION )
@@ -539,6 +565,11 @@ void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAdd
     else if ( address.category() == SummaryCategory::SUMMARY_AQUIFER )
     {
         m_aquifers.insert( { address.aquiferNumber(), address } );
+    }
+    else if ( address.category() == SummaryCategory::SUMMARY_WELL_COMPLETION )
+    {
+        auto wellNameAndCompletion = std::make_pair( wellName, address.wellCompletionNumber() );
+        m_wellCompletionNumbers.insert( wellNameAndCompletion );
     }
     else if ( address.category() == SummaryCategory::SUMMARY_FIELD || address.category() == SummaryCategory::SUMMARY_MISC )
     {

@@ -48,6 +48,7 @@ QString summaryMisc();
 QString summaryRegion();
 QString summaryRegion2Region();
 QString summaryWell();
+QString summaryWellCompletion();
 QString summaryWellGroup();
 QString summaryWellSegment();
 QString summaryConnection();

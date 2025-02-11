@@ -47,17 +47,19 @@ public:
     virtual bool isBlockInTitle() const              = 0;
     virtual bool isSegmentInTitle() const            = 0;
     virtual bool isConnectionInTitle() const         = 0;
+    virtual bool isWellCompletionInTitle() const     = 0;
 
     virtual std::vector<std::string> vectorNames() const = 0;
     virtual QString                  caseName() const    = 0;
 
-    virtual std::string titleVectorName() const = 0;
-    virtual std::string titleWellName() const   = 0;
-    virtual std::string titleGroupName() const  = 0;
-    virtual std::string titleNetwork() const    = 0;
-    virtual std::string titleRegion() const     = 0;
-    virtual std::string titleBlock() const      = 0;
-    virtual std::string titleSegment() const    = 0;
+    virtual std::string titleVectorName() const     = 0;
+    virtual std::string titleWellName() const       = 0;
+    virtual std::string titleGroupName() const      = 0;
+    virtual std::string titleNetwork() const        = 0;
+    virtual std::string titleRegion() const         = 0;
+    virtual std::string titleBlock() const          = 0;
+    virtual std::string titleSegment() const        = 0;
+    virtual std::string titleWellCompletion() const = 0;
     virtual std::string titleConnection() const = 0;
 
     virtual size_t numberOfCases() const = 0;

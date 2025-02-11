@@ -68,6 +68,7 @@ private:
     caf::PdmField<bool> m_groupName;
     caf::PdmField<bool> m_wellName;
     caf::PdmField<bool> m_wellSegmentNumber;
+    caf::PdmField<bool> m_wellCompletionNumber;
     caf::PdmField<bool> m_lgrName;
     caf::PdmField<bool> m_connection;
     caf::PdmField<bool> m_aquiferNumber;

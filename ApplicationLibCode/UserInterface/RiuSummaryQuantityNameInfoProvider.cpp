@@ -18,6 +18,7 @@
 
 #include "RiuSummaryQuantityNameInfoProvider.h"
 
+#include "RiaStdStringTools.h"
 #include "RifEclipseSummaryAddress.h"
 
 #include "cafAppEnum.h"
@@ -75,6 +76,12 @@ RifEclipseSummaryAddressDefines::SummaryCategory RiuSummaryQuantityNameInfoProvi
 
     if ( ( vectorName.size() < 3 || vectorName.size() > 8 ) && !vectorName.ends_with( RifEclipseSummaryAddressDefines::differenceIdentifier() ) )
         return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID;
+
+    auto tokens = RiaStdStringTools::splitString( vectorName, ':' );
+    if ( tokens.size() == 3 && tokens[0].starts_with( "W" ) )
+    {
+        return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION;
+    }
 
     // Try to match the base vector name with more heuristics
     auto strippedQuantityName = RifEclipseSummaryAddress::baseVectorName( vectorName );

@@ -31,6 +31,7 @@ public:
         SUMMARY_CASE,
         ENSEMBLE,
         WELL,
+        WELL_COMPLETION_NUMBER,
         GROUP,
         NETWORK,
         REGION,

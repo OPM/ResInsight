@@ -63,6 +63,7 @@ public:
     std::set<int>         wellSegmentNumbers( const std::string& wellName ) const;
     std::set<std::string> blocks() const;
     std::set<int>         aquifers() const;
+    std::set<int>         wellCompletionNumbers( const std::string& wellName ) const;
 
     std::set<RifEclipseSummaryAddressDefines::SummaryCategory> categories() const;
     std::vector<std::vector<RifEclipseSummaryAddress>>         addressesGroupedByObject() const;
@@ -104,6 +105,7 @@ private:
     std::multimap<int, RifEclipseSummaryAddress>         m_regionNumbers;
     std::set<std::pair<std::string, std::string>>        m_wellConnections;
     std::set<std::pair<std::string, int>>                m_wellSegmentNumbers;
+    std::set<std::pair<std::string, int>>                m_wellCompletionNumbers;
     std::multimap<std::string, RifEclipseSummaryAddress> m_blocks;
     std::multimap<int, RifEclipseSummaryAddress>         m_aquifers;
 

@@ -184,6 +184,14 @@ bool RimSummaryPlotNameHelper::isSegmentInTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSummaryPlotNameHelper::isWellCompletionInTitle() const
+{
+    return !m_titleWellCompletion.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimSummaryPlotNameHelper::isConnectionInTitle() const
 {
     return !m_titleConnection.empty();
@@ -264,6 +272,14 @@ std::string RimSummaryPlotNameHelper::titleSegment() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::string RimSummaryPlotNameHelper::titleWellCompletion() const
+{
+    return m_titleWellCompletion;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::string RimSummaryPlotNameHelper::titleConnection() const
 {
     return m_titleConnection;
@@ -290,6 +306,7 @@ void RimSummaryPlotNameHelper::clearTitleSubStrings()
     m_titleBlock.clear();
     m_titleSegment.clear();
     m_titleConnection.clear();
+    m_titleWellCompletion.clear();
 
     m_titleCaseName.clear();
 }
@@ -321,6 +338,14 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
                 if ( segments.size() == 1 )
                 {
                     m_titleSegment = std::to_string( *( segments.begin() ) );
+                }
+            }
+
+            {
+                auto wellCompletionNumbers = m_analyzer->wellCompletionNumbers( m_titleWellName );
+                if ( wellCompletionNumbers.size() == 1 )
+                {
+                    m_titleWellCompletion = std::to_string( *( wellCompletionNumbers.begin() ) );
                 }
             }
 

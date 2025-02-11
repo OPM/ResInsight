@@ -50,6 +50,7 @@ public:
                               int                cellJ,
                               int                cellK,
                               int                aquiferNumber,
+                              int                completionNumber,
                               bool               isErrorResult,
                               int                id );
 
@@ -69,9 +70,11 @@ public:
         regionToRegionAddress( const std::string& vectorName, int regionNumber, int region2Number, int calculationId = -1 );
     static RifEclipseSummaryAddress groupAddress( const std::string& vectorName, const std::string& groupName, int calculationId = -1 );
     static RifEclipseSummaryAddress wellAddress( const std::string& vectorName, const std::string& wellName, int calculationId = -1 );
+    static RifEclipseSummaryAddress
+        wellLumpedAddress( const std::string& vectorName, const std::string& wellName, int completionNumber, int calculationId = -1 );
 
     static RifEclipseSummaryAddress
-        wellCompletionAddress( const std::string& vectorName, const std::string& wellName, int i, int j, int k, int calculationId = -1 );
+        wellConnectionAddress( const std::string& vectorName, const std::string& wellName, int i, int j, int k, int calculationId = -1 );
     static RifEclipseSummaryAddress
         wellLgrAddress( const std::string& vectorName, const std::string& lgrName, const std::string& wellName, int calculationId = -1 );
     static RifEclipseSummaryAddress wellCompletionLgrAddress( const std::string& vectorName,
@@ -109,6 +112,7 @@ public:
     std::string groupName() const;
     std::string networkName() const;
     std::string wellName() const;
+    int         wellCompletionNumber() const;
     int         wellSegmentNumber() const;
     std::string lgrName() const;
     int         cellI() const;
@@ -139,6 +143,7 @@ public:
     void setAquiferNumber( int aquiferNumber );
     void setCellIjk( const std::string& uiText );
     void setWellSegmentNumber( int segment );
+    void setWellCompletionNumber( int completionNumber );
 
     void setAsErrorResult();
     bool isErrorResult() const;

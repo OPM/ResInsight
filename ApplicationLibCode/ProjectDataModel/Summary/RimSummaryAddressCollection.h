@@ -52,6 +52,7 @@ public:
         AQUIFER,
         NETWORK,
         REGION_2_REGION,
+        WELL_COMPLETION,
         WELL_CONNECTION,
         WELL_LGR,
         WELL_CONNECTION_LGR,

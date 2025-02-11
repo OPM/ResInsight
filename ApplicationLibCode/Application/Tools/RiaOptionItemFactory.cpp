@@ -92,6 +92,9 @@ caf::PdmOptionItemInfo RiaOptionItemFactory::optionItemFromSummaryType( RifEclip
         case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL:
             iconText = ":/summary/components/images/well.svg";
             break;
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION:
+            iconText = ":/summary/components/images/well.svg";
+            break;
         case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION:
             iconText = ":/summary/components/images/block.svg";
             break;
