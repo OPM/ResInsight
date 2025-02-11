@@ -939,10 +939,6 @@
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Free Gas Flow Rate"
     },
-    "CGFRL": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Gas Flow Rate"
-    },
     "CGFRS": {
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Solution Gas Flow Rate"
@@ -955,15 +951,7 @@
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Gas Injection Rate"
     },
-    "CGIRL": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Gas Injection Rate"
-    },
     "CGIT": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Gas Injection Total"
-    },
-    "CGITL": {
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Gas Injection Total"
     },
@@ -971,15 +959,7 @@
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Gas-Liquid Ratio"
     },
-    "CGLRL": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Gas-Liquid Ratio"
-    },
     "CGOR": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Gas-Oil Ratio"
-    },
-    "CGORL": {
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Gas-Oil Ratio"
     },
@@ -1003,10 +983,6 @@
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Gas Production Rate "
     },
-    "CGPRL": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Gas Flow Rate"
-    },
     "CGPT": {
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Gas Production Total"
@@ -1014,10 +990,6 @@
     "CGPTF": {
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Free Gas Production Total"
-    },
-    "CGPTL": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Gas Production Total"
     },
     "CGPTS": {
         "category": "SUMMARY_WELL_CONNECTION",
@@ -1031,15 +1003,7 @@
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Hydrocarbon Component"
     },
-    "CKFRL": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Hydrocarbon Component"
-    },
     "CKFT": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Hydrocarbon Component"
-    },
-    "CKFTL": {
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Hydrocarbon Component"
     },
@@ -1047,15 +1011,7 @@
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Liquid Flow Rate"
     },
-    "CLFRL": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Liquid Flow Rate"
-    },
     "CLPT": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Liquid Production Total"
-    },
-    "CLPTL": {
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Liquid Production Total"
     },
@@ -1079,10 +1035,6 @@
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Free Oil Flow Rate"
     },
-    "COFRL": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Oil Flow Rate"
-    },
     "COFRS": {
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Solution oil flow rate"
@@ -1095,15 +1047,7 @@
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Oil-Gas Ratio"
     },
-    "COGRL": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Oil-Gas Ratio"
-    },
     "COIT": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Oil Injection Total"
-    },
-    "COITL": {
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Oil Injection Total"
     },
@@ -1118,10 +1062,6 @@
     "COPR": {
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Oil Production Rate"
-    },
-    "COPRL": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Oil Flow Rate"
     },
     "COPT": {
         "category": "SUMMARY_WELL_CONNECTION",
@@ -1146,10 +1086,6 @@
     "CPR": {
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Connection Pressure"
-    },
-    "CPRL": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Average Connection Pressure in completion"
     },
     "CPU": {
         "category": "SUMMARY_MISC",
@@ -1343,23 +1279,11 @@
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Reservoir"
     },
-    "CVFRL": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Reservoir"
-    },
     "CVIR": {
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Res Volume Injection Rate"
     },
-    "CVIRL": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Res Volume Injection Flow Rate"
-    },
     "CVIT": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Res Volume Injection Total"
-    },
-    "CVITL": {
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Res Volume Injection Total"
     },
@@ -1367,15 +1291,7 @@
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Res Volume Production Rate"
     },
-    "CVPRL": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Res Volume Production Flow Rate"
-    },
     "CVPT": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Res Volume Production Total"
-    },
-    "CVPTL": {
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Res Volume Production Total"
     },
@@ -1383,15 +1299,7 @@
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Water Cut"
     },
-    "CWCTL": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Water Cut"
-    },
     "CWFR": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Water Flow Rate"
-    },
-    "CWFRL": {
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Water Flow Rate"
     },
@@ -1403,23 +1311,11 @@
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Water-Gas Ratio"
     },
-    "CWGRL": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Water-Gas Ratio"
-    },
     "CWIR": {
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Water Injection Rate"
     },
-    "CWIRL": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Water Injection Rate"
-    },
     "CWIT": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Water Injection Total"
-    },
-    "CWITL": {
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Water Injection Total"
     },
@@ -1435,15 +1331,7 @@
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Water Production Rate"
     },
-    "CWPRL": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Water Flow Rate"
-    },
     "CWPT": {
-        "category": "SUMMARY_WELL_CONNECTION",
-        "description": "Water Production Total"
-    },
-    "CWPTL": {
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Water Production Total"
     },
@@ -5531,10 +5419,6 @@
         "category": "SUMMARY_WELL",
         "description": "Gas Density at Surface Conditions"
     },
-    "WGFRL": {
-        "category": "SUMMARY_WELL",
-        "description": "Gas Flow Rate"
-    },
     "WGFWCn": {
         "category": "SUMMARY_WELL",
         "description": "Derivative of well gas flow rate with respect to parameter n"
@@ -5559,10 +5443,6 @@
         "category": "SUMMARY_WELL",
         "description": "Gas Injection Rate History"
     },
-    "WGIRL": {
-        "category": "SUMMARY_WELL",
-        "description": "Gas Injection Rate"
-    },
     "WGIRT": {
         "category": "SUMMARY_WELL",
         "description": "Gas Injection Rate Target/Limit"
@@ -5574,10 +5454,6 @@
     "WGITH": {
         "category": "SUMMARY_WELL",
         "description": "Gas Injection Total History"
-    },
-    "WGITL": {
-        "category": "SUMMARY_WELL",
-        "description": "Gas Injection Total"
     },
     "WGLIR": {
         "category": "SUMMARY_WELL",
@@ -5595,10 +5471,6 @@
         "category": "SUMMARY_WELL",
         "description": "Gas-Liquid Ratio History"
     },
-    "WGLRL": {
-        "category": "SUMMARY_WELL",
-        "description": "Gas-Liquid Ratio"
-    },
     "WGMR": {
         "category": "SUMMARY_WELL",
         "description": "Gas Mass Rate"
@@ -5614,10 +5486,6 @@
     "WGORH": {
         "category": "SUMMARY_WELL",
         "description": "Gas-Oil Ratio History"
-    },
-    "WGORL": {
-        "category": "SUMMARY_WELL",
-        "description": "Gas-Oil Ratio"
     },
     "WGPGR": {
         "category": "SUMMARY_WELL",
@@ -5687,10 +5555,6 @@
         "category": "SUMMARY_WELL",
         "description": "Gas Production Rate History"
     },
-    "WGPRL": {
-        "category": "SUMMARY_WELL",
-        "description": "Gas Flow Rate"
-    },
     "WGPRS": {
         "category": "SUMMARY_WELL",
         "description": "Solution Gas Production Rate"
@@ -5726,10 +5590,6 @@
     "WGPTH": {
         "category": "SUMMARY_WELL",
         "description": "Gas Production Total History"
-    },
-    "WGPTL": {
-        "category": "SUMMARY_WELL",
-        "description": "Gas Production Total"
     },
     "WGPTS": {
         "category": "SUMMARY_WELL",
@@ -5787,10 +5647,6 @@
         "category": "SUMMARY_WELL",
         "description": "Hydrocarbon Molar Production Total"
     },
-    "WLFRL": {
-        "category": "SUMMARY_WELL",
-        "description": "Liquid Flow Rate"
-    },
     "WLPR": {
         "category": "SUMMARY_WELL",
         "description": "Liquid Production Rate"
@@ -5810,10 +5666,6 @@
     "WLPTH": {
         "category": "SUMMARY_WELL",
         "description": "Liquid Production Total History"
-    },
-    "WLPTL": {
-        "category": "SUMMARY_WELL",
-        "description": "Liquid Production Total"
     },
     "WMCON": {
         "category": "SUMMARY_WELL",
@@ -5891,10 +5743,6 @@
         "category": "SUMMARY_WELL",
         "description": "Oil Density at Surface Conditions"
     },
-    "WOFRL": {
-        "category": "SUMMARY_WELL",
-        "description": "Oil Flow Rate"
-    },
     "WOFWCn": {
         "category": "SUMMARY_WELL",
         "description": "Derivative of well oil flow rate with respect to parameter n"
@@ -5910,10 +5758,6 @@
     "WOGRH": {
         "category": "SUMMARY_WELL",
         "description": "Oil-Gas Ratio History"
-    },
-    "WOGRL": {
-        "category": "SUMMARY_WELL",
-        "description": "Oil-Gas Ratio"
     },
     "WOIGR": {
         "category": "SUMMARY_WELL",
@@ -5938,10 +5782,6 @@
     "WOITH": {
         "category": "SUMMARY_WELL",
         "description": "Oil Injection Total History"
-    },
-    "WOITL": {
-        "category": "SUMMARY_WELL",
-        "description": "Oil Injection Total"
     },
     "WOMR": {
         "category": "SUMMARY_WELL",
@@ -5998,10 +5838,6 @@
     "WOPRH": {
         "category": "SUMMARY_WELL",
         "description": "Oil Production Rate History"
-    },
-    "WOPRL": {
-        "category": "SUMMARY_WELL",
-        "description": "Oil Flow Rate"
     },
     "WOPRS": {
         "category": "SUMMARY_WELL",
@@ -6419,27 +6255,15 @@
         "category": "SUMMARY_WELL",
         "description": "User-defined well quantity"
     },
-    "WVFRL": {
-        "category": "SUMMARY_WELL",
-        "description": "Res Volume Flow Rate"
-    },
     "WVIR": {
         "category": "SUMMARY_WELL",
         "description": "Res Volume Injection Rate"
-    },
-    "WVIRL": {
-        "category": "SUMMARY_WELL",
-        "description": "Res Volume Injection Flow Rate"
     },
     "WVIRT": {
         "category": "SUMMARY_WELL",
         "description": "Res Volume Injection Rate Target/Limit"
     },
     "WVIT": {
-        "category": "SUMMARY_WELL",
-        "description": "Res Volume Injection Total"
-    },
-    "WVITL": {
         "category": "SUMMARY_WELL",
         "description": "Res Volume Injection Total"
     },
@@ -6451,19 +6275,11 @@
         "category": "SUMMARY_WELL",
         "description": "Res Volume Production Rate"
     },
-    "WVPRL": {
-        "category": "SUMMARY_WELL",
-        "description": "Res Volume Production Flow Rate"
-    },
     "WVPRT": {
         "category": "SUMMARY_WELL",
         "description": "Res Volume Production Rate Target/Limit"
     },
     "WVPT": {
-        "category": "SUMMARY_WELL",
-        "description": "Res Volume Production Total"
-    },
-    "WVPTL": {
         "category": "SUMMARY_WELL",
         "description": "Res Volume Production Total"
     },
@@ -6474,14 +6290,6 @@
     "WWCTH": {
         "category": "SUMMARY_WELL",
         "description": "Water Cut History"
-    },
-    "WWCTL": {
-        "category": "SUMMARY_WELL",
-        "description": "Water Cut"
-    },
-    "WWFRL": {
-        "category": "SUMMARY_WELL",
-        "description": "Water Flow Rate"
     },
     "WWFWCn": {
         "category": "SUMMARY_WELL",
@@ -6515,10 +6323,6 @@
         "category": "SUMMARY_WELL",
         "description": "Water-Gas Ratio History"
     },
-    "WWGRL": {
-        "category": "SUMMARY_WELL",
-        "description": "Water-Gas Ratio"
-    },
     "WWIGR": {
         "category": "SUMMARY_WELL",
         "description": "Water Injection Guide Rate"
@@ -6539,10 +6343,6 @@
         "category": "SUMMARY_WELL",
         "description": "Water Injection Rate History"
     },
-    "WWIRL": {
-        "category": "SUMMARY_WELL",
-        "description": "Water Injection Rate"
-    },
     "WWIRT": {
         "category": "SUMMARY_WELL",
         "description": "Water Injection Rate Target/Limit"
@@ -6554,10 +6354,6 @@
     "WWITH": {
         "category": "SUMMARY_WELL",
         "description": "Water Injection Total History"
-    },
-    "WWITL": {
-        "category": "SUMMARY_WELL",
-        "description": "Water Injection Total"
     },
     "WWMIR": {
         "category": "SUMMARY_WELL",
@@ -6615,10 +6411,6 @@
         "category": "SUMMARY_WELL",
         "description": "Water Production Rate History"
     },
-    "WWPRL": {
-        "category": "SUMMARY_WELL",
-        "description": "Water Flow Rate"
-    },
     "WWPRT": {
         "category": "SUMMARY_WELL",
         "description": "Water Production Rate Target/Limit"
@@ -6630,10 +6422,6 @@
     "WWPTH": {
         "category": "SUMMARY_WELL",
         "description": "Water Production Total History"
-    },
-    "WWPTL": {
-        "category": "SUMMARY_WELL",
-        "description": "Water Production Total"
     },
     "WWVIR": {
         "category": "SUMMARY_WELL",
