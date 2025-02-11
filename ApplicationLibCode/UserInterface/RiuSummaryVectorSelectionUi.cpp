@@ -1400,12 +1400,12 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForCategories( QList<caf::Pdm
     sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_REGION_2_REGION );
     sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_GROUP );
     sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL );
+    sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL_COMPLETION );
     sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL_CONNECTION );
     sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_BLOCK );
 
     if ( !m_hideCalculationIncompatibleCategories )
     {
-        sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL_COMPLETION );
         sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL_SEGMENT );
         sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL_LGR );
         sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL_CONNECTION_LGR );

@@ -71,7 +71,7 @@ public:
     static RifEclipseSummaryAddress groupAddress( const std::string& vectorName, const std::string& groupName, int calculationId = -1 );
     static RifEclipseSummaryAddress wellAddress( const std::string& vectorName, const std::string& wellName, int calculationId = -1 );
     static RifEclipseSummaryAddress
-        wellLumpedAddress( const std::string& vectorName, const std::string& wellName, int completionNumber, int calculationId = -1 );
+        wellCompletionAddress( const std::string& vectorName, const std::string& wellName, int completionNumber, int calculationId = -1 );
 
     static RifEclipseSummaryAddress
         wellConnectionAddress( const std::string& vectorName, const std::string& wellName, int i, int j, int k, int calculationId = -1 );

@@ -27,20 +27,20 @@ namespace caf
 template <>
 void AppEnum<RimSummaryDataSourceStepping::SourceSteppingDimension>::setUp()
 {
-    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE, "ENSEMBLE", "Ensemble" );
-    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::SUMMARY_CASE, "SUMMARY_CASE", "Summary Case" );
-    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR, "VECTOR", "Vector" );
-    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::WELL, "WELL", RiaDefines::summaryWell() );
-    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_COMPLETION_NUMBER,
-             "WELL_COMPLETION",
-             RiaDefines::summaryWellCompletion() );
-    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP, "GROUP", RiaDefines::summaryWellGroup() );
-    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::NETWORK, "NETWORK", RiaDefines::summaryNetwork() );
-    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::REGION, "REGION", RiaDefines::summaryRegion() );
-    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK, "BLOCK", RiaDefines::summaryBlock() );
-    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER, "AQUIFER", RiaDefines::summaryAquifer() );
-    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_SEGMENT, "WELL_SEGMENT", RiaDefines::summaryWellSegment() );
-    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_CONNECTION, "WELL_CONNECTION", RiaDefines::summaryConnection() );
-    setDefault( RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR );
+    using ssd = RimSummaryDataSourceStepping::SourceSteppingDimension;
+
+    addItem( ssd::ENSEMBLE, "ENSEMBLE", "Ensemble" );
+    addItem( ssd::SUMMARY_CASE, "SUMMARY_CASE", "Summary Case" );
+    addItem( ssd::VECTOR, "VECTOR", "Vector" );
+    addItem( ssd::WELL, "WELL", RiaDefines::summaryWell() );
+    addItem( ssd::WELL_COMPLETION_NUMBER, "WELL_COMPLETION", RiaDefines::summaryWellCompletion() );
+    addItem( ssd::GROUP, "GROUP", RiaDefines::summaryWellGroup() );
+    addItem( ssd::NETWORK, "NETWORK", RiaDefines::summaryNetwork() );
+    addItem( ssd::REGION, "REGION", RiaDefines::summaryRegion() );
+    addItem( ssd::BLOCK, "BLOCK", RiaDefines::summaryBlock() );
+    addItem( ssd::AQUIFER, "AQUIFER", RiaDefines::summaryAquifer() );
+    addItem( ssd::WELL_SEGMENT, "WELL_SEGMENT", RiaDefines::summaryWellSegment() );
+    addItem( ssd::WELL_CONNECTION, "WELL_CONNECTION", RiaDefines::summaryConnection() );
+    setDefault( ssd::VECTOR );
 }
 } // namespace caf

@@ -338,10 +338,10 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::wellAddress( const std::strin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifEclipseSummaryAddress::wellLumpedAddress( const std::string& vectorName,
-                                                                      const std::string& wellName,
-                                                                      int                completionNumber,
-                                                                      int                calculationId /*= -1 */ )
+RifEclipseSummaryAddress RifEclipseSummaryAddress::wellCompletionAddress( const std::string& vectorName,
+                                                                          const std::string& wellName,
+                                                                          int                completionNumber,
+                                                                          int                calculationId /*= -1 */ )
 {
     RifEclipseSummaryAddress addr;
     addr.m_category   = SummaryCategory::SUMMARY_WELL_COMPLETION;
@@ -1166,7 +1166,7 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
         {
             RiaStdStringTools::toInt( token2, intValue0 );
 
-            if ( !token1.empty() ) return wellLumpedAddress( vectorName, token1, intValue0 );
+            if ( !token1.empty() ) return wellCompletionAddress( vectorName, token1, intValue0 );
             break;
         }
 

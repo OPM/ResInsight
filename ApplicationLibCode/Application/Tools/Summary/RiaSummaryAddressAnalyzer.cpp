@@ -445,6 +445,7 @@ void RiaSummaryAddressAnalyzer::clear()
     m_categories.clear();
     m_wellConnections.clear();
     m_wellSegmentNumbers.clear();
+    m_wellCompletionNumbers.clear();
     m_blocks.clear();
     m_aquifers.clear();
 
