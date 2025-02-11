@@ -875,6 +875,218 @@
         "category": "SUMMARY_BLOCK",
         "description": "Vapor hydrocarbon component mole fraction / vapor steam"
     },
+    "COFRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Oil Flow Rate"
+    },
+    "WOFRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Oil Flow Rate"
+    },
+    "COPRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Oil Production Rate"
+    },
+    "WOPRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Oil Production Rate"
+    },
+    "COITL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Oil Injection Total"
+    },
+    "WOITL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Oil Injection Total"
+    },
+    "CWFRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Water Flow Rate"
+    },
+    "WWFRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Water Flow Rate"
+    },
+    "CWPRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Water Production Rate"
+    },
+    "WWPRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Water Production Rate"
+    },
+    "CWPTL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Water Production Total"
+    },
+    "WWPTL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Water Production Total"
+    },
+    "CWIRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Water Injection Rate"
+    },
+    "WWIRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Water Injection Rate"
+    },
+    "CWITL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Water Injection Total"
+    },
+    "WWITL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Water Injection Total"
+    },
+    "CGFRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Gas Flow Rate"
+    },
+    "WGFRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Gas Flow Rate"
+    },
+    "CGPRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Gas Production Rate"
+    },
+    "WGPRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Gas Production Rate"
+    },
+    "CGPTL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Gas Production Total"
+    },
+    "WGPTL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Gas Production Total"
+    },
+    "CGIRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Gas Injection Rate"
+    },
+    "WGIRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Gas Injection Rate"
+    },
+    "CGITL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Gas Injection Total"
+    },
+    "WGITL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Gas Injection Total"
+    },
+    "CLFRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Liquid Flow Rate"
+    },
+    "WLFRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Liquid Flow Rate"
+    },
+    "CLPTL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Liquid Production Total"
+    },
+    "WLPTL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Liquid Production Total"
+    },
+    "CVFRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Res Volume Flow Rate"
+    },
+    "WVFRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Res Volume Flow Rate"
+    },
+    "CVPRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Res Volume Production Flow Rate"
+    },
+    "WVPRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Res Volume Production Flow Rate"
+    },
+    "CVIRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Res Volume Injection Flow Rate"
+    },
+    "WVIRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Res Volume Injection Flow Rate"
+    },
+    "CVPTL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Res Volume Production Total"
+    },
+    "WVPTL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Res Volume Production Total"
+    },
+    "CVITL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Res Volume Injection Total"
+    },
+    "WVITL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Res Volume Injection Total"
+    },
+    "CWCTL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Water Cut"
+    },
+    "WWCTL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Water Cut"
+    },
+    "CGORL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Gas-Oil Ratio"
+    },
+    "WGORL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Gas-Oil Ratio"
+    },
+    "COGRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Oil-Gas Ratio"
+    },
+    "WOGRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Oil-Gas Ratio"
+    },
+    "CWGRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Water-Gas Ratio"
+    },
+    "WWGRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Water-Gas Ratio"
+    },
+    "CGLRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Gas-Liquid Ratio"
+    },
+    "WGLRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Gas-Liquid Ratio"
+    },
+    "CPRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Average Connection Pressure in completion"
+    },
+    "CKFRL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Hydrocarbon Component Molar Flow Rate"
+    },
+    "CKFTL": {
+        "category": "SUMMARY_WELL_COMPLETION",
+        "description": "Hydrocarbon Component Molar Flow Total"
+    },
     "CAMF": {
         "category": "SUMMARY_WELL_CONNECTION",
         "description": "Component aqueous mole fraction, from producing completions"
