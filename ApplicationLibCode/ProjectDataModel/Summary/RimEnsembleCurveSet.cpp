@@ -27,6 +27,7 @@
 #include "RiaTimeTTools.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryPlotTools.h"
 
 #include "RimSummaryCalculationCollection.h"
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
@@ -2052,9 +2053,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
 
             for ( auto& sumCase : sumCases )
             {
-                RimSummaryCurve* curve = new RimSummaryCurve();
-                curve->setSummaryCaseY( sumCase );
-                curve->setSummaryAddressY( addr->address() );
+                auto curve = RiaSummaryPlotTools::createCurve( sumCase, addr->address() );
                 curve->setResampling( m_resampling() );
 
                 int lineThickness = 1;
@@ -2228,7 +2227,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
 
         for ( const auto& address : addresses )
         {
-            auto curve = new RimSummaryCurve();
+            auto curve = RiaSummaryPlotTools::createCurve( summaryCase, address.summaryAddressY() );
             curve->setParentPlotNoReplot( plot->plotWidget() );
             m_curves.push_back( curve );
             curve->setColor( m_statistics->color() );
@@ -2256,8 +2255,6 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
                 curve->setSymbolSize( m_statisticsSymbolSize() );
             }
 
-            curve->setSummaryCaseY( summaryCase );
-            curve->setSummaryAddressY( address.summaryAddressY() );
             curve->setLeftOrRightAxisY( axisY() );
 
             if ( isXAxisSummaryVector() )

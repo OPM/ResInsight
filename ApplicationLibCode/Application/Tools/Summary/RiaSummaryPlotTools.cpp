@@ -36,6 +36,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
+#include "RimSummaryCurveAutoName.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
@@ -92,6 +93,16 @@ RimSummaryCurve* createCurve( RimSummaryCase* summaryCase, const RifEclipseSumma
 
     curve->setSummaryCaseY( summaryCase );
     curve->setSummaryAddressY( addr );
+
+    size_t pos = addr.vectorName().find( '_' );
+    if ( pos != std::string::npos )
+    {
+        // https://github.com/OPM/ResInsight/issues/12157
+
+        RimSummaryCurveAutoName settings;
+        settings.enableVectorName( true );
+        curve->applyCurveAutoNameSettings( settings );
+    }
 
     return curve;
 }
@@ -540,10 +551,7 @@ RimEnsembleCurveSet* addNewEnsembleCurve( RimSummaryPlot* summaryPlot, const Ria
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurve* addNewSummaryCurve( RimSummaryPlot* summaryPlot, const RiaSummaryCurveAddress& curveAddress, RimSummaryCase* summaryCase )
 {
-    auto curve = new RimSummaryCurve();
-
-    curve->setSummaryCaseY( summaryCase );
-    curve->setSummaryAddressY( curveAddress.summaryAddressY() );
+    auto curve = createCurve( summaryCase, curveAddress.summaryAddressY() );
 
     curve->setSummaryCaseX( summaryCase );
     curve->setSummaryAddressX( curveAddress.summaryAddressX() );

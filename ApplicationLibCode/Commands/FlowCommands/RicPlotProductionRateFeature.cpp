@@ -255,11 +255,8 @@ RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* 
         return nullptr;
     }
 
-    RimSummaryCurve* newCurve = new RimSummaryCurve();
+    auto newCurve = RiaSummaryPlotTools::createCurve( summaryCase, addr );
     plot->addCurveAndUpdate( newCurve );
-
-    newCurve->setSummaryCaseY( summaryCase );
-    newCurve->setSummaryAddressY( addr );
     newCurve->setColor( color );
     newCurve->setLeftOrRightAxisY( RiuPlotAxis( plotAxis ) );
     newCurve->loadDataAndUpdate( true );

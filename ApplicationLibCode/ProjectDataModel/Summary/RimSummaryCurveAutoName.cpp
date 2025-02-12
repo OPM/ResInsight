@@ -189,6 +189,14 @@ void RimSummaryCurveAutoName::applySettings( const RimSummaryCurveAutoName& othe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurveAutoName::enableVectorName( bool enable )
+{
+    m_vectorName = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurveAutoName::appendWellName( std::string&                    text,
                                               const RifEclipseSummaryAddress& summaryAddress,
                                               const RimSummaryNameHelper*     nameHelper ) const
