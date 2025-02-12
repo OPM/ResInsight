@@ -19,8 +19,8 @@
 #include "RicPasteAsciiDataToSummaryPlotFeature.h"
 
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "RicPasteAsciiDataToSummaryPlotFeatureUi.h"
+#include "Summary/RiaSummaryPlotTools.h"
 
 #include "RiaLogging.h"
 
@@ -91,7 +91,7 @@ void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered( bool isChecked )
             summaryPlot = new RimSummaryPlot();
             summaryPlot->enableAutoPlotTitle( true );
 
-            RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( summaryPlot );
+            RiaSummaryPlotTools::createAndAppendSingleSummaryMultiPlot( summaryPlot );
         }
 
         caf::PdmSettings::writeFieldsToApplicationStore( &pasteOptions, pasteOptions.contextString() );

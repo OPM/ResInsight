@@ -19,9 +19,8 @@
 #include "RimCloudDataSourceCollection.h"
 
 #include "RiaApplication.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
-
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -92,7 +91,7 @@ void RimCloudDataSourceCollection::createEnsemblesFromSelectedDataSources( const
         RiaSummaryTools::summaryCaseMainCollection()->addEnsemble( ensemble );
         ensemble->loadDataAndUpdate();
 
-        RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( {}, { ensemble } );
+        RiaSummaryPlotTools::createAndAppendDefaultSummaryMultiPlot( {}, { ensemble } );
     }
 
     RiaSummaryTools::summaryCaseMainCollection()->updateAllRequiredEditors();

@@ -24,9 +24,8 @@
 #include "RiaStdStringTools.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
 #include "Summary/RiaSummaryAddressModifier.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
-
-#include "RicSummaryPlotBuilder.h"
 
 #include "RimEnsembleCurveSet.h"
 #include "RimSummaryAddressCollection.h"
@@ -74,7 +73,7 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
 
     for ( auto summaryAdrCollection : sumAddressCollections )
     {
-        auto duplicatedPlots = RicSummaryPlotBuilder::duplicateSummaryPlots( plotsForOneInstance );
+        auto duplicatedPlots = RiaSummaryPlotTools::duplicateSummaryPlots( plotsForOneInstance );
 
         for ( auto duplicatedPlot : duplicatedPlots )
         {

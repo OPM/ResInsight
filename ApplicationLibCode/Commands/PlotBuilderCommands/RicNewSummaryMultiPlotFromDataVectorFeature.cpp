@@ -19,14 +19,13 @@
 #include "RicNewSummaryMultiPlotFromDataVectorFeature.h"
 
 #include "RiaPreferencesSummary.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
-
-#include "RicSummaryPlotBuilder.h"
 
 #include "RifEclipseSummaryAddress.h"
 #include "RifReaderEclipseSummary.h"
@@ -132,11 +131,11 @@ void RicNewSummaryMultiPlotFromDataVectorFeature::onActionTriggered( bool isChec
         }
     }
 
-    auto newPlot = RicSummaryPlotBuilder::createPlot( eclipseAddresses, selectedCases, selectedEnsembles );
+    auto newPlot = RiaSummaryPlotTools::createPlot( eclipseAddresses, selectedCases, selectedEnsembles );
 
     std::vector<RimSummaryPlot*> plots{ newPlot };
 
-    RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( plots );
+    RiaSummaryPlotTools::createAndAppendSummaryMultiPlot( plots );
 }
 
 //--------------------------------------------------------------------------------------------------

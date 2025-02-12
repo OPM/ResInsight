@@ -18,8 +18,8 @@
 
 #include "RicCreateMultiPlotFromSelectionFeature.h"
 
-#include "RicSummaryPlotTemplateTools.h"
 #include "RimSummaryMultiPlot.h"
+#include "Summary/RiaSummaryPlotTemplateTools.h"
 
 #include "RiuPlotMainWindowTools.h"
 

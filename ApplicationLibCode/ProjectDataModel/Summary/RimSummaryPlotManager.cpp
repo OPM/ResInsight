@@ -21,6 +21,8 @@
 #include "RiaStdStringTools.h"
 #include "RiaStringListSerializer.h"
 #include "RiaTextStringTools.h"
+#include "Summary/RiaSummaryPlotBuilder.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryStringTools.h"
 #include "Summary/RiaSummaryTools.h"
 
@@ -39,7 +41,6 @@
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
 #include "RiuPlotMainWindowTools.h"
@@ -405,13 +406,13 @@ void RimSummaryPlotManager::createNewPlot()
         }
     }
 
-    RicSummaryPlotBuilder plotBuilder;
+    RiaSummaryPlotBuilder plotBuilder;
     plotBuilder.setAddresses( filteredAddressesFromSource );
     plotBuilder.setDataSources( summaryCases, ensembles );
 
-    RicSummaryPlotBuilder::RicGraphCurveGrouping grouping = RicSummaryPlotBuilder::RicGraphCurveGrouping::NONE;
-    if ( m_individualPlotPerVector ) grouping = RicSummaryPlotBuilder::RicGraphCurveGrouping::SINGLE_CURVES;
-    if ( m_individualPlotPerObject ) grouping = RicSummaryPlotBuilder::RicGraphCurveGrouping::CURVES_FOR_OBJECT;
+    RiaSummaryPlotBuilder::RicGraphCurveGrouping grouping = RiaSummaryPlotBuilder::RicGraphCurveGrouping::NONE;
+    if ( m_individualPlotPerVector ) grouping = RiaSummaryPlotBuilder::RicGraphCurveGrouping::SINGLE_CURVES;
+    if ( m_individualPlotPerObject ) grouping = RiaSummaryPlotBuilder::RicGraphCurveGrouping::CURVES_FOR_OBJECT;
     plotBuilder.setGrouping( grouping );
 
     plotBuilder.setIndividualPlotPerDataSource( m_individualPlotPerDataSource );
@@ -419,13 +420,13 @@ void RimSummaryPlotManager::createNewPlot()
     auto summaryPlots = plotBuilder.createPlots();
     if ( m_createMultiPlot )
     {
-        RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( summaryPlots );
+        RiaSummaryPlotTools::createAndAppendSummaryMultiPlot( summaryPlots );
     }
     else
     {
         for ( auto plot : summaryPlots )
         {
-            RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( plot );
+            RiaSummaryPlotTools::createAndAppendSingleSummaryMultiPlot( plot );
             plot->loadDataAndUpdate();
         }
     }
@@ -491,11 +492,11 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotManager::filteredAddresses()
     std::set<RifEclipseSummaryAddress> nativeAddresses;
     if ( !summaryCases.empty() )
     {
-        nativeAddresses = RicSummaryPlotBuilder::addressesForSource( summaryCases.front() );
+        nativeAddresses = RiaSummaryPlotTools::addressesForSource( summaryCases.front() );
     }
     else if ( !ensembles.empty() )
     {
-        nativeAddresses = RicSummaryPlotBuilder::addressesForSource( ensembles.front() );
+        nativeAddresses = RiaSummaryPlotTools::addressesForSource( ensembles.front() );
     }
 
     if ( nativeAddresses.empty() ) return {};
@@ -517,7 +518,7 @@ void RimSummaryPlotManager::appendCurvesToPlot( RimSummaryPlot* destinationPlot 
     findFilteredSummaryCasesAndEnsembles( summaryCases, ensembles );
 
     std::set<RifEclipseSummaryAddress> filteredAddressesFromSource = filteredAddresses();
-    RicSummaryPlotBuilder::appendCurvesToPlot( destinationPlot, filteredAddressesFromSource, summaryCases, ensembles );
+    RiaSummaryPlotTools::appendCurvesToPlot( destinationPlot, filteredAddressesFromSource, summaryCases, ensembles );
 
     destinationPlot->applyDefaultCurveAppearances();
     destinationPlot->loadDataAndUpdate();

@@ -24,12 +24,12 @@
 #include "RiaTimeTTools.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
 #include "Summary/RiaSummaryAddressModifier.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryStringTools.h"
 
 #include "PlotBuilderCommands/RicAppendSummaryPlotsForObjectsFeature.h"
 #include "PlotBuilderCommands/RicAppendSummaryPlotsForSummaryAddressesFeature.h"
 #include "PlotBuilderCommands/RicAppendSummaryPlotsForSummaryCasesFeature.h"
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
 #include "RifEclEclipseSummary.h"
 #include "RifEclipseRftAddress.h"
@@ -1563,7 +1563,7 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
     if ( plots.empty() ) return;
 
     // duplicate them
-    auto newPlots = RicSummaryPlotBuilder::duplicatePlots( plots );
+    auto newPlots = RiaSummaryPlotTools::duplicatePlots( plots );
     if ( newPlots.empty() ) return;
 
     for ( auto plot : newPlots )

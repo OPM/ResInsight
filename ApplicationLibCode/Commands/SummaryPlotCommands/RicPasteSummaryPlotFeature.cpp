@@ -19,7 +19,7 @@
 #include "RicPasteSummaryPlotFeature.h"
 
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
+#include "Summary/RiaSummaryPlotTools.h"
 
 #include "RimMultiPlot.h"
 #include "RimSummaryPlot.h"
@@ -45,8 +45,8 @@ void RicPasteSummaryPlotFeature::copyPlotAndAddToCollection( RimSummaryPlot* sou
     auto multiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimMultiPlot>();
     if ( multiPlot )
     {
-        auto plots = RicSummaryPlotBuilder::duplicatePlots( { sourcePlot } );
-        RicSummaryPlotBuilder::appendPlotsToMultiPlot( multiPlot, plots );
+        auto plots = RiaSummaryPlotTools::duplicatePlots( { sourcePlot } );
+        RiaSummaryPlotTools::appendPlotsToMultiPlot( multiPlot, plots );
 
         multiPlot->loadDataAndUpdate();
 

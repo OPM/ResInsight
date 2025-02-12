@@ -19,11 +19,11 @@
 #include "RicNewGridTimeHistoryCurveFeature.h"
 
 #include "RiaGuiApplication.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "RigFemResultAddress.h"
 
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "RicNewSummaryCurveFeature.h"
 #include "RicSelectSummaryPlotUI.h"
 #include "RicWellLogTools.h"
@@ -117,7 +117,7 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
     {
         RimSummaryPlot* plot = new RimSummaryPlot();
         plot->setUiName( featureUi.newPlotName() );
-        RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( plot );
+        RiaSummaryPlotTools::createAndAppendSingleSummaryMultiPlot( plot );
         plot->loadDataAndUpdate();
 
         summaryPlot = plot;

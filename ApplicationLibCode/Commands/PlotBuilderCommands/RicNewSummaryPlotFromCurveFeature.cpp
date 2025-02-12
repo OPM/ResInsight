@@ -18,10 +18,10 @@
 
 #include "RicNewSummaryPlotFromCurveFeature.h"
 
+#include "Summary/RiaSummaryPlotTools.h"
+
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
-
-#include "RicSummaryPlotBuilder.h"
 
 #include <QAction>
 #include <QVariant>
@@ -41,11 +41,11 @@ void RicNewSummaryPlotFromCurveFeature::onActionTriggered( bool isChecked )
         auto curveCopy = curve->copyObject<RimSummaryCurve>();
         curveCopy->setShowInLegend( true );
 
-        RimSummaryPlot* plot = RicSummaryPlotBuilder::createPlot( { curveCopy } );
+        RimSummaryPlot* plot = RiaSummaryPlotTools::createPlot( { curveCopy } );
 
         std::vector<RimSummaryPlot*> plots = { plot };
 
-        RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( plots );
+        RiaSummaryPlotTools::createAndAppendSummaryMultiPlot( plots );
     }
 }
 

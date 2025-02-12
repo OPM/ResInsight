@@ -18,12 +18,12 @@
 
 #include "RicPasteSummaryMultiPlotFeature.h"
 
+#include "Summary/RiaSummaryTools.h"
+
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
-#include "Summary/RiaSummaryTools.h"
 
 #include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmObjectGroup.h"

@@ -22,6 +22,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaTextStringTools.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "RimEnsembleCurveFilter.h"
@@ -42,7 +43,6 @@
 
 #include "RiuPlotMainWindow.h"
 
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
 #include "cafSelectionManager.h"
@@ -114,7 +114,7 @@ RimSummaryPlot* RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndU
 
     RimSummaryPlot* plot = new RimSummaryPlot();
     plot->enableAutoPlotTitle( true );
-    RimSummaryMultiPlot* multiPlot = RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( plot );
+    RimSummaryMultiPlot* multiPlot = RiaSummaryPlotTools::createAndAppendSingleSummaryMultiPlot( plot );
 
     RimEnsembleCurveSet* firstCurveSetCreated = nullptr;
     for ( RimSummaryEnsemble* ensemble : ensembles )
