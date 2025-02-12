@@ -303,7 +303,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
                                      cellJ,
                                      cellK,
                                      aquiferNumber,
-                                     wellSegmentNumber,
+                                     wellCompletionNumber,
                                      isErrorResult,
                                      id );
 }
