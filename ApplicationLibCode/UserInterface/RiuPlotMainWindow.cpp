@@ -24,9 +24,8 @@
 #include "RiaPreferences.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaRegressionTestRunner.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
-
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimMainPlotCollection.h"
@@ -1057,7 +1056,7 @@ void RiuPlotMainWindow::dropEvent( QDropEvent* event )
 
     if ( RiuDragDrop::handleGenericDropEvent( event, objects ) )
     {
-        RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( objects );
+        RiaSummaryPlotTools::createAndAppendSummaryMultiPlot( objects );
     }
 }
 

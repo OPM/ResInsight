@@ -29,11 +29,11 @@
 #include "RiaStdStringTools.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 #include "Summary/RiaSummaryDefines.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "RifEclipseSummaryAddressDefines.h"
 
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
 #include "RimAsciiDataCurve.h"
@@ -2281,7 +2281,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleEnsembleDrop( RimSummaryEnsemble
     {
         if ( ensembles.count( ensemble ) > 0 ) continue;
 
-        auto curveSet = RicSummaryPlotBuilder::addNewEnsembleCurve( this, addr, ensemble );
+        auto curveSet = RiaSummaryPlotTools::addNewEnsembleCurve( this, addr, ensemble );
         curveSetsToUpdate.push_back( curveSet );
         newCurves++;
     }
@@ -2383,7 +2383,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
             auto addresses = curveDef.ensemble()->ensembleSummaryAddresses();
             if ( addresses.find( curveDef.summaryAddressY() ) != addresses.end() )
             {
-                auto curveSet = RicSummaryPlotBuilder::addNewEnsembleCurve( this, curveDef.summaryCurveAddress(), curveDef.ensemble() );
+                auto curveSet = RiaSummaryPlotTools::addNewEnsembleCurve( this, curveDef.summaryCurveAddress(), curveDef.ensemble() );
                 curveSetsToUpdate.push_back( curveSet );
                 newCurves++;
             }
@@ -2454,11 +2454,10 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAd
 
                 if ( !skipAddress )
                 {
-                    auto curveSet =
-                        RicSummaryPlotBuilder::addNewEnsembleCurve( this,
-                                                                    RiaSummaryCurveAddress( RifEclipseSummaryAddress::timeAddress(),
-                                                                                            droppedAddress ),
-                                                                    ensemble );
+                    auto curveSet = RiaSummaryPlotTools::addNewEnsembleCurve( this,
+                                                                              RiaSummaryCurveAddress( RifEclipseSummaryAddress::timeAddress(),
+                                                                                                      droppedAddress ),
+                                                                              ensemble );
 
                     curveSetsToUpdate.push_back( curveSet );
                     newCurves++;

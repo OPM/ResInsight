@@ -6,6 +6,9 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryStringTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryPlotTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryPlotBuilder.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryPlotTemplateTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -16,6 +19,9 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryStringTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryPlotTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryPlotBuilder.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryPlotTemplateTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

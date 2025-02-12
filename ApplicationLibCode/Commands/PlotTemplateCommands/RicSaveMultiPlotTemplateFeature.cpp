@@ -20,7 +20,7 @@
 
 #include "RicReloadPlotTemplatesFeature.h"
 #include "RicSaveMultiPlotTemplateFeatureSettings.h"
-#include "RicSummaryPlotTemplateTools.h"
+#include "Summary/RiaSummaryPlotTemplateTools.h"
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"

@@ -27,9 +27,9 @@
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaTextStringTools.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryStringTools.h"
 
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "RicCreateSummaryCaseCollectionFeature.h"
 #include "RicImportGeneralDataFeature.h"
 #include "RicImportSummaryCasesFeature.h"
@@ -342,7 +342,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
             newPlot->setNormalizationEnabled( isNormalizedY );
             newPlot->loadDataAndUpdate();
 
-            RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
+            RiaSummaryPlotTools::createAndAppendSingleSummaryMultiPlot( newPlot );
         }
         else // Multiple plots, one for each separate summary address, put them all in a summary multiplot
         {
@@ -362,7 +362,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                 summaryPlot->loadDataAndUpdate();
             }
 
-            RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( summaryPlots );
+            RiaSummaryPlotTools::createAndAppendSummaryMultiPlot( summaryPlots );
         }
     }
 
@@ -430,7 +430,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                 newPlot->loadDataAndUpdate();
                 lastPlotCreated = newPlot;
 
-                RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
+                RiaSummaryPlotTools::createAndAppendSingleSummaryMultiPlot( newPlot );
             }
         }
         else // Multiplot
@@ -484,7 +484,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                         newPlot->loadDataAndUpdate();
                         lastPlotCreated = newPlot;
 
-                        RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
+                        RiaSummaryPlotTools::createAndAppendSingleSummaryMultiPlot( newPlot );
                     }
                 }
             }

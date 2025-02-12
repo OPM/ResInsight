@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicSummaryPlotTemplateTools.h"
+#include "RiaSummaryPlotTemplateTools.h"
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
@@ -24,8 +24,7 @@
 #include "Summary/RiaSummaryAddressAnalyzer.h"
 #include "Summary/RiaSummaryTools.h"
 
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
-#include "RicSelectPlotTemplateUi.h"
+#include "PlotTemplateCommands/RicSelectPlotTemplateUi.h"
 
 #include "RifSummaryReaderInterface.h"
 

@@ -18,9 +18,9 @@
 
 #include "RicNewDefaultSummaryPlotFeature.h"
 
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
 
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "RicEditSummaryPlotFeature.h"
 #include "RicNewSummaryCurveFeature.h"
 #include "RicNewSummaryEnsembleCurveSetFeature.h"
@@ -85,7 +85,7 @@ RimSummaryPlot* RicNewDefaultSummaryPlotFeature::createFromSummaryCases( const s
     newPlot->applyDefaultCurveAppearances();
     newPlot->loadDataAndUpdate();
 
-    RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
+    RiaSummaryPlotTools::createAndAppendSingleSummaryMultiPlot( newPlot );
 
     return newPlot;
 }
@@ -131,7 +131,7 @@ void RicNewDefaultSummaryPlotFeature::onActionTriggered( bool isChecked )
     {
         RimSummaryPlot* plot = new RimSummaryPlot();
         plot->enableAutoPlotTitle( true );
-        RicSummaryPlotBuilder::appendPlotsToSummaryMultiPlot( multiPlot, { plot } );
+        RiaSummaryPlotTools::appendPlotsToSummaryMultiPlot( multiPlot, { plot } );
         return;
     }
 

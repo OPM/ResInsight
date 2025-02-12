@@ -20,7 +20,7 @@
 
 #include "ApplicationCommands/RicShowMainWindowFeature.h"
 
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "SummaryPlotCommands/RicNewSummaryCurveFeature.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
@@ -199,7 +199,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fil
 
             if ( !candidateCases.empty() && RiaGuiApplication::isRunning() && RiuPlotMainWindow::instance()->isVisible() )
             {
-                RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( { candidateCases.front() }, {} );
+                RiaSummaryPlotTools::createAndAppendDefaultSummaryMultiPlot( { candidateCases.front() }, {} );
                 RiuPlotMainWindowTools::setExpanded( candidateCases.front() );
             }
         }

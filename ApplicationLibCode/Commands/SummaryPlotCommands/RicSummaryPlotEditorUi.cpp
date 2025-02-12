@@ -22,6 +22,7 @@
 #include "RiaCurveSetDefinition.h"
 #include "RiaGuiApplication.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryPlotTools.h"
 
 #include "RiuSummaryCurveDefinitionKeywords.h"
 
@@ -49,8 +50,6 @@
 #include "RiuSummaryQwtPlot.h"
 #include "RiuSummaryVectorSelectionUi.h"
 #include "RiuTools.h"
-
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -843,7 +842,7 @@ void RicSummaryPlotEditorUi::createNewPlot()
     if ( !m_plotContainer )
     {
         std::vector<RimSummaryPlot*> plots;
-        m_plotContainer = RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( plots );
+        m_plotContainer = RiaSummaryPlotTools::createAndAppendSummaryMultiPlot( plots );
     }
 
     if ( m_plotContainer )

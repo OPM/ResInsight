@@ -18,15 +18,13 @@
 
 #include "RicSplitMultiPlotFeature.h"
 
-#include "RicSummaryPlotBuilder.h"
+#include "Summary/RiaSummaryPlotTools.h"
 
 #include "RimEnsembleCurveSet.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
-
-#include "RicSummaryPlotBuilder.h"
 
 #include "cafSelectionManager.h"
 #include "cvfAssert.h"
@@ -73,7 +71,7 @@ void RicSplitMultiPlotFeature::onActionTriggered( bool isChecked )
         objects.push_back( addr );
     }
 
-    RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( objects );
+    RiaSummaryPlotTools::createAndAppendSummaryMultiPlot( objects );
 
     for ( auto object : objects )
         delete object;
