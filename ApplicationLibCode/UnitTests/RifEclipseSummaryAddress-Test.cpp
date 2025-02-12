@@ -126,19 +126,33 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_Well )
     EXPECT_FALSE( addr.isErrorResult() );
 }
 
-TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellCompletion )
+TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellConnection )
 {
-    std::string addrString = "COFRL:B-1H:15,13,14";
+    std::string addrString = "CPRL:B-1H:15,13,14";
 
     RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( addrString );
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION, addr.category() );
-    EXPECT_EQ( "COFRL", addr.vectorName() );
+    EXPECT_EQ( "CPRL", addr.vectorName() );
     EXPECT_EQ( "B-1H", addr.wellName() );
     EXPECT_EQ( 15, addr.cellI() );
     EXPECT_EQ( 13, addr.cellJ() );
     EXPECT_EQ( 14, addr.cellK() );
+    EXPECT_FALSE( addr.isErrorResult() );
+}
+
+TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellCompletion )
+{
+    std::string addrString = "WGLRL:B-1H:15";
+
+    RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( addrString );
+
+    EXPECT_TRUE( addr.isValid() );
+    EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION, addr.category() );
+    EXPECT_EQ( "WGLRL", addr.vectorName() );
+    EXPECT_EQ( "B-1H", addr.wellName() );
+    EXPECT_EQ( 15, addr.wellCompletionNumber() );
     EXPECT_FALSE( addr.isErrorResult() );
 }
 
