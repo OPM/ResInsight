@@ -921,7 +921,7 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
     else if ( sumCategory == SummaryCategory::SUMMARY_WELL_CONNECTION )
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryConnection() + "s" );
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryWellConnection() + "s" );
             myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION][0]->pdmField() );
             myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION][1]->pdmField() );
         }

@@ -51,7 +51,7 @@ QString summaryWell();
 QString summaryWellCompletion();
 QString summaryWellGroup();
 QString summaryWellSegment();
-QString summaryConnection();
+QString summaryWellConnection();
 QString summarySegment();
 QString summaryBlock();
 QString summaryLgrConnection();

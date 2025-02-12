@@ -549,8 +549,8 @@ void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAdd
 
     if ( address.category() == SummaryCategory::SUMMARY_WELL_CONNECTION )
     {
-        auto wellNameAndCompletion = std::make_pair( wellName, address.blockAsString() );
-        m_wellConnections.insert( wellNameAndCompletion );
+        auto wellNameAndConnection = std::make_pair( wellName, address.connectionAsString() );
+        m_wellConnections.insert( wellNameAndConnection );
     }
     else if ( address.category() == SummaryCategory::SUMMARY_WELL_SEGMENT )
     {

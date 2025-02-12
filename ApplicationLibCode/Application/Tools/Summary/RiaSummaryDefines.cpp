@@ -117,13 +117,13 @@ QString RiaDefines::summaryWellGroup()
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::summaryWellSegment()
 {
-    return "Well Segment";
+    return "Segment";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::summaryConnection()
+QString RiaDefines::summaryWellConnection()
 {
     return "Connection";
 }

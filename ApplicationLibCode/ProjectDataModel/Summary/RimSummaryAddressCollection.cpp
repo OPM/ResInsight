@@ -47,7 +47,7 @@ void caf::AppEnum<RimSummaryAddressCollection::CollectionContentType>::setUp()
     addItem( CollectionContentType::AQUIFER, "AQUIFER", RiaDefines::summaryAquifer() );
     addItem( CollectionContentType::NETWORK, "NETWORK", RiaDefines::summaryNetwork() );
     addItem( CollectionContentType::REGION_2_REGION, "REGION_2_REGION", RiaDefines::summaryRegion2Region() );
-    addItem( CollectionContentType::WELL_CONNECTION, "WELL_CONNECTION", RiaDefines::summaryConnection() );
+    addItem( CollectionContentType::WELL_CONNECTION, "WELL_CONNECTION", RiaDefines::summaryWellConnection() );
     addItem( CollectionContentType::WELL_COMPLETION, "WELL_COMPLETION", RiaDefines::summaryWellCompletion() );
     addItem( CollectionContentType::WELL_LGR, "WELL_LGR", RiaDefines::summaryLgrWell() );
     addItem( CollectionContentType::WELL_CONNECTION_LGR, "WELL_CONNECTION_LGR", RiaDefines::summaryLgrConnection() );

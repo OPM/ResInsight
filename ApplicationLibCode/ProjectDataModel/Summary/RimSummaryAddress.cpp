@@ -38,7 +38,7 @@ void caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::setUp()
     addItem( RifAdr::SUMMARY_GROUP, "SUMMARY_WELL_GROUP", RiaDefines::summaryWellGroup() );
     addItem( RifAdr::SUMMARY_WELL, "SUMMARY_WELL", RiaDefines::summaryWell() );
     addItem( RifAdr::SUMMARY_WELL_COMPLETION, "SUMMARY_WELL_COMPLETION", RiaDefines::summaryWellCompletion() );
-    addItem( RifAdr::SUMMARY_WELL_CONNECTION, "SUMMARY_WELL_CONNECTION", RiaDefines::summaryConnection() );
+    addItem( RifAdr::SUMMARY_WELL_CONNECTION, "SUMMARY_WELL_CONNECTION", RiaDefines::summaryWellConnection() );
     addItem( RifAdr::SUMMARY_WELL_CONNECTION_LGR, "SUMMARY_WELL_CONNECTION_LGR", RiaDefines::summaryLgrConnection() );
     addItem( RifAdr::SUMMARY_WELL_LGR, "SUMMARY_WELL_LGR", RiaDefines::summaryLgrWell() );
     addItem( RifAdr::SUMMARY_WELL_SEGMENT, "SUMMARY_SEGMENT", RiaDefines::summarySegment() );

@@ -40,7 +40,7 @@ void AppEnum<RimSummaryDataSourceStepping::SourceSteppingDimension>::setUp()
     addItem( ssd::BLOCK, "BLOCK", RiaDefines::summaryBlock() );
     addItem( ssd::AQUIFER, "AQUIFER", RiaDefines::summaryAquifer() );
     addItem( ssd::WELL_SEGMENT, "WELL_SEGMENT", RiaDefines::summaryWellSegment() );
-    addItem( ssd::WELL_CONNECTION, "WELL_CONNECTION", RiaDefines::summaryConnection() );
+    addItem( ssd::WELL_CONNECTION, "WELL_CONNECTION", RiaDefines::summaryWellConnection() );
     setDefault( ssd::VECTOR );
 }
 } // namespace caf

@@ -720,7 +720,7 @@ std::string RifEclipseSummaryAddress::itemUiText() const
         case SummaryCategory::SUMMARY_WELL_CONNECTION:
         {
             text += wellName();
-            text += ":" + blockAsString();
+            text += ":" + connectionAsString();
         }
         break;
         case SummaryCategory::SUMMARY_WELL_LGR:
@@ -736,7 +736,7 @@ std::string RifEclipseSummaryAddress::itemUiText() const
             text += ":";
             text += wellName();
             text += ":";
-            text += blockAsString();
+            text += connectionAsString();
         }
         break;
         case SummaryCategory::SUMMARY_WELL_SEGMENT:
