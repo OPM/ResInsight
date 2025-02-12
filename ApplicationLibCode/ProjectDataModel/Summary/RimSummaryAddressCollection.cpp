@@ -566,7 +566,7 @@ QString RimSummaryAddressCollection::iconResourceText() const
         case RimSummaryAddressCollection::CollectionContentType::WELL_FOLDER:
             return ":/summary/components/images/well.svg";
         case RimSummaryAddressCollection::CollectionContentType::WELL_COMPLETION:
-            return ":/summary/components/images/well-completion.svg";
+            return ":/summary/components/images/well-completion-01.svg";
         case RimSummaryAddressCollection::CollectionContentType::GROUP_FOLDER:
             return ":/summary/components/images/group.svg";
         case RimSummaryAddressCollection::CollectionContentType::NETWORK_FOLDER:

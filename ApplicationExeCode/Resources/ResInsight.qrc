@@ -321,5 +321,6 @@
         <file>components/images/unknown.svg</file>
         <file>components/images/well.svg</file>
         <file>components/images/well-completion.svg</file>
+        <file>components/images/well-completion-01.svg</file>
     </qresource>
 </RCC>
