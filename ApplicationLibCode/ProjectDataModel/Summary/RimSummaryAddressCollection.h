@@ -107,11 +107,10 @@ private:
                          int                             caseId,
                          int                             ensembleId = -1 );
 
-    void addToSubfolderTree( std::vector<QString>            folders,
-                             CollectionContentType           folderType,
-                             const RifEclipseSummaryAddress& address,
-                             int                             caseId,
-                             int                             ensembleId = -1 );
+    void addToSubfolderTree( std::vector<std::pair<QString, CollectionContentType>> folders,
+                             const RifEclipseSummaryAddress&                        address,
+                             int                                                    caseId,
+                             int                                                    ensembleId = -1 );
 
     QString iconResourceText() const;
 

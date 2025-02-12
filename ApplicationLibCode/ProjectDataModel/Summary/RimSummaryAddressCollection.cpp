@@ -193,18 +193,16 @@ void RimSummaryAddressCollection::addToSubfolder( QString                       
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAddressCollection::addToSubfolderTree( std::vector<QString>            folders,
-                                                      CollectionContentType           folderType,
-                                                      const RifEclipseSummaryAddress& address,
-                                                      int                             caseId,
-                                                      int                             ensembleId )
+void RimSummaryAddressCollection::addToSubfolderTree( std::vector<std::pair<QString, CollectionContentType>> folders,
+                                                      const RifEclipseSummaryAddress&                        address,
+                                                      int                                                    caseId,
+                                                      int                                                    ensembleId )
 {
     RimSummaryAddressCollection* thefolder = this;
-    for ( auto& subfoldername : folders )
+    for ( auto& [subfoldername, folderType] : folders )
     {
         thefolder = thefolder->getOrCreateSubfolder( subfoldername, folderType );
     }
-    thefolder->setContentType( folderType );
     thefolder->addAddress( address, caseId, ensembleId );
 }
 
@@ -303,26 +301,26 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                 break;
 
             case SummaryCategory::SUMMARY_WELL_CONNECTION:
-                wellConnection->addToSubfolderTree( { QString::fromStdString( address.wellName() ),
-                                                      QString::fromStdString( address.blockAsString() ) },
-                                                    CollectionContentType::WELL_CONNECTION,
+                wellConnection->addToSubfolderTree( { { QString::fromStdString( address.wellName() ), CollectionContentType::WELL },
+                                                      { QString::fromStdString( address.connectionAsString() ),
+                                                        CollectionContentType::WELL_CONNECTION } },
                                                     address,
                                                     caseId,
                                                     ensembleId );
                 break;
 
             case SummaryCategory::SUMMARY_WELL_COMPLETION:
-                wellCompletions->addToSubfolderTree( { QString::fromStdString( address.wellName() ),
-                                                       QString::number( address.wellCompletionNumber() ) },
-                                                     CollectionContentType::WELL_COMPLETION,
+                wellCompletions->addToSubfolderTree( { { QString::fromStdString( address.wellName() ), CollectionContentType::WELL },
+                                                       { QString::number( address.wellCompletionNumber() ),
+                                                         CollectionContentType::WELL_COMPLETION } },
                                                      address,
                                                      caseId,
                                                      ensembleId );
                 break;
 
             case SummaryCategory::SUMMARY_WELL_SEGMENT:
-                segment->addToSubfolderTree( { QString::fromStdString( address.wellName() ), QString::number( address.wellSegmentNumber() ) },
-                                             CollectionContentType::WELL_SEGMENT,
+                segment->addToSubfolderTree( { { QString::fromStdString( address.wellName() ), CollectionContentType::WELL },
+                                               { QString::number( address.wellSegmentNumber() ), CollectionContentType::WELL_SEGMENT } },
                                              address,
                                              caseId,
                                              ensembleId );
@@ -333,26 +331,25 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                 break;
 
             case SummaryCategory::SUMMARY_WELL_LGR:
-                lgrwell->addToSubfolderTree( { QString::fromStdString( address.lgrName() ), QString::fromStdString( address.wellName() ) },
-                                             CollectionContentType::WELL_LGR,
+                lgrwell->addToSubfolderTree( { { QString::fromStdString( address.lgrName() ), CollectionContentType::WELL_LGR },
+                                               { QString::fromStdString( address.wellName() ), CollectionContentType::WELL } },
                                              address,
                                              caseId,
                                              ensembleId );
                 break;
 
             case SummaryCategory::SUMMARY_WELL_CONNECTION_LGR:
-                lgrConnection->addToSubfolderTree( { QString::fromStdString( address.lgrName() ),
-                                                     QString::fromStdString( address.wellName() ),
-                                                     QString::fromStdString( address.blockAsString() ) },
-                                                   CollectionContentType::WELL_CONNECTION_LGR,
+                lgrConnection->addToSubfolderTree( { { QString::fromStdString( address.lgrName() ), CollectionContentType::WELL_LGR },
+                                                     { QString::fromStdString( address.wellName() ), CollectionContentType::WELL },
+                                                     { QString::fromStdString( address.blockAsString() ), CollectionContentType::BLOCK } },
                                                    address,
                                                    caseId,
                                                    ensembleId );
                 break;
 
             case SummaryCategory::SUMMARY_BLOCK_LGR:
-                lgrblock->addToSubfolderTree( { QString::fromStdString( address.lgrName() ), QString::fromStdString( address.blockAsString() ) },
-                                              CollectionContentType::BLOCK_LGR,
+                lgrblock->addToSubfolderTree( { { QString::fromStdString( address.lgrName() ), CollectionContentType::WELL_LGR },
+                                                { QString::fromStdString( address.blockAsString() ), CollectionContentType::BLOCK } },
                                               address,
                                               caseId,
                                               ensembleId );
