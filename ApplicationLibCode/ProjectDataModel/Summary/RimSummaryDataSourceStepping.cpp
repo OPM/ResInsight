@@ -33,14 +33,14 @@ void AppEnum<RimSummaryDataSourceStepping::SourceSteppingDimension>::setUp()
     addItem( ssd::SUMMARY_CASE, "SUMMARY_CASE", "Summary Case" );
     addItem( ssd::VECTOR, "VECTOR", "Vector" );
     addItem( ssd::WELL, "WELL", RiaDefines::summaryWell() );
-    addItem( ssd::WELL_COMPLETION_NUMBER, "WELL_COMPLETION", RiaDefines::summaryWellCompletion() );
     addItem( ssd::GROUP, "GROUP", RiaDefines::summaryWellGroup() );
     addItem( ssd::NETWORK, "NETWORK", RiaDefines::summaryNetwork() );
     addItem( ssd::REGION, "REGION", RiaDefines::summaryRegion() );
+    addItem( ssd::WELL_COMPLETION_NUMBER, "WELL_COMPLETION", RiaDefines::summaryWellCompletion() );
+    addItem( ssd::WELL_CONNECTION, "WELL_CONNECTION", RiaDefines::summaryWellConnection() );
     addItem( ssd::BLOCK, "BLOCK", RiaDefines::summaryBlock() );
     addItem( ssd::AQUIFER, "AQUIFER", RiaDefines::summaryAquifer() );
     addItem( ssd::WELL_SEGMENT, "WELL_SEGMENT", RiaDefines::summaryWellSegment() );
-    addItem( ssd::WELL_CONNECTION, "WELL_CONNECTION", RiaDefines::summaryWellConnection() );
     setDefault( ssd::VECTOR );
 }
 } // namespace caf

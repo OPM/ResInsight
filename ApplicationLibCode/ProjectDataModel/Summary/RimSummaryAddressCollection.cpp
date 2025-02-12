@@ -223,12 +223,12 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
     auto* region2region   = getOrCreateSubfolder( CollectionContentType::REGION_2_REGION );
     auto* segment         = getOrCreateSubfolder( CollectionContentType::WELL_SEGMENT );
     auto* wellCompletions = getOrCreateSubfolder( CollectionContentType::WELL_COMPLETION );
+    auto* wellConnection  = getOrCreateSubfolder( CollectionContentType::WELL_CONNECTION );
     auto* blocks          = getOrCreateSubfolder( CollectionContentType::BLOCK );
     auto* lgrwell         = getOrCreateSubfolder( CollectionContentType::WELL_LGR );
+    auto* lgrConnection   = getOrCreateSubfolder( CollectionContentType::WELL_CONNECTION_LGR );
     auto* lgrblock        = getOrCreateSubfolder( CollectionContentType::BLOCK_LGR );
     auto* imported        = getOrCreateSubfolder( CollectionContentType::IMPORTED );
-    auto* wellConnection  = getOrCreateSubfolder( CollectionContentType::WELL_CONNECTION );
-    auto* lgrConnection   = getOrCreateSubfolder( CollectionContentType::WELL_CONNECTION_LGR );
 
     // Sort addresses to have calculated results last per category
     std::vector<RifEclipseSummaryAddress> sortedAddresses;

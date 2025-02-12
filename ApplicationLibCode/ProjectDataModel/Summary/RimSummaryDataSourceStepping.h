@@ -31,15 +31,15 @@ public:
         SUMMARY_CASE,
         ENSEMBLE,
         WELL,
-        WELL_COMPLETION_NUMBER,
         GROUP,
         NETWORK,
         REGION,
         VECTOR,
+        WELL_COMPLETION_NUMBER,
+        WELL_CONNECTION,
         BLOCK,
         AQUIFER,
         WELL_SEGMENT,
-        WELL_CONNECTION
     };
 
 public:
