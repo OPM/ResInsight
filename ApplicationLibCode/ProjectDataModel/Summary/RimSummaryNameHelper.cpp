@@ -97,6 +97,13 @@ QString RimSummaryNameHelper::aggregatedPlotTitle( const RimSummaryNameHelper& o
     {
         if ( !title.isEmpty() ) title += ", ";
         title += QString::fromStdString( RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( vectorName, true ) );
+
+        // https://github.com/OPM/ResInsight/issues/12157
+        size_t pos = vectorName.find( '_' );
+        if ( pos != std::string::npos )
+        {
+            title += "(" + vectorName + ")";
+        }
     }
 
     return title;

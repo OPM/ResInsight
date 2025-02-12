@@ -83,8 +83,6 @@ private:
                                                 EnsembleColoringType            ensembleColoringStyle,
                                                 QString                         ensembleColoringParameter );
 
-    static RimSummaryCurve* createCurve( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& address );
-
     static RimSummaryCurve* createHistoryCurve( const RifEclipseSummaryAddress& addr, RimSummaryCase* summaryCasesToUse );
 
     static std::vector<RimSummaryCurve*> addCurvesFromAddressFiltersToPlot( const QStringList& curveFilters,

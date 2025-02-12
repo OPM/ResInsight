@@ -55,6 +55,7 @@
 #include "RimSummaryPlotControls.h"
 #include "RimSummaryPlotNameHelper.h"
 #include "RimSummaryTimeAxisProperties.h"
+#include "Tools/RimPlotAxisTools.h"
 
 #include "RiuPlotAxis.h"
 #include "RiuPlotMainWindow.h"
@@ -2560,9 +2561,7 @@ RimSummaryCurve* RimSummaryPlot::addNewCurve( const RifEclipseSummaryAddress& ad
                                               const RifEclipseSummaryAddress& addressX,
                                               RimSummaryCase*                 summaryCaseX )
 {
-    auto* newCurve = new RimSummaryCurve();
-    newCurve->setSummaryCaseY( summaryCase );
-    newCurve->setSummaryAddressY( address );
+    auto newCurve = RiaSummaryPlotTools::createCurve( summaryCase, address );
 
     // This address is RifEclipseSummaryAddress::time() if the curve is a time plot. Otherwise it is the address of the summary vector used
     // for the x-axis
@@ -3108,7 +3107,9 @@ void RimSummaryPlot::assignYPlotAxis( RimSummaryCurve* curve )
         {
             if ( c == curve ) continue;
 
-            if ( c->summaryAddressY().vectorName() == curve->summaryAddressY().vectorName() )
+            auto incomingAxisText = RimPlotAxisTools::axisTextForAddress( curve->summaryAddressY() );
+            auto currentAxisText  = RimPlotAxisTools::axisTextForAddress( c->summaryAddressY() );
+            if ( incomingAxisText == currentAxisText )
             {
                 curve->setLeftOrRightAxisY( c->axisY() );
                 return;
@@ -3180,11 +3181,8 @@ void RimSummaryPlot::assignYPlotAxis( RimSummaryCurve* curve )
 
     if ( plotWidget() && plotWidget()->isMultiAxisSupported() )
     {
-        QString axisObjectName = "New Axis";
-        if ( !curve->summaryAddressY().uiText().empty() ) axisObjectName = QString::fromStdString( curve->summaryAddressY().uiText() );
-
         auto newPlotAxis = plotWidget()->createNextPlotAxis( plotAxisType );
-        addNewAxisProperties( newPlotAxis, axisObjectName );
+        addNewAxisProperties( newPlotAxis, "New Axis" );
 
         curve->setLeftOrRightAxisY( newPlotAxis );
         return;
@@ -3239,7 +3237,9 @@ void RimSummaryPlot::assignXPlotAxis( RimSummaryCurve* curve )
             {
                 if ( c == curve ) continue;
 
-                if ( c->summaryAddressX().vectorName() == curve->summaryAddressX().vectorName() )
+                auto incomingAxisText = RimPlotAxisTools::axisTextForAddress( curve->summaryAddressY() );
+                auto currentAxisText  = RimPlotAxisTools::axisTextForAddress( c->summaryAddressY() );
+                if ( incomingAxisText == currentAxisText )
                 {
                     curve->setTopOrBottomAxisX( c->axisX() );
                     return;
@@ -3311,11 +3311,8 @@ void RimSummaryPlot::assignXPlotAxis( RimSummaryCurve* curve )
         RiuPlotAxis newPlotAxis = RiuPlotAxis::defaultBottomForSummaryVectors();
         if ( plotWidget() && plotWidget()->isMultiAxisSupported() )
         {
-            QString axisObjectName = "New Axis";
-            if ( !curve->summaryAddressX().uiText().empty() ) axisObjectName = QString::fromStdString( curve->summaryAddressX().uiText() );
-
             newPlotAxis = plotWidget()->createNextPlotAxis( plotAxisType );
-            addNewAxisProperties( newPlotAxis, axisObjectName );
+            addNewAxisProperties( newPlotAxis, "New Axis" );
         }
     }
 

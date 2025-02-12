@@ -37,6 +37,7 @@ public:
                        const RimSummaryNameHelper*   plotNameHelper ) const;
 
     void applySettings( const RimSummaryCurveAutoName& other );
+    void enableVectorName( bool enable );
 
 private:
     QString curveNameY( const RifEclipseSummaryAddress& summaryAddress,

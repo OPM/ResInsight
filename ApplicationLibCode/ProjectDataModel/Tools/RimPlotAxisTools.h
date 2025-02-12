@@ -22,6 +22,7 @@ class RimPlotAxisProperties;
 class RimPlotCurve;
 class RiuPlotAxis;
 class RiuPlotWidget;
+class RifEclipseSummaryAddress;
 
 #include <QString>
 #include <vector>
@@ -36,7 +37,9 @@ void updatePlotWidgetFromAxisProperties( RiuPlotWidget*                         
                                          const QString&                          axisTitle,
                                          const std::vector<const RimPlotCurve*>& plotCurves );
 
-void    applyAxisScaleDraw( RiuPlotWidget* plotWidget, RiuPlotAxis axis, const RimPlotAxisProperties* const axisProperties );
-QString scaleFactorText( const RimPlotAxisProperties* const axisProperties );
+void        applyAxisScaleDraw( RiuPlotWidget* plotWidget, RiuPlotAxis axis, const RimPlotAxisProperties* const axisProperties );
+QString     scaleFactorText( const RimPlotAxisProperties* const axisProperties );
+QString     axisTextForAddress( RifEclipseSummaryAddress address );
+std::string shortCalculationName( const std::string& calculationName );
 
 }; // namespace RimPlotAxisTools

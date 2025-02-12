@@ -144,7 +144,7 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
 
         if ( sumAddress.isCalculated() )
         {
-            titleText = shortCalculationName( quantityName );
+            titleText = RimPlotAxisTools::shortCalculationName( quantityName );
         }
         else
         {
@@ -279,36 +279,17 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryPlotAxisFormatter::createAxisObjectName() const
 {
-    std::set<std::string> vectorNames;
-
-    auto addVectorNames = [&]( const RifEclipseSummaryAddress& sumAddress )
-    {
-        size_t cutPos = sumAddress.vectorName().find( ':' );
-        if ( cutPos == std::string::npos ) cutPos = -1;
-
-        std::string        name;
-        const std::string& quantityName = sumAddress.vectorName().substr( cutPos + 1 );
-
-        if ( sumAddress.isCalculated() )
-        {
-            name = shortCalculationName( quantityName );
-        }
-        else
-        {
-            name = quantityName;
-        }
-        vectorNames.insert( name );
-    };
+    std::set<QString> vectorNames;
 
     for ( RimSummaryCurve* rimCurve : m_summaryCurves )
     {
         if ( rimCurve->axisY() == m_axisProperties->plotAxis() )
         {
-            addVectorNames( rimCurve->summaryAddressY() );
+            vectorNames.insert( RimPlotAxisTools::axisTextForAddress( rimCurve->summaryAddressY() ) );
         }
         else if ( rimCurve->axisX() == m_axisProperties->plotAxis() )
         {
-            addVectorNames( rimCurve->summaryAddressX() );
+            vectorNames.insert( RimPlotAxisTools::axisTextForAddress( rimCurve->summaryAddressX() ) );
         }
     }
 
@@ -316,11 +297,11 @@ QString RimSummaryPlotAxisFormatter::createAxisObjectName() const
     {
         if ( m_axisProperties->plotAxis().isVertical() )
         {
-            addVectorNames( curveDef.summaryAddressY() );
+            vectorNames.insert( RimPlotAxisTools::axisTextForAddress( curveDef.summaryAddressY() ) );
         }
         else
         {
-            addVectorNames( curveDef.summaryAddressX() );
+            vectorNames.insert( RimPlotAxisTools::axisTextForAddress( curveDef.summaryAddressX() ) );
         }
     }
 
@@ -328,7 +309,7 @@ QString RimSummaryPlotAxisFormatter::createAxisObjectName() const
 
     for ( const auto& vectorName : vectorNames )
     {
-        assembledAxisObjectName += QString::fromStdString( vectorName ) + " ";
+        assembledAxisObjectName += vectorName + " ";
     }
 
     if ( !m_timeHistoryCurveQuantities.empty() )
@@ -350,20 +331,4 @@ QString RimSummaryPlotAxisFormatter::createAxisObjectName() const
     assembledAxisObjectName = fm.elidedText( assembledAxisObjectName, Qt::ElideRight, maxChars );
 
     return assembledAxisObjectName;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::string RimSummaryPlotAxisFormatter::shortCalculationName( const std::string& calculationName )
-{
-    QString calculationShortName = QString::fromStdString( calculationName );
-
-    int indexOfFirstSpace = calculationShortName.indexOf( ' ' );
-    if ( indexOfFirstSpace > -1 && indexOfFirstSpace < calculationShortName.size() )
-    {
-        calculationShortName = calculationShortName.left( indexOfFirstSpace );
-    }
-
-    return calculationShortName.toStdString();
 }
