@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   cmake-format-job:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Install cmakelang for cmake-format
         run: |
