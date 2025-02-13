@@ -64,6 +64,9 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
         m_longVectorName = false;
         m_vectorName     = true;
     }
+
+    // When multiple curves are selected, we need to issue fieldChanged on all curves
+    setNotifyAllFieldsInMultiFieldChangedEvents( true );
 }
 
 //--------------------------------------------------------------------------------------------------
