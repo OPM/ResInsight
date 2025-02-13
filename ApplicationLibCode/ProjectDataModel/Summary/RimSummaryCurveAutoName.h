@@ -36,7 +36,6 @@ public:
                        const RimSummaryNameHelper*   currentNameHelper,
                        const RimSummaryNameHelper*   plotNameHelper ) const;
 
-    void applySettings( const RimSummaryCurveAutoName& other );
     void enableVectorName( bool enable );
 
 private:

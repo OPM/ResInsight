@@ -39,7 +39,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
-#include "RimSummaryCurveAutoName.h"
+#include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
@@ -87,14 +87,6 @@ RicSummaryPlotEditorUi::RicSummaryPlotEditorUi()
 {
     CAF_PDM_InitFieldNoDefault( &m_targetPlot, "TargetPlot", "Target Plot" );
 
-    CAF_PDM_InitField( &m_useAutoAppearanceAssignment, "UseAutoAppearanceAssignment", true, "Auto" );
-    CAF_PDM_InitField( &m_appearanceApplyButton, "AppearanceApplyButton", false, "" );
-    CAF_PDM_InitFieldNoDefault( &m_caseAppearanceType, "CaseAppearanceType", "Case" );
-    CAF_PDM_InitFieldNoDefault( &m_variableAppearanceType, "VariableAppearanceType", "Vector" );
-    CAF_PDM_InitFieldNoDefault( &m_wellAppearanceType, "WellAppearanceType", "Well" );
-    CAF_PDM_InitFieldNoDefault( &m_groupAppearanceType, "GroupAppearanceType", "Group" );
-    CAF_PDM_InitFieldNoDefault( &m_regionAppearanceType, "RegionAppearanceType", "Region" );
-
     m_previewPlot = std::make_unique<RimSummaryPlot>();
     m_previewPlot->setLegendPosition( RiuPlotWidget::Legend::TOP );
 
@@ -112,14 +104,6 @@ RicSummaryPlotEditorUi::RicSummaryPlotEditorUi()
     m_okButtonField = false;
     m_okButtonField.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_okButtonField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-
-    m_appearanceApplyButton = false;
-    m_appearanceApplyButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_appearanceApplyButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LEFT );
-
-    CAF_PDM_InitFieldNoDefault( &m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig" );
-    m_curveNameConfig = new RimSummaryCurveAutoName();
-    m_curveNameConfig.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_summaryCurveSelectionEditor = std::make_unique<RiuSummaryVectorSelectionWidgetCreator>();
 
@@ -152,8 +136,7 @@ void RicSummaryPlotEditorUi::updateFromSummaryPlot( RimSummaryPlot* targetPlot, 
         resetAllFields();
     }
 
-    m_targetPlot                  = targetPlot;
-    m_useAutoAppearanceAssignment = true;
+    m_targetPlot = targetPlot;
 
     if ( m_targetPlot )
     {
@@ -183,8 +166,6 @@ void RicSummaryPlotEditorUi::updateFromSummaryMultiPlot( RimSummaryMultiPlot*   
                                                          const std::vector<SummarySource*>& defaultSources )
 {
     resetAllFields();
-
-    m_useAutoAppearanceAssignment = true;
 
     m_plotContainer = summaryMultiPlot;
 
@@ -249,16 +230,6 @@ void RicSummaryPlotEditorUi::fieldChangedByUi( const caf::PdmFieldHandle* change
         RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
         mainPlotWindow->updateMultiPlotToolBar();
     }
-    else if ( changedField == &m_useAutoAppearanceAssignment && m_useAutoAppearanceAssignment )
-    {
-        updateAppearanceEditor();
-    }
-    else if ( changedField == &m_appearanceApplyButton )
-    {
-        applyAppearanceToAllPreviewCurves();
-        m_previewPlot->loadDataAndUpdate();
-        m_appearanceApplyButton = false;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -288,39 +259,6 @@ QList<caf::PdmOptionItemInfo> RicSummaryPlotEditorUi::calculateValueOptions( con
 //--------------------------------------------------------------------------------------------------
 void RicSummaryPlotEditorUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    // Appearance settings
-    caf::PdmUiGroup* appearanceGroup =
-        uiOrdering.addNewGroupWithKeyword( "Curve Appearance Assignment", RiuSummaryCurveDefinitionKeywords::appearance() );
-
-    caf::PdmUiGroup* appearanceSubGroup = appearanceGroup->addNewGroup( "Appearance Type Assignment" );
-    appearanceSubGroup->setCollapsedByDefault();
-
-    appearanceSubGroup->add( &m_useAutoAppearanceAssignment );
-    appearanceSubGroup->add( &m_caseAppearanceType );
-    appearanceSubGroup->add( &m_variableAppearanceType );
-    appearanceSubGroup->add( &m_wellAppearanceType );
-    appearanceSubGroup->add( &m_groupAppearanceType );
-    appearanceSubGroup->add( &m_regionAppearanceType );
-
-    appearanceGroup->add( &m_appearanceApplyButton );
-
-    // Appearance option sensitivity
-    {
-        m_caseAppearanceType.uiCapability()->setUiReadOnly( m_useAutoAppearanceAssignment );
-        m_variableAppearanceType.uiCapability()->setUiReadOnly( m_useAutoAppearanceAssignment );
-        m_wellAppearanceType.uiCapability()->setUiReadOnly( m_useAutoAppearanceAssignment );
-        m_groupAppearanceType.uiCapability()->setUiReadOnly( m_useAutoAppearanceAssignment );
-        m_regionAppearanceType.uiCapability()->setUiReadOnly( m_useAutoAppearanceAssignment );
-    }
-
-    // Name config
-    caf::PdmUiGroup* autoNameGroup =
-        uiOrdering.addNewGroupWithKeyword( "Plot and Curve Name Configuration", RiuSummaryCurveDefinitionKeywords::nameConfig() );
-    autoNameGroup->setCollapsedByDefault();
-
-    m_curveNameConfig->uiOrdering( uiConfigName, *autoNameGroup );
-
-    // Fields to be displayed directly in UI
     uiOrdering.add( &m_targetPlot );
     uiOrdering.add( &m_okButtonField );
     uiOrdering.add( &m_applyButtonField );
@@ -445,7 +383,6 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions( const std:
     }
 
     RimSummaryCurveAppearanceCalculator curveLookCalc( summaryCurveDefsToDisplay );
-    initCurveAppearanceCalculator( curveLookCalc );
 
     // Delete curves
     if ( !curveSetsToDelete.empty() )
@@ -523,16 +460,14 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions( const std:
         }
         else
         {
-            RimSummaryCurve* curve = new RimSummaryCurve();
+            auto curve = RiaSummaryPlotTools::createCurve( currentCase, curveDef.summaryAddressY() );
+
             if ( speedCheatsRequired )
             {
                 stashedErrorBarsAndLegendVisibility[curve] = std::make_pair( curve->errorBarsVisible(), curve->showInLegend() );
                 curve->setErrorBarsVisible( false );
                 curve->setShowInLegend( false );
             }
-            curve->setSummaryCaseY( currentCase );
-            curve->setSummaryAddressY( curveDef.summaryAddressY() );
-            curve->applyCurveAutoNameSettings( *m_curveNameConfig() );
             if ( currentCase && currentCase->isObservedData() ) curve->setSymbolSkipDistance( 0 );
 
             m_previewPlot->addCurveNoUpdate( curve );
@@ -586,14 +521,6 @@ void RicSummaryPlotEditorUi::defineEditorAttribute( const caf::PdmFieldHandle* f
         if ( attrib )
         {
             attrib->m_buttonText = "OK";
-        }
-    }
-    else if ( &m_appearanceApplyButton == field )
-    {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_buttonText = "Apply";
         }
     }
     else if ( &m_targetPlot == field )
@@ -652,8 +579,6 @@ void RicSummaryPlotEditorUi::populateCurveCreator( const RimSummaryPlot& sourceS
     }
 
     m_summaryCurveSelectionEditor->summaryAddressSelection()->setSelectedCurveDefinitions( curveDefs );
-
-    updateAppearanceEditor();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -765,43 +690,11 @@ void RicSummaryPlotEditorUi::resetAllFields()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotEditorUi::initCurveAppearanceCalculator( RimSummaryCurveAppearanceCalculator& curveAppearanceCalc )
-{
-    if ( !m_useAutoAppearanceAssignment() )
-    {
-        curveAppearanceCalc.assignDimensions( m_caseAppearanceType(),
-                                              m_variableAppearanceType(),
-                                              m_wellAppearanceType(),
-                                              m_groupAppearanceType(),
-                                              m_regionAppearanceType() );
-    }
-    else
-    {
-        RimSummaryCurveAppearanceCalculator::CurveAppearanceType caseAppearance;
-        RimSummaryCurveAppearanceCalculator::CurveAppearanceType variAppearance;
-        RimSummaryCurveAppearanceCalculator::CurveAppearanceType wellAppearance;
-        RimSummaryCurveAppearanceCalculator::CurveAppearanceType gropAppearance;
-        RimSummaryCurveAppearanceCalculator::CurveAppearanceType regiAppearance;
-
-        curveAppearanceCalc.getDimensions( &caseAppearance, &variAppearance, &wellAppearance, &gropAppearance, &regiAppearance );
-
-        m_caseAppearanceType     = caseAppearance;
-        m_variableAppearanceType = variAppearance;
-        m_wellAppearanceType     = wellAppearance;
-        m_groupAppearanceType    = gropAppearance;
-        m_regionAppearanceType   = regiAppearance;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicSummaryPlotEditorUi::applyAppearanceToAllPreviewCurves()
 {
     std::set<RiaSummaryCurveDefinition> allCurveDefs = m_previewPlot->summaryAndEnsembleCurveDefinitions();
 
     RimSummaryCurveAppearanceCalculator curveLookCalc( allCurveDefs );
-    initCurveAppearanceCalculator( curveLookCalc );
 
     // Summary curves
     for ( auto& curve : m_previewPlot->summaryCurves() )
@@ -819,17 +712,6 @@ void RicSummaryPlotEditorUi::applyAppearanceToAllPreviewCurves()
             curveSet->setColor( RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex++ ) );
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicSummaryPlotEditorUi::updateAppearanceEditor()
-{
-    std::set<RiaSummaryCurveDefinition> allCurveDefs = m_previewPlot->summaryAndEnsembleCurveDefinitions();
-
-    RimSummaryCurveAppearanceCalculator curveLookCalc( allCurveDefs );
-    initCurveAppearanceCalculator( curveLookCalc );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -876,7 +758,6 @@ void RicSummaryPlotEditorUi::updateCurveNames()
 {
     for ( RimSummaryCurve* curve : m_previewPlot->summaryCurves() )
     {
-        curve->applyCurveAutoNameSettings( *m_curveNameConfig() );
         curve->updateCurveNameNoLegendUpdate();
     }
 

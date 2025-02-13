@@ -96,7 +96,7 @@ public:
     void setIsEnsembleCurve( bool isEnsembleCurve );
 
     void updatePlotAxis();
-    void applyCurveAutoNameSettings( const RimSummaryCurveAutoName& autoNameSettings );
+    void enableVectorNameInCurveName( bool enable );
 
     QString curveExportDescription( const RifEclipseSummaryAddress& address ) const override;
     void    setCurveAppearanceFromCaseType();

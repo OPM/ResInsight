@@ -170,25 +170,6 @@ QString RimSummaryCurveAutoName::curveNameX( const RifEclipseSummaryAddress& sum
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveAutoName::applySettings( const RimSummaryCurveAutoName& other )
-{
-    m_caseName             = other.m_caseName;
-    m_vectorName           = other.m_vectorName;
-    m_longVectorName       = other.m_longVectorName;
-    m_unit                 = other.m_unit;
-    m_regionNumber         = other.m_regionNumber;
-    m_groupName            = other.m_groupName;
-    m_wellName             = other.m_wellName;
-    m_wellSegmentNumber    = other.m_wellSegmentNumber;
-    m_wellCompletionNumber = other.m_wellCompletionNumber;
-    m_lgrName              = other.m_lgrName;
-    m_aquiferNumber        = other.m_aquiferNumber;
-    m_connection           = other.m_connection;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryCurveAutoName::enableVectorName( bool enable )
 {
     m_vectorName = enable;

@@ -36,7 +36,6 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
-#include "RimSummaryCurveAutoName.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
@@ -98,10 +97,7 @@ RimSummaryCurve* createCurve( RimSummaryCase* summaryCase, const RifEclipseSumma
     if ( pos != std::string::npos )
     {
         // https://github.com/OPM/ResInsight/issues/12157
-
-        RimSummaryCurveAutoName settings;
-        settings.enableVectorName( true );
-        curve->applyCurveAutoNameSettings( settings );
+        curve->enableVectorNameInCurveName( true );
     }
 
     return curve;

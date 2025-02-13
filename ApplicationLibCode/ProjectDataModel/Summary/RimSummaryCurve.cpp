@@ -1024,9 +1024,9 @@ void RimSummaryCurve::updatePlotAxis()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::applyCurveAutoNameSettings( const RimSummaryCurveAutoName& autoNameSettings )
+void RimSummaryCurve::enableVectorNameInCurveName( bool enable )
 {
-    m_curveNameConfig->applySettings( autoNameSettings );
+    m_curveNameConfig->enableVectorName( enable );
 }
 
 //--------------------------------------------------------------------------------------------------
