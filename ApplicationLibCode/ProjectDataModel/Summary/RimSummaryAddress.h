@@ -31,7 +31,6 @@ class RifSummaryReaderInterface;
 class RimSummaryCase;
 class RimSummaryFilter_OBSOLETE;
 class RiuQwtPlotCurve;
-class RimSummaryCurveAutoName;
 
 class RimSummaryAddress : public caf::PdmObject
 {

@@ -37,6 +37,4 @@ public:
     static QString completions() { return "CompletionsKeyword"; };
     static QString lgrWells() { return "LgrWellsKeyword"; };
     static QString wellSegments() { return "WellSegmentsKeyword"; };
-    static QString appearance() { return "AppearanceKeyword"; };
-    static QString nameConfig() { return "NameConfigKeyword"; };
 };

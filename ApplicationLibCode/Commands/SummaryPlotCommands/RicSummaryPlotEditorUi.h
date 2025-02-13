@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "RimSummaryCurveAppearanceCalculator.h"
 #include "RiuSummaryVectorSelectionWidgetCreator.h"
 
 #include "cafPdmChildArrayField.h"
@@ -39,8 +38,8 @@ class PdmObject;
 };
 
 class RimSummaryCase;
+class RimSummaryCurve;
 class RimSummaryMultiPlot;
-class RimSummaryCurveAutoName;
 class RimSummaryPlot;
 class RiaSummaryCurveDefinition;
 class RimEnsembleCurveSet;
@@ -56,9 +55,6 @@ class RicSummaryPlotEditorUi : public caf::PdmObject
 
 public:
     static const QString CONFIGURATION_NAME;
-
-private:
-    using AppearanceTypeAppEnum = caf::AppEnum<RimSummaryCurveAppearanceCalculator::CurveAppearanceType>;
 
 public:
     RicSummaryPlotEditorUi();
@@ -96,9 +92,7 @@ private:
     void        setDefaultCurveSelection( const std::vector<caf::PdmObject*>& defaultCases );
 
     void resetAllFields();
-    void initCurveAppearanceCalculator( RimSummaryCurveAppearanceCalculator& curveAppearanceCalc );
     void applyAppearanceToAllPreviewCurves();
-    void updateAppearanceEditor();
     void createNewPlot();
     bool isObservedData( RimSummaryCase* sumCase ) const;
 
@@ -109,16 +103,6 @@ private:
     caf::PdmPtrField<RimSummaryPlot*> m_targetPlot;
 
     std::unique_ptr<RimSummaryPlot> m_previewPlot;
-
-    caf::PdmField<bool>                  m_useAutoAppearanceAssignment;
-    caf::PdmField<bool>                  m_appearanceApplyButton;
-    caf::PdmField<AppearanceTypeAppEnum> m_caseAppearanceType;
-    caf::PdmField<AppearanceTypeAppEnum> m_variableAppearanceType;
-    caf::PdmField<AppearanceTypeAppEnum> m_wellAppearanceType;
-    caf::PdmField<AppearanceTypeAppEnum> m_groupAppearanceType;
-    caf::PdmField<AppearanceTypeAppEnum> m_regionAppearanceType;
-
-    caf::PdmChildField<RimSummaryCurveAutoName*> m_curveNameConfig;
 
     caf::PdmField<bool> m_okButtonField;
     caf::PdmField<bool> m_applyButtonField;

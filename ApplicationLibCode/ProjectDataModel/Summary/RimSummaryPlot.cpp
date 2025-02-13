@@ -48,6 +48,7 @@
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurvesData.h"
 #include "RimSummaryEnsemble.h"
