@@ -44,15 +44,17 @@ namespace EclIO
 
 class RiaThreadSafeLogger;
 
-class RifOpmCommonSummaryTools
+namespace RifOpmCommonSummaryTools
 {
-public:
-    static std::tuple<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress, size_t>, std::map<RifEclipseSummaryAddress, std::string>>
-        buildAddressesSmspecAndKeywordMap( const Opm::EclIO::ESmry* summaryFile );
+std::tuple<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress, size_t>, std::map<RifEclipseSummaryAddress, std::string>>
+    buildAddressesSmspecAndKeywordMap( const Opm::EclIO::ESmry* summaryFile );
 
-    static std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress, std::string>>
-        buildAddressesAndKeywordMap( const std::vector<std::string>& keywords );
-};
+std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress, std::string>>
+    buildAddressesAndKeywordMap( const std::vector<std::string>& keywords );
+
+SummaryCategory categoryFromKeyword( const std::string& keyword );
+
+}; // namespace RifOpmCommonSummaryTools
 
 //==================================================================================================
 //

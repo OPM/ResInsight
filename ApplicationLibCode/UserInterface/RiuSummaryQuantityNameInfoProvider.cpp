@@ -20,6 +20,7 @@
 
 #include "RiaStdStringTools.h"
 #include "RifEclipseSummaryAddress.h"
+#include "RifOpmCommonSummary.h"
 
 #include "cafAppEnum.h"
 
@@ -81,6 +82,12 @@ RifEclipseSummaryAddressDefines::SummaryCategory RiuSummaryQuantityNameInfoProvi
     if ( tokens.size() == 3 && tokens[0].starts_with( "W" ) )
     {
         return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION;
+    }
+
+    if ( auto category = RifOpmCommonSummaryTools::categoryFromKeyword( vectorName );
+         category != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
+    {
+        return category;
     }
 
     // Try to match the base vector name with more heuristics
