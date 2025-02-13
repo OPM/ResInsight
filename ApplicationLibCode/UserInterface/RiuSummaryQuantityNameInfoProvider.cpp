@@ -18,7 +18,9 @@
 
 #include "RiuSummaryQuantityNameInfoProvider.h"
 
+#include "RiaStdStringTools.h"
 #include "RifEclipseSummaryAddress.h"
+#include "RifOpmCommonSummary.h"
 
 #include "cafAppEnum.h"
 
@@ -76,6 +78,18 @@ RifEclipseSummaryAddressDefines::SummaryCategory RiuSummaryQuantityNameInfoProvi
     if ( ( vectorName.size() < 3 || vectorName.size() > 8 ) && !vectorName.ends_with( RifEclipseSummaryAddressDefines::differenceIdentifier() ) )
         return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID;
 
+    auto tokens = RiaStdStringTools::splitString( vectorName, ':' );
+    if ( tokens.size() == 3 && tokens[0].starts_with( "W" ) )
+    {
+        return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION;
+    }
+
+    if ( auto category = RifOpmCommonSummaryTools::categoryFromKeyword( vectorName );
+         category != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
+    {
+        return category;
+    }
+
     // Try to match the base vector name with more heuristics
     auto strippedQuantityName = RifEclipseSummaryAddress::baseVectorName( vectorName );
 
@@ -113,7 +127,7 @@ RifEclipseSummaryAddressDefines::SummaryCategory RiuSummaryQuantityNameInfoProvi
     std::string firstTwoLetters = strippedQuantityName.substr( 0, 2 );
 
     if ( firstTwoLetters == "LB" ) return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK_LGR;
-    if ( firstTwoLetters == "LC" ) return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION_LGR;
+    if ( firstTwoLetters == "LC" ) return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION_LGR;
     if ( firstTwoLetters == "LW" ) return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_LGR;
 
     return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID;
@@ -223,5 +237,15 @@ std::string RiuSummaryQuantityNameInfoProvider::stringFromEnum( RifEclipseSummar
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddressDefines::SummaryCategory RiuSummaryQuantityNameInfoProvider::enumFromString( const std::string& category )
 {
-    return caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::fromText( QString::fromStdString( category ) );
+    auto qstring = QString::fromStdString( category );
+
+    auto valid = caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::isValid( qstring );
+    if ( !valid )
+    {
+        // The category strings in keywords*.json must be mapped to the enum values in the enum definition
+        // Ensure that the strings in the json file are correct in /ApplicationLibCode/Application/Resources/keyword-description
+        throw std::runtime_error( "Invalid category string: " + category );
+    }
+
+    return caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::fromText( qstring );
 }

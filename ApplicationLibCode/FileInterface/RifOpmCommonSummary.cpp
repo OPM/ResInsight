@@ -465,3 +465,28 @@ std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress,
 
     return { addresses, addressToKeywordMap };
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+SummaryCategory RifOpmCommonSummaryTools::categoryFromKeyword( const std::string& keyword )
+{
+    auto opmCategory = Opm::EclIO::SummaryNode::category_from_keyword( keyword );
+    switch ( opmCategory )
+    {
+        case Opm::EclIO::SummaryNode::Category::Aquifer:
+            return SummaryCategory::SUMMARY_AQUIFER;
+        case Opm::EclIO::SummaryNode::Category::Block:
+            return SummaryCategory::SUMMARY_BLOCK;
+        case Opm::EclIO::SummaryNode::Category::Connection:
+            return SummaryCategory::SUMMARY_WELL_CONNECTION;
+        case Opm::EclIO::SummaryNode::Category::Completion:
+            return SummaryCategory::SUMMARY_WELL_COMPLETION;
+        case Opm::EclIO::SummaryNode::Category::Field:
+            return SummaryCategory::SUMMARY_FIELD;
+        case Opm::EclIO::SummaryNode::Category::Group:
+            return SummaryCategory::SUMMARY_GROUP;
+    }
+
+    return SummaryCategory::SUMMARY_INVALID;
+}

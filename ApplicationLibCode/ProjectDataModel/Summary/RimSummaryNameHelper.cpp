@@ -78,11 +78,18 @@ QString RimSummaryNameHelper::aggregatedPlotTitle( const RimSummaryNameHelper& o
         title += "Segment : " + QString::fromStdString( segment );
     }
 
-    auto completion = titleCompletion();
-    if ( !other.isCompletionInTitle() && !completion.empty() )
+    auto wellCompletion = titleWellCompletion();
+    if ( !other.isWellCompletionInTitle() && !wellCompletion.empty() )
     {
         if ( !title.isEmpty() ) title += ", ";
-        title += "Completion : " + QString::fromStdString( completion );
+        title += "Well Completion : " + QString::fromStdString( wellCompletion );
+    }
+
+    auto connection = titleConnection();
+    if ( !other.isConnectionInTitle() && !connection.empty() )
+    {
+        if ( !title.isEmpty() ) title += ", ";
+        title += "Connection : " + QString::fromStdString( connection );
     }
 
     auto vectorName = titleVectorName();

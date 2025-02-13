@@ -184,9 +184,17 @@ bool RimSummaryPlotNameHelper::isSegmentInTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryPlotNameHelper::isCompletionInTitle() const
+bool RimSummaryPlotNameHelper::isWellCompletionInTitle() const
 {
-    return !m_titleCompletion.empty();
+    return !m_titleWellCompletion.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlotNameHelper::isConnectionInTitle() const
+{
+    return !m_titleConnection.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -264,9 +272,17 @@ std::string RimSummaryPlotNameHelper::titleSegment() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RimSummaryPlotNameHelper::titleCompletion() const
+std::string RimSummaryPlotNameHelper::titleWellCompletion() const
 {
-    return m_titleCompletion;
+    return m_titleWellCompletion;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimSummaryPlotNameHelper::titleConnection() const
+{
+    return m_titleConnection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -289,7 +305,8 @@ void RimSummaryPlotNameHelper::clearTitleSubStrings()
     m_titleRegion.clear();
     m_titleBlock.clear();
     m_titleSegment.clear();
-    m_titleCompletion.clear();
+    m_titleConnection.clear();
+    m_titleWellCompletion.clear();
 
     m_titleCaseName.clear();
 }
@@ -325,10 +342,18 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
             }
 
             {
-                auto completions = m_analyzer->wellCompletions( m_titleWellName );
-                if ( completions.size() == 1 )
+                auto wellCompletionNumbers = m_analyzer->wellCompletionNumbers( m_titleWellName );
+                if ( wellCompletionNumbers.size() == 1 )
                 {
-                    m_titleCompletion = *( completions.begin() );
+                    m_titleWellCompletion = std::to_string( *( wellCompletionNumbers.begin() ) );
+                }
+            }
+
+            {
+                auto connections = m_analyzer->wellConnections( m_titleWellName );
+                if ( connections.size() == 1 )
+                {
+                    m_titleConnection = *( connections.begin() );
                 }
             }
         }

@@ -47,9 +47,10 @@ void caf::AppEnum<RimSummaryAddressCollection::CollectionContentType>::setUp()
     addItem( CollectionContentType::AQUIFER, "AQUIFER", RiaDefines::summaryAquifer() );
     addItem( CollectionContentType::NETWORK, "NETWORK", RiaDefines::summaryNetwork() );
     addItem( CollectionContentType::REGION_2_REGION, "REGION_2_REGION", RiaDefines::summaryRegion2Region() );
-    addItem( CollectionContentType::WELL_COMPLETION, "WELL_COMPLETION", RiaDefines::summaryCompletion() );
+    addItem( CollectionContentType::WELL_CONNECTION, "WELL_CONNECTION", RiaDefines::summaryWellConnection() );
+    addItem( CollectionContentType::WELL_COMPLETION, "WELL_COMPLETION", RiaDefines::summaryWellCompletion() );
     addItem( CollectionContentType::WELL_LGR, "WELL_LGR", RiaDefines::summaryLgrWell() );
-    addItem( CollectionContentType::WELL_COMPLETION_LGR, "WELL_COMPLETION_LGR", RiaDefines::summaryLgrCompletion() );
+    addItem( CollectionContentType::WELL_CONNECTION_LGR, "WELL_CONNECTION_LGR", RiaDefines::summaryLgrConnection() );
     addItem( CollectionContentType::WELL_SEGMENT, "WELL_SEGMENT", RiaDefines::summaryWellSegment() );
     addItem( CollectionContentType::BLOCK_LGR, "BLOCK_LGR", RiaDefines::summaryLgrBlock() );
     addItem( CollectionContentType::CALCULATED, "CALCULATED", RiaDefines::summaryCalculated() );
@@ -82,12 +83,12 @@ RifEclipseSummaryAddressDefines::SummaryCategory RimSummaryAddressCollection::co
             return SummaryCategory::SUMMARY_NETWORK;
         case CollectionContentType::REGION_2_REGION:
             return SummaryCategory::SUMMARY_REGION_2_REGION;
-        case CollectionContentType::WELL_COMPLETION:
-            return SummaryCategory::SUMMARY_WELL_COMPLETION;
+        case CollectionContentType::WELL_CONNECTION:
+            return SummaryCategory::SUMMARY_WELL_CONNECTION;
         case CollectionContentType::WELL_LGR:
             return SummaryCategory::SUMMARY_WELL_LGR;
-        case CollectionContentType::WELL_COMPLETION_LGR:
-            return SummaryCategory::SUMMARY_WELL_COMPLETION_LGR;
+        case CollectionContentType::WELL_CONNECTION_LGR:
+            return SummaryCategory::SUMMARY_WELL_CONNECTION_LGR;
         case CollectionContentType::WELL_SEGMENT:
             return SummaryCategory::SUMMARY_WELL_SEGMENT;
         case CollectionContentType::BLOCK:
@@ -192,18 +193,16 @@ void RimSummaryAddressCollection::addToSubfolder( QString                       
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAddressCollection::addToSubfolderTree( std::vector<QString>            folders,
-                                                      CollectionContentType           folderType,
-                                                      const RifEclipseSummaryAddress& address,
-                                                      int                             caseId,
-                                                      int                             ensembleId )
+void RimSummaryAddressCollection::addToSubfolderTree( std::vector<std::pair<QString, CollectionContentType>> folders,
+                                                      const RifEclipseSummaryAddress&                        address,
+                                                      int                                                    caseId,
+                                                      int                                                    ensembleId )
 {
     RimSummaryAddressCollection* thefolder = this;
-    for ( auto& subfoldername : folders )
+    for ( auto& [subfoldername, folderType] : folders )
     {
         thefolder = thefolder->getOrCreateSubfolder( subfoldername, folderType );
     }
-    thefolder->setContentType( folderType );
     thefolder->addAddress( address, caseId, ensembleId );
 }
 
@@ -214,21 +213,22 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
 {
     if ( addresses.empty() ) return;
 
-    auto* fields        = getOrCreateSubfolder( CollectionContentType::FIELD );
-    auto* groups        = getOrCreateSubfolder( CollectionContentType::GROUP_FOLDER );
-    auto* wells         = getOrCreateSubfolder( CollectionContentType::WELL_FOLDER );
-    auto* aquifer       = getOrCreateSubfolder( CollectionContentType::AQUIFER );
-    auto* networks      = getOrCreateSubfolder( CollectionContentType::NETWORK_FOLDER );
-    auto* misc          = getOrCreateSubfolder( CollectionContentType::MISC );
-    auto* regions       = getOrCreateSubfolder( CollectionContentType::REGION_FOLDER );
-    auto* region2region = getOrCreateSubfolder( CollectionContentType::REGION_2_REGION );
-    auto* completion    = getOrCreateSubfolder( CollectionContentType::WELL_COMPLETION );
-    auto* segment       = getOrCreateSubfolder( CollectionContentType::WELL_SEGMENT );
-    auto* blocks        = getOrCreateSubfolder( CollectionContentType::BLOCK );
-    auto* lgrwell       = getOrCreateSubfolder( CollectionContentType::WELL_LGR );
-    auto* lgrcompletion = getOrCreateSubfolder( CollectionContentType::WELL_COMPLETION_LGR );
-    auto* lgrblock      = getOrCreateSubfolder( CollectionContentType::BLOCK_LGR );
-    auto* imported      = getOrCreateSubfolder( CollectionContentType::IMPORTED );
+    auto* fields          = getOrCreateSubfolder( CollectionContentType::FIELD );
+    auto* groups          = getOrCreateSubfolder( CollectionContentType::GROUP_FOLDER );
+    auto* wells           = getOrCreateSubfolder( CollectionContentType::WELL_FOLDER );
+    auto* aquifer         = getOrCreateSubfolder( CollectionContentType::AQUIFER );
+    auto* networks        = getOrCreateSubfolder( CollectionContentType::NETWORK_FOLDER );
+    auto* misc            = getOrCreateSubfolder( CollectionContentType::MISC );
+    auto* regions         = getOrCreateSubfolder( CollectionContentType::REGION_FOLDER );
+    auto* region2region   = getOrCreateSubfolder( CollectionContentType::REGION_2_REGION );
+    auto* segment         = getOrCreateSubfolder( CollectionContentType::WELL_SEGMENT );
+    auto* wellCompletions = getOrCreateSubfolder( CollectionContentType::WELL_COMPLETION );
+    auto* wellConnection  = getOrCreateSubfolder( CollectionContentType::WELL_CONNECTION );
+    auto* blocks          = getOrCreateSubfolder( CollectionContentType::BLOCK );
+    auto* lgrwell         = getOrCreateSubfolder( CollectionContentType::WELL_LGR );
+    auto* lgrConnection   = getOrCreateSubfolder( CollectionContentType::WELL_CONNECTION_LGR );
+    auto* lgrblock        = getOrCreateSubfolder( CollectionContentType::BLOCK_LGR );
+    auto* imported        = getOrCreateSubfolder( CollectionContentType::IMPORTED );
 
     // Sort addresses to have calculated results last per category
     std::vector<RifEclipseSummaryAddress> sortedAddresses;
@@ -252,6 +252,7 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                    if ( a.cellI() != b.cellI() ) return a.cellI() < b.cellI();
                    if ( a.wellSegmentNumber() != b.wellSegmentNumber() ) return a.wellSegmentNumber() < b.wellSegmentNumber();
                    if ( a.aquiferNumber() != b.aquiferNumber() ) return a.aquiferNumber() < b.aquiferNumber();
+                   if ( a.wellCompletionNumber() != b.wellCompletionNumber() ) return a.wellCompletionNumber() < b.wellCompletionNumber();
                    if ( a.isErrorResult() != b.isErrorResult() ) return !a.isErrorResult();
 
                    // Calculated results are sorted last.
@@ -299,18 +300,27 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                 wells->addToSubfolder( QString::fromStdString( address.wellName() ), CollectionContentType::WELL, address, caseId, ensembleId );
                 break;
 
+            case SummaryCategory::SUMMARY_WELL_CONNECTION:
+                wellConnection->addToSubfolderTree( { { QString::fromStdString( address.wellName() ), CollectionContentType::WELL },
+                                                      { QString::fromStdString( address.connectionAsString() ),
+                                                        CollectionContentType::WELL_CONNECTION } },
+                                                    address,
+                                                    caseId,
+                                                    ensembleId );
+                break;
+
             case SummaryCategory::SUMMARY_WELL_COMPLETION:
-                completion->addToSubfolderTree( { QString::fromStdString( address.wellName() ),
-                                                  QString::fromStdString( address.blockAsString() ) },
-                                                CollectionContentType::WELL_COMPLETION,
-                                                address,
-                                                caseId,
-                                                ensembleId );
+                wellCompletions->addToSubfolderTree( { { QString::fromStdString( address.wellName() ), CollectionContentType::WELL },
+                                                       { QString::number( address.wellCompletionNumber() ),
+                                                         CollectionContentType::WELL_COMPLETION } },
+                                                     address,
+                                                     caseId,
+                                                     ensembleId );
                 break;
 
             case SummaryCategory::SUMMARY_WELL_SEGMENT:
-                segment->addToSubfolderTree( { QString::fromStdString( address.wellName() ), QString::number( address.wellSegmentNumber() ) },
-                                             CollectionContentType::WELL_SEGMENT,
+                segment->addToSubfolderTree( { { QString::fromStdString( address.wellName() ), CollectionContentType::WELL },
+                                               { QString::number( address.wellSegmentNumber() ), CollectionContentType::WELL_SEGMENT } },
                                              address,
                                              caseId,
                                              ensembleId );
@@ -321,26 +331,25 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                 break;
 
             case SummaryCategory::SUMMARY_WELL_LGR:
-                lgrwell->addToSubfolderTree( { QString::fromStdString( address.lgrName() ), QString::fromStdString( address.wellName() ) },
-                                             CollectionContentType::WELL_LGR,
+                lgrwell->addToSubfolderTree( { { QString::fromStdString( address.lgrName() ), CollectionContentType::WELL_LGR },
+                                               { QString::fromStdString( address.wellName() ), CollectionContentType::WELL } },
                                              address,
                                              caseId,
                                              ensembleId );
                 break;
 
-            case SummaryCategory::SUMMARY_WELL_COMPLETION_LGR:
-                lgrcompletion->addToSubfolderTree( { QString::fromStdString( address.lgrName() ),
-                                                     QString::fromStdString( address.wellName() ),
-                                                     QString::fromStdString( address.blockAsString() ) },
-                                                   CollectionContentType::WELL_COMPLETION_LGR,
+            case SummaryCategory::SUMMARY_WELL_CONNECTION_LGR:
+                lgrConnection->addToSubfolderTree( { { QString::fromStdString( address.lgrName() ), CollectionContentType::WELL_LGR },
+                                                     { QString::fromStdString( address.wellName() ), CollectionContentType::WELL },
+                                                     { QString::fromStdString( address.blockAsString() ), CollectionContentType::BLOCK } },
                                                    address,
                                                    caseId,
                                                    ensembleId );
                 break;
 
             case SummaryCategory::SUMMARY_BLOCK_LGR:
-                lgrblock->addToSubfolderTree( { QString::fromStdString( address.lgrName() ), QString::fromStdString( address.blockAsString() ) },
-                                              CollectionContentType::BLOCK_LGR,
+                lgrblock->addToSubfolderTree( { { QString::fromStdString( address.lgrName() ), CollectionContentType::WELL_LGR },
+                                                { QString::fromStdString( address.blockAsString() ), CollectionContentType::BLOCK } },
                                               address,
                                               caseId,
                                               ensembleId );
@@ -556,6 +565,8 @@ QString RimSummaryAddressCollection::iconResourceText() const
             return ":/summary/components/images/misc.svg";
         case RimSummaryAddressCollection::CollectionContentType::WELL_FOLDER:
             return ":/summary/components/images/well.svg";
+        case RimSummaryAddressCollection::CollectionContentType::WELL_COMPLETION:
+            return ":/summary/components/images/well-completion-01.svg";
         case RimSummaryAddressCollection::CollectionContentType::GROUP_FOLDER:
             return ":/summary/components/images/group.svg";
         case RimSummaryAddressCollection::CollectionContentType::NETWORK_FOLDER:
@@ -572,12 +583,12 @@ QString RimSummaryAddressCollection::iconResourceText() const
             return ":/summary/components/images/network.svg";
         case RimSummaryAddressCollection::CollectionContentType::REGION_2_REGION:
             return ":/summary/components/images/region-region.svg";
-        case RimSummaryAddressCollection::CollectionContentType::WELL_COMPLETION:
-            return ":/summary/components/images/well-completion.svg";
+        case RimSummaryAddressCollection::CollectionContentType::WELL_CONNECTION:
+            return ":/summary/components/images/block.svg";
         case RimSummaryAddressCollection::CollectionContentType::WELL_LGR:
             return ":/summary/components/images/well.svg";
-        case RimSummaryAddressCollection::CollectionContentType::WELL_COMPLETION_LGR:
-            return ":/summary/components/images/well-completion.svg";
+        case RimSummaryAddressCollection::CollectionContentType::WELL_CONNECTION_LGR:
+            return ":/summary/components/images/block.svg";
         case RimSummaryAddressCollection::CollectionContentType::WELL_SEGMENT:
             return ":/summary/components/images/segment.svg";
         case RimSummaryAddressCollection::CollectionContentType::BLOCK_LGR:

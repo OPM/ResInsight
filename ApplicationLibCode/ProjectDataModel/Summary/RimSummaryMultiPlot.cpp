@@ -817,7 +817,15 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
     }
 
     auto stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR;
-    if ( analyzer.wellNames().size() == 1 )
+    if ( analyzer.regionNumbers().size() == 1 )
+    {
+        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::REGION;
+    }
+    else if ( analyzer.groupNames().size() == 1 )
+    {
+        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP;
+    }
+    else if ( analyzer.wellNames().size() == 1 )
     {
         auto wellName = *( analyzer.wellNames().begin() );
 
@@ -825,22 +833,22 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
         {
             stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_SEGMENT;
         }
+        else if ( analyzer.wellCompletionNumbers( wellName ).size() == 1 )
+        {
+            stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_COMPLETION_NUMBER;
+        }
+        else if ( analyzer.wellConnections( wellName ).size() == 1 )
+        {
+            stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_CONNECTION;
+        }
         else
         {
             stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::WELL;
         }
     }
-    else if ( analyzer.groupNames().size() == 1 )
-    {
-        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP;
-    }
     else if ( analyzer.networkNames().size() == 1 )
     {
         stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::NETWORK;
-    }
-    else if ( analyzer.regionNumbers().size() == 1 )
-    {
-        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::REGION;
     }
     else if ( analyzer.aquifers().size() == 1 )
     {
