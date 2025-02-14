@@ -29,11 +29,11 @@ Derived Results for Eclipse Cases ResInsight calculates several derived cell pro
 Transmissibility Normalized by Area The transmissibility for cells and Non-Neighbor Connections (NNCs) are dependent on both cell properties and geometry. ResInsight normalizes TRANX, TRANY and TRANZ with the overlapping flow area for both neighbor cells and NNC-cells. The results are named riTRANXbyArea, riTRANYbyArea and riTRANZbyArea respectively.">
     <meta itemprop="wordCount" content="726">
     <title>Derived Results - Eclipse :: ResInsight</title>
-    <link href="/css/fontawesome-all.min.css?1739528537" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1739528537" rel="stylesheet"></noscript>
-    <link href="/css/auto-complete.css?1739528537" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1739528537" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1739528537" rel="stylesheet">
-    <link href="/css/theme.min.css?1739528537" rel="stylesheet">
-    <link href="/css/format-html.min.css?1739528537" rel="stylesheet" id="R-format-style">
+    <link href="/css/fontawesome-all.min.css?1739538141" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1739538141" rel="stylesheet"></noscript>
+    <link href="/css/auto-complete.css?1739538141" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1739538141" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar.min.css?1739538141" rel="stylesheet">
+    <link href="/css/theme.min.css?1739538141" rel="stylesheet">
+    <link href="/css/format-html.min.css?1739538141" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       window.relearn.relBasePath='..\/..';
@@ -184,8 +184,8 @@ Transmissibility Normalized by Area The transmissibility for cells and Non-Neigh
 <h2 id="derived-results-for-eclipse-cases">Derived Results for Eclipse Cases</h2>
 <p>ResInsight calculates several derived cell properties that is made available as <strong>Static</strong> or <strong>Dynamic</strong> cell properties.
 The derived results listed at the bottom of the <strong>Static</strong> result properties, are shown below.</p>
-<p><a href="#R-image-840d99b1cae1543f3014aff430ff0d76" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/appendix/DerivedStaticResults.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-840d99b1cae1543f3014aff430ff0d76"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/appendix/DerivedStaticResults.png"></a></p>
+<p><a href="#R-image-7583ceec0a49170ea49aa23e05c61284" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/appendix/DerivedStaticResults.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-7583ceec0a49170ea49aa23e05c61284"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/appendix/DerivedStaticResults.png"></a></p>
 <h3 id="transmissibility-normalized-by-area">Transmissibility Normalized by Area</h3>
 <p>The transmissibility for cells and Non-Neighbor Connections (NNCs) are dependent on both cell properties and geometry. ResInsight normalizes TRANX, TRANY and TRANZ with the overlapping flow area for both neighbor cells and NNC-cells. The results are named <strong>riTRANXbyArea</strong>, <strong>riTRANYbyArea</strong> and <strong>riTRANZbyArea</strong> respectively.</p>
 <p>The normalized transmissibilities make it easier to compare and check the flow capacity visually. This can be useful when history matching pressure differences across a fault.</p>
@@ -224,14 +224,14 @@ as a <strong>Cell Result</strong> and <strong>Separate Fault Result</strong>.</p
 </li>
 </ul>
 <h3 id="completion-type">Completion Type</h3>
-<p><a href="#R-image-0bd2efe9645626c82e7bfedd777ac77e" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/appendix/CompletionTypes.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-0bd2efe9645626c82e7bfedd777ac77e"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/appendix/CompletionTypes.png"></a></p>
+<p><a href="#R-image-480f63ee5a647d9d0acd7a5ad0ae6cdf" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/appendix/CompletionTypes.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-480f63ee5a647d9d0acd7a5ad0ae6cdf"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/appendix/CompletionTypes.png"></a></p>
 <p>The dynamic cell property named <strong>Completion Type</strong> is calculated from the intersections between <a href="/wells-and-completions/completions/index.html">Completions</a> and the grid cells. All grid cells intersected by a completion will be assigned a color based on the type of completion that intersects the cell.</p>
 <p>If a cell is completed with multiple completions, the following priority is used : <strong>Fracture</strong>, <strong>Fishbones</strong>, and <strong>Perforation Interval</strong>.</p>
 <h3 id="identification-of-questionable-nncs">Identification of Questionable NNCs</h3>
 <p>In the process of normalizing transmissibility by the overlapping flow area, the NNCs in the model without any shared surface between two cells are identified. These NNCs are listed in the <strong>Faults/NNCs With No Common Area</strong> folder. These NNCs are questionable since flow normally is associated with a flow area.</p>
-<p><a href="#R-image-fa9e190e1185c37ce3ebdcb133c334fc" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/appendix/ResInsight_NNCsWithNoCommonArea.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-fa9e190e1185c37ce3ebdcb133c334fc"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/appendix/ResInsight_NNCsWithNoCommonArea.png"></a></p>
+<p><a href="#R-image-b1471224f540391934b30db28e0ef87a" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/appendix/ResInsight_NNCsWithNoCommonArea.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-b1471224f540391934b30db28e0ef87a"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/appendix/ResInsight_NNCsWithNoCommonArea.png"></a></p>
 <h3 id="water-flooded-pv">Water Flooded PV</h3>
 <p>Water Flooded PV, also called <em>Number of flooded porevolumes</em> shows the amount of flow from a selected set of simulation tracers into a particular cell, compared to the cells mobile pore volume. A value of 1.0 will tell that the tracers accumulated flow into the cell has reached a volume equal to the mobile pore volume in the cell.</p>
 <h3 id="mobile-pore-volume">Mobile Pore Volume</h3>
@@ -258,7 +258,7 @@ If <strong>SWCR</strong> is missing, <strong>SWCR</strong> is et to 0.0.</p>
 
         </div>
         <script>
-          window.index_js_url="/searchindex.en.js?1739528537";
+          window.index_js_url="/searchindex.en.js?1739538141";
         </script>
         <search><form action="/search/index.html" method="get">
           <div class="searchbox default-animation">
@@ -271,12 +271,12 @@ If <strong>SWCR</strong> is missing, <strong>SWCR</strong> is et to 0.0.</p>
         <script>
           var contentLangs=['en'];
         </script>
-        <script src="/js/auto-complete.js?1739528537" defer></script>
-        <script src="/js/lunr/lunr.min.js?1739528537" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1739528537" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1739528537" defer></script>
-        <script src="/js/lunr/lunr.en.min.js?1739528537" defer></script>
-        <script src="/js/search.js?1739528537" defer></script>
+        <script src="/js/auto-complete.js?1739538141" defer></script>
+        <script src="/js/lunr/lunr.min.js?1739538141" defer></script>
+        <script src="/js/lunr/lunr.stemmer.support.min.js?1739538141" defer></script>
+        <script src="/js/lunr/lunr.multi.min.js?1739538141" defer></script>
+        <script src="/js/lunr/lunr.en.min.js?1739538141" defer></script>
+        <script src="/js/search.js?1739538141" defer></script>
         <script>
           (function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -377,8 +377,8 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         </div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1739528537" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1739528537" defer></script>
-    <script src="/js/theme.js?1739528537" defer></script>
+    <script src="/js/clipboard.min.js?1739538141" defer></script>
+    <script src="/js/perfect-scrollbar.min.js?1739538141" defer></script>
+    <script src="/js/theme.js?1739538141" defer></script>
   </body>
 </html>

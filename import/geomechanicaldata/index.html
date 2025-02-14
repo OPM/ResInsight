@@ -25,11 +25,11 @@ If you have, and would like to a use these features, please see Build Instructio
 If you have, and would like to a use these features, please see Build Instructions for a description on how to build ResInsight and how to include the support for odb-files.">
     <meta itemprop="wordCount" content="435">
     <title>Geomechanical Data :: ResInsight</title>
-    <link href="/css/fontawesome-all.min.css?1739528537" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1739528537" rel="stylesheet"></noscript>
-    <link href="/css/auto-complete.css?1739528537" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1739528537" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1739528537" rel="stylesheet">
-    <link href="/css/theme.min.css?1739528537" rel="stylesheet">
-    <link href="/css/format-html.min.css?1739528537" rel="stylesheet" id="R-format-style">
+    <link href="/css/fontawesome-all.min.css?1739538141" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1739538141" rel="stylesheet"></noscript>
+    <link href="/css/auto-complete.css?1739538141" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1739538141" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar.min.css?1739538141" rel="stylesheet">
+    <link href="/css/theme.min.css?1739538141" rel="stylesheet">
+    <link href="/css/format-html.min.css?1739538141" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       window.relearn.relBasePath='..\/..';
@@ -174,8 +174,8 @@ If you have, and would like to a use these features, please see Build Instructio
 <p>If you have, and would like to a use these features, please see <a href="/releases/build-from-source/cmake-configuration/index.html"> Build Instructions </a> for a description on how to build ResInsight and how to include the support for odb-files.</p>
 <h3 id="geo-mechanical-data-support">Geo Mechanical Data Support</h3>
 <p>Geo-mechanical data can be imported using the <strong>Import -&gt; Geo Mechanical Cases menu</strong>. Here three options are present: <strong>Import Geo Mechanical Model</strong>, <strong>Import Geo Mechanical Model (Time Step Filtered)</strong>  (both for odb files) and <strong>Import Element Property Table</strong>.</p>
-<p><a href="#R-image-810d788e137c2c1a19b14a78c7c539e7" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/import/GeoMechImport.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-810d788e137c2c1a19b14a78c7c539e7"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/import/GeoMechImport.png"></a></p>
+<p><a href="#R-image-d5ce5fd67921f725b4c8d02fdfc533df" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/import/GeoMechImport.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-d5ce5fd67921f725b4c8d02fdfc533df"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/import/GeoMechImport.png"></a></p>
 <p>ResInsight supports the elements C3D8R, C3D8 and C3D8P which are all HEX8 cells. It is also assumed that there are <em>no other element topologies</em> present in the odb file, and that there are only one part. For IJK-based range filters to work, it is also assumed that the elements in the part is topologically arranged as a complete box.</p>
 <p>ResInsight loads the second frame within each odb-step, and present those as the time series for each result.</p>
 <p>All the result fields in the odb-file is then available for post processing in ResInsight, but stresses and strains are converted to pressure-positive tensors as normally used in geomechanics, instead of the normal tension-positive tensors that ABAQUS stores.</p>
@@ -186,8 +186,8 @@ If you have, and would like to a use these features, please see Build Instructio
 <p>The Octave interface, however, does not support the odb-data yet.</p>
 <h3 id="time-step-filtered-import">Time Step Filtered Import</h3>
 <p>By choosing the <strong>Import Geo Mechanical Model (Time Step Filtered)</strong> option, it is possible to limit the amount of time steps that are imported to improve the speed and reduce the memory use. If this option is chosen a tile step filter dialog is shown after selecting the file to import.</p>
-<p><a href="#R-image-2ac12f9961268cbbe71e72f3e6c8d595" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/import/GeoMechFilter.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-2ac12f9961268cbbe71e72f3e6c8d595"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/import/GeoMechFilter.png"></a></p>
+<p><a href="#R-image-86707a8d91a584ee1e29fcde135d43a5" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/import/GeoMechFilter.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-86707a8d91a584ee1e29fcde135d43a5"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/import/GeoMechFilter.png"></a></p>
 <p>The data can be filtered by skipping Days, Weeks, Months or Years in the top <strong>Filter Type</strong> drop down list and the range of time steps can be picked in the <strong>First Time Step</strong> and <strong>Last Time Steps</strong> lists. Furthermore, the final selection can be fine tuned by selecting or deselecting individual time steps in the <strong>Select From N Time Steps</strong> list. ResInsight will ignore any data that doesn&rsquo;t match these time steps and will thus reduce the amount of data imported.</p>
 
   <footer class="footline">
@@ -206,7 +206,7 @@ If you have, and would like to a use these features, please see Build Instructio
 
         </div>
         <script>
-          window.index_js_url="/searchindex.en.js?1739528537";
+          window.index_js_url="/searchindex.en.js?1739538141";
         </script>
         <search><form action="/search/index.html" method="get">
           <div class="searchbox default-animation">
@@ -219,12 +219,12 @@ If you have, and would like to a use these features, please see Build Instructio
         <script>
           var contentLangs=['en'];
         </script>
-        <script src="/js/auto-complete.js?1739528537" defer></script>
-        <script src="/js/lunr/lunr.min.js?1739528537" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1739528537" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1739528537" defer></script>
-        <script src="/js/lunr/lunr.en.min.js?1739528537" defer></script>
-        <script src="/js/search.js?1739528537" defer></script>
+        <script src="/js/auto-complete.js?1739538141" defer></script>
+        <script src="/js/lunr/lunr.min.js?1739538141" defer></script>
+        <script src="/js/lunr/lunr.stemmer.support.min.js?1739538141" defer></script>
+        <script src="/js/lunr/lunr.multi.min.js?1739538141" defer></script>
+        <script src="/js/lunr/lunr.en.min.js?1739538141" defer></script>
+        <script src="/js/search.js?1739538141" defer></script>
         <script>
           (function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -333,8 +333,8 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         </div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1739528537" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1739528537" defer></script>
-    <script src="/js/theme.js?1739528537" defer></script>
+    <script src="/js/clipboard.min.js?1739538141" defer></script>
+    <script src="/js/perfect-scrollbar.min.js?1739538141" defer></script>
+    <script src="/js/theme.js?1739538141" defer></script>
   </body>
 </html>

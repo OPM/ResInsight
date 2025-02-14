@@ -33,11 +33,11 @@ Examples on how command line options are used are given below
 Command line options General Parameter Description --help, --? Displays help text and version info --project &lt;filename&gt; Open project file &lt;filename&gt;. --last Open last used project. --size &lt;width&gt; &lt;height&gt; Set size of the main application window. --console Launch as a console application without graphics --server [&lt;portnumber&gt;] Launch as a GRPC server. Default port is 50051 --startdir &lt;folder&gt; Set startup directory. Command files Parameter Description --commandFile &lt;commandFile&gt; Execute a command file. See command file documentation. --commandFileProject &lt;filename&gt; Project to use if performing case looping for command file. Used in conjunction with commandFileReplaceCases. Snapshots Parameter Description --savesnapshots all|views|plots| Save snapshot of all views or plots to project file location sub folder ‘snapshots’. Option ‘all’ will include both views and plots. Application closes after snapshots have been written. --multiCaseSnapshots &lt;gridListFile&gt; For each grid file listed in the &lt;gridListFile&gt; file, replace the first case in the project and save snapshot of all views. Case handling Parameter Description --case &lt;casename|filename&gt; [&lt;casename|filename&gt;] Imports the Eclipse cases specified by case name with or without extension.If &lt;casename&gt;, import the corresponding grid file and summary file. If &lt;filename&gt; has extension .GRRID/.EGRID, import the grid file and corresponding summary file. If &lt;filename&gt; has extension .SMSPEC, import the summary file (does not open the grid file) --replaceCase [&lt;caseId&gt;] &lt;newGridFile&gt; Replace grid in &lt;caseId&gt; or first case with &lt;newGridFile&gt;. Repeat parameter for multiple replace operations. --replaceSourceCases [&lt;caseGroupId&gt;] &lt;gridListFile&gt; Replace source cases in &lt;caseGroupId&gt; or first grid case group with the grid files listed in the &lt;gridListFile&gt; file. Repeat parameter for multiple replace operations. --commandFileReplaceCases [&lt;caseId&gt;] &lt;caseListFile&gt; Supply list of cases to replace in project, performing command file for each case. Project to replace cases must be set with commandFileProject. If caseId is not supplied, first case is replaced. When supplying caseId, multiple cases may be replaced at once, by supplying several caseIds and a file containing a list of grid-files to replace with for each caseId. NoteReduce project load time using –replaceSourceCases ResInsight stores data computed by statistics calculation in a cache file. When a project file is loaded, data from this cache is also imported. For large cases, the cached data can be large. When replacing source cases during batch, this data is never used and can be removed from the cache using the following workaround:">
     <meta itemprop="wordCount" content="1191">
     <title>Command Line Interface :: ResInsight</title>
-    <link href="/css/fontawesome-all.min.css?1739528537" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1739528537" rel="stylesheet"></noscript>
-    <link href="/css/auto-complete.css?1739528537" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1739528537" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1739528537" rel="stylesheet">
-    <link href="/css/theme.min.css?1739528537" rel="stylesheet">
-    <link href="/css/format-html.min.css?1739528537" rel="stylesheet" id="R-format-style">
+    <link href="/css/fontawesome-all.min.css?1739538141" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1739538141" rel="stylesheet"></noscript>
+    <link href="/css/auto-complete.css?1739538141" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1739538141" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar.min.css?1739538141" rel="stylesheet">
+    <link href="/css/theme.min.css?1739538141" rel="stylesheet">
+    <link href="/css/format-html.min.css?1739538141" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       window.relearn.relBasePath='..\/..';
@@ -465,7 +465,7 @@ The trailing option <em>-s</em> gathers the vectors into a single summary plot.<
 
         </div>
         <script>
-          window.index_js_url="/searchindex.en.js?1739528537";
+          window.index_js_url="/searchindex.en.js?1739538141";
         </script>
         <search><form action="/search/index.html" method="get">
           <div class="searchbox default-animation">
@@ -478,12 +478,12 @@ The trailing option <em>-s</em> gathers the vectors into a single summary plot.<
         <script>
           var contentLangs=['en'];
         </script>
-        <script src="/js/auto-complete.js?1739528537" defer></script>
-        <script src="/js/lunr/lunr.min.js?1739528537" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1739528537" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1739528537" defer></script>
-        <script src="/js/lunr/lunr.en.min.js?1739528537" defer></script>
-        <script src="/js/search.js?1739528537" defer></script>
+        <script src="/js/auto-complete.js?1739538141" defer></script>
+        <script src="/js/lunr/lunr.min.js?1739538141" defer></script>
+        <script src="/js/lunr/lunr.stemmer.support.min.js?1739538141" defer></script>
+        <script src="/js/lunr/lunr.multi.min.js?1739538141" defer></script>
+        <script src="/js/lunr/lunr.en.min.js?1739538141" defer></script>
+        <script src="/js/search.js?1739538141" defer></script>
         <script>
           (function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -582,8 +582,8 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         </div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1739528537" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1739528537" defer></script>
-    <script src="/js/theme.js?1739528537" defer></script>
+    <script src="/js/clipboard.min.js?1739538141" defer></script>
+    <script src="/js/perfect-scrollbar.min.js?1739538141" defer></script>
+    <script src="/js/theme.js?1739538141" defer></script>
   </body>
 </html>
