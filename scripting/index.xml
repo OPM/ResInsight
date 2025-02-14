@@ -1,65 +1,46 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Scripting on ResInsight</title>
-    <link>https://resinsight.org/scripting/</link>
-    <description>Recent content in Scripting on ResInsight</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://resinsight.org/scripting/index.xml" rel="self" type="application/rss+xml" />
+    <title>Scripting :: ResInsight</title>
+    <link>https://resinsight.org/scripting/index.html</link>
+    <description>ResInsight provides powerful and flexible mechanisms for post-processing of results and automation by its scripting interfaces:&#xA;Python interface Command line interface and Command files Octave interface Python interface ResInsight incorporates a powerful Python interface which allows you to interact with ResInsight and load data for further processing and automation.&#xA;Command Line Interface and Command files ResInsight supports several [command line parameters] (https://resinsight.org/scripting/commandlineinterface/) for automation via shell scripts. By gathering commands into a Command file, you may run a sequence of commands by supplying the command file as a command line parameter.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="https://resinsight.org/scripting/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Python Interface</title>
-      <link>https://resinsight.org/scripting/pythoninterface/</link>
+      <link>https://resinsight.org/scripting/pythoninterface/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/scripting/pythoninterface/</guid>
-      <description>ResInsight provides a robust programming interface that allows you to interact with a running ResInsight instance using Python 3. This interface enables you to:
-Start ResInsight from Python Communicate with a running ResInsight instance Load a ResInsight project file Load data files such as Eclipse EGRID files and summary files Extract data to Python for further processing and automation Export snapshots of graphics For configuration and detailed information, please refer to the ResInsight Python API.</description>
+      <guid>https://resinsight.org/scripting/pythoninterface/index.html</guid>
+      <description>ResInsight provides a robust programming interface that allows you to interact with a running ResInsight instance using Python 3. This interface enables you to:&#xA;Start ResInsight from Python Communicate with a running ResInsight instance Load a ResInsight project file Load data files such as Eclipse EGRID files and summary files Extract data to Python for further processing and automation Export snapshots of graphics For configuration and detailed information, please refer to the ResInsight Python API.</description>
     </item>
-    
     <item>
       <title>Command Line Interface</title>
-      <link>https://resinsight.org/scripting/commandlineinterface/</link>
+      <link>https://resinsight.org/scripting/commandlineinterface/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/scripting/commandlineinterface/</guid>
-      <description>ResInsight supports several command line parameters that can be used to automate some tasks using shell scripts.
-Command line parameters are prefixed using a double dash. This convention is used on all platforms to make it possible to reuse scripts across different platforms. See GNU Standards for Command Line Interfaces.
-Examples on how command line options are used are given below
-Command line options General Parameter Description --help, --? Displays help text and version info --project &amp;lt;filename&amp;gt; Open project file &amp;lt;filename&amp;gt;.</description>
+      <guid>https://resinsight.org/scripting/commandlineinterface/index.html</guid>
+      <description>ResInsight supports several command line parameters that can be used to automate some tasks using shell scripts.&#xA;Command line parameters are prefixed using a double dash. This convention is used on all platforms to make it possible to reuse scripts across different platforms. See GNU Standards for Command Line Interfaces.&#xA;Examples on how command line options are used are given below&#xA;Command line options General Parameter Description --help, --? Displays help text and version info --project &lt;filename&gt; Open project file &lt;filename&gt;. --last Open last used project. --size &lt;width&gt; &lt;height&gt; Set size of the main application window. --console Launch as a console application without graphics --server [&lt;portnumber&gt;] Launch as a GRPC server. Default port is 50051 --startdir &lt;folder&gt; Set startup directory. Command files Parameter Description --commandFile &lt;commandFile&gt; Execute a command file. See command file documentation. --commandFileProject &lt;filename&gt; Project to use if performing case looping for command file. Used in conjunction with commandFileReplaceCases. Snapshots Parameter Description --savesnapshots all|views|plots| Save snapshot of all views or plots to project file location sub folder ‘snapshots’. Option ‘all’ will include both views and plots. Application closes after snapshots have been written. --multiCaseSnapshots &lt;gridListFile&gt; For each grid file listed in the &lt;gridListFile&gt; file, replace the first case in the project and save snapshot of all views. Case handling Parameter Description --case &lt;casename|filename&gt; [&lt;casename|filename&gt;] Imports the Eclipse cases specified by case name with or without extension.If &lt;casename&gt;, import the corresponding grid file and summary file. If &lt;filename&gt; has extension .GRRID/.EGRID, import the grid file and corresponding summary file. If &lt;filename&gt; has extension .SMSPEC, import the summary file (does not open the grid file) --replaceCase [&lt;caseId&gt;] &lt;newGridFile&gt; Replace grid in &lt;caseId&gt; or first case with &lt;newGridFile&gt;. Repeat parameter for multiple replace operations. --replaceSourceCases [&lt;caseGroupId&gt;] &lt;gridListFile&gt; Replace source cases in &lt;caseGroupId&gt; or first grid case group with the grid files listed in the &lt;gridListFile&gt; file. Repeat parameter for multiple replace operations. --commandFileReplaceCases [&lt;caseId&gt;] &lt;caseListFile&gt; Supply list of cases to replace in project, performing command file for each case. Project to replace cases must be set with commandFileProject. If caseId is not supplied, first case is replaced. When supplying caseId, multiple cases may be replaced at once, by supplying several caseIds and a file containing a list of grid-files to replace with for each caseId. Note&#xD;Reduce project load time using –replaceSourceCases ResInsight stores data computed by statistics calculation in a cache file. When a project file is loaded, data from this cache is also imported. For large cases, the cached data can be large. When replacing source cases during batch, this data is never used and can be removed from the cache using the following workaround:</description>
     </item>
-    
     <item>
       <title>Command File</title>
-      <link>https://resinsight.org/scripting/commandfile/</link>
+      <link>https://resinsight.org/scripting/commandfile/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/scripting/commandfile/</guid>
-      <description>The command file interface allows a sequence of specified commands to be run in order from the command line. The interface is used by supplying the command file as a command line parameter. Once the command file is finished executing, ResInsight will exit.
-It is possible to use these commands directly from a Python script. For further details, please see the ResInsight Python API.
-Command List Case Control Commands openProject closeProject setStartDir loadCase createGridCaseGroup createStatisticsCase replaceCase replaceSourceCases Export Commands setExportFolder exportMultiCaseSnapshots exportSnapshots exportProperty exportPropertyInViews exportWellPathCompletions exportSimWellFractureCompletions exportMsw exportWellPaths exportVisibleCells exportFlowCharacteristics Other Commands runOctaveScript setMainWindowSize computeCaseGroupStatistics setTimeStep scaleFractureTemplate setFractureContainment createMultipleFractures createLgrForCompletions createSaturationPressurePlots Syntax The command file is comprised of a set of commands to be executed in order.</description>
+      <guid>https://resinsight.org/scripting/commandfile/index.html</guid>
+      <description>The command file interface allows a sequence of specified commands to be run in order from the command line. The interface is used by supplying the command file as a command line parameter. Once the command file is finished executing, ResInsight will exit.&#xA;It is possible to use these commands directly from a Python script. For further details, please see the ResInsight Python API.&#xA;Command List Case Control Commands openProject closeProject setStartDir loadCase createGridCaseGroup createStatisticsCase replaceCase replaceSourceCases Export Commands setExportFolder exportMultiCaseSnapshots exportSnapshots exportProperty exportPropertyInViews exportWellPathCompletions exportSimWellFractureCompletions exportMsw exportWellPaths exportVisibleCells exportFlowCharacteristics Other Commands runOctaveScript setMainWindowSize computeCaseGroupStatistics setTimeStep scaleFractureTemplate setFractureContainment createMultipleFractures createLgrForCompletions createSaturationPressurePlots Syntax The command file is comprised of a set of commands to be executed in order. Each command must begin on a separate line, i.e. there cannot be two commands on the same line.</description>
     </item>
-    
     <item>
       <title>Octave Interface</title>
-      <link>https://resinsight.org/scripting/octaveinterface/</link>
+      <link>https://resinsight.org/scripting/octaveinterface/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/scripting/octaveinterface/</guid>
-      <description>ResInsight provides a flexible interface to Octave including:
-Octave functions that communicates with a running ResInsight session Features to simplify management and editing of Octave scripts from ResInsight Commands to execute scripts using Octave. The Octave functions are documented in Octave Interface Reference.
-Note: The Octave interface does not support Flow diagnostics and Injection flooding results in addition to Geomechanical cases.
-Octave Script Management Octave scripts are available in the Scripts folder in the Project Tree.</description>
+      <guid>https://resinsight.org/scripting/octaveinterface/index.html</guid>
+      <description>ResInsight provides a flexible interface to Octave including:&#xA;Octave functions that communicates with a running ResInsight session Features to simplify management and editing of Octave scripts from ResInsight Commands to execute scripts using Octave. The Octave functions are documented in Octave Interface Reference.&#xA;Info&#xD;Note: The Octave interface does not support Flow diagnostics and Injection flooding results in addition to Geomechanical cases.&#xA;Octave Script Management Octave scripts are available in the Scripts folder in the Project Tree.</description>
     </item>
-    
     <item>
       <title>Octave Interface Reference</title>
-      <link>https://resinsight.org/scripting/octaveinterfacereference/</link>
+      <link>https://resinsight.org/scripting/octaveinterfacereference/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/scripting/octaveinterfacereference/</guid>
-      <description>Introduction To identify a ResInsight case uniquely in the Octave script, an integer Id (CaseId) is used. This Id can be retrieved in several ways, but there are two main modes of operation regarding this for a particular octave script: Either the script is designed to work on a single case (the &amp;ldquo;Current Case&amp;rdquo;), or the script is designed to access the selection and traverse the cases by itself.
-Note: The Octave interface does not support Geomechanical cases and flow diagnostic results.</description>
+      <guid>https://resinsight.org/scripting/octaveinterfacereference/index.html</guid>
+      <description>Introduction To identify a ResInsight case uniquely in the Octave script, an integer Id (CaseId) is used. This Id can be retrieved in several ways, but there are two main modes of operation regarding this for a particular octave script: Either the script is designed to work on a single case (the “Current Case”), or the script is designed to access the selection and traverse the cases by itself.&#xA;Info&#xD;Note: The Octave interface does not support Geomechanical cases and flow diagnostic results.</description>
     </item>
-    
   </channel>
 </rss>

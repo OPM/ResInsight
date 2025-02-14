@@ -1,42 +1,32 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Workflows on ResInsight</title>
-    <link>https://resinsight.org/workflows/</link>
-    <description>Recent content in Workflows on ResInsight</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://resinsight.org/workflows/index.xml" rel="self" type="application/rss+xml" />
+    <title>Workflows :: ResInsight</title>
+    <link>https://resinsight.org/workflows/index.html</link>
+    <description>ResInsight is used in many different ways. This section will describe some selected workflows describing how to solve specific tasks.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="https://resinsight.org/workflows/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Biot Coefficient</title>
-      <link>https://resinsight.org/workflows/biotcoefficient/</link>
+      <link>https://resinsight.org/workflows/biotcoefficient/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/workflows/biotcoefficient/</guid>
-      <description>Background
-The Biot porelastic coefficient defines the compressibility of sand grains, and will influence some of the calculations in ResInsight.
-Description The Biot coefficient can be defined in three ways:
-Default (Constant value of 1.0) User defined constant for all element One value for each element based on imported values from an element property table These settings are controlled from the Property Editor when a Geomechanical Case is selected. To use Biot coefficients for each element, perform the following steps:</description>
+      <guid>https://resinsight.org/workflows/biotcoefficient/index.html</guid>
+      <description>Background&#xA;The Biot porelastic coefficient defines the compressibility of sand grains, and will influence some of the calculations in ResInsight.&#xA;Description The Biot coefficient can be defined in three ways:&#xA;Default (Constant value of 1.0) User defined constant for all element One value for each element based on imported values from an element property table These settings are controlled from the Property Editor when a Geomechanical Case is selected. To use Biot coefficients for each element, perform the following steps:</description>
     </item>
-    
     <item>
       <title>Ensemble Surface</title>
-      <link>https://resinsight.org/workflows/ensemblesurface/</link>
+      <link>https://resinsight.org/workflows/ensemblesurface/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/workflows/ensemblesurface/</guid>
-      <description>Introduction To study the structural uncertainty, ResInsight enables the user to create and import an ensemble of surfaces and compute the statistical surfaces based on this ensemble. This page describes the interactive workflow, but in many cases it can be useful to create scripts related to mangement of Ensemble Surfaces. See Python Examples for more details.
-Create Ensemble Surface From the right-click menu of surfaces, select Import Ensemble Surface Select the ensemble grid models to create surfaces for, either &amp;quot;*.</description>
+      <guid>https://resinsight.org/workflows/ensemblesurface/index.html</guid>
+      <description>Introduction To study the structural uncertainty, ResInsight enables the user to create and import an ensemble of surfaces and compute the statistical surfaces based on this ensemble. This page describes the interactive workflow, but in many cases it can be useful to create scripts related to mangement of Ensemble Surfaces. See Python Examples for more details.&#xA;Create Ensemble Surface From the right-click menu of surfaces, select Import Ensemble Surface</description>
     </item>
-    
     <item>
       <title>Ensemble Well Log</title>
-      <link>https://resinsight.org/workflows/ensemblewelllog/</link>
+      <link>https://resinsight.org/workflows/ensemblewelllog/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/workflows/ensemblewelllog/</guid>
-      <description>Introduction To study the uncertainty for well log extraction curves, ResInsight enables the user to import an ensemble of well logs and compute the statistical distribution in this ensemble.
-Workflow From the right-click menu of Wells, select Create Ensemble Well Log In the ensemble import dialog, select the files for import into ensembles Select well path and properties for export, select time step for dynamic properties, and use the checkbox to control if you want to create a well log ensemble based on the exported well log files Click OK when you are ready</description>
+      <guid>https://resinsight.org/workflows/ensemblewelllog/index.html</guid>
+      <description>Introduction To study the uncertainty for well log extraction curves, ResInsight enables the user to import an ensemble of well logs and compute the statistical distribution in this ensemble.&#xA;Workflow From the right-click menu of Wells, select Create Ensemble Well Log In the ensemble import dialog, select the files for import into ensembles</description>
     </item>
-    
   </channel>
 </rss>

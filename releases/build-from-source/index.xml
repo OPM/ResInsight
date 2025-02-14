@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Build From Source :: ResInsight</title>
+    <link>https://resinsight.org/releases/build-from-source/index.html</link>
+    <description>Installation See the following for common install procedures and options:&#xA;Linux Installation Windows Installation See Build Instructions for the complete list of configuration options including support for Octave plugins, ABAQUS ODB API, and HDF5.&#xA;Sign up to be notified of new releases For the complete list of releases and updates, please visit ResInsight on Github.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="https://resinsight.org/releases/build-from-source/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Build Instructions Ubuntu</title>
+      <link>https://resinsight.org/releases/build-from-source/build-instructions-ubuntu/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/releases/build-from-source/build-instructions-ubuntu/index.html</guid>
+      <description>Dependencies and Prerequisites This page is mainly build instructions for Ubuntu, but some comments are also added for RHEL8.&#xA;Basic instructions without Python binding and GRPC.&#xA;Configuration and build Tool Minimum version gcc 11 python 3.8 Qt 6.4 It is possible to use Qt 6.4 for building ResInsight, but some install features introduced in Qt 6.5 are not supported. Qt 6.7 has some changes related to theming that is causing some unwanted visual effects. This is currently investigated.</description>
+    </item>
+    <item>
+      <title>Build Instructions Windows</title>
+      <link>https://resinsight.org/releases/build-from-source/build-instructions-windows/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/releases/build-from-source/build-instructions-windows/index.html</guid>
+      <description>Dependencies and Prerequisites Configuration and build Tool Minimum version Recommended Visual Studio 2019 2022 python 3.8 3.10 Qt 6.5 6.6 It is possible to use Qt 6.4 for to build ResInsight, but some install features introduced in Qt 6.5 are not available. Qt 6.7 has some changes related to theming that is causing some unwanted visual effects. This is currently investigated.&#xA;Clone and update sub modules git clone https://github.com/OPM/ResInsight&#xD;cd ResInsight&#xD;git submodule update --init&#xD;Build and install required dependencies using vcpkg Open a command prompt using “Run as Administrator” for Visual Studio x64.</description>
+    </item>
+    <item>
+      <title>CMake Configuration</title>
+      <link>https://resinsight.org/releases/build-from-source/cmake-configuration/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/releases/build-from-source/cmake-configuration/index.html</guid>
+      <description>CMake CMake version 3.15 or later is supported.&#xA;Build Overview The ResInsight build may be configured in different ways, with optional support for Octave plugins, ABAQUS ODB API, HDF5, Pyton, and OpenMP. This is configured using options in CMake.&#xA;CMake Options for ResInsight CMake Name Default Description RESINSIGHT_BUILD_DOCUMENTATION OFF Use Doxygen to create the HTML based API documentation. Doxygen must be properly installed. RESINSIGHT_ENABLE_GRPC OFF Enable gRPC scripting server. Required to be able to use ResInsight from Python RESINSIGHT_ENABLE_HDF5 ON Windows Only: Download and use HDF5 library RESINSIGHT_ODB_API_DIR Blank Optional path to the ABAQUS ODB API from Simulia. Needed for support of geomechanical models RESINSIGHT_USE_OPENMP ON Enable OpenMP parallellization in the code Advanced Options To be able to modify Advanced Options from the CMake User Interface, tick the checkbox Advanced</description>
+    </item>
+  </channel>
+</rss>

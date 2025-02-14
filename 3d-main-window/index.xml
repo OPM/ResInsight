@@ -1,292 +1,193 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>3D Main Window on ResInsight</title>
-    <link>https://resinsight.org/3d-main-window/</link>
-    <description>Recent content in 3D Main Window on ResInsight</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://resinsight.org/3d-main-window/index.xml" rel="self" type="application/rss+xml" />
+    <title>3D Main Window :: ResInsight</title>
+    <link>https://resinsight.org/3d-main-window/index.html</link>
+    <description>This is the main window of ResInsight for all 3D related functionality and visualization. As seen, the 3D Main Window has a central area and several docking windows surrounding it. The different docking windows cover the following:&#xA;Project Tree – contains all application objects in a tree structure. Property Editor – displays all properties for selected object in the Project Tree Process Monitor – displays output from Octave when executing Octave scripts Result Info – displays info for the selected object in the 3D scene Result Plot – displays curves based on result values for the selected cells in the 3D scene Messages – displays occasional info and warnings related to operations executed. In addition, a selected subset of actions are presented as controls in the toolbar. The following subchapters describe the functionality and visualization pertinent to the 3D Main Window.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="https://resinsight.org/3d-main-window/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>3D Views</title>
-      <link>https://resinsight.org/3d-main-window/3dviews/</link>
+      <link>https://resinsight.org/3d-main-window/3dviews/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/3dviews/</guid>
-      <description>3D Views are the windows displaying the Grid Models. The visualization is controlled by the Project Tree item representing the View and their sub items.
-Each item has a set of properties that can be edited in the Property Editor.
-Several views can be added to the same case by right-clicking the case or a view and select New View. You can also Copy and then Paste a view into a Case.</description>
+      <guid>https://resinsight.org/3d-main-window/3dviews/index.html</guid>
+      <description>3D Views are the windows displaying the Grid Models. The visualization is controlled by the Project Tree item representing the View and their sub items.&#xA;Each item has a set of properties that can be edited in the Property Editor.&#xA;Several views can be added to the same case by right-clicking the case or a view and select New View. You can also Copy and then Paste a view into a Case. All the settings are then copied to the new view.</description>
     </item>
-    
     <item>
       <title>Cell Results</title>
-      <link>https://resinsight.org/3d-main-window/cellresults/</link>
+      <link>https://resinsight.org/3d-main-window/cellresults/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/cellresults/</guid>
-      <description>The main results to post process in ResInsight are Cell Results. A Cell Result is one value, or a small set of values per cell over a region of the grid. A Cell Result is also referred to as a Property.
-Cell Results are used in several operations and settings:
-Cell Colors Cell Edge Result (Eclipse Only) Separate Fault Result (Eclipse Only) Property Filters Well Log Extraction Curves Cell Result Time History Curves In the property panel of all those, the same options are used to define the Cell Result of interest.</description>
+      <guid>https://resinsight.org/3d-main-window/cellresults/index.html</guid>
+      <description>The main results to post process in ResInsight are Cell Results. A Cell Result is one value, or a small set of values per cell over a region of the grid. A Cell Result is also referred to as a Property.&#xA;Cell Results are used in several operations and settings:&#xA;Cell Colors Cell Edge Result (Eclipse Only) Separate Fault Result (Eclipse Only) Property Filters Well Log Extraction Curves Cell Result Time History Curves In the property panel of all those, the same options are used to define the Cell Result of interest.&#xA;In the following we will describe these options.</description>
     </item>
-    
     <item>
       <title>Result Color Legend</title>
-      <link>https://resinsight.org/3d-main-window/resultcolorlegend/</link>
+      <link>https://resinsight.org/3d-main-window/resultcolorlegend/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/resultcolorlegend/</guid>
-      <description>The color mapping of the displayed cell result is controlled by the Color Legend item in Project Tree. The legend can be shown or hidden by checking or unchecking the box in front of the Color Legend item.
-Legend configuration As shown above, the Legend configuration for cell results allows the following settings:
-Number of levels &amp;ndash; Defines the number of tick marks displayed next to the color legend Significant digits &amp;ndash; Defines the number of significant digits in the number formatting Number format &amp;ndash; Defines how the numbers are formatted Colors &amp;ndash; Defines the color palette for the legend by selecting from Color Legends Mapping &amp;ndash; Defines the mapping of numerical values to legend colors: Discrete Linear &amp;ndash; Legend divided into linear levels defined by Number of levels Continuous Linear &amp;ndash; Continuous linear legend with tick mark count defined by Number of levels Continuous Logarithmic &amp;ndash; Continuous logarithmic legend with tick mark count defined by Number of levels Discrete Logarithmic &amp;ndash; Logarithmic legend divided into levels defined by Number of levels Category &amp;ndash; Legend with one level per category for formation names and discrete data (e.</description>
+      <guid>https://resinsight.org/3d-main-window/resultcolorlegend/index.html</guid>
+      <description>The color mapping of the displayed cell result is controlled by the Color Legend item in Project Tree. The legend can be shown or hidden by checking or unchecking the box in front of the Color Legend item.&#xA;Legend configuration As shown above, the Legend configuration for cell results allows the following settings:&#xA;Number of levels – Defines the number of tick marks displayed next to the color legend Significant digits – Defines the number of significant digits in the number formatting Number format – Defines how the numbers are formatted Colors – Defines the color palette for the legend by selecting from Color Legends Mapping – Defines the mapping of numerical values to legend colors: Discrete Linear – Legend divided into linear levels defined by Number of levels Continuous Linear – Continuous linear legend with tick mark count defined by Number of levels Continuous Logarithmic – Continuous logarithmic legend with tick mark count defined by Number of levels Discrete Logarithmic – Logarithmic legend divided into levels defined by Number of levels Category – Legend with one level per category for formation names and discrete data (e.g. result names ending with NUM) Range type: All Timesteps – use of values for all time steps to find numerical range of legend (unavailable for Flow Diagnostics results) Current Timestep – use of current (single) time step to find min and max values User Defined Range – user specified range from minimum to maximum numerical value Furthermore, the legend may display semi-transparent with a sorrounding box by selecting the Show Box around Legends option of the Preferences dialog.</description>
     </item>
-    
     <item>
       <title>Result Info</title>
-      <link>https://resinsight.org/3d-main-window/resultinfo/</link>
+      <link>https://resinsight.org/3d-main-window/resultinfo/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/resultinfo/</guid>
-      <description>The result info window displays text information based on selected geometry in the 3D view. This is information related to IJK cell values, the value of the currently selected result property, and the intersection point for the last mouse click in the 3D view.
-If you want to show additional properties, activate and select additional properties from Multiple Result Info in the Project Tree. Additional values are displayed in addition to currently selected property.</description>
+      <guid>https://resinsight.org/3d-main-window/resultinfo/index.html</guid>
+      <description>The result info window displays text information based on selected geometry in the 3D view. This is information related to IJK cell values, the value of the currently selected result property, and the intersection point for the last mouse click in the 3D view.&#xA;If you want to show additional properties, activate and select additional properties from Multiple Result Info in the Project Tree. Additional values are displayed in addition to currently selected property.</description>
     </item>
-    
     <item>
       <title>Color Legends</title>
-      <link>https://resinsight.org/3d-main-window/colorlegends/</link>
+      <link>https://resinsight.org/3d-main-window/colorlegends/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/colorlegends/</guid>
-      <description>ResInsight offers both a rich set of built-in color legends and functionality for import and customizing color legends. All color legends are available from the Color Legends item in Project Tree.
-Standard Color Legends ResInsight offers an extensive set of built-in color legends as listed by Standard Color Legends. As Standard Color Legends cannot be modified, you must create a Custom Color Legend when needing a legend that is not covered by Standard Color Legends.</description>
+      <guid>https://resinsight.org/3d-main-window/colorlegends/index.html</guid>
+      <description>ResInsight offers both a rich set of built-in color legends and functionality for import and customizing color legends. All color legends are available from the Color Legends item in Project Tree.&#xA;Standard Color Legends ResInsight offers an extensive set of built-in color legends as listed by Standard Color Legends. As Standard Color Legends cannot be modified, you must create a Custom Color Legend when needing a legend that is not covered by Standard Color Legends.</description>
     </item>
-    
     <item>
       <title>Contour Maps</title>
-      <link>https://resinsight.org/3d-main-window/contourmaps/</link>
+      <link>https://resinsight.org/3d-main-window/contourmaps/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/contourmaps/</guid>
+      <guid>https://resinsight.org/3d-main-window/contourmaps/index.html</guid>
       <description>ResInsight can create contour maps based on different forms of aggregation of 3D Eclipse data onto a 2D Plane. Any 3D result value can be aggregated, in addition to specialised results, such as Oil, Gas and Hydrocarbon columns. A Contour Map is a specialised 2D view with many of the same features as the 3D views, including property filters, range filters and display of faults and wells. ResInsight is able to export a contour map to a text file.</description>
     </item>
-    
     <item>
       <title>Result Inspection</title>
-      <link>https://resinsight.org/3d-main-window/resultinspection/</link>
+      <link>https://resinsight.org/3d-main-window/resultinspection/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/resultinspection/</guid>
-      <description>The results mapped on the 3D model can be inspected in detail by left clicking cells in the 3D view. The selected cells will be highlighted, text information displayed in the Result Info docking window, and the time-history values plotted in the Result Plot, if available.
-The values along the different K-layers is available in the Depth Plot
-Visibility of the docking widows can be controlled from the Windows menu.</description>
+      <guid>https://resinsight.org/3d-main-window/resultinspection/index.html</guid>
+      <description>The results mapped on the 3D model can be inspected in detail by left clicking cells in the 3D view. The selected cells will be highlighted, text information displayed in the Result Info docking window, and the time-history values plotted in the Result Plot, if available.&#xA;The values along the different K-layers is available in the Depth Plot</description>
     </item>
-    
     <item>
       <title>Filters</title>
-      <link>https://resinsight.org/3d-main-window/filters/</link>
+      <link>https://resinsight.org/3d-main-window/filters/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/filters/</guid>
-      <description>Filters are used to control the visibility of cells in the 3D view. Two types of filters exist:
-Cell Filter &amp;ndash; Extracts subset(s) of grid cells Property Filter &amp;ndash; Extracts cells with a property value matching a value range The visibility of cells connected to wells, and fences can be controlled from Simulation Wells.
-(Not applicable for Geomechanical cases)
-Filters Settings Filters can be turned on and off using their check-boxes in Project Tree and controlled by their corresponding Property Editor.</description>
+      <guid>https://resinsight.org/3d-main-window/filters/index.html</guid>
+      <description>Filters are used to control the visibility of cells in the 3D view. Two types of filters exist:&#xA;Cell Filter – Extracts subset(s) of grid cells Property Filter – Extracts cells with a property value matching a value range Note&#xD;The visibility of cells connected to wells, and fences can be controlled from Simulation Wells.&#xA;(Not applicable for Geomechanical cases)</description>
     </item>
-    
     <item>
       <title>Quick Access</title>
-      <link>https://resinsight.org/3d-main-window/quickaccess/</link>
+      <link>https://resinsight.org/3d-main-window/quickaccess/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/quickaccess/</guid>
-      <description>For large projects with numerous views and grid models, navigating to the desired information can be time-consuming. To address this, we have introduced a special dialog named Quick Access, which displays selected information from a view. By default, this dialog is located to the right of the 3D views.
-When a 3D view is selected, the Quick Access dialog will display the following information:
-The connected grid case IJK value for an IJK cell range filter The minimum and maximum range for a property filter You can now collapse the 3D view in the Property Editor and still manipulate some properties of the view.</description>
+      <guid>https://resinsight.org/3d-main-window/quickaccess/index.html</guid>
+      <description>For large projects with numerous views and grid models, navigating to the desired information can be time-consuming. To address this, we have introduced a special dialog named Quick Access, which displays selected information from a view. By default, this dialog is located to the right of the 3D views.&#xA;When a 3D view is selected, the Quick Access dialog will display the following information:</description>
     </item>
-    
     <item>
       <title>Intersections</title>
-      <link>https://resinsight.org/3d-main-window/intersections/</link>
+      <link>https://resinsight.org/3d-main-window/intersections/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/intersections/</guid>
-      <description>Intersections are cross sections of a grid model that cut the grid in various ways to display grid cell values. There are two main types of intersections:
-Intersection: is defined by a piece-wise linear curve and a direction of extrusion. The curve can be either a simulation well, a well path, a user defined polyline, or a user defined line. An intersection can also be shown in a separate 2D Intersection View.</description>
+      <guid>https://resinsight.org/3d-main-window/intersections/index.html</guid>
+      <description>Intersections are cross sections of a grid model that cut the grid in various ways to display grid cell values. There are two main types of intersections:&#xA;Intersection: is defined by a piece-wise linear curve and a direction of extrusion. The curve can be either a simulation well, a well path, a user defined polyline, or a user defined line. An intersection can also be shown in a separate 2D Intersection View.</description>
     </item>
-    
     <item>
       <title>Polygons</title>
-      <link>https://resinsight.org/3d-main-window/polygons/</link>
+      <link>https://resinsight.org/3d-main-window/polygons/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/polygons/</guid>
-      <description>ResInsight supports import, export and creation of polygons and polylines.
-Polygons in Project A polygon is available for all views in a project. The polygons can be imported from file, exported to file or created by interactively clicking in a view.
-Create a Polygon To create a polygon, the user clicks on a set of locations in 3D. This operation can be started by:
-Right-click on some geometry in a view, from the menu select Polygon Right-click on Polygons in the Project Tree and select Create Polygon This will enable a mode where the user can click in the view to create a polygon.</description>
+      <guid>https://resinsight.org/3d-main-window/polygons/index.html</guid>
+      <description>ResInsight supports import, export and creation of polygons and polylines.&#xA;Polygons in Project A polygon is available for all views in a project. The polygons can be imported from file, exported to file or created by interactively clicking in a view.&#xA;Create a Polygon To create a polygon, the user clicks on a set of locations in 3D. This operation can be started by:</description>
     </item>
-    
     <item>
       <title>Surfaces</title>
-      <link>https://resinsight.org/3d-main-window/surfaces/</link>
+      <link>https://resinsight.org/3d-main-window/surfaces/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/surfaces/</guid>
-      <description>ResInsight is capable of mapping properties and simulation results onto 3D surfaces imported from GOCAD and Petrel as specified below.
-Import and appearance of surfaces 3D surfaces from GOCAD and Petrel are imported into ResInsight by the menu option File-&amp;gt;Import-&amp;gt;Import Surfaces in the 3D Main Window.
-Imported surfaces are listed under the entry in the Project Tree. You can click on a surface to change i.e. the name or color of the surface, or change the file to read the surface data from.</description>
+      <guid>https://resinsight.org/3d-main-window/surfaces/index.html</guid>
+      <description>ResInsight is capable of mapping properties and simulation results onto 3D surfaces imported from GOCAD and Petrel as specified below.&#xA;Import and appearance of surfaces 3D surfaces from GOCAD and Petrel are imported into ResInsight by the menu option File-&gt;Import-&gt;Import Surfaces in the 3D Main Window.</description>
     </item>
-    
     <item>
       <title>Faults</title>
-      <link>https://resinsight.org/3d-main-window/faults/</link>
+      <link>https://resinsight.org/3d-main-window/faults/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/faults/</guid>
-      <description>This section describes how Faults are detected and visualized. NNC&amp;rsquo;s are a part of the Faults visualization and are thus also mentioned in this section.
-Related pages :
-Allan Diagrams
-Derived Results
-Fault Detection ResInsight always scans the grids for geometrical faults when they are loaded. When two opposite cell faces of I, J, K neighbor cells does not match geometrically, they are tagged.
-All the tagged cell faces are then compared to the faults possibly imported from the *.</description>
+      <guid>https://resinsight.org/3d-main-window/faults/index.html</guid>
+      <description>This section describes how Faults are detected and visualized. NNC’s are a part of the Faults visualization and are thus also mentioned in this section.&#xA;Related pages :&#xA;Allan Diagrams&#xA;Derived Results&#xA;Fault Detection ResInsight always scans the grids for geometrical faults when they are loaded. When two opposite cell faces of I, J, K neighbor cells does not match geometrically, they are tagged.</description>
     </item>
-    
     <item>
       <title>Allan Diagram</title>
-      <link>https://resinsight.org/3d-main-window/allandiagrams/</link>
+      <link>https://resinsight.org/3d-main-window/allandiagrams/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/allandiagrams/</guid>
-      <description>Allan Diagrams displays the overlap of formations and layers across fault faces.
-Separate Fault Result The Allan Diagram is dispayed by selecting the Separate Fault Result in the project tree. See Faults for more details.
-Property Editor Settings Binary Formation Allan One color for all NNC areas with same formation on across fault, and one color for NNC with different formations across fault Formation Allan Formation colors are used, and a mix of the two formation colors are displayed if we have different formations across fault Mouse interaction When clicking on an NNC area multiple times, the highlighted cell switched from the cell in front of the formation and behind the fault.</description>
+      <guid>https://resinsight.org/3d-main-window/allandiagrams/index.html</guid>
+      <description>Allan Diagrams displays the overlap of formations and layers across fault faces.&#xA;Separate Fault Result The Allan Diagram is dispayed by selecting the Separate Fault Result in the project tree. See Faults for more details.&#xA;Property Editor Settings Binary Formation Allan One color for all NNC areas with same formation on across fault, and one color for NNC with different formations across fault Formation Allan Formation colors are used, and a mix of the two formation colors are displayed if we have different formations across fault Mouse interaction When clicking on an NNC area multiple times, the highlighted cell switched from the cell in front of the formation and behind the fault. The Result Info text is updated when the selected cell is changed.</description>
     </item>
-    
     <item>
       <title> Zonations/Formations</title>
-      <link>https://resinsight.org/3d-main-window/formations/</link>
+      <link>https://resinsight.org/3d-main-window/formations/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/formations/</guid>
-      <description>This section will describe how to use formations for different k-layers of a case, and how to use well picks/zonations for ranges of measured depths of a well path.
-Formations for k-layers Formation information can be utilized in ResInsight as cell colors, used in property filters and are displayed in the Result info panel when selecting single cells.
-To use this functionality you will need to :
-Import one or more Formation Names file(s) Select the correct Formation Names file in the Case of interest Import of Formation Names Files Formation Names files can be imported by using the command: File-&amp;gt;Import-&amp;gt;Import Formation Names.</description>
+      <guid>https://resinsight.org/3d-main-window/formations/index.html</guid>
+      <description>This section will describe how to use formations for different k-layers of a case, and how to use well picks/zonations for ranges of measured depths of a well path.&#xA;Formations for k-layers Formation information can be utilized in ResInsight as cell colors, used in property filters and are displayed in the Result info panel when selecting single cells.</description>
     </item>
-    
     <item>
       <title>Depth Plot</title>
-      <link>https://resinsight.org/3d-main-window/depthplot/</link>
+      <link>https://resinsight.org/3d-main-window/depthplot/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/depthplot/</guid>
-      <description>When clicking on cells in 3D, all values along the IJ column of the selected cells can be displayed in a depth plot. This can be combined with a Result Plot displaying the change for selected cells over time.
-Result Inspection</description>
+      <guid>https://resinsight.org/3d-main-window/depthplot/index.html</guid>
+      <description>When clicking on cells in 3D, all values along the IJ column of the selected cells can be displayed in a depth plot. This can be combined with a Result Plot displaying the change for selected cells over time.&#xA;Result Inspection</description>
     </item>
-    
     <item>
       <title>Seismic View</title>
-      <link>https://resinsight.org/3d-main-window/seismicview/</link>
+      <link>https://resinsight.org/3d-main-window/seismicview/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/seismicview/</guid>
-      <description>Seismic View Import of data is described in Seismic Data. A seismic view can be created based on a seismic cube. This view can display seismic data, wells and annotation object. To visualize both grid data and seismic data in the same view, see Seismic Sections.
-Seismic View features When seismic data is present, a new Seismic View can be created from the right-click menu of a seismic data source or the seismic views folder item.</description>
+      <guid>https://resinsight.org/3d-main-window/seismicview/index.html</guid>
+      <description>Seismic View Import of data is described in Seismic Data. A seismic view can be created based on a seismic cube. This view can display seismic data, wells and annotation object. To visualize both grid data and seismic data in the same view, see Seismic Sections.&#xA;Seismic View features When seismic data is present, a new Seismic View can be created from the right-click menu of a seismic data source or the seismic views folder item. Seismic sections can be created for display of seismic data on intersections. See Seismic Sections for more details.</description>
     </item>
-    
     <item>
       <title>Seismic Sections</title>
-      <link>https://resinsight.org/3d-main-window/seismicsections/</link>
+      <link>https://resinsight.org/3d-main-window/seismicsections/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/seismicsections/</guid>
-      <description>Creating a Seismic Section Import of data is described in Seismic Data
-Seismic Sections are cross sections that cut a grid model in various ways to display seismic data. A Seismic Section is created by right-clicking the Seismic Section item in Project Tree
-The following types of Seismic Sections are available:
-Inline Section: A seismic line within a 3D survey parallel to the direction in which the data were acquired.</description>
+      <guid>https://resinsight.org/3d-main-window/seismicsections/index.html</guid>
+      <description>Creating a Seismic Section Import of data is described in Seismic Data&#xA;Seismic Sections are cross sections that cut a grid model in various ways to display seismic data. A Seismic Section is created by right-clicking the Seismic Section item in Project Tree&#xA;The following types of Seismic Sections are available:</description>
     </item>
-    
     <item>
       <title>Linked Views</title>
-      <link>https://resinsight.org/3d-main-window/linkedviews/</link>
+      <link>https://resinsight.org/3d-main-window/linkedviews/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/linkedviews/</guid>
-      <description>One or more views can be linked together to allow some settings like camera position and range filters, propagate from one view to another.
-Establish Linked Views To establish a link between views, select Link Visible Views from the View toolbar. This will open a dialog where the Master View is selected. When pressing Ok in this dialog, the Linked Views items are displayed in the top of the Project Tree.</description>
+      <guid>https://resinsight.org/3d-main-window/linkedviews/index.html</guid>
+      <description>One or more views can be linked together to allow some settings like camera position and range filters, propagate from one view to another.&#xA;Establish Linked Views To establish a link between views, select Link Visible Views from the View toolbar. This will open a dialog where the Master View is selected. When pressing Ok in this dialog, the Linked Views items are displayed in the top of the Project Tree.</description>
     </item>
-    
     <item>
       <title>Comparison View</title>
-      <link>https://resinsight.org/3d-main-window/comparisonview/</link>
+      <link>https://resinsight.org/3d-main-window/comparisonview/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/comparisonview/</guid>
-      <description>ResInsight offers a Comparison View to compare two existing views in terms of grid geometry, results, intersections and more. The Comparison View allows comparison of information of different grids and different solutions on the same grid in a single view. This improves efficiency and simplifies the workflow when working with related but different models.
-The figure above exemplifies a Comparison View for comparison of two different simulations models and results.</description>
+      <guid>https://resinsight.org/3d-main-window/comparisonview/index.html</guid>
+      <description>ResInsight offers a Comparison View to compare two existing views in terms of grid geometry, results, intersections and more. The Comparison View allows comparison of information of different grids and different solutions on the same grid in a single view. This improves efficiency and simplifies the workflow when working with related but different models.&#xA;The figure above exemplifies a Comparison View for comparison of two different simulations models and results. The left hand side is used to display grid and results of an Eclipse simulation while the right hand side displays an ABAQUS grid and simulation results from geomechanical analysis.</description>
     </item>
-    
     <item>
       <title>Flow Results</title>
-      <link>https://resinsight.org/3d-main-window/flowvectorresult/</link>
+      <link>https://resinsight.org/3d-main-window/flowvectorresult/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/flowvectorresult/</guid>
-      <description>Flow Results lets the user investigate flow properties and fluxes in a reservoir, e.g. by flow vector visualizations selecting and combining different fluids and directions.
-Flow Vectors Flow vectors are computed based on the Eclipse properties FLRGASI/J/K FLRWATI/J/K FLROILI/J/K. Visualization of flow vector results always use velocity instead of rate. Velocity is computed as flow rate divided by cell face area.
-In order to show flow vectors, check the checkbox next to Flow Vector Result in Project Tree.</description>
+      <guid>https://resinsight.org/3d-main-window/flowvectorresult/index.html</guid>
+      <description>Flow Results lets the user investigate flow properties and fluxes in a reservoir, e.g. by flow vector visualizations selecting and combining different fluids and directions.&#xA;Flow Vectors Flow vectors are computed based on the Eclipse properties FLRGASI/J/K FLRWATI/J/K FLROILI/J/K. Visualization of flow vector results always use velocity instead of rate. Velocity is computed as flow rate divided by cell face area.</description>
     </item>
-    
     <item>
       <title>Streamlines</title>
-      <link>https://resinsight.org/3d-main-window/streamlines/</link>
+      <link>https://resinsight.org/3d-main-window/streamlines/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/streamlines/</guid>
-      <description>Streamlines lets the user investigate the flow of different phases through a reservoar. It allows for selecting both an individual phase or a combination of phases colored by the dominant phase or velocity. The visualization and animation of streamlines requires the Eclipse properties FLRGASI/J/K FLRWATI/J/K FLROILI/J/K.
-Displaying Streamlines To display streamlines, select a time step and check the Streamlines checkbox in Project Tree.
-Property Editor The display and animation of streamlines is controlled by the Property Editor.</description>
+      <guid>https://resinsight.org/3d-main-window/streamlines/index.html</guid>
+      <description>Streamlines lets the user investigate the flow of different phases through a reservoar. It allows for selecting both an individual phase or a combination of phases colored by the dominant phase or velocity. The visualization and animation of streamlines requires the Eclipse properties FLRGASI/J/K FLRWATI/J/K FLROILI/J/K.&#xA;Displaying Streamlines To display streamlines, select a time step and check the Streamlines checkbox in Project Tree.</description>
     </item>
-    
     <item>
       <title>Measurement</title>
-      <link>https://resinsight.org/3d-main-window/measurement/</link>
+      <link>https://resinsight.org/3d-main-window/measurement/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/measurement/</guid>
-      <description>ResInsight supports measurements in the 3D views. To enter measurement mode, press the ruler toolbar button or the keyboard shortcut Ctrl-M. This mode can also be activated from the right-click menu in a 3D view.
-When ResInsight is in measurement mode, clicking on an surface in the 3D view will set the first measurement point. Clicking on a different surface will set the second measurement point, and display a label with measurements.</description>
+      <guid>https://resinsight.org/3d-main-window/measurement/index.html</guid>
+      <description>ResInsight supports measurements in the 3D views. To enter measurement mode, press the ruler toolbar button or the keyboard shortcut Ctrl-M. This mode can also be activated from the right-click menu in a 3D view.&#xA;When ResInsight is in measurement mode, clicking on an surface in the 3D view will set the first measurement point. Clicking on a different surface will set the second measurement point, and display a label with measurements. Additional clicking will start a new measurement between two points.</description>
     </item>
-    
     <item>
       <title>Annotations</title>
-      <link>https://resinsight.org/3d-main-window/annotations/</link>
+      <link>https://resinsight.org/3d-main-window/annotations/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/annotations/</guid>
-      <description>ResInsight supports displaying a few types of annotations in 3D views and Contour Map view.
-Text annotations Reach circle annotations Polyline annotations User defined polylines Polylines imported from file Global scope vs local scope annotations Global annotations may be displayed in all views and are located in the Annotations project tree node right below Grid Models (Global annotations sub tree). Local annotations are associated with a specific view and are located in the Annotations project tree node below the view node (Local annotations sub tree).</description>
+      <guid>https://resinsight.org/3d-main-window/annotations/index.html</guid>
+      <description>ResInsight supports displaying a few types of annotations in 3D views and Contour Map view.&#xA;Text annotations Reach circle annotations Polyline annotations User defined polylines Polylines imported from file Global scope vs local scope annotations Global annotations may be displayed in all views and are located in the Annotations project tree node right below Grid Models (Global annotations sub tree). Local annotations are associated with a specific view and are located in the Annotations project tree node below the view node (Local annotations sub tree). All annotation types except text annotations are global only. Text annotation may be either global or local.</description>
     </item>
-    
     <item>
       <title>Tensor Results</title>
-      <link>https://resinsight.org/3d-main-window/tensors/</link>
+      <link>https://resinsight.org/3d-main-window/tensors/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/tensors/</guid>
-      <description>Tensors are arrows showing the average principal vectors in an element, shown on every visible face of the element.
-The tensor results editor is found in a geo mechanical model&amp;rsquo;s View in the project tree as seen below.
-Visualization The tensor arrows visualize the principal vectors in three directions. Each colored pair of arrows represents a principal. In the example above, the orange and blue arrows represent pressures and the white arrows represent a tension.</description>
+      <guid>https://resinsight.org/3d-main-window/tensors/index.html</guid>
+      <description>Tensors are arrows showing the average principal vectors in an element, shown on every visible face of the element.&#xA;The tensor results editor is found in a geo mechanical model’s View in the project tree as seen below.&#xA;Visualization</description>
     </item>
-    
     <item>
       <title>Grid Statistics Dialog</title>
-      <link>https://resinsight.org/3d-main-window/gridstatisticsdialog/</link>
+      <link>https://resinsight.org/3d-main-window/gridstatisticsdialog/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/gridstatisticsdialog/</guid>
-      <description>ResInsight 3D Views has an info box in the upper right corner displaying statistics for the current view. A more detailed version of this information may also be displayed in a separate dialog window. Right click on the 3D view background and select Grid Statistics to bring up the dialog.
-Grid Statistics Dialog Fields The dialog consist of three information parts.
-Info text Histogram Cumulative Histogram Info Text The Info Text field shows general info about the case, the selected results, and some statistics.</description>
+      <guid>https://resinsight.org/3d-main-window/gridstatisticsdialog/index.html</guid>
+      <description>ResInsight 3D Views has an info box in the upper right corner displaying statistics for the current view. A more detailed version of this information may also be displayed in a separate dialog window. Right click on the 3D view background and select Grid Statistics to bring up the dialog.&#xA;Grid Statistics Dialog Fields The dialog consist of three information parts.</description>
     </item>
-    
   </channel>
 </rss>

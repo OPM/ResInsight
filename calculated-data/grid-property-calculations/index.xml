@@ -1,30 +1,25 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Grid Property Calculator on ResInsight</title>
-    <link>https://resinsight.org/calculated-data/grid-property-calculations/</link>
-    <description>Recent content in Grid Property Calculator on ResInsight</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://resinsight.org/calculated-data/grid-property-calculations/index.xml" rel="self" type="application/rss+xml" />
+    <title>Grid Property Calculator :: ResInsight</title>
+    <link>https://resinsight.org/calculated-data/grid-property-calculations/index.html</link>
+    <description>ResInsight offers a built-in property calculator for grid parameters. The Grid Property Calculator enables arithmetic expressions to be parsed and calculated for visualization purposes. The expression can be applied to one or multiple grid models, and the expression text can be stored to a file for later use.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="https://resinsight.org/calculated-data/grid-property-calculations/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Grid Property Calculator</title>
-      <link>https://resinsight.org/calculated-data/grid-property-calculations/gridpropertycalculator/</link>
+      <link>https://resinsight.org/calculated-data/grid-property-calculations/gridpropertycalculator/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/calculated-data/grid-property-calculations/gridpropertycalculator/</guid>
-      <description>ResInsight offers a built-in property calculator for grid parameters. The Grid Property Calculator enables arithmetic expressions to be parsed and calculated for visualization purposes. The expression can be applied to one or multiple grid models, and the expression text can be stored to a file for later use.
-Expressions can be saved to a text file using the Export Calculations button. The default location for calculations can be set in Preference-&amp;gt;Import/Export.</description>
+      <guid>https://resinsight.org/calculated-data/grid-property-calculations/gridpropertycalculator/index.html</guid>
+      <description>ResInsight offers a built-in property calculator for grid parameters. The Grid Property Calculator enables arithmetic expressions to be parsed and calculated for visualization purposes. The expression can be applied to one or multiple grid models, and the expression text can be stored to a file for later use.&#xA;Expressions can be saved to a text file using the Export Calculations button. The default location for calculations can be set in Preference-&gt;Import/Export.</description>
     </item>
-    
     <item>
       <title>Aggregation of Grid Cell Values</title>
-      <link>https://resinsight.org/calculated-data/grid-property-calculations/aggregationofgridcellvalues/</link>
+      <link>https://resinsight.org/calculated-data/grid-property-calculations/aggregationofgridcellvalues/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/calculated-data/grid-property-calculations/aggregationofgridcellvalues/</guid>
-      <description>Calculate statistics for sum of mobile oil for an ensemble Workflow description
-Import an ensemble of grid models with identical IJK into a Grid Case Group. Create a view on one of the source grid models, and create a cell filter for the region of interest. Create an expression for mobile oil MOBILE_OIL := if(((SOIL-SOWCR) &amp;lt; 0.00), 0.00, PORV*(SOIL-SOWCR)) Select a subset of time steps. This will significantly affect performance for for large grids with many time steps.</description>
+      <guid>https://resinsight.org/calculated-data/grid-property-calculations/aggregationofgridcellvalues/index.html</guid>
+      <description>Calculate statistics for sum of mobile oil for an ensemble Workflow description&#xA;Import an ensemble of grid models with identical IJK into a Grid Case Group. Create a view on one of the source grid models, and create a cell filter for the region of interest. Create an expression for mobile oil MOBILE_OIL := if(((SOIL-SOWCR) &lt; 0.00), 0.00, PORV*(SOIL-SOWCR)) Select a subset of time steps. This will significantly affect performance for for large grids with many time steps. Create an expression to aggregate values for all visible cells SUM_MOBILE_OIL := sum(MOBILE_OIL) Use the result from the previous calculation as input to the variable, use MOBILE_OIL from the Generated category. Make sure Apply to All Cases is checked. The individual values for each realization and time step is displayed as text in Messages. The statistics for each time step is displayed at the bottom.</description>
     </item>
-    
   </channel>
 </rss>

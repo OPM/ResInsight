@@ -1,30 +1,25 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Flow Diagnostics Plots on ResInsight</title>
-    <link>https://resinsight.org/plot-window/flow-diagnostics-plots/</link>
-    <description>Recent content in Flow Diagnostics Plots on ResInsight</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://resinsight.org/plot-window/flow-diagnostics-plots/index.xml" rel="self" type="application/rss+xml" />
+    <title>Flow Diagnostics Plots :: ResInsight</title>
+    <link>https://resinsight.org/plot-window/flow-diagnostics-plots/index.html</link>
+    <description>Flow Diagnostics Plots can be used to view well allocation, well inflow rates, cumulative saturation along time of flight and flow characteristics.&#xA;They are managed from the folder Flow Diagnostics Plots located in Plot Project Tree in the Plot Main Window.&#xA;This folder contains a default Flow Characteristics Plot and Well Allocation Plot. In addition, two folders with stored well allocation and flow characteristics plots will show up if there are any of those in the model.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="https://resinsight.org/plot-window/flow-diagnostics-plots/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Producer/Injector Connectivity Tables</title>
-      <link>https://resinsight.org/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/</link>
+      <link>https://resinsight.org/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/</guid>
-      <description>Producer/Injector Connectivity Tables is a display of Flow Diagnostics Data as a color map in table format. The table either shows flow rate data for a single time step, or accumulated flow volume data over a range of time steps.
-The table lists one producer per row and one injector per column. The cell data is the flow rate data or accumulated flow volume data based on the selected Time Step Type.</description>
+      <guid>https://resinsight.org/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/index.html</guid>
+      <description>Producer/Injector Connectivity Tables is a display of Flow Diagnostics Data as a color map in table format. The table either shows flow rate data for a single time step, or accumulated flow volume data over a range of time steps.&#xA;The table lists one producer per row and one injector per column. The cell data is the flow rate data or accumulated flow volume data based on the selected Time Step Type. This table data provides an overview of the communicating wells in the reservoir, and shows which injector contributes to which producer, and who are the largest contributors to production.</description>
     </item>
-    
     <item>
       <title>Well Allocation Over Time Plot</title>
-      <link>https://resinsight.org/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/</link>
+      <link>https://resinsight.org/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/</guid>
-      <description>Well Allocation Over Time Plot is a plot displaying the flow data of Well Allocation Plots over a range of time steps. The plot provides the union of wells existing across all time steps for the selected case.
-The plot utilize the Flow Diagnostics to provide an overview of which well or phase contributes most to the flow in a selected well. One can e.g. see which injectors are contributing to production of a producing well, and vice versa, over the selected time step range.</description>
+      <guid>https://resinsight.org/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/index.html</guid>
+      <description>Well Allocation Over Time Plot is a plot displaying the flow data of Well Allocation Plots over a range of time steps. The plot provides the union of wells existing across all time steps for the selected case.&#xA;The plot utilize the Flow Diagnostics to provide an overview of which well or phase contributes most to the flow in a selected well. One can e.g. see which injectors are contributing to production of a producing well, and vice versa, over the selected time step range. The plot can be configured with a From and To time step to create the defined time step range. One can either utilize all time steps in the defined range, or one can down sample the date resolution by defining a number of time steps to utilize. Specific time steps flow values can be excluded by selection - the flow rate value for next time step is then utilized for calculations for excluded time step.</description>
     </item>
-    
   </channel>
 </rss>

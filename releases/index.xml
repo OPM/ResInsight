@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Releases :: ResInsight</title>
+    <link>https://resinsight.org/releases/index.html</link>
+    <description>Installation See the following for common install procedures and options:&#xA;Linux Installation Windows Installation Release Notes Sign up to be notified of new releases For the complete list of releases and updates, please visit ResInsight on Github.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="https://resinsight.org/releases/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Linux Installation</title>
+      <link>https://resinsight.org/releases/linux-installation/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/releases/linux-installation/index.html</guid>
+      <description>Install From Binary Packages on Linux Info&#xD;Please not that the distribution by the OPM Project will be updated some time after the release of a new version on GitHub.&#xA;Ubuntu On the command line do:&#xA;sudo apt-get update&#xD;sudo apt-get install software-properties-common&#xD;sudo apt-add-repository ppa:opm/ppa&#xD;sudo apt-get update&#xD;sudo apt-get install resinsight&#xD;sudo apt-get install octave-resinsight&#xD;Launch the application using the command ResInsight</description>
+    </item>
+    <item>
+      <title>Windows Installation</title>
+      <link>https://resinsight.org/releases/windows-installation/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/releases/windows-installation/index.html</guid>
+      <description>ResInsight Installation Download ZIP binary distribution from https://github.com/OPM/ResInsight/releases Extract content from ZIP file Start ResInsight.exe Info&#xD;The binary distribution does not support ABAQUS odb files. For building ResInsight with ABAQUS support, see Build Instructions.&#xA;Octave Installation (optional) Download Octave-4.0.0 and install it. (Newer versions will not work) Launch ResInsight.exe, open Edit-&gt;Preferences. On the Octave tab, enter the path to the Octave command line interpreter executable.&#xA;( Usually C:\Your\Path\To\Octave-x.x.x\bin\octave-cli.exe ) Info&#xD;A binary package of ResInsight will normally not work with other Octave versions than the one it is compiled with.</description>
+    </item>
+    <item>
+      <title>Release Notes</title>
+      <link>https://resinsight.org/releases/release-notes/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/releases/release-notes/index.html</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Release Notification Subscription</title>
+      <link>https://resinsight.org/releases/releasenotification/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/releases/releasenotification/index.html</guid>
+      <description>LinkedIn Feel free to join ResInsight on LinkedIn&#xA;Newsletter By subscribing to the Release Notification you will get notified when new releases are available. Please use the button below to send a request for subscription mail.&#xA;Subscribe</description>
+    </item>
+    <item>
+      <title>Windows Subsystem for Linux</title>
+      <link>https://resinsight.org/releases/windows-subsystem-for-linux/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/releases/windows-subsystem-for-linux/index.html</guid>
+      <description>The Windows Subsystem for Linux (WSL) lets developers install a Linux distribution and use Linux applications, utilities, and Bash command-line tools directly on Windows, unmodified, without the overhead of a traditional virtual machine or dualboot setup.&#xA;https://learn.microsoft.com/en-us/windows/wsl/install&#xA;ResInsight has been successfully installed and used on Ubuntu in WSL. The installation is similar to the Linux installation. The desktop application can be launced from the WSL command line, and the user interface will show up on the Windows desktop.</description>
+    </item>
+    <item>
+      <title>Build From Source</title>
+      <link>https://resinsight.org/releases/build-from-source/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/releases/build-from-source/index.html</guid>
+      <description>Installation See the following for common install procedures and options:&#xA;Linux Installation Windows Installation See Build Instructions for the complete list of configuration options including support for Octave plugins, ABAQUS ODB API, and HDF5.&#xA;Sign up to be notified of new releases For the complete list of releases and updates, please visit ResInsight on Github.</description>
+    </item>
+  </channel>
+</rss>

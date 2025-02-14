@@ -1,77 +1,60 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Calculated Data on ResInsight</title>
-    <link>https://resinsight.org/calculated-data/</link>
-    <description>Recent content in Calculated Data on ResInsight</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://resinsight.org/calculated-data/index.xml" rel="self" type="application/rss+xml" />
+    <title>Calculated Data :: ResInsight</title>
+    <link>https://resinsight.org/calculated-data/index.html</link>
+    <description>ResInsight offers a built-in calculators for both summary curves and grid parameters. These expressions can be stored to text files for later use.&#xA;Other more specialized calculations are also available, such as fault distance, geomechanical results, and calculation of statistics for grid cell values.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="https://resinsight.org/calculated-data/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Calculator Expressions</title>
-      <link>https://resinsight.org/calculated-data/calculatorexpressions/</link>
+      <link>https://resinsight.org/calculated-data/calculatorexpressions/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/calculated-data/calculatorexpressions/</guid>
-      <description>Two similar calculators use expressions, summary curve calculator and grid cell calculator. These two variants share the text parsing for calculator expressions.
-Grid Property Calculator
-Summary Curve Calculator
-ResInsight supports a subset of the features supported in the exprtk parsing library. Scripting features like for/while loops are not supported. The full documentation for the expression parser is available at C++ Mathematical Expression Toolkit Library
-Operators and Functions Possible operations and functions are found by right-clicking in the expression window.</description>
+      <guid>https://resinsight.org/calculated-data/calculatorexpressions/index.html</guid>
+      <description>Two similar calculators use expressions, summary curve calculator and grid cell calculator. These two variants share the text parsing for calculator expressions.&#xA;Grid Property Calculator&#xA;Summary Curve Calculator&#xA;ResInsight supports a subset of the features supported in the exprtk parsing library. Scripting features like for/while loops are not supported. The full documentation for the expression parser is available at C++ Mathematical Expression Toolkit Library</description>
     </item>
-    
+    <item>
+      <title>Grid Property Calculator</title>
+      <link>https://resinsight.org/calculated-data/grid-property-calculations/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/calculated-data/grid-property-calculations/index.html</guid>
+      <description>ResInsight offers a built-in property calculator for grid parameters. The Grid Property Calculator enables arithmetic expressions to be parsed and calculated for visualization purposes. The expression can be applied to one or multiple grid models, and the expression text can be stored to a file for later use.</description>
+    </item>
     <item>
       <title>Curve Calculator</title>
-      <link>https://resinsight.org/calculated-data/curvecalculator/</link>
+      <link>https://resinsight.org/calculated-data/curvecalculator/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/calculated-data/curvecalculator/</guid>
-      <description>The summary curve calculator is a tool to do calculations on a set of curves. The created curves can be stored for later use in the project.
-The calculator can be run by pressing the calculator icon in the menu bar, or by right-clicking on either a summary case or the summary plot collection.
-Expressions can be saved to a text file using the Export Calculations button. The default location for calculations can be set in Preference-&amp;gt;Import/Export.</description>
+      <guid>https://resinsight.org/calculated-data/curvecalculator/index.html</guid>
+      <description>The summary curve calculator is a tool to do calculations on a set of curves. The created curves can be stored for later use in the project.&#xA;The calculator can be run by pressing the calculator icon in the menu bar, or by right-clicking on either a summary case or the summary plot collection.&#xA;Expressions can be saved to a text file using the Export Calculations button. The default location for calculations can be set in Preference-&gt;Import/Export.</description>
     </item>
-    
     <item>
       <title>Derived Results - Eclipse</title>
-      <link>https://resinsight.org/calculated-data/derivedresults/</link>
+      <link>https://resinsight.org/calculated-data/derivedresults/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/calculated-data/derivedresults/</guid>
-      <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.
-Derived Results for Eclipse Cases ResInsight calculates several derived cell properties that is made available as Static or Dynamic cell properties. The derived results listed at the bottom of the Static result properties, are shown below.
-Transmissibility Normalized by Area The transmissibility for cells and Non-Neighbor Connections (NNCs) are dependent on both cell properties and geometry.</description>
+      <guid>https://resinsight.org/calculated-data/derivedresults/index.html</guid>
+      <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.&#xA;Derived Results for Eclipse Cases ResInsight calculates several derived cell properties that is made available as Static or Dynamic cell properties. The derived results listed at the bottom of the Static result properties, are shown below.&#xA;Transmissibility Normalized by Area The transmissibility for cells and Non-Neighbor Connections (NNCs) are dependent on both cell properties and geometry. ResInsight normalizes TRANX, TRANY and TRANZ with the overlapping flow area for both neighbor cells and NNC-cells. The results are named riTRANXbyArea, riTRANYbyArea and riTRANZbyArea respectively.</description>
     </item>
-    
     <item>
       <title>Fault Distance</title>
-      <link>https://resinsight.org/calculated-data/faultdistance/</link>
+      <link>https://resinsight.org/calculated-data/faultdistance/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/calculated-data/faultdistance/</guid>
-      <description>Fault Distance When planning new well paths, it can be usedful to see the distance from the current cell to the closest fault. This result is available in Static-&amp;gt;FAULTDIST
-Calculation The distance is calculated based on the distance from each cell face center to the closest fault face center. One value is calculated per each cell. The calculation is started when the FAULTDIST result is selected.</description>
+      <guid>https://resinsight.org/calculated-data/faultdistance/index.html</guid>
+      <description>Fault Distance When planning new well paths, it can be usedful to see the distance from the current cell to the closest fault. This result is available in Static-&gt;FAULTDIST&#xA;Calculation The distance is calculated based on the distance from each cell face center to the closest fault face center. One value is calculated per each cell. The calculation is started when the FAULTDIST result is selected.</description>
     </item>
-    
     <item>
       <title>Derived Results - Geomechanical</title>
-      <link>https://resinsight.org/calculated-data/derivedresultsgeomech/</link>
+      <link>https://resinsight.org/calculated-data/derivedresultsgeomech/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/calculated-data/derivedresultsgeomech/</guid>
-      <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.
-Derived Geomechanical results ResInsight calculates several of the presented geomechanical results based on the native results present in the odb-files.
-Relative Results (Time Lapse Results) ResInsight can calculate and display relative results, sometimes also referred to as Time Lapse results. When enabled, every result variable is calculated as:
-$Value_{[t-b]} = Value_{[t]} - Value_{[b]}$</description>
+      <guid>https://resinsight.org/calculated-data/derivedresultsgeomech/index.html</guid>
+      <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.&#xA;Derived Geomechanical results ResInsight calculates several of the presented geomechanical results based on the native results present in the odb-files.&#xA;Relative Results (Time Lapse Results) ResInsight can calculate and display relative results, sometimes also referred to as Time Lapse results. When enabled, every result variable is calculated as:&#xA;$Value_{[t-b]} = Value_{[t]} - Value_{[b]}$</description>
     </item>
-    
     <item>
       <title>Grid Case Groups and Statistics</title>
-      <link>https://resinsight.org/calculated-data/casegroupsandstatistics/</link>
+      <link>https://resinsight.org/calculated-data/casegroupsandstatistics/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/calculated-data/casegroupsandstatistics/</guid>
-      <description>Grid Case Group&amp;rsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
-If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step.</description>
+      <guid>https://resinsight.org/calculated-data/casegroupsandstatistics/index.html</guid>
+      <description>Grid Case Group’s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).&#xA;If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step. Grid calculations can optionally be used as a data source for computations.</description>
     </item>
-    
   </channel>
 </rss>

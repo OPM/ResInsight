@@ -1,169 +1,116 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Import on ResInsight</title>
-    <link>https://resinsight.org/import/</link>
-    <description>Recent content in Import on ResInsight</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://resinsight.org/import/index.xml" rel="self" type="application/rss+xml" />
+    <title>Import :: ResInsight</title>
+    <link>https://resinsight.org/import/index.html</link>
+    <description>ResInsight is able to import a wide span of Eclipse files, seismic data files, and ROFF grid models.&#xA;For import of Eclipse data pertinent to summary vectors and well log data, see Plot Window.&#xA;ResInsight can be built with support for geomechanical models from ABAQUS and is also able to import transient reservoir souring data from the SourSimRL simulation software.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="https://resinsight.org/import/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Cloud Services</title>
-      <link>https://resinsight.org/import/cloudservices/</link>
+      <link>https://resinsight.org/import/cloudservices/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/import/cloudservices/</guid>
-      <description>Configuration of cloud services is described in Cloud Services - Authorization.
-Summary Ensembles from SUMO Summary ensemble data can be accessed from SUMO. ResInsight will store the required information to the data source, and fetch data from the cloud during project import.
-Select Cloud Data, this will show available fields with cases in the Data Source Property Editor Select Field and Case, and a list of available ensembles are displayed Select Ensembles and push Add Ensembles.</description>
+      <guid>https://resinsight.org/import/cloudservices/index.html</guid>
+      <description>Configuration of cloud services is described in Cloud Services - Authorization.&#xA;Summary Ensembles from SUMO Summary ensemble data can be accessed from SUMO. ResInsight will store the required information to the data source, and fetch data from the cloud during project import.&#xA;Select Cloud Data, this will show available fields with cases in the Data Source Property Editor Select Field and Case, and a list of available ensembles are displayed Select Ensembles and push Add Ensembles. This operation creates a cloud ensemble data source and a summary plot connected to this data source. Use the button Add Data Sources if you want to avoid creation of summary plots Example of summary ensembles</description>
     </item>
-    
     <item>
       <title>Cloud Services - Authorization</title>
-      <link>https://resinsight.org/import/cloudservicesauthorization/</link>
+      <link>https://resinsight.org/import/cloudservicesauthorization/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/import/cloudservicesauthorization/</guid>
-      <description>Authorization Currently supported cloud services use OAuth 2.0, the industry-standerd protocol for authentication. The first time a user initiates data from a cloud service, a browser window will appear for the user to enter username/password followed by additional two-factor authentication. A text string usually called a token is created, containing the access and authorization information required to access the cloud data source. This token is cached by ResInsight in the .</description>
+      <guid>https://resinsight.org/import/cloudservicesauthorization/index.html</guid>
+      <description>Authorization Currently supported cloud services use OAuth 2.0, the industry-standerd protocol for authentication. The first time a user initiates data from a cloud service, a browser window will appear for the user to enter username/password followed by additional two-factor authentication. A text string usually called a token is created, containing the access and authorization information required to access the cloud data source. This token is cached by ResInsight in the .resinsight folder in your home folder. A token is by default valid for several days.</description>
     </item>
-    
     <item>
       <title>Eclipse Cases</title>
-      <link>https://resinsight.org/import/eclipsecases/</link>
+      <link>https://resinsight.org/import/eclipsecases/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/import/eclipsecases/</guid>
-      <description>ResInsight supports the following type of Eclipse input data:
-*.GRID and *.EGRID files along with their *.INIT and restart files *.XNNN and *.UNRST. Grid and Property data from *.GRDECL files. Release 2018.11 supports import of simulations from Intersect. To be able to import into ResInsight, the Intersect simulation must be exported into Eclipse file format.
-Eclipse Results ResInsight offers several ways to import Eclipse (grid) files. Use one of the following commands in the File-&amp;gt;Import-&amp;gt;Eclipse Cases menu:</description>
+      <guid>https://resinsight.org/import/eclipsecases/index.html</guid>
+      <description>ResInsight supports the following type of Eclipse input data:&#xA;*.GRID and *.EGRID files along with their *.INIT and restart files *.XNNN and *.UNRST. Grid and Property data from *.GRDECL files. Note&#xD;Release 2018.11 supports import of simulations from Intersect. To be able to import into ResInsight, the Intersect simulation must be exported into Eclipse file format.&#xA;Eclipse Results ResInsight offers several ways to import Eclipse (grid) files. Use one of the following commands in the File-&gt;Import-&gt;Eclipse Cases menu:</description>
     </item>
-    
     <item>
       <title>Eclipse Summary Data</title>
-      <link>https://resinsight.org/import/eclipsesummarydata/</link>
+      <link>https://resinsight.org/import/eclipsesummarydata/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/import/eclipsesummarydata/</guid>
-      <description>Summary data can be imported as a single summary file or an ensemble of summary files.
-Basic Summary Import Summary data is located in two files, summary vector names in *.SMSPEC and curve data in *.UNSMRY.
-For import of ensemble datasets, see Ensemble File Dialog.
-Origin Files During summary file import, ResInsight checks whether the summary file is restarted, i.e. has an origin file. If an origin file is found, the Origin Files dialog is displayed.</description>
+      <guid>https://resinsight.org/import/eclipsesummarydata/index.html</guid>
+      <description>Summary data can be imported as a single summary file or an ensemble of summary files.&#xA;Basic Summary Import Summary data is located in two files, summary vector names in *.SMSPEC and curve data in *.UNSMRY.&#xA;For import of ensemble datasets, see Ensemble File Dialog.&#xA;Origin Files During summary file import, ResInsight checks whether the summary file is restarted, i.e. has an origin file. If an origin file is found, the Origin Files dialog is displayed.</description>
     </item>
-    
     <item>
       <title>Ensemble File Dialog</title>
-      <link>https://resinsight.org/import/ensemblefiledialog/</link>
+      <link>https://resinsight.org/import/ensemblefiledialog/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/import/ensemblefiledialog/</guid>
-      <description>Ensemble File Import When using the standard file selection dialog, the user is limited to select files in one directory only. If the interesting files are distributed over multiple directories, the dialog has to be opened once for each directory. The recursive file selection dialog is created to circumvent this limitation. This dialog is able to search a directory tree for files matching a specified pattern.
-This dialog is used for import of different file types like *.</description>
+      <guid>https://resinsight.org/import/ensemblefiledialog/index.html</guid>
+      <description>Ensemble File Import When using the standard file selection dialog, the user is limited to select files in one directory only. If the interesting files are distributed over multiple directories, the dialog has to be opened once for each directory. The recursive file selection dialog is created to circumvent this limitation. This dialog is able to search a directory tree for files matching a specified pattern.&#xA;Note&#xD;This dialog is used for import of different file types like *.EGRID, *.SMSPEC, *.TS, *.GRDECL, …</description>
     </item>
-    
     <item>
       <title>ROFF Grid Models</title>
-      <link>https://resinsight.org/import/roffgridmodels/</link>
+      <link>https://resinsight.org/import/roffgridmodels/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/import/roffgridmodels/</guid>
-      <description>ResInsight supports the following type of ROFF input data:
-*.ROFF and *.ROFFASC containing data from RMS as Roxar Open File Format (ROFF) in binary or ascii format. Roff Data Roff Data can be imported from File-&amp;gt;Import-&amp;gt;Roff Grid Models-&amp;gt;Import Roff Case menu. Select a grid file and additional files with properties in the import dialog. The grid will be displayed and used in the same way as an Eclipse grid model.</description>
+      <guid>https://resinsight.org/import/roffgridmodels/index.html</guid>
+      <description>ResInsight supports the following type of ROFF input data:&#xA;*.ROFF and *.ROFFASC containing data from RMS as Roxar Open File Format (ROFF) in binary or ascii format. Roff Data Roff Data can be imported from File-&gt;Import-&gt;Roff Grid Models-&gt;Import Roff Case menu. Select a grid file and additional files with properties in the import dialog. The grid will be displayed and used in the same way as an Eclipse grid model.</description>
     </item>
-    
     <item>
       <title>Seismic Data</title>
-      <link>https://resinsight.org/import/seismicdata/</link>
+      <link>https://resinsight.org/import/seismicdata/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/import/seismicdata/</guid>
-      <description>Importing Seismic Data ResInsight supports the following seismic file formats:
-SEGY: file format developed by the Society of Exploration Geophysicists for storing geophysical data VDS: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenVDS ZGY: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenZGY A seismic file is imported by right-clicking the Seismic item in Project Tree or by using menu item File-&amp;gt;Import-&amp;gt;Import Seismic.</description>
+      <guid>https://resinsight.org/import/seismicdata/index.html</guid>
+      <description>Importing Seismic Data ResInsight supports the following seismic file formats:&#xA;SEGY: file format developed by the Society of Exploration Geophysicists for storing geophysical data VDS: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenVDS ZGY: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenZGY A seismic file is imported by right-clicking the Seismic item in Project Tree or by using menu item File-&gt;Import-&gt;Import Seismic.</description>
     </item>
-    
     <item>
       <title>Log ASCII Standard File</title>
-      <link>https://resinsight.org/import/lasfile/</link>
+      <link>https://resinsight.org/import/lasfile/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/import/lasfile/</guid>
-      <description>Log ASCII Standard (LAS) is a standard file format common in the oil-and-gas industry to store well log information.
-Importing a LAS file Log ASCII Standard (LAS) files can be imported using the command: File-&amp;gt;Import-&amp;gt; Well Data-&amp;gt;Import Well Logs from File.
-ResInsight will look for the the well name in the imported LAS-files among the existing Well Paths. If a match is found, the LAS-file is placed as a child of that well path.</description>
+      <guid>https://resinsight.org/import/lasfile/index.html</guid>
+      <description>Log ASCII Standard (LAS) is a standard file format common in the oil-and-gas industry to store well log information.&#xA;Importing a LAS file Log ASCII Standard (LAS) files can be imported using the command: File-&gt;Import-&gt; Well Data-&gt;Import Well Logs from File.&#xA;ResInsight will look for the the well name in the imported LAS-files among the existing Well Paths. If a match is found, the LAS-file is placed as a child of that well path. If not, a new empty well path entry is created with the imported LAS-file under it. A well path may have more than one LAS-files as children.</description>
     </item>
-    
     <item>
       <title>Geomechanical Data</title>
-      <link>https://resinsight.org/import/geomechanicaldata/</link>
+      <link>https://resinsight.org/import/geomechanicaldata/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/import/geomechanicaldata/</guid>
-      <description>ResInsight can be built with support for reading and displaying geomechanical analysis models produced by ABAQUS in the *.odb format. This is only possible if you or your organization has a copy of the ODB-Api from Simulia, and a valid license to use it.
-If you have, and would like to a use these features, please see Build Instructions for a description on how to build ResInsight and how to include the support for odb-files.</description>
+      <guid>https://resinsight.org/import/geomechanicaldata/index.html</guid>
+      <description>ResInsight can be built with support for reading and displaying geomechanical analysis models produced by ABAQUS in the *.odb format. This is only possible if you or your organization has a copy of the ODB-Api from Simulia, and a valid license to use it.&#xA;If you have, and would like to a use these features, please see Build Instructions for a description on how to build ResInsight and how to include the support for odb-files.</description>
     </item>
-    
     <item>
       <title>SourSimRL Results</title>
-      <link>https://resinsight.org/import/soursimrlresults/</link>
+      <link>https://resinsight.org/import/soursimrlresults/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/import/soursimrlresults/</guid>
-      <description>ResInsight is able to import transient results from the simulation software SourSimRL to combine reservoir souring simulation data with an Eclipse case for analysis and visualization. Results from SourSimRL in its sourres binary format can be imported using the SourSim File Name field as shown below:
-Importing such a file will enable result type called SourSimRL as explained in Eclipse Result Types</description>
+      <guid>https://resinsight.org/import/soursimrlresults/index.html</guid>
+      <description>ResInsight is able to import transient results from the simulation software SourSimRL to combine reservoir souring simulation data with an Eclipse case for analysis and visualization. Results from SourSimRL in its sourres binary format can be imported using the SourSim File Name field as shown below:&#xA;Importing such a file will enable result type called SourSimRL as explained in Eclipse Result Types</description>
     </item>
-    
     <item>
       <title>Element Property Table</title>
-      <link>https://resinsight.org/import/elementpropertytable/</link>
+      <link>https://resinsight.org/import/elementpropertytable/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/import/elementpropertytable/</guid>
-      <description>Element property tables in ABQUS input file format can be imported into ResInsight and displayed as Element Results. This can be used to display material properties, or any scalar value on each element.
-To view the data as a Color Result select the Result Position: Element ( See Geomechanical Results )
-A couple of property names are recognized and treated specially:
-MODULUS &amp;ndash; Scaled by 1.0e-9 and shown as &amp;ldquo;Young&amp;rsquo;s Modulus&amp;rdquo; in the user interface RATIO &amp;ndash; Shown as &amp;ldquo;Poisson&amp;rsquo;s Ratio&amp;rdquo; in the user interface File Format A couple of examples on the file format are shown below.</description>
+      <guid>https://resinsight.org/import/elementpropertytable/index.html</guid>
+      <description>Element property tables in ABQUS input file format can be imported into ResInsight and displayed as Element Results. This can be used to display material properties, or any scalar value on each element.&#xA;To view the data as a Color Result select the Result Position: Element ( See Geomechanical Results )&#xA;A couple of property names are recognized and treated specially:&#xA;MODULUS – Scaled by 1.0e-9 and shown as “Young’s Modulus” in the user interface RATIO – Shown as “Poisson’s Ratio” in the user interface File Format A couple of examples on the file format are shown below.</description>
     </item>
-    
     <item>
       <title>Observed Time History Data</title>
-      <link>https://resinsight.org/import/observeddata/</link>
+      <link>https://resinsight.org/import/observeddata/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/import/observeddata/</guid>
-      <description>Observed Time History Data, is data measured in time. On import of observed time history data, ResInsight translates the data to make it similar to summary data. Observed time history data can be plotted along with summary data in Summary Plots.
-Import Observed Time History Data Importing observed time history data to ResInsight may be performed in two different ways:
-By selecting the main menu item File -&amp;gt; Import -&amp;gt; Import Observed Data By using the right-click command Import Observed Data on the Observed Data item in the Plot Main Window Project Tree The following file types are supported:</description>
+      <guid>https://resinsight.org/import/observeddata/index.html</guid>
+      <description>Observed Time History Data, is data measured in time. On import of observed time history data, ResInsight translates the data to make it similar to summary data. Observed time history data can be plotted along with summary data in Summary Plots.&#xA;Import Observed Time History Data Importing observed time history data to ResInsight may be performed in two different ways:&#xA;By selecting the main menu item File -&gt; Import -&gt; Import Observed Data By using the right-click command Import Observed Data on the Observed Data item in the Plot Main Window Project Tree The following file types are supported:</description>
     </item>
-    
     <item>
       <title>Pressure/Depth Data</title>
-      <link>https://resinsight.org/import/pressuredata/</link>
+      <link>https://resinsight.org/import/pressuredata/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/import/pressuredata/</guid>
-      <description>Import Pressure/Depth Data Importing pressure data to ResInsight may be performed in two different ways:
-By selecting the main menu item File -&amp;gt; Import -&amp;gt; Import Pressure Depth Data By using the right-click command Import Pressure Data on the Observed Data item in the Plot Main Window Project Tree The imported pressure data can visualized in [RFT Plots]
-Pressure/Depth File Format --TVDMSL RFT -- WELLNAME &amp;#39;OP_1&amp;#39; DATE 28-FEB-2000 PRESSURE DEPTH BARSA METRES 302.</description>
+      <guid>https://resinsight.org/import/pressuredata/index.html</guid>
+      <description>Import Pressure/Depth Data Importing pressure data to ResInsight may be performed in two different ways:&#xA;By selecting the main menu item File -&gt; Import -&gt; Import Pressure Depth Data By using the right-click command Import Pressure Data on the Observed Data item in the Plot Main Window Project Tree The imported pressure data can visualized in [RFT Plots]&#xA;Pressure/Depth File Format --TVDMSL RFT -- WELLNAME &#39;OP_1&#39; DATE 28-FEB-2000 PRESSURE DEPTH BARSA METRES 302.88 1605.91 303.88 1615.91 304.88 1625.91 304.38 1635.91 -- WELLNAME &#39;OP_2&#39; DATE 28-FEB-2000 PRESSURE DEPTH BARSA METRES 302.88 1600.91 303.68 1610.91 303.88 1612.91 303.99 1620.91</description>
     </item>
-    
     <item>
       <title>Appending Additional Properties</title>
-      <link>https://resinsight.org/import/appendingadditionalproperties/</link>
+      <link>https://resinsight.org/import/appendingadditionalproperties/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/import/appendingadditionalproperties/</guid>
-      <description>A grid model can be imported from several sources, either Eclipse binary/ascii or ROFF binary/ascii. Grid properties in separate files can be imported into any grid type as long as the number of grid cells is matching.
-Appending properties
-From the right-click menu of the case or Cell Result, select Add Input Property Select the file with properties The imported data is then available in the Cell Result by activating the Input Property in the Type drop down list.</description>
+      <guid>https://resinsight.org/import/appendingadditionalproperties/index.html</guid>
+      <description>A grid model can be imported from several sources, either Eclipse binary/ascii or ROFF binary/ascii. Grid properties in separate files can be imported into any grid type as long as the number of grid cells is matching.&#xA;Appending properties&#xA;From the right-click menu of the case or Cell Result, select Add Input Property Select the file with properties The imported data is then available in the Cell Result by activating the Input Property in the Type drop down list.</description>
     </item>
-    
     <item>
       <title>Paste Excel Time History Data</title>
-      <link>https://resinsight.org/import/pasteexceltimedata/</link>
+      <link>https://resinsight.org/import/pasteexceltimedata/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/import/pasteexceltimedata/</guid>
-      <description>When text have been copied to the operating system&amp;rsquo;s clipboard, it will be possible to paste that text into a summary plot. Right click on a summary plot in the Plot Main Window Project Tree and select Paste Excel Data to Summary Plot. Then a paste options dialog will appear.
-Paste Options Dialog Most of the fields in this dialog are the same as in the CSV/txt import options dialog. Please see that section for documentation on those fields.</description>
+      <guid>https://resinsight.org/import/pasteexceltimedata/index.html</guid>
+      <description>When text have been copied to the operating system’s clipboard, it will be possible to paste that text into a summary plot. Right click on a summary plot in the Plot Main Window Project Tree and select Paste Excel Data to Summary Plot. Then a paste options dialog will appear.&#xA;Paste Options Dialog Most of the fields in this dialog are the same as in the CSV/txt import options dialog. Please see that section for documentation on those fields. The fields specific to the paste options dialog are as follows:</description>
     </item>
-    
   </channel>
 </rss>

@@ -1,84 +1,60 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Export on ResInsight</title>
-    <link>https://resinsight.org/export/</link>
-    <description>Recent content in Export on ResInsight</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://resinsight.org/export/index.xml" rel="self" type="application/rss+xml" />
+    <title>Export :: ResInsight</title>
+    <link>https://resinsight.org/export/index.html</link>
+    <description>ResInsight features the following capabilities for export of data to reporting or further analysis:&#xA;convenient export of snapshots of 3D views and plots, either by direct export or automated modification of Eclipse 3D Views export of Eclipse properties, either direct or subsequent to post-processing by ResInsight, for input to further simulations visible cells in ResInsight can be exported as a FLUXNUM or MULTNUM keyword that can be used in an Eclipse input data deck completions defined in ResInsight can be exported to Eclipse for use in new simulation runs file export of well paths export of sub-sections of an Eclipse Grid with Parameters and Faults to Eclipse ASCII files to perform additional simulations export of a contour map to text file The following subchapters details the functionality and capabilites.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="https://resinsight.org/export/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Snapshots</title>
-      <link>https://resinsight.org/export/snapshots/</link>
+      <link>https://resinsight.org/export/snapshots/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/export/snapshots/</guid>
-      <description>ResInsight has several commands to create snapshots conveniently. 3 commands to take snapshots of existing Plot and 3D Views directly, and a more advanced export command that can automatically modify Eclipse 3D Views before snapshotting them.
-Snapshots of Existing Views The commands to snapshot existing views and plots are available from the toolbar and the Edit and File-&amp;gt;Export menus in the main windows Snapshot to Clipboard A snapshot of the active view is copied to the clipboard using Edit -&amp;gt; Copy Snapshot To Clipboard .</description>
+      <guid>https://resinsight.org/export/snapshots/index.html</guid>
+      <description>ResInsight has several commands to create snapshots conveniently. 3 commands to take snapshots of existing Plot and 3D Views directly, and a more advanced export command that can automatically modify Eclipse 3D Views before snapshotting them.&#xA;Snapshots of Existing Views The commands to snapshot existing views and plots are available from the toolbar and the Edit and File-&gt;Export menus in the main windows Snapshot to Clipboard A snapshot of the active view is copied to the clipboard using Edit -&gt; Copy Snapshot To Clipboard .</description>
     </item>
-    
     <item>
       <title>Eclipse Properties</title>
-      <link>https://resinsight.org/export/eclipseproperties/</link>
+      <link>https://resinsight.org/export/eclipseproperties/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/export/eclipseproperties/</guid>
-      <description>Eclipse Properties can be exported to Eclipse ASCII files. This is particularly useful when a new property is generated using Octave. The generated property can be exported for further use in the simulator.
-Export Command To export the property currently active in the 3D View, activate the right-click menu on a Cell Result item in the Project Tree.
-The following dialog will appear:
-Export File Name &amp;ndash; The path to exported file Eclipse Keyword &amp;ndash; The keyword to use for the property in the eclipse file Undefined Value &amp;ndash; This value is written to the file for all values that are flagged as undefined in ResInsight For import this type of property data see Import: Eclipse Cases</description>
+      <guid>https://resinsight.org/export/eclipseproperties/index.html</guid>
+      <description>Eclipse Properties can be exported to Eclipse ASCII files. This is particularly useful when a new property is generated using Octave. The generated property can be exported for further use in the simulator.&#xA;Export Command To export the property currently active in the 3D View, activate the right-click menu on a Cell Result item in the Project Tree.</description>
     </item>
-    
     <item>
       <title>FLUXNUM/MULTNUM</title>
-      <link>https://resinsight.org/export/fluxnummultnum/</link>
+      <link>https://resinsight.org/export/fluxnummultnum/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/export/fluxnummultnum/</guid>
-      <description>The visible cells can be exported as a FLUXNUM or MULTNUM keyword that can be used in an Eclipse input data deck.
-You can do this by using the command Export Visible Cells as FLUXNUM/MULTNUM found by right clicking:
-View in the Project Tree. Cell Result in the Project Tree. In any Eclipse 3D View. The command can also be found in File -&amp;gt; Export. If the command is used in the project tree, the visible cells from the selected view are used for calculation.</description>
+      <guid>https://resinsight.org/export/fluxnummultnum/index.html</guid>
+      <description>The visible cells can be exported as a FLUXNUM or MULTNUM keyword that can be used in an Eclipse input data deck.&#xA;You can do this by using the command Export Visible Cells as FLUXNUM/MULTNUM found by right clicking:&#xA;View in the Project Tree. Cell Result in the Project Tree. In any Eclipse 3D View. The command can also be found in File -&gt; Export. If the command is used in the project tree, the visible cells from the selected view are used for calculation. In the 3D view and from File -&gt; Export, the visible cells from the currently active 3D view are used.</description>
     </item>
-    
     <item>
       <title>Completions</title>
-      <link>https://resinsight.org/export/completionexport/</link>
+      <link>https://resinsight.org/export/completionexport/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/export/completionexport/</guid>
-      <description>The completions defined in ResInsight can be exported to Eclipse for use in new simulation runs. The commands Export Completion Data For Visible Wells, Export Completion Data For Visible Simulation Wells and Export Completion Data For Selected Wells can be used to invoke the export. The commands are available by right clicking Well Paths or Simulation Wells in the Project Tree. The first command is available from the File-&amp;gt;Import menu as well.</description>
+      <guid>https://resinsight.org/export/completionexport/index.html</guid>
+      <description>The completions defined in ResInsight can be exported to Eclipse for use in new simulation runs. The commands Export Completion Data For Visible Wells, Export Completion Data For Visible Simulation Wells and Export Completion Data For Selected Wells can be used to invoke the export. The commands are available by right clicking Well Paths or Simulation Wells in the Project Tree. The first command is available from the File-&gt;Import menu as well.</description>
     </item>
-    
     <item>
       <title>Well Paths</title>
-      <link>https://resinsight.org/export/exportwellpaths/</link>
+      <link>https://resinsight.org/export/exportwellpaths/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/export/exportwellpaths/</guid>
-      <description>In order to export well paths to dev files, select the menu item File -&amp;gt; Export -&amp;gt; Export Visible Well Paths or select one or more well paths and then select one of the items in the sub menu Export Well Paths.
-A dialog appears after selecting an export well path command.
-Export Folder - Folder for the exported well path file(s). The folder will be created when performing the export and the names of the exported file(s) will be on the format &amp;lt;well name&amp;gt;.</description>
+      <guid>https://resinsight.org/export/exportwellpaths/index.html</guid>
+      <description>In order to export well paths to dev files, select the menu item File -&gt; Export -&gt; Export Visible Well Paths or select one or more well paths and then select one of the items in the sub menu Export Well Paths.&#xA;A dialog appears after selecting an export well path command.&#xA;Export Folder - Folder for the exported well path file(s). The folder will be created when performing the export and the names of the exported file(s) will be on the format &lt;well name&gt;.dev MD Step Size - Spacing (measured depth) between samples along the well path in the exported file</description>
     </item>
-    
     <item>
       <title>Sector Model</title>
-      <link>https://resinsight.org/export/sectormodel/</link>
+      <link>https://resinsight.org/export/sectormodel/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/export/sectormodel/</guid>
-      <description>Sub-sections of the Eclipse Grid with Parameters and Faults can be exported to Eclipse ASCII files in order to create new Simulations on the sub-section.
-Exporting an Eclipse Sector Model To launch the export dialog, right-click on either the 3D-view in question or the Cell Result.
-Exporting Grid and Faults Grid Export The Export dialog will allow the user to export grid data as ascii (An Eclipse Input Grid) to a specific file name by checking the Export Grid Data option.</description>
+      <guid>https://resinsight.org/export/sectormodel/index.html</guid>
+      <description>Sub-sections of the Eclipse Grid with Parameters and Faults can be exported to Eclipse ASCII files in order to create new Simulations on the sub-section.&#xA;Exporting an Eclipse Sector Model To launch the export dialog, right-click on either the 3D-view in question or the Cell Result.&#xA;Exporting Grid and Faults</description>
     </item>
-    
     <item>
       <title>Contour Map Export</title>
-      <link>https://resinsight.org/export/contourmapexport/</link>
+      <link>https://resinsight.org/export/contourmapexport/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/export/contourmapexport/</guid>
-      <description>ResInsight can create contour maps based on different forms of aggregation of 3D Eclipse data onto a 2D Plane. Any 3D result value can be aggregated, in addition to specialised results, such as oil, gas and hydrocarbon columns. A Contour Map is a specialised 2D view with many of the same features as the 3D views, including property filters, range filters and display of faults and wells.
-Export of Contour Map Data To export a contour map, invoke one of the following options (c.</description>
+      <guid>https://resinsight.org/export/contourmapexport/index.html</guid>
+      <description>ResInsight can create contour maps based on different forms of aggregation of 3D Eclipse data onto a 2D Plane. Any 3D result value can be aggregated, in addition to specialised results, such as oil, gas and hydrocarbon columns. A Contour Map is a specialised 2D view with many of the same features as the 3D views, including property filters, range filters and display of faults and wells.</description>
     </item>
-    
   </channel>
 </rss>

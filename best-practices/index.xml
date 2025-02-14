@@ -1,30 +1,25 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Best Practices on ResInsight</title>
-    <link>https://resinsight.org/best-practices/</link>
-    <description>Recent content in Best Practices on ResInsight</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://resinsight.org/best-practices/index.xml" rel="self" type="application/rss+xml" />
+    <title>Best Practices :: ResInsight</title>
+    <link>https://resinsight.org/best-practices/index.html</link>
+    <description>ResInsight is used in many different ways. This section will describe some selected workflows describing how to solve specific tasks.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="https://resinsight.org/best-practices/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Performance Hints</title>
-      <link>https://resinsight.org/best-practices/performancehints/</link>
+      <link>https://resinsight.org/best-practices/performancehints/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/best-practices/performancehints/</guid>
-      <description>Performance Hints As the simulation models grow in size, the requirements on processing resources and memory are increasing. ResInsight have some options that can improve performance by transformation of data or reduction of data input.
-Summary Data Summary data is usually available as SMSPEC and UNSRMY files. UNSMRY files are stored in a binary format, and all data for one time step is stored one section. When extracting data for all time steps for a single summary vector, data must be read from multiple sections.</description>
+      <guid>https://resinsight.org/best-practices/performancehints/index.html</guid>
+      <description>Performance Hints As the simulation models grow in size, the requirements on processing resources and memory are increasing. ResInsight have some options that can improve performance by transformation of data or reduction of data input.&#xA;Summary Data Summary data is usually available as SMSPEC and UNSRMY files. UNSMRY files are stored in a binary format, and all data for one time step is stored one section. When extracting data for all time steps for a single summary vector, data must be read from multiple sections. This can give bad performance for large datasets.</description>
     </item>
-    
     <item>
       <title>Summary Data Import</title>
-      <link>https://resinsight.org/best-practices/summarydata/</link>
+      <link>https://resinsight.org/best-practices/summarydata/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/best-practices/summarydata/</guid>
-      <description>Summary Data Summary data is usually available as SMSPEC and UNSRMY files. UNSMRY files are stored in a binary format, and all data for one time step is stored one section. When extracting data for all time steps for a single summary vector, data must be read from multiple sections. This can give bad performance for large datasets.
-ESMRY File Format *.ESMRY files contains the same data as SMSPEC/UNSMRY. The data in these files store all data for a summary vector in one section to give significantly better performance when accessing single summary vectors compared to SMSPEC/UNSMRY.</description>
+      <guid>https://resinsight.org/best-practices/summarydata/index.html</guid>
+      <description>Summary Data Summary data is usually available as SMSPEC and UNSRMY files. UNSMRY files are stored in a binary format, and all data for one time step is stored one section. When extracting data for all time steps for a single summary vector, data must be read from multiple sections. This can give bad performance for large datasets.&#xA;ESMRY File Format *.ESMRY files contains the same data as SMSPEC/UNSMRY. The data in these files store all data for a summary vector in one section to give significantly better performance when accessing single summary vectors compared to SMSPEC/UNSMRY.</description>
     </item>
-    
   </channel>
 </rss>

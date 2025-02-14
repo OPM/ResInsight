@@ -1,76 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>Download and Install on ResInsight</title>
-    <link>https://resinsight.org/getting-started/download-and-install/</link>
-    <description>Recent content in Download and Install on ResInsight</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://resinsight.org/getting-started/download-and-install/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Linux Installation</title>
-      <link>https://resinsight.org/getting-started/download-and-install/linux-installation/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/getting-started/download-and-install/linux-installation/</guid>
-      <description>Install From Binary Packages on Linux Please not that the distribution by the OPM Project will be updated some time after the release of a new version on GitHub.
-Ubuntu On the command line do:
-sudo apt-get updatesudo apt-get install software-properties-commonsudo apt-add-repository ppa:opm/ppasudo apt-get updatesudo apt-get install resinsightsudo apt-get install octave-resinsightLaunch the application using the command ResInsight
-For further installation details, see the ResInsight distribution on Opm Project Downloading and Installing.</description>
-    </item>
-    
-    <item>
-      <title>Windows Installation</title>
-      <link>https://resinsight.org/getting-started/download-and-install/windows-installation/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/getting-started/download-and-install/windows-installation/</guid>
-      <description>ResInsight Installation Download ZIP binary distribution from https://github.com/OPM/ResInsight/releases Extract content from ZIP file Start ResInsight.exe The binary distribution does not support ABAQUS odb files. For building ResInsight with ABAQUS support, see Build Instructions.
-Octave Installation (optional) Download Octave-4.0.0 and install it. (Newer versions will not work) Launch ResInsight.exe, open Edit-&amp;gt;Preferences. On the Octave tab, enter the path to the Octave command line interpreter executable.
-( Usually C:\Your\Path\To\Octave-x.x.x\bin\octave-cli.exe ) A binary package of ResInsight will normally not work with other Octave versions than the one it is compiled with.</description>
-    </item>
-    
-    <item>
-      <title>Windows Subsystem for Linux</title>
-      <link>https://resinsight.org/getting-started/download-and-install/windows-subsystem-for-linux/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/getting-started/download-and-install/windows-subsystem-for-linux/</guid>
-      <description>The Windows Subsystem for Linux (WSL) lets developers install a Linux distribution and use Linux applications, utilities, and Bash command-line tools directly on Windows, unmodified, without the overhead of a traditional virtual machine or dualboot setup.
-https://learn.microsoft.com/en-us/windows/wsl/install
-ResInsight has been successfully installed and used on Ubuntu in WSL. The installation is similar to the Linux installation. The desktop application can be launced from the WSL command line, and the user interface will show up on the Windows desktop.</description>
-    </item>
-    
-    <item>
-      <title>Build Instructions Ubuntu</title>
-      <link>https://resinsight.org/getting-started/download-and-install/build-instructions-ubuntu/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/getting-started/download-and-install/build-instructions-ubuntu/</guid>
-      <description>Dependencies and Prerequisites This page is mainly build instructions for Ubuntu, but some comments are also added for RHEL8.
-Basic instructions without Python binding and GRPC.
-Configuration and build Tool Minimum version gcc 11 python 3.8 Qt 6.4 It is possible to use Qt 6.4 for building ResInsight, but some install features introduced in Qt 6.5 are not supported. Qt 6.7 has some changes related to theming that is causing some unwanted visual effects.</description>
-    </item>
-    
-    <item>
-      <title>Build Instructions Windows</title>
-      <link>https://resinsight.org/getting-started/download-and-install/build-instructions-windows/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/getting-started/download-and-install/build-instructions-windows/</guid>
-      <description>Dependencies and Prerequisites Configuration and build Tool Minimum version Recommended Visual Studio 2019 2022 python 3.8 3.10 Qt 6.5 6.6 It is possible to use Qt 6.4 for to build ResInsight, but some install features introduced in Qt 6.5 are not available. Qt 6.7 has some changes related to theming that is causing some unwanted visual effects. This is currently investigated.
-Clone and update sub modules git clone https://github.com/OPM/ResInsightcd ResInsightgit submodule update --initBuild and install required dependencies using vcpkg Open a command prompt using &amp;ldquo;Run as Administrator&amp;rdquo; for Visual Studio x64.</description>
-    </item>
-    
-    <item>
-      <title>CMake Configuration</title>
-      <link>https://resinsight.org/getting-started/download-and-install/cmake-configuration/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/getting-started/download-and-install/cmake-configuration/</guid>
-      <description>CMake CMake version 3.15 or later is supported.
-Build Overview The ResInsight build may be configured in different ways, with optional support for Octave plugins, ABAQUS ODB API, HDF5, Pyton, and OpenMP. This is configured using options in CMake.
-CMake Options for ResInsight CMake Name Default Description RESINSIGHT_BUILD_DOCUMENTATION OFF Use Doxygen to create the HTML based API documentation. Doxygen must be properly installed. RESINSIGHT_ENABLE_GRPC OFF Enable gRPC scripting server. Required to be able to use ResInsight from Python RESINSIGHT_ENABLE_HDF5 ON Windows Only: Download and use HDF5 library RESINSIGHT_ODB_API_DIR Blank Optional path to the ABAQUS ODB API from Simulia.</description>
-    </item>
-    
-  </channel>
-</rss>
