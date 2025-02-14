@@ -21,11 +21,11 @@
     <meta itemprop="description" content="Authorization Currently supported cloud services use OAuth 2.0, the industry-standerd protocol for authentication. The first time a user initiates data from a cloud service, a browser window will appear for the user to enter username/password followed by additional two-factor authentication. A text string usually called a token is created, containing the access and authorization information required to access the cloud data source. This token is cached by ResInsight in the .resinsight folder in your home folder. A token is by default valid for several days.">
     <meta itemprop="wordCount" content="166">
     <title>Cloud Services - Authorization :: ResInsight</title>
-    <link href="/css/fontawesome-all.min.css?1739525796" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1739525796" rel="stylesheet"></noscript>
-    <link href="/css/auto-complete.css?1739525796" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1739525796" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1739525796" rel="stylesheet">
-    <link href="/css/theme.min.css?1739525796" rel="stylesheet">
-    <link href="/css/format-html.min.css?1739525796" rel="stylesheet" id="R-format-style">
+    <link href="/css/fontawesome-all.min.css?1739528537" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1739528537" rel="stylesheet"></noscript>
+    <link href="/css/auto-complete.css?1739528537" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1739528537" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar.min.css?1739528537" rel="stylesheet">
+    <link href="/css/theme.min.css?1739528537" rel="stylesheet">
+    <link href="/css/format-html.min.css?1739528537" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       window.relearn.relBasePath='..\/..';
@@ -166,8 +166,8 @@
 <p>If you experience issues with connection to cloud data, the local cached tokens can be deleted. The next time you access to cloud services, a brower window for authentication is displayed.</p>
 <p>Use of cloud services is supported on both Windows and Linux.</p>
 <p><a href="https://auth0.com/intro-to-iam/what-is-oauth-2" rel="external" target="_blank">https://auth0.com/intro-to-iam/what-is-oauth-2</a></p>
-<p><a href="#R-image-ca256454e7c52935236bb598fa81dac5" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/cloud-services/web-authentication.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-ca256454e7c52935236bb598fa81dac5"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/cloud-services/web-authentication.png"></a></p>
+<p><a href="#R-image-29eb44f7b4619ea5e94b07c9e5ae66eb" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/cloud-services/web-authentication.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-29eb44f7b4619ea5e94b07c9e5ae66eb"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/cloud-services/web-authentication.png"></a></p>
 <h2 id="configuration">Configuration</h2>
 <p>The configuration settings for cloud services can be seen in <strong>Preferences-&gt;Import/Export</strong>. The settings can be loaded from a <strong>JSON</strong> file in your home folder or on a shared folder on the file system.</p>
 <pre><code>home_folder/.resinsight/osdu_config.json
@@ -193,7 +193,7 @@ location_of_executable/../share/cloud_services/osdu_config.json
 
         </div>
         <script>
-          window.index_js_url="/searchindex.en.js?1739525796";
+          window.index_js_url="/searchindex.en.js?1739528537";
         </script>
         <search><form action="/search/index.html" method="get">
           <div class="searchbox default-animation">
@@ -206,12 +206,22 @@ location_of_executable/../share/cloud_services/osdu_config.json
         <script>
           var contentLangs=['en'];
         </script>
-        <script src="/js/auto-complete.js?1739525796" defer></script>
-        <script src="/js/lunr/lunr.min.js?1739525796" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1739525796" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1739525796" defer></script>
-        <script src="/js/lunr/lunr.en.min.js?1739525796" defer></script>
-        <script src="/js/search.js?1739525796" defer></script>
+        <script src="/js/auto-complete.js?1739528537" defer></script>
+        <script src="/js/lunr/lunr.min.js?1739528537" defer></script>
+        <script src="/js/lunr/lunr.stemmer.support.min.js?1739528537" defer></script>
+        <script src="/js/lunr/lunr.multi.min.js?1739528537" defer></script>
+        <script src="/js/lunr/lunr.en.min.js?1739528537" defer></script>
+        <script src="/js/search.js?1739528537" defer></script>
+        <script>
+          (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchQuery = urlParams.get('q');
+            if (searchQuery) {
+              const newUrl = `/search/?search-by=${encodeURIComponent(searchQuery)}`;
+              window.location.replace(newUrl);
+            }
+          })();
+        </script>
       </div>
       <div id="R-homelinks" class="default-animation">
         <hr class="padding">
@@ -310,8 +320,8 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         </div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1739525796" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1739525796" defer></script>
-    <script src="/js/theme.js?1739525796" defer></script>
+    <script src="/js/clipboard.min.js?1739528537" defer></script>
+    <script src="/js/perfect-scrollbar.min.js?1739528537" defer></script>
+    <script src="/js/theme.js?1739528537" defer></script>
   </body>
 </html>

@@ -21,11 +21,11 @@
     <meta itemprop="description" content="The Summary Plot Manager is a separate ResInsight dialog window where the user can select which vectors to plot in a summary plot. This dialog is intented to be used from the keyboard with easy access to operations for management of summary plots. This dialog can be opened by using CTRL-K from anywhere in the Plot Window.">
     <meta itemprop="wordCount" content="309">
     <title>Summary Plot Manager :: ResInsight</title>
-    <link href="/css/fontawesome-all.min.css?1739525796" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1739525796" rel="stylesheet"></noscript>
-    <link href="/css/auto-complete.css?1739525796" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1739525796" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1739525796" rel="stylesheet">
-    <link href="/css/theme.min.css?1739525796" rel="stylesheet">
-    <link href="/css/format-html.min.css?1739525796" rel="stylesheet" id="R-format-style">
+    <link href="/css/fontawesome-all.min.css?1739528537" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1739528537" rel="stylesheet"></noscript>
+    <link href="/css/auto-complete.css?1739528537" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1739528537" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar.min.css?1739528537" rel="stylesheet">
+    <link href="/css/theme.min.css?1739528537" rel="stylesheet">
+    <link href="/css/format-html.min.css?1739528537" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       window.relearn.relBasePath='..\/..';
@@ -165,8 +165,8 @@
 
 <h1 id="summary-plot-manager">Summary Plot Manager</h1>
 
-<p><a href="#R-image-024f0101df94da81a818cda4924a437f" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/SummaryPlotManagerOverview.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-024f0101df94da81a818cda4924a437f"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/SummaryPlotManagerOverview.png"></a></p>
+<p><a href="#R-image-b5e60c4518dfc5b450d3443d3eaff98f" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/SummaryPlotManagerOverview.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-b5e60c4518dfc5b450d3443d3eaff98f"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/SummaryPlotManagerOverview.png"></a></p>
 <p>The <strong>Summary Plot Manager</strong> is a separate <strong>ResInsight</strong> dialog window where the user can select which vectors to plot in a summary plot. This dialog is intented to be used from the keyboard with easy access to operations for management of summary plots. This dialog can be opened by using <strong>CTRL-K</strong> from anywhere in the <strong>Plot Window</strong>.</p>
 <p>The user writes a text string defining the summary vectors and optionally data sources for curves to be plotted. Example: <em>wopt:A? iter*</em>. This text string will filter all <strong>WOPT</strong> vectors for wells with two characters where the first character is <strong>A</strong>. Additionally, this will filter select ensemble datasources starting with the string <strong>iter</strong></p>
 <p>ResInsight will automatically compupte the difference between a simulated and observed vector if both are available (WOPT/WOPTH). This will be displayed as WOPT_DIFF. These difference vectors can be included in the filter if the <strong>Include Difference Vectors</strong> is checked.</p>
@@ -255,7 +255,7 @@
 
         </div>
         <script>
-          window.index_js_url="/searchindex.en.js?1739525796";
+          window.index_js_url="/searchindex.en.js?1739528537";
         </script>
         <search><form action="/search/index.html" method="get">
           <div class="searchbox default-animation">
@@ -268,12 +268,22 @@
         <script>
           var contentLangs=['en'];
         </script>
-        <script src="/js/auto-complete.js?1739525796" defer></script>
-        <script src="/js/lunr/lunr.min.js?1739525796" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1739525796" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1739525796" defer></script>
-        <script src="/js/lunr/lunr.en.min.js?1739525796" defer></script>
-        <script src="/js/search.js?1739525796" defer></script>
+        <script src="/js/auto-complete.js?1739528537" defer></script>
+        <script src="/js/lunr/lunr.min.js?1739528537" defer></script>
+        <script src="/js/lunr/lunr.stemmer.support.min.js?1739528537" defer></script>
+        <script src="/js/lunr/lunr.multi.min.js?1739528537" defer></script>
+        <script src="/js/lunr/lunr.en.min.js?1739528537" defer></script>
+        <script src="/js/search.js?1739528537" defer></script>
+        <script>
+          (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchQuery = urlParams.get('q');
+            if (searchQuery) {
+              const newUrl = `/search/?search-by=${encodeURIComponent(searchQuery)}`;
+              window.location.replace(newUrl);
+            }
+          })();
+        </script>
       </div>
       <div id="R-homelinks" class="default-animation">
         <hr class="padding">
@@ -383,8 +393,8 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         </div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1739525796" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1739525796" defer></script>
-    <script src="/js/theme.js?1739525796" defer></script>
+    <script src="/js/clipboard.min.js?1739528537" defer></script>
+    <script src="/js/perfect-scrollbar.min.js?1739528537" defer></script>
+    <script src="/js/theme.js?1739528537" defer></script>
   </body>
 </html>
