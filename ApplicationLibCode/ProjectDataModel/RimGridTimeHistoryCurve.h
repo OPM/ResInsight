@@ -25,7 +25,6 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
-#include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 #include <memory>
 
 class RigMainGrid;
@@ -34,11 +33,11 @@ class RimEclipseResultDefinition;
 class RimEclipseGeometrySelectionItem;
 class RimGeoMechResultDefinition;
 class RimGeoMechGeometrySelectionItem;
-class RimGeometrySelectionItem;
 class RiuFemTimeHistoryResultAccessor;
 class RiuSelectionItem;
 class RigEclipseResultAddress;
 class RimCase;
+class RimSummaryPlot;
 
 //==================================================================================================
 ///
@@ -49,11 +48,10 @@ class RimGridTimeHistoryCurve : public RimPlotCurve
     CAF_PDM_HEADER_INIT;
 
 public:
-public:
     RimGridTimeHistoryCurve();
     ~RimGridTimeHistoryCurve() override;
 
-    void setFromSelectionItem( const RiuSelectionItem* selectionItem );
+    void setFromSelectionItem( const RiuSelectionItem* selectionItem, bool updateResultDefinition );
     void setFromEclipseCellAndResult( RimEclipseCase* eclCase, size_t gridIdx, size_t i, size_t j, size_t k, const RigEclipseResultAddress& resAddr );
     RiuPlotAxis yAxis() const;
     void        setYAxis( RiaDefines::PlotAxis plotAxis );
@@ -62,11 +60,11 @@ public:
     std::vector<time_t> timeStepValues() const;
     std::vector<double> daysSinceSimulationStart() const;
 
-    RigGridCellResultAddress resultAddress();
-
     QString  quantityName() const;
     QString  caseName() const;
     RimCase* gridCase() const;
+
+    static void createCurveFromSelectionItem( const RiuSelectionItem* selectionItem, RimSummaryPlot* plot );
 
 protected:
     QString createCurveAutoName() override;
@@ -76,6 +74,7 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
 
 private:
     RigMainGrid*                     mainGrid();
@@ -93,6 +92,8 @@ private:
     caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
     caf::PdmChildField<RimGeoMechResultDefinition*> m_geoMechResultDefinition;
 
-    caf::PdmChildField<RimGeometrySelectionItem*>     m_geometrySelectionItem;
     caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis;
+
+    caf::PdmChildField<RimEclipseGeometrySelectionItem*> m_eclipseDataSource;
+    caf::PdmChildField<RimGeoMechGeometrySelectionItem*> m_geoMechDataSource;
 };

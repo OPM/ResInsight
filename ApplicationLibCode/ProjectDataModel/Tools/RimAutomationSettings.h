@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2025     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,15 +18,30 @@
 
 #pragma once
 
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
 
-class RimGeometrySelectionItem : public caf::PdmObject
+class RimPlotWindow;
+class RimSummaryPlot;
+
+//==================================================================================================
+///
+///
+//==================================================================================================
+class RimAutomationSettings : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimGeometrySelectionItem();
-    ~RimGeometrySelectionItem() override;
+    RimAutomationSettings();
 
-    virtual QString geometrySelectionText() const = 0;
+    std::vector<RimSummaryPlot*> summaryPlots() const;
+
+private:
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
+private:
+    caf::PdmPtrField<RimPlotWindow*> m_cellSelectionDestination;
 };

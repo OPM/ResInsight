@@ -102,8 +102,8 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-
 #include "RimWellTargetCandidatesGenerator.h"
+#include "Tools/RimAutomationSettings.h"
 #include "VerticalFlowPerformance/RimVfpDataCollection.h"
 #include "VerticalFlowPerformance/RimVfpPlotCollection.h"
 
@@ -231,6 +231,9 @@ RimProject::RimProject()
     CAF_PDM_InitFieldNoDefault( &m_plotTemplateTopFolder, "PlotTemplateCollection", "Plot Templates" );
     m_plotTemplateTopFolder = new RimPlotTemplateFolderItem();
     m_plotTemplateTopFolder.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault( &m_automationSettings, "AutomationSettings", "Automation Settings" );
+    m_automationSettings = new RimAutomationSettings();
 
     // For now, create a default first oilfield that contains the rest of the project
     oilFields.push_back( new RimOilField );
@@ -363,6 +366,14 @@ void RimProject::updatesAfterProjectFileIsRead()
 RimQuickAccessCollection* RimProject::pinnedFieldCollection() const
 {
     return m_pinnedFieldCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimAutomationSettings* RimProject::automationSettings() const
+{
+    return m_automationSettings();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1416,6 +1427,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
                     statisticsItemCollection->add( m_mainPlotCollection->ensembleFractureStatisticsPlotCollection() );
             }
 #endif
+            uiTreeOrdering.add( automationSettings() );
         }
     }
     else if ( uiConfigName == "PlotWindow.DataSources" )

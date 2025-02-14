@@ -102,7 +102,7 @@ QString RimSummaryNameHelper::aggregatedPlotTitle( const RimSummaryNameHelper& o
         size_t pos = vectorName.find( '_' );
         if ( pos != std::string::npos )
         {
-            title += "(" + vectorName + ")";
+            title += QString( " (%1)" ).arg( QString::fromStdString( vectorName ) );
         }
     }
 

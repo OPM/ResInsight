@@ -26,26 +26,22 @@
 #include "RigMainGrid.h"
 #include "RigTimeHistoryResultAccessor.h"
 
+#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
+
 #include "RimEclipseCase.h"
-#include "RimEclipseCellColors.h"
 #include "RimEclipseGeometrySelectionItem.h"
 #include "RimEclipseResultDefinition.h"
-#include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechGeometrySelectionItem.h"
 #include "RimGeoMechResultDefinition.h"
-#include "RimGeoMechView.h"
-#include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryTimeAxisProperties.h"
 
 #include "Riu3dSelectionManager.h"
 #include "RiuFemTimeHistoryResultAccessor.h"
-#include "RiuQwtPlotCurve.h"
-
-#include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
-#include "qwt_plot.h"
+#include "RiuPlotCurve.h"
+#include "RiuPlotMainWindowTools.h"
 
 CAF_PDM_SOURCE_INIT( RimGridTimeHistoryCurve, "GridTimeHistoryCurve" );
 
@@ -66,8 +62,11 @@ RimGridTimeHistoryCurve::RimGridTimeHistoryCurve()
     CAF_PDM_InitFieldNoDefault( &m_geoMechResultDefinition, "GeoMechResultDefinition", "GeoMech Result Definition" );
     m_geoMechResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_geometrySelectionItem, "GeometrySelectionItem", "Geometry Selection" );
-    m_geometrySelectionItem.uiCapability()->setUiTreeChildrenHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_eclipseDataSource, "EclipseDataSource", "Eclipse Data Source" );
+    m_eclipseDataSource.uiCapability()->setUiTreeChildrenHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_geoMechDataSource, "GeoMechDataSource", "Geomechanical Data Source" );
+    m_geoMechDataSource.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_plotAxis, "PlotAxis", caf::AppEnum<RiaDefines::PlotAxis>( RiaDefines::PlotAxis::PLOT_AXIS_LEFT ), "Axis" );
 
@@ -84,49 +83,28 @@ RimGridTimeHistoryCurve::~RimGridTimeHistoryCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridTimeHistoryCurve::setFromSelectionItem( const RiuSelectionItem* selectionItem )
+void RimGridTimeHistoryCurve::setFromSelectionItem( const RiuSelectionItem* selectionItem, bool updateResultDefinition )
 {
-    if ( m_geometrySelectionItem() )
+    if ( const RiuEclipseSelectionItem* eclSelectionItem = dynamic_cast<const RiuEclipseSelectionItem*>( selectionItem ) )
     {
-        delete m_geometrySelectionItem();
-    }
+        m_eclipseDataSource = new RimEclipseGeometrySelectionItem;
+        m_eclipseDataSource->setFromSelectionItem( eclSelectionItem );
 
-    if ( m_eclipseResultDefinition() )
-    {
-        delete m_eclipseResultDefinition();
-    }
-
-    if ( m_geoMechResultDefinition() )
-    {
-        delete m_geoMechResultDefinition();
-    }
-
-    const RiuEclipseSelectionItem* eclSelectionItem = dynamic_cast<const RiuEclipseSelectionItem*>( selectionItem );
-    if ( eclSelectionItem )
-    {
-        RimEclipseGeometrySelectionItem* geomSelectionItem = new RimEclipseGeometrySelectionItem;
-        m_geometrySelectionItem                            = geomSelectionItem;
-
-        geomSelectionItem->setFromSelectionItem( eclSelectionItem );
-
-        if ( eclSelectionItem->m_resultDefinition )
+        if ( updateResultDefinition && eclSelectionItem->m_resultDefinition )
         {
-            m_eclipseResultDefinition = new RimEclipseResultDefinition;
+            if ( !m_eclipseResultDefinition() ) m_eclipseResultDefinition = new RimEclipseResultDefinition;
             m_eclipseResultDefinition->simpleCopy( eclSelectionItem->m_resultDefinition );
         }
     }
 
-    const RiuGeoMechSelectionItem* geoMechSelectionItem = dynamic_cast<const RiuGeoMechSelectionItem*>( selectionItem );
-    if ( geoMechSelectionItem )
+    if ( const RiuGeoMechSelectionItem* geoMechSelectionItem = dynamic_cast<const RiuGeoMechSelectionItem*>( selectionItem ) )
     {
-        RimGeoMechGeometrySelectionItem* geomSelectionItem = new RimGeoMechGeometrySelectionItem;
-        m_geometrySelectionItem                            = geomSelectionItem;
+        m_geoMechDataSource = new RimGeoMechGeometrySelectionItem;
+        m_geoMechDataSource->setFromSelectionItem( geoMechSelectionItem );
 
-        geomSelectionItem->setFromSelectionItem( geoMechSelectionItem );
-
-        if ( geoMechSelectionItem->m_resultDefinition )
+        if ( updateResultDefinition && geoMechSelectionItem->m_resultDefinition )
         {
-            m_geoMechResultDefinition = new RimGeoMechResultDefinition;
+            if ( !m_geoMechResultDefinition ) m_geoMechResultDefinition = new RimGeoMechResultDefinition;
             m_geoMechResultDefinition->setGeoMechCase( geoMechSelectionItem->m_resultDefinition->geoMechCase() );
             m_geoMechResultDefinition->setResultAddress( geoMechSelectionItem->m_resultDefinition->resultAddress() );
         }
@@ -145,7 +123,6 @@ void RimGridTimeHistoryCurve::setFromEclipseCellAndResult( RimEclipseCase*      
                                                            size_t                         k,
                                                            const RigEclipseResultAddress& resAddr )
 {
-    delete m_geometrySelectionItem();
     delete m_eclipseResultDefinition();
     delete m_geoMechResultDefinition();
 
@@ -153,33 +130,8 @@ void RimGridTimeHistoryCurve::setFromEclipseCellAndResult( RimEclipseCase*      
     m_eclipseResultDefinition->setEclipseCase( eclCase );
     m_eclipseResultDefinition->setFromEclipseResultAddress( resAddr );
 
-    RimEclipseGeometrySelectionItem* geomSelectionItem = new RimEclipseGeometrySelectionItem;
-    m_geometrySelectionItem                            = geomSelectionItem;
-    geomSelectionItem->setFromCaseGridAndIJK( eclCase, gridIdx, i, j, k );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigGridCellResultAddress RimGridTimeHistoryCurve::resultAddress()
-{
-    RimEclipseGeometrySelectionItem* eclipseGeomSelectionItem =
-        dynamic_cast<RimEclipseGeometrySelectionItem*>( m_geometrySelectionItem.value() );
-
-    if ( m_eclipseResultDefinition && eclipseGeomSelectionItem )
-    {
-        cvf::Vec3st IJK = eclipseGeomSelectionItem->cellIJK();
-
-        return RigGridCellResultAddress( eclipseGeomSelectionItem->gridIndex(),
-                                         IJK[0],
-                                         IJK[1],
-                                         IJK[2],
-                                         m_eclipseResultDefinition->eclipseResultAddress() );
-    }
-
-    // Todo: support geomech stuff
-
-    return RigGridCellResultAddress();
+    m_eclipseDataSource = new RimEclipseGeometrySelectionItem;
+    m_eclipseDataSource->setFromCaseGridAndIJK( eclCase, gridIdx, i, j, k );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -346,6 +298,31 @@ RimCase* RimGridTimeHistoryCurve::gridCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridTimeHistoryCurve::createCurveFromSelectionItem( const RiuSelectionItem* selectionItem, RimSummaryPlot* plot )
+{
+    if ( !selectionItem || !plot ) return;
+
+    RimGridTimeHistoryCurve* newCurve               = new RimGridTimeHistoryCurve();
+    bool                     updateResultDefinition = true;
+    newCurve->setFromSelectionItem( selectionItem, updateResultDefinition );
+    newCurve->setLineThickness( 2 );
+
+    cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plot->curveCount() );
+    newCurve->setColor( curveColor );
+
+    plot->addGridTimeHistoryCurve( newCurve );
+
+    newCurve->loadDataAndUpdate( true );
+
+    plot->updateConnectedEditors();
+
+    RiuPlotMainWindowTools::showPlotMainWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem( newCurve );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimGridTimeHistoryCurve::createCurveAutoName()
 {
     QString text;
@@ -434,8 +411,7 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate( bool updateParentPlot )
             }
         }
 
-        updateZoomInParentPlot();
-
+        plot->zoomAll();
         if ( m_parentPlot ) m_parentPlot->replot();
 
         updateQwtPlotAxis();
@@ -554,9 +530,10 @@ void RimGridTimeHistoryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUi
 {
     RimPlotCurve::updateFieldUiState();
 
-    uiOrdering.add( &m_geometrySelectionText );
+    caf::PdmUiGroup* dataSource = uiOrdering.addNewGroup( "Data Source" );
+    dataSource->add( &m_geometrySelectionText );
+    eclipseGeomSelectionItem()->uiOrdering( uiConfigName, *dataSource );
 
-    // Fields declared in RimResultDefinition
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup( "Result" );
     if ( eclipseGeomSelectionItem() )
     {
@@ -574,11 +551,14 @@ void RimGridTimeHistoryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUi
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
     RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
+    appearanceGroup->setCollapsedByDefault();
 
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
     nameGroup->setCollapsedByDefault();
     nameGroup->add( &m_showLegend );
     RimPlotCurve::curveNameUiOrdering( *nameGroup );
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -613,6 +593,19 @@ void RimGridTimeHistoryCurve::fieldChangedByUi( const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridTimeHistoryCurve::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    if ( m_eclipseDataSource() && m_eclipseResultDefinition() )
+    {
+        m_eclipseResultDefinition->setEclipseCase( m_eclipseDataSource->eclipseCase() );
+    }
+
+    onLoadDataAndUpdate( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RigMainGrid* RimGridTimeHistoryCurve::mainGrid()
 {
     if ( eclipseGeomSelectionItem() && eclipseGeomSelectionItem()->eclipseCase() &&
@@ -629,9 +622,7 @@ RigMainGrid* RimGridTimeHistoryCurve::mainGrid()
 //--------------------------------------------------------------------------------------------------
 RimEclipseGeometrySelectionItem* RimGridTimeHistoryCurve::eclipseGeomSelectionItem() const
 {
-    RimGeometrySelectionItem* pickItem = m_geometrySelectionItem();
-
-    return dynamic_cast<RimEclipseGeometrySelectionItem*>( pickItem );
+    return m_eclipseDataSource();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -639,9 +630,7 @@ RimEclipseGeometrySelectionItem* RimGridTimeHistoryCurve::eclipseGeomSelectionIt
 //--------------------------------------------------------------------------------------------------
 RimGeoMechGeometrySelectionItem* RimGridTimeHistoryCurve::geoMechGeomSelectionItem() const
 {
-    RimGeometrySelectionItem* pickItem = m_geometrySelectionItem();
-
-    return dynamic_cast<RimGeoMechGeometrySelectionItem*>( pickItem );
+    return m_geoMechDataSource();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -671,9 +660,9 @@ QString RimGridTimeHistoryCurve::geometrySelectionText() const
 {
     QString text;
 
-    if ( eclipseGeomSelectionItem() && m_geometrySelectionItem() )
+    if ( eclipseGeomSelectionItem() )
     {
-        text = m_geometrySelectionItem->geometrySelectionText();
+        text = eclipseGeomSelectionItem()->geometrySelectionText();
     }
     else if ( geoMechGeomSelectionItem() )
     {
