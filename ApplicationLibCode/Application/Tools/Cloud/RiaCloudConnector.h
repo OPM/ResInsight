@@ -50,7 +50,7 @@ public:
 
     QString requestTokenBlocking();
     void    requestTokenWithCancelButton();
-    void    forceNewTokens();
+    void    clearTokens();
 
     bool isGranted() const;
 
