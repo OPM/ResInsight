@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2025     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,42 +19,29 @@
 #pragma once
 
 #include "cafPdmField.h"
-#include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
-class RiuGeoMechSelectionItem;
-class RimGeoMechCase;
+class RimPlotWindow;
+class RimSummaryPlot;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimGeoMechGeometrySelectionItem : public caf::PdmObject
+class RimAutomationSettings : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimGeoMechGeometrySelectionItem();
-    ~RimGeoMechGeometrySelectionItem() override;
+    RimAutomationSettings();
 
-    void setFromSelectionItem( const RiuGeoMechSelectionItem* selectionItem );
-
-    QString         geometrySelectionText() const;
-    RimGeoMechCase* geoMechCase() const;
-
-public:
-    caf::PdmField<size_t> m_gridIndex;
-    caf::PdmField<size_t> m_cellIndex;
-    caf::PdmField<int>    m_elementFace;
-    caf::PdmField<bool>   m_hasIntersectionTriangle;
-
-    caf::PdmField<cvf::Vec3d> m_intersectionTriangle_0;
-    caf::PdmField<cvf::Vec3d> m_intersectionTriangle_1;
-    caf::PdmField<cvf::Vec3d> m_intersectionTriangle_2;
-
-    caf::PdmField<cvf::Vec3d> m_localIntersectionPoint;
+    std::vector<RimSummaryPlot*> summaryPlots() const;
 
 private:
-    caf::PdmPtrField<RimGeoMechCase*> m_geoMechCase;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
+private:
+    caf::PdmPtrField<RimPlotWindow*> m_cellSelectionDestination;
 };

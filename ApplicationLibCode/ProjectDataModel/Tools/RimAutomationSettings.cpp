@@ -26,7 +26,7 @@
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "RiuPlotMainWindowTools.h"
 
-#include "cafPdmUiPushButtonEditor.h"
+#include "RimSummaryMultiPlot.h"
 
 CAF_PDM_SOURCE_INIT( RimAutomationSettings, "RimAutomationSettings" );
 
@@ -42,36 +42,24 @@ RimAutomationSettings::RimAutomationSettings()
                                 "Cell Selection Destination",
                                 "",
                                 "Add curves to the selected Summary Plot when clicking on cells in a 3D view." );
-
-    CAF_PDM_InitFieldNoDefault( &m_createSummaryPlot, "CreateSummaryPlot", "Create Summary Plot" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_createSummaryPlot );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RimAutomationSettings::cellSelectionDestination() const
+std::vector<RimSummaryPlot*> RimAutomationSettings::summaryPlots() const
 {
-    return m_cellSelectionDestination();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAutomationSettings::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
-{
-    if ( changedField == &m_createSummaryPlot )
+    if ( auto summaryPlot = dynamic_cast<RimSummaryPlot*>( m_cellSelectionDestination() ) )
     {
-        if ( m_createSummaryPlot )
-        {
-            RimSummaryPlot* newPlot = new RimSummaryPlot();
-            RiaSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
-
-            RiuPlotMainWindowTools::selectAsCurrentItem( this );
-
-            m_cellSelectionDestination = newPlot;
-        }
+        return { summaryPlot };
     }
+
+    if ( auto multiSummaryPlot = dynamic_cast<RimSummaryMultiPlot*>( m_cellSelectionDestination() ) )
+    {
+        return multiSummaryPlot->summaryPlots();
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,9 +71,6 @@ void RimAutomationSettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 
     group->add( &m_cellSelectionDestination );
     m_cellSelectionDestination.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-
-    // group->add( &m_createSummaryPlot );
-    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,25 +84,23 @@ QList<caf::PdmOptionItemInfo> RimAutomationSettings::calculateValueOptions( cons
     {
         if ( auto summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection() )
         {
-            summaryPlotColl->summaryPlotItemInfos( &options );
+            for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
+            {
+                auto mainPlotName = multiPlot->description();
+
+                options.push_back( caf::PdmOptionItemInfo( mainPlotName, multiPlot, false, multiPlot->uiIconProvider() ) );
+
+                for ( RimSummaryPlot* plot : multiPlot->summaryPlots() )
+                {
+                    QString displayName = mainPlotName + " : ";
+                    displayName += plot->userDescriptionField()->uiCapability()->uiValue().toString();
+                    options.push_back( caf::PdmOptionItemInfo( displayName, plot, false, plot->uiIconProvider() ) );
+                }
+            }
         }
 
         options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
     }
 
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAutomationSettings::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_createSummaryPlot )
-    {
-        if ( auto* attr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
-        {
-            attr->m_buttonText = "Create Plot";
-        }
-    }
 }

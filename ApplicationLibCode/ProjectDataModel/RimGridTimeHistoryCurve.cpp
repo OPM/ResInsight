@@ -26,26 +26,22 @@
 #include "RigMainGrid.h"
 #include "RigTimeHistoryResultAccessor.h"
 
+#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
+
 #include "RimEclipseCase.h"
-#include "RimEclipseCellColors.h"
 #include "RimEclipseGeometrySelectionItem.h"
 #include "RimEclipseResultDefinition.h"
-#include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechGeometrySelectionItem.h"
 #include "RimGeoMechResultDefinition.h"
-#include "RimGeoMechView.h"
-#include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryTimeAxisProperties.h"
 
 #include "Riu3dSelectionManager.h"
 #include "RiuFemTimeHistoryResultAccessor.h"
-#include "RiuQwtPlotCurve.h"
-
-#include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
-#include "qwt_plot.h"
+#include "RiuPlotCurve.h"
+#include "RiuPlotMainWindowTools.h"
 
 CAF_PDM_SOURCE_INIT( RimGridTimeHistoryCurve, "GridTimeHistoryCurve" );
 
@@ -87,19 +83,16 @@ RimGridTimeHistoryCurve::~RimGridTimeHistoryCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridTimeHistoryCurve::setFromSelectionItem( const RiuSelectionItem* selectionItem )
+void RimGridTimeHistoryCurve::setFromSelectionItem( const RiuSelectionItem* selectionItem, bool updateResultDefinition )
 {
-    delete m_eclipseResultDefinition();
-    delete m_geoMechResultDefinition();
-
     if ( const RiuEclipseSelectionItem* eclSelectionItem = dynamic_cast<const RiuEclipseSelectionItem*>( selectionItem ) )
     {
         m_eclipseDataSource = new RimEclipseGeometrySelectionItem;
         m_eclipseDataSource->setFromSelectionItem( eclSelectionItem );
 
-        if ( eclSelectionItem->m_resultDefinition )
+        if ( updateResultDefinition && eclSelectionItem->m_resultDefinition )
         {
-            m_eclipseResultDefinition = new RimEclipseResultDefinition;
+            if ( !m_eclipseResultDefinition() ) m_eclipseResultDefinition = new RimEclipseResultDefinition;
             m_eclipseResultDefinition->simpleCopy( eclSelectionItem->m_resultDefinition );
         }
     }
@@ -109,9 +102,9 @@ void RimGridTimeHistoryCurve::setFromSelectionItem( const RiuSelectionItem* sele
         m_geoMechDataSource = new RimGeoMechGeometrySelectionItem;
         m_geoMechDataSource->setFromSelectionItem( geoMechSelectionItem );
 
-        if ( geoMechSelectionItem->m_resultDefinition )
+        if ( updateResultDefinition && geoMechSelectionItem->m_resultDefinition )
         {
-            m_geoMechResultDefinition = new RimGeoMechResultDefinition;
+            if ( !m_geoMechResultDefinition ) m_geoMechResultDefinition = new RimGeoMechResultDefinition;
             m_geoMechResultDefinition->setGeoMechCase( geoMechSelectionItem->m_resultDefinition->geoMechCase() );
             m_geoMechResultDefinition->setResultAddress( geoMechSelectionItem->m_resultDefinition->resultAddress() );
         }
@@ -305,6 +298,31 @@ RimCase* RimGridTimeHistoryCurve::gridCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridTimeHistoryCurve::createCurveFromSelectionItem( const RiuSelectionItem* selectionItem, RimSummaryPlot* plot )
+{
+    if ( !selectionItem || !plot ) return;
+
+    RimGridTimeHistoryCurve* newCurve               = new RimGridTimeHistoryCurve();
+    bool                     updateResultDefinition = true;
+    newCurve->setFromSelectionItem( selectionItem, updateResultDefinition );
+    newCurve->setLineThickness( 2 );
+
+    cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plot->curveCount() );
+    newCurve->setColor( curveColor );
+
+    plot->addGridTimeHistoryCurve( newCurve );
+
+    newCurve->loadDataAndUpdate( true );
+
+    plot->updateConnectedEditors();
+
+    RiuPlotMainWindowTools::showPlotMainWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem( newCurve );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimGridTimeHistoryCurve::createCurveAutoName()
 {
     QString text;
@@ -393,8 +411,7 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate( bool updateParentPlot )
             }
         }
 
-        updateZoomInParentPlot();
-
+        plot->zoomAll();
         if ( m_parentPlot ) m_parentPlot->replot();
 
         updateQwtPlotAxis();
@@ -513,9 +530,10 @@ void RimGridTimeHistoryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUi
 {
     RimPlotCurve::updateFieldUiState();
 
-    uiOrdering.add( &m_geometrySelectionText );
+    caf::PdmUiGroup* dataSource = uiOrdering.addNewGroup( "Data Source" );
+    dataSource->add( &m_geometrySelectionText );
+    eclipseGeomSelectionItem()->uiOrdering( uiConfigName, *dataSource );
 
-    // Fields declared in RimResultDefinition
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup( "Result" );
     if ( eclipseGeomSelectionItem() )
     {
@@ -533,11 +551,14 @@ void RimGridTimeHistoryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUi
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
     RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
+    appearanceGroup->setCollapsedByDefault();
 
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
     nameGroup->setCollapsedByDefault();
     nameGroup->add( &m_showLegend );
     RimPlotCurve::curveNameUiOrdering( *nameGroup );
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -567,6 +588,19 @@ void RimGridTimeHistoryCurve::fieldChangedByUi( const caf::PdmFieldHandle* chang
     {
         RimPlotCurve::fieldChangedByUi( changedField, oldValue, newValue );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridTimeHistoryCurve::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    if ( m_eclipseDataSource() && m_eclipseResultDefinition() )
+    {
+        m_eclipseResultDefinition->setEclipseCase( m_eclipseDataSource->eclipseCase() );
+    }
+
+    onLoadDataAndUpdate( true );
 }
 
 //--------------------------------------------------------------------------------------------------
