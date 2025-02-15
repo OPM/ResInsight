@@ -344,7 +344,6 @@ def views(self):
     views = project.views()
     views_for_case = []
     for view_object in views:
-        view_object.print_object_info()
         if view_object.id == self.id:
             views_for_case.append(view_object)
     return views_for_case
