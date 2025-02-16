@@ -57,6 +57,7 @@
 #include "cafFrameAnimationControl.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapabilityCvfColor3.h"
+#include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cvfCamera.h"
 #include "cvfModelBasicList.h"
@@ -111,6 +112,17 @@ Rim3dView::Rim3dView()
 
     CAF_PDM_InitField( &m_cameraPointOfInterest, "CameraPointOfInterest", cvf::Vec3d::ZERO, "" );
     m_cameraPointOfInterest.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_cameraPositionProxy, "CameraPositionProxy", "CameraMatrix", "Camera Matrix" );
+    m_cameraPositionProxy.registerGetMethod( this, &Rim3dView::cameraPosition );
+    m_cameraPositionProxy.registerSetMethod( this, &Rim3dView::setCameraPosition );
+
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_cameraPointOfInterestProxy,
+                                                           "CameraPointOfInterestProxy",
+                                                           "CameraPointOfInterest",
+                                                           "Camera Point of Interest" );
+    m_cameraPointOfInterestProxy.registerGetMethod( this, &Rim3dView::cameraPointOfInterest );
+    m_cameraPointOfInterestProxy.registerSetMethod( this, &Rim3dView::setCameraPointOfInterest );
 
     CAF_PDM_InitScriptableField( &isPerspectiveView, "PerspectiveProjection", true, "Perspective Projection" );
 
@@ -1035,6 +1047,13 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
             m_viewer->update();
         }
     }
+    else if ( changedField == &m_cameraPositionProxy || changedField == &m_cameraPointOfInterestProxy )
+    {
+        if ( m_viewer )
+        {
+            m_viewer->repaint();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1510,6 +1529,11 @@ QList<caf::PdmOptionItemInfo> Rim3dView::calculateValueOptions( const caf::PdmFi
 //--------------------------------------------------------------------------------------------------
 cvf::Mat4d Rim3dView::cameraPosition() const
 {
+    if ( m_viewer && m_viewer->mainCamera() )
+    {
+        m_cameraPosition = m_viewer->mainCamera()->viewMatrix();
+    }
+
     return m_cameraPosition();
 }
 
@@ -1518,6 +1542,11 @@ cvf::Mat4d Rim3dView::cameraPosition() const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d Rim3dView::cameraPointOfInterest() const
 {
+    if ( m_viewer )
+    {
+        m_cameraPointOfInterest = m_viewer->pointOfInterest();
+    }
+
     return m_cameraPointOfInterest();
 }
 
@@ -1545,6 +1574,10 @@ QWidget* Rim3dView::viewWidget()
 void Rim3dView::setCameraPosition( const cvf::Mat4d& cameraPosition )
 {
     m_cameraPosition = cameraPosition;
+    if ( m_viewer && m_viewer->mainCamera() )
+    {
+        m_viewer->mainCamera()->setViewMatrix( m_cameraPosition );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1553,6 +1586,10 @@ void Rim3dView::setCameraPosition( const cvf::Mat4d& cameraPosition )
 void Rim3dView::setCameraPointOfInterest( const cvf::Vec3d& cameraPointOfInterest )
 {
     m_cameraPointOfInterest = cameraPointOfInterest;
+    if ( m_viewer )
+    {
+        m_viewer->setPointOfInterest( m_cameraPointOfInterest );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

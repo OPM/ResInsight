@@ -281,7 +281,6 @@ protected:
     cvf::ref<cvf::ModelBasicList> m_screenSpaceModel;
 
     caf::PdmField<double> m_scaleZ;
-    caf::PdmField<double> m_customScaleZ;
 
     caf::PdmChildField<RimAnnotationInViewCollection*> m_annotationCollection;
 
@@ -329,12 +328,16 @@ private:
     caf::PdmField<int>                     m_id;
     caf::PdmChildField<RimViewNameConfig*> m_nameConfig;
     caf::PdmField<bool>                    m_disableLighting;
-    caf::PdmField<cvf::Mat4d>              m_cameraPosition;
-    caf::PdmField<cvf::Vec3d>              m_cameraPointOfInterest;
     caf::PdmField<cvf::Color3f>            m_backgroundColor;
     caf::PdmField<bool>                    m_showGridBox;
     caf::PdmField<bool>                    m_showZScaleLabel;
     caf::PdmPtrField<Rim3dView*>           m_comparisonView;
+
+    // Camera
+    mutable caf::PdmField<cvf::Mat4d>   m_cameraPosition;
+    mutable caf::PdmField<cvf::Vec3d>   m_cameraPointOfInterest;
+    caf::PdmProxyValueField<cvf::Vec3d> m_cameraPointOfInterestProxy;
+    caf::PdmProxyValueField<cvf::Mat4d> m_cameraPositionProxy;
 
     caf::PdmField<bool>                                                    m_useCustomAnnotationStrategy;
     caf::PdmField<caf::AppEnum<RivAnnotationTools::LabelPositionStrategy>> m_annotationStrategy;
