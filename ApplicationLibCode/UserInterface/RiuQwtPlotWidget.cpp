@@ -1055,6 +1055,8 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::set<RimPlotCurve*>& curve
                 plotCurve->setPen( existingPen );
                 plotCurve->setZ( zValue + 100.0 );
                 highlightPlotAxes( plotCurve->xAxis(), plotCurve->yAxis() );
+
+                m_hightlightedCurves.push_back( currentRimPlotCurve );
             }
             else
             {
@@ -1113,8 +1115,18 @@ void RiuQwtPlotWidget::resetPlotItemHighlighting( bool doUpdateCurveOrder )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimPlotCurve*> RiuQwtPlotWidget::highlightedCurves() const
+{
+    return m_hightlightedCurves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::resetPlotCurveHighlighting()
 {
+    m_hightlightedCurves.clear();
+
     if ( !m_plotDefinition || m_originalZValues.empty() )
     {
         return;

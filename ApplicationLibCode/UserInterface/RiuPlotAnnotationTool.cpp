@@ -408,4 +408,8 @@ void RiuPlotAnnotationTool::setLineProperties( QwtPlotMarker*          line,
         line->setLineStyle( QwtPlotMarker::VLine );
         line->setXValue( linePosition );
     }
+
+    // Have this marker always on top of all curves/plot items.
+    double zAlwaysOnTop = 99999999;
+    line->setZ( zAlwaysOnTop );
 }

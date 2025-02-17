@@ -1760,23 +1760,44 @@ void RimSummaryMultiPlot::updateReadOutLines( double qwtTimeValue, double yValue
 
         if ( m_readOutSettings->enableHorizontalLine() )
         {
-            if ( auto leftAxisProperties = dynamic_cast<RimPlotAxisProperties*>( plot->axisPropertiesForPlotAxis( RiuPlotAxis::defaultLeft() ) ) )
-            {
-                leftAxisProperties->removeAllAnnotations();
+            std::vector<RimSummaryCurve*> summaryCurves;
 
-                auto summaryCurves = plot->summaryCurves();
-                if ( !summaryCurves.empty() )
+            // 1. Check if any curves are highlighted
+            if ( auto plotWidget = dynamic_cast<RiuQwtPlotWidget*>( plot->plotWidget() ) )
+            {
+                for ( auto highlightCurve : plotWidget->highlightedCurves() )
                 {
-                    auto firstCurve = summaryCurves.front();
-                    yValue          = firstCurve->yValueAtTimeT( timeTValue );
+                    if ( auto summaryCurve = dynamic_cast<RimSummaryCurve*>( highlightCurve ) )
+                    {
+                        summaryCurves.push_back( summaryCurve );
+                    }
                 }
+            }
+
+            // 2. If no curves are highlighted, use summary curves from single realizations
+            if ( summaryCurves.empty() )
+            {
+                summaryCurves = plot->summaryCurves();
+            }
+
+            auto annotationAxis = dynamic_cast<RimPlotAxisProperties*>( plot->axisPropertiesForPlotAxis( RiuPlotAxis::defaultLeft() ) );
+            if ( !summaryCurves.empty() )
+            {
+                auto firstCurve = summaryCurves.front();
+                yValue          = firstCurve->yValueAtTimeT( timeTValue );
+                annotationAxis  = dynamic_cast<RimPlotAxisProperties*>( plot->axisPropertiesForPlotAxis( firstCurve->axisY() ) );
+            }
+
+            if ( annotationAxis )
+            {
+                annotationAxis->removeAllAnnotations();
 
                 auto anno = new RimPlotAxisAnnotation();
                 anno->setAnnotationType( RimPlotAxisAnnotation::AnnotationType::LINE );
 
                 anno->setValue( yValue );
 
-                auto scaledValue = yValue / leftAxisProperties->scaleFactor();
+                auto scaledValue = yValue / annotationAxis->scaleFactor();
                 auto valueText   = RiaNumberFormat::valueToText( scaledValue, RiaNumberFormat::NumberFormatType::FIXED, 2 );
 
                 anno->setName( valueText );
@@ -1788,7 +1809,7 @@ void RimSummaryMultiPlot::updateReadOutLines( double qwtTimeValue, double yValue
                 anno->setColor( lineAppearance->color() );
                 anno->setAlignment( m_readOutSettings->horizontalLineLabelAlignment() );
 
-                leftAxisProperties->appendAnnotation( anno );
+                annotationAxis->appendAnnotation( anno );
             }
         }
 
