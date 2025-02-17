@@ -942,7 +942,7 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
             const auto rimCurve = curve->ownerRimCurve();
             if ( RimSummaryEnsembleTools::isEnsembleCurve( rimCurve ) )
             {
-                RimSummaryEnsembleTools::highlightCurvesForSameRealization( rimCurve );
+                RimSummaryEnsembleTools::highlightCurvesForSameRealizationFromCurve( rimCurve );
             }
             else
             {
