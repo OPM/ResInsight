@@ -1005,17 +1005,22 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
             m_viewer->update();
         }
     }
-    else if ( changedField == &m_backgroundColor || changedField == &m_fontSize )
+    else if ( changedField == &m_backgroundColor )
     {
-        if ( changedField == &m_fontSize )
+        if ( viewer() != nullptr )
         {
-            auto fontHolderChildren = descendantsOfType<caf::FontHolderInterface>();
-            for ( auto fontHolder : fontHolderChildren )
-            {
-                fontHolder->updateFonts();
-            }
+            viewer()->mainCamera()->viewport()->setClearColor( cvf::Color4f( backgroundColor() ) );
         }
-        this->applyBackgroundColorAndFontChanges();
+        this->scheduleCreateDisplayModelAndRedraw();
+    }
+    else if ( changedField == &m_fontSize )
+    {
+        auto fontHolderChildren = descendantsOfType<caf::FontHolderInterface>();
+        for ( auto fontHolder : fontHolderChildren )
+        {
+            fontHolder->updateFonts();
+        }
+        this->applyFontChanges();
         this->updateConnectedEditors();
     }
     else if ( changedField == &maximumFrameRate )
@@ -1361,11 +1366,10 @@ void Rim3dView::setShowGridBox( bool showGridBox )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::applyBackgroundColorAndFontChanges()
+void Rim3dView::applyFontChanges()
 {
     if ( viewer() != nullptr )
     {
-        viewer()->mainCamera()->viewport()->setClearColor( cvf::Color4f( backgroundColor() ) );
         viewer()->updateFonts( fontSize() );
     }
     updateGridBoxData();
@@ -1389,7 +1393,7 @@ int Rim3dView::fontSize() const
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::updateFonts()
 {
-    applyBackgroundColorAndFontChanges();
+    applyFontChanges();
 }
 
 //--------------------------------------------------------------------------------------------------

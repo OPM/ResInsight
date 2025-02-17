@@ -1456,7 +1456,7 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
                      ( applySettingsToAllViews || rim3dView->backgroundColor() == oldPreferences->defaultViewerBackgroundColor() ) )
                 {
                     rim3dView->setBackgroundColor( m_preferences->defaultViewerBackgroundColor() );
-                    rim3dView->applyBackgroundColorAndFontChanges();
+                    rim3dView->applyFontChanges();
                 }
 
                 if ( oldPreferences && ( applySettingsToAllViews || rim3dView->scaleZ() == oldPreferences->defaultScaleFactorZ() ) )
