@@ -648,6 +648,11 @@ std::vector<double> RimStatisticsContourMap::result( size_t timeStep, Statistics
 //--------------------------------------------------------------------------------------------------
 std::vector<int> RimStatisticsContourMap::selectedTimeSteps() const
 {
+    if ( !m_resultDefinition->hasDynamicResult() )
+    {
+        return { 0 };
+    }
+
     auto steps = m_selectedTimeSteps();
     std::sort( steps.begin(), steps.end() );
     return steps;
