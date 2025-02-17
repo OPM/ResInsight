@@ -37,6 +37,7 @@
 
 #include "cafPdmFieldScriptingCapability.h"
 
+#include "cvfMatrix4.h"
 #include "cvfVector3.h"
 
 namespace caf
@@ -53,4 +54,18 @@ struct PdmFieldScriptingCapabilityIOHandler<cvf::Vector3<double>>
                                bool                        quoteStrings     = true,
                                bool                        quoteNonBuiltins = false );
 };
+
+template <>
+struct PdmFieldScriptingCapabilityIOHandler<cvf::Matrix4<double>>
+{
+    static void writeToField( cvf::Matrix4<double>& fieldValue,
+                              QTextStream&          inputStream,
+                              PdmScriptIOMessages*  errorMessageContainer,
+                              bool                  stringsAreQuoted = true );
+    static void readFromField( const cvf::Matrix4<double>& fieldValue,
+                               QTextStream&                outputStream,
+                               bool                        quoteStrings     = true,
+                               bool                        quoteNonBuiltins = false );
+};
+
 } // namespace caf

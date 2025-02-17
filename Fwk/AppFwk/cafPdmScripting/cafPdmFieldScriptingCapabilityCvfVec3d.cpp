@@ -80,3 +80,53 @@ void PdmFieldScriptingCapabilityIOHandler<cvf::Vector3<double>>::readFromField( 
 
     PdmFieldScriptingCapabilityIOHandler<std::vector<double>>::readFromField( fieldVectorValue, outputStream, quoteStrings );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmFieldScriptingCapabilityIOHandler<cvf::Matrix4<double>>::writeToField( cvf::Matrix4<double>& fieldValue,
+                                                                               QTextStream&          inputStream,
+                                                                               caf::PdmScriptIOMessages* errorMessageContainer,
+                                                                               bool stringsAreQuoted )
+{
+    std::vector<double> fieldVectorValue;
+    PdmFieldScriptingCapabilityIOHandler<std::vector<double>>::writeToField( fieldVectorValue,
+                                                                             inputStream,
+                                                                             errorMessageContainer,
+                                                                             stringsAreQuoted );
+    if ( fieldVectorValue.size() == 16u )
+    {
+        for ( int row = 0; row < 4; ++row )
+        {
+            for ( int col = 0; col < 4; ++col )
+            {
+                fieldValue( row, col ) = fieldVectorValue[row * 4 + col];
+            }
+        }
+    }
+    else
+    {
+        QString errMsg = QString( "Expected 16 values, got %1" ).arg( fieldVectorValue.size() );
+        errorMessageContainer->addError( errMsg );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmFieldScriptingCapabilityIOHandler<cvf::Matrix4<double>>::readFromField( const cvf::Matrix4<double>& fieldValue,
+                                                                                QTextStream& outputStream,
+                                                                                bool         quoteStrings,
+                                                                                bool         quoteNonBuiltin )
+{
+    std::vector<double> fieldVectorValue( 16u );
+    for ( int row = 0; row < 4; ++row )
+    {
+        for ( int col = 0; col < 4; ++col )
+        {
+            fieldVectorValue[row * 4 + col] = fieldValue( row, col );
+        }
+    }
+
+    PdmFieldScriptingCapabilityIOHandler<std::vector<double>>::readFromField( fieldVectorValue, outputStream, quoteStrings );
+}

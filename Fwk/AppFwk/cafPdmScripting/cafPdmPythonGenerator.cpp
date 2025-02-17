@@ -560,6 +560,7 @@ QString PdmPythonGenerator::dataTypeString( const PdmFieldHandle* field, bool us
 #ifndef CAF_EXCLUDE_CVF
     builtins[QString::fromStdString( typeid( cvf::Vec3d ).name() )]   = "List[float]";
     builtins[QString::fromStdString( typeid( cvf::Color3f ).name() )] = "str";
+    builtins[QString::fromStdString( typeid( cvf::Mat4d ).name() )]   = "List[float]";
 #endif
 
     bool foundBuiltin = false;
