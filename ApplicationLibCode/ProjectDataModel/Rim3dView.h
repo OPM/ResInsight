@@ -333,7 +333,9 @@ private:
     caf::PdmField<bool>                    m_showZScaleLabel;
     caf::PdmPtrField<Rim3dView*>           m_comparisonView;
 
-    // Camera
+    // Camera position and point of interest. The member variables are mutable to allow for setting them from const methods.
+    // The camera position and point of interest can change rapidly as the user interacts with the 3D view. Only update the Pdm field values
+    // when the application requests the camera position or point of interest.
     mutable caf::PdmField<cvf::Mat4d>   m_cameraPosition;
     mutable caf::PdmField<cvf::Vec3d>   m_cameraPointOfInterest;
     caf::PdmProxyValueField<cvf::Vec3d> m_cameraPointOfInterestProxy;

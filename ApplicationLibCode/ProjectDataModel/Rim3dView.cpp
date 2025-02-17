@@ -841,6 +841,8 @@ void Rim3dView::setupBeforeSave()
 {
     if ( m_viewer )
     {
+        // The update of these fields is also done in cameraPosition() and cameraPointOfInterest(). When the
+        // project is saved to file, these functions are not used, so we need to update the fields here.
         m_cameraPosition        = m_viewer->mainCamera()->viewMatrix();
         m_cameraPointOfInterest = m_viewer->pointOfInterest();
     }
