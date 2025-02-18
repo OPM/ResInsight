@@ -129,6 +129,7 @@ public:
     RimTimeAxisAnnotation* addTimeRangeAnnotation( time_t startTime, time_t endTime );
     void                   removeTimeAnnotation( RimTimeAxisAnnotation* annotation );
     void                   removeAllTimeAnnotations();
+    void                   updateAnnotationsInPlotWidget();
 
     void updateAxes() override;
 

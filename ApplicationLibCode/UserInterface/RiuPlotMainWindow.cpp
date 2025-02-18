@@ -31,8 +31,10 @@
 #include "RimMainPlotCollection.h"
 #include "RimMultiPlot.h"
 #include "RimProject.h"
+#include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurveCollection.h"
+#include "RimSummaryEnsembleTools.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
@@ -941,6 +943,11 @@ void RiuPlotMainWindow::selectedObjectsChanged( caf::PdmUiTreeView* projectTree,
         }
 
         if ( !firstSelectedObject ) return;
+
+        if ( auto summaryCase = dynamic_cast<RimSummaryCase*>( firstSelectedObject ) )
+        {
+            RimSummaryEnsembleTools::highlightCurvesForSameRealization( summaryCase );
+        }
 
         RimViewWindow* selectedWindow = dynamic_cast<RimViewWindow*>( firstSelectedObject );
         if ( !selectedWindow )
