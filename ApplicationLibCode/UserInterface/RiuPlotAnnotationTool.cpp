@@ -20,6 +20,7 @@
 
 #include "RimPlotAxisAnnotation.h"
 #include "RiuGuiTheme.h"
+#include "RiuQwtPlotCurveDefines.h"
 
 #include "cafCategoryMapper.h"
 #include "cvfMath.h"
@@ -409,7 +410,5 @@ void RiuPlotAnnotationTool::setLineProperties( QwtPlotMarker*          line,
         line->setXValue( linePosition );
     }
 
-    // Have this marker always on top of all curves/plot items.
-    double zAlwaysOnTop = 99999999;
-    line->setZ( zAlwaysOnTop );
+    line->setZ( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ANNOTATION ) );
 }
