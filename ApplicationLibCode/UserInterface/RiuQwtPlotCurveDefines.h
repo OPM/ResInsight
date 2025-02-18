@@ -48,7 +48,7 @@ enum class ZIndex
     Z_SINGLE_CURVE_OBSERVED,
     Z_PLOT_RECT_ANNOTATION,
     Z_REGRESSION_CURVE,
-    Z_ANNOTATION = 9999
+    Z_ANNOTATION
 };
 
 int zDepthForIndex( ZIndex index );

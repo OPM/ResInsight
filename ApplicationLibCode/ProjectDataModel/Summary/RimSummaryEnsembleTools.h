@@ -40,7 +40,7 @@ size_t calculateEnsembleParametersIntersectionHash( const std::vector<RimSummary
 
 bool isEnsembleCurve( RimPlotCurve* sourceCurve );
 void highlightCurvesForSameRealizationFromCurve( RimPlotCurve* sourceCurve );
-void highlightCurvesForSameRealization( RimSummaryCase* sourceCurve );
+void highlightCurvesForSameRealization( RimSummaryCase* sourceCase );
 void resetHighlightAllPlots();
 
 } // namespace RimSummaryEnsembleTools
