@@ -212,24 +212,33 @@ void RimSummaryPlot::updateAxes()
     updateNumericalAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
     updateNumericalAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
 
-    if ( m_summaryPlot ) m_summaryPlot->clearAnnotationObjects();
-
-    if ( timeAxisProperties() && plotWidget() )
-    {
-        m_summaryPlot->updateAnnotationObjects( timeAxisProperties() );
-    }
-
-    RimPlotAxisPropertiesInterface* leftYAxisProperties = axisPropertiesForPlotAxis( RiuPlotAxis::defaultLeft() );
-    if ( leftYAxisProperties && plotWidget() )
-    {
-        m_summaryPlot->updateAnnotationObjects( leftYAxisProperties );
-    }
+    updateAnnotationsInPlotWidget();
 
     updateNumericalAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
     updateNumericalAxis( RiaDefines::PlotAxis::PLOT_AXIS_TOP );
     updateTimeAxis( timeAxisProperties() );
 
     updatePlotWidgetFromAxisRanges();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateAnnotationsInPlotWidget()
+{
+    if ( m_summaryPlot ) m_summaryPlot->clearAnnotationObjects();
+
+    if ( !plotWidget() ) return;
+
+    if ( timeAxisProperties() )
+    {
+        m_summaryPlot->updateAnnotationObjects( timeAxisProperties() );
+    }
+
+    if ( auto leftYAxisProperties = axisPropertiesForPlotAxis( RiuPlotAxis::defaultLeft() ) )
+    {
+        m_summaryPlot->updateAnnotationObjects( leftYAxisProperties );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

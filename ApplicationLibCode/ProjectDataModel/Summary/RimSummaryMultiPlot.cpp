@@ -1813,6 +1813,8 @@ void RimSummaryMultiPlot::updateReadOutLines( double qwtTimeValue, double yValue
             }
         }
 
-        plot->updateAxes();
+        // Calling plot->updateAxes() does not work for the first plot in a multiplot. Use fine grained update of annotation objects.
+        plot->updateAnnotationsInPlotWidget();
+        plot->updatePlotWidgetFromAxisRanges();
     }
 }
