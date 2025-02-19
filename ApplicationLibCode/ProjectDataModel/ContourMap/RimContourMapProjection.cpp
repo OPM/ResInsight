@@ -478,9 +478,6 @@ std::pair<double, double> RimContourMapProjection::minmaxValuesAllTimeSteps()
         const auto [minVal, maxVal] = computeMinMaxValuesAllTimeSteps();
         m_minResultAllTimeSteps     = minVal;
         m_maxResultAllTimeSteps     = maxVal;
-
-        m_lowerThreshold = minVal;
-        m_upperThreshold = maxVal;
     }
 
     return std::pair<double, double>( m_minResultAllTimeSteps, m_maxResultAllTimeSteps );
