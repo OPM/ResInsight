@@ -60,8 +60,8 @@ public:
     cvf::Vec2ui numberOfElementsIJ() const;
     cvf::Vec2ui numberOfVerticesIJ() const;
 
+    size_t vertexIndex( unsigned int i, unsigned int j ) const;
     double valueAtVertex( unsigned int i, unsigned int j ) const;
-    double filteredValueAtVertex( unsigned int i, unsigned int j ) const;
 
     unsigned int numberOfCells() const;
     unsigned int numberOfValidCells() const;

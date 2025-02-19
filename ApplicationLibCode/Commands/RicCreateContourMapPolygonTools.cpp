@@ -168,12 +168,14 @@ std::vector<std::vector<int>> RicCreateContourMapPolygonTools::convertToBinaryIm
 
     std::vector<std::vector<int>> image( vertexSizeIJ.x(), std::vector<int>( vertexSizeIJ.y(), 0 ) );
 
+    auto filteredValues = rigContourMapProjection->aggregatedVertexResultsFiltered();
+
     for ( cvf::uint i = 0; i < vertexSizeIJ.x(); i++ )
     {
         for ( cvf::uint j = 0; j < vertexSizeIJ.y(); j++ )
         {
-            double valueAtVertex = rigContourMapProjection->filteredValueAtVertex( i, j );
-
+            auto vertexIndex = rigContourMapProjection->vertexIndex( i, j );
+            double valueAtVertex = vertexIndex < filteredValues.size() ? filteredValues[vertexIndex] : std::numeric_limits<double>::infinity();
             if ( !std::isinf( valueAtVertex ) )
             {
                 image[i][j] = 1;
