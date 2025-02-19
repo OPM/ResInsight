@@ -45,7 +45,7 @@ void RicCreateContourMapPolygonAdvancedFeature::onActionTriggered( bool isChecke
     auto processedImage = dlg.processedImageData();
     if ( processedImage.empty() ) return;
 
-    RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonFromImage( processedImage, rigContourMapProjection );
+    RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonsFromImage( processedImage, rigContourMapProjection );
 }
 
 //--------------------------------------------------------------------------------------------------

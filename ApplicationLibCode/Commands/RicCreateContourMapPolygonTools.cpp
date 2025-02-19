@@ -193,46 +193,86 @@ std::vector<std::vector<int>> RicCreateContourMapPolygonTools::convertToBinaryIm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPolygon* RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonFromImage( std::vector<std::vector<int>>  image,
-                                                                                   const RigContourMapProjection* contourMapProjection )
+RimPolygon* RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonsFromImage( std::vector<std::vector<int>>  image,
+                                                                                    const RigContourMapProjection* contourMapProjection )
 {
     if ( !contourMapProjection ) return nullptr;
     if ( image.empty() ) return nullptr;
 
-    std::vector<cvf::Vec3d> polygonDomainCoords;
-    auto                    xVertexPositions = contourMapProjection->xVertexPositions();
-    auto                    yVertexPositions = contourMapProjection->yVertexPositions();
-    auto                    origin3d         = contourMapProjection->origin3d();
-    auto                    depth            = contourMapProjection->topDepthBoundingBox();
+    auto xVertexPositions = contourMapProjection->xVertexPositions();
+    auto yVertexPositions = contourMapProjection->yVertexPositions();
+    auto origin3d         = contourMapProjection->origin3d();
+    auto depth            = contourMapProjection->topDepthBoundingBox();
 
-    auto boundaryPoints = RigPolygonTools::boundary( image );
-    for ( auto [i, j] : boundaryPoints )
+    auto hasAnyValue = []( const std::vector<std::vector<int>>& image ) -> bool
     {
-        double xDomain = xVertexPositions.at( i ) + origin3d.x();
-        double yDomain = yVertexPositions.at( j ) + origin3d.y();
+        for ( size_t i = 0; i < image.size(); ++i )
+        {
+            for ( size_t j = 0; j < image[i].size(); ++j )
+            {
+                if ( image[i][j] > 0 )
+                {
+                    return true;
+                }
+            }
+        }
 
-        polygonDomainCoords.emplace_back( cvf::Vec3d( xDomain, yDomain, depth ) );
+        return false;
+    };
+
+    auto        polygonCollection = RimTools::polygonCollection();
+    RimPolygon* currentPolygon    = nullptr;
+
+    while ( hasAnyValue( image ) )
+    {
+        std::vector<cvf::Vec3d> polygonDomainCoords;
+        auto                    boundaryPoints = RigPolygonTools::boundary( image );
+
+        // The area threshold defines the minimum number of pixels to create a polygon for
+        const auto   area          = RigPolygonTools::area( boundaryPoints );
+        const double areaThreshold = 10;
+        if ( area > areaThreshold )
+        {
+            for ( const auto& [i, j] : boundaryPoints )
+            {
+                auto xDomain = xVertexPositions.at( i ) + origin3d.x();
+                auto yDomain = yVertexPositions.at( j ) + origin3d.y();
+
+                polygonDomainCoords.emplace_back( cvf::Vec3d( xDomain, yDomain, depth ) );
+            }
+
+            // Epsilon used to simplify polygon. Useful range typical value in [5..50]
+            const double defaultEpsilon = 40.0;
+            RigPolygonTools::simplifyPolygon( polygonDomainCoords, defaultEpsilon );
+
+            if ( polygonDomainCoords.size() >= 3 )
+            {
+                auto newPolygon = polygonCollection->appendUserDefinedPolygon();
+
+                newPolygon->setPointsInDomainCoords( polygonDomainCoords );
+                newPolygon->coordinatesChanged.send();
+
+                currentPolygon = newPolygon;
+            }
+        }
+
+        // Subtract all pixels inside the polygon by setting their value to 0
+        const int value = 0;
+        image           = RigPolygonTools::assignValueInsidePolygon( image, boundaryPoints, value );
+
+        /*
+                // NB: Do not remove, debug code to export images to file
+                {
+                    QString filename = "boundary_removed";
+                    filename         = QString( "f:/scratch/images/%1%2.png" ).arg( filename ).arg( QString::number( imageCounter ) );
+                    RicCreateContourMapPolygonTools::exportVectorAsGrayscaleImage( currentImage, filename );
+                }
+        */
     }
 
-    // Epsilon used to simplify polygon. Useful range typical value in [5..50]
-    const double defaultEpsilon = 40.0;
-    RigPolygonTools::simplifyPolygon( polygonDomainCoords, defaultEpsilon );
+    polygonCollection->uiCapability()->updateAllRequiredEditors();
 
-    if ( polygonDomainCoords.size() >= 3 )
-    {
-        auto polygonCollection = RimTools::polygonCollection();
-
-        auto newPolygon = polygonCollection->appendUserDefinedPolygon();
-
-        newPolygon->setPointsInDomainCoords( polygonDomainCoords );
-        newPolygon->coordinatesChanged.send();
-
-        polygonCollection->uiCapability()->updateAllRequiredEditors();
-
-        return newPolygon;
-    }
-
-    return nullptr;
+    return currentPolygon;
 }
 
 //--------------------------------------------------------------------------------------------------

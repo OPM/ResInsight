@@ -53,9 +53,9 @@ namespace internal
     {
         if ( !isValidImage( image ) ) return;
 
-        auto                            rows = static_cast<int>( image.size() );
-        auto                            cols = static_cast<int>( image[0].size() );
-        std::stack<std::pair<int, int>> stack;
+        auto              rows = static_cast<int>( image.size() );
+        auto              cols = static_cast<int>( image[0].size() );
+        std::stack<Point> stack;
         stack.push( { x, y } );
 
         while ( !stack.empty() )
@@ -72,6 +72,45 @@ namespace internal
             stack.push( { cx, cy + 1 } );
             stack.push( { cx, cy - 1 } );
         }
+    }
+
+    // Function to check if a point is on a line segment (edge of the polygon)
+    bool isOnSegment( Point p, Point p1, Point p2 )
+    {
+        int x = p.first, y = p.second;
+        int x1 = p1.first, y1 = p1.second;
+        int x2 = p2.first, y2 = p2.second;
+
+        // Check if the point (x, y) lies between (x1, y1) and (x2, y2)
+        return ( ( x >= std::min( x1, x2 ) && x <= std::max( x1, x2 ) ) && ( y >= std::min( y1, y2 ) && y <= std::max( y1, y2 ) ) &&
+                 ( ( x2 - x1 ) * ( y - y1 ) == ( y2 - y1 ) * ( x - x1 ) ) ); // Collinearity check
+    }
+
+    // Check if a point is inside a polygon using the Ray-Casting Algorithm
+    bool isInsidePolygon( const Point& p, const std::vector<Point>& polygon )
+    {
+        int n     = static_cast<int>( polygon.size() );
+        int count = 0;
+        for ( int i = 0; i < n; i++ )
+        {
+            auto p1 = polygon[i];
+            auto p2 = polygon[( i + 1 ) % n]; // Next vertex (looping back to first at end)
+
+            // Check if point is exactly on an edge
+            if ( isOnSegment( p, p1, p2 ) ) return true;
+
+            // Check if point is between y-bounds of edge
+            if ( ( p1.second > p.second ) != ( p2.second > p.second ) )
+            {
+                // Compute intersection point of the edge with horizontal line at p.y
+                double xIntersect = p1.first + (double)( p.second - p1.second ) * ( p2.first - p1.first ) / ( p2.second - p1.second );
+                if ( p.first < xIntersect )
+                {
+                    count++;
+                }
+            }
+        }
+        return ( count % 2 ) == 1; // Odd count means inside, even means outside
     }
 
 }; // namespace internal
@@ -197,18 +236,18 @@ IntegerImage fillInterior( IntegerImage sourceImage )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<int, int>> boundary( const IntegerImage& image )
+std::vector<Point> boundary( const IntegerImage& image )
 {
     if ( !internal::isValidImage( image ) ) return {};
 
-    std::vector<std::pair<int, int>> boundaries;
+    std::vector<Point> boundaries;
 
     // Get dimensions of the image
     int rows = static_cast<int>( image.size() );
     int cols = static_cast<int>( image[0].size() );
 
     // Direction vectors for clockwise search (8-connectivity)
-    const std::vector<std::pair<int, int>> directions = { { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 }, { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 } };
+    const std::vector<Point> directions = { { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 }, { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 } };
 
     // Helper lambda to check if a pixel is a valid boundary pixel
     auto isBoundaryPixel = [&]( int x, int y )
@@ -227,7 +266,7 @@ std::vector<std::pair<int, int>> boundary( const IntegerImage& image )
     };
 
     // Find the starting boundary pixel
-    std::pair<int, int> start( -1, -1 );
+    Point start( -1, -1 );
     for ( int row = 0; row < rows; ++row )
     {
         for ( int col = 0; col < cols; ++col )
@@ -244,8 +283,8 @@ std::vector<std::pair<int, int>> boundary( const IntegerImage& image )
     if ( start.first == -1 ) return boundaries; // No boundary found
 
     // Contour following algorithm
-    std::pair<int, int> current   = start;
-    int                 direction = 0; // Start search direction (arbitrary)
+    Point current   = start;
+    int   direction = 0; // Start search direction (arbitrary)
     do
     {
         boundaries.push_back( current );
@@ -273,6 +312,49 @@ std::vector<std::pair<int, int>> boundary( const IntegerImage& image )
     } while ( current != start ); // Stop when we loop back to the start
 
     return boundaries;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigPolygonTools::IntegerImage assignValueInsidePolygon( IntegerImage image, const std::vector<Point>& polygon, int value )
+{
+    if ( !internal::isValidImage( image ) ) return {};
+
+    auto rows = static_cast<int>( image.size() );
+    auto cols = static_cast<int>( image[0].size() );
+
+    for ( int i = 0; i < rows; ++i )
+    {
+        for ( int j = 0; j < cols; ++j )
+        {
+            if ( internal::isInsidePolygon( { i, j }, polygon ) )
+            {
+                image[i][j] = value;
+            }
+        }
+    }
+
+    return image;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double area( const std::vector<Point>& polygon )
+{
+    int n = static_cast<int>( polygon.size() );
+    if ( n < 3 ) return 0.0; // A polygon must have at least 3 points
+
+    double area = 0.0;
+    for ( int i = 0; i < n; i++ )
+    {
+        int j = ( i + 1 ) % n; // Next vertex, wrapping around at the end
+        area += polygon[i].first * polygon[j].second;
+        area -= polygon[j].first * polygon[i].second;
+    }
+
+    return std::fabs( area ) / 2.0;
 }
 
 //--------------------------------------------------------------------------------------------------

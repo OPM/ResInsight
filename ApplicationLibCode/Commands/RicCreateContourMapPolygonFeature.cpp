@@ -43,7 +43,7 @@ void RicCreateContourMapPolygonFeature::onActionTriggered( bool isChecked )
 
     if ( dilated.empty() ) return;
 
-    RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonFromImage( dilated, rigContourMapProjection );
+    RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonsFromImage( dilated, rigContourMapProjection );
 }
 
 //--------------------------------------------------------------------------------------------------
