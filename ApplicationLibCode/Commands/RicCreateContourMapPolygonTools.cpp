@@ -206,11 +206,11 @@ RimPolygon* RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonsFromIma
 
     auto hasAnyValue = []( const std::vector<std::vector<int>>& image ) -> bool
     {
-        for ( size_t i = 0; i < image.size(); ++i )
+        for ( const auto& row : image )
         {
-            for ( size_t j = 0; j < image[i].size(); ++j )
+            for ( int val : row )
             {
-                if ( image[i][j] > 0 )
+                if ( val != 0 )
                 {
                     return true;
                 }
