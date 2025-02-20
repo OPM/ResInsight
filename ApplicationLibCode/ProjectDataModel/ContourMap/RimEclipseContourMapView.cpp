@@ -345,12 +345,30 @@ void RimEclipseContourMapView::appendContourMapProjectionToModel()
 
             cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
-            m_contourMapProjectionPartMgr->appendProjectionToModel( contourMapProjectionModelBasicList.p(),
-                                                                    transForm.p(),
-                                                                    m_contourMapProjection->trianglesWithVertexValues(),
-                                                                    *m_contourMapProjection->mapGrid(),
-                                                                    backgroundColor(),
-                                                                    m_contourMapProjection->legendConfig()->scalarMapper() );
+            if ( m_contourMapProjection->showTrianglesWithColor() )
+            {
+                m_contourMapProjectionPartMgr->appendProjectionToModel( contourMapProjectionModelBasicList.p(),
+                                                                        transForm.p(),
+                                                                        m_contourMapProjection->trianglesWithVertexValues(),
+                                                                        *m_contourMapProjection->mapGrid(),
+                                                                        backgroundColor(),
+                                                                        m_contourMapProjection->legendConfig()->scalarMapper() );
+            }
+
+            if ( m_contourMapProjection->showImage() )
+            {
+                /*
+                                auto    image    = RicCreateContourMapPolygonTools::createImage( m_contourMapProjection->mapProjection(),
+                                                                                           m_contourMapProjection->legendConfig()->scalarMapper()
+                   ); QString fileName = "f:/scratch/contour-map.png"; image.save( fileName );
+                */
+
+                m_contourMapProjectionPartMgr->appendProjectionAsTexturedQuad( contourMapProjectionModelBasicList.p(),
+                                                                               transForm.p(),
+                                                                               m_contourMapProjection->legendConfig()->scalarMapper(),
+                                                                               *m_contourMapProjection->mapProjection(),
+                                                                               *m_contourMapProjection->mapGrid() );
+            }
 
             contourMapProjectionModelBasicList->updateBoundingBoxesRecursive();
             frameScene->addModel( contourMapProjectionModelBasicList.p() );

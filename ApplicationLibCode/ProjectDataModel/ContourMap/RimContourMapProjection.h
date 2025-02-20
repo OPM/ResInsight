@@ -68,6 +68,8 @@ public:
 
     bool showContourLines() const;
     bool showContourLabels() const;
+    bool showImage() const;
+    bool showTrianglesWithColor() const;
 
     // k layer filter, only consider kLayers in the given set (0-based index)
     void useKLayers( std::set<int> kLayers );
@@ -150,6 +152,8 @@ protected:
     caf::PdmField<bool>              m_showContourLines;
     caf::PdmField<bool>              m_showContourLabels;
     caf::PdmField<bool>              m_smoothContourLines;
+    caf::PdmField<bool>              m_showTextureImage;
+    caf::PdmField<bool>              m_showTrianglesWithColor;
 
     caf::PdmField<FloodingType> m_oilFloodingType;
     caf::PdmField<FloodingType> m_gasFloodingType;
