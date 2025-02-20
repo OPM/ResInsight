@@ -19,8 +19,7 @@
 #include "RicDeleteAllPolygonsFeature.h"
 
 #include "Polygons/RimPolygonCollection.h"
-#include "RimOilField.h"
-#include "RimProject.h"
+#include "RimTools.h"
 
 #include <QAction>
 
@@ -31,8 +30,7 @@ CAF_CMD_SOURCE_INIT( RicDeleteAllPolygonsFeature, "RicDeleteAllPolygonsFeature" 
 //--------------------------------------------------------------------------------------------------
 void RicDeleteAllPolygonsFeature::onActionTriggered( bool isChecked )
 {
-    auto proj              = RimProject::current();
-    auto polygonCollection = proj->activeOilField()->polygonCollection();
+    auto polygonCollection = RimTools::polygonCollection();
 
     polygonCollection->deleteAllPolygons();
     polygonCollection->updateConnectedEditors();
