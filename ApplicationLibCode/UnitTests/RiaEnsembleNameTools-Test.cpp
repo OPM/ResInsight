@@ -63,3 +63,35 @@ TEST( RiaFilePathTools, RealizationName )
         EXPECT_EQ( QString( "real-1" ), name );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+TEST( RiaFilePathTools, EnsembleGroupingMultipleEnsembles )
+{
+    {
+        std::vector<std::string> filepaths = { "f:/Models/scratch/project_a/realization-0/iter-0/eclipse/model/PROJECT-0.SMSPEC",
+                                               "f:/Models/scratch/project_a/realization-1/iter-0/eclipse/model/PROJECT-1.SMSPEC",
+                                               "f:/Models/scratch/project_a/realization-22/iter-0/eclipse/model/PROJECT-22.SMSPEC",
+                                               "f:/Models/scratch/project_b/realization-0/iter-0/eclipse/model/PROJECT-0.SMSPEC",
+                                               "f:/Models/scratch/project_b/realization-1/iter-0/eclipse/model/PROJECT-1.SMSPEC",
+                                               "f:/Models/scratch/project_b/realization-2/iter-0/eclipse/model/PROJECT-2.SMSPEC",
+                                               "f:/Models/scratch/project_c/realization-0/iter-0/eclipse/model/PROJECT-0.SMSPEC",
+                                               "f:/Models/scratch/project_c/realization-1/iter-0/eclipse/model/PROJECT-1.SMSPEC",
+                                               "f:/Models/scratch/project_c/realization-2/iter-0/eclipse/model/PROJECT-2.SMSPEC",
+                                               "f:/Models/scratch/project_c/realization-0/iter-1/eclipse/model/PROJECT-0.SMSPEC",
+                                               "f:/Models/scratch/project_c/realization-1\\iter-1/eclipse/model\\PROJECT-1.SMSPEC",
+                                               "f:/Models/scratch/project_c/realization-\\iter-1/eclipse/model\\PROJECT-2.SMSPEC" };
+
+        auto grouping = RiaEnsembleNameTools::groupFilePaths( filepaths );
+
+        std::set<std::string> keys1 = { "project_a", "project_b", "project_c" };
+        std::set<std::string> keys2 = { "iter-0", "iter-1" };
+
+        EXPECT_EQ( 4, grouping.size() );
+        for ( const auto& [keys, paths] : grouping )
+        {
+            const auto& [key1, key2] = keys;
+            EXPECT_TRUE( keys1.find( key1 ) != keys1.end() );
+            EXPECT_TRUE( keys2.find( key2 ) != keys2.end() );
+        }
+    }
+}
