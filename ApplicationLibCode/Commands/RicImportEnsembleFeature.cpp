@@ -88,12 +88,14 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
         }
         else
         {
-            std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( fileNames, ensembleGroupingMode );
-            for ( const QStringList& groupedFileNames : groupedByEnsemble )
+            auto grouping = RiaEnsembleNameTools::groupFilesByEnsembleName( fileNames, ensembleGroupingMode );
+            for ( const auto& [groupName, fileNames] : grouping )
             {
                 bool useEnsembleNameDialog = false;
-                importSingleEnsemble( groupedFileNames, useEnsembleNameDialog, ensembleGroupingMode, fileType );
+                importSingleEnsemble( fileNames, useEnsembleNameDialog, ensembleGroupingMode, fileType, groupName );
             }
+
+            RiaEnsembleNameTools::updateAutoNameEnsembles( RiaApplication::instance()->project()->summaryGroups() );
         }
     }
 }

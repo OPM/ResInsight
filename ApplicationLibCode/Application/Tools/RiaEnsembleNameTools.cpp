@@ -32,6 +32,8 @@
 #include <QFileInfo>
 #include <QRegularExpression>
 
+#include <regex>
+
 template <>
 void caf::AppEnum<RiaEnsembleNameTools::EnsembleGroupingMode>::setUp()
 {
@@ -39,6 +41,28 @@ void caf::AppEnum<RiaEnsembleNameTools::EnsembleGroupingMode>::setUp()
     addItem( RiaEnsembleNameTools::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE, "EVEREST_FOLDER_MODE", "Main Folder" );
     addItem( RiaEnsembleNameTools::EnsembleGroupingMode::NONE, "None", "None" );
     setDefault( RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<std::pair<std::string, std::string>, std::vector<std::string>>
+    RiaEnsembleNameTools::groupFilePaths( const std::vector<std::string>& allPaths )
+{
+    std::map<std::pair<std::string, std::string>, std::vector<std::string>> groupedPaths;
+    std::regex regex( R"(.*[\\/]+([^\\/]+)[\\/]+realization-\d+[\\/]+([^\\/]+).*)", std::regex::icase );
+
+    for ( const std::string& path : allPaths )
+    {
+        std::smatch match;
+        if ( std::regex_match( path, match, regex ) )
+        {
+            auto key = std::make_pair( match[1].str(), match[2].str() );
+            groupedPaths[key].push_back( path );
+        }
+    }
+
+    return groupedPaths;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -179,6 +203,59 @@ std::map<QString, QStringList> RiaEnsembleNameTools::groupFilesByCustomEnsemble(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::map<QString, QStringList> RiaEnsembleNameTools::groupFilesByEnsembleName( const QStringList& fileNames, EnsembleGroupingMode groupingMode )
+{
+    std::map<QString, QStringList> ensemblePaths;
+
+    if ( groupingMode == EnsembleGroupingMode::FMU_FOLDER_STRUCTURE )
+    {
+        std::vector<std::string> allPaths;
+        for ( const auto& fileName : fileNames )
+        {
+            allPaths.push_back( fileName.toStdString() );
+        }
+
+        auto groupedPaths = RiaEnsembleNameTools::groupFilePaths( allPaths );
+
+        auto shouldIncludeTopLevel = []( const auto& paths ) -> bool
+        {
+            std::set<std::string> topLevelFolderNames;
+            for ( auto group : paths )
+            {
+                topLevelFolderNames.insert( group.first.first );
+            }
+
+            return topLevelFolderNames.size() > 1;
+        };
+
+        bool includeTopLevel = shouldIncludeTopLevel( groupedPaths );
+
+        for ( auto group : groupedPaths )
+        {
+            std::string ensembleName;
+            if ( includeTopLevel )
+            {
+                ensembleName += group.first.first;
+                ensembleName += ", ";
+            }
+            ensembleName += group.first.second;
+
+            QStringList groupPaths;
+            for ( const auto& path : group.second )
+            {
+                groupPaths.push_back( QString::fromStdString( path ) );
+            }
+
+            ensemblePaths[QString::fromStdString( ensembleName )] = groupPaths;
+        }
+    }
+
+    return ensemblePaths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<QString, std::pair<QString, QString>>
     RiaEnsembleNameTools::findUniqueCustomEnsembleNames( RiaDefines::FileType            fileType,
                                                          const QStringList&              fileNames,
@@ -231,6 +308,47 @@ std::map<QString, std::pair<QString, QString>>
     }
 
     return mapping;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaEnsembleNameTools::updateAutoNameEnsembles( std::vector<RimSummaryEnsemble*> ensembles )
+{
+    std::set<std::string> key1;
+    std::set<std::string> key2;
+
+    for ( auto ensemble : ensembles )
+    {
+        std::vector<std::string> fileNames;
+        auto                     allCases = ensemble->allSummaryCases();
+        for ( auto summaryCase : allCases )
+        {
+            fileNames.push_back( summaryCase->summaryHeaderFilename().toStdString() );
+        }
+
+        auto groupedPaths = RiaEnsembleNameTools::groupFilePaths( fileNames );
+        for ( auto group : groupedPaths )
+        {
+            key1.insert( group.first.first );
+            key2.insert( group.first.second );
+        }
+    }
+
+    bool useKey1 = key1.size() > 1;
+    bool useKey2 = key2.size() > 1;
+
+    if ( !useKey1 && !useKey2 )
+    {
+        useKey2 = true;
+    }
+
+    for ( auto ensemble : ensembles )
+    {
+        ensemble->setUseKey1( useKey1 );
+        ensemble->setUseKey2( useKey2 );
+        ensemble->ensureNameIsUpdated();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

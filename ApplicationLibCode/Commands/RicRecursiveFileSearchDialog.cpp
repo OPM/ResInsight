@@ -606,17 +606,16 @@ void RicRecursiveFileSearchDialog::updateFileListWidget()
         }
         else
         {
-            std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( m_foundFiles, ensembleGroupingMode() );
-            for ( const QStringList& groupedFileNames : groupedByEnsemble )
+            auto grouping = RiaEnsembleNameTools::groupFilesByEnsembleName( m_foundFiles, ensembleGroupingMode() );
+            for ( const auto& [groupName, fileNames] : grouping )
             {
-                QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( groupedFileNames, ensembleGroupingMode() );
-                addToTreeView( ensembleName, groupedFileNames );
+                addToTreeView( groupName, fileNames );
             }
         }
-
-        QModelIndex index = m_filePathModel.index( 0, 0 );
-        m_fileTreeView->expand( index );
     }
+
+    QModelIndex index = m_filePathModel.index( 0, 0 );
+    m_fileTreeView->expand( index );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -57,6 +57,8 @@ RimSummaryEnsemble::RimSummaryEnsemble()
 
     CAF_PDM_InitScriptableField( &m_name, "SummaryCollectionName", QString( "Group" ), "Name" );
     CAF_PDM_InitScriptableField( &m_autoName, "CreateAutoName", true, "Auto Name" );
+    CAF_PDM_InitScriptableField( &m_useKey1, "UseKey1", false, "Use First Path Part" );
+    CAF_PDM_InitScriptableField( &m_useKey2, "UseKey2", false, "Use Second Path Part" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_nameAndItemCount, "NameCount", "Name" );
     m_nameAndItemCount.registerGetMethod( this, &RimSummaryEnsemble::nameAndItemCount );
@@ -190,20 +192,54 @@ void RimSummaryEnsemble::ensureNameIsUpdated()
 {
     if ( m_autoName )
     {
-        QStringList fileNames;
+        std::vector<std::string> fileNames;
         for ( const auto& summaryCase : m_cases )
         {
-            fileNames.push_back( summaryCase->summaryHeaderFilename() );
+            fileNames.push_back( summaryCase->summaryHeaderFilename().toStdString() );
         }
 
-        RiaEnsembleNameTools::EnsembleGroupingMode groupingMode = RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
+        QString ensembleName;
+        auto    nameHelper = RiaEnsembleNameTools::groupFilePaths( fileNames );
+        if ( nameHelper.empty() )
+        {
+            ensembleName = "Undefined Automatic Name";
+        }
+        else
+        {
+            auto firstItem = nameHelper.begin()->first;
+            if ( m_useKey1 )
+            {
+                ensembleName += QString::fromStdString( firstItem.first );
+            }
 
-        QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames, groupingMode );
+            if ( !m_useKey1 || m_useKey2 )
+            {
+                if ( !ensembleName.isEmpty() ) ensembleName += "-";
+                ensembleName += QString::fromStdString( firstItem.second );
+            }
+        }
+
         if ( m_name == ensembleName ) return;
 
         m_name = ensembleName;
         caseNameChanged.send();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::setUseKey1( bool useKey1 )
+{
+    m_useKey1 = useKey1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::setUseKey2( bool useKey2 )
+{
+    m_useKey2 = useKey2;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -801,6 +837,11 @@ void RimSummaryEnsemble::onCaseNameChanged( const SignalEmitter* emitter )
 void RimSummaryEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_autoName );
+    if ( m_autoName )
+    {
+        uiOrdering.add( &m_useKey1 );
+        uiOrdering.add( &m_useKey2 );
+    }
     uiOrdering.add( &m_name );
     if ( m_isEnsemble() )
     {
