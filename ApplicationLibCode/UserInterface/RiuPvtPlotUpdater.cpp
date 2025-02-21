@@ -48,6 +48,11 @@
 RiuPvtPlotUpdater::RiuPvtPlotUpdater( RiuPvtPlotPanel* targetPlotPanel )
     : m_targetPlotPanel( targetPlotPanel )
     , m_viewToFollowAnimationFrom( nullptr )
+    , m_eclipseResultDef( nullptr )
+    , m_gridIndex( 0 )
+    , m_gridLocalCellIndex( 0 )
+    , m_timeStepIndex( 0 )
+
 {
 }
 
@@ -69,23 +74,50 @@ void RiuPvtPlotUpdater::updateOnSelectionChanged( const RiuSelectionItem* select
     bool mustClearPlot          = true;
     m_viewToFollowAnimationFrom = nullptr;
 
-    if ( m_targetPlotPanel->isVisible() && eclipseSelectionItem && eclipseSelectionItem->m_resultDefinition )
+    if ( eclipseSelectionItem && eclipseSelectionItem->m_resultDefinition )
     {
-        if ( queryDataAndUpdatePlot( eclipseSelectionItem->m_resultDefinition,
-                                     eclipseSelectionItem->m_timestepIdx,
-                                     eclipseSelectionItem->m_gridIndex,
-                                     eclipseSelectionItem->m_gridLocalCellIndex,
-                                     m_targetPlotPanel ) )
+        if ( m_targetPlotPanel->isVisible() )
         {
-            mustClearPlot = false;
-
-            m_viewToFollowAnimationFrom = newFollowAnimView;
+            if ( queryDataAndUpdatePlot( eclipseSelectionItem->m_resultDefinition,
+                                         eclipseSelectionItem->m_timestepIdx,
+                                         eclipseSelectionItem->m_gridIndex,
+                                         eclipseSelectionItem->m_gridLocalCellIndex,
+                                         m_targetPlotPanel ) )
+            {
+                mustClearPlot = false;
+            }
+            m_eclipseResultDef = nullptr;
         }
+        else
+        {
+            m_eclipseResultDef   = eclipseSelectionItem->m_resultDefinition;
+            m_timeStepIndex      = eclipseSelectionItem->m_timestepIdx;
+            m_gridIndex          = eclipseSelectionItem->m_gridIndex;
+            m_gridLocalCellIndex = eclipseSelectionItem->m_gridLocalCellIndex;
+            mustClearPlot        = false;
+        }
+        m_viewToFollowAnimationFrom = newFollowAnimView;
     }
 
     if ( mustClearPlot )
     {
+        m_eclipseResultDef = nullptr;
         m_targetPlotPanel->clearPlot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPvtPlotUpdater::doDelayedUpdate()
+{
+    if ( m_eclipseResultDef != nullptr )
+    {
+        if ( !queryDataAndUpdatePlot( m_eclipseResultDef, m_timeStepIndex, m_gridIndex, m_gridLocalCellIndex, m_targetPlotPanel ) )
+        {
+            m_targetPlotPanel->clearPlot();
+        }
+        m_eclipseResultDef = nullptr;
     }
 }
 
@@ -94,7 +126,7 @@ void RiuPvtPlotUpdater::updateOnSelectionChanged( const RiuSelectionItem* select
 //--------------------------------------------------------------------------------------------------
 void RiuPvtPlotUpdater::updateOnTimeStepChanged( Rim3dView* changedView )
 {
-    if ( !m_targetPlotPanel || !m_targetPlotPanel->isVisible() )
+    if ( !m_targetPlotPanel )
     {
         return;
     }
@@ -117,13 +149,23 @@ void RiuPvtPlotUpdater::updateOnTimeStepChanged( Rim3dView* changedView )
 
     if ( eclipseSelectionItem && newFollowAnimView == changedView )
     {
-        if ( !queryDataAndUpdatePlot( eclipseSelectionItem->m_resultDefinition,
-                                      newFollowAnimView->currentTimeStep(),
-                                      eclipseSelectionItem->m_gridIndex,
-                                      eclipseSelectionItem->m_gridLocalCellIndex,
-                                      m_targetPlotPanel ) )
+        if ( m_targetPlotPanel->isVisible() )
         {
-            m_targetPlotPanel->clearPlot();
+            if ( !queryDataAndUpdatePlot( eclipseSelectionItem->m_resultDefinition,
+                                          newFollowAnimView->currentTimeStep(),
+                                          eclipseSelectionItem->m_gridIndex,
+                                          eclipseSelectionItem->m_gridLocalCellIndex,
+                                          m_targetPlotPanel ) )
+            {
+                m_targetPlotPanel->clearPlot();
+            }
+        }
+        else
+        {
+            m_eclipseResultDef   = eclipseSelectionItem->m_resultDefinition;
+            m_timeStepIndex      = newFollowAnimView->currentTimeStep();
+            m_gridIndex          = eclipseSelectionItem->m_gridIndex;
+            m_gridLocalCellIndex = eclipseSelectionItem->m_gridLocalCellIndex;
         }
     }
 }

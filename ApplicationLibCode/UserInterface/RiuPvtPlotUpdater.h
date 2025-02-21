@@ -41,6 +41,8 @@ public:
     void updateOnSelectionChanged( const RiuSelectionItem* selectionItem );
     void updateOnTimeStepChanged( Rim3dView* changedView );
 
+    void doDelayedUpdate();
+
 private:
     static bool queryDataAndUpdatePlot( const RimEclipseResultDefinition* eclipseResultDef,
                                         size_t                            timeStepIndex,
@@ -51,4 +53,10 @@ private:
 private:
     QPointer<RiuPvtPlotPanel> m_targetPlotPanel;
     const Rim3dView*          m_viewToFollowAnimationFrom;
+
+    // cached values for delayed plot updates
+    const RimEclipseResultDefinition* m_eclipseResultDef;
+    size_t                            m_timeStepIndex;
+    size_t                            m_gridIndex;
+    size_t                            m_gridLocalCellIndex;
 };
