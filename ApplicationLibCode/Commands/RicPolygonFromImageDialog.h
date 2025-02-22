@@ -43,6 +43,8 @@ public:
     std::vector<std::vector<int>> processedImageData() const;
     void                          setSourceImageData( std::vector<std::vector<int>> imageData );
 
+    int areaThreshold() const;
+
 public slots:
     void updateAndShowImages();
 
@@ -68,6 +70,8 @@ private:
     QCheckBox* showDilated;
     QCheckBox* showEroded;
     QCheckBox* showFinal;
+
+    QLineEdit* areaThresholdLineEdit;
 
     std::vector<std::vector<int>> sourceData, dilatedData, erodedData, processedData;
 };

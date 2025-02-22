@@ -22,7 +22,10 @@
 
 #include "RigPolygonTools.h"
 
+#include "RiuMainWindow.h"
+
 #include <QAction>
+#include <QInputDialog>
 
 CAF_CMD_SOURCE_INIT( RicCreateContourMapPolygonFeature, "RicCreateContourMapPolygonFeature" );
 
@@ -43,7 +46,19 @@ void RicCreateContourMapPolygonFeature::onActionTriggered( bool isChecked )
 
     if ( dilated.empty() ) return;
 
-    RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonsFromImage( dilated, rigContourMapProjection );
+    bool ok;
+    int  areaThreshold = QInputDialog::getInt( RiuMainWindow::instance(),
+                                              tr( "Create Polygons" ),
+                                              tr( "Minimum area to create a polygon (typical values in 10..100):" ),
+                                              10,
+                                              1,
+                                              1000,
+                                              1,
+                                              &ok );
+    if ( ok )
+    {
+        RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonsFromImage( dilated, rigContourMapProjection, areaThreshold );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -194,7 +194,8 @@ std::vector<std::vector<int>> RicCreateContourMapPolygonTools::convertToBinaryIm
 ///
 //--------------------------------------------------------------------------------------------------
 RimPolygon* RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonsFromImage( std::vector<std::vector<int>>  image,
-                                                                                    const RigContourMapProjection* contourMapProjection )
+                                                                                    const RigContourMapProjection* contourMapProjection,
+                                                                                    double                         areaThreshold )
 {
     if ( !contourMapProjection ) return nullptr;
     if ( image.empty() ) return nullptr;
@@ -229,8 +230,7 @@ RimPolygon* RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonsFromIma
         auto                    boundaryPoints = RigPolygonTools::boundary( image );
 
         // The area threshold defines the minimum number of pixels to create a polygon for
-        const auto   area          = RigPolygonTools::area( boundaryPoints );
-        const double areaThreshold = 10;
+        const auto area = RigPolygonTools::area( boundaryPoints );
         if ( area > areaThreshold )
         {
             for ( const auto& [i, j] : boundaryPoints )

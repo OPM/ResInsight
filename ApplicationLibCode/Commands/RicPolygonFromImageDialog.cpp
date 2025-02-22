@@ -24,6 +24,7 @@
 
 #include <QDialogButtonBox>
 #include <QGuiApplication>
+#include <QLineEdit>
 #include <QScreen>
 
 //--------------------------------------------------------------------------------------------------
@@ -74,6 +75,17 @@ ImageProcessingDialog::ImageProcessingDialog( QWidget* parent /*= nullptr */ )
     showFinal = new QCheckBox( "Show Final Image", this );
     showFinal->setChecked( true );
     settingsLayout->addWidget( showFinal );
+
+    {
+        auto* label           = new QLabel( "Minimum polygon area", this );
+        areaThresholdLineEdit = new QLineEdit( this );
+        areaThresholdLineEdit->setText( "10" );
+
+        auto* layout = new QHBoxLayout();
+        layout->addWidget( label );
+        layout->addWidget( areaThresholdLineEdit );
+        settingsLayout->addLayout( layout );
+    }
 
     settingsLayout->addStretch();
 
@@ -227,6 +239,14 @@ std::vector<std::vector<int>> ImageProcessingDialog::processedImageData() const
 void ImageProcessingDialog::setSourceImageData( std::vector<std::vector<int>> imageData )
 {
     sourceData = imageData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int ImageProcessingDialog::areaThreshold() const
+{
+    return areaThresholdLineEdit->text().toInt();
 }
 
 //--------------------------------------------------------------------------------------------------
