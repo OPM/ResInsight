@@ -51,6 +51,8 @@ public:
     RimGridTimeHistoryCurve();
     ~RimGridTimeHistoryCurve() override;
 
+    static void createCurveFromSelectionItem( const RiuSelectionItem* selectionItem, RimSummaryPlot* plot );
+
     void setFromSelectionItem( const RiuSelectionItem* selectionItem, bool updateResultDefinition );
     void setFromEclipseCellAndResult( RimEclipseCase* eclCase, size_t gridIdx, size_t i, size_t j, size_t k, const RigEclipseResultAddress& resAddr );
     RiuPlotAxis yAxis() const;
@@ -64,7 +66,8 @@ public:
     QString  caseName() const;
     RimCase* gridCase() const;
 
-    static void createCurveFromSelectionItem( const RiuSelectionItem* selectionItem, RimSummaryPlot* plot );
+    void setLocked( bool locked );
+    bool isLocked() const;
 
     RiaDefines::PhaseType phaseType() const override;
 
@@ -77,6 +80,7 @@ protected:
     void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     RigMainGrid*                     mainGrid();
@@ -86,9 +90,13 @@ private:
     QString                          geometrySelectionText() const;
     void                             updateQwtPlotAxis();
 
+    void onPadlockClicked( const SignalEmitter* emitter, size_t index );
+
     std::unique_ptr<RiuFemTimeHistoryResultAccessor> femTimeHistoryResultAccessor() const;
 
 private:
+    caf::PdmField<bool> m_isLocked;
+
     caf::PdmProxyValueField<QString> m_geometrySelectionText;
 
     caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;

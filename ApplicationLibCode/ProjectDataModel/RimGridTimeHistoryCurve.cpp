@@ -41,6 +41,8 @@
 #include "RiuPlotCurve.h"
 #include "RiuPlotMainWindowTools.h"
 
+#include "cafPdmUiTreeAttributes.h"
+
 CAF_PDM_SOURCE_INIT( RimGridTimeHistoryCurve, "GridTimeHistoryCurve" );
 
 //--------------------------------------------------------------------------------------------------
@@ -53,6 +55,8 @@ RimGridTimeHistoryCurve::RimGridTimeHistoryCurve()
     CAF_PDM_InitFieldNoDefault( &m_geometrySelectionText, "GeometrySelectionText", "Cell Reference" );
     m_geometrySelectionText.registerGetMethod( this, &RimGridTimeHistoryCurve::geometrySelectionText );
     m_geometrySelectionText.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_isLocked, "IsLocked", false, "Lock Curve" );
 
     CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "EclipseResultDefinition", "Eclipse Result Definition" );
     m_eclipseResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
@@ -291,6 +295,22 @@ RimCase* RimGridTimeHistoryCurve::gridCase() const
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridTimeHistoryCurve::setLocked( bool locked )
+{
+    m_isLocked = locked;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridTimeHistoryCurve::isLocked() const
+{
+    return m_isLocked();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -543,6 +563,8 @@ void RimGridTimeHistoryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUi
 {
     RimPlotCurve::updateFieldUiState();
 
+    uiOrdering.add( &m_isLocked );
+
     caf::PdmUiGroup* dataSource = uiOrdering.addNewGroup( "Data Source" );
     dataSource->add( &m_geometrySelectionText );
     eclipseGeomSelectionItem()->uiOrdering( uiConfigName, *dataSource );
@@ -612,6 +634,24 @@ void RimGridTimeHistoryCurve::fieldChangedByUi( const caf::PdmFieldHandle* chang
 void RimGridTimeHistoryCurve::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
 {
     onLoadDataAndUpdate( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridTimeHistoryCurve::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    QString iconResourceString = m_isLocked ? ":/padlock.svg" : ":/padlock-unlocked.svg";
+
+    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+    {
+        auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
+        tag->icon = caf::IconProvider( iconResourceString );
+
+        tag->clicked.connect( this, &RimGridTimeHistoryCurve::onPadlockClicked );
+
+        treeItemAttribute->tags.push_back( std::move( tag ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -693,6 +733,16 @@ QString RimGridTimeHistoryCurve::geometrySelectionText() const
 void RimGridTimeHistoryCurve::updateQwtPlotAxis()
 {
     if ( m_plotCurve ) updateYAxisInPlot( yAxis() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridTimeHistoryCurve::onPadlockClicked( const SignalEmitter* emitter, size_t index )
+{
+    m_isLocked = !m_isLocked();
+
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

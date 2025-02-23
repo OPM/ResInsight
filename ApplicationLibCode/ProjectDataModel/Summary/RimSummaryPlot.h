@@ -108,12 +108,12 @@ public:
     void deleteCurves( const std::vector<RimSummaryCurve*>& curves );
 
     void deleteCurvesAssosiatedWithCase( RimSummaryCase* summaryCase );
-    void deleteAllGridTimeHistoryCurves();
 
     RimEnsembleCurveSetCollection* ensembleCurveSetCollection() const;
 
     void addGridTimeHistoryCurve( RimGridTimeHistoryCurve* curve );
     void addGridTimeHistoryCurveNoUpdate( RimGridTimeHistoryCurve* curve );
+    void deleteUnlockedGridTimeHistoryCurves();
 
     std::vector<RimGridTimeHistoryCurve*> gridTimeHistoryCurves() const;
 

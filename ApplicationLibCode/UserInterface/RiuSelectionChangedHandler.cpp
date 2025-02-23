@@ -469,7 +469,8 @@ void RiuSelectionChangedHandler::updateGridCellCurvesFromSelection()
                 int index = 0;
                 for ( auto item : items )
                 {
-                    auto newCurve               = curve->copyObject<RimGridTimeHistoryCurve>();
+                    auto newCurve = curve->copyObject<RimGridTimeHistoryCurve>();
+                    newCurve->setLocked( false );
                     bool updateResultDefinition = false;
                     newCurve->setFromSelectionItem( item, updateResultDefinition );
 
@@ -484,7 +485,7 @@ void RiuSelectionChangedHandler::updateGridCellCurvesFromSelection()
                 }
             }
 
-            summaryPlot->deleteAllGridTimeHistoryCurves();
+            summaryPlot->deleteUnlockedGridTimeHistoryCurves();
             for ( auto c : newCurves )
             {
                 summaryPlot->addGridTimeHistoryCurve( c );

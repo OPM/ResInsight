@@ -2218,9 +2218,15 @@ void RimSummaryPlot::axisPositionChanged( const caf::SignalEmitter* emitter,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::deleteAllGridTimeHistoryCurves()
+void RimSummaryPlot::deleteUnlockedGridTimeHistoryCurves()
 {
-    m_gridTimeHistoryCurves.deleteChildren();
+    auto allGridCurves = m_gridTimeHistoryCurves.childrenByType();
+    for ( auto c : allGridCurves )
+    {
+        if ( c->isLocked() ) continue;
+        m_gridTimeHistoryCurves.removeChild( c );
+        delete c;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
