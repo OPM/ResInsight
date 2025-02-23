@@ -18,8 +18,6 @@
 
 #include "RimGridTimeHistoryCurve.h"
 
-#include <memory>
-
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFemResultAddress.h"
@@ -323,6 +321,19 @@ void RimGridTimeHistoryCurve::createCurveFromSelectionItem( const RiuSelectionIt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::PhaseType RimGridTimeHistoryCurve::phaseType() const
+{
+    if ( m_eclipseResultDefinition )
+    {
+        return m_eclipseResultDefinition->resultPhaseType();
+    }
+
+    return RiaDefines::PhaseType::PHASE_NOT_APPLICABLE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimGridTimeHistoryCurve::createCurveAutoName()
 {
     QString text;
@@ -359,6 +370,8 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     if ( isChecked() && m_plotCurve )
     {
+        updateResultDefinitionFromCase();
+
         std::vector<double> values;
 
         RimEclipseGeometrySelectionItem* eclTopItem = eclipseGeomSelectionItem();
@@ -549,6 +562,9 @@ void RimGridTimeHistoryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUi
 
     uiOrdering.add( &m_plotAxis );
 
+    caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
+    RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
+
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
     RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
     appearanceGroup->setCollapsedByDefault();
@@ -595,11 +611,6 @@ void RimGridTimeHistoryCurve::fieldChangedByUi( const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 void RimGridTimeHistoryCurve::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
 {
-    if ( m_eclipseDataSource() && m_eclipseResultDefinition() )
-    {
-        m_eclipseResultDefinition->setEclipseCase( m_eclipseDataSource->eclipseCase() );
-    }
-
     onLoadDataAndUpdate( true );
 }
 
@@ -638,17 +649,13 @@ RimGeoMechGeometrySelectionItem* RimGridTimeHistoryCurve::geoMechGeomSelectionIt
 //--------------------------------------------------------------------------------------------------
 void RimGridTimeHistoryCurve::updateResultDefinitionFromCase()
 {
-    if ( eclipseGeomSelectionItem() )
+    if ( eclipseGeomSelectionItem() && m_eclipseResultDefinition() )
     {
-        CVF_ASSERT( m_eclipseResultDefinition() );
-
         m_eclipseResultDefinition->setEclipseCase( eclipseGeomSelectionItem()->eclipseCase() );
     }
 
-    if ( geoMechGeomSelectionItem() )
+    if ( geoMechGeomSelectionItem() && m_geoMechResultDefinition() )
     {
-        CVF_ASSERT( m_geoMechResultDefinition() );
-
         m_geoMechResultDefinition->setGeoMechCase( geoMechGeomSelectionItem()->geoMechCase() );
     }
 }

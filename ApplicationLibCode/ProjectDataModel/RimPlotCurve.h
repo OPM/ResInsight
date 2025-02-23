@@ -140,6 +140,8 @@ public:
 
     std::vector<RimPlotRectAnnotation*> rectAnnotations() const;
 
+    void setSamplesFromXYValues( const std::vector<double>& xValues, const std::vector<double>& yValues, bool useLogarithmicScale );
+
 protected:
     virtual QString createCurveAutoName();
 
@@ -159,8 +161,6 @@ protected:
                                       const std::vector<double>&   errorValues,
                                       bool                         useLogarithmicScale,
                                       RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS );
-
-    void setSamplesFromXYValues( const std::vector<double>& xValues, const std::vector<double>& yValues, bool useLogarithmicScale );
 
     void setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes, const std::vector<double>& yValues, bool useLogarithmicScale );
 

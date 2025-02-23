@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimPlotCurve.h"
+#include "RimStackablePlotCurve.h"
 
 #include "RiaDefines.h"
 
@@ -43,7 +43,7 @@ class RimSummaryPlot;
 ///
 ///
 //==================================================================================================
-class RimGridTimeHistoryCurve : public RimPlotCurve
+class RimGridTimeHistoryCurve : public RimStackablePlotCurve
 {
     CAF_PDM_HEADER_INIT;
 
@@ -65,6 +65,8 @@ public:
     RimCase* gridCase() const;
 
     static void createCurveFromSelectionItem( const RiuSelectionItem* selectionItem, RimSummaryPlot* plot );
+
+    RiaDefines::PhaseType phaseType() const override;
 
 protected:
     QString createCurveAutoName() override;

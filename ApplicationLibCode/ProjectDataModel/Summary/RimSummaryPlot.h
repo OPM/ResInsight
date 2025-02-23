@@ -260,7 +260,6 @@ private:
     std::vector<RimGridTimeHistoryCurve*> visibleTimeHistoryCurvesForAxis( RiuPlotAxis plotAxis ) const;
     std::vector<RimAsciiDataCurve*>       visibleAsciiDataCurvesForAxis( RiuPlotAxis plotAxis ) const;
     bool                                  hasVisibleCurvesForAxis( RiuPlotAxis plotAxis ) const;
-    std::vector<RimSummaryCurve*>         visibleStackedSummaryCurvesForAxis( RiuPlotAxis plotAxis );
 
     void updateNumericalAxis( RiaDefines::PlotAxis plotAxis );
     void updateZoomForAxis( RimPlotAxisPropertiesInterface* axisProperties );

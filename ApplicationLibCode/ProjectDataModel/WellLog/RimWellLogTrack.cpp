@@ -2692,6 +2692,8 @@ std::vector<QString> RimWellLogTrack::formationNamesVector( RimCase* rimCase )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateStackedCurveData()
 {
+    // See RimSummaryPlot::updateStackedCurveDataForAxis() horizontal plots
+
     RimDepthTrackPlot* wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
 
     RimWellLogPlot::DepthTypeEnum depthType   = wellLogPlot->depthType();
