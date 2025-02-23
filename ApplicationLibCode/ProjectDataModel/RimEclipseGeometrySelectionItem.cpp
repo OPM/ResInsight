@@ -44,7 +44,7 @@ RimEclipseGeometrySelectionItem::RimEclipseGeometrySelectionItem()
     CAF_PDM_InitFieldNoDefault( &m_gridIndex, "GridIndex", "Grid Index" );
     CAF_PDM_InitFieldNoDefault( &m_cellIndex, "CellIndex", "Cell Index" );
 
-    CAF_PDM_InitFieldNoDefault( &m_ijkText, "CellText", "IJK" );
+    CAF_PDM_InitFieldNoDefault( &m_ijkText, "CellText", "Cell I J K" );
     m_ijkText.registerGetMethod( this, &RimEclipseGeometrySelectionItem::ijkTextFromCell );
     m_ijkText.registerSetMethod( this, &RimEclipseGeometrySelectionItem::setCellFromIjkText );
 }
