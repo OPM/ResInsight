@@ -18,6 +18,8 @@
 
 #include "RimGridTimeHistoryCurve.h"
 
+#include "Tools/Summary/RiaSummaryTools.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFemResultAddress.h"
@@ -35,6 +37,8 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryTimeAxisProperties.h"
+#include "RimTools.h"
+#include "Tools/RimAutomationSettings.h"
 
 #include "Riu3dSelectionManager.h"
 #include "RiuFemTimeHistoryResultAccessor.h"
@@ -320,8 +324,8 @@ void RimGridTimeHistoryCurve::createCurveFromSelectionItem( const RiuSelectionIt
 {
     if ( !selectionItem || !plot ) return;
 
-    RimGridTimeHistoryCurve* newCurve               = new RimGridTimeHistoryCurve();
-    bool                     updateResultDefinition = true;
+    auto newCurve               = new RimGridTimeHistoryCurve();
+    bool updateResultDefinition = true;
     newCurve->setFromSelectionItem( selectionItem, updateResultDefinition );
     newCurve->setLineThickness( 2 );
 
@@ -643,16 +647,30 @@ void RimGridTimeHistoryCurve::childFieldChangedByUi( const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 void RimGridTimeHistoryCurve::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    QString iconResourceString = m_isLocked ? ":/padlock.svg" : ":/padlock-unlocked.svg";
+    bool isUpdatedByAutomation = false;
 
-    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+    if ( auto parentPlot = RiaSummaryTools::parentSummaryPlot( this ) )
     {
-        auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
-        tag->icon = caf::IconProvider( iconResourceString );
+        for ( auto plot : RimTools::automationSettings()->summaryPlots() )
+        {
+            if ( parentPlot == plot ) isUpdatedByAutomation = true;
+        }
+    }
 
-        tag->clicked.connect( this, &RimGridTimeHistoryCurve::onPadlockClicked );
+    // The padlock icon is only shown if the curve is updated by automation
+    if ( isUpdatedByAutomation )
+    {
+        QString iconResourceString = m_isLocked ? ":/padlock.svg" : ":/padlock-unlocked.svg";
 
-        treeItemAttribute->tags.push_back( std::move( tag ) );
+        if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+        {
+            auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
+            tag->icon = caf::IconProvider( iconResourceString );
+
+            tag->clicked.connect( this, &RimGridTimeHistoryCurve::onPadlockClicked );
+
+            treeItemAttribute->tags.push_back( std::move( tag ) );
+        }
     }
 }
 

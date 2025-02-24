@@ -41,6 +41,7 @@
 #include "RimGridTimeHistoryCurve.h"
 #include "RimProject.h"
 #include "RimSummaryPlot.h"
+#include "RimTools.h"
 #include "Tools/RimAutomationSettings.h"
 
 #include "Riu3dSelectionManager.h"
@@ -431,7 +432,7 @@ void RiuSelectionChangedHandler::updateGridCellCurvesFromSelection()
     Riu3dSelectionManager::instance()->selectedItems( items );
     if ( items.empty() ) return;
 
-    auto autoSettings = RimProject::current()->automationSettings();
+    auto autoSettings = RimTools::automationSettings();
     for ( auto summaryPlot : autoSettings->summaryPlots() )
     {
         // if no curves present, create from selection

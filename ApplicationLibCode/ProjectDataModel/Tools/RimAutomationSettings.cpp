@@ -65,6 +65,14 @@ std::vector<RimSummaryPlot*> RimAutomationSettings::summaryPlots() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimAutomationSettings::setDestinationPlot( RimPlotWindow* plotWindow )
+{
+    m_cellSelectionDestination = plotWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimAutomationSettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     auto group = uiOrdering.addNewGroup( "Destination Plot for Cell Selection" );
