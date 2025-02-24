@@ -68,9 +68,6 @@ std::vector<std::pair<int, std::vector<cvf::Vec3d>>> findPolygons( std::vector<s
         return false;
     };
 
-    auto        polygonCollection = RimTools::polygonCollection();
-    RimPolygon* currentPolygon    = nullptr;
-
     while ( hasAnyValue( image ) )
     {
         std::vector<cvf::Vec3d> polygonDomainCoords;
