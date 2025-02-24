@@ -40,7 +40,7 @@ protected:
     bool queryDataAndUpdatePlot( const RimEclipseResultDefinition* eclipseResultDef,
                                  size_t                            timeStepIndex,
                                  size_t                            gridIndex,
-                                 size_t                            gridLocalCellIndex );
+                                 size_t                            gridLocalCellIndex ) override;
 
 private:
     QPointer<RiuPvtPlotPanel> m_targetPlotPanel;

@@ -44,7 +44,10 @@ protected:
     void     clearPlot() override;
     QWidget* plotPanel() override;
 
-    bool queryDataAndUpdatePlot( const RimEclipseResultDefinition* eclipseResDef, size_t timeStepIndex, size_t gridIndex, size_t gridLocalCellIndex );
+    bool queryDataAndUpdatePlot( const RimEclipseResultDefinition* eclipseResDef,
+                                 size_t                            timeStepIndex,
+                                 size_t                            gridIndex,
+                                 size_t                            gridLocalCellIndex ) override;
 
 private:
     QPointer<RiuRelativePermeabilityPlotPanel> m_targetPlotPanel;
