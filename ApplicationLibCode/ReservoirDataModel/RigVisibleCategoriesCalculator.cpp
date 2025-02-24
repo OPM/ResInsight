@@ -173,6 +173,8 @@ std::set<size_t> RigVisibleCategoriesCalculator::visibleNncConnectionIndices( Ri
 //--------------------------------------------------------------------------------------------------
 void RigVisibleCategoriesCalculator::appendVisibleFaultCells( RimEclipseView* eclView, std::set<size_t>& visibleCells )
 {
+    if ( eclView->faultCollection()->shouldApplyCellFiltersToFaults() ) return;
+
     if ( eclView->faultCollection() && eclView->faultCollection()->isActive() && !eclView->faultResultSettings()->showCustomFaultResult() )
     {
         for ( const auto& f : eclView->faultCollection()->faults() )
