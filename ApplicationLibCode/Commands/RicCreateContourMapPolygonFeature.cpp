@@ -44,21 +44,7 @@ void RicCreateContourMapPolygonFeature::onActionTriggered( bool isChecked )
     auto      eroded      = RigPolygonTools::erode( floodFilled, kernelSize );
     auto      dilated     = RigPolygonTools::dilate( eroded, kernelSize );
 
-    if ( dilated.empty() ) return;
-
-    bool ok;
-    int  areaThreshold = QInputDialog::getInt( RiuMainWindow::instance(),
-                                              tr( "Create Polygons" ),
-                                              tr( "Minimum area to create a polygon (typical values in 10..100):" ),
-                                              10,
-                                              1,
-                                              1000,
-                                              1,
-                                              &ok );
-    if ( ok )
-    {
-        RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonsFromImage( dilated, rigContourMapProjection, areaThreshold );
-    }
+    RicCreateContourMapPolygonTools::createPolygonObjects( dilated, rigContourMapProjection );
 }
 
 //--------------------------------------------------------------------------------------------------

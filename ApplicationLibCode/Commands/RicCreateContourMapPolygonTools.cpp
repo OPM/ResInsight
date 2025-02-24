@@ -32,6 +32,102 @@
 
 #include "cvfBase.h"
 
+namespace internal
+{
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<int, std::vector<cvf::Vec3d>>> findPolygons( std::vector<std::vector<int>>  image,
+                                                                   const RigContourMapProjection* contourMapProjection )
+{
+    std::vector<std::pair<int, std::vector<cvf::Vec3d>>> polygons;
+
+    if ( !contourMapProjection ) return {};
+    if ( image.empty() ) return {};
+
+    auto xVertexPositions = contourMapProjection->xVertexPositions();
+    auto yVertexPositions = contourMapProjection->yVertexPositions();
+    auto origin3d         = contourMapProjection->origin3d();
+    auto depth            = contourMapProjection->topDepthBoundingBox();
+
+    auto hasAnyValue = []( const std::vector<std::vector<int>>& image ) -> bool
+    {
+        for ( const auto& row : image )
+        {
+            for ( int val : row )
+            {
+                if ( val != 0 ) return true;
+            }
+        }
+
+        return false;
+    };
+
+    auto        polygonCollection = RimTools::polygonCollection();
+    RimPolygon* currentPolygon    = nullptr;
+
+    while ( hasAnyValue( image ) )
+    {
+        std::vector<cvf::Vec3d> polygonDomainCoords;
+        auto                    boundaryPoints = RigPolygonTools::boundary( image );
+
+        for ( const auto& [i, j] : boundaryPoints )
+        {
+            auto xDomain = xVertexPositions.at( i ) + origin3d.x();
+            auto yDomain = yVertexPositions.at( j ) + origin3d.y();
+
+            polygonDomainCoords.emplace_back( cvf::Vec3d( xDomain, yDomain, depth ) );
+        }
+
+        // Epsilon used to simplify polygon. Useful range typical value in [5..50]
+        const double defaultEpsilon = 40.0;
+        RigPolygonTools::simplifyPolygon( polygonDomainCoords, defaultEpsilon );
+
+        if ( polygonDomainCoords.size() >= 3 )
+        {
+            const auto area = RigPolygonTools::area( boundaryPoints );
+
+            polygons.push_back( { area, polygonDomainCoords } );
+        }
+
+        // Subtract all pixels inside the polygon by setting their value to 0
+        const int value = 0;
+        image           = RigPolygonTools::assignValueInsidePolygon( image, boundaryPoints, value );
+
+        /*
+                // NB: Do not remove, debug code to export images to file
+                {
+                    QString filename = "boundary_removed";
+                    filename         = QString( "f:/scratch/images/%1%2.png" ).arg( filename ).arg( QString::number( imageCounter ) );
+                    RicCreateContourMapPolygonTools::exportVectorAsGrayscaleImage( currentImage, filename );
+                }
+        */
+    }
+
+    return polygons;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void createPolygonObjects( const std::vector<std::vector<cvf::Vec3d>>& polygons )
+{
+    auto polygonCollection = RimTools::polygonCollection();
+    if ( !polygonCollection ) return;
+
+    for ( const auto& polygonDomainCoords : polygons )
+    {
+        auto newPolygon = polygonCollection->appendUserDefinedPolygon();
+        newPolygon->setPointsInDomainCoords( polygonDomainCoords );
+        newPolygon->coordinatesChanged.send();
+    }
+
+    polygonCollection->updateAllRequiredEditors();
+}
+
+} // namespace internal
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -193,86 +289,45 @@ std::vector<std::vector<int>> RicCreateContourMapPolygonTools::convertToBinaryIm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPolygon* RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonsFromImage( std::vector<std::vector<int>>  image,
-                                                                                    const RigContourMapProjection* contourMapProjection,
-                                                                                    double                         areaThreshold )
+void RicCreateContourMapPolygonTools::createPolygonObjects( std::vector<std::vector<int>>  image,
+                                                            const RigContourMapProjection* contourMapProjection )
 {
-    if ( !contourMapProjection ) return nullptr;
-    if ( image.empty() ) return nullptr;
+    auto polygons = internal::findPolygons( image, contourMapProjection );
+    if ( polygons.empty() ) return;
 
-    auto xVertexPositions = contourMapProjection->xVertexPositions();
-    auto yVertexPositions = contourMapProjection->yVertexPositions();
-    auto origin3d         = contourMapProjection->origin3d();
-    auto depth            = contourMapProjection->topDepthBoundingBox();
+    std::sort( polygons.begin(), polygons.end(), []( const auto& a, const auto& b ) { return a.first > b.first; } );
 
-    auto hasAnyValue = []( const std::vector<std::vector<int>>& image ) -> bool
+    int         polygonCount = 0;
+    QStringList polygonInfo;
+    for ( const auto& polygon : polygons )
     {
-        for ( const auto& row : image )
+        polygonInfo
+            << QString( "Polygon %1: Normalized area %2, %3 vertices " ).arg( polygonCount++ ).arg( polygon.first ).arg( polygon.second.size() );
+        if ( polygonCount > 10 )
         {
-            for ( int val : row )
-            {
-                if ( val != 0 )
-                {
-                    return true;
-                }
-            }
+            polygonInfo << "More polygons found, but only the first 10 are shown.";
+            break;
         }
-
-        return false;
-    };
-
-    auto        polygonCollection = RimTools::polygonCollection();
-    RimPolygon* currentPolygon    = nullptr;
-
-    while ( hasAnyValue( image ) )
-    {
-        std::vector<cvf::Vec3d> polygonDomainCoords;
-        auto                    boundaryPoints = RigPolygonTools::boundary( image );
-
-        // The area threshold defines the minimum number of pixels to create a polygon for
-        const auto area = RigPolygonTools::area( boundaryPoints );
-        if ( area > areaThreshold )
-        {
-            for ( const auto& [i, j] : boundaryPoints )
-            {
-                auto xDomain = xVertexPositions.at( i ) + origin3d.x();
-                auto yDomain = yVertexPositions.at( j ) + origin3d.y();
-
-                polygonDomainCoords.emplace_back( cvf::Vec3d( xDomain, yDomain, depth ) );
-            }
-
-            // Epsilon used to simplify polygon. Useful range typical value in [5..50]
-            const double defaultEpsilon = 40.0;
-            RigPolygonTools::simplifyPolygon( polygonDomainCoords, defaultEpsilon );
-
-            if ( polygonDomainCoords.size() >= 3 )
-            {
-                auto newPolygon = polygonCollection->appendUserDefinedPolygon();
-
-                newPolygon->setPointsInDomainCoords( polygonDomainCoords );
-                newPolygon->coordinatesChanged.send();
-
-                currentPolygon = newPolygon;
-            }
-        }
-
-        // Subtract all pixels inside the polygon by setting their value to 0
-        const int value = 0;
-        image           = RigPolygonTools::assignValueInsidePolygon( image, boundaryPoints, value );
-
-        /*
-                // NB: Do not remove, debug code to export images to file
-                {
-                    QString filename = "boundary_removed";
-                    filename         = QString( "f:/scratch/images/%1%2.png" ).arg( filename ).arg( QString::number( imageCounter ) );
-                    RicCreateContourMapPolygonTools::exportVectorAsGrayscaleImage( currentImage, filename );
-                }
-        */
     }
 
-    polygonCollection->uiCapability()->updateAllRequiredEditors();
+    QString txt = polygonInfo.join( "\n" );
+    txt += "\n\n Define normalized area threshold:";
 
-    return currentPolygon;
+    bool ok;
+    int  areaThreshold = QInputDialog::getInt( RiuMainWindow::instance(), "Create Polygons", txt, 10, 1, 10000, 1, &ok );
+    if ( ok )
+    {
+        std::vector<std::vector<cvf::Vec3d>> polygonsToCreate;
+        for ( const auto& polygon : polygons )
+        {
+            if ( polygon.first >= areaThreshold )
+            {
+                polygonsToCreate.push_back( polygon.second );
+            }
+        }
+
+        internal::createPolygonObjects( polygonsToCreate );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -40,9 +40,7 @@ void exportVectorAsGrayscaleImage( const std::vector<std::vector<int>>& data, co
 std::vector<std::vector<int>> convertImageToBinary( QImage image );
 std::vector<std::vector<int>> convertToBinaryImage( const RigContourMapProjection* contourMapProjection );
 
-RimPolygon* createAndAddBoundaryPolygonsFromImage( std::vector<std::vector<int>>  image,
-                                                   const RigContourMapProjection* contourMapProjection,
-                                                   double                         areaThreshold );
+void createPolygonObjects( std::vector<std::vector<int>> image, const RigContourMapProjection* contourMapProjection );
 
 const RigContourMapProjection* findCurrentContourMapProjection();
 

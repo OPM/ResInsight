@@ -45,9 +45,7 @@ void RicCreateContourMapPolygonAdvancedFeature::onActionTriggered( bool isChecke
     auto processedImage = dlg.processedImageData();
     if ( processedImage.empty() ) return;
 
-    int areaThreshold = dlg.areaThreshold();
-
-    RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonsFromImage( processedImage, rigContourMapProjection, areaThreshold );
+    RicCreateContourMapPolygonTools::createPolygonObjects( processedImage, rigContourMapProjection );
 }
 
 //--------------------------------------------------------------------------------------------------
