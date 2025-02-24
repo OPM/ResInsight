@@ -63,6 +63,7 @@ class RimTimeAxisAnnotation;
 class RiaSummaryCurveDefinition;
 class RifEclipseSummaryAddress;
 class RiaSummaryCurveAddress;
+class RimStackablePlotCurve;
 
 class QwtInterval;
 class QwtPlotCurve;
@@ -112,7 +113,6 @@ public:
     RimEnsembleCurveSetCollection* ensembleCurveSetCollection() const;
 
     void addGridTimeHistoryCurve( RimGridTimeHistoryCurve* curve );
-    void addGridTimeHistoryCurveNoUpdate( RimGridTimeHistoryCurve* curve );
     void deleteUnlockedGridTimeHistoryCurves();
 
     std::vector<RimGridTimeHistoryCurve*> gridTimeHistoryCurves() const;
@@ -272,8 +272,8 @@ private:
 
     void deletePlotCurvesAndPlotWidget();
 
-    void connectCurveSignals( RimSummaryCurve* curve );
-    void disconnectCurveSignals( RimSummaryCurve* curve );
+    void connectCurveSignals( RimStackablePlotCurve* curve );
+    void disconnectCurveSignals( RimStackablePlotCurve* curve );
 
     void curveDataChanged( const caf::SignalEmitter* emitter );
     void curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible );

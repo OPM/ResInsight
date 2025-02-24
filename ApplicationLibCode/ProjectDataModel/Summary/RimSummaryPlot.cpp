@@ -95,8 +95,6 @@
 #include <limits>
 #include <set>
 
-#pragma optimize( "", off )
-
 CAF_PDM_SOURCE_INIT( RimSummaryPlot, "SummaryPlot" );
 
 struct RimSummaryPlot::CurveInfo
@@ -1553,24 +1551,12 @@ void RimSummaryPlot::addGridTimeHistoryCurve( RimGridTimeHistoryCurve* curve )
     CVF_ASSERT( curve );
 
     m_gridTimeHistoryCurves.push_back( curve );
+    connectCurveSignals( curve );
+
     if ( plotWidget() )
     {
         curve->setParentPlotAndReplot( plotWidget() );
         updateAxes();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::addGridTimeHistoryCurveNoUpdate( RimGridTimeHistoryCurve* curve )
-{
-    CVF_ASSERT( curve );
-
-    m_gridTimeHistoryCurves.push_back( curve );
-    if ( plotWidget() )
-    {
-        curve->setParentPlotNoReplot( plotWidget() );
     }
 }
 
@@ -1988,7 +1974,7 @@ void RimSummaryPlot::deletePlotCurvesAndPlotWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::connectCurveSignals( RimSummaryCurve* curve )
+void RimSummaryPlot::connectCurveSignals( RimStackablePlotCurve* curve )
 {
     curve->dataChanged.connect( this, &RimSummaryPlot::curveDataChanged );
     curve->visibilityChanged.connect( this, &RimSummaryPlot::curveVisibilityChanged );
@@ -2000,7 +1986,7 @@ void RimSummaryPlot::connectCurveSignals( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::disconnectCurveSignals( RimSummaryCurve* curve )
+void RimSummaryPlot::disconnectCurveSignals( RimStackablePlotCurve* curve )
 {
     curve->dataChanged.disconnect( this );
     curve->visibilityChanged.disconnect( this );
@@ -2224,6 +2210,9 @@ void RimSummaryPlot::deleteUnlockedGridTimeHistoryCurves()
     for ( auto c : allGridCurves )
     {
         if ( c->isLocked() ) continue;
+
+        disconnectCurveSignals( c );
+
         m_gridTimeHistoryCurves.removeChild( c );
         delete c;
     }
@@ -2802,6 +2791,11 @@ void RimSummaryPlot::initAfterRead()
     }
 
     for ( auto curve : summaryCurves() )
+    {
+        connectCurveSignals( curve );
+    }
+
+    for ( auto curve : gridTimeHistoryCurves() )
     {
         connectCurveSignals( curve );
     }

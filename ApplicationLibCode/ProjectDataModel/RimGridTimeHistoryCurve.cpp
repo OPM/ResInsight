@@ -614,6 +614,8 @@ void RimGridTimeHistoryCurve::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimGridTimeHistoryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    RimStackablePlotCurve::fieldChangedByUi( changedField, oldValue, newValue );
+
     if ( changedField == &m_plotAxis )
     {
         updateQwtPlotAxis();
