@@ -30,7 +30,11 @@
 #include "RimGeoMechContourMapView.h"
 #include "RimTools.h"
 
+#include "RiuMainWindow.h"
+
 #include "cvfBase.h"
+
+#include <QInputDialog>
 
 namespace internal
 {

@@ -33,12 +33,12 @@
 #include <QSpinBox>
 #include <QVBoxLayout>
 
-class ImageProcessingDialog : public QDialog
+class RicPolygonFromImageDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    ImageProcessingDialog( QWidget* parent = nullptr );
+    RicPolygonFromImageDialog( QWidget* parent = nullptr );
 
     std::vector<std::vector<int>> processedImageData() const;
     void                          setSourceImageData( std::vector<std::vector<int>> imageData );

@@ -22,10 +22,7 @@
 
 #include "RigPolygonTools.h"
 
-#include "RiuMainWindow.h"
-
 #include <QAction>
-#include <QInputDialog>
 
 CAF_CMD_SOURCE_INIT( RicCreateContourMapPolygonFeature, "RicCreateContourMapPolygonFeature" );
 
