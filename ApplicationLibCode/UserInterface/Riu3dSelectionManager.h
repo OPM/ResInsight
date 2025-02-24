@@ -28,8 +28,6 @@
 #include <array>
 #include <cassert>
 #include <vector>
-// #include "RivWellPathSourceInfo.h"
-// #include "RivWellPipeSourceInfo.h"
 
 class RimGridView;
 class RimEclipseView;

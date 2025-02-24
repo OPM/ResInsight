@@ -47,127 +47,23 @@
 //--------------------------------------------------------------------------------------------------
 RiuPvtPlotUpdater::RiuPvtPlotUpdater( RiuPvtPlotPanel* targetPlotPanel )
     : m_targetPlotPanel( targetPlotPanel )
-    , m_viewToFollowAnimationFrom( nullptr )
-    , m_eclipseResultDef( nullptr )
-    , m_gridIndex( 0 )
-    , m_gridLocalCellIndex( 0 )
-    , m_timeStepIndex( 0 )
-
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPvtPlotUpdater::updateOnSelectionChanged( const RiuSelectionItem* selectionItem )
+void RiuPvtPlotUpdater::clearPlot()
 {
-    if ( !m_targetPlotPanel )
-    {
-        return;
-    }
-
-    Rim3dView*               newFollowAnimView    = nullptr;
-    RiuEclipseSelectionItem* eclipseSelectionItem = nullptr;
-
-    eclipseSelectionItem = RiuRelativePermeabilityPlotUpdater::extractEclipseSelectionItem( selectionItem, newFollowAnimView );
-
-    bool mustClearPlot          = true;
-    m_viewToFollowAnimationFrom = nullptr;
-
-    if ( eclipseSelectionItem && eclipseSelectionItem->m_resultDefinition )
-    {
-        if ( m_targetPlotPanel->isVisible() )
-        {
-            if ( queryDataAndUpdatePlot( eclipseSelectionItem->m_resultDefinition,
-                                         eclipseSelectionItem->m_timestepIdx,
-                                         eclipseSelectionItem->m_gridIndex,
-                                         eclipseSelectionItem->m_gridLocalCellIndex,
-                                         m_targetPlotPanel ) )
-            {
-                mustClearPlot = false;
-            }
-            m_eclipseResultDef = nullptr;
-        }
-        else
-        {
-            m_eclipseResultDef   = eclipseSelectionItem->m_resultDefinition;
-            m_timeStepIndex      = eclipseSelectionItem->m_timestepIdx;
-            m_gridIndex          = eclipseSelectionItem->m_gridIndex;
-            m_gridLocalCellIndex = eclipseSelectionItem->m_gridLocalCellIndex;
-            mustClearPlot        = false;
-        }
-        m_viewToFollowAnimationFrom = newFollowAnimView;
-    }
-
-    if ( mustClearPlot )
-    {
-        m_eclipseResultDef = nullptr;
-        m_targetPlotPanel->clearPlot();
-    }
+    if ( m_targetPlotPanel ) m_targetPlotPanel->clearPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPvtPlotUpdater::doDelayedUpdate()
+QWidget* RiuPvtPlotUpdater::plotPanel()
 {
-    if ( m_eclipseResultDef != nullptr )
-    {
-        if ( !queryDataAndUpdatePlot( m_eclipseResultDef, m_timeStepIndex, m_gridIndex, m_gridLocalCellIndex, m_targetPlotPanel ) )
-        {
-            m_targetPlotPanel->clearPlot();
-        }
-        m_eclipseResultDef = nullptr;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuPvtPlotUpdater::updateOnTimeStepChanged( Rim3dView* changedView )
-{
-    if ( !m_targetPlotPanel )
-    {
-        return;
-    }
-
-    // Don't update the plot if the view that changed time step is different
-    // from the view that was the source of the current plot
-
-    if ( changedView != m_viewToFollowAnimationFrom )
-    {
-        return;
-    }
-
-    // Fetch the current global selection and only continue if the selection's view matches the view with time step change
-
-    const RiuSelectionItem*  selectionItem        = Riu3dSelectionManager::instance()->selectedItem();
-    Rim3dView*               newFollowAnimView    = nullptr;
-    RiuEclipseSelectionItem* eclipseSelectionItem = nullptr;
-
-    eclipseSelectionItem = RiuRelativePermeabilityPlotUpdater::extractEclipseSelectionItem( selectionItem, newFollowAnimView );
-
-    if ( eclipseSelectionItem && newFollowAnimView == changedView )
-    {
-        if ( m_targetPlotPanel->isVisible() )
-        {
-            if ( !queryDataAndUpdatePlot( eclipseSelectionItem->m_resultDefinition,
-                                          newFollowAnimView->currentTimeStep(),
-                                          eclipseSelectionItem->m_gridIndex,
-                                          eclipseSelectionItem->m_gridLocalCellIndex,
-                                          m_targetPlotPanel ) )
-            {
-                m_targetPlotPanel->clearPlot();
-            }
-        }
-        else
-        {
-            m_eclipseResultDef   = eclipseSelectionItem->m_resultDefinition;
-            m_timeStepIndex      = newFollowAnimView->currentTimeStep();
-            m_gridIndex          = eclipseSelectionItem->m_gridIndex;
-            m_gridLocalCellIndex = eclipseSelectionItem->m_gridLocalCellIndex;
-        }
-    }
+    return m_targetPlotPanel;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -176,11 +72,9 @@ void RiuPvtPlotUpdater::updateOnTimeStepChanged( Rim3dView* changedView )
 bool RiuPvtPlotUpdater::queryDataAndUpdatePlot( const RimEclipseResultDefinition* eclipseResDef,
                                                 size_t                            timeStepIndex,
                                                 size_t                            gridIndex,
-                                                size_t                            gridLocalCellIndex,
-                                                RiuPvtPlotPanel*                  plotPanel )
+                                                size_t                            gridLocalCellIndex )
 {
-    CVF_ASSERT( plotPanel );
-
+    if ( m_targetPlotPanel == nullptr ) return false;
     if ( !eclipseResDef ) return false;
 
     RimEclipseResultCase*         eclipseResultCase = dynamic_cast<RimEclipseResultCase*>( eclipseResDef->eclipseCase() );
@@ -260,7 +154,13 @@ bool RiuPvtPlotUpdater::queryDataAndUpdatePlot( const RimEclipseResultDefinition
                                                                                               "PVTNUM",
                                                                                               cellPvtNumDouble );
 
-        plotPanel->setPlotData( eclipseCaseData->unitsType(), fvfCurveArr, viscosityCurveArr, fvfDynProps, viscosityDynProps, cellValues, cellRefText );
+        m_targetPlotPanel->setPlotData( eclipseCaseData->unitsType(),
+                                        fvfCurveArr,
+                                        viscosityCurveArr,
+                                        fvfDynProps,
+                                        viscosityDynProps,
+                                        cellValues,
+                                        cellRefText );
 
         return true;
     }

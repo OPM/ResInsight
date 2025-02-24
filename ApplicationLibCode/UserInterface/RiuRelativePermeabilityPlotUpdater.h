@@ -18,48 +18,36 @@
 
 #pragma once
 
-#include <QPointer>
-#include <QString>
+#include "RiuPlotUpdater.h"
 
-class RiuSelectionItem;
 class RiuRelativePermeabilityPlotPanel;
-class Rim3dView;
-class RimEclipseView;
 class RigEclipseCaseData;
 class RimEclipseResultDefinition;
-class RiuSelectionItem;
-class RiuEclipseSelectionItem;
 
 //==================================================================================================
 //
 //
 //
 //==================================================================================================
-class RiuRelativePermeabilityPlotUpdater
+class RiuRelativePermeabilityPlotUpdater : public RiuPlotUpdater
 {
 public:
     RiuRelativePermeabilityPlotUpdater( RiuRelativePermeabilityPlotPanel* targetPlotPanel );
 
-    void updateOnSelectionChanged( const RiuSelectionItem* selectionItem );
-    void updateOnTimeStepChanged( Rim3dView* changedView );
+    static QString constructCellReferenceText( const RigEclipseCaseData* eclipseCaseData,
+                                               size_t                    gridIndex,
+                                               size_t                    gridLocalCellIndex,
+                                               const QString&            valueName,
+                                               double                    cellValue );
 
-    static RiuEclipseSelectionItem* extractEclipseSelectionItem( const RiuSelectionItem* selectionItem, Rim3dView*& newFollowAnimView );
-    static QString                  constructCellReferenceText( const RigEclipseCaseData* eclipseCaseData,
-                                                                size_t                    gridIndex,
-                                                                size_t                    gridLocalCellIndex,
-                                                                const QString&            valueName,
-                                                                double                    cellValue );
+protected:
+    void     clearPlot() override;
+    QWidget* plotPanel() override;
 
-private:
-    static bool queryDataAndUpdatePlot( const RimEclipseResultDefinition* eclipseResDef,
-                                        size_t                            timeStepIndex,
-                                        size_t                            gridIndex,
-                                        size_t                            gridLocalCellIndex,
-                                        RiuRelativePermeabilityPlotPanel* plotPanel );
+    bool queryDataAndUpdatePlot( const RimEclipseResultDefinition* eclipseResDef, size_t timeStepIndex, size_t gridIndex, size_t gridLocalCellIndex );
 
 private:
     QPointer<RiuRelativePermeabilityPlotPanel> m_targetPlotPanel;
-    const Rim3dView*                           m_viewToFollowAnimationFrom;
 };
 
 //==================================================================================================

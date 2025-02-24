@@ -126,6 +126,7 @@ private slots:
     void slotSomeCheckBoxStateChanged( int );
     void slotCurrentPlotDataInTextDialog();
     void slotShowCurveSelectionWidgets( int state );
+    void showEvent( QShowEvent* event ) override;
 
 private:
     RiaDefines::EclipseUnitSystem                         m_unitSystem;

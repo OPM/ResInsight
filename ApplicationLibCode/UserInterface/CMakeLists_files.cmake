@@ -24,6 +24,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotPanel.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotUpdater.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotWidget.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPlotUpdater.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtLinearScaleEngine.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtScalePicker.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtCurvePointTracker.h
@@ -139,6 +140,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotPanel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotUpdater.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPlotUpdater.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtLinearScaleEngine.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtScalePicker.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtCurvePointTracker.cpp

@@ -18,14 +18,9 @@
 
 #pragma once
 
-#include <QPointer>
-#include <QString>
+#include "RiuPlotUpdater.h"
 
-class RiuSelectionItem;
 class RiuPvtPlotPanel;
-class Rim3dView;
-class RimEclipseView;
-class RigEclipseCaseData;
 class RimEclipseResultDefinition;
 
 //==================================================================================================
@@ -33,30 +28,20 @@ class RimEclipseResultDefinition;
 //
 //
 //==================================================================================================
-class RiuPvtPlotUpdater
+class RiuPvtPlotUpdater : public RiuPlotUpdater
 {
 public:
     RiuPvtPlotUpdater( RiuPvtPlotPanel* targetPlotPanel );
 
-    void updateOnSelectionChanged( const RiuSelectionItem* selectionItem );
-    void updateOnTimeStepChanged( Rim3dView* changedView );
+protected:
+    void     clearPlot() override;
+    QWidget* plotPanel() override;
 
-    void doDelayedUpdate();
-
-private:
-    static bool queryDataAndUpdatePlot( const RimEclipseResultDefinition* eclipseResultDef,
-                                        size_t                            timeStepIndex,
-                                        size_t                            gridIndex,
-                                        size_t                            gridLocalCellIndex,
-                                        RiuPvtPlotPanel*                  plotPanel );
+    bool queryDataAndUpdatePlot( const RimEclipseResultDefinition* eclipseResultDef,
+                                 size_t                            timeStepIndex,
+                                 size_t                            gridIndex,
+                                 size_t                            gridLocalCellIndex );
 
 private:
     QPointer<RiuPvtPlotPanel> m_targetPlotPanel;
-    const Rim3dView*          m_viewToFollowAnimationFrom;
-
-    // cached values for delayed plot updates
-    const RimEclipseResultDefinition* m_eclipseResultDef;
-    size_t                            m_timeStepIndex;
-    size_t                            m_gridIndex;
-    size_t                            m_gridLocalCellIndex;
 };
