@@ -1208,7 +1208,11 @@ void RimGridCrossPlotDataSet::updateLegendRange()
                 RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
                 if ( eclipseCase )
                 {
-                    m_groupingProperty->updateRangesForEmbeddedLegends( m_timeStep() );
+                    auto eclipseView = dynamic_cast<RimEclipseView*>( m_cellFilterView() );
+                    m_groupingProperty->updateRangesForExplicitLegends( m_groupingProperty->legendConfig(),
+                                                                        m_groupingProperty->ternaryLegendConfig(),
+                                                                        m_timeStep(),
+                                                                        eclipseView );
                 }
             }
             if ( !m_legendOverlayFrame )

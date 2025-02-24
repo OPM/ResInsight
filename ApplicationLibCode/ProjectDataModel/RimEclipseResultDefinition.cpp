@@ -1682,7 +1682,8 @@ void RimEclipseResultDefinition::setTernaryEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegendConfig* legendConfigToUpdate,
                                                                  RimTernaryLegendConfig* ternaryLegendConfigToUpdate,
-                                                                 int                     currentTimeStep )
+                                                                 int                     currentTimeStep,
+                                                                 RimEclipseView*         cellVisibilityView )
 
 {
     if ( hasResult() )
@@ -1696,7 +1697,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
         }
         else
         {
-            RimEclipseResultDefinitionTools::updateCellResultLegend( this, legendConfigToUpdate, currentTimeStep );
+            RimEclipseResultDefinitionTools::updateCellResultLegend( this, legendConfigToUpdate, currentTimeStep, cellVisibilityView );
         }
     }
 
@@ -1704,6 +1705,17 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
     {
         RimEclipseResultDefinitionTools::updateTernaryLegend( currentGridCellResults(), ternaryLegendConfigToUpdate, currentTimeStep );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegendConfig* legendConfig,
+                                                                 RimTernaryLegendConfig* ternaryLegendConfig,
+                                                                 int                     currentTimeStep )
+{
+    RimEclipseView* cellVisibilityView = nullptr;
+    updateRangesForExplicitLegends( legendConfig, ternaryLegendConfig, currentTimeStep, cellVisibilityView );
 }
 
 //--------------------------------------------------------------------------------------------------

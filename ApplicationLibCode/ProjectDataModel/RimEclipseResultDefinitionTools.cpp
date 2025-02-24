@@ -42,10 +42,12 @@
 #include "RimSimWellInViewCollection.h"
 #include "RimTernaryLegendConfig.h"
 
+#include "cafCategoryMapper.h"
+
+#include "cvfColor3.h"
+
 #include <QString>
 
-#include "cafCategoryMapper.h"
-#include "cvfColor3.h"
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -491,7 +493,8 @@ void RimEclipseResultDefinitionTools::updateLegendForFlowDiagnostics( const RimE
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinitionTools::updateCellResultLegend( const RimEclipseResultDefinition* resultDefinition,
                                                               RimRegularLegendConfig*           legendConfigToUpdate,
-                                                              int                               timeStep )
+                                                              int                               timeStep,
+                                                              RimEclipseView*                   sourceCellVisibilityView )
 {
     if ( !resultDefinition || !legendConfigToUpdate ) return;
 
@@ -638,19 +641,17 @@ void RimEclipseResultDefinitionTools::updateCellResultLegend( const RimEclipseRe
 
             if ( resultDefinition->showOnlyVisibleCategoriesInLegend() )
             {
-                auto eclView = resultDefinition->firstAncestorOrThisOfType<RimEclipseView>();
-                if ( eclView && eclView->showWindow() )
+                // If a predefined view is nullptr, search for an ancestor view
+                auto cellVisibilityView = sourceCellVisibilityView ? sourceCellVisibilityView
+                                                                   : resultDefinition->firstAncestorOrThisOfType<RimEclipseView>();
+                if ( cellVisibilityView && cellVisibilityView->showWindow() )
                 {
-                    // Check if current result is cell result, and update the visible set of values
-                    // TODO: Can be extended to the separate geometry results (separate fault result, separate
-                    // intersection results), but this requires some refactoring
-                    if ( eclView->cellResult() == resultDefinition )
-                    {
-                        std::set<int> visibleCategorySet = RigVisibleCategoriesCalculator::visibleCategories( eclView );
+                    std::set<int> visibleCategorySet =
+                        RigVisibleCategoriesCalculator::visibleCategories( cellVisibilityView, resultDefinition );
 
-                        visibleCategoryValues.clear();
-                        visibleCategoryValues.insert( visibleCategoryValues.begin(), visibleCategorySet.begin(), visibleCategorySet.end() );
-                    }
+                    // If we have a view, use the unique values defined by visible cells in this view
+                    visibleCategoryValues.clear();
+                    visibleCategoryValues.insert( visibleCategoryValues.begin(), visibleCategorySet.begin(), visibleCategorySet.end() );
                 }
             }
 
