@@ -25,12 +25,11 @@
 #include "RimAnnotationInViewCollection.h"
 #include "RimAnnotationLineAppearance.h"
 #include "RimGridView.h"
-#include "RimOilField.h"
 #include "RimPolylineTarget.h"
 #include "RimPolylinesFromFileAnnotation.h"
-#include "RimProject.h"
 #include "RimReachCircleAnnotation.h"
 #include "RimTextAnnotation.h"
+#include "RimTools.h"
 #include "RimUserDefinedPolylinesAnnotation.h"
 
 #include "Polygons/RimPolygon.h"
@@ -79,7 +78,7 @@ RimAnnotationCollection::~RimAnnotationCollection()
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationCollection::initAfterRead()
 {
-    auto polycoll = RimProject::current()->activeOilField()->polygonCollection();
+    auto polycoll = RimTools::polygonCollection();
 
     for ( auto oldPolyObj : m_userDefinedPolylineAnnotations_OBSOLETE->annotations() )
     {

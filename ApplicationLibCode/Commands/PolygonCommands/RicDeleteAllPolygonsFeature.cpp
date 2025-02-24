@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2024     Equinor ASA
+//  Copyright (C) 2025     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,43 +16,31 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicCreatePolygonFeature.h"
+#include "RicDeleteAllPolygonsFeature.h"
 
-#include "RiaApplication.h"
-
-#include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonCollection.h"
-#include "Polygons/RimPolygonTools.h"
-#include "Rim3dView.h"
 #include "RimTools.h"
-
-#include "Riu3DMainWindowTools.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicCreatePolygonFeature, "RicCreatePolygonFeature" );
+CAF_CMD_SOURCE_INIT( RicDeleteAllPolygonsFeature, "RicDeleteAllPolygonsFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreatePolygonFeature::onActionTriggered( bool isChecked )
+void RicDeleteAllPolygonsFeature::onActionTriggered( bool isChecked )
 {
     auto polygonCollection = RimTools::polygonCollection();
 
-    auto newPolygon = polygonCollection->appendUserDefinedPolygon();
-    polygonCollection->uiCapability()->updateAllRequiredEditors();
-
-    Riu3DMainWindowTools::setExpanded( newPolygon );
-
-    auto activeView = RiaApplication::instance()->activeReservoirView();
-    RimPolygonTools::activate3dEditOfPolygonInView( newPolygon, activeView );
+    polygonCollection->deleteAllPolygons();
+    polygonCollection->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreatePolygonFeature::setupActionLook( QAction* actionToSetup )
+void RicDeleteAllPolygonsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Create Polygon" );
-    actionToSetup->setIcon( QIcon( ":/PolylinesFromFile16x16.png" ) );
+    actionToSetup->setText( "Delete All Polygons" );
+    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
 }

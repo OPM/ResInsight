@@ -35,7 +35,7 @@ void RicCreateContourMapPolygonAdvancedFeature::onActionTriggered( bool isChecke
 
     auto sourceImage = RicCreateContourMapPolygonTools::convertToBinaryImage( rigContourMapProjection );
 
-    ImageProcessingDialog dlg;
+    RicPolygonFromImageDialog dlg;
     dlg.setSourceImageData( sourceImage );
     dlg.show();
     dlg.updateAndShowImages();
@@ -45,7 +45,7 @@ void RicCreateContourMapPolygonAdvancedFeature::onActionTriggered( bool isChecke
     auto processedImage = dlg.processedImageData();
     if ( processedImage.empty() ) return;
 
-    RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonFromImage( processedImage, rigContourMapProjection );
+    RicCreateContourMapPolygonTools::createPolygonObjects( processedImage, rigContourMapProjection );
 }
 
 //--------------------------------------------------------------------------------------------------

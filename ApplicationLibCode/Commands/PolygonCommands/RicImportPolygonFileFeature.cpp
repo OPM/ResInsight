@@ -24,8 +24,7 @@
 #include "Polygons/RimPolygonCollection.h"
 #include "Polygons/RimPolygonFile.h"
 #include "Polygons/RimPolygonTools.h"
-#include "RimOilField.h"
-#include "RimProject.h"
+#include "RimTools.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
@@ -56,8 +55,7 @@ void RicImportPolygonFileFeature::onActionTriggered( bool isChecked )
     // Remember the path to next time
     app->setLastUsedDialogDirectory( RimPolygonTools::polygonCacheName(), QFileInfo( fileNames.last() ).absolutePath() );
 
-    auto proj              = RimProject::current();
-    auto polygonCollection = proj->activeOilField()->polygonCollection();
+    auto polygonCollection = RimTools::polygonCollection();
 
     RimPolygon* objectToSelect = nullptr;
 

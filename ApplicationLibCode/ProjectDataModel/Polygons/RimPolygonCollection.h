@@ -40,6 +40,7 @@ public:
     RimPolygon* appendUserDefinedPolygon();
     void        addUserDefinedPolygon( RimPolygon* polygon );
     void        deleteUserDefinedPolygons();
+    void        deleteAllPolygons();
 
     void addPolygonFile( RimPolygonFile* polygonFile );
 

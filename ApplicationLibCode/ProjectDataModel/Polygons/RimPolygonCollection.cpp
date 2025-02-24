@@ -103,6 +103,18 @@ void RimPolygonCollection::deleteUserDefinedPolygons()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::deleteAllPolygons()
+{
+    m_polygons().deleteChildren();
+    m_polygonFiles().deleteChildren();
+
+    updateViewTreeItems();
+    scheduleRedrawViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonCollection::addPolygonFile( RimPolygonFile* polygonFile )
 {
     m_polygonFiles().push_back( polygonFile );
@@ -184,6 +196,8 @@ void RimPolygonCollection::childFieldChangedByUi( const caf::PdmFieldHandle* cha
 void RimPolygonCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     RimPolygonCollection::appendPolygonMenuItems( menuBuilder );
+    menuBuilder.addSeparator();
+    menuBuilder << "RicDeleteAllPolygonsFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

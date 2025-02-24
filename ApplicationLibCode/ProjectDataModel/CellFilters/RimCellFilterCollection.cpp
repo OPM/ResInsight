@@ -24,9 +24,9 @@
 #include "RimCellFilter.h"
 #include "RimCellIndexFilter.h"
 #include "RimCellRangeFilter.h"
-#include "RimOilField.h"
 #include "RimPolygonFilter.h"
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimUserDefinedFilter.h"
 #include "RimUserDefinedIndexFilter.h"
 #include "RimViewController.h"
@@ -144,8 +144,7 @@ void RimCellFilterCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuB
 
     menuBuilder.subMenuStart( "Polygon Filter", QIcon( ":/CellFilter_Polygon.png" ) );
     {
-        auto project           = RimProject::current();
-        auto polygonCollection = project->activeOilField()->polygonCollection();
+        auto polygonCollection = RimTools::polygonCollection();
         for ( auto p : polygonCollection->allPolygons() )
         {
             if ( !p ) continue;

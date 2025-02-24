@@ -41,9 +41,7 @@ void RicCreateContourMapPolygonFeature::onActionTriggered( bool isChecked )
     auto      eroded      = RigPolygonTools::erode( floodFilled, kernelSize );
     auto      dilated     = RigPolygonTools::dilate( eroded, kernelSize );
 
-    if ( dilated.empty() ) return;
-
-    RicCreateContourMapPolygonTools::createAndAddBoundaryPolygonFromImage( dilated, rigContourMapProjection );
+    RicCreateContourMapPolygonTools::createPolygonObjects( dilated, rigContourMapProjection );
 }
 
 //--------------------------------------------------------------------------------------------------
