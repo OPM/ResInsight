@@ -39,6 +39,8 @@
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
+#include "RimTools.h"
+#include "Tools/RimAutomationSettings.h"
 
 #include "Riu3dSelectionManager.h"
 #include "RiuPlotMainWindowTools.h"
@@ -122,6 +124,9 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
 
     QString refFromProjectToView = caf::PdmReferenceHelper::referenceFromRootToObject( app->project(), summaryPlot );
     app->setCacheDataObject( lastUsedSummaryPlotKey, refFromProjectToView );
+
+    auto automationSettings = RimTools::automationSettings();
+    automationSettings->setDestinationPlot( summaryPlot );
 
     return summaryPlot;
 }

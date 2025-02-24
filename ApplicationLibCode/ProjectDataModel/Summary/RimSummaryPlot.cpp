@@ -20,6 +20,7 @@
 
 #include "RiaColorTables.h"
 #include "RiaColorTools.h"
+#include "RiaCurveMerger.h"
 #include "RiaDefines.h"
 #include "RiaLogging.h"
 #include "RiaPlotDefines.h"
@@ -465,23 +466,6 @@ void RimSummaryPlot::deleteAllSummaryCurves()
 RimSummaryCurveCollection* RimSummaryPlot::summaryCurveCollection() const
 {
     return m_summaryCurveCollection();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RimSummaryPlot::visibleStackedSummaryCurvesForAxis( RiuPlotAxis plotAxis )
-{
-    auto visibleCurves = visibleSummaryCurvesForAxis( plotAxis );
-
-    std::vector<RimSummaryCurve*> visibleStackedCurves;
-
-    std::copy_if( visibleCurves.begin(),
-                  visibleCurves.end(),
-                  std::back_inserter( visibleStackedCurves ),
-                  []( RimSummaryCurve* curve ) { return curve->isStacked(); } );
-
-    return visibleStackedCurves;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1567,24 +1551,12 @@ void RimSummaryPlot::addGridTimeHistoryCurve( RimGridTimeHistoryCurve* curve )
     CVF_ASSERT( curve );
 
     m_gridTimeHistoryCurves.push_back( curve );
+    connectCurveSignals( curve );
+
     if ( plotWidget() )
     {
         curve->setParentPlotAndReplot( plotWidget() );
         updateAxes();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::addGridTimeHistoryCurveNoUpdate( RimGridTimeHistoryCurve* curve )
-{
-    CVF_ASSERT( curve );
-
-    m_gridTimeHistoryCurves.push_back( curve );
-    if ( plotWidget() )
-    {
-        curve->setParentPlotNoReplot( plotWidget() );
     }
 }
 
@@ -1733,58 +1705,86 @@ bool RimSummaryPlot::updateStackedCurveDataForRelevantAxes()
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryPlot::updateStackedCurveDataForAxis( RiuPlotAxis plotAxis )
 {
-    auto stackedCurves = visibleStackedSummaryCurvesForAxis( plotAxis );
-    if ( stackedCurves.empty() ) return false;
+    // See RimWellLogTrack::updateStackedCurveData() for vertical plots
 
+    struct CurveStackingItem
+    {
+        RimStackablePlotCurve* curve;
+        RiaDefines::PhaseType  phase;
+        std::vector<double>    xValues;
+        std::vector<double>    yValues;
+    };
+
+    std::vector<CurveStackingItem> stackingItems;
+
+    for ( auto summaryCurve : visibleSummaryCurvesForAxis( plotAxis ) )
+    {
+        if ( summaryCurve->isStacked() )
+        {
+            auto xValues = RiuPlotCurve::fromTime_t( summaryCurve->timeStepsY() );
+            auto yValues = summaryCurve->valuesY();
+
+            if ( !xValues.empty() && xValues.size() == yValues.size() )
+            {
+                stackingItems.push_back( { summaryCurve, summaryCurve->phaseType(), xValues, yValues } );
+            }
+        }
+    }
+
+    // Add stack data for time history curves
+    for ( auto gridCurve : gridTimeHistoryCurves() )
+    {
+        if ( gridCurve->yAxis() == plotAxis && gridCurve->isStacked() && gridCurve->isChecked() )
+        {
+            auto xValues = RiuPlotCurve::fromTime_t( gridCurve->timeStepValues() );
+            auto yValues = gridCurve->yValues();
+
+            if ( !xValues.empty() && xValues.size() == yValues.size() )
+            {
+                stackingItems.push_back( { gridCurve, gridCurve->phaseType(), xValues, yValues } );
+            }
+        }
+    }
+
+    if ( stackingItems.empty() ) return true;
+
+    RiaCurveMerger<double>                  curveMerger;
     std::map<RiaDefines::PhaseType, size_t> curvePhaseCount;
-    for ( RimSummaryCurve* curve : stackedCurves )
-    {
-        curve->loadDataAndUpdate( false );
 
-        curvePhaseCount[curve->phaseType()]++;
+    for ( auto stackingItem : stackingItems )
+    {
+        curveMerger.addCurveData( stackingItem.xValues, stackingItem.yValues );
+        curvePhaseCount[stackingItem.phase]++;
     }
+    curveMerger.computeInterpolatedValues( true );
 
+    std::vector<double> allXValues = curveMerger.allXValues();
+    std::vector<double> allStackedValues( allXValues.size(), 0.0 );
+
+    // Z-position of curve, to draw them in correct order
+    double zPos = -10000.0;
+
+    for ( size_t index = 0; index < stackingItems.size(); index++ )
     {
-        // Z-position of curve, to draw them in correct order
-        double zPos = -10000.0;
-
-        std::vector<time_t> allTimeSteps;
-        for ( RimSummaryCurve* curve : stackedCurves )
+        auto yValues = curveMerger.interpolatedYValuesForAllXValues( index );
+        for ( size_t i = 0; i < allXValues.size(); ++i )
         {
-            auto timeSteps = curve->timeStepsY();
-            if ( !timeSteps.empty() )
+            double value = yValues[i];
+            if ( value != std::numeric_limits<double>::infinity() )
             {
-                // https://github.com/OPM/ResInsight/issues/10438
-                allTimeSteps.insert( allTimeSteps.end(), timeSteps.begin(), timeSteps.end() );
+                allStackedValues[i] += value;
             }
         }
-        std::sort( allTimeSteps.begin(), allTimeSteps.end() );
-        allTimeSteps.erase( std::unique( allTimeSteps.begin(), allTimeSteps.end() ), allTimeSteps.end() );
 
-        std::vector<double> allStackedValues( allTimeSteps.size(), 0.0 );
-
-        size_t stackIndex = 0u;
-        for ( RimSummaryCurve* curve : stackedCurves )
+        auto curve = stackingItems[index].curve;
+        curve->setSamplesFromXYValues( allXValues, allStackedValues, false );
+        curve->setZOrder( zPos );
+        if ( curve->isStackedWithPhaseColors() )
         {
-            for ( size_t i = 0; i < allTimeSteps.size(); ++i )
-            {
-                double value = curve->yValueAtTimeT( allTimeSteps[i] );
-                if ( value != std::numeric_limits<double>::infinity() )
-                {
-                    allStackedValues[i] += value;
-                }
-            }
-
-            curve->setOverrideCurveDataY( allTimeSteps, allStackedValues );
-            curve->setZOrder( zPos );
-            if ( curve->isStackedWithPhaseColors() )
-            {
-                curve->assignStackColor( stackIndex, curvePhaseCount[curve->phaseType()] );
-            }
-            zPos -= 1.0;
+            curve->assignStackColor( index, curvePhaseCount[curve->phaseType()] );
         }
+        zPos -= 1.0;
     }
-
     return true;
 }
 
@@ -1974,7 +1974,7 @@ void RimSummaryPlot::deletePlotCurvesAndPlotWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::connectCurveSignals( RimSummaryCurve* curve )
+void RimSummaryPlot::connectCurveSignals( RimStackablePlotCurve* curve )
 {
     curve->dataChanged.connect( this, &RimSummaryPlot::curveDataChanged );
     curve->visibilityChanged.connect( this, &RimSummaryPlot::curveVisibilityChanged );
@@ -1986,7 +1986,7 @@ void RimSummaryPlot::connectCurveSignals( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::disconnectCurveSignals( RimSummaryCurve* curve )
+void RimSummaryPlot::disconnectCurveSignals( RimStackablePlotCurve* curve )
 {
     curve->dataChanged.disconnect( this );
     curve->visibilityChanged.disconnect( this );
@@ -2204,9 +2204,18 @@ void RimSummaryPlot::axisPositionChanged( const caf::SignalEmitter* emitter,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::deleteAllGridTimeHistoryCurves()
+void RimSummaryPlot::deleteUnlockedGridTimeHistoryCurves()
 {
-    m_gridTimeHistoryCurves.deleteChildren();
+    auto allGridCurves = m_gridTimeHistoryCurves.childrenByType();
+    for ( auto c : allGridCurves )
+    {
+        if ( c->isLocked() ) continue;
+
+        disconnectCurveSignals( c );
+
+        m_gridTimeHistoryCurves.removeChild( c );
+        delete c;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2573,8 +2582,8 @@ RimSummaryCurve* RimSummaryPlot::addNewCurve( const RifEclipseSummaryAddress& ad
 {
     auto newCurve = RiaSummaryPlotTools::createCurve( summaryCase, address );
 
-    // This address is RifEclipseSummaryAddress::time() if the curve is a time plot. Otherwise it is the address of the summary vector used
-    // for the x-axis
+    // This address is RifEclipseSummaryAddress::time() if the curve is a time plot. Otherwise it is the address of the summary vector
+    // used for the x-axis
     if ( addressX.category() != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_TIME )
     {
         newCurve->setAxisTypeX( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
@@ -2786,7 +2795,10 @@ void RimSummaryPlot::initAfterRead()
         connectCurveSignals( curve );
     }
 
-    updateStackedCurveData();
+    for ( auto curve : gridTimeHistoryCurves() )
+    {
+        connectCurveSignals( curve );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

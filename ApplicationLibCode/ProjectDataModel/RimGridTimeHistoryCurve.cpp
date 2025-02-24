@@ -18,7 +18,7 @@
 
 #include "RimGridTimeHistoryCurve.h"
 
-#include <memory>
+#include "Tools/Summary/RiaSummaryTools.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -37,11 +37,15 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryTimeAxisProperties.h"
+#include "RimTools.h"
+#include "Tools/RimAutomationSettings.h"
 
 #include "Riu3dSelectionManager.h"
 #include "RiuFemTimeHistoryResultAccessor.h"
 #include "RiuPlotCurve.h"
 #include "RiuPlotMainWindowTools.h"
+
+#include "cafPdmUiTreeAttributes.h"
 
 CAF_PDM_SOURCE_INIT( RimGridTimeHistoryCurve, "GridTimeHistoryCurve" );
 
@@ -55,6 +59,8 @@ RimGridTimeHistoryCurve::RimGridTimeHistoryCurve()
     CAF_PDM_InitFieldNoDefault( &m_geometrySelectionText, "GeometrySelectionText", "Cell Reference" );
     m_geometrySelectionText.registerGetMethod( this, &RimGridTimeHistoryCurve::geometrySelectionText );
     m_geometrySelectionText.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_isLocked, "IsLocked", false, "Lock Curve" );
 
     CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "EclipseResultDefinition", "Eclipse Result Definition" );
     m_eclipseResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
@@ -298,12 +304,28 @@ RimCase* RimGridTimeHistoryCurve::gridCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridTimeHistoryCurve::setLocked( bool locked )
+{
+    m_isLocked = locked;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridTimeHistoryCurve::isLocked() const
+{
+    return m_isLocked();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridTimeHistoryCurve::createCurveFromSelectionItem( const RiuSelectionItem* selectionItem, RimSummaryPlot* plot )
 {
     if ( !selectionItem || !plot ) return;
 
-    RimGridTimeHistoryCurve* newCurve               = new RimGridTimeHistoryCurve();
-    bool                     updateResultDefinition = true;
+    auto newCurve               = new RimGridTimeHistoryCurve();
+    bool updateResultDefinition = true;
     newCurve->setFromSelectionItem( selectionItem, updateResultDefinition );
     newCurve->setLineThickness( 2 );
 
@@ -318,6 +340,19 @@ void RimGridTimeHistoryCurve::createCurveFromSelectionItem( const RiuSelectionIt
 
     RiuPlotMainWindowTools::showPlotMainWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem( newCurve );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::PhaseType RimGridTimeHistoryCurve::phaseType() const
+{
+    if ( m_eclipseResultDefinition )
+    {
+        return m_eclipseResultDefinition->resultPhaseType();
+    }
+
+    return RiaDefines::PhaseType::PHASE_NOT_APPLICABLE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -359,6 +394,8 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     if ( isChecked() && m_plotCurve )
     {
+        updateResultDefinitionFromCase();
+
         std::vector<double> values;
 
         RimEclipseGeometrySelectionItem* eclTopItem = eclipseGeomSelectionItem();
@@ -530,6 +567,8 @@ void RimGridTimeHistoryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUi
 {
     RimPlotCurve::updateFieldUiState();
 
+    uiOrdering.add( &m_isLocked );
+
     caf::PdmUiGroup* dataSource = uiOrdering.addNewGroup( "Data Source" );
     dataSource->add( &m_geometrySelectionText );
     eclipseGeomSelectionItem()->uiOrdering( uiConfigName, *dataSource );
@@ -548,6 +587,9 @@ void RimGridTimeHistoryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUi
     }
 
     uiOrdering.add( &m_plotAxis );
+
+    caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
+    RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
     RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
@@ -576,6 +618,8 @@ void RimGridTimeHistoryCurve::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimGridTimeHistoryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    RimStackablePlotCurve::fieldChangedByUi( changedField, oldValue, newValue );
+
     if ( changedField == &m_plotAxis )
     {
         updateQwtPlotAxis();
@@ -595,12 +639,39 @@ void RimGridTimeHistoryCurve::fieldChangedByUi( const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 void RimGridTimeHistoryCurve::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
 {
-    if ( m_eclipseDataSource() && m_eclipseResultDefinition() )
+    onLoadDataAndUpdate( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridTimeHistoryCurve::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    bool isUpdatedByAutomation = false;
+
+    if ( auto parentPlot = RiaSummaryTools::parentSummaryPlot( this ) )
     {
-        m_eclipseResultDefinition->setEclipseCase( m_eclipseDataSource->eclipseCase() );
+        for ( auto plot : RimTools::automationSettings()->summaryPlots() )
+        {
+            if ( parentPlot == plot ) isUpdatedByAutomation = true;
+        }
     }
 
-    onLoadDataAndUpdate( true );
+    // The padlock icon is only shown if the curve is updated by automation
+    if ( isUpdatedByAutomation )
+    {
+        QString iconResourceString = m_isLocked ? ":/padlock.svg" : ":/padlock-unlocked.svg";
+
+        if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+        {
+            auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
+            tag->icon = caf::IconProvider( iconResourceString );
+
+            tag->clicked.connect( this, &RimGridTimeHistoryCurve::onPadlockClicked );
+
+            treeItemAttribute->tags.push_back( std::move( tag ) );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -638,17 +709,13 @@ RimGeoMechGeometrySelectionItem* RimGridTimeHistoryCurve::geoMechGeomSelectionIt
 //--------------------------------------------------------------------------------------------------
 void RimGridTimeHistoryCurve::updateResultDefinitionFromCase()
 {
-    if ( eclipseGeomSelectionItem() )
+    if ( eclipseGeomSelectionItem() && m_eclipseResultDefinition() )
     {
-        CVF_ASSERT( m_eclipseResultDefinition() );
-
         m_eclipseResultDefinition->setEclipseCase( eclipseGeomSelectionItem()->eclipseCase() );
     }
 
-    if ( geoMechGeomSelectionItem() )
+    if ( geoMechGeomSelectionItem() && m_geoMechResultDefinition() )
     {
-        CVF_ASSERT( m_geoMechResultDefinition() );
-
         m_geoMechResultDefinition->setGeoMechCase( geoMechGeomSelectionItem()->geoMechCase() );
     }
 }
@@ -686,6 +753,16 @@ QString RimGridTimeHistoryCurve::geometrySelectionText() const
 void RimGridTimeHistoryCurve::updateQwtPlotAxis()
 {
     if ( m_plotCurve ) updateYAxisInPlot( yAxis() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridTimeHistoryCurve::onPadlockClicked( const SignalEmitter* emitter, size_t index )
+{
+    m_isLocked = !m_isLocked();
+
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

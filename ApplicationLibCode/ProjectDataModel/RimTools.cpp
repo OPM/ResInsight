@@ -572,6 +572,14 @@ RimPolygonCollection* RimTools::polygonCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimAutomationSettings* RimTools::automationSettings()
+{
+    return RimProject::current()->automationSettings();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimTools::timeStepsForCase( RimCase* gridCase, QList<caf::PdmOptionItemInfo>* options )
 {
     QStringList timeStepNames;
