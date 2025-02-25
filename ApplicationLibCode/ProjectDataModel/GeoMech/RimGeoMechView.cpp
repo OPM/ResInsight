@@ -472,7 +472,6 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
         // Intersections
         if ( intersectionCollection()->shouldApplyCellFiltersToIntersections() && propertyFilterCollection()->hasActiveDynamicFilters() )
         {
-            m_intersectionCollection->clearGeometry();
             appendIntersectionsForCurrentTimeStep();
         }
 

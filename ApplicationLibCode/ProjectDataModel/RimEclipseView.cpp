@@ -873,7 +873,6 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 
     if ( intersectionCollection()->shouldApplyCellFiltersToIntersections() && eclipsePropertyFilterCollection()->hasActiveFilters() )
     {
-        m_intersectionCollection->clearGeometry();
         appendIntersectionsForCurrentTimeStep();
     }
 
