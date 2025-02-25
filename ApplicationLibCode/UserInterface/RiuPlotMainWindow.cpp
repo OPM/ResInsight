@@ -498,9 +498,12 @@ void RiuPlotMainWindow::createDockPanels()
         auto dockWidget = RiuDockWidgetTools::createDockWidget( treeViewTitles[i], treeViewDockNames[i], dockManager() );
 
         caf::PdmUiTreeView* projectTree = projectTreeView( i );
-        projectTree->enableSelectionManagerUpdating( true );
-
         projectTree->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
+
+        // NB! Do not call projectTree->enableSelectionManagerUpdating( true )
+        // The intention is to update the selection manager only from the 3D view. The 3D interaction handlers will be affected if the
+        // selection manager is updated from the plot window.
+        // See RiuMainWindow::createDockPanels()
 
         dockWidget->setWidget( projectTree );
 
