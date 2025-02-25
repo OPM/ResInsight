@@ -334,8 +334,6 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder( d
 
         if ( intersectionPlaneNormal.lengthSquared() < 1e-10 ) // candidateDir == -nextDir => 180 deg turn
         {
-            CVF_ASSERT( false ); // This is never supposed to happen due to what's done in
-                                 // updateFilteredPipeCenterCoords(). So look there for the bug...
             intersectionPlaneNormal = nextDir;
         }
 
