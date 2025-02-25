@@ -102,7 +102,13 @@ QString RimSummaryNameHelper::aggregatedPlotTitle( const RimSummaryNameHelper& o
         size_t pos = vectorName.find( '_' );
         if ( pos != std::string::npos )
         {
-            title += QString( " (%1)" ).arg( QString::fromStdString( vectorName ) );
+            // For calculated curves, the name vector name is often created using underscore. Check if the vector name already is
+            // present in the title.
+            auto qtVectorName = QString::fromStdString( vectorName );
+            if ( title.indexOf( qtVectorName ) == -1 )
+            {
+                title += QString( " (%1)" ).arg( QString::fromStdString( vectorName ) );
+            }
         }
     }
 
