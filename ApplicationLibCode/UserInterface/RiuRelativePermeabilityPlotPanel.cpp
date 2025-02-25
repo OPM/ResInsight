@@ -871,6 +871,15 @@ void RiuRelativePermeabilityPlotPanel::slotSomeCheckBoxStateChanged( int )
     plotUiSelectedCurves();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuRelativePermeabilityPlotPanel::showEvent( QShowEvent* event )
+{
+    if ( m_plotUpdater != nullptr ) m_plotUpdater->doDelayedUpdate();
+    QWidget::showEvent( event );
+}
+
 //==================================================================================================
 //
 //
