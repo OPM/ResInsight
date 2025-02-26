@@ -120,6 +120,8 @@
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafSelectionManager.h"
+#include "cafUpdateEditorsScheduler.h"
 
 #include "cvfDrawable.h"
 #include "cvfModelBasicList.h"
@@ -826,7 +828,26 @@ void RimEclipseView::onCreateDisplayModel()
     {
         if ( curveSet != nullptr )
         {
+            // https://github.com/OPM/ResInsight/issues/12189
+            //
+            // If a 3D interaction process is active, like adding new well targets or creating a polyline, this process can be interrupted
+            // by the update of property editors in the plot window.
+            // The update of the view can cause new grid cross plot curves in the Plot Window to be created. If this happens, the project
+            // tree view is recreated and updated. The selection will be updated when this happens. Make sure that all scheduled updates for
+            // PdmUiEditors is processed, and reset the selection to initial selection.
+            //
+            // Related code
+            //   PdmUiTreeViewEditor::updateSelectionManager(),
+            //   PdmUiTreeViewEditor::enableSelectionManagerUpdating
+
+            std::vector<caf::PdmUiItem*> selectedItems;
+            caf::SelectionManager::instance()->selectedItems( selectedItems );
+
             curveSet->cellFilterViewUpdated();
+
+            caf::UpdateEditorsScheduler::instance()->performScheduledUpdates();
+
+            caf::SelectionManager::instance()->setSelectedItems( selectedItems );
         }
     }
 
