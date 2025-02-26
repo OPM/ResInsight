@@ -97,33 +97,35 @@ std::set<size_t> RigVisibleCategoriesCalculator::visibleAllanCategories( RimEcli
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<int> RigVisibleCategoriesCalculator::visibleCategories( RimEclipseView* eclView )
+std::set<int> RigVisibleCategoriesCalculator::visibleCategories( RimEclipseView*                   cellVisibilityView,
+                                                                 const RimEclipseResultDefinition* categoryResult )
 {
+    if ( !cellVisibilityView || !categoryResult ) return {};
+
     std::set<int> visibleCategoryValues;
 
     {
         // Visible eclipse grid cells
 
-        RimEclipseResultDefinition* resDef = eclView->cellResult();
+        RigEclipseNativeVisibleCellsStatCalc calc( categoryResult->currentGridCellResults(),
+                                                   categoryResult->eclipseResultAddress(),
+                                                   cellVisibilityView->currentTotalCellVisibility().p() );
 
-        RigEclipseNativeVisibleCellsStatCalc calc( resDef->currentGridCellResults(),
-                                                   resDef->eclipseResultAddress(),
-                                                   eclView->currentTotalCellVisibility().p() );
-
-        calc.uniqueValues( eclView->currentTimeStep(), visibleCategoryValues );
+        calc.uniqueValues( cellVisibilityView->currentTimeStep(), visibleCategoryValues );
     }
 
     {
         // Visible cells in faults and intersections
 
         std::set<size_t> visibleReservoirCells;
-        RigVisibleCategoriesCalculator::appendVisibleFaultCells( eclView, visibleReservoirCells );
-        RigVisibleCategoriesCalculator::appendVisibleIntersectionCells( eclView, visibleReservoirCells );
-
-        RimEclipseResultDefinition* resDef = eclView->cellResult();
+        RigVisibleCategoriesCalculator::appendVisibleFaultCells( cellVisibilityView, visibleReservoirCells );
+        RigVisibleCategoriesCalculator::appendVisibleIntersectionCells( cellVisibilityView, visibleReservoirCells );
 
         cvf::ref<RigResultAccessor> resultAccessor =
-            RigResultAccessorFactory::createFromResultDefinition( eclView->eclipseCase()->eclipseCaseData(), 0, eclView->currentTimeStep(), resDef );
+            RigResultAccessorFactory::createFromResultDefinition( cellVisibilityView->eclipseCase()->eclipseCaseData(),
+                                                                  0,
+                                                                  cellVisibilityView->currentTimeStep(),
+                                                                  categoryResult );
 
         if ( resultAccessor.notNull() )
         {
@@ -173,6 +175,8 @@ std::set<size_t> RigVisibleCategoriesCalculator::visibleNncConnectionIndices( Ri
 //--------------------------------------------------------------------------------------------------
 void RigVisibleCategoriesCalculator::appendVisibleFaultCells( RimEclipseView* eclView, std::set<size_t>& visibleCells )
 {
+    if ( eclView->faultCollection()->shouldApplyCellFiltersToFaults() ) return;
+
     if ( eclView->faultCollection() && eclView->faultCollection()->isActive() && !eclView->faultResultSettings()->showCustomFaultResult() )
     {
         for ( const auto& f : eclView->faultCollection()->faults() )

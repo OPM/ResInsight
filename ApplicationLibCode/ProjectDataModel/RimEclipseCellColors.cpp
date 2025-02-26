@@ -303,14 +303,6 @@ RimEclipseView* RimEclipseCellColors::reservoirView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCellColors::updateRangesForEmbeddedLegends( int currentTimeStep )
-{
-    updateRangesForExplicitLegends( legendConfig(), m_ternaryLegendConfig(), currentTimeStep );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::setResultVariable( const QString& val )
 {
     RimEclipseResultDefinition::setResultVariable( val );

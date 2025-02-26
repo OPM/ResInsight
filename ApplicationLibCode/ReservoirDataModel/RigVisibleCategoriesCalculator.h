@@ -24,6 +24,7 @@
 class RimEclipseView;
 class RigFlowDiagResults;
 class RigFlowDiagResultAddress;
+class RimEclipseResultDefinition;
 
 //==================================================================================================
 ///
@@ -37,7 +38,7 @@ public:
                                                     size_t                          timeStepIndex );
 
     static std::set<size_t> visibleAllanCategories( RimEclipseView* eclView );
-    static std::set<int>    visibleCategories( RimEclipseView* eclView );
+    static std::set<int>    visibleCategories( RimEclipseView* cellVisibilityView, const RimEclipseResultDefinition* categoryResult );
 
 private:
     static std::set<size_t> visibleNncConnectionIndices( RimEclipseView* eclView );
