@@ -124,6 +124,27 @@ void RimFractureSurface::loadSurfaceDataForTimeStep( int timeStep )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<std::vector<double>> RimFractureSurface::valuesForProperty( const QString& propertyName ) const
+{
+    std::vector<std::vector<double>> values;
+    for ( auto allTimeStepValues : m_surfacePerTimeStep )
+    {
+        const auto& [coordinates, indices] = allTimeStepValues.gocadGeometry();
+
+        auto valuesOneTimeStep = allTimeStepValues.propertyValues( propertyName );
+
+        // convert to double vector
+        std::vector<double> valuesOneTimeStepDouble( valuesOneTimeStep.begin(), valuesOneTimeStep.end() );
+
+        values.push_back( valuesOneTimeStepDouble );
+    }
+
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFractureSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimSurface::fieldChangedByUi( changedField, oldValue, newValue );

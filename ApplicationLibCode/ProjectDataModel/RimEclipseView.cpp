@@ -897,7 +897,13 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
         appendIntersectionsForCurrentTimeStep();
     }
 
-    if ( surfaceInViewCollection() ) surfaceInViewCollection()->loadData( m_currentTimeStep );
+    if ( surfaceInViewCollection() )
+    {
+        m_surfaceVizModel->removeAllParts();
+
+        surfaceInViewCollection()->loadData( currentTimeStep() );
+        surfaceInViewCollection()->appendPartsToModel( m_surfaceVizModel.p(), m_reservoirGridPartManager->scaleTransform() );
+    }
 
     updateVisibleCellColors();
 
@@ -910,7 +916,7 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
     m_overlayInfoConfig()->update3DInfo();
 
     // Invisible Wells are marked as read only when "show wells intersecting visible cells" is enabled
-    // Visibility of wells differ betweeen time steps, so trigger a rebuild of tree state items
+    // Visibility of wells differ between time steps, so trigger a rebuild of tree state items
     wellCollection()->updateConnectedEditors();
 
     RicExportToSharingServerScheduler::instance()->scheduleUpdateSession();

@@ -103,7 +103,7 @@ void RimSurfaceInView::setSurface( RimSurface* surf )
         m_resultDefinition->assignDefaultProperty();
     }
 
-    m_resultDefinition->updateMinMaxValues();
+    m_resultDefinition->updateMinMaxValues( -1 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,7 +185,7 @@ void RimSurfaceInView::loadDataAndUpdate( int timeStep )
             m_resultDefinition->setCheckState( true );
         }
 
-        m_resultDefinition->updateMinMaxValues();
+        m_resultDefinition->updateMinMaxValues( timeStep );
     }
 }
 

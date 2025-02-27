@@ -46,7 +46,7 @@ public:
 
     RimRegularLegendConfig* legendConfig();
 
-    void updateMinMaxValues();
+    void updateMinMaxValues( int currentTimeStep );
     void assignDefaultProperty();
 
 private:

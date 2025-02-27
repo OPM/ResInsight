@@ -25,6 +25,7 @@
 #include "RigSurface.h"
 
 #include "Rim3dView.h"
+#include "RimFractureSurface.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSurface.h"
 #include "RimSurfaceInView.h"
@@ -87,8 +88,58 @@ RimRegularLegendConfig* RimSurfaceResultDefinition::legendConfig()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceResultDefinition::updateMinMaxValues()
+void RimSurfaceResultDefinition::updateMinMaxValues( int currentTimeStep )
 {
+    if ( currentTimeStep < 0 ) currentTimeStep = 0;
+
+    // TODO: This is a hack, we need to find a better way to handle time dependent data for a surface
+    if ( auto fractureSurface = dynamic_cast<RimFractureSurface*>( m_surfaceInView->surface() ) )
+    {
+        double localMin               = 0.0;
+        double localMax               = 0.0;
+        double localPosClosestToZero  = 0.0;
+        double localNegClosestToZero  = 0.0;
+        double globalMin              = 0.0;
+        double globalMax              = 0.0;
+        double globalPosClosestToZero = 0.0;
+        double globalNegClosestToZero = 0.0;
+
+        auto valuesForTimeSteps = fractureSurface->valuesForProperty( m_propertyName );
+
+        MinMaxAccumulator minMaxAccumulator;
+        PosNegAccumulator posNegAccumulator;
+
+        for ( size_t timeIndex = 0; timeIndex < valuesForTimeSteps.size(); timeIndex++ )
+        {
+            auto values = valuesForTimeSteps[timeIndex];
+            minMaxAccumulator.addData( values );
+            posNegAccumulator.addData( values );
+
+            if ( timeIndex == currentTimeStep )
+            {
+                MinMaxAccumulator localMinMaxAccumulator;
+                PosNegAccumulator localPosNegAccumulator;
+                localMinMaxAccumulator.addData( values );
+                localPosNegAccumulator.addData( values );
+
+                localPosClosestToZero = localPosNegAccumulator.pos;
+                localNegClosestToZero = localPosNegAccumulator.neg;
+                localMin              = localMinMaxAccumulator.min;
+                localMax              = localMinMaxAccumulator.max;
+            }
+        }
+
+        globalPosClosestToZero = posNegAccumulator.pos;
+        globalNegClosestToZero = posNegAccumulator.neg;
+        globalMin              = minMaxAccumulator.min;
+        globalMax              = minMaxAccumulator.max;
+
+        m_legendConfig->setClosestToZeroValues( globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero );
+        m_legendConfig->setAutomaticRanges( globalMin, globalMax, localMin, localMax );
+
+        return;
+    }
+
     RigSurface* surfData = surfaceData();
     if ( surfData )
     {
@@ -139,7 +190,7 @@ void RimSurfaceResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
 {
     if ( changedField == &m_propertyName )
     {
-        updateMinMaxValues();
+        updateMinMaxValues( -1 );
     }
 
     auto view = firstAncestorOrThisOfType<Rim3dView>();

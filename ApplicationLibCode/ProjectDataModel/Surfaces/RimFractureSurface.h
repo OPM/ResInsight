@@ -41,6 +41,8 @@ public:
 
     void loadSurfaceDataForTimeStep( int timeStep ) override;
 
+    std::vector<std::vector<double>> valuesForProperty( const QString& propertyName ) const;
+
 protected:
     bool updateSurfaceData() override;
     void clearCachedNativeData() override;
