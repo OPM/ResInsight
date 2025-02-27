@@ -73,6 +73,9 @@ int RiuQwtPlotCurveDefines::zDepthForIndex( ZIndex index )
         case RiuQwtPlotCurveDefines::ZIndex::Z_REGRESSION_CURVE:
             return 700;
             break;
+        case RiuQwtPlotCurveDefines::ZIndex::Z_ANNOTATION:
+            return 9999;
+            break;
 
         default:
             break;

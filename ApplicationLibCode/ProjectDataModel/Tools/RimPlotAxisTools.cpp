@@ -18,6 +18,8 @@
 
 #include "RimPlotAxisTools.h"
 
+#include "RifEclipseSummaryAddress.h"
+
 #include "RimPlotAxisLogRangeCalculator.h"
 #include "RimPlotAxisProperties.h"
 #include "RimPlotCurve.h"
@@ -223,6 +225,42 @@ QString scaleFactorText( const RimPlotAxisProperties* const axisProperties )
     }
 
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString axisTextForAddress( RifEclipseSummaryAddress address )
+{
+    if ( address.isCalculated() )
+    {
+        auto shortName = shortCalculationName( address.uiText() );
+        return QString::fromStdString( shortName );
+    }
+
+    auto candidate = QString::fromStdString( address.uiText() );
+
+    // Strip text starting with _ to avoid duplicate axis names
+    auto index = candidate.indexOf( "_" );
+    if ( index != -1 ) candidate = candidate.left( index );
+
+    return candidate;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string shortCalculationName( const std::string& calculationName )
+{
+    QString calculationShortName = QString::fromStdString( calculationName );
+
+    int indexOfFirstSpace = calculationShortName.indexOf( ' ' );
+    if ( indexOfFirstSpace > -1 && indexOfFirstSpace < calculationShortName.size() )
+    {
+        calculationShortName = calculationShortName.left( indexOfFirstSpace );
+    }
+
+    return calculationShortName.toStdString();
 }
 
 } // namespace RimPlotAxisTools

@@ -558,8 +558,7 @@ RimWellPath* RimTools::firstWellPath()
 //--------------------------------------------------------------------------------------------------
 RimSurfaceCollection* RimTools::surfaceCollection()
 {
-    RimProject* proj = RimProject::current();
-    return proj->activeOilField()->surfaceCollection();
+    return RimProject::current()->activeOilField()->surfaceCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -567,8 +566,15 @@ RimSurfaceCollection* RimTools::surfaceCollection()
 //--------------------------------------------------------------------------------------------------
 RimPolygonCollection* RimTools::polygonCollection()
 {
-    RimProject* proj = RimProject::current();
-    return proj->activeOilField()->polygonCollection();
+    return RimProject::current()->activeOilField()->polygonCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimAutomationSettings* RimTools::automationSettings()
+{
+    return RimProject::current()->automationSettings();
 }
 
 //--------------------------------------------------------------------------------------------------

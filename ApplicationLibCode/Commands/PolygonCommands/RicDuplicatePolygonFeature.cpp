@@ -25,8 +25,7 @@
 #include "Polygons/RimPolygonInView.h"
 #include "Polygons/RimPolygonTools.h"
 #include "Rim3dView.h"
-#include "RimOilField.h"
-#include "RimProject.h"
+#include "RimTools.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -55,8 +54,7 @@ void RicDuplicatePolygonFeature::onActionTriggered( bool isChecked )
 
     auto sourcePolygon = selPolygons[0];
 
-    auto proj              = RimProject::current();
-    auto polygonCollection = proj->activeOilField()->polygonCollection();
+    auto polygonCollection = RimTools::polygonCollection();
 
     auto newPolygon = polygonCollection->createUserDefinedPolygon();
     newPolygon->setPointsInDomainCoords( sourcePolygon->pointsInDomainCoords() );

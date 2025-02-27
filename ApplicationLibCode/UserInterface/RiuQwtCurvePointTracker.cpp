@@ -19,6 +19,7 @@
 #include "RiuQwtCurvePointTracker.h"
 
 #include "RiaQDateTimeTools.h"
+
 #include "RiuGuiTheme.h"
 #include "RiuPlotCurve.h"
 #include "RiuPlotCurveInfoTextProvider.h"
@@ -45,9 +46,7 @@ RiuQwtCurvePointTracker::RiuQwtCurvePointTracker( QwtPlot* plot, bool isMainAxis
     setTrackerMode( QwtPicker::AlwaysOn );
     m_plotMarker = new QwtPlotMarker;
 
-    // Have this marker always on top of all curves/plot items.
-    double zAlwaysOnTop = 99999999;
-    m_plotMarker->setZ( zAlwaysOnTop );
+    m_plotMarker->setZ( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ANNOTATION ) );
 
     auto color = RiuGuiTheme::getColorByVariableName( "markerColor" );
 

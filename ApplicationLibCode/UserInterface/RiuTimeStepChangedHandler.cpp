@@ -20,7 +20,10 @@
 
 #include "RiaGuiApplication.h"
 
+#include "RigEclipseCaseData.h"
+
 #include "Rim3dView.h"
+#include "RimEclipseCase.h"
 
 #include "RiuMainWindow.h"
 #include "RiuMohrsCirclePlot.h"
@@ -28,9 +31,12 @@
 #include "RiuPvtPlotUpdater.h"
 #include "RiuRelativePermeabilityPlotPanel.h"
 #include "RiuRelativePermeabilityPlotUpdater.h"
+#include "RiuResultQwtPlot.h"
 
 #include "cvfDebugTimer.h"
 #include "cvfTrace.h"
+
+#include <QDateTime>
 
 //==================================================================================================
 ///
@@ -68,6 +74,16 @@ void RiuTimeStepChangedHandler::handleTimeStepChanged( Rim3dView* changedView ) 
 
     RiuPvtPlotUpdater* pvtPlotUpdater = RiuMainWindow::instance()->pvtPlotPanel()->plotUpdater();
     pvtPlotUpdater->updateOnTimeStepChanged( changedView );
+
+    int ts = changedView->currentTimeStep();
+
+    const auto dates = changedView->ownerCase()->timeStepDates();
+    if ( dates.size() > (size_t)ts )
+    {
+        auto resultPlot = RiuMainWindow::instance()->resultPlot();
+        resultPlot->showTimeStep( dates[ts] );
+        resultPlot->replot();
+    }
 
     RiuMohrsCirclePlot* mohrsCirclePlot = RiuMainWindow::instance()->mohrsCirclePlot();
     if ( mohrsCirclePlot ) mohrsCirclePlot->updateOnTimeStepChanged( changedView );

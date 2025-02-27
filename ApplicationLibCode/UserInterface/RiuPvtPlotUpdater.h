@@ -18,14 +18,9 @@
 
 #pragma once
 
-#include <QPointer>
-#include <QString>
+#include "RiuPlotUpdater.h"
 
-class RiuSelectionItem;
 class RiuPvtPlotPanel;
-class Rim3dView;
-class RimEclipseView;
-class RigEclipseCaseData;
 class RimEclipseResultDefinition;
 
 //==================================================================================================
@@ -33,22 +28,20 @@ class RimEclipseResultDefinition;
 //
 //
 //==================================================================================================
-class RiuPvtPlotUpdater
+class RiuPvtPlotUpdater : public RiuPlotUpdater
 {
 public:
     RiuPvtPlotUpdater( RiuPvtPlotPanel* targetPlotPanel );
 
-    void updateOnSelectionChanged( const RiuSelectionItem* selectionItem );
-    void updateOnTimeStepChanged( Rim3dView* changedView );
+protected:
+    void     clearPlot() override;
+    QWidget* plotPanel() override;
 
-private:
-    static bool queryDataAndUpdatePlot( const RimEclipseResultDefinition* eclipseResultDef,
-                                        size_t                            timeStepIndex,
-                                        size_t                            gridIndex,
-                                        size_t                            gridLocalCellIndex,
-                                        RiuPvtPlotPanel*                  plotPanel );
+    bool queryDataAndUpdatePlot( const RimEclipseResultDefinition* eclipseResultDef,
+                                 size_t                            timeStepIndex,
+                                 size_t                            gridIndex,
+                                 size_t                            gridLocalCellIndex ) override;
 
 private:
     QPointer<RiuPvtPlotPanel> m_targetPlotPanel;
-    const Rim3dView*          m_viewToFollowAnimationFrom;
 };

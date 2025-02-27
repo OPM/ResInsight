@@ -42,6 +42,7 @@ class RimWellPath;
 class RimSurfaceCollection;
 class RimFaultInViewCollection;
 class RimPolygonCollection;
+class RimAutomationSettings;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -77,8 +78,9 @@ public:
     static RimWellPathCollection* wellPathCollection();
     static RimWellPath*           firstWellPath();
 
-    static RimSurfaceCollection* surfaceCollection();
-    static RimPolygonCollection* polygonCollection();
+    static RimSurfaceCollection*  surfaceCollection();
+    static RimPolygonCollection*  polygonCollection();
+    static RimAutomationSettings* automationSettings();
 
     static void timeStepsForCase( RimCase* gridCase, QList<caf::PdmOptionItemInfo>* options );
 

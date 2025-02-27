@@ -41,7 +41,7 @@ class PdmObjectHandle;
 //==================================================================================================
 ///
 //==================================================================================================
-class RicSummaryPlotBuilder
+class RiaSummaryPlotBuilder
 {
 public:
     enum class RicGraphCurveGrouping
@@ -52,7 +52,7 @@ public:
     };
 
 public:
-    RicSummaryPlotBuilder();
+    RiaSummaryPlotBuilder();
 
     void setDataSources( const std::vector<RimSummaryCase*>& summaryCases, const std::vector<RimSummaryEnsemble*>& ensembles );
 

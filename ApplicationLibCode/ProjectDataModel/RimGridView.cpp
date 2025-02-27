@@ -538,6 +538,12 @@ void RimGridView::updateViewTreeItems( RiaDefines::ItemIn3dView itemType )
 //--------------------------------------------------------------------------------------------------
 void RimGridView::appendIntersectionsForCurrentTimeStep()
 {
+    // Remove previous intersection parts for static geometry. This is required to avoid the static parts to be rendered
+    // in front of the dynamic geometry added in this function. Note that a new model is created for the dynamic geometry
+    m_intersectionVizModel->removeAllParts();
+
+    m_intersectionCollection->clearGeometry();
+
     if ( nativeOrOverrideViewer() )
     {
         cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
@@ -554,6 +560,9 @@ void RimGridView::appendIntersectionsForCurrentTimeStep()
             calculateCellVisibility( &visibility, { PROPERTY_FILTERED, PROPERTY_FILTERED_WELL_CELLS }, m_currentTimeStep );
 
             m_intersectionCollection->appendDynamicPartsToModel( frameParts.p(), scaleTransform(), m_currentTimeStep, &visibility );
+
+            // Static parts for polygon lines and 3D handles
+            m_intersectionCollection->appendPartsToModel( *this, frameParts.p(), scaleTransform() );
 
             frameParts->updateBoundingBoxesRecursive();
 
@@ -572,8 +581,6 @@ void RimGridView::appendIntersectionsToModel( bool cellFiltersActive, bool prope
     {
         m_intersectionCollection->clearGeometry();
 
-        bool addStaticModel = true;
-
         if ( m_intersectionCollection->shouldApplyCellFiltersToIntersections() && ( cellFiltersActive || propertyFiltersActive ) )
         {
             if ( propertyFiltersActive )
@@ -581,10 +588,6 @@ void RimGridView::appendIntersectionsToModel( bool cellFiltersActive, bool prope
                 cvf::UByteArray visibleCells;
                 calculateCellVisibility( &visibleCells, { PROPERTY_FILTERED, PROPERTY_FILTERED_WELL_CELLS } );
                 m_intersectionCollection->appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), currentTimeStep(), &visibleCells );
-
-                // If property filters are active, we do not want to add the static model as the static parts can cover the dynamic parts in
-                // some cases
-                addStaticModel = false;
             }
             else
             {
@@ -606,14 +609,7 @@ void RimGridView::appendIntersectionsToModel( bool cellFiltersActive, bool prope
             m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
         }
 
-        if ( addStaticModel )
-        {
-            nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
-        }
-        else
-        {
-            nativeOrOverrideViewer()->removeStaticModel( m_intersectionVizModel.p() );
-        }
+        nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
 
         m_intersectionVizModel->updateBoundingBoxesRecursive();
     }

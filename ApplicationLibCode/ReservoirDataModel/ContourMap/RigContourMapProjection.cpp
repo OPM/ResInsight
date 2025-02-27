@@ -114,26 +114,20 @@ cvf::Vec2ui RigContourMapProjection::numberOfVerticesIJ() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t RigContourMapProjection::vertexIndex( unsigned int i, unsigned int j ) const
+{
+    return m_contourMapGrid.vertexIndexFromIJ( i, j );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RigContourMapProjection::valueAtVertex( unsigned int i, unsigned int j ) const
 {
     size_t index = m_contourMapGrid.vertexIndexFromIJ( i, j );
     if ( index < numberOfVertices() )
     {
         return m_aggregatedVertexResults.at( index );
-    }
-    return std::numeric_limits<double>::infinity();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RigContourMapProjection::filteredValueAtVertex( unsigned int i, unsigned int j ) const
-{
-    size_t index = m_contourMapGrid.vertexIndexFromIJ( i, j );
-    if ( index < numberOfVertices() )
-    {
-        auto values = aggregatedVertexResultsFiltered();
-        return values.at( index );
     }
     return std::numeric_limits<double>::infinity();
 }

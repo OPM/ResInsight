@@ -1,6 +1,6 @@
-/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2025     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,20 +16,31 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimGeometrySelectionItem.h"
+#include "RicDeleteAllPolygonsFeature.h"
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimGeometrySelectionItem, "GeometrySelectionItem" );
+#include "Polygons/RimPolygonCollection.h"
+#include "RimTools.h"
+
+#include <QAction>
+
+CAF_CMD_SOURCE_INIT( RicDeleteAllPolygonsFeature, "RicDeleteAllPolygonsFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeometrySelectionItem::RimGeometrySelectionItem()
+void RicDeleteAllPolygonsFeature::onActionTriggered( bool isChecked )
 {
+    auto polygonCollection = RimTools::polygonCollection();
+
+    polygonCollection->deleteAllPolygons();
+    polygonCollection->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeometrySelectionItem::~RimGeometrySelectionItem()
+void RicDeleteAllPolygonsFeature::setupActionLook( QAction* actionToSetup )
 {
+    actionToSetup->setText( "Delete All Polygons" );
+    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
 }

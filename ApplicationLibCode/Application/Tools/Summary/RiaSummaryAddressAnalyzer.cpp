@@ -202,11 +202,11 @@ std::set<int> RiaSummaryAddressAnalyzer::regionNumbers() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string> RiaSummaryAddressAnalyzer::wellCompletions( const std::string& wellName ) const
+std::set<std::string> RiaSummaryAddressAnalyzer::wellConnections( const std::string& wellName ) const
 {
     std::set<std::string> connections;
 
-    for ( const auto& conn : m_wellCompletions )
+    for ( const auto& conn : m_wellConnections )
     {
         if ( conn.first == wellName )
         {
@@ -249,6 +249,24 @@ std::set<std::string> RiaSummaryAddressAnalyzer::blocks() const
 std::set<int> RiaSummaryAddressAnalyzer::aquifers() const
 {
     return keysInMap( m_aquifers );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<int> RiaSummaryAddressAnalyzer::wellCompletionNumbers( const std::string& wellName ) const
+{
+    std::set<int> numbers;
+
+    for ( const auto& wellAndNumber : m_wellCompletionNumbers )
+    {
+        if ( wellName.empty() || std::get<0>( wellAndNumber ) == wellName )
+        {
+            numbers.insert( std::get<1>( wellAndNumber ) );
+        }
+    }
+
+    return numbers;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -342,7 +360,15 @@ std::vector<QString> RiaSummaryAddressAnalyzer::identifierTexts( RifEclipseSumma
     }
     else if ( category == SummaryCategory::SUMMARY_WELL_COMPLETION )
     {
-        auto connections = wellCompletions( secondaryIdentifier );
+        auto numbers = wellCompletionNumbers( secondaryIdentifier );
+        for ( const auto& number : numbers )
+        {
+            identifierStrings.push_back( QString::number( number ) );
+        }
+    }
+    else if ( category == SummaryCategory::SUMMARY_WELL_CONNECTION )
+    {
+        auto connections = wellConnections( secondaryIdentifier );
         for ( const auto& conn : connections )
         {
             identifierStrings.push_back( QString::fromStdString( conn ) );
@@ -417,8 +443,9 @@ void RiaSummaryAddressAnalyzer::clear()
     m_networkNames.clear();
     m_regionNumbers.clear();
     m_categories.clear();
-    m_wellCompletions.clear();
+    m_wellConnections.clear();
     m_wellSegmentNumbers.clear();
+    m_wellCompletionNumbers.clear();
     m_blocks.clear();
     m_aquifers.clear();
 
@@ -512,15 +539,18 @@ void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAdd
         m_networkNames.insert( { address.networkName(), address } );
     }
 
-    if ( address.regionNumber() != -1 )
+    if ( address.category() == SummaryCategory::SUMMARY_REGION || address.category() == SummaryCategory::SUMMARY_REGION_2_REGION )
     {
-        m_regionNumbers.insert( { address.regionNumber(), address } );
+        if ( address.regionNumber() != -1 )
+        {
+            m_regionNumbers.insert( { address.regionNumber(), address } );
+        }
     }
 
-    if ( address.category() == SummaryCategory::SUMMARY_WELL_COMPLETION )
+    if ( address.category() == SummaryCategory::SUMMARY_WELL_CONNECTION )
     {
-        auto wellNameAndCompletion = std::make_pair( wellName, address.blockAsString() );
-        m_wellCompletions.insert( wellNameAndCompletion );
+        auto wellNameAndConnection = std::make_pair( wellName, address.connectionAsString() );
+        m_wellConnections.insert( wellNameAndConnection );
     }
     else if ( address.category() == SummaryCategory::SUMMARY_WELL_SEGMENT )
     {
@@ -536,6 +566,11 @@ void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAdd
     else if ( address.category() == SummaryCategory::SUMMARY_AQUIFER )
     {
         m_aquifers.insert( { address.aquiferNumber(), address } );
+    }
+    else if ( address.category() == SummaryCategory::SUMMARY_WELL_COMPLETION )
+    {
+        auto wellNameAndCompletion = std::make_pair( wellName, address.wellCompletionNumber() );
+        m_wellCompletionNumbers.insert( wellNameAndCompletion );
     }
     else if ( address.category() == SummaryCategory::SUMMARY_FIELD || address.category() == SummaryCategory::SUMMARY_MISC )
     {

@@ -22,7 +22,6 @@
 #include "RiaGrpcCallbacks.h"
 #include "RiaGrpcHelper.h"
 
-#include "Rim3dView.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimProject.h"
 
@@ -31,6 +30,7 @@
 #include "cafPdmObjectMethod.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmObjectScriptingCapabilityRegister.h"
+#include "cafPdmProxyValueField.h"
 
 using namespace rips;
 
@@ -448,11 +448,6 @@ grpc::Status RiaGrpcPdmObjectService::UpdateExistingPdmObject( grpc::ServerConte
         matchingObject->updateAllRequiredEditors();
         RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
 
-        Rim3dView* view = dynamic_cast<Rim3dView*>( matchingObject );
-        if ( view )
-        {
-            view->applyBackgroundColorAndFontChanges();
-        }
         return grpc::Status::OK;
     }
     return grpc::Status( grpc::NOT_FOUND, "PdmObject not found" );

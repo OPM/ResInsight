@@ -18,11 +18,11 @@
 
 #include "RicNewSummaryPlotFromDataVectorFeature.h"
 
-#include "RimSummaryAddress.h"
-#include "RimSummaryPlot.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
 
-#include "RicSummaryPlotBuilder.h"
+#include "RimSummaryAddress.h"
+#include "RimSummaryPlot.h"
 
 #include "RifEclipseSummaryAddress.h"
 
@@ -99,8 +99,8 @@ void RicNewSummaryPlotFromDataVectorFeature::onActionTriggered( bool isChecked )
         }
     }
 
-    auto newPlot = RicSummaryPlotBuilder::createPlot( eclipseAddresses, selectedCases, selectedEnsembles );
-    RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
+    auto newPlot = RiaSummaryPlotTools::createPlot( eclipseAddresses, selectedCases, selectedEnsembles );
+    RiaSummaryPlotTools::createAndAppendSingleSummaryMultiPlot( newPlot );
 }
 
 //--------------------------------------------------------------------------------------------------

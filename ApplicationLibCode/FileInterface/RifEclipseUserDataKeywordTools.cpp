@@ -179,7 +179,8 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
     std::string groupName;
     std::string networkName;
     std::string wellName;
-    int         wellSegmentNumber = -1;
+    int         wellSegmentNumber    = -1;
+    int         wellCompletionNumber = -1;
     std::string lgrName;
     int         cellI         = -1;
     int         cellJ         = -1;
@@ -230,7 +231,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
             }
             break;
         }
-        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION:
         {
             if ( columnHeaderText.size() > 1 )
             {
@@ -248,13 +249,20 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
                 lgrName  = columnHeaderText[1];
             }
             break;
-        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION_LGR:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION_LGR:
             if ( columnHeaderText.size() > 2 )
             {
                 wellName = columnHeaderText[0];
                 lgrName  = columnHeaderText[1];
 
                 RifEclipseUserDataKeywordTools::extractThreeInts( &cellI, &cellJ, &cellK, columnHeaderText[2] );
+            }
+            break;
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION:
+            if ( columnHeaderText.size() > 1 )
+            {
+                wellName             = columnHeaderText[0];
+                wellCompletionNumber = RiaStdStringTools::toInt( columnHeaderText[1] );
             }
             break;
         case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_SEGMENT:
@@ -295,6 +303,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
                                      cellJ,
                                      cellK,
                                      aquiferNumber,
+                                     wellCompletionNumber,
                                      isErrorResult,
                                      id );
 }

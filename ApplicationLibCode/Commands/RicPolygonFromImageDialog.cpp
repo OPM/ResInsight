@@ -24,12 +24,13 @@
 
 #include <QDialogButtonBox>
 #include <QGuiApplication>
+#include <QLineEdit>
 #include <QScreen>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ImageProcessingDialog::ImageProcessingDialog( QWidget* parent /*= nullptr */ )
+RicPolygonFromImageDialog::RicPolygonFromImageDialog( QWidget* parent /*= nullptr */ )
     : QDialog( parent )
 {
     setWindowTitle( "Image Morphology Tool" );
@@ -75,6 +76,17 @@ ImageProcessingDialog::ImageProcessingDialog( QWidget* parent /*= nullptr */ )
     showFinal->setChecked( true );
     settingsLayout->addWidget( showFinal );
 
+    {
+        auto* label           = new QLabel( "Minimum polygon area", this );
+        areaThresholdLineEdit = new QLineEdit( this );
+        areaThresholdLineEdit->setText( "10" );
+
+        auto* layout = new QHBoxLayout();
+        layout->addWidget( label );
+        layout->addWidget( areaThresholdLineEdit );
+        settingsLayout->addLayout( layout );
+    }
+
     settingsLayout->addStretch();
 
     graphicsView  = new QGraphicsView( this );
@@ -95,13 +107,13 @@ ImageProcessingDialog::ImageProcessingDialog( QWidget* parent /*= nullptr */ )
     connect( buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject );
 
     // Connect signals and slots
-    connect( showInput, &QCheckBox::clicked, this, &ImageProcessingDialog::showImages );
-    connect( showEroded, &QCheckBox::clicked, this, &ImageProcessingDialog::showImages );
-    connect( showDilated, &QCheckBox::clicked, this, &ImageProcessingDialog::showImages );
-    connect( showFinal, &QCheckBox::clicked, this, &ImageProcessingDialog::showImages );
+    connect( showInput, &QCheckBox::clicked, this, &RicPolygonFromImageDialog::showImages );
+    connect( showEroded, &QCheckBox::clicked, this, &RicPolygonFromImageDialog::showImages );
+    connect( showDilated, &QCheckBox::clicked, this, &RicPolygonFromImageDialog::showImages );
+    connect( showFinal, &QCheckBox::clicked, this, &RicPolygonFromImageDialog::showImages );
 
-    connect( kernelSpinBox, &QSpinBox::valueChanged, this, &ImageProcessingDialog::updateAndShowImages );
-    connect( transparencySlider, &QSlider::valueChanged, this, &ImageProcessingDialog::updateAndShowImages );
+    connect( kernelSpinBox, &QSpinBox::valueChanged, this, &RicPolygonFromImageDialog::updateAndShowImages );
+    connect( transparencySlider, &QSlider::valueChanged, this, &RicPolygonFromImageDialog::updateAndShowImages );
 
     resizeAndCenterDialog( 0.6 ); // 1.0 means to the full screen size
 }
@@ -109,7 +121,7 @@ ImageProcessingDialog::ImageProcessingDialog( QWidget* parent /*= nullptr */ )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ImageProcessingDialog::performDilation()
+void RicPolygonFromImageDialog::performDilation()
 {
     if ( sourceData.empty() )
     {
@@ -124,7 +136,7 @@ void ImageProcessingDialog::performDilation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ImageProcessingDialog::performErosion()
+void RicPolygonFromImageDialog::performErosion()
 {
     if ( sourceData.empty() )
     {
@@ -139,7 +151,7 @@ void ImageProcessingDialog::performErosion()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ImageProcessingDialog::updateAndShowImages()
+void RicPolygonFromImageDialog::updateAndShowImages()
 {
     performErosion();
     performDilation();
@@ -150,7 +162,7 @@ void ImageProcessingDialog::updateAndShowImages()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ImageProcessingDialog::showImages()
+void RicPolygonFromImageDialog::showImages()
 {
     if ( sourceData.empty() )
     {
@@ -216,7 +228,7 @@ void ImageProcessingDialog::showImages()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<int>> ImageProcessingDialog::processedImageData() const
+std::vector<std::vector<int>> RicPolygonFromImageDialog::processedImageData() const
 {
     return processedData;
 }
@@ -224,7 +236,7 @@ std::vector<std::vector<int>> ImageProcessingDialog::processedImageData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ImageProcessingDialog::setSourceImageData( std::vector<std::vector<int>> imageData )
+void RicPolygonFromImageDialog::setSourceImageData( std::vector<std::vector<int>> imageData )
 {
     sourceData = imageData;
 }
@@ -232,7 +244,15 @@ void ImageProcessingDialog::setSourceImageData( std::vector<std::vector<int>> im
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int ImageProcessingDialog::kernelAdjustedSize() const
+int RicPolygonFromImageDialog::areaThreshold() const
+{
+    return areaThresholdLineEdit->text().toInt();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RicPolygonFromImageDialog::kernelAdjustedSize() const
 {
     // The kernel size should be odd and positive
     return kernelSpinBox->value() * 2 - 1;
@@ -241,7 +261,7 @@ int ImageProcessingDialog::kernelAdjustedSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ImageProcessingDialog::computeFinal()
+void RicPolygonFromImageDialog::computeFinal()
 {
     if ( sourceData.empty() )
     {
@@ -260,7 +280,7 @@ void ImageProcessingDialog::computeFinal()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ImageProcessingDialog::resizeAndCenterDialog( double scale )
+void RicPolygonFromImageDialog::resizeAndCenterDialog( double scale )
 {
     QScreen* screen = QGuiApplication::primaryScreen();
     if ( !screen ) return;
@@ -281,7 +301,7 @@ void ImageProcessingDialog::resizeAndCenterDialog( double scale )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ImageProcessingDialog::resizeEvent( QResizeEvent* event )
+void RicPolygonFromImageDialog::resizeEvent( QResizeEvent* event )
 {
     QDialog::resizeEvent( event );
     showImages();

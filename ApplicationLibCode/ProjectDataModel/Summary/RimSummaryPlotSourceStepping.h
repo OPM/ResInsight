@@ -121,9 +121,10 @@ private:
 
     caf::PdmField<QString> m_cellBlock;
     caf::PdmField<QString> m_wellSegment;
-    caf::PdmField<QString> m_completion;
+    caf::PdmField<QString> m_connection;
 
     caf::PdmField<int> m_aquifer;
+    caf::PdmField<int> m_wellCompletionNumber;
 
     caf::PdmField<bool> m_includeEnsembleCasesForCaseStepping;
     caf::PdmField<bool> m_autoUpdateAppearance;

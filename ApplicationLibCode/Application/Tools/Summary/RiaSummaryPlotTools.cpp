@@ -16,18 +16,14 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicSummaryPlotBuilder.h"
+#include "RiaSummaryPlotTools.h"
 
-#include "PlotTemplateCommands/RicSummaryPlotTemplateTools.h"
 #include "SummaryPlotCommands/RicNewSummaryEnsembleCurveSetFeature.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
 #include "RiaPreferencesSummary.h"
-#include "Summary/RiaSummaryAddressAnalyzer.h"
-#include "Summary/RiaSummaryTools.h"
+#include "RiaSummaryPlotTemplateTools.h"
 
-#include "RifEclipseSummaryAddress.h"
-#include "RifReaderEclipseSummary.h"
 #include "RifSummaryReaderInterface.h"
 
 #include "RimEnsembleCurveSet.h"
@@ -47,181 +43,13 @@
 
 #include "RiuPlotMainWindowTools.h"
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RicSummaryPlotBuilder::RicSummaryPlotBuilder()
-    : m_individualPlotPerDataSource( false )
-    , m_graphCurveGrouping( RicSummaryPlotBuilder::RicGraphCurveGrouping::NONE )
+namespace RiaSummaryPlotTools
 {
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotBuilder::setDataSources( const std::vector<RimSummaryCase*>& summaryCases, const std::vector<RimSummaryEnsemble*>& ensembles )
-{
-    m_summaryCases = summaryCases;
-    m_ensembles    = ensembles;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicSummaryPlotBuilder::setAddresses( const std::set<RifEclipseSummaryAddress>& addresses )
-{
-    m_addresses = addresses;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicSummaryPlotBuilder::setIndividualPlotPerDataSource( bool enable )
-{
-    m_individualPlotPerDataSource = enable;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicSummaryPlotBuilder::setGrouping( RicGraphCurveGrouping groping )
-{
-    m_graphCurveGrouping = groping;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryPlot*> RicSummaryPlotBuilder::createPlots() const
-{
-    std::vector<RimSummaryPlot*> plots;
-
-    if ( m_individualPlotPerDataSource )
-    {
-        if ( m_graphCurveGrouping == RicGraphCurveGrouping::SINGLE_CURVES )
-        {
-            for ( const auto& adr : m_addresses )
-            {
-                for ( auto summaryCase : m_summaryCases )
-                {
-                    auto plot = createPlot( { adr }, { summaryCase }, {} );
-                    plots.push_back( plot );
-                }
-
-                for ( auto ensemble : m_ensembles )
-                {
-                    auto plot = createPlot( { adr }, {}, { ensemble } );
-                    plots.push_back( plot );
-                }
-            }
-        }
-        else if ( m_graphCurveGrouping == RicGraphCurveGrouping::CURVES_FOR_OBJECT )
-        {
-            RiaSummaryAddressAnalyzer analyzer;
-            analyzer.appendAddresses( m_addresses );
-
-            auto groups = analyzer.addressesGroupedByObject();
-            for ( const auto& group : groups )
-            {
-                std::set<RifEclipseSummaryAddress> addresses;
-                addresses.insert( group.begin(), group.end() );
-                if ( addresses.empty() ) continue;
-
-                for ( auto summaryCase : m_summaryCases )
-                {
-                    auto plot = createPlot( addresses, { summaryCase }, {} );
-                    plots.push_back( plot );
-                }
-
-                for ( auto ensemble : m_ensembles )
-                {
-                    auto plot = createPlot( addresses, {}, { ensemble } );
-                    plots.push_back( plot );
-                }
-            }
-        }
-        else if ( m_graphCurveGrouping == RicGraphCurveGrouping::NONE )
-        {
-            for ( auto summaryCase : m_summaryCases )
-            {
-                auto plot = createPlot( m_addresses, { summaryCase }, {} );
-                plots.push_back( plot );
-            }
-
-            for ( auto ensemble : m_ensembles )
-            {
-                auto plot = createPlot( m_addresses, {}, { ensemble } );
-                plots.push_back( plot );
-            }
-        }
-    }
-    else // all data sources in same plot
-    {
-        if ( m_graphCurveGrouping == RicGraphCurveGrouping::SINGLE_CURVES )
-        {
-            for ( const auto& adr : m_addresses )
-            {
-                if ( !m_summaryCases.empty() )
-                {
-                    auto plot = createPlot( { adr }, m_summaryCases, {} );
-                    plots.push_back( plot );
-                }
-
-                if ( !m_ensembles.empty() )
-                {
-                    auto plot = createPlot( { adr }, {}, m_ensembles );
-                    plots.push_back( plot );
-                }
-            }
-        }
-        else if ( m_graphCurveGrouping == RicGraphCurveGrouping::CURVES_FOR_OBJECT )
-        {
-            RiaSummaryAddressAnalyzer analyzer;
-            analyzer.appendAddresses( m_addresses );
-
-            auto groups = analyzer.addressesGroupedByObject();
-            for ( const auto& group : groups )
-            {
-                std::set<RifEclipseSummaryAddress> addresses;
-                addresses.insert( group.begin(), group.end() );
-                if ( addresses.empty() ) continue;
-
-                if ( !m_summaryCases.empty() )
-                {
-                    auto plot = createPlot( addresses, m_summaryCases, {} );
-                    plots.push_back( plot );
-                }
-
-                if ( !m_ensembles.empty() )
-                {
-                    auto plot = createPlot( addresses, {}, m_ensembles );
-                    plots.push_back( plot );
-                }
-            }
-        }
-        else if ( m_graphCurveGrouping == RicGraphCurveGrouping::NONE )
-        {
-            if ( !m_summaryCases.empty() )
-            {
-                auto plot = createPlot( m_addresses, m_summaryCases, {} );
-                plots.push_back( plot );
-            }
-
-            if ( !m_ensembles.empty() )
-            {
-                auto plot = createPlot( m_addresses, {}, m_ensembles );
-                plots.push_back( plot );
-            }
-        }
-    }
-
-    return plots;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RicSummaryPlotBuilder::addressesForSource( caf::PdmObject* summarySource )
+std::set<RifEclipseSummaryAddress> addressesForSource( caf::PdmObject* summarySource )
 {
     auto ensemble = dynamic_cast<RimSummaryEnsemble*>( summarySource );
     if ( ensemble )
@@ -245,7 +73,7 @@ std::set<RifEclipseSummaryAddress> RicSummaryPlotBuilder::addressesForSource( ca
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEnsembleCurveSet* RicSummaryPlotBuilder::createCurveSet( RimSummaryEnsemble* ensemble, const RifEclipseSummaryAddress& addr )
+RimEnsembleCurveSet* createCurveSet( RimSummaryEnsemble* ensemble, const RifEclipseSummaryAddress& addr )
 {
     auto curveSet = new RimEnsembleCurveSet();
 
@@ -258,12 +86,19 @@ RimEnsembleCurveSet* RicSummaryPlotBuilder::createCurveSet( RimSummaryEnsemble* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurve* RicSummaryPlotBuilder::createCurve( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& addr )
+RimSummaryCurve* createCurve( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& addr )
 {
     auto curve = new RimSummaryCurve();
 
     curve->setSummaryCaseY( summaryCase );
     curve->setSummaryAddressY( addr );
+
+    size_t pos = addr.vectorName().find( '_' );
+    if ( pos != std::string::npos )
+    {
+        // https://github.com/OPM/ResInsight/issues/12157
+        curve->enableVectorNameInCurveName( true );
+    }
 
     return curve;
 }
@@ -271,7 +106,7 @@ RimSummaryCurve* RicSummaryPlotBuilder::createCurve( RimSummaryCase* summaryCase
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlot*> RicSummaryPlotBuilder::duplicatePlots( const std::vector<RimPlot*>& sourcePlots )
+std::vector<RimPlot*> duplicatePlots( const std::vector<RimPlot*>& sourcePlots )
 {
     std::vector<RimPlot*> plots;
 
@@ -281,7 +116,7 @@ std::vector<RimPlot*> RicSummaryPlotBuilder::duplicatePlots( const std::vector<R
         {
             // TODO: Workaround for fixing the PdmPointer in RimEclipseResultDefinition
             //    caf::PdmPointer<RimEclipseCase> m_eclipseCase;
-            // This pdmpointer must be changed to a ptrField
+            // This PdmPointer must be changed to a ptrField
 
             auto saturationPressurePlotOriginal = dynamic_cast<RimSaturationPressurePlot*>( plot );
             auto saturationPressurePlotCopy     = dynamic_cast<RimSaturationPressurePlot*>( copy );
@@ -300,7 +135,7 @@ std::vector<RimPlot*> RicSummaryPlotBuilder::duplicatePlots( const std::vector<R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryPlot*> RicSummaryPlotBuilder::duplicateSummaryPlots( const std::vector<RimSummaryPlot*>& sourcePlots )
+std::vector<RimSummaryPlot*> duplicateSummaryPlots( const std::vector<RimSummaryPlot*>& sourcePlots )
 {
     std::vector<RimSummaryPlot*> plots;
 
@@ -319,7 +154,7 @@ std::vector<RimSummaryPlot*> RicSummaryPlotBuilder::duplicateSummaryPlots( const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMultiPlot* RicSummaryPlotBuilder::createAndAppendMultiPlot( const std::vector<RimPlot*>& plots )
+RimMultiPlot* createAndAppendMultiPlot( const std::vector<RimPlot*>& plots )
 {
     RimMultiPlotCollection* plotCollection = RimMainPlotCollection::current()->multiPlotCollection();
 
@@ -348,7 +183,7 @@ RimMultiPlot* RicSummaryPlotBuilder::createAndAppendMultiPlot( const std::vector
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( const std::vector<caf::PdmObjectHandle*>& objects )
+RimSummaryMultiPlot* createAndAppendSummaryMultiPlot( const std::vector<caf::PdmObjectHandle*>& objects )
 {
     RimSummaryMultiPlotCollection* plotCollection = RimMainPlotCollection::current()->summaryMultiPlotCollection();
 
@@ -379,7 +214,7 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotBuilder::appendPlotsToMultiPlot( RimMultiPlot* multiPlot, const std::vector<RimPlot*>& plots )
+void appendPlotsToMultiPlot( RimMultiPlot* multiPlot, const std::vector<RimPlot*>& plots )
 {
     for ( auto plot : plots )
     {
@@ -399,9 +234,9 @@ void RicSummaryPlotBuilder::appendPlotsToMultiPlot( RimMultiPlot* multiPlot, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( const std::vector<RimSummaryCase*>&     cases,
-                                                                                    const std::vector<RimSummaryEnsemble*>& ensembles,
-                                                                                    bool skipCreationOfPlotBasedOnPreferences )
+RimSummaryMultiPlot* createAndAppendDefaultSummaryMultiPlot( const std::vector<RimSummaryCase*>&     cases,
+                                                             const std::vector<RimSummaryEnsemble*>& ensembles,
+                                                             bool                                    skipCreationOfPlotBasedOnPreferences )
 {
     RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 
@@ -476,7 +311,7 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlotNoAutoSettings( RimSummaryPlot* plot )
+RimSummaryMultiPlot* createAndAppendSingleSummaryMultiPlotNoAutoSettings( RimSummaryPlot* plot )
 {
     auto* plotCollection = RimMainPlotCollection::current()->summaryMultiPlotCollection();
 
@@ -513,7 +348,7 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( const std::vector<RimSummaryPlot*>& plots )
+RimSummaryMultiPlot* createAndAppendSummaryMultiPlot( const std::vector<RimSummaryPlot*>& plots )
 {
     auto* plotCollection = RimMainPlotCollection::current()->summaryMultiPlotCollection();
 
@@ -557,7 +392,7 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( RimSummaryPlot* plot )
+RimSummaryMultiPlot* createAndAppendSingleSummaryMultiPlot( RimSummaryPlot* plot )
 {
     std::vector<RimSummaryPlot*> plots{ plot };
 
@@ -567,7 +402,7 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotBuilder::appendPlotsToSummaryMultiPlot( RimSummaryMultiPlot* multiPlot, const std::vector<RimSummaryPlot*>& plots )
+void appendPlotsToSummaryMultiPlot( RimSummaryMultiPlot* multiPlot, const std::vector<RimSummaryPlot*>& plots )
 {
     multiPlot->startBatchAddOperation();
     for ( auto plot : plots )
@@ -585,7 +420,7 @@ void RicSummaryPlotBuilder::appendPlotsToSummaryMultiPlot( RimSummaryMultiPlot* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RicSummaryPlotBuilder::createPlot( const std::vector<RimSummaryCurve*>& summaryCurves )
+RimSummaryPlot* createPlot( const std::vector<RimSummaryCurve*>& summaryCurves )
 {
     auto* plot = new RimSummaryPlot();
     plot->enableAutoPlotTitle( true );
@@ -603,9 +438,9 @@ RimSummaryPlot* RicSummaryPlotBuilder::createPlot( const std::vector<RimSummaryC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RicSummaryPlotBuilder::createPlot( const std::set<RifEclipseSummaryAddress>& addresses,
-                                                   const std::vector<RimSummaryCase*>&       summaryCases,
-                                                   const std::vector<RimSummaryEnsemble*>&   ensembles )
+RimSummaryPlot* createPlot( const std::set<RifEclipseSummaryAddress>& addresses,
+                            const std::vector<RimSummaryCase*>&       summaryCases,
+                            const std::vector<RimSummaryEnsemble*>&   ensembles )
 {
     auto* plot = new RimSummaryPlot();
     plot->enableAutoPlotTitle( true );
@@ -620,9 +455,9 @@ RimSummaryPlot* RicSummaryPlotBuilder::createPlot( const std::set<RifEclipseSumm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RicSummaryPlotBuilder::createCrossPlot( const std::vector<RiaSummaryCurveAddress>& addresses,
-                                                        const std::vector<RimSummaryCase*>&        summaryCases,
-                                                        const std::vector<RimSummaryEnsemble*>&    ensembles )
+RimSummaryPlot* createCrossPlot( const std::vector<RiaSummaryCurveAddress>& addresses,
+                                 const std::vector<RimSummaryCase*>&        summaryCases,
+                                 const std::vector<RimSummaryEnsemble*>&    ensembles )
 {
     auto* summaryPlot = new RimSummaryPlot();
     summaryPlot->enableAutoPlotTitle( true );
@@ -655,10 +490,10 @@ RimSummaryPlot* RicSummaryPlotBuilder::createCrossPlot( const std::vector<RiaSum
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotBuilder::appendCurvesToPlot( RimSummaryPlot*                           summaryPlot,
-                                                const std::set<RifEclipseSummaryAddress>& addresses,
-                                                const std::vector<RimSummaryCase*>&       summaryCases,
-                                                const std::vector<RimSummaryEnsemble*>&   ensembles )
+void appendCurvesToPlot( RimSummaryPlot*                           summaryPlot,
+                         const std::set<RifEclipseSummaryAddress>& addresses,
+                         const std::vector<RimSummaryCase*>&       summaryCases,
+                         const std::vector<RimSummaryEnsemble*>&   ensembles )
 {
     for ( const auto& addr : addresses )
     {
@@ -680,9 +515,7 @@ void RicSummaryPlotBuilder::appendCurvesToPlot( RimSummaryPlot*                 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEnsembleCurveSet* RicSummaryPlotBuilder::addNewEnsembleCurve( RimSummaryPlot*               summaryPlot,
-                                                                 const RiaSummaryCurveAddress& curveAddress,
-                                                                 RimSummaryEnsemble*           ensemble )
+RimEnsembleCurveSet* addNewEnsembleCurve( RimSummaryPlot* summaryPlot, const RiaSummaryCurveAddress& curveAddress, RimSummaryEnsemble* ensemble )
 {
     auto* curveSet = new RimEnsembleCurveSet();
 
@@ -712,14 +545,9 @@ RimEnsembleCurveSet* RicSummaryPlotBuilder::addNewEnsembleCurve( RimSummaryPlot*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurve* RicSummaryPlotBuilder::addNewSummaryCurve( RimSummaryPlot*               summaryPlot,
-                                                            const RiaSummaryCurveAddress& curveAddress,
-                                                            RimSummaryCase*               summaryCase )
+RimSummaryCurve* addNewSummaryCurve( RimSummaryPlot* summaryPlot, const RiaSummaryCurveAddress& curveAddress, RimSummaryCase* summaryCase )
 {
-    auto curve = new RimSummaryCurve();
-
-    curve->setSummaryCaseY( summaryCase );
-    curve->setSummaryAddressY( curveAddress.summaryAddressY() );
+    auto curve = createCurve( summaryCase, curveAddress.summaryAddressY() );
 
     curve->setSummaryCaseX( summaryCase );
     curve->setSummaryAddressX( curveAddress.summaryAddressX() );
@@ -737,3 +565,4 @@ RimSummaryCurve* RicSummaryPlotBuilder::addNewSummaryCurve( RimSummaryPlot*     
 
     return curve;
 }
+} // namespace RiaSummaryPlotTools

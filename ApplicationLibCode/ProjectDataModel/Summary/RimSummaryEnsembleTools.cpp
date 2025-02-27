@@ -349,7 +349,7 @@ bool RimSummaryEnsembleTools::isEnsembleCurve( RimPlotCurve* sourceCurve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsembleTools::highlightCurvesForSameRealization( RimPlotCurve* sourceCurve )
+void RimSummaryEnsembleTools::highlightCurvesForSameRealizationFromCurve( RimPlotCurve* sourceCurve )
 {
     auto sourceSummaryCurve = dynamic_cast<RimSummaryCurve*>( sourceCurve );
     if ( !sourceSummaryCurve ) return;
@@ -368,6 +368,16 @@ void RimSummaryEnsembleTools::highlightCurvesForSameRealization( RimPlotCurve* s
             treeView->selectAsCurrentItem( sourceCase );
         }
     }
+
+    highlightCurvesForSameRealization( sourceCase );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsembleTools::highlightCurvesForSameRealization( RimSummaryCase* sourceCase )
+{
+    if ( !sourceCase ) return;
 
     auto summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
 

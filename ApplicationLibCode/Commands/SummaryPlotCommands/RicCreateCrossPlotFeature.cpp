@@ -18,10 +18,9 @@
 
 #include "RicCreateCrossPlotFeature.h"
 
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
-
 #include "RiaPreferencesSummary.h"
 #include "Summary/RiaSummaryCurveAddress.h"
+#include "Summary/RiaSummaryPlotTools.h"
 
 #include "RifEclipseSummaryAddress.h"
 
@@ -112,9 +111,9 @@ void RicCreateCrossPlotFeature::onSubMenuActionTriggered( bool isChecked )
     auto selectedCases     = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCase>();
     auto selectedEnsembles = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryEnsemble>();
 
-    auto newPlot = RicSummaryPlotBuilder::createCrossPlot( { curveAddress }, { selectedCases }, { selectedEnsembles } );
+    auto newPlot = RiaSummaryPlotTools::createCrossPlot( { curveAddress }, { selectedCases }, { selectedEnsembles } );
 
-    RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
+    RiaSummaryPlotTools::createAndAppendSingleSummaryMultiPlot( newPlot );
 }
 
 //--------------------------------------------------------------------------------------------------

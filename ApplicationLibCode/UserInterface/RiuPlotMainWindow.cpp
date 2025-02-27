@@ -24,16 +24,17 @@
 #include "RiaPreferences.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaRegressionTestRunner.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
-
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimMultiPlot.h"
 #include "RimProject.h"
+#include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurveCollection.h"
+#include "RimSummaryEnsembleTools.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
@@ -943,6 +944,11 @@ void RiuPlotMainWindow::selectedObjectsChanged( caf::PdmUiTreeView* projectTree,
 
         if ( !firstSelectedObject ) return;
 
+        if ( auto summaryCase = dynamic_cast<RimSummaryCase*>( firstSelectedObject ) )
+        {
+            RimSummaryEnsembleTools::highlightCurvesForSameRealization( summaryCase );
+        }
+
         RimViewWindow* selectedWindow = dynamic_cast<RimViewWindow*>( firstSelectedObject );
         if ( !selectedWindow )
         {
@@ -1057,7 +1063,7 @@ void RiuPlotMainWindow::dropEvent( QDropEvent* event )
 
     if ( RiuDragDrop::handleGenericDropEvent( event, objects ) )
     {
-        RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( objects );
+        RiaSummaryPlotTools::createAndAppendSummaryMultiPlot( objects );
     }
 }
 

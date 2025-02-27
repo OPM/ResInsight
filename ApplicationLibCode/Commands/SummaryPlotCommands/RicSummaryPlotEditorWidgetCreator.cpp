@@ -103,14 +103,6 @@ void RicSummaryPlotEditorWidgetCreator::recursivelyConfigureAndUpdateTopLevelUiO
 
     m_firstRowLayout->addWidget( addrWidget );
 
-    caf::PdmUiGroup* appearanceGroup = findGroupByKeyword( topLevelUiItems, RiuSummaryCurveDefinitionKeywords::appearance(), uiConfigName );
-    auto             appearanceGroupBox = createGroupBoxWithContent( appearanceGroup, uiConfigName );
-    m_lowerLeftLayout->addWidget( appearanceGroupBox );
-
-    caf::PdmUiGroup* nameConfigGroup = findGroupByKeyword( topLevelUiItems, RiuSummaryCurveDefinitionKeywords::nameConfig(), uiConfigName );
-    auto             nameConfigGroupBox = createGroupBoxWithContent( nameConfigGroup, uiConfigName );
-    m_lowerLeftLayout->addWidget( nameConfigGroupBox );
-
     QMinimizePanel* curveGroup = getOrCreateCurveTreeGroup();
     m_lowerLeftLayout->addWidget( curveGroup, 1 );
     m_lowerLeftLayout->addStretch( 0 );

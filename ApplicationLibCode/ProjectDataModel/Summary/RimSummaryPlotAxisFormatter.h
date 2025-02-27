@@ -44,8 +44,6 @@ private:
     QString autoAxisTitle() const;
     QString createAxisObjectName() const;
 
-    static std::string shortCalculationName( const std::string& calculationName );
-
 private:
     RimPlotAxisProperties*                       m_axisProperties;
     const std::vector<RimSummaryCurve*>          m_summaryCurves;

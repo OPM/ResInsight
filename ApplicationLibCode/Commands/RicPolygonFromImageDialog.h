@@ -33,15 +33,17 @@
 #include <QSpinBox>
 #include <QVBoxLayout>
 
-class ImageProcessingDialog : public QDialog
+class RicPolygonFromImageDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    ImageProcessingDialog( QWidget* parent = nullptr );
+    RicPolygonFromImageDialog( QWidget* parent = nullptr );
 
     std::vector<std::vector<int>> processedImageData() const;
     void                          setSourceImageData( std::vector<std::vector<int>> imageData );
+
+    int areaThreshold() const;
 
 public slots:
     void updateAndShowImages();
@@ -68,6 +70,8 @@ private:
     QCheckBox* showDilated;
     QCheckBox* showEroded;
     QCheckBox* showFinal;
+
+    QLineEdit* areaThresholdLineEdit;
 
     std::vector<std::vector<int>> sourceData, dilatedData, erodedData, processedData;
 };

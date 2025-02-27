@@ -24,7 +24,7 @@
 #include "RiaPreferences.h"
 
 #include "RicSelectCaseOrEnsembleUi.h"
-#include "RicSummaryPlotTemplateTools.h"
+#include "Summary/RiaSummaryPlotTemplateTools.h"
 
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"

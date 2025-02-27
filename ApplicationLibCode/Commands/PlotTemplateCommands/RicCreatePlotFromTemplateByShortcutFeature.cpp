@@ -21,7 +21,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 
-#include "RicSummaryPlotTemplateTools.h"
+#include "Summary/RiaSummaryPlotTemplateTools.h"
 
 #include "RimSummaryMultiPlot.h"
 

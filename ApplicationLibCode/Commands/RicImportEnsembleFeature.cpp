@@ -24,6 +24,7 @@
 #include "RiaPreferences.h"
 #include "RiaTextStringTools.h"
 #include "Summary/RiaSummaryDefines.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "RicCreateSummaryCaseCollectionFeature.h"
@@ -43,7 +44,6 @@
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "SummaryPlotCommands/RicNewSummaryEnsembleCurveSetFeature.h"
 
 #include <QAction>
@@ -128,7 +128,7 @@ void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&         
             summaryCase->updateAutoShortName();
         }
 
-        RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( {}, { ensemble } );
+        RiaSummaryPlotTools::createAndAppendDefaultSummaryMultiPlot( {}, { ensemble } );
     }
 
     std::vector<RimCase*> allCases = RiaApplication::instance()->project()->allGridCases();

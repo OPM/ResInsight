@@ -1,6 +1,6 @@
-/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2025     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,15 +18,16 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
+#include "cafCmdFeature.h"
 
-class RimGeometrySelectionItem : public caf::PdmObject
+//==================================================================================================
+///
+//==================================================================================================
+class RicDeleteAllPolygonsFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_CMD_HEADER_INIT;
 
-public:
-    RimGeometrySelectionItem();
-    ~RimGeometrySelectionItem() override;
-
-    virtual QString geometrySelectionText() const = 0;
+protected:
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

@@ -56,7 +56,6 @@ class RiuPlotCurve
 {
 public:
     explicit RiuPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title = QString() );
-    explicit RiuPlotCurve();
     virtual ~RiuPlotCurve();
 
     virtual void setTitle( const QString& title ) = 0;

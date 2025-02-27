@@ -26,12 +26,15 @@ namespace RigPolygonTools
 {
 // Integer images are assumed to be 2D arrays of integers, where 0 is background and 1 is foreground.
 using IntegerImage = std::vector<std::vector<int>>;
+using Point        = std::pair<int, int>;
 
 IntegerImage erode( IntegerImage image, int kernelSize );
 IntegerImage dilate( IntegerImage image, int kernelSize );
 IntegerImage fillInterior( IntegerImage sourceImage );
 
 std::vector<std::pair<int, int>> boundary( const IntegerImage& image );
+IntegerImage                     assignValueInsidePolygon( IntegerImage image, const std::vector<Point>& polygon, int value );
+double                           area( const std::vector<Point>& polygon );
 
 // Recursive function modifying the incoming vertices
 void simplifyPolygon( std::vector<cvf::Vec3d>& vertices, double epsilon );

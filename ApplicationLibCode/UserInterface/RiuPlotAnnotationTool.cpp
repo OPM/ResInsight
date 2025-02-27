@@ -20,6 +20,7 @@
 
 #include "RimPlotAxisAnnotation.h"
 #include "RiuGuiTheme.h"
+#include "RiuQwtPlotCurveDefines.h"
 
 #include "cafCategoryMapper.h"
 #include "cvfMath.h"
@@ -408,4 +409,6 @@ void RiuPlotAnnotationTool::setLineProperties( QwtPlotMarker*          line,
         line->setLineStyle( QwtPlotMarker::VLine );
         line->setXValue( linePosition );
     }
+
+    line->setZ( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ANNOTATION ) );
 }

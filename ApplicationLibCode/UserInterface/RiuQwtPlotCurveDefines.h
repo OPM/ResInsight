@@ -47,7 +47,8 @@ enum class ZIndex
     Z_ERROR_BARS,
     Z_SINGLE_CURVE_OBSERVED,
     Z_PLOT_RECT_ANNOTATION,
-    Z_REGRESSION_CURVE
+    Z_REGRESSION_CURVE,
+    Z_ANNOTATION
 };
 
 int zDepthForIndex( ZIndex index );

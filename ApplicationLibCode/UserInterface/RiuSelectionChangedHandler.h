@@ -47,4 +47,6 @@ private:
 
     void scheduleUpdateForAllVisibleViews() const;
     void updateResultInfo( const RiuSelectionItem* itemAdded ) const;
+
+    static void updateGridCellCurvesFromSelection();
 };

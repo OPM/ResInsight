@@ -126,19 +126,33 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_Well )
     EXPECT_FALSE( addr.isErrorResult() );
 }
 
+TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellConnection )
+{
+    std::string addrString = "CPRL:B-1H:15,13,14";
+
+    RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( addrString );
+
+    EXPECT_TRUE( addr.isValid() );
+    EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION, addr.category() );
+    EXPECT_EQ( "CPRL", addr.vectorName() );
+    EXPECT_EQ( "B-1H", addr.wellName() );
+    EXPECT_EQ( 15, addr.cellI() );
+    EXPECT_EQ( 13, addr.cellJ() );
+    EXPECT_EQ( 14, addr.cellK() );
+    EXPECT_FALSE( addr.isErrorResult() );
+}
+
 TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellCompletion )
 {
-    std::string addrString = "COFRL:B-1H:15,13,14";
+    std::string addrString = "WGLRL:B-1H:15";
 
     RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( addrString );
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION, addr.category() );
-    EXPECT_EQ( "COFRL", addr.vectorName() );
+    EXPECT_EQ( "WGLRL", addr.vectorName() );
     EXPECT_EQ( "B-1H", addr.wellName() );
-    EXPECT_EQ( 15, addr.cellI() );
-    EXPECT_EQ( 13, addr.cellJ() );
-    EXPECT_EQ( 14, addr.cellK() );
+    EXPECT_EQ( 15, addr.wellCompletionNumber() );
     EXPECT_FALSE( addr.isErrorResult() );
 }
 
@@ -163,7 +177,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellCompletionLgr 
     RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( addrString );
 
     EXPECT_TRUE( addr.isValid() );
-    EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION_LGR, addr.category() );
+    EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION_LGR, addr.category() );
     EXPECT_EQ( "LCGAS", addr.vectorName() );
     EXPECT_EQ( "LGR1", addr.lgrName() );
     EXPECT_EQ( "B-1H", addr.wellName() );
@@ -250,7 +264,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_ErrorResult2 )
     RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( addrString );
 
     EXPECT_TRUE( addr.isValid() );
-    EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION_LGR, addr.category() );
+    EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION_LGR, addr.category() );
     EXPECT_EQ( "LCGAS", addr.vectorName() );
     EXPECT_EQ( "LGR1", addr.lgrName() );
     EXPECT_EQ( "B-1H", addr.wellName() );
@@ -274,7 +288,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_ErrorResult3 )
 
 TEST( RifEclipseSummaryAddressTest, TestEclipseAddressIjkParsing )
 {
-    RifEclipseSummaryAddressDefines::SummaryCategory cat = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION;
+    RifEclipseSummaryAddressDefines::SummaryCategory cat = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION;
     std::map<RifEclipseSummaryAddressDefines::SummaryIdentifierType, std::string> identifiers( {
         { RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_WELL_NAME, "1-BH" },
         { RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_CELL_IJK, "6, 7, 8" },
@@ -284,7 +298,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressIjkParsing )
     RifEclipseSummaryAddress addr( cat, identifiers );
 
     EXPECT_TRUE( addr.isValid() );
-    EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION, addr.category() );
+    EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION, addr.category() );
     EXPECT_EQ( "WOPR", addr.vectorName() );
     EXPECT_EQ( "1-BH", addr.wellName() );
     EXPECT_EQ( 6, addr.cellI() );
@@ -391,4 +405,193 @@ TEST( RifEclipseSummaryAddressTest, LogicalOperators )
     EXPECT_TRUE( addresses.at( 7 ) == block_b );
     EXPECT_TRUE( addresses.at( 8 ) == block_c );
     EXPECT_TRUE( addresses.at( 9 ) == block_d );
+}
+
+TEST( RifEclipseSummaryAddressTest, ConversionFromTextToAddress )
+{
+    // Aquifer
+    {
+        auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( "AAQR:456" );
+        EXPECT_TRUE( adr.isValid() );
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_AQUIFER, adr.category() );
+        EXPECT_EQ( "AAQR", adr.vectorName() );
+        EXPECT_EQ( 456, adr.aquiferNumber() );
+    }
+
+    // Unknown aquifer
+    {
+        auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( "AAQCEE:2" );
+        EXPECT_TRUE( adr.isValid() );
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_AQUIFER, adr.category() );
+        EXPECT_EQ( "AAQCEE", adr.vectorName() );
+        EXPECT_EQ( 2, adr.aquiferNumber() );
+    }
+
+    // Block
+    {
+        auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( "BPR:123,122,121" );
+        EXPECT_TRUE( adr.isValid() );
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK, adr.category() );
+        EXPECT_EQ( "BPR", adr.vectorName() );
+        EXPECT_EQ( 123, adr.cellI() );
+        EXPECT_EQ( 122, adr.cellJ() );
+        EXPECT_EQ( 121, adr.cellK() );
+    }
+
+    // Unknown block
+    {
+        auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( "BPGTEST:1,2,3" );
+        EXPECT_TRUE( adr.isValid() );
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK, adr.category() );
+        EXPECT_EQ( "BPGTEST", adr.vectorName() );
+        EXPECT_EQ( 1, adr.cellI() );
+        EXPECT_EQ( 2, adr.cellJ() );
+        EXPECT_EQ( 3, adr.cellK() );
+    }
+
+    // Well completion
+    {
+        auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( "WGLRL:B-1H:15" );
+        EXPECT_TRUE( adr.isValid() );
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION, adr.category() );
+        EXPECT_EQ( "WGLRL", adr.vectorName() );
+        EXPECT_EQ( "B-1H", adr.wellName() );
+        EXPECT_EQ( 15, adr.wellCompletionNumber() );
+    }
+
+    // Unknown well completion
+    {
+        auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( "WGLRTESAT:B-1H:15" );
+        EXPECT_TRUE( adr.isValid() );
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION, adr.category() );
+        EXPECT_EQ( "WGLRTESAT", adr.vectorName() );
+        EXPECT_EQ( "B-1H", adr.wellName() );
+        EXPECT_EQ( 15, adr.wellCompletionNumber() );
+    }
+
+    // Well connection
+    {
+        auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( "CPRL:B-1H:15,13,14" );
+        EXPECT_TRUE( adr.isValid() );
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION, adr.category() );
+        EXPECT_EQ( "CPRL", adr.vectorName() );
+        EXPECT_EQ( "B-1H", adr.wellName() );
+        EXPECT_EQ( 15, adr.cellI() );
+        EXPECT_EQ( 13, adr.cellJ() );
+        EXPECT_EQ( 14, adr.cellK() );
+    }
+
+    // Unknown well connection
+    {
+        auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( "CAPIRSS:B-1H:15,13,22" );
+        EXPECT_TRUE( adr.isValid() );
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION, adr.category() );
+        EXPECT_EQ( "CAPIRSS", adr.vectorName() );
+        EXPECT_EQ( "B-1H", adr.wellName() );
+        EXPECT_EQ( 15, adr.cellI() );
+        EXPECT_EQ( 13, adr.cellJ() );
+        EXPECT_EQ( 22, adr.cellK() );
+    }
+
+    // Field
+    {
+        auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( "FOPT" );
+        EXPECT_TRUE( adr.isValid() );
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_FIELD, adr.category() );
+        EXPECT_EQ( "FOPT", adr.vectorName() );
+    }
+
+    // Unknown field
+    {
+        auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( "FOPCEE" );
+        EXPECT_TRUE( adr.isValid() );
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_FIELD, adr.category() );
+        EXPECT_EQ( "FOPCEE", adr.vectorName() );
+    }
+
+    // Group
+    {
+        auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( "GOPR:WELLS1" );
+        EXPECT_TRUE( adr.isValid() );
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP, adr.category() );
+        EXPECT_EQ( "GOPR", adr.vectorName() );
+        EXPECT_EQ( "WELLS1", adr.groupName() );
+    }
+
+    // Unknown group
+    {
+        auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( "GOPRTEST:WELLS1" );
+        EXPECT_TRUE( adr.isValid() );
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP, adr.category() );
+        EXPECT_EQ( "GOPRTEST", adr.vectorName() );
+        EXPECT_EQ( "WELLS1", adr.groupName() );
+    }
+
+    // Region
+    {
+        auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( "RPR:7081" );
+        EXPECT_TRUE( adr.isValid() );
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION, adr.category() );
+        EXPECT_EQ( "RPR", adr.vectorName() );
+        EXPECT_EQ( 7081, adr.regionNumber() );
+    }
+
+    // Unknown region
+    {
+        auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( "RPRTEST:7081" );
+        EXPECT_TRUE( adr.isValid() );
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION, adr.category() );
+        EXPECT_EQ( "RPRTEST", adr.vectorName() );
+        EXPECT_EQ( 7081, adr.regionNumber() );
+    }
+
+    // Region to region
+    {
+        auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( "RGFT:7081-8001" );
+        EXPECT_TRUE( adr.isValid() );
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION_2_REGION, adr.category() );
+        EXPECT_EQ( "RGFT", adr.vectorName() );
+        EXPECT_EQ( 7081, adr.regionNumber() );
+        EXPECT_EQ( 8001, adr.regionNumber2() );
+    }
+
+    // Unknown region to region is skipped, no general rule to identify region to region
+
+    // Segment
+    {
+        auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( "SOFR:B-5H:32" );
+        EXPECT_TRUE( adr.isValid() );
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_SEGMENT, adr.category() );
+        EXPECT_EQ( "SOFR", adr.vectorName() );
+        EXPECT_EQ( "B-5H", adr.wellName() );
+        EXPECT_EQ( 32, adr.wellSegmentNumber() );
+    }
+
+    // Unknown segment
+    {
+        auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( "SOFRTEST:B-5H:32" );
+        EXPECT_TRUE( adr.isValid() );
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_SEGMENT, adr.category() );
+        EXPECT_EQ( "SOFRTEST", adr.vectorName() );
+        EXPECT_EQ( "B-5H", adr.wellName() );
+        EXPECT_EQ( 32, adr.wellSegmentNumber() );
+    }
+
+    // Well
+    {
+        auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( "WOPR:B-2H" );
+        EXPECT_TRUE( adr.isValid() );
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL, adr.category() );
+        EXPECT_EQ( "WOPR", adr.vectorName() );
+        EXPECT_EQ( "B-2H", adr.wellName() );
+    }
+
+    // Unknown well
+    {
+        auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( "WOPRTEST:B-2H" );
+        EXPECT_TRUE( adr.isValid() );
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL, adr.category() );
+        EXPECT_EQ( "WOPRTEST", adr.vectorName() );
+        EXPECT_EQ( "B-2H", adr.wellName() );
+    }
 }

@@ -247,11 +247,12 @@ void RiaCloudConnector::setTokenDataFilePath( const QString& filePath )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaCloudConnector::forceNewTokens()
+void RiaCloudConnector::clearTokens()
 {
     if ( m_authCodeFlow )
     {
-        m_authCodeFlow->grant();
+        m_authCodeFlow->setToken( "" );
+        m_authCodeFlow->setRefreshToken( "" );
     }
 }
 
@@ -310,11 +311,23 @@ void RiaCloudConnector::requestTokenWithCancelButton()
 
     QVBoxLayout* layout = new QVBoxLayout( &dialog );
 
-    QLabel* label = new QLabel( "Requesting token. Please wait..." );
+    QLabel* label =
+        new QLabel( "Requesting token.\nIf this process takes a long time,\nissue a new authentication process by pressing\n'New "
+                    "Authentication'\n\n Please wait..." );
+    label->setAlignment( Qt::AlignHCenter );
     layout->addWidget( label );
 
-    QPushButton* cancelButton = new QPushButton( "Cancel" );
-    layout->addWidget( cancelButton );
+    // Create horizontal button layout
+    QHBoxLayout* buttonLayout = new QHBoxLayout();
+
+    // Add buttons to horizontal layout
+    QPushButton* requestNewAuthenticationButton = new QPushButton( "New Authentication" );
+    QPushButton* cancelButton                   = new QPushButton( "Cancel" );
+    buttonLayout->addWidget( requestNewAuthenticationButton );
+    buttonLayout->addWidget( cancelButton );
+
+    // Add button layout to main layout
+    layout->addLayout( buttonLayout );
 
     QTimer timer;
     timer.setSingleShot( true );
@@ -330,6 +343,14 @@ void RiaCloudConnector::requestTokenWithCancelButton()
                  RiaLogging::info( "Token request canceled by user." );
                  timer.stop();
                  loop.quit();
+             } );
+
+    connect( requestNewAuthenticationButton,
+             &QPushButton::clicked,
+             [&]()
+             {
+                 clearTokens();
+                 requestToken();
              } );
 
     connect( &dialog,

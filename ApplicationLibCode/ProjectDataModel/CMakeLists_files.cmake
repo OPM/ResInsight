@@ -64,7 +64,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCheckableNamedObject.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCheckableObject.h
     ${CMAKE_CURRENT_LIST_DIR}/RimGridTimeHistoryCurve.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimGeometrySelectionItem.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseGeometrySelectionItem.h
     ${CMAKE_CURRENT_LIST_DIR}/RimDialogData.h
     ${CMAKE_CURRENT_LIST_DIR}/RimTimeStepFilter.h
@@ -193,7 +192,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCheckableNamedObject.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCheckableObject.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimGridTimeHistoryCurve.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimGeometrySelectionItem.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseGeometrySelectionItem.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDialogData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimTimeStepFilter.cpp

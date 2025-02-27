@@ -24,8 +24,7 @@
 #include "Polygons/RimPolygonCollection.h"
 #include "Polygons/RimPolygonTools.h"
 #include "Rim3dView.h"
-#include "RimOilField.h"
-#include "RimProject.h"
+#include "RimTools.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -38,8 +37,7 @@ CAF_CMD_SOURCE_INIT( RicCreatePolygonFeature, "RicCreatePolygonFeature" );
 //--------------------------------------------------------------------------------------------------
 void RicCreatePolygonFeature::onActionTriggered( bool isChecked )
 {
-    auto proj              = RimProject::current();
-    auto polygonCollection = proj->activeOilField()->polygonCollection();
+    auto polygonCollection = RimTools::polygonCollection();
 
     auto newPolygon = polygonCollection->appendUserDefinedPolygon();
     polygonCollection->uiCapability()->updateAllRequiredEditors();

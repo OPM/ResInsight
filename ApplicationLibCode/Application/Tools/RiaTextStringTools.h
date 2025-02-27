@@ -46,6 +46,8 @@ QString replaceTemplateTextWithValues( const QString& templateText, const std::m
 bool    isTextEqual( QStringView text, QStringView compareText );
 bool    isNumber( const QString& text, const QString& decimalPoint );
 
+QVector<double> parseDoubleValues( const QString& input );
+
 } // namespace RiaTextStringTools
 
 #if QT_VERSION < QT_VERSION_CHECK( 6, 8, 0 )

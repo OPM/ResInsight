@@ -63,6 +63,7 @@ class RimTimeAxisAnnotation;
 class RiaSummaryCurveDefinition;
 class RifEclipseSummaryAddress;
 class RiaSummaryCurveAddress;
+class RimStackablePlotCurve;
 
 class QwtInterval;
 class QwtPlotCurve;
@@ -108,12 +109,11 @@ public:
     void deleteCurves( const std::vector<RimSummaryCurve*>& curves );
 
     void deleteCurvesAssosiatedWithCase( RimSummaryCase* summaryCase );
-    void deleteAllGridTimeHistoryCurves();
 
     RimEnsembleCurveSetCollection* ensembleCurveSetCollection() const;
 
     void addGridTimeHistoryCurve( RimGridTimeHistoryCurve* curve );
-    void addGridTimeHistoryCurveNoUpdate( RimGridTimeHistoryCurve* curve );
+    void deleteUnlockedGridTimeHistoryCurves();
 
     std::vector<RimGridTimeHistoryCurve*> gridTimeHistoryCurves() const;
 
@@ -129,6 +129,7 @@ public:
     RimTimeAxisAnnotation* addTimeRangeAnnotation( time_t startTime, time_t endTime );
     void                   removeTimeAnnotation( RimTimeAxisAnnotation* annotation );
     void                   removeAllTimeAnnotations();
+    void                   updateAnnotationsInPlotWidget();
 
     void updateAxes() override;
 
@@ -259,7 +260,6 @@ private:
     std::vector<RimGridTimeHistoryCurve*> visibleTimeHistoryCurvesForAxis( RiuPlotAxis plotAxis ) const;
     std::vector<RimAsciiDataCurve*>       visibleAsciiDataCurvesForAxis( RiuPlotAxis plotAxis ) const;
     bool                                  hasVisibleCurvesForAxis( RiuPlotAxis plotAxis ) const;
-    std::vector<RimSummaryCurve*>         visibleStackedSummaryCurvesForAxis( RiuPlotAxis plotAxis );
 
     void updateNumericalAxis( RiaDefines::PlotAxis plotAxis );
     void updateZoomForAxis( RimPlotAxisPropertiesInterface* axisProperties );
@@ -272,8 +272,8 @@ private:
 
     void deletePlotCurvesAndPlotWidget();
 
-    void connectCurveSignals( RimSummaryCurve* curve );
-    void disconnectCurveSignals( RimSummaryCurve* curve );
+    void connectCurveSignals( RimStackablePlotCurve* curve );
+    void disconnectCurveSignals( RimStackablePlotCurve* curve );
 
     void curveDataChanged( const caf::SignalEmitter* emitter );
     void curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible );

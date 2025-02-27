@@ -19,9 +19,8 @@
 #include "RimCloudDataSourceCollection.h"
 
 #include "RiaApplication.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
-
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -92,7 +91,7 @@ void RimCloudDataSourceCollection::createEnsemblesFromSelectedDataSources( const
         RiaSummaryTools::summaryCaseMainCollection()->addEnsemble( ensemble );
         ensemble->loadDataAndUpdate();
 
-        RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( {}, { ensemble } );
+        RiaSummaryPlotTools::createAndAppendDefaultSummaryMultiPlot( {}, { ensemble } );
     }
 
     RiaSummaryTools::summaryCaseMainCollection()->updateAllRequiredEditors();
@@ -203,6 +202,7 @@ void RimCloudDataSourceCollection::defineUiOrdering( QString uiConfigName, caf::
     text += isGranted ? "<font color='#228B22'>✔ Granted</font>" : "<font color='#FFA500'>❌ Not Granted</font>";
 
     m_authenticate.uiCapability()->setUiName( text );
+    m_authenticate.uiCapability()->setUiReadOnly( isGranted );
 
     if ( isGranted )
     {
@@ -231,15 +231,14 @@ void RimCloudDataSourceCollection::defineEditorAttribute( const caf::PdmFieldHan
             attrib->m_buttonText = "Authenticate";
         }
     }
-
-    if ( field == &m_addDataSources )
+    else if ( field == &m_addDataSources )
     {
         if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
         {
             attrib->m_buttonText = "Add Data Sources(s)";
         }
     }
-    if ( field == &m_addEnsembles )
+    else if ( field == &m_addEnsembles )
     {
         if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
         {

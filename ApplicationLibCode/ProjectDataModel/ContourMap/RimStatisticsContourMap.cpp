@@ -44,8 +44,6 @@
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseContourMapProjection.h"
 #include "RimEclipseResultDefinition.h"
-#include "RimOilField.h"
-#include "RimProject.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStatisticsContourMapProjection.h"
 #include "RimStatisticsContourMapView.h"
@@ -213,8 +211,7 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
         if ( m_enableFormationFilter ) formationGrp->add( &m_selectedFormations );
     }
 
-    RimProject* proj = RimProject::current();
-    if ( auto polygonCollection = proj->activeOilField()->polygonCollection().p() )
+    if ( auto polygonCollection = RimTools::polygonCollection() )
     {
         if ( !polygonCollection->allPolygons().empty() )
         {
@@ -389,8 +386,7 @@ QList<caf::PdmOptionItemInfo> RimStatisticsContourMap::calculateValueOptions( co
     }
     else if ( &m_selectedPolygons == fieldNeedingOptions )
     {
-        RimProject* proj = RimProject::current();
-        if ( auto polygonCollection = proj->activeOilField()->polygonCollection().p() )
+        if ( auto polygonCollection = RimTools::polygonCollection() )
         {
             for ( auto p : polygonCollection->allPolygons() )
             {
@@ -648,6 +644,11 @@ std::vector<double> RimStatisticsContourMap::result( size_t timeStep, Statistics
 //--------------------------------------------------------------------------------------------------
 std::vector<int> RimStatisticsContourMap::selectedTimeSteps() const
 {
+    if ( !m_resultDefinition->hasDynamicResult() )
+    {
+        return { 0 };
+    }
+
     auto steps = m_selectedTimeSteps();
     std::sort( steps.begin(), steps.end() );
     return steps;

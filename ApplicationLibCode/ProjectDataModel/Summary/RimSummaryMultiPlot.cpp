@@ -24,12 +24,12 @@
 #include "RiaTimeTTools.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
 #include "Summary/RiaSummaryAddressModifier.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryStringTools.h"
 
 #include "PlotBuilderCommands/RicAppendSummaryPlotsForObjectsFeature.h"
 #include "PlotBuilderCommands/RicAppendSummaryPlotsForSummaryAddressesFeature.h"
 #include "PlotBuilderCommands/RicAppendSummaryPlotsForSummaryCasesFeature.h"
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
 #include "RifEclEclipseSummary.h"
 #include "RifEclipseRftAddress.h"
@@ -817,7 +817,15 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
     }
 
     auto stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR;
-    if ( analyzer.wellNames().size() == 1 )
+    if ( analyzer.regionNumbers().size() == 1 )
+    {
+        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::REGION;
+    }
+    else if ( analyzer.groupNames().size() == 1 )
+    {
+        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP;
+    }
+    else if ( analyzer.wellNames().size() == 1 )
     {
         auto wellName = *( analyzer.wellNames().begin() );
 
@@ -825,22 +833,22 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
         {
             stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_SEGMENT;
         }
+        else if ( analyzer.wellCompletionNumbers( wellName ).size() == 1 )
+        {
+            stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_COMPLETION_NUMBER;
+        }
+        else if ( analyzer.wellConnections( wellName ).size() == 1 )
+        {
+            stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_CONNECTION;
+        }
         else
         {
             stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::WELL;
         }
     }
-    else if ( analyzer.groupNames().size() == 1 )
-    {
-        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP;
-    }
     else if ( analyzer.networkNames().size() == 1 )
     {
         stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::NETWORK;
-    }
-    else if ( analyzer.regionNumbers().size() == 1 )
-    {
-        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::REGION;
     }
     else if ( analyzer.aquifers().size() == 1 )
     {
@@ -1555,7 +1563,7 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
     if ( plots.empty() ) return;
 
     // duplicate them
-    auto newPlots = RicSummaryPlotBuilder::duplicatePlots( plots );
+    auto newPlots = RiaSummaryPlotTools::duplicatePlots( plots );
     if ( newPlots.empty() ) return;
 
     for ( auto plot : newPlots )
@@ -1752,23 +1760,44 @@ void RimSummaryMultiPlot::updateReadOutLines( double qwtTimeValue, double yValue
 
         if ( m_readOutSettings->enableHorizontalLine() )
         {
-            if ( auto leftAxisProperties = dynamic_cast<RimPlotAxisProperties*>( plot->axisPropertiesForPlotAxis( RiuPlotAxis::defaultLeft() ) ) )
-            {
-                leftAxisProperties->removeAllAnnotations();
+            std::vector<RimSummaryCurve*> summaryCurves;
 
-                auto summaryCurves = plot->summaryCurves();
-                if ( !summaryCurves.empty() )
+            // 1. Check if any curves are highlighted
+            if ( auto plotWidget = dynamic_cast<RiuQwtPlotWidget*>( plot->plotWidget() ) )
+            {
+                for ( auto highlightCurve : plotWidget->highlightedCurves() )
                 {
-                    auto firstCurve = summaryCurves.front();
-                    yValue          = firstCurve->yValueAtTimeT( timeTValue );
+                    if ( auto summaryCurve = dynamic_cast<RimSummaryCurve*>( highlightCurve ) )
+                    {
+                        summaryCurves.push_back( summaryCurve );
+                    }
                 }
+            }
+
+            // 2. If no curves are highlighted, use summary curves from single realizations
+            if ( summaryCurves.empty() )
+            {
+                summaryCurves = plot->summaryCurves();
+            }
+
+            auto annotationAxis = dynamic_cast<RimPlotAxisProperties*>( plot->axisPropertiesForPlotAxis( RiuPlotAxis::defaultLeft() ) );
+            if ( !summaryCurves.empty() )
+            {
+                auto firstCurve = summaryCurves.front();
+                yValue          = firstCurve->yValueAtTimeT( timeTValue );
+                annotationAxis  = dynamic_cast<RimPlotAxisProperties*>( plot->axisPropertiesForPlotAxis( firstCurve->axisY() ) );
+            }
+
+            if ( annotationAxis )
+            {
+                annotationAxis->removeAllAnnotations();
 
                 auto anno = new RimPlotAxisAnnotation();
                 anno->setAnnotationType( RimPlotAxisAnnotation::AnnotationType::LINE );
 
                 anno->setValue( yValue );
 
-                auto scaledValue = yValue / leftAxisProperties->scaleFactor();
+                auto scaledValue = yValue / annotationAxis->scaleFactor();
                 auto valueText   = RiaNumberFormat::valueToText( scaledValue, RiaNumberFormat::NumberFormatType::FIXED, 2 );
 
                 anno->setName( valueText );
@@ -1780,10 +1809,12 @@ void RimSummaryMultiPlot::updateReadOutLines( double qwtTimeValue, double yValue
                 anno->setColor( lineAppearance->color() );
                 anno->setAlignment( m_readOutSettings->horizontalLineLabelAlignment() );
 
-                leftAxisProperties->appendAnnotation( anno );
+                annotationAxis->appendAnnotation( anno );
             }
         }
 
-        plot->updateAxes();
+        // Calling plot->updateAxes() does not work for the first plot in a multiplot. Use fine grained update of annotation objects.
+        plot->updateAnnotationsInPlotWidget();
+        plot->updatePlotWidgetFromAxisRanges();
     }
 }

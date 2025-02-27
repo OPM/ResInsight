@@ -19,6 +19,7 @@
 #include "RicNewSummaryCrossPlotCurveFeature.h"
 
 #include "RiaGuiApplication.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "RimMainPlotCollection.h"
@@ -32,7 +33,6 @@
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
 #include "cafSelectionManager.h"
@@ -68,7 +68,7 @@ void RicNewSummaryCrossPlotCurveFeature::onActionTriggered( bool isChecked )
         }
 
         RiaSummaryCurveAddress addr( RifEclipseSummaryAddress::fieldAddress( "FOPT" ), RifEclipseSummaryAddress::fieldAddress( "FGOR" ) );
-        auto                   newCurve = RicSummaryPlotBuilder::addNewSummaryCurve( plot, addr, defaultCase );
+        auto                   newCurve = RiaSummaryPlotTools::addNewSummaryCurve( plot, addr, defaultCase );
 
         newCurve->setColor( curveColor );
         newCurve->loadDataAndUpdate( true );

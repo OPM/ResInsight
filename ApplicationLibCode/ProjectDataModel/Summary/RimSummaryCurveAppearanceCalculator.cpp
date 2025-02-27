@@ -51,6 +51,21 @@ void caf::AppEnum<RimSummaryCurveAppearanceCalculator::CurveAppearanceType>::set
 }
 } // namespace caf
 
+namespace internal
+{
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuQwtPlotCurveDefines::LineStyleEnum cycledLineStyle( int index )
+{
+    if ( index < 0 ) return RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID;
+
+    return caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>::fromIndex(
+        1 + ( index % ( caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>::size() - 1 ) ) );
+}
+
+} // namespace internal
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -514,7 +529,7 @@ void RimSummaryCurveAppearanceCalculator::setOneCurveAppearance( CurveAppearance
             m_currentCurveGradient = gradient( totalCount, appeaIdx );
             break;
         case LINE_STYLE:
-            curve->setLineStyle( cycledLineStyle( appeaIdx ) );
+            curve->setLineStyle( internal::cycledLineStyle( appeaIdx ) );
             break;
         case SYMBOL:
             curve->setSymbol( cycledSymbol( appeaIdx ) );
@@ -583,17 +598,6 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledBrownColor( int colorInd
     if ( colorIndex < 0 ) return cvf::Color3f::BLACK;
 
     return RiaColorTables::summaryCurveBrownPaletteColors().cycledColor3f( colorIndex );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiuQwtPlotCurveDefines::LineStyleEnum RimSummaryCurveAppearanceCalculator::cycledLineStyle( int index )
-{
-    if ( index < 0 ) return RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID;
-
-    return caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>::fromIndex(
-        1 + ( index % ( caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>::size() - 1 ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
