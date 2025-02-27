@@ -115,7 +115,7 @@ void RimSurfaceResultDefinition::updateMinMaxValues( int currentTimeStep )
             minMaxAccumulator.addData( values );
             posNegAccumulator.addData( values );
 
-            if ( static_cast<int>(timeIndex) == currentTimeStep )
+            if ( static_cast<int>( timeIndex ) == currentTimeStep )
             {
                 MinMaxAccumulator localMinMaxAccumulator;
                 PosNegAccumulator localPosNegAccumulator;
