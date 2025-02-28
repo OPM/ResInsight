@@ -37,12 +37,6 @@
 
 namespace internal
 {
-auto normalizePath = []( const std::string& path )
-{
-    std::string normalized = path;
-    std::replace( normalized.begin(), normalized.end(), '\\', '/' );
-    return normalized;
-};
 
 // Find the last common folder in the common prefix of paths
 std::string findLastCommonFolder( const std::vector<std::string>& paths )
@@ -112,7 +106,10 @@ std::map<std::pair<std::string, std::string>, std::vector<std::string>>
     std::map<std::pair<std::string, std::string>, std::vector<std::string>> groupedPaths;
 
     std::vector<std::string> normalizedPaths;
-    std::transform( filepaths.begin(), filepaths.end(), std::back_inserter( normalizedPaths ), internal::normalizePath );
+    for ( const auto& filepath : filepaths )
+    {
+        normalizedPaths.push_back( RiaFilePathTools::normalizePath( filepath ) );
+    }
 
     auto commonPrefix = RiaStdStringTools::findCommonPrefix( normalizedPaths );
 
