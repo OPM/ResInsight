@@ -52,7 +52,11 @@ public:
                                                   const std::map<QString, QStringList>& keyFileComponentsForAllFiles,
                                                   const QString&                        ensembleCaseName );
 
-    static std::map<std::pair<std::string, std::string>, std::vector<std::string>> groupFilePaths( const std::vector<std::string>& allPaths );
+    static std::map<std::pair<std::string, std::string>, std::vector<std::string>>
+        groupFilePathsFmu( const std::vector<std::string>& filepaths );
+
+    static std::map<std::pair<std::string, std::string>, std::vector<std::string>>
+        groupFilePathsEverest( const std::vector<std::string>& filepaths );
 
     static std::vector<QStringList>       groupFilesByEnsemble( const QStringList& fileNames, EnsembleGroupingMode groupingMode );
     static std::map<QString, QStringList> groupFilesByEnsembleName( const QStringList& fileNames, EnsembleGroupingMode groupingMode );

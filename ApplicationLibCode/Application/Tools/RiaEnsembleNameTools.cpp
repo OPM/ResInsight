@@ -47,18 +47,68 @@ void caf::AppEnum<RiaEnsembleNameTools::EnsembleGroupingMode>::setUp()
 ///
 //--------------------------------------------------------------------------------------------------
 std::map<std::pair<std::string, std::string>, std::vector<std::string>>
-    RiaEnsembleNameTools::groupFilePaths( const std::vector<std::string>& allPaths )
+    RiaEnsembleNameTools::groupFilePathsFmu( const std::vector<std::string>& filepaths )
 {
     std::map<std::pair<std::string, std::string>, std::vector<std::string>> groupedPaths;
-    std::regex regex( R"(.*[\\/]+([^\\/]+)[\\/]+realization-\d+[\\/]+([^\\/]+).*)", std::regex::icase );
 
-    for ( const std::string& path : allPaths )
+    // Example path
+    // "f:/Models/scratch/project_a/realization-0/iter-0/eclipse/model/PROJECT-0.SMSPEC"
+    //
+    // Regex pattern to extract case name and iteration folder
+    // Group 1: Case folder name (top level folder)
+    // Group 2: Iteration folder name
+    std::regex pattern( R"(.*[\\/]+([^\\/]+)[\\/]+realization-\d+[\\/]+([^\\/]+).*)", std::regex::icase );
+
+    for ( const std::string& filepath : filepaths )
     {
-        std::smatch match;
-        if ( std::regex_match( path, match, regex ) )
+        std::smatch matches;
+        if ( std::regex_match( filepath, matches, pattern ) )
         {
-            auto key = std::make_pair( match[1].str(), match[2].str() );
-            groupedPaths[key].push_back( path );
+            auto key = std::make_pair( matches[1].str(), matches[2].str() );
+            groupedPaths[key].push_back( filepath );
+        }
+    }
+
+    return groupedPaths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<std::pair<std::string, std::string>, std::vector<std::string>>
+    RiaEnsembleNameTools::groupFilePathsEverest( const std::vector<std::string>& filepaths )
+{
+    std::map<std::pair<std::string, std::string>, std::vector<std::string>> groupedPaths;
+
+    // First normalize paths to use forward slashes only
+    auto normalizePath = []( const std::string& path )
+    {
+        std::string normalized = path;
+        std::replace( normalized.begin(), normalized.end(), '\\', '/' );
+        return normalized;
+    };
+
+    // Example path
+    // "f:/Models/scratch/my_case2/batch_1/geo_realization_1/simulation_1/eclipse/model/PROJECT-0.SMSPEC"
+    //
+    // Regex pattern to extract case name and batch folder
+    // Group 1: Everything up to the case folder
+    // Group 2: Case folder name (top level folder)
+    // Group 3: Batch folder name
+    std::regex pattern( R"((.*/)?([^/]+)/((batch_\d+))/.*$)" );
+
+    for ( const auto& filepath : filepaths )
+    {
+        std::string normalizedPath = normalizePath( filepath );
+
+        std::smatch matches;
+        if ( std::regex_search( normalizedPath, matches, pattern ) )
+        {
+            std::string prefix    = matches[1].str();
+            std::string caseName  = matches[2].str();
+            std::string batchName = matches[4].str();
+
+            groupedPaths[{ caseName, batchName }].push_back( filepath );
         }
     }
 
@@ -215,7 +265,7 @@ std::map<QString, QStringList> RiaEnsembleNameTools::groupFilesByEnsembleName( c
             allPaths.push_back( fileName.toStdString() );
         }
 
-        auto groupedPaths = RiaEnsembleNameTools::groupFilePaths( allPaths );
+        auto groupedPaths = RiaEnsembleNameTools::groupFilePathsFmu( allPaths );
 
         auto shouldIncludeTopLevel = []( const auto& paths ) -> bool
         {
@@ -246,6 +296,25 @@ std::map<QString, QStringList> RiaEnsembleNameTools::groupFilesByEnsembleName( c
                 groupPaths.push_back( QString::fromStdString( path ) );
             }
 
+            ensemblePaths[QString::fromStdString( ensembleName )] = groupPaths;
+        }
+    }
+    else if ( groupingMode == EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE )
+    {
+        std::vector<std::string> allPaths;
+        for ( const auto& fileName : fileNames )
+        {
+            allPaths.push_back( fileName.toStdString() );
+        }
+        auto groupedPaths = RiaEnsembleNameTools::groupFilePathsEverest( allPaths );
+        for ( auto group : groupedPaths )
+        {
+            std::string ensembleName = group.first.first + ", " + group.first.second;
+            QStringList groupPaths;
+            for ( const auto& path : group.second )
+            {
+                groupPaths.push_back( QString::fromStdString( path ) );
+            }
             ensemblePaths[QString::fromStdString( ensembleName )] = groupPaths;
         }
     }
@@ -327,7 +396,7 @@ void RiaEnsembleNameTools::updateAutoNameEnsembles( std::vector<RimSummaryEnsemb
             fileNames.push_back( summaryCase->summaryHeaderFilename().toStdString() );
         }
 
-        auto groupedPaths = RiaEnsembleNameTools::groupFilePaths( fileNames );
+        auto groupedPaths = RiaEnsembleNameTools::groupFilePathsFmu( fileNames );
         for ( auto group : groupedPaths )
         {
             key1.insert( group.first.first );

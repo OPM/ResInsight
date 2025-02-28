@@ -199,7 +199,7 @@ void RimSummaryEnsemble::ensureNameIsUpdated()
         }
 
         QString ensembleName;
-        auto    nameHelper = RiaEnsembleNameTools::groupFilePaths( fileNames );
+        auto    nameHelper = RiaEnsembleNameTools::groupFilePathsFmu( fileNames );
         if ( nameHelper.empty() )
         {
             ensembleName = "Undefined Automatic Name";
