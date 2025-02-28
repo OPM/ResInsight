@@ -316,7 +316,10 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
         if ( isEnsembleMode )
         {
-            ensemble = RicCreateSummaryCaseCollectionFeature::groupSummaryCases( summaryCasesToUse, "Ensemble", true );
+            ensemble = RicCreateSummaryCaseCollectionFeature::groupSummaryCases( summaryCasesToUse,
+                                                                                 "Ensemble",
+                                                                                 RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE,
+                                                                                 true );
         }
 
         if ( isSinglePlot )

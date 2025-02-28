@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "Summary/RiaSummaryDefines.h"
+
 #include "cafCmdFeature.h"
 
 #include <vector>
@@ -32,7 +34,10 @@ class RicCreateSummaryCaseCollectionFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-    static RimSummaryEnsemble* groupSummaryCases( std::vector<RimSummaryCase*> cases, const QString& groupName, bool isEnsemble = false );
+    static RimSummaryEnsemble* groupSummaryCases( std::vector<RimSummaryCase*>     cases,
+                                                  const QString&                   groupName,
+                                                  RiaDefines::EnsembleGroupingMode groupingMode,
+                                                  bool                             isEnsemble = false );
 
 private:
     bool isCommandEnabled() const override;

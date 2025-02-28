@@ -20,8 +20,10 @@
 
 #include "RiaEnsembleNameTools.h"
 #include "RiaFieldHandleTools.h"
+#include "RiaFilePathTools.h"
 #include "RiaLogging.h"
 #include "RiaStatisticsTools.h"
+#include "RiaStdStringTools.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
 
 #include "RifSummaryReaderInterface.h"
@@ -194,7 +196,8 @@ QString RimSummaryEnsemble::name() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryEnsemble::ensureNameIsUpdated()
 {
-    std::string key1, key2;
+    std::string key1 = "Undefined KEY1";
+    std::string key2 = "Undefined KEY2";
 
     if ( m_groupingMode() == RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE )
     {
@@ -210,13 +213,35 @@ void RimSummaryEnsemble::ensureNameIsUpdated()
     }
     else if ( m_groupingMode() == RiaDefines::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE )
     {
-        if ( !m_cases.empty() )
+        if ( m_cases.size() > 1 )
         {
-            auto fileNames = RiaEnsembleNameTools::groupFilePathsFmu( { m_cases[0]->summaryHeaderFilename().toStdString() } );
-            if ( !fileNames.empty() )
+            auto name1 = RiaFilePathTools::toInternalSeparator( m_cases[0]->summaryHeaderFilename() ).toStdString();
+            auto name2 = RiaFilePathTools::toInternalSeparator( m_cases[1]->summaryHeaderFilename() ).toStdString();
+
+            auto parts1 = RiaStdStringTools::splitString( name1, '/' );
+            auto parts2 = RiaStdStringTools::splitString( name2, '/' );
+
+            size_t commonParts = 0;
+            for ( size_t i = 0; i < std::min( parts1.size(), parts2.size() ); i++ )
             {
-                key1 = fileNames.begin()->first.first;
-                key2 = fileNames.begin()->first.second;
+                if ( parts1[i] == parts2[i] )
+                {
+                    commonParts++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if ( commonParts == 1 )
+            {
+                key2 = parts1[commonParts - 1];
+            }
+            else if ( commonParts > 1 )
+            {
+                key1 = parts1[commonParts - 2];
+                key2 = parts1[commonParts - 1];
             }
         }
     }
