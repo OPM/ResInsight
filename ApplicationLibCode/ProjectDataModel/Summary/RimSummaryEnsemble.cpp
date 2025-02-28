@@ -36,6 +36,7 @@
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QFileInfo>
@@ -60,7 +61,7 @@ RimSummaryEnsemble::RimSummaryEnsemble()
     CAF_PDM_InitScriptableField( &m_useKey1, "UseKey1", false, "Use First Path Part" );
     CAF_PDM_InitScriptableField( &m_useKey2, "UseKey2", false, "Use Second Path Part" );
 
-    CAF_PDM_InitFieldNoDefault( &m_namePattern, "NamePattern", "Name Pattern" );
+    CAF_PDM_InitField( &m_namePattern, "NamePattern", QString( "$KEY1-$KEY2" ), "Name Template", "", "$KEY1-$KEY2 is replaced by identified folder names" );
     CAF_PDM_InitFieldNoDefault( &m_groupingMode, "GroupingMode", "Grouping Mode" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_nameAndItemCount, "NameCount", "Name" );
@@ -193,40 +194,55 @@ QString RimSummaryEnsemble::name() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryEnsemble::ensureNameIsUpdated()
 {
+    std::string key1, key2;
+
+    if ( m_groupingMode() == RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE )
+    {
+        if ( !m_cases.empty() )
+        {
+            auto fileNames = RiaEnsembleNameTools::groupFilePathsFmu( { m_cases[0]->summaryHeaderFilename().toStdString() } );
+            if ( !fileNames.empty() )
+            {
+                key1 = fileNames.begin()->first.first;
+                key2 = fileNames.begin()->first.second;
+            }
+        }
+    }
+    else if ( m_groupingMode() == RiaDefines::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE )
+    {
+        if ( !m_cases.empty() )
+        {
+            auto fileNames = RiaEnsembleNameTools::groupFilePathsFmu( { m_cases[0]->summaryHeaderFilename().toStdString() } );
+            if ( !fileNames.empty() )
+            {
+                key1 = fileNames.begin()->first.first;
+                key2 = fileNames.begin()->first.second;
+            }
+        }
+    }
+
+    QString candidateName;
     if ( m_autoName )
     {
-        std::vector<std::string> fileNames;
-        for ( const auto& summaryCase : m_cases )
+        if ( m_useKey1() ) candidateName += "$KEY1";
+        if ( m_useKey2() )
         {
-            fileNames.push_back( summaryCase->summaryHeaderFilename().toStdString() );
+            if ( !candidateName.isEmpty() ) candidateName += ", ";
+            candidateName += "$KEY2";
         }
-
-        QString ensembleName;
-        auto    nameHelper = RiaEnsembleNameTools::groupFilePathsFmu( fileNames );
-        if ( nameHelper.empty() )
-        {
-            ensembleName = "Undefined Automatic Name";
-        }
-        else
-        {
-            auto firstItem = nameHelper.begin()->first;
-            if ( m_useKey1 )
-            {
-                ensembleName += QString::fromStdString( firstItem.first );
-            }
-
-            if ( !m_useKey1 || m_useKey2 )
-            {
-                if ( !ensembleName.isEmpty() ) ensembleName += "-";
-                ensembleName += QString::fromStdString( firstItem.second );
-            }
-        }
-
-        if ( m_name == ensembleName ) return;
-
-        m_name = ensembleName;
-        caseNameChanged.send();
     }
+    else
+    {
+        candidateName = m_namePattern();
+    }
+
+    candidateName.replace( "$KEY1", QString::fromStdString( key1 ) );
+    candidateName.replace( "$KEY2", QString::fromStdString( key2 ) );
+
+    if ( m_name == candidateName ) return;
+
+    m_name = candidateName;
+    caseNameChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -243,6 +259,22 @@ void RimSummaryEnsemble::setUseKey1( bool useKey1 )
 void RimSummaryEnsemble::setUseKey2( bool useKey2 )
 {
     m_useKey2 = useKey2;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::setGroupingMode( RiaDefines::EnsembleGroupingMode groupingMode )
+{
+    m_groupingMode = groupingMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::EnsembleGroupingMode RimSummaryEnsemble::groupingMode() const
+{
+    return m_groupingMode();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -824,6 +856,10 @@ void RimSummaryEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         m_autoName = false;
         caseNameChanged.send();
     }
+    if ( changedField == &m_namePattern )
+    {
+        ensureNameIsUpdated();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -841,18 +877,11 @@ void RimSummaryEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 {
     uiOrdering.add( &m_groupingMode );
     uiOrdering.add( &m_autoName );
-    if ( m_autoName )
-    {
-        uiOrdering.add( &m_useKey1 );
-        uiOrdering.add( &m_useKey2 );
-    }
-
     uiOrdering.add( &m_name );
-    uiOrdering.add( &m_namePattern );
-    if ( m_isEnsemble() )
-    {
-        uiOrdering.add( &m_ensembleId );
-    }
+
+    if ( !m_autoName() ) uiOrdering.add( &m_namePattern );
+    if ( m_isEnsemble() ) uiOrdering.add( &m_ensembleId );
+
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -877,6 +906,21 @@ void RimSummaryEnsemble::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrd
         }
 
         uiTreeOrdering.skipRemainingChildren( true );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_namePattern )
+    {
+        if ( auto attr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
+        {
+            attr->placeholderText        = "$KEY1-$KEY2";
+            attr->notifyWhenTextIsEdited = true;
+        }
     }
 }
 

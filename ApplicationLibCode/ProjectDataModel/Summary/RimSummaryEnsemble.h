@@ -67,6 +67,9 @@ public:
     void    setUseKey1( bool useKey1 );
     void    setUseKey2( bool useKey2 );
 
+    void                             setGroupingMode( RiaDefines::EnsembleGroupingMode groupingMode );
+    RiaDefines::EnsembleGroupingMode groupingMode() const;
+
     bool                                       isEnsemble() const;
     void                                       setAsEnsemble( bool isEnsemble );
     virtual std::set<RifEclipseSummaryAddress> ensembleSummaryAddresses() const;
@@ -128,6 +131,7 @@ protected:
     virtual void onLoadDataAndUpdate();
     void         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void         defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     void buildMetaData();
 
