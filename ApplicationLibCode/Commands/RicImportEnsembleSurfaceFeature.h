@@ -41,7 +41,7 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
     std::pair<QStringList, RiaDefines::EnsembleGroupingMode> runRecursiveFileSearchDialog( const QString& dialogTitle,
-                                                                                                     const QString& pathCacheName );
+                                                                                           const QString& pathCacheName );
 
     static void importSingleEnsembleSurfaceFromFiles( const QStringList& fileNames, RiaDefines::EnsembleGroupingMode groupingMode );
 

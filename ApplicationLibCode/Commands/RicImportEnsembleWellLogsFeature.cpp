@@ -61,7 +61,7 @@ void RicImportEnsembleWellLogsFeature::onActionTriggered( bool isChecked )
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEnsembleWellLogs*>
-    RicImportEnsembleWellLogsFeature::createEnsembleWellLogsFromFiles( const QStringList&                         fileNames,
+    RicImportEnsembleWellLogsFeature::createEnsembleWellLogsFromFiles( const QStringList&               fileNames,
                                                                        RiaDefines::EnsembleGroupingMode groupingMode )
 {
     std::vector<RimEnsembleWellLogs*> ensembleWellLogs;
@@ -79,9 +79,8 @@ std::vector<RimEnsembleWellLogs*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEnsembleWellLogs*
-    RicImportEnsembleWellLogsFeature::createSingleEnsembleWellLogsFromFiles( const QStringList&                         fileNames,
-                                                                             RiaDefines::EnsembleGroupingMode groupingMode )
+RimEnsembleWellLogs* RicImportEnsembleWellLogsFeature::createSingleEnsembleWellLogsFromFiles( const QStringList& fileNames,
+                                                                                              RiaDefines::EnsembleGroupingMode groupingMode )
 {
     if ( fileNames.isEmpty() ) return nullptr;
 

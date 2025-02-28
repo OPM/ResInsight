@@ -45,9 +45,9 @@ protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    RimEclipseCaseEnsemble*                                            importSingleGridCaseEnsemble( const QStringList& fileNames );
+    RimEclipseCaseEnsemble*                                  importSingleGridCaseEnsemble( const QStringList& fileNames );
     std::pair<QStringList, RiaDefines::EnsembleGroupingMode> runRecursiveFileSearchDialog( const QString& dialogTitle,
-                                                                                                     const QString& pathCacheName );
+                                                                                           const QString& pathCacheName );
 
 private:
     QString m_pathFilter;

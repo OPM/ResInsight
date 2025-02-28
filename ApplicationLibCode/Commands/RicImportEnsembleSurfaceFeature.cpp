@@ -62,7 +62,7 @@ void RicImportEnsembleSurfaceFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( const QStringList&                         fileNames,
+void RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( const QStringList&               fileNames,
                                                                       RiaDefines::EnsembleGroupingMode groupingMode )
 {
     if ( fileNames.isEmpty() ) return;
@@ -77,7 +77,7 @@ void RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( const QStr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( const QStringList&                         fileNames,
+void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( const QStringList&               fileNames,
                                                                             RiaDefines::EnsembleGroupingMode groupingMode )
 {
     // Create a list of file names for each layer
