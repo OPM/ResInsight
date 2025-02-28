@@ -50,7 +50,7 @@ void RicImportEnsembleFractureStatisticsFeature::onActionTriggered( bool isCheck
     QString pathCacheName             = "INPUT_FILES";
     auto [fileNames, groupByEnsemble] = runRecursiveFileSearchDialog( "Import StimPlan Fractures", pathCacheName );
 
-    if ( groupByEnsemble == RiaEnsembleNameTools::EnsembleGroupingMode::NONE )
+    if ( groupByEnsemble == RiaDefines::EnsembleGroupingMode::NONE )
     {
         importSingleEnsembleFractureStatistics( fileNames );
     }
@@ -71,7 +71,7 @@ void RicImportEnsembleFractureStatisticsFeature::importSingleEnsembleFractureSta
 {
     auto    fractureGroupStatistics = new RimEnsembleFractureStatistics;
     QString ensembleNameSuggestion =
-        RiaEnsembleNameTools::findSuitableEnsembleName( fileNames, RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
+        RiaEnsembleNameTools::findSuitableEnsembleName( fileNames, RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
     fractureGroupStatistics->setName( ensembleNameSuggestion );
 
     caf::ProgressInfo progInfo( fileNames.size() + 1, "Creating Ensemble Fracture Statistics" );
@@ -116,7 +116,7 @@ void RicImportEnsembleFractureStatisticsFeature::setupActionLook( QAction* actio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
+std::pair<QStringList, RiaDefines::EnsembleGroupingMode>
     RicImportEnsembleFractureStatisticsFeature::runRecursiveFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName )
 {
     RiaApplication* app        = RiaApplication::instance();
@@ -136,7 +136,7 @@ std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
     m_pathFilter     = result.pathFilter;
     m_fileNameFilter = result.fileNameFilter;
 
-    if ( !result.ok ) return std::make_pair( QStringList(), RiaEnsembleNameTools::EnsembleGroupingMode::NONE );
+    if ( !result.ok ) return std::make_pair( QStringList(), RiaDefines::EnsembleGroupingMode::NONE );
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( pathCacheName, QFileInfo( result.rootDir ).absoluteFilePath() );

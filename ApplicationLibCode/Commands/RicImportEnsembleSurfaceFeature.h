@@ -34,16 +34,16 @@ public:
 
     RicImportEnsembleSurfaceFeature();
 
-    static void importEnsembleSurfaceFromFiles( const QStringList& fileNames, RiaEnsembleNameTools::EnsembleGroupingMode groupingMode );
+    static void importEnsembleSurfaceFromFiles( const QStringList& fileNames, RiaDefines::EnsembleGroupingMode groupingMode );
 
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode> runRecursiveFileSearchDialog( const QString& dialogTitle,
-                                                                                                     const QString& pathCacheName );
+    std::pair<QStringList, RiaDefines::EnsembleGroupingMode> runRecursiveFileSearchDialog( const QString& dialogTitle,
+                                                                                           const QString& pathCacheName );
 
-    static void importSingleEnsembleSurfaceFromFiles( const QStringList& fileNames, RiaEnsembleNameTools::EnsembleGroupingMode groupingMode );
+    static void importSingleEnsembleSurfaceFromFiles( const QStringList& fileNames, RiaDefines::EnsembleGroupingMode groupingMode );
 
 private:
     QString m_pathFilter;

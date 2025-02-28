@@ -58,7 +58,7 @@ void RicImportSummaryGroupFeature::onActionTriggered( bool isChecked )
     auto [isOk, cases] = RicImportSummaryCasesFeature::createSummaryCasesFromFiles( fileNames, createConfig );
 
     RicImportSummaryCasesFeature::addSummaryCases( cases );
-    RicCreateSummaryCaseCollectionFeature::groupSummaryCases( cases, "", false );
+    RicCreateSummaryCaseCollectionFeature::groupSummaryCases( cases, "", RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE, false );
 
     RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
     if ( mainPlotWindow && !cases.empty() )

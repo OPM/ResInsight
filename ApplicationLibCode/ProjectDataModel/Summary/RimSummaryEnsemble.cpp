@@ -20,8 +20,11 @@
 
 #include "RiaEnsembleNameTools.h"
 #include "RiaFieldHandleTools.h"
+#include "RiaFilePathTools.h"
 #include "RiaLogging.h"
 #include "RiaStatisticsTools.h"
+#include "RiaStdStringTools.h"
+#include "RiaTextStringTools.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
 
 #include "RifSummaryReaderInterface.h"
@@ -36,6 +39,8 @@
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiLineEditor.h"
+#include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QFileInfo>
@@ -57,6 +62,17 @@ RimSummaryEnsemble::RimSummaryEnsemble()
 
     CAF_PDM_InitScriptableField( &m_name, "SummaryCollectionName", QString( "Group" ), "Name" );
     CAF_PDM_InitScriptableField( &m_autoName, "CreateAutoName", true, "Auto Name" );
+    CAF_PDM_InitScriptableField( &m_useKey1, "UseKey1", false, "Use First Path Part" );
+    CAF_PDM_InitScriptableField( &m_useKey2, "UseKey2", false, "Use Second Path Part" );
+
+    QString defaultText = RiaDefines::key1VariableName() + "-" + RiaDefines::key2VariableName();
+    CAF_PDM_InitField( &m_nameTemplateString,
+                       "NameTemplateString",
+                       defaultText,
+                       "Name Template",
+                       "",
+                       "Variables are replaced by evaluated values based on file names" );
+    CAF_PDM_InitFieldNoDefault( &m_groupingMode, "GroupingMode", "Grouping Mode" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_nameAndItemCount, "NameCount", "Name" );
     m_nameAndItemCount.registerGetMethod( this, &RimSummaryEnsemble::nameAndItemCount );
@@ -75,6 +91,11 @@ RimSummaryEnsemble::RimSummaryEnsemble()
     m_dataVectorFolders.uiCapability()->setUiHidden( true );
     m_dataVectorFolders->uiCapability()->setUiTreeHidden( true );
     m_dataVectorFolders.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault( &m_ensembleDescription, "Description", "Description" );
+    m_ensembleDescription.registerGetMethod( this, &RimSummaryEnsemble::ensembleDescription );
+    m_ensembleDescription.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_ensembleDescription.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
 
     m_commonAddressCount = 0;
 }
@@ -188,22 +209,65 @@ QString RimSummaryEnsemble::name() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryEnsemble::ensureNameIsUpdated()
 {
+    const auto [key1, key2] = nameKeys();
+
+    QString templateText;
     if ( m_autoName )
     {
-        QStringList fileNames;
-        for ( const auto& summaryCase : m_cases )
+        if ( m_useKey1() ) templateText += RiaDefines::key1VariableName();
+        if ( m_useKey2() )
         {
-            fileNames.push_back( summaryCase->summaryHeaderFilename() );
+            if ( !templateText.isEmpty() ) templateText += ", ";
+            templateText += RiaDefines::key2VariableName();
         }
-
-        RiaEnsembleNameTools::EnsembleGroupingMode groupingMode = RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
-
-        QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames, groupingMode );
-        if ( m_name == ensembleName ) return;
-
-        m_name = ensembleName;
-        caseNameChanged.send();
     }
+    else
+    {
+        templateText = m_nameTemplateString();
+    }
+
+    std::map<QString, QString> keyValues = {
+        { RiaDefines::key1VariableName(), QString::fromStdString( key1 ) },
+        { RiaDefines::key2VariableName(), QString::fromStdString( key2 ) },
+    };
+
+    auto candidateName = RiaTextStringTools::replaceTemplateTextWithValues( templateText, keyValues );
+    if ( m_name == candidateName ) return;
+
+    m_name = candidateName;
+    caseNameChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::setUsePathKey1( bool useKey1 )
+{
+    m_useKey1 = useKey1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::setUsePathKey2( bool useKey2 )
+{
+    m_useKey2 = useKey2;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::setGroupingMode( RiaDefines::EnsembleGroupingMode groupingMode )
+{
+    m_groupingMode = groupingMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::EnsembleGroupingMode RimSummaryEnsemble::groupingMode() const
+{
+    return m_groupingMode();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -785,6 +849,10 @@ void RimSummaryEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         m_autoName = false;
         caseNameChanged.send();
     }
+    if ( changedField == &m_nameTemplateString )
+    {
+        ensureNameIsUpdated();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -802,10 +870,12 @@ void RimSummaryEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 {
     uiOrdering.add( &m_autoName );
     uiOrdering.add( &m_name );
-    if ( m_isEnsemble() )
-    {
-        uiOrdering.add( &m_ensembleId );
-    }
+
+    if ( !m_autoName() ) uiOrdering.add( &m_nameTemplateString );
+    if ( m_isEnsemble() ) uiOrdering.add( &m_ensembleId );
+
+    uiOrdering.add( &m_ensembleDescription );
+
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -831,6 +901,112 @@ void RimSummaryEnsemble::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrd
 
         uiTreeOrdering.skipRemainingChildren( true );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_nameTemplateString )
+    {
+        if ( auto attr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
+        {
+            attr->placeholderText        = RiaDefines::key1VariableName() + "-" + RiaDefines::key2VariableName();
+            attr->notifyWhenTextIsEdited = true;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryEnsemble::ensembleDescription() const
+{
+    QString txt;
+
+    if ( !m_cases.empty() )
+    {
+        txt += QString( "First summary file of %1 files :\n  " ).arg( m_cases.size() );
+        auto firstCase = m_cases[0]->summaryHeaderFilename();
+        txt += firstCase;
+        txt += "\n";
+    }
+
+    const auto [key1, key2] = nameKeys();
+    txt += "\nDetected variables for use when creating a custom name:\n";
+    txt += QString( "  %1: %2\n" ).arg( RiaDefines::key1VariableName() ).arg( QString::fromStdString( key1 ) );
+    txt += QString( "  %1: %2\n" ).arg( RiaDefines::key2VariableName() ).arg( QString::fromStdString( key2 ) );
+
+    txt += "\n";
+    if ( m_groupingMode() == RiaDefines::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE )
+    {
+        txt += "The ensemble is grouped by the file folder structure.\n";
+    }
+    else if ( m_groupingMode() == RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE )
+    {
+        txt += "The ensemble is grouped by the FMU file folder structure.\n";
+    }
+
+    return txt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::string, std::string> RimSummaryEnsemble::nameKeys() const
+{
+    std::string key1 = "Undefined KEY1";
+    std::string key2 = "Undefined KEY2";
+
+    if ( m_groupingMode() == RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE )
+    {
+        if ( !m_cases.empty() )
+        {
+            auto fileNames = RiaEnsembleNameTools::groupFilePathsFmu( { m_cases[0]->summaryHeaderFilename().toStdString() } );
+            if ( !fileNames.empty() )
+            {
+                key1 = fileNames.begin()->first.first;
+                key2 = fileNames.begin()->first.second;
+            }
+        }
+    }
+    else if ( m_groupingMode() == RiaDefines::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE )
+    {
+        if ( m_cases.size() > 1 )
+        {
+            auto name1 = RiaFilePathTools::toInternalSeparator( m_cases[0]->summaryHeaderFilename() ).toStdString();
+            auto name2 = RiaFilePathTools::toInternalSeparator( m_cases[1]->summaryHeaderFilename() ).toStdString();
+
+            auto parts1 = RiaStdStringTools::splitString( name1, '/' );
+            auto parts2 = RiaStdStringTools::splitString( name2, '/' );
+
+            size_t commonParts = 0;
+            for ( size_t i = 0; i < std::min( parts1.size(), parts2.size() ); i++ )
+            {
+                if ( parts1[i] == parts2[i] )
+                {
+                    commonParts++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if ( commonParts == 1 )
+            {
+                key2 = parts1[commonParts - 1];
+            }
+            else if ( commonParts > 1 )
+            {
+                key1 = parts1[commonParts - 2];
+                key2 = parts1[commonParts - 1];
+            }
+        }
+    }
+
+    return { key1, key2 };
 }
 
 //--------------------------------------------------------------------------------------------------

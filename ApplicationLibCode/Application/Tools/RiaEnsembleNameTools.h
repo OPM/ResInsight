@@ -26,6 +26,7 @@
 #include "Summary/RiaSummaryDefines.h"
 
 class RimSummaryCase;
+class RimSummaryEnsemble;
 
 //==================================================================================================
 //
@@ -33,15 +34,7 @@ class RimSummaryCase;
 class RiaEnsembleNameTools
 {
 public:
-    enum class EnsembleGroupingMode
-    {
-        FMU_FOLDER_STRUCTURE,
-        EVEREST_FOLDER_STRUCTURE,
-        NONE
-    };
-
-public:
-    static QString findSuitableEnsembleName( const QStringList& fileNames, EnsembleGroupingMode groupingMode );
+    static QString findSuitableEnsembleName( const QStringList& fileNames, RiaDefines::EnsembleGroupingMode groupingMode );
     static QString findCommonBaseName( const QStringList& fileNames );
 
     static QString
@@ -51,18 +44,28 @@ public:
                                                   const std::map<QString, QStringList>& keyFileComponentsForAllFiles,
                                                   const QString&                        ensembleCaseName );
 
-    static std::vector<QStringList>       groupFilesByEnsemble( const QStringList& fileNames, EnsembleGroupingMode groupingMode );
+    static std::map<std::pair<std::string, std::string>, std::vector<std::string>>
+        groupFilePathsFmu( const std::vector<std::string>& filepaths );
+
+    static std::map<std::pair<std::string, std::string>, std::vector<std::string>>
+        groupFilePathsEverest( const std::vector<std::string>& filepaths );
+
+    static std::vector<QStringList> groupFilesByEnsemble( const QStringList& fileNames, RiaDefines::EnsembleGroupingMode groupingMode );
+    static std::map<QString, QStringList> groupFilesByEnsembleName( const QStringList&               fileNames,
+                                                                    RiaDefines::EnsembleGroupingMode groupingMode );
     static std::map<QString, QStringList> groupFilesByCustomEnsemble( const QStringList& fileNames, RiaDefines::FileType fileType );
 
     static std::map<QString, std::pair<QString, QString>> findUniqueCustomEnsembleNames( RiaDefines::FileType fileType,
                                                                                          const QStringList&   fileNames,
                                                                                          const std::vector<QStringList>& fileNameComponents );
 
+    static void updateAutoNameEnsembles( std::vector<RimSummaryEnsemble*> ensembles );
+
     static QString uniqueShortNameForEnsembleCase( RimSummaryCase* summaryCase );
     static QString uniqueShortNameForSummaryCase( RimSummaryCase* summaryCase );
 
 private:
-    static QStringList findUniqueEnsembleNames( const QStringList&              fileNames,
-                                                const std::vector<QStringList>& fileNameComponents,
-                                                EnsembleGroupingMode            groupingMode );
+    static QStringList findUniqueEnsembleNames( const QStringList&               fileNames,
+                                                const std::vector<QStringList>&  fileNameComponents,
+                                                RiaDefines::EnsembleGroupingMode groupingMode );
 };

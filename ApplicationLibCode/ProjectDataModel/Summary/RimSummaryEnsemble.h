@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "Summary/RiaSummaryDefines.h"
 
 #include "RifEclipseSummaryAddress.h"
 
@@ -63,6 +64,12 @@ public:
     void    setName( const QString& name );
     QString name() const;
     void    ensureNameIsUpdated();
+    void    setUsePathKey1( bool useKey1 );
+    void    setUsePathKey2( bool useKey2 );
+
+    void                                setGroupingMode( RiaDefines::EnsembleGroupingMode groupingMode );
+    RiaDefines::EnsembleGroupingMode    groupingMode() const;
+    std::pair<std::string, std::string> nameKeys() const;
 
     bool                                       isEnsemble() const;
     void                                       setAsEnsemble( bool isEnsemble );
@@ -106,33 +113,44 @@ public:
     void                      setMinMax( const RifEclipseSummaryAddress& address, double min, double max );
     std::pair<double, double> minMax( const RifEclipseSummaryAddress& address );
 
+protected:
+    virtual void onLoadDataAndUpdate();
+
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void buildMetaData();
+
 private:
     caf::PdmFieldHandle* userDescriptionField() override;
-    QString              nameAndItemCount() const;
-    void                 updateIcon();
+    void                 initAfterRead() override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+
+    QString nameAndItemCount() const;
+    void    updateIcon();
 
     void updateReferringCurveSets( bool doZoomAll );
-
-    void initAfterRead() override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void onCaseNameChanged( const SignalEmitter* emitter );
 
     void buildChildNodes();
     void clearChildNodes();
 
+    QString ensembleDescription() const;
+
 protected:
-    virtual void onLoadDataAndUpdate();
-    void         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void         defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-
-    void buildMetaData();
-
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;
+    caf::PdmField<QString>                   m_name;
 
 private:
-    caf::PdmField<QString>                           m_name;
-    caf::PdmField<bool>                              m_autoName;
+    caf::PdmField<QString>           m_nameTemplateString;
+    caf::PdmField<bool>              m_autoName;
+    caf::PdmField<bool>              m_useKey1;
+    caf::PdmField<bool>              m_useKey2;
+    caf::PdmProxyValueField<QString> m_ensembleDescription;
+
+    caf::PdmField<caf::AppEnum<RiaDefines::EnsembleGroupingMode>> m_groupingMode;
+
     caf::PdmProxyValueField<QString>                 m_nameAndItemCount;
     caf::PdmField<bool>                              m_isEnsemble;
     caf::PdmChildField<RimSummaryAddressCollection*> m_dataVectorFolders;

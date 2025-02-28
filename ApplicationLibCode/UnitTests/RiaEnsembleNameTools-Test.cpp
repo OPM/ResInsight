@@ -32,3 +32,94 @@ TEST( RiaEnsembleNameToolsTests, commonBaseName )
 
     ASSERT_EQ( "data_vs_time", RiaEnsembleNameTools::findCommonBaseName( fileNames ).toStdString() );
 }
+
+//--------------------------------------------------------------------------------------------------
+TEST( RiaFilePathTools, EnsembleName )
+{
+    {
+        QString     testPath1( "e:/models/from_equinor_sftp/drogon3d_ahm/realization-0/iter-3/eclipse/model/DROGON-0.SMSPEC" );
+        QString     testPath2( "e:/models/from_equinor_sftp/drogon3d_ahm/realization-1/iter-3/eclipse/model/DROGON-1.SMSPEC" );
+        QStringList allPaths = { testPath1, testPath2 };
+
+        auto ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( allPaths, RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
+
+        EXPECT_EQ( QString( "iter-3" ), ensembleName );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RiaFilePathTools, RealizationName )
+{
+    {
+        QString     testPath0( "e:/models/from_equinor_sftp/drogon3d_ahm/realization-0/iter-3/eclipse/model/DROGON-0.SMSPEC" );
+        QString     testPath1( "e:/models/from_equinor_sftp/drogon3d_ahm/realization-1/iter-3/eclipse/model/DROGON-1.SMSPEC" );
+        QStringList allPaths = { testPath0, testPath1 };
+
+        QString fileName = "DROGON-0.SMSPEC";
+
+        auto name = RiaEnsembleNameTools::uniqueShortName( testPath1, allPaths, fileName );
+
+        EXPECT_EQ( QString( "real-1" ), name );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RiaFilePathTools, EnsembleGroupingMultipleEnsembles )
+{
+    {
+        std::vector<std::string> filepaths = { "f:/Models/scratch/project_a/realization-0/iter-0/eclipse/model/PROJECT-0.SMSPEC",
+                                               "f:/Models/scratch/project_a/realization-1/iter-0/eclipse/model/PROJECT-1.SMSPEC",
+                                               "f:/Models/scratch/project_a/realization-22/iter-0/eclipse/model/PROJECT-22.SMSPEC",
+                                               "f:/Models/scratch/project_b/realization-0/iter-0/eclipse/model/PROJECT-0.SMSPEC",
+                                               "f:/Models/scratch/project_b/realization-1/iter-0/eclipse/model/PROJECT-1.SMSPEC",
+                                               "f:/Models/scratch/project_b/realization-2/iter-0/eclipse/model/PROJECT-2.SMSPEC",
+                                               "f:/Models/scratch/project_c/realization-0/iter-0/eclipse/model/PROJECT-0.SMSPEC",
+                                               "f:/Models/scratch/project_c/realization-1/iter-0/eclipse/model/PROJECT-1.SMSPEC",
+                                               "f:/Models/scratch/project_c/realization-2/iter-0/eclipse/model/PROJECT-2.SMSPEC",
+                                               "f:/Models/scratch/project_c/realization-0/iter-1/eclipse/model/PROJECT-0.SMSPEC",
+                                               "f:/Models/scratch/project_c/realization-1\\iter-1/eclipse/model\\PROJECT-1.SMSPEC",
+                                               "f:/Models/scratch/project_c/realization-\\iter-1/eclipse/model\\PROJECT-2.SMSPEC" };
+
+        auto grouping = RiaEnsembleNameTools::groupFilePathsFmu( filepaths );
+
+        std::set<std::string> keys1 = { "project_a", "project_b", "project_c" };
+        std::set<std::string> keys2 = { "iter-0", "iter-1" };
+
+        EXPECT_EQ( 4, grouping.size() );
+        for ( const auto& [keys, paths] : grouping )
+        {
+            const auto& [key1, key2] = keys;
+            EXPECT_TRUE( keys1.find( key1 ) != keys1.end() );
+            EXPECT_TRUE( keys2.find( key2 ) != keys2.end() );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RiaFilePathTools, EnsembleGroupingEverest )
+{
+    {
+        std::vector<std::string> filepaths = {
+            "f:/Models/scratch/my_case/batch_0/geo_realization_0/simulation_0/eclipse/model/PROJECT-0.SMSPEC",
+            "f:/Models/scratch/my_case/batch_0/geo_realization_1/simulation_1/eclipse/model/PROJECT-0.SMSPEC",
+            "f:/Models/scratch/my_case/batch_0/geo_realization_2/simulation_2/eclipse/model/PROJECT-0.SMSPEC",
+            "f:/Models/scratch/my_case/batch_0/geo_realization_2/simulation_2/eclipse/model/PROJECT-0.SMSPEC",
+            "f:/Models/scratch/my_case/batch_1/geo_realization_0/simulation_0/eclipse/model/PROJECT-0.SMSPEC",
+            "f:/Models/scratch/my_case/batch_1/geo_realization_1/simulation_1/eclipse/model/PROJECT-0.SMSPEC",
+            "f:/Models/scratch/my_case/batch_1/geo_realization_2/simulation_2/eclipse/model/PROJECT-0.SMSPEC",
+            "f:/Models/scratch/my_case/batch_1/geo_realization_2/simulation_2/eclipse/model/PROJECT-0.SMSPEC",
+        };
+
+        auto grouping = RiaEnsembleNameTools::groupFilePathsEverest( filepaths );
+
+        std::set<std::string> keys1 = { "my_case" };
+        std::set<std::string> keys2 = { "batch_0", "batch_1" };
+
+        for ( const auto& [keys, paths] : grouping )
+        {
+            const auto& [key1, key2] = keys;
+            EXPECT_TRUE( keys1.find( key1 ) != keys1.end() );
+            EXPECT_TRUE( keys2.find( key2 ) != keys2.end() );
+        }
+    }
+}

@@ -70,6 +70,8 @@ public:
     // Create a string from a set of values. {1, 2, 3, 5, 6, 7, 8, 10, 11, 12} will be converted to "1, 2, 3, 5-8, 10-12"
     static std::string formatRangeSelection( const std::vector<int>& values );
 
+    static std::string findCommonPrefix( const std::vector<std::string>& strings );
+
 private:
     template <class Container>
     static void   splitByDelimiter( const std::string& str, Container& cont, char delimiter = ' ' );

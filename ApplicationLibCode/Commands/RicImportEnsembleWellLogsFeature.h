@@ -35,18 +35,18 @@ class RicImportEnsembleWellLogsFeature : public caf::CmdFeature
 
     RicImportEnsembleWellLogsFeature();
 
-    static std::vector<RimEnsembleWellLogs*> createEnsembleWellLogsFromFiles( const QStringList&                         fileNames,
-                                                                              RiaEnsembleNameTools::EnsembleGroupingMode groupingMode );
+    static std::vector<RimEnsembleWellLogs*> createEnsembleWellLogsFromFiles( const QStringList&               fileNames,
+                                                                              RiaDefines::EnsembleGroupingMode groupingMode );
 
 private:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode> runRecursiveFileSearchDialog( const QString& dialogTitle,
-                                                                                                     const QString& pathCacheName );
+    std::pair<QStringList, RiaDefines::EnsembleGroupingMode> runRecursiveFileSearchDialog( const QString& dialogTitle,
+                                                                                           const QString& pathCacheName );
 
-    static RimEnsembleWellLogs* createSingleEnsembleWellLogsFromFiles( const QStringList&                         fileNames,
-                                                                       RiaEnsembleNameTools::EnsembleGroupingMode groupingMode );
+    static RimEnsembleWellLogs* createSingleEnsembleWellLogsFromFiles( const QStringList&               fileNames,
+                                                                       RiaDefines::EnsembleGroupingMode groupingMode );
 
 private:
     QString m_pathFilter;

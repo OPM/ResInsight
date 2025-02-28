@@ -62,8 +62,8 @@ void RicImportEnsembleSurfaceFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( const QStringList&                         fileNames,
-                                                                      RiaEnsembleNameTools::EnsembleGroupingMode groupingMode )
+void RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( const QStringList&               fileNames,
+                                                                      RiaDefines::EnsembleGroupingMode groupingMode )
 {
     if ( fileNames.isEmpty() ) return;
 
@@ -77,8 +77,8 @@ void RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( const QStr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( const QStringList&                         fileNames,
-                                                                            RiaEnsembleNameTools::EnsembleGroupingMode groupingMode )
+void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( const QStringList&               fileNames,
+                                                                            RiaDefines::EnsembleGroupingMode groupingMode )
 {
     // Create a list of file names for each layer
     std::map<QString, QStringList> fileNamesForEachLayer;
@@ -176,7 +176,7 @@ void RicImportEnsembleSurfaceFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
+std::pair<QStringList, RiaDefines::EnsembleGroupingMode>
     RicImportEnsembleSurfaceFeature::runRecursiveFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName )
 {
     RiaApplication* app        = RiaApplication::instance();
@@ -194,7 +194,7 @@ std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
     m_pathFilter     = result.pathFilter;
     m_fileNameFilter = result.fileNameFilter;
 
-    if ( !result.ok ) return std::pair( QStringList(), RiaEnsembleNameTools::EnsembleGroupingMode::NONE );
+    if ( !result.ok ) return std::pair( QStringList(), RiaDefines::EnsembleGroupingMode::NONE );
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( pathCacheName, QFileInfo( result.rootDir ).absoluteFilePath() );

@@ -36,13 +36,16 @@ CAF_CMD_SOURCE_INIT( RicCreateSummaryCaseCollectionFeature, "RicCreateSummaryCas
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryEnsemble*
-    RicCreateSummaryCaseCollectionFeature::groupSummaryCases( std::vector<RimSummaryCase*> cases, const QString& groupName, bool isEnsemble )
+RimSummaryEnsemble* RicCreateSummaryCaseCollectionFeature::groupSummaryCases( std::vector<RimSummaryCase*>     cases,
+                                                                              const QString&                   groupName,
+                                                                              RiaDefines::EnsembleGroupingMode groupingMode,
+                                                                              bool                             isEnsemble )
 {
     RimSummaryCaseMainCollection* summaryCaseMainCollection = RiaSummaryTools::summaryCaseMainCollection();
     if ( !cases.empty() )
     {
         auto newGroup = summaryCaseMainCollection->addEnsemble( cases, groupName, isEnsemble );
+        newGroup->setGroupingMode( groupingMode );
         summaryCaseMainCollection->updateConnectedEditors();
 
         RiuPlotMainWindowTools::showPlotMainWindow();
@@ -91,7 +94,7 @@ void RicCreateSummaryCaseCollectionFeature::onActionTriggered( bool isChecked )
         duplicates.push_back( copy );
     }
 
-    groupSummaryCases( duplicates, "" );
+    groupSummaryCases( duplicates, "", RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
 }
 
 //--------------------------------------------------------------------------------------------------
