@@ -93,7 +93,7 @@ private:
     QStringList fileExtensions() const;
     QString     extensionFromFileNameFilter() const;
 
-    RiaEnsembleNameTools::EnsembleGroupingMode ensembleGroupingMode() const;
+    RiaDefines::EnsembleGroupingMode ensembleGroupingMode() const;
 
     void setOkButtonEnabled( bool enabled );
     void warningIfInvalidCharacters();
@@ -190,5 +190,5 @@ struct RicRecursiveFileSearchDialogResult
     QString                                fileNameFilter;
     RicRecursiveFileSearchDialog::FileType fileType;
 
-    RiaEnsembleNameTools::EnsembleGroupingMode groupingMode;
+    RiaDefines::EnsembleGroupingMode groupingMode;
 };

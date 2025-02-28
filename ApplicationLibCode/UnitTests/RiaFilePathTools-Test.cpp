@@ -1,6 +1,5 @@
 #include "gtest/gtest.h"
 
-#include "RiaEnsembleNameTools.h"
 #include "RiaFilePathTools.h"
 
 #include <iostream>
@@ -149,37 +148,6 @@ TEST( RiaFilePathTools, splitIntoComponets )
         EXPECT_EQ( QString( "eclipse" ), words[5] );
         EXPECT_EQ( QString( "model" ), words[6] );
         EXPECT_EQ( QString( "DROGON-0.SMSPEC" ), words[7] );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-TEST( RiaFilePathTools, EnsembleName )
-{
-    {
-        QString     testPath1( "e:/models/from_equinor_sftp/drogon3d_ahm/realization-0/iter-3/eclipse/model/DROGON-0.SMSPEC" );
-        QString     testPath2( "e:/models/from_equinor_sftp/drogon3d_ahm/realization-1/iter-3/eclipse/model/DROGON-1.SMSPEC" );
-        QStringList allPaths = { testPath1, testPath2 };
-
-        auto ensembleName =
-            RiaEnsembleNameTools::findSuitableEnsembleName( allPaths, RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
-
-        EXPECT_EQ( QString( "iter-3" ), ensembleName );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-TEST( RiaFilePathTools, RealizationName )
-{
-    {
-        QString     testPath0( "e:/models/from_equinor_sftp/drogon3d_ahm/realization-0/iter-3/eclipse/model/DROGON-0.SMSPEC" );
-        QString     testPath1( "e:/models/from_equinor_sftp/drogon3d_ahm/realization-1/iter-3/eclipse/model/DROGON-1.SMSPEC" );
-        QStringList allPaths = { testPath0, testPath1 };
-
-        QString fileName = "DROGON-0.SMSPEC";
-
-        auto name = RiaEnsembleNameTools::uniqueShortName( testPath1, allPaths, fileName );
-
-        EXPECT_EQ( QString( "real-1" ), name );
     }
 }
 

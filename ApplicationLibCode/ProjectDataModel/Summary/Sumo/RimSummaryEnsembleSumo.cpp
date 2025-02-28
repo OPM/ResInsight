@@ -455,9 +455,8 @@ void RimSummaryEnsembleSumo::buildMetaData()
 void RimSummaryEnsembleSumo::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_sumoDataSource );
-
-    auto group = uiOrdering.addNewGroup( "General" );
-    RimSummaryEnsemble::defineUiOrdering( uiConfigName, *group );
+    uiOrdering.add( &m_name );
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------

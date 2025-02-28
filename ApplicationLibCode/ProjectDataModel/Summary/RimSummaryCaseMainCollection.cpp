@@ -19,6 +19,7 @@
 #include "RimSummaryCaseMainCollection.h"
 
 #include "RiaEclipseFileNameTools.h"
+#include "RiaEnsembleNameTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
 #include "Summary/RiaSummaryTools.h"
@@ -259,6 +260,8 @@ RimSummaryEnsemble* RimSummaryCaseMainCollection::addEnsemble( const std::vector
 void RimSummaryCaseMainCollection::removeCaseCollection( RimSummaryEnsemble* caseCollection )
 {
     m_caseCollections.removeChild( caseCollection );
+
+    RiaEnsembleNameTools::updateAutoNameEnsembles( summaryCaseCollections() );
 
     dataSourceHasChanged.send();
 }
@@ -526,6 +529,8 @@ RimSummaryEnsemble* RimSummaryCaseMainCollection::defaultAllocator()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::onCaseNameChanged( const SignalEmitter* emitter )
 {
+    RiaEnsembleNameTools::updateAutoNameEnsembles( summaryCaseCollections() );
+
     RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
     summaryPlotColl->updateSummaryNameHasChanged();
 }

@@ -465,3 +465,45 @@ std::string RiaStdStringTools::formatRangeSelection( const std::vector<int>& val
 
     return result.str();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RiaStdStringTools::findCommonPrefix( const std::vector<std::string>& strings )
+{
+    if ( strings.empty() )
+    {
+        return "";
+    }
+
+    if ( strings.size() == 1 )
+    {
+        return strings[0];
+    }
+
+    // Find the shortest string length as a starting point
+    // We only need to check up to the length of the shortest string
+    size_t minLength = strings[0].length();
+    for ( const auto& str : strings )
+    {
+        minLength = std::min( minLength, str.length() );
+    }
+
+    // Compare characters from left to right
+    for ( size_t i = 0; i < minLength; ++i )
+    {
+        char current = strings[0][i];
+
+        for ( size_t j = 1; j < strings.size(); ++j )
+        {
+            if ( strings[j][i] != current )
+            {
+                // Found a mismatch, return the prefix up to this point
+                return strings[0].substr( 0, i );
+            }
+        }
+    }
+
+    // If we got here, all characters matched up to minLength
+    return strings[0].substr( 0, minLength );
+}
