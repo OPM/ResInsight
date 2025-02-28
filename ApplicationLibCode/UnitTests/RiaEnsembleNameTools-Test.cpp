@@ -42,7 +42,7 @@ TEST( RiaFilePathTools, EnsembleName )
         QStringList allPaths = { testPath1, testPath2 };
 
         auto ensembleName =
-            RiaEnsembleNameTools::findSuitableEnsembleName( allPaths, RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
+            RiaEnsembleNameTools::findSuitableEnsembleName( allPaths, RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
 
         EXPECT_EQ( QString( "iter-3" ), ensembleName );
     }

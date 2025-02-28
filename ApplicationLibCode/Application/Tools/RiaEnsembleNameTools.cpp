@@ -34,15 +34,6 @@
 
 #include <regex>
 
-template <>
-void caf::AppEnum<RiaEnsembleNameTools::EnsembleGroupingMode>::setUp()
-{
-    addItem( RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE, "FMU_FOLDER_MODE", "Sub Folder" );
-    addItem( RiaEnsembleNameTools::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE, "EVEREST_FOLDER_MODE", "Main Folder" );
-    addItem( RiaEnsembleNameTools::EnsembleGroupingMode::NONE, "None", "None" );
-    setDefault( RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -118,9 +109,9 @@ std::map<std::pair<std::string, std::string>, std::vector<std::string>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaEnsembleNameTools::findSuitableEnsembleName( const QStringList& fileNames, EnsembleGroupingMode folderLevel )
+QString RiaEnsembleNameTools::findSuitableEnsembleName( const QStringList& fileNames, RiaDefines::EnsembleGroupingMode folderLevel )
 {
-    if ( folderLevel == EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE )
+    if ( folderLevel == RiaDefines::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE )
     {
         QString commonRoot         = RiaTextStringTools::commonRoot( fileNames );
         commonRoot                 = commonRoot.left( commonRoot.lastIndexOf( '/' ) );
@@ -166,7 +157,7 @@ QString RiaEnsembleNameTools::findSuitableEnsembleName( const QStringList& fileN
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QStringList> RiaEnsembleNameTools::groupFilesByEnsemble( const QStringList& fileNames, EnsembleGroupingMode groupingMode )
+std::vector<QStringList> RiaEnsembleNameTools::groupFilesByEnsemble( const QStringList& fileNames, RiaDefines::EnsembleGroupingMode groupingMode )
 {
     std::vector<QStringList> componentsForAllFilePaths;
 
@@ -253,11 +244,12 @@ std::map<QString, QStringList> RiaEnsembleNameTools::groupFilesByCustomEnsemble(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<QString, QStringList> RiaEnsembleNameTools::groupFilesByEnsembleName( const QStringList& fileNames, EnsembleGroupingMode groupingMode )
+std::map<QString, QStringList> RiaEnsembleNameTools::groupFilesByEnsembleName( const QStringList&               fileNames,
+                                                                               RiaDefines::EnsembleGroupingMode groupingMode )
 {
     std::map<QString, QStringList> ensemblePaths;
 
-    if ( groupingMode == EnsembleGroupingMode::FMU_FOLDER_STRUCTURE )
+    if ( groupingMode == RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE )
     {
         std::vector<std::string> allPaths;
         for ( const auto& fileName : fileNames )
@@ -299,7 +291,7 @@ std::map<QString, QStringList> RiaEnsembleNameTools::groupFilesByEnsembleName( c
             ensemblePaths[QString::fromStdString( ensembleName )] = groupPaths;
         }
     }
-    else if ( groupingMode == EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE )
+    else if ( groupingMode == RiaDefines::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE )
     {
         std::vector<std::string> allPaths;
         for ( const auto& fileName : fileNames )
@@ -470,12 +462,12 @@ QString RiaEnsembleNameTools::uniqueShortNameForSummaryCase( RimSummaryCase* sum
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RiaEnsembleNameTools::findUniqueEnsembleNames( const QStringList&              fileNames,
-                                                           const std::vector<QStringList>& fileNameComponents,
-                                                           EnsembleGroupingMode            groupingMode )
+QStringList RiaEnsembleNameTools::findUniqueEnsembleNames( const QStringList&               fileNames,
+                                                           const std::vector<QStringList>&  fileNameComponents,
+                                                           RiaDefines::EnsembleGroupingMode groupingMode )
 {
     QStringList iterations;
-    if ( groupingMode == EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE )
+    if ( groupingMode == RiaDefines::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE )
     {
         QString     commonRoot           = RiaTextStringTools::commonRoot( fileNames );
         QStringList rootComponents       = RiaFilePathTools::splitPathIntoComponents( commonRoot );
@@ -506,7 +498,7 @@ QStringList RiaEnsembleNameTools::findUniqueEnsembleNames( const QStringList&   
             iterations.push_back( ensembleName );
         }
     }
-    else if ( groupingMode == EnsembleGroupingMode::FMU_FOLDER_STRUCTURE )
+    else if ( groupingMode == RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE )
     {
         // Find list of all folders inside a folder matching realization-*
         QRegularExpression realizationRe( "realization\\-\\d+" );

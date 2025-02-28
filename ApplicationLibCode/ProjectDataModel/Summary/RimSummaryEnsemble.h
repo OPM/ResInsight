@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "Summary/RiaSummaryDefines.h"
 
 #include "RifEclipseSummaryAddress.h"
 
@@ -133,10 +134,15 @@ protected:
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;
 
 private:
-    caf::PdmField<QString>                           m_name;
-    caf::PdmField<bool>                              m_autoName;
-    caf::PdmField<bool>                              m_useKey1;
-    caf::PdmField<bool>                              m_useKey2;
+    caf::PdmField<QString> m_name;
+    caf::PdmField<QString> m_namePattern;
+
+    caf::PdmField<bool> m_autoName;
+    caf::PdmField<bool> m_useKey1;
+    caf::PdmField<bool> m_useKey2;
+
+    caf::PdmField<caf::AppEnum<RiaDefines::EnsembleGroupingMode>> m_groupingMode;
+
     caf::PdmProxyValueField<QString>                 m_nameAndItemCount;
     caf::PdmField<bool>                              m_isEnsemble;
     caf::PdmChildField<RimSummaryAddressCollection*> m_dataVectorFolders;

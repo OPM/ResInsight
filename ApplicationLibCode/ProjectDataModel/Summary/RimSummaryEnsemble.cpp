@@ -60,6 +60,9 @@ RimSummaryEnsemble::RimSummaryEnsemble()
     CAF_PDM_InitScriptableField( &m_useKey1, "UseKey1", false, "Use First Path Part" );
     CAF_PDM_InitScriptableField( &m_useKey2, "UseKey2", false, "Use Second Path Part" );
 
+    CAF_PDM_InitFieldNoDefault( &m_namePattern, "NamePattern", "Name Pattern" );
+    CAF_PDM_InitFieldNoDefault( &m_groupingMode, "GroupingMode", "Grouping Mode" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_nameAndItemCount, "NameCount", "Name" );
     m_nameAndItemCount.registerGetMethod( this, &RimSummaryEnsemble::nameAndItemCount );
     RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_nameAndItemCount );
@@ -836,13 +839,16 @@ void RimSummaryEnsemble::onCaseNameChanged( const SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_groupingMode );
     uiOrdering.add( &m_autoName );
     if ( m_autoName )
     {
         uiOrdering.add( &m_useKey1 );
         uiOrdering.add( &m_useKey2 );
     }
+
     uiOrdering.add( &m_name );
+    uiOrdering.add( &m_namePattern );
     if ( m_isEnsemble() )
     {
         uiOrdering.add( &m_ensembleId );

@@ -117,7 +117,7 @@ void RicCreateEnsembleSurfaceFeature::executeCommand( const RicCreateEnsembleSur
 
     if ( ui.autoCreateEnsembleSurfaces() )
         RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( allSurfaceFileNames,
-                                                                         RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
+                                                                         RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
 }
 
 //--------------------------------------------------------------------------------------------------

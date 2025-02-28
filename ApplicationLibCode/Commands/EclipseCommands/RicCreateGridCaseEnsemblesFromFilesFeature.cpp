@@ -60,7 +60,7 @@ void RicCreateGridCaseEnsemblesFromFilesFeature::onActionTriggered( bool isCheck
 
     std::vector<RimEclipseCaseEnsemble*> gridEnsembles;
 
-    if ( groupByEnsemble == RiaEnsembleNameTools::EnsembleGroupingMode::NONE )
+    if ( groupByEnsemble == RiaDefines::EnsembleGroupingMode::NONE )
     {
         gridEnsembles.push_back( importSingleGridCaseEnsemble( fileNames ) );
     }
@@ -111,7 +111,7 @@ RimEclipseCaseEnsemble* RicCreateGridCaseEnsemblesFromFilesFeature::importSingle
 
     auto    eclipseCaseEnsemble = new RimEclipseCaseEnsemble;
     QString ensembleNameSuggestion =
-        RiaEnsembleNameTools::findSuitableEnsembleName( fileNames, RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
+        RiaEnsembleNameTools::findSuitableEnsembleName( fileNames, RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
     eclipseCaseEnsemble->setName( ensembleNameSuggestion );
 
     caf::ProgressInfo progInfo( fileNames.size() + 1, "Creating Grid Ensembles" );
@@ -142,7 +142,7 @@ RimEclipseCaseEnsemble* RicCreateGridCaseEnsemblesFromFilesFeature::importSingle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
+std::pair<QStringList, RiaDefines::EnsembleGroupingMode>
     RicCreateGridCaseEnsemblesFromFilesFeature::runRecursiveFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName )
 {
     RiaApplication* app        = RiaApplication::instance();
@@ -160,7 +160,7 @@ std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
     m_pathFilter     = result.pathFilter;
     m_fileNameFilter = result.fileNameFilter;
 
-    if ( !result.ok ) return std::make_pair( QStringList(), RiaEnsembleNameTools::EnsembleGroupingMode::NONE );
+    if ( !result.ok ) return std::make_pair( QStringList(), RiaDefines::EnsembleGroupingMode::NONE );
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( pathCacheName, QFileInfo( result.rootDir ).absoluteFilePath() );

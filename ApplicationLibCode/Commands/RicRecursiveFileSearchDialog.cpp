@@ -240,7 +240,7 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
             dialog.m_fileType       = fileTypes.front();
         }
 
-        for ( const auto& s : caf::AppEnum<RiaEnsembleNameTools::EnsembleGroupingMode>::uiTexts() )
+        for ( const auto& s : caf::AppEnum<RiaDefines::EnsembleGroupingMode>::uiTexts() )
         {
             dialog.m_ensembleGroupingMode->addItem( s );
         }
@@ -590,7 +590,7 @@ QString RicRecursiveFileSearchDialog::extensionFromFileNameFilter() const
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::updateFileListWidget()
 {
-    if ( ensembleGroupingMode() != RiaEnsembleNameTools::EnsembleGroupingMode::NONE )
+    if ( ensembleGroupingMode() != RiaDefines::EnsembleGroupingMode::NONE )
     {
         m_filePathModel.clear();
 
@@ -1214,13 +1214,13 @@ void RicRecursiveFileSearchDialog::slotUseRealizationStarClicked()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEnsembleNameTools::EnsembleGroupingMode RicRecursiveFileSearchDialog::ensembleGroupingMode() const
+RiaDefines::EnsembleGroupingMode RicRecursiveFileSearchDialog::ensembleGroupingMode() const
 {
-    if ( m_ensembleGroupingMode->currentIndex() == 0 ) return RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
-    if ( m_ensembleGroupingMode->currentIndex() == 1 ) return RiaEnsembleNameTools::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE;
-    if ( m_ensembleGroupingMode->currentIndex() == 2 ) return RiaEnsembleNameTools::EnsembleGroupingMode::NONE;
+    if ( m_ensembleGroupingMode->currentIndex() == 0 ) return RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
+    if ( m_ensembleGroupingMode->currentIndex() == 1 ) return RiaDefines::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE;
+    if ( m_ensembleGroupingMode->currentIndex() == 2 ) return RiaDefines::EnsembleGroupingMode::NONE;
 
-    return RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
+    return RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -62,7 +62,7 @@ void RicImportEnsembleWellLogsFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEnsembleWellLogs*>
     RicImportEnsembleWellLogsFeature::createEnsembleWellLogsFromFiles( const QStringList&                         fileNames,
-                                                                       RiaEnsembleNameTools::EnsembleGroupingMode groupingMode )
+                                                                       RiaDefines::EnsembleGroupingMode groupingMode )
 {
     std::vector<RimEnsembleWellLogs*> ensembleWellLogs;
 
@@ -81,7 +81,7 @@ std::vector<RimEnsembleWellLogs*>
 //--------------------------------------------------------------------------------------------------
 RimEnsembleWellLogs*
     RicImportEnsembleWellLogsFeature::createSingleEnsembleWellLogsFromFiles( const QStringList&                         fileNames,
-                                                                             RiaEnsembleNameTools::EnsembleGroupingMode groupingMode )
+                                                                             RiaDefines::EnsembleGroupingMode groupingMode )
 {
     if ( fileNames.isEmpty() ) return nullptr;
 
@@ -124,7 +124,7 @@ void RicImportEnsembleWellLogsFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
+std::pair<QStringList, RiaDefines::EnsembleGroupingMode>
     RicImportEnsembleWellLogsFeature::runRecursiveFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName )
 {
     RiaApplication* app        = RiaApplication::instance();
@@ -142,7 +142,7 @@ std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
     m_pathFilter     = result.pathFilter;
     m_fileNameFilter = result.fileNameFilter;
 
-    if ( !result.ok ) return std::make_pair( QStringList(), RiaEnsembleNameTools::EnsembleGroupingMode::NONE );
+    if ( !result.ok ) return std::make_pair( QStringList(), RiaDefines::EnsembleGroupingMode::NONE );
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( pathCacheName, QFileInfo( result.rootDir ).absoluteFilePath() );

@@ -38,6 +38,15 @@ void caf::AppEnum<RiaDefines::SummaryCurveTypeMode>::setUp()
     setDefault( RiaDefines::SummaryCurveTypeMode::AUTO );
 }
 
+template <>
+void caf::AppEnum<RiaDefines::EnsembleGroupingMode>::setUp()
+{
+    addItem( RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE, "FMU_FOLDER_MODE", "Sub Folder" );
+    addItem( RiaDefines::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE, "EVEREST_FOLDER_MODE", "Main Folder" );
+    addItem( RiaDefines::EnsembleGroupingMode::NONE, "None", "None" );
+    setDefault( RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
+}
+
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------

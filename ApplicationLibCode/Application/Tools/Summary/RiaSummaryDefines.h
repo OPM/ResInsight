@@ -29,6 +29,13 @@ enum class FileType
     STIMPLAN_SUMMARY
 };
 
+enum class EnsembleGroupingMode
+{
+    FMU_FOLDER_STRUCTURE,
+    EVEREST_FOLDER_STRUCTURE,
+    NONE
+};
+
 enum class HorizontalAxisType
 {
     TIME,
