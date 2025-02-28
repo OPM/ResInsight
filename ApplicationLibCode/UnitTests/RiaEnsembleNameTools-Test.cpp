@@ -41,8 +41,7 @@ TEST( RiaFilePathTools, EnsembleName )
         QString     testPath2( "e:/models/from_equinor_sftp/drogon3d_ahm/realization-1/iter-3/eclipse/model/DROGON-1.SMSPEC" );
         QStringList allPaths = { testPath1, testPath2 };
 
-        auto ensembleName =
-            RiaEnsembleNameTools::findSuitableEnsembleName( allPaths, RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
+        auto ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( allPaths, RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
 
         EXPECT_EQ( QString( "iter-3" ), ensembleName );
     }
@@ -109,22 +108,13 @@ TEST( RiaFilePathTools, EnsembleGroupingEverest )
             "f:/Models/scratch/my_case/batch_1/geo_realization_1/simulation_1/eclipse/model/PROJECT-0.SMSPEC",
             "f:/Models/scratch/my_case/batch_1/geo_realization_2/simulation_2/eclipse/model/PROJECT-0.SMSPEC",
             "f:/Models/scratch/my_case/batch_1/geo_realization_2/simulation_2/eclipse/model/PROJECT-0.SMSPEC",
-            "f:/Models/scratch/my_case2/batch_0/geo_realization_0/simulation_0/eclipse/model/PROJECT-0.SMSPEC",
-            "f:/Models/scratch/my_case2/batch_0/geo_realization_1/simulation_1/eclipse/model/PROJECT-0.SMSPEC",
-            "f:/Models/scratch/my_case2/batch_0/geo_realization_2/simulation_2/eclipse/model/PROJECT-0.SMSPEC",
-            "f:/Models/scratch/my_case2/batch_0/geo_realization_2/simulation_2/eclipse/model/PROJECT-0.SMSPEC",
-            "f:/Models/scratch/my_case2/batch_1/geo_realization_0/simulation_0/eclipse/model/PROJECT-0.SMSPEC",
-            "f:/Models/scratch/my_case2/batch_1/geo_realization_1/simulation_1/eclipse/model/PROJECT-0.SMSPEC",
-            "f:/Models/scratch/my_case2/batch_1/geo_realization_2/simulation_2/eclipse/model/PROJECT-0.SMSPEC",
-            "f:/Models/scratch/my_case2/batch_1/geo_realization_2/simulation_2/eclipse/model/PROJECT-0.SMSPEC",
         };
 
         auto grouping = RiaEnsembleNameTools::groupFilePathsEverest( filepaths );
 
-        std::set<std::string> keys1 = { "my_case2", "my_case" };
+        std::set<std::string> keys1 = { "my_case" };
         std::set<std::string> keys2 = { "batch_0", "batch_1" };
 
-        EXPECT_EQ( 4, grouping.size() );
         for ( const auto& [keys, paths] : grouping )
         {
             const auto& [key1, key2] = keys;

@@ -21,6 +21,7 @@
 #include "RiaFilePathTools.h"
 #include "RiaTextStringTools.h"
 #include "Summary/RiaSummaryDefines.h"
+#include "Tools/RiaStdStringTools.h"
 
 #include "RimCaseDisplayNameTools.h"
 #include "RimProject.h"
@@ -33,6 +34,45 @@
 #include <QRegularExpression>
 
 #include <regex>
+
+namespace internal
+{
+auto normalizePath = []( const std::string& path )
+{
+    std::string normalized = path;
+    std::replace( normalized.begin(), normalized.end(), '\\', '/' );
+    return normalized;
+};
+
+// Find the last common folder in the common prefix of paths
+std::string findLastCommonFolder( const std::vector<std::string>& paths )
+{
+    if ( paths.empty() )
+    {
+        return "";
+    }
+
+    auto commonPrefix = RiaStdStringTools::findCommonPrefix( paths );
+    if ( commonPrefix.empty() )
+    {
+        return "";
+    }
+
+    // Handle the case where common prefix doesn't end at a folder boundary
+    // Find the last slash in the common prefix
+    size_t lastSlashPos = commonPrefix.find_last_of( '/' );
+    if ( lastSlashPos == std::string::npos )
+    {
+        // No folder structure in the common prefix
+        return "";
+    }
+
+    std::string              commonPath = commonPrefix.substr( 0, lastSlashPos );
+    std::vector<std::string> folders    = RiaStdStringTools::splitString( commonPath, '/' );
+    return folders.empty() ? "" : folders.back();
+}
+
+} // namespace internal
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -71,36 +111,28 @@ std::map<std::pair<std::string, std::string>, std::vector<std::string>>
 {
     std::map<std::pair<std::string, std::string>, std::vector<std::string>> groupedPaths;
 
-    // First normalize paths to use forward slashes only
-    auto normalizePath = []( const std::string& path )
+    std::vector<std::string> normalizedPaths;
+    std::transform( filepaths.begin(), filepaths.end(), std::back_inserter( normalizedPaths ), internal::normalizePath );
+
+    auto commonPrefix = RiaStdStringTools::findCommonPrefix( normalizedPaths );
+
+    // strip partial folder name in prefix
+    auto lastSlashPos = commonPrefix.find_last_of( '/' );
+    if ( lastSlashPos != std::string::npos )
     {
-        std::string normalized = path;
-        std::replace( normalized.begin(), normalized.end(), '\\', '/' );
-        return normalized;
-    };
+        commonPrefix = commonPrefix.substr( 0, lastSlashPos );
+    }
 
-    // Example path
-    // "f:/Models/scratch/my_case2/batch_1/geo_realization_1/simulation_1/eclipse/model/PROJECT-0.SMSPEC"
-    //
-    // Regex pattern to extract case name and batch folder
-    // Group 1: Everything up to the case folder
-    // Group 2: Case folder name (top level folder)
-    // Group 3: Batch folder name
-    std::regex pattern( R"((.*/)?([^/]+)/((batch_\d+))/.*$)" );
+    auto commonFolder = internal::findLastCommonFolder( normalizedPaths );
 
-    for ( const auto& filepath : filepaths )
+    for ( const auto& filepath : normalizedPaths )
     {
-        std::string normalizedPath = normalizePath( filepath );
+        auto rest  = filepath.substr( commonPrefix.size() );
+        auto parts = RiaStdStringTools::splitString( rest, '/' );
 
-        std::smatch matches;
-        if ( std::regex_search( normalizedPath, matches, pattern ) )
-        {
-            std::string prefix    = matches[1].str();
-            std::string caseName  = matches[2].str();
-            std::string batchName = matches[4].str();
+        std::string firstFolder = parts.empty() ? "" : parts.front();
 
-            groupedPaths[{ caseName, batchName }].push_back( filepath );
-        }
+        groupedPaths[{ commonFolder, firstFolder }].push_back( filepath );
     }
 
     return groupedPaths;
