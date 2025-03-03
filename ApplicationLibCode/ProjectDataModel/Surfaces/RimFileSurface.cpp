@@ -25,8 +25,8 @@
 #include "RifSurfaceImporter.h"
 #include "RifVtkSurfaceImporter.h"
 
-#include "RigTriangleMeshData.h"
 #include "RigSurface.h"
+#include "RigTriangleMeshData.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"

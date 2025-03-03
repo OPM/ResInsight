@@ -18,9 +18,9 @@
 
 #include "RimFractureSurface.h"
 
-#include "RigTriangleMeshData.h"
 #include "RigStatisticsMath.h"
 #include "RigSurface.h"
+#include "RigTriangleMeshData.h"
 
 #include "RimRegularLegendConfig.h"
 #include "RimSurfaceCollection.h"
@@ -104,7 +104,7 @@ void RimFractureSurface::loadSurfaceDataForTimeStep( int timeStep )
 
     auto surface = new RigSurface;
 
-    auto triangleMeshData                     = m_surfacePerTimeStep[timeStep];
+    auto triangleMeshData              = m_surfacePerTimeStep[timeStep];
     const auto& [coordinates, indices] = triangleMeshData.geometry();
 
     surface->setTriangleData( indices, coordinates );
