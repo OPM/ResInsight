@@ -66,12 +66,9 @@ RimSummaryEnsemble::RimSummaryEnsemble()
     CAF_PDM_InitScriptableField( &m_useKey2, "UseKey2", false, "Use Second Path Part" );
 
     QString defaultText = RiaDefines::key1VariableName() + "-" + RiaDefines::key2VariableName();
-    CAF_PDM_InitField( &m_nameTemplateString,
-                       "NameTemplateString",
-                       defaultText,
-                       "Name Template",
-                       "",
-                       "Variables are replaced by evaluated values based on file names" );
+    QString tooltipText = QString( "Variables in template is supported, and will be replaced to create name. Example '%1'" ).arg( defaultText );
+    CAF_PDM_InitField( &m_nameTemplateString, "NameTemplateString", defaultText, "Name Template", "", tooltipText );
+
     CAF_PDM_InitFieldNoDefault( &m_groupingMode, "GroupingMode", "Grouping Mode" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_nameAndItemCount, "NameCount", "Name" );
@@ -829,6 +826,11 @@ void RimSummaryEnsemble::initAfterRead()
     }
 
     if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2022.06.2" ) ) m_autoName = false;
+
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2024.12.2" ) )
+    {
+        m_nameTemplateString = m_name;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -869,9 +871,15 @@ void RimSummaryEnsemble::onCaseNameChanged( const SignalEmitter* emitter )
 void RimSummaryEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_autoName );
-    uiOrdering.add( &m_name );
 
-    if ( !m_autoName() ) uiOrdering.add( &m_nameTemplateString );
+    if ( !m_autoName() )
+    {
+        uiOrdering.add( &m_nameTemplateString );
+    }
+
+    uiOrdering.add( &m_name );
+    m_name.uiCapability()->setUiReadOnly( !m_autoName() );
+
     if ( m_isEnsemble() ) uiOrdering.add( &m_ensembleId );
 
     uiOrdering.add( &m_ensembleDescription );
@@ -934,7 +942,7 @@ QString RimSummaryEnsemble::ensembleDescription() const
     }
 
     const auto [key1, key2] = nameKeys();
-    txt += "\nDetected variables for use when creating a custom name:\n";
+    txt += "\nDetected variables that can be used when defining the text in the 'Name Template' field:\n";
     txt += QString( "  %1: %2\n" ).arg( RiaDefines::key1VariableName() ).arg( QString::fromStdString( key1 ) );
     txt += QString( "  %1: %2\n" ).arg( RiaDefines::key2VariableName() ).arg( QString::fromStdString( key2 ) );
 
