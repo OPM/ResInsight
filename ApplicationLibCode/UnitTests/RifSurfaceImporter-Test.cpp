@@ -3,7 +3,7 @@
 #include "RifSurfaceImporter.h"
 
 #include "RiaTestDataDirectory.h"
-#include "RigGocadData.h"
+#include "RigTriangleMeshData.h"
 
 #include "QDir"
 #include <QString>
@@ -17,10 +17,10 @@ TEST( RifSurfaceImporter, GocadReadValidFile )
     QString filePath = baseFolder.absoluteFilePath( filename );
     EXPECT_TRUE( QFile::exists( filePath ) );
 
-    RigGocadData gocadData;
-    RifSurfaceImporter::readGocadFile( filePath, &gocadData );
+    RigTriangleMeshData triangleMeshData;
+    RifSurfaceImporter::readGocadFile( filePath, &triangleMeshData );
 
-    auto surface  = gocadData.gocadGeometry();
+    auto surface  = triangleMeshData.geometry();
     auto vertices = surface.first;
     auto indices  = surface.second;
 
@@ -39,10 +39,10 @@ TEST( RifSurfaceImporter, GocadReadWrongIndices )
     QString filePath = baseFolder.absoluteFilePath( filename );
     EXPECT_TRUE( QFile::exists( filePath ) );
 
-    RigGocadData gocadData;
-    RifSurfaceImporter::readGocadFile( filePath, &gocadData );
+    RigTriangleMeshData triangleMeshData;
+    RifSurfaceImporter::readGocadFile( filePath, &triangleMeshData );
 
-    auto surface  = gocadData.gocadGeometry();
+    auto surface  = triangleMeshData.geometry();
     auto vertices = surface.first;
     auto indices  = surface.second;
 
@@ -58,19 +58,19 @@ TEST( RifSurfaceImporter, GocadReadProperties )
     QString filePath = baseFolder.absoluteFilePath( filename );
     EXPECT_TRUE( QFile::exists( filePath ) );
 
-    RigGocadData gocadData;
-    RifSurfaceImporter::readGocadFile( filePath, &gocadData );
+    RigTriangleMeshData triangleMeshData;
+    RifSurfaceImporter::readGocadFile( filePath, &triangleMeshData );
 
-    auto surface  = gocadData.gocadGeometry();
+    auto surface  = triangleMeshData.geometry();
     auto vertices = surface.first;
     auto indices  = surface.second;
 
-    std::vector<QString> propNames = gocadData.propertyNames();
+    std::vector<QString> propNames = triangleMeshData.propertyNames();
 
     EXPECT_TRUE( propNames.size() == 3 );
     EXPECT_TRUE( propNames[0] == "SX" );
 
-    std::vector<float> propValues_SX = gocadData.propertyValues( propNames[0] );
+    std::vector<float> propValues_SX = triangleMeshData.propertyValues( propNames[0] );
 
     float SX_first  = propValues_SX[0];
     float SX_second = propValues_SX[1];
@@ -80,7 +80,7 @@ TEST( RifSurfaceImporter, GocadReadProperties )
     EXPECT_NEAR( 0.000972, SX_second, 1e-4 );
     EXPECT_NEAR( 0.004293, SX_last, 1e-4 );
 
-    std::vector<float> propValues_SY = gocadData.propertyValues( "SY" );
+    std::vector<float> propValues_SY = triangleMeshData.propertyValues( "SY" );
 
     float SY_first  = propValues_SY[0];
     float SY_second = propValues_SY[1];
@@ -99,11 +99,11 @@ TEST( RifSurfaceImporter, GocadReadNoProperty )
     QString filePath = baseFolder.absoluteFilePath( filename );
     EXPECT_TRUE( QFile::exists( filePath ) );
 
-    RigGocadData gocadData;
-    RifSurfaceImporter::readGocadFile( filePath, &gocadData );
+    RigTriangleMeshData triangleMeshData;
+    RifSurfaceImporter::readGocadFile( filePath, &triangleMeshData );
 
-    std::vector<QString> propNames  = gocadData.propertyNames();
-    std::vector<float>   propValues = gocadData.propertyValues( "" );
+    std::vector<QString> propNames  = triangleMeshData.propertyNames();
+    std::vector<float>   propValues = triangleMeshData.propertyValues( "" );
 
     EXPECT_TRUE( propNames.empty() );
     EXPECT_TRUE( propValues.empty() );
@@ -117,10 +117,10 @@ TEST( RifSurfaceImporter, GocadReadNonExistingProperty )
     QString filePath = baseFolder.absoluteFilePath( filename );
     EXPECT_TRUE( QFile::exists( filePath ) );
 
-    RigGocadData gocadData;
-    RifSurfaceImporter::readGocadFile( filePath, &gocadData );
+    RigTriangleMeshData triangleMeshData;
+    RifSurfaceImporter::readGocadFile( filePath, &triangleMeshData );
 
-    std::vector<float> propValues = gocadData.propertyValues( "NonExistingProperty" );
+    std::vector<float> propValues = triangleMeshData.propertyValues( "NonExistingProperty" );
 
     EXPECT_TRUE( propValues.empty() );
 }
@@ -134,10 +134,10 @@ TEST( RifSurfaceImporter, ReadWrongFileType )
         QString filePath = baseFolder.absoluteFilePath( filename );
         EXPECT_TRUE( QFile::exists( filePath ) );
 
-        RigGocadData gocadData;
-        RifSurfaceImporter::readGocadFile( filePath, &gocadData );
+        RigTriangleMeshData triangleMeshData;
+        RifSurfaceImporter::readGocadFile( filePath, &triangleMeshData );
 
-        auto surface  = gocadData.gocadGeometry();
+        auto surface  = triangleMeshData.geometry();
         auto vertices = surface.first;
         auto indices  = surface.second;
 

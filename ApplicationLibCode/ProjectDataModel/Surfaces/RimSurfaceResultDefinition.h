@@ -24,8 +24,6 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
-#include "cvfObject.h"
-
 class RimRegularLegendConfig;
 class RimSurfaceInView;
 class RigSurface;

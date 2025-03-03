@@ -16,26 +16,26 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigGocadData.h"
+#include "RigTriangleMeshData.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGocadData::RigGocadData()
+RigTriangleMeshData::RigTriangleMeshData()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGocadData::~RigGocadData()
+RigTriangleMeshData::~RigTriangleMeshData()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RigGocadData::propertyNames()
+std::vector<QString> RigTriangleMeshData::propertyNames()
 {
     return m_propertyNames;
 }
@@ -43,7 +43,7 @@ std::vector<QString> RigGocadData::propertyNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RigGocadData::gocadGeometry()
+std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RigTriangleMeshData::geometry()
 {
     return std::make_pair( m_vertices, m_tringleIndices );
 }
@@ -51,7 +51,7 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RigGocadData::gocadGeo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<float> RigGocadData::propertyValues( const QString& property )
+std::vector<float> RigTriangleMeshData::propertyValues( const QString& property )
 {
     for ( size_t propertyIdx = 0; propertyIdx < m_propertyNames.size(); propertyIdx++ )
     {
@@ -67,7 +67,7 @@ std::vector<float> RigGocadData::propertyValues( const QString& property )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGocadData::setGeometryData( const std::vector<cvf::Vec3d>& nodeCoord, const std::vector<unsigned>& connectivities )
+void RigTriangleMeshData::setGeometryData( const std::vector<cvf::Vec3d>& nodeCoord, const std::vector<unsigned>& connectivities )
 {
     m_vertices       = nodeCoord;
     m_tringleIndices = connectivities;
@@ -76,7 +76,7 @@ void RigGocadData::setGeometryData( const std::vector<cvf::Vec3d>& nodeCoord, co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGocadData::setPropertyData( const std::vector<QString>& propertyNames, std::vector<std::vector<float>>& propertyValues )
+void RigTriangleMeshData::setPropertyData( const std::vector<QString>& propertyNames, std::vector<std::vector<float>>& propertyValues )
 {
     m_propertyNames  = propertyNames;
     m_propertyValues = propertyValues;
@@ -85,7 +85,7 @@ void RigGocadData::setPropertyData( const std::vector<QString>& propertyNames, s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGocadData::addPropertyData( const QString& propertyName, std::vector<float>& propertyValues )
+void RigTriangleMeshData::addPropertyData( const QString& propertyName, std::vector<float>& propertyValues )
 {
     m_propertyNames.push_back( propertyName );
     m_propertyValues.push_back( propertyValues );

@@ -18,14 +18,11 @@
 
 #include "RimSurfaceResultDefinition.h"
 
-#include "RiaDefines.h"
 #include "RiaResultNames.h"
 
-#include "RigStatisticsMath.h"
 #include "RigSurface.h"
 
 #include "Rim3dView.h"
-#include "RimFractureSurface.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSurface.h"
 #include "RimSurfaceInView.h"
@@ -90,82 +87,11 @@ RimRegularLegendConfig* RimSurfaceResultDefinition::legendConfig()
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceResultDefinition::updateMinMaxValues( int currentTimeStep )
 {
+    if ( !m_surfaceInView ) return;
+
     if ( currentTimeStep < 0 ) currentTimeStep = 0;
 
-    // TODO: This is a hack, we need to find a better way to handle time dependent data for a surface
-    if ( auto fractureSurface = dynamic_cast<RimFractureSurface*>( m_surfaceInView->surface() ) )
-    {
-        double localMin               = 0.0;
-        double localMax               = 0.0;
-        double localPosClosestToZero  = 0.0;
-        double localNegClosestToZero  = 0.0;
-        double globalMin              = 0.0;
-        double globalMax              = 0.0;
-        double globalPosClosestToZero = 0.0;
-        double globalNegClosestToZero = 0.0;
-
-        auto valuesForTimeSteps = fractureSurface->valuesForProperty( m_propertyName );
-
-        MinMaxAccumulator minMaxAccumulator;
-        PosNegAccumulator posNegAccumulator;
-
-        for ( size_t timeIndex = 0; timeIndex < valuesForTimeSteps.size(); timeIndex++ )
-        {
-            auto values = valuesForTimeSteps[timeIndex];
-            minMaxAccumulator.addData( values );
-            posNegAccumulator.addData( values );
-
-            if ( static_cast<int>( timeIndex ) == currentTimeStep )
-            {
-                MinMaxAccumulator localMinMaxAccumulator;
-                PosNegAccumulator localPosNegAccumulator;
-                localMinMaxAccumulator.addData( values );
-                localPosNegAccumulator.addData( values );
-
-                localPosClosestToZero = localPosNegAccumulator.pos;
-                localNegClosestToZero = localPosNegAccumulator.neg;
-                localMin              = localMinMaxAccumulator.min;
-                localMax              = localMinMaxAccumulator.max;
-            }
-        }
-
-        globalPosClosestToZero = posNegAccumulator.pos;
-        globalNegClosestToZero = posNegAccumulator.neg;
-        globalMin              = minMaxAccumulator.min;
-        globalMax              = minMaxAccumulator.max;
-
-        m_legendConfig->setClosestToZeroValues( globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero );
-        m_legendConfig->setAutomaticRanges( globalMin, globalMax, localMin, localMax );
-
-        return;
-    }
-
-    RigSurface* surfData = surfaceData();
-    if ( surfData )
-    {
-        double globalMin              = 0.0;
-        double globalMax              = 0.0;
-        double globalPosClosestToZero = 0.0;
-        double globalNegClosestToZero = 0.0;
-
-        {
-            MinMaxAccumulator minMaxAccumulator;
-            PosNegAccumulator posNegAccumulator;
-
-            auto values = surfData->propertyValues( m_propertyName );
-            minMaxAccumulator.addData( values );
-            posNegAccumulator.addData( values );
-
-            globalPosClosestToZero = posNegAccumulator.pos;
-            globalNegClosestToZero = posNegAccumulator.neg;
-            globalMin              = minMaxAccumulator.min;
-            globalMax              = minMaxAccumulator.max;
-        }
-
-        m_legendConfig->setClosestToZeroValues( globalPosClosestToZero, globalNegClosestToZero, globalPosClosestToZero, globalNegClosestToZero );
-
-        m_legendConfig->setAutomaticRanges( globalMin, globalMax, globalMin, globalMax );
-    }
+    if ( auto surface = m_surfaceInView->surface() ) surface->updateMinMaxValues( m_legendConfig, m_propertyName, currentTimeStep );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,12 +99,12 @@ void RimSurfaceResultDefinition::updateMinMaxValues( int currentTimeStep )
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceResultDefinition::assignDefaultProperty()
 {
-    if ( m_surfaceInView->surface() && m_surfaceInView->surface()->surfaceData() )
+    if ( auto surface = surfaceData() )
     {
-        auto propNames = m_surfaceInView->surface()->surfaceData()->propertyNames();
+        auto propNames = surface->propertyNames();
         if ( !propNames.empty() )
         {
-            m_propertyName = m_surfaceInView->surface()->surfaceData()->propertyNames().front();
+            m_propertyName = propNames.front();
         }
     }
 }

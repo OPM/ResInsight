@@ -718,6 +718,16 @@ else()
 endif()
 
 # ##############################################################################
+# pugixml
+# ##############################################################################
+find_package(pugixml CONFIG REQUIRED)
+if(MSVC)
+  list(APPEND THIRD_PARTY_LIBRARIES pugixml::pugixml)
+else()
+  list(APPEND THIRD_PARTY_LIBRARIES pugixml::static)
+endif()
+
+# ##############################################################################
 # nonstd::type-lite
 # ##############################################################################
 find_package(type-lite CONFIG REQUIRED)
