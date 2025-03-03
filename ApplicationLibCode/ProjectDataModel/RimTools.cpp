@@ -585,6 +585,14 @@ RimSurfaceCollection* RimTools::surfaceCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimJobCollection* RimTools::jobCollection()
+{
+    return RimProject::current()->jobCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimPolygonCollection* RimTools::polygonCollection()
 {
     return RimProject::current()->activeOilField()->polygonCollection();

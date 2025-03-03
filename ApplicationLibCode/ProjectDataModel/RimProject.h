@@ -73,6 +73,7 @@ class RimPlotTemplateFolderItem;
 class RimGridCalculationCollection;
 class RimQuickAccessCollection;
 class RimAutomationSettings;
+class RimJobCollection;
 class RimEnsembleFileSetCollection;
 
 namespace caf
@@ -196,6 +197,7 @@ public:
     RimQuickAccessCollection*     pinnedFieldCollection() const;
     RimAutomationSettings*        automationSettings() const;
     RimEnsembleFileSetCollection* ensembleFileSetCollection() const;
+    RimJobCollection*         jobCollection() const;
 
 protected:
     void                              initAfterRead() override;
@@ -214,6 +216,7 @@ private:
     caf::PdmChildField<RimQuickAccessCollection*>     m_pinnedFieldCollection;
     caf::PdmChildField<RimAutomationSettings*>        m_automationSettings;
     caf::PdmChildField<RimEnsembleFileSetCollection*> m_ensembleFileSetCollection;
+    caf::PdmChildField<RimJobCollection*>         m_jobCollection;
 
     caf::PdmField<QString> m_globalPathList;
     caf::PdmField<QString> m_projectFileVersionString;
