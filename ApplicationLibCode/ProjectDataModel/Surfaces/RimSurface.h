@@ -28,6 +28,7 @@
 
 #include <vector>
 
+class RimRegularLegendConfig;
 class RigSurface;
 
 class RimSurface : public caf::PdmObject
@@ -67,6 +68,8 @@ public:
 
     void loadDataIfRequired();
     void reloadData();
+
+    virtual void updateMinMaxValues( RimRegularLegendConfig* legend, const QString& propertyName, int currentTimeStep ) const;
 
 protected:
     void setSurfaceData( RigSurface* surface );

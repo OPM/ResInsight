@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2025-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,9 +20,6 @@
 
 #include "RimSurface.h"
 
-#include "cafPdmChildArrayField.h"
-
-class RimFileSurface;
 class RigGocadData;
 
 class RimFractureSurface : public RimSurface
@@ -42,6 +39,8 @@ public:
     void loadSurfaceDataForTimeStep( int timeStep ) override;
 
     std::vector<std::vector<double>> valuesForProperty( const QString& propertyName ) const;
+
+    void updateMinMaxValues( RimRegularLegendConfig* legend, const QString& propertyName, int currentTimeStep ) const override;
 
 protected:
     bool updateSurfaceData() override;

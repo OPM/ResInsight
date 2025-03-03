@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2025-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,21 +18,17 @@
 
 #include "RimFractureSurface.h"
 
-#include "RiaPreferences.h"
+#include "RigGocadData.h"
+#include "RigStatisticsMath.h"
+#include "RigSurface.h"
 
+#include "RimRegularLegendConfig.h"
 #include "RimSurfaceCollection.h"
 
 #include "RifSurfaceImporter.h"
 #include "RifVtkSurfaceImporter.h"
 
-#include "RigGocadData.h"
-#include "RigSurface.h"
-
-#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
-
-#include <QFileInfo>
-#include <memory>
 
 CAF_PDM_SOURCE_INIT( RimFractureSurface, "RimFractureSurface" );
 
@@ -178,11 +174,6 @@ void RimFractureSurface::clearCachedNativeData()
 {
     m_secondsSinceSimulationStart.clear();
     m_surfacePerTimeStep.clear();
-
-    /*
-        m_vertices.clear();
-        m_tringleIndices.clear();
-    */
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,4 +194,48 @@ bool RimFractureSurface::loadDataFromFile()
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureSurface::updateMinMaxValues( RimRegularLegendConfig* legendConfig, const QString& propertyName, int currentTimeStep ) const
+{
+    double localMin              = 0.0;
+    double localMax              = 0.0;
+    double localPosClosestToZero = 0.0;
+    double localNegClosestToZero = 0.0;
+
+    auto valuesForTimeSteps = valuesForProperty( propertyName );
+
+    MinMaxAccumulator minMaxAccumulator;
+    PosNegAccumulator posNegAccumulator;
+
+    for ( size_t timeIndex = 0; timeIndex < valuesForTimeSteps.size(); timeIndex++ )
+    {
+        auto values = valuesForTimeSteps[timeIndex];
+        minMaxAccumulator.addData( values );
+        posNegAccumulator.addData( values );
+
+        if ( static_cast<int>( timeIndex ) == currentTimeStep )
+        {
+            MinMaxAccumulator localMinMaxAccumulator;
+            PosNegAccumulator localPosNegAccumulator;
+            localMinMaxAccumulator.addData( values );
+            localPosNegAccumulator.addData( values );
+
+            localPosClosestToZero = localPosNegAccumulator.pos;
+            localNegClosestToZero = localPosNegAccumulator.neg;
+            localMin              = localMinMaxAccumulator.min;
+            localMax              = localMinMaxAccumulator.max;
+        }
+    }
+
+    double globalPosClosestToZero = posNegAccumulator.pos;
+    double globalNegClosestToZero = posNegAccumulator.neg;
+    double globalMin              = minMaxAccumulator.min;
+    double globalMax              = minMaxAccumulator.max;
+
+    legendConfig->setClosestToZeroValues( globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero );
+    legendConfig->setAutomaticRanges( globalMin, globalMax, localMin, localMax );
 }
