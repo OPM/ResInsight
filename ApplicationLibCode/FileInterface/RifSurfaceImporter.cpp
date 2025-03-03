@@ -18,7 +18,7 @@
 
 #include "RifSurfaceImporter.h"
 #include "RiaStdStringTools.h"
-#include "RigGocadData.h"
+#include "RigTriangleMeshData.h"
 
 #include "cafProgressInfo.h"
 
@@ -43,9 +43,9 @@
 /// Returns vertices with z-value as depth, z is increasing downwards
 ///
 //--------------------------------------------------------------------------------------------------
-void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* gocadData )
+void RifSurfaceImporter::readGocadFile( const QString& filename, RigTriangleMeshData* triangleMeshData )
 {
-    CVF_ASSERT( gocadData );
+    CVF_ASSERT( triangleMeshData );
 
     enum class GocadZPositive
     {
@@ -204,10 +204,10 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
         }
     }
 
-    if ( gocadData )
+    if ( triangleMeshData )
     {
-        gocadData->setGeometryData( vertices, triangleIndices );
-        gocadData->setPropertyData( propertyNames, propertyValues );
+        triangleMeshData->setGeometryData( vertices, triangleIndices );
+        triangleMeshData->setPropertyData( propertyNames, propertyValues );
     }
 }
 

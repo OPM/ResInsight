@@ -19,7 +19,7 @@
 #include "RifVtkSurfaceImporter.h"
 
 #include "../../Fwk/VizFwk/LibIo/cvfTinyXmlFused.hpp"
-#include "RigGocadData.h"
+#include "RigTriangleMeshData.h"
 
 #include <filesystem>
 #include <memory>
@@ -31,7 +31,7 @@ namespace RifVtkSurfaceImporter
 {
 using namespace cvf_tinyXML;
 
-bool importFromFile( std::string filename, RigGocadData* gocadData )
+bool importFromFile( std::string filename, RigTriangleMeshData* triangleMeshData )
 {
     TiXmlDocument doc;
     if ( !doc.LoadFile( filename.c_str() ) )
@@ -39,13 +39,13 @@ bool importFromFile( std::string filename, RigGocadData* gocadData )
         return false;
     }
 
-    return importFromXmlDoc( doc, gocadData );
+    return importFromXmlDoc( doc, triangleMeshData );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool importFromPvdFile( const std::string& filename, RigGocadData* gocadData )
+bool importFromPvdFile( const std::string& filename, RigTriangleMeshData* triangleMeshData )
 {
     auto datasets = parsePvdDatasets( filename );
 
@@ -54,10 +54,10 @@ bool importFromPvdFile( const std::string& filename, RigGocadData* gocadData )
     // Sort and import the most recent dataset
     std::sort( datasets.begin(), datasets.end(), []( const PvdDataset& a, const PvdDataset& b ) { return a.timestep < b.timestep; } );
 
-    return importDataset( datasets.back(), gocadData );
+    return importDataset( datasets.back(), triangleMeshData );
 }
 
-bool importFromXmlDoc( const TiXmlDocument& doc, RigGocadData* gocadData )
+bool importFromXmlDoc( const TiXmlDocument& doc, RigTriangleMeshData* triangleMeshData )
 {
     auto* root = doc.FirstChildElement( "VTKFile" );
     if ( !root ) return false;
@@ -99,7 +99,7 @@ bool importFromXmlDoc( const TiXmlDocument& doc, RigGocadData* gocadData )
     }
 
     // Set geometry data
-    gocadData->setGeometryData( nonSharedVertices, nonSharedConnectivity );
+    triangleMeshData->setGeometryData( nonSharedVertices, nonSharedConnectivity );
 
     // Read properties
     std::vector<std::string>        propertyNamesOnFile;
@@ -123,7 +123,7 @@ bool importFromXmlDoc( const TiXmlDocument& doc, RigGocadData* gocadData )
                     valuesForEachNode.push_back( value );
                 }
 
-                gocadData->addPropertyData( QString::fromStdString( propertyNamesOnFile[i] ), valuesForEachNode );
+                triangleMeshData->addPropertyData( QString::fromStdString( propertyNamesOnFile[i] ), valuesForEachNode );
             }
         }
     }
@@ -249,7 +249,7 @@ std::vector<RifVtkSurfaceImporter::PvdDataset> parsePvdDatasets( const std::stri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool importDataset( const PvdDataset& dataset, RigGocadData* gocadData )
+bool importDataset( const PvdDataset& dataset, RigTriangleMeshData* triangleMeshData )
 {
     TiXmlDocument doc;
     if ( !doc.LoadFile( dataset.filename.c_str() ) )
@@ -257,7 +257,7 @@ bool importDataset( const PvdDataset& dataset, RigGocadData* gocadData )
         return false;
     }
 
-    return importFromXmlDoc( doc, gocadData );
+    return importFromXmlDoc( doc, triangleMeshData );
 }
 
 }; // namespace RifVtkSurfaceImporter

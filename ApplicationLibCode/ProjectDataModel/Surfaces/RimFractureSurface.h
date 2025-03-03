@@ -20,7 +20,7 @@
 
 #include "RimSurface.h"
 
-class RigGocadData;
+class RigTriangleMeshData;
 
 class RimFractureSurface : public RimSurface
 {
@@ -54,6 +54,6 @@ private:
 
     caf::PdmField<caf::FilePath> m_surfaceDefinitionFilePath;
 
-    std::vector<size_t>       m_secondsSinceSimulationStart;
-    std::vector<RigGocadData> m_surfacePerTimeStep;
+    std::vector<size_t>              m_secondsSinceSimulationStart;
+    std::vector<RigTriangleMeshData> m_surfacePerTimeStep;
 };

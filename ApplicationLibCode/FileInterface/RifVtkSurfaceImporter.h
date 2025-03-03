@@ -25,7 +25,7 @@
 
 #include "cvfVector3.h"
 
-class RigGocadData;
+class RigTriangleMeshData;
 
 namespace cvf_tinyXML
 {
@@ -45,10 +45,10 @@ struct PvdDataset
     std::string filename;
 };
 
-bool importFromFile( std::string filename, RigGocadData* gocadData );
+bool importFromFile( std::string filename, RigTriangleMeshData* triangleMeshData );
 
-bool importFromPvdFile( const std::string& filename, RigGocadData* gocadData );
-bool importFromXmlDoc( const cvf_tinyXML::TiXmlDocument& doc, RigGocadData* gocadData );
+bool importFromPvdFile( const std::string& filename, RigTriangleMeshData* triangleMeshData );
+bool importFromXmlDoc( const cvf_tinyXML::TiXmlDocument& doc, RigTriangleMeshData* triangleMeshData );
 
 bool readPoints( const cvf_tinyXML::TiXmlElement* piece, std::vector<cvf::Vec3d>& vertices );
 bool readConnectivity( const cvf_tinyXML::TiXmlElement* piece, std::vector<unsigned>& connectivity );
@@ -57,6 +57,6 @@ void readProperties( const cvf_tinyXML::TiXmlElement* piece,
                      std::vector<std::vector<float>>& propertyValues );
 
 std::vector<PvdDataset> parsePvdDatasets( const std::string& filename );
-bool                    importDataset( const PvdDataset& dataset, RigGocadData* gocadData );
+bool                    importDataset( const PvdDataset& dataset, RigTriangleMeshData* triangleMeshData );
 
 }; // namespace RifVtkSurfaceImporter

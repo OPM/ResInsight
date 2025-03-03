@@ -18,7 +18,7 @@
 
 #include "RimFractureSurface.h"
 
-#include "RigGocadData.h"
+#include "RigTriangleMeshData.h"
 #include "RigStatisticsMath.h"
 #include "RigSurface.h"
 
@@ -104,14 +104,14 @@ void RimFractureSurface::loadSurfaceDataForTimeStep( int timeStep )
 
     auto surface = new RigSurface;
 
-    auto gocadData                     = m_surfacePerTimeStep[timeStep];
-    const auto& [coordinates, indices] = gocadData.gocadGeometry();
+    auto triangleMeshData                     = m_surfacePerTimeStep[timeStep];
+    const auto& [coordinates, indices] = triangleMeshData.geometry();
 
     surface->setTriangleData( indices, coordinates );
-    auto propertyNames = gocadData.propertyNames();
+    auto propertyNames = triangleMeshData.propertyNames();
     for ( const auto& name : propertyNames )
     {
-        auto values = gocadData.propertyValues( name );
+        auto values = triangleMeshData.propertyValues( name );
         surface->addVerticeResult( name, values );
     }
     setSurfaceData( surface );
@@ -125,7 +125,7 @@ std::vector<std::vector<double>> RimFractureSurface::valuesForProperty( const QS
     std::vector<std::vector<double>> values;
     for ( auto allTimeStepValues : m_surfacePerTimeStep )
     {
-        const auto& [coordinates, indices] = allTimeStepValues.gocadGeometry();
+        const auto& [coordinates, indices] = allTimeStepValues.geometry();
 
         auto valuesOneTimeStep = allTimeStepValues.propertyValues( propertyName );
 
@@ -185,11 +185,11 @@ bool RimFractureSurface::loadDataFromFile()
 
     for ( const auto& s : surfaceInfo )
     {
-        RigGocadData gocadData;
-        if ( RifVtkSurfaceImporter::importFromFile( s.filename, &gocadData ) )
+        RigTriangleMeshData triangleMeshData;
+        if ( RifVtkSurfaceImporter::importFromFile( s.filename, &triangleMeshData ) )
         {
             m_secondsSinceSimulationStart.push_back( s.timestep );
-            m_surfacePerTimeStep.push_back( gocadData );
+            m_surfacePerTimeStep.push_back( triangleMeshData );
         }
     }
 

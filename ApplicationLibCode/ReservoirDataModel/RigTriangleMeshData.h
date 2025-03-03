@@ -23,14 +23,14 @@
 
 #include "cvfVector3.h"
 
-class RigGocadData
+class RigTriangleMeshData
 {
 public:
-    RigGocadData();
-    ~RigGocadData();
+    RigTriangleMeshData();
+    ~RigTriangleMeshData();
 
     std::vector<QString>                                      propertyNames();
-    std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> gocadGeometry();
+    std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> geometry();
     std::vector<float>                                        propertyValues( const QString& property );
 
     void setGeometryData( const std::vector<cvf::Vec3d>& nodeCoord, const std::vector<unsigned>& connectivities );
