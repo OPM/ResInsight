@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2025-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,21 +18,17 @@
 
 #include "RimFractureSurface.h"
 
-#include "RiaPreferences.h"
+#include "RigStatisticsMath.h"
+#include "RigSurface.h"
+#include "RigTriangleMeshData.h"
 
+#include "RimRegularLegendConfig.h"
 #include "RimSurfaceCollection.h"
 
 #include "RifSurfaceImporter.h"
 #include "RifVtkSurfaceImporter.h"
 
-#include "RigGocadData.h"
-#include "RigSurface.h"
-
-#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
-
-#include <QFileInfo>
-#include <memory>
 
 CAF_PDM_SOURCE_INIT( RimFractureSurface, "RimFractureSurface" );
 
@@ -108,14 +104,14 @@ void RimFractureSurface::loadSurfaceDataForTimeStep( int timeStep )
 
     auto surface = new RigSurface;
 
-    auto gocadData                     = m_surfacePerTimeStep[timeStep];
-    const auto& [coordinates, indices] = gocadData.gocadGeometry();
+    auto triangleMeshData              = m_surfacePerTimeStep[timeStep].get();
+    const auto& [coordinates, indices] = triangleMeshData->geometry();
 
     surface->setTriangleData( indices, coordinates );
-    auto propertyNames = gocadData.propertyNames();
+    auto propertyNames = triangleMeshData->propertyNames();
     for ( const auto& name : propertyNames )
     {
-        auto values = gocadData.propertyValues( name );
+        auto values = triangleMeshData->propertyValues( name );
         surface->addVerticeResult( name, values );
     }
     setSurfaceData( surface );
@@ -127,11 +123,11 @@ void RimFractureSurface::loadSurfaceDataForTimeStep( int timeStep )
 std::vector<std::vector<double>> RimFractureSurface::valuesForProperty( const QString& propertyName ) const
 {
     std::vector<std::vector<double>> values;
-    for ( auto allTimeStepValues : m_surfacePerTimeStep )
+    for ( const auto& allTimeStepValues : m_surfacePerTimeStep )
     {
-        const auto& [coordinates, indices] = allTimeStepValues.gocadGeometry();
+        const auto& [coordinates, indices] = allTimeStepValues->geometry();
 
-        auto valuesOneTimeStep = allTimeStepValues.propertyValues( propertyName );
+        auto valuesOneTimeStep = allTimeStepValues->propertyValues( propertyName );
 
         // convert to double vector
         std::vector<double> valuesOneTimeStepDouble( valuesOneTimeStep.begin(), valuesOneTimeStep.end() );
@@ -178,11 +174,6 @@ void RimFractureSurface::clearCachedNativeData()
 {
     m_secondsSinceSimulationStart.clear();
     m_surfacePerTimeStep.clear();
-
-    /*
-        m_vertices.clear();
-        m_tringleIndices.clear();
-    */
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -190,17 +181,61 @@ void RimFractureSurface::clearCachedNativeData()
 //--------------------------------------------------------------------------------------------------
 bool RimFractureSurface::loadDataFromFile()
 {
-    auto surfaceInfo = RifVtkSurfaceImporter::parsePvdDatasets( m_surfaceDefinitionFilePath().path().toStdString() );
+    std::filesystem::path filepath    = m_surfaceDefinitionFilePath().path().toLocal8Bit().constData();
+    auto                  surfaceInfo = RifVtkSurfaceImporter::parsePvdDatasets( filepath );
 
     for ( const auto& s : surfaceInfo )
     {
-        RigGocadData gocadData;
-        if ( RifVtkSurfaceImporter::importFromFile( s.filename, &gocadData ) )
+        if ( auto triangleMeshData = RifVtkSurfaceImporter::importFromFile( s.filepath ) )
         {
             m_secondsSinceSimulationStart.push_back( s.timestep );
-            m_surfacePerTimeStep.push_back( gocadData );
+            m_surfacePerTimeStep.push_back( std::move( triangleMeshData ) );
         }
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureSurface::updateMinMaxValues( RimRegularLegendConfig* legendConfig, const QString& propertyName, int currentTimeStep ) const
+{
+    double localMin              = 0.0;
+    double localMax              = 0.0;
+    double localPosClosestToZero = 0.0;
+    double localNegClosestToZero = 0.0;
+
+    auto valuesForTimeSteps = valuesForProperty( propertyName );
+
+    MinMaxAccumulator minMaxAccumulator;
+    PosNegAccumulator posNegAccumulator;
+
+    for ( size_t timeIndex = 0; timeIndex < valuesForTimeSteps.size(); timeIndex++ )
+    {
+        auto values = valuesForTimeSteps[timeIndex];
+        minMaxAccumulator.addData( values );
+        posNegAccumulator.addData( values );
+
+        if ( static_cast<int>( timeIndex ) == currentTimeStep )
+        {
+            MinMaxAccumulator localMinMaxAccumulator;
+            PosNegAccumulator localPosNegAccumulator;
+            localMinMaxAccumulator.addData( values );
+            localPosNegAccumulator.addData( values );
+
+            localPosClosestToZero = localPosNegAccumulator.pos;
+            localNegClosestToZero = localPosNegAccumulator.neg;
+            localMin              = localMinMaxAccumulator.min;
+            localMax              = localMinMaxAccumulator.max;
+        }
+    }
+
+    double globalPosClosestToZero = posNegAccumulator.pos;
+    double globalNegClosestToZero = posNegAccumulator.neg;
+    double globalMin              = minMaxAccumulator.min;
+    double globalMax              = minMaxAccumulator.max;
+
+    legendConfig->setClosestToZeroValues( globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero );
+    legendConfig->setAutomaticRanges( globalMin, globalMax, localMin, localMax );
 }

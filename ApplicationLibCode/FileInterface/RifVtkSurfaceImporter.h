@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <filesystem>
 #include <map>
 #include <memory>
 #include <string>
@@ -25,38 +26,29 @@
 
 #include "cvfVector3.h"
 
-class RigGocadData;
+#include "pugixml.hpp"
 
-namespace cvf_tinyXML
-{
-class TiXmlDocument;
-class TiXmlElement;
-} // namespace cvf_tinyXML
+class RigTriangleMeshData;
 
 //==================================================================================================
 ///
 //==================================================================================================
-namespace RifVtkSurfaceImporter
+class RifVtkSurfaceImporter
 {
+public:
+    struct PvdDataset
+    {
+        double                timestep;
+        std::filesystem::path filepath;
+    };
 
-struct PvdDataset
-{
-    double      timestep;
-    std::string filename;
+    static std::unique_ptr<RigTriangleMeshData> importFromFile( const std::filesystem::path& filepath );
+
+    static std::vector<PvdDataset> parsePvdDatasets( const std::filesystem::path& filepath );
+
+private:
+    static std::unique_ptr<RigTriangleMeshData>      importFromXmlDoc( const pugi::xml_document& doc );
+    static std::vector<cvf::Vec3d>                   readPoints( const pugi::xml_node& piece );
+    static std::vector<unsigned>                     readConnectivity( const pugi::xml_node& piece );
+    static std::map<std::string, std::vector<float>> readProperties( const pugi::xml_node& piece );
 };
-
-bool importFromFile( std::string filename, RigGocadData* gocadData );
-
-bool importFromPvdFile( const std::string& filename, RigGocadData* gocadData );
-bool importFromXmlDoc( const cvf_tinyXML::TiXmlDocument& doc, RigGocadData* gocadData );
-
-bool readPoints( const cvf_tinyXML::TiXmlElement* piece, std::vector<cvf::Vec3d>& vertices );
-bool readConnectivity( const cvf_tinyXML::TiXmlElement* piece, std::vector<unsigned>& connectivity );
-void readProperties( const cvf_tinyXML::TiXmlElement* piece,
-                     std::vector<std::string>&        propertyNames,
-                     std::vector<std::vector<float>>& propertyValues );
-
-std::vector<PvdDataset> parsePvdDatasets( const std::string& filename );
-bool                    importDataset( const PvdDataset& dataset, RigGocadData* gocadData );
-
-}; // namespace RifVtkSurfaceImporter

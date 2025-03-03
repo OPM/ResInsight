@@ -22,7 +22,7 @@
 
 #include <memory>
 
-class RigGocadData;
+class RigTriangleMeshData;
 
 class RimFileSurface : public RimSurface
 {
@@ -53,5 +53,5 @@ private:
     std::vector<unsigned>   m_tringleIndices;
     std::vector<cvf::Vec3d> m_vertices;
 
-    std::unique_ptr<RigGocadData> m_gocadData;
+    std::unique_ptr<RigTriangleMeshData> m_triangleMeshData;
 };

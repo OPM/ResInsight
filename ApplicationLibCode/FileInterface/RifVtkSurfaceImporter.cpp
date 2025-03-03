@@ -18,8 +18,7 @@
 
 #include "RifVtkSurfaceImporter.h"
 
-#include "../../Fwk/VizFwk/LibIo/cvfTinyXmlFused.hpp"
-#include "RigGocadData.h"
+#include "RigTriangleMeshData.h"
 
 #include <filesystem>
 #include <memory>
@@ -27,60 +26,39 @@
 #include <string>
 #include <vector>
 
-namespace RifVtkSurfaceImporter
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<RigTriangleMeshData> RifVtkSurfaceImporter::importFromFile( const std::filesystem::path& filepath )
 {
-using namespace cvf_tinyXML;
+    pugi::xml_document     doc;
+    pugi::xml_parse_result result = doc.load_file( filepath.string().c_str() );
+    if ( !result ) return nullptr;
 
-bool importFromFile( std::string filename, RigGocadData* gocadData )
-{
-    TiXmlDocument doc;
-    if ( !doc.LoadFile( filename.c_str() ) )
-    {
-        return false;
-    }
-
-    return importFromXmlDoc( doc, gocadData );
+    return importFromXmlDoc( doc );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool importFromPvdFile( const std::string& filename, RigGocadData* gocadData )
+std::unique_ptr<RigTriangleMeshData> RifVtkSurfaceImporter::importFromXmlDoc( const pugi::xml_document& doc )
 {
-    auto datasets = parsePvdDatasets( filename );
+    auto root = doc.child( "VTKFile" );
+    if ( !root ) return nullptr;
 
-    if ( datasets.empty() ) return false;
+    auto grid = root.child( "UnstructuredGrid" );
+    if ( !grid ) return nullptr;
 
-    // Sort and import the most recent dataset
-    std::sort( datasets.begin(), datasets.end(), []( const PvdDataset& a, const PvdDataset& b ) { return a.timestep < b.timestep; } );
-
-    return importDataset( datasets.back(), gocadData );
-}
-
-bool importFromXmlDoc( const TiXmlDocument& doc, RigGocadData* gocadData )
-{
-    auto* root = doc.FirstChildElement( "VTKFile" );
-    if ( !root ) return false;
-
-    auto* grid = root->FirstChildElement( "UnstructuredGrid" );
-    if ( !grid ) return false;
-
-    auto* piece = grid->FirstChildElement( "Piece" );
-    if ( !piece ) return false;
+    auto piece = grid.child( "Piece" );
+    if ( !piece ) return nullptr;
 
     // Read points
-    std::vector<cvf::Vec3d> vertices;
-    if ( !readPoints( piece, vertices ) )
-    {
-        return false;
-    }
+    std::vector<cvf::Vec3d> vertices = readPoints( piece );
+    if ( vertices.empty() ) return nullptr;
 
     // Read connectivity
-    std::vector<unsigned> connectivity;
-    if ( !readConnectivity( piece, connectivity ) )
-    {
-        return false;
-    }
+    std::vector<unsigned> connectivity = readConnectivity( piece );
+    if ( connectivity.empty() ) return nullptr;
 
     // Avoid shared nodes
     std::vector<cvf::Vec3d> nonSharedVertices;
@@ -99,69 +77,70 @@ bool importFromXmlDoc( const TiXmlDocument& doc, RigGocadData* gocadData )
     }
 
     // Set geometry data
-    gocadData->setGeometryData( nonSharedVertices, nonSharedConnectivity );
+    auto triangleMeshData = std::make_unique<RigTriangleMeshData>();
+    triangleMeshData->setGeometryData( nonSharedVertices, nonSharedConnectivity );
 
     // Read properties
-    std::vector<std::string>        propertyNamesOnFile;
-    std::vector<std::vector<float>> propertyValuesOnFile;
-
-    readProperties( piece, propertyNamesOnFile, propertyValuesOnFile );
-
-    if ( propertyNamesOnFile.size() == propertyValuesOnFile.size() )
+    const std::map<std::string, std::vector<float>> properties = readProperties( piece );
+    for ( const auto& [name, values] : properties )
     {
-        for ( size_t i = 0; i < propertyValuesOnFile.size(); i++ )
+        // These values are per element, so we need to duplicate them for each node
+        if ( values.size() * 3 == nonSharedVertices.size() )
         {
-            // These values are per element, so we need to duplicate them for each node
-            auto values = propertyValuesOnFile[i];
-            if ( values.size() * 3 == nonSharedVertices.size() )
+            std::vector<float> valuesForEachNode;
+            for ( auto value : values )
             {
-                std::vector<float> valuesForEachNode;
-                for ( auto value : values )
-                {
-                    valuesForEachNode.push_back( value );
-                    valuesForEachNode.push_back( value );
-                    valuesForEachNode.push_back( value );
-                }
-
-                gocadData->addPropertyData( QString::fromStdString( propertyNamesOnFile[i] ), valuesForEachNode );
+                valuesForEachNode.push_back( value );
+                valuesForEachNode.push_back( value );
+                valuesForEachNode.push_back( value );
             }
+
+            triangleMeshData->addPropertyData( QString::fromStdString( name ), valuesForEachNode );
         }
     }
 
-    return true;
+    return triangleMeshData;
 }
 
-bool readPoints( const TiXmlElement* piece, std::vector<cvf::Vec3d>& vertices )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RifVtkSurfaceImporter::readPoints( const pugi::xml_node& piece )
 {
-    auto* points = piece->FirstChildElement( "Points" );
-    if ( !points ) return false;
+    auto points = piece.child( "Points" );
+    if ( !points ) return {};
 
-    auto* coords = points->FirstChildElement( "DataArray" );
-    if ( !coords || strcmp( coords->Attribute( "Name" ), "Coordinates" ) != 0 ) return false;
+    auto coords = points.child( "DataArray" );
+    if ( !coords || std::string( coords.attribute( "Name" ).value() ) != "Coordinates" ) return {};
 
-    std::string        coordsText = coords->GetText();
-    std::istringstream iss( coordsText );
+    std::vector<cvf::Vec3d> vertices;
+    std::istringstream      iss( coords.text().get() );
 
     double x, y, z;
     while ( iss >> x >> y >> z )
     {
-        vertices.push_back( cvf::Vec3d( x, y, -z ) );
+        vertices.emplace_back( x, y, -z );
     }
 
-    return !vertices.empty();
+    return vertices;
 }
 
-bool readConnectivity( const TiXmlElement* piece, std::vector<unsigned>& connectivity )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<unsigned> RifVtkSurfaceImporter::readConnectivity( const pugi::xml_node& piece )
 {
-    auto* cells = piece->FirstChildElement( "Cells" );
-    if ( !cells ) return false;
+    auto cells = piece.child( "Cells" );
+    if ( !cells ) return {};
 
-    auto* connectivityArray = cells->FirstChildElement( "DataArray" );
+    std::vector<unsigned> connectivity;
+    auto                  connectivityArray = cells.child( "DataArray" );
+
     while ( connectivityArray )
     {
-        if ( strcmp( connectivityArray->Attribute( "Name" ), "connectivity" ) == 0 )
+        if ( std::string( connectivityArray.attribute( "Name" ).value() ) == "connectivity" )
         {
-            std::string        connectivityText = connectivityArray->GetText();
+            std::string        connectivityText = connectivityArray.text().get();
             std::istringstream iss( connectivityText );
 
             unsigned index;
@@ -171,26 +150,29 @@ bool readConnectivity( const TiXmlElement* piece, std::vector<unsigned>& connect
             }
             break;
         }
-        connectivityArray = connectivityArray->NextSiblingElement( "DataArray" );
+        connectivityArray = connectivityArray.next_sibling( "DataArray" );
     }
 
-    return !connectivity.empty();
+    return connectivity;
 }
 
-void readProperties( const TiXmlElement* piece, std::vector<std::string>& propertyNames, std::vector<std::vector<float>>& propertyValues )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<std::string, std::vector<float>> RifVtkSurfaceImporter::readProperties( const pugi::xml_node& piece )
 {
-    auto* cellData = piece->FirstChildElement( "CellData" );
-    if ( !cellData ) return;
+    auto cellData = piece.child( "CellData" );
+    if ( !cellData ) return {};
 
-    auto* dataArray = cellData->FirstChildElement( "DataArray" );
-    while ( dataArray )
+    std::map<std::string, std::vector<float>> properties;
+
+    for ( const auto& dataArray : cellData.children( "DataArray" ) )
     {
-        const char* name = dataArray->Attribute( "Name" );
-        if ( name )
+        const char* name = dataArray.attribute( "Name" ).value();
+        if ( name && *name )
         {
             std::vector<float> values;
-            std::string        valuesText = dataArray->GetText();
-            std::istringstream iss( valuesText );
+            std::istringstream iss( dataArray.text().get() );
 
             float value;
             while ( iss >> value )
@@ -200,64 +182,46 @@ void readProperties( const TiXmlElement* piece, std::vector<std::string>& proper
 
             if ( !values.empty() )
             {
-                propertyNames.push_back( name );
-                propertyValues.push_back( values );
+                properties[name] = std::move( values );
             }
         }
-        dataArray = dataArray->NextSiblingElement( "DataArray" );
     }
+
+    return properties;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifVtkSurfaceImporter::PvdDataset> parsePvdDatasets( const std::string& filename )
+std::vector<RifVtkSurfaceImporter::PvdDataset> RifVtkSurfaceImporter::parsePvdDatasets( const std::filesystem::path& filepath )
 {
+    pugi::xml_document     doc;
+    pugi::xml_parse_result result = doc.load_file( filepath.string().c_str() );
+    if ( !result ) return {};
+
+    auto root = doc.child( "VTKFile" );
+    if ( !root ) return {};
+
+    auto collection = root.child( "Collection" );
+    if ( !collection ) return {};
+
+    std::filesystem::path baseDir = filepath.parent_path();
+
     std::vector<PvdDataset> datasets;
-    TiXmlDocument           doc;
 
-    if ( !doc.LoadFile( filename.c_str() ) ) return datasets;
-
-    auto* root = doc.FirstChildElement( "VTKFile" );
-    if ( !root ) return datasets;
-
-    auto* collection = root->FirstChildElement( "Collection" );
-    if ( !collection ) return datasets;
-
-    std::string baseDir = std::filesystem::path( filename ).parent_path().string();
-
-    auto* datasetElem = collection->FirstChildElement( "DataSet" );
-    while ( datasetElem )
+    for ( const auto& datasetElem : collection.children( "DataSet" ) )
     {
-        const char* file        = datasetElem->Attribute( "file" );
-        const char* timestepStr = datasetElem->Attribute( "timestep" );
+        const char* file        = datasetElem.attribute( "file" ).value();
+        const char* timestepStr = datasetElem.attribute( "timestep" ).value();
 
         if ( file && timestepStr )
         {
-            double      timestep = std::stod( timestepStr );
-            std::string fullPath = std::filesystem::absolute( std::filesystem::path( baseDir ) / file ).string();
+            double                timestep = std::stod( timestepStr );
+            std::filesystem::path fullPath = std::filesystem::absolute( baseDir / file );
 
             datasets.push_back( { timestep, fullPath } );
         }
-
-        datasetElem = datasetElem->NextSiblingElement( "DataSet" );
     }
 
     return datasets;
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool importDataset( const PvdDataset& dataset, RigGocadData* gocadData )
-{
-    TiXmlDocument doc;
-    if ( !doc.LoadFile( dataset.filename.c_str() ) )
-    {
-        return false;
-    }
-
-    return importFromXmlDoc( doc, gocadData );
-}
-
-}; // namespace RifVtkSurfaceImporter

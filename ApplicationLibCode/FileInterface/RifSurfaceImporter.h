@@ -26,12 +26,12 @@
 
 #include <QString>
 
-class RigGocadData;
+class RigTriangleMeshData;
 
 class RifSurfaceImporter
 {
 public:
-    static void                                                      readGocadFile( const QString& filename, RigGocadData* gocadData );
+    static void readGocadFile( const QString& filename, RigTriangleMeshData* triangleMeshData );
     static std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> readPetrelFile( const QString& filename );
     static std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> readOpenWorksXyzFile( const QString& filename,
                                                                                            double         preferredPointDistance );

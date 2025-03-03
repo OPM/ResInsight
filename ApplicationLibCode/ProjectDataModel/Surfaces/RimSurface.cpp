@@ -19,13 +19,14 @@
 #include "RimSurface.h"
 
 #include "RiaApplication.h"
+
 #include "RimCase.h"
 #include "RimProject.h"
+#include "RimRegularLegendConfig.h"
 #include "RimSurfaceCollection.h"
 
+#include "RigStatisticsMath.h"
 #include "RigSurface.h"
-
-#include "RifSurfaceImporter.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -320,5 +321,29 @@ void RimSurface::defineEditorAttribute( const caf::PdmFieldHandle* field, QStrin
             attr->m_minimum = 0.0;
             attr->m_maximum = 1.0;
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurface::updateMinMaxValues( RimRegularLegendConfig* legend, const QString& propertyName, int currentTimeStep ) const
+{
+    if ( !m_surfaceData.isNull() )
+    {
+        MinMaxAccumulator minMaxAccumulator;
+        PosNegAccumulator posNegAccumulator;
+
+        auto values = m_surfaceData->propertyValues( propertyName );
+        minMaxAccumulator.addData( values );
+        posNegAccumulator.addData( values );
+
+        double globalPosClosestToZero = posNegAccumulator.pos;
+        double globalNegClosestToZero = posNegAccumulator.neg;
+        double globalMin              = minMaxAccumulator.min;
+        double globalMax              = minMaxAccumulator.max;
+
+        legend->setClosestToZeroValues( globalPosClosestToZero, globalNegClosestToZero, globalPosClosestToZero, globalNegClosestToZero );
+        legend->setAutomaticRanges( globalMin, globalMax, globalMin, globalMax );
     }
 }
