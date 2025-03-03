@@ -56,6 +56,7 @@
 #include "RimTools.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
@@ -560,17 +561,21 @@ void RimFaultReactivationModel::defineEditorAttribute( const caf::PdmFieldHandle
 {
     if ( field == &m_targets )
     {
-        auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
-        if ( tvAttribute )
+        if ( auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute ) )
         {
             tvAttribute->resizePolicy = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT;
         }
     }
+    else if ( field == &m_baseDir )
+    {
+        if ( auto myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute ) )
+        {
+            myAttr->m_selectDirectory = true;
+        }
+    }
     else if ( ( field == &m_faultExtendUpwards ) || ( field == &m_faultExtendDownwards ) )
     {
-        auto* attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-
-        if ( attr )
+        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
         {
             auto eclCase = eclipseCase();
             if ( eclCase )
