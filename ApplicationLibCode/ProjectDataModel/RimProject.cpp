@@ -35,6 +35,7 @@
 #include "ContourMap/RimEclipseContourMapViewCollection.h"
 #include "EnsembleFileSet/RimEnsembleFileSetCollection.h"
 #include "Formations/RimFormationNamesCollection.h"
+#include "Jobs/RimJobCollection.h"
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "Polygons/RimPolygonCollection.h"
 #include "QuickAccess/RimQuickAccessCollection.h"
@@ -147,6 +148,8 @@ RimProject::RimProject()
     CAF_PDM_InitFieldNoDefault( &scriptCollection, "ScriptCollection", "Octave Scripts", ":/octave.png" );
     scriptCollection.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault( &m_jobCollection, "JobCollection", "Jobs", ":/gear.png" );
+
     CAF_PDM_InitFieldNoDefault( &m_mainPlotCollection, "MainPlotCollection", "Plots" );
     CAF_PDM_InitFieldNoDefault( &m_pinnedFieldCollection, "PinnedFieldCollection", "PinnedFieldCollection" );
 
@@ -211,6 +214,7 @@ RimProject::RimProject()
 
     m_mainPlotCollection    = new RimMainPlotCollection();
     m_pinnedFieldCollection = new RimQuickAccessCollection();
+    m_jobCollection         = new RimJobCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_plotTemplateTopFolder, "PlotTemplateCollection", "Plot Templates" );
     m_plotTemplateTopFolder = new RimPlotTemplateFolderItem();
@@ -354,6 +358,14 @@ void RimProject::updatesAfterProjectFileIsRead()
 RimQuickAccessCollection* RimProject::pinnedFieldCollection() const
 {
     return m_pinnedFieldCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimJobCollection* RimProject::jobCollection() const
+{
+    return m_jobCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1490,6 +1502,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
     else if ( uiConfigName == "PlotWindow.Scripts" || uiConfigName == "MainWindow.Scripts" )
     {
         uiTreeOrdering.add( scriptCollection() );
+        uiTreeOrdering.add( jobCollection() );
     }
     else if ( uiConfigName == "PlotWindow.Templates" )
     {
