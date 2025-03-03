@@ -43,6 +43,7 @@ class RimSurfaceCollection;
 class RimFaultInViewCollection;
 class RimPolygonCollection;
 class RimAutomationSettings;
+class RimJobCollection;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -81,6 +82,7 @@ public:
     static RimSurfaceCollection*  surfaceCollection();
     static RimPolygonCollection*  polygonCollection();
     static RimAutomationSettings* automationSettings();
+    static RimJobCollection*      jobCollection();
 
     static void timeStepsForCase( RimCase* gridCase, QList<caf::PdmOptionItemInfo>* options );
 

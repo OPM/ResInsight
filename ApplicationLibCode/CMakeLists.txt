@@ -107,6 +107,7 @@ list(
   ProjectDataModel/GeoMech/CMakeLists_files.cmake
   ProjectDataModel/GridCrossPlots/CMakeLists_files.cmake
   ProjectDataModel/GridCrossPlots/CellFilters/CMakeLists_files.cmake
+  ProjectDataModel/Jobs/CMakeLists_files.cmake
   ProjectDataModel/Summary/CMakeLists_files.cmake
   ProjectDataModel/Summary/Sumo/CMakeLists_files.cmake
   ProjectDataModel/Flow/CMakeLists_files.cmake
