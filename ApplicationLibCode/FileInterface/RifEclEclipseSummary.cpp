@@ -348,17 +348,23 @@ void RifEclEclipseSummary::buildMetaData()
                 completeVectorName             = transformString( completeVectorName );
 
                 auto adrFromTextParsing = RifEclipseSummaryAddress::fromEclipseTextAddress( completeVectorName );
-                if ( addr != adrFromTextParsing )
+
+                bool debugOutput = false;
+                if ( debugOutput )
                 {
-                    auto ertAdrText  = addr.toEclipseTextAddress();
-                    auto adrFromText = adrFromTextParsing.toEclipseTextAddress();
+                    if ( addr != adrFromTextParsing )
+                    {
+                        auto ertAdrText  = addr.toEclipseTextAddress();
+                        auto adrFromText = adrFromTextParsing.toEclipseTextAddress();
 
-                    QString detectedInconsiteny = QString( "Full text from ERT: %1, Address from ERT: %2, Address from text parsing: %3" )
-                                                      .arg( QString::fromStdString( completeVectorName ) )
-                                                      .arg( QString::fromStdString( ertAdrText ) )
-                                                      .arg( QString::fromStdString( adrFromText ) );
+                        QString detectedInconsiteny =
+                            QString( "Full text from ERT: %1, Address from ERT: %2, Address from text parsing: %3 " )
+                                .arg( QString::fromStdString( completeVectorName ) )
+                                .arg( QString::fromStdString( ertAdrText ) )
+                                .arg( QString::fromStdString( adrFromText ) );
 
-                    RiaLogging::debug( detectedInconsiteny );
+                        RiaLogging::debug( detectedInconsiteny );
+                    }
                 }
 
                 if ( adrFromTextParsing.isValid() )
