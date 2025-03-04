@@ -39,8 +39,8 @@ std::vector<RigEnsembleParameter> createVariationSortedEnsembleParameters( const
 size_t calculateEnsembleParametersIntersectionHash( const std::vector<RimSummaryCase*>& summaryCases );
 
 bool isEnsembleCurve( RimPlotCurve* sourceCurve );
-void highlightCurvesForSameRealizationFromCurve( RimPlotCurve* sourceCurve );
-void highlightCurvesForSameRealization( RimSummaryCase* sourceCase );
+void highlightCurvesForSameRealizationFromCurve( std::vector<RimPlotCurve*> sourceCurves );
+void highlightCurvesForSameRealization( std::vector<RimSummaryCase*> sourceCases );
 void resetHighlightAllPlots();
 
 } // namespace RimSummaryEnsembleTools

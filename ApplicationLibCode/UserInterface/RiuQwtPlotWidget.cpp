@@ -931,22 +931,48 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
     findClosestPlotItem( pos, &closestItem, &closestCurvePoint, &distanceFromClick );
 
     RiuPlotMainWindowTools::showPlotMainWindow();
-    if ( closestItem && distanceFromClick < 20 )
+    if ( closestItem )
     {
+        RimPlotCurve* clickedCurve = nullptr;
+        if ( auto curve = dynamic_cast<RiuPlotCurve*>( closestItem ) )
+        {
+            if ( curve && curve->ownerRimCurve() )
+            {
+                clickedCurve = curve->ownerRimCurve();
+            }
+        }
+
+        std::vector<RimPlotCurve*> curvesToSelect;
+
+        bool wasToggledOff = false;
+        if ( toggleItemInSelection )
+        {
+            for ( auto highlightedCurve : m_hightlightedCurves )
+            {
+                if ( toggleItemInSelection && ( highlightedCurve == clickedCurve ) )
+                {
+                    wasToggledOff = true;
+                    continue;
+                }
+
+                curvesToSelect.push_back( highlightedCurve );
+            }
+        }
+
+        if ( !wasToggledOff ) curvesToSelect.push_back( clickedCurve );
+
         bool updateCurveOrder = false;
         resetPlotItemHighlighting( updateCurveOrder );
 
-        auto curve = dynamic_cast<RiuPlotCurve*>( closestItem );
-        if ( curve && curve->ownerRimCurve() )
+        if ( !curvesToSelect.empty() )
         {
-            const auto rimCurve = curve->ownerRimCurve();
-            if ( RimSummaryEnsembleTools::isEnsembleCurve( rimCurve ) )
+            if ( RimSummaryEnsembleTools::isEnsembleCurve( curvesToSelect.front() ) )
             {
-                RimSummaryEnsembleTools::highlightCurvesForSameRealizationFromCurve( rimCurve );
+                RimSummaryEnsembleTools::highlightCurvesForSameRealizationFromCurve( curvesToSelect );
             }
             else
             {
-                highlightCurvesUpdateOrder( { rimCurve } );
+                highlightCurvesUpdateOrder( curvesToSelect );
             }
         }
         else
@@ -989,7 +1015,7 @@ void RiuQwtPlotWidget::replot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::highlightCurvesUpdateOrder( const std::set<RimPlotCurve*>& curves )
+void RiuQwtPlotWidget::highlightCurvesUpdateOrder( std::vector<RimPlotCurve*> curves )
 {
     highlightPlotCurves( curves );
 
@@ -999,7 +1025,7 @@ void RiuQwtPlotWidget::highlightCurvesUpdateOrder( const std::set<RimPlotCurve*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::highlightPlotCurves( const std::set<RimPlotCurve*>& curves )
+void RiuQwtPlotWidget::highlightPlotCurves( std::vector<RimPlotCurve*> curves )
 {
     if ( !m_plotDefinition || !m_plotDefinition->isCurveHighlightSupported() )
     {
@@ -1014,7 +1040,8 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::set<RimPlotCurve*>& curve
 
         auto currentRimPlotCurve = riuPlotCurve->ownerRimCurve();
 
-        // Do not modify curve objects with no associated Rim object, as the Rim object is used to restore color after highlight manipulation
+        // Do not modify curve objects with no associated Rim object, as the Rim object is used to restore color after highlight
+        // manipulation
         if ( !currentRimPlotCurve ) continue;
 
         auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem );
@@ -1036,7 +1063,9 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::set<RimPlotCurve*>& curve
             }
 
             double zValue = plotCurve->z();
-            if ( curves.count( currentRimPlotCurve ) > 0 )
+
+            auto it = std::find( curves.begin(), curves.end(), currentRimPlotCurve );
+            if ( it != curves.end() )
             {
                 auto highlightColor = curveColor;
 
@@ -1204,7 +1233,7 @@ void RiuQwtPlotWidget::resetPlotAxisHighlighting()
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::highlightPlotItemsForQwtAxis( QwtAxisId axisId )
 {
-    std::set<RimPlotCurve*> curves;
+    std::vector<RimPlotCurve*> curves;
 
     auto plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
@@ -1218,11 +1247,14 @@ void RiuQwtPlotWidget::highlightPlotItemsForQwtAxis( QwtAxisId axisId )
             {
                 if ( auto curve = qwtPlotCurve->ownerRimCurve() )
                 {
-                    curves.insert( curve );
+                    curves.push_back( curve );
                 }
             }
         }
     }
+
+    std::sort( curves.begin(), curves.end() );
+    curves.erase( std::unique( curves.begin(), curves.end() ), curves.end() );
 
     highlightCurvesUpdateOrder( curves );
 }
