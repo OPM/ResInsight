@@ -119,6 +119,8 @@ int main( int argc, char* argv[] )
         }
     }
 
+    RiaMainTools::removeSettingsLockFiles();
+
     QLocale::setDefault( QLocale( QLocale::English, QLocale::UnitedStates ) );
     setlocale( LC_NUMERIC, "C" );
 

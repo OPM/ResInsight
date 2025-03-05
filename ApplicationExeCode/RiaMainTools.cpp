@@ -27,6 +27,8 @@
 #include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmUiFieldEditorHandle.h"
 
+#include <QSettings>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -53,10 +55,12 @@ void manageSegFailure( int signalCode )
     exit( 1 );
 }
 
+namespace RiaMainTools
+{
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaMainTools::initializeSingletons()
+void initializeSingletons()
 {
     caf::CmdFeatureManager::createSingleton();
     RiaRegressionTestRunner::createSingleton();
@@ -67,7 +71,7 @@ void RiaMainTools::initializeSingletons()
 /// This method is used to release memory allocated by static functions. This enables use of memory allocation tools
 /// after the application has closed down.
 //--------------------------------------------------------------------------------------------------
-void RiaMainTools::releaseSingletonAndFactoryObjects()
+void releaseSingletonAndFactoryObjects()
 {
     caf::CmdFeatureManager::deleteSingleton();
     RiaRegressionTestRunner::deleteSingleton();
@@ -87,3 +91,41 @@ void RiaMainTools::releaseSingletonAndFactoryObjects()
         factory->deleteCreatorObjects();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void removeSettingsLockFiles()
+{
+    auto isLockStale = []( const QString& lockFilePath ) -> bool
+    {
+        QFileInfo lockFileInfo( lockFilePath );
+
+        // If the lock file doesn't exist, it's not stale
+        if ( !lockFileInfo.exists() ) return false;
+
+        int thresholdSeconds = 10 * 60; // 10 minutes
+
+        QDateTime currentTime = QDateTime::currentDateTime();
+        return lockFileInfo.lastModified().secsTo( currentTime ) > thresholdSeconds;
+    };
+
+    QSettings mySettings;
+    QString   settingsPath = mySettings.fileName();
+    QString   lockFilePath = settingsPath + ".lock";
+
+    if ( isLockStale( lockFilePath ) )
+    {
+        QFile lockFile( lockFilePath );
+        lockFile.remove();
+
+        QString logMessage = QString( "Removed stale lock file: %1" ).arg( lockFilePath );
+        RiaLogging::warning( logMessage );
+    }
+    else
+    {
+        RiaLogging::info( "No lock files present" );
+    }
+}
+
+} // namespace RiaMainTools
