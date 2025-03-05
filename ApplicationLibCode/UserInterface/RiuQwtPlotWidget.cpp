@@ -611,7 +611,38 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
             {
                 endZoomOperations();
 
-                selectClosestPlotItem( mouseEvent->pos(), toggleItemInSelection );
+                auto hasRecentlyBeenZoomed = [this]() -> bool
+                {
+                    if ( !m_plotDefinition ) return false;
+                    auto lastZoom = m_plotDefinition->valueForKey( "TimeStampZoomOperation" );
+                    if ( lastZoom.has_value() )
+                    {
+                        try
+                        {
+                            auto retrieved_time = std::any_cast<std::chrono::steady_clock::time_point>( lastZoom );
+                            auto t0             = std::chrono::steady_clock::now();
+
+                            auto timeDiff = std::chrono::duration_cast<std::chrono::milliseconds>( t0 - retrieved_time ).count();
+                            if ( timeDiff < 10 )
+                            {
+                                return true;
+                            }
+                        }
+                        catch ( ... )
+                        {
+                        }
+                    }
+                    return false;
+                };
+
+                if ( !hasRecentlyBeenZoomed() )
+                {
+                    // Avoid selecting the curve if a zoom operation has been performed recently
+                    // It is confusing to select a curve when the user is trying to zoom
+
+                    selectClosestPlotItem( mouseEvent->pos(), toggleItemInSelection );
+                }
+
                 m_clickPosition = QPoint();
                 return true;
             }

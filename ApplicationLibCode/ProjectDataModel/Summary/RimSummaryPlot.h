@@ -210,7 +210,8 @@ public:
     RimSummaryPlotSourceStepping* sourceStepper();
     void                          scheduleReplotIfVisible();
 
-    void enableCurvePointTracking( bool enable );
+    void     enableCurvePointTracking( bool enable );
+    std::any valueForKey( std::string key ) const override;
 
 public:
     // RimViewWindow overrides
@@ -351,4 +352,6 @@ private:
 
     bool                  m_isValid;
     RiuPlotWidget::Legend m_legendPosition;
+
+    std::chrono::steady_clock::time_point m_lastZoomTime;
 };
