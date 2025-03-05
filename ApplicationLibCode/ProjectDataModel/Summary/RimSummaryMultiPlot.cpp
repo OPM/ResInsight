@@ -223,9 +223,6 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
 
         RimMultiPlot::insertPlot( plot, index );
     }
-
-    if ( summaryPlots().size() == 1 ) m_disableWheelZoom = false;
-    if ( summaryPlots().size() == 2 ) m_disableWheelZoom = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1549,6 +1546,16 @@ QWidget* RimSummaryMultiPlot::createViewWidget( QWidget* mainWindowParent )
     updateReadOutSettings();
 
     return m_viewer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::onPlotAdditionOrRemoval()
+{
+    m_disableWheelZoom = ( summaryPlots().size() > 1 );
+
+    RimMultiPlot::onPlotAdditionOrRemoval();
 }
 
 //--------------------------------------------------------------------------------------------------
