@@ -999,7 +999,9 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
         {
             if ( RimSummaryEnsembleTools::isEnsembleCurve( curvesToSelect.front() ) )
             {
-                RimSummaryEnsembleTools::highlightCurvesForSameRealizationFromCurve( curvesToSelect );
+                auto summaryCases = RimSummaryEnsembleTools::summaryCasesFromCurves( curvesToSelect );
+                RimSummaryEnsembleTools::selectSummaryCasesInProjectTree( summaryCases );
+                RimSummaryEnsembleTools::highlightCurvesForSummaryCases( summaryCases );
             }
             else
             {

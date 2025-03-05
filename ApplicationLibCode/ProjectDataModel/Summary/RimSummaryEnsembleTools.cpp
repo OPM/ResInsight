@@ -349,7 +349,7 @@ bool RimSummaryEnsembleTools::isEnsembleCurve( RimPlotCurve* sourceCurve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsembleTools::highlightCurvesForSameRealizationFromCurve( std::vector<RimPlotCurve*> sourceCurves )
+std::vector<RimSummaryCase*> RimSummaryEnsembleTools::summaryCasesFromCurves( std::vector<RimPlotCurve*> sourceCurves )
 {
     std::vector<RimSummaryCase*> sourceCases;
 
@@ -367,7 +367,14 @@ void RimSummaryEnsembleTools::highlightCurvesForSameRealizationFromCurve( std::v
         sourceCases.push_back( sourceCase );
     }
 
-    // Select the realization object in Data Sources Tree view
+    return sourceCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsembleTools::selectSummaryCasesInProjectTree( std::vector<RimSummaryCase*> sourceCases )
+{
     if ( !sourceCases.empty() )
     {
         if ( auto mainWindow = RiuPlotMainWindow::instance() )
@@ -384,17 +391,13 @@ void RimSummaryEnsembleTools::highlightCurvesForSameRealizationFromCurve( std::v
             }
         }
     }
-
-    highlightCurvesForSameRealization( sourceCases );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsembleTools::highlightCurvesForSameRealization( std::vector<RimSummaryCase*> sourceCases )
+void RimSummaryEnsembleTools::highlightCurvesForSummaryCases( std::vector<RimSummaryCase*> sourceCases )
 {
-    if ( sourceCases.empty() ) return;
-
     auto summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
 
     for ( auto multiPlot : summaryPlotColl->multiPlots() )
@@ -417,18 +420,19 @@ void RimSummaryEnsembleTools::highlightCurvesForSameRealization( std::vector<Rim
                 }
             }
 
+            bool updateCurveOrder = false;
+            plotWidget->resetPlotItemHighlighting( updateCurveOrder );
+
             if ( !curvesForSameRealization.empty() )
             {
-                bool updateCurveOrder = false;
-                plotWidget->resetPlotItemHighlighting( updateCurveOrder );
-
                 std::sort( curvesForSameRealization.begin(), curvesForSameRealization.end() );
                 curvesForSameRealization.erase( std::unique( curvesForSameRealization.begin(), curvesForSameRealization.end() ),
                                                 curvesForSameRealization.end() );
 
                 plotWidget->highlightCurvesUpdateOrder( curvesForSameRealization );
-                plotWidget->replot();
             }
+
+            plotWidget->replot();
         }
     }
 }
