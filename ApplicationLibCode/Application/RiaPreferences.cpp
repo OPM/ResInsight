@@ -23,6 +23,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesGeoMech.h"
 #include "RiaPreferencesGrid.h"
@@ -839,6 +840,8 @@ std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> RiaPreferences::de
 //--------------------------------------------------------------------------------------------------
 void RiaPreferences::writePreferencesToApplicationStore()
 {
+    if ( !RiaGuiApplication::isRunning() ) return;
+
     caf::PdmSettings::writeFieldsToApplicationStore( this );
 }
 
