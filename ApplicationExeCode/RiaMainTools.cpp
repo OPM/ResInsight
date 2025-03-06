@@ -21,6 +21,7 @@
 #include "RiaLogging.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaSocketCommand.h"
+#include "RiaBaseDefs.h"
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
@@ -28,6 +29,9 @@
 #include "cafPdmUiFieldEditorHandle.h"
 
 #include <QSettings>
+#include <QCoreApplication>
+#include <QStandardPaths>
+#include <QDir>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -97,6 +101,14 @@ void releaseSingletonAndFactoryObjects()
 //--------------------------------------------------------------------------------------------------
 void removeSettingsLockFiles()
 {
+      // Get the organization and application name
+        auto organizationName = QString(RI_COMPANY_NAME);
+        auto applicationName = QString(RI_APPLICATION_NAME);
+
+          auto lockFilePath = QDir::homePath() + "/.config/" + organizationName + "/" + applicationName + ".conf.lock";
+      
+    //  lockFilePath = "/home/builder/.config/Ceetron/ResInsight.conf.lock";
+    
     auto isLockStale = []( const QString& lockFilePath ) -> bool
     {
         QFileInfo lockFileInfo( lockFilePath );
@@ -104,15 +116,22 @@ void removeSettingsLockFiles()
         // If the lock file doesn't exist, it's not stale
         if ( !lockFileInfo.exists() ) return false;
 
-        int thresholdSeconds = 10 * 60; // 10 minutes
+        int thresholdSeconds = 1;//10 * 60; // 10 minutes
 
         QDateTime currentTime = QDateTime::currentDateTime();
+
+        auto logMessage = QString( "Seconds since lock file last modified: %1" ).arg(lockFileInfo.lastModified().secsTo( currentTime ) );
+        qDebug()<< logMessage;
+        RiaLogging::warning( logMessage );
+
         return lockFileInfo.lastModified().secsTo( currentTime ) > thresholdSeconds;
     };
 
-    QSettings mySettings;
-    QString   settingsPath = mySettings.fileName();
-    QString   lockFilePath = settingsPath + ".lock";
+//    QSettings mySettings;
+//    QString   settingsPath = mySettings.fileName();
+//    QString   lockFilePath = settingsPath + ".lock";
+
+
 
     if ( isLockStale( lockFilePath ) )
     {
@@ -120,11 +139,14 @@ void removeSettingsLockFiles()
         lockFile.remove();
 
         QString logMessage = QString( "Removed stale lock file: %1" ).arg( lockFilePath );
+        qDebug()<< logMessage;
         RiaLogging::warning( logMessage );
     }
     else
     {
-        RiaLogging::info( "No lock files present" );
+        QString logMessage = QString( "No lock files present" );
+        qDebug()<< logMessage;
+        RiaLogging::info( logMessage);
     }
 }
 

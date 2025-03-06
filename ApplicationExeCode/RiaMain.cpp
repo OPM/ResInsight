@@ -84,6 +84,9 @@ int main( int argc, char* argv[] )
     // See test application QtTestBenchOpenGLWidget
     QApplication::setAttribute( Qt::AA_ShareOpenGLContexts );
 
+    RiaMainTools::removeSettingsLockFiles();
+
+
     // Create feature manager before the application object is created
     RiaMainTools::initializeSingletons();
     RiaQuantityInfoTools::initializeSummaryKeywords();
@@ -119,7 +122,6 @@ int main( int argc, char* argv[] )
         }
     }
 
-    RiaMainTools::removeSettingsLockFiles();
 
     QLocale::setDefault( QLocale( QLocale::English, QLocale::UnitedStates ) );
     setlocale( LC_NUMERIC, "C" );
