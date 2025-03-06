@@ -78,6 +78,8 @@ int main( int argc, char* argv[] )
     }
 #endif
 
+    RiaMainTools::deleteStaleSettingsLockFiles();
+
     // The Qt::AA_ShareOpenGLContexts setting is needed when we have multiple viz widgets in flight
     // and we have a setup where these widgets belong to different top-level windows, or end up
     // belonging to different top-level windows through re-parenting.
