@@ -86,7 +86,6 @@ int main( int argc, char* argv[] )
 
     RiaMainTools::removeSettingsLockFiles();
 
-
     // Create feature manager before the application object is created
     RiaMainTools::initializeSingletons();
     RiaQuantityInfoTools::initializeSummaryKeywords();
@@ -121,7 +120,6 @@ int main( int argc, char* argv[] )
             return 1;
         }
     }
-
 
     QLocale::setDefault( QLocale( QLocale::English, QLocale::UnitedStates ) );
     setlocale( LC_NUMERIC, "C" );
