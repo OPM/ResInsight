@@ -366,9 +366,7 @@ void QMinimizePanel::setExpanded( bool isExpanded )
         this->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
     }
 
-    this->QWidget::updateGeometry();
-
-    emit expandedChanged( isExpanded );
+    updateGeometry();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -377,6 +375,10 @@ void QMinimizePanel::setExpanded( bool isExpanded )
 void QMinimizePanel::toggleExpanded()
 {
     setExpanded( m_contentFrame->isHidden() );
+
+    // Notify property editor of the change
+    // https://github.com/OPM/ResInsight/issues/12119
+    emit expandedChanged( isExpanded() );
 }
 
 //--------------------------------------------------------------------------------------------------
