@@ -18,7 +18,6 @@
 
 #include "RimSurfaceInView.h"
 
-#include "RigFemPartCollection.h"
 #include "RigSurface.h"
 
 #include "RimEclipseView.h"
@@ -31,9 +30,6 @@
 #include "RiuViewer.h"
 
 #include "RivSurfacePartMgr.h"
-
-#include "RiaApplication.h"
-#include "cafPdmUiDoubleSliderEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimSurfaceInView, "SurfaceInView" );
 

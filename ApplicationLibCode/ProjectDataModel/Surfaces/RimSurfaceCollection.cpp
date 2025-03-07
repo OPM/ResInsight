@@ -26,6 +26,7 @@
 #include "RimCase.h"
 #include "RimEnsembleSurface.h"
 #include "RimFileSurface.h"
+#include "RimFractureSurface.h"
 #include "RimGridCaseSurface.h"
 #include "RimGridView.h"
 #include "RimProject.h"
@@ -35,13 +36,11 @@
 #include "RimSurfaceInView.h"
 #include "RimSurfaceResultDefinition.h"
 
-#include "cafPdmFieldReorderCapability.h"
-
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmFieldReorderCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
-#include "RimFractureSurface.h"
 #include <QFile>
 #include <QFileInfo>
 
