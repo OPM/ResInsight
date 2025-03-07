@@ -29,9 +29,9 @@ public:
     RigTriangleMeshData();
     ~RigTriangleMeshData();
 
-    std::vector<QString>                                      propertyNames();
-    std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> geometry();
-    std::vector<float>                                        propertyValues( const QString& property );
+    std::vector<QString>                                      propertyNames() const;
+    std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> geometry() const;
+    std::vector<float>                                        propertyValues( const QString& property ) const;
 
     void setGeometryData( const std::vector<cvf::Vec3d>& nodeCoord, const std::vector<unsigned>& connectivities );
     void setPropertyData( const std::vector<QString>& propertyNames, std::vector<std::vector<float>>& propertyValues );

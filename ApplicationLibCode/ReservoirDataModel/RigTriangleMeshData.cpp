@@ -35,7 +35,7 @@ RigTriangleMeshData::~RigTriangleMeshData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RigTriangleMeshData::propertyNames()
+std::vector<QString> RigTriangleMeshData::propertyNames() const
 {
     return m_propertyNames;
 }
@@ -43,7 +43,7 @@ std::vector<QString> RigTriangleMeshData::propertyNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RigTriangleMeshData::geometry()
+std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RigTriangleMeshData::geometry() const
 {
     return std::make_pair( m_vertices, m_tringleIndices );
 }
@@ -51,7 +51,7 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RigTriangleMeshData::g
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<float> RigTriangleMeshData::propertyValues( const QString& property )
+std::vector<float> RigTriangleMeshData::propertyValues( const QString& property ) const
 {
     for ( size_t propertyIdx = 0; propertyIdx < m_propertyNames.size(); propertyIdx++ )
     {
