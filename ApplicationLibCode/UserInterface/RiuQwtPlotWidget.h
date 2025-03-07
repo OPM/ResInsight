@@ -210,7 +210,7 @@ private:
 
     void highlightPlotAxes( QwtAxisId axisIdX, QwtAxisId axisIdY );
     void highlightPlotItemsForQwtAxis( QwtAxisId axisId );
-    void highlightPlotCurves(const std::vector<RimPlotCurve*>& curves );
+    void highlightPlotCurves( const std::vector<RimPlotCurve*>& curves );
     void highlightPlotShapeItems( const std::set<const QwtPlotItem*>& closestItems );
     void resetPlotCurveHighlighting();
     void resetPlotShapeItemHighlighting();
