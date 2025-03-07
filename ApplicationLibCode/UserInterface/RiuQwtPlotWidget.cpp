@@ -967,10 +967,7 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
         RimPlotCurve* clickedCurve = nullptr;
         if ( auto curve = dynamic_cast<RiuPlotCurve*>( closestItem ) )
         {
-            if ( curve && curve->ownerRimCurve() )
-            {
-                clickedCurve = curve->ownerRimCurve();
-            }
+            clickedCurve = curve->ownerRimCurve();
         }
 
         std::vector<RimPlotCurve*> curvesToSelect;
@@ -990,7 +987,7 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
             }
         }
 
-        if ( !wasToggledOff ) curvesToSelect.push_back( clickedCurve );
+        if ( !wasToggledOff && clickedCurve ) curvesToSelect.push_back( clickedCurve );
 
         bool updateCurveOrder = false;
         resetPlotItemHighlighting( updateCurveOrder );

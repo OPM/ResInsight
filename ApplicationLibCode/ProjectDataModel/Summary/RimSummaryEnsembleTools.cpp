@@ -349,7 +349,7 @@ bool RimSummaryEnsembleTools::isEnsembleCurve( RimPlotCurve* sourceCurve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RimSummaryEnsembleTools::summaryCasesFromCurves( std::vector<RimPlotCurve*> sourceCurves )
+std::vector<RimSummaryCase*> RimSummaryEnsembleTools::summaryCasesFromCurves( const std::vector<RimPlotCurve*>& sourceCurves )
 {
     std::vector<RimSummaryCase*> sourceCases;
 
@@ -373,22 +373,21 @@ std::vector<RimSummaryCase*> RimSummaryEnsembleTools::summaryCasesFromCurves( st
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsembleTools::selectSummaryCasesInProjectTree( std::vector<RimSummaryCase*> sourceCases )
+void RimSummaryEnsembleTools::selectSummaryCasesInProjectTree( const std::vector<RimSummaryCase*>& sourceCases )
 {
-    if ( !sourceCases.empty() )
-    {
-        if ( auto mainWindow = RiuPlotMainWindow::instance() )
-        {
-            if ( auto treeView = mainWindow->getTreeViewWithItem( sourceCases.front() ) )
-            {
-                std::vector<const caf::PdmUiItem*> sourceItems;
-                for ( auto sourceCase : sourceCases )
-                {
-                    sourceItems.push_back( sourceCase );
-                }
+    if ( sourceCases.empty() ) return;
 
-                treeView->selectItems( sourceItems );
+    if ( auto mainWindow = RiuPlotMainWindow::instance() )
+    {
+        if ( auto treeView = mainWindow->getTreeViewWithItem( sourceCases.front() ) )
+        {
+            std::vector<const caf::PdmUiItem*> sourceItems;
+            for ( auto sourceCase : sourceCases )
+            {
+                sourceItems.push_back( sourceCase );
             }
+
+            treeView->selectItems( sourceItems );
         }
     }
 }
@@ -396,7 +395,7 @@ void RimSummaryEnsembleTools::selectSummaryCasesInProjectTree( std::vector<RimSu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsembleTools::highlightCurvesForSummaryCases( std::vector<RimSummaryCase*> sourceCases )
+void RimSummaryEnsembleTools::highlightCurvesForSummaryCases( const std::vector<RimSummaryCase*>& sourceCases )
 {
     auto summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
 
