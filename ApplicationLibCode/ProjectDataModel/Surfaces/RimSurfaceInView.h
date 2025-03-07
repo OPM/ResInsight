@@ -60,6 +60,9 @@ public:
 
     void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
 
+    void setMeshLinesEnabled( bool meshLinesEnabled );
+    bool isMeshLinesEnabled() const;
+
 protected:
     void initAfterRead() override;
 
@@ -72,6 +75,7 @@ private:
 
     caf::PdmProxyValueField<QString> m_name;
     caf::PdmPtrField<RimSurface*>    m_surface;
+    caf::PdmField<bool>              m_showMeshLines;
 
     caf::PdmChildField<RimSurfaceResultDefinition*> m_resultDefinition;
 

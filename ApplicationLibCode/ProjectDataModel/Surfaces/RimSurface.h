@@ -71,6 +71,8 @@ public:
 
     virtual void updateMinMaxValues( RimRegularLegendConfig* legend, const QString& propertyName, int currentTimeStep ) const;
 
+    virtual bool isMeshLinesEnabledDefault() const;
+
 protected:
     void setSurfaceData( RigSurface* surface );
 
@@ -93,6 +95,7 @@ protected:
 
     caf::PdmField<cvf::Color3f> m_color;
     caf::PdmField<bool>         m_enableOpacity;
+    caf::PdmField<bool>         m_showMeshLines;
     caf::PdmField<double>       m_opacity;
 
     cvf::ref<RigSurface> m_surfaceData;

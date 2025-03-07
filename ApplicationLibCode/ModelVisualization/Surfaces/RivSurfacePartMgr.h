@@ -59,6 +59,9 @@ private:
     void generatePartGeometry();
 
     void generateNativePartGeometry();
+    void generateNativeLinesPartGeometry();
+
+    cvf::ref<cvf::Vec3fArray> convertToDisplayOffsetVertices( const std::vector<cvf::Vec3d>& vertices ) const;
 
     bool m_useNativePartsOnly;
 

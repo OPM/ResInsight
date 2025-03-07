@@ -215,6 +215,8 @@ void RimSurfaceInViewCollection::syncSurfacesWithView()
                     newSurfInView->setActive( false );
                 }
 
+                newSurfInView->setMeshLinesEnabled( surf->isMeshLinesEnabledDefault() );
+
                 orderedSurfs.push_back( newSurfInView );
             }
             else
