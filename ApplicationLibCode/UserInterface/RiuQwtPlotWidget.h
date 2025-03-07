@@ -165,7 +165,7 @@ public:
     QwtAxisId toQwtPlotAxis( RiuPlotAxis axis ) const;
 
     void                       highlightPlotItem( const QwtPlotItem* plotItem );
-    void                       highlightCurvesUpdateOrder( std::vector<RimPlotCurve*> curves );
+    void                       highlightCurvesUpdateOrder( const std::vector<RimPlotCurve*>& curves );
     void                       resetPlotItemHighlighting( bool doUpdateCurveOrder = true );
     std::vector<RimPlotCurve*> highlightedCurves() const;
 
@@ -210,7 +210,7 @@ private:
 
     void highlightPlotAxes( QwtAxisId axisIdX, QwtAxisId axisIdY );
     void highlightPlotItemsForQwtAxis( QwtAxisId axisId );
-    void highlightPlotCurves( std::vector<RimPlotCurve*> curves );
+    void highlightPlotCurves(const std::vector<RimPlotCurve*>& curves );
     void highlightPlotShapeItems( const std::set<const QwtPlotItem*>& closestItems );
     void resetPlotCurveHighlighting();
     void resetPlotShapeItemHighlighting();

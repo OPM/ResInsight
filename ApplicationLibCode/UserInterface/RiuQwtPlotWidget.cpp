@@ -1045,7 +1045,7 @@ void RiuQwtPlotWidget::replot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::highlightCurvesUpdateOrder( std::vector<RimPlotCurve*> curves )
+void RiuQwtPlotWidget::highlightCurvesUpdateOrder( const std::vector<RimPlotCurve*>& curves )
 {
     highlightPlotCurves( curves );
 
@@ -1055,7 +1055,7 @@ void RiuQwtPlotWidget::highlightCurvesUpdateOrder( std::vector<RimPlotCurve*> cu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::highlightPlotCurves( std::vector<RimPlotCurve*> curves )
+void RiuQwtPlotWidget::highlightPlotCurves( const std::vector<RimPlotCurve*>& curves )
 {
     if ( !m_plotDefinition || !m_plotDefinition->isCurveHighlightSupported() )
     {
