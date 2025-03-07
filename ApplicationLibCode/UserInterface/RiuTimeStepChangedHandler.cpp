@@ -67,6 +67,7 @@ RiuTimeStepChangedHandler* RiuTimeStepChangedHandler::instance()
 //--------------------------------------------------------------------------------------------------
 void RiuTimeStepChangedHandler::handleTimeStepChanged( Rim3dView* changedView ) const
 {
+    if ( !changedView ) return;
     if ( !RiaGuiApplication::isRunning() ) return;
 
     RiuRelativePermeabilityPlotUpdater* relPermPlotUpdater = RiuMainWindow::instance()->relativePermeabilityPlotPanel()->plotUpdater();
@@ -75,14 +76,16 @@ void RiuTimeStepChangedHandler::handleTimeStepChanged( Rim3dView* changedView ) 
     RiuPvtPlotUpdater* pvtPlotUpdater = RiuMainWindow::instance()->pvtPlotPanel()->plotUpdater();
     pvtPlotUpdater->updateOnTimeStepChanged( changedView );
 
-    int ts = changedView->currentTimeStep();
-
-    const auto dates = changedView->ownerCase()->timeStepDates();
-    if ( dates.size() > (size_t)ts )
+    if ( changedView->ownerCase() )
     {
-        auto resultPlot = RiuMainWindow::instance()->resultPlot();
-        resultPlot->showTimeStep( dates[ts] );
-        resultPlot->replot();
+        int        ts    = changedView->currentTimeStep();
+        const auto dates = changedView->ownerCase()->timeStepDates();
+        if ( dates.size() > (size_t)ts )
+        {
+            auto resultPlot = RiuMainWindow::instance()->resultPlot();
+            resultPlot->showTimeStep( dates[ts] );
+            resultPlot->replot();
+        }
     }
 
     RiuMohrsCirclePlot* mohrsCirclePlot = RiuMainWindow::instance()->mohrsCirclePlot();
