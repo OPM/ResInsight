@@ -239,3 +239,11 @@ void RimFractureSurface::updateMinMaxValues( RimRegularLegendConfig* legendConfi
     legendConfig->setClosestToZeroValues( globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero );
     legendConfig->setAutomaticRanges( globalMin, globalMax, localMin, localMax );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFractureSurface::isMeshLinesEnabledDefault() const
+{
+    return true;
+}

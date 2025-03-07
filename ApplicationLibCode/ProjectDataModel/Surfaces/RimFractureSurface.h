@@ -41,6 +41,7 @@ public:
     std::vector<std::vector<double>> valuesForProperty( const QString& propertyName ) const;
 
     void updateMinMaxValues( RimRegularLegendConfig* legend, const QString& propertyName, int currentTimeStep ) const override;
+    bool isMeshLinesEnabledDefault() const override;
 
 protected:
     bool updateSurfaceData() override;

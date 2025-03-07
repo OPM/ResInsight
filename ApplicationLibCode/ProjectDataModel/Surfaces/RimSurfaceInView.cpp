@@ -47,6 +47,8 @@ RimSurfaceInView::RimSurfaceInView()
     CAF_PDM_InitFieldNoDefault( &m_surface, "SurfaceRef", "Surface" );
     m_surface.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitField( &m_showMeshLines, "ShowMeshLines", false, "Show Mesh Lines" );
+
     CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition" );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_resultDefinition = new RimSurfaceResultDefinition;
@@ -108,6 +110,22 @@ void RimSurfaceInView::setSurface( RimSurface* surf )
 bool RimSurfaceInView::isNativeSurfaceResultsActive() const
 {
     return m_resultDefinition->isChecked();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSurfaceInView::isMeshLinesEnabled() const
+{
+    return m_showMeshLines();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInView::setMeshLinesEnabled( bool meshLinesEnabled )
+{
+    m_showMeshLines = meshLinesEnabled;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,7 +241,7 @@ void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         scheduleRedraw = true;
     }
 
-    if ( changedField == &m_showInactiveCells )
+    if ( changedField == &m_showInactiveCells || changedField == &m_showMeshLines )
     {
         clearGeometry();
         scheduleRedraw = true;

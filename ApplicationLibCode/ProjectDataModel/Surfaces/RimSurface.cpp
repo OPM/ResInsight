@@ -347,3 +347,11 @@ void RimSurface::updateMinMaxValues( RimRegularLegendConfig* legend, const QStri
         legend->setAutomaticRanges( globalMin, globalMax, globalMin, globalMax );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSurface::isMeshLinesEnabledDefault() const
+{
+    return false;
+}
