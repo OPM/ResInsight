@@ -89,10 +89,18 @@ void RiuDepthQwtPlot::addCurve( const RimCase*             rimCase,
         return;
     }
 
-    double yMax = *std::max_element( depthValues.begin(), depthValues.end() );
-    double yMin = *std::min_element( depthValues.begin(), depthValues.end() );
-    m_maxY      = std::max( yMax, m_maxY );
-    m_minY      = std::min( yMin, m_minY );
+    std::vector<double> filtered;
+    for ( double x : depthValues )
+    {
+        if ( !std::isnan( x ) ) filtered.push_back( x );
+    }
+
+    if ( !filtered.empty() )
+    {
+        auto [min_it, max_it] = std::minmax_element( filtered.begin(), filtered.end() );
+        m_maxY                = std::max( *max_it, m_maxY );
+        m_minY                = std::min( *min_it, m_minY );
+    }
 
     std::vector<double> tmpDepths;
     const double        nan = std::nan( "" );
