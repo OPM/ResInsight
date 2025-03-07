@@ -933,6 +933,17 @@ void RiuPlotMainWindow::selectedObjectsChanged( caf::PdmUiTreeView* projectTree,
 
     propertyView->showProperties( firstSelectedObject );
 
+    std::vector<RimSummaryCase*> summaryCases;
+    for ( auto uiItem : uiItems )
+    {
+        if ( auto summaryCase = dynamic_cast<RimSummaryCase*>( uiItem ) )
+        {
+            summaryCases.push_back( summaryCase );
+        }
+    }
+
+    RimSummaryEnsembleTools::highlightCurvesForSummaryCases( summaryCases );
+
     if ( uiItems.size() == 1 && m_allowActiveViewChangeFromSelection )
     {
         // Find the reservoir view or the Plot that the selected item is within
@@ -943,11 +954,6 @@ void RiuPlotMainWindow::selectedObjectsChanged( caf::PdmUiTreeView* projectTree,
         }
 
         if ( !firstSelectedObject ) return;
-
-        if ( auto summaryCase = dynamic_cast<RimSummaryCase*>( firstSelectedObject ) )
-        {
-            RimSummaryEnsembleTools::highlightCurvesForSameRealization( summaryCase );
-        }
 
         RimViewWindow* selectedWindow = dynamic_cast<RimViewWindow*>( firstSelectedObject );
         if ( !selectedWindow )

@@ -137,7 +137,7 @@ protected:
     void updateZoom();
     void recreatePlotWidgets();
 
-    void onPlotAdditionOrRemoval();
+    virtual void onPlotAdditionOrRemoval();
 
     bool isMouseCursorInsidePlot();
 

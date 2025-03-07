@@ -1124,6 +1124,19 @@ void RimSummaryPlot::enableCurvePointTracking( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::any RimSummaryPlot::valueForKey( std::string key ) const
+{
+    if ( key == "TimeStampZoomOperation" )
+    {
+        return m_lastZoomTime;
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuPlotAxis RimSummaryPlot::plotAxisForTime()
 {
     return RiuPlotAxis::defaultBottom();
@@ -2618,6 +2631,8 @@ void RimSummaryPlot::onPlotZoomed()
     timeAxisSettingsChanged( nullptr );
 
     axisChanged.send( this );
+
+    m_lastZoomTime = std::chrono::steady_clock::now();
 }
 
 //--------------------------------------------------------------------------------------------------

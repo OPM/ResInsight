@@ -349,36 +349,54 @@ bool RimSummaryEnsembleTools::isEnsembleCurve( RimPlotCurve* sourceCurve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsembleTools::highlightCurvesForSameRealizationFromCurve( RimPlotCurve* sourceCurve )
+std::vector<RimSummaryCase*> RimSummaryEnsembleTools::summaryCasesFromCurves( const std::vector<RimPlotCurve*>& sourceCurves )
 {
-    auto sourceSummaryCurve = dynamic_cast<RimSummaryCurve*>( sourceCurve );
-    if ( !sourceSummaryCurve ) return;
+    std::vector<RimSummaryCase*> sourceCases;
 
-    auto ensembleCurveSet = sourceSummaryCurve->firstAncestorOfType<RimEnsembleCurveSet>();
-    if ( !ensembleCurveSet ) return;
-
-    auto sourceCase = sourceSummaryCurve->summaryCaseY();
-    if ( !sourceCase ) return;
-
-    // Select the realization object in Data Sources Tree view
-    if ( auto mainWindow = RiuPlotMainWindow::instance() )
+    for ( auto sourceCurve : sourceCurves )
     {
-        if ( auto treeView = mainWindow->getTreeViewWithItem( sourceCase ) )
-        {
-            treeView->selectAsCurrentItem( sourceCase );
-        }
+        auto sourceSummaryCurve = dynamic_cast<RimSummaryCurve*>( sourceCurve );
+        if ( !sourceSummaryCurve ) continue;
+
+        auto ensembleCurveSet = sourceSummaryCurve->firstAncestorOfType<RimEnsembleCurveSet>();
+        if ( !ensembleCurveSet ) continue;
+
+        auto sourceCase = sourceSummaryCurve->summaryCaseY();
+        if ( !sourceCase ) continue;
+
+        sourceCases.push_back( sourceCase );
     }
 
-    highlightCurvesForSameRealization( sourceCase );
+    return sourceCases;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsembleTools::highlightCurvesForSameRealization( RimSummaryCase* sourceCase )
+void RimSummaryEnsembleTools::selectSummaryCasesInProjectTree( const std::vector<RimSummaryCase*>& sourceCases )
 {
-    if ( !sourceCase ) return;
+    if ( sourceCases.empty() ) return;
 
+    if ( auto mainWindow = RiuPlotMainWindow::instance() )
+    {
+        if ( auto treeView = mainWindow->getTreeViewWithItem( sourceCases.front() ) )
+        {
+            std::vector<const caf::PdmUiItem*> sourceItems;
+            for ( auto sourceCase : sourceCases )
+            {
+                sourceItems.push_back( sourceCase );
+            }
+
+            treeView->selectItems( sourceItems );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsembleTools::highlightCurvesForSummaryCases( const std::vector<RimSummaryCase*>& sourceCases )
+{
     auto summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
 
     for ( auto multiPlot : summaryPlotColl->multiPlots() )
@@ -390,25 +408,30 @@ void RimSummaryEnsembleTools::highlightCurvesForSameRealization( RimSummaryCase*
 
             auto summaryCurves = plot->summaryAndEnsembleCurves();
 
-            std::vector<RimSummaryCurve*> curvesForSameRealization;
+            std::vector<RimPlotCurve*> curvesForSameRealization;
 
             for ( auto curve : summaryCurves )
             {
-                if ( sourceCase == curve->summaryCaseY() )
+                auto summaryCaseY = curve->summaryCaseY();
+                if ( std::find( sourceCases.begin(), sourceCases.end(), summaryCaseY ) != sourceCases.end() )
                 {
                     curvesForSameRealization.push_back( curve );
                 }
             }
 
+            bool updateCurveOrder = false;
+            plotWidget->resetPlotItemHighlighting( updateCurveOrder );
+
             if ( !curvesForSameRealization.empty() )
             {
-                bool updateCurveOrder = false;
-                plotWidget->resetPlotItemHighlighting( updateCurveOrder );
+                std::sort( curvesForSameRealization.begin(), curvesForSameRealization.end() );
+                curvesForSameRealization.erase( std::unique( curvesForSameRealization.begin(), curvesForSameRealization.end() ),
+                                                curvesForSameRealization.end() );
 
-                std::set<RimPlotCurve*> realizationCurvesSet( curvesForSameRealization.begin(), curvesForSameRealization.end() );
-                plotWidget->highlightCurvesUpdateOrder( realizationCurvesSet );
-                plotWidget->replot();
+                plotWidget->highlightCurvesUpdateOrder( curvesForSameRealization );
             }
+
+            plotWidget->replot();
         }
     }
 }
