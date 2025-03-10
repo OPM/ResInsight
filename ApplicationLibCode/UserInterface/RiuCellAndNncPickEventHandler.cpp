@@ -137,7 +137,6 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
 
     RimIntersectionResultDefinition* sepInterResDef = nullptr;
 
-    // clang-format off
     if ( const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>( firstHitPart->sourceInfo() ) )
     {
         gridIndex = rivSourceInfo->gridIndex();
@@ -146,56 +145,54 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
             CVF_ASSERT( rivSourceInfo->m_cellFaceFromTriangleMapper.notNull() );
 
             gridLocalCellIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellIndex( firstPartTriangleIndex );
-            face      = rivSourceInfo->m_cellFaceFromTriangleMapper->cellFace( firstPartTriangleIndex );
+            face               = rivSourceInfo->m_cellFaceFromTriangleMapper->cellFace( firstPartTriangleIndex );
         }
     }
-    else if ( const RivFemPickSourceInfo* femSourceInfo = 
-                dynamic_cast<const RivFemPickSourceInfo*>( firstHitPart->sourceInfo() ) )
+    else if ( const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>( firstHitPart->sourceInfo() ) )
     {
-        gridIndex = femSourceInfo->femPartIndex();
+        gridIndex          = femSourceInfo->femPartIndex();
         gridLocalCellIndex = femSourceInfo->triangleToElmMapper()->elementIndex( firstPartTriangleIndex );
-        gmFace    = femSourceInfo->triangleToElmMapper()->elementFace( firstPartTriangleIndex );
+        gmFace             = femSourceInfo->triangleToElmMapper()->elementFace( firstPartTriangleIndex );
     }
-	else if ( const RivReservoirSurfaceIntersectionSourceInfo* surfeIntersectSourceInfo = 
-                dynamic_cast<const RivReservoirSurfaceIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
+    else if ( const RivReservoirSurfaceIntersectionSourceInfo* surfeIntersectSourceInfo =
+                  dynamic_cast<const RivReservoirSurfaceIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
     {
-		RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView,
-												 surfeIntersectSourceInfo->intersection()->activeSeparateResultDefinition(),
-												 surfeIntersectSourceInfo->triangleToCellIndex()[firstPartTriangleIndex],
-												 &gridLocalCellIndex,
-												 &gridIndex );
+        RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView,
+                                                 surfeIntersectSourceInfo->intersection()->activeSeparateResultDefinition(),
+                                                 surfeIntersectSourceInfo->triangleToCellIndex()[firstPartTriangleIndex],
+                                                 &gridLocalCellIndex,
+                                                 &gridIndex );
 
-		intersectionHit = true;
+        intersectionHit         = true;
         intersectionTriangleHit = surfeIntersectSourceInfo->triangle( firstPartTriangleIndex );
-		sepInterResDef = surfeIntersectSourceInfo->intersection()->activeSeparateResultDefinition();
+        sepInterResDef          = surfeIntersectSourceInfo->intersection()->activeSeparateResultDefinition();
     }
-    else if ( const RivExtrudedCurveIntersectionSourceInfo* intersectionSourceInfo = 
-                dynamic_cast<const RivExtrudedCurveIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
+    else if ( const RivExtrudedCurveIntersectionSourceInfo* intersectionSourceInfo =
+                  dynamic_cast<const RivExtrudedCurveIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
     {
-		RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView,
-												 intersectionSourceInfo->intersection()->activeSeparateResultDefinition(),
-												 intersectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex],
-												 &gridLocalCellIndex,
-												 &gridIndex );
+        RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView,
+                                                 intersectionSourceInfo->intersection()->activeSeparateResultDefinition(),
+                                                 intersectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex],
+                                                 &gridLocalCellIndex,
+                                                 &gridIndex );
 
         intersectionHit         = true;
         intersectionTriangleHit = intersectionSourceInfo->triangle( firstPartTriangleIndex );
-		sepInterResDef = intersectionSourceInfo->intersection()->activeSeparateResultDefinition();
+        sepInterResDef          = intersectionSourceInfo->intersection()->activeSeparateResultDefinition();
     }
-    else if ( const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo = 
-                dynamic_cast<const RivBoxIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
+    else if ( const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo =
+                  dynamic_cast<const RivBoxIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
     {
-		RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView,
-												 intersectionBoxSourceInfo->intersectionBox()->activeSeparateResultDefinition(),
-												 intersectionBoxSourceInfo->triangleToCellIndex()[firstPartTriangleIndex],
-												 &gridLocalCellIndex,
-												 &gridIndex );
+        RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView,
+                                                 intersectionBoxSourceInfo->intersectionBox()->activeSeparateResultDefinition(),
+                                                 intersectionBoxSourceInfo->triangleToCellIndex()[firstPartTriangleIndex],
+                                                 &gridLocalCellIndex,
+                                                 &gridIndex );
 
         intersectionHit         = true;
         intersectionTriangleHit = intersectionBoxSourceInfo->triangle( firstPartTriangleIndex );
-		sepInterResDef = intersectionBoxSourceInfo->intersectionBox()->activeSeparateResultDefinition();
+        sepInterResDef          = intersectionBoxSourceInfo->intersectionBox()->activeSeparateResultDefinition();
     }
-    // clang-format on
 
     if ( sepInterResDef )
     {
@@ -309,64 +306,59 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
         {
             // Select the other cell if we are about to select the same cell at an nnc.
             // To make consecutive clicks toggle between closest and furthest cell
-            // clang-format off
 
             if ( nncIndex != cvf::UNDEFINED_SIZE_T )
             {
                 auto selectedItem = dynamic_cast<RiuEclipseSelectionItem*>( Riu3dSelectionManager::instance()->selectedItem() );
 
-                RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(mainOrComparisonView);
+                RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
 
-                if ( selectedItem && eclipseView &&
-                     selectedItem->m_gridIndex == gridIndex &&
-                     selectedItem->m_gridLocalCellIndex == gridLocalCellIndex && 
-                     selectedItem->m_nncIndex == nncIndex )
+                if ( selectedItem && eclipseView && selectedItem->m_gridIndex == gridIndex &&
+                     selectedItem->m_gridLocalCellIndex == gridLocalCellIndex && selectedItem->m_nncIndex == nncIndex )
                 {
-                    RigMainGrid* mainGrid = eclipseView->eclipseCase()->eclipseCaseData()->mainGrid();
-                    const RigConnection& nncConn = mainGrid->nncData()->allConnections()[nncIndex];
+                    RigMainGrid*         mainGrid = eclipseView->eclipseCase()->eclipseCaseData()->mainGrid();
+                    const RigConnection& nncConn  = mainGrid->nncData()->allConnections()[nncIndex];
 
-                    size_t c1LocalIdx = cvf::UNDEFINED_SIZE_T;
-                    const RigGridBase* grid1 = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConn.c1GlobIdx(), &c1LocalIdx);
-                    size_t c1GridIdx = grid1->gridIndex();
-                    size_t c2LocalIdx = cvf::UNDEFINED_SIZE_T;
-                    const RigGridBase* grid2 = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConn.c2GlobIdx(), &c2LocalIdx);
-                    size_t c2GridIdx = grid2->gridIndex();
+                    size_t             c1LocalIdx = cvf::UNDEFINED_SIZE_T;
+                    const RigGridBase* grid1      = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( nncConn.c1GlobIdx(), &c1LocalIdx );
+                    size_t             c1GridIdx  = grid1->gridIndex();
+                    size_t             c2LocalIdx = cvf::UNDEFINED_SIZE_T;
+                    const RigGridBase* grid2      = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( nncConn.c2GlobIdx(), &c2LocalIdx );
+                    size_t             c2GridIdx  = grid2->gridIndex();
 
-                    if (gridLocalCellIndex == c1LocalIdx && gridIndex == c1GridIdx)
+                    if ( gridLocalCellIndex == c1LocalIdx && gridIndex == c1GridIdx )
                     {
                         gridLocalCellIndex = c2LocalIdx;
-                        gridIndex = c2GridIdx; 
-                        
-                        if (face == cvf::StructGridInterface::NO_FACE)
+                        gridIndex          = c2GridIdx;
+
+                        if ( face == cvf::StructGridInterface::NO_FACE )
                         {
                             face = nncConn.face();
                         }
                         else
                         {
-                            face = cvf::StructGridInterface::oppositeFace(face);
+                            face = cvf::StructGridInterface::oppositeFace( face );
                         }
                     }
-                    else if (gridLocalCellIndex == c2LocalIdx && gridIndex == c2GridIdx)
+                    else if ( gridLocalCellIndex == c2LocalIdx && gridIndex == c2GridIdx )
                     {
                         gridLocalCellIndex = c1LocalIdx;
-                        gridIndex = c1GridIdx;
-                        if (face == cvf::StructGridInterface::NO_FACE)
+                        gridIndex          = c1GridIdx;
+                        if ( face == cvf::StructGridInterface::NO_FACE )
                         {
-                            face = cvf::StructGridInterface::oppositeFace(nncConn.face());
+                            face = cvf::StructGridInterface::oppositeFace( nncConn.face() );
                         }
                         else
                         {
-                            face = cvf::StructGridInterface::oppositeFace(face);
+                            face = cvf::StructGridInterface::oppositeFace( face );
                         }
                     }
                     else
                     {
-                        // None really matched, error in nnc data. 
+                        // None really matched, error in nnc data.
                     }
                 }
             }
-
-            // clang-format on
 
             selItem = new RiuEclipseSelectionItem( associatedGridView,
                                                    eclResDef,

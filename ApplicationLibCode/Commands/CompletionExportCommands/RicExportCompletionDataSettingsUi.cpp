@@ -26,44 +26,46 @@
 #include "RimWellPath.h"
 #include "RimWellPathCompletions.h"
 
-// clang-format off
 namespace caf
 {
-    template<>
-    void RicExportCompletionDataSettingsUi::ExportSplitType::setUp()
-    {
-        addItem(RicExportCompletionDataSettingsUi::ExportSplit::UNIFIED_FILE,                      "UNIFIED_FILE",                      "Unified File");
-        addItem(RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL,                     "SPLIT_ON_WELL",                     "Split on Well");
-        addItem(RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL_AND_COMPLETION_TYPE, "SPLIT_ON_WELL_AND_COMPLETION_TYPE", "Split on Well and Completion Type");
-        setDefault(RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL_AND_COMPLETION_TYPE);
-    }
-
-    template<>
-    void RicExportCompletionDataSettingsUi::CompdatExportType::setUp()
-    {
-        addItem(RicExportCompletionDataSettingsUi::CompdatExport::TRANSMISSIBILITIES, "TRANSMISSIBILITIES", "Calculated Transmissibilities");
-        addItem(RicExportCompletionDataSettingsUi::CompdatExport::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS, "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS", "Default Connection Factors and WPIMULT (Fractures Not Supported)");
-        setDefault(RicExportCompletionDataSettingsUi::CompdatExport::TRANSMISSIBILITIES);
-    }
-
-    template<>
-    void RicExportCompletionDataSettingsUi::CombinationModeType::setUp()
-    {
-        addItem(RicExportCompletionDataSettingsUi::CombinationMode::INDIVIDUALLY,    "INDIVIDUALLY", "Individually");
-        addItem(RicExportCompletionDataSettingsUi::CombinationMode::COMBINED,        "COMBINED",     "Combined");
-        setDefault(RicExportCompletionDataSettingsUi::CombinationMode::INDIVIDUALLY);
-    }
-
-    template<>
-    void RicExportCompletionDataSettingsUi::TransScalingWBHPSource::setUp()
-    {
-        addItem(RicExportFractureCompletionsImpl::WBHP_FROM_SUMMARY, "WBHP_SUMMARY", "WBHP From Summary Case");
-        addItem(RicExportFractureCompletionsImpl::WBHP_FROM_USER_DEF, "WBHP_USER_DEFINED", "Fixed User Defined WBHP");
-
-        setDefault(RicExportFractureCompletionsImpl::WBHP_FROM_SUMMARY);
-    }
+template <>
+void RicExportCompletionDataSettingsUi::ExportSplitType::setUp()
+{
+    addItem( RicExportCompletionDataSettingsUi::ExportSplit::UNIFIED_FILE, "UNIFIED_FILE", "Unified File" );
+    addItem( RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL, "SPLIT_ON_WELL", "Split on Well" );
+    addItem( RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL_AND_COMPLETION_TYPE,
+             "SPLIT_ON_WELL_AND_COMPLETION_TYPE",
+             "Split on Well and Completion Type" );
+    setDefault( RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL_AND_COMPLETION_TYPE );
 }
-// clang-format on
+
+template <>
+void RicExportCompletionDataSettingsUi::CompdatExportType::setUp()
+{
+    addItem( RicExportCompletionDataSettingsUi::CompdatExport::TRANSMISSIBILITIES, "TRANSMISSIBILITIES", "Calculated Transmissibilities" );
+    addItem( RicExportCompletionDataSettingsUi::CompdatExport::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS,
+             "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS",
+             "Default Connection Factors and WPIMULT (Fractures Not Supported)" );
+    setDefault( RicExportCompletionDataSettingsUi::CompdatExport::TRANSMISSIBILITIES );
+}
+
+template <>
+void RicExportCompletionDataSettingsUi::CombinationModeType::setUp()
+{
+    addItem( RicExportCompletionDataSettingsUi::CombinationMode::INDIVIDUALLY, "INDIVIDUALLY", "Individually" );
+    addItem( RicExportCompletionDataSettingsUi::CombinationMode::COMBINED, "COMBINED", "Combined" );
+    setDefault( RicExportCompletionDataSettingsUi::CombinationMode::INDIVIDUALLY );
+}
+
+template <>
+void RicExportCompletionDataSettingsUi::TransScalingWBHPSource::setUp()
+{
+    addItem( RicExportFractureCompletionsImpl::WBHP_FROM_SUMMARY, "WBHP_SUMMARY", "WBHP From Summary Case" );
+    addItem( RicExportFractureCompletionsImpl::WBHP_FROM_USER_DEF, "WBHP_USER_DEFINED", "Fixed User Defined WBHP" );
+
+    setDefault( RicExportFractureCompletionsImpl::WBHP_FROM_SUMMARY );
+}
+} // namespace caf
 
 CAF_PDM_SOURCE_INIT( RicExportCompletionDataSettingsUi, "RicExportCompletionDataSettingsUi" );
 

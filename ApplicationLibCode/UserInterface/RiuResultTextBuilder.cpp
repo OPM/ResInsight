@@ -582,16 +582,11 @@ QString RiuResultTextBuilder::nncResultText()
                                 eclipseCase->allanDiagramData()->formationIndexCombinationFromCategory( ( *nncValues )[m_nncIndex] );
 
                             std::vector<QString> fmNames = eclipseCase->formationNames();
-                            // clang-format off
-                            if ( fmIndexPair.first >= 0 && 
-                                 fmIndexPair.second >= 0 &&
-                                 static_cast<int>(fmNames.size()) > fmIndexPair.first &&
-                                 static_cast<int>(fmNames.size()) > fmIndexPair.second )
+                            if ( fmIndexPair.first >= 0 && fmIndexPair.second >= 0 && static_cast<int>( fmNames.size() ) > fmIndexPair.first &&
+                                 static_cast<int>( fmNames.size() ) > fmIndexPair.second )
                             {
-                                resultValueText = fmNames[fmIndexPair.first] + " - " +
-                                                  fmNames[fmIndexPair.second];
+                                resultValueText = fmNames[fmIndexPair.first] + " - " + fmNames[fmIndexPair.second];
                             }
-                            // clang-format on
                         }
                         else if ( m_eclipseView->currentFaultResultColors()->resultVariable() ==
                                   RiaResultNames::formationBinaryAllanResultName() )
