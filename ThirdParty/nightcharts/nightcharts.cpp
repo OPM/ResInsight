@@ -28,7 +28,7 @@ Nightcharts::Nightcharts()//QPainter *painter)
 
 {
     font.setFamily("verdana");
-    font.setPixelSize(15);
+    font.setPointSize(15);
     //painter = painter;
     //painter->setFont(font);
     ctype = Nightcharts::Dpie;

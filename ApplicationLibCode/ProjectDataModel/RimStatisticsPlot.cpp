@@ -436,7 +436,7 @@ void RimStatisticsPlot::updatePlots()
 
         // Set font of label equal axis value font
         QFont labelFont = QFont();
-        labelFont.setPixelSize( fontScalingToMatchQwt * axisValueFontSize() );
+        labelFont.setPointSize( fontScalingToMatchQwt * axisValueFontSize() );
         labelSeries->setPointLabelsFont( labelFont );
 
         // Remove legend for dummy point
@@ -446,23 +446,23 @@ void RimStatisticsPlot::updatePlots()
 
     // Set axis value font
     QFont axisYValueFont = axisY->labelsFont();
-    axisYValueFont.setPixelSize( fontScalingToMatchQwt * axisValueFontSize() );
+    axisYValueFont.setPointSize( fontScalingToMatchQwt * axisValueFontSize() );
     axisY->setLabelsFont( axisYValueFont );
     QFont axisXValueFont = axisX->labelsFont();
-    axisXValueFont.setPixelSize( fontScalingToMatchQwt * axisValueFontSize() );
+    axisXValueFont.setPointSize( fontScalingToMatchQwt * axisValueFontSize() );
     axisX->setLabelsFont( axisXValueFont );
 
     // Set axis title font
     QFont axisYTitleFont = axisY->titleFont();
-    axisYTitleFont.setPixelSize( fontScalingToMatchQwt * axisTitleFontSize() );
+    axisYTitleFont.setPointSize( fontScalingToMatchQwt * axisTitleFontSize() );
     axisY->setTitleFont( axisYTitleFont );
     QFont axisXTitleFont = axisX->titleFont();
-    axisXTitleFont.setPixelSize( fontScalingToMatchQwt * axisTitleFontSize() );
+    axisXTitleFont.setPointSize( fontScalingToMatchQwt * axisTitleFontSize() );
     axisX->setTitleFont( axisXTitleFont );
 
     // Set plot title font
     QFont titleFont = chart->titleFont();
-    titleFont.setPixelSize( fontScalingToMatchQwt * titleFontSize() );
+    titleFont.setPointSize( fontScalingToMatchQwt * titleFontSize() );
     chart->setTitleFont( titleFont );
 
     // Set legend font
@@ -470,7 +470,7 @@ void RimStatisticsPlot::updatePlots()
     if ( legend )
     {
         QFont legendFont = legend->font();
-        legendFont.setPixelSize( fontScalingToMatchQwt * legendFontSize() );
+        legendFont.setPointSize( fontScalingToMatchQwt * legendFontSize() );
         legend->setFont( legendFont );
         legend->setVisible( legendsVisible() );
     }

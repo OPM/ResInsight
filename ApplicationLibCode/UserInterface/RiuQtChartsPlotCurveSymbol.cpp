@@ -37,8 +37,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQtChartsPlotCurveSymbol::RiuQtChartsPlotCurveSymbol( PointSymbolEnum riuStyle, const QString& label, LabelPosition labelPosition, int labelFontSizePt )
-    : RiuPlotCurveSymbol( riuStyle, label, labelPosition, labelFontSizePt )
+RiuQtChartsPlotCurveSymbol::RiuQtChartsPlotCurveSymbol( PointSymbolEnum riuStyle, const QString& label, LabelPosition labelPosition, int labelFontSize )
+    : RiuPlotCurveSymbol( riuStyle, label, labelPosition, labelFontSize )
 {
 }
 

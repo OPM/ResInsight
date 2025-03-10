@@ -38,7 +38,7 @@ RiuTextContentFrame::RiuTextContentFrame( QWidget* parent, const QString& title,
     : RiuAbstractOverlayContentFrame( parent )
     , m_title( title )
     , m_text( text )
-    , m_fontPixelSize( fontPixelSize )
+    , m_fontSize( fontPixelSize )
 {
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
 
@@ -170,10 +170,10 @@ void RiuTextContentFrame::layoutInfo( LayoutInfo* layout ) const
 //--------------------------------------------------------------------------------------------------
 void RiuTextContentFrame::updateFontSize()
 {
-    if ( m_fontPixelSize != -1 )
+    if ( m_fontSize != -1 )
     {
         QFont font = this->font();
-        font.setPixelSize( m_fontPixelSize );
+        font.setPointSize( m_fontSize );
         setFont( font );
     }
     else

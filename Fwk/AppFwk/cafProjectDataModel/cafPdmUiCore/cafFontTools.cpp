@@ -89,25 +89,9 @@ int FontTools::absolutePointSize( FontSize normalPointSize, RelativeSize relativ
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int FontTools::pointSizeToPixelSize( int pointSize )
+int FontTools::pointSizeFromEnum( FontSize pointSize )
 {
-    return pointSize;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int FontTools::pointSizeToPixelSize( FontSize pointSize )
-{
-    return pointSizeToPixelSize( (int)pointSize );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int FontTools::pixelSizeToPointSize( int pixelSize )
-{
-    return pixelSize;
+    return (int)pointSize;
 }
 
 QList<PdmOptionItemInfo> FontTools::relativeSizeValueOptions( FontSize normalPointSize )

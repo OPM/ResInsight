@@ -76,7 +76,7 @@ RimParameterResultCrossPlot::RimParameterResultCrossPlot()
 
     m_selectMultipleVectors = true;
 
-    m_legendFontSize = caf::FontTools::RelativeSize::XSmall;
+    m_legendFontSize = caf::FontTools::RelativeSize::Small;
 
     m_xRange = std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
     m_yRange = std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );

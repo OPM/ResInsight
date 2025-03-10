@@ -98,7 +98,7 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createRftSegmentPlot()
     plot->setLegendItemsClickable( false );
     plot->enableDepthMarkerLine( true );
     plot->setLegendPosition( RimPlotWindow::LegendPosition::INSIDE_UPPER_RIGHT );
-    plot->setLegendFontSize( caf::FontTools::RelativeSize::XSmall );
+    plot->setLegendFontSize( caf::FontTools::RelativeSize::Small );
     plot->setLegendsHorizontal( false );
     plot->setAutoZoomMaximumDepthFactor( 0.1 );
 

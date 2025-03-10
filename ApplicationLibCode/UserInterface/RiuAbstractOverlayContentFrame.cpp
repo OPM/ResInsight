@@ -47,7 +47,7 @@ RiuAbstractOverlayContentFrame::~RiuAbstractOverlayContentFrame()
 void RiuAbstractOverlayContentFrame::updateFontSize()
 {
     QFont font = this->font();
-    font.setPixelSize( caf::FontTools::pointSizeToPixelSize( RiaPreferences::current()->defaultPlotFontSize() ) );
+    font.setPointSize( caf::FontTools::pointSizeFromEnum( RiaPreferences::current()->defaultPlotFontSize() ) );
     setFont( font );
 }
 
@@ -98,6 +98,6 @@ void RiuTextOverlayContentFrame::renderTo( QPainter* painter, const QRect& targe
 void RiuTextOverlayContentFrame::updateLabelFont()
 {
     QFont font = m_textLabel->font();
-    font.setPixelSize( caf::FontTools::pointSizeToPixelSize( RiaPreferences::current()->defaultPlotFontSize() ) );
+    font.setPointSize( caf::FontTools::pointSizeFromEnum( RiaPreferences::current()->defaultPlotFontSize() ) );
     m_textLabel->setFont( font );
 }

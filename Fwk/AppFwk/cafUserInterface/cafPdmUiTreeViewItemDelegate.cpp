@@ -163,14 +163,7 @@ void PdmUiTreeViewItemDelegate::paint( QPainter* painter, const QStyleOptionView
             const int outsideLeftRightMargins = 4;
 
             QFont font = QApplication::font();
-            if ( font.pixelSize() > 0 )
-            {
-                font.setPixelSize( std::max( 1, font.pixelSize() - 1 ) );
-            }
-            else
-            {
-                font.setPointSize( std::max( 1, font.pointSize() - 1 ) );
-            }
+            font.setPointSize( std::max( 1, font.pointSize() - 1 ) );
             painter->setFont( font );
 
             QString text    = tag->text;

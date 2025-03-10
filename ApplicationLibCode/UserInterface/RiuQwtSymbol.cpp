@@ -32,8 +32,8 @@
 //--------------------------------------------------------------------------------------------------
 /// Internal class to support labels on symbols
 //--------------------------------------------------------------------------------------------------
-RiuQwtSymbol::RiuQwtSymbol( PointSymbolEnum riuStyle, const QString& label, LabelPosition labelPosition, int labelFontSizePt )
-    : RiuPlotCurveSymbol( riuStyle, label, labelPosition, labelFontSizePt )
+RiuQwtSymbol::RiuQwtSymbol( PointSymbolEnum riuStyle, const QString& label, LabelPosition labelPosition, int labelFontSize )
+    : RiuPlotCurveSymbol( riuStyle, label, labelPosition, labelFontSize )
     , QwtSymbol( QwtSymbol::NoSymbol )
 {
     QwtSymbol::Style style = QwtSymbol::NoSymbol;
@@ -192,7 +192,7 @@ void RiuQwtSymbol::renderSymbolLabel( QPainter* painter, const QPointF& position
 {
     painter->save();
     QFont font = painter->font();
-    font.setPixelSize( m_labelFontSizePx );
+    font.setPointSize( m_labelFontSize );
     painter->setFont( font );
     painter->setPen( RiaColorTools::textColor() );
 

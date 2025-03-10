@@ -172,9 +172,9 @@ protected:
     std::map<int, std::pair<int, int>>        m_visibleIndexToPositionMapping;
     caf::PdmPointer<RimPlotWindow>            m_plotDefinition;
 
-    int m_titleFontPixelSize;
-    int m_subTitleFontPixelSize;
-    int m_legendFontPixelSize;
+    int m_titleFontSize;
+    int m_subTitleFontSize;
+    int m_legendFontSize;
     int m_axisTitleFontSize;
     int m_axisValueFontSize;
 

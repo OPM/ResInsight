@@ -38,9 +38,9 @@ class RiuQwtSymbol : public RiuPlotCurveSymbol, public QwtSymbol
 {
 public:
     RiuQwtSymbol( RiuPlotCurveSymbol::PointSymbolEnum riuStyle,
-                  const QString&                      label           = QString(),
-                  LabelPosition                       labelPosition   = RiuPlotCurveSymbol::LabelAboveSymbol,
-                  int                                 labelFontSizePt = 8 );
+                  const QString&                      label         = QString(),
+                  LabelPosition                       labelPosition = RiuPlotCurveSymbol::LabelAboveSymbol,
+                  int                                 labelFontSize = 8 );
     void renderSymbols( QPainter* painter, const QPointF* points, int numPoints ) const override;
     void renderSymbolLabel( QPainter* painter, const QPointF& position, const QString& label ) const;
 

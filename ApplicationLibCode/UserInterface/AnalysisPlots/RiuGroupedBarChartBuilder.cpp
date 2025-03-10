@@ -169,7 +169,7 @@ public:
         QwtText text( string );
 
         QFont font = text.font();
-        font.setPixelSize( caf::FontTools::pointSizeToPixelSize( m_labelFontPointSize + fontSizeChange ) );
+        font.setPointSize( m_labelFontPointSize + fontSizeChange );
         text.setFont( font );
 
         text.setPaintAttribute( QwtText::PaintUsingTextFont, true );

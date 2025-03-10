@@ -24,6 +24,7 @@
 #include "RimWellRftEnsembleCurveSet.h"
 
 #include "RifDataSourceForRftPltQMetaType.h"
+
 #include "RiuPlotCurveSymbol.h"
 
 #include "cafPdmField.h"

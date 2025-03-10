@@ -160,18 +160,15 @@ int RiuQtChartsPlotWidget::axisValueFontSize( RiuPlotAxis axis ) const
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setAxisFontsAndAlignment( RiuPlotAxis axis, int titleFontSize, int valueFontSize, bool titleBold, int alignment )
 {
-    int titleFontPixelSize = caf::FontTools::pointSizeToPixelSize( titleFontSize );
-    int valueFontPixelSize = caf::FontTools::pointSizeToPixelSize( valueFontSize );
-
     // Axis number font
     QFont axisFont = plotAxis( axis )->labelsFont();
-    axisFont.setPixelSize( valueFontPixelSize );
+    axisFont.setPointSize( valueFontSize );
     axisFont.setBold( false );
     plotAxis( axis )->setLabelsFont( axisFont );
 
     // Axis title font
     QFont axisTitleFont = plotAxis( axis )->labelsFont();
-    axisTitleFont.setPixelSize( titleFontPixelSize );
+    axisTitleFont.setPointSize( titleFontSize );
     axisTitleFont.setBold( titleBold );
     plotAxis( axis )->setTitleFont( axisTitleFont );
 
@@ -268,7 +265,7 @@ bool RiuQtChartsPlotWidget::plotTitleEnabled() const
 void RiuQtChartsPlotWidget::setPlotTitleFontSize( int titleFontSize )
 {
     QFont font = qtChart()->titleFont();
-    font.setPixelSize( caf::FontTools::pointSizeToPixelSize( titleFontSize ) );
+    font.setPointSize( titleFontSize );
     qtChart()->setTitleFont( font );
 }
 
@@ -280,7 +277,7 @@ void RiuQtChartsPlotWidget::setLegendFontSize( int fontSize )
     if ( qtChart()->legend() )
     {
         QFont font = qtChart()->legend()->font();
-        font.setPixelSize( caf::FontTools::pointSizeToPixelSize( fontSize ) );
+        font.setPointSize( fontSize );
         qtChart()->legend()->setFont( font );
     }
 }
