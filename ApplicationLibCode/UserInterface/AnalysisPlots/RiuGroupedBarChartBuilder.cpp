@@ -489,46 +489,48 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
         filteredSortedBarEntries = filteredBarEntries;
     }
 
-    // clang-format off
     auto addGroupTickText = [&]( double groupStartPos, QString tickText, QList<double>& groupTickPosList )
     {
-        if( tickText.isEmpty() ) return;
+        if ( tickText.isEmpty() ) return;
 
         double tickPos = midPoint( groupStartPos, currentBarPosition );
 
-        QwtScaleDiv::TickType ttyp = (&groupTickPosList == &majTickPositions ) ? QwtScaleDiv::MajorTick
-                                                                               : ( &groupTickPosList == &midTickPositions ) ? QwtScaleDiv::MediumTick
-                                                                                                                            : QwtScaleDiv::MinorTick;
+        QwtScaleDiv::TickType ttyp = ( &groupTickPosList == &majTickPositions )   ? QwtScaleDiv::MajorTick
+                                     : ( &groupTickPosList == &midTickPositions ) ? QwtScaleDiv::MediumTick
+                                                                                  : QwtScaleDiv::MinorTick;
 
-        // Make sure we do not get ticks of different level exactly at the same spot, 
+        // Make sure we do not get ticks of different level exactly at the same spot,
         // so that the drawing is able to distinguish
 
-        if( ttyp == QwtScaleDiv::MinorTick ) tickPos += 2e-4;
-        if( ttyp == QwtScaleDiv::MediumTick ) tickPos += 1e-4;
+        if ( ttyp == QwtScaleDiv::MinorTick ) tickPos += 2e-4;
+        if ( ttyp == QwtScaleDiv::MediumTick ) tickPos += 1e-4;
 
-        groupPositionedAxisTexts[tickPos] = RiuBarChartScaleDraw::RiuBarChartTick(ttyp, tickText, true);
+        groupPositionedAxisTexts[tickPos] = RiuBarChartScaleDraw::RiuBarChartTick( ttyp, tickText, true );
 
         groupTickPosList.push_back( tickPos );
     };
 
-    auto addGroupDivider = [&]( double position, QList<double>& groupDividerPosList)
+    auto addGroupDivider = [&]( double position, QList<double>& groupDividerPosList )
     {
-        QwtScaleDiv::TickType ttyp =
-            (&groupDividerPosList == &majDividerPositions) ? QwtScaleDiv::MajorTick
-                                                           : (&groupDividerPosList == &midDividerPositions) ? QwtScaleDiv::MediumTick
-                                                                                                            : QwtScaleDiv::MinorTick;
+        QwtScaleDiv::TickType ttyp = ( &groupDividerPosList == &majDividerPositions )   ? QwtScaleDiv::MajorTick
+                                     : ( &groupDividerPosList == &midDividerPositions ) ? QwtScaleDiv::MediumTick
+                                                                                        : QwtScaleDiv::MinorTick;
 
-        // Make sure we do not get ticks of different level exactly at the same spot, 
+        // Make sure we do not get ticks of different level exactly at the same spot,
         // so that the drawing is able to distinguish
         double spacing = majGroupSpacing;
 
-        if( ttyp == QwtScaleDiv::MediumTick ){ spacing = midGroupSpacing; }
-        if( ttyp == QwtScaleDiv::MinorTick ) { spacing = minGroupSpacing; }
+        if ( ttyp == QwtScaleDiv::MediumTick )
+        {
+            spacing = midGroupSpacing;
+        }
+        if ( ttyp == QwtScaleDiv::MinorTick )
+        {
+            spacing = minGroupSpacing;
+        }
 
-        groupDividerPosList.push_back(currentBarPosition - 0.5 - 0.5*spacing);
+        groupDividerPosList.push_back( currentBarPosition - 0.5 - 0.5 * spacing );
     };
-
-    // clang-format on
 
     // Loop over entries, calculate tick positions and bar positions as we go
 

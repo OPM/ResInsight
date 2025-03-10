@@ -101,22 +101,20 @@ std::vector<cvf::Vec3d> createVertices()
     std::vector<cvf::Vec3d> vxs;
     vxs.resize( 14, cvf::Vec3d::ZERO );
 
-    // clang-format off
-    vxs[ 0]= cvf::Vec3d( 0   , 0   , 0   );
-    vxs[ 1]= cvf::Vec3d( 1   , 0   , 0   );
-    vxs[ 2]= cvf::Vec3d( 1   , 1   , 0   );
-    vxs[ 3]= cvf::Vec3d( 0   , 1   , 0   );
-    vxs[ 4]= cvf::Vec3d(-0.4 ,-0.2 , 0.0 );
-    vxs[ 5]= cvf::Vec3d( 0.4 , 0.6 , 0.0 );
-    vxs[ 6]= cvf::Vec3d( 0.8 , 0.2 , 0.0 );
-    vxs[ 7]= cvf::Vec3d( 0.0 ,-0.6 , 0.0 );
-    vxs[ 8]= cvf::Vec3d( 1.0 , 1.2 , 0.0 );
-    vxs[ 9]= cvf::Vec3d( 1.4 , 0.8 , 0.0 );
-    vxs[10]= cvf::Vec3d( 0.4 ,-0.2 , 0.0 );
-    vxs[11]= cvf::Vec3d( 1.2 , 0.6 , 0.0 );
-    vxs[12]= cvf::Vec3d( 1.6 , 0.2 , 0.0 );
-    vxs[13]= cvf::Vec3d( 0.8 ,-0.6 , 0.0 );
-    // clang-format on
+    vxs[0]  = cvf::Vec3d( 0, 0, 0 );
+    vxs[1]  = cvf::Vec3d( 1, 0, 0 );
+    vxs[2]  = cvf::Vec3d( 1, 1, 0 );
+    vxs[3]  = cvf::Vec3d( 0, 1, 0 );
+    vxs[4]  = cvf::Vec3d( -0.4, -0.2, 0.0 );
+    vxs[5]  = cvf::Vec3d( 0.4, 0.6, 0.0 );
+    vxs[6]  = cvf::Vec3d( 0.8, 0.2, 0.0 );
+    vxs[7]  = cvf::Vec3d( 0.0, -0.6, 0.0 );
+    vxs[8]  = cvf::Vec3d( 1.0, 1.2, 0.0 );
+    vxs[9]  = cvf::Vec3d( 1.4, 0.8, 0.0 );
+    vxs[10] = cvf::Vec3d( 0.4, -0.2, 0.0 );
+    vxs[11] = cvf::Vec3d( 1.2, 0.6, 0.0 );
+    vxs[12] = cvf::Vec3d( 1.6, 0.2, 0.0 );
+    vxs[13] = cvf::Vec3d( 0.8, -0.6, 0.0 );
 
     return vxs;
 }

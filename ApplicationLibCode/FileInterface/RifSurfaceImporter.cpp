@@ -279,16 +279,11 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
         }
     }
 
-    // clang-format off
-    if ( surfaceDataPoints.empty() 
-        || minI == std::numeric_limits<int>::max() 
-        || minJ == std::numeric_limits<int>::max() 
-        || maxI == std::numeric_limits<int>::min() 
-        || maxJ == std::numeric_limits<int>::min() )
+    if ( surfaceDataPoints.empty() || minI == std::numeric_limits<int>::max() || minJ == std::numeric_limits<int>::max() ||
+         maxI == std::numeric_limits<int>::min() || maxJ == std::numeric_limits<int>::min() )
     {
         return {};
     }
-    // clang-format on
 
     // Create full size grid matrix
 
