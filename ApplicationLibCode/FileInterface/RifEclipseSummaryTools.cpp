@@ -19,9 +19,11 @@
 #include "RifEclipseSummaryTools.h"
 
 #include "RiaFilePathTools.h"
+#include "RiaStdStringTools.h"
 #include "RiaStringEncodingTools.h"
-#include "RifSummaryReaderInterface.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
+
+#include "RifSummaryReaderInterface.h"
 
 #include "cafAppEnum.h"
 
@@ -374,6 +376,26 @@ std::vector<time_t> RifEclipseSummaryTools::getTimeSteps( ecl_sum_type* ecl_sum 
         }
     }
     return timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::string, std::string> RifEclipseSummaryTools::vectorNameAndExtension( const std::string& vectorName )
+{
+    std::string vectorNameToUse = vectorName;
+    std::string extension;
+    if ( RiaStdStringTools::endsWith( vectorNameToUse, RifEclipseSummaryAddressDefines::differenceIdentifier() ) )
+    {
+        extension = RifEclipseSummaryAddressDefines::differenceIdentifier();
+        vectorNameToUse = vectorNameToUse.substr( 0, vectorNameToUse.size() - RifEclipseSummaryAddressDefines::differenceIdentifier().size() );
+    }
+    else if ( RiaStdStringTools::endsWith( vectorNameToUse, RifEclipseSummaryAddressDefines::historyIdentifier() ) )
+    {
+        extension       = RifEclipseSummaryAddressDefines::historyIdentifier();
+        vectorNameToUse = vectorNameToUse.substr( 0, vectorNameToUse.size() - RifEclipseSummaryAddressDefines::historyIdentifier().size() );
+    }
+    return { vectorNameToUse, extension };
 }
 
 //--------------------------------------------------------------------------------------------------
