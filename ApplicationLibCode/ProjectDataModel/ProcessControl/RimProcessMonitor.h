@@ -20,12 +20,19 @@
 #include <QObject>
 #include <QProcess>
 
+#include <QString>
+#include <QStringList>
+
 class RimProcessMonitor : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit RimProcessMonitor( int processId );
+    explicit RimProcessMonitor( int processId, bool logStdOutErr = true );
+
+    void        clearStdOutErr();
+    QStringList stdOut() const;
+    QStringList stdErr() const;
 
 signals:
 
@@ -37,6 +44,9 @@ public slots:
     void started();
 
 private:
-    QString addPrefix( QString message );
-    int     m_processId;
+    QString     addPrefix( QString message );
+    int         m_processId;
+    bool        m_logStdOutErr;
+    QStringList m_stdOut;
+    QStringList m_stdErr;
 };

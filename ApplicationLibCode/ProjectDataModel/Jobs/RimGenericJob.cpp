@@ -18,6 +18,15 @@
 
 #include "RimGenericJob.h"
 
+#include "RiaLogging.h"
+
+#include "RimProcess.h"
+
+#include "cafCmdFeatureMenuBuilder.h"
+#include "cafProgressInfo.h"
+
+#include <QMessageBox>
+
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimGenericJob, "GenericJob" ); // Do not use. Abstract class
 
 //--------------------------------------------------------------------------------------------------
@@ -33,4 +42,51 @@ RimGenericJob::RimGenericJob()
 //--------------------------------------------------------------------------------------------------
 RimGenericJob::~RimGenericJob()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGenericJob::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicRunJobFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGenericJob::workingDirectory()
+{
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimGenericJob::optionalArguments()
+{
+    return QStringList();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGenericJob::execute()
+{
+    QString cmdLine = commandLine();
+    if ( cmdLine.isEmpty() ) return false;
+
+    caf::ProgressInfo runProgress( 3, title() + " running , please wait..." );
+
+    RimProcess process;
+    process.setCommand( cmdLine );
+    process.addParameters( optionalArguments() );
+    process.setWorkingDirectory( workingDirectory() );
+
+    if ( !process.execute() )
+    {
+        QMessageBox::critical( nullptr, title(), "Failed to run job. Check log window for additional information." );
+        return false;
+    }
+    return true;
 }
