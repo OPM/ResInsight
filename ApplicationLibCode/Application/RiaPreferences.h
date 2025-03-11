@@ -46,6 +46,7 @@ class RiaPreferencesSystem;
 class RiaPreferencesOsdu;
 class RiaPreferencesGrid;
 class RiaPreferencesSumo;
+class RiaPreferencesOpm;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -131,6 +132,7 @@ public:
     RiaPreferencesOsdu*    osduPreferences() const;
     RiaPreferencesSumo*    sumoPreferences() const;
     RiaPreferencesGrid*    gridPreferences() const;
+    RiaPreferencesOpm*     opmPreferences() const;
 
 public:
     caf::PdmField<bool> enableGrpcServer;
@@ -227,6 +229,9 @@ private:
 
     // GeoMech things
     caf::PdmChildField<RiaPreferencesGeoMech*> m_geoMechPreferences;
+
+    // OPM settings
+    caf::PdmChildField<RiaPreferencesOpm*> m_opmPreferences;
 
     // Summary data
     caf::PdmChildField<RiaPreferencesSummary*> m_summaryPreferences;

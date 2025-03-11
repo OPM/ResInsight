@@ -18,7 +18,13 @@
 
 #include "RicNewOpmFlowJobFeature.h"
 
+#include "RiaApplication.h"
+#include "RiaPreferencesOpm.h"
+
 #include "RimTools.h"
+
+#include "Riu3DMainWindowTools.h"
+#include "RiuFileDialogTools.h"
 
 #include "Jobs/RimJobCollection.h"
 #include "Jobs/RimOpmFlowJob.h"
@@ -30,14 +36,33 @@ CAF_CMD_SOURCE_INIT( RicNewOpmFlowJobFeature, "RicNewOpmFlowJobFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RicNewOpmFlowJobFeature::isCommandEnabled() const
+{
+    return RiaPreferencesOpm::current()->validateFlowSettings();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicNewOpmFlowJobFeature::onActionTriggered( bool isChecked )
 {
+    // get base directory for our work, should be a new, empty folder somewhere
+    const QString defaultDirName = "OPM_FLOW_MODELING";
+    QString       defaultDir     = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( defaultDirName );
+    QString       baseDir        = RiuFileDialogTools::getExistingDirectory( nullptr, tr( "Select Working Directory" ), defaultDir );
+    if ( baseDir.isNull() || baseDir.isEmpty() ) return;
+    RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirName, baseDir );
+
     auto jobColl = RimTools::jobCollection();
 
     auto job = new RimOpmFlowJob();
     job->setName( "Opm Flow Modeling Job" );
 
+    job->setWorkingDirectory( baseDir );
+
     jobColl->addNewJob( job );
+
+    Riu3DMainWindowTools::selectAsCurrentItem( job );
 }
 
 //--------------------------------------------------------------------------------------------------

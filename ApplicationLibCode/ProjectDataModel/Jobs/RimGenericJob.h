@@ -20,6 +20,9 @@
 
 #include "RimNamedObject.h"
 
+#include <QString>
+#include <QStringList>
+
 //==================================================================================================
 ///
 ///
@@ -31,4 +34,14 @@ class RimGenericJob : public RimNamedObject
 public:
     RimGenericJob();
     ~RimGenericJob() override;
+
+    bool execute();
+
+protected:
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
+    virtual QString     title()       = 0;
+    virtual QString     commandLine() = 0;
+    virtual QStringList optionalArguments();
+    virtual QString     workingDirectory();
 };
