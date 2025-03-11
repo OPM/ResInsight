@@ -40,8 +40,8 @@ public:
 protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
-    virtual QString     title()       = 0;
-    virtual QString     commandLine() = 0;
-    virtual QStringList optionalArguments();
+    virtual QString     title()   = 0;
+    virtual QStringList command() = 0;
     virtual QString     workingDirectory();
+    virtual void        onCompleted( bool success ) = 0;
 };

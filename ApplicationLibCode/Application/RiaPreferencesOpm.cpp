@@ -37,8 +37,11 @@ RiaPreferencesOpm::RiaPreferencesOpm()
     m_opmFlowCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
     CAF_PDM_InitField( &m_useWsl, "useWsl", false, "Use WSL to run Opm Flow" );
+
     CAF_PDM_InitFieldNoDefault( &m_wslDistribution, "wslDistribution", "WSL Distribution to use:" );
     m_wslDistribution.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+    m_availableWslDists = RiaWslTools::wslDistributionList();
+    if ( !m_availableWslDists.isEmpty() ) m_wslDistribution = m_availableWslDists.at( 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,7 +55,7 @@ RiaPreferencesOpm* RiaPreferencesOpm::current()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPreferencesOpm::appendItems( caf::PdmUiOrdering& uiOrdering ) const
+void RiaPreferencesOpm::appendItems( caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* opmGrp = uiOrdering.addNewGroup( "OPM Flow Settings" );
     opmGrp->add( &m_opmFlowCommand );
@@ -76,10 +79,9 @@ QList<caf::PdmOptionItemInfo> RiaPreferencesOpm::calculateValueOptions( const ca
 
     if ( fieldNeedingOptions == &m_wslDistribution )
     {
-        auto distList = RiaWslTools::wslDistributionList();
-        for ( auto& dist : distList )
+        for ( auto dist : m_availableWslDists )
         {
-            options.push_back( caf::PdmOptionItemInfo( dist, dist ) );
+            options.push_back( caf::PdmOptionItemInfo( dist, QVariant::fromValue( dist ) ) );
         }
     }
 
@@ -102,7 +104,8 @@ QStringList RiaPreferencesOpm::wslOptions() const
     QStringList options;
     if ( m_useWsl() )
     {
-        options.append( QString( "-d %1" ).arg( m_wslDistribution() ) );
+        options.append( "-d" );
+        options.append( m_wslDistribution() );
     }
 
     return options;

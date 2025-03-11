@@ -35,6 +35,7 @@ int RimProcess::m_nextProcessId = 1;
 ///
 //--------------------------------------------------------------------------------------------------
 RimProcess::RimProcess( bool logStdOutErr /*true*/ )
+    : m_enableLogging( logStdOutErr )
 {
     int defId = m_nextProcessId++;
     m_monitor = new RimProcessMonitor( defId, logStdOutErr );
@@ -163,7 +164,7 @@ bool RimProcess::execute( bool enableStdOut, bool enableStdErr )
     QProcess* proc = new QProcess();
     QString   cmd  = commandLine();
 
-    RiaLogging::info( QString( "Start process %1: %2" ).arg( m_id ).arg( cmd ) );
+    if ( m_enableLogging ) RiaLogging::info( QString( "Start process %1: %2" ).arg( m_id ).arg( cmd ) );
 
     m_monitor->clearStdOutErr();
 

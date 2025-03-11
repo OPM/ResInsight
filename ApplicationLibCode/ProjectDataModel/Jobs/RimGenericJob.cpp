@@ -63,30 +63,27 @@ QString RimGenericJob::workingDirectory()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RimGenericJob::optionalArguments()
-{
-    return QStringList();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimGenericJob::execute()
 {
-    QString cmdLine = commandLine();
+    QStringList cmdLine = command();
     if ( cmdLine.isEmpty() ) return false;
 
-    caf::ProgressInfo runProgress( 3, title() + " running , please wait..." );
+    caf::ProgressInfo runProgress( 1, title() + " running , please wait..." );
+
+    QString cmd = cmdLine.takeFirst();
 
     RimProcess process;
-    process.setCommand( cmdLine );
-    process.addParameters( optionalArguments() );
+    process.setCommand( cmd );
+    if ( !cmdLine.isEmpty() ) process.addParameters( cmdLine );
     process.setWorkingDirectory( workingDirectory() );
 
-    if ( !process.execute() )
+    bool runOk = process.execute();
+
+    onCompleted( runOk );
+
+    if ( !runOk )
     {
         QMessageBox::critical( nullptr, title(), "Failed to run job. Check log window for additional information." );
-        return false;
     }
-    return true;
+    return runOk;
 }
