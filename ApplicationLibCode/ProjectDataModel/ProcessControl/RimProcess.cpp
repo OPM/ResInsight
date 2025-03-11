@@ -34,14 +34,17 @@ int RimProcess::m_nextProcessId = 1;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimProcess::RimProcess()
+RimProcess::RimProcess( bool logStdOutErr /*true*/ )
 {
     int defId = m_nextProcessId++;
-    m_monitor = new RimProcessMonitor( defId );
+    m_monitor = new RimProcessMonitor( defId, logStdOutErr );
 
     CAF_PDM_InitObject( "ResInsight Process", ":/Erase.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_command, "Command", "Command" );
+    m_command.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_workDir, "WorkDir", QString(), "Working Directory" );
     m_command.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_description, "Description", "Description" );
@@ -127,6 +130,24 @@ QStringList RimProcess::parameters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QStringList RimProcess::stdOut() const
+{
+    if ( m_monitor ) return m_monitor->stdOut();
+    return QStringList();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimProcess::stdErr() const
+{
+    if ( m_monitor ) return m_monitor->stdErr();
+    return QStringList();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RimProcess::ID() const
 {
     return m_id;
@@ -137,10 +158,14 @@ int RimProcess::ID() const
 //--------------------------------------------------------------------------------------------------
 bool RimProcess::execute( bool enableStdOut, bool enableStdErr )
 {
+    if ( !m_monitor ) return false;
+
     QProcess* proc = new QProcess();
     QString   cmd  = commandLine();
 
     RiaLogging::info( QString( "Start process %1: %2" ).arg( m_id ).arg( cmd ) );
+
+    m_monitor->clearStdOutErr();
 
     QObject::connect( proc, SIGNAL( finished( int, QProcess::ExitStatus ) ), m_monitor, SLOT( finished( int, QProcess::ExitStatus ) ) );
     if ( enableStdOut ) QObject::connect( proc, SIGNAL( readyReadStandardOutput() ), m_monitor, SLOT( readyReadStandardOutput() ) );
@@ -155,6 +180,10 @@ bool RimProcess::execute( bool enableStdOut, bool enableStdErr )
         env.insert( key, val );
     }
     proc->setProcessEnvironment( env );
+    if ( !m_workDir().isEmpty() )
+    {
+        proc->setWorkingDirectory( m_workDir );
+    }
 
     proc->start( m_command, m_arguments );
     auto error = proc->errorString();
@@ -255,4 +284,12 @@ QString RimProcess::handleSpaces( QString arg ) const
 void RimProcess::addEnvironmentVariable( QString name, QString value )
 {
     m_environmentVariables.push_back( std::make_pair( name, value ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProcess::setWorkingDirectory( QString workDir )
+{
+    m_workDir = workDir;
 }

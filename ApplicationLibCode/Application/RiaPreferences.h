@@ -46,6 +46,7 @@ class RiaPreferencesSystem;
 class RiaPreferencesOsdu;
 class RiaPreferencesGrid;
 class RiaPreferencesSumo;
+class RiaPreferencesOpm;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -128,6 +129,7 @@ public:
     RiaPreferencesOsdu*    osduPreferences() const;
     RiaPreferencesSumo*    sumoPreferences() const;
     RiaPreferencesGrid*    gridPreferences() const;
+    RiaPreferencesOpm*     opmPreferences() const;
 
     void importPreferenceValuesFromFile( const QString& fileName );
     void exportPreferenceValuesToFile( const QString& fileName );
@@ -222,6 +224,9 @@ private:
 
     // GeoMech things
     caf::PdmChildField<RiaPreferencesGeoMech*> m_geoMechPreferences;
+
+    // OPM settings
+    caf::PdmChildField<RiaPreferencesOpm*> m_opmPreferences;
 
     // Summary data
     caf::PdmChildField<RiaPreferencesSummary*> m_summaryPreferences;

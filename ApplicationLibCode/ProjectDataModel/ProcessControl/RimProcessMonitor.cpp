@@ -23,17 +23,27 @@
 #include <QProcess>
 #include <QtCore/QtCore>
 
-RimProcessMonitor::RimProcessMonitor( int processId )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProcessMonitor::RimProcessMonitor( int processId, bool logStdOutErr /*true*/ )
     : QObject( nullptr )
     , m_processId( processId )
+    , m_logStdOutErr( logStdOutErr )
 {
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimProcessMonitor::addPrefix( QString message )
 {
     return QString( "Process %1: %2" ).arg( m_processId ).arg( message );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimProcessMonitor::error( QProcess::ProcessError error )
 {
     QString errorStr;
@@ -64,6 +74,9 @@ void RimProcessMonitor::error( QProcess::ProcessError error )
     RiaLogging::error( addPrefix( errorStr ) );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimProcessMonitor::finished( int exitCode, QProcess::ExitStatus exitStatus )
 {
     QString finishStr;
@@ -81,6 +94,9 @@ void RimProcessMonitor::finished( int exitCode, QProcess::ExitStatus exitStatus 
     RiaLogging::debug( addPrefix( finishStr ) );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimProcessMonitor::readyReadStandardError()
 {
     QProcess* p = (QProcess*)sender();
@@ -90,10 +106,17 @@ void RimProcessMonitor::readyReadStandardError()
         QString line = p->readLine();
         line         = line.trimmed();
         if ( line.size() == 0 ) continue;
-        RiaLogging::error( addPrefix( line ) );
+        m_stdErr.append( line );
+        if ( m_logStdOutErr )
+        {
+            RiaLogging::error( addPrefix( line ) );
+        }
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimProcessMonitor::readyReadStandardOutput()
 {
     QProcess* p = (QProcess*)sender();
@@ -103,11 +126,43 @@ void RimProcessMonitor::readyReadStandardOutput()
         QString line = p->readLine();
         line         = line.trimmed();
         if ( line.size() == 0 ) continue;
-        RiaLogging::info( addPrefix( line ) );
+        m_stdOut.append( line );
+        if ( m_logStdOutErr )
+        {
+            RiaLogging::info( addPrefix( line ) );
+        }
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimProcessMonitor::started()
 {
     RiaLogging::debug( addPrefix( "Started" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProcessMonitor::clearStdOutErr()
+{
+    m_stdOut.clear();
+    m_stdErr.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimProcessMonitor::stdOut() const
+{
+    return m_stdOut;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimProcessMonitor::stdErr() const
+{
+    return m_stdErr;
 }
