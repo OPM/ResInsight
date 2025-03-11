@@ -20,6 +20,8 @@
 
 #include "RimGenericJob.h"
 
+#include "cafPdmPtrField.h"
+
 class RimEclipseCase;
 
 //==================================================================================================
@@ -35,6 +37,7 @@ public:
     ~RimOpmFlowJob() override;
 
     void setWorkingDirectory( QString workDir );
+    void setEclipseCase( RimEclipseCase* eCase );
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -42,9 +45,12 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     QString     title() override;
-    QString     commandLine() override;
-    QStringList optionalArguments() override;
+    QStringList command() override;
     QString     workingDirectory() override;
+    void        onCompleted( bool success ) override;
+
+private:
+    RimEclipseCase* findExistingCase( QString filename );
 
 private:
     caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;

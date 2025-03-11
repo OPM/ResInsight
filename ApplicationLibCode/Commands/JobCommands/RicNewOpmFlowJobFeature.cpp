@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaPreferencesOpm.h"
 
+#include "RimEclipseCase.h"
 #include "RimTools.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -29,6 +30,9 @@
 #include "Jobs/RimJobCollection.h"
 #include "Jobs/RimOpmFlowJob.h"
 
+#include "cafSelectionManager.h"
+
+#include <QAction>
 #include <QIcon>
 
 CAF_CMD_SOURCE_INIT( RicNewOpmFlowJobFeature, "RicNewOpmFlowJobFeature" );
@@ -46,17 +50,29 @@ bool RicNewOpmFlowJobFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewOpmFlowJobFeature::onActionTriggered( bool isChecked )
 {
+    std::vector<RimEclipseCase*> selectedEclipseCases;
+    caf::SelectionManager::instance()->objectsByType( &selectedEclipseCases );
+
     // get base directory for our work, should be a new, empty folder somewhere
     const QString defaultDirName = "OPM_FLOW_MODELING";
     QString       defaultDir     = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( defaultDirName );
-    QString       baseDir        = RiuFileDialogTools::getExistingDirectory( nullptr, tr( "Select Working Directory" ), defaultDir );
+    QString       baseDir = RiuFileDialogTools::getExistingDirectory( nullptr, tr( "Select Simulation Output Directory" ), defaultDir );
     if ( baseDir.isNull() || baseDir.isEmpty() ) return;
     RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirName, baseDir );
 
     auto jobColl = RimTools::jobCollection();
 
     auto job = new RimOpmFlowJob();
-    job->setName( "Opm Flow Modeling Job" );
+
+    if ( selectedEclipseCases.empty() )
+    {
+        job->setName( "Opm Flow Simulation" );
+    }
+    else
+    {
+        job->setEclipseCase( selectedEclipseCases[0] );
+        job->setName( selectedEclipseCases[0]->caseUserDescription() + " - Opm Flow Simulation" );
+    }
 
     job->setWorkingDirectory( baseDir );
 
@@ -71,5 +87,5 @@ void RicNewOpmFlowJobFeature::onActionTriggered( bool isChecked )
 void RicNewOpmFlowJobFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/gear.png" ) );
-    actionToSetup->setText( "New Opm Flow Job..." );
+    actionToSetup->setText( "New Opm Flow Simulation..." );
 }

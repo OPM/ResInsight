@@ -33,7 +33,7 @@ public:
 
     static RiaPreferencesOpm* current();
 
-    void appendItems( caf::PdmUiOrdering& uiOrdering ) const;
+    void appendItems( caf::PdmUiOrdering& uiOrdering );
 
     bool validateFlowSettings() const;
 
@@ -48,4 +48,6 @@ private:
     caf::PdmField<QString> m_opmFlowCommand;
     caf::PdmField<bool>    m_useWsl;
     caf::PdmField<QString> m_wslDistribution;
+
+    QStringList m_availableWslDists;
 };

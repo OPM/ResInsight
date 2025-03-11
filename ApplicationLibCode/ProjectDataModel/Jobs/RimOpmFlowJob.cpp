@@ -18,12 +18,21 @@
 
 #include "RimOpmFlowJob.h"
 
+#include "RiaImportEclipseCaseTools.h"
 #include "RiaPreferencesOpm.h"
+#include "RiaWslTools.h"
 
+#include "RimCase.h"
 #include "RimEclipseCase.h"
+#include "RimProject.h"
+#include "RimReloadCaseTools.h"
 #include "RimTools.h"
 
+#include "Riu3DMainWindowTools.h"
+
 #include "cafPdmUiFilePathEditor.h"
+
+#include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RimOpmFlowJob, "OpmFlowJob" );
 
@@ -32,10 +41,12 @@ CAF_PDM_SOURCE_INIT( RimOpmFlowJob, "OpmFlowJob" );
 //--------------------------------------------------------------------------------------------------
 RimOpmFlowJob::RimOpmFlowJob()
 {
-    CAF_PDM_InitObject( "Opm Flow Job", ":/gear.svg" );
+    CAF_PDM_InitObject( "Opm Flow Simulation", ":/gear.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
     CAF_PDM_InitFieldNoDefault( &m_workDir, "WorkDirectory", "Working Folder" );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,6 +112,14 @@ void RimOpmFlowJob::setWorkingDirectory( QString workDir )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::setEclipseCase( RimEclipseCase* eCase )
+{
+    m_eclipseCase = eCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimOpmFlowJob::title()
 {
     return name();
@@ -117,21 +136,92 @@ QString RimOpmFlowJob::workingDirectory()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimOpmFlowJob::commandLine()
+QStringList RimOpmFlowJob::command()
 {
-    // get input deck (.DATA file)
+    QStringList cmd;
 
-    if ( m_eclipseCase() == nullptr ) return "";
+    if ( m_eclipseCase() == nullptr ) return QStringList();
 
     QString gridFile = m_eclipseCase->gridFileName();
 
-    return RiaPreferencesOpm::current()->opmFlowCommand();
+    QFileInfo fi( gridFile );
+    QString   dataFile = fi.absolutePath() + "/" + fi.completeBaseName();
+    if ( !QFile::exists( dataFile + ".DATA" ) ) return QStringList();
+
+    QString workDir = m_workDir().path();
+    if ( workDir.isEmpty() ) return QStringList();
+
+    auto opmPref = RiaPreferencesOpm::current();
+    if ( opmPref->useWsl() )
+    {
+        cmd.append( RiaWslTools::wslCommand() );
+        cmd.append( opmPref->wslOptions() );
+
+        workDir  = RiaWslTools::convertToWslPath( workDir );
+        dataFile = RiaWslTools::convertToWslPath( dataFile );
+    }
+    cmd.append( opmPref->opmFlowCommand() );
+    cmd.append( QString( "--output-dir=%1" ).arg( workDir ) );
+    cmd.append( QString( "--ecl-deck-file-name=%1" ).arg( dataFile ) );
+
+    return cmd;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RimOpmFlowJob::optionalArguments()
+void RimOpmFlowJob::onCompleted( bool success )
 {
-    return QStringList();
+    if ( !success ) return;
+
+    QString gridFile = m_eclipseCase->gridFileName();
+
+    QFileInfo fi( gridFile );
+
+    QString outputEgrid = m_workDir().path() + "/" + fi.completeBaseName() + ".EGRID";
+    if ( !QFile::exists( outputEgrid ) ) return;
+
+    if ( auto existingCase = findExistingCase( outputEgrid ) )
+    {
+        RimReloadCaseTools::reloadEclipseGridAndSummary( existingCase );
+        existingCase->setCustomCaseName( name() );
+        existingCase->updateConnectedEditors();
+    }
+    else
+    {
+        QStringList                              files( outputEgrid );
+        RiaImportEclipseCaseTools::FileCaseIdMap newCaseFiles;
+        if ( RiaImportEclipseCaseTools::openEclipseCasesFromFile( files, true /*create view*/, &newCaseFiles, false /* dialog */ ) )
+        {
+            if ( auto newCase = findExistingCase( outputEgrid ) )
+            {
+                newCase->setCustomCaseName( name() );
+                newCase->updateConnectedEditors();
+                Riu3DMainWindowTools::selectAsCurrentItem( newCase );
+                Riu3DMainWindowTools::setExpanded( newCase, true );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimOpmFlowJob::findExistingCase( QString filename )
+{
+    RimProject* proj = RimProject::current();
+    if ( proj )
+    {
+        std::vector<RimCase*> cases = proj->allGridCases();
+        for ( RimCase* c : cases )
+        {
+            RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( c );
+            if ( eclipseCase && ( eclipseCase->gridFileName() == filename ) )
+            {
+                return eclipseCase;
+            }
+        }
+    }
+
+    return nullptr;
 }

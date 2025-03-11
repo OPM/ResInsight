@@ -29,5 +29,6 @@ namespace RiaWslTools
 
 QString     wslCommand();
 QStringList wslDistributionList();
+QString     convertToWslPath( QString windowsPath );
 
 } // namespace RiaWslTools

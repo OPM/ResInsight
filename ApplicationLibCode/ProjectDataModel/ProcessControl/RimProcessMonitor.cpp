@@ -79,6 +79,8 @@ void RimProcessMonitor::error( QProcess::ProcessError error )
 //--------------------------------------------------------------------------------------------------
 void RimProcessMonitor::finished( int exitCode, QProcess::ExitStatus exitStatus )
 {
+    if ( !m_logStdOutErr ) return;
+
     QString finishStr;
     switch ( exitStatus )
     {
@@ -90,7 +92,6 @@ void RimProcessMonitor::finished( int exitCode, QProcess::ExitStatus exitStatus 
             finishStr = QString( "Crash exit, code %1" ).arg( exitCode );
             break;
     }
-
     RiaLogging::debug( addPrefix( finishStr ) );
 }
 
@@ -139,7 +140,7 @@ void RimProcessMonitor::readyReadStandardOutput()
 //--------------------------------------------------------------------------------------------------
 void RimProcessMonitor::started()
 {
-    RiaLogging::debug( addPrefix( "Started" ) );
+    if ( m_logStdOutErr ) RiaLogging::debug( addPrefix( "Started" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
