@@ -29,10 +29,8 @@ QString RiaWslTools::wslCommand()
 {
 #ifdef WIN32
     QString wslCmd = qEnvironmentVariable( "SystemRoot", "C:\\WINDOWS" ) + "\\System32\\wsl.exe";
-    qDebug() << wslCmd;
     if ( QFile::exists( wslCmd ) ) return wslCmd;
 #endif
-    qDebug() << "WSL not found!";
     return "";
 }
 
@@ -44,7 +42,8 @@ QStringList RiaWslTools::wslDistributionList()
     QString wslCmd = wslCommand();
     if ( !wslCmd.isEmpty() )
     {
-        RimProcess wslProc;
+        RimProcess wslProc( false /*no logging*/ );
+        wslProc.addEnvironmentVariable( "WSL_UTF8", "1" );
         wslProc.setCommand( wslCmd );
         wslProc.addParameter( "--list" ); // list distribution names
         wslProc.addParameter( "--quiet" ); // quiet, only show name
@@ -55,4 +54,22 @@ QStringList RiaWslTools::wslDistributionList()
         }
     }
     return QStringList();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the input windows path as seen in the wsl world. I.e. c:\tmp -> /mnt/c/tmp
+//--------------------------------------------------------------------------------------------------
+QString RiaWslTools::convertToWslPath( QString windowsPath )
+{
+    if ( windowsPath.size() < 2 ) return windowsPath;
+    if ( windowsPath.startsWith( '/' ) ) return windowsPath;
+    if ( windowsPath.at( 1 ) != ':' ) return windowsPath;
+
+    QString drive = windowsPath.at( 0 );
+    drive         = drive.toLower();
+
+    auto path = windowsPath.replace( '\\', '/' );
+    path      = path.section( ':', -1 );
+
+    return QString( "/mnt/%1%2" ).arg( drive ).arg( path );
 }

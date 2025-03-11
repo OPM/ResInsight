@@ -76,4 +76,5 @@ private:
 
     static int         m_nextProcessId;
     RimProcessMonitor* m_monitor;
+    bool               m_enableLogging;
 };
