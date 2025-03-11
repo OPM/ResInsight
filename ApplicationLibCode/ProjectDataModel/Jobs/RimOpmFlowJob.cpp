@@ -125,8 +125,6 @@ QString RimOpmFlowJob::commandLine()
 
     QString gridFile = m_eclipseCase->gridFileName();
 
-
-
     return RiaPreferencesOpm::current()->opmFlowCommand();
 }
 
