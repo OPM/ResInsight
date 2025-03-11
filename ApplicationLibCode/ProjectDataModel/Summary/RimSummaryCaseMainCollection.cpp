@@ -47,6 +47,7 @@
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 
+#include "cafPdmFieldReorderCapability.h"
 #include "cafProgressInfo.h"
 
 #include <QCoreApplication>
@@ -102,6 +103,8 @@ RimSummaryCaseMainCollection::RimSummaryCaseMainCollection()
     CAF_PDM_InitObject( "Summary Cases", ":/SummaryCases16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "" );
+    caf::PdmFieldReorderCapability::addToField( &m_cases );
+
     CAF_PDM_InitFieldNoDefault( &m_caseCollections, "SummaryCaseCollections", "" );
 }
 
@@ -206,6 +209,19 @@ void RimSummaryCaseMainCollection::removeCases( std::vector<RimSummaryCase*>& ca
     }
 
     dataSourceHasChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::moveCase( RimSummaryCase* summaryCase, int destinationIndex )
+{
+    auto currentIndex = m_cases.indexOf( summaryCase );
+    if ( currentIndex < m_cases.size() )
+    {
+        m_cases.erase( currentIndex );
+        m_cases.insertAt( std::min( destinationIndex, (int)m_cases.size() ), summaryCase );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

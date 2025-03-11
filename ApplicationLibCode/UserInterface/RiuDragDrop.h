@@ -82,7 +82,8 @@ private:
     bool handleSummaryCaseCollectionDrop( Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimSummaryEnsemble* summaryCaseCollection );
     bool handleSummaryCaseMainCollectionDrop( Qt::DropAction                action,
                                               caf::PdmObjectGroup&          objectGroup,
-                                              RimSummaryCaseMainCollection* summaryCaseMainCollection );
+                                              RimSummaryCaseMainCollection* summaryCaseMainCollection,
+                                              int                           insertAtPosition );
 
     bool handleSurfaceCollectionDrop( Qt::DropAction action, int row, caf::PdmObjectGroup& objectGroup, RimSurfaceCollection* surfaceCollection );
 
