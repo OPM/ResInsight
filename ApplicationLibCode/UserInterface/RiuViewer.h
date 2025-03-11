@@ -177,7 +177,7 @@ private:
     bool    m_showZScaleLabel;
     bool    m_hideZScaleCheckbox;
     double  m_zScale;
-    int     m_fontPointSize;
+    int     m_fontSize;
 
     caf::QStyledProgressBar*  m_animationProgress;
     caf::QStyledProgressBar*  m_animationProgressCompView;

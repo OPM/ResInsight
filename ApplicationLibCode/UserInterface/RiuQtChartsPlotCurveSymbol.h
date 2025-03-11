@@ -38,9 +38,9 @@ class RiuQtChartsPlotCurveSymbol : public RiuPlotCurveSymbol
 {
 public:
     RiuQtChartsPlotCurveSymbol( RiuPlotCurveSymbol::PointSymbolEnum riuStyle,
-                                const QString&                      label           = QString(),
-                                LabelPosition                       labelPosition   = RiuPlotCurveSymbol::LabelAboveSymbol,
-                                int                                 labelFontSizePt = 8 );
+                                const QString&                      label         = QString(),
+                                LabelPosition                       labelPosition = RiuPlotCurveSymbol::LabelAboveSymbol,
+                                int                                 labelFontSize = 8 );
 
     void renderSymbolLabel( QPainter* painter, const QPointF& position, const QString& label ) const;
 

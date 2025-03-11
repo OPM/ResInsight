@@ -231,7 +231,7 @@ RimWellLogTrack::RimWellLogTrack()
 
     CAF_PDM_InitField( &m_showRegionLabels, "ShowFormationLabels", true, "Show Labels" );
 
-    caf::FontTools::RelativeSizeEnum regionLabelFontSizeDefault = caf::FontTools::RelativeSize::XSmall;
+    caf::FontTools::RelativeSizeEnum regionLabelFontSizeDefault = caf::FontTools::RelativeSize::Small;
     CAF_PDM_InitField( &m_regionLabelFontSize, "RegionLabelFontSize", regionLabelFontSizeDefault, "Font Size" );
 
     CAF_PDM_InitFieldNoDefault( &m_formationSource, "FormationSource", "Source" );

@@ -50,7 +50,7 @@ void RiuDockedQwtPlot::applyFontSizes( bool replot /*= false*/ )
     QwtText titleText = title();
     QFont   font      = titleText.font();
 
-    font.setPixelSize( caf::FontTools::pointSizeToPixelSize( titleFontSize ) );
+    font.setPointSize( titleFontSize );
     titleText.setFont( font );
     setTitle( titleText );
 
@@ -58,19 +58,19 @@ void RiuDockedQwtPlot::applyFontSizes( bool replot /*= false*/ )
     {
         QwtText text          = axisTitle( axis );
         QFont   axisTitleFont = text.font();
-        axisTitleFont.setPixelSize( caf::FontTools::pointSizeToPixelSize( axisFontSize ) );
+        axisTitleFont.setPointSize( axisFontSize );
         text.setFont( axisTitleFont );
         setAxisTitle( axis, text );
 
         QFont valuesFont = axisFont( axis );
-        valuesFont.setPixelSize( axisTitleFont.pixelSize() );
+        valuesFont.setPointSize( axisTitleFont.pointSize() );
         setAxisFont( axis, valuesFont );
     }
 
     if ( legend() )
     {
         auto font = legend()->font();
-        font.setPixelSize( caf::FontTools::pointSizeToPixelSize( legendFontSize ) );
+        font.setPointSize( legendFontSize );
         legend()->setFont( font );
     }
 

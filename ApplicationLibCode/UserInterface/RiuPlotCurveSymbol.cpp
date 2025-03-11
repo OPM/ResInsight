@@ -28,11 +28,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotCurveSymbol::RiuPlotCurveSymbol( PointSymbolEnum riuStyle, const QString& label, LabelPosition labelPosition, int labelFontSizePt )
+RiuPlotCurveSymbol::RiuPlotCurveSymbol( PointSymbolEnum riuStyle, const QString& label, LabelPosition labelPosition, int labelFontSize )
     : m_style( riuStyle )
     , m_globalLabel( label )
     , m_labelPosition( labelPosition )
-    , m_labelFontSizePx( caf::FontTools::pointSizeToPixelSize( labelFontSizePt ) )
+    , m_labelFontSize( labelFontSize )
 {
 }
 
@@ -63,9 +63,9 @@ void RiuPlotCurveSymbol::setLabelPosition( LabelPosition labelPosition )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotCurveSymbol::setLabelFontSize( int labelFontSizePt )
+void RiuPlotCurveSymbol::setLabelFontSize( int labelFontSize )
 {
-    m_labelFontSizePx = caf::FontTools::pointSizeToPixelSize( labelFontSizePt );
+    m_labelFontSize = labelFontSize;
 }
 
 //--------------------------------------------------------------------------------------------------

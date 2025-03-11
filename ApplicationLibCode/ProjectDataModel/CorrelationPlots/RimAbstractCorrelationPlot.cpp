@@ -79,13 +79,13 @@ RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
     CAF_PDM_InitField( &m_description, "PlotTitle", QString( "Correlation Plot" ), "Custom Plot Title" );
 
     CAF_PDM_InitFieldNoDefault( &m_labelFontSize, "LabelFontSize", "Label Font Size" );
-    m_labelFontSize = caf::FontTools::RelativeSize::XSmall;
+    m_labelFontSize = caf::FontTools::RelativeSize::Small;
 
     CAF_PDM_InitFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size" );
     CAF_PDM_InitFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size" );
-    m_axisValueFontSize = caf::FontTools::RelativeSize::XSmall;
+    m_axisValueFontSize = caf::FontTools::RelativeSize::Small;
 
-    m_legendFontSize = caf::FontTools::RelativeSize::XSmall;
+    m_legendFontSize = caf::FontTools::RelativeSize::Small;
 
     CAF_PDM_InitField( &m_useCaseFilter, "UseCaseFilter", false, "Use Ensemble Filter" );
     CAF_PDM_InitFieldNoDefault( &m_curveSetForFiltering, "CurveSetForFiltering", "  Ensemble Filter" );

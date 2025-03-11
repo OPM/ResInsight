@@ -179,7 +179,9 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitFieldNoDefault( &defaultSceneFontSize, "defaultSceneFontSizePt", "Viewer Font Size" );
     CAF_PDM_InitFieldNoDefault( &defaultAnnotationFontSize, "defaultAnnotationFontSizePt", "Annotation Font Size" );
     CAF_PDM_InitFieldNoDefault( &defaultWellLabelFontSize, "defaultWellLabelFontSizePt", "Well Label Font Size" );
-    CAF_PDM_InitFieldNoDefault( &defaultPlotFontSize, "defaultPlotFontSizePt", "Plot Font Size" );
+
+    auto defaultValue = FontSizeEnum( RiaFontCache::FontSize::FONT_SIZE_10 );
+    CAF_PDM_InitField( &defaultPlotFontSize, "defaultPlotFontSizePt", defaultValue, "Plot Font Size" );
 
     CAF_PDM_InitField( &m_showLegendBackground, "showLegendBackground", true, "Show Box around Legends" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showLegendBackground );

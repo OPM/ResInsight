@@ -80,9 +80,9 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* pare
     , m_previewMode( false )
     , m_showSubTitles( false )
     , m_autoAlignAxes( true )
-    , m_titleFontPixelSize( 12 )
-    , m_subTitleFontPixelSize( 11 )
-    , m_legendFontPixelSize( 8 )
+    , m_titleFontSize( 12 )
+    , m_subTitleFontSize( 11 )
+    , m_legendFontSize( 8 )
     , m_axisTitleFontSize( 8 )
     , m_axisValueFontSize( 8 )
 
@@ -290,8 +290,8 @@ void RiuMultiPlotPage::setTitleVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::setTitleFontSizes( int titleFontSize, int subTitleFontSize )
 {
-    m_titleFontPixelSize    = caf::FontTools::pointSizeToPixelSize( titleFontSize );
-    m_subTitleFontPixelSize = caf::FontTools::pointSizeToPixelSize( subTitleFontSize );
+    m_titleFontSize    = titleFontSize;
+    m_subTitleFontSize = subTitleFontSize;
 
     scheduleUpdate();
 }
@@ -301,7 +301,7 @@ void RiuMultiPlotPage::setTitleFontSizes( int titleFontSize, int subTitleFontSiz
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::setLegendFontSize( int legendFontSize )
 {
-    m_legendFontPixelSize = caf::FontTools::pointSizeToPixelSize( legendFontSize );
+    m_legendFontSize = legendFontSize;
 
     scheduleUpdate();
 }
@@ -779,7 +779,7 @@ void RiuMultiPlotPage::updateSubTitleVisibility( QLabel* subTitle )
     bool isSubTitleVisible = m_showSubTitles && !subTitle->text().isEmpty();
     subTitle->setVisible( isSubTitleVisible );
     QFont subTitleFont = subTitle->font();
-    subTitleFont.setPixelSize( m_subTitleFontPixelSize );
+    subTitleFont.setPointSize( m_subTitleFontSize );
     subTitle->setFont( subTitleFont );
 }
 
@@ -836,7 +836,7 @@ void RiuMultiPlotPage::setRowAndColumnStretches( int row, int column, int rowSpa
 void RiuMultiPlotPage::updateLegendFont( RiuQwtPlotLegend* legend )
 {
     QFont legendFont = legend->font();
-    legendFont.setPixelSize( m_legendFontPixelSize );
+    legendFont.setPointSize( m_legendFontSize );
 
     // Set font size for all existing labels
     QList<QwtLegendLabel*> labels = legend->findChildren<QwtLegendLabel*>();
@@ -1104,7 +1104,7 @@ void RiuMultiPlotPage::applyLook()
 void RiuMultiPlotPage::updateTitleFont()
 {
     auto titleFont = m_plotTitle->font();
-    titleFont.setPixelSize( m_titleFontPixelSize );
+    titleFont.setPointSize( m_titleFontSize );
     m_plotTitle->setFont( titleFont );
 }
 

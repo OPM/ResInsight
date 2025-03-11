@@ -34,6 +34,7 @@
 #include "cafPdmPtrField.h"
 #include "cafSignal.h"
 
+#include "cafFontTools.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmFieldCvfVec3d.h"

@@ -34,20 +34,17 @@ public:
     void setEnsembleParameter( const QString& ensembleParameter );
 
 private:
-    // Overridden PDM methods
-
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
+    RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
     void    onLoadDataAndUpdate() override;
     void    updateAxes() override;
     QString asciiDataForPlotExport() const override;
-
-    // Private methods
-    void updatePlotTitle() override;
-    void createPoints();
+    void    updatePlotTitle() override;
+    void    createPoints();
 
 private:
     caf::PdmField<QString> m_ensembleParameter;

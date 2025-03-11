@@ -19,46 +19,33 @@
 #include "RimParameterResultCrossPlot.h"
 
 #include "RiaColorTables.h"
-#include "RiaPreferences.h"
-#include "RiaQDateTimeTools.h"
-#include "RiaTextStringTools.h"
 
 #include "RifSummaryReaderInterface.h"
 
 #include "RigEnsembleParameter.h"
 
-#include "RimDeltaSummaryCase.h"
-#include "RimEnsembleCurveSet.h"
-#include "RimMultiPlot.h"
-#include "RimPlotAxisProperties.h"
-#include "RimPlotAxisPropertiesInterface.h"
 #include "RimPlotDataFilterCollection.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
-#include "RimSummaryPlotAxisFormatter.h"
 
 #include "RiuPlotCurve.h"
-#include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotCurve.h"
+#include "RiuQwtPlotWidget.h"
 #include "RiuQwtSymbol.h"
-#include "RiuSummaryQwtPlot.h"
-#include "RiuSummaryVectorSelectionDialog.h"
 
 #include "cafPdmUiComboBoxEditor.h"
-#include "cafPdmUiLineEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
 
-#include "qwt_legend.h"
+#include "qwt_picker_machine.h"
 #include "qwt_plot.h"
 #include "qwt_plot_curve.h"
-#include "qwt_scale_engine.h"
+#include "qwt_plot_picker.h"
+#include "qwt_text.h"
 
 #include <QStringList>
 
 #include <limits>
-#include <map>
 #include <set>
 
 CAF_PDM_SOURCE_INIT( RimParameterResultCrossPlot, "ParameterResultCrossPlot" );
@@ -76,10 +63,12 @@ RimParameterResultCrossPlot::RimParameterResultCrossPlot()
 
     m_selectMultipleVectors = true;
 
-    m_legendFontSize = caf::FontTools::RelativeSize::XSmall;
+    m_legendFontSize = caf::FontTools::RelativeSize::Small;
 
     m_xRange = std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
     m_yRange = std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
+
+    m_showPlotLegends = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,14 +153,6 @@ void RimParameterResultCrossPlot::onLoadDataAndUpdate()
     if ( m_plotWidget && m_analyserOfSelectedCurveDefs )
     {
         createPoints();
-        if ( m_showPlotLegends && !isSubPlot<RimMultiPlot>() )
-        {
-            QwtLegend* legend = new QwtLegend( m_plotWidget );
-            m_plotWidget->qwtPlot()->insertLegend( legend, QwtPlot::RightLegend );
-            m_plotWidget->setLegendFontSize( legendFontSize() );
-            m_plotWidget->updateLegend();
-        }
-
         updateAxes();
         updatePlotTitle();
         m_plotWidget->scheduleReplot();
@@ -234,7 +215,6 @@ void RimParameterResultCrossPlot::createPoints()
     if ( addresses().empty() ) return;
 
     bool showEnsembleName = ensembles().size() > 1u;
-    bool showAddressName  = addresses().size() > 1u;
 
     m_xRange = std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
     m_yRange = std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
@@ -247,9 +227,6 @@ void RimParameterResultCrossPlot::createPoints()
         {
             RigEnsembleParameter parameter = ensembleParameter( m_ensembleParameter );
             if ( !( parameter.isNumeric() && parameter.isValid() ) ) return;
-
-            QStringList caseNames      = caseNamesOfValidEnsembleCases( ensemble );
-            QString     commonCaseRoot = RiaTextStringTools::commonRoot( caseNames );
 
             std::set<RimSummaryCase*> activeCases = filterEnsembleCases( ensemble );
 
@@ -298,14 +275,15 @@ void RimParameterResultCrossPlot::createPoints()
                     RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve;
                     plotCurve->setSamplesValues( parameterValues, caseValuesAtTimestep );
                     plotCurve->setStyle( QwtPlotCurve::NoCurve );
+
                     RiuQwtSymbol* symbol = new RiuQwtSymbol( RiuPlotCurveSymbol::cycledSymbolStyle( ensembleIdx, addressIdx ), "" );
                     symbol->setSize( legendFontSize(), legendFontSize() );
                     symbol->setColor( colorTable.cycledQColor( caseIdx ) );
                     plotCurve->setSymbol( symbol );
+
                     QStringList curveName;
                     if ( showEnsembleName ) curveName += ensemble->name();
-                    curveName += summaryCase->displayCaseName().replace( commonCaseRoot, "" );
-                    if ( showAddressName ) curveName += QString::fromStdString( address.uiText() );
+                    curveName += summaryCase->displayCaseName();
 
                     plotCurve->setTitle( curveName.join( " - " ) );
 
@@ -316,6 +294,73 @@ void RimParameterResultCrossPlot::createPoints()
         }
         ensembleIdx++;
     }
+}
+
+namespace internal
+{
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class CurveTracker : public QwtPlotPicker
+{
+public:
+    CurveTracker( QwtPlot* plot )
+        : QwtPlotPicker( plot->canvas() )
+    {
+        setStateMachine( new QwtPickerTrackerMachine() );
+        setRubberBand( QwtPicker::NoRubberBand );
+        setTrackerMode( QwtPicker::AlwaysOn );
+    }
+
+protected:
+    QwtText trackerText( const QPoint& pos ) const override
+    {
+        double  minDistance = std::numeric_limits<double>::max();
+        QString closestCurveLabel;
+
+        for ( QwtPlotItem* item : plot()->itemList() )
+        {
+            if ( item->rtti() == QwtPlotItem::Rtti_PlotCurve )
+            {
+                auto   curve    = static_cast<QwtPlotCurve*>( item );
+                double distance = std::numeric_limits<double>::max();
+                curve->closestPoint( pos, &distance );
+
+                if ( distance < minDistance )
+                {
+                    minDistance       = distance;
+                    closestCurveLabel = curve->title().text();
+                }
+            }
+        }
+
+        if ( minDistance < 20.0 )
+        {
+            QwtText text( closestCurveLabel );
+            text.setBackgroundBrush( QBrush( Qt::white ) );
+            text.setColor( Qt::black );
+            return text;
+        }
+
+        return QwtText();
+    }
+};
+} // namespace internal
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotWidget* RimParameterResultCrossPlot::doCreatePlotViewWidget( QWidget* mainWindowParent /*= nullptr */ )
+{
+    RimAbstractCorrelationPlot::doCreatePlotViewWidget( mainWindowParent );
+
+    if ( m_plotWidget )
+    {
+        // Add a curve tracker to display the name of the realization when mouse is close to a sample in the cross plot
+        new internal::CurveTracker( m_plotWidget->qwtPlot() );
+    }
+
+    return m_plotWidget;
 }
 
 //--------------------------------------------------------------------------------------------------

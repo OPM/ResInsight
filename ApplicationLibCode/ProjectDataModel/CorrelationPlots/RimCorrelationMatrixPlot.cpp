@@ -123,7 +123,7 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values" );
     CAF_PDM_InitField( &m_excludeParametersWithoutVariation, "ExcludeParamsWithoutVariation", true, "Exclude Parameters Without Variation" );
     CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", true, "Show Only Top Correlations" );
-    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 20, "Number rows/columns" );
+    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 5, "Number rows/columns" );
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "" );
     CAF_PDM_InitFieldNoDefault( &m_selectedParametersList, "SelectedParameters", "Select Parameters" );
     m_selectedParametersList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
@@ -629,7 +629,7 @@ void RimCorrelationMatrixPlot::createMatrix()
             cvf::Color3f contrastColor = RiaColorTools::contrastColor( cvf::Color3f( color ) );
             textLabel.setColor( RiaColorTools::toQColor( contrastColor ) );
             QFont font = textLabel.font();
-            font.setPixelSize( caf::FontTools::pointSizeToPixelSize( labelFontSize() ) );
+            font.setPointSize( labelFontSize() );
             textLabel.setFont( font );
             QwtPlotMarker* marker = new QwtPlotMarker();
             marker->setLabel( textLabel );

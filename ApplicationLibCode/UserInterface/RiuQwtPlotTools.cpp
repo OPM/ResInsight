@@ -71,7 +71,7 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
     int axisFontSize =
         caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), caf::FontTools::RelativeSize::Medium );
     QFont axisFont = plot->axisFont( QwtAxis::XBottom );
-    axisFont.setPixelSize( caf::FontTools::pointSizeToPixelSize( axisFontSize ) );
+    axisFont.setPointSize( axisFontSize );
 
     plot->setAxisFont( QwtAxis::XBottom, axisFont );
     plot->setAxisFont( QwtAxis::XTop, axisFont );
@@ -85,7 +85,7 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
     {
         QwtText axisTitle     = plot->axisTitle( axis );
         QFont   axisTitleFont = axisTitle.font();
-        axisTitleFont.setPixelSize( caf::FontTools::pointSizeToPixelSize( axisFontSize ) );
+        axisTitleFont.setPointSize( axisFontSize );
         axisTitleFont.setBold( false );
         axisTitle.setFont( axisTitleFont );
         axisTitle.setRenderFlags( Qt::AlignRight );

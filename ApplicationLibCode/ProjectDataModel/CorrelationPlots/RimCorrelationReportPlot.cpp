@@ -75,9 +75,9 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
 
     m_titleFontSize     = caf::FontTools::RelativeSize::XLarge;
     m_subTitleFontSize  = caf::FontTools::RelativeSize::Large;
-    m_labelFontSize     = caf::FontTools::RelativeSize::XSmall;
+    m_labelFontSize     = caf::FontTools::RelativeSize::Small;
     m_axisTitleFontSize = caf::FontTools::RelativeSize::Small;
-    m_axisValueFontSize = caf::FontTools::RelativeSize::XSmall;
+    m_axisValueFontSize = caf::FontTools::RelativeSize::Small;
 
     m_correlationMatrixPlot = new RimCorrelationMatrixPlot;
     m_correlationMatrixPlot->setLegendsVisible( false );

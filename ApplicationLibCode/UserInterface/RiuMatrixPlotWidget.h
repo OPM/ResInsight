@@ -22,7 +22,6 @@
 #include "RiuPlotItem.h"
 #include "RiuQwtPlotWidget.h"
 
-#include "cafFontTools.h"
 #include "cafPdmPointer.h"
 #include "cafSignal.h"
 
