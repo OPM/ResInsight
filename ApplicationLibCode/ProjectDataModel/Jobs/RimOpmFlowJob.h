@@ -34,10 +34,17 @@ public:
     RimOpmFlowJob();
     ~RimOpmFlowJob() override;
 
+    void setWorkingDirectory( QString workDir );
+
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+    QString     title() override;
+    QString     commandLine() override;
+    QStringList optionalArguments() override;
+    QString     workingDirectory() override;
 
 private:
     caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;

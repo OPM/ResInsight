@@ -18,17 +18,16 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include <QString>
+#include <QStringList>
 
-//==================================================================================================
+//--------------------------------------------------------------------------------------------------
 ///
-//==================================================================================================
-class RicNewOpmFlowJobFeature : public caf::CmdFeature
+//--------------------------------------------------------------------------------------------------
+namespace RiaWslTools
 {
-    CAF_CMD_HEADER_INIT;
 
-protected:
-    bool isCommandEnabled() const override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
-};
+QString     wslCommand();
+QStringList wslDistributionList();
+
+} // namespace RiaWslTools
