@@ -27,6 +27,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferencesGeoMech.h"
 #include "RiaPreferencesGrid.h"
+#include "RiaPreferencesOpm.h"
 #include "RiaPreferencesOsdu.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaPreferencesSumo.h"
@@ -274,6 +275,9 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitFieldNoDefault( &m_geoMechPreferences, "geoMechPreferences", "geoMechPreferences" );
     m_geoMechPreferences = new RiaPreferencesGeoMech;
 
+    CAF_PDM_InitFieldNoDefault( &m_opmPreferences, "opmPreferences", "opmPreferences" );
+    m_opmPreferences = new RiaPreferencesOpm();
+
     CAF_PDM_InitFieldNoDefault( &m_systemPreferences, "systemPreferences", "systemPreferences" );
     m_systemPreferences = new RiaPreferencesSystem;
 
@@ -500,6 +504,8 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         scriptGroup->add( &scriptDirectories );
         scriptGroup->add( &m_maxScriptFoldersDepth );
         scriptGroup->add( &scriptEditorExecutable );
+
+        m_opmPreferences()->appendItems( uiOrdering );
     }
 #ifdef USE_ODB_API
     else if ( uiConfigName == RiaPreferences::tabNameGeomech() )
@@ -1089,6 +1095,14 @@ RiaPreferencesSystem* RiaPreferences::systemPreferences() const
 RiaPreferencesGeoMech* RiaPreferences::geoMechPreferences() const
 {
     return m_geoMechPreferences();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaPreferencesOpm* RiaPreferences::opmPreferences() const
+{
+    return m_opmPreferences();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2025 Equinor ASA
+//  Copyright (C) 2025     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,48 +16,70 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimOpmFlowJob.h"
-
 #include "RiaPreferencesOpm.h"
 
-#include "RimEclipseCase.h"
-#include "RimTools.h"
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+#include "RiaWslTools.h"
 
+#include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 
-CAF_PDM_SOURCE_INIT( RimOpmFlowJob, "OpmFlowJob" );
+CAF_PDM_SOURCE_INIT( RiaPreferencesOpm, "RiaPreferencesOpm" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimOpmFlowJob::RimOpmFlowJob()
+RiaPreferencesOpm::RiaPreferencesOpm()
 {
-    CAF_PDM_InitObject( "Opm Flow Job", ":/gear.svg" );
+    CAF_PDM_InitFieldNoDefault( &m_opmFlowCommand, "opmFlowCommand", "Opm Flow Command to run" );
+    m_opmFlowCommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_opmFlowCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
-    CAF_PDM_InitFieldNoDefault( &m_workDir, "WorkDirectory", "Working Folder" );
+    CAF_PDM_InitField( &m_useWsl, "useWsl", false, "Use WSL to run Opm Flow" );
+    CAF_PDM_InitFieldNoDefault( &m_wslDistribution, "wslDistribution", "WSL Distribution to use:" );
+    m_wslDistribution.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimOpmFlowJob::~RimOpmFlowJob()
+RiaPreferencesOpm* RiaPreferencesOpm::current()
 {
+    return RiaApplication::instance()->preferences()->opmPreferences();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimOpmFlowJob::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+void RiaPreferencesOpm::appendItems( caf::PdmUiOrdering& uiOrdering ) const
+{
+    caf::PdmUiGroup* opmGrp = uiOrdering.addNewGroup( "OPM Flow Settings" );
+    opmGrp->add( &m_opmFlowCommand );
+    auto wslCmd = RiaWslTools::wslCommand();
+    if ( !wslCmd.isEmpty() )
+    {
+        opmGrp->add( &m_useWsl );
+        if ( m_useWsl() )
+        {
+            opmGrp->add( &m_wslDistribution );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RiaPreferencesOpm::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_eclipseCase )
+    if ( fieldNeedingOptions == &m_wslDistribution )
     {
-        RimTools::eclipseCaseOptionItems( &options );
-        if ( options.isEmpty() )
+        auto distList = RiaWslTools::wslDistributionList();
+        for ( auto& dist : distList )
         {
-            options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+            options.push_back( caf::PdmOptionItemInfo( dist, dist ) );
         }
     }
 
@@ -67,73 +89,37 @@ QList<caf::PdmOptionItemInfo> RimOpmFlowJob::calculateValueOptions( const caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimOpmFlowJob::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+QString RiaPreferencesOpm::opmFlowCommand() const
 {
-    if ( field == &m_workDir )
+    return m_opmFlowCommand;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RiaPreferencesOpm::wslOptions() const
+{
+    QStringList options;
+    if ( m_useWsl() )
     {
-        if ( auto myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_selectDirectory = true;
-        }
+        options.append( QString( "-d %1" ).arg( m_wslDistribution() ) );
     }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+bool RiaPreferencesOpm::validateFlowSettings() const
 {
-    uiOrdering.add( nameField() );
-    uiOrdering.add( &m_eclipseCase );
-    uiOrdering.add( &m_workDir );
-
-    uiOrdering.skipRemainingFields();
+    return m_opmFlowCommand().size() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimOpmFlowJob::setWorkingDirectory( QString workDir )
+bool RiaPreferencesOpm::useWsl() const
 {
-    m_workDir = workDir;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimOpmFlowJob::title()
-{
-    return name();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimOpmFlowJob::workingDirectory()
-{
-    return m_workDir().path();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimOpmFlowJob::commandLine()
-{
-    // get input deck (.DATA file)
-
-    if ( m_eclipseCase() == nullptr ) return "";
-
-    QString gridFile = m_eclipseCase->gridFileName();
-
-
-
-    return RiaPreferencesOpm::current()->opmFlowCommand();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QStringList RimOpmFlowJob::optionalArguments()
-{
-    return QStringList();
+    return m_useWsl();
 }

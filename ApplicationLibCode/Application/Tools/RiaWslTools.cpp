@@ -16,36 +16,43 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicRunJobFeature.h"
+#include "RiaWslTools.h"
 
-#include "Jobs/RimGenericJob.h"
+#include "RimProcess.h"
 
-#include "cafSelectionManager.h"
-
-CAF_CMD_SOURCE_INIT( RicRunJobFeature, "RicRunJobFeature" );
+#include <QFile>
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Returns path to the wsl command on Windows if found, nothing if not on Windows or not found
 //--------------------------------------------------------------------------------------------------
-void RicRunJobFeature::onActionTriggered( bool isChecked )
+QString RiaWslTools::wslCommand()
 {
-    runJob( dynamic_cast<RimGenericJob*>( caf::SelectionManager::instance()->selectedItem() ) );
+#ifdef WIN32
+    QString wslCmd = qEnvironmentVariable( "SystemRoot", "C:\\WINDOWS" ) + "\\System32\\wsl.exe";
+    qDebug() << wslCmd;
+    if ( QFile::exists( wslCmd ) ) return wslCmd;
+#endif
+    qDebug() << "WSL not found!";
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Returns the list of installed wsl distributions on this computer, or empty list if no wsl
 //--------------------------------------------------------------------------------------------------
-void RicRunJobFeature::setupActionLook( QAction* actionToSetup )
+QStringList RiaWslTools::wslDistributionList()
 {
-    actionToSetup->setIcon( QIcon( ":/gear.png" ) );
-    actionToSetup->setText( "Run Job..." );
-}
+    QString wslCmd = wslCommand();
+    if ( !wslCmd.isEmpty() )
+    {
+        RimProcess wslProc;
+        wslProc.setCommand( wslCmd );
+        wslProc.addParameter( "--list" ); // list distribution names
+        wslProc.addParameter( "--quiet" ); // quiet, only show name
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicRunJobFeature::runJob( RimGenericJob* job )
-{
-    if ( job == nullptr ) return false;
-    return job->execute();
+        if ( wslProc.execute() )
+        {
+            return wslProc.stdOut();
+        }
+    }
+    return QStringList();
 }
