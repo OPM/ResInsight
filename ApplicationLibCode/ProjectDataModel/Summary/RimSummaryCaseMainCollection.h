@@ -60,6 +60,7 @@ public:
     void addCase( RimSummaryCase* summaryCase );
     void removeCase( RimSummaryCase* summaryCase, bool notifyChange = true );
     void removeCases( std::vector<RimSummaryCase*>& cases );
+    void moveCase( RimSummaryCase* summaryCase, int destinationIndex );
 
     RimSummaryEnsemble* addEnsemble( const std::vector<RimSummaryCase*>&  summaryCases,
                                      const QString&                       coolectionName,
