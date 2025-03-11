@@ -45,8 +45,6 @@ public:
     void clear();
 
     std::vector<std::string> quantities() const;
-    std::set<std::string>    quantityNamesWithHistory() const;
-    std::set<std::string>    quantityNamesNoHistory() const;
 
     bool isSingleQuantityIgnoreHistory() const;
 
@@ -74,14 +72,9 @@ public:
     static std::vector<RifEclipseSummaryAddress> addressesForCategory( const std::set<RifEclipseSummaryAddress>&        addresses,
                                                                        RifEclipseSummaryAddressDefines::SummaryCategory category );
 
-    static std::string correspondingHistorySummaryCurveName( const std::string& curveName );
-
     std::set<std::string> vectorNamesForCategory( RifEclipseSummaryAddressDefines::SummaryCategory category );
 
 private:
-    void assignCategoryToQuantities() const;
-    void computeQuantityNamesWithHistory() const;
-
     void analyzeSingleAddress( const RifEclipseSummaryAddress& address );
 
     static std::set<std::string> keysInMap( const std::multimap<std::string, RifEclipseSummaryAddress>& map );
@@ -94,9 +87,7 @@ private:
     static std::vector<std::vector<RifEclipseSummaryAddress>> valuesInMap( const std::multimap<int, RifEclipseSummaryAddress>& map );
 
 private:
-    std::vector<std::string>      m_quantities;
-    mutable std::set<std::string> m_quantitiesWithMatchingHistory;
-    mutable std::set<std::string> m_quantitiesNoMatchingHistory;
+    std::vector<std::string> m_quantities;
 
     std::vector<RifEclipseSummaryAddress>                m_otherCategory;
     std::multimap<std::string, RifEclipseSummaryAddress> m_wellNames;

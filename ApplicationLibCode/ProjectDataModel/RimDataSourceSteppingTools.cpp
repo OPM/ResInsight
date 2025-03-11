@@ -22,6 +22,7 @@
 #include "RimSummaryCalculationCollection.h"
 
 #include "RifEclipseSummaryAddress.h"
+#include "RifEclipseSummaryTools.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -193,9 +194,7 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
 //--------------------------------------------------------------------------------------------------
 bool RimDataSourceSteppingTools::updateQuantityIfMatching( const QVariant& oldValue, const QVariant& newValue, RifEclipseSummaryAddress& adr )
 {
-    std::string oldString  = oldValue.toString().toStdString();
-    auto        newQString = newValue.toString();
-    std::string newString  = newQString.toStdString();
+    auto newQString = newValue.toString();
 
     // Calculation ID < 0 means native summary vector
     int calculationId = -1;
@@ -217,9 +216,15 @@ bool RimDataSourceSteppingTools::updateQuantityIfMatching( const QVariant& oldVa
         }
     }
 
-    if ( adr.vectorName() == oldString )
+    std::string newString = newQString.toStdString();
+    std::string oldString = oldValue.toString().toStdString();
+
+    auto [nativeVectorName, extension] = RifEclipseSummaryTools::vectorNameAndExtension( adr.vectorName() );
+
+    if ( nativeVectorName == oldString )
     {
-        adr.setVectorName( newString );
+        auto name = newString + extension;
+        adr.setVectorName( name );
         adr.setId( calculationId );
 
         return true;

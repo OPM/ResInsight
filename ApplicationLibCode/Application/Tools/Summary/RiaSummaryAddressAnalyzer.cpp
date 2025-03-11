@@ -21,6 +21,8 @@
 
 #include "Summary/RiaSummaryCurveDefinition.h"
 
+#include "RifEclipseSummaryTools.h"
+
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 
@@ -95,36 +97,9 @@ std::vector<std::string> RiaSummaryAddressAnalyzer::quantities() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string> RiaSummaryAddressAnalyzer::quantityNamesWithHistory() const
-{
-    assignCategoryToQuantities();
-
-    return m_quantitiesWithMatchingHistory;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::set<std::string> RiaSummaryAddressAnalyzer::quantityNamesNoHistory() const
-{
-    assignCategoryToQuantities();
-
-    return m_quantitiesNoMatchingHistory;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RiaSummaryAddressAnalyzer::isSingleQuantityIgnoreHistory() const
 {
-    if ( quantities().size() == 1 ) return true;
-
-    if ( quantities().size() == 2 && quantityNamesWithHistory().size() == 1 )
-    {
-        return true;
-    }
-
-    return false;
+    return quantities().size() == 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,11 +132,6 @@ std::string RiaSummaryAddressAnalyzer::quantityNameForTitle() const
         }
 
         return title;
-    }
-
-    if ( quantities().size() == 2 && quantityNamesWithHistory().size() == 1 )
-    {
-        return *quantityNamesWithHistory().begin();
     }
 
     return {};
@@ -408,22 +378,6 @@ std::vector<RifEclipseSummaryAddress> RiaSummaryAddressAnalyzer::addressesForCat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RiaSummaryAddressAnalyzer::correspondingHistorySummaryCurveName( const std::string& curveName )
-{
-    static std::string historyIdentifier = "H";
-
-    if ( RiaStdStringTools::endsWith( curveName, historyIdentifier ) )
-    {
-        std::string candidate = curveName.substr( 0, curveName.size() - 1 );
-        return candidate;
-    }
-
-    return curveName + historyIdentifier;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::set<std::string> RiaSummaryAddressAnalyzer::vectorNamesForCategory( RifEclipseSummaryAddressDefines::SummaryCategory category )
 {
     auto it = m_categories.find( category );
@@ -448,56 +402,6 @@ void RiaSummaryAddressAnalyzer::clear()
     m_wellCompletionNumbers.clear();
     m_blocks.clear();
     m_aquifers.clear();
-
-    m_quantitiesNoMatchingHistory.clear();
-    m_quantitiesWithMatchingHistory.clear();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSummaryAddressAnalyzer::assignCategoryToQuantities() const
-{
-    if ( !m_quantities.empty() )
-    {
-        if ( m_quantitiesWithMatchingHistory.empty() && m_quantitiesNoMatchingHistory.empty() )
-        {
-            computeQuantityNamesWithHistory();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSummaryAddressAnalyzer::computeQuantityNamesWithHistory() const
-{
-    m_quantitiesNoMatchingHistory.clear();
-    m_quantitiesWithMatchingHistory.clear();
-
-    const std::string historyIdentifier( "H" );
-
-    for ( const auto& s : m_quantities )
-    {
-        std::string correspondingHistoryCurve = correspondingHistorySummaryCurveName( s );
-
-        if ( std::find( m_quantities.begin(), m_quantities.end(), correspondingHistoryCurve ) != m_quantities.end() )
-        {
-            // Insert the curve name without H
-            if ( RiaStdStringTools::endsWith( s, historyIdentifier ) )
-            {
-                m_quantitiesWithMatchingHistory.insert( correspondingHistoryCurve );
-            }
-            else
-            {
-                m_quantitiesWithMatchingHistory.insert( s );
-            }
-        }
-        else
-        {
-            m_quantitiesNoMatchingHistory.insert( s );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -520,12 +424,13 @@ void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAdd
         m_wellNames.insert( { wellName, address } );
     }
 
-    if ( !address.vectorName().empty() )
+    const auto [vectorNameToUse, extension] = RifEclipseSummaryTools::vectorNameAndExtension( address.vectorName() );
+    if ( !vectorNameToUse.empty() )
     {
         // The ordering of the quantities is used when creating titles of plots
-        if ( std::find( m_quantities.begin(), m_quantities.end(), address.vectorName() ) == m_quantities.end() )
+        if ( std::find( m_quantities.begin(), m_quantities.end(), vectorNameToUse ) == m_quantities.end() )
         {
-            m_quantities.push_back( address.vectorName() );
+            m_quantities.push_back( vectorNameToUse );
         }
     }
 
@@ -581,10 +486,10 @@ void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAdd
     {
         if ( m_categories.count( address.category() ) == 0 )
         {
-            m_categories[address.category()] = { address.vectorName() };
+            m_categories[address.category()] = { vectorNameToUse };
         }
         else
-            m_categories[address.category()].insert( address.vectorName() );
+            m_categories[address.category()].insert( vectorNameToUse );
     }
 }
 
