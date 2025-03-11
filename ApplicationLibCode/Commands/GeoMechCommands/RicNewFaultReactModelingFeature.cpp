@@ -98,12 +98,15 @@ void RicNewFaultReactModelingFeature::onActionTriggered( bool isChecked )
                 cvf::Vec3d target1 = cell.faceCenter( face );
                 cvf::Vec3d target2 = target1 + normal;
 
+                const QString defaultDirName = "FAULT_REACTIVATION_MODELING";
+
                 // get base directory for our work, should be a new, empty folder somewhere
-                QString defaultDir =
-                    RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "FAULT_REACTIVATION_MODELING" );
+                QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( defaultDirName );
 
                 QString baseDir = RiuFileDialogTools::getExistingDirectory( nullptr, tr( "Select Working Directory" ), defaultDir );
                 if ( baseDir.isNull() || baseDir.isEmpty() ) return;
+
+                RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirName, baseDir );
 
                 QString errMsg;
                 auto    model =
