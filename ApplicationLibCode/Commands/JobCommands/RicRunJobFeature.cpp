@@ -22,6 +22,8 @@
 
 #include "cafSelectionManager.h"
 
+#include <QAction>
+
 CAF_CMD_SOURCE_INIT( RicRunJobFeature, "RicRunJobFeature" );
 
 //--------------------------------------------------------------------------------------------------
