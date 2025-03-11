@@ -1145,6 +1145,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             {
                 menuBuilder << "RicCloseSourSimDataFeature";
             }
+            menuBuilder << "RicNewOpmFlowJobFeature";
         }
         else if ( dynamic_cast<RimSummaryPlot*>( firstUiItem ) )
         {
