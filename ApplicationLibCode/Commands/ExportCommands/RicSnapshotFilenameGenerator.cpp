@@ -65,8 +65,10 @@ QString RicSnapshotFilenameGenerator::generateSnapshotFilenameForRimView( Rim3dV
     QStringList timeSteps = rimView->timeStepStrings();
     int         timeStep  = rimView->currentTimeStep();
 
-    QString fileName =
-        QString( "%1_%2_%3" ).arg( rimView->ownerCase()->caseUserDescription() ).arg( rimView->name() ).arg( resultName( rimView ) );
+    auto name = rimView->name();
+    if ( name.isEmpty() ) name = rimView->autoName();
+
+    QString fileName = QString( "%1_%2_%3" ).arg( rimView->ownerCase()->caseUserDescription() ).arg( name ).arg( resultName( rimView ) );
 
     if ( !timeSteps.empty() ) fileName += QString( "_%1_%2" ).arg( timeStep, 2, 10, QChar( '0' ) ).arg( timeSteps[timeStep] );
 
