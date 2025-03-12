@@ -124,7 +124,6 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
-#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
@@ -765,24 +764,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicShowSummaryCurveCalculatorFeature";
         }
-        else if ( dynamic_cast<RimSummaryEnsemble*>( firstUiItem ) )
-        {
-            menuBuilder.subMenuStart( "Import" );
-            menuBuilder << "RicImportSummaryCaseFeature";
-            menuBuilder << "RicImportSummaryCasesFeature";
-            menuBuilder << "RicImportSummaryGroupFeature";
-            menuBuilder << "RicImportEnsembleFeature";
-            menuBuilder.subMenuEnd();
-            menuBuilder.addSeparator();
-            menuBuilder << "RicNewSummaryMultiPlotFeature";
-            menuBuilder << "RicNewDerivedEnsembleFeature";
-            menuBuilder << "RicOpenSummaryPlotEditorFeature";
-            menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
-            menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
-            menuBuilder.addSeparator();
-            menuBuilder << "RicConvertGroupToEnsembleFeature";
-            menuBuilder.addSeparator();
-        }
         else if ( dynamic_cast<RimWellLogChannel*>( firstUiItem ) )
         {
             menuBuilder << "RicAddWellLogToPlotFeature";
@@ -1123,7 +1104,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicDeleteWellPathFeature";
         menuBuilder << "RicLinkWellPathFeature";
 
-        if ( dynamic_cast<RimSummaryCase*>( firstUiItem ) || dynamic_cast<RimSummaryEnsemble*>( firstUiItem ) )
+        if ( dynamic_cast<RimSummaryCase*>( firstUiItem ) )
         {
             menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
             menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";

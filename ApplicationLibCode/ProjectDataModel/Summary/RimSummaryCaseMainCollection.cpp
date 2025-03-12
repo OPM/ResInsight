@@ -590,6 +590,7 @@ std::vector<RimSummaryCase*>
                     {
                         auto sumCase = new RimFileSummaryCase();
                         sumCase->setIncludeRestartFiles( fileInfo.includeRestartFiles() );
+                        sumCase->setDisplayNameOption( RimCaseDisplayNameTools::DisplayName::SHORT_CASE_NAME );
                         newSumCase = sumCase;
                     }
                     else
