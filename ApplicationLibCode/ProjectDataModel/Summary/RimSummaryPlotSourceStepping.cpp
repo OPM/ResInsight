@@ -25,6 +25,8 @@
 #include "Summary/RiaSummaryAddressModifier.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 
+#include "RifEclipseSummaryTools.h"
+
 #include "RimDataSourceSteppingTools.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
@@ -1274,7 +1276,14 @@ std::map<QString, QString> RimSummaryPlotSourceStepping::optionsForQuantity( Ria
     {
         auto vectorNames = analyzser->vectorNamesForCategory( category );
 
+        std::set<std::string> vectorNamesNoExtension;
         for ( const auto& s : vectorNames )
+        {
+            const auto [vectorNameToUse, extension] = RifEclipseSummaryTools::vectorNameAndExtension( s );
+            vectorNamesNoExtension.insert( vectorNameToUse );
+        }
+
+        for ( const auto& s : vectorNamesNoExtension )
         {
             QString valueString = QString::fromStdString( s );
 
