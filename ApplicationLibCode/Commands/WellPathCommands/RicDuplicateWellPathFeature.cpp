@@ -28,6 +28,7 @@
 #include "RimTools.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathGeometryDef.h"
+#include "RimWellPathTarget.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -43,8 +44,7 @@ CAF_CMD_SOURCE_INIT( RicDuplicateWellPathFeature, "RicDuplicateWellPathFeature" 
 //--------------------------------------------------------------------------------------------------
 bool RicDuplicateWellPathFeature::isCommandEnabled() const
 {
-    auto wellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath>();
-
+    auto wellPath = caf::firstAncestorOfTypeFromSelectedObject<RimModeledWellPath>();
     return wellPath != nullptr;
 }
 
@@ -53,7 +53,7 @@ bool RicDuplicateWellPathFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicDuplicateWellPathFeature::onActionTriggered( bool isChecked )
 {
-    auto sourceWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath>();
+    auto sourceWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimModeledWellPath>();
     if ( !sourceWellPath ) return;
 
     RimProject* project = RimProject::current();
@@ -78,17 +78,11 @@ void RicDuplicateWellPathFeature::onActionTriggered( bool isChecked )
             {
                 auto destinationGeometryDef = newModeledWellPath->geometryDefinition();
 
-                const int    targetCount            = 8;
-                const auto   sourceMDs              = sourceWellPath->wellPathGeometry()->measuredDepths();
-                const double distanceBetweenTargets = ( sourceMDs.back() - sourceMDs.front() ) / targetCount;
-
                 std::vector<cvf::Vec3d> targetCoordinates;
 
-                for ( int targetIdx = 0; targetIdx <= targetCount; targetIdx++ )
+                for ( auto target : sourceWellPath->geometryDefinition()->activeWellTargets( false ) )
                 {
-                    double measuredDepth = sourceMDs.front() + targetIdx * distanceBetweenTargets;
-                    auto   sourceCoord   = sourceWellPath->wellPathGeometry()->interpolatedPointAlongWellPath( measuredDepth );
-                    targetCoordinates.push_back( sourceCoord );
+                    targetCoordinates.push_back( target->targetPointXYZ() );
                 }
                 destinationGeometryDef->createAndInsertTargets( targetCoordinates );
                 newModeledWellPath->createWellPathGeometry();

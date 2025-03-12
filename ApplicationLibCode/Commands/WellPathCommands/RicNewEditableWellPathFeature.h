@@ -20,6 +20,9 @@
 
 #include "cafCmdFeature.h"
 
+class RimFileWellPath;
+class RimModeledWellPath;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -31,4 +34,6 @@ protected:
     bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+    bool copyWellPathGeometry( RimFileWellPath* sourceWellPath, RimModeledWellPath* newModeledWellPath );
 };
