@@ -49,11 +49,8 @@ public:
     const std::vector<double>&     measuredDepths() const;
     std::vector<double>            trueVerticalDepths() const;
 
-    void setWellPathPoints( const std::vector<cvf::Vec3d>& wellPathPoints );
-    void setMeasuredDepths( const std::vector<double>& measuredDepths );
-
-    void addWellPathPoint( const cvf::Vec3d& wellPathPoint );
-    void addMeasuredDepth( double measuredDepth );
+    void setWellPathPoints( const std::vector<cvf::Vec3d>& wellPathPoints, const std::vector<double>& measuredDepths );
+    void addWellPathPoint( const cvf::Vec3d& wellPathPoint, double measuredDepth );
 
     void       setDatumElevation( double value );
     bool       hasDatumElevation() const;

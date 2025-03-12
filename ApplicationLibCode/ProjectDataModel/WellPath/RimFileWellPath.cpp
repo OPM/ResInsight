@@ -300,7 +300,6 @@ void RimFileWellPath::ensureWellPathStartAtSeaLevel( RigWellPath* wellPath )
         // first point in the read well path.
         std::vector<cvf::Vec3d> newPoints = { cvf::Vec3d( firstPoint.x(), firstPoint.y(), 0.0 ) };
         newPoints.insert( newPoints.end(), wellPathPoints.begin(), wellPathPoints.end() );
-        wellPath->setWellPathPoints( newPoints );
 
         // Use rkbDiff as MD for the point at sea level
         double mdAtSeaLevel = 0.0;
@@ -316,7 +315,7 @@ void RimFileWellPath::ensureWellPathStartAtSeaLevel( RigWellPath* wellPath )
         std::vector<double> newMeasuredDepths = { mdAtSeaLevel };
         newMeasuredDepths.insert( newMeasuredDepths.end(), measuredDepths.begin(), measuredDepths.end() );
 
-        wellPath->setMeasuredDepths( newMeasuredDepths );
+        wellPath->setWellPathPoints( newPoints, newMeasuredDepths );
     }
 }
 
