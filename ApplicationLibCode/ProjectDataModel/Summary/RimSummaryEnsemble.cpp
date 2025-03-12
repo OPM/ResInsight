@@ -37,6 +37,7 @@
 #include "RimSummaryEnsembleTools.h"
 #include "RimSummaryPlot.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiLineEditor.h"
@@ -863,6 +864,33 @@ void RimSummaryEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 void RimSummaryEnsemble::onCaseNameChanged( const SignalEmitter* emitter )
 {
     caseNameChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder.subMenuStart( "Import" );
+    menuBuilder << "RicImportSummaryCaseFeature";
+    menuBuilder << "RicImportSummaryCasesFeature";
+    menuBuilder << "RicImportSummaryGroupFeature";
+    menuBuilder << "RicImportEnsembleFeature";
+    menuBuilder.subMenuEnd();
+    menuBuilder.addSeparator();
+    menuBuilder << "RicReplaceSummaryEnsembleFeature";
+    menuBuilder << "RicNewSummaryMultiPlotFeature";
+    menuBuilder << "RicNewDerivedEnsembleFeature";
+    menuBuilder << "RicOpenSummaryPlotEditorFeature";
+    menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
+    menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
+    menuBuilder.addSeparator();
+    menuBuilder << "RicConvertGroupToEnsembleFeature";
+    menuBuilder.addSeparator();
+    menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
+    menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
+    menuBuilder << "RicCreateMultiPlotFromSelectionFeature";
+    menuBuilder << "RicCreatePlotFromTemplateByShortcutFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

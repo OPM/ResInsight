@@ -42,7 +42,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicReloadCaseFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicReplaceCaseFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicReloadSummaryCaseFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicReplaceSummaryCaseFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicFlyToObjectFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicGridStatisticsDialog.h
     ${CMAKE_CURRENT_LIST_DIR}/RicShowGridStatisticsFeature.h
@@ -148,7 +147,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicReloadCaseFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicReplaceCaseFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicReloadSummaryCaseFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicReplaceSummaryCaseFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicFlyToObjectFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicGridStatisticsDialog.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicShowGridStatisticsFeature.cpp
