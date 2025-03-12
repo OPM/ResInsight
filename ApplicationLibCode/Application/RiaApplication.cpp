@@ -532,7 +532,10 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
     // VL check regarding specific order mentioned in comment above...
 
     m_preferences->lastUsedProjectFileName = fullPathProjectFileName;
-    m_preferences->writePreferencesToApplicationStore();
+    if ( m_preferencesFileName.isEmpty() )
+    {
+        m_preferences->writePreferencesToApplicationStore();
+    }
 
     for ( size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++ )
     {
@@ -857,7 +860,10 @@ bool RiaApplication::saveProjectAs( const QString& fileName, gsl::not_null<QStri
     }
 
     m_preferences->lastUsedProjectFileName = fileName;
-    m_preferences->writePreferencesToApplicationStore();
+    if ( m_preferencesFileName.isEmpty() )
+    {
+        m_preferences->writePreferencesToApplicationStore();
+    }
 
     onProjectSaved();
 
@@ -1324,7 +1330,10 @@ void RiaApplication::applyPreferences()
 
     caf::ProgressInfoStatic::setEnabled( RiaPreferencesSystem::current()->showProgressBar() );
 
-    m_preferences->writePreferencesToApplicationStore();
+    if ( m_preferencesFileName.isEmpty() )
+    {
+        m_preferences->writePreferencesToApplicationStore();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1484,7 +1493,17 @@ cvf::Font* RiaApplication::defaultWellLabelFont()
 void RiaApplication::initialize()
 {
     m_preferences = std::make_unique<RiaPreferences>();
-    caf::PdmSettings::readFieldsFromApplicationStore( m_preferences.get() );
+
+    if ( !m_preferencesFileName.isEmpty() )
+    {
+        // The text file with preference values has priority above reading from user settings
+        m_preferences->importPreferenceValuesFromFile( m_preferencesFileName );
+    }
+    else
+    {
+        caf::PdmSettings::readFieldsFromApplicationStore( m_preferences.get() );
+    }
+
     m_preferences->initAfterReadRecursively();
     applyPreferences();
 

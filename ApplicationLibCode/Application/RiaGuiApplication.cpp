@@ -495,6 +495,14 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
         return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
     }
 
+    if ( cvf::Option o = progOpt->option( "preferences" ) )
+    {
+        CVF_ASSERT( o.valueCount() == 1 );
+        m_preferencesFileName = cvfqt::Utils::toQString( o.value( 0 ) );
+        RiaApplication::initialize();
+        onProjectClosed();
+    }
+
     if ( cvf::Option o = progOpt->option( "regressiontest" ) )
     {
         CVF_ASSERT( o.valueCount() == 1 );
