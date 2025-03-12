@@ -46,7 +46,7 @@ public:
                                                                                          bool                      useAllCellCenters );
 
     static std::pair<std::vector<std::vector<cvf::Vec3d>>, std::vector<std::vector<RigWellResultPoint>>>
-        extractBranchData( const std::vector<SimulationWellCellBranch> simulationBranch );
+        extractBranchData( const std::vector<SimulationWellCellBranch>& simulationBranch );
 
 private:
     static void calculateWellPipeStaticCenterline( const RimSimWellInView*                       rimWell,
