@@ -1202,6 +1202,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimSimWellInView*>( firstUiItem ) )
         {
             menuBuilder << "RicShowContributingWellsFeature";
+            menuBuilder << "RicCreateWellPathFromSimulationWellFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicEclipseWellShowLabelFeature";
             menuBuilder << "RicEclipseWellShowHeadFeature";
