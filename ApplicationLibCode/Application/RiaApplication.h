@@ -249,6 +249,8 @@ protected:
     QString                    m_commandLineHelpText;
     QMap<QString, QVariant>    m_sessionCache; // Session cache used to store username/passwords per session
 
+    QString m_preferencesFileName;
+
     bool m_runningWorkerProcess;
 
 private:
