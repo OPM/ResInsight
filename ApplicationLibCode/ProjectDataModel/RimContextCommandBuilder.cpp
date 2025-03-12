@@ -19,6 +19,7 @@
 
 #include "RimContextCommandBuilder.h"
 
+#include "QuickAccess/RimFieldQuickAccess.h"
 #include "RiaApplication.h"
 
 #include "ContourMap/RimEclipseContourMapViewCollection.h"
@@ -66,6 +67,7 @@
 #include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInView.h"
 #include "RimFaultReactivationModel.h"
+#include "RimFileWellPath.h"
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
@@ -363,10 +365,15 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimWellPath*>( firstUiItem ) )
         {
-            menuBuilder << "RicNewEditableWellPathFeature";
+            if ( dynamic_cast<RimFileWellPath*>( firstUiItem ) != nullptr )
+            {
+                menuBuilder << "RicNewEditableWellPathFeature";
+            }
             menuBuilder << "RicNewWellPathLateralFeature";
-            menuBuilder << "RicDuplicateWellPathFeature";
-
+            if ( dynamic_cast<RimModeledWellPath*>( firstUiItem ) != nullptr )
+            {
+                menuBuilder << "RicDuplicateWellPathFeature";
+            }
             menuBuilder.addSeparator();
             menuBuilder << "RicSetParentWellPathFeature";
 
