@@ -134,6 +134,18 @@ std::string RiaSummaryAddressAnalyzer::quantityNameForTitle() const
         return title;
     }
 
+    // Strip off the extension(H or _DIFF) and return the unique quantity name if there is only one
+    std::set<std::string> quantitiesNoExtension;
+    for ( const auto& quantity : quantities() )
+    {
+        const auto [name, extension] = RifEclipseSummaryTools::vectorNameAndExtension( quantity );
+        quantitiesNoExtension.insert( name );
+    }
+    if ( quantitiesNoExtension.size() == 1 )
+    {
+        return *quantitiesNoExtension.begin();
+    }
+
     return {};
 }
 
@@ -424,7 +436,7 @@ void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAdd
         m_wellNames.insert( { wellName, address } );
     }
 
-    const auto [vectorNameToUse, extension] = RifEclipseSummaryTools::vectorNameAndExtension( address.vectorName() );
+    const auto vectorNameToUse = address.vectorName();
     if ( !vectorNameToUse.empty() )
     {
         // The ordering of the quantities is used when creating titles of plots
