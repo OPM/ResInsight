@@ -124,32 +124,19 @@ std::vector<double> RigWellPath::trueVerticalDepths() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellPath::setWellPathPoints( const std::vector<cvf::Vec3d>& wellPathPoints )
+void RigWellPath::setWellPathPoints( const std::vector<cvf::Vec3d>& wellPathPoints, const std::vector<double>& measuredDepths )
 {
+    CVF_ASSERT( wellPathPoints.size() == measuredDepths.size() );
     m_wellPathPoints = wellPathPoints;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigWellPath::setMeasuredDepths( const std::vector<double>& measuredDepths )
-{
     m_measuredDepths = measuredDepths;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellPath::addWellPathPoint( const cvf::Vec3d& wellPathPoint )
+void RigWellPath::addWellPathPoint( const cvf::Vec3d& wellPathPoint, double measuredDepth )
 {
     m_wellPathPoints.push_back( wellPathPoint );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigWellPath::addMeasuredDepth( double measuredDepth )
-{
     m_measuredDepths.push_back( measuredDepth );
 }
 
