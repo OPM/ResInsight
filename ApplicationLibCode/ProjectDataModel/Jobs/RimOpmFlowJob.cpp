@@ -22,6 +22,8 @@
 #include "RiaPreferencesOpm.h"
 #include "RiaWslTools.h"
 
+#include "JobCommands/RicRunJobFeature.h"
+
 #include "RifOpmFlowDeckFile.h"
 
 #include "RimCase.h"
@@ -33,6 +35,7 @@
 #include "Riu3DMainWindowTools.h"
 
 #include "cafPdmUiFilePathEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
 
 #include <QFileInfo>
 
@@ -47,6 +50,10 @@ RimOpmFlowJob::RimOpmFlowJob()
 
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
     CAF_PDM_InitFieldNoDefault( &m_workDir, "WorkDirectory", "Working Folder" );
+
+    CAF_PDM_InitField( &m_runButton, "runButton", false, "" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_runButton );
+    m_runButton.xmlCapability()->disableIO();
 
     setDeletable( true );
 }
@@ -89,6 +96,14 @@ void RimOpmFlowJob::defineEditorAttribute( const caf::PdmFieldHandle* field, QSt
             myAttr->m_selectDirectory = true;
         }
     }
+    else if ( field == &m_runButton )
+    {
+        auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        if ( pbAttribute )
+        {
+            pbAttribute->m_buttonText = "Run Simulation";
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,6 +114,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     uiOrdering.add( nameField() );
     uiOrdering.add( &m_eclipseCase );
     uiOrdering.add( &m_workDir );
+    uiOrdering.add( &m_runButton );
 
     uiOrdering.skipRemainingFields();
 }
@@ -111,6 +127,11 @@ void RimOpmFlowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, c
     if ( changedField == &m_eclipseCase )
     {
         m_deckName = "";
+    }
+    else if ( changedField == &m_runButton )
+    {
+        m_runButton = false;
+        RicRunJobFeature::runJob( this );
     }
 }
 
@@ -167,6 +188,14 @@ QString RimOpmFlowJob::deckName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimOpmFlowJob::deckExtension() const
+{
+    return ".DATA";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QStringList RimOpmFlowJob::command()
 {
     QStringList cmd;
@@ -175,7 +204,7 @@ QStringList RimOpmFlowJob::command()
     if ( workDir.isEmpty() ) return QStringList();
 
     QString dataFile = workDir + "/" + deckName();
-    if ( !QFile::exists( dataFile + ".DATA" ) ) return QStringList();
+    if ( !QFile::exists( dataFile + deckExtension() ) ) return QStringList();
 
     auto opmPref = RiaPreferencesOpm::current();
     if ( opmPref->useWsl() )
@@ -203,13 +232,13 @@ bool RimOpmFlowJob::onPrepare()
     QString gridFile = m_eclipseCase->gridFileName();
 
     QFileInfo fi( gridFile );
-    QString   dataFile = fi.absolutePath() + "/" + fi.completeBaseName() + ".DATA";
+    QString   dataFile = fi.absolutePath() + "/" + fi.completeBaseName() + deckExtension();
     if ( !QFile::exists( dataFile ) ) return false;
 
     RifOpmFlowDeckFile deckFile;
     if ( !deckFile.loadDeck( dataFile.toStdString() ) ) return false;
 
-    return deckFile.saveDeck( m_workDir().path().toStdString(), deckName().toStdString() + ".DATA" );
+    return deckFile.saveDeck( m_workDir().path().toStdString(), deckName().toStdString() + deckExtension().toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------
