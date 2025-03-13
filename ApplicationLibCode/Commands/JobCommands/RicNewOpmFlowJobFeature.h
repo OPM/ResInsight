@@ -31,4 +31,8 @@ protected:
     bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+private:
+    static QString workingFolder();
+    static QString inputDataFile();
 };
