@@ -96,6 +96,7 @@ private:
     void buildMetaData( ecl_grid_type* grid );
 
     void openInitFile();
+    void closeInitFile();
 
     void transferStaticNNCData( const ecl_grid_type* mainEclGrid, ecl_file_type* init_file, RigMainGrid* mainGrid );
     void transferDynamicNNCData( const ecl_grid_type* mainEclGrid, RigMainGrid* mainGrid );

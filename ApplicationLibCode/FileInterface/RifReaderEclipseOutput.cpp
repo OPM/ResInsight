@@ -134,11 +134,7 @@ RifReaderEclipseOutput::RifReaderEclipseOutput()
 //--------------------------------------------------------------------------------------------------
 RifReaderEclipseOutput::~RifReaderEclipseOutput()
 {
-    if ( m_ecl_init_file )
-    {
-        ecl_file_close( m_ecl_init_file );
-    }
-    m_ecl_init_file = nullptr;
+    closeInitFile();
 
     if ( m_dynamicResultsAccess.notNull() )
     {
@@ -492,6 +488,8 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
     {
         auto task = progress.task( "Releasing reader memory", 5 );
         ecl_grid_free( mainEclGrid );
+
+        closeInitFile();
     }
 
     return true;
@@ -950,6 +948,8 @@ bool RifReaderEclipseOutput::staticResult( const QString& result, RiaDefines::Po
         RifEclipseOutputFileTools::extractResultValuesBasedOnPorosityModel( m_eclipseCaseData, matrixOrFracture, values, fileValues );
     }
 
+    closeInitFile();
+
     return true;
 }
 
@@ -1142,6 +1142,17 @@ void RifReaderEclipseOutput::openInitFile()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseOutput::closeInitFile()
+{
+    if ( m_ecl_init_file )
+    {
+        ecl_file_close( m_ecl_init_file );
+    }
+    m_ecl_init_file = nullptr;
+}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
