@@ -18,31 +18,26 @@
 
 #pragma once
 
-#include "RimNamedObject.h"
+#include <string>
 
-#include <QString>
-#include <QStringList>
-
-//==================================================================================================
-///
-///
-//==================================================================================================
-class RimGenericJob : public RimNamedObject
+namespace Opm
 {
-    CAF_PDM_HEADER_INIT;
+class FileDeck;
+}
 
+//==================================================================================================
+///
+///
+//==================================================================================================
+class RifOpmFlowDeckFile
+{
 public:
-    RimGenericJob();
-    ~RimGenericJob() override;
+    RifOpmFlowDeckFile();
+    ~RifOpmFlowDeckFile();
 
-    bool execute();
+    bool loadDeck( std::string filename );
+    bool saveDeck( std::string folder, std::string filename );
 
-protected:
-    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
-
-    virtual QString     title()   = 0;
-    virtual QStringList command() = 0;
-    virtual QString     workingDirectory();
-    virtual bool        onPrepare()                 = 0;
-    virtual void        onCompleted( bool success ) = 0;
+private:
+    std::unique_ptr<Opm::FileDeck> m_fileDeck;
 };
