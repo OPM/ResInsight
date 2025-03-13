@@ -30,7 +30,6 @@
 #include "RimEclipseCase.h"
 #include "RimProject.h"
 #include "RimReloadCaseTools.h"
-#include "RimTools.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -48,7 +47,7 @@ RimOpmFlowJob::RimOpmFlowJob()
 {
     CAF_PDM_InitObject( "Opm Flow Simulation", ":/gear.svg" );
 
-    CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
+    CAF_PDM_InitFieldNoDefault( &m_deckFile, "DeckFile", "Input Data File" );
     CAF_PDM_InitFieldNoDefault( &m_workDir, "WorkDirectory", "Working Folder" );
 
     CAF_PDM_InitField( &m_runButton, "runButton", false, "" );
@@ -63,25 +62,6 @@ RimOpmFlowJob::RimOpmFlowJob()
 //--------------------------------------------------------------------------------------------------
 RimOpmFlowJob::~RimOpmFlowJob()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimOpmFlowJob::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
-{
-    QList<caf::PdmOptionItemInfo> options;
-
-    if ( fieldNeedingOptions == &m_eclipseCase )
-    {
-        RimTools::eclipseCaseOptionItems( &options );
-        if ( options.isEmpty() )
-        {
-            options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
-        }
-    }
-
-    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,7 +92,7 @@ void RimOpmFlowJob::defineEditorAttribute( const caf::PdmFieldHandle* field, QSt
 void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( nameField() );
-    uiOrdering.add( &m_eclipseCase );
+    uiOrdering.add( &m_deckFile );
     uiOrdering.add( &m_workDir );
     uiOrdering.add( &m_runButton );
 
@@ -124,7 +104,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_eclipseCase )
+    if ( changedField == &m_deckFile )
     {
         m_deckName = "";
     }
@@ -148,7 +128,24 @@ void RimOpmFlowJob::setWorkingDirectory( QString workDir )
 //--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::setEclipseCase( RimEclipseCase* eCase )
 {
-    m_eclipseCase = eCase;
+    m_deckName = "";
+    if ( eCase == nullptr )
+    {
+        m_deckFile.setValue( QString() );
+        return;
+    }
+
+    QFileInfo fi( eCase->gridFileName() );
+    m_deckFile.setValue( fi.absolutePath() + "/" + fi.completeBaseName() + deckExtension() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::setInputDataFile( QString filename )
+{
+    m_deckName = "";
+    m_deckFile.setValue( filename );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,12 +171,8 @@ QString RimOpmFlowJob::deckName()
 {
     if ( m_deckName.isEmpty() )
     {
-        if ( m_eclipseCase() != nullptr )
-        {
-            QString   gridFile = m_eclipseCase->gridFileName();
-            QFileInfo fi( gridFile );
-            m_deckName = fi.completeBaseName();
-        }
+        QFileInfo fi( m_deckFile().path() );
+        m_deckName = fi.completeBaseName();
     }
 
     return m_deckName;
@@ -227,12 +220,8 @@ QStringList RimOpmFlowJob::command()
 //--------------------------------------------------------------------------------------------------
 bool RimOpmFlowJob::onPrepare()
 {
-    if ( m_eclipseCase() == nullptr ) return false;
-
-    QString gridFile = m_eclipseCase->gridFileName();
-
-    QFileInfo fi( gridFile );
-    QString   dataFile = fi.absolutePath() + "/" + fi.completeBaseName() + deckExtension();
+    QString dataFile = m_deckFile().path();
+    if ( dataFile.isEmpty() ) return false;
     if ( !QFile::exists( dataFile ) ) return false;
 
     RifOpmFlowDeckFile deckFile;
