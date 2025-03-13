@@ -601,6 +601,7 @@ void RivReservoirViewPartMgr::computeNativeVisibility( cvf::UByteArray*         
     CVF_ASSERT( cellIsInWellStatuses->size() >= grid->cellCount() );
 
     cellVisibility->resize( grid->cellCount() );
+    cellVisibility->setAll( 0 );
 
     if ( auto activeGrid = dynamic_cast<const RigActiveCellGrid*>( grid ) )
     {
