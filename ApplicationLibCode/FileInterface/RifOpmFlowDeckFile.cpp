@@ -16,74 +16,60 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimGenericJob.h"
+#include "RifOpmFlowDeckFile.h"
 
-#include "RimProcess.h"
-
-#include "cafCmdFeatureMenuBuilder.h"
-#include "cafProgressInfo.h"
-
-#include <QMessageBox>
-
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimGenericJob, "GenericJob" ); // Do not use. Abstract class
+#include "opm/input/eclipse/Deck/Deck.hpp"
+#include "opm/input/eclipse/Deck/FileDeck.hpp"
+#include "opm/input/eclipse/Parser/ErrorGuard.hpp"
+#include "opm/input/eclipse/Parser/InputErrorAction.hpp"
+#include "opm/input/eclipse/Parser/ParseContext.hpp"
+#include "opm/input/eclipse/Parser/Parser.hpp"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGenericJob::RimGenericJob()
-{
-    CAF_PDM_InitObject( "Generic Job" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimGenericJob::~RimGenericJob()
+RifOpmFlowDeckFile::RifOpmFlowDeckFile()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGenericJob::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+RifOpmFlowDeckFile::~RifOpmFlowDeckFile()
 {
-    menuBuilder << "RicRunJobFeature";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGenericJob::workingDirectory()
+bool RifOpmFlowDeckFile::loadDeck( std::string filename )
 {
-    return "";
+    Opm::ParseContext parseContext( Opm::InputErrorAction::WARN );
+
+    // Use the same default ParseContext as flow.
+    parseContext.update( Opm::ParseContext::PARSE_RANDOM_SLASH, Opm::InputErrorAction::IGNORE );
+    parseContext.update( Opm::ParseContext::PARSE_MISSING_DIMS_KEYWORD, Opm::InputErrorAction::WARN );
+    parseContext.update( Opm::ParseContext::SUMMARY_UNKNOWN_WELL, Opm::InputErrorAction::WARN );
+    parseContext.update( Opm::ParseContext::SUMMARY_UNKNOWN_GROUP, Opm::InputErrorAction::WARN );
+
+    Opm::ErrorGuard errors{};
+
+    auto deck = Opm::Parser{}.parseFile( filename, parseContext, errors );
+
+    m_fileDeck.reset( new Opm::FileDeck( deck ) );
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGenericJob::execute()
+bool RifOpmFlowDeckFile::saveDeck( std::string folder, std::string filename )
 {
-    if ( !onPrepare() ) return false;
-
-    QStringList cmdLine = command();
-    if ( cmdLine.isEmpty() ) return false;
-
-    caf::ProgressInfo runProgress( 1, title() + " running , please wait..." );
-
-    QString cmd = cmdLine.takeFirst();
-
-    RimProcess process;
-    process.setCommand( cmd );
-    if ( !cmdLine.isEmpty() ) process.addParameters( cmdLine );
-    process.setWorkingDirectory( workingDirectory() );
-
-    bool runOk = process.execute();
-
-    onCompleted( runOk );
-
-    if ( !runOk )
+    if ( m_fileDeck.get() != nullptr )
     {
-        QMessageBox::critical( nullptr, title(), "Failed to run job. Check log window for additional information." );
+        m_fileDeck->dump( folder, filename, Opm::FileDeck::OutputMode::COPY );
+        return true;
     }
-    return runOk;
+    return false;
 }

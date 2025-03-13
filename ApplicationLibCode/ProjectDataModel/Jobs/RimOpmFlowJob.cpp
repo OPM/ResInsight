@@ -22,6 +22,8 @@
 #include "RiaPreferencesOpm.h"
 #include "RiaWslTools.h"
 
+#include "RifOpmFlowDeckFile.h"
+
 #include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimProject.h"
@@ -104,6 +106,17 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    if ( changedField == &m_eclipseCase )
+    {
+        m_deckName = "";
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::setWorkingDirectory( QString workDir )
 {
     m_workDir = workDir;
@@ -136,20 +149,33 @@ QString RimOpmFlowJob::workingDirectory()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimOpmFlowJob::deckName()
+{
+    if ( m_deckName.isEmpty() )
+    {
+        if ( m_eclipseCase() != nullptr )
+        {
+            QString   gridFile = m_eclipseCase->gridFileName();
+            QFileInfo fi( gridFile );
+            m_deckName = fi.completeBaseName();
+        }
+    }
+
+    return m_deckName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QStringList RimOpmFlowJob::command()
 {
     QStringList cmd;
 
-    if ( m_eclipseCase() == nullptr ) return QStringList();
-
-    QString gridFile = m_eclipseCase->gridFileName();
-
-    QFileInfo fi( gridFile );
-    QString   dataFile = fi.absolutePath() + "/" + fi.completeBaseName();
-    if ( !QFile::exists( dataFile + ".DATA" ) ) return QStringList();
-
     QString workDir = m_workDir().path();
     if ( workDir.isEmpty() ) return QStringList();
+
+    QString dataFile = workDir + "/" + deckName();
+    if ( !QFile::exists( dataFile + ".DATA" ) ) return QStringList();
 
     auto opmPref = RiaPreferencesOpm::current();
     if ( opmPref->useWsl() )
@@ -170,15 +196,30 @@ QStringList RimOpmFlowJob::command()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimOpmFlowJob::onCompleted( bool success )
+bool RimOpmFlowJob::onPrepare()
 {
-    if ( !success ) return;
+    if ( m_eclipseCase() == nullptr ) return false;
 
     QString gridFile = m_eclipseCase->gridFileName();
 
     QFileInfo fi( gridFile );
+    QString   dataFile = fi.absolutePath() + "/" + fi.completeBaseName() + ".DATA";
+    if ( !QFile::exists( dataFile ) ) return false;
 
-    QString outputEgrid = m_workDir().path() + "/" + fi.completeBaseName() + ".EGRID";
+    RifOpmFlowDeckFile deckFile;
+    if ( !deckFile.loadDeck( dataFile.toStdString() ) ) return false;
+
+    return deckFile.saveDeck( m_workDir().path().toStdString(), deckName().toStdString() + ".DATA" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::onCompleted( bool success )
+{
+    if ( !success ) return;
+
+    QString outputEgrid = m_workDir().path() + "/" + deckName() + ".EGRID";
     if ( !QFile::exists( outputEgrid ) ) return;
 
     if ( auto existingCase = findExistingCase( outputEgrid ) )
