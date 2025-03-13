@@ -33,6 +33,7 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
+#include <QFileInfo>
 #include <QIcon>
 
 CAF_CMD_SOURCE_INIT( RicNewOpmFlowJobFeature, "RicNewOpmFlowJobFeature" );
@@ -53,20 +54,22 @@ void RicNewOpmFlowJobFeature::onActionTriggered( bool isChecked )
     std::vector<RimEclipseCase*> selectedEclipseCases;
     caf::SelectionManager::instance()->objectsByType( &selectedEclipseCases );
 
-    // get base directory for our work, should be a new, empty folder somewhere
-    const QString defaultDirName = "OPM_FLOW_MODELING";
-    QString       defaultDir     = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( defaultDirName );
-    QString       baseDir = RiuFileDialogTools::getExistingDirectory( nullptr, tr( "Select Simulation Output Directory" ), defaultDir );
-    if ( baseDir.isNull() || baseDir.isEmpty() ) return;
-    RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirName, baseDir );
+    QString inDataFile;
+    if ( selectedEclipseCases.empty() )
+    {
+        inDataFile = inputDataFile();
+        if ( inDataFile.isEmpty() ) return;
+    }
 
-    auto jobColl = RimTools::jobCollection();
+    QString workDir = workingFolder();
+    if ( workDir.isEmpty() ) return;
 
     auto job = new RimOpmFlowJob();
 
-    if ( selectedEclipseCases.empty() )
+    if ( !inDataFile.isEmpty() )
     {
-        job->setName( "Opm Flow Simulation" );
+        job->setInputDataFile( inDataFile );
+        job->setName( job->deckName() + " - Opm Flow Simulation" );
     }
     else
     {
@@ -74,8 +77,9 @@ void RicNewOpmFlowJobFeature::onActionTriggered( bool isChecked )
         job->setName( selectedEclipseCases[0]->caseUserDescription() + " - Opm Flow Simulation" );
     }
 
-    job->setWorkingDirectory( baseDir );
+    job->setWorkingDirectory( workDir );
 
+    auto jobColl = RimTools::jobCollection();
     jobColl->addNewJob( job );
 
     Riu3DMainWindowTools::selectAsCurrentItem( job );
@@ -88,4 +92,40 @@ void RicNewOpmFlowJobFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/gear.png" ) );
     actionToSetup->setText( "New Opm Flow Simulation..." );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicNewOpmFlowJobFeature::workingFolder()
+{
+    // get base directory for our work, should be a new, empty folder somewhere
+    const QString defaultDirName = "OPM_FLOW_MODELING";
+    QString       defaultDir     = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( defaultDirName );
+    QString       baseDir =
+        RiuFileDialogTools::getExistingDirectory( Riu3DMainWindowTools::mainWindowWidget(), "Select Simulation Output Directory", defaultDir );
+    if ( baseDir.isNull() || baseDir.isEmpty() ) return "";
+    RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirName, baseDir );
+
+    return baseDir;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicNewOpmFlowJobFeature::inputDataFile()
+{
+    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "OPM_FLOW_INPUT" );
+
+    QString filterText = QString( "Simulation Input Files (*.DATA);;All Files (*.*)" );
+
+    QString fileName =
+        RiuFileDialogTools::getOpenFileName( Riu3DMainWindowTools::mainWindowWidget(), "Select Input Data File", defaultDir, filterText );
+
+    if ( fileName.isEmpty() ) return "";
+
+    // Remember the path to next time
+    RiaApplication::instance()->setLastUsedDialogDirectory( "OPM_FLOW_INPUT", QFileInfo( fileName ).absolutePath() );
+
+    return fileName;
 }
