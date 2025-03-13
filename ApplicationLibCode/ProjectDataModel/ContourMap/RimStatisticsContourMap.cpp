@@ -533,8 +533,11 @@ void RimStatisticsContourMap::computeStatistics()
 
     caf::ProgressInfo progInfo( nCases, QString( "Reading Eclipse Ensemble" ) );
 
-    auto readerSettings = RiaPreferencesGrid::current()->gridOnlyReaderSettings();
-    auto casesInViews   = ensemble->casesInViews();
+    auto readerSettings                = RiaPreferencesGrid::current()->gridOnlyReaderSettings();
+    readerSettings.onlyLoadActiveCells = true;
+    auto casesInViews                  = ensemble->casesInViews();
+    auto oldReaderType                 = RiaPreferencesGrid::current()->gridModelReaderOverride();
+    RiaPreferencesGrid::current()->setGridModelReaderOverride( RiaDefines::GridModelReader::OPM_COMMON );
 
     int i = 1;
     for ( RimEclipseCase* eCase : ensemble->cases() )
@@ -590,6 +593,8 @@ void RimStatisticsContourMap::computeStatistics()
             eCase->closeReservoirCase();
         }
     }
+
+    RiaPreferencesGrid::current()->setGridModelReaderOverride( oldReaderType );
 
     m_contourMapGrid = std::move( contourMapGrid );
 
