@@ -54,10 +54,12 @@ protected:
 private:
     RimEclipseCase* findExistingCase( QString filename );
     QString         deckName();
+    QString         deckExtension() const;
 
 private:
     caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
     caf::PdmField<caf::FilePath>      m_workDir;
+    caf::PdmField<bool>               m_runButton;
 
     QString m_deckName;
 };

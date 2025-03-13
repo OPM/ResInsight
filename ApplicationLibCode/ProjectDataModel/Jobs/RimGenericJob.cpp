@@ -63,12 +63,18 @@ QString RimGenericJob::workingDirectory()
 //--------------------------------------------------------------------------------------------------
 bool RimGenericJob::execute()
 {
-    if ( !onPrepare() ) return false;
+    caf::ProgressInfo runProgress( 2, title() );
+
+    {
+        auto taskPrep = runProgress.task( "Preparing input..." );
+
+        if ( !onPrepare() ) return false;
+    }
+
+    auto taskRun = runProgress.task( "Running job, please wait..." );
 
     QStringList cmdLine = command();
     if ( cmdLine.isEmpty() ) return false;
-
-    caf::ProgressInfo runProgress( 1, title() + " running , please wait..." );
 
     QString cmd = cmdLine.takeFirst();
 
