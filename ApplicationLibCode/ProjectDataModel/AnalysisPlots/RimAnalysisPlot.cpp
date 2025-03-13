@@ -41,6 +41,7 @@
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotTools.h"
+#include "RiuQwtPlotWidget.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuSummaryVectorSelectionDialog.h"
 

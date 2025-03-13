@@ -21,6 +21,8 @@
 #include "RiaApplication.h"
 #include "RiaNumericalTools.h"
 #include "RiaPlotDefines.h"
+#include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaTimeTTools.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
 #include "Summary/RiaSummaryAddressModifier.h"
@@ -50,10 +52,12 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotControls.h"
 #include "RimSummaryPlotNameHelper.h"
+#include "RimSummaryPlotReadOut.h"
 #include "RimSummaryPlotSourceStepping.h"
 #include "RimSummaryTimeAxisProperties.h"
 
 #include "RiuPlotMainWindowTools.h"
+#include "RiuQwtPlotWidget.h"
 #include "RiuSummaryMultiPlotBook.h"
 #include "RiuSummaryVectorSelectionUi.h"
 
@@ -67,9 +71,6 @@
 
 #include <QKeyEvent>
 
-#include "RiaPreferences.h"
-#include "RiaQDateTimeTools.h"
-#include "RimSummaryPlotReadOut.h"
 #include <cmath>
 
 namespace caf

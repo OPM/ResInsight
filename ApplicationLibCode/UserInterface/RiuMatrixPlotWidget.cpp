@@ -29,6 +29,7 @@
 #include "RiuQwtLinearScaleEngine.h"
 #include "RiuQwtPlotItem.h"
 #include "RiuQwtPlotTools.h"
+#include "RiuQwtPlotWidget.h"
 #include "RiuScalarMapperLegendFrame.h"
 
 #include "cvfColor3.h"
