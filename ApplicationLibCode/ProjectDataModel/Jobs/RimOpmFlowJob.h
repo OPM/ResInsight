@@ -38,9 +38,11 @@ public:
 
     void setWorkingDirectory( QString workDir );
     void setEclipseCase( RimEclipseCase* eCase );
+    void setInputDataFile( QString filename );
+
+    QString deckName();
 
 protected:
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -53,13 +55,12 @@ protected:
 
 private:
     RimEclipseCase* findExistingCase( QString filename );
-    QString         deckName();
     QString         deckExtension() const;
 
 private:
-    caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
-    caf::PdmField<caf::FilePath>      m_workDir;
-    caf::PdmField<bool>               m_runButton;
+    caf::PdmField<caf::FilePath> m_deckFile;
+    caf::PdmField<caf::FilePath> m_workDir;
+    caf::PdmField<bool>          m_runButton;
 
     QString m_deckName;
 };
