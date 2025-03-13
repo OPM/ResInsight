@@ -419,6 +419,11 @@ std::set<RimSummaryCase*> RimAbstractCorrelationPlot::filterEnsembleCases( RimSu
         setOfCases.insert( summaryCasesVector.begin(), summaryCasesVector.end() );
     }
 
+    for ( auto excludedCase : m_excludedCases )
+    {
+        setOfCases.erase( excludedCase );
+    }
+
     return setOfCases;
 }
 
@@ -458,7 +463,23 @@ void RimAbstractCorrelationPlot::setCaseFilterDataSource( RimEnsembleCurveSet* e
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RigEnsembleParameter> RimAbstractCorrelationPlot::ensembleParameters()
+void RimAbstractCorrelationPlot::setExcludedSummaryCases( const std::vector<RimSummaryCase*>& summaryCases )
+{
+    m_excludedCases = summaryCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCase*> RimAbstractCorrelationPlot::excludedSummaryCases() const
+{
+    return m_excludedCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RigEnsembleParameter> RimAbstractCorrelationPlot::ensembleParameters() const
 {
     std::set<RigEnsembleParameter> ensembleParms;
 
@@ -492,7 +513,7 @@ std::set<RigEnsembleParameter> RimAbstractCorrelationPlot::variationSortedEnsemb
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEnsembleParameter RimAbstractCorrelationPlot::ensembleParameter( const QString& ensembleParameterName )
+RigEnsembleParameter RimAbstractCorrelationPlot::ensembleParameter( const QString& ensembleParameterName ) const
 {
     std::set<RigEnsembleParameter> ensembleParms = ensembleParameters();
     for ( const RigEnsembleParameter& eParam : ensembleParms )

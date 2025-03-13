@@ -15,6 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RimCorrelationReportPlot.h"
 
 #include "RiaPreferences.h"
@@ -304,6 +305,10 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
 
     if ( m_showWindow )
     {
+        auto cases = m_parameterResultCrossPlot->summaryCasesExcludedByFilter();
+        m_correlationMatrixPlot->setExcludedSummaryCases( cases );
+        m_correlationPlot->setExcludedSummaryCases( cases );
+
         m_correlationMatrixPlot->setLabelFontSize( m_labelFontSize() );
         m_correlationMatrixPlot->setAxisTitleFontSize( m_axisTitleFontSize() );
         m_correlationMatrixPlot->setAxisValueFontSize( m_axisValueFontSize() );
@@ -358,6 +363,10 @@ void RimCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     plotGroup->add( &m_axisTitleFontSize );
     plotGroup->add( &m_axisValueFontSize );
     m_correlationMatrixPlot->legendConfig()->uiOrdering( "ColorsOnly", *plotGroup );
+
+    auto filterGroup = uiOrdering.addNewGroup( "Filter" );
+    m_parameterResultCrossPlot->appendFilterFields( *filterGroup );
+
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -406,6 +415,9 @@ QList<caf::PdmOptionItemInfo> RimCorrelationReportPlot::calculateValueOptions( c
     return options;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCorrelationReportPlot::onDataSelection( const caf::SignalEmitter*                     emitter,
                                                 std::pair<QString, RiaSummaryCurveDefinition> parameterAndCurveDef )
 {
@@ -421,4 +433,6 @@ void RimCorrelationReportPlot::onDataSelection( const caf::SignalEmitter*       
     {
         m_viewer->updateSubTitles();
     }
+
+    updateConnectedEditors();
 }
