@@ -61,6 +61,9 @@ public:
     RimEnsembleCurveSet*      caseFilterDataSource() const;
     void                      setCaseFilterDataSource( RimEnsembleCurveSet* ensemble );
 
+    void                         setExcludedSummaryCases( const std::vector<RimSummaryCase*>& summaryCases );
+    std::vector<RimSummaryCase*> excludedSummaryCases() const;
+
     RiuQwtPlotWidget* viewer();
     RiuPlotWidget*    plotWidget() override;
     void              detachAllCurves() override;
@@ -86,9 +89,9 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     std::set<RifEclipseSummaryAddress> addresses() const;
-    std::set<RigEnsembleParameter>     ensembleParameters();
+    std::set<RigEnsembleParameter>     ensembleParameters() const;
     std::set<RigEnsembleParameter>     variationSortedEnsembleParameters();
-    RigEnsembleParameter               ensembleParameter( const QString& ensembleParameterName );
+    RigEnsembleParameter               ensembleParameter( const QString& ensembleParameterName ) const;
 
     // RimViewWindow overrides
     QWidget* viewWidget() override;
@@ -153,4 +156,6 @@ private:
     caf::PdmField<bool>                                m_useCaseFilter;
     caf::PdmPtrField<RimEnsembleCurveSet*>             m_curveSetForFiltering;
     caf::PdmField<bool>                                m_editCaseFilter;
+
+    std::vector<RimSummaryCase*> m_excludedCases;
 };

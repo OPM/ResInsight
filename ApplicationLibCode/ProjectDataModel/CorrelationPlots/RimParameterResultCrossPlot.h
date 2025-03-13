@@ -20,6 +20,8 @@
 
 #include "RimAbstractCorrelationPlot.h"
 
+class RiuQwtPlotRectAnnotation;
+
 //==================================================================================================
 ///
 ///
@@ -33,10 +35,16 @@ public:
     ~RimParameterResultCrossPlot() override;
     void setEnsembleParameter( const QString& ensembleParameter );
 
+    std::vector<RimSummaryCase*> summaryCasesExcludedByFilter() const;
+    void                         appendFilterFields( caf::PdmUiOrdering& uiOrdering );
+
+    void detachAllCurves() override;
+
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
@@ -45,12 +53,29 @@ private:
     QString asciiDataForPlotExport() const override;
     void    updatePlotTitle() override;
     void    createPoints();
+    void    updateValueRanges();
+
+    QString excludedCasesText() const;
+
+    struct CaseData
+    {
+        double          parameterValue;
+        double          summaryValue;
+        RimSummaryCase* summaryCase;
+    };
+
+    std::vector<CaseData> createCaseData() const;
 
 private:
     caf::PdmField<QString> m_ensembleParameter;
 
-    std::pair<double, double> m_xRange;
-    std::pair<double, double> m_yRange;
+    caf::PdmField<bool>                      m_useParameterFilter;
+    caf::PdmField<std::pair<double, double>> m_summaryFilterRange;
+    caf::PdmField<std::pair<double, double>> m_parameterFilterRange;
+    caf::PdmProxyValueField<QString>         m_excludedCasesText;
 
-    std::vector<std::pair<double, double>> m_valuesForTextReport;
+    std::pair<double, double> m_xValueRange;
+    std::pair<double, double> m_yValueRange;
+
+    std::unique_ptr<RiuQwtPlotRectAnnotation> m_rectAnnotation;
 };
