@@ -43,16 +43,21 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     QString     title() override;
     QStringList command() override;
     QString     workingDirectory() override;
+    bool        onPrepare() override;
     void        onCompleted( bool success ) override;
 
 private:
     RimEclipseCase* findExistingCase( QString filename );
+    QString         deckName();
 
 private:
     caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
     caf::PdmField<caf::FilePath>      m_workDir;
+
+    QString m_deckName;
 };
