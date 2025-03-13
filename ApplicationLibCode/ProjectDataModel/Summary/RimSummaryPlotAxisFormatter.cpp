@@ -32,6 +32,7 @@
 #include "Tools/RimPlotAxisTools.h"
 
 #include "RiuQtChartsPlotWidget.h"
+#include "RiuQwtPlotWidget.h"
 #include "RiuSummaryQuantityNameInfoProvider.h"
 #include "RiuSummaryQwtPlot.h"
 

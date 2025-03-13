@@ -33,6 +33,7 @@
 #include "RimSummaryPlot.h"
 
 #include "RiuPlotMainWindow.h"
+#include "RiuQwtPlotWidget.h"
 
 #include "cafPdmUiTreeView.h"
 

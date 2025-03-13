@@ -21,7 +21,6 @@
 #include "RiaDateTimeDefines.h"
 
 #include "RiuInterfaceToViewWindow.h"
-#include "RiuQwtPlotWidget.h"
 #include "RiuSummaryPlot.h"
 
 #include <QPointer>
@@ -34,6 +33,7 @@ class RiuQwtPlotWheelZoomer;
 class RimPlotAxisPropertiesInterface;
 class RiuPlotAnnotationTool;
 class RiuQwtCurvePointTracker;
+class RiuQwtPlotWidget;
 
 //==================================================================================================
 //

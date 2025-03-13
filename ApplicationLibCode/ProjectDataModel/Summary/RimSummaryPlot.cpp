@@ -64,6 +64,7 @@
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotItem.h"
+#include "RiuQwtPlotWidget.h"
 #include "RiuSummaryQwtPlot.h"
 
 #ifdef USE_QTCHARTS

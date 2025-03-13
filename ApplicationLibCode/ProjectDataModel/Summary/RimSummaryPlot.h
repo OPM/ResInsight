@@ -25,7 +25,7 @@
 #include "RimPlotAxisProperties.h"
 #include "RimSummaryDataSourceStepping.h"
 
-#include "RiuQwtPlotWidget.h"
+#include "RiuPlotWidget.h"
 #include "RiuSummaryPlot.h"
 
 #include "cafPdmChildArrayField.h"
