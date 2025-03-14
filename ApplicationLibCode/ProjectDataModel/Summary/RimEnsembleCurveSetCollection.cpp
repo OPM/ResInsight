@@ -336,4 +336,5 @@ void RimEnsembleCurveSetCollection::onChildDeleted( caf::PdmChildArrayFieldHandl
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetCollection::onCurveSetsReordered( const SignalEmitter* emitter )
 {
+    loadDataAndUpdate( false );
 }
