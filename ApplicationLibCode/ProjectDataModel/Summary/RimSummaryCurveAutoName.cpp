@@ -220,25 +220,32 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
 
     if ( m_vectorName || m_longVectorName )
     {
-        bool skipSubString = currentNameHelper && currentNameHelper->isPlotDisplayingSingleCurve();
-        if ( !skipSubString )
+        if ( currentNameHelper && currentNameHelper->vectorNames().size() > 1 )
         {
-            if ( m_longVectorName() )
+            text = summaryAddress.vectorName();
+        }
+        else
+        {
+            bool skipSubString = currentNameHelper && currentNameHelper->isPlotDisplayingSingleCurve();
+            if ( !skipSubString )
             {
-                auto quantityName = summaryAddress.vectorName();
-                if ( summaryAddress.isHistoryVector() ) quantityName = quantityName.substr( 0, quantityName.size() - 1 );
+                if ( m_longVectorName() )
+                {
+                    auto quantityName = summaryAddress.vectorName();
+                    if ( summaryAddress.isHistoryVector() ) quantityName = quantityName.substr( 0, quantityName.size() - 1 );
 
-                text = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( quantityName );
+                    text = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( quantityName );
 
-                if ( m_vectorName ) text += " (" + summaryAddress.vectorName() + ")";
+                    if ( m_vectorName ) text += " (" + summaryAddress.vectorName() + ")";
 
-                // Handle cases where longNameFromVectorName fails to produce a long name.
-                // This can happen for non-standard vector names.
-                if ( text.empty() && !summaryAddress.vectorName().empty() ) text = summaryAddress.vectorName();
-            }
-            else
-            {
-                text = summaryAddress.vectorName();
+                    // Handle cases where longNameFromVectorName fails to produce a long name.
+                    // This can happen for non-standard vector names.
+                    if ( text.empty() && !summaryAddress.vectorName().empty() ) text = summaryAddress.vectorName();
+                }
+                else
+                {
+                    text = summaryAddress.vectorName();
+                }
             }
         }
 
