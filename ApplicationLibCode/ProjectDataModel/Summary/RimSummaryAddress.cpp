@@ -18,6 +18,7 @@
 
 #include "RimSummaryAddress.h"
 
+#include "RiaLogging.h"
 #include "Summary/RiaSummaryDefines.h"
 
 #include <QRegularExpression>
@@ -263,4 +264,31 @@ QString RimSummaryAddress::iconResourceText() const
     if ( m_calculationId != -1 ) return ":/DataVectorCalculated.svg";
 
     return ":/DataVector.svg";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddress::initAfterRead()
+{
+    // The changes in this function is related to https://github.com/OPM/ResInsight/issues/12214
+    //
+    // Lumped connection vectors was previously displayed as well vectors. Move them into well completions and extract the well
+    // completion number.
+    if ( m_vectorName().contains( "__" ) && m_category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL )
+    {
+        RiaLogging::info( "Converting lumped vector with '*L__N' syntax into Well Completion." + m_vectorName() );
+
+        m_category             = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION;
+        m_wellCompletionNumber = m_vectorName().split( "__" ).last().toInt();
+        m_vectorName           = m_vectorName().split( "__" ).first();
+    }
+
+    // Lumped connection vectors was previously displayed as well completion vectors. Move them into well completions
+    if ( m_vectorName().startsWith( "C" ) && m_category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION )
+    {
+        RiaLogging::info( "Converting completion vector starting with 'C' syntax into Well Connection." + m_vectorName() );
+
+        m_category = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION;
+    }
 }
