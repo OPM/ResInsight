@@ -114,9 +114,11 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( const QS
 
     for ( auto riv : viewsForSnapshot )
     {
+        RiuViewer* viewer = riv->viewer();
+        if ( !viewer ) continue;
+
         RiaApplication::instance()->setActiveReservoirView( riv );
 
-        RiuViewer* viewer = riv->viewer();
         Riu3DMainWindowTools::setActiveViewer( viewer->layoutWidget() );
 
         RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
