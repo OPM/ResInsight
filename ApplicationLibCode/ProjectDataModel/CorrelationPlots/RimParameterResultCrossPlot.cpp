@@ -44,6 +44,7 @@
 #include "qwt_plot.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_picker.h"
+#include "qwt_plot_marker.h"
 #include "qwt_text.h"
 
 #include <QColor>
