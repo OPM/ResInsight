@@ -154,8 +154,6 @@ public:
 
     void detachItems( RiuPlotWidget::PlotItemType plotItemType ) override;
 
-    void findClosestPlotItem( const QPoint& pos, QwtPlotItem** closestItem, int* closestCurvePoint, double* distanceFromClick ) const;
-
     const QColor& backgroundColor() const override;
 
     QWidget* getParentForOverlay() const override;
@@ -205,7 +203,9 @@ protected:
     virtual void onMouseMoveEvent( QMouseEvent* event );
 
 private:
-    void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
+    void selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
+    void findClosestPlotItem( const QPoint& pos, QwtPlotItem** closestItem, int* closestCurveSampleIndex, double* distanceFromClick ) const;
+
     static int defaultMinimumWidth();
 
     void highlightPlotAxes( QwtAxisId axisIdX, QwtAxisId axisIdY );
