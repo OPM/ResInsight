@@ -62,6 +62,7 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     QString iconResourceText() const;
+    void    initAfterRead() override;
 
 private:
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>> m_category;
