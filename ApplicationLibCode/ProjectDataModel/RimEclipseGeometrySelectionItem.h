@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimGeometrySelectionItem.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
@@ -31,7 +33,7 @@ class RigGridBase;
 ///
 ///
 //==================================================================================================
-class RimEclipseGeometrySelectionItem : public caf::PdmObject
+class RimEclipseGeometrySelectionItem : public RimGeometrySelectionItem_OBSOLETE
 {
     CAF_PDM_HEADER_INIT;
 
@@ -40,6 +42,7 @@ public:
     ~RimEclipseGeometrySelectionItem() override;
 
     void    setFromSelectionItem( const RiuEclipseSelectionItem* selectionItem );
+    void    setFromSelectionItem( RimEclipseGeometrySelectionItem* selectionItem );
     void    setFromCaseGridAndIJK( RimEclipseCase* eclipseCase, size_t gridIndex, size_t i, size_t j, size_t k );
     QString geometrySelectionText() const;
 

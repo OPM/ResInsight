@@ -70,6 +70,16 @@ void RimEclipseGeometrySelectionItem::setFromSelectionItem( const RiuEclipseSele
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseGeometrySelectionItem::setFromSelectionItem( RimEclipseGeometrySelectionItem* selectionItem )
+{
+    m_eclipseCase = selectionItem->eclipseCase();
+    m_gridIndex   = selectionItem->m_gridIndex();
+    m_cellIndex   = selectionItem->m_cellIndex();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseGeometrySelectionItem::setFromCaseGridAndIJK( RimEclipseCase* eclipseCase, size_t gridIndex, size_t i, size_t j, size_t k )
 {
     m_eclipseCase = eclipseCase;

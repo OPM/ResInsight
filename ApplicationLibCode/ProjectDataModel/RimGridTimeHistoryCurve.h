@@ -21,6 +21,8 @@
 
 #include "RiaDefines.h"
 
+#include "RimGeometrySelectionItem.h"
+
 #include "cafPdmChildField.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
@@ -106,4 +108,6 @@ private:
 
     caf::PdmChildField<RimEclipseGeometrySelectionItem*> m_eclipseDataSource;
     caf::PdmChildField<RimGeoMechGeometrySelectionItem*> m_geoMechDataSource;
+
+    caf::PdmChildField<RimGeometrySelectionItem_OBSOLETE*> m_geometrySelectionItem_OBSOLETE;
 };
