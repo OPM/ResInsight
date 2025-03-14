@@ -414,12 +414,20 @@ QString RiaEnsembleNameTools::uniqueShortNameForEnsembleCase( RimSummaryCase* su
     QStringList summaryFilePaths;
     summaryFilePaths.push_back( summaryCase->summaryHeaderFilename() );
 
-    for ( auto otherSummaryCase : summaryCases )
+    // Use a small number of names to find a short name for the ensemble, as RiaEnsembleNameTools::uniqueShortName is slow
+    if ( !summaryCases.empty() )
     {
-        if ( otherSummaryCase != summaryCase )
+        const int maxNameCount = 4;
+        for ( int i = 0; i < std::min( maxNameCount, static_cast<int>( summaryCases.size() ) ); ++i )
         {
-            summaryFilePaths.push_back( otherSummaryCase->summaryHeaderFilename() );
+            auto otherSummaryCase = summaryCases[i];
+            if ( otherSummaryCase != summaryCase )
+            {
+                summaryFilePaths.push_back( otherSummaryCase->summaryHeaderFilename() );
+            }
         }
+
+        summaryFilePaths.push_back( summaryCases.back()->summaryHeaderFilename() );
     }
 
     return RiaEnsembleNameTools::uniqueShortName( summaryCase->summaryHeaderFilename(), summaryFilePaths, ensembleCaseName );
