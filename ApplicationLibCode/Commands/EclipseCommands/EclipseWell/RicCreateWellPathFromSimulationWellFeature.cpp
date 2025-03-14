@@ -106,7 +106,7 @@ void RicCreateWellPathFromSimulationWellFeature::onActionTriggered( bool isCheck
         std::vector<cvf::Vec3d> filteredWellPathPoints = filterWellPathPoints( wellPathPoints, 100.0 );
 
         // Need at least two points to add create a well
-        if ( filteredWellPathPoints.size() > 2 )
+        if ( filteredWellPathPoints.size() >= 2 )
         {
             auto newModeledWellPath = new RimModeledWellPath();
             newModeledWellPath->geometryDefinition()->createAndInsertTargets( filteredWellPathPoints );
