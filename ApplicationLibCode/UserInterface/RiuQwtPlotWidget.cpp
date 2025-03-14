@@ -875,28 +875,63 @@ QWidget* RiuQwtPlotWidget::getParentForOverlay() const
 //--------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::findClosestPlotItem( const QPoint& pos, QwtPlotItem** closestItem, int* closestCurvePoint, double* distanceFromClick ) const
+void RiuQwtPlotWidget::findClosestPlotItem( const QPoint& pos, QwtPlotItem** closestItem, int* closestCurveSampleIndex, double* distanceFromClick ) const
 {
-    CAF_ASSERT( closestItem && closestCurvePoint && distanceFromClick );
+    CAF_ASSERT( closestItem && closestCurveSampleIndex && distanceFromClick );
 
-    // Force empty defaults
-    *closestItem       = nullptr;
-    *closestCurvePoint = -1;
-    *distanceFromClick = std::numeric_limits<double>::infinity();
+    *closestItem             = nullptr;
+    *closestCurveSampleIndex = -1;
+    *distanceFromClick       = std::numeric_limits<double>::infinity();
 
     const QwtPlotItemList& itmList = m_plot->itemList();
     for ( auto it : itmList )
     {
         if ( it->rtti() == QwtPlotItem::Rtti_PlotCurve )
         {
-            auto*  candidateCurve = static_cast<QwtPlotCurve*>( it );
-            double dist           = std::numeric_limits<double>::infinity();
-            int    curvePoint     = candidateCurve->closestPoint( pos, &dist );
+            auto*  candidateCurve   = static_cast<QwtPlotCurve*>( it );
+            double dist             = std::numeric_limits<double>::infinity();
+            int    curveSampleIndex = candidateCurve->closestPoint( pos, &dist );
+
+            if ( curveSampleIndex != -1 )
+            {
+                // Use the sample index before and after to interpolate the closest point on the curve.
+                const auto firstIndex  = std::max( 0, curveSampleIndex - 1 );
+                const auto secondIndex = std::min( curveSampleIndex + 1, (int)candidateCurve->dataSize() - 1 );
+
+                if ( firstIndex != secondIndex )
+                {
+                    const QPointF p0 = candidateCurve->sample( firstIndex );
+                    const QPointF p1 = candidateCurve->sample( secondIndex );
+
+                    const QwtScaleMap xMap = candidateCurve->plot()->canvasMap( candidateCurve->xAxis() );
+                    const QwtScaleMap yMap = candidateCurve->plot()->canvasMap( candidateCurve->yAxis() );
+
+                    const auto x0 = xMap.transform( p0.x() );
+                    const auto y0 = yMap.transform( p0.y() );
+                    const auto x1 = xMap.transform( p1.x() );
+                    const auto y1 = yMap.transform( p1.y() );
+
+                    const double dx = x1 - x0;
+                    const double dy = y1 - y0;
+                    const double d  = dx * dx + dy * dy;
+                    if ( d > 0.0 )
+                    {
+                        const double t = ( ( pos.x() - x0 ) * dx + ( pos.y() - y0 ) * dy ) / d;
+                        if ( t >= 0.0 && t <= 1.0 )
+                        {
+                            const double cx = x0 + t * dx - pos.x();
+                            const double cy = y0 + t * dy - pos.y();
+                            dist            = std::sqrt( cx * cx + cy * cy );
+                        }
+                    }
+                }
+            }
+
             if ( dist < *distanceFromClick )
             {
-                *closestItem       = candidateCurve;
-                *distanceFromClick = dist;
-                *closestCurvePoint = curvePoint;
+                *closestItem             = candidateCurve;
+                *distanceFromClick       = dist;
+                *closestCurveSampleIndex = curveSampleIndex;
             }
         }
         else if ( it->rtti() == QwtPlotItem::Rtti_PlotShape )
@@ -921,9 +956,9 @@ void RiuQwtPlotWidget::findClosestPlotItem( const QPoint& pos, QwtPlotItem** clo
                 double  dist        = horizontal ? std::abs( samplePoint.x() - scalePos.y() ) : std::abs( samplePoint.x() - scalePos.x() );
                 if ( dist < *distanceFromClick )
                 {
-                    *closestItem       = it;
-                    *closestCurvePoint = (int)i;
-                    *distanceFromClick = dist;
+                    *closestItem             = it;
+                    *closestCurveSampleIndex = (int)i;
+                    *distanceFromClick       = dist;
                 }
             }
         }
@@ -983,7 +1018,13 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
             }
         }
 
-        if ( !wasToggledOff && clickedCurve ) curvesToSelect.push_back( clickedCurve );
+        if ( !wasToggledOff && clickedCurve )
+        {
+            if ( distanceFromClick < 100 )
+            {
+                curvesToSelect.push_back( clickedCurve );
+            }
+        }
 
         bool updateCurveOrder = false;
         resetPlotItemHighlighting( updateCurveOrder );
