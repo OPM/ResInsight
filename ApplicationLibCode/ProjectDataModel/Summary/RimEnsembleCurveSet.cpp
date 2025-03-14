@@ -2107,16 +2107,18 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
             plot->updateAxes();
             plot->updatePlotInfoLabel();
 
-            if ( !m_plotCurveForLegendText )
-            {
-                m_plotCurveForLegendText.reset( plot->plotWidget()->createPlotCurve( nullptr, "" ) );
+            // Always recreate the plot curve for the legend text to ensure the ordering is correct
+            // The ordering of legend items depends on the order the curves are added to the plot
+            //
+            // https://github.com/OPM/ResInsight/issues/12259
+            //
+            m_plotCurveForLegendText.reset( plot->plotWidget()->createPlotCurve( nullptr, "" ) );
 
-                int curveThickness = 3;
-                m_plotCurveForLegendText->setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID,
-                                                         RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT,
-                                                         curveThickness,
-                                                         RiaColorTools::toQColor( m_mainEnsembleColor() ) );
-            }
+            int curveThickness = 3;
+            m_plotCurveForLegendText->setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID,
+                                                     RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT,
+                                                     curveThickness,
+                                                     RiaColorTools::toQColor( m_mainEnsembleColor() ) );
             m_plotCurveForLegendText->attachToPlot( plot->plotWidget() );
             updateEnsembleLegendItem();
         }
