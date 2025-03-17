@@ -877,8 +877,6 @@ void RimSummaryEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilde
     menuBuilder << "RicImportSummaryGroupFeature";
     menuBuilder << "RicImportEnsembleFeature";
     menuBuilder.subMenuEnd();
-    menuBuilder.addSeparator();
-    menuBuilder << "RicReplaceSummaryEnsembleFeature";
     menuBuilder << "RicNewSummaryMultiPlotFeature";
     menuBuilder << "RicNewDerivedEnsembleFeature";
     menuBuilder << "RicOpenSummaryPlotEditorFeature";
@@ -891,6 +889,9 @@ void RimSummaryEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilde
     menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
     menuBuilder << "RicCreateMultiPlotFromSelectionFeature";
     menuBuilder << "RicCreatePlotFromTemplateByShortcutFeature";
+    menuBuilder.addSeparator();
+    menuBuilder << "RicReloadSummaryCaseFeature";
+    menuBuilder << "RicReplaceSummaryEnsembleFeature";
 }
 
 //--------------------------------------------------------------------------------------------------
