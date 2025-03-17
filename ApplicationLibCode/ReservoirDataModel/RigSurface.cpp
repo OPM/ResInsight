@@ -60,9 +60,9 @@ void RigSurface::setTriangleData( const std::vector<unsigned>& tringleIndices, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigSurface::addVerticeResult( const QString resultName, const std::vector<float>& resultValues )
+void RigSurface::addVertexResult( const QString resultName, const std::vector<float>& resultValues )
 {
-    m_verticeResults[resultName] = resultValues;
+    m_vertexResults[resultName] = resultValues;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,8 +70,8 @@ void RigSurface::addVerticeResult( const QString resultName, const std::vector<f
 //--------------------------------------------------------------------------------------------------
 std::vector<float> RigSurface::propertyValues( const QString& propertyName ) const
 {
-    auto it = m_verticeResults.find( propertyName );
-    if ( it != m_verticeResults.end() )
+    auto it = m_vertexResults.find( propertyName );
+    if ( it != m_vertexResults.end() )
     {
         return it->second;
     }
@@ -86,7 +86,7 @@ std::vector<QString> RigSurface::propertyNames() const
 {
     std::vector<QString> names;
 
-    for ( const auto& propertyResult : m_verticeResults )
+    for ( const auto& propertyResult : m_vertexResults )
     {
         names.push_back( propertyResult.first );
     }

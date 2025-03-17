@@ -112,7 +112,7 @@ void RimFractureSurface::loadSurfaceDataForTimeStep( int timeStep )
     for ( const auto& name : propertyNames )
     {
         auto values = triangleMeshData->propertyValues( name );
-        surface->addVerticeResult( name, values );
+        surface->addVertexResult( name, values );
     }
     setSurfaceData( surface );
 }
