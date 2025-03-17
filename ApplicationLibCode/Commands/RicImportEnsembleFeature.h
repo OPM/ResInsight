@@ -34,14 +34,21 @@ class RicImportEnsembleFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-protected:
+public:
+    static RimSummaryEnsemble* createSummaryEnsemble( std::vector<RimSummaryCase*> cases );
+    static RimSummaryEnsemble* groupSummaryCases( std::vector<RimSummaryCase*>     cases,
+                                                  const QString&                   groupName,
+                                                  RiaDefines::EnsembleGroupingMode groupingMode,
+                                                  bool                             isEnsemble = false );
+
+private:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    static QString askForEnsembleName( const QString& suggestion );
-    static void    importSingleEnsemble( const QStringList&               fileNames,
-                                         bool                             useEnsembleNameDialog,
-                                         RiaDefines::EnsembleGroupingMode groupingMode,
-                                         RiaDefines::FileType             fileType,
-                                         const QString&                   defaultEnsembleName = QString() );
+    static QString             askForEnsembleName( const QString& suggestion );
+    static RimSummaryEnsemble* importSingleEnsemble( const QStringList&               fileNames,
+                                                     bool                             useEnsembleNameDialog,
+                                                     RiaDefines::EnsembleGroupingMode groupingMode,
+                                                     RiaDefines::FileType             fileType,
+                                                     const QString&                   defaultEnsembleName = QString() );
 };

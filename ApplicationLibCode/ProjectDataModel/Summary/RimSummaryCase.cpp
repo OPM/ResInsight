@@ -256,6 +256,7 @@ void RimSummaryCase::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder, b
     menuBuilder << "RicImportSummaryGroupFeature";
     menuBuilder << "RicImportEnsembleFeature";
     menuBuilder.subMenuEnd();
+    menuBuilder << "RicCreateSummaryEnsembleFeature";
     menuBuilder.addSeparator();
     menuBuilder << "RicNewSummaryMultiPlotFeature";
     menuBuilder << "RicOpenSummaryPlotEditorFeature";

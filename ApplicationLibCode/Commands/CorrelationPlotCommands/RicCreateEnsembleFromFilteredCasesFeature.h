@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2025 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,18 +20,14 @@
 
 #include "cafCmdFeature.h"
 
-#include <QString>
-
-class RimSummaryCase;
-
 //==================================================================================================
 ///
 //==================================================================================================
-class RicConvertGroupToEnsembleFeature : public caf::CmdFeature
+class RicCreateEnsembleFromFilteredCasesFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-protected:
+private:
     bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
