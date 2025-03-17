@@ -232,6 +232,14 @@ void RimSurface::loadSurfaceDataForTimeStep( int timeStep )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t RimSurface::timeStepCount() const
+{
+    return 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     bool updateViews = false;

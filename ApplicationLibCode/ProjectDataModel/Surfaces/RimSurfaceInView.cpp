@@ -18,6 +18,8 @@
 
 #include "RimSurfaceInView.h"
 
+#include "RiaLogging.h"
+
 #include "RigSurface.h"
 
 #include "RimEclipseView.h"
@@ -187,6 +189,18 @@ void RimSurfaceInView::loadDataAndUpdate( int timeStep )
     {
         surface()->loadDataIfRequired();
         surface()->loadSurfaceDataForTimeStep( timeStep );
+
+        if ( surface()->surfaceData() )
+        {
+            auto ownerView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
+            if ( ownerView->timeStepCount() != surface()->timeStepCount() )
+            {
+                QString message = QString( "Surface has different number of time steps. Expected %1, but found %2." )
+                                      .arg( ownerView->timeStepCount() )
+                                      .arg( surface()->timeStepCount() );
+                RiaLogging::warning( message );
+            }
+        }
 
         if ( surface()->surfaceData() && surface()->surfaceData()->propertyNames().empty() )
         {
