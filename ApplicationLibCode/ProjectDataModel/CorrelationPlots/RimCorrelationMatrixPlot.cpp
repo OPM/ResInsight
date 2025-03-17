@@ -658,7 +658,7 @@ void RimCorrelationMatrixPlot::updatePlotTitle()
 {
     if ( m_useAutoPlotTitle )
     {
-        m_description = QString( "Correlation Matrix for Parameters vs Result Vectors at %2" ).arg( timeStepString() );
+        m_description = QString( "Parameters vs Result Vectors at %2" ).arg( timeStepString() );
     }
 
     if ( m_plotWidget )
