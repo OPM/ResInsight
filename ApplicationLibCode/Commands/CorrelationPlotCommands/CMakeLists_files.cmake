@@ -3,6 +3,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewCorrelationReportPlotFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewCorrelationMatrixPlotFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewParameterResultCrossPlotFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleFromFilteredCasesFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -10,6 +11,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewCorrelationMatrixPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewParameterResultCrossPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewCorrelationReportPlotFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleFromFilteredCasesFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

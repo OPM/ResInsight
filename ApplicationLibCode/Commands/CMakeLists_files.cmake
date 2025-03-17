@@ -4,7 +4,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCloseSummaryCaseFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCloseSummaryCaseInCollectionFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCloseObservedDataFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicCreateSummaryCaseCollectionFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewViewFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewContourMapViewFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportFaciesFeature.h
@@ -50,7 +49,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryGroupFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleSurfaceFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicConvertGroupToEnsembleFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleWellLogsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateTemporaryLgrFeature.h
@@ -102,6 +100,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonAdvancedFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RicPolygonFromImageDialog.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateSummaryEnsembleFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -110,7 +109,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCloseSummaryCaseFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCloseSummaryCaseInCollectionFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCloseObservedDataFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicCreateSummaryCaseCollectionFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewViewFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewContourMapViewFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportFaciesFeature.cpp
@@ -155,7 +153,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryGroupFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleSurfaceFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicConvertGroupToEnsembleFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleWellLogsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateTemporaryLgrFeature.cpp
@@ -208,6 +205,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonAdvancedFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicPolygonFromImageDialog.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateSummaryEnsembleFeature.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)

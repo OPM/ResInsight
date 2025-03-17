@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2025 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,67 +16,46 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicConvertGroupToEnsembleFeature.h"
+#include "RicCreateSummaryEnsembleFeature.h"
 
-#include "RiaPreferences.h"
-
-#include "RicCreateSummaryCaseCollectionFeature.h"
 #include "RicImportEnsembleFeature.h"
 
-#include "RifSummaryCaseRestartSelector.h"
-
-#include "RimMainPlotCollection.h"
-#include "RimOilField.h"
-#include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryEnsemble.h"
 
-#include "RiuMainWindow.h"
-#include "RiuPlotMainWindow.h"
-
-#include "cafSelectionManagerTools.h"
+#include "cafSelectionManager.h"
 
 #include <QAction>
-#include <QInputDialog>
 
-CAF_CMD_SOURCE_INIT( RicConvertGroupToEnsembleFeature, "RicConvertGroupToEnsembleFeature" );
+CAF_CMD_SOURCE_INIT( RicCreateSummaryEnsembleFeature, "RicCreateSummaryEnsembleFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicConvertGroupToEnsembleFeature::isCommandEnabled() const
+bool RicCreateSummaryEnsembleFeature::isCommandEnabled() const
 {
-    const auto& selGroups = caf::selectedObjectsByTypeStrict<RimSummaryEnsemble*>();
-    if ( selGroups.empty() ) return false;
+    std::vector<RimSummaryCase*> selection;
+    caf::SelectionManager::instance()->objectsByType( &selection );
 
-    for ( const auto& group : selGroups )
-    {
-        if ( !group->isEnsemble() ) return true;
-    }
-    return false;
+    return !selection.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicConvertGroupToEnsembleFeature::onActionTriggered( bool isChecked )
+void RicCreateSummaryEnsembleFeature::onActionTriggered( bool isChecked )
 {
-    const auto& selGroups = caf::selectedObjectsByTypeStrict<RimSummaryEnsemble*>();
+    std::vector<RimSummaryCase*> selection;
+    caf::SelectionManager::instance()->objectsByType( &selection );
+    if ( selection.empty() ) return;
 
-    for ( const auto& group : selGroups )
-    {
-        if ( group->isEnsemble() ) continue;
-
-        group->setAsEnsemble( true );
-    }
+    RicImportEnsembleFeature::createSummaryEnsemble( selection );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicConvertGroupToEnsembleFeature::setupActionLook( QAction* actionToSetup )
+void RicCreateSummaryEnsembleFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/SummaryEnsemble.svg" ) );
-    actionToSetup->setText( "Convert to Ensemble" );
+    actionToSetup->setText( "Create Summary Ensemble" );
+    actionToSetup->setIcon( QIcon( ":/SummaryGroup16x16.png" ) );
 }

@@ -883,8 +883,6 @@ void RimSummaryEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilde
     menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
     menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
     menuBuilder.addSeparator();
-    menuBuilder << "RicConvertGroupToEnsembleFeature";
-    menuBuilder.addSeparator();
     menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
     menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
     menuBuilder << "RicCreateMultiPlotFromSelectionFeature";

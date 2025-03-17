@@ -19,25 +19,18 @@
 #include "RicImportSummaryGroupFeature.h"
 
 #include "RiaGuiApplication.h"
-#include "RiaPreferences.h"
-
-#include "RicCreateSummaryCaseCollectionFeature.h"
-#include "RicImportSummaryCasesFeature.h"
 #include "Summary/RiaSummaryDefines.h"
 
-#include "RifSummaryCaseRestartSelector.h"
+#include "RicImportEnsembleFeature.h"
+#include "RicImportSummaryCasesFeature.h"
 
-#include "RimMainPlotCollection.h"
-#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseMainCollection.h"
 
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 
 #include <QAction>
-#include <QInputDialog>
 
 CAF_CMD_SOURCE_INIT( RicImportSummaryGroupFeature, "RicImportSummaryGroupFeature" );
 
@@ -58,7 +51,7 @@ void RicImportSummaryGroupFeature::onActionTriggered( bool isChecked )
     auto [isOk, cases] = RicImportSummaryCasesFeature::createSummaryCasesFromFiles( fileNames, createConfig );
 
     RicImportSummaryCasesFeature::addSummaryCases( cases );
-    RicCreateSummaryCaseCollectionFeature::groupSummaryCases( cases, "", RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE, false );
+    RicImportEnsembleFeature::groupSummaryCases( cases, "", RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE, false );
 
     RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
     if ( mainPlotWindow && !cases.empty() )

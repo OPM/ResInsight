@@ -30,6 +30,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
 
+#include "RiuContextMenuLauncher.h"
 #include "RiuPlotCurve.h"
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotRectAnnotation.h"
@@ -570,7 +571,13 @@ protected:
 //--------------------------------------------------------------------------------------------------
 RiuPlotWidget* RimParameterResultCrossPlot::doCreatePlotViewWidget( QWidget* mainWindowParent /*= nullptr */ )
 {
-    RimAbstractCorrelationPlot::doCreatePlotViewWidget( mainWindowParent );
+    if ( !m_plotWidget )
+    {
+        m_plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
+        updatePlotTitle();
+
+        new RiuContextMenuLauncher( m_plotWidget, { "RicShowPlotDataFeature", "RicCreateEnsembleFromFilteredCasesFeature" } );
+    }
 
     if ( m_plotWidget )
     {
