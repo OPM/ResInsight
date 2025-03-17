@@ -62,6 +62,7 @@ public:
 
 private:
     QString createPlotWindowTitle() const;
+    QString createDescription() const;
     void    recreatePlotWidgets();
     void    cleanupBeforeClose();
 
@@ -78,7 +79,7 @@ private:
     void onDataSelection( const caf::SignalEmitter* emitter, std::pair<QString, RiaSummaryCurveDefinition> parameterAndCurveDef );
 
 private:
-    caf::PdmProxyValueField<QString> m_plotWindowTitle;
+    caf::PdmProxyValueField<QString> m_name;
 
     caf::PdmChildField<RimCorrelationMatrixPlot*>    m_correlationMatrixPlot;
     caf::PdmChildField<RimCorrelationPlot*>          m_correlationPlot;

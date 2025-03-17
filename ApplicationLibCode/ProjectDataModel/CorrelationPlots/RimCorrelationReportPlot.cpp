@@ -56,8 +56,8 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
     CAF_PDM_InitObject( "Correlation Report Plot", ":/CorrelationReportPlot16x16.png" );
     setDeletable( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_plotWindowTitle, "PlotWindowTitle", "Title" );
-    m_plotWindowTitle.registerGetMethod( this, &RimCorrelationReportPlot::createPlotWindowTitle );
+    CAF_PDM_InitFieldNoDefault( &m_name, "PlotWindowTitle", "Title" );
+    m_name.registerGetMethod( this, &RimCorrelationReportPlot::createDescription );
 
     CAF_PDM_InitFieldNoDefault( &m_correlationMatrixPlot, "MatrixPlot", "Matrix Plot" );
     CAF_PDM_InitFieldNoDefault( &m_correlationPlot, "CorrelationPlot", "Correlation Plot" );
@@ -119,7 +119,7 @@ QWidget* RimCorrelationReportPlot::viewWidget()
 //--------------------------------------------------------------------------------------------------
 QString RimCorrelationReportPlot::description() const
 {
-    return m_plotWindowTitle();
+    return createDescription();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -151,7 +151,7 @@ void RimCorrelationReportPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimCorrelationReportPlot::userDescriptionField()
 {
-    return &m_plotWindowTitle;
+    return &m_name;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -215,6 +215,14 @@ int RimCorrelationReportPlot::axisValueFontSize() const
 //--------------------------------------------------------------------------------------------------
 QString RimCorrelationReportPlot::createPlotWindowTitle() const
 {
+    return "Correlation Report for " + createDescription();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimCorrelationReportPlot::createDescription() const
+{
     QStringList ensembles;
     for ( auto entry : m_correlationMatrixPlot->curveDefinitions() )
     {
@@ -227,7 +235,7 @@ QString RimCorrelationReportPlot::createPlotWindowTitle() const
     QString ensembleNames = ensembles.join( ", " );
     QString timeStep      = m_correlationMatrixPlot->timeStepString();
 
-    return QString( "Correlation Report for %1 at %2" ).arg( ensembleNames ).arg( timeStep );
+    return QString( "%1 at %2" ).arg( ensembleNames ).arg( timeStep );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -282,7 +290,7 @@ QWidget* RimCorrelationReportPlot::createViewWidget( QWidget* mainWindowParent /
 {
     m_viewer = new RiuMultiPlotPage( this, mainWindowParent );
     m_viewer->setAutoAlignAxes( false );
-    m_viewer->setPlotTitle( m_plotWindowTitle() );
+    m_viewer->setPlotTitle( createPlotWindowTitle() );
     recreatePlotWidgets();
 
     return m_viewer;
@@ -343,7 +351,7 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
         m_correlationPlot->loadDataAndUpdate();
         m_parameterResultCrossPlot->loadDataAndUpdate();
 
-        m_viewer->setPlotTitle( m_plotWindowTitle() );
+        m_viewer->setPlotTitle( createDescription() );
     }
 
     updateLayout();

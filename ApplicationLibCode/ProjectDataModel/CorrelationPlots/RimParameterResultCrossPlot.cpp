@@ -612,7 +612,7 @@ void RimParameterResultCrossPlot::updatePlotTitle()
         QString vectorName = completeAddressText();
 
         m_description =
-            QString( "Cross Plot %1, %2 x %3 at %4" ).arg( ensemble->name() ).arg( m_ensembleParameter ).arg( vectorName ).arg( timeStepString() );
+            QString( "%1 x %2, %3 at %4" ).arg( m_ensembleParameter ).arg( vectorName ).arg( ensemble->name() ).arg( timeStepString() );
     }
     m_plotWidget->setPlotTitle( m_description );
     m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
