@@ -80,7 +80,8 @@ bool RivSurfacePartMgr::isNativePartMgr() const
 //--------------------------------------------------------------------------------------------------
 void RivSurfacePartMgr::appendNativeGeometryPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
 {
-    if ( m_nativeTrianglesPart.isNull() || m_surfaceInView->surface()->surfaceData() != m_usedSurfaceData.p() )
+    bool surfaceDataChanged = m_surfaceInView->surface()->surfaceData() != m_usedSurfaceData.p();
+    if ( m_nativeTrianglesPart.isNull() || surfaceDataChanged )
     {
         generateNativePartGeometry();
     }
@@ -92,7 +93,7 @@ void RivSurfacePartMgr::appendNativeGeometryPartsToModel( cvf::ModelBasicList* m
 
         model->addPart( m_nativeTrianglesPart.p() );
 
-        if ( m_nativeMeshLinesPart.isNull() && m_surfaceInView->isMeshLinesEnabled() )
+        if ( ( m_nativeMeshLinesPart.isNull() || surfaceDataChanged ) && m_surfaceInView->isMeshLinesEnabled() )
         {
             generateNativeLinesPartGeometry();
         }
