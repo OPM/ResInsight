@@ -141,7 +141,7 @@ bool RimFileSurface::updateSurfaceData()
         for ( const auto& name : propertyNames )
         {
             auto values = m_triangleMeshData->propertyValues( name );
-            surface->addVerticeResult( name, values );
+            surface->addVertexResult( name, values );
         }
     }
 

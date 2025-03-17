@@ -41,7 +41,7 @@ public:
     const std::vector<cvf::Vec3d>& vertices() const;
 
     void setTriangleData( const std::vector<unsigned>& tringleIndices, const std::vector<cvf::Vec3d>& vertices );
-    void addVerticeResult( const QString resultName, const std::vector<float>& resultValues );
+    void addVertexResult( const QString resultName, const std::vector<float>& resultValues );
 
     std::vector<float>   propertyValues( const QString& propertyName ) const;
     std::vector<QString> propertyNames() const;
@@ -58,7 +58,7 @@ private:
 private:
     std::vector<unsigned>                 m_triangleIndices;
     std::vector<cvf::Vec3d>               m_vertices;
-    std::map<QString, std::vector<float>> m_verticeResults;
+    std::map<QString, std::vector<float>> m_vertexResults;
 
     cvf::ref<cvf::BoundingBoxTree> m_surfaceBoundingBoxTree;
 
