@@ -60,6 +60,8 @@ CAF_PDM_SOURCE_INIT( RimParameterResultCrossPlot, "ParameterResultCrossPlot" );
 //--------------------------------------------------------------------------------------------------
 RimParameterResultCrossPlot::RimParameterResultCrossPlot()
     : RimAbstractCorrelationPlot()
+    , m_xValueRange( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() )
+    , m_yValueRange( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() )
 {
     CAF_PDM_InitObject( "ParameterResultCross Plot", ":/CorrelationCrossPlot16x16.png" );
 
@@ -98,9 +100,12 @@ RimParameterResultCrossPlot::~RimParameterResultCrossPlot()
 //--------------------------------------------------------------------------------------------------
 void RimParameterResultCrossPlot::setEnsembleParameter( const QString& ensembleParameter )
 {
+    writeDataToCache();
+
     m_ensembleParameter = ensembleParameter;
 
     updateValueRanges();
+    updateFilterRanges();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,7 +170,11 @@ void RimParameterResultCrossPlot::defineUiOrdering( QString uiConfigName, caf::P
     caf::PdmUiGroup* crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot Parameters" );
     crossPlotGroup->add( &m_ensembleParameter );
 
+    auto filterGroup = uiOrdering.addNewGroup( "Filter" );
+    appendFilterFields( *filterGroup );
+
     caf::PdmUiGroup* plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
+    plotGroup->setCollapsedByDefault();
     plotGroup->add( &m_showPlotTitle );
     plotGroup->add( &m_useAutoPlotTitle );
     plotGroup->add( &m_description );
@@ -176,9 +185,6 @@ void RimParameterResultCrossPlot::defineUiOrdering( QString uiConfigName, caf::P
     plotGroup->add( &m_axisValueFontSize );
 
     m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle() );
-
-    auto filterGroup = uiOrdering.addNewGroup( "Filter" );
-    appendFilterFields( *filterGroup );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -210,8 +216,8 @@ void RimParameterResultCrossPlot::defineEditorAttribute( const caf::PdmFieldHand
     {
         if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
         {
-            attr->m_decimals        = 2;
-            attr->m_sliderTickCount = 100;
+            attr->m_decimals        = 4;
+            attr->m_sliderTickCount = 20;
 
             attr->m_minimum = m_yValueRange.first;
             attr->m_maximum = m_yValueRange.second;
@@ -221,8 +227,8 @@ void RimParameterResultCrossPlot::defineEditorAttribute( const caf::PdmFieldHand
     {
         if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
         {
-            attr->m_decimals        = 2;
-            attr->m_sliderTickCount = 100;
+            attr->m_decimals        = 4;
+            attr->m_sliderTickCount = 20;
 
             attr->m_minimum = m_xValueRange.first;
             attr->m_maximum = m_xValueRange.second;
@@ -268,7 +274,14 @@ void RimParameterResultCrossPlot::onLoadDataAndUpdate()
             m_rectAnnotation->attach( m_plotWidget->qwtPlot() );
         }
 
+        updateValueRanges();
+        if ( m_xValueRange.first != std::numeric_limits<double>::infinity() )
+        {
+            writeDataToCache();
+        }
+
         updateAxes();
+
         updatePlotTitle();
         m_plotWidget->scheduleReplot();
     }
@@ -374,9 +387,25 @@ void RimParameterResultCrossPlot::updateValueRanges()
 
     m_xValueRange = { parameterMin - parameterRange * 0.1, parameterMax + parameterRange * 0.1 };
     m_yValueRange = { summaryMin - summaryRange * 0.1, summaryMax + summaryRange * 0.1 };
+}
 
-    m_summaryFilterRange   = { m_yValueRange.first, m_yValueRange.second };
-    m_parameterFilterRange = { m_xValueRange.first, m_xValueRange.second };
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimParameterResultCrossPlot::updateFilterRanges()
+{
+    const auto hashValue = hashFromCurrentData();
+    if ( m_filterValueRangeCache.contains( hashValue ) )
+    {
+        const auto& cachedRanges = m_filterValueRangeCache[hashValue];
+        m_parameterFilterRange   = { cachedRanges[0], cachedRanges[1] };
+        m_summaryFilterRange     = { cachedRanges[2], cachedRanges[3] };
+    }
+    else
+    {
+        m_summaryFilterRange   = m_yValueRange;
+        m_parameterFilterRange = m_xValueRange;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -459,6 +488,30 @@ std::vector<RimParameterResultCrossPlot::CaseData> RimParameterResultCrossPlot::
         }
     }
     return caseData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimParameterResultCrossPlot::hashFromCurrentData() const
+{
+    return RiaHashTools::hash( m_ensembleParameter().toStdString(),
+                               m_xValueRange.first,
+                               m_xValueRange.second,
+                               m_yValueRange.first,
+                               m_yValueRange.second );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimParameterResultCrossPlot::writeDataToCache()
+{
+    const auto hashValue               = hashFromCurrentData();
+    m_filterValueRangeCache[hashValue] = { m_parameterFilterRange().first,
+                                           m_parameterFilterRange().second,
+                                           m_summaryFilterRange().first,
+                                           m_summaryFilterRange().second };
 }
 
 namespace internal
