@@ -355,7 +355,12 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
 void RimCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     m_correlationMatrixPlot->uiOrdering( "report", uiOrdering );
+
+    auto filterGroup = uiOrdering.addNewGroup( "Filter" );
+    m_parameterResultCrossPlot->appendFilterFields( *filterGroup );
+
     auto plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
+    plotGroup->setCollapsedByDefault();
     plotGroup->add( &m_titleFontSize );
     plotGroup->add( &m_subTitleFontSize );
     plotGroup->add( &m_labelFontSize );
@@ -363,9 +368,6 @@ void RimCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     plotGroup->add( &m_axisTitleFontSize );
     plotGroup->add( &m_axisValueFontSize );
     m_correlationMatrixPlot->legendConfig()->uiOrdering( "ColorsOnly", *plotGroup );
-
-    auto filterGroup = uiOrdering.addNewGroup( "Filter" );
-    m_parameterResultCrossPlot->appendFilterFields( *filterGroup );
 
     uiOrdering.skipRemainingFields( true );
 }

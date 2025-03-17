@@ -20,6 +20,9 @@
 
 #include "RimAbstractCorrelationPlot.h"
 
+#include <array>
+#include <map>
+
 class RiuQwtPlotRectAnnotation;
 
 //==================================================================================================
@@ -53,7 +56,9 @@ private:
     QString asciiDataForPlotExport() const override;
     void    updatePlotTitle() override;
     void    createPoints();
-    void    updateValueRanges();
+
+    void updateValueRanges();
+    void updateFilterRanges();
 
     QString excludedCasesText() const;
 
@@ -65,6 +70,9 @@ private:
     };
 
     std::vector<CaseData> createCaseData() const;
+
+    size_t hashFromCurrentData() const;
+    void   writeDataToCache();
 
 private:
     caf::PdmField<QString> m_ensembleParameter;
@@ -78,4 +86,6 @@ private:
     std::pair<double, double> m_yValueRange;
 
     std::unique_ptr<RiuQwtPlotRectAnnotation> m_rectAnnotation;
+
+    std::map<size_t, std::array<double, 4>> m_filterValueRangeCache;
 };
