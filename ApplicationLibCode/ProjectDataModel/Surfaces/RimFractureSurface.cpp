@@ -18,6 +18,8 @@
 
 #include "RimFractureSurface.h"
 
+#include "RiaLogging.h"
+
 #include "RigStatisticsMath.h"
 #include "RigSurface.h"
 #include "RigTriangleMeshData.h"
@@ -100,7 +102,14 @@ void RimFractureSurface::loadSurfaceDataForTimeStep( int timeStep )
         loadDataFromFile();
     }
 
-    if ( timeStep >= static_cast<int>( m_surfacePerTimeStep.size() ) ) return;
+    if ( timeStep >= static_cast<int>( m_surfacePerTimeStep.size() ) )
+    {
+        QString message =
+            QString( "Failed to load surface data for time step: %1. Available time steps: %2" ).arg( timeStep ).arg( m_surfacePerTimeStep.size() );
+        RiaLogging::warning( message );
+        setSurfaceData( nullptr );
+        return;
+    }
 
     auto surface = new RigSurface;
 
@@ -115,6 +124,14 @@ void RimFractureSurface::loadSurfaceDataForTimeStep( int timeStep )
         surface->addVertexResult( name, values );
     }
     setSurfaceData( surface );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimFractureSurface::timeStepCount() const
+{
+    return m_surfacePerTimeStep.size();
 }
 
 //--------------------------------------------------------------------------------------------------
