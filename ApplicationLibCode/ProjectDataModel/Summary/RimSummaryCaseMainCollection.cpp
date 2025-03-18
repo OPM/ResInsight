@@ -233,7 +233,7 @@ RimSummaryEnsemble* RimSummaryCaseMainCollection::addEnsemble( const std::vector
                                                                std::function<RimSummaryEnsemble*()> allocator )
 {
     RimSummaryEnsemble* summaryCaseCollection = allocator();
-    if ( !collectionName.isEmpty() ) summaryCaseCollection->setName( collectionName );
+    if ( !collectionName.isEmpty() ) summaryCaseCollection->setNameTemplate( collectionName );
 
     if ( summaryCaseCollection->ensembleId() == -1 )
     {
