@@ -436,6 +436,9 @@ void RimStreamlineInViewCollection::updateStreamlines()
     auto eclView = firstAncestorOrThisOfType<RimEclipseView>();
     if ( !eclView ) return;
 
+    auto mainGrid = eclView->mainGrid();
+    if ( !mainGrid ) return;
+
     if ( m_shouldGenerateTracers && isActive() )
     {
         // reset generated streamlines
@@ -452,8 +455,8 @@ void RimStreamlineInViewCollection::updateStreamlines()
 
         // set up the data access helper
         RimStreamlineDataAccess dataAccess;
-        bool                    accessOk =
-            dataAccess.setupDataAccess( eclipseCase()->eclipseCaseData()->mainGrid(), eclipseCase()->eclipseCaseData(), phases(), timeIdx );
+
+        bool accessOk = dataAccess.setupDataAccess( mainGrid, eclipseCase()->eclipseCaseData(), phases(), timeIdx );
 
         // did we find the data we needed?
         if ( accessOk )

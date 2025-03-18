@@ -20,6 +20,7 @@
 
 #include "RigCell.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 
 #include "RimStreamline.h"
 #include "RimStreamlineDataAccess.h"
@@ -32,18 +33,22 @@
 class StreamlineSeedPoint
 {
 public:
-    StreamlineSeedPoint( double rate, size_t cellIdx, cvf::StructGridInterface::FaceType faceIdx )
+    StreamlineSeedPoint( double rate, size_t cellIdx, RimStreamlineGenerator::CellFaceType faceIdx )
         : m_rate( rate )
         , m_cellIdx( cellIdx )
         , m_faceIdx( faceIdx ){};
     ~StreamlineSeedPoint(){};
 
-    bool operator<( const StreamlineSeedPoint& other ) const { return m_rate < other.m_rate; };
+    bool operator<( const StreamlineSeedPoint& other ) const { return rate() < other.rate(); };
 
-public:
-    double                             m_rate;
-    size_t                             m_cellIdx;
-    cvf::StructGridInterface::FaceType m_faceIdx;
+    double                               rate() const { return m_rate; };
+    size_t                               cellIdx() const { return m_cellIdx; };
+    RimStreamlineGenerator::CellFaceType face() const { return m_faceIdx; };
+
+private:
+    double                               m_rate;
+    size_t                               m_cellIdx;
+    RimStreamlineGenerator::CellFaceType m_faceIdx;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -81,10 +86,13 @@ void RimStreamlineGenerator::generateTracer( RigCell cell, double direction, QSt
         }
     }
 
+    auto nncs = nncCandidates( cell.mainGridCellIndex() );
+
     while ( !m_seeds.empty() )
     {
-        const size_t                             cellIdx = m_seeds.top().m_cellIdx;
-        const cvf::StructGridInterface::FaceType faceIdx = m_seeds.top().m_faceIdx;
+        auto&                                    seed    = m_seeds.top();
+        const size_t                             cellIdx = seed.cellIdx();
+        const cvf::StructGridInterface::FaceType faceIdx = seed.face();
         m_seeds.pop();
 
         RimStreamline* streamline = new RimStreamline( simWellName );
@@ -105,7 +113,7 @@ void RimStreamlineGenerator::generateTracer( RigCell cell, double direction, QSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStreamlineGenerator::growStreamline( RimStreamline* streamline, size_t cellIdx, cvf::StructGridInterface::FaceType faceIdx, double direction )
+void RimStreamlineGenerator::growStreamline( RimStreamline* streamline, size_t cellIdx, CellFaceType faceIdx, double direction )
 {
     // get the cell
     RigCell cell = m_dataAccess->grid()->cell( cellIdx );
@@ -139,8 +147,8 @@ void RimStreamlineGenerator::growStreamline( RimStreamline* streamline, size_t c
         m_visitedCells.insert( cellIdx );
 
         // find the face with max flow where we should exit the cell
-        cvf::StructGridInterface::FaceType                   exitFace = cvf::StructGridInterface::FaceType::NO_FACE;
-        std::map<cvf::StructGridInterface::FaceType, double> rateMap;
+        CellFaceType                   exitFace = cvf::StructGridInterface::FaceType::NO_FACE;
+        std::map<CellFaceType, double> rateMap;
 
         double maxRate = 0.0;
 
@@ -217,4 +225,32 @@ bool RimStreamlineGenerator::growStreamlineFromTo( RimStreamline*        streaml
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::list<StreamlineSeedPoint> RimStreamlineGenerator::nncCandidates( size_t cellIdx )
+{
+    std::list<StreamlineSeedPoint> foundCells;
+
+    auto mainGrid = m_dataAccess->grid();
+
+    if ( mainGrid->nncData() == nullptr ) return foundCells;
+
+    auto& connections = mainGrid->nncData()->allConnections();
+    for ( size_t i = 0; i < connections.size(); i++ )
+    {
+        if ( connections[i].c1GlobIdx() == cellIdx )
+        {
+            // todo - get rate here, handle direction!
+            double rate = 0.0;
+            if ( rate > m_flowThreshold )
+            {
+                foundCells.emplace_back( rate, i, cvf::StructGridInterface::FaceType::NO_FACE );
+            }
+        }
+    }
+
+    return foundCells;
 }

@@ -54,7 +54,7 @@ public:
                              double                             direction,
                              RiaDefines::PhaseType&             dominantPhaseOut ) const;
 
-    const RigMainGrid* grid() const { return m_grid; }
+    RigMainGrid* grid() const { return m_grid; }
 
 protected:
     cvf::ref<RigResultAccessor> getDataAccessor( cvf::StructGridInterface::FaceType faceIdx, RiaDefines::PhaseType phase, int timeIdx );
