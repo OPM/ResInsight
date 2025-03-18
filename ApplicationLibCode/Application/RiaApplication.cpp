@@ -778,7 +778,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         sumMainCollection->updateAutoShortName();
         for ( auto sumCaseGroup : sumMainCollection->summaryCaseCollections() )
         {
-            sumCaseGroup->ensureNameIsUpdated();
+            sumCaseGroup->updateName();
             sumCaseGroup->loadDataAndUpdate();
         }
 

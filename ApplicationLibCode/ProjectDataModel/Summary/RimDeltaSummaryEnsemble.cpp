@@ -87,7 +87,7 @@ RimDeltaSummaryEnsemble::RimDeltaSummaryEnsemble()
     m_fixedTimeStepIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_fixedTimeStepIndex.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    setName( "Delta Ensemble" );
+    setNameTemplate( "Delta Ensemble" );
 
     setAsEnsemble( true );
 
@@ -107,7 +107,7 @@ RimDeltaSummaryEnsemble::~RimDeltaSummaryEnsemble()
 void RimDeltaSummaryEnsemble::setEnsemble1( RimSummaryEnsemble* ensemble )
 {
     m_ensemble1 = ensemble;
-    updateAutoName();
+    updateName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,7 +116,7 @@ void RimDeltaSummaryEnsemble::setEnsemble1( RimSummaryEnsemble* ensemble )
 void RimDeltaSummaryEnsemble::setEnsemble2( RimSummaryEnsemble* ensemble )
 {
     m_ensemble2 = ensemble;
-    updateAutoName();
+    updateName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -214,6 +214,35 @@ bool RimDeltaSummaryEnsemble::discardMissingOrIncompleteRealizations() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<std::string, std::string> RimDeltaSummaryEnsemble::nameKeys() const
+{
+    QString nameCase1 = "None";
+
+    if ( m_ensemble1 )
+    {
+        nameCase1 = m_ensemble1->name();
+    }
+
+    QString nameCase2 = "None";
+    if ( m_ensemble2 )
+    {
+        nameCase2 = m_ensemble2->name();
+    }
+
+    return std::make_pair( nameCase1.toStdString(), nameCase2.toStdString() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimDeltaSummaryEnsemble::nameTemplateText() const
+{
+    return "Delta: " + RiaDefines::key1VariableName() + " - " + RiaDefines::key2VariableName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimDeltaSummaryEnsemble::hasCaseReference( const RimSummaryCase* sumCase ) const
 {
     if ( m_ensemble1 )
@@ -242,7 +271,7 @@ void RimDeltaSummaryEnsemble::onLoadDataAndUpdate()
 {
     updateDerivedEnsembleCases();
     updateReferringCurveSets();
-    updateAutoName();
+    updateName();
     updateConnectedEditors();
 }
 
@@ -299,26 +328,28 @@ QList<caf::PdmOptionItemInfo> RimDeltaSummaryEnsemble::calculateValueOptions( co
 //--------------------------------------------------------------------------------------------------
 void RimDeltaSummaryEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimSummaryEnsemble::defineUiOrdering( uiConfigName, uiOrdering );
+    auto nameGroup = uiOrdering.addNewGroup( "Name" );
+    RimSummaryEnsemble::defineUiOrdering( uiConfigName, *nameGroup );
 
-    uiOrdering.add( &m_caseCount );
-    uiOrdering.add( &m_ensemble1 );
-    uiOrdering.add( &m_operator );
-    uiOrdering.add( &m_ensemble2 );
-    uiOrdering.add( &m_swapEnsemblesButton );
+    auto caseGroup = uiOrdering.addNewGroup( "Delta Configuration" );
+    caseGroup->add( &m_caseCount );
+    caseGroup->add( &m_ensemble1 );
+    caseGroup->add( &m_operator );
+    caseGroup->add( &m_ensemble2 );
+    caseGroup->add( &m_swapEnsemblesButton );
 
-    uiOrdering.add( &m_useFixedTimeStep );
+    caseGroup->add( &m_useFixedTimeStep );
     if ( m_useFixedTimeStep() != RimDeltaSummaryEnsemble::FixedTimeStepMode::FIXED_TIME_STEP_NONE )
     {
-        uiOrdering.add( &m_fixedTimeStepIndex );
+        caseGroup->add( &m_fixedTimeStepIndex );
     }
 
-    uiOrdering.add( &m_matchOnParameters );
-    uiOrdering.add( &m_discardMissingOrIncompleteRealizations );
+    caseGroup->add( &m_matchOnParameters );
+    caseGroup->add( &m_discardMissingOrIncompleteRealizations );
 
     uiOrdering.skipRemainingFields( true );
 
-    updateAutoName();
+    updateName();
     if ( !isValid() ) m_caseCount = "";
 }
 
@@ -358,7 +389,7 @@ void RimDeltaSummaryEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* chang
 
     if ( doUpdate )
     {
-        updateAutoName();
+        updateName();
 
         if ( doUpdateCases )
         {
@@ -470,74 +501,6 @@ std::vector<RimDeltaSummaryCase*> RimDeltaSummaryEnsemble::allDerivedCases( bool
         }
     }
     return activeCases;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDeltaSummaryEnsemble::updateAutoName()
-{
-    QString timeStepString;
-    {
-        RimSummaryEnsemble* sourceEnsemble = nullptr;
-        if ( m_useFixedTimeStep() == FixedTimeStepMode::FIXED_TIME_STEP_CASE_1 )
-        {
-            sourceEnsemble = m_ensemble1;
-        }
-        else if ( m_useFixedTimeStep() == FixedTimeStepMode::FIXED_TIME_STEP_CASE_2 )
-        {
-            sourceEnsemble = m_ensemble2;
-        }
-
-        if ( sourceEnsemble && !sourceEnsemble->allSummaryCases().empty() )
-        {
-            auto firstCase     = sourceEnsemble->allSummaryCases().front();
-            auto summaryReader = firstCase->summaryReader();
-            if ( summaryReader )
-            {
-                const std::vector<time_t>& timeSteps = summaryReader->timeSteps( RifEclipseSummaryAddress() );
-                if ( m_fixedTimeStepIndex >= 0 && m_fixedTimeStepIndex < static_cast<int>( timeSteps.size() ) )
-                {
-                    time_t    selectedTime = timeSteps[m_fixedTimeStepIndex];
-                    QDateTime dt           = RiaQDateTimeTools::fromTime_t( selectedTime );
-                    QString   formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( { dt } );
-
-                    timeStepString = RiaQDateTimeTools::toStringUsingApplicationLocale( dt, formatString );
-                }
-            }
-        }
-    }
-
-    QString nameCase1 = "None";
-
-    if ( m_ensemble1 )
-    {
-        nameCase1 = m_ensemble1->name();
-        if ( m_useFixedTimeStep() == FixedTimeStepMode::FIXED_TIME_STEP_CASE_1 ) nameCase1 += "@" + timeStepString;
-    }
-
-    QString nameCase2 = "None";
-    if ( m_ensemble2 )
-    {
-        nameCase2 = m_ensemble2->name();
-        if ( m_useFixedTimeStep() == FixedTimeStepMode::FIXED_TIME_STEP_CASE_2 ) nameCase2 += "@" + timeStepString;
-    }
-
-    QString operatorText;
-    if ( m_operator() == DerivedSummaryOperator::DERIVED_OPERATOR_SUB )
-        operatorText = "Delta";
-    else if ( m_operator() == DerivedSummaryOperator::DERIVED_OPERATOR_ADD )
-        operatorText = "Sum";
-
-    QString name = operatorText + QString( "(%1 , %2)" ).arg( nameCase1, nameCase2 );
-    setName( name );
-
-    // If other derived ensembles are referring to this ensemble, update theirs name as well
-    for ( auto refering : findReferringEnsembles() )
-    {
-        refering->updateAutoName();
-        refering->updateConnectedEditors();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -220,9 +220,9 @@ void RimSummaryEnsemble::replaceCases( const std::vector<RimSummaryCase*>& summa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsemble::setName( const QString& name )
+void RimSummaryEnsemble::setNameTemplate( const QString& name )
 {
-    m_name = name;
+    m_nameTemplateString = name;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -236,19 +236,14 @@ QString RimSummaryEnsemble::name() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsemble::ensureNameIsUpdated()
+void RimSummaryEnsemble::updateName()
 {
     const auto [key1, key2] = nameKeys();
 
     QString templateText;
     if ( m_autoName )
     {
-        if ( m_useKey1() ) templateText += RiaDefines::key1VariableName();
-        if ( m_useKey2() )
-        {
-            if ( !templateText.isEmpty() ) templateText += ", ";
-            templateText += RiaDefines::key2VariableName();
-        }
+        templateText = nameTemplateText();
     }
     else
     {
@@ -261,6 +256,22 @@ void RimSummaryEnsemble::ensureNameIsUpdated()
     };
 
     auto candidateName = RiaTextStringTools::replaceTemplateTextWithValues( templateText, keyValues );
+
+    if ( m_autoName )
+    {
+        candidateName = candidateName.trimmed();
+
+        // When using auto name, remove leading and trailing commas that may occur if key1 or key2 is empty
+        if ( candidateName.startsWith( "," ) )
+        {
+            candidateName = candidateName.mid( 1 );
+        }
+        if ( candidateName.endsWith( "," ) )
+        {
+            candidateName = candidateName.left( candidateName.length() - 1 );
+        }
+    }
+
     if ( m_name == candidateName ) return;
 
     m_name = candidateName;
@@ -876,18 +887,9 @@ void RimSummaryEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
     {
         updateIcon();
     }
-    if ( changedField == &m_autoName )
+    if ( changedField == &m_autoName || changedField == &m_nameTemplateString )
     {
-        ensureNameIsUpdated();
-    }
-    if ( changedField == &m_name )
-    {
-        m_autoName = false;
-        caseNameChanged.send();
-    }
-    if ( changedField == &m_nameTemplateString )
-    {
-        ensureNameIsUpdated();
+        updateName();
     }
 }
 
@@ -930,6 +932,14 @@ void RimSummaryEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSummaryEnsemble::isAutoNameChecked() const
+{
+    return m_autoName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_autoName );
@@ -940,7 +950,7 @@ void RimSummaryEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     }
 
     uiOrdering.add( &m_name );
-    m_name.uiCapability()->setUiReadOnly( !m_autoName() );
+    m_name.uiCapability()->setUiReadOnly( true );
 
     if ( m_isEnsemble() ) uiOrdering.add( &m_ensembleId );
 
@@ -1077,6 +1087,22 @@ std::pair<std::string, std::string> RimSummaryEnsemble::nameKeys() const
     }
 
     return { key1, key2 };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryEnsemble::nameTemplateText() const
+{
+    QString text;
+    if ( m_useKey1() ) text += RiaDefines::key1VariableName();
+    if ( m_useKey2() )
+    {
+        if ( !text.isEmpty() ) text += ", ";
+        text += RiaDefines::key2VariableName();
+    }
+
+    return text;
 }
 
 //--------------------------------------------------------------------------------------------------

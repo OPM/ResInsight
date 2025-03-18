@@ -61,12 +61,13 @@ public:
     RimSummaryEnsembleSumo();
 
     void setSumoDataSource( RimSummarySumoDataSource* sumoDataSource );
-    void updateName();
 
     void                               loadSummaryData( const RifEclipseSummaryAddress& resultAddress );
     std::string                        unitName( const RifEclipseSummaryAddress& resultAddress );
     RiaDefines::EclipseUnitSystem      unitSystem() const;
     std::set<RifEclipseSummaryAddress> allResultAddresses() const;
+
+    std::pair<std::string, std::string> nameKeys() const override;
 
 protected:
     void onLoadDataAndUpdate() override;
