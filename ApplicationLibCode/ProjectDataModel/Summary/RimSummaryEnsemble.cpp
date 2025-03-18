@@ -189,6 +189,37 @@ RimSummaryCase* RimSummaryEnsemble::firstSummaryCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::replaceCases( const std::vector<RimSummaryCase*>& summaryCases )
+{
+    m_cases.deleteChildrenAsync();
+
+    if ( summaryCases.empty() ) return;
+
+    auto lastCase = summaryCases.back();
+
+    for ( auto summaryCase : summaryCases )
+    {
+        if ( summaryCase == lastCase ) continue;
+
+        // Do what is required to add the case, avoid updates until all cases are added
+        summaryCase->nameChanged.connect( this, &RimSummaryEnsemble::onCaseNameChanged );
+        if ( m_cases.empty() )
+        {
+            summaryCase->setShowVectorItemsInProjectTree( true );
+        }
+        m_cases.push_back( summaryCase );
+    }
+
+    if ( lastCase )
+    {
+        // Add the last case, and update connected plots
+        addCase( lastCase );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryEnsemble::setName( const QString& name )
 {
     m_name = name;
@@ -697,6 +728,8 @@ void RimSummaryEnsemble::updateReferringCurveSets( bool doZoomAll )
             {
                 if ( auto parentPlot = curveSet->firstAncestorOrThisOfType<RimSummaryPlot>() )
                 {
+                    // If the ensemble name has changed, make sure the name in the project tree is updated
+                    parentPlot->updateConnectedEditors();
                     parentPlot->zoomAll();
                 }
             }

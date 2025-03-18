@@ -56,8 +56,10 @@ public:
     RimSummaryEnsemble();
     ~RimSummaryEnsemble() override;
 
-    void                                 removeCase( RimSummaryCase* summaryCase, bool notifyChange = true );
-    void                                 addCase( RimSummaryCase* summaryCase );
+    void removeCase( RimSummaryCase* summaryCase, bool notifyChange = true );
+    void addCase( RimSummaryCase* summaryCase );
+    void replaceCases( const std::vector<RimSummaryCase*>& summaryCases );
+
     virtual std::vector<RimSummaryCase*> allSummaryCases() const;
     RimSummaryCase*                      firstSummaryCase() const;
 
