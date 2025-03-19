@@ -106,6 +106,18 @@ void Riu3dSelectionManager::appendItemToSelection( RiuSelectionItem* item, int r
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void Riu3dSelectionManager::updateSelectedItems()
+{
+    m_selectionChangedHandler->handleSelectionDeleted();
+    for ( RiuSelectionItem* item : m_selection[RUI_APPLICATION_GLOBAL] )
+    {
+        m_selectionChangedHandler->handleItemAppended( item );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void Riu3dSelectionManager::setSelectedItem( RiuSelectionItem* item, int role )
 {
     deleteAllItemsFromSelection( role );

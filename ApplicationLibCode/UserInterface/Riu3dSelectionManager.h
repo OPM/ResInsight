@@ -88,6 +88,8 @@ public:
         return dynamic_cast<T*>( selectedItem( role ) );
     }
 
+    void updateSelectedItems();
+
 private:
     Riu3dSelectionManager();
     ~Riu3dSelectionManager();
