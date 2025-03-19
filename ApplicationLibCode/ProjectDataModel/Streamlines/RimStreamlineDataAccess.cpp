@@ -78,9 +78,21 @@ bool RimStreamlineDataAccess::setupDataAccess( RigMainGrid* grid, RigEclipseCase
 
     auto nncData = grid->nncData();
     m_nncData.clear();
-    m_nncData[RiaDefines::PhaseType::WATER_PHASE] = nncData->dynamicConnectionScalarResultByName( RiaDefines::propertyNameFluxWat(), timeIdx );
-    m_nncData[RiaDefines::PhaseType::OIL_PHASE] = nncData->dynamicConnectionScalarResultByName( RiaDefines::propertyNameFluxOil(), timeIdx );
-    m_nncData[RiaDefines::PhaseType::GAS_PHASE] = nncData->dynamicConnectionScalarResultByName( RiaDefines::propertyNameFluxGas(), timeIdx );
+    if ( nncData != nullptr )
+    {
+        m_nncData[RiaDefines::PhaseType::WATER_PHASE] =
+            nncData->dynamicConnectionScalarResultByName( RiaDefines::propertyNameFluxWat(), timeIdx );
+        m_nncData[RiaDefines::PhaseType::OIL_PHASE] =
+            nncData->dynamicConnectionScalarResultByName( RiaDefines::propertyNameFluxOil(), timeIdx );
+        m_nncData[RiaDefines::PhaseType::GAS_PHASE] =
+            nncData->dynamicConnectionScalarResultByName( RiaDefines::propertyNameFluxGas(), timeIdx );
+    }
+    else
+    {
+        m_nncData[RiaDefines::PhaseType::WATER_PHASE] = nullptr;
+        m_nncData[RiaDefines::PhaseType::OIL_PHASE]   = nullptr;
+        m_nncData[RiaDefines::PhaseType::GAS_PHASE]   = nullptr;
+    }
 
     return true;
 }
