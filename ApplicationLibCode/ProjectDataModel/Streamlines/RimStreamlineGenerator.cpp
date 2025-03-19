@@ -21,6 +21,7 @@
 #include "RigCell.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
+#include "RigNncConnection.h"
 
 #include "RimStreamline.h"
 #include "RimStreamlineDataAccess.h"
@@ -33,21 +34,21 @@
 class StreamlineSeedPoint
 {
 public:
-    StreamlineSeedPoint( double rate, size_t cellIdx, RimStreamlineGenerator::CellFaceType faceIdx )
+    StreamlineSeedPoint( double rate, size_t index, RimStreamlineGenerator::CellFaceType faceIdx )
         : m_rate( rate )
-        , m_cellIdx( cellIdx )
+        , m_index( index )
         , m_faceIdx( faceIdx ){};
     ~StreamlineSeedPoint(){};
 
     bool operator<( const StreamlineSeedPoint& other ) const { return rate() < other.rate(); };
 
     double                               rate() const { return m_rate; };
-    size_t                               cellIdx() const { return m_cellIdx; };
+    size_t                               index() const { return m_index; };
     RimStreamlineGenerator::CellFaceType face() const { return m_faceIdx; };
 
 private:
     double                               m_rate;
-    size_t                               m_cellIdx;
+    size_t                               m_index;
     RimStreamlineGenerator::CellFaceType m_faceIdx;
 };
 
@@ -82,22 +83,27 @@ void RimStreamlineGenerator::generateTracer( RigCell cell, double direction, QSt
         double rate = m_dataAccess->combinedFaceRate( cell, faceIdx, m_phases, direction, dominantPhase ) * direction;
         if ( rate > m_flowThreshold )
         {
-            m_seeds.push( StreamlineSeedPoint( rate, cellIdx, faceIdx ) );
+            m_seeds.emplace( rate, cellIdx, faceIdx );
         }
     }
 
-    auto nncs = nncCandidates( cell.mainGridCellIndex() );
+    // add any nnc connections from this cell, too
+    auto nncSeeds = nncCandidates( cell.mainGridCellIndex(), m_phases, direction );
+    for ( auto& seed : nncSeeds )
+    {
+        m_seeds.push( seed );
+    }
 
+    // keep adding streamlines until we have no more seeds left in our prioritized (by flow rate) list
     while ( !m_seeds.empty() )
     {
         auto&                                    seed    = m_seeds.top();
-        const size_t                             cellIdx = seed.cellIdx();
+        const size_t                             index   = seed.index();
         const cvf::StructGridInterface::FaceType faceIdx = seed.face();
         m_seeds.pop();
 
         RimStreamline* streamline = new RimStreamline( simWellName );
-
-        growStreamline( streamline, cellIdx, faceIdx, direction );
+        growStreamline( streamline, index, faceIdx, direction );
 
         if ( direction < 0.0 ) streamline->reverse();
 
@@ -113,38 +119,82 @@ void RimStreamlineGenerator::generateTracer( RigCell cell, double direction, QSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStreamlineGenerator::growStreamline( RimStreamline* streamline, size_t cellIdx, CellFaceType faceIdx, double direction )
+void RimStreamlineGenerator::growStreamline( RimStreamline* streamline, size_t index, CellFaceType faceIdx, double direction )
 {
-    // get the cell
-    RigCell cell = m_dataAccess->grid()->cell( cellIdx );
-
-    // get rate
+    double                rate = 0.0;
     RiaDefines::PhaseType dominantPhaseOut;
+    size_t                currentCellIdx = 0;
+    RigCell               currentCell;
 
-    double rate = m_dataAccess->combinedFaceRate( cell, faceIdx, m_phases, direction, dominantPhaseOut );
-
-    // if we go backwards from a producer, the rate needs to be flipped
-    rate *= direction;
-
-    // grow from start cell center to face center, exiting if we reach the max length
-    if ( !growStreamlineFromTo( streamline, cell.center(), cell.faceCenter( faceIdx ), rate, dominantPhaseOut ) ) return;
-
-    while ( rate >= m_flowThreshold )
+    while ( true )
     {
-        // find next cell and entry face
-        cell = cell.neighborCell( faceIdx );
-        if ( cell.isInvalid() ) break;
-        faceIdx = cvf::StructGridInterface::oppositeFace( faceIdx );
+        // no face? -> nnc connection
+        if ( faceIdx == CellFaceType::NO_FACE )
+        {
+            const auto    nncIdx = index;
+            RigConnection nnc    = m_dataAccess->nncConnection( nncIdx );
 
-        // grow from given face center to cell center, exiting if we reach the max length
-        if ( !growStreamlineFromTo( streamline, cell.faceCenter( faceIdx ), cell.center(), rate, dominantPhaseOut ) ) break;
+            size_t localCellIdx1 = 0;
+            auto   localGrid1    = m_dataAccess->grid()->gridAndGridLocalIdxFromGlobalCellIdx( nnc.c1GlobIdx(), &localCellIdx1 );
+            size_t localCellIdx2 = 0;
+            auto   localGrid2    = m_dataAccess->grid()->gridAndGridLocalIdxFromGlobalCellIdx( nnc.c2GlobIdx(), &localCellIdx2 );
 
-        const size_t cellIdx = cell.gridLocalCellIndex();
+            // no support for LGRs, yet
+            if ( localGrid1->gridId() != 0 ) return;
+            if ( localGrid2->gridId() != 0 ) return;
 
-        if ( m_visitedCells.count( cellIdx ) > 0 ) break;
-        if ( m_wellCells.count( cellIdx ) > 0 ) break;
+            RigCell cell1 = m_dataAccess->grid()->cell( localCellIdx1 );
+            RigCell cell2 = m_dataAccess->grid()->cell( localCellIdx2 );
 
-        m_visitedCells.insert( cellIdx );
+            // get rate
+            rate = m_dataAccess->combinedNNCRate( nncIdx, m_phases, direction, dominantPhaseOut );
+            // if we go backwards from a producer, the rate needs to be flipped
+            rate *= direction;
+
+            // grow from cell1 center to cell2 center, exiting if we reach max length
+            if ( !growStreamlineFromTo( streamline, cell1.center(), cell2.center(), rate, dominantPhaseOut ) ) return;
+
+            // give up if too low rate
+            if ( rate < m_flowThreshold ) return;
+
+            currentCellIdx = localCellIdx2;
+            currentCell    = cell2;
+        }
+        else
+        {
+            // get the current cell
+            const auto cellIdx = index;
+            RigCell    cell    = m_dataAccess->grid()->cell( cellIdx );
+
+            // get rate
+            rate = m_dataAccess->combinedFaceRate( cell, faceIdx, m_phases, direction, dominantPhaseOut );
+
+            // if we go backwards from a producer, the rate needs to be flipped
+            rate *= direction;
+
+            // grow from start cell center to face center, exiting if we reach the max length
+            if ( !growStreamlineFromTo( streamline, cell.center(), cell.faceCenter( faceIdx ), rate, dominantPhaseOut ) ) return;
+
+            // find next cell and entry face
+            currentCell = cell.neighborCell( faceIdx );
+            if ( currentCell.isInvalid() ) return;
+            faceIdx = cvf::StructGridInterface::oppositeFace( faceIdx );
+
+            // grow from given face center to neighbour cell center, exiting if we reach the max length
+            if ( !growStreamlineFromTo( streamline, currentCell.faceCenter( faceIdx ), currentCell.center(), rate, dominantPhaseOut ) )
+                break;
+
+            // give up if too low rate
+            if ( rate < m_flowThreshold ) return;
+
+            currentCellIdx = currentCell.gridLocalCellIndex();
+        }
+
+        // have we been here before?
+        if ( m_visitedCells.count( currentCellIdx ) > 0 ) return;
+        if ( m_wellCells.count( currentCellIdx ) > 0 ) return;
+
+        m_visitedCells.insert( currentCellIdx );
 
         // find the face with max flow where we should exit the cell
         CellFaceType                   exitFace = cvf::StructGridInterface::FaceType::NO_FACE;
@@ -158,7 +208,7 @@ void RimStreamlineGenerator::growStreamline( RimStreamline* streamline, size_t c
             if ( face == faceIdx ) continue;
 
             RiaDefines::PhaseType tempDominantFace;
-            double                faceRate = m_dataAccess->combinedFaceRate( cell, face, m_phases, direction, tempDominantFace );
+            double                faceRate = m_dataAccess->combinedFaceRate( currentCell, face, m_phases, direction, tempDominantFace );
 
             // if we go backwards from a producer, the rate needs to be flipped
             faceRate *= direction;
@@ -168,27 +218,51 @@ void RimStreamlineGenerator::growStreamline( RimStreamline* streamline, size_t c
                 exitFace         = face;
                 maxRate          = faceRate;
                 dominantPhaseOut = tempDominantFace;
+                index            = currentCellIdx;
             }
 
             rateMap[face] = faceRate;
         }
 
+        // check if we have any NNC connections here
+        int  nncId          = -1;
+        auto nncConnections = nncCandidates( currentCellIdx, m_phases, direction );
+        for ( auto& nncPoint : nncConnections )
+        {
+            RiaDefines::PhaseType tempDominantFace;
+            double nncRate = m_dataAccess->combinedNNCRate( nncPoint.index(), m_phases, direction, tempDominantFace ) * direction;
+            if ( nncRate > maxRate )
+            {
+                nncId            = (int)nncPoint.index();
+                maxRate          = nncRate;
+                dominantPhaseOut = tempDominantFace;
+                exitFace         = CellFaceType::NO_FACE;
+            }
+        }
+
         // did we find an exit?
-        if ( exitFace == cvf::StructGridInterface::FaceType::NO_FACE ) break;
+        if ( exitFace == cvf::StructGridInterface::FaceType::NO_FACE )
+        {
+            if ( nncId < 0 ) return;
+            index = (size_t)nncId;
+
+            for ( auto& nncPoint : nncConnections )
+            {
+                if ( nncPoint.index() == index ) continue;
+                m_seeds.push( nncPoint );
+            }
+        }
 
         // add seeds for other faces with flow > threshold
         for ( auto& kvp : rateMap )
         {
             if ( kvp.first == exitFace ) continue;
 
-            if ( kvp.second >= m_flowThreshold ) m_seeds.push( StreamlineSeedPoint( kvp.second, cell.gridLocalCellIndex(), kvp.first ) );
+            if ( kvp.second >= m_flowThreshold )
+                m_seeds.push( StreamlineSeedPoint( kvp.second, currentCell.gridLocalCellIndex(), kvp.first ) );
         }
 
-        rate = maxRate;
-
-        // grow from cell center to exit face center, stopping if we reach the max point limit
-        if ( !growStreamlineFromTo( streamline, cell.center(), cell.faceCenter( exitFace ), rate, dominantPhaseOut ) ) break;
-
+        rate    = maxRate;
         faceIdx = exitFace;
     }
 }
@@ -230,7 +304,7 @@ bool RimStreamlineGenerator::growStreamlineFromTo( RimStreamline*        streaml
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::list<StreamlineSeedPoint> RimStreamlineGenerator::nncCandidates( size_t cellIdx )
+std::list<StreamlineSeedPoint> RimStreamlineGenerator::nncCandidates( size_t cellIdx, std::list<RiaDefines::PhaseType> phases, double direction )
 {
     std::list<StreamlineSeedPoint> foundCells;
 
@@ -243,8 +317,8 @@ std::list<StreamlineSeedPoint> RimStreamlineGenerator::nncCandidates( size_t cel
     {
         if ( connections[i].c1GlobIdx() == cellIdx )
         {
-            // todo - get rate here, handle direction!
-            double rate = 0.0;
+            RiaDefines::PhaseType domPhase;
+            double                rate = m_dataAccess->combinedNNCRate( i, phases, direction, domPhase ) * direction;
             if ( rate > m_flowThreshold )
             {
                 foundCells.emplace_back( rate, i, cvf::StructGridInterface::FaceType::NO_FACE );

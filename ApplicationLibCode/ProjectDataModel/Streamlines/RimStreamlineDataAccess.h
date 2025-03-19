@@ -33,6 +33,7 @@ class RigMainGrid;
 class RigGridBase;
 class RigResultAccessor;
 class RigEclipseCaseData;
+class RigConnection;
 
 //--------------------------------------------------------------------------------------------------
 /// Specialized data access for streamline generation. Operates using flow rate in meters/day
@@ -60,6 +61,8 @@ public:
                             RiaDefines::PhaseType&           outDominantPhase ) const;
 
     RigMainGrid* grid() const { return m_grid; }
+
+    const RigConnection& nncConnection( size_t idx ) const;
 
 protected:
     cvf::ref<RigResultAccessor> getDataAccessor( cvf::StructGridInterface::FaceType faceIdx, RiaDefines::PhaseType phase, int timeIdx );

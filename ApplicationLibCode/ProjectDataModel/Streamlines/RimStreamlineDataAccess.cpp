@@ -238,8 +238,8 @@ double RimStreamlineDataAccess::combinedFaceRate( RigCell                       
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Return the face scalar value for the given cell and face, by combining flow for all specified phases
-/// Positive values is flow out of the cell, negative values is flow into the cell
+/// Return the nnc scalar value for the given connection, by combining flow for all specified phases
+/// Positive values is flow from cell1 to cell2, negative values is the other way
 //--------------------------------------------------------------------------------------------------
 double RimStreamlineDataAccess::combinedNNCRate( size_t                           resultIdx,
                                                  std::list<RiaDefines::PhaseType> phases,
@@ -249,26 +249,37 @@ double RimStreamlineDataAccess::combinedNNCRate( size_t                         
     double retValue  = 0.0;
     outDominantPhase = phases.front();
 
-    auto nncData = m_grid->nncData()->dynamicConnectionScalarResultByName( RiaDefines::propertyNameFluxWat() );
+    double max = 0.0;
 
-    // double max = 0.0;
+    for ( auto phase : phases )
+    {
+        double tmp = 0.0;
 
-    // for ( auto phase : phases )
-    //{
-    //     double tmp = 0.0;
-    //     if ( faceIdx % 2 == 0 )
-    //         tmp = posFaceRate( cell, faceIdx, phase );
-    //     else
-    //         tmp = negFaceRate( cell, faceIdx, phase );
+        if ( m_nncData.at( phase ) != nullptr )
+        {
+            if ( resultIdx < m_nncData.at( phase )->size() )
+            {
+                tmp = m_nncData.at( phase )->at( resultIdx );
+            }
+        }
 
-    //    if ( tmp * direction > max )
-    //    {
-    //        outDominantPhase = phase;
-    //        max              = std::abs( tmp );
-    //    }
+        if ( tmp * direction > max )
+        {
+            outDominantPhase = phase;
+            max              = std::abs( tmp );
+        }
 
-    //    retValue += tmp;
-    //}
+        retValue += tmp;
+    }
 
     return retValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RigConnection& RimStreamlineDataAccess::nncConnection( size_t idx ) const
+{
+    auto nncData = m_grid->nncData();
+    return nncData->availableConnections()[idx];
 }

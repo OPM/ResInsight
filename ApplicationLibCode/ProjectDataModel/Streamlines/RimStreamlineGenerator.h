@@ -45,11 +45,11 @@ public:
     void generateTracer( RigCell cell, double direction, QString simWellName, std::list<RimStreamline*>& outStreamlines ) override;
 
 protected:
-    void growStreamline( RimStreamline* streamline, size_t cellIdx, CellFaceType faceIdx, double direction );
+    void growStreamline( RimStreamline* streamline, size_t index, CellFaceType faceIdx, double direction );
 
     bool growStreamlineFromTo( RimStreamline* streamline, cvf::Vec3d startPos, cvf::Vec3d endpos, double rate, RiaDefines::PhaseType dominantPhase );
 
-    std::list<StreamlineSeedPoint> nncCandidates( size_t cellIdx );
+    std::list<StreamlineSeedPoint> nncCandidates( size_t cellIdx, std::list<RiaDefines::PhaseType> phases, double direction );
 
     std::priority_queue<StreamlineSeedPoint> m_seeds;
 };
