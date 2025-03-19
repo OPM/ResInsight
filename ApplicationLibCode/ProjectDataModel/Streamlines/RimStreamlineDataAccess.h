@@ -54,6 +54,11 @@ public:
                              double                             direction,
                              RiaDefines::PhaseType&             dominantPhaseOut ) const;
 
+    double combinedNNCRate( size_t                           resultIdx,
+                            std::list<RiaDefines::PhaseType> phases,
+                            double                           direction,
+                            RiaDefines::PhaseType&           outDominantPhase ) const;
+
     RigMainGrid* grid() const { return m_grid; }
 
 protected:
@@ -68,4 +73,5 @@ private:
     RigEclipseCaseData* m_data;
 
     std::map<RiaDefines::PhaseType, std::vector<cvf::ref<RigResultAccessor>>> m_dataAccess;
+    std::map<RiaDefines::PhaseType, const std::vector<double>*>               m_nncData;
 };

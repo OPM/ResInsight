@@ -23,6 +23,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 
@@ -74,6 +75,12 @@ bool RimStreamlineDataAccess::setupDataAccess( RigMainGrid* grid, RigEclipseCase
             if ( access.isNull() ) return false;
         }
     }
+
+    auto nncData = grid->nncData();
+    m_nncData.clear();
+    m_nncData[RiaDefines::PhaseType::WATER_PHASE] = nncData->dynamicConnectionScalarResultByName( RiaDefines::propertyNameFluxWat(), timeIdx );
+    m_nncData[RiaDefines::PhaseType::OIL_PHASE] = nncData->dynamicConnectionScalarResultByName( RiaDefines::propertyNameFluxOil(), timeIdx );
+    m_nncData[RiaDefines::PhaseType::GAS_PHASE] = nncData->dynamicConnectionScalarResultByName( RiaDefines::propertyNameFluxGas(), timeIdx );
 
     return true;
 }
@@ -226,6 +233,42 @@ double RimStreamlineDataAccess::combinedFaceRate( RigCell                       
 
         retValue += tmp;
     }
+
+    return retValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Return the face scalar value for the given cell and face, by combining flow for all specified phases
+/// Positive values is flow out of the cell, negative values is flow into the cell
+//--------------------------------------------------------------------------------------------------
+double RimStreamlineDataAccess::combinedNNCRate( size_t                           resultIdx,
+                                                 std::list<RiaDefines::PhaseType> phases,
+                                                 double                           direction,
+                                                 RiaDefines::PhaseType&           outDominantPhase ) const
+{
+    double retValue  = 0.0;
+    outDominantPhase = phases.front();
+
+    auto nncData = m_grid->nncData()->dynamicConnectionScalarResultByName( RiaDefines::propertyNameFluxWat() );
+
+    // double max = 0.0;
+
+    // for ( auto phase : phases )
+    //{
+    //     double tmp = 0.0;
+    //     if ( faceIdx % 2 == 0 )
+    //         tmp = posFaceRate( cell, faceIdx, phase );
+    //     else
+    //         tmp = negFaceRate( cell, faceIdx, phase );
+
+    //    if ( tmp * direction > max )
+    //    {
+    //        outDominantPhase = phase;
+    //        max              = std::abs( tmp );
+    //    }
+
+    //    retValue += tmp;
+    //}
 
     return retValue;
 }
