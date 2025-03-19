@@ -20,11 +20,10 @@
 
 #include "RiaGuiApplication.h"
 
-#include "RigEclipseCaseData.h"
-
 #include "Rim3dView.h"
-#include "RimEclipseCase.h"
+#include "RimCase.h"
 
+#include "Riu3dSelectionManager.h"
 #include "RiuMainWindow.h"
 #include "RiuMohrsCirclePlot.h"
 #include "RiuPvtPlotPanel.h"
@@ -32,9 +31,6 @@
 #include "RiuRelativePermeabilityPlotPanel.h"
 #include "RiuRelativePermeabilityPlotUpdater.h"
 #include "RiuResultQwtPlot.h"
-
-#include "cvfDebugTimer.h"
-#include "cvfTrace.h"
 
 #include <QDateTime>
 
@@ -90,4 +86,17 @@ void RiuTimeStepChangedHandler::handleTimeStepChanged( Rim3dView* changedView ) 
 
     RiuMohrsCirclePlot* mohrsCirclePlot = RiuMainWindow::instance()->mohrsCirclePlot();
     if ( mohrsCirclePlot ) mohrsCirclePlot->updateOnTimeStepChanged( changedView );
+
+    std::vector<RiuSelectionItem*> selectedItems;
+    Riu3dSelectionManager::instance()->selectedItems( selectedItems );
+
+    for ( RiuSelectionItem* item : selectedItems )
+    {
+        if ( RiuEclipseSelectionItem* eclipseItem = dynamic_cast<RiuEclipseSelectionItem*>( item ) )
+        {
+            eclipseItem->m_timestepIdx = changedView->currentTimeStep();
+        }
+    }
+
+    Riu3dSelectionManager::instance()->updateSelectedItems();
 }
