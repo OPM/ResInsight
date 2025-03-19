@@ -81,7 +81,7 @@ private:
     caf::PdmField<int> m_cellCountJ;
     caf::PdmField<int> m_cellCountK;
 
-    caf::PdmField<bool> m_generateEnsembleStatistics;
+    caf::PdmField<bool> m_generateButton;
 
     caf::PdmChildField<RimEclipseCase*> m_ensembleStatisticsCase;
 

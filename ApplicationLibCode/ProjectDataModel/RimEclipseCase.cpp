@@ -72,6 +72,7 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellTargetCandidatesGenerator.h"
 
 #include "cafPdmDocument.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -119,6 +120,8 @@ RimEclipseCase::RimEclipseCase()
     CAF_PDM_InitFieldNoDefault( &m_viewCollection, "ViewCollection", "Views" );
     m_viewCollection = new RimEclipseViewCollection;
 
+    CAF_PDM_InitFieldNoDefault( &m_wellTargetGenerators, "WellTargetGenerators", "Well Target Candidates Generators" );
+
     // Init
 
     m_matrixModelResults = new RimReservoirCellResultsStorage;
@@ -126,7 +129,6 @@ RimEclipseCase::RimEclipseCase()
 
     m_fractureModelResults = new RimReservoirCellResultsStorage;
     m_fractureModelResults.uiCapability()->setUiTreeChildrenHidden( true );
-
     setReservoirData( nullptr );
 
     m_readerSettings = RiaPreferencesGrid::current()->readerSettings();
@@ -557,6 +559,8 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
         {
             uiTreeOrdering.add( &m_2dIntersectionViewCollection );
         }
+
+        uiTreeOrdering.add( &m_wellTargetGenerators );
     }
     else if ( uiConfigName == "MainWindow.DataSources" )
     {
@@ -1286,4 +1290,13 @@ std::vector<RimEclipseContourMapView*> RimEclipseCase::contourMapViews() const
     }
 
     return views;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::addWellTargetsGenerator( RimWellTargetCandidatesGenerator* generator )
+{
+    m_wellTargetGenerators.push_back( generator );
+    generator->updateResultDefinition();
 }

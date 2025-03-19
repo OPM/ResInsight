@@ -118,8 +118,9 @@ RimWellTargetCandidatesGenerator::RimWellTargetCandidatesGenerator()
     CAF_PDM_InitField( &m_cellCountJ, "CellCountJ", 100, "Cell Count J" );
     CAF_PDM_InitField( &m_cellCountK, "CellCountK", 10, "Cell Count K" );
 
-    CAF_PDM_InitField( &m_generateEnsembleStatistics, "GenerateEnsembleStatistics", true, "Generate Ensemble Statistics" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_generateEnsembleStatistics );
+    CAF_PDM_InitField( &m_generateButton, "GenerateButton", true, "Generate" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_generateButton );
+    m_generateButton.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleStatisticsCase, "EnsembleStatisticsCase", "Ensemble Statistics Case" );
 
@@ -134,6 +135,8 @@ RimWellTargetCandidatesGenerator::RimWellTargetCandidatesGenerator()
 
     m_minimumTransmissibility = cvf::UNDEFINED_DOUBLE;
     m_maximumTransmissibility = cvf::UNDEFINED_DOUBLE;
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,11 +152,14 @@ RimWellTargetCandidatesGenerator::~RimWellTargetCandidatesGenerator()
 void RimWellTargetCandidatesGenerator::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     updateAllBoundaries();
-    generateCandidates( firstCase() );
 
-    if ( changedField == &m_generateEnsembleStatistics )
+    if ( changedField == &m_generateButton )
     {
-        generateEnsembleStatistics();
+        auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr;
+        if ( hasEnsembleParent )
+            generateEnsembleStatistics();
+        else if ( auto eclipseCase = firstCase() )
+            generateCandidates( eclipseCase );
     }
 }
 
@@ -180,12 +186,9 @@ QList<caf::PdmOptionItemInfo> RimWellTargetCandidatesGenerator::calculateValueOp
 //--------------------------------------------------------------------------------------------------
 void RimWellTargetCandidatesGenerator::updateAllBoundaries()
 {
-    auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
-    if ( !ensemble ) return;
+    RimEclipseCase* eclipseCase = firstCase();
+    if ( !eclipseCase ) return;
 
-    if ( ensemble->cases().empty() ) return;
-
-    RimEclipseCase* eclipseCase = ensemble->cases().front();
     eclipseCase->ensureReservoirCaseIsOpen();
 
     auto resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
@@ -285,11 +288,11 @@ void RimWellTargetCandidatesGenerator::defineEditorAttribute( const caf::PdmFiel
         }
     }
 
-    if ( field == &m_generateEnsembleStatistics )
+    if ( field == &m_generateButton )
     {
         if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
         {
-            attrib->m_buttonText = "Create Ensemble Statistics";
+            attrib->m_buttonText = "Generate";
         }
     }
 }
@@ -368,16 +371,23 @@ void RimWellTargetCandidatesGenerator::defineUiOrdering( QString uiConfigName, c
     caf::PdmUiGroup* resultDefinitionGroup = uiOrdering.addNewGroup( "Cluster Filter" );
     m_resultDefinition->uiOrdering( uiConfigName, *resultDefinitionGroup );
 
-    caf::PdmUiGroup* ensembleGridGroup = uiOrdering.addNewGroup( "Ensemble Statistics Grid" );
-    ensembleGridGroup->add( &m_cellCountI );
-    ensembleGridGroup->add( &m_cellCountJ );
-    ensembleGridGroup->add( &m_cellCountK );
+    auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr;
+
+    if ( hasEnsembleParent )
+    {
+        caf::PdmUiGroup* ensembleGridGroup = uiOrdering.addNewGroup( "Ensemble Statistics Grid" );
+        ensembleGridGroup->add( &m_cellCountI );
+        ensembleGridGroup->add( &m_cellCountJ );
+        ensembleGridGroup->add( &m_cellCountK );
+    }
 
     caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup( "Advanced" );
     advancedGroup->add( &m_maxIterations );
     advancedGroup->add( &m_maxClusters );
 
-    uiOrdering.add( &m_generateEnsembleStatistics );
+    uiOrdering.add( &m_generateButton );
+
+    uiOrdering.skipRemainingFields();
 
     if ( m_minimumVolume == cvf::UNDEFINED_DOUBLE || m_maximumVolume == cvf::UNDEFINED_DOUBLE )
     {
@@ -405,8 +415,10 @@ RigWellTargetCandidatesGenerator::ClusteringLimits RimWellTargetCandidatesGenera
 RimEclipseCase* RimWellTargetCandidatesGenerator::firstCase() const
 {
     auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
-    if ( !ensemble || ensemble->cases().empty() ) return nullptr;
-    return ensemble->cases()[0];
+    if ( ensemble && !ensemble->cases().empty() )
+        return ensemble->cases()[0];
+    else
+        return firstAncestorOrThisOfType<RimEclipseCase>();
 }
 
 //--------------------------------------------------------------------------------------------------

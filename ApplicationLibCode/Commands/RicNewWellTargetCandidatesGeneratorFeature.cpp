@@ -18,6 +18,7 @@
 
 #include "RicNewWellTargetCandidatesGeneratorFeature.h"
 
+#include "RimEclipseCase.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimWellTargetCandidatesGenerator.h"
 
@@ -34,16 +35,24 @@ CAF_CMD_SOURCE_INIT( RicNewWellTargetCandidatesGeneratorFeature, "RicNewWellTarg
 //--------------------------------------------------------------------------------------------------
 void RicNewWellTargetCandidatesGeneratorFeature::onActionTriggered( bool isChecked )
 {
-    auto ensembles = caf::selectedObjectsByTypeStrict<RimEclipseCaseEnsemble*>();
-    if ( ensembles.empty() ) return;
+    if ( auto ensembles = caf::selectedObjectsByTypeStrict<RimEclipseCaseEnsemble*>(); !ensembles.empty() )
+    {
+        auto ensemble  = ensembles.front();
+        auto generator = new RimWellTargetCandidatesGenerator();
+        ensemble->addWellTargetsGenerator( generator );
 
-    auto ensemble  = ensembles.front();
-    auto generator = new RimWellTargetCandidatesGenerator();
-    ensemble->addWellTargetsGenerator( generator );
+        ensemble->updateConnectedEditors();
+        RiuMainWindow::instance()->selectAsCurrentItem( generator );
+    }
+    else if ( auto eclipseCases = caf::selectedObjectsByTypeStrict<RimEclipseCase*>(); !eclipseCases.empty() )
+    {
+        auto eclipseCase = eclipseCases.front();
+        auto generator   = new RimWellTargetCandidatesGenerator();
+        eclipseCase->addWellTargetsGenerator( generator );
 
-    ensemble->updateConnectedEditors();
-
-    RiuMainWindow::instance()->selectAsCurrentItem( generator );
+        eclipseCase->updateConnectedEditors();
+        RiuMainWindow::instance()->selectAsCurrentItem( generator );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
