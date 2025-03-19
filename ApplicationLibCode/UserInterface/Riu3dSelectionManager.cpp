@@ -38,7 +38,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 Riu3dSelectionManager::Riu3dSelectionManager()
-    : m_notificationCenter( new RiuSelectionChangedHandler )
+    : m_selectionChangedHandler( new RiuSelectionChangedHandler )
 {
     m_selection.resize( 2 );
 }
@@ -51,7 +51,7 @@ Riu3dSelectionManager::~Riu3dSelectionManager()
     deleteAllItemsFromSelection( RUI_APPLICATION_GLOBAL );
     deleteAllItemsFromSelection( RUI_TEMPORARY );
 
-    delete m_notificationCenter;
+    delete m_selectionChangedHandler;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,7 +100,7 @@ void Riu3dSelectionManager::appendItemToSelection( RiuSelectionItem* item, int r
 
     s.push_back( item );
 
-    if ( role == RUI_APPLICATION_GLOBAL ) m_notificationCenter->handleItemAppended( item );
+    if ( role == RUI_APPLICATION_GLOBAL ) m_selectionChangedHandler->handleItemAppended( item );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,7 +114,7 @@ void Riu3dSelectionManager::setSelectedItem( RiuSelectionItem* item, int role )
 
     s.push_back( item );
 
-    if ( role == RUI_APPLICATION_GLOBAL ) m_notificationCenter->handleSetSelectedItem( item );
+    if ( role == RUI_APPLICATION_GLOBAL ) m_selectionChangedHandler->handleSetSelectedItem( item );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ void Riu3dSelectionManager::deleteAllItems( int role )
     {
         deleteAllItemsFromSelection( role );
 
-        if ( role == RUI_APPLICATION_GLOBAL ) m_notificationCenter->handleSelectionDeleted();
+        if ( role == RUI_APPLICATION_GLOBAL ) m_selectionChangedHandler->handleSelectionDeleted();
     }
 }
 

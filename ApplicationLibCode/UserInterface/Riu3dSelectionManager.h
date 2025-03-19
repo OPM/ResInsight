@@ -100,7 +100,7 @@ private:
 private:
     std::vector<std::vector<RiuSelectionItem*>> m_selection;
 
-    RiuSelectionChangedHandler* m_notificationCenter;
+    RiuSelectionChangedHandler* m_selectionChangedHandler;
 };
 
 //==================================================================================================
