@@ -427,7 +427,7 @@ void RiaEnsembleNameTools::updateAutoNameEnsembles( std::vector<RimSummaryEnsemb
     {
         ensemble->setUsePathKey1( useKey1 );
         ensemble->setUsePathKey2( useKey2 );
-        ensemble->ensureNameIsUpdated();
+        ensemble->updateName();
     }
 }
 

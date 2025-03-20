@@ -23,6 +23,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 
@@ -73,6 +74,24 @@ bool RimStreamlineDataAccess::setupDataAccess( RigMainGrid* grid, RigEclipseCase
         {
             if ( access.isNull() ) return false;
         }
+    }
+
+    auto nncData = grid->nncData();
+    m_nncData.clear();
+    if ( nncData != nullptr )
+    {
+        m_nncData[RiaDefines::PhaseType::WATER_PHASE] =
+            nncData->dynamicConnectionScalarResultByName( RiaDefines::propertyNameFluxWat(), timeIdx );
+        m_nncData[RiaDefines::PhaseType::OIL_PHASE] =
+            nncData->dynamicConnectionScalarResultByName( RiaDefines::propertyNameFluxOil(), timeIdx );
+        m_nncData[RiaDefines::PhaseType::GAS_PHASE] =
+            nncData->dynamicConnectionScalarResultByName( RiaDefines::propertyNameFluxGas(), timeIdx );
+    }
+    else
+    {
+        m_nncData[RiaDefines::PhaseType::WATER_PHASE] = nullptr;
+        m_nncData[RiaDefines::PhaseType::OIL_PHASE]   = nullptr;
+        m_nncData[RiaDefines::PhaseType::GAS_PHASE]   = nullptr;
     }
 
     return true;
@@ -228,4 +247,51 @@ double RimStreamlineDataAccess::combinedFaceRate( RigCell                       
     }
 
     return retValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Return the nnc scalar value for the given connection, by combining flow for all specified phases
+/// Positive values is flow from cell1 to cell2, negative values is the other way
+//--------------------------------------------------------------------------------------------------
+double RimStreamlineDataAccess::combinedNNCRate( size_t                           resultIdx,
+                                                 std::list<RiaDefines::PhaseType> phases,
+                                                 double                           direction,
+                                                 RiaDefines::PhaseType&           outDominantPhase ) const
+{
+    double retValue  = 0.0;
+    outDominantPhase = phases.front();
+
+    double max = 0.0;
+
+    for ( auto phase : phases )
+    {
+        double tmp = 0.0;
+
+        if ( m_nncData.at( phase ) != nullptr )
+        {
+            if ( resultIdx < m_nncData.at( phase )->size() )
+            {
+                tmp = m_nncData.at( phase )->at( resultIdx );
+            }
+        }
+
+        if ( tmp * direction > max )
+        {
+            outDominantPhase = phase;
+            max              = std::abs( tmp );
+        }
+
+        retValue += tmp;
+    }
+
+    return retValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RigConnection& RimStreamlineDataAccess::nncConnection( size_t idx ) const
+{
+    auto nncData = m_grid->nncData();
+    return nncData->availableConnections()[idx];
 }

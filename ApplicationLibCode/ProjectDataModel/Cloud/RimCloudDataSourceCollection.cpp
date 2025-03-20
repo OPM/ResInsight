@@ -86,6 +86,7 @@ void RimCloudDataSourceCollection::createEnsemblesFromSelectedDataSources( const
     for ( auto dataSource : dataSources )
     {
         RimSummaryEnsembleSumo* ensemble = new RimSummaryEnsembleSumo();
+        ensemble->setUsePathKey1( true );
         ensemble->setSumoDataSource( dataSource );
         ensemble->updateName();
         RiaSummaryTools::summaryCaseMainCollection()->addEnsemble( ensemble );

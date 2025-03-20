@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-     Statoil ASA
+//  Copyright (C) 2025 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,26 +18,14 @@
 
 #pragma once
 
-#include "Summary/RiaSummaryDefines.h"
-
 #include "cafCmdFeature.h"
-
-#include <vector>
-
-class RimSummaryCase;
-class RimSummaryEnsemble;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicCreateSummaryCaseCollectionFeature : public caf::CmdFeature
+class RicCreateSummaryEnsembleFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-
-    static RimSummaryEnsemble* groupSummaryCases( std::vector<RimSummaryCase*>     cases,
-                                                  const QString&                   groupName,
-                                                  RiaDefines::EnsembleGroupingMode groupingMode,
-                                                  bool                             isEnsemble = false );
 
 private:
     bool isCommandEnabled() const override;

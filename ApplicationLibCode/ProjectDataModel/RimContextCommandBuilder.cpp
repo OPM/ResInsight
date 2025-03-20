@@ -277,6 +277,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicEclipseCaseNewGroupFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
+            menuBuilder << "RicNewWellTargetCandidatesGeneratorFeature";
+
             menuBuilder << "Separator";
         }
         else if ( dynamic_cast<RimGridInfoCollection*>( firstUiItem ) )
@@ -1087,9 +1089,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicSummaryCurveSwitchAxisFeature";
         menuBuilder << "RicNewDerivedSummaryFeature";
         menuBuilder.addSeparator();
-        menuBuilder << "RicConvertGroupToEnsembleFeature";
-        menuBuilder.addSeparator();
-        menuBuilder.addSeparator();
         menuBuilder << "RicStackSelectedCurvesFeature";
         menuBuilder << "RicUnstackSelectedCurvesFeature";
         menuBuilder.addSeparator();
@@ -1102,7 +1101,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicRenameSummaryCaseFeature";
         menuBuilder << "RicReloadSummaryCaseFeature";
         menuBuilder << "RicReplaceSummaryCaseFeature";
-        menuBuilder << "RicCreateSummaryCaseCollectionFeature";
         menuBuilder << "Separator";
         menuBuilder << "RicCutReferencesToClipboardFeature";
 

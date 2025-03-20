@@ -18,6 +18,7 @@
 
 #include "RicReplaceSummaryEnsembleFeature.h"
 
+#include "RiaLogging.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "RicImportSummaryCasesFeature.h"
@@ -60,20 +61,13 @@ void RicReplaceSummaryEnsembleFeature::onActionTriggered( bool isChecked )
 
     RicImportSummaryCasesFeature::CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = false, .allowDialogs = false };
     auto [isOk, newCases] = RicImportSummaryCasesFeature::createSummaryCasesFromFiles( fileNames, createConfig );
-    if ( !isOk ) return;
-
-    // Remove cases first, delegate delete to a separate thread
-    auto casesToBeDeleted = summaryEnsemble->allSummaryCases();
-    for ( auto summaryCase : casesToBeDeleted )
+    if ( !isOk || newCases.empty() )
     {
-        summaryEnsemble->removeCase( summaryCase );
+        RiaLogging::warning( "No new cases are created." );
+        return;
     }
 
-    // Add the summary case
-    for ( auto summaryCase : newCases )
-    {
-        summaryEnsemble->addCase( summaryCase );
-    }
+    summaryEnsemble->replaceCases( newCases );
 
     // Update name of cases and ensemble after all cases are added
     for ( auto summaryCase : newCases )
@@ -81,15 +75,12 @@ void RicReplaceSummaryEnsembleFeature::onActionTriggered( bool isChecked )
         summaryCase->updateAutoShortName();
     }
 
-    summaryEnsemble->ensureNameIsUpdated();
+    summaryEnsemble->updateName();
 
     if ( auto sumCaseMainColl = RiaSummaryTools::summaryCaseMainCollection() )
     {
         sumCaseMainColl->updateAllRequiredEditors();
     }
-
-    // Delete previous cases in a separate thread, as this operation can be time-consuming
-    caf::AsyncPdmObjectVectorDeleter<RimSummaryCase> summaryCaseDeleter( casesToBeDeleted );
 }
 
 //--------------------------------------------------------------------------------------------------

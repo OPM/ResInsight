@@ -36,7 +36,8 @@ public:
     bool        onLoadData() override;
     RimSurface* createCopy() override;
 
-    void loadSurfaceDataForTimeStep( int timeStep ) override;
+    void   loadSurfaceDataForTimeStep( int timeStep ) override;
+    size_t timeStepCount() const override;
 
     std::vector<std::vector<double>> valuesForProperty( const QString& propertyName ) const;
 

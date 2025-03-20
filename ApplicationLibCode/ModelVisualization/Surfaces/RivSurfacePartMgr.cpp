@@ -80,7 +80,8 @@ bool RivSurfacePartMgr::isNativePartMgr() const
 //--------------------------------------------------------------------------------------------------
 void RivSurfacePartMgr::appendNativeGeometryPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
 {
-    if ( m_nativeTrianglesPart.isNull() || m_surfaceInView->surface()->surfaceData() != m_usedSurfaceData.p() )
+    bool surfaceDataChanged = m_surfaceInView->surface()->surfaceData() != m_usedSurfaceData.p();
+    if ( m_nativeTrianglesPart.isNull() || surfaceDataChanged )
     {
         generateNativePartGeometry();
     }
@@ -92,7 +93,7 @@ void RivSurfacePartMgr::appendNativeGeometryPartsToModel( cvf::ModelBasicList* m
 
         model->addPart( m_nativeTrianglesPart.p() );
 
-        if ( m_nativeMeshLinesPart.isNull() && m_surfaceInView->isMeshLinesEnabled() )
+        if ( ( m_nativeMeshLinesPart.isNull() || surfaceDataChanged ) && m_surfaceInView->isMeshLinesEnabled() )
         {
             generateNativeLinesPartGeometry();
         }
@@ -432,7 +433,11 @@ cvf::ref<cvf::Vec3fArray> RivSurfacePartMgr::convertToDisplayOffsetVertices( con
 void RivSurfacePartMgr::generateNativePartGeometry()
 {
     m_usedSurfaceData = m_surfaceInView->surface()->surfaceData();
-    if ( m_usedSurfaceData.isNull() ) return;
+    if ( m_usedSurfaceData.isNull() )
+    {
+        m_nativeTrianglesPart = nullptr;
+        return;
+    }
 
     const std::vector<cvf::Vec3d>& vertices = m_usedSurfaceData->vertices();
     if ( vertices.empty() ) return;
@@ -463,8 +468,11 @@ void RivSurfacePartMgr::generateNativePartGeometry()
 void RivSurfacePartMgr::generateNativeLinesPartGeometry()
 {
     m_usedSurfaceData = m_surfaceInView->surface()->surfaceData();
-    if ( m_usedSurfaceData.isNull() ) return;
-
+    if ( m_usedSurfaceData.isNull() )
+    {
+        m_nativeMeshLinesPart = nullptr;
+        return;
+    }
     const std::vector<cvf::Vec3d>& vertices = m_usedSurfaceData->vertices();
     if ( vertices.empty() ) return;
 

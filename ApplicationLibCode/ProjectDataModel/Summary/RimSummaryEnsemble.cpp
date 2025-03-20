@@ -189,9 +189,40 @@ RimSummaryCase* RimSummaryEnsemble::firstSummaryCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsemble::setName( const QString& name )
+void RimSummaryEnsemble::replaceCases( const std::vector<RimSummaryCase*>& summaryCases )
 {
-    m_name = name;
+    m_cases.deleteChildrenAsync();
+
+    if ( summaryCases.empty() ) return;
+
+    auto lastCase = summaryCases.back();
+
+    for ( auto summaryCase : summaryCases )
+    {
+        if ( summaryCase == lastCase ) continue;
+
+        // Do what is required to add the case, avoid updates until all cases are added
+        summaryCase->nameChanged.connect( this, &RimSummaryEnsemble::onCaseNameChanged );
+        if ( m_cases.empty() )
+        {
+            summaryCase->setShowVectorItemsInProjectTree( true );
+        }
+        m_cases.push_back( summaryCase );
+    }
+
+    if ( lastCase )
+    {
+        // Add the last case, and update connected plots
+        addCase( lastCase );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::setNameTemplate( const QString& name )
+{
+    m_nameTemplateString = name;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,19 +236,14 @@ QString RimSummaryEnsemble::name() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsemble::ensureNameIsUpdated()
+void RimSummaryEnsemble::updateName()
 {
     const auto [key1, key2] = nameKeys();
 
     QString templateText;
     if ( m_autoName )
     {
-        if ( m_useKey1() ) templateText += RiaDefines::key1VariableName();
-        if ( m_useKey2() )
-        {
-            if ( !templateText.isEmpty() ) templateText += ", ";
-            templateText += RiaDefines::key2VariableName();
-        }
+        templateText = nameTemplateText();
     }
     else
     {
@@ -230,6 +256,22 @@ void RimSummaryEnsemble::ensureNameIsUpdated()
     };
 
     auto candidateName = RiaTextStringTools::replaceTemplateTextWithValues( templateText, keyValues );
+
+    if ( m_autoName )
+    {
+        candidateName = candidateName.trimmed();
+
+        // When using auto name, remove leading and trailing commas that may occur if key1 or key2 is empty
+        if ( candidateName.startsWith( "," ) )
+        {
+            candidateName = candidateName.mid( 1 );
+        }
+        if ( candidateName.endsWith( "," ) )
+        {
+            candidateName = candidateName.left( candidateName.length() - 1 );
+        }
+    }
+
     if ( m_name == candidateName ) return;
 
     m_name = candidateName;
@@ -697,6 +739,8 @@ void RimSummaryEnsemble::updateReferringCurveSets( bool doZoomAll )
             {
                 if ( auto parentPlot = curveSet->firstAncestorOrThisOfType<RimSummaryPlot>() )
                 {
+                    // If the ensemble name has changed, make sure the name in the project tree is updated
+                    parentPlot->updateConnectedEditors();
                     parentPlot->zoomAll();
                 }
             }
@@ -843,18 +887,9 @@ void RimSummaryEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
     {
         updateIcon();
     }
-    if ( changedField == &m_autoName )
+    if ( changedField == &m_autoName || changedField == &m_nameTemplateString )
     {
-        ensureNameIsUpdated();
-    }
-    if ( changedField == &m_name )
-    {
-        m_autoName = false;
-        caseNameChanged.send();
-    }
-    if ( changedField == &m_nameTemplateString )
-    {
-        ensureNameIsUpdated();
+        updateName();
     }
 }
 
@@ -883,8 +918,6 @@ void RimSummaryEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilde
     menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
     menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
     menuBuilder.addSeparator();
-    menuBuilder << "RicConvertGroupToEnsembleFeature";
-    menuBuilder.addSeparator();
     menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
     menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
     menuBuilder << "RicCreateMultiPlotFromSelectionFeature";
@@ -892,6 +925,14 @@ void RimSummaryEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilde
     menuBuilder.addSeparator();
     menuBuilder << "RicReloadSummaryCaseFeature";
     menuBuilder << "RicReplaceSummaryEnsembleFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryEnsemble::isAutoNameChecked() const
+{
+    return m_autoName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -907,7 +948,7 @@ void RimSummaryEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     }
 
     uiOrdering.add( &m_name );
-    m_name.uiCapability()->setUiReadOnly( !m_autoName() );
+    m_name.uiCapability()->setUiReadOnly( true );
 
     if ( m_isEnsemble() ) uiOrdering.add( &m_ensembleId );
 
@@ -1044,6 +1085,22 @@ std::pair<std::string, std::string> RimSummaryEnsemble::nameKeys() const
     }
 
     return { key1, key2 };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryEnsemble::nameTemplateText() const
+{
+    QString text;
+    if ( m_useKey1() ) text += RiaDefines::key1VariableName();
+    if ( m_useKey2() )
+    {
+        if ( !text.isEmpty() ) text += ", ";
+        text += RiaDefines::key2VariableName();
+    }
+
+    return text;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -30,7 +30,7 @@
 #include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryStringTools.h"
 
-#include "RicCreateSummaryCaseCollectionFeature.h"
+#include "RicImportEnsembleFeature.h"
 #include "RicImportGeneralDataFeature.h"
 #include "RicImportSummaryCasesFeature.h"
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
@@ -316,10 +316,10 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
         if ( isEnsembleMode )
         {
-            ensemble = RicCreateSummaryCaseCollectionFeature::groupSummaryCases( summaryCasesToUse,
-                                                                                 "Ensemble",
-                                                                                 RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE,
-                                                                                 true );
+            ensemble = RicImportEnsembleFeature::groupSummaryCases( summaryCasesToUse,
+                                                                    "Ensemble",
+                                                                    RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE,
+                                                                    true );
         }
 
         if ( isSinglePlot )

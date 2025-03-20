@@ -56,20 +56,24 @@ public:
     RimSummaryEnsemble();
     ~RimSummaryEnsemble() override;
 
-    void                                 removeCase( RimSummaryCase* summaryCase, bool notifyChange = true );
-    void                                 addCase( RimSummaryCase* summaryCase );
+    void removeCase( RimSummaryCase* summaryCase, bool notifyChange = true );
+    void addCase( RimSummaryCase* summaryCase );
+    void replaceCases( const std::vector<RimSummaryCase*>& summaryCases );
+
     virtual std::vector<RimSummaryCase*> allSummaryCases() const;
     RimSummaryCase*                      firstSummaryCase() const;
 
-    void    setName( const QString& name );
     QString name() const;
-    void    ensureNameIsUpdated();
-    void    setUsePathKey1( bool useKey1 );
-    void    setUsePathKey2( bool useKey2 );
 
-    void                                setGroupingMode( RiaDefines::EnsembleGroupingMode groupingMode );
-    RiaDefines::EnsembleGroupingMode    groupingMode() const;
-    std::pair<std::string, std::string> nameKeys() const;
+    void                                        setNameTemplate( const QString& name );
+    void                                        updateName();
+    void                                        setUsePathKey1( bool useKey1 );
+    void                                        setUsePathKey2( bool useKey2 );
+    virtual std::pair<std::string, std::string> nameKeys() const;
+    virtual QString                             nameTemplateText() const;
+
+    void                             setGroupingMode( RiaDefines::EnsembleGroupingMode groupingMode );
+    RiaDefines::EnsembleGroupingMode groupingMode() const;
 
     bool                                       isEnsemble() const;
     void                                       setAsEnsemble( bool isEnsemble );
@@ -120,11 +124,14 @@ protected:
     void buildMetaData();
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
+    bool isAutoNameChecked() const;
+
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
 private:
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 initAfterRead() override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     QString nameAndItemCount() const;

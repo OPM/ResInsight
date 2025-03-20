@@ -658,13 +658,18 @@ std::vector<RigWellTargetCandidatesGenerator::ClusterStatistics>
     const std::vector<double>& porvSoilAndSgas = resultsData->cellScalarResults( porvSoilAndSgasAddress, timeStepIdx );
 
     RigEclipseResultAddress fipOilAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FIPOIL" );
-    resultsData->ensureKnownResultLoaded( fipOilAddress );
-    const std::vector<double>& fipOil = resultsData->cellScalarResults( fipOilAddress, timeStepIdx );
+    std::vector<double>     fipOil;
+    if ( resultsData->ensureKnownResultLoaded( fipOilAddress ) )
+    {
+        fipOil = resultsData->cellScalarResults( fipOilAddress, timeStepIdx );
+    }
 
     RigEclipseResultAddress fipGasAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FIPGAS" );
-    resultsData->ensureKnownResultLoaded( fipGasAddress );
-    const std::vector<double>& fipGas = resultsData->cellScalarResults( fipGasAddress, timeStepIdx );
-
+    std::vector<double>     fipGas;
+    if ( resultsData->ensureKnownResultLoaded( fipGasAddress ) )
+    {
+        fipGas = resultsData->cellScalarResults( fipGasAddress, timeStepIdx );
+    }
     RigEclipseResultAddress clusterAddress( RiaDefines::ResultCatType::GENERATED, clusterResultName );
     resultsData->ensureKnownResultLoaded( clusterAddress );
     const std::vector<double>& clusterIds = resultsData->cellScalarResults( clusterAddress, 0 );
