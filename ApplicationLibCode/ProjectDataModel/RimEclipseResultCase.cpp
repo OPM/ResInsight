@@ -123,8 +123,8 @@ void RimEclipseResultCase::initAfterRead()
     // handle special formations for ensembles
     if ( firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr )
     {
-        auto folderName        = RimFormationTools::formationFolderFromCaseFileName( m_caseFileName().path() );
-        m_activeFormationNames = RimFormationTools::loadFormationNamesFromFolder( folderName );
+        auto folderNames       = RimFormationTools::formationFoldersFromCaseFileName( m_caseFileName().path() );
+        m_activeFormationNames = RimFormationTools::loadFormationNamesFromFolder( folderNames );
     }
 }
 

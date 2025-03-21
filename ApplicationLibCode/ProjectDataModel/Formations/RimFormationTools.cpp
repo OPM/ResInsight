@@ -32,32 +32,45 @@
 //--------------------------------------------------------------------------------------------------
 ///  look for formation file two levels up from the egrid file
 //--------------------------------------------------------------------------------------------------
-QString RimFormationTools::formationFolderFromCaseFileName( const QString caseFileName )
+QStringList RimFormationTools::formationFoldersFromCaseFileName( const QString caseFileName )
 {
+    QStringList folders;
+
     QFileInfo fi( caseFileName );
 
     auto formationFolder = QDir( fi.dir().path() + "/../../" );
-    return formationFolder.absolutePath();
+    auto rmsFolder       = QDir( fi.dir().path() + "/../../rms/output/zone/" );
+
+    folders.push_back( rmsFolder.absolutePath() ); // rms folder is 1st pri.
+    folders.push_back( formationFolder.absolutePath() );
+
+    return folders;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFormationNames* RimFormationTools::loadFormationNamesFromFolder( const QString folderName )
+RimFormationNames* RimFormationTools::loadFormationNamesFromFolder( const QStringList& folderNames )
 {
     QStringList filters;
     filters << "*.lyr";
 
-    QStringList fileList = caf::Utils::getFilesInDirectory( folderName, filters, true /*absolute filename*/ );
+    QStringList fileList;
+
+    for ( auto& folder : folderNames )
+    {
+        fileList.append( caf::Utils::getFilesInDirectory( folder, filters, true /*absolute filename*/ ) );
+        if ( !fileList.isEmpty() ) break;
+    }
+
     if ( fileList.isEmpty() ) return nullptr;
 
-    RimFormationNamesCollection* fomNameColl = new RimFormationNamesCollection();
-
+    RimFormationNamesCollection*    fomNameColl    = new RimFormationNamesCollection();
     std::vector<RimFormationNames*> formationNames = fomNameColl->importFiles( fileList );
     if ( formationNames.size() > 1 )
     {
-        RiaLogging::warning( QString( "Multiple formation name files found in ensemble folder %1" ).arg( folderName ) );
+        RiaLogging::warning( QString( "Multiple formation name files found in ensemble folders." ) );
     }
 
-    return formationNames.back();
+    return formationNames.front();
 }

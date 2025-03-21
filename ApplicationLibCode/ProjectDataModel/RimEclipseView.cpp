@@ -2345,6 +2345,8 @@ void RimEclipseView::setOverridePropertyFilterCollection( RimEclipsePropertyFilt
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStep )
 {
+    if ( !mainGrid() ) return;
+
     size_t cellCount = mainGrid()->totalCellCount();
 
     totalVisibility->resize( cellCount );
