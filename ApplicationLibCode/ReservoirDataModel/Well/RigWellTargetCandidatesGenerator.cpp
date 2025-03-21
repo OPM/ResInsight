@@ -25,8 +25,10 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 #include "RigStatisticsMath.h"
 
 #include "RimEclipseCase.h"
@@ -69,8 +71,10 @@ void RigWellTargetCandidatesGenerator::generateCandidates( RimEclipseCase*      
     auto resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     if ( !resultsData ) return;
 
-    std::vector<double> volume = getVolumeVector( *resultsData, volumeType, volumesType, volumeResultType, timeStepIdx );
-    if ( volume.empty() )
+    DataContainer data;
+
+    data.volume = getVolumeVector( *resultsData, volumeType, volumesType, volumeResultType, timeStepIdx );
+    if ( data.volume.empty() )
     {
         RiaLogging::error( "Unable to produce volume vector." );
         return;
@@ -78,31 +82,41 @@ void RigWellTargetCandidatesGenerator::generateCandidates( RimEclipseCase*      
 
     RigEclipseResultAddress pressureAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" );
     resultsData->ensureKnownResultLoaded( pressureAddress );
-    const std::vector<double>& pressure = resultsData->cellScalarResults( pressureAddress, timeStepIdx );
+    data.pressure = resultsData->cellScalarResults( pressureAddress, timeStepIdx );
 
     RigEclipseResultAddress permeabilityXAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMX" );
     resultsData->ensureKnownResultLoaded( permeabilityXAddress );
-    const std::vector<double>& permeabilityX = resultsData->cellScalarResults( permeabilityXAddress, 0 );
+    data.permeabilityX = resultsData->cellScalarResults( permeabilityXAddress, 0 );
 
     RigEclipseResultAddress permeabilityYAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMY" );
     resultsData->ensureKnownResultLoaded( permeabilityYAddress );
-    const std::vector<double>& permeabilityY = resultsData->cellScalarResults( permeabilityYAddress, 0 );
+    data.permeabilityY = resultsData->cellScalarResults( permeabilityYAddress, 0 );
 
     RigEclipseResultAddress permeabilityZAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMZ" );
     resultsData->ensureKnownResultLoaded( permeabilityZAddress );
-    const std::vector<double>& permeabilityZ = resultsData->cellScalarResults( permeabilityZAddress, 0 );
+    data.permeabilityZ = resultsData->cellScalarResults( permeabilityZAddress, 0 );
 
     RigEclipseResultAddress transmissibilityXAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANX" );
     resultsData->ensureKnownResultLoaded( transmissibilityXAddress );
-    const std::vector<double>& transmissibilityX = resultsData->cellScalarResults( transmissibilityXAddress, 0 );
+    data.transmissibilityX = resultsData->cellScalarResults( transmissibilityXAddress, 0 );
 
     RigEclipseResultAddress transmissibilityYAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANY" );
     resultsData->ensureKnownResultLoaded( transmissibilityYAddress );
-    const std::vector<double>& transmissibilityY = resultsData->cellScalarResults( transmissibilityYAddress, 0 );
+    data.transmissibilityY = resultsData->cellScalarResults( transmissibilityYAddress, 0 );
 
     RigEclipseResultAddress transmissibilityZAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANZ" );
     resultsData->ensureKnownResultLoaded( transmissibilityZAddress );
-    const std::vector<double>& transmissibilityZ = resultsData->cellScalarResults( transmissibilityZAddress, 0 );
+    data.transmissibilityZ = resultsData->cellScalarResults( transmissibilityZAddress, 0 );
+
+    auto mainGrid = eclipseCase->eclipseCaseData()->mainGrid();
+    if ( mainGrid != nullptr )
+    {
+        data.transmissibilityNNC = mainGrid->nncData()->staticConnectionScalarResultByName( RiaDefines::propertyNameCombTrans() );
+    }
+    else
+    {
+        data.transmissibilityNNC = nullptr;
+    }
 
     std::vector<double> filterVector;
     if ( limits.filterAddress.isValid() )
@@ -112,7 +126,7 @@ void RigWellTargetCandidatesGenerator::generateCandidates( RimEclipseCase*      
     }
     else
     {
-        filterVector.resize( pressure.size(), std::numeric_limits<double>::infinity() );
+        filterVector.resize( data.pressure.size(), std::numeric_limits<double>::infinity() );
     }
 
     std::vector<int> clusters( activeCellCount.value(), 0 );
@@ -122,19 +136,7 @@ void RigWellTargetCandidatesGenerator::generateCandidates( RimEclipseCase*      
     int              numClustersFound = 0;
     for ( int clusterId = 1; clusterId <= numClusters; clusterId++ )
     {
-        std::optional<caf::VecIjk> startCell = findStartCell( eclipseCase,
-                                                              timeStepIdx,
-                                                              limits,
-                                                              volume,
-                                                              pressure,
-                                                              permeabilityX,
-                                                              permeabilityY,
-                                                              permeabilityZ,
-                                                              transmissibilityX,
-                                                              transmissibilityY,
-                                                              transmissibilityZ,
-                                                              filterVector,
-                                                              clusters );
+        std::optional<caf::VecIjk> startCell = findStartCell( eclipseCase, timeStepIdx, limits, data, filterVector, clusters );
 
         if ( startCell.has_value() )
         {
@@ -144,22 +146,7 @@ void RigWellTargetCandidatesGenerator::generateCandidates( RimEclipseCase*      
                                   .arg( startCell->j() + 1 )
                                   .arg( startCell->k() + 1 ) );
 
-            growCluster( eclipseCase,
-                         startCell.value(),
-                         limits,
-                         volume,
-                         pressure,
-                         permeabilityX,
-                         permeabilityY,
-                         permeabilityZ,
-                         transmissibilityX,
-                         transmissibilityY,
-                         transmissibilityZ,
-                         filterVector,
-                         clusters,
-                         clusterId,
-                         timeStepIdx,
-                         maxIterations );
+            growCluster( eclipseCase, startCell.value(), limits, data, filterVector, clusters, clusterId, timeStepIdx, maxIterations );
             numClustersFound++;
         }
         else
@@ -191,13 +178,19 @@ void RigWellTargetCandidatesGenerator::generateCandidates( RimEclipseCase*      
         }
     }
 
-    std::vector<ClusterStatistics> statistics =
-        generateStatistics( eclipseCase, pressure, permeabilityX, permeabilityY, permeabilityZ, numClustersFound, timeStepIdx, resultName );
-    std::vector<double> totalPorvSoil( clusters.size(), std::numeric_limits<double>::infinity() );
-    std::vector<double> totalPorvSgas( clusters.size(), std::numeric_limits<double>::infinity() );
-    std::vector<double> totalPorvSoilAndSgas( clusters.size(), std::numeric_limits<double>::infinity() );
-    std::vector<double> totalFipOil( clusters.size(), std::numeric_limits<double>::infinity() );
-    std::vector<double> totalFipGas( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<ClusterStatistics> statistics = generateStatistics( eclipseCase,
+                                                                    data.pressure,
+                                                                    data.permeabilityX,
+                                                                    data.permeabilityY,
+                                                                    data.permeabilityZ,
+                                                                    numClustersFound,
+                                                                    timeStepIdx,
+                                                                    resultName );
+    std::vector<double>            totalPorvSoil( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double>            totalPorvSgas( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double>            totalPorvSoilAndSgas( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double>            totalFipOil( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double>            totalFipGas( clusters.size(), std::numeric_limits<double>::infinity() );
 
     auto addValuesForClusterId = []( std::vector<double>& values, const std::vector<int>& clusters, int clusterId, double value )
     {
@@ -209,7 +202,7 @@ void RigWellTargetCandidatesGenerator::generateCandidates( RimEclipseCase*      
     };
 
     int clusterId = 1;
-    for ( auto s : statistics )
+    for ( const auto& s : statistics )
     {
         RiaLogging::info( QString( "Cluster #%1 Statistics" ).arg( s.id ) );
         RiaLogging::info( QString( "Number of cells: %1" ).arg( s.numCells ) );
@@ -252,14 +245,7 @@ void RigWellTargetCandidatesGenerator::generateCandidates( RimEclipseCase*      
 std::optional<caf::VecIjk> RigWellTargetCandidatesGenerator::findStartCell( RimEclipseCase*            eclipseCase,
                                                                             size_t                     timeStepIdx,
                                                                             const ClusteringLimits&    limits,
-                                                                            const std::vector<double>& volume,
-                                                                            const std::vector<double>& pressure,
-                                                                            const std::vector<double>& permeabilityX,
-                                                                            const std::vector<double>& permeabilityY,
-                                                                            const std::vector<double>& permeabilityZ,
-                                                                            const std::vector<double>& transmissibilityX,
-                                                                            const std::vector<double>& transmissibilityY,
-                                                                            const std::vector<double>& transmissibilityZ,
+                                                                            const DataContainer&       data,
                                                                             const std::vector<double>& filterVector,
                                                                             const std::vector<int>&    clusters )
 {
@@ -278,12 +264,12 @@ std::optional<caf::VecIjk> RigWellTargetCandidatesGenerator::findStartCell( RimE
         size_t resultIndex = resultsData->activeCellInfo()->cellResultIndex( reservoirCellIdx );
         if ( resultIndex != cvf::UNDEFINED_SIZE_T && clusters[resultIndex] == 0 )
         {
-            const double cellVolume   = volume[resultIndex];
-            const double cellPressure = pressure[resultIndex];
+            const double cellVolume   = data.volume[resultIndex];
+            const double cellPressure = data.pressure[resultIndex];
 
-            const double cellPermeabiltyX = permeabilityX[resultIndex];
-            const double cellPermeabiltyY = permeabilityY[resultIndex];
-            const double cellPermeabiltyZ = permeabilityZ[resultIndex];
+            const double cellPermeabiltyX = data.permeabilityX[resultIndex];
+            const double cellPermeabiltyY = data.permeabilityY[resultIndex];
+            const double cellPermeabiltyZ = data.permeabilityZ[resultIndex];
             const bool permeabilityValidInAnyDirection = ( cellPermeabiltyX >= limits.permeability || cellPermeabiltyY >= limits.permeability ||
                                                            cellPermeabiltyZ >= limits.permeability );
 
@@ -309,14 +295,7 @@ std::optional<caf::VecIjk> RigWellTargetCandidatesGenerator::findStartCell( RimE
 void RigWellTargetCandidatesGenerator::growCluster( RimEclipseCase*            eclipseCase,
                                                     const caf::VecIjk&         startCell,
                                                     const ClusteringLimits&    limits,
-                                                    const std::vector<double>& volume,
-                                                    const std::vector<double>& pressure,
-                                                    const std::vector<double>& permeabilityX,
-                                                    const std::vector<double>& permeabilityY,
-                                                    const std::vector<double>& permeabilityZ,
-                                                    const std::vector<double>& transmissibilityX,
-                                                    const std::vector<double>& transmissibilityY,
-                                                    const std::vector<double>& transmissibilityZ,
+                                                    const DataContainer&       data,
                                                     const std::vector<double>& filterVector,
                                                     std::vector<int>&          clusters,
                                                     int                        clusterId,
@@ -332,19 +311,7 @@ void RigWellTargetCandidatesGenerator::growCluster( RimEclipseCase*            e
 
     for ( int i = 0; i < maxIterations; i++ )
     {
-        foundCells = findCandidates( *eclipseCase,
-                                     foundCells,
-                                     limits,
-                                     volume,
-                                     pressure,
-                                     permeabilityX,
-                                     permeabilityY,
-                                     permeabilityZ,
-                                     transmissibilityX,
-                                     transmissibilityY,
-                                     transmissibilityZ,
-                                     filterVector,
-                                     clusters );
+        foundCells = findCandidates( eclipseCase, foundCells, limits, data, filterVector, clusters );
         if ( foundCells.empty() ) break;
         assignClusterIdToCells( *resultsData->activeCellInfo(), foundCells, clusters, clusterId );
     }
@@ -353,24 +320,18 @@ void RigWellTargetCandidatesGenerator::growCluster( RimEclipseCase*            e
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RigWellTargetCandidatesGenerator::findCandidates( const RimEclipseCase&      eclipseCase,
+std::vector<size_t> RigWellTargetCandidatesGenerator::findCandidates( RimEclipseCase*            eclipseCase,
                                                                       const std::vector<size_t>& previousCells,
                                                                       const ClusteringLimits&    limits,
-                                                                      const std::vector<double>& volume,
-                                                                      const std::vector<double>& pressure,
-                                                                      const std::vector<double>& permeabilityX,
-                                                                      const std::vector<double>& permeabilityY,
-                                                                      const std::vector<double>& permeabilityZ,
-                                                                      const std::vector<double>& transmissibilityX,
-                                                                      const std::vector<double>& transmissibilityY,
-                                                                      const std::vector<double>& transmissibilityZ,
+                                                                      const DataContainer&       data,
                                                                       const std::vector<double>& filterVector,
                                                                       std::vector<int>&          clusters )
 {
     std::vector<size_t> candidates;
-    auto                resultsData = eclipseCase.results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    auto                resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    auto                mainGrid    = eclipseCase->eclipseCaseData()->mainGrid();
 
-    const std::vector<cvf::StructGridInterface::FaceType> faces = {
+    const std::vector<CellFaceType> faces = {
         cvf::StructGridInterface::FaceType::POS_I,
         cvf::StructGridInterface::FaceType::NEG_I,
         cvf::StructGridInterface::FaceType::POS_J,
@@ -381,7 +342,7 @@ std::vector<size_t> RigWellTargetCandidatesGenerator::findCandidates( const RimE
 
     for ( size_t cellIdx : previousCells )
     {
-        const RigCell& cell = eclipseCase.mainGrid()->cell( cellIdx );
+        const RigCell& cell = mainGrid->cell( cellIdx );
         if ( cell.isInvalid() ) continue;
 
         RigGridBase* grid               = cell.hostGrid();
@@ -392,7 +353,7 @@ std::vector<size_t> RigWellTargetCandidatesGenerator::findCandidates( const RimE
 
         grid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
 
-        for ( cvf::StructGridInterface::FaceType face : faces )
+        for ( CellFaceType face : faces )
         {
             size_t gridLocalNeighborCellIdx;
             if ( grid->cellIJKNeighbor( i, j, k, face, &gridLocalNeighborCellIdx ) )
@@ -401,21 +362,45 @@ std::vector<size_t> RigWellTargetCandidatesGenerator::findCandidates( const RimE
                 size_t neighborResultIndex = resultsData->activeCellInfo()->cellResultIndex( neighborResvCellIdx );
                 if ( neighborResultIndex != cvf::UNDEFINED_SIZE_T && clusters[neighborResultIndex] == 0 )
                 {
-                    double permeability     = getValueForFace( permeabilityX, permeabilityY, permeabilityZ, face, neighborResultIndex );
-                    double transmissibility = getTransmissibilityValueForFace( transmissibilityX,
-                                                                               transmissibilityY,
-                                                                               transmissibilityZ,
+                    double permeability =
+                        getValueForFace( data.permeabilityX, data.permeabilityY, data.permeabilityZ, face, neighborResultIndex );
+                    double transmissibility = getTransmissibilityValueForFace( data.transmissibilityX,
+                                                                               data.transmissibilityY,
+                                                                               data.transmissibilityZ,
                                                                                face,
                                                                                resultIndex,
                                                                                neighborResultIndex );
                     bool   filterValue      = !std::isinf( filterVector[neighborResultIndex] ) && filterVector[neighborResultIndex] > 0.0;
 
-                    if ( volume[neighborResultIndex] > limits.volume && pressure[neighborResultIndex] > limits.pressure &&
+                    if ( data.volume[neighborResultIndex] > limits.volume && data.pressure[neighborResultIndex] > limits.pressure &&
                          permeability > limits.permeability && transmissibility > limits.transmissibility && filterValue )
                     {
                         candidates.push_back( neighborResvCellIdx );
                         clusters[neighborResultIndex] = -1;
                     }
+                }
+            }
+        }
+
+        if ( data.transmissibilityNNC != nullptr )
+        {
+            auto nncCells = nncConnectionCellAndResult( cellIdx, mainGrid );
+            for ( auto& [cellInfo, nncResultIdx] : nncCells )
+            {
+                auto& [otherCellIdx, face] = cellInfo;
+                double transmissibility    = data.transmissibilityNNC->at( nncResultIdx );
+
+                size_t otherResultIndex = resultsData->activeCellInfo()->cellResultIndex( otherCellIdx );
+
+                double permeability = getValueForFace( data.permeabilityX, data.permeabilityY, data.permeabilityZ, face, otherResultIndex );
+
+                bool filterValue = !std::isinf( filterVector[otherResultIndex] ) && filterVector[otherResultIndex] > 0.0;
+
+                if ( data.volume[otherResultIndex] > limits.volume && data.pressure[otherResultIndex] > limits.pressure &&
+                     permeability > limits.permeability && transmissibility > limits.transmissibility && filterValue )
+                {
+                    candidates.push_back( otherCellIdx );
+                    clusters[otherResultIndex] = -1;
                 }
             }
         }
@@ -531,11 +516,11 @@ std::optional<size_t> RigWellTargetCandidatesGenerator::getActiveCellCount( RimE
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigWellTargetCandidatesGenerator::getValueForFace( const std::vector<double>&         x,
-                                                          const std::vector<double>&         y,
-                                                          const std::vector<double>&         z,
-                                                          cvf::StructGridInterface::FaceType face,
-                                                          size_t                             resultIndex )
+double RigWellTargetCandidatesGenerator::getValueForFace( const std::vector<double>& x,
+                                                          const std::vector<double>& y,
+                                                          const std::vector<double>& z,
+                                                          CellFaceType               face,
+                                                          size_t                     resultIndex )
 {
     if ( face == cvf::StructGridInterface::FaceType::POS_I || face == cvf::StructGridInterface::FaceType::NEG_I ) return x[resultIndex];
     if ( face == cvf::StructGridInterface::FaceType::POS_J || face == cvf::StructGridInterface::FaceType::NEG_J ) return y[resultIndex];
@@ -546,12 +531,12 @@ double RigWellTargetCandidatesGenerator::getValueForFace( const std::vector<doub
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigWellTargetCandidatesGenerator::getTransmissibilityValueForFace( const std::vector<double>&         x,
-                                                                          const std::vector<double>&         y,
-                                                                          const std::vector<double>&         z,
-                                                                          cvf::StructGridInterface::FaceType face,
-                                                                          size_t                             resultIndex,
-                                                                          size_t                             neighborResultIndex )
+double RigWellTargetCandidatesGenerator::getTransmissibilityValueForFace( const std::vector<double>& x,
+                                                                          const std::vector<double>& y,
+                                                                          const std::vector<double>& z,
+                                                                          CellFaceType               face,
+                                                                          size_t                     resultIndex,
+                                                                          size_t                     neighborResultIndex )
 {
     // For negative directions (NEG_I, NEG_J, NEG_K) use the value from the neighbor cell
     bool isPos = face == cvf::StructGridInterface::FaceType::POS_I || face == cvf::StructGridInterface::FaceType::POS_J ||
@@ -958,4 +943,26 @@ cvf::BoundingBox RigWellTargetCandidatesGenerator::computeBoundingBoxForResult( 
     }
 
     return boundingBox;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::list<std::pair<std::pair<size_t, RigWellTargetCandidatesGenerator::CellFaceType>, size_t>>
+    RigWellTargetCandidatesGenerator::nncConnectionCellAndResult( size_t cellIdx, RigMainGrid* mainGrid )
+{
+    std::list<std::pair<std::pair<size_t, CellFaceType>, size_t>> foundCells;
+
+    if ( mainGrid->nncData() == nullptr ) return foundCells;
+
+    auto& connections = mainGrid->nncData()->allConnections();
+    for ( size_t i = 0; i < connections.size(); i++ )
+    {
+        if ( connections[i].c1GlobIdx() == cellIdx )
+        {
+            foundCells.push_back( std::make_pair( std::make_pair( connections[i].c2GlobIdx(), connections[i].face() ), i ) );
+        }
+    }
+
+    return foundCells;
 }
