@@ -18,14 +18,15 @@
 #pragma once
 
 #include <QString>
+#include <QStringList>
 
 class RimFormationNames;
 
 class RimFormationTools
 {
 public:
-    static QString            formationFolderFromCaseFileName( const QString caseFileName );
-    static RimFormationNames* loadFormationNamesFromFolder( const QString folderName );
+    static QStringList        formationFoldersFromCaseFileName( const QString caseFileName );
+    static RimFormationNames* loadFormationNamesFromFolder( const QStringList& folderNames );
 
 private:
     RimFormationTools(){};

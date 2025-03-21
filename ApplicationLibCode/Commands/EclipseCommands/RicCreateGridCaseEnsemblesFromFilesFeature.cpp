@@ -128,8 +128,8 @@ RimEclipseCaseEnsemble* RicCreateGridCaseEnsemblesFromFilesFeature::importSingle
         rimResultCase->setCaseInfo( caseName, caseFileName );
         eclipseCaseEnsemble->addCase( rimResultCase );
 
-        auto               folderName = RimFormationTools::formationFolderFromCaseFileName( caseFileName );
-        RimFormationNames* formations = RimFormationTools::loadFormationNamesFromFolder( folderName );
+        auto               folderNames = RimFormationTools::formationFoldersFromCaseFileName( caseFileName );
+        RimFormationNames* formations  = RimFormationTools::loadFormationNamesFromFolder( folderNames );
         if ( formations != nullptr ) rimResultCase->setFormationNames( formations );
     }
 

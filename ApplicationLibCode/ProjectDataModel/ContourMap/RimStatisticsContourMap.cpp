@@ -82,7 +82,7 @@ void caf::AppEnum<RimStatisticsContourMap::StatisticsType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimStatisticsContourMap::RimStatisticsContourMap()
 {
-    CAF_PDM_InitObject( "Statistics Contour Map", ":/Histogram16x16.png" );
+    CAF_PDM_InitObject( "Ensemble Contour Map", ":/Histogram16x16.png" );
 
     CAF_PDM_InitField( &m_boundingBoxExpPercent,
                        "BoundingBoxExpPercent",
@@ -376,7 +376,7 @@ QList<caf::PdmOptionItemInfo> RimStatisticsContourMap::calculateValueOptions( co
             {
                 if ( formations->formationNamesData() )
                 {
-                    for ( auto f : formations->formationNamesData()->formationNames() )
+                    for ( auto& f : formations->formationNamesData()->formationNames() )
                     {
                         options.push_back( caf::PdmOptionItemInfo( f, f, false ) );
                     }
@@ -559,31 +559,53 @@ void RimStatisticsContourMap::computeStatistics()
             std::set<int> usedKLayers;
             auto          formationNames = selectedFormations();
 
+            bool formationNamesOk = true;
             if ( formationNames.size() > 0 )
             {
-                usedKLayers = eCase->activeFormationNames()->formationNamesData()->findKLayers( formationNames );
+                if ( auto names = eCase->activeFormationNames() )
+                {
+                    if ( auto fData = names->formationNamesData() )
+                    {
+                        usedKLayers = fData->findKLayers( formationNames );
+                    }
+                    else
+                    {
+                        formationNamesOk = false;
+                    }
+                }
+                else
+                {
+                    formationNamesOk = false;
+                }
             }
 
-            contourMapProjection.generateGridMapping( resultAggregation, {}, usedKLayers, selectedPolygons() );
-
-            if ( m_resultDefinition()->hasDynamicResult() )
+            if ( formationNamesOk )
             {
-                std::vector<std::pair<int, int>> timeSteps = mapLocalToGlobalTimeSteps( eCase->timeStepDates() );
+                contourMapProjection.generateGridMapping( resultAggregation, {}, usedKLayers, selectedPolygons() );
 
-                for ( auto [localTs, globalTs] : timeSteps )
+                if ( m_resultDefinition()->hasDynamicResult() )
                 {
-                    std::vector<double> result = contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(),
-                                                                                       resultAggregation,
-                                                                                       localTs,
-                                                                                       floodSettings );
-                    timestep_results[globalTs].push_back( result );
+                    std::vector<std::pair<int, int>> timeSteps = mapLocalToGlobalTimeSteps( eCase->timeStepDates() );
+
+                    for ( auto [localTs, globalTs] : timeSteps )
+                    {
+                        std::vector<double> result = contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(),
+                                                                                           resultAggregation,
+                                                                                           localTs,
+                                                                                           floodSettings );
+                        timestep_results[globalTs].push_back( result );
+                    }
+                }
+                else
+                {
+                    std::vector<double> result =
+                        contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(), resultAggregation, 0, floodSettings );
+                    timestep_results[0].push_back( result );
                 }
             }
             else
             {
-                std::vector<double> result =
-                    contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(), resultAggregation, 0, floodSettings );
-                timestep_results[0].push_back( result );
+                RiaLogging::warning( QString( "Formation names are missing for case %1, skipping case." ).arg( eCase->caseUserDescription() ) );
             }
         }
         eCase->setReaderSettings( oldSettings );

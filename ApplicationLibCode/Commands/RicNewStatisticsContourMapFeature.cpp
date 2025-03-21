@@ -39,7 +39,7 @@ void RicNewStatisticsContourMapFeature::addStatisticsContourMap( RimEclipseCaseE
     std::vector<RimEclipseCase*> cases = eclipseCaseEnsemble->cases();
     if ( cases.empty() ) return;
 
-    RimStatisticsContourMap* statisticsContourMap = new RimStatisticsContourMap;
+    auto statisticsContourMap = new RimStatisticsContourMap();
     statisticsContourMap->setEclipseCase( cases[0] );
     eclipseCaseEnsemble->addStatisticsContourMap( statisticsContourMap );
     eclipseCaseEnsemble->updateConnectedEditors();
@@ -69,8 +69,8 @@ void RicNewStatisticsContourMapFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewStatisticsContourMapFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "New Statistics Contour Map" );
-    actionToSetup->setIcon( QIcon( ":/3DView16x16.png" ) );
+    actionToSetup->setText( "New Ensemble Contour Map" );
+    actionToSetup->setIcon( QIcon( ":/Histogram16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
