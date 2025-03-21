@@ -172,11 +172,7 @@ void RiuSelectionChangedHandler::addResultCurveFromSelectionItem( const RiuEclip
 
         std::vector<QDateTime> timeStepDates = eclResDef->eclipseCase()->eclipseCaseData()->results( porosityModel )->timeStepDates();
 
-        QString curveName = eclResDef->eclipseCase()->caseUserDescription();
-        curveName += ", ";
-        curveName += eclResDef->resultVariableUiShortName();
-        curveName += ", ";
-        curveName += QString( "Grid index %1" ).arg( eclipseSelectionItem->m_gridIndex );
+        QString curveName = eclResDef->resultVariableUiShortName();
         curveName += ", ";
         curveName += RigTimeHistoryResultAccessor::geometrySelectionText( eclResDef->eclipseCase()->eclipseCaseData(),
                                                                           eclipseSelectionItem->m_gridIndex,
