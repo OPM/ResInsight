@@ -31,6 +31,8 @@
 #include "RimWellPath.h"
 #include "RimWellPathValve.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiListEditor.h"
 
@@ -46,32 +48,18 @@
 
 CAF_PDM_SOURCE_INIT( RimFishbones, "FishbonesMultipleSubs" );
 
-namespace caf
-{
-template <>
-void AppEnum<RimFishbones::LocationType>::setUp()
-{
-    addItem( RimFishbones::FB_SUB_COUNT_END, "FB_SUB_COUNT", "Start/End/Number of Subs" );
-    addItem( RimFishbones::FB_SUB_SPACING_END, "FB_SUB_SPACING", "Start/End/Spacing" );
-    addItem( RimFishbones::FB_SUB_USER_DEFINED, "FB_SUB_CUSTOM", "User Specification" );
-    setDefault( RimFishbones::FB_SUB_COUNT_END );
-}
-
-template <>
-void AppEnum<RimFishbones::LateralsOrientationType>::setUp()
-{
-    addItem( RimFishbones::FB_LATERAL_ORIENTATION_FIXED, "FB_LATERAL_ORIENTATION_FIXED", "Fixed Angle" );
-    addItem( RimFishbones::FB_LATERAL_ORIENTATION_RANDOM, "FB_LATERAL_ORIENTATION_RANDOM", "Random Angle" );
-    setDefault( RimFishbones::FB_LATERAL_ORIENTATION_RANDOM );
-}
-} // namespace caf
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimFishbones::RimFishbones()
 {
-    CAF_PDM_InitObject( "FishbonesMultipleSubs", ":/FishBoneGroup16x16.png" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "FishbonesMultipleSubs",
+                                                    ":/FishBoneGroup16x16.png",
+                                                    "",
+                                                    "",
+                                                    "Fishbones",
+                                                    "Fishbones is a completion type used to add multiple short laterals to the main well "
+                                                    "bore." );
 
     CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
@@ -84,28 +72,28 @@ RimFishbones::RimFishbones()
     cvf::Color3f defaultColor = RiaColorTables::wellPathComponentColors()[RiaDefines::WellPathComponentType::FISHBONES];
     CAF_PDM_InitField( &fishbonesColor, "Color", defaultColor, "Fishbones Color" );
 
-    CAF_PDM_InitField( &m_lateralCountPerSub, "LateralCountPerSub", 3, "Laterals Per Sub" );
-    CAF_PDM_InitField( &m_lateralLength,
-                       "LateralLength",
-                       QString( "11.0" ),
-                       "Length(s) [m]",
-                       "",
-                       "Specify multiple length values if the sub lengths differ",
-                       "" );
+    CAF_PDM_InitScriptableField( &m_lateralCountPerSub, "LateralCountPerSub", 3, "Laterals Per Sub" );
+    CAF_PDM_InitScriptableField( &m_lateralLength,
+                                 "LateralLength",
+                                 QString( "11.0" ),
+                                 "Length(s) [m]",
+                                 "",
+                                 "Specify multiple length values if the sub lengths differ",
+                                 "" );
 
-    CAF_PDM_InitField( &m_lateralExitAngle, "LateralExitAngle", 35.0, "Exit Angle [deg]" );
-    CAF_PDM_InitField( &m_lateralBuildAngle, "LateralBuildAngle", 6.0, "Build Angle [deg/m]" );
+    CAF_PDM_InitScriptableField( &m_lateralExitAngle, "LateralExitAngle", 35.0, "Exit Angle [deg]" );
+    CAF_PDM_InitScriptableField( &m_lateralBuildAngle, "LateralBuildAngle", 6.0, "Build Angle [deg/m]" );
 
-    CAF_PDM_InitField( &m_lateralTubingDiameter, "LateralTubingDiameter", 8.0, "Tubing Diameter [mm]" );
+    CAF_PDM_InitScriptableField( &m_lateralTubingDiameter, "LateralTubingDiameter", 8.0, "Tubing Diameter [mm]" );
 
-    CAF_PDM_InitField( &m_lateralOpenHoleRoghnessFactor, "LateralOpenHoleRoghnessFactor", 0.001, "Open Hole Roghness Factor [m]" );
-    CAF_PDM_InitField( &m_lateralTubingRoghnessFactor, "LateralTubingRoghnessFactor", 1e-5, "Tubing Roghness Factor [m]" );
+    CAF_PDM_InitScriptableField( &m_lateralOpenHoleRoghnessFactor, "LateralOpenHoleRoghnessFactor", 0.001, "Open Hole Roghness Factor [m]" );
+    CAF_PDM_InitScriptableField( &m_lateralTubingRoghnessFactor, "LateralTubingRoghnessFactor", 1e-5, "Tubing Roghness Factor [m]" );
 
-    CAF_PDM_InitField( &m_lateralInstallSuccessFraction, "LateralInstallSuccessFraction", 1.0, "Install Success Rate [0..1]" );
+    CAF_PDM_InitScriptableField( &m_lateralInstallSuccessFraction, "LateralInstallSuccessFraction", 1.0, "Install Success Rate [0..1]" );
 
-    CAF_PDM_InitField( &m_icdCount, "IcdCount", 2, "ICDs per Sub" );
-    CAF_PDM_InitField( &m_icdOrificeDiameter, "IcdOrificeDiameter", 7.0, "ICD Orifice Diameter [mm]" );
-    CAF_PDM_InitField( &m_icdFlowCoefficient, "IcdFlowCoefficient", 1.5, "ICD Flow Coefficient" );
+    CAF_PDM_InitScriptableField( &m_icdCount, "IcdCount", 2, "ICDs per Sub" );
+    CAF_PDM_InitScriptableField( &m_icdOrificeDiameter, "IcdOrificeDiameter", 7.0, "ICD Orifice Diameter [mm]" );
+    CAF_PDM_InitScriptableField( &m_icdFlowCoefficient, "IcdFlowCoefficient", 1.5, "ICD Flow Coefficient" );
 
     initialiseObsoleteFields();
     CAF_PDM_InitFieldNoDefault( &m_valveLocations, "ValveLocations", "Valve Locations" );
@@ -113,20 +101,31 @@ RimFishbones::RimFishbones()
     m_valveLocations->findField( "RangeValveCount" )->uiCapability()->setUiName( "Number of Subs" );
     m_valveLocations.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField( &m_subsOrientationMode,
-                       "SubsOrientationMode",
-                       caf::AppEnum<LateralsOrientationType>( FB_LATERAL_ORIENTATION_RANDOM ),
-                       "Orientation" );
+    CAF_PDM_InitScriptableField( &m_subsOrientationMode,
+                                 "SubsOrientationMode",
+                                 RimFishbonesDefines::LateralsOrientationType::FB_LATERAL_ORIENTATION_RANDOM,
+                                 "Orientation" );
 
     CAF_PDM_InitFieldNoDefault( &m_installationRotationAngles, "InstallationRotationAngles", "Installation Rotation Angles [deg]" );
     m_installationRotationAngles.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_installationRotationAngles.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_fixedInstallationRotationAngle, "FixedInstallationRotationAngle", 0.0, "  Fixed Angle [deg]" );
 
+    auto pipeProperties = new RimFishbonesPipeProperties;
+
+    // These proxy fields are created to allow the use from scripting API to work on the pipe properties directly on the fishbones object
+    // Note that the set/get methods for the proxy fields are connected to the pipe properties object, which is a bit unusual
+    CAF_PDM_InitScriptableFieldNoDefault( &m_lateralDiameter, "LateralDiameter", "Lateral Diameter" );
+    m_lateralDiameter.registerSetMethod( pipeProperties, &RimFishbonesPipeProperties::setHoleDiameter );
+    m_lateralDiameter.registerGetMethod( pipeProperties, &RimFishbonesPipeProperties::holeDiameter );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_lateralSkinFactor, "LateralSkinFactor", "Lateral Skin Factor" );
+    m_lateralSkinFactor.registerSetMethod( pipeProperties, &RimFishbonesPipeProperties::setSkinFactor );
+    m_lateralSkinFactor.registerGetMethod( pipeProperties, &RimFishbonesPipeProperties::skinFactor );
+
     CAF_PDM_InitFieldNoDefault( &m_pipeProperties, "PipeProperties", "Pipe Properties" );
     m_pipeProperties.uiCapability()->setUiTreeChildrenHidden( true );
-
-    m_pipeProperties = new RimFishbonesPipeProperties;
+    m_pipeProperties = pipeProperties;
 
     m_rigFishbonesGeometry = std::make_unique<RigFisbonesGeometry>( this );
     setDeletable( true );
@@ -174,6 +173,15 @@ void RimFishbones::setMeasuredDepthAndCount( double startMD, double spacing, int
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFishbones::setValveLocations( const std::vector<double>& measuredDepths )
+{
+    m_valveLocations->setLocationType( RimMultipleValveLocations::VALVE_CUSTOM );
+    m_valveLocations->setValveLocations( measuredDepths );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFishbones::setSystemParameters( int lateralsPerSub, double lateralLength, double holeDiameter, double buildAngle, int icdsPerSub )
 {
     m_lateralCountPerSub = lateralsPerSub;
@@ -196,7 +204,7 @@ double RimFishbones::measuredDepth( size_t subIndex ) const
 //--------------------------------------------------------------------------------------------------
 double RimFishbones::rotationAngle( size_t index ) const
 {
-    if ( m_subsOrientationMode == FB_LATERAL_ORIENTATION_FIXED )
+    if ( m_subsOrientationMode == RimFishbonesDefines::LateralsOrientationType::FB_LATERAL_ORIENTATION_FIXED )
     {
         return m_fixedInstallationRotationAngle;
     }
@@ -367,9 +375,6 @@ void RimFishbones::geometryUpdated()
 {
     computeRotationAngles();
     computeSubLateralIndices();
-
-    auto collection = firstAncestorOrThisOfTypeAsserted<RimFishbonesCollection>();
-    collection->recalculateStartMD();
 
     RimProject* proj = RimProject::current();
     proj->reloadCompletionTypeResultsInAllViews();
@@ -610,7 +615,7 @@ void RimFishbones::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& u
         lateralConfigGroup->add( &m_lateralBuildAngle );
 
         lateralConfigGroup->add( &m_subsOrientationMode );
-        if ( m_subsOrientationMode == FB_LATERAL_ORIENTATION_FIXED )
+        if ( m_subsOrientationMode == RimFishbonesDefines::LateralsOrientationType::FB_LATERAL_ORIENTATION_FIXED )
         {
             lateralConfigGroup->add( &m_fixedInstallationRotationAngle );
         }
@@ -621,7 +626,8 @@ void RimFishbones::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& u
     {
         caf::PdmUiGroup* wellGroup = uiOrdering.addNewGroup( "Lateral Properties" );
 
-        m_pipeProperties->uiOrdering( uiConfigName, *wellGroup );
+        wellGroup->add( &m_lateralDiameter );
+        wellGroup->add( &m_lateralSkinFactor );
     }
 
     {
@@ -722,7 +728,10 @@ void RimFishbones::computeSubLateralIndices()
 //--------------------------------------------------------------------------------------------------
 void RimFishbones::initialiseObsoleteFields()
 {
-    CAF_PDM_InitField( &m_subsLocationMode_OBSOLETE, "SubsLocationMode", caf::AppEnum<LocationType>( FB_SUB_UNDEFINED ), "Location Defined By" );
+    CAF_PDM_InitField( &m_subsLocationMode_OBSOLETE,
+                       "SubsLocationMode",
+                       caf::AppEnum<RimFishbonesDefines::LocationType>( RimFishbonesDefines::LocationType::FB_SUB_UNDEFINED ),
+                       "Location Defined By" );
     m_subsLocationMode_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitField( &m_rangeStart_OBSOLETE, "RangeStart", std::numeric_limits<double>::infinity(), "Start MD [m]" );
@@ -747,15 +756,15 @@ void RimFishbones::initialiseObsoleteFields()
 void RimFishbones::initValveLocationFromLegacyData()
 {
     RimMultipleValveLocations::LocationType locationType = RimMultipleValveLocations::VALVE_UNDEFINED;
-    if ( m_subsLocationMode_OBSOLETE() == FB_SUB_COUNT_END )
+    if ( m_subsLocationMode_OBSOLETE() == RimFishbonesDefines::LocationType::FB_SUB_COUNT_END )
     {
         locationType = RimMultipleValveLocations::VALVE_COUNT;
     }
-    else if ( m_subsLocationMode_OBSOLETE() == FB_SUB_SPACING_END )
+    else if ( m_subsLocationMode_OBSOLETE() == RimFishbonesDefines::LocationType::FB_SUB_SPACING_END )
     {
         locationType = RimMultipleValveLocations::VALVE_SPACING;
     }
-    else if ( m_subsLocationMode_OBSOLETE() == FB_SUB_USER_DEFINED )
+    else if ( m_subsLocationMode_OBSOLETE() == RimFishbonesDefines::LocationType::FB_SUB_USER_DEFINED )
     {
         locationType = RimMultipleValveLocations::VALVE_CUSTOM;
     }
