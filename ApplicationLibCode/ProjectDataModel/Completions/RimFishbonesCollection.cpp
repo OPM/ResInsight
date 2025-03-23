@@ -48,8 +48,9 @@ RimFishbonesCollection::RimFishbonesCollection()
     nameField()->uiCapability()->setUiHidden( true );
     setName( "Fishbones" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fishbones, "FishbonesSubs", "fishbonesSubs" );
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_fishbones, "FishbonesSubs", "fishbones", "fishbonesSubs" );
 
+    // The following non-scriptable fields can be modified from scripting functions in RimcFishbonesCollection.cpp
     CAF_PDM_InitField( &m_startMDAuto, "StartMDAuto", RimFishbonesDefines::ValueSource::AUTOMATIC, "Start MD Mode" );
     CAF_PDM_InitField( &m_startMD, "StartMD", 0.0, "Start [MD]" );
 
@@ -132,6 +133,8 @@ void RimFishbonesCollection::initAfterRead()
             m_endMDAuto = RimFishbonesDefines::ValueSource::FIXED;
         }
     }
+
+    computeStartAndEndLocation();
 }
 
 //--------------------------------------------------------------------------------------------------

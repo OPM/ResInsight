@@ -23,6 +23,9 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseTools.h"
+#include "RimFishbones.h"
+#include "RimFishbonesCollection.h"
+#include "RimFishbonesDefines.h"
 #include "RimMswCompletionParameters.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
@@ -280,4 +283,71 @@ bool RimcWellPath_multiSegmentWellSettings::isNullptrValidResult() const
 std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_multiSegmentWellSettings::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimMswCompletionParameters );
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_appendFishbones, "AppendFishbones" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellPath_appendFishbones::RimcWellPath_appendFishbones( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Append Fishbones", "", "", "Append Fishbones" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_subLocations, "SubLocations", "SubLocations" );
+    auto defaultDrillingType = RimFishbonesDefines::DrillingType::STANDARD;
+    CAF_PDM_InitScriptableField( &m_drillingType, "DrillingType", defaultDrillingType, "DrillingType" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* RimcWellPath_appendFishbones::execute()
+{
+    auto wellPath = self<RimWellPath>();
+
+    if ( m_subLocations().empty() )
+    {
+        RiaLogging::error(
+            "Sub locations are empty, expected list of float values defining measured depths. Cannot create fishbones object." );
+        return nullptr;
+    }
+
+    if ( auto fishbonesCollection = wellPath->fishbonesCollection() )
+    {
+        auto* fishbonesObject = fishbonesCollection->appendFishbonesSubsAtLocations( m_subLocations(), m_drillingType() );
+
+        wellPath->updateAllRequiredEditors();
+
+        return fishbonesObject;
+    }
+
+    RiaLogging::error( "No fishbones collection object found, cannot create fishbones object." );
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcWellPath_appendFishbones::resultIsPersistent() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcWellPath_appendFishbones::isNullptrValidResult() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_appendFishbones::defaultResult() const
+{
+    return std::unique_ptr<caf::PdmObjectHandle>( new RimFishbones );
 }

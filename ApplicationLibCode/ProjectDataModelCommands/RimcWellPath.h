@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimFishbonesDefines.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
@@ -105,4 +107,24 @@ public:
     bool                             resultIsPersistent() const override;
     bool                             isNullptrValidResult() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellPath_appendFishbones : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellPath_appendFishbones( caf::PdmObjectHandle* self );
+
+    caf::PdmObjectHandle*            execute() override;
+    bool                             resultIsPersistent() const override;
+    bool                             isNullptrValidResult() const override;
+    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+
+private:
+    caf::PdmField<std::vector<double>>                             m_subLocations;
+    caf::PdmField<caf::AppEnum<RimFishbonesDefines::DrillingType>> m_drillingType;
 };
