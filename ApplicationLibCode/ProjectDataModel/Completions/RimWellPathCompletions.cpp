@@ -56,7 +56,7 @@ RimWellPathCompletions::RimWellPathCompletions()
     CAF_PDM_InitScriptableFieldNoDefault( &m_perforationCollection, "Perforations", "Perforations" );
     m_perforationCollection = new RimPerforationCollection;
 
-    CAF_PDM_InitFieldNoDefault( &m_fishbonesCollection, "Fishbones", "Fishbones" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fishbonesCollection, "Fishbones", "Fishbones" );
     m_fishbonesCollection = new RimFishbonesCollection;
 
     CAF_PDM_InitFieldNoDefault( &m_fractureCollection, "Fractures", "Fractures" );

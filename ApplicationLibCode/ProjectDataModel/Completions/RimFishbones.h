@@ -22,6 +22,7 @@
 
 #include "Rim3dPropertiesInterface.h"
 #include "RimCheckableNamedObject.h"
+#include "RimFishbonesDefines.h"
 #include "RimWellPathComponentInterface.h"
 
 #include "cvfColor3.h"
@@ -50,20 +51,6 @@ class RimFishbones : public caf::PdmObject, public Rim3dPropertiesInterface, pub
 public:
     using SubAndLateralIndex = std::pair<size_t, size_t>;
 
-    enum LocationType
-    {
-        FB_SUB_COUNT_END,
-        FB_SUB_SPACING_END,
-        FB_SUB_USER_DEFINED,
-        FB_SUB_UNDEFINED
-    };
-
-    enum LateralsOrientationType
-    {
-        FB_LATERAL_ORIENTATION_FIXED,
-        FB_LATERAL_ORIENTATION_RANDOM
-    };
-
 public:
     RimFishbones();
     ~RimFishbones() override;
@@ -72,6 +59,7 @@ public:
     QString generatedName() const;
 
     void setMeasuredDepthAndCount( double startMD, double spacing, int subCount );
+    void setValveLocations( const std::vector<double>& measuredDepths );
 
     void setSystemParameters( int lateralsPerSub, double lateralLength, double holeDiameter, double buildAngle, int icdsPerSub );
 
@@ -153,13 +141,16 @@ private:
     caf::PdmField<double> m_icdOrificeDiameter;
     caf::PdmField<double> m_icdFlowCoefficient;
 
-    caf::PdmChildField<RimMultipleValveLocations*>       m_valveLocations;
-    caf::PdmField<caf::AppEnum<LateralsOrientationType>> m_subsOrientationMode;
+    caf::PdmChildField<RimMultipleValveLocations*>                            m_valveLocations;
+    caf::PdmField<caf::AppEnum<RimFishbonesDefines::LateralsOrientationType>> m_subsOrientationMode;
 
     caf::PdmField<std::vector<double>> m_installationRotationAngles;
     caf::PdmField<double>              m_fixedInstallationRotationAngle;
 
     caf::PdmChildField<RimFishbonesPipeProperties*> m_pipeProperties;
+
+    caf::PdmProxyValueField<double> m_lateralDiameter;
+    caf::PdmProxyValueField<double> m_lateralSkinFactor;
 
     caf::PdmField<uint> m_randomSeed;
 
@@ -167,10 +158,10 @@ private:
     std::vector<SubAndLateralIndex>      m_subLateralIndices;
 
     // Moved to RimMultipleValveLocations
-    caf::PdmField<caf::AppEnum<LocationType>> m_subsLocationMode_OBSOLETE;
-    caf::PdmField<double>                     m_rangeStart_OBSOLETE;
-    caf::PdmField<double>                     m_rangeEnd_OBSOLETE;
-    caf::PdmField<double>                     m_rangeSubSpacing_OBSOLETE;
-    caf::PdmField<int>                        m_rangeSubCount_OBSOLETE;
-    caf::PdmField<std::vector<double>>        m_locationOfSubs_OBSOLETE; // Given in measured depth
+    caf::PdmField<caf::AppEnum<RimFishbonesDefines::LocationType>> m_subsLocationMode_OBSOLETE;
+    caf::PdmField<double>                                          m_rangeStart_OBSOLETE;
+    caf::PdmField<double>                                          m_rangeEnd_OBSOLETE;
+    caf::PdmField<double>                                          m_rangeSubSpacing_OBSOLETE;
+    caf::PdmField<int>                                             m_rangeSubCount_OBSOLETE;
+    caf::PdmField<std::vector<double>>                             m_locationOfSubs_OBSOLETE; // Given in measured depth
 };
