@@ -38,11 +38,13 @@ public:
 public:
     RimMultipleValveLocations();
 
-    void                       perforationIntervalUpdated();
-    double                     measuredDepth( size_t valveIndex ) const;
-    double                     rangeStart() const;
-    double                     rangeEnd() const;
-    const std::vector<double>& valveLocations() const;
+    void   perforationIntervalUpdated();
+    double measuredDepth( size_t valveIndex ) const;
+    double rangeStart() const;
+    double rangeEnd() const;
+
+    std::vector<double> valveLocations() const;
+    void                setValveLocations( const std::vector<double>& locations );
 
     void setLocationType( LocationType locationType );
     void computeRangesAndLocations();
