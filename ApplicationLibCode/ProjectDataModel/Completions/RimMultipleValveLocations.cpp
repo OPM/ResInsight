@@ -113,9 +113,17 @@ double RimMultipleValveLocations::rangeEnd() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RimMultipleValveLocations::valveLocations() const
+std::vector<double> RimMultipleValveLocations::valveLocations() const
 {
     return m_locationOfValves();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMultipleValveLocations::setValveLocations( const std::vector<double>& locations )
+{
+    m_locationOfValves = locations;
 }
 
 //--------------------------------------------------------------------------------------------------
