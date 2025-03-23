@@ -18,24 +18,46 @@
 
 #pragma once
 
-#include "RicNewFishbonesSubsFeature.h"
-#include "RimFishbonesDefines.h"
-
-//==================================================================================================
-///
-//==================================================================================================
-class RicNewFishbonesSubsAtMeasuredDepthFeature : public caf::CmdFeature
+namespace RimFishbonesDefines
 {
-    CAF_CMD_HEADER_INIT;
-
-private:
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandEnabled() const override;
-
-    void createFishbones( const RimFishbonesDefines::RicFishbonesSystemParameters& customParameters );
-
-    void onDrillingStandard();
-    void onDrillingExtended();
-    void onAcidJetting();
+enum class LocationType
+{
+    FB_SUB_COUNT_END,
+    FB_SUB_SPACING_END,
+    FB_SUB_USER_DEFINED,
+    FB_SUB_UNDEFINED
 };
+
+enum class LateralsOrientationType
+{
+    FB_LATERAL_ORIENTATION_FIXED,
+    FB_LATERAL_ORIENTATION_RANDOM
+};
+
+enum class DrillingType
+{
+    STANDARD,
+    EXTENDED,
+    ACID_JETTING
+};
+
+enum class ValueSource
+{
+    AUTOMATIC,
+    FIXED
+};
+
+struct RicFishbonesSystemParameters
+{
+    int    lateralsPerSub;
+    double lateralLength;
+    double holeDiameter;
+    double buildAngle;
+    int    icdsPerSub;
+};
+
+RicFishbonesSystemParameters drillingStandardParameters();
+RicFishbonesSystemParameters drillingExtendedParameters();
+RicFishbonesSystemParameters acidJettingParameters();
+
+} // namespace RimFishbonesDefines
