@@ -104,7 +104,7 @@ RimWellTargetMapping::RimWellTargetMapping()
     CAF_PDM_InitField( &m_transmissibility, "Transmissibility", 0.0, "Transmissibility" );
     m_transmissibility.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_maxIterations, "Iterations", 10000, "Max Iterations" );
+    CAF_PDM_InitField( &m_maxIterations, "Iterations", 100000, "Max Iterations" );
     CAF_PDM_InitField( &m_maxClusters, "MaxClusters", 5, "Max Clusters" );
 
     CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "" );
@@ -394,7 +394,6 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     }
 
     caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup( "Advanced" );
-    advancedGroup->add( &m_maxIterations );
     advancedGroup->add( &m_maxClusters );
     advancedGroup->setCollapsedByDefault();
 
