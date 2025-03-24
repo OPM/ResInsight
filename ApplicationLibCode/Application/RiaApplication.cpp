@@ -776,9 +776,9 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         if ( !sumMainCollection ) continue;
 
         sumMainCollection->updateAutoShortName();
-        for ( auto sumCaseGroup : sumMainCollection->summaryEnsembles() )
+        for ( auto ensemble : sumMainCollection->summaryEnsembles() )
         {
-            sumCaseGroup->loadDataAndUpdate();
+            ensemble->loadDataAndUpdate();
         }
         sumMainCollection->updateEnsembleNames();
 

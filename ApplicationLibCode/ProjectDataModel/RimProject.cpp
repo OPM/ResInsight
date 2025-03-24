@@ -752,7 +752,7 @@ std::vector<RimSummaryCase*> RimProject::allSummaryCases() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryEnsemble*> RimProject::summaryGroups() const
 {
-    std::vector<RimSummaryEnsemble*> groups;
+    std::vector<RimSummaryEnsemble*> ensembles;
 
     for ( RimOilField* oilField : oilFields )
     {
@@ -760,12 +760,12 @@ std::vector<RimSummaryEnsemble*> RimProject::summaryGroups() const
         RimSummaryCaseMainCollection* sumCaseMainColl = oilField->summaryCaseMainCollection();
         if ( sumCaseMainColl )
         {
-            std::vector<RimSummaryEnsemble*> g = sumCaseMainColl->summaryEnsembles();
-            groups.insert( groups.end(), g.begin(), g.end() );
+            std::vector<RimSummaryEnsemble*> ensemble = sumCaseMainColl->summaryEnsembles();
+            ensembles.insert( ensembles.end(), ensemble.begin(), ensemble.end() );
         }
     }
 
-    return groups;
+    return ensembles;
 }
 
 //--------------------------------------------------------------------------------------------------

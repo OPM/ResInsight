@@ -570,9 +570,9 @@ std::vector<RimDeltaSummaryEnsemble*> RimDeltaSummaryEnsemble::findReferringEnse
     auto mainColl = firstAncestorOrThisOfType<RimSummaryCaseMainCollection>();
     if ( mainColl )
     {
-        for ( auto group : mainColl->summaryEnsembles() )
+        for ( auto ensemble : mainColl->summaryEnsembles() )
         {
-            auto derivedEnsemble = dynamic_cast<RimDeltaSummaryEnsemble*>( group );
+            auto derivedEnsemble = dynamic_cast<RimDeltaSummaryEnsemble*>( ensemble );
             if ( derivedEnsemble )
             {
                 if ( derivedEnsemble->m_ensemble1() == this || derivedEnsemble->m_ensemble2() == this )

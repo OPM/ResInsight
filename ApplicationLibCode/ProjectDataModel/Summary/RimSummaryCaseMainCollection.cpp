@@ -165,9 +165,9 @@ void RimSummaryCaseMainCollection::removeCase( RimSummaryCase* summaryCase, bool
     std::vector<RimDeltaSummaryEnsemble*> derivedEnsembles;
 
     // Build a list of derived ensembles that must be updated after delete
-    for ( auto group : summaryEnsembles() )
+    for ( auto ensemble : summaryEnsembles() )
     {
-        auto derEnsemble = dynamic_cast<RimDeltaSummaryEnsemble*>( group );
+        auto derEnsemble = dynamic_cast<RimDeltaSummaryEnsemble*>( ensemble );
         if ( derEnsemble )
         {
             if ( derEnsemble->hasCaseReference( summaryCase ) )
@@ -381,9 +381,9 @@ void RimSummaryCaseMainCollection::initAfterRead()
         sumCase->nameChanged.connect( this, &RimSummaryCaseMainCollection::onCaseNameChanged );
     }
 
-    for ( auto caseCollection : summaryEnsembles() )
+    for ( auto ensemble : summaryEnsembles() )
     {
-        caseCollection->caseNameChanged.connect( this, &RimSummaryCaseMainCollection::onCaseNameChanged );
+        ensemble->caseNameChanged.connect( this, &RimSummaryCaseMainCollection::onCaseNameChanged );
     }
 }
 

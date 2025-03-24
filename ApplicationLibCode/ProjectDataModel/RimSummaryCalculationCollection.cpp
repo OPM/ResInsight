@@ -82,10 +82,9 @@ void RimSummaryCalculationCollection::updateDataDependingOnCalculations()
         }
     }
 
-    auto summaryCaseCollections = summaryCaseCollection->summaryEnsembles();
-    for ( RimSummaryEnsemble* summaryCaseCollection : summaryCaseCollections )
+    for ( auto ensemble : summaryCaseCollection->summaryEnsembles() )
     {
-        summaryCaseCollection->onCalculationUpdated();
+        ensemble->onCalculationUpdated();
     }
 }
 

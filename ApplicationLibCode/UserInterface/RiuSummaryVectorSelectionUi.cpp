@@ -590,9 +590,9 @@ QList<caf::PdmOptionItemInfo>
             if ( !hideEnsembles )
             {
                 bool ensembleHeaderCreated = false;
-                for ( const auto& sumCaseColl : sumCaseMainColl->summaryEnsembles() )
+                for ( const auto& ensemble : sumCaseMainColl->summaryEnsembles() )
                 {
-                    if ( !sumCaseColl->isEnsemble() ) continue;
+                    if ( !ensemble->isEnsemble() ) continue;
 
                     if ( !ensembleHeaderCreated )
                     {
@@ -601,7 +601,7 @@ QList<caf::PdmOptionItemInfo>
                     }
                     // Ensemble level
                     {
-                        auto optionItem = caf::PdmOptionItemInfo( sumCaseColl->name(), sumCaseColl );
+                        auto optionItem = caf::PdmOptionItemInfo( ensemble->name(), ensemble );
                         optionItem.setLevel( 1 );
                         options.push_back( optionItem );
                     }
@@ -611,13 +611,13 @@ QList<caf::PdmOptionItemInfo>
             if ( !hideSummaryCases )
             {
                 // Grouped cases
-                for ( const auto& sumCaseColl : sumCaseMainColl->summaryEnsembles() )
+                for ( const auto& ensemble : sumCaseMainColl->summaryEnsembles() )
                 {
-                    if ( sumCaseColl->isEnsemble() && !showIndividualEnsembleCases ) continue;
+                    if ( ensemble->isEnsemble() && !showIndividualEnsembleCases ) continue;
 
-                    options.push_back( caf::PdmOptionItemInfo::createHeader( sumCaseColl->name(), true ) );
+                    options.push_back( caf::PdmOptionItemInfo::createHeader( ensemble->name(), true ) );
 
-                    for ( const auto& sumCase : sumCaseColl->allSummaryCases() )
+                    for ( const auto& sumCase : ensemble->allSummaryCases() )
                     {
                         auto optionItem = caf::PdmOptionItemInfo( sumCase->displayCaseName(), sumCase );
                         optionItem.setLevel( 1 );
