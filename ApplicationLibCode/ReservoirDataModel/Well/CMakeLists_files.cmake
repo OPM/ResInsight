@@ -23,7 +23,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigWellResultBranch.h
     ${CMAKE_CURRENT_LIST_DIR}/RigWellResultFrame.h
     ${CMAKE_CURRENT_LIST_DIR}/RigWellResultPoint.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellTargetCandidatesGenerator.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigWellTargetMapping.h
     ${CMAKE_CURRENT_LIST_DIR}/RigWellLogData.h
     ${CMAKE_CURRENT_LIST_DIR}/RigWellLogLasFile.h
     ${CMAKE_CURRENT_LIST_DIR}/RigWellLogCsvFile.h
@@ -52,7 +52,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigWellResultBranch.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellResultFrame.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellResultPoint.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellTargetCandidatesGenerator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigWellTargetMapping.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellLogData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellLogLasFile.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellLogCsvFile.cpp

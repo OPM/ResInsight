@@ -72,7 +72,7 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RimWellTargetCandidatesGenerator.h"
+#include "RimWellTargetMapping.h"
 
 #include "cafPdmDocument.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -120,7 +120,7 @@ RimEclipseCase::RimEclipseCase()
     CAF_PDM_InitFieldNoDefault( &m_viewCollection, "ViewCollection", "Views" );
     m_viewCollection = new RimEclipseViewCollection;
 
-    CAF_PDM_InitFieldNoDefault( &m_wellTargetGenerators, "WellTargetGenerators", "Well Target Candidates Generators" );
+    CAF_PDM_InitFieldNoDefault( &m_wellTargetMappings, "WellTargetMappings", "Well Target Mappings" );
 
     // Init
 
@@ -560,7 +560,7 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
             uiTreeOrdering.add( &m_2dIntersectionViewCollection );
         }
 
-        uiTreeOrdering.add( &m_wellTargetGenerators );
+        uiTreeOrdering.add( &m_wellTargetMappings );
     }
     else if ( uiConfigName == "MainWindow.DataSources" )
     {
@@ -1295,8 +1295,8 @@ std::vector<RimEclipseContourMapView*> RimEclipseCase::contourMapViews() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCase::addWellTargetsGenerator( RimWellTargetCandidatesGenerator* generator )
+void RimEclipseCase::addWellTargetMapping( RimWellTargetMapping* generator )
 {
-    m_wellTargetGenerators.push_back( generator );
+    m_wellTargetMappings.push_back( generator );
     generator->updateResultDefinition();
 }

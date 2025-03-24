@@ -16,11 +16,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewWellTargetCandidatesGeneratorFeature.h"
+#include "RicNewWellTargetMappingFeature.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseEnsemble.h"
-#include "RimWellTargetCandidatesGenerator.h"
+#include "RimWellTargetMapping.h"
 
 #include "RiuMainWindow.h"
 
@@ -28,38 +28,38 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicNewWellTargetCandidatesGeneratorFeature, "RicNewWellTargetCandidatesGeneratorFeature" );
+CAF_CMD_SOURCE_INIT( RicNewWellTargetMappingFeature, "RicNewWellTargetMappingFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellTargetCandidatesGeneratorFeature::onActionTriggered( bool isChecked )
+void RicNewWellTargetMappingFeature::onActionTriggered( bool isChecked )
 {
     if ( auto ensembles = caf::selectedObjectsByTypeStrict<RimEclipseCaseEnsemble*>(); !ensembles.empty() )
     {
-        auto ensemble  = ensembles.front();
-        auto generator = new RimWellTargetCandidatesGenerator();
-        ensemble->addWellTargetsGenerator( generator );
+        auto ensemble          = ensembles.front();
+        auto wellTargetMapping = new RimWellTargetMapping();
+        ensemble->addWellTargetMapping( wellTargetMapping );
 
         ensemble->updateConnectedEditors();
-        RiuMainWindow::instance()->selectAsCurrentItem( generator );
+        RiuMainWindow::instance()->selectAsCurrentItem( wellTargetMapping );
     }
     else if ( auto eclipseCases = caf::selectedObjectsByTypeStrict<RimEclipseCase*>(); !eclipseCases.empty() )
     {
-        auto eclipseCase = eclipseCases.front();
-        auto generator   = new RimWellTargetCandidatesGenerator();
-        eclipseCase->addWellTargetsGenerator( generator );
+        auto eclipseCase       = eclipseCases.front();
+        auto wellTargetMapping = new RimWellTargetMapping();
+        eclipseCase->addWellTargetMapping( wellTargetMapping );
 
         eclipseCase->updateConnectedEditors();
-        RiuMainWindow::instance()->selectAsCurrentItem( generator );
+        RiuMainWindow::instance()->selectAsCurrentItem( wellTargetMapping );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellTargetCandidatesGeneratorFeature::setupActionLook( QAction* actionToSetup )
+void RicNewWellTargetMappingFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Create Well Target Candidates Generator" );
+    actionToSetup->setText( "Create Well Target Mapping" );
     actionToSetup->setIcon( QIcon( ":/WellTargets.png" ) );
 }

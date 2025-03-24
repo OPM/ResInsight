@@ -41,7 +41,7 @@ class RimRegularGridCase;
 ///
 ///
 //==================================================================================================
-class RigWellTargetCandidatesGenerator
+class RigWellTargetMapping
 {
 public:
     using CellFaceType = cvf::StructGridInterface::FaceType;
@@ -190,14 +190,14 @@ private:
                                                    size_t                     resultIndex,
                                                    size_t                     neighborResultIndex );
 
-    static std::vector<RigWellTargetCandidatesGenerator::ClusterStatistics> generateStatistics( RimEclipseCase*            eclipseCase,
-                                                                                                const std::vector<double>& pressure,
-                                                                                                const std::vector<double>& permeabilityX,
-                                                                                                const std::vector<double>& permeabilityY,
-                                                                                                const std::vector<double>& permeabilityZ,
-                                                                                                int                        numClustersFound,
-                                                                                                size_t                     timeStepIdx,
-                                                                                                const QString& clusterResultName );
+    static std::vector<RigWellTargetMapping::ClusterStatistics> generateStatistics( RimEclipseCase*            eclipseCase,
+                                                                                    const std::vector<double>& pressure,
+                                                                                    const std::vector<double>& permeabilityX,
+                                                                                    const std::vector<double>& permeabilityY,
+                                                                                    const std::vector<double>& permeabilityZ,
+                                                                                    int                        numClustersFound,
+                                                                                    size_t                     timeStepIdx,
+                                                                                    const QString&             clusterResultName );
 
     static void computeStatisticsAndCreateVectors( RimEclipseCase&                         targetCase,
                                                    const QString&                          resultName,

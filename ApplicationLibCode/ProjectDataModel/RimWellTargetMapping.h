@@ -23,7 +23,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
-#include "Well/RigWellTargetCandidatesGenerator.h"
+#include "Well/RigWellTargetMapping.h"
 
 class RimEclipseResultDefinition;
 class RimEclipseCase;
@@ -32,13 +32,13 @@ class RimEclipseCase;
 ///
 ///
 //==================================================================================================
-class RimWellTargetCandidatesGenerator : public caf::PdmObject
+class RimWellTargetMapping : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellTargetCandidatesGenerator();
-    ~RimWellTargetCandidatesGenerator() override;
+    RimWellTargetMapping();
+    ~RimWellTargetMapping() override;
 
     void updateResultDefinition();
 
@@ -59,13 +59,13 @@ private:
 
     RimEclipseCase* firstCase() const;
 
-    RigWellTargetCandidatesGenerator::ClusteringLimits getClusteringLimits() const;
+    RigWellTargetMapping::ClusteringLimits getClusteringLimits() const;
 
     caf::PdmField<int> m_timeStep;
 
-    caf::PdmField<caf::AppEnum<RigWellTargetCandidatesGenerator::VolumeType>>       m_volumeType;
-    caf::PdmField<caf::AppEnum<RigWellTargetCandidatesGenerator::VolumeResultType>> m_volumeResultType;
-    caf::PdmField<caf::AppEnum<RigWellTargetCandidatesGenerator::VolumesType>>      m_volumesType;
+    caf::PdmField<caf::AppEnum<RigWellTargetMapping::VolumeType>>       m_volumeType;
+    caf::PdmField<caf::AppEnum<RigWellTargetMapping::VolumeResultType>> m_volumeResultType;
+    caf::PdmField<caf::AppEnum<RigWellTargetMapping::VolumesType>>      m_volumesType;
 
     caf::PdmField<double> m_volume;
     caf::PdmField<double> m_pressure;

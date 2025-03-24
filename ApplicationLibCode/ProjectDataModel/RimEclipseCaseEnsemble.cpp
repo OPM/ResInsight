@@ -24,7 +24,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
-#include "RimWellTargetCandidatesGenerator.h"
+#include "RimWellTargetMapping.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -51,7 +51,7 @@ RimEclipseCaseEnsemble::RimEclipseCaseEnsemble()
     CAF_PDM_InitFieldNoDefault( &m_viewCollection, "ViewCollection", "Views" );
     m_viewCollection = new RimEclipseViewCollection;
 
-    CAF_PDM_InitFieldNoDefault( &m_wellTargetGenerators, "WellTargetGenerators", "Well Target Candidates Generators" );
+    CAF_PDM_InitFieldNoDefault( &m_wellTargetMappings, "WellTargetMappings", "Well Target Mappings" );
 
     CAF_PDM_InitFieldNoDefault( &m_statisticsContourMaps, "StatisticsContourMaps", "Statistics Contour maps" );
 
@@ -146,9 +146,9 @@ std::set<RimEclipseCase*> RimEclipseCaseEnsemble::casesInViews() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellTargetCandidatesGenerator*> RimEclipseCaseEnsemble::wellTargetsGenerators() const
+std::vector<RimWellTargetMapping*> RimEclipseCaseEnsemble::wellTargetMappings() const
 {
-    return m_wellTargetGenerators.childrenByType();
+    return m_wellTargetMappings.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,7 +173,7 @@ RimEclipseView* RimEclipseCaseEnsemble::addViewForCase( RimEclipseCase* eclipseC
 void RimEclipseCaseEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicNewViewForGridEnsembleFeature";
-    menuBuilder << "RicNewWellTargetCandidatesGeneratorFeature";
+    menuBuilder << "RicNewWellTargetMappingFeature";
     menuBuilder << "RicNewStatisticsContourMapFeature";
 }
 
@@ -212,10 +212,10 @@ std::vector<RimEclipseView*> RimEclipseCaseEnsemble::allViews() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCaseEnsemble::addWellTargetsGenerator( RimWellTargetCandidatesGenerator* generator )
+void RimEclipseCaseEnsemble::addWellTargetMapping( RimWellTargetMapping* wellTargetMapping )
 {
-    m_wellTargetGenerators.push_back( generator );
-    generator->updateResultDefinition();
+    m_wellTargetMappings.push_back( wellTargetMapping );
+    wellTargetMapping->updateResultDefinition();
 }
 
 //--------------------------------------------------------------------------------------------------

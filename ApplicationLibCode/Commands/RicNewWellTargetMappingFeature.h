@@ -23,7 +23,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewWellTargetCandidatesGeneratorFeature : public caf::CmdFeature
+class RicNewWellTargetMappingFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
