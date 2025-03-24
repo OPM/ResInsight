@@ -20,7 +20,7 @@
 
 namespace RimFishbonesDefines
 {
-enum class LocationType
+enum class LocationType_OBSOLETE
 {
     FB_SUB_COUNT_END,
     FB_SUB_SPACING_END,
@@ -30,8 +30,8 @@ enum class LocationType
 
 enum class LateralsOrientationType
 {
-    FB_LATERAL_ORIENTATION_FIXED,
-    FB_LATERAL_ORIENTATION_RANDOM
+    FIXED,
+    RANDOM
 };
 
 enum class DrillingType

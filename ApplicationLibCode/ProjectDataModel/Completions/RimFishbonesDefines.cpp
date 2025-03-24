@@ -23,20 +23,20 @@
 namespace caf
 {
 template <>
-void AppEnum<RimFishbonesDefines::LocationType>::setUp()
+void AppEnum<RimFishbonesDefines::LocationType_OBSOLETE>::setUp()
 {
-    addItem( RimFishbonesDefines::LocationType::FB_SUB_COUNT_END, "FB_SUB_COUNT", "Start/End/Number of Subs" );
-    addItem( RimFishbonesDefines::LocationType::FB_SUB_SPACING_END, "FB_SUB_SPACING", "Start/End/Spacing" );
-    addItem( RimFishbonesDefines::LocationType::FB_SUB_USER_DEFINED, "FB_SUB_CUSTOM", "User Specification" );
-    setDefault( RimFishbonesDefines::LocationType::FB_SUB_COUNT_END );
+    addItem( RimFishbonesDefines::LocationType_OBSOLETE::FB_SUB_COUNT_END, "FB_SUB_COUNT", "Start/End/Number of Subs" );
+    addItem( RimFishbonesDefines::LocationType_OBSOLETE::FB_SUB_SPACING_END, "FB_SUB_SPACING", "Start/End/Spacing" );
+    addItem( RimFishbonesDefines::LocationType_OBSOLETE::FB_SUB_USER_DEFINED, "FB_SUB_CUSTOM", "User Specification" );
+    setDefault( RimFishbonesDefines::LocationType_OBSOLETE::FB_SUB_COUNT_END );
 }
 
 template <>
 void AppEnum<RimFishbonesDefines::LateralsOrientationType>::setUp()
 {
-    addItem( RimFishbonesDefines::LateralsOrientationType::FB_LATERAL_ORIENTATION_FIXED, "FB_LATERAL_ORIENTATION_FIXED", "Fixed Angle" );
-    addItem( RimFishbonesDefines::LateralsOrientationType::FB_LATERAL_ORIENTATION_RANDOM, "FB_LATERAL_ORIENTATION_RANDOM", "Random Angle" );
-    setDefault( RimFishbonesDefines::LateralsOrientationType::FB_LATERAL_ORIENTATION_RANDOM );
+    addItem( RimFishbonesDefines::LateralsOrientationType::FIXED, "FIXED", "Fixed Angle", { "FB_LATERAL_ORIENTATION_FIXED" } );
+    addItem( RimFishbonesDefines::LateralsOrientationType::RANDOM, "RANDOM", "Random Angle", { "FB_LATERAL_ORIENTATION_RANDOM" } );
+    setDefault( RimFishbonesDefines::LateralsOrientationType::RANDOM );
 }
 
 template <>

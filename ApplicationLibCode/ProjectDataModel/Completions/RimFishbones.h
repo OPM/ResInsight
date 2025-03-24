@@ -158,10 +158,10 @@ private:
     std::vector<SubAndLateralIndex>      m_subLateralIndices;
 
     // Moved to RimMultipleValveLocations
-    caf::PdmField<caf::AppEnum<RimFishbonesDefines::LocationType>> m_subsLocationMode_OBSOLETE;
-    caf::PdmField<double>                                          m_rangeStart_OBSOLETE;
-    caf::PdmField<double>                                          m_rangeEnd_OBSOLETE;
-    caf::PdmField<double>                                          m_rangeSubSpacing_OBSOLETE;
-    caf::PdmField<int>                                             m_rangeSubCount_OBSOLETE;
-    caf::PdmField<std::vector<double>>                             m_locationOfSubs_OBSOLETE; // Given in measured depth
+    caf::PdmField<caf::AppEnum<RimFishbonesDefines::LocationType_OBSOLETE>> m_subsLocationMode_OBSOLETE;
+    caf::PdmField<double>                                                   m_rangeStart_OBSOLETE;
+    caf::PdmField<double>                                                   m_rangeEnd_OBSOLETE;
+    caf::PdmField<double>                                                   m_rangeSubSpacing_OBSOLETE;
+    caf::PdmField<int>                                                      m_rangeSubCount_OBSOLETE;
+    caf::PdmField<std::vector<double>>                                      m_locationOfSubs_OBSOLETE; // Given in measured depth
 };

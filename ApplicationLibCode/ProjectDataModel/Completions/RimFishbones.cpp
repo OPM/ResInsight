@@ -103,7 +103,7 @@ RimFishbones::RimFishbones()
 
     CAF_PDM_InitScriptableField( &m_subsOrientationMode,
                                  "SubsOrientationMode",
-                                 RimFishbonesDefines::LateralsOrientationType::FB_LATERAL_ORIENTATION_RANDOM,
+                                 RimFishbonesDefines::LateralsOrientationType::RANDOM,
                                  "Orientation" );
 
     CAF_PDM_InitFieldNoDefault( &m_installationRotationAngles, "InstallationRotationAngles", "Installation Rotation Angles [deg]" );
@@ -204,7 +204,7 @@ double RimFishbones::measuredDepth( size_t subIndex ) const
 //--------------------------------------------------------------------------------------------------
 double RimFishbones::rotationAngle( size_t index ) const
 {
-    if ( m_subsOrientationMode == RimFishbonesDefines::LateralsOrientationType::FB_LATERAL_ORIENTATION_FIXED )
+    if ( m_subsOrientationMode == RimFishbonesDefines::LateralsOrientationType::FIXED )
     {
         return m_fixedInstallationRotationAngle;
     }
@@ -615,7 +615,7 @@ void RimFishbones::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& u
         lateralConfigGroup->add( &m_lateralBuildAngle );
 
         lateralConfigGroup->add( &m_subsOrientationMode );
-        if ( m_subsOrientationMode == RimFishbonesDefines::LateralsOrientationType::FB_LATERAL_ORIENTATION_FIXED )
+        if ( m_subsOrientationMode == RimFishbonesDefines::LateralsOrientationType::FIXED )
         {
             lateralConfigGroup->add( &m_fixedInstallationRotationAngle );
         }
@@ -730,7 +730,7 @@ void RimFishbones::initialiseObsoleteFields()
 {
     CAF_PDM_InitField( &m_subsLocationMode_OBSOLETE,
                        "SubsLocationMode",
-                       caf::AppEnum<RimFishbonesDefines::LocationType>( RimFishbonesDefines::LocationType::FB_SUB_UNDEFINED ),
+                       caf::AppEnum<RimFishbonesDefines::LocationType_OBSOLETE>( RimFishbonesDefines::LocationType_OBSOLETE::FB_SUB_UNDEFINED ),
                        "Location Defined By" );
     m_subsLocationMode_OBSOLETE.xmlCapability()->setIOWritable( false );
 
@@ -756,15 +756,15 @@ void RimFishbones::initialiseObsoleteFields()
 void RimFishbones::initValveLocationFromLegacyData()
 {
     RimMultipleValveLocations::LocationType locationType = RimMultipleValveLocations::VALVE_UNDEFINED;
-    if ( m_subsLocationMode_OBSOLETE() == RimFishbonesDefines::LocationType::FB_SUB_COUNT_END )
+    if ( m_subsLocationMode_OBSOLETE() == RimFishbonesDefines::LocationType_OBSOLETE::FB_SUB_COUNT_END )
     {
         locationType = RimMultipleValveLocations::VALVE_COUNT;
     }
-    else if ( m_subsLocationMode_OBSOLETE() == RimFishbonesDefines::LocationType::FB_SUB_SPACING_END )
+    else if ( m_subsLocationMode_OBSOLETE() == RimFishbonesDefines::LocationType_OBSOLETE::FB_SUB_SPACING_END )
     {
         locationType = RimMultipleValveLocations::VALVE_SPACING;
     }
-    else if ( m_subsLocationMode_OBSOLETE() == RimFishbonesDefines::LocationType::FB_SUB_USER_DEFINED )
+    else if ( m_subsLocationMode_OBSOLETE() == RimFishbonesDefines::LocationType_OBSOLETE::FB_SUB_USER_DEFINED )
     {
         locationType = RimMultipleValveLocations::VALVE_CUSTOM;
     }
