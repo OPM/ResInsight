@@ -101,10 +101,7 @@ RimFishbones::RimFishbones()
     m_valveLocations->findField( "RangeValveCount" )->uiCapability()->setUiName( "Number of Subs" );
     m_valveLocations.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitScriptableField( &m_subsOrientationMode,
-                                 "SubsOrientationMode",
-                                 RimFishbonesDefines::LateralsOrientationType::RANDOM,
-                                 "Orientation" );
+    CAF_PDM_InitScriptableField( &m_subsOrientationMode, "SubsOrientationMode", RimFishbonesDefines::LateralsOrientationType::RANDOM, "Orientation" );
 
     CAF_PDM_InitFieldNoDefault( &m_installationRotationAngles, "InstallationRotationAngles", "Installation Rotation Angles [deg]" );
     m_installationRotationAngles.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
