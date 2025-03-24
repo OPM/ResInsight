@@ -159,7 +159,20 @@ void RimWellTargetMapping::fieldChangedByUi( const caf::PdmFieldHandle* changedF
         if ( hasEnsembleParent )
             generateEnsembleStatistics();
         else if ( auto eclipseCase = firstCase() )
+        {
             generateCandidates( eclipseCase );
+            if ( auto views = eclipseCase->reservoirViews(); !views.empty() )
+            {
+                auto eclipseView = views.front();
+                eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::GENERATED );
+                eclipseView->cellResult()->setResultVariable( "CLUSTERS_NUM" );
+
+                if ( RiaGuiApplication::isRunning() || RiuMainWindow::instance() )
+                {
+                    RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
+                }
+            }
+        }
     }
 }
 
