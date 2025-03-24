@@ -61,6 +61,8 @@ private:
 
     RimEclipseCase* firstCase() const;
 
+    static std::vector<RigWellTargetMapping::VolumesType> findAvailableVolumesTypes( RimEclipseCase* eclipseCase );
+
     RigWellTargetMapping::ClusteringLimits getClusteringLimits() const;
 
     caf::PdmField<int> m_timeStep;
