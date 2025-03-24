@@ -27,7 +27,7 @@ else:
     reference_point[0] = 457196
     reference_point[1] = 7322270
     reference_point[2] = 2742
-    geometry.update() 
+    geometry.update()
 
     coord = [0, 0, 0]
     geometry.append_well_target(coord)
@@ -48,13 +48,13 @@ fishbones_collection.main_bore_skin_factor = 0.1
 fishbones_collection.update()
 
 # Drilling type is one of [STANDARD, EXTENDED, ACID_JETTING]
-drilling_type ="ACID_JETTING"
+drilling_type = "ACID_JETTING"
 
 sub_locations = [3500.0, 3550.0, 3600.0, 3700.0]
 fishbones = fishbones_collection.append_fishbones(sub_locations, drilling_type)
 
 fishbones.lateral_diameter = 47.0
-fishbones.lateral_skin_factor  = 27.0
+fishbones.lateral_skin_factor = 27.0
 fishbones.update()
 
 # Optionally set the fixed start location for all fishbones
