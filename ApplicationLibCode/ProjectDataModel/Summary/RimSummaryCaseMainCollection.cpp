@@ -273,9 +273,9 @@ RimSummaryEnsemble* RimSummaryCaseMainCollection::addEnsemble( const std::vector
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseMainCollection::removeCaseCollection( RimSummaryEnsemble* caseCollection )
+void RimSummaryCaseMainCollection::removeEnsemble( RimSummaryEnsemble* ensemble )
 {
-    m_caseCollections.removeChild( caseCollection );
+    m_caseCollections.removeChild( ensemble );
 
     RiaEnsembleNameTools::updateAutoNameEnsembles( summaryCaseCollections() );
 

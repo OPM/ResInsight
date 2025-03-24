@@ -66,7 +66,7 @@ public:
                                      const QString&                       coolectionName,
                                      bool                                 isEnsemble,
                                      std::function<RimSummaryEnsemble*()> allocator = defaultAllocator );
-    void                removeCaseCollection( RimSummaryEnsemble* caseCollection );
+    void                removeEnsemble( RimSummaryEnsemble* ensemble );
     void                addEnsemble( RimSummaryEnsemble* ensemble );
 
     void loadAllSummaryCaseData();

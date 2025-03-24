@@ -119,7 +119,7 @@ void RicDeleteSummaryCaseCollectionFeature::onActionTriggered( bool isChecked )
 
     for ( RimSummaryEnsemble* caseCollection : selection )
     {
-        summaryCaseMainCollection->removeCaseCollection( caseCollection );
+        summaryCaseMainCollection->removeEnsemble( caseCollection );
         delete caseCollection;
     }
 
