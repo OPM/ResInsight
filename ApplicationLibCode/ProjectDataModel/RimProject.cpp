@@ -760,7 +760,7 @@ std::vector<RimSummaryEnsemble*> RimProject::summaryGroups() const
         RimSummaryCaseMainCollection* sumCaseMainColl = oilField->summaryCaseMainCollection();
         if ( sumCaseMainColl )
         {
-            std::vector<RimSummaryEnsemble*> g = sumCaseMainColl->summaryCaseCollections();
+            std::vector<RimSummaryEnsemble*> g = sumCaseMainColl->summaryEnsembles();
             groups.insert( groups.end(), g.begin(), g.end() );
         }
     }

@@ -568,7 +568,7 @@ std::vector<RimDeltaSummaryEnsemble*> RimDeltaSummaryEnsemble::findReferringEnse
     auto mainColl = firstAncestorOrThisOfType<RimSummaryCaseMainCollection>();
     if ( mainColl )
     {
-        for ( auto group : mainColl->summaryCaseCollections() )
+        for ( auto group : mainColl->summaryEnsembles() )
         {
             auto derivedEnsemble = dynamic_cast<RimDeltaSummaryEnsemble*>( group );
             if ( derivedEnsemble )

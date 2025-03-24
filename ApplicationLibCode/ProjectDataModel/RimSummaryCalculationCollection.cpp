@@ -82,7 +82,7 @@ void RimSummaryCalculationCollection::updateDataDependingOnCalculations()
         }
     }
 
-    auto summaryCaseCollections = summaryCaseCollection->summaryCaseCollections();
+    auto summaryCaseCollections = summaryCaseCollection->summaryEnsembles();
     for ( RimSummaryEnsemble* summaryCaseCollection : summaryCaseCollections )
     {
         summaryCaseCollection->onCalculationUpdated();

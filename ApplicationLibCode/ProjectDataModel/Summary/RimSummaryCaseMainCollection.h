@@ -49,7 +49,7 @@ public:
 
     std::vector<RimSummaryCase*>     allSummaryCases() const;
     std::vector<RimSummaryCase*>     topLevelSummaryCases() const;
-    std::vector<RimSummaryEnsemble*> summaryCaseCollections() const;
+    std::vector<RimSummaryEnsemble*> summaryEnsembles() const;
 
     std::vector<RimSummaryCase*> createSummaryCasesFromFileInfos( const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos,
                                                                   bool                                             showProgress = false );
@@ -87,5 +87,5 @@ private:
 
 private:
     caf::PdmChildArrayField<RimSummaryCase*>     m_cases;
-    caf::PdmChildArrayField<RimSummaryEnsemble*> m_caseCollections;
+    caf::PdmChildArrayField<RimSummaryEnsemble*> m_ensembles;
 };

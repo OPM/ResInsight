@@ -590,7 +590,7 @@ QList<caf::PdmOptionItemInfo>
             if ( !hideEnsembles )
             {
                 bool ensembleHeaderCreated = false;
-                for ( const auto& sumCaseColl : sumCaseMainColl->summaryCaseCollections() )
+                for ( const auto& sumCaseColl : sumCaseMainColl->summaryEnsembles() )
                 {
                     if ( !sumCaseColl->isEnsemble() ) continue;
 
@@ -611,7 +611,7 @@ QList<caf::PdmOptionItemInfo>
             if ( !hideSummaryCases )
             {
                 // Grouped cases
-                for ( const auto& sumCaseColl : sumCaseMainColl->summaryCaseCollections() )
+                for ( const auto& sumCaseColl : sumCaseMainColl->summaryEnsembles() )
                 {
                     if ( sumCaseColl->isEnsemble() && !showIndividualEnsembleCases ) continue;
 
