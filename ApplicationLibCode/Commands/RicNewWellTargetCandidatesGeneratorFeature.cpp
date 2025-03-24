@@ -61,4 +61,5 @@ void RicNewWellTargetCandidatesGeneratorFeature::onActionTriggered( bool isCheck
 void RicNewWellTargetCandidatesGeneratorFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Create Well Target Candidates Generator" );
+    actionToSetup->setIcon( QIcon( ":/WellTargets.png" ) );
 }
