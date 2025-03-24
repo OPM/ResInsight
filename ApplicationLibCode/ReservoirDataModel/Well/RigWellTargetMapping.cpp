@@ -129,7 +129,8 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*         eclipseCa
     }
     else
     {
-        filterVector.resize( data.pressure.size(), std::numeric_limits<double>::infinity() );
+        // Disable filter on invalid address: set all items to 1 (which includes all cells).
+        filterVector.resize( data.pressure.size(), 1.0 );
     }
 
     std::vector<int> clusters( activeCellCount.value(), 0 );
