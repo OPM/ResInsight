@@ -161,7 +161,7 @@ def test_fishbone_interface(rips_instance, initialize_test):
     fishbones = fishbones_collection.append_fishbones(sub_locations2)
 
     fishbones.lateral_diameter = 21.0
-    fishbones.lateral_skin_factor  = 2.1
+    fishbones.lateral_skin_factor = 2.1
     fishbones.icd_count = 1
     fishbones.icd_flow_coefficient = 0.1
     fishbones.icd_orifice_diameter = 0.1
@@ -191,4 +191,3 @@ def test_fishbone_interface(rips_instance, initialize_test):
     assert fishbones_updated.lateral_tubing_diameter == 0.1
     assert fishbones_updated.lateral_tubing_roghness_factor == 0.1
     assert fishbones_updated.subs_orientation_mode == "FB_LATERAL_ORIENTATION_FIXED"
-    
