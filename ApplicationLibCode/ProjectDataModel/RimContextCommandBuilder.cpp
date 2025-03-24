@@ -277,7 +277,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicEclipseCaseNewGroupFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
-            menuBuilder << "RicNewWellTargetCandidatesGeneratorFeature";
+            menuBuilder << "RicNewWellTargetMappingFeature";
 
             menuBuilder << "Separator";
         }

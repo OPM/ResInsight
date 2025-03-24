@@ -40,7 +40,7 @@
 
 class QString;
 
-class RimWellTargetCandidatesGenerator;
+class RimWellTargetMapping;
 class RigCaseCellResultsData;
 class RigEclipseCaseData;
 class RigGridBase;
@@ -131,7 +131,7 @@ public:
     void              setReaderSettings( RifReaderSettings& readerSettings );
     RifReaderSettings readerSettings() const;
 
-    void addWellTargetsGenerator( RimWellTargetCandidatesGenerator* generator );
+    void addWellTargetMapping( RimWellTargetMapping* wellTargetMapping );
 
     void updateResultAddressCollection();
 
@@ -177,7 +177,7 @@ private:
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;
     caf::PdmChildField<RimEclipseViewCollection*>       m_viewCollection;
 
-    caf::PdmChildArrayField<RimWellTargetCandidatesGenerator*> m_wellTargetGenerators;
+    caf::PdmChildArrayField<RimWellTargetMapping*> m_wellTargetMappings;
 
     caf::PdmField<std::vector<caf::FilePath>> m_filesContainingFaults;
 

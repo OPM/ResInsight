@@ -122,7 +122,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseViewCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseEnsemble.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCameraPosition.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellTargetCandidatesGenerator.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellTargetMapping.h
     ${CMAKE_CURRENT_LIST_DIR}/RimRegularGridCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimGeometrySelectionItem.cpp
 )
@@ -247,7 +247,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseViewCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseEnsemble.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCameraPosition.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellTargetCandidatesGenerator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellTargetMapping.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimRegularGridCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimGeometrySelectionItem.cpp
 )

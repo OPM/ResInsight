@@ -102,7 +102,7 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RimWellTargetCandidatesGenerator.h"
+#include "RimWellTargetMapping.h"
 #include "Tools/RimAutomationSettings.h"
 #include "VerticalFlowPerformance/RimVfpDataCollection.h"
 #include "VerticalFlowPerformance/RimVfpPlotCollection.h"
@@ -619,9 +619,10 @@ std::vector<RimCase*> RimProject::allGridCases() const
                     cases.push_back( acase );
                 }
 
-                for ( RimWellTargetCandidatesGenerator* generator : ensemble->wellTargetsGenerators() )
+                for ( RimWellTargetMapping* wellTargetMapping : ensemble->wellTargetMappings() )
                 {
-                    if ( auto ensembleStatisticsCase = generator->ensembleStatisticsCase() ) cases.push_back( ensembleStatisticsCase );
+                    if ( auto ensembleStatisticsCase = wellTargetMapping->ensembleStatisticsCase() )
+                        cases.push_back( ensembleStatisticsCase );
                 }
             }
 

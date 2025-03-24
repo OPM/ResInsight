@@ -31,7 +31,7 @@ class RimCaseCollection;
 class RimEclipseCase;
 class RimEclipseView;
 class RimEclipseViewCollection;
-class RimWellTargetCandidatesGenerator;
+class RimWellTargetMapping;
 class RimStatisticsContourMap;
 
 //==================================================================================================
@@ -63,8 +63,8 @@ public:
 
     RimEclipseViewCollection* viewCollection() const;
 
-    void                                           addWellTargetsGenerator( RimWellTargetCandidatesGenerator* generator );
-    std::vector<RimWellTargetCandidatesGenerator*> wellTargetsGenerators() const;
+    void                               addWellTargetMapping( RimWellTargetMapping* wellTargetMapping );
+    std::vector<RimWellTargetMapping*> wellTargetMappings() const;
 
     void addStatisticsContourMap( RimStatisticsContourMap* statisticsContourMap );
 
@@ -73,10 +73,10 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    caf::PdmField<int>                                         m_groupId;
-    caf::PdmChildField<RimCaseCollection*>                     m_caseCollection;
-    caf::PdmChildField<RimEclipseViewCollection*>              m_viewCollection;
-    caf::PdmChildArrayField<RimWellTargetCandidatesGenerator*> m_wellTargetGenerators;
-    caf::PdmChildArrayField<RimStatisticsContourMap*>          m_statisticsContourMaps;
-    caf::PdmPtrField<RimEclipseCase*>                          m_selectedCase;
+    caf::PdmField<int>                                m_groupId;
+    caf::PdmChildField<RimCaseCollection*>            m_caseCollection;
+    caf::PdmChildField<RimEclipseViewCollection*>     m_viewCollection;
+    caf::PdmChildArrayField<RimWellTargetMapping*>    m_wellTargetMappings;
+    caf::PdmChildArrayField<RimStatisticsContourMap*> m_statisticsContourMaps;
+    caf::PdmPtrField<RimEclipseCase*>                 m_selectedCase;
 };

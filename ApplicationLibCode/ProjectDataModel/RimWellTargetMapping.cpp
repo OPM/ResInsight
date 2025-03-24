@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellTargetCandidatesGenerator.h"
+#include "RimWellTargetMapping.h"
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
@@ -27,7 +27,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseResultAddress.h"
-#include "Well/RigWellTargetCandidatesGenerator.h"
+#include "Well/RigWellTargetMapping.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
@@ -47,34 +47,34 @@
 #include <cmath>
 #include <limits>
 
-CAF_PDM_SOURCE_INIT( RimWellTargetCandidatesGenerator, "RimWellTargetCandidatesGenerator" );
+CAF_PDM_SOURCE_INIT( RimWellTargetMapping, "RimWellTargetMapping" );
 
 namespace caf
 {
 template <>
-void caf::AppEnum<RigWellTargetCandidatesGenerator::VolumeType>::setUp()
+void caf::AppEnum<RigWellTargetMapping::VolumeType>::setUp()
 {
-    addItem( RigWellTargetCandidatesGenerator::VolumeType::OIL, "OIL", "Oil" );
-    addItem( RigWellTargetCandidatesGenerator::VolumeType::GAS, "GAS", "Gas" );
-    addItem( RigWellTargetCandidatesGenerator::VolumeType::HYDROCARBON, "HYDROCARBON", "Hydrocarbon" );
-    setDefault( RigWellTargetCandidatesGenerator::VolumeType::OIL );
+    addItem( RigWellTargetMapping::VolumeType::OIL, "OIL", "Oil" );
+    addItem( RigWellTargetMapping::VolumeType::GAS, "GAS", "Gas" );
+    addItem( RigWellTargetMapping::VolumeType::HYDROCARBON, "HYDROCARBON", "Hydrocarbon" );
+    setDefault( RigWellTargetMapping::VolumeType::OIL );
 }
 
 template <>
-void caf::AppEnum<RigWellTargetCandidatesGenerator::VolumeResultType>::setUp()
+void caf::AppEnum<RigWellTargetMapping::VolumeResultType>::setUp()
 {
-    addItem( RigWellTargetCandidatesGenerator::VolumeResultType::MOBILE, "MOBILE", "Mobile" );
-    addItem( RigWellTargetCandidatesGenerator::VolumeResultType::TOTAL, "TOTAL", "Total" );
-    setDefault( RigWellTargetCandidatesGenerator::VolumeResultType::TOTAL );
+    addItem( RigWellTargetMapping::VolumeResultType::MOBILE, "MOBILE", "Mobile" );
+    addItem( RigWellTargetMapping::VolumeResultType::TOTAL, "TOTAL", "Total" );
+    setDefault( RigWellTargetMapping::VolumeResultType::TOTAL );
 }
 
 template <>
-void caf::AppEnum<RigWellTargetCandidatesGenerator::VolumesType>::setUp()
+void caf::AppEnum<RigWellTargetMapping::VolumesType>::setUp()
 {
-    addItem( RigWellTargetCandidatesGenerator::VolumesType::RESERVOIR_VOLUMES, "RESERVOIR", "Reservoir Volumes (RFIPOIL, RFIPGAS)" );
-    addItem( RigWellTargetCandidatesGenerator::VolumesType::SURFACE_VOLUMES, "SURFACE", "Surface Volumes (SFIPOIL, SFIPGAS)" );
-    addItem( RigWellTargetCandidatesGenerator::VolumesType::COMPUTED_VOLUMES, "COMPUTED", "Computed Volumes (PORV*SOIL, PORV*SGAS)" );
-    setDefault( RigWellTargetCandidatesGenerator::VolumesType::COMPUTED_VOLUMES );
+    addItem( RigWellTargetMapping::VolumesType::RESERVOIR_VOLUMES, "RESERVOIR", "Reservoir Volumes (RFIPOIL, RFIPGAS)" );
+    addItem( RigWellTargetMapping::VolumesType::SURFACE_VOLUMES, "SURFACE", "Surface Volumes (SFIPOIL, SFIPGAS)" );
+    addItem( RigWellTargetMapping::VolumesType::COMPUTED_VOLUMES, "COMPUTED", "Computed Volumes (PORV*SOIL, PORV*SGAS)" );
+    setDefault( RigWellTargetMapping::VolumesType::COMPUTED_VOLUMES );
 }
 
 } // End namespace caf
@@ -82,9 +82,9 @@ void caf::AppEnum<RigWellTargetCandidatesGenerator::VolumesType>::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellTargetCandidatesGenerator::RimWellTargetCandidatesGenerator()
+RimWellTargetMapping::RimWellTargetMapping()
 {
-    CAF_PDM_InitObject( "Well Target Candidates Generator", ":/WellTargets.png" );
+    CAF_PDM_InitObject( "Well Target Mapping", ":/WellTargets.png" );
 
     CAF_PDM_InitField( &m_timeStep, "TimeStep", 0, "Time Step" );
 
@@ -142,14 +142,14 @@ RimWellTargetCandidatesGenerator::RimWellTargetCandidatesGenerator()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellTargetCandidatesGenerator::~RimWellTargetCandidatesGenerator()
+RimWellTargetMapping::~RimWellTargetMapping()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellTargetCandidatesGenerator::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+void RimWellTargetMapping::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     updateAllBoundaries();
 
@@ -166,7 +166,7 @@ void RimWellTargetCandidatesGenerator::fieldChangedByUi( const caf::PdmFieldHand
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellTargetCandidatesGenerator::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimWellTargetMapping::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -184,7 +184,7 @@ QList<caf::PdmOptionItemInfo> RimWellTargetCandidatesGenerator::calculateValueOp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellTargetCandidatesGenerator::updateAllBoundaries()
+void RimWellTargetMapping::updateAllBoundaries()
 {
     RimEclipseCase* eclipseCase = firstCase();
     if ( !eclipseCase ) return;
@@ -217,7 +217,7 @@ void RimWellTargetCandidatesGenerator::updateAllBoundaries()
         updateBoundaryValues( resultsData, { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) }, timeStepIdx );
 
     std::vector<double> volume =
-        RigWellTargetCandidatesGenerator::getVolumeVector( *resultsData, m_volumeType(), m_volumesType(), m_volumeResultType(), timeStepIdx );
+        RigWellTargetMapping::getVolumeVector( *resultsData, m_volumeType(), m_volumesType(), m_volumeResultType(), timeStepIdx );
     if ( !volume.empty() )
     {
         const auto [min, max] = std::minmax_element( volume.begin(), volume.end() );
@@ -243,9 +243,7 @@ void RimWellTargetCandidatesGenerator::updateAllBoundaries()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellTargetCandidatesGenerator::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                              QString                    uiConfigName,
-                                                              caf::PdmUiEditorAttribute* attribute )
+void RimWellTargetMapping::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 
 {
     if ( field == &m_volume && m_minimumVolume != cvf::UNDEFINED_DOUBLE && m_maximumVolume != cvf::UNDEFINED_DOUBLE )
@@ -300,7 +298,7 @@ void RimWellTargetCandidatesGenerator::defineEditorAttribute( const caf::PdmFiel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3st RimWellTargetCandidatesGenerator::getResultGridCellCount() const
+cvf::Vec3st RimWellTargetMapping::getResultGridCellCount() const
 {
     return cvf::Vec3st( m_cellCountI, m_cellCountJ, m_cellCountK );
 }
@@ -308,29 +306,29 @@ cvf::Vec3st RimWellTargetCandidatesGenerator::getResultGridCellCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellTargetCandidatesGenerator::generateCandidates( RimEclipseCase* eclipseCase )
+void RimWellTargetMapping::generateCandidates( RimEclipseCase* eclipseCase )
 {
-    RigWellTargetCandidatesGenerator::ClusteringLimits limits = getClusteringLimits();
-    RigWellTargetCandidatesGenerator::generateCandidates( eclipseCase, m_timeStep(), m_volumeType(), m_volumesType(), m_volumeResultType(), limits );
+    RigWellTargetMapping::ClusteringLimits limits = getClusteringLimits();
+    RigWellTargetMapping::generateCandidates( eclipseCase, m_timeStep(), m_volumeType(), m_volumesType(), m_volumeResultType(), limits );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellTargetCandidatesGenerator::generateEnsembleStatistics()
+void RimWellTargetMapping::generateEnsembleStatistics()
 {
     auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
     if ( !ensemble ) return;
 
-    const cvf::Vec3st&                                 resultGridCellCount = getResultGridCellCount();
-    RigWellTargetCandidatesGenerator::ClusteringLimits limits              = getClusteringLimits();
-    RimRegularGridCase* regularGridCase = RigWellTargetCandidatesGenerator::generateEnsembleCandidates( *ensemble,
-                                                                                                        m_timeStep(),
-                                                                                                        resultGridCellCount,
-                                                                                                        m_volumeType(),
-                                                                                                        m_volumesType(),
-                                                                                                        m_volumeResultType(),
-                                                                                                        limits );
+    const cvf::Vec3st&                     resultGridCellCount = getResultGridCellCount();
+    RigWellTargetMapping::ClusteringLimits limits              = getClusteringLimits();
+    RimRegularGridCase*                    regularGridCase     = RigWellTargetMapping::generateEnsembleCandidates( *ensemble,
+                                                                                            m_timeStep(),
+                                                                                            resultGridCellCount,
+                                                                                            m_volumeType(),
+                                                                                            m_volumesType(),
+                                                                                            m_volumeResultType(),
+                                                                                            limits );
 
     regularGridCase->setCustomCaseName( "Ensemble Grid" );
 
@@ -354,7 +352,7 @@ void RimWellTargetCandidatesGenerator::generateEnsembleStatistics()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellTargetCandidatesGenerator::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* resultGroup = uiOrdering.addNewGroup( "Result" );
     resultGroup->add( &m_timeStep );
@@ -398,7 +396,7 @@ void RimWellTargetCandidatesGenerator::defineUiOrdering( QString uiConfigName, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWellTargetCandidatesGenerator::ClusteringLimits RimWellTargetCandidatesGenerator::getClusteringLimits() const
+RigWellTargetMapping::ClusteringLimits RimWellTargetMapping::getClusteringLimits() const
 {
     return { .volume           = m_volume,
              .permeability     = m_permeability,
@@ -412,7 +410,7 @@ RigWellTargetCandidatesGenerator::ClusteringLimits RimWellTargetCandidatesGenera
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimWellTargetCandidatesGenerator::firstCase() const
+RimEclipseCase* RimWellTargetMapping::firstCase() const
 {
     auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
     if ( ensemble && !ensemble->cases().empty() )
@@ -424,7 +422,7 @@ RimEclipseCase* RimWellTargetCandidatesGenerator::firstCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellTargetCandidatesGenerator::initAfterRead()
+void RimWellTargetMapping::initAfterRead()
 {
     RimEclipseCase* eclipseCase = firstCase();
     if ( eclipseCase ) m_resultDefinition->setEclipseCase( eclipseCase );
@@ -433,7 +431,7 @@ void RimWellTargetCandidatesGenerator::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellTargetCandidatesGenerator::updateResultDefinition()
+void RimWellTargetMapping::updateResultDefinition()
 {
     RimEclipseCase* eclipseCase = firstCase();
     if ( eclipseCase ) m_resultDefinition->setEclipseCase( eclipseCase );
@@ -442,7 +440,7 @@ void RimWellTargetCandidatesGenerator::updateResultDefinition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimWellTargetCandidatesGenerator::ensembleStatisticsCase() const
+RimEclipseCase* RimWellTargetMapping::ensembleStatisticsCase() const
 {
     return m_ensembleStatisticsCase;
 }
