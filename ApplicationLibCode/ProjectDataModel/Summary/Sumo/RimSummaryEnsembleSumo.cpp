@@ -488,7 +488,7 @@ void RimSummaryEnsembleSumo::fieldChangedByUi( const caf::PdmFieldHandle* change
     {
         clearCachedData();
         updateResultAddresses();
-        updateName();
+        RiaSummaryTools::updateSummaryEnsembleNames();
         buildMetaData();
 
         updateConnectedEditors();
@@ -555,7 +555,7 @@ void RimSummaryEnsembleSumo::onLoadDataAndUpdate()
         }
     }
 
-    updateName();
+    RiaSummaryTools::updateSummaryEnsembleNames();
     updateResultAddresses();
 
     buildMetaData();

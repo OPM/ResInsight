@@ -75,10 +75,9 @@ void RicReplaceSummaryEnsembleFeature::onActionTriggered( bool isChecked )
         summaryCase->updateAutoShortName();
     }
 
-    summaryEnsemble->updateName();
-
     if ( auto sumCaseMainColl = RiaSummaryTools::summaryCaseMainCollection() )
     {
+        sumCaseMainColl->updateEnsembleNames();
         sumCaseMainColl->updateAllRequiredEditors();
     }
 }

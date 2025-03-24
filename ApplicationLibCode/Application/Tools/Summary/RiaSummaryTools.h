@@ -99,6 +99,8 @@ public:
 
     static time_t calculateTimeThreshold( const time_t& minimum, const time_t& maximum );
 
+    static void updateSummaryEnsembleNames();
+
 private:
     static void updateRequiredCalculatedCurves( RimSummaryCase* sourceSummaryCase );
     static bool isCalculationRequired( const RimUserDefinedCalculation* summaryCalculation, const RimSummaryCase* summaryCase );

@@ -88,13 +88,13 @@ void RimCloudDataSourceCollection::createEnsemblesFromSelectedDataSources( const
         RimSummaryEnsembleSumo* ensemble = new RimSummaryEnsembleSumo();
         ensemble->setUsePathKey1( true );
         ensemble->setSumoDataSource( dataSource );
-        ensemble->updateName();
         RiaSummaryTools::summaryCaseMainCollection()->addEnsemble( ensemble );
         ensemble->loadDataAndUpdate();
 
         RiaSummaryPlotTools::createAndAppendDefaultSummaryMultiPlot( {}, { ensemble } );
     }
 
+    RiaSummaryTools::updateSummaryEnsembleNames();
     RiaSummaryTools::summaryCaseMainCollection()->updateAllRequiredEditors();
 }
 

@@ -76,6 +76,8 @@ public:
     void updateAutoShortName();
     void onProjectBeingSaved();
 
+    void updateEnsembleNames();
+
 private:
     void initAfterRead() override;
 

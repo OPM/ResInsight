@@ -778,9 +778,9 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         sumMainCollection->updateAutoShortName();
         for ( auto sumCaseGroup : sumMainCollection->summaryEnsembles() )
         {
-            sumCaseGroup->updateName();
             sumCaseGroup->loadDataAndUpdate();
         }
+        sumMainCollection->updateEnsembleNames();
 
         for ( auto well : oilField->wellPathCollection()->allWellPaths() )
         {

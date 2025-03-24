@@ -66,7 +66,7 @@ public:
     QString name() const;
 
     void                                        setNameTemplate( const QString& name );
-    void                                        updateName();
+    void                                        updateName( const std::set<QString>& existingEnsembleNames );
     void                                        setUsePathKey1( bool useKey1 );
     void                                        setUsePathKey2( bool useKey2 );
     virtual std::pair<std::string, std::string> nameKeys() const;

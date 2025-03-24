@@ -277,7 +277,7 @@ void RimSummaryCaseMainCollection::removeEnsemble( RimSummaryEnsemble* ensemble 
 {
     m_ensembles.removeChild( ensemble );
 
-    RiaEnsembleNameTools::updateAutoNameEnsembles( summaryEnsembles() );
+    RiaSummaryTools::updateSummaryEnsembleNames();
 
     dataSourceHasChanged.send();
 }
@@ -545,7 +545,7 @@ RimSummaryEnsemble* RimSummaryCaseMainCollection::defaultAllocator()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::onCaseNameChanged( const SignalEmitter* emitter )
 {
-    RiaEnsembleNameTools::updateAutoNameEnsembles( summaryEnsembles() );
+    RiaSummaryTools::updateSummaryEnsembleNames();
 
     RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
     summaryPlotColl->updateSummaryNameHasChanged();
@@ -719,5 +719,40 @@ void RimSummaryCaseMainCollection::onProjectBeingSaved()
         {
             fileSumCase->onProjectBeingSaved();
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::updateEnsembleNames()
+{
+    std::set<std::string> key1;
+    std::set<std::string> key2;
+
+    auto ensembles = summaryEnsembles();
+
+    for ( const auto& ensemble : ensembles )
+    {
+        const auto keys = ensemble->nameKeys();
+        key1.insert( keys.first );
+        key2.insert( keys.second );
+    }
+
+    bool useKey1 = key1.size() > 1;
+    bool useKey2 = key2.size() > 1;
+
+    if ( !useKey1 && !useKey2 )
+    {
+        useKey2 = true;
+    }
+
+    std::set<QString> existingNames;
+    for ( auto ensemble : ensembles )
+    {
+        ensemble->setUsePathKey1( useKey1 );
+        ensemble->setUsePathKey2( useKey2 );
+        ensemble->updateName( existingNames );
+        existingNames.insert( ensemble->name() );
     }
 }
