@@ -458,3 +458,15 @@ RimEclipseCase* RimWellTargetMapping::ensembleStatisticsCase() const
 {
     return m_ensembleStatisticsCase;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellTargetMapping::setDefaults()
+{
+    // Use last available time step
+    if ( RimEclipseCase* eclipseCase = firstCase() )
+    {
+        m_timeStep = eclipseCase->timeStepDates().size() - 1;
+    }
+}

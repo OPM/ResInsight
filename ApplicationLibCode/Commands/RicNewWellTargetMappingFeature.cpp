@@ -40,6 +40,7 @@ void RicNewWellTargetMappingFeature::onActionTriggered( bool isChecked )
         auto ensemble          = ensembles.front();
         auto wellTargetMapping = new RimWellTargetMapping();
         ensemble->addWellTargetMapping( wellTargetMapping );
+        wellTargetMapping->setDefaults();
 
         ensemble->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem( wellTargetMapping );
@@ -49,6 +50,7 @@ void RicNewWellTargetMappingFeature::onActionTriggered( bool isChecked )
         auto eclipseCase       = eclipseCases.front();
         auto wellTargetMapping = new RimWellTargetMapping();
         eclipseCase->addWellTargetMapping( wellTargetMapping );
+        wellTargetMapping->setDefaults();
 
         eclipseCase->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem( wellTargetMapping );
