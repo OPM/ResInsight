@@ -368,6 +368,7 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 
     caf::PdmUiGroup* resultDefinitionGroup = uiOrdering.addNewGroup( "Cluster Filter" );
     m_resultDefinition->uiOrdering( uiConfigName, *resultDefinitionGroup );
+    resultDefinitionGroup->setCollapsedByDefault();
 
     auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr;
 
@@ -382,6 +383,7 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup( "Advanced" );
     advancedGroup->add( &m_maxIterations );
     advancedGroup->add( &m_maxClusters );
+    advancedGroup->setCollapsedByDefault();
 
     uiOrdering.add( &m_generateButton );
 
