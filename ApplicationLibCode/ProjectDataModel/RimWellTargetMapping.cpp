@@ -190,6 +190,13 @@ QList<caf::PdmOptionItemInfo> RimWellTargetMapping::calculateValueOptions( const
             RimTools::timeStepsForCase( fc, &options );
         }
     }
+    else if ( fieldNeedingOptions == &m_volumesType )
+    {
+        if ( auto fc = firstCase() )
+        {
+            caf::AppEnum<RigWellTargetMapping::VolumesType>::setEnumSubset( &m_volumesType, findAvailableVolumesTypes( fc ) );
+        }
+    }
 
     return options;
 }
@@ -218,10 +225,12 @@ void RimWellTargetMapping::updateAllBoundaries()
         {
             double currentMinimum;
             double currentMaximum;
-            resultsData->ensureKnownResultLoaded( address );
-            resultsData->minMaxCellScalarValues( address, timeStepIdx, currentMinimum, currentMaximum );
-            globalMin = std::min( globalMin, currentMinimum );
-            globalMax = std::max( globalMax, currentMaximum );
+            if ( resultsData->ensureKnownResultLoaded( address ) )
+            {
+                resultsData->minMaxCellScalarValues( address, timeStepIdx, currentMinimum, currentMaximum );
+                globalMin = std::min( globalMin, currentMinimum );
+                globalMax = std::max( globalMax, currentMaximum );
+            }
         }
         return { globalMin, globalMax };
     };
@@ -464,9 +473,53 @@ RimEclipseCase* RimWellTargetMapping::ensembleStatisticsCase() const
 //--------------------------------------------------------------------------------------------------
 void RimWellTargetMapping::setDefaults()
 {
+    auto findFirstByPriority = []( const std::vector<RigWellTargetMapping::VolumesType>& priority,
+                                   const std::vector<RigWellTargetMapping::VolumesType>& available )
+    {
+        for ( auto pri : priority )
+        {
+            if ( std::find( available.begin(), available.end(), pri ) != available.end() ) return pri;
+        }
+
+        return RigWellTargetMapping::VolumesType::COMPUTED_VOLUMES;
+    };
+
     // Use last available time step
     if ( RimEclipseCase* eclipseCase = firstCase() )
     {
-        m_timeStep = eclipseCase->timeStepDates().size() - 1;
+        m_timeStep = static_cast<int>( eclipseCase->timeStepDates().size() ) - 1;
+
+        std::vector<RigWellTargetMapping::VolumesType> volumesTypesByPriority = { RigWellTargetMapping::VolumesType::RESERVOIR_VOLUMES,
+                                                                                  RigWellTargetMapping::VolumesType::SURFACE_VOLUMES,
+                                                                                  RigWellTargetMapping::VolumesType::COMPUTED_VOLUMES };
+        std::vector<RigWellTargetMapping::VolumesType> availableVolumesTypes  = findAvailableVolumesTypes( eclipseCase );
+        m_volumesType = findFirstByPriority( volumesTypesByPriority, availableVolumesTypes );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigWellTargetMapping::VolumesType> RimWellTargetMapping::findAvailableVolumesTypes( RimEclipseCase* eclipseCase )
+{
+    auto hasResult = []( RigCaseCellResultsData& resultsData, const QString& resultName ) -> bool
+    {
+        RigEclipseResultAddress address( RiaDefines::ResultCatType::DYNAMIC_NATIVE, resultName );
+        return resultsData.ensureKnownResultLoaded( address );
+    };
+
+    auto resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    if ( !resultsData ) return {};
+
+    std::vector<RigWellTargetMapping::VolumesType> availableVolumesTypes;
+    if ( hasResult( *resultsData, RiaResultNames::riPorvSoil() ) || hasResult( *resultsData, RiaResultNames::riPorvSgas() ) )
+        availableVolumesTypes.push_back( RigWellTargetMapping::VolumesType::COMPUTED_VOLUMES );
+
+    if ( hasResult( *resultsData, "RFIPOIL" ) || hasResult( *resultsData, "RFIPGAS" ) )
+        availableVolumesTypes.push_back( RigWellTargetMapping::VolumesType::RESERVOIR_VOLUMES );
+
+    if ( hasResult( *resultsData, "SFIPOIL" ) || hasResult( *resultsData, "SFIPGAS" ) )
+        availableVolumesTypes.push_back( RigWellTargetMapping::VolumesType::SURFACE_VOLUMES );
+
+    return availableVolumesTypes;
 }
