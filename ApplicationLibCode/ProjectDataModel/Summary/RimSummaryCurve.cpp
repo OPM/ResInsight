@@ -114,10 +114,6 @@ RimSummaryCurve::RimSummaryCurve()
 
     m_xValuesSummaryAddress = new RimSummaryAddress;
 
-    // Other members
-    CAF_PDM_InitFieldNoDefault( &m_isEnsembleCurve, "IsEnsembleCurve", "Ensemble Curve" );
-    m_isEnsembleCurve.v() = caf::Tristate::State::PartiallyTrue;
-
     CAF_PDM_InitFieldNoDefault( &m_plotAxis_OBSOLETE, "PlotAxis", "Axis" );
     m_plotAxis_OBSOLETE.xmlCapability()->setIOWritable( false );
 
@@ -177,11 +173,6 @@ void RimSummaryCurve::setSummaryCaseY( RimSummaryCase* sumCase )
     {
         clearErrorBars();
     }
-
-    bool isEnsembleCurve = false;
-    if ( sumCase && sumCase->ensemble() ) isEnsembleCurve = true;
-
-    setIsEnsembleCurve( isEnsembleCurve );
 
     m_yValuesSummaryCase = sumCase;
 }
@@ -446,11 +437,6 @@ RiaDefines::HorizontalAxisType RimSummaryCurve::axisTypeX() const
 void RimSummaryCurve::setSummaryCaseX( RimSummaryCase* sumCase )
 {
     m_xValuesSummaryCase = sumCase;
-
-    bool isEnsembleCurve = false;
-    if ( sumCase && sumCase->ensemble() ) isEnsembleCurve = true;
-
-    setIsEnsembleCurve( isEnsembleCurve );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -490,15 +476,8 @@ RiuPlotAxis RimSummaryCurve::axisY() const
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryCurve::isEnsembleCurve() const
 {
-    return m_isEnsembleCurve().isTrue();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::setIsEnsembleCurve( bool isEnsembleCurve )
-{
-    m_isEnsembleCurve.v() = isEnsembleCurve ? caf::Tristate::State::True : caf::Tristate::State::False;
+    auto curveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
+    return curveSet != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -816,11 +795,6 @@ void RimSummaryCurve::initAfterRead()
     {
         auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
         if ( plot ) m_yPlotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis( m_plotAxis_OBSOLETE() ) );
-    }
-
-    if ( m_isEnsembleCurve().isPartiallyTrue() )
-    {
-        m_isEnsembleCurve.v() = ( summaryCaseY() && summaryCaseY()->ensemble() ) ? caf::Tristate::State::True : caf::Tristate::State::False;
     }
 
     if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2024.3" ) )
