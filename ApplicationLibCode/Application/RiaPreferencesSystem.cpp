@@ -83,6 +83,8 @@ RiaPreferencesSystem::RiaPreferencesSystem()
                        "eclipseReaderMode",
                        EclipseTextFileReaderModeType( RiaPreferencesSystem::EclipseTextFileReaderMode::FILE ),
                        "Eclipse Text File Import mode (GRDECL)" );
+
+    CAF_PDM_InitField( &m_keywordsForLogging, "KeywordsForLogging", QString(), "Keywords to enable debug logging, separated by semicolon" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -226,6 +228,15 @@ RiaPreferencesSystem::EclipseTextFileReaderMode RiaPreferencesSystem::eclipseTex
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaPreferencesSystem::isLoggingActivatedForKeyword( const QString& keyword ) const
+{
+    QStringList keywords = m_keywordsForLogging().split( ";" );
+    return keywords.contains( keyword );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaPreferencesSystem::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     {
@@ -241,7 +252,6 @@ void RiaPreferencesSystem::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
         group->add( &m_showHud );
     }
 
-    uiOrdering.add( &m_gtestFilter );
     uiOrdering.add( &m_showProjectChangedDialog );
     uiOrdering.add( &m_showTestToolbar );
     uiOrdering.add( &m_includeFractureDebugInfoFile );
@@ -250,6 +260,13 @@ void RiaPreferencesSystem::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 
     uiOrdering.add( &m_showPdfExportDialog );
     uiOrdering.add( &m_exportScalingFactor );
+    uiOrdering.add( &m_eclipseReaderMode );
+
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Developer Settings" );
+        group->add( &m_keywordsForLogging );
+        group->add( &m_gtestFilter );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
