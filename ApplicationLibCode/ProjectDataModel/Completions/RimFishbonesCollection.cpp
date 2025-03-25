@@ -28,6 +28,9 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
+
 #include <QColor>
 
 #include <algorithm>
@@ -40,17 +43,22 @@ CAF_PDM_SOURCE_INIT( RimFishbonesCollection, "FishbonesCollection" );
 //--------------------------------------------------------------------------------------------------
 RimFishbonesCollection::RimFishbonesCollection()
 {
-    CAF_PDM_InitObject( "Fishbones", ":/FishBones16x16.png" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Fishbones", ":/FishBones16x16.png", "", "", "FishbonesCollection", "" );
 
     nameField()->uiCapability()->setUiHidden( true );
     setName( "Fishbones" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fishbones, "FishbonesSubs", "fishbonesSubs" );
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_fishbones, "FishbonesSubs", "fishbones", "fishbonesSubs" );
 
-    CAF_PDM_InitField( &m_startMD, "StartMD", HUGE_VAL, "Start MD" );
-    CAF_PDM_InitField( &m_mainBoreDiameter, "MainBoreDiameter", 0.216, "Main Bore Diameter" );
-    CAF_PDM_InitField( &m_skinFactor, "MainBoreSkinFactor", 0., "Main Bore Skin Factor [0..1]" );
-    manuallyModifiedStartMD = false;
+    // The following non-scriptable fields can be modified from scripting functions in RimcFishbonesCollection.cpp
+    CAF_PDM_InitField( &m_startMDAuto, "StartMDAuto", RimFishbonesDefines::ValueSource::AUTOMATIC, "Start MD Mode" );
+    CAF_PDM_InitField( &m_startMD, "StartMD", 0.0, "Start [MD]" );
+
+    CAF_PDM_InitField( &m_endMDAuto, "EndMDAuto", RimFishbonesDefines::ValueSource::AUTOMATIC, "End MD Mode" );
+    CAF_PDM_InitField( &m_endMD, "EndMD", 0.0, "End [MD]" );
+
+    CAF_PDM_InitScriptableField( &m_mainBoreDiameter, "MainBoreDiameter", 0.216, "Main Bore Diameter" );
+    CAF_PDM_InitScriptableField( &m_skinFactor, "MainBoreSkinFactor", 0., "Main Bore Skin Factor" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,11 +66,6 @@ RimFishbonesCollection::RimFishbonesCollection()
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_startMD )
-    {
-        manuallyModifiedStartMD = true;
-    }
-
     RimProject* proj = RimProject::current();
     if ( changedField == &m_isChecked )
     {
@@ -79,29 +82,59 @@ void RimFishbonesCollection::fieldChangedByUi( const caf::PdmFieldHandle* change
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    computeStartAndEndLocation();
+
+    if ( auto wellPath = firstAncestorOrThisOfType<RimWellPath>() )
     {
-        auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
-        if ( wellPath )
+        if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
         {
-            if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
-            {
-                m_startMD.uiCapability()->setUiName( "Start MD [m]" );
-                m_mainBoreDiameter.uiCapability()->setUiName( "Main Bore Diameter [m]" );
-            }
-            else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
-            {
-                m_startMD.uiCapability()->setUiName( "Start MD [ft]" );
-                m_mainBoreDiameter.uiCapability()->setUiName( "Main Bore Diameter [ft]" );
-            }
+            m_startMD.uiCapability()->setUiName( "  Start [MD m]" );
+            m_endMD.uiCapability()->setUiName( "  End [MD m]" );
+            m_mainBoreDiameter.uiCapability()->setUiName( "Main Bore Diameter [m]" );
+        }
+        else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+        {
+            m_startMD.uiCapability()->setUiName( "  Start [MD ft]" );
+            m_endMD.uiCapability()->setUiName( "  End [MD ft]" );
+            m_mainBoreDiameter.uiCapability()->setUiName( "Main Bore Diameter [ft]" );
         }
     }
 
-    caf::PdmUiGroup* wellGroup = uiOrdering.addNewGroup( "Fishbone Well Properties" );
+    caf::PdmUiGroup* wellGroup = uiOrdering.addNewGroup( "Mainbore Well Properties" );
+    wellGroup->add( &m_startMDAuto );
     wellGroup->add( &m_startMD );
+    m_startMD.uiCapability()->setUiReadOnly( m_startMDAuto == RimFishbonesDefines::ValueSource::AUTOMATIC );
+
+    wellGroup->add( &m_endMDAuto );
+    wellGroup->add( &m_endMD );
+    m_endMD.uiCapability()->setUiReadOnly( m_endMDAuto == RimFishbonesDefines::ValueSource::AUTOMATIC );
+
     wellGroup->add( &m_mainBoreDiameter );
     wellGroup->add( &m_skinFactor );
 
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesCollection::initAfterRead()
+{
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2024.12.2" ) )
+    {
+        double epsilon = 1.0;
+        if ( std::fabs( calculateStartMD() - m_startMD() ) > epsilon )
+        {
+            m_startMDAuto = RimFishbonesDefines::ValueSource::FIXED;
+        }
+
+        if ( std::fabs( calculateEndMD() - m_endMD() ) > epsilon )
+        {
+            m_endMDAuto = RimFishbonesDefines::ValueSource::FIXED;
+        }
+    }
+
+    computeStartAndEndLocation();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,6 +147,39 @@ void RimFishbonesCollection::appendFishbonesSubs( RimFishbones* subs )
 
     subs->setUnitSystemSpecificDefaults();
     subs->recomputeLateralLocations();
+
+    computeStartAndEndLocation();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFishbones* RimFishbonesCollection::appendFishbonesSubsAtLocations( const std::vector<double>&        subLocations,
+                                                                      RimFishbonesDefines::DrillingType drillingType )
+{
+    auto* obj = new RimFishbones;
+    obj->setValveLocations( subLocations );
+
+    RimFishbonesDefines::RicFishbonesSystemParameters customParameters = RimFishbonesDefines::drillingStandardParameters();
+
+    if ( drillingType == RimFishbonesDefines::DrillingType::EXTENDED )
+    {
+        customParameters = RimFishbonesDefines::drillingExtendedParameters();
+    }
+    else if ( drillingType == RimFishbonesDefines::DrillingType::ACID_JETTING )
+    {
+        customParameters = RimFishbonesDefines::acidJettingParameters();
+    }
+
+    obj->setSystemParameters( customParameters.lateralsPerSub,
+                              customParameters.lateralLength,
+                              customParameters.holeDiameter,
+                              customParameters.buildAngle,
+                              customParameters.icdsPerSub );
+
+    appendFishbonesSubs( obj );
+
+    return obj;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -156,6 +222,24 @@ std::vector<RimFishbones*> RimFishbonesCollection::allFishbonesSubs() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFishbonesCollection::setFixedStartMD( double startMD )
+{
+    m_startMD     = startMD;
+    m_startMDAuto = RimFishbonesDefines::ValueSource::FIXED;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesCollection::setFixedEndMD( double endMD )
+{
+    m_endMD     = endMD;
+    m_endMDAuto = RimFishbonesDefines::ValueSource::FIXED;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Color3f RimFishbonesCollection::nextFishbonesColor() const
 {
     auto          wellPath = firstAncestorOrThisOfType<RimWellPath>();
@@ -188,7 +272,7 @@ cvf::Color3f RimFishbonesCollection::nextFishbonesColor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFishbonesCollection::recalculateStartMD()
+double RimFishbonesCollection::calculateStartMD() const
 {
     double minStartMD = HUGE_VAL;
 
@@ -200,10 +284,22 @@ void RimFishbonesCollection::recalculateStartMD()
         }
     }
 
-    if ( !manuallyModifiedStartMD || minStartMD < m_startMD() )
+    return minStartMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFishbonesCollection::calculateEndMD() const
+{
+    double value = -HUGE_VAL;
+
+    for ( const RimFishbones* sub : m_fishbones() )
     {
-        m_startMD = minStartMD;
+        value = std::max( value, sub->endMD() );
     }
+
+    return value;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -219,14 +315,15 @@ double RimFishbonesCollection::startMD() const
 //--------------------------------------------------------------------------------------------------
 double RimFishbonesCollection::endMD() const
 {
-    double endMD = m_startMD;
-    if ( !m_fishbones.empty() )
-    {
-        auto lastFishbone = m_fishbones.childrenByType().back();
-        CVF_ASSERT( lastFishbone );
-        endMD = lastFishbone->endMD();
-    }
-    return endMD;
+    return m_endMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFishbonesCollection::mainBoreSkinFactor() const
+{
+    return m_skinFactor;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -262,5 +359,21 @@ void RimFishbonesCollection::setUnitSystemSpecificDefaults()
         {
             m_mainBoreDiameter = 0.708;
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesCollection::computeStartAndEndLocation()
+{
+    if ( m_startMDAuto() == RimFishbonesDefines::ValueSource::AUTOMATIC )
+    {
+        m_startMD = calculateStartMD();
+    }
+
+    if ( m_endMDAuto() == RimFishbonesDefines::ValueSource::AUTOMATIC )
+    {
+        m_endMD = calculateEndMD();
     }
 }

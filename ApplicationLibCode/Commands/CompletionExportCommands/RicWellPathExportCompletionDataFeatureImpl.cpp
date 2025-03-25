@@ -222,6 +222,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 
                     if ( exportSettings.includeFishbones )
                     {
+                        // Make sure the start and end location is computed if needed
+                        wellPathLateral->fishbonesCollection()->computeStartAndEndLocation();
+
                         std::vector<RigCompletionData> fishbonesCompletionData =
                             RicFishbonesTransmissibilityCalculationFeatureImp::generateFishboneCompdatValuesUsingAdjustedCellVolume( wellPathLateral,
                                                                                                                                      exportSettings );

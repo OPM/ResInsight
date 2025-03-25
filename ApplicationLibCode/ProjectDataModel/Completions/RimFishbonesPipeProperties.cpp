@@ -34,22 +34,31 @@ RimFishbonesPipeProperties::RimFishbonesPipeProperties()
     CAF_PDM_InitObject( "FishbonesPipeProperties" );
 
     CAF_PDM_InitField( &m_lateralHoleDiameter, "LateralHoleDiameter", 12.5, "Hole Diameter [mm]" );
-    CAF_PDM_InitField( &m_skinFactor, "SkinFactor", 0.0, "Skin Factor [0..1]" );
+    CAF_PDM_InitField( &m_skinFactor, "SkinFactor", 0.0, "Skin Factor" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFishbonesPipeProperties::~RimFishbonesPipeProperties()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFishbonesPipeProperties::setHoleDiameter( double diameter )
+void RimFishbonesPipeProperties::setHoleDiameter( const double& diameter )
 {
     m_lateralHoleDiameter = diameter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFishbonesPipeProperties::skinFactor() const
+{
+    return m_skinFactor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesPipeProperties::setSkinFactor( const double& skinFactor )
+{
+    m_skinFactor = skinFactor;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,6 +91,14 @@ double RimFishbonesPipeProperties::holeDiameter( RiaDefines::EclipseUnitSystem u
     }
     CVF_ASSERT( false );
     return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFishbonesPipeProperties::holeDiameter() const
+{
+    return m_lateralHoleDiameter();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -85,7 +85,7 @@ bool RicNewFishbonesSubsAtMeasuredDepthFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewFishbonesSubsAtMeasuredDepthFeature::createFishbones( const RicFishbonesSystemParameters& customParameters )
+void RicNewFishbonesSubsAtMeasuredDepthFeature::createFishbones( const RimFishbonesDefines::RicFishbonesSystemParameters& customParameters )
 {
     RiuWellPathSelectionItem* wellPathSelItem = RiuWellPathSelectionItem::wellPathSelectionItem();
     CVF_ASSERT( wellPathSelItem );
@@ -120,7 +120,7 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::createFishbones( const RicFishbo
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsAtMeasuredDepthFeature::onDrillingStandard()
 {
-    createFishbones( RicNewFishbonesSubsFeature::drillingStandardParameters() );
+    createFishbones( RimFishbonesDefines::drillingStandardParameters() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,7 +128,7 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::onDrillingStandard()
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsAtMeasuredDepthFeature::onDrillingExtended()
 {
-    createFishbones( RicNewFishbonesSubsFeature::drillingExtendedParameters() );
+    createFishbones( RimFishbonesDefines::drillingExtendedParameters() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,5 +136,5 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::onDrillingExtended()
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsAtMeasuredDepthFeature::onAcidJetting()
 {
-    createFishbones( RicNewFishbonesSubsFeature::acidJettingParameters() );
+    createFishbones( RimFishbonesDefines::acidJettingParameters() );
 }

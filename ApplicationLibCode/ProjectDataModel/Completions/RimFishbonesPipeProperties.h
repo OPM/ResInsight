@@ -39,11 +39,12 @@ class RimFishbonesPipeProperties : public caf::PdmObject
 
 public:
     RimFishbonesPipeProperties();
-    ~RimFishbonesPipeProperties() override;
 
-    void setHoleDiameter( double diameter );
+    double skinFactor() const;
+    void   setSkinFactor( const double& skinFactor );
 
-    double skinFactor() const { return m_skinFactor(); }
+    void   setHoleDiameter( const double& diameter );
+    double holeDiameter() const;
     double holeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
 
     void setUnitSystemSpecificDefaults();

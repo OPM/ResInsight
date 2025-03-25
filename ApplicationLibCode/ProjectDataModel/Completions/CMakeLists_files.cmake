@@ -3,6 +3,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimFishbonesCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFishbones.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFishbonesPipeProperties.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFishbonesDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFishboneWellPath.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFishboneWellPathCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPerforationCollection.h
@@ -40,6 +41,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimFishbonesCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFishbones.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFishbonesPipeProperties.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFishbonesDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPerforationCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPerforationInterval.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCompletions.cpp

@@ -20,17 +20,9 @@
 
 #include "cafCmdFeature.h"
 
+#include "RimFishbonesDefines.h"
+
 class RimFishbonesCollection;
-
-struct RicFishbonesSystemParameters
-{
-    int    lateralsPerSub;
-    double lateralLength;
-    double holeDiameter;
-    double buildAngle;
-
-    int icdsPerSub;
-};
 
 //==================================================================================================
 ///
@@ -40,10 +32,6 @@ class RicNewFishbonesSubsFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static RicFishbonesSystemParameters drillingStandardParameters();
-    static RicFishbonesSystemParameters drillingExtendedParameters();
-    static RicFishbonesSystemParameters acidJettingParameters();
-
     static void adjustWellPathScaling( RimFishbonesCollection* fishboneCollection );
 
 private:
@@ -55,7 +43,7 @@ private:
     void onDrillingExtended();
     void onAcidJetting();
 
-    void createFishbones( const RicFishbonesSystemParameters& customParameters );
+    void createFishbones( const RimFishbonesDefines::RicFishbonesSystemParameters& customParameters );
 
     static RimFishbonesCollection* selectedFishbonesCollection();
 };

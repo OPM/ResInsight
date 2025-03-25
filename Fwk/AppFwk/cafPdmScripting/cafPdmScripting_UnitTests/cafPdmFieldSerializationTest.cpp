@@ -96,3 +96,33 @@ TEST( PdmFieldSerialization, StringListQuoted )
     EXPECT_STREQ( "B-2H", destination[0].toStdString().c_str() );
     EXPECT_STREQ( "B-4H", destination[1].toStdString().c_str() );
 }
+
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+TEST( PdmFieldSerialization, ValueList )
+{
+    std::vector<float> floatValues = { 1.5, 0.0001, 1.77e10 };
+
+    QString     text;
+    QTextStream stream( &text );
+
+    caf::PdmScriptIOMessages messages;
+    bool                     stringsAreQuoted = true;
+
+    caf::PdmFieldScriptingCapabilityIOHandler<std::vector<float>>::readFromField( floatValues,
+                                                                                  stream,
+                                                                                  &messages,
+                                                                                  stringsAreQuoted );
+
+    const QString expected = "[1.5, 0.0001, 1.77e+10]";
+    EXPECT_STREQ( expected.toStdString().c_str(), text.toStdString().c_str() );
+
+    std::vector<float> result;
+    caf::PdmFieldScriptingCapabilityIOHandler<std::vector<float>>::writeToField( result, stream, &messages, stringsAreQuoted );
+
+    EXPECT_EQ( floatValues.size(), result.size() );
+    for ( size_t i = 0; i < floatValues.size(); ++i )
+    {
+        EXPECT_FLOAT_EQ( floatValues[i], result[i] );
+    }
+}
