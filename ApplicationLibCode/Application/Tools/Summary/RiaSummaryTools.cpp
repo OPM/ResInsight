@@ -442,3 +442,14 @@ time_t RiaSummaryTools::calculateTimeThreshold( const time_t& minimum, const tim
 
     return timeThreshold;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryTools::updateSummaryEnsembleNames()
+{
+    if ( auto sumCaseMainColl = RiaSummaryTools::summaryCaseMainCollection() )
+    {
+        sumCaseMainColl->updateEnsembleNames();
+    }
+}

@@ -94,7 +94,7 @@ void RicNewDerivedEnsembleFeature::onActionTriggered( bool isChecked )
                 {
                     if ( !showWarningDialogWithQuestion() )
                     {
-                        mainColl->removeCaseCollection( newEnsemble );
+                        mainColl->removeEnsemble( newEnsemble );
                     }
                 }
             }

@@ -18,15 +18,17 @@
 
 #include "RiaQDateTimeTools.h"
 
+#include "Summary/RiaSummaryTools.h"
+
 #include "SummaryPlotCommands/RicNewDerivedEnsembleFeature.h"
+
+#include "RifSummaryReaderInterface.h"
 
 #include "RimDeltaSummaryCase.h"
 #include "RimDeltaSummaryEnsemble.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryEnsemble.h"
-
-#include "RifSummaryReaderInterface.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -107,7 +109,8 @@ RimDeltaSummaryEnsemble::~RimDeltaSummaryEnsemble()
 void RimDeltaSummaryEnsemble::setEnsemble1( RimSummaryEnsemble* ensemble )
 {
     m_ensemble1 = ensemble;
-    updateName();
+
+    RiaSummaryTools::updateSummaryEnsembleNames();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,7 +119,8 @@ void RimDeltaSummaryEnsemble::setEnsemble1( RimSummaryEnsemble* ensemble )
 void RimDeltaSummaryEnsemble::setEnsemble2( RimSummaryEnsemble* ensemble )
 {
     m_ensemble2 = ensemble;
-    updateName();
+
+    RiaSummaryTools::updateSummaryEnsembleNames();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -271,7 +275,6 @@ void RimDeltaSummaryEnsemble::onLoadDataAndUpdate()
 {
     updateDerivedEnsembleCases();
     updateReferringCurveSets();
-    updateName();
     updateConnectedEditors();
 }
 
@@ -349,7 +352,6 @@ void RimDeltaSummaryEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmUi
 
     uiOrdering.skipRemainingFields( true );
 
-    updateName();
     if ( !isValid() ) m_caseCount = "";
 }
 
@@ -389,7 +391,7 @@ void RimDeltaSummaryEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* chang
 
     if ( doUpdate )
     {
-        updateName();
+        RiaSummaryTools::updateSummaryEnsembleNames();
 
         if ( doUpdateCases )
         {
@@ -568,9 +570,9 @@ std::vector<RimDeltaSummaryEnsemble*> RimDeltaSummaryEnsemble::findReferringEnse
     auto mainColl = firstAncestorOrThisOfType<RimSummaryCaseMainCollection>();
     if ( mainColl )
     {
-        for ( auto group : mainColl->summaryCaseCollections() )
+        for ( auto ensemble : mainColl->summaryEnsembles() )
         {
-            auto derivedEnsemble = dynamic_cast<RimDeltaSummaryEnsemble*>( group );
+            auto derivedEnsemble = dynamic_cast<RimDeltaSummaryEnsemble*>( ensemble );
             if ( derivedEnsemble )
             {
                 if ( derivedEnsemble->m_ensemble1() == this || derivedEnsemble->m_ensemble2() == this )

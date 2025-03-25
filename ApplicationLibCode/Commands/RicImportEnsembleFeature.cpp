@@ -102,7 +102,7 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
                 importSingleEnsemble( fileNames, useEnsembleNameDialog, ensembleGroupingMode, fileType, groupName );
             }
 
-            RiaEnsembleNameTools::updateAutoNameEnsembles( RiaApplication::instance()->project()->summaryGroups() );
+            RiaSummaryTools::updateSummaryEnsembleNames();
         }
     }
 }
@@ -136,6 +136,8 @@ RimSummaryEnsemble* RicImportEnsembleFeature::importSingleEnsemble( const QStrin
         {
             summaryCase->updateAutoShortName();
         }
+
+        RiaSummaryTools::updateSummaryEnsembleNames();
 
         RiaSummaryPlotTools::createAndAppendDefaultSummaryMultiPlot( {}, { ensemble } );
     }

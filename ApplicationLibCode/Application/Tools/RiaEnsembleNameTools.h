@@ -59,8 +59,6 @@ public:
                                                                                          const QStringList&   fileNames,
                                                                                          const std::vector<QStringList>& fileNameComponents );
 
-    static void updateAutoNameEnsembles( std::vector<RimSummaryEnsemble*> ensembles );
-
     static QString uniqueShortNameForEnsembleCase( RimSummaryCase* summaryCase );
     static QString uniqueShortNameForSummaryCase( RimSummaryCase* summaryCase );
 

@@ -26,6 +26,7 @@
 #include "RiaStdStringTools.h"
 #include "RiaTextStringTools.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifSummaryReaderInterface.h"
 
@@ -236,7 +237,7 @@ QString RimSummaryEnsemble::name() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsemble::updateName()
+void RimSummaryEnsemble::updateName( const std::set<QString>& existingEnsembleNames )
 {
     const auto [key1, key2] = nameKeys();
 
@@ -269,6 +270,19 @@ void RimSummaryEnsemble::updateName()
         if ( candidateName.endsWith( "," ) )
         {
             candidateName = candidateName.left( candidateName.length() - 1 );
+        }
+
+        // Avoid identical ensemble names by appending a number
+        if ( existingEnsembleNames.contains( candidateName ) )
+        {
+            int     counter = 1;
+            QString uniqueName;
+            do
+            {
+                uniqueName = QString( "%1 (subset-%2)" ).arg( candidateName ).arg( counter++ );
+            } while ( existingEnsembleNames.contains( uniqueName ) );
+
+            candidateName = uniqueName;
         }
     }
 
@@ -889,7 +903,7 @@ void RimSummaryEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
     }
     if ( changedField == &m_autoName || changedField == &m_nameTemplateString )
     {
-        updateName();
+        RiaSummaryTools::updateSummaryEnsembleNames();
     }
 }
 

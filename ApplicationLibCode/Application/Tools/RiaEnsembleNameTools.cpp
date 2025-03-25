@@ -403,37 +403,6 @@ std::map<QString, std::pair<QString, QString>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaEnsembleNameTools::updateAutoNameEnsembles( std::vector<RimSummaryEnsemble*> ensembles )
-{
-    std::set<std::string> key1;
-    std::set<std::string> key2;
-
-    for ( const auto& ensemble : ensembles )
-    {
-        const auto keys = ensemble->nameKeys();
-        key1.insert( keys.first );
-        key2.insert( keys.second );
-    }
-
-    bool useKey1 = key1.size() > 1;
-    bool useKey2 = key2.size() > 1;
-
-    if ( !useKey1 && !useKey2 )
-    {
-        useKey2 = true;
-    }
-
-    for ( auto ensemble : ensembles )
-    {
-        ensemble->setUsePathKey1( useKey1 );
-        ensemble->setUsePathKey2( useKey2 );
-        ensemble->updateName();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RiaEnsembleNameTools::uniqueShortNameForEnsembleCase( RimSummaryCase* summaryCase )
 {
     CAF_ASSERT( summaryCase && summaryCase->ensemble() );
