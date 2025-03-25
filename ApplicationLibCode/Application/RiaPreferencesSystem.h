@@ -59,6 +59,8 @@ public:
 
     EclipseTextFileReaderMode eclipseTextFileReaderMode() const;
 
+    bool isLoggingActivatedForKeyword( const QString& keyword ) const;
+
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -84,4 +86,6 @@ private:
     caf::PdmField<QString> m_gtestFilter;
 
     caf::PdmField<EclipseTextFileReaderModeType> m_eclipseReaderMode;
+
+    caf::PdmField<QString> m_keywordsForLogging;
 };

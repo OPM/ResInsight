@@ -19,11 +19,12 @@
 
 #include "RigNNCData.h"
 
+#include "RiaLogging.h"
+#include "RiaPreferencesSystem.h"
+
 #include "RigCellFaceGeometryTools.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
-
-#include "RiaLogging.h"
 
 #include "cafProgressInfo.h"
 
@@ -198,7 +199,8 @@ bool RigNNCData::ensureAllConnectionDataIsProcessed()
     {
         caf::ProgressInfo progressInfo( 3, "Computing NNC Data" );
 
-        RiaLogging::info( "NNC geometry computation - starting process" );
+        bool isLoggingEnabled = RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( "RigNNCData" );
+        if ( isLoggingEnabled ) RiaLogging::info( "NNC geometry computation - starting process" );
 
         buildPolygonsForEclipseConnections();
         progressInfo.incrementProgress();
@@ -210,25 +212,28 @@ bool RigNNCData::ensureAllConnectionDataIsProcessed()
 
         m_mainGrid->distributeNNCsToFaults();
 
-        QStringList  noCommonAreaText;
-        const size_t maxItemCount = 20;
-
-        size_t noCommonAreaCount = connectionsWithNoCommonArea( noCommonAreaText, maxItemCount );
-
-        RiaLogging::info( "NNC geometry computation - completed process" );
-
-        RiaLogging::info( QString( "Native NNC count : %1" ).arg( eclipseConnectionCount() ) );
-        RiaLogging::info( QString( "Computed NNC count : %1" ).arg( m_connections.size() ) );
-
-        RiaLogging::info( QString( "NNCs with no common area count : %1" ).arg( noCommonAreaCount ) );
-
-        if ( !noCommonAreaText.isEmpty() )
+        if ( isLoggingEnabled )
         {
-            RiaLogging::info( QString( "Listing first %1 NNCs with no common area " ).arg( noCommonAreaText.size() ) );
+            QStringList  noCommonAreaText;
+            const size_t maxItemCount = 20;
 
-            for ( const auto& s : noCommonAreaText )
+            size_t noCommonAreaCount = connectionsWithNoCommonArea( noCommonAreaText, maxItemCount );
+
+            RiaLogging::info( "NNC geometry computation - completed process" );
+
+            RiaLogging::info( QString( "Native NNC count : %1" ).arg( eclipseConnectionCount() ) );
+            RiaLogging::info( QString( "Computed NNC count : %1" ).arg( m_connections.size() ) );
+
+            RiaLogging::info( QString( "NNCs with no common area count : %1" ).arg( noCommonAreaCount ) );
+
+            if ( !noCommonAreaText.isEmpty() )
             {
-                RiaLogging::info( s );
+                RiaLogging::info( QString( "Listing first %1 NNCs with no common area " ).arg( noCommonAreaText.size() ) );
+
+                for ( const auto& s : noCommonAreaText )
+                {
+                    RiaLogging::info( s );
+                }
             }
         }
     }
