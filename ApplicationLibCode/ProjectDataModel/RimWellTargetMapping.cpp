@@ -72,7 +72,8 @@ template <>
 void caf::AppEnum<RigWellTargetMapping::VolumesType>::setUp()
 {
     addItem( RigWellTargetMapping::VolumesType::RESERVOIR_VOLUMES, "RESERVOIR", "Reservoir Volumes (RFIPOIL, RFIPGAS)" );
-    addItem( RigWellTargetMapping::VolumesType::SURFACE_VOLUMES, "SURFACE", "Surface Volumes (SFIPOIL, SFIPGAS)" );
+    addItem( RigWellTargetMapping::VolumesType::SURFACE_VOLUMES_SFIP, "SURFACE_SFIP", "Surface Volumes (SFIPOIL, SFIPGAS)" );
+    addItem( RigWellTargetMapping::VolumesType::SURFACE_VOLUMES_FIP, "SURFACE_FIP", "Surface Volumes (FIPOIL, FIPGAS)" );
     addItem( RigWellTargetMapping::VolumesType::COMPUTED_VOLUMES, "COMPUTED", "Computed Volumes (PORV*SOIL, PORV*SGAS)" );
     setDefault( RigWellTargetMapping::VolumesType::COMPUTED_VOLUMES );
 }
@@ -462,7 +463,8 @@ void RimWellTargetMapping::setDefaults()
         m_timeStep = static_cast<int>( eclipseCase->timeStepDates().size() ) - 1;
 
         std::vector<RigWellTargetMapping::VolumesType> volumesTypesByPriority = { RigWellTargetMapping::VolumesType::RESERVOIR_VOLUMES,
-                                                                                  RigWellTargetMapping::VolumesType::SURFACE_VOLUMES,
+                                                                                  RigWellTargetMapping::VolumesType::SURFACE_VOLUMES_SFIP,
+                                                                                  RigWellTargetMapping::VolumesType::SURFACE_VOLUMES_FIP,
                                                                                   RigWellTargetMapping::VolumesType::COMPUTED_VOLUMES };
         std::vector<RigWellTargetMapping::VolumesType> availableVolumesTypes  = findAvailableVolumesTypes( eclipseCase );
         m_volumesType = findFirstByPriority( volumesTypesByPriority, availableVolumesTypes );
@@ -491,7 +493,10 @@ std::vector<RigWellTargetMapping::VolumesType> RimWellTargetMapping::findAvailab
         availableVolumesTypes.push_back( RigWellTargetMapping::VolumesType::RESERVOIR_VOLUMES );
 
     if ( hasResult( *resultsData, "SFIPOIL" ) || hasResult( *resultsData, "SFIPGAS" ) )
-        availableVolumesTypes.push_back( RigWellTargetMapping::VolumesType::SURFACE_VOLUMES );
+        availableVolumesTypes.push_back( RigWellTargetMapping::VolumesType::SURFACE_VOLUMES_SFIP );
+
+    if ( hasResult( *resultsData, "FIPOIL" ) || hasResult( *resultsData, "FIPGAS" ) )
+        availableVolumesTypes.push_back( RigWellTargetMapping::VolumesType::SURFACE_VOLUMES_FIP );
 
     return availableVolumesTypes;
 }

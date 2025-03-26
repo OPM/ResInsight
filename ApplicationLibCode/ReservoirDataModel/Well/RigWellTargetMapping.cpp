@@ -574,8 +574,10 @@ std::vector<double> RigWellTargetMapping::getVolumeVector( RigCaseCellResultsDat
                 return RiaResultNames::riPorvSoil();
             case VolumesType::RESERVOIR_VOLUMES:
                 return "RFIPOIL";
-            case VolumesType::SURFACE_VOLUMES:
+            case VolumesType::SURFACE_VOLUMES_SFIP:
                 return "SFIPOIL";
+            case VolumesType::SURFACE_VOLUMES_FIP:
+                return "FIPOIL";
             default:
             {
                 CAF_ASSERT( false );
@@ -592,8 +594,10 @@ std::vector<double> RigWellTargetMapping::getVolumeVector( RigCaseCellResultsDat
                 return RiaResultNames::riPorvSgas();
             case VolumesType::RESERVOIR_VOLUMES:
                 return "RFIPGAS";
-            case VolumesType::SURFACE_VOLUMES:
+            case VolumesType::SURFACE_VOLUMES_SFIP:
                 return "SFIPGAS";
+            case VolumesType::SURFACE_VOLUMES_FIP:
+                return "FIPGAS";
             default:
             {
                 CAF_ASSERT( false );
