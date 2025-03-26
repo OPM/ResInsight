@@ -62,7 +62,8 @@ public:
     enum class VolumesType
     {
         RESERVOIR_VOLUMES,
-        SURFACE_VOLUMES,
+        SURFACE_VOLUMES_SFIP,
+        SURFACE_VOLUMES_FIP,
         COMPUTED_VOLUMES
     };
 
