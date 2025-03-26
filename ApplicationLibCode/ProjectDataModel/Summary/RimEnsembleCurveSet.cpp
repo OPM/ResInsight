@@ -399,7 +399,15 @@ void RimEnsembleCurveSet::reattachPlotCurves()
 {
     for ( RimSummaryCurve* curve : m_curves )
     {
-        curve->reattach();
+        bool updateParentPlot = false;
+        curve->reattach( updateParentPlot );
+    }
+
+    if ( !m_curves.empty() )
+    {
+        auto firstCurve = m_curves[0];
+
+        firstCurve->replotParentPlot();
     }
 }
 
