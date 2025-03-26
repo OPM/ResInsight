@@ -365,10 +365,6 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     minimumCellValuesGroup->add( &m_permeability );
     minimumCellValuesGroup->add( &m_transmissibility );
 
-    caf::PdmUiGroup* resultDefinitionGroup = uiOrdering.addNewGroup( "Cluster Filter" );
-    m_resultDefinition->uiOrdering( uiConfigName, *resultDefinitionGroup );
-    resultDefinitionGroup->setCollapsedByDefault();
-
     auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr;
 
     if ( hasEnsembleParent )
