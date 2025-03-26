@@ -68,8 +68,8 @@ void RimContourMapProjection::ResultAggregation::setUp()
 template <>
 void RimContourMapProjection::FloodingType::setUp()
 {
-    addItem( RigFloodingSettings::FloodingType::WATER_FLOODING, "WATER_FLOODING", "Water Flooding (SOWCR)" );
-    addItem( RigFloodingSettings::FloodingType::GAS_FLOODING, "GAS_FLOODING", "Gas Flooding (SOGCR)" );
+    addItem( RigFloodingSettings::FloodingType::WATER_FLOODING, "WATER_FLOODING", "Water Flooding" );
+    addItem( RigFloodingSettings::FloodingType::GAS_FLOODING, "GAS_FLOODING", "Gas Flooding" );
     addItem( RigFloodingSettings::FloodingType::USER_DEFINED, "USER_DEFINED", "User Defined Value" );
 }
 
