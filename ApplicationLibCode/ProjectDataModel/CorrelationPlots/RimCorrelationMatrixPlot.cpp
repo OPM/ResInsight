@@ -401,8 +401,7 @@ void RimCorrelationMatrixPlot::updateAxes()
 
     m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtAxis::YLeft, new TextScaleDraw( m_resultLabels ) );
     m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::YLeft, new RiuQwtLinearScaleEngine );
-    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), "Result Vector" );
-    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), false );
     m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultLeft(), axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
     m_plotWidget->setAxisLabelsAndTicksEnabled( RiuPlotAxis::defaultLeft(), true, false );
     m_plotWidget->setAxisRange( RiuPlotAxis::defaultLeft(), 0.0, (double)m_resultLabels.size() + 1 );
@@ -418,8 +417,7 @@ void RimCorrelationMatrixPlot::updateAxes()
     scaleDraw->setLabelRotation( 30.0 );
     m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtAxis::XBottom, scaleDraw );
     m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::XBottom, new RiuQwtLinearScaleEngine );
-    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "Ensemble Parameter" );
-    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), false );
     m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultBottom(),
                                             axisTitleFontSize(),
                                             axisValueFontSize(),
@@ -658,7 +656,7 @@ void RimCorrelationMatrixPlot::updatePlotTitle()
 {
     if ( m_useAutoPlotTitle )
     {
-        m_description = QString( "Parameters vs Result Vectors at %2" ).arg( timeStepString() );
+        m_description = QString( "Result Vectors vs Parameters at %2" ).arg( timeStepString() );
     }
 
     if ( m_plotWidget )
