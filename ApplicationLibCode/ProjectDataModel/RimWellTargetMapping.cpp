@@ -27,6 +27,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseResultAddress.h"
+#include "RigStatisticsMath.h"
 #include "Well/RigWellTargetMapping.h"
 
 #include "RimEclipseCase.h"
@@ -102,6 +103,10 @@ RimWellTargetMapping::RimWellTargetMapping()
     CAF_PDM_InitField( &m_transmissibility, "Transmissibility", 0.0, "Transmissibility" );
     m_transmissibility.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
+    CAF_PDM_InitField( &m_resetDefaultButton, "ResetDefaultButton", true, "Reset to P90" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_resetDefaultButton );
+    m_resetDefaultButton.xmlCapability()->disableIO();
+
     CAF_PDM_InitField( &m_maxIterations, "Iterations", 100000, "Max Iterations" );
     CAF_PDM_InitField( &m_maxNumTargets, "MaxNumTargets", 5, "Maximum Number of Well Targets" );
 
@@ -124,12 +129,15 @@ RimWellTargetMapping::RimWellTargetMapping()
 
     m_minimumPressure = cvf::UNDEFINED_DOUBLE;
     m_maximumPressure = cvf::UNDEFINED_DOUBLE;
+    m_defaultPressure = cvf::UNDEFINED_DOUBLE;
 
     m_minimumPermeability = cvf::UNDEFINED_DOUBLE;
     m_maximumPermeability = cvf::UNDEFINED_DOUBLE;
+    m_defaultPermeability = cvf::UNDEFINED_DOUBLE;
 
     m_minimumTransmissibility = cvf::UNDEFINED_DOUBLE;
     m_maximumTransmissibility = cvf::UNDEFINED_DOUBLE;
+    m_defaultTransmissibility = cvf::UNDEFINED_DOUBLE;
 
     setDeletable( true );
 }
@@ -168,6 +176,10 @@ void RimWellTargetMapping::fieldChangedByUi( const caf::PdmFieldHandle* changedF
                 }
             }
         }
+    }
+    else if ( changedField == &m_resetDefaultButton )
+    {
+        resetMinimumCellValuesToDefault();
     }
 }
 
@@ -212,10 +224,11 @@ void RimWellTargetMapping::updateAllBoundaries()
     const int timeStepIdx = m_timeStep();
 
     auto updateBoundaryValues =
-        []( auto resultsData, const std::vector<RigEclipseResultAddress>& addresses, size_t timeStepIdx ) -> std::pair<double, double>
+        []( auto resultsData, const std::vector<RigEclipseResultAddress>& addresses, size_t timeStepIdx ) -> std::tuple<double, double, double>
     {
-        double globalMin = std::numeric_limits<double>::max();
-        double globalMax = -std::numeric_limits<double>::max();
+        double              globalMin = std::numeric_limits<double>::max();
+        double              globalMax = -std::numeric_limits<double>::max();
+        std::vector<double> allValues;
         for ( auto address : addresses )
         {
             double currentMinimum;
@@ -223,27 +236,31 @@ void RimWellTargetMapping::updateAllBoundaries()
             if ( resultsData->ensureKnownResultLoaded( address ) )
             {
                 resultsData->minMaxCellScalarValues( address, timeStepIdx, currentMinimum, currentMaximum );
-                globalMin = std::min( globalMin, currentMinimum );
-                globalMax = std::max( globalMax, currentMaximum );
+
+                globalMin                         = std::min( globalMin, currentMinimum );
+                globalMax                         = std::max( globalMax, currentMaximum );
+                const std::vector<double>& values = resultsData->cellScalarResults( address, timeStepIdx );
+                allValues.insert( allValues.end(), values.begin(), values.end() );
             }
         }
-        return { globalMin, globalMax };
+
+        double p10, p50, p90, mean;
+        RigStatisticsMath::calculateStatisticsCurves( allValues, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
+
+        return { globalMin, globalMax, p90 };
     };
 
-    std::tie( m_minimumPressure, m_maximumPressure ) =
+    std::tie( m_minimumPressure, m_maximumPressure, m_defaultPressure ) =
         updateBoundaryValues( resultsData, { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) }, timeStepIdx );
 
-    std::vector<double> volume =
-        RigWellTargetMapping::getVolumeVector( *resultsData, m_volumeType(), m_volumesType(), m_volumeResultType(), timeStepIdx );
-
-    std::tie( m_minimumPermeability, m_maximumPermeability ) =
+    std::tie( m_minimumPermeability, m_maximumPermeability, m_defaultPermeability ) =
         updateBoundaryValues( resultsData,
                               { RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMX" ),
                                 RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMY" ),
                                 RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMZ" ) },
                               0 );
 
-    std::tie( m_minimumTransmissibility, m_maximumTransmissibility ) =
+    std::tie( m_minimumTransmissibility, m_maximumTransmissibility, m_defaultTransmissibility ) =
         updateBoundaryValues( resultsData,
                               { RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANX" ),
                                 RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANY" ),
@@ -292,6 +309,14 @@ void RimWellTargetMapping::defineEditorAttribute( const caf::PdmFieldHandle* fie
         if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
         {
             attrib->m_buttonText = "Generate";
+        }
+    }
+
+    if ( field == &m_resetDefaultButton )
+    {
+        if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
+        {
+            attrib->m_buttonText = "Reset to P90";
         }
     }
 }
@@ -365,6 +390,7 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     minimumCellValuesGroup->add( &m_pressure );
     minimumCellValuesGroup->add( &m_permeability );
     minimumCellValuesGroup->add( &m_transmissibility );
+    minimumCellValuesGroup->add( &m_resetDefaultButton );
 
     auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr;
 
@@ -468,7 +494,20 @@ void RimWellTargetMapping::setDefaults()
                                                                                   RigWellTargetMapping::VolumesType::COMPUTED_VOLUMES };
         std::vector<RigWellTargetMapping::VolumesType> availableVolumesTypes  = findAvailableVolumesTypes( eclipseCase );
         m_volumesType = findFirstByPriority( volumesTypesByPriority, availableVolumesTypes );
+
+        updateAllBoundaries();
+        resetMinimumCellValuesToDefault();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellTargetMapping::resetMinimumCellValuesToDefault()
+{
+    m_pressure         = std::clamp( m_defaultPressure, m_minimumPressure, m_maximumPressure );
+    m_permeability     = std::clamp( m_defaultPermeability, m_minimumPermeability, m_maximumPermeability );
+    m_transmissibility = std::clamp( m_defaultTransmissibility, std::max( m_minimumTransmissibility, 0.1 ), m_maximumTransmissibility );
 }
 
 //--------------------------------------------------------------------------------------------------
