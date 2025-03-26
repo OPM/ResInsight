@@ -296,37 +296,50 @@ void RicCreateContourMapPolygonTools::createPolygonObjects( std::vector<std::vec
     auto polygons = internal::findPolygons( image, contourMapProjection );
     if ( polygons.empty() ) return;
 
-    std::sort( polygons.begin(), polygons.end(), []( const auto& a, const auto& b ) { return a.first > b.first; } );
-
-    int         polygonCount = 0;
-    QStringList polygonInfo;
-    for ( const auto& polygon : polygons )
+    const size_t polygonCountThreshold = 10;
+    if ( polygons.size() > polygonCountThreshold )
     {
-        polygonInfo
-            << QString( "Polygon %1: Normalized area %2, %3 vertices " ).arg( polygonCount++ ).arg( polygon.first ).arg( polygon.second.size() );
-        if ( polygonCount > 10 )
+        std::sort( polygons.begin(), polygons.end(), []( const auto& a, const auto& b ) { return a.first > b.first; } );
+
+        int         polygonCount = 0;
+        QStringList polygonInfo;
+        for ( const auto& polygon : polygons )
         {
-            polygonInfo << "More polygons found, but only the first 10 are shown.";
-            break;
+            polygonInfo
+                << QString( "Polygon %1: Pixel area %2, vertex count %3 " ).arg( polygonCount++ ).arg( polygon.first ).arg( polygon.second.size() );
+            if ( polygonCount > 10 )
+            {
+                polygonInfo << QString( "More polygons found, but only the first 10 are shown." );
+                break;
+            }
+        }
+
+        QString txt = polygonInfo.join( "\n" );
+        txt += "\n\n Create polygons with pixel area above threshold: ";
+
+        bool ok;
+        int  areaThreshold = QInputDialog::getInt( RiuMainWindow::instance(), "Create Polygons", txt, 10, 1, 10000, 1, &ok );
+        if ( ok )
+        {
+            std::vector<std::vector<cvf::Vec3d>> polygonsToCreate;
+            for ( const auto& polygon : polygons )
+            {
+                if ( polygon.first >= areaThreshold )
+                {
+                    polygonsToCreate.push_back( polygon.second );
+                }
+            }
+
+            internal::createPolygonObjects( polygonsToCreate );
         }
     }
-
-    QString txt = polygonInfo.join( "\n" );
-    txt += "\n\n Define normalized area threshold:";
-
-    bool ok;
-    int  areaThreshold = QInputDialog::getInt( RiuMainWindow::instance(), "Create Polygons", txt, 10, 1, 10000, 1, &ok );
-    if ( ok )
+    else
     {
         std::vector<std::vector<cvf::Vec3d>> polygonsToCreate;
         for ( const auto& polygon : polygons )
         {
-            if ( polygon.first >= areaThreshold )
-            {
-                polygonsToCreate.push_back( polygon.second );
-            }
+            polygonsToCreate.push_back( polygon.second );
         }
-
         internal::createPolygonObjects( polygonsToCreate );
     }
 }
