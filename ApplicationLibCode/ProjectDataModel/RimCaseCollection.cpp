@@ -41,10 +41,12 @@ RimCaseCollection::RimCaseCollection()
 std::vector<RimCase*> RimCaseCollection::cases() const
 {
     std::vector<RimCase*> caseVector;
-    for ( size_t i = 0; i < reservoirs.size(); i++ )
+
+    for ( auto rimCase : reservoirs )
     {
-        caseVector.push_back( reservoirs[i] );
+        caseVector.push_back( rimCase );
     }
+
     return caseVector;
 }
 
