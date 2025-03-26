@@ -71,7 +71,6 @@ private:
     caf::PdmField<caf::AppEnum<RigWellTargetMapping::VolumeResultType>> m_volumeResultType;
     caf::PdmField<caf::AppEnum<RigWellTargetMapping::VolumesType>>      m_volumesType;
 
-    caf::PdmField<double> m_volume;
     caf::PdmField<double> m_pressure;
     caf::PdmField<double> m_permeability;
     caf::PdmField<double> m_transmissibility;
@@ -88,9 +87,6 @@ private:
     caf::PdmField<bool> m_generateButton;
 
     caf::PdmChildField<RimEclipseCase*> m_ensembleStatisticsCase;
-
-    double m_minimumVolume;
-    double m_maximumVolume;
 
     double m_minimumPressure;
     double m_maximumPressure;
