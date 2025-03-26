@@ -38,6 +38,19 @@ RimCaseCollection::RimCaseCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimCase*> RimCaseCollection::cases() const
+{
+    std::vector<RimCase*> caseVector;
+    for ( size_t i = 0; i < reservoirs.size(); i++ )
+    {
+        caseVector.push_back( reservoirs[i] );
+    }
+    return caseVector;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup* RimCaseCollection::parentCaseGroup()
 {
     return dynamic_cast<RimIdenticalGridCaseGroup*>( parentField()->ownerObject() );

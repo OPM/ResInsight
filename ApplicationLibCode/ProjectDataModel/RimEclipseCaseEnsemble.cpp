@@ -45,7 +45,7 @@ RimEclipseCaseEnsemble::RimEclipseCaseEnsemble()
 
     CAF_PDM_InitFieldNoDefault( &m_caseCollection, "CaseCollection", "Ensemble Cases" );
     m_caseCollection = new RimCaseCollection;
-    m_caseCollection->uiCapability()->setUiName( "Cases" );
+    m_caseCollection->uiCapability()->setUiName( "Realizations" );
     m_caseCollection->uiCapability()->setUiIconFromResourceString( ":/Cases16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_viewCollection, "ViewCollection", "Views" );
