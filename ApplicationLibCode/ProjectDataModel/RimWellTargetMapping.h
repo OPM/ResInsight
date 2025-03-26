@@ -76,7 +76,7 @@ private:
     caf::PdmField<double> m_transmissibility;
 
     caf::PdmField<int> m_maxIterations;
-    caf::PdmField<int> m_maxClusters;
+    caf::PdmField<int> m_maxNumTargets;
 
     caf::PdmChildField<RimEclipseResultDefinition*> m_resultDefinition;
 
