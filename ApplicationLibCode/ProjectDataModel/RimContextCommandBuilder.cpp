@@ -55,6 +55,7 @@
 #include "RimEclipseInputProperty.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultAddress.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
@@ -266,19 +267,19 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimEclipseCase*>( firstUiItem ) )
         {
+            menuBuilder << "RicNewViewFeature";
+            menuBuilder << "RicNewContourMapViewFeature";
+            menuBuilder << "RicNewWellTargetMappingFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicReloadCaseFeature";
+            menuBuilder << "RicReplaceCaseFeature";
             menuBuilder << "RicRenameCaseFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicShowFlowCharacteristicsPlotFeature";
             menuBuilder << "RicPasteEclipseCasesFeature";
             menuBuilder << "RicPasteEclipseViewsFeature";
             menuBuilder << "Separator";
-
-            menuBuilder << "RicNewViewFeature";
-            menuBuilder << "RicNewContourMapViewFeature";
-            menuBuilder << "RicShowFlowCharacteristicsPlotFeature";
-            menuBuilder << "RicEclipseCaseNewGroupFeature";
-            menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
-            menuBuilder << "RicNewWellTargetMappingFeature";
-
             menuBuilder << "Separator";
         }
         else if ( dynamic_cast<RimGridInfoCollection*>( firstUiItem ) )
@@ -1150,10 +1151,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicShowGridCalculatorFeature";
             menuBuilder << "RicAddEclipseInputPropertyFeature";
-            menuBuilder << "RicReloadCaseFeature";
-            menuBuilder << "RicReplaceCaseFeature";
             createExecuteScriptForCasesFeatureMenu( menuBuilder );
-            menuBuilder << "RicCloseSourSimDataFeature";
+            if ( auto resultCase = dynamic_cast<RimEclipseResultCase*>( firstUiItem ); resultCase && resultCase->hasSourSimFile() )
+            {
+                menuBuilder << "RicCloseSourSimDataFeature";
+            }
         }
         else if ( dynamic_cast<RimSummaryPlot*>( firstUiItem ) )
         {
