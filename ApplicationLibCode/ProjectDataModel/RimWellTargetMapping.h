@@ -65,6 +65,8 @@ private:
 
     RigWellTargetMapping::ClusteringLimits getClusteringLimits() const;
 
+    void resetMinimumCellValuesToDefault();
+
     caf::PdmField<int> m_timeStep;
 
     caf::PdmField<caf::AppEnum<RigWellTargetMapping::VolumeType>>       m_volumeType;
@@ -74,6 +76,7 @@ private:
     caf::PdmField<double> m_pressure;
     caf::PdmField<double> m_permeability;
     caf::PdmField<double> m_transmissibility;
+    caf::PdmField<bool>   m_resetDefaultButton;
 
     caf::PdmField<int> m_maxIterations;
     caf::PdmField<int> m_maxNumTargets;
@@ -90,10 +93,13 @@ private:
 
     double m_minimumPressure;
     double m_maximumPressure;
+    double m_defaultPressure;
 
     double m_minimumPermeability;
     double m_maximumPermeability;
+    double m_defaultPermeability;
 
     double m_minimumTransmissibility;
     double m_maximumTransmissibility;
+    double m_defaultTransmissibility;
 };
