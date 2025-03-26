@@ -70,19 +70,3 @@ double RigFloodingSettings::gasUserDefFlooding() const
 {
     return m_userDefFloodingGas;
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RigFloodingSettings::needsSogcr() const
-{
-    return ( m_gasFloodingType == FloodingType::GAS_FLOODING ) || ( m_oilFloodingType == FloodingType::GAS_FLOODING );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RigFloodingSettings::needsSowcr() const
-{
-    return ( m_gasFloodingType == FloodingType::WATER_FLOODING ) || ( m_oilFloodingType == FloodingType::WATER_FLOODING );
-}

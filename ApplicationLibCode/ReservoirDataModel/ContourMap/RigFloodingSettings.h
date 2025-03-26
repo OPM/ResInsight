@@ -36,9 +36,6 @@ public:
     double       oilUserDefFlooding() const;
     double       gasUserDefFlooding() const;
 
-    bool needsSogcr() const;
-    bool needsSowcr() const;
-
 protected:
     FloodingType m_oilFloodingType;
     double       m_userDefFloodingOil;

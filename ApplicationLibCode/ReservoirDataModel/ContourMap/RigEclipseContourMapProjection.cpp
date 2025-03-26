@@ -366,13 +366,9 @@ std::set<RigEclipseResultAddress> RigEclipseContourMapProjection::neededResults(
         if ( ( resultAggregation == RigContourMapCalculator::ResultAggregationType::MOBILE_GAS_COLUMN ) ||
              ( resultAggregation == RigContourMapCalculator::ResultAggregationType::MOBILE_HYDROCARBON_COLUMN ) )
         {
-            if ( floodingSettings.gasFlooding() == RigFloodingSettings::FloodingType::WATER_FLOODING )
+            if ( floodingSettings.gasFlooding() == RigFloodingSettings::FloodingType::GAS_FLOODING )
             {
-                results.emplace( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sowcr() );
-            }
-            else if ( floodingSettings.gasFlooding() == RigFloodingSettings::FloodingType::GAS_FLOODING )
-            {
-                results.emplace( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sogcr() );
+                results.emplace( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sgcr() );
             }
         }
     }
@@ -431,7 +427,7 @@ std::vector<double> RigEclipseContourMapProjection::residualGasData( RigCaseCell
         if ( floodingSettings.gasFlooding() == RigFloodingSettings::FloodingType::GAS_FLOODING )
         {
             residualGas =
-                resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sogcr() ), 0 );
+                resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sgcr() ), 0 );
         }
         else if ( floodingSettings.gasFlooding() == RigFloodingSettings::FloodingType::USER_DEFINED )
         {

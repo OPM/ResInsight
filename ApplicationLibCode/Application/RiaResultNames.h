@@ -89,6 +89,7 @@ QString swat();
 
 QString sowcr();
 QString sogcr();
+QString sgcr();
 
 // Well path derived results
 QString wbsAzimuthResult();
