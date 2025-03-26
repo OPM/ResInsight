@@ -326,6 +326,8 @@ void RiuMainWindow::cleanupGuiCaseClose()
     }
 
     RicShowSummaryCurveCalculatorFeature::hideCurveCalculatorDialog();
+
+    if ( m_messagePanel ) m_messagePanel->slotClearMessages();
 }
 
 //--------------------------------------------------------------------------------------------------

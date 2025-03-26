@@ -40,9 +40,10 @@ public:
     void  addMessage( RILogLevel messageLevel, const QString& msg );
     QSize sizeHint() const override;
 
+    void slotClearMessages();
+
 private slots:
     void slotShowContextMenu( const QPoint& pos );
-    void slotClearMessages();
 
 private:
     QPointer<QPlainTextEdit> m_textEdit;

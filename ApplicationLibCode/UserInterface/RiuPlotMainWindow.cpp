@@ -259,6 +259,8 @@ void RiuPlotMainWindow::cleanupGuiBeforeProjectClose()
     m_multiPlotLayoutToolBarEditor->clear();
 
     setWindowTitle( "Plots - ResInsight" );
+
+    if ( m_messagePanel ) m_messagePanel->slotClearMessages();
 }
 
 //--------------------------------------------------------------------------------------------------
