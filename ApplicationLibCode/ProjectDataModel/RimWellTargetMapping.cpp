@@ -159,7 +159,7 @@ void RimWellTargetMapping::fieldChangedByUi( const caf::PdmFieldHandle* changedF
             {
                 auto eclipseView = views.front();
                 eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::GENERATED );
-                eclipseView->cellResult()->setResultVariable( "CLUSTERS_NUM" );
+                eclipseView->cellResult()->setResultVariable( RigWellTargetMapping::wellTargetResultName() );
 
                 if ( RiaGuiApplication::isRunning() || RiuMainWindow::instance() )
                 {

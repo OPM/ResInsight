@@ -111,6 +111,8 @@ public:
                                                            VolumeResultType        volumeResultType,
                                                            const ClusteringLimits& limits );
 
+    static QString wellTargetResultName();
+
     class ClusterStatistics
     {
     public:
