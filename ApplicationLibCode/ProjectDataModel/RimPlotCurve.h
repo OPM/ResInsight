@@ -133,7 +133,7 @@ public:
 
     void          attach( RiuPlotWidget* );
     void          detach( bool deletePlotCurve = false );
-    void          reattach();
+    void          reattach( bool updateParentPlot = true );
     bool          isSameCurve( const RiuPlotCurve* plotCurve ) const;
     void          deletePlotCurve();
     RiuPlotCurve* plotCurve() const;

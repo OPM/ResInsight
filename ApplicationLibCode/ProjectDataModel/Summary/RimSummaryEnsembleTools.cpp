@@ -407,16 +407,19 @@ void RimSummaryEnsembleTools::highlightCurvesForSummaryCases( const std::vector<
             auto plotWidget = dynamic_cast<RiuQwtPlotWidget*>( plot->plotWidget() );
             if ( !plotWidget ) continue;
 
-            auto summaryCurves = plot->summaryAndEnsembleCurves();
+            // Do nothing if no curve sets are present, as this will cause the single curve highlight to be removed
+            if ( plot->curveSets().empty() ) continue;
 
             std::vector<RimPlotCurve*> curvesForSameRealization;
-
-            for ( auto curve : summaryCurves )
+            for ( const auto& curveSet : plot->curveSets() )
             {
-                auto summaryCaseY = curve->summaryCaseY();
-                if ( std::find( sourceCases.begin(), sourceCases.end(), summaryCaseY ) != sourceCases.end() )
+                for ( auto ensembleCurve : curveSet->curves() )
                 {
-                    curvesForSameRealization.push_back( curve );
+                    auto summaryCaseY = ensembleCurve->summaryCaseY();
+                    if ( std::find( sourceCases.begin(), sourceCases.end(), summaryCaseY ) != sourceCases.end() )
+                    {
+                        curvesForSameRealization.push_back( ensembleCurve );
+                    }
                 }
             }
 

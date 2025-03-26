@@ -1194,9 +1194,16 @@ void RimPlotCurve::detach( bool deletePlotCurve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::reattach()
+void RimPlotCurve::reattach( bool updateParentPlot )
 {
-    if ( m_parentPlot && canCurveBeAttached() ) attach( m_parentPlot );
+    if ( m_parentPlot && canCurveBeAttached() )
+    {
+        setParentPlotNoReplot( m_parentPlot );
+        if ( updateParentPlot )
+        {
+            m_parentPlot->replot();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
