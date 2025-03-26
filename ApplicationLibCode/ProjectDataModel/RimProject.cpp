@@ -614,6 +614,8 @@ std::vector<RimCase*> RimProject::allGridCases() const
 
             for ( RimEclipseCaseEnsemble* ensemble : analysisModels->caseEnsembles() )
             {
+                if ( !ensemble ) continue;
+
                 for ( RimEclipseCase* acase : ensemble->cases() )
                 {
                     cases.push_back( acase );
