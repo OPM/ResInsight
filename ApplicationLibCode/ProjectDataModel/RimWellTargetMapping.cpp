@@ -360,10 +360,10 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     resultGroup->add( &m_volumeResultType );
     resultGroup->add( &m_volumesType );
 
-    caf::PdmUiGroup* clusterLimitsGroup = uiOrdering.addNewGroup( "Cluster Growth Limits" );
-    clusterLimitsGroup->add( &m_pressure );
-    clusterLimitsGroup->add( &m_permeability );
-    clusterLimitsGroup->add( &m_transmissibility );
+    caf::PdmUiGroup* minimumCellValuesGroup = uiOrdering.addNewGroup( "Minimum Cell Values" );
+    minimumCellValuesGroup->add( &m_pressure );
+    minimumCellValuesGroup->add( &m_permeability );
+    minimumCellValuesGroup->add( &m_transmissibility );
 
     caf::PdmUiGroup* resultDefinitionGroup = uiOrdering.addNewGroup( "Cluster Filter" );
     m_resultDefinition->uiOrdering( uiConfigName, *resultDefinitionGroup );
