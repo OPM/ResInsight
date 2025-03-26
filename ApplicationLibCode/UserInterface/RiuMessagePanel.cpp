@@ -130,8 +130,6 @@ void RiuMessagePanel::slotShowContextMenu( const QPoint& pos )
 void RiuMessagePanel::slotClearMessages()
 {
     m_textEdit->clear();
-
-    RiaLogging::info( "Message window cleared." );
 }
 
 //==================================================================================================

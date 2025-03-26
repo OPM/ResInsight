@@ -125,12 +125,18 @@ RimEclipseCaseEnsemble* RicCreateGridCaseEnsemblesFromFilesFeature::importSingle
         QString caseName = gridFileName.completeBaseName();
 
         auto* rimResultCase = new RimEclipseResultCase();
+        rimResultCase->setDisplayNameType( RimCaseDisplayNameTools::DisplayName::SHORT_CASE_NAME );
         rimResultCase->setCaseInfo( caseName, caseFileName );
         eclipseCaseEnsemble->addCase( rimResultCase );
 
         auto               folderNames = RimFormationTools::formationFoldersFromCaseFileName( caseFileName );
         RimFormationNames* formations  = RimFormationTools::loadFormationNamesFromFolder( folderNames );
         if ( formations != nullptr ) rimResultCase->setFormationNames( formations );
+    }
+
+    for ( auto gridCase : eclipseCaseEnsemble->cases() )
+    {
+        gridCase->updateAutoShortName();
     }
 
     oilfield->analysisModels()->caseEnsembles.push_back( eclipseCaseEnsemble );

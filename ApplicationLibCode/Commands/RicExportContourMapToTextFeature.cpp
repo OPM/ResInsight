@@ -251,8 +251,8 @@ std::pair<RimEclipseContourMapView*, RimGeoMechContourMapView*> RicExportContour
 
     if ( !existingEclipseContourMap && !existingGeoMechContourMap )
     {
-        existingEclipseContourMap = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseContourMapView>();
-        existingGeoMechContourMap = caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechContourMapView>();
+        existingEclipseContourMap = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseContourMapView>();
+        existingGeoMechContourMap = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimGeoMechContourMapView>();
     }
 
     auto pair = std::make_pair( existingEclipseContourMap, existingGeoMechContourMap );

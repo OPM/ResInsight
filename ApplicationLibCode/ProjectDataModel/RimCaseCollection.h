@@ -24,6 +24,7 @@
 
 class RimEclipseCase;
 class RimIdenticalGridCaseGroup;
+class RimCase;
 
 //==================================================================================================
 //
@@ -36,6 +37,9 @@ class RimCaseCollection : public caf::PdmObject
 
 public:
     RimCaseCollection();
+
+    std::vector<RimCase*> cases() const;
+
     caf::PdmChildArrayField<RimEclipseCase*> reservoirs;
 
     RimIdenticalGridCaseGroup* parentCaseGroup();
