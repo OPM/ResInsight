@@ -71,7 +71,7 @@ public:
         double                  permeability;
         double                  pressure;
         double                  transmissibility;
-        int                     maxClusters;
+        int                     maxNumTargets;
         int                     maxIterations;
         RigEclipseResultAddress filterAddress;
     };

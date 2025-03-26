@@ -135,7 +135,7 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*         eclipseCa
 
     std::vector<int> clusters( activeCellCount.value(), 0 );
     auto             start            = std::chrono::high_resolution_clock::now();
-    int              numClusters      = limits.maxClusters;
+    int              numClusters      = limits.maxNumTargets;
     int              maxIterations    = limits.maxIterations;
     int              numClustersFound = 0;
     for ( int clusterId = 1; clusterId <= numClusters; clusterId++ )

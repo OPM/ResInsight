@@ -102,7 +102,7 @@ RimWellTargetMapping::RimWellTargetMapping()
     m_transmissibility.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_maxIterations, "Iterations", 100000, "Max Iterations" );
-    CAF_PDM_InitField( &m_maxClusters, "MaxClusters", 5, "Max Clusters" );
+    CAF_PDM_InitField( &m_maxNumTargets, "MaxNumTargets", 5, "Maximum Number of Well Targets" );
 
     CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "" );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
@@ -380,7 +380,7 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     }
 
     caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup( "Advanced" );
-    advancedGroup->add( &m_maxClusters );
+    advancedGroup->add( &m_maxNumTargets );
     advancedGroup->setCollapsedByDefault();
 
     uiOrdering.add( &m_generateButton );
@@ -401,7 +401,7 @@ RigWellTargetMapping::ClusteringLimits RimWellTargetMapping::getClusteringLimits
     return { .permeability     = m_permeability,
              .pressure         = m_pressure,
              .transmissibility = m_transmissibility,
-             .maxClusters      = m_maxClusters,
+             .maxNumTargets    = m_maxNumTargets,
              .maxIterations    = m_maxIterations,
              .filterAddress    = m_resultDefinition->eclipseResultAddress() };
 }
