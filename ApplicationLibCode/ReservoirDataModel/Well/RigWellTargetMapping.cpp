@@ -283,8 +283,7 @@ std::optional<caf::VecIjk> RigWellTargetMapping::findStartCell( RimEclipseCase* 
 
             const bool filterValue = !std::isinf( filterVector[resultIndex] ) && filterVector[resultIndex] > 0.0;
 
-            if ( cellVolume > maxVolume && cellVolume >= limits.volume && cellPressure >= limits.pressure &&
-                 permeabilityValidInAnyDirection && filterValue )
+            if ( cellVolume > maxVolume && cellPressure >= limits.pressure && permeabilityValidInAnyDirection && filterValue )
             {
                 maxVolume = cellVolume;
                 startCell = reservoirCellIdx;
@@ -380,8 +379,8 @@ std::vector<size_t> RigWellTargetMapping::findCandidates( RimEclipseCase*       
                                                                                neighborResultIndex );
                     bool   filterValue      = !std::isinf( filterVector[neighborResultIndex] ) && filterVector[neighborResultIndex] > 0.0;
 
-                    if ( data.volume[neighborResultIndex] > limits.volume && data.pressure[neighborResultIndex] > limits.pressure &&
-                         permeability > limits.permeability && transmissibility > limits.transmissibility && filterValue )
+                    if ( data.pressure[neighborResultIndex] > limits.pressure && permeability > limits.permeability &&
+                         transmissibility > limits.transmissibility && filterValue )
                     {
                         candidates.push_back( neighborResvCellIdx );
                         clusters[neighborResultIndex] = -1;
@@ -404,8 +403,8 @@ std::vector<size_t> RigWellTargetMapping::findCandidates( RimEclipseCase*       
 
                 bool filterValue = !std::isinf( filterVector[otherResultIndex] ) && filterVector[otherResultIndex] > 0.0;
 
-                if ( data.volume[otherResultIndex] > limits.volume && data.pressure[otherResultIndex] > limits.pressure &&
-                     permeability > limits.permeability && transmissibility > limits.transmissibility && filterValue )
+                if ( data.pressure[otherResultIndex] > limits.pressure && permeability > limits.permeability &&
+                     transmissibility > limits.transmissibility && filterValue )
                 {
                     candidates.push_back( otherCellIdx );
                     clusters[otherResultIndex] = -1;

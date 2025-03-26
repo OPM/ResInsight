@@ -92,9 +92,6 @@ RimWellTargetMapping::RimWellTargetMapping()
     CAF_PDM_InitFieldNoDefault( &m_volumeResultType, "VolumeResultType", "Result" );
     CAF_PDM_InitFieldNoDefault( &m_volumesType, "VolumesType", "" );
 
-    CAF_PDM_InitField( &m_volume, "Volume", 0.0, "Volume" );
-    m_volume.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
-
     CAF_PDM_InitField( &m_pressure, "Pressure", 0.0, "Pressure" );
     m_pressure.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
@@ -123,9 +120,6 @@ RimWellTargetMapping::RimWellTargetMapping()
     m_generateButton.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleStatisticsCase, "EnsembleStatisticsCase", "Ensemble Statistics Case" );
-
-    m_minimumVolume = cvf::UNDEFINED_DOUBLE;
-    m_maximumVolume = cvf::UNDEFINED_DOUBLE;
 
     m_minimumPressure = cvf::UNDEFINED_DOUBLE;
     m_maximumPressure = cvf::UNDEFINED_DOUBLE;
@@ -240,12 +234,6 @@ void RimWellTargetMapping::updateAllBoundaries()
 
     std::vector<double> volume =
         RigWellTargetMapping::getVolumeVector( *resultsData, m_volumeType(), m_volumesType(), m_volumeResultType(), timeStepIdx );
-    if ( !volume.empty() )
-    {
-        const auto [min, max] = std::minmax_element( volume.begin(), volume.end() );
-        m_minimumVolume       = *min;
-        m_maximumVolume       = *max;
-    }
 
     std::tie( m_minimumPermeability, m_maximumPermeability ) =
         updateBoundaryValues( resultsData,
@@ -268,16 +256,6 @@ void RimWellTargetMapping::updateAllBoundaries()
 void RimWellTargetMapping::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 
 {
-    if ( field == &m_volume && m_minimumVolume != cvf::UNDEFINED_DOUBLE && m_maximumVolume != cvf::UNDEFINED_DOUBLE )
-    {
-        if ( auto doubleAttributes = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            doubleAttributes->m_minimum  = m_minimumVolume;
-            doubleAttributes->m_maximum  = m_maximumVolume;
-            doubleAttributes->m_decimals = 3;
-        }
-    }
-
     if ( field == &m_pressure && m_minimumPressure != cvf::UNDEFINED_DOUBLE && m_maximumPressure != cvf::UNDEFINED_DOUBLE )
     {
         if ( auto doubleAttributes = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
@@ -383,7 +361,6 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     resultGroup->add( &m_volumesType );
 
     caf::PdmUiGroup* clusterLimitsGroup = uiOrdering.addNewGroup( "Cluster Growth Limits" );
-    clusterLimitsGroup->add( &m_volume );
     clusterLimitsGroup->add( &m_pressure );
     clusterLimitsGroup->add( &m_permeability );
     clusterLimitsGroup->add( &m_transmissibility );
@@ -410,7 +387,7 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 
     uiOrdering.skipRemainingFields();
 
-    if ( m_minimumVolume == cvf::UNDEFINED_DOUBLE || m_maximumVolume == cvf::UNDEFINED_DOUBLE )
+    if ( m_minimumPressure == cvf::UNDEFINED_DOUBLE || m_maximumPressure == cvf::UNDEFINED_DOUBLE )
     {
         updateAllBoundaries();
     }
@@ -421,8 +398,7 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 RigWellTargetMapping::ClusteringLimits RimWellTargetMapping::getClusteringLimits() const
 {
-    return { .volume           = m_volume,
-             .permeability     = m_permeability,
+    return { .permeability     = m_permeability,
              .pressure         = m_pressure,
              .transmissibility = m_transmissibility,
              .maxClusters      = m_maxClusters,

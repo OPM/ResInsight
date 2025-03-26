@@ -68,7 +68,6 @@ public:
 
     struct ClusteringLimits
     {
-        double                  volume;
         double                  permeability;
         double                  pressure;
         double                  transmissibility;
