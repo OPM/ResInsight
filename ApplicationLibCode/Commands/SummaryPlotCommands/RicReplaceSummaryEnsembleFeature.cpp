@@ -51,6 +51,8 @@ void RicReplaceSummaryEnsembleFeature::onActionTriggered( bool isChecked )
     auto summaryEnsemble = caf::SelectionManager::instance()->selectedItemOfType<RimSummaryEnsemble>();
     if ( !summaryEnsemble ) return;
 
+    RiaLogging::info( QString( "Starting replace ensemble for '" ) + summaryEnsemble->name() + "'" );
+
     QString pathCacheName = "ENSEMBLE_FILES";
     auto    result = RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialogWithGrouping( "Import Ensemble", pathCacheName );
     QStringList          fileNames = result.files;
@@ -80,6 +82,8 @@ void RicReplaceSummaryEnsembleFeature::onActionTriggered( bool isChecked )
         sumCaseMainColl->updateEnsembleNames();
         sumCaseMainColl->updateAllRequiredEditors();
     }
+
+    RiaLogging::info( QString( "Completed replace ensemble, new name is '" ) + summaryEnsemble->name() + "'" );
 }
 
 //--------------------------------------------------------------------------------------------------
