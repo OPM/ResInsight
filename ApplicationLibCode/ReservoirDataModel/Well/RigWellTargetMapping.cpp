@@ -168,7 +168,7 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*         eclipseCa
     auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>( finish - start );
     RiaLogging::info( QString( "Time spent: %1 ms" ).arg( milliseconds.count() ) );
 
-    QString resultName = "CLUSTERS_NUM";
+    QString resultName = RigWellTargetMapping::wellTargetResultName();
     createResultVector( *eclipseCase, resultName, clusters );
 
     // Update views and property filters
@@ -739,7 +739,7 @@ RimRegularGridCase* RigWellTargetMapping::generateEnsembleCandidates( RimEclipse
     cvf::BoundingBox boundingBox;
     for ( auto eclipseCase : ensemble.cases() )
     {
-        cvf::BoundingBox bb = computeBoundingBoxForResult( *eclipseCase, "CLUSTERS_NUM", 0 );
+        cvf::BoundingBox bb = computeBoundingBoxForResult( *eclipseCase, RigWellTargetMapping::wellTargetResultName(), 0 );
         boundingBox.add( bb );
     }
 
@@ -870,7 +870,7 @@ void RigWellTargetMapping::accumulateResultsForSingleCase( RimEclipseCase&      
 
     occupancy.resize( targetNumActiveCells, 0 );
 
-    RigEclipseResultAddress clustersNumAddress( RiaDefines::ResultCatType::GENERATED, "CLUSTERS_NUM" );
+    RigEclipseResultAddress clustersNumAddress( RiaDefines::ResultCatType::GENERATED, RigWellTargetMapping::wellTargetResultName() );
     resultsData->ensureKnownResultLoaded( clustersNumAddress );
     const std::vector<double>& clusterNum = resultsData->cellScalarResults( clustersNumAddress, 0 );
 
@@ -967,4 +967,12 @@ std::list<std::pair<std::pair<size_t, RigWellTargetMapping::CellFaceType>, size_
     }
 
     return foundCells;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RigWellTargetMapping::wellTargetResultName()
+{
+    return "WELL_TARGET_NUM";
 }
