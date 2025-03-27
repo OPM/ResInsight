@@ -83,6 +83,8 @@ void RicReplaceSummaryEnsembleFeature::onActionTriggered( bool isChecked )
         sumCaseMainColl->updateAllRequiredEditors();
     }
 
+    RiaSummaryTools::updateConnectedPlots( summaryEnsemble );
+
     RiaLogging::info( QString( "Completed replace ensemble, new name is '" ) + summaryEnsemble->name() + "'" );
 }
 

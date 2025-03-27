@@ -23,6 +23,7 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimDepthTrackPlot.h"
 #include "RimMainPlotCollection.h"
 #include "RimObservedDataCollection.h"
 #include "RimOilField.h"
@@ -40,8 +41,11 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryTable.h"
 #include "RimSummaryTableCollection.h"
+#include "RimWellPlotTools.h"
+#include "RimWellRftPlot.h"
 
 #include "cafPdmObject.h"
+#include "cafPdmObjectHandleTools.h"
 
 #include <QRegularExpression>
 
@@ -385,7 +389,7 @@ bool RiaSummaryTools::isCalculationRequired( const RimUserDefinedCalculation* su
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryTools::reloadSummaryCase( RimSummaryCase* summaryCase )
+void RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( RimSummaryCase* summaryCase )
 {
     if ( !summaryCase ) return;
 
@@ -409,12 +413,15 @@ void RiaSummaryTools::reloadSummaryCase( RimSummaryCase* summaryCase )
 
         multiPlot->updatePlotTitles();
     }
+
+    auto depthTrackPlots = caf::PdmObjectHandleTools::referringAncestorOfType<RimDepthTrackPlot, RimSummaryCase>( { summaryCase } );
+    RimWellPlotTools::loadDataAndUpdateDepthTrackPlots( depthTrackPlots );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryTools::reloadSummaryEnsemble( RimSummaryEnsemble* ensemble )
+void RiaSummaryTools::updateConnectedPlots( RimSummaryEnsemble* ensemble )
 {
     RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
     for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
@@ -429,6 +436,9 @@ void RiaSummaryTools::reloadSummaryEnsemble( RimSummaryEnsemble* ensemble )
 
         multiPlot->updatePlotTitles();
     }
+
+    auto depthTrackPlots = caf::PdmObjectHandleTools::referringAncestorOfType<RimDepthTrackPlot, RimSummaryEnsemble>( { ensemble } );
+    RimWellPlotTools::loadDataAndUpdateDepthTrackPlots( depthTrackPlots );
 }
 
 //--------------------------------------------------------------------------------------------------

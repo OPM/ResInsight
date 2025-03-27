@@ -64,7 +64,7 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
 
     const auto& newFileName = fileNames.front();
     summaryCase->setSummaryHeaderFileName( newFileName );
-    RiaSummaryTools::reloadSummaryCase( summaryCase );
+    RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( summaryCase );
 
     RiaLogging::info( QString( "Replaced summary data for %1" ).arg( oldSummaryHeaderFilename ) );
 

@@ -1546,6 +1546,16 @@ RimWellRftEnsembleCurveSet* RimWellRftPlot::findEnsembleCurveSet( RimSummaryEnse
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::rebuildCurves()
+{
+    createEnsembleCurveSets();
+    updateFormationsOnPlot();
+    syncCurvesFromUiSelection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::variant<RimSummaryCase*, RimSummaryEnsemble*> RimWellRftPlot::dataSource() const
 {
     // Return the first selected ensemble, if any

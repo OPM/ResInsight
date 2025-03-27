@@ -41,6 +41,7 @@ class RiuWellRftPlot;
 class RigEclipseCaseData;
 class RigEclipseResultAddress;
 class RifReaderRftInterface;
+class RimDepthTrackPlot;
 
 namespace RimWellPlotTools
 {
@@ -116,4 +117,5 @@ bool hasFlowData( const RimWellPath* wellPath );
 std::vector<RimPressureDepthData*> pressureDepthData();
 std::vector<RimPressureDepthData*> pressureDepthDataForWell( const QString& simWellName );
 
+void loadDataAndUpdateDepthTrackPlots( const std::set<RimDepthTrackPlot*>& depthTrackPlots );
 }; // namespace RimWellPlotTools

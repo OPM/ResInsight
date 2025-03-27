@@ -23,6 +23,7 @@
 
 #include "RicDeleteItemFeature.h"
 
+#include "RimDepthTrackPlot.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -31,10 +32,13 @@
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimWellLogPlot.h"
+#include "RimWellPlotTools.h"
+#include "RimWellRftPlot.h"
 
 #include "RiuPlotMainWindow.h"
 
 #include "cafAsyncObjectDeleter.h"
+#include "cafPdmObjectHandleTools.h"
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
@@ -62,7 +66,8 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases( std::vector<RimSummaryCase*
     RimSummaryCaseMainCollection*  summaryCaseMainCollection = RiaSummaryTools::summaryCaseMainCollection();
 
     std::set<RimSummaryMultiPlot*> plotsToUpdate;
-    std::set<RimWellLogPlot*>      wellLogPlotsToDelete;
+
+    auto depthTrackPlots = caf::PdmObjectHandleTools::referringAncestorOfType<RimDepthTrackPlot, RimSummaryCase>( cases );
 
     for ( RimSummaryCase* summaryCase : cases )
     {
@@ -74,24 +79,11 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases( std::vector<RimSummaryCase*
             }
             plotsToUpdate.insert( multiPlot );
         }
-
-        std::vector<caf::PdmObjectHandle*> referringObjects = summaryCase->objectsWithReferringPtrFields();
-
-        for ( auto object : referringObjects )
-        {
-            if ( !object ) continue;
-
-            RimWellLogPlot* wellLogPlot = object->firstAncestorOrThisOfType<RimWellLogPlot>();
-            if ( wellLogPlot ) wellLogPlotsToDelete.insert( wellLogPlot );
-        }
-    }
-
-    for ( auto wellLogPlot : wellLogPlotsToDelete )
-    {
-        RicDeleteItemFeature::deleteObject( wellLogPlot );
     }
 
     summaryCaseMainCollection->removeCases( cases );
+
+    RimWellPlotTools::loadDataAndUpdateDepthTrackPlots( depthTrackPlots );
 
     for ( auto plot : plotsToUpdate )
     {
