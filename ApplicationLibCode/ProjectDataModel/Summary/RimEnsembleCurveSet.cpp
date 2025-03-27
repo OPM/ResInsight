@@ -2307,11 +2307,6 @@ RimEnsembleCurveSet* RimEnsembleCurveSet::clone() const
     auto copy = copyObject<RimEnsembleCurveSet>();
     copy->setSummaryEnsemble( m_yValuesSummaryEnsemble() );
 
-    // Update summary case references
-    for ( size_t i = 0; i < m_curves.size(); i++ )
-    {
-        copy->m_curves[i]->setSummaryCaseY( m_curves[i]->summaryCaseY() );
-    }
     return copy;
 }
 
