@@ -570,6 +570,12 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
             return true;
         }
 
+        if ( mouseEvent->type() == QMouseEvent::MouseButtonPress && ( mouseEvent->button() == Qt::LeftButton ) && m_plotDefinition )
+        {
+            // Select the plot clicked at in the Project Tree
+            RiuPlotMainWindowTools::selectAsCurrentItem( m_plotDefinition );
+        }
+
         bool toggleItemInSelection = ( mouseEvent->modifiers() & Qt::ControlModifier ) != 0;
 
         if ( mouseEvent->type() == QMouseEvent::MouseButtonPress && mouseEvent->button() == Qt::LeftButton )
