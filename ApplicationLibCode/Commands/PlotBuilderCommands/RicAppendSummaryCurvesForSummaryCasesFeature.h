@@ -40,5 +40,5 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static std::vector<caf::PdmObjectHandle*> selectedCases();
+    static std::vector<caf::PdmObjectHandle*> dragDropObjects();
 };

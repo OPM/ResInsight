@@ -18,11 +18,12 @@
 
 #include "RicAppendSummaryCurvesForObjectsFeature.h"
 
-#include "RiaGuiApplication.h"
 #include "RicAppendSummaryPlotsForObjectsFeature.h"
 
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
+
+#include "RiuDockWidgetTools.h"
 
 #include <QAction>
 
@@ -48,24 +49,25 @@ void RicAppendSummaryCurvesForObjectsFeature::onActionTriggered( bool isChecked 
     auto sumAddressCollections = RicAppendSummaryPlotsForObjectsFeature::selectedCollections();
     if ( sumAddressCollections.empty() ) return;
 
-    RiaGuiApplication* app = RiaGuiApplication::instance();
-
-    auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( app->activePlotWindow() );
-    if ( !summaryMultiPlot ) return;
-
-    RicAppendSummaryPlotsForObjectsFeature::isSelectionCompatibleWithPlot( sumAddressCollections, summaryMultiPlot );
-
-    auto sourcePlots = summaryMultiPlot->summaryPlots();
-
     std::vector<caf::PdmObjectHandle*> pdmObjects;
     for ( auto summaryAdrCollection : sumAddressCollections )
     {
         pdmObjects.push_back( summaryAdrCollection );
     }
 
-    for ( auto plot : sourcePlots )
+    auto selectedTreeViewItems = RiuDockWidgetTools::selectedItemsInTreeView( RiuDockWidgetTools::plotMainWindowPlotsTreeName() );
+
+    for ( auto item : selectedTreeViewItems )
     {
-        plot->handleDroppedObjects( pdmObjects );
+        auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( item );
+        if ( !summaryMultiPlot ) continue;
+
+        if ( !RicAppendSummaryPlotsForObjectsFeature::isSelectionCompatibleWithPlot( sumAddressCollections, summaryMultiPlot ) ) continue;
+
+        for ( auto plot : summaryMultiPlot->summaryPlots() )
+        {
+            plot->handleDroppedObjects( pdmObjects );
+        }
     }
 }
 

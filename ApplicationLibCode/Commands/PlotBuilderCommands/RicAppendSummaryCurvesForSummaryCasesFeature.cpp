@@ -18,15 +18,12 @@
 
 #include "RicAppendSummaryCurvesForSummaryCasesFeature.h"
 
-#include "RiaGuiApplication.h"
-
-#include "RicAppendSummaryPlotsForObjectsFeature.h"
-
-#include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
+
+#include "RiuDockWidgetTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -39,7 +36,7 @@ CAF_CMD_SOURCE_INIT( RicAppendSummaryCurvesForSummaryCasesFeature, "RicAppendSum
 //--------------------------------------------------------------------------------------------------
 bool RicAppendSummaryCurvesForSummaryCasesFeature::isCommandEnabled() const
 {
-    return !selectedCases().empty();
+    return !dragDropObjects().empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,17 +44,19 @@ bool RicAppendSummaryCurvesForSummaryCasesFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicAppendSummaryCurvesForSummaryCasesFeature::onActionTriggered( bool isChecked )
 {
-    RiaGuiApplication* app = RiaGuiApplication::instance();
+    auto objectsForDrop = dragDropObjects();
+    if ( objectsForDrop.empty() ) return;
 
-    auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( app->activePlotWindow() );
-    if ( !summaryMultiPlot ) return;
-
-    auto cases = selectedCases();
-    if ( cases.empty() ) return;
-
-    for ( auto plot : summaryMultiPlot->summaryPlots() )
+    auto selectedTreeViewItems = RiuDockWidgetTools::selectedItemsInTreeView( RiuDockWidgetTools::plotMainWindowPlotsTreeName() );
+    for ( auto item : selectedTreeViewItems )
     {
-        plot->handleDroppedObjects( cases );
+        auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( item );
+        if ( !summaryMultiPlot ) continue;
+
+        for ( auto plot : summaryMultiPlot->summaryPlots() )
+        {
+            plot->handleDroppedObjects( objectsForDrop );
+        }
     }
 }
 
@@ -76,23 +75,23 @@ void RicAppendSummaryCurvesForSummaryCasesFeature::setupActionLook( QAction* act
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::PdmObjectHandle*> RicAppendSummaryCurvesForSummaryCasesFeature::selectedCases()
+std::vector<caf::PdmObjectHandle*> RicAppendSummaryCurvesForSummaryCasesFeature::dragDropObjects()
 {
     // Make the object type general to match the expected type for handleDroppedObjects();
-    std::vector<caf::PdmObjectHandle*> generalObjects;
+    std::vector<caf::PdmObjectHandle*> objects;
 
     {
-        std::vector<RimSummaryCase*> objects;
-        caf::SelectionManager::instance()->objectsByType( &objects );
+        std::vector<RimSummaryCase*> summaryCases;
+        caf::SelectionManager::instance()->objectsByType( &summaryCases );
 
-        generalObjects.insert( generalObjects.begin(), objects.begin(), objects.end() );
+        objects.insert( objects.begin(), summaryCases.begin(), summaryCases.end() );
     }
     {
-        std::vector<RimSummaryEnsemble*> objects;
-        caf::SelectionManager::instance()->objectsByType( &objects );
+        std::vector<RimSummaryEnsemble*> ensembles;
+        caf::SelectionManager::instance()->objectsByType( &ensembles );
 
-        generalObjects.insert( generalObjects.begin(), objects.begin(), objects.end() );
+        objects.insert( objects.begin(), ensembles.begin(), ensembles.end() );
     }
 
-    return generalObjects;
+    return objects;
 }

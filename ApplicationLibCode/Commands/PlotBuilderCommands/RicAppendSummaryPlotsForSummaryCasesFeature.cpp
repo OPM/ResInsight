@@ -18,14 +18,13 @@
 
 #include "RicAppendSummaryPlotsForSummaryCasesFeature.h"
 
-#include "RiaGuiApplication.h"
-
 #include "RicAppendSummaryPlotsForObjectsFeature.h"
 
-#include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
+
+#include "RiuDockWidgetTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -49,15 +48,17 @@ bool RicAppendSummaryPlotsForSummaryCasesFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicAppendSummaryPlotsForSummaryCasesFeature::onActionTriggered( bool isChecked )
 {
-    RiaGuiApplication* app = RiaGuiApplication::instance();
-
-    auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( app->activePlotWindow() );
-    if ( !summaryMultiPlot ) return;
-
     auto cases     = selectedCases();
     auto ensembles = selectedEnsembles();
 
-    RicAppendSummaryPlotsForObjectsFeature::appendPlots( summaryMultiPlot, cases, ensembles );
+    auto selectedTreeViewItems = RiuDockWidgetTools::selectedItemsInTreeView( RiuDockWidgetTools::plotMainWindowPlotsTreeName() );
+    for ( auto item : selectedTreeViewItems )
+    {
+        auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( item );
+        if ( !summaryMultiPlot ) continue;
+
+        RicAppendSummaryPlotsForObjectsFeature::appendPlots( summaryMultiPlot, cases, ensembles );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
