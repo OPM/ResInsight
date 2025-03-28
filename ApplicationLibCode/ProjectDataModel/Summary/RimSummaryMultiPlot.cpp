@@ -66,6 +66,7 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+#include "cafSelectionManager.h"
 
 #include "qwt_scale_engine.h"
 
@@ -1564,24 +1565,39 @@ void RimSummaryMultiPlot::onPlotAdditionOrRemoval()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
 {
-    if ( summaryPlots().empty() ) return;
+    std::vector<RimSummaryPlot*> plotsForStepping;
 
-    // find matching plots
-    std::vector<RimPlot*> plots = m_sourceStepping->plotsMatchingStepSettings( summaryPlots() );
-    if ( plots.empty() ) return;
-
-    // duplicate them
-    auto newPlots = RiaSummaryPlotTools::duplicatePlots( plots );
-    if ( newPlots.empty() ) return;
-
-    for ( auto plot : newPlots )
+    bool isMultiPlotSelected = ( caf::SelectionManager::instance()->selectedItemOfType<RimSummaryMultiPlot>() != nullptr );
+    if ( isMultiPlotSelected )
     {
-        RimSummaryPlot* newPlot = dynamic_cast<RimSummaryPlot*>( plot );
-        if ( newPlot == nullptr ) continue;
+        duplicate();
 
-        addPlot( newPlot );
-        newPlot->resolveReferencesRecursively();
+        // The duplicate operation selects duplicated plot by default. Select this as current item to continue stepping on this plot
+        RiuPlotMainWindowTools::selectAsCurrentItem( this );
 
+        plotsForStepping = summaryPlots();
+    }
+    else
+    {
+        std::vector<RimPlot*> plots = m_sourceStepping->plotsMatchingStepSettings( summaryPlots() );
+        if ( !plots.empty() )
+        {
+            auto newPlots = RiaSummaryPlotTools::duplicatePlots( plots );
+            for ( auto plot : newPlots )
+            {
+                if ( RimSummaryPlot* newPlot = dynamic_cast<RimSummaryPlot*>( plot ) )
+                {
+                    addPlot( newPlot );
+                    newPlot->resolveReferencesRecursively();
+
+                    plotsForStepping.push_back( newPlot );
+                }
+            }
+        }
+    }
+
+    for ( auto newPlot : plotsForStepping )
+    {
         if ( m_sourceStepping()->stepDimension() == RimSummaryDataSourceStepping::SourceSteppingDimension::SUMMARY_CASE )
         {
             RimSummaryCase* newCase = m_sourceStepping()->stepCase( direction );
@@ -1622,7 +1638,11 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
     loadDataAndUpdate();
     updateConnectedEditors();
 
-    RiuPlotMainWindowTools::selectAsCurrentItem( newPlots.back() );
+    if ( !isMultiPlotSelected && !summaryPlots().empty() )
+    {
+        // Select the last plot in the list as the current item to be able to append plots for the next object type (well, region, etc.)
+        RiuPlotMainWindowTools::selectAsCurrentItem( summaryPlots().back() );
+    }
 
     updateSourceStepper();
     RiuPlotMainWindowTools::refreshToolbars();
