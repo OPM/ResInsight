@@ -26,7 +26,9 @@
 #include "RiuMainWindow.h"
 
 #include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
+#include "RigFloodingSettings.h"
 #include "RigStatisticsMath.h"
 #include "Well/RigWellTargetMapping.h"
 
@@ -72,11 +74,13 @@ void caf::AppEnum<RigWellTargetMapping::VolumeResultType>::setUp()
 template <>
 void caf::AppEnum<RigWellTargetMapping::VolumesType>::setUp()
 {
-    addItem( RigWellTargetMapping::VolumesType::RESERVOIR_VOLUMES, "RESERVOIR", "Reservoir Volumes (RFIPOIL, RFIPGAS)" );
-    addItem( RigWellTargetMapping::VolumesType::SURFACE_VOLUMES_SFIP, "SURFACE_SFIP", "Surface Volumes (SFIPOIL, SFIPGAS)" );
-    addItem( RigWellTargetMapping::VolumesType::SURFACE_VOLUMES_FIP, "SURFACE_FIP", "Surface Volumes (FIPOIL, FIPGAS)" );
-    addItem( RigWellTargetMapping::VolumesType::COMPUTED_VOLUMES, "COMPUTED", "Computed Volumes (PORV*SOIL, PORV*SGAS)" );
-    setDefault( RigWellTargetMapping::VolumesType::COMPUTED_VOLUMES );
+    addItem( RigWellTargetMapping::VolumesType::RESERVOIR_VOLUMES, "RESERVOIR_VOLUMES", "Reservoir Volumes (RFIPOIL, RFIPGAS)" );
+    addItem( RigWellTargetMapping::VolumesType::SURFACE_VOLUMES_SFIP, "SURFACE_VOLUMES_SFIP", "Surface Volumes (SFIPOIL, SFIPGAS)" );
+    addItem( RigWellTargetMapping::VolumesType::SURFACE_VOLUMES_FIP, "SURFACE_VOLUMES_FIP", "Surface Volumes (FIPOIL, FIPGAS)" );
+    addItem( RigWellTargetMapping::VolumesType::RESERVOIR_VOLUMES_COMPUTED,
+             "RESERVOIR_VOLUMES_COMPUTED",
+             "Reservoir Volumes (PORV*SOIL, PORV*SGAS)" );
+    setDefault( RigWellTargetMapping::VolumesType::RESERVOIR_VOLUMES_COMPUTED );
 }
 
 } // End namespace caf
@@ -93,6 +97,19 @@ RimWellTargetMapping::RimWellTargetMapping()
     CAF_PDM_InitFieldNoDefault( &m_volumeType, "VolumeType", "Volume" );
     CAF_PDM_InitFieldNoDefault( &m_volumeResultType, "VolumeResultType", "Result" );
     CAF_PDM_InitFieldNoDefault( &m_volumesType, "VolumesType", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_oilFloodingType, "OilFloodingType", "Residual Oil Given By" );
+    m_oilFloodingType.setValue( RigFloodingSettings::FloodingType::WATER_FLOODING );
+    CAF_PDM_InitField( &m_userDefinedFloodingOil, "UserDefinedFloodingOil", 0.0, "" );
+    m_userDefinedFloodingOil.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_gasFloodingType, "GasFloodingType", RigFloodingSettings::FloodingType::GAS_FLOODING, "Residual Oil-in-Gas Given By" );
+    caf::AppEnum<RigFloodingSettings::FloodingType>::setEnumSubset( &m_gasFloodingType,
+                                                                    { RigFloodingSettings::FloodingType::GAS_FLOODING,
+                                                                      RigFloodingSettings::FloodingType::USER_DEFINED } );
+
+    CAF_PDM_InitField( &m_userDefinedFloodingGas, "UserDefinedFloodingGas", 0.0, "" );
+    m_userDefinedFloodingGas.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_pressure, "Pressure", 0.0, "Pressure" );
     m_pressure.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -319,6 +336,16 @@ void RimWellTargetMapping::defineEditorAttribute( const caf::PdmFieldHandle* fie
             attrib->m_buttonText = "Reset to P90";
         }
     }
+
+    if ( ( &m_userDefinedFloodingOil == field ) || ( &m_userDefinedFloodingGas == field ) )
+    {
+        if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
+        {
+            myAttr->m_minimum         = 0.0;
+            myAttr->m_maximum         = 1.0;
+            myAttr->m_sliderTickCount = 20;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -335,7 +362,9 @@ cvf::Vec3st RimWellTargetMapping::getResultGridCellCount() const
 void RimWellTargetMapping::generateCandidates( RimEclipseCase* eclipseCase )
 {
     RigWellTargetMapping::ClusteringLimits limits = getClusteringLimits();
-    RigWellTargetMapping::generateCandidates( eclipseCase, m_timeStep(), m_volumeType(), m_volumesType(), m_volumeResultType(), limits );
+    RigFloodingSettings floodingSettings( m_oilFloodingType(), m_userDefinedFloodingOil(), m_gasFloodingType(), m_userDefinedFloodingGas() );
+
+    RigWellTargetMapping::generateCandidates( eclipseCase, m_timeStep(), m_volumeType(), m_volumesType(), m_volumeResultType(), floodingSettings, limits );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -348,12 +377,15 @@ void RimWellTargetMapping::generateEnsembleStatistics()
 
     const cvf::Vec3st&                     resultGridCellCount = getResultGridCellCount();
     RigWellTargetMapping::ClusteringLimits limits              = getClusteringLimits();
-    RimRegularGridCase*                    regularGridCase     = RigWellTargetMapping::generateEnsembleCandidates( *ensemble,
+    RigFloodingSettings floodingSettings( m_oilFloodingType(), m_userDefinedFloodingOil(), m_gasFloodingType(), m_userDefinedFloodingGas() );
+
+    RimRegularGridCase* regularGridCase = RigWellTargetMapping::generateEnsembleCandidates( *ensemble,
                                                                                             m_timeStep(),
                                                                                             resultGridCellCount,
                                                                                             m_volumeType(),
                                                                                             m_volumesType(),
                                                                                             m_volumeResultType(),
+                                                                                            floodingSettings,
                                                                                             limits );
 
     regularGridCase->setCustomCaseName( "Ensemble Grid" );
@@ -384,6 +416,32 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     resultGroup->add( &m_timeStep );
     resultGroup->add( &m_volumeType );
     resultGroup->add( &m_volumeResultType );
+
+    if ( m_volumeResultType() == RigWellTargetMapping::VolumeResultType::MOBILE )
+    {
+        bool showGasOptions = m_volumeType() == RigWellTargetMapping::VolumeType::GAS ||
+                              m_volumeType() == RigWellTargetMapping::VolumeType::HYDROCARBON;
+        bool showOilOptions = m_volumeType() == RigWellTargetMapping::VolumeType::OIL ||
+                              m_volumeType() == RigWellTargetMapping::VolumeType::HYDROCARBON;
+
+        if ( showOilOptions )
+        {
+            resultGroup->add( &m_oilFloodingType );
+            if ( m_oilFloodingType() == RigFloodingSettings::FloodingType::USER_DEFINED )
+            {
+                resultGroup->add( &m_userDefinedFloodingOil );
+            }
+        }
+        if ( showGasOptions )
+        {
+            resultGroup->add( &m_gasFloodingType );
+            if ( m_gasFloodingType() == RigFloodingSettings::FloodingType::USER_DEFINED )
+            {
+                resultGroup->add( &m_userDefinedFloodingGas );
+            }
+        }
+    }
+
     resultGroup->add( &m_volumesType );
 
     caf::PdmUiGroup* minimumCellValuesGroup = uiOrdering.addNewGroup( "Minimum Cell Values" );
@@ -480,7 +538,7 @@ void RimWellTargetMapping::setDefaults()
             if ( std::find( available.begin(), available.end(), pri ) != available.end() ) return pri;
         }
 
-        return RigWellTargetMapping::VolumesType::COMPUTED_VOLUMES;
+        return RigWellTargetMapping::VolumesType::RESERVOIR_VOLUMES_COMPUTED;
     };
 
     // Use last available time step
@@ -491,7 +549,7 @@ void RimWellTargetMapping::setDefaults()
         std::vector<RigWellTargetMapping::VolumesType> volumesTypesByPriority = { RigWellTargetMapping::VolumesType::RESERVOIR_VOLUMES,
                                                                                   RigWellTargetMapping::VolumesType::SURFACE_VOLUMES_SFIP,
                                                                                   RigWellTargetMapping::VolumesType::SURFACE_VOLUMES_FIP,
-                                                                                  RigWellTargetMapping::VolumesType::COMPUTED_VOLUMES };
+                                                                                  RigWellTargetMapping::VolumesType::RESERVOIR_VOLUMES_COMPUTED };
         std::vector<RigWellTargetMapping::VolumesType> availableVolumesTypes  = findAvailableVolumesTypes( eclipseCase );
         m_volumesType = findFirstByPriority( volumesTypesByPriority, availableVolumesTypes );
 
@@ -526,7 +584,7 @@ std::vector<RigWellTargetMapping::VolumesType> RimWellTargetMapping::findAvailab
 
     std::vector<RigWellTargetMapping::VolumesType> availableVolumesTypes;
     if ( hasResult( *resultsData, RiaResultNames::riPorvSoil() ) || hasResult( *resultsData, RiaResultNames::riPorvSgas() ) )
-        availableVolumesTypes.push_back( RigWellTargetMapping::VolumesType::COMPUTED_VOLUMES );
+        availableVolumesTypes.push_back( RigWellTargetMapping::VolumesType::RESERVOIR_VOLUMES_COMPUTED );
 
     if ( hasResult( *resultsData, "RFIPOIL" ) || hasResult( *resultsData, "RFIPGAS" ) )
         availableVolumesTypes.push_back( RigWellTargetMapping::VolumesType::RESERVOIR_VOLUMES );

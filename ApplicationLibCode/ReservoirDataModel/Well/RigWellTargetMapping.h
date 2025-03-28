@@ -36,6 +36,7 @@ class RigMainGrid;
 class RimEclipseCase;
 class RimEclipseCaseEnsemble;
 class RimRegularGridCase;
+class RigFloodingSettings;
 
 //==================================================================================================
 ///
@@ -64,7 +65,7 @@ public:
         RESERVOIR_VOLUMES,
         SURFACE_VOLUMES_SFIP,
         SURFACE_VOLUMES_FIP,
-        COMPUTED_VOLUMES
+        RESERVOIR_VOLUMES_COMPUTED
     };
 
     struct ClusteringLimits
@@ -91,26 +92,30 @@ public:
         const std::vector<double>* transmissibilityNNC;
     };
 
-    static void generateCandidates( RimEclipseCase*         eclipseCase,
-                                    size_t                  timeStepIdx,
-                                    VolumeType              volumeType,
-                                    VolumesType             volumesType,
-                                    VolumeResultType        volumeResultType,
-                                    const ClusteringLimits& limits );
+    static void generateCandidates( RimEclipseCase*            eclipseCase,
+                                    size_t                     timeStepIdx,
+                                    VolumeType                 volumeType,
+                                    VolumesType                volumesType,
+                                    VolumeResultType           volumeResultType,
+                                    const RigFloodingSettings& floodingSettings,
+                                    const ClusteringLimits&    limits );
 
-    static std::vector<double> getVolumeVector( RigCaseCellResultsData& resultsData,
-                                                VolumeType              volumeType,
-                                                VolumesType             volumesType,
-                                                VolumeResultType        volumeResultType,
-                                                size_t                  timeStepIdx );
+    static std::vector<double> getVolumeVector( RigCaseCellResultsData&       resultsData,
+                                                RiaDefines::EclipseUnitSystem unitsType,
+                                                VolumeType                    volumeType,
+                                                VolumesType                   volumesType,
+                                                VolumeResultType              volumeResultType,
+                                                size_t                        timeStepIdx,
+                                                const RigFloodingSettings&    floodingSettings );
 
-    static RimRegularGridCase* generateEnsembleCandidates( RimEclipseCaseEnsemble& ensemble,
-                                                           size_t                  timeStepIdx,
-                                                           const cvf::Vec3st&      resultGridCellCount,
-                                                           VolumeType              volumeType,
-                                                           VolumesType             volumesType,
-                                                           VolumeResultType        volumeResultType,
-                                                           const ClusteringLimits& limits );
+    static RimRegularGridCase* generateEnsembleCandidates( RimEclipseCaseEnsemble&    ensemble,
+                                                           size_t                     timeStepIdx,
+                                                           const cvf::Vec3st&         resultGridCellCount,
+                                                           VolumeType                 volumeType,
+                                                           VolumesType                volumesType,
+                                                           VolumeResultType           volumeResultType,
+                                                           const RigFloodingSettings& floodingSettings,
+                                                           const ClusteringLimits&    limits );
 
     static QString wellTargetResultName();
 
@@ -213,4 +218,22 @@ private:
     static cvf::BoundingBox computeBoundingBoxForResult( RimEclipseCase& eclipseCase, const QString& resultName, size_t timeStepIndex );
 
     static std::list<std::pair<std::pair<size_t, CellFaceType>, size_t>> nncConnectionCellAndResult( size_t cellIdx, RigMainGrid* mainGrid );
+
+    static std::vector<double> loadVectorByName( RigCaseCellResultsData& resultsData, const QString& resultName, size_t timeStepIdx );
+
+    static std::vector<double> loadOilVectorByName( RigCaseCellResultsData&    resultsData,
+                                                    VolumesType                volumesType,
+                                                    VolumeResultType           volumeResultType,
+                                                    size_t                     timeStepIdx,
+                                                    const RigFloodingSettings& floodingSettings );
+
+    static std::vector<double> loadGasVectorByName( RigCaseCellResultsData&       resultsData,
+                                                    RiaDefines::EclipseUnitSystem unitsType,
+                                                    VolumesType                   volumesType,
+                                                    VolumeResultType              volumeResultType,
+                                                    size_t                        timeStepIdx,
+                                                    const RigFloodingSettings&    floodingSettings );
+
+    static QString getOilVectorName( VolumesType volumesType );
+    static QString getGasVectorName( VolumesType volumesType );
 };
