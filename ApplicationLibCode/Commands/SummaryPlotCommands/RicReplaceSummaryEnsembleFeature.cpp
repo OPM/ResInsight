@@ -74,6 +74,7 @@ void RicReplaceSummaryEnsembleFeature::onActionTriggered( bool isChecked )
     // Update name of cases and ensemble after all cases are added
     for ( auto summaryCase : newCases )
     {
+        summaryCase->setDisplayNameOption( RimCaseDisplayNameTools::DisplayName::SHORT_CASE_NAME );
         summaryCase->updateAutoShortName();
     }
 

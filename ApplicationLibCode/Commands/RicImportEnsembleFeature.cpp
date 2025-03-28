@@ -134,6 +134,7 @@ RimSummaryEnsemble* RicImportEnsembleFeature::importSingleEnsemble( const QStrin
     {
         for ( auto summaryCase : ensemble->allSummaryCases() )
         {
+            summaryCase->setDisplayNameOption( RimCaseDisplayNameTools::DisplayName::SHORT_CASE_NAME );
             summaryCase->updateAutoShortName();
         }
 
