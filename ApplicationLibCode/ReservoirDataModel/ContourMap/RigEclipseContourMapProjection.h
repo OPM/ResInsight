@@ -85,16 +85,6 @@ protected:
     static std::set<RigEclipseResultAddress> neededResults( RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                             RigFloodingSettings&                           floodingSettings );
 
-    static std::vector<double> residualOilData( RigCaseCellResultsData&                        resultData,
-                                                RigContourMapCalculator::ResultAggregationType resultAggregation,
-                                                RigFloodingSettings&                           floodingSettings,
-                                                size_t                                         nSamples );
-
-    static std::vector<double> residualGasData( RigCaseCellResultsData&                        resultData,
-                                                RigContourMapCalculator::ResultAggregationType resultAggregation,
-                                                RigFloodingSettings&                           floodingSettings,
-                                                size_t                                         nSamples );
-
 protected:
     RigEclipseCaseData&         m_eclipseCaseData;
     RigCaseCellResultsData&     m_resultData;

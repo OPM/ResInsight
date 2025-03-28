@@ -27,6 +27,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigHexIntersectionTools.h"
+#include "RigHydrocarbonFlowTools.h"
 #include "RigMainGrid.h"
 
 #include <algorithm>
@@ -170,8 +171,19 @@ std::vector<double> RigEclipseContourMapProjection::calculateColumnResult( RigCa
 
     const auto nSamples = poroResults.size();
 
-    std::vector<double> residualOil = residualOilData( resultData, resultAggregation, floodingSettings, nSamples );
-    std::vector<double> residualGas = residualGasData( resultData, resultAggregation, floodingSettings, nSamples );
+    auto mapToFlowResultType = []( RigContourMapCalculator::ResultAggregationType t1 )
+    {
+        if ( t1 == RigContourMapCalculator::ResultAggregationType::MOBILE_OIL_COLUMN )
+            return RigHydrocarbonFlowTools::ResultType::MOBILE_OIL;
+        if ( t1 == RigContourMapCalculator::ResultAggregationType::MOBILE_GAS_COLUMN )
+            return RigHydrocarbonFlowTools::ResultType::MOBILE_GAS;
+        if ( t1 == RigContourMapCalculator::ResultAggregationType::MOBILE_HYDROCARBON_COLUMN )
+            return RigHydrocarbonFlowTools::ResultType::MOBILE_HYDROCARBON;
+        return RigHydrocarbonFlowTools::ResultType::NONE;
+    };
+    auto                flowResultType = mapToFlowResultType( resultAggregation );
+    std::vector<double> residualOil    = RigHydrocarbonFlowTools::residualOilData( resultData, flowResultType, floodingSettings, nSamples );
+    std::vector<double> residualGas    = RigHydrocarbonFlowTools::residualGasData( resultData, flowResultType, floodingSettings, nSamples );
 
     std::vector<double> resultValues( nSamples, 0.0 );
 
@@ -374,67 +386,4 @@ std::set<RigEclipseResultAddress> RigEclipseContourMapProjection::neededResults(
     }
 
     return results;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-
-std::vector<double> RigEclipseContourMapProjection::residualOilData( RigCaseCellResultsData&                        resultData,
-                                                                     RigContourMapCalculator::ResultAggregationType resultAggregation,
-                                                                     RigFloodingSettings&                           floodingSettings,
-                                                                     size_t                                         nSamples )
-{
-    std::vector<double> residualOil;
-
-    if ( ( resultAggregation == RigContourMapCalculator::MOBILE_OIL_COLUMN ) ||
-         ( resultAggregation == RigContourMapCalculator::MOBILE_HYDROCARBON_COLUMN ) )
-    {
-        if ( floodingSettings.oilFlooding() == RigFloodingSettings::FloodingType::GAS_FLOODING )
-        {
-            residualOil =
-                resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sogcr() ), 0 );
-        }
-        else if ( floodingSettings.oilFlooding() == RigFloodingSettings::FloodingType::WATER_FLOODING )
-        {
-            residualOil =
-                resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sowcr() ), 0 );
-        }
-        else
-        {
-            residualOil.resize( nSamples, floodingSettings.oilUserDefFlooding() );
-        }
-    }
-
-    if ( residualOil.empty() ) residualOil.resize( nSamples, 0.0 );
-
-    return residualOil;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RigEclipseContourMapProjection::residualGasData( RigCaseCellResultsData&                        resultData,
-                                                                     RigContourMapCalculator::ResultAggregationType resultAggregation,
-                                                                     RigFloodingSettings&                           floodingSettings,
-                                                                     size_t                                         nSamples )
-{
-    std::vector<double> residualGas;
-
-    if ( ( resultAggregation == RigContourMapCalculator::MOBILE_GAS_COLUMN ) ||
-         ( resultAggregation == RigContourMapCalculator::MOBILE_HYDROCARBON_COLUMN ) )
-    {
-        if ( floodingSettings.gasFlooding() == RigFloodingSettings::FloodingType::GAS_FLOODING )
-        {
-            residualGas =
-                resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sgcr() ), 0 );
-        }
-        else if ( floodingSettings.gasFlooding() == RigFloodingSettings::FloodingType::USER_DEFINED )
-        {
-            residualGas.resize( nSamples, floodingSettings.gasUserDefFlooding() );
-        }
-    }
-    if ( residualGas.empty() ) residualGas.resize( nSamples, 0.0 );
-
-    return residualGas;
 }
