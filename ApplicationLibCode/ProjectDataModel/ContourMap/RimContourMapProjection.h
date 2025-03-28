@@ -24,7 +24,7 @@
 
 #include "ContourMap/RigContourMapCalculator.h"
 #include "ContourMap/RigContourPolygonsTools.h"
-#include "ContourMap/RigFloodingSettings.h"
+#include "RigFloodingSettings.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"

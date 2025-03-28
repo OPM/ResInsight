@@ -81,6 +81,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigWbsParameter.h
     ${CMAKE_CURRENT_LIST_DIR}/RigWeightedMeanCalc.h
     ${CMAKE_CURRENT_LIST_DIR}/RigPolygonTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigFloodingSettings.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -162,6 +163,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigWbsParameter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWeightedMeanCalc.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigPolygonTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigFloodingSettings.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

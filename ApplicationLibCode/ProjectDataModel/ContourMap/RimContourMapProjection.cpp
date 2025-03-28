@@ -22,7 +22,7 @@
 #include "ContourMap/RigContourMapGrid.h"
 #include "ContourMap/RigContourMapProjection.h"
 #include "ContourMap/RigContourMapTrianglesGenerator.h"
-#include "ContourMap/RigFloodingSettings.h"
+#include "RigFloodingSettings.h"
 
 #include "RimCase.h"
 #include "RimGridView.h"
