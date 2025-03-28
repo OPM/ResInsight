@@ -374,7 +374,6 @@ QString RimGridCrossPlot::generateInfoBoxText() const
         }
     }
     QStringList infoText;
-    infoText << QString( "<b>View ID:</b> %1<br/>" ).arg( id() );
     if ( curveInfoTexts.size() > 1 )
     {
         infoText += QString( "<ol style=\"margin-top: 0px; margin-left: 15px; -qt-list-indent:0;\">" );
