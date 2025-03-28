@@ -56,7 +56,6 @@ double RigContourMapCalculator::calculateValueInMapCell( const RigContourMapProj
             return calculateMaxValue( contourMapProjection, matchingCells, gridCellValues );
         case MIN_VALUE:
             return calculateMinValue( contourMapProjection, matchingCells, gridCellValues );
-        case VOLUME_SUM:
         case SUM:
         case OIL_COLUMN:
         case GAS_COLUMN:

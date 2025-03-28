@@ -55,7 +55,6 @@ void RimContourMapProjection::ResultAggregation::setUp()
     addItem( RigContourMapCalculator::MEAN, "MEAN_VALUE", "Arithmetic Mean" );
     addItem( RigContourMapCalculator::HARMONIC_MEAN, "HARM_VALUE", "Harmonic Mean" );
     addItem( RigContourMapCalculator::GEOMETRIC_MEAN, "GEOM_VALUE", "Geometric Mean" );
-    addItem( RigContourMapCalculator::VOLUME_SUM, "VOLUME_SUM", "Volume Weighted Sum" );
     addItem( RigContourMapCalculator::SUM, "SUM", "Sum" );
 
     addItem( RigContourMapCalculator::TOP_VALUE, "TOP_VALUE", "Top  Value" );

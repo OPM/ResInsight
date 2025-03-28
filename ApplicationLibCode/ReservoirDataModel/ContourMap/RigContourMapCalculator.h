@@ -46,7 +46,6 @@ public:
         HARMONIC_MEAN,
         MIN_VALUE,
         MAX_VALUE,
-        VOLUME_SUM,
         SUM,
         OIL_COLUMN,
         GAS_COLUMN,
