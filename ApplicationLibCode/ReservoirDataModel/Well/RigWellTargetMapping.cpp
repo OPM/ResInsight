@@ -18,6 +18,8 @@
 
 #include "RigWellTargetMapping.h"
 
+#include "RiaDefines.h"
+#include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 #include "RiaPorosityModel.h"
 #include "RiaPreferencesSystem.h"
@@ -28,6 +30,8 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
+#include "RigFloodingSettings.h"
+#include "RigHydrocarbonFlowTools.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
 #include "RigStatisticsMath.h"
@@ -53,12 +57,13 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellTargetMapping::generateCandidates( RimEclipseCase*         eclipseCase,
-                                               size_t                  timeStepIdx,
-                                               VolumeType              volumeType,
-                                               VolumesType             volumesType,
-                                               VolumeResultType        volumeResultType,
-                                               const ClusteringLimits& limits )
+void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclipseCase,
+                                               size_t                     timeStepIdx,
+                                               VolumeType                 volumeType,
+                                               VolumesType                volumesType,
+                                               VolumeResultType           volumeResultType,
+                                               const RigFloodingSettings& floodingSettings,
+                                               const ClusteringLimits&    limits )
 {
     if ( !eclipseCase->ensureReservoirCaseIsOpen() ) return;
 
@@ -74,9 +79,13 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*         eclipseCa
     auto resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     if ( !resultsData ) return;
 
-    DataContainer data;
+    auto caseData = eclipseCase->eclipseCaseData();
+    if ( !caseData ) return;
 
-    data.volume = getVolumeVector( *resultsData, volumeType, volumesType, volumeResultType, timeStepIdx );
+    RiaDefines::EclipseUnitSystem unitsType = caseData->unitsType();
+
+    DataContainer data;
+    data.volume = getVolumeVector( *resultsData, unitsType, volumeType, volumesType, volumeResultType, timeStepIdx, floodingSettings );
     if ( data.volume.empty() )
     {
         RiaLogging::error( "Unable to produce volume vector." );
@@ -553,83 +562,202 @@ double RigWellTargetMapping::getTransmissibilityValueForFace( const std::vector<
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellTargetMapping::getVolumeVector( RigCaseCellResultsData& resultsData,
-                                                           VolumeType              volumeType,
-                                                           VolumesType             volumesType,
-                                                           VolumeResultType        volumeResultType,
-                                                           size_t                  timeStepIdx )
+std::vector<double> RigWellTargetMapping::loadVectorByName( RigCaseCellResultsData& resultsData, const QString& resultName, size_t timeStepIdx )
 {
-    auto loadVectorByName = []( RigCaseCellResultsData& resultsData, const QString& resultName, size_t timeStepIdx ) -> std::vector<double>
-    {
-        RigEclipseResultAddress address( RiaDefines::ResultCatType::DYNAMIC_NATIVE, resultName );
-        if ( !resultsData.ensureKnownResultLoaded( address ) ) return {};
-        return resultsData.cellScalarResults( address, timeStepIdx );
-    };
+    RigEclipseResultAddress address( RiaDefines::ResultCatType::DYNAMIC_NATIVE, resultName );
+    if ( !resultsData.ensureKnownResultLoaded( address ) ) return {};
+    return resultsData.cellScalarResults( address, timeStepIdx );
+}
 
-    auto getOilVectorName = []( VolumesType volumesType ) -> QString
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RigWellTargetMapping::getOilVectorName( VolumesType volumesType )
+{
+    switch ( volumesType )
     {
-        switch ( volumesType )
+        case VolumesType::RESERVOIR_VOLUMES_COMPUTED:
+            return RiaResultNames::riPorvSoil();
+        case VolumesType::RESERVOIR_VOLUMES:
+            return "RFIPOIL";
+        case VolumesType::SURFACE_VOLUMES_SFIP:
+            return "SFIPOIL";
+        case VolumesType::SURFACE_VOLUMES_FIP:
+            return "FIPOIL";
+        default:
         {
-            case VolumesType::COMPUTED_VOLUMES:
-                return RiaResultNames::riPorvSoil();
-            case VolumesType::RESERVOIR_VOLUMES:
-                return "RFIPOIL";
-            case VolumesType::SURFACE_VOLUMES_SFIP:
-                return "SFIPOIL";
-            case VolumesType::SURFACE_VOLUMES_FIP:
-                return "FIPOIL";
-            default:
+            CAF_ASSERT( false );
+            return "";
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RigWellTargetMapping::getGasVectorName( VolumesType volumesType )
+{
+    switch ( volumesType )
+    {
+        case VolumesType::RESERVOIR_VOLUMES_COMPUTED:
+            return RiaResultNames::riPorvSgas();
+        case VolumesType::RESERVOIR_VOLUMES:
+            return "RFIPGAS";
+        case VolumesType::SURFACE_VOLUMES_SFIP:
+            return "SFIPGAS";
+        case VolumesType::SURFACE_VOLUMES_FIP:
+            return "FIPGAS";
+        default:
+        {
+            CAF_ASSERT( false );
+            return "";
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellTargetMapping::loadOilVectorByName( RigCaseCellResultsData&    resultsData,
+                                                               VolumesType                volumesType,
+                                                               VolumeResultType           volumeResultType,
+                                                               size_t                     timeStepIdx,
+                                                               const RigFloodingSettings& floodingSettings )
+{
+    std::vector<double> volume = loadVectorByName( resultsData, getOilVectorName( volumesType ), timeStepIdx );
+    if ( volumeResultType == RigWellTargetMapping::VolumeResultType::MOBILE )
+    {
+        std::vector<double> residualOil = RigHydrocarbonFlowTools::residualOilData( resultsData,
+                                                                                    RigHydrocarbonFlowTools::ResultType::MOBILE_OIL,
+                                                                                    floodingSettings,
+                                                                                    volume.size() );
+        if ( volumesType == RigWellTargetMapping::VolumesType::RESERVOIR_VOLUMES_COMPUTED )
+        {
+            const std::vector<double>& porvResults =
+                resultsData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORV" ), 0 );
+
+            for ( size_t i = 0; i < volume.size(); i++ )
             {
-                CAF_ASSERT( false );
-                return "";
+                volume[i] = std::max( volume[i] - ( porvResults[i] * residualOil[i] ), 0.0 );
             }
         }
-    };
-
-    auto getGasVectorName = []( VolumesType volumesType ) -> QString
-    {
-        switch ( volumesType )
+        else
         {
-            case VolumesType::COMPUTED_VOLUMES:
-                return RiaResultNames::riPorvSgas();
-            case VolumesType::RESERVOIR_VOLUMES:
-                return "RFIPGAS";
-            case VolumesType::SURFACE_VOLUMES_SFIP:
-                return "SFIPGAS";
-            case VolumesType::SURFACE_VOLUMES_FIP:
-                return "FIPGAS";
-            default:
+            const std::vector<double>& soilResults =
+                resultsData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ),
+                                               timeStepIdx );
+
+            for ( size_t i = 0; i < volume.size(); i++ )
             {
-                CAF_ASSERT( false );
-                return "";
+                if ( soilResults[i] != 0.0 )
+                {
+                    volume[i] = std::max( volume[i] * ( soilResults[i] - residualOil[i] ) / soilResults[i], 0.0 );
+                }
+                else
+                {
+                    volume[i] = 0.0;
+                }
             }
         }
-    };
+    }
 
-    std::vector<double> volume;
+    return volume;
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellTargetMapping::loadGasVectorByName( RigCaseCellResultsData&       resultsData,
+                                                               RiaDefines::EclipseUnitSystem unitsType,
+                                                               VolumesType                   volumesType,
+                                                               VolumeResultType              volumeResultType,
+                                                               size_t                        timeStepIdx,
+                                                               const RigFloodingSettings&    floodingSettings )
+{
+    std::vector<double> volume = loadVectorByName( resultsData, getGasVectorName( volumesType ), timeStepIdx );
+
+    if ( volumeResultType == RigWellTargetMapping::VolumeResultType::MOBILE )
+    {
+        std::vector<double> residualGas = RigHydrocarbonFlowTools::residualGasData( resultsData,
+                                                                                    RigHydrocarbonFlowTools::ResultType::MOBILE_GAS,
+                                                                                    floodingSettings,
+                                                                                    volume.size() );
+        if ( volumesType == RigWellTargetMapping::VolumesType::RESERVOIR_VOLUMES_COMPUTED )
+        {
+            const std::vector<double>& porvResults =
+                resultsData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORV" ), 0 );
+
+            for ( size_t i = 0; i < volume.size(); i++ )
+            {
+                volume[i] = std::max( volume[i] - ( porvResults[i] * residualGas[i] ), 0.0 );
+            }
+        }
+        else
+        {
+            const std::vector<double>& sgasResults =
+                resultsData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ),
+                                               timeStepIdx );
+
+            for ( size_t i = 0; i < volume.size(); i++ )
+            {
+                if ( sgasResults[i] != 0.0 )
+                {
+                    volume[i] = std::max( volume[i] * ( sgasResults[i] - residualGas[i] ) / sgasResults[i], 0.0 );
+                }
+                else
+                {
+                    volume[i] = 0.0;
+                }
+            }
+        }
+    }
+
+    // Convert to gas volumes to oil equivalents
+    for ( size_t i = 0; i < volume.size(); i++ )
+    {
+        volume[i] = RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( unitsType, volume[i] );
+    }
+
+    return volume;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellTargetMapping::getVolumeVector( RigCaseCellResultsData&       resultsData,
+                                                           RiaDefines::EclipseUnitSystem unitsType,
+                                                           VolumeType                    volumeType,
+                                                           VolumesType                   volumesType,
+                                                           VolumeResultType              volumeResultType,
+                                                           size_t                        timeStepIdx,
+                                                           const RigFloodingSettings&    floodingSettings )
+{
     if ( volumeType == VolumeType::OIL )
     {
-        volume = loadVectorByName( resultsData, getOilVectorName( volumesType ), timeStepIdx );
+        return loadOilVectorByName( resultsData, volumesType, volumeResultType, timeStepIdx, floodingSettings );
     }
     else if ( volumeType == VolumeType::GAS )
     {
-        volume = loadVectorByName( resultsData, getGasVectorName( volumesType ), timeStepIdx );
+        return loadGasVectorByName( resultsData, unitsType, volumesType, volumeResultType, timeStepIdx, floodingSettings );
     }
     else if ( volumeType == VolumeType::HYDROCARBON )
     {
-        std::vector<double> oilVolume = loadVectorByName( resultsData, getOilVectorName( volumesType ), timeStepIdx );
-        std::vector<double> gasVolume = loadVectorByName( resultsData, getGasVectorName( volumesType ), timeStepIdx );
-        if ( oilVolume.empty() || gasVolume.empty() || oilVolume.size() != gasVolume.size() ) return volume;
+        std::vector<double> oilVolume = loadOilVectorByName( resultsData, volumesType, volumeResultType, timeStepIdx, floodingSettings );
+        std::vector<double> gasVolume =
+            loadGasVectorByName( resultsData, unitsType, volumesType, volumeResultType, timeStepIdx, floodingSettings );
+        if ( oilVolume.empty() || gasVolume.empty() || oilVolume.size() != gasVolume.size() ) return {};
 
+        std::vector<double> volume;
         volume.resize( oilVolume.size(), std::numeric_limits<double>::infinity() );
         for ( size_t i = 0; i < oilVolume.size(); i++ )
         {
             volume[i] = oilVolume[i] + gasVolume[i];
         }
+        return volume;
     }
 
-    return volume;
+    CAF_ASSERT( false && "Unknown volume type" );
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -721,13 +849,14 @@ std::vector<RigWellTargetMapping::ClusterStatistics> RigWellTargetMapping::gener
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimRegularGridCase* RigWellTargetMapping::generateEnsembleCandidates( RimEclipseCaseEnsemble& ensemble,
-                                                                      size_t                  timeStepIdx,
-                                                                      const cvf::Vec3st&      resultGridCellCount,
-                                                                      VolumeType              volumeType,
-                                                                      VolumesType             volumesType,
-                                                                      VolumeResultType        volumeResultType,
-                                                                      const ClusteringLimits& limits )
+RimRegularGridCase* RigWellTargetMapping::generateEnsembleCandidates( RimEclipseCaseEnsemble&    ensemble,
+                                                                      size_t                     timeStepIdx,
+                                                                      const cvf::Vec3st&         resultGridCellCount,
+                                                                      VolumeType                 volumeType,
+                                                                      VolumesType                volumesType,
+                                                                      VolumeResultType           volumeResultType,
+                                                                      const RigFloodingSettings& floodingSettings,
+                                                                      const ClusteringLimits&    limits )
 {
     RiaLogging::debug( "Generating ensemble statistics" );
 
@@ -737,7 +866,7 @@ RimRegularGridCase* RigWellTargetMapping::generateEnsembleCandidates( RimEclipse
     {
         auto task = progInfo.task( "Generating realization statistics.", 1 );
 
-        generateCandidates( eclipseCase, timeStepIdx, volumeType, volumesType, volumeResultType, limits );
+        generateCandidates( eclipseCase, timeStepIdx, volumeType, volumesType, volumeResultType, floodingSettings, limits );
     }
 
     cvf::BoundingBox boundingBox;

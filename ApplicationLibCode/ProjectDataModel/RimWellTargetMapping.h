@@ -21,8 +21,8 @@
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmPtrField.h"
 
+#include "RigFloodingSettings.h"
 #include "Well/RigWellTargetMapping.h"
 
 class RimEclipseResultDefinition;
@@ -37,6 +37,8 @@ class RimWellTargetMapping : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    using FloodingType = caf::AppEnum<RigFloodingSettings::FloodingType>;
+
     RimWellTargetMapping();
     ~RimWellTargetMapping() override;
 
@@ -72,6 +74,11 @@ private:
     caf::PdmField<caf::AppEnum<RigWellTargetMapping::VolumeType>>       m_volumeType;
     caf::PdmField<caf::AppEnum<RigWellTargetMapping::VolumeResultType>> m_volumeResultType;
     caf::PdmField<caf::AppEnum<RigWellTargetMapping::VolumesType>>      m_volumesType;
+
+    caf::PdmField<FloodingType> m_oilFloodingType;
+    caf::PdmField<FloodingType> m_gasFloodingType;
+    caf::PdmField<double>       m_userDefinedFloodingGas;
+    caf::PdmField<double>       m_userDefinedFloodingOil;
 
     caf::PdmField<double> m_pressure;
     caf::PdmField<double> m_permeability;
