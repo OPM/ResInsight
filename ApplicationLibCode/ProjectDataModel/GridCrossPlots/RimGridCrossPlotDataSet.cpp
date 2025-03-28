@@ -570,12 +570,6 @@ void RimGridCrossPlotDataSet::assignCurveDataGroups( const RigEclipseCrossPlotRe
 {
     m_groupedResults.clear();
 
-    if ( groupingEnabled() && ( result.groupValuesContinuous.empty() && result.groupValuesDiscrete.empty() ) )
-    {
-        // Basis for group determination (i.e. formation list) may have been deleted since the grouping was assigned.
-        m_grouping = NO_GROUPING;
-    }
-
     if ( !groupingEnabled() )
     {
         m_groupedResults[0] = result;
