@@ -20,6 +20,7 @@
 
 #include "RiaEclipseFileNameTools.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesSystem.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaStdStringTools.h"
 
@@ -743,9 +744,14 @@ void RifReaderOpmCommon::setupInitAndRestartAccess()
     {
         try
         {
-            RiaLogging::resetTimer( "Starting import of meta data from " + QString::fromStdString( m_restartFileName ) );
+            const bool isLoggingEnabled = RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( "RifReaderOpmCommon" );
+
+            if ( isLoggingEnabled )
+                RiaLogging::resetTimer( "Starting import of meta data from " + QString::fromStdString( m_restartFileName ) );
+
             m_restartFile = std::make_unique<EclIO::ERst>( m_restartFileName );
-            RiaLogging::logTimeElapsed( "Completed import of meta data" );
+
+            if ( isLoggingEnabled ) RiaLogging::logTimeElapsed( "Completed import of meta data" );
         }
         catch ( ... )
         {

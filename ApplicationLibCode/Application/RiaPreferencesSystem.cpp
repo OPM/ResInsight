@@ -231,6 +231,9 @@ RiaPreferencesSystem::EclipseTextFileReaderMode RiaPreferencesSystem::eclipseTex
 bool RiaPreferencesSystem::isLoggingActivatedForKeyword( const QString& keyword ) const
 {
     QStringList keywords = m_keywordsForLogging().split( ";" );
+
+    if ( keywords.contains( "enable-all" ) ) return true;
+
     return keywords.contains( keyword );
 }
 
