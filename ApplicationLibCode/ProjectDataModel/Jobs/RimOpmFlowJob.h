@@ -46,6 +46,7 @@ protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     QString     title() override;
     QStringList command() override;
@@ -56,11 +57,20 @@ protected:
 private:
     RimEclipseCase* findExistingCase( QString filename );
     QString         deckExtension() const;
+    QString         wellTempFile() const;
+
+    void prepareWellSettings();
 
 private:
     caf::PdmField<caf::FilePath> m_deckFile;
     caf::PdmField<caf::FilePath> m_workDir;
     caf::PdmField<bool>          m_runButton;
+
+    caf::PdmField<bool> m_pauseBeforeRun;
+
+    caf::PdmPtrField<RimWellPath*>    m_wellPath;
+    caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
+    caf::PdmField<int>                m_openTimeStep;
 
     QString m_deckName;
 };
