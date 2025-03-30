@@ -24,7 +24,8 @@
 namespace Opm
 {
 class FileDeck;
-}
+class DeckItem;
+} // namespace Opm
 
 //==================================================================================================
 ///
@@ -38,6 +39,13 @@ public:
 
     bool loadDeck( std::string filename );
     bool saveDeck( std::string folder, std::string filename );
+
+    bool mergeWellDeck( std::string filename );
+
+private:
+    Opm::DeckItem item( std::string name, std::string value );
+    Opm::DeckItem item( std::string name, int value );
+    Opm::DeckItem defaultItem( std::string name, int cols );
 
 private:
     std::unique_ptr<Opm::FileDeck> m_fileDeck;
