@@ -22,14 +22,21 @@
 #include "RiaPreferencesOpm.h"
 #include "RiaWslTools.h"
 
+#include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
+#include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 #include "JobCommands/RicRunJobFeature.h"
 
 #include "RifOpmFlowDeckFile.h"
 
 #include "RimCase.h"
 #include "RimEclipseCase.h"
+#include "RimFishbones.h"
+#include "RimPerforationInterval.h"
 #include "RimProject.h"
 #include "RimReloadCaseTools.h"
+#include "RimTools.h"
+#include "RimWellPath.h"
+#include "RimWellPathFracture.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -49,6 +56,10 @@ RimOpmFlowJob::RimOpmFlowJob()
 
     CAF_PDM_InitFieldNoDefault( &m_deckFile, "DeckFile", "Input Data File" );
     CAF_PDM_InitFieldNoDefault( &m_workDir, "WorkDirectory", "Working Folder" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path for New Well" );
+    CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
+    CAF_PDM_InitField( &m_pauseBeforeRun, "PauseBeforeRun", true, "Pause before running OPM Flow" );
+    CAF_PDM_InitField( &m_openTimeStep, "OpenTimeStep", 0, "Open Well at Time Step" );
 
     CAF_PDM_InitField( &m_runButton, "runButton", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_runButton );
@@ -94,9 +105,34 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     uiOrdering.add( nameField() );
     uiOrdering.add( &m_deckFile );
     uiOrdering.add( &m_workDir );
+    uiOrdering.add( &m_wellPath );
     uiOrdering.add( &m_runButton );
 
+    uiOrdering.add( &m_pauseBeforeRun );
+
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimOpmFlowJob::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_wellPath )
+    {
+        RimTools::wellPathOptionItems( &options );
+    }
+    else if ( fieldNeedingOptions == &m_openTimeStep )
+    {
+        if ( auto ec = m_eclipseCase() )
+        {
+            RimTools::timeStepsForCase( ec, &options );
+        }
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,6 +173,7 @@ void RimOpmFlowJob::setEclipseCase( RimEclipseCase* eCase )
 
     QFileInfo fi( eCase->gridFileName() );
     m_deckFile.setValue( fi.absolutePath() + "/" + fi.completeBaseName() + deckExtension() );
+    m_eclipseCase = eCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,6 +226,14 @@ QString RimOpmFlowJob::deckExtension() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimOpmFlowJob::wellTempFile() const
+{
+    return m_workDir().path() + "/new_well" + deckExtension();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QStringList RimOpmFlowJob::command()
 {
     QStringList cmd;
@@ -220,6 +265,8 @@ QStringList RimOpmFlowJob::command()
 //--------------------------------------------------------------------------------------------------
 bool RimOpmFlowJob::onPrepare()
 {
+    prepareWellSettings();
+
     QString dataFile = m_deckFile().path();
     if ( dataFile.isEmpty() ) return false;
     if ( !QFile::exists( dataFile ) ) return false;
@@ -227,7 +274,13 @@ bool RimOpmFlowJob::onPrepare()
     RifOpmFlowDeckFile deckFile;
     if ( !deckFile.loadDeck( dataFile.toStdString() ) ) return false;
 
-    return deckFile.saveDeck( m_workDir().path().toStdString(), deckName().toStdString() + deckExtension().toStdString() );
+    if ( !deckFile.mergeWellDeck( wellTempFile().toStdString() ) ) return false;
+
+    bool saveOk = deckFile.saveDeck( m_workDir().path().toStdString(), deckName().toStdString() + deckExtension().toStdString() );
+
+    if ( m_pauseBeforeRun() ) return false;
+
+    return saveOk;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -283,4 +336,57 @@ RimEclipseCase* RimOpmFlowJob::findExistingCase( QString filename )
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::prepareWellSettings()
+{
+    RicExportCompletionDataSettingsUi exportSettings;
+
+    exportSettings.fileSplit   = RicExportCompletionDataSettingsUi::ExportSplit::UNIFIED_FILE;
+    exportSettings.caseToApply = m_eclipseCase();
+    exportSettings.setCustomFileName( wellTempFile() );
+    exportSettings.includeMsw = false;
+    exportSettings.setExportDataSourceAsComment( false );
+
+    exportSettings.folder = m_workDir().path();
+
+    std::vector<RimWellPathFracture*>    wellPathFractures;
+    std::vector<RimFishbones*>           wellPathFishbones;
+    std::vector<RimPerforationInterval*> wellPathPerforations;
+
+    std::vector<RimWellPath*> topLevelWells;
+    topLevelWells.push_back( m_wellPath->topLevelWellPath() );
+
+    std::vector<RimWellPath*> allLaterals;
+    {
+        std::set<RimWellPath*> lateralSet;
+
+        for ( auto t : topLevelWells )
+        {
+            auto laterals = t->allWellPathLaterals();
+            for ( auto l : laterals )
+            {
+                lateralSet.insert( l );
+            }
+        }
+
+        allLaterals.assign( lateralSet.begin(), lateralSet.end() );
+    }
+
+    for ( auto w : allLaterals )
+    {
+        auto fractures = w->descendantsIncludingThisOfType<RimWellPathFracture>();
+        wellPathFractures.insert( wellPathFractures.end(), fractures.begin(), fractures.end() );
+
+        auto fishbones = w->descendantsIncludingThisOfType<RimFishbones>();
+        wellPathFishbones.insert( wellPathFishbones.end(), fishbones.begin(), fishbones.end() );
+
+        auto perforations = w->descendantsIncludingThisOfType<RimPerforationInterval>();
+        wellPathPerforations.insert( wellPathPerforations.end(), perforations.begin(), perforations.end() );
+    }
+
+    RicWellPathExportCompletionDataFeatureImpl::exportCompletions( topLevelWells, exportSettings );
 }
