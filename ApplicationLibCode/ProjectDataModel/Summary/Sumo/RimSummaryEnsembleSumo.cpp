@@ -493,7 +493,7 @@ void RimSummaryEnsembleSumo::fieldChangedByUi( const caf::PdmFieldHandle* change
 
         updateConnectedEditors();
 
-        RiaSummaryTools::reloadSummaryEnsemble( this );
+        RiaSummaryTools::updateConnectedPlots( this );
     }
 }
 

@@ -238,7 +238,7 @@ QString axisTextForAddress( RifEclipseSummaryAddress address )
         return QString::fromStdString( shortName );
     }
 
-    auto candidate = QString::fromStdString( address.uiText() );
+    auto candidate = QString::fromStdString( address.vectorName() );
 
     // Strip text starting with _ to avoid duplicate axis names
     auto index = candidate.indexOf( "_" );

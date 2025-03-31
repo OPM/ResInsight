@@ -18,15 +18,11 @@
 
 #include "RicAppendSummaryCurvesForSummaryAddressesFeature.h"
 
-#include "RiaGuiApplication.h"
-
-#include "RicAppendSummaryPlotsForObjectsFeature.h"
-
 #include "RimSummaryAddress.h"
-#include "RimSummaryAddressCollection.h"
-#include "RimSummaryCase.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
+
+#include "RiuDockWidgetTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -47,17 +43,19 @@ bool RicAppendSummaryCurvesForSummaryAddressesFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicAppendSummaryCurvesForSummaryAddressesFeature::onActionTriggered( bool isChecked )
 {
-    RiaGuiApplication* app = RiaGuiApplication::instance();
-
-    auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( app->activePlotWindow() );
-    if ( !summaryMultiPlot ) return;
-
     auto addresses = selectedAddresses();
     if ( addresses.empty() ) return;
 
-    for ( auto plot : summaryMultiPlot->summaryPlots() )
+    auto selectedTreeViewItems = RiuDockWidgetTools::selectedItemsInTreeView( RiuDockWidgetTools::plotMainWindowPlotsTreeName() );
+    for ( auto item : selectedTreeViewItems )
     {
-        plot->handleDroppedObjects( addresses );
+        auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( item );
+        if ( !summaryMultiPlot ) continue;
+
+        for ( auto plot : summaryMultiPlot->summaryPlots() )
+        {
+            plot->handleDroppedObjects( addresses );
+        }
     }
 }
 

@@ -98,7 +98,7 @@ void RimReloadCaseTools::reloadEclipseData( RimEclipseCase* eclipseCase, bool re
     if ( reloadSummaryData )
     {
         auto summaryCase = RimReloadCaseTools::findSummaryCaseFromEclipseResultCase( dynamic_cast<RimEclipseResultCase*>( eclipseCase ) );
-        RiaSummaryTools::reloadSummaryCase( summaryCase );
+        RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( summaryCase );
     }
 
     updateAllPlots();

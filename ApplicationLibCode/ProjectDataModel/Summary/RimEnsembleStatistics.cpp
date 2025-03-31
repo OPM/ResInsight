@@ -74,6 +74,8 @@ RimEnsembleStatistics::RimEnsembleStatistics( RimEnsembleCurveSetInterface* pare
     }
 
     m_showColorField = true;
+
+    setNotifyAllFieldsInMultiFieldChangedEvents( true );
 }
 
 //--------------------------------------------------------------------------------------------------

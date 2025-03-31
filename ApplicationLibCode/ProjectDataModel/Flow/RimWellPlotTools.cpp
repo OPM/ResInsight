@@ -25,6 +25,7 @@
 #include "RigEclipseResultAddress.h"
 #include "Well/RigSimWellData.h"
 
+#include "RimDepthTrackPlot.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimObservedDataCollection.h"
@@ -42,6 +43,7 @@
 #include "RimWellLogRftCurve.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellRftPlot.h"
 
 #include <regex>
 
@@ -538,6 +540,24 @@ std::vector<RimPressureDepthData*> pressureDepthDataForWell( const QString& simW
         }
     }
     return observedDataForWell;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void loadDataAndUpdateDepthTrackPlots( const std::set<RimDepthTrackPlot*>& depthTrackPlots )
+{
+    for ( auto plot : depthTrackPlots )
+    {
+        plot->updateConnectedEditors();
+
+        if ( auto rftPlot = dynamic_cast<RimWellRftPlot*>( plot ) )
+        {
+            rftPlot->rebuildCurves();
+        }
+
+        plot->loadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

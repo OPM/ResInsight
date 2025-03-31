@@ -94,8 +94,8 @@ public:
     static void copyCurveDataSources( RimSummaryCurve& curve, const RimSummaryCurve& otherCurve );
     static void copyCurveAxisData( RimSummaryCurve& curve, const RimSummaryCurve& otherCurve );
 
-    static void reloadSummaryCase( RimSummaryCase* summaryCase );
-    static void reloadSummaryEnsemble( RimSummaryEnsemble* ensemble );
+    static void reloadSummaryCaseAndUpdateConnectedPlots( RimSummaryCase* summaryCase );
+    static void updateConnectedPlots( RimSummaryEnsemble* ensemble );
 
     static time_t calculateTimeThreshold( const time_t& minimum, const time_t& maximum );
 

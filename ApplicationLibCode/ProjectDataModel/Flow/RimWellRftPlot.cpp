@@ -596,43 +596,45 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
         else if ( m_showStatisticsCurves && curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT )
         {
             RimSummaryEnsemble* ensemble = curveDefToAdd.address().ensemble();
-            auto                curveSet = findEnsembleCurveSet( ensemble );
 
-            std::set<RifEclipseRftAddress> rftAddresses =
-                curveSet->statisticsEclipseRftReader()->eclipseRftAddresses( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() );
-            for ( const auto& rftAddress : rftAddresses )
+            if ( auto curveSet = findEnsembleCurveSet( ensemble ) )
             {
-                if ( rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50 )
+                std::set<RifEclipseRftAddress> rftAddresses =
+                    curveSet->statisticsEclipseRftReader()->eclipseRftAddresses( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() );
+                for ( const auto& rftAddress : rftAddresses )
                 {
-                    // Default statistics curves are P10, P50, P90 and mean
-                    // It is not common to use P50 for ensemble RFT, so skip display of P50 to avoid confusion with mean
-                    // https://github.com/OPM/ResInsight/issues/5238
+                    if ( rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50 )
+                    {
+                        // Default statistics curves are P10, P50, P90 and mean
+                        // It is not common to use P50 for ensemble RFT, so skip display of P50 to avoid confusion with mean
+                        // https://github.com/OPM/ResInsight/issues/5238
 
-                    continue;
-                }
+                        continue;
+                    }
 
-                if ( rftAddress.wellLogChannel() != RifEclipseRftAddress::RftWellLogChannelType::TVD )
-                {
-                    auto curve = new RimWellLogRftCurve();
-                    plotTrack->addCurve( curve );
-                    curve->setEnsemble( ensemble );
-                    curve->setEclipseCase( curveSet->eclipseCase() );
-                    curve->setRftAddress( rftAddress );
-                    curve->setObservedFmuRftData( findObservedFmuData( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() ) );
-                    curve->setZOrder( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_STAT_CURVE ) );
-                    applyCurveAppearance( curve );
-                    auto                              symbol   = statisticsCurveSymbolFromAddress( rftAddress );
-                    RiuPlotCurveSymbol::LabelPosition labelPos = statisticsLabelPosFromAddress( rftAddress );
-                    curve->setSymbol( symbol );
-                    curve->setSymbolLabelPosition( labelPos );
-                    curve->setSymbolSize( curve->symbolSize() + 3 );
-                    curve->setSymbolSkipDistance( 150 );
-                    curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
-                    QString uiText = caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( rftAddress.wellLogChannel() );
-                    QString label  = uiText.replace( ": Pressure", "" );
-                    curve->setSymbolLabel( label );
-                    curve->setLineThickness( 3 );
-                    curve->setShowInLegend( !m_showEnsembleCurves );
+                    if ( rftAddress.wellLogChannel() != RifEclipseRftAddress::RftWellLogChannelType::TVD )
+                    {
+                        auto curve = new RimWellLogRftCurve();
+                        plotTrack->addCurve( curve );
+                        curve->setEnsemble( ensemble );
+                        curve->setEclipseCase( curveSet->eclipseCase() );
+                        curve->setRftAddress( rftAddress );
+                        curve->setObservedFmuRftData( findObservedFmuData( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() ) );
+                        curve->setZOrder( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_STAT_CURVE ) );
+                        applyCurveAppearance( curve );
+                        auto                              symbol   = statisticsCurveSymbolFromAddress( rftAddress );
+                        RiuPlotCurveSymbol::LabelPosition labelPos = statisticsLabelPosFromAddress( rftAddress );
+                        curve->setSymbol( symbol );
+                        curve->setSymbolLabelPosition( labelPos );
+                        curve->setSymbolSize( curve->symbolSize() + 3 );
+                        curve->setSymbolSkipDistance( 150 );
+                        curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
+                        QString uiText = caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( rftAddress.wellLogChannel() );
+                        QString label  = uiText.replace( ": Pressure", "" );
+                        curve->setSymbolLabel( label );
+                        curve->setLineThickness( 3 );
+                        curve->setShowInLegend( !m_showEnsembleCurves );
+                    }
                 }
             }
         }
@@ -1539,6 +1541,16 @@ RimWellRftEnsembleCurveSet* RimWellRftPlot::findEnsembleCurveSet( RimSummaryEnse
         }
     }
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::rebuildCurves()
+{
+    createEnsembleCurveSets();
+    updateFormationsOnPlot();
+    syncCurvesFromUiSelection();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -18,10 +18,8 @@
 
 #include "RicAppendSummaryPlotsForObjectsFeature.h"
 
-#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPlotWindowRedrawScheduler.h"
-#include "RiaStdStringTools.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
 #include "Summary/RiaSummaryAddressModifier.h"
 #include "Summary/RiaSummaryPlotTools.h"
@@ -33,10 +31,10 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
-#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 
-#include "cafAssert.h"
+#include "RiuDockWidgetTools.h"
+
 #include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
 
@@ -181,12 +179,14 @@ void RicAppendSummaryPlotsForObjectsFeature::onActionTriggered( bool isChecked )
     auto sumAddressCollections = selectedCollections();
     if ( sumAddressCollections.empty() ) return;
 
-    RiaGuiApplication* app = RiaGuiApplication::instance();
+    auto selectedTreeViewItems = RiuDockWidgetTools::selectedItemsInTreeView( RiuDockWidgetTools::plotMainWindowPlotsTreeName() );
+    for ( auto item : selectedTreeViewItems )
+    {
+        auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( item );
+        if ( !summaryMultiPlot ) continue;
 
-    auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( app->activePlotWindow() );
-    if ( !summaryMultiPlot ) return;
-
-    appendPlots( summaryMultiPlot, sumAddressCollections );
+        appendPlots( summaryMultiPlot, sumAddressCollections );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
