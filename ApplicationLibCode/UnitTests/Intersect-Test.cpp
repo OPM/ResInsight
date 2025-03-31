@@ -1,5 +1,7 @@
 #include "gtest/gtest.h"
 
+#include "RiaResultNames.h"
+
 #include "RifEclipseOutputFileTools.h"
 
 #include <QString>
@@ -16,7 +18,7 @@ TEST( IntersectDataImport, DISABLED_TestImportPORV )
     QString baseFolder = "d:/Models/Statoil/IX_output_files/";
     QString filename   = baseFolder + "NORNE_IX2.INIT";
 
-    std::string porv_kw( "PORV" );
+    std::string porv_kw( RiaResultNames::porv().toStdString() );
 
     ecl_file_type* ecl_file = ecl_file_open( filename.toStdString().data(), ECL_FILE_CLOSE_STREAM );
 

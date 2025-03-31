@@ -56,7 +56,7 @@ void RigPorvSoilSgasResultCalculator::calculate( const RigEclipseResultAddress& 
 {
     RigEclipseResultAddress soilAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() );
     RigEclipseResultAddress sgasAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() );
-    RigEclipseResultAddress porvAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORV" );
+    RigEclipseResultAddress porvAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::porv() );
 
     if ( resVarAddr.resultName() == RiaResultNames::riPorvSoil() )
     {
