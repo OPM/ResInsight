@@ -56,7 +56,10 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     // PORV
     const std::vector<double>* porvResults = nullptr;
     std::vector<double>        porvActiveCellsResultStorage;
-    porvResults = RigCaseCellResultsData::getResultIndexableStaticResult( actCellInfo, gridCellResults, RiaResultNames::porv(), porvActiveCellsResultStorage );
+    porvResults = RigCaseCellResultsData::getResultIndexableStaticResult( actCellInfo,
+                                                                          gridCellResults,
+                                                                          RiaResultNames::porv(),
+                                                                          porvActiveCellsResultStorage );
 
     progress.incrementProgress();
 
