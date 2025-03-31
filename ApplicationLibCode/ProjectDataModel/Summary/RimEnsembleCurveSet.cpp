@@ -813,6 +813,15 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 
         updateAllCurves();
 
+        if ( auto multiPlot = firstAncestorOrThisOfType<RimSummaryMultiPlot>() )
+        {
+            multiPlot->updatePlotTitles();
+        }
+        else
+        {
+            plot->updatePlotTitle();
+        }
+
         updateTextInPlot = true;
     }
     else if ( changedField == &m_yValuesSummaryEnsemble )
@@ -1003,7 +1012,16 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                 loadDataAndUpdate( true );
 
                 plot->updateAxes();
-                plot->updatePlotTitle();
+
+                if ( auto multiPlot = firstAncestorOrThisOfType<RimSummaryMultiPlot>() )
+                {
+                    multiPlot->updatePlotTitles();
+                }
+                else
+                {
+                    plot->updatePlotTitle();
+                }
+
                 plot->updateConnectedEditors();
 
                 RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
@@ -1103,15 +1121,13 @@ void RimEnsembleCurveSet::childFieldChangedByUi( const caf::PdmFieldHandle* chan
         // The recommended way to trigger update in a parent object is by using caf::Signal. Here we need to update two parent classes, and
         // they are multiple levels away. To avoid a long signal path that is hard to debug, we use firstAncestorOrThisOfType()
 
-        auto summaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>();
-        if ( summaryPlot )
+        if ( auto summaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>() )
         {
             summaryPlot->updateAll();
             summaryPlot->zoomAll();
         }
 
-        auto multiPlot = firstAncestorOrThisOfType<RimSummaryMultiPlot>();
-        if ( multiPlot )
+        if ( auto multiPlot = firstAncestorOrThisOfType<RimSummaryMultiPlot>() )
         {
             multiPlot->updatePlotTitles();
         }
