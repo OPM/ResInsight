@@ -92,6 +92,18 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
         return;
     }
 
+    RigEclipseResultAddress soilAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() );
+    if ( resultsData->ensureKnownResultLoaded( soilAddress ) )
+    {
+        data.saturationOil = resultsData->cellScalarResults( soilAddress, timeStepIdx );
+    }
+
+    RigEclipseResultAddress sgasAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() );
+    if ( resultsData->ensureKnownResultLoaded( sgasAddress ) )
+    {
+        data.saturationGas = resultsData->cellScalarResults( sgasAddress, timeStepIdx );
+    }
+
     RigEclipseResultAddress pressureAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" );
     resultsData->ensureKnownResultLoaded( pressureAddress );
     data.pressure = resultsData->cellScalarResults( pressureAddress, timeStepIdx );
@@ -149,7 +161,7 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
     int              numClustersFound = 0;
     for ( int clusterId = 1; clusterId <= numClusters; clusterId++ )
     {
-        std::optional<caf::VecIjk> startCell = findStartCell( eclipseCase, timeStepIdx, limits, data, filterVector, clusters );
+        std::optional<caf::VecIjk> startCell = findStartCell( eclipseCase, timeStepIdx, volumeType, limits, data, filterVector, clusters );
 
         if ( startCell.has_value() )
         {
@@ -160,7 +172,7 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
                                       .arg( startCell->j() + 1 )
                                       .arg( startCell->k() + 1 ) );
 
-            growCluster( eclipseCase, startCell.value(), limits, data, filterVector, clusters, clusterId, timeStepIdx, maxIterations );
+            growCluster( eclipseCase, startCell.value(), volumeType, limits, data, filterVector, clusters, clusterId, timeStepIdx, maxIterations );
             numClustersFound++;
         }
         else
@@ -261,6 +273,7 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
 //--------------------------------------------------------------------------------------------------
 std::optional<caf::VecIjk> RigWellTargetMapping::findStartCell( RimEclipseCase*            eclipseCase,
                                                                 size_t                     timeStepIdx,
+                                                                const VolumeType           volumeType,
                                                                 const ClusteringLimits&    limits,
                                                                 const DataContainer&       data,
                                                                 const std::vector<double>& filterVector,
@@ -284,6 +297,8 @@ std::optional<caf::VecIjk> RigWellTargetMapping::findStartCell( RimEclipseCase* 
             const double cellVolume   = data.volume[resultIndex];
             const double cellPressure = data.pressure[resultIndex];
 
+            const bool isSaturationValid = isSaturationSufficient( volumeType, data, limits, resultIndex );
+
             const double cellPermeabiltyX = data.permeabilityX[resultIndex];
             const double cellPermeabiltyY = data.permeabilityY[resultIndex];
             const double cellPermeabiltyZ = data.permeabilityZ[resultIndex];
@@ -292,7 +307,7 @@ std::optional<caf::VecIjk> RigWellTargetMapping::findStartCell( RimEclipseCase* 
 
             const bool filterValue = !std::isinf( filterVector[resultIndex] ) && filterVector[resultIndex] > 0.0;
 
-            if ( cellVolume > maxVolume && cellPressure >= limits.pressure && permeabilityValidInAnyDirection && filterValue )
+            if ( cellVolume > maxVolume && cellPressure >= limits.pressure && permeabilityValidInAnyDirection && filterValue && isSaturationValid )
             {
                 maxVolume = cellVolume;
                 startCell = reservoirCellIdx;
@@ -310,6 +325,7 @@ std::optional<caf::VecIjk> RigWellTargetMapping::findStartCell( RimEclipseCase* 
 //--------------------------------------------------------------------------------------------------
 void RigWellTargetMapping::growCluster( RimEclipseCase*            eclipseCase,
                                         const caf::VecIjk&         startCell,
+                                        const VolumeType           volumeType,
                                         const ClusteringLimits&    limits,
                                         const DataContainer&       data,
                                         const std::vector<double>& filterVector,
@@ -327,7 +343,7 @@ void RigWellTargetMapping::growCluster( RimEclipseCase*            eclipseCase,
 
     for ( int i = 0; i < maxIterations; i++ )
     {
-        foundCells = findCandidates( eclipseCase, foundCells, limits, data, filterVector, clusters );
+        foundCells = findCandidates( eclipseCase, foundCells, volumeType, limits, data, filterVector, clusters );
         if ( foundCells.empty() ) break;
         assignClusterIdToCells( *resultsData->activeCellInfo(), foundCells, clusters, clusterId );
     }
@@ -338,6 +354,7 @@ void RigWellTargetMapping::growCluster( RimEclipseCase*            eclipseCase,
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RigWellTargetMapping::findCandidates( RimEclipseCase*            eclipseCase,
                                                           const std::vector<size_t>& previousCells,
+                                                          const VolumeType           volumeType,
                                                           const ClusteringLimits&    limits,
                                                           const DataContainer&       data,
                                                           const std::vector<double>& filterVector,
@@ -388,8 +405,10 @@ std::vector<size_t> RigWellTargetMapping::findCandidates( RimEclipseCase*       
                                                                                neighborResultIndex );
                     bool   filterValue      = !std::isinf( filterVector[neighborResultIndex] ) && filterVector[neighborResultIndex] > 0.0;
 
+                    const bool isSaturationValid = isSaturationSufficient( volumeType, data, limits, neighborResultIndex );
+
                     if ( data.pressure[neighborResultIndex] > limits.pressure && permeability > limits.permeability &&
-                         transmissibility > limits.transmissibility && filterValue )
+                         transmissibility > limits.transmissibility && filterValue && isSaturationValid )
                     {
                         candidates.push_back( neighborResvCellIdx );
                         clusters[neighborResultIndex] = -1;
@@ -412,8 +431,10 @@ std::vector<size_t> RigWellTargetMapping::findCandidates( RimEclipseCase*       
 
                 bool filterValue = !std::isinf( filterVector[otherResultIndex] ) && filterVector[otherResultIndex] > 0.0;
 
+                const bool isSaturationValid = isSaturationSufficient( volumeType, data, limits, otherResultIndex );
+
                 if ( data.pressure[otherResultIndex] > limits.pressure && permeability > limits.permeability &&
-                     transmissibility > limits.transmissibility && filterValue )
+                     transmissibility > limits.transmissibility && filterValue && isSaturationValid )
                 {
                     candidates.push_back( otherCellIdx );
                     clusters[otherResultIndex] = -1;
@@ -1108,4 +1129,17 @@ std::list<std::pair<std::pair<size_t, RigWellTargetMapping::CellFaceType>, size_
 QString RigWellTargetMapping::wellTargetResultName()
 {
     return "WELL_TARGET_NUM";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigWellTargetMapping::isSaturationSufficient( const VolumeType volumeType, const DataContainer& data, const ClusteringLimits& limits, size_t idx )
+{
+    bool needsValidOil = volumeType == VolumeType::OIL || volumeType == VolumeType::HYDROCARBON;
+    bool needsValidGas = volumeType == VolumeType::GAS || volumeType == VolumeType::HYDROCARBON;
+    // For hydrocarbon it is enough that one of the saturations is above the limit.
+    if ( needsValidOil && data.saturationOil[idx] >= limits.saturationOil ) return true;
+    if ( needsValidGas && data.saturationGas[idx] >= limits.saturationGas ) return true;
+    return false;
 }
