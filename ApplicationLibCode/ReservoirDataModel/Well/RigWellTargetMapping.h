@@ -70,6 +70,8 @@ public:
 
     struct ClusteringLimits
     {
+        double                  saturationOil;
+        double                  saturationGas;
         double                  permeability;
         double                  pressure;
         double                  transmissibility;
@@ -81,6 +83,8 @@ public:
     struct DataContainer
     {
         std::vector<double>        volume;
+        std::vector<double>        saturationOil;
+        std::vector<double>        saturationGas;
         std::vector<double>        pressure;
         std::vector<double>        permeabilityX;
         std::vector<double>        permeabilityY;
@@ -149,6 +153,7 @@ public:
 private:
     static std::optional<caf::VecIjk> findStartCell( RimEclipseCase*            eclipseCase,
                                                      size_t                     timeStepIdx,
+                                                     const VolumeType           volumeType,
                                                      const ClusteringLimits&    limits,
                                                      const DataContainer&       data,
                                                      const std::vector<double>& filterVector,
@@ -156,6 +161,7 @@ private:
 
     static void growCluster( RimEclipseCase*            eclipseCase,
                              const caf::VecIjk&         startCell,
+                             const VolumeType           volumeType,
                              const ClusteringLimits&    limits,
                              const DataContainer&       data,
                              const std::vector<double>& filterVector,
@@ -166,6 +172,7 @@ private:
 
     static std::vector<size_t> findCandidates( RimEclipseCase*            eclipseCase,
                                                const std::vector<size_t>& previousCells,
+                                               const VolumeType           volumeType,
                                                const ClusteringLimits&    limits,
                                                const DataContainer&       data,
                                                const std::vector<double>& filterVector,
@@ -236,4 +243,6 @@ private:
 
     static QString getOilVectorName( VolumesType volumesType );
     static QString getGasVectorName( VolumesType volumesType );
+
+    static bool isSaturationSufficient( const VolumeType volumeType, const DataContainer& data, const ClusteringLimits& limits, size_t idx );
 };

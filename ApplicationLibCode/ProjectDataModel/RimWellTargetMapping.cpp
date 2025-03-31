@@ -111,6 +111,12 @@ RimWellTargetMapping::RimWellTargetMapping()
     CAF_PDM_InitField( &m_userDefinedFloodingGas, "UserDefinedFloodingGas", 0.0, "" );
     m_userDefinedFloodingGas.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
+    CAF_PDM_InitField( &m_saturationOil, "SaturationOil", 0.0, "Saturation Oil" );
+    m_saturationOil.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_saturationGas, "SaturationGas", 0.0, "Saturation Gas" );
+    m_saturationGas.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
     CAF_PDM_InitField( &m_pressure, "Pressure", 0.0, "Pressure" );
     m_pressure.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
@@ -120,7 +126,7 @@ RimWellTargetMapping::RimWellTargetMapping()
     CAF_PDM_InitField( &m_transmissibility, "Transmissibility", 0.0, "Transmissibility" );
     m_transmissibility.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_resetDefaultButton, "ResetDefaultButton", true, "Reset to P90" );
+    CAF_PDM_InitField( &m_resetDefaultButton, "ResetDefaultButton", true, "Reset to Default" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_resetDefaultButton );
     m_resetDefaultButton.xmlCapability()->disableIO();
 
@@ -143,6 +149,14 @@ RimWellTargetMapping::RimWellTargetMapping()
     m_generateButton.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleStatisticsCase, "EnsembleStatisticsCase", "Ensemble Statistics Case" );
+
+    m_minimumSaturationOil = cvf::UNDEFINED_DOUBLE;
+    m_maximumSaturationOil = cvf::UNDEFINED_DOUBLE;
+    m_defaultSaturationOil = cvf::UNDEFINED_DOUBLE;
+
+    m_minimumSaturationGas = cvf::UNDEFINED_DOUBLE;
+    m_maximumSaturationGas = cvf::UNDEFINED_DOUBLE;
+    m_defaultSaturationGas = cvf::UNDEFINED_DOUBLE;
 
     m_minimumPressure = cvf::UNDEFINED_DOUBLE;
     m_maximumPressure = cvf::UNDEFINED_DOUBLE;
@@ -267,6 +281,14 @@ void RimWellTargetMapping::updateAllBoundaries()
         return { globalMin, globalMax, p90 };
     };
 
+    std::tie( m_minimumSaturationOil, m_maximumSaturationOil, m_defaultSaturationOil ) =
+        updateBoundaryValues( resultsData, { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SOIL" ) }, timeStepIdx );
+    m_defaultSaturationOil = 0.3;
+
+    std::tie( m_minimumSaturationGas, m_maximumSaturationGas, m_defaultSaturationGas ) =
+        updateBoundaryValues( resultsData, { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" ) }, timeStepIdx );
+    m_defaultSaturationGas = 0.3;
+
     std::tie( m_minimumPressure, m_maximumPressure, m_defaultPressure ) =
         updateBoundaryValues( resultsData, { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) }, timeStepIdx );
 
@@ -291,6 +313,26 @@ void RimWellTargetMapping::updateAllBoundaries()
 void RimWellTargetMapping::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 
 {
+    if ( field == &m_saturationOil && m_minimumSaturationOil != cvf::UNDEFINED_DOUBLE && m_maximumSaturationOil != cvf::UNDEFINED_DOUBLE )
+    {
+        if ( auto doubleAttributes = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
+        {
+            doubleAttributes->m_minimum  = m_minimumSaturationOil;
+            doubleAttributes->m_maximum  = m_maximumSaturationOil;
+            doubleAttributes->m_decimals = 3;
+        }
+    }
+
+    if ( field == &m_saturationGas && m_minimumSaturationGas != cvf::UNDEFINED_DOUBLE && m_maximumSaturationGas != cvf::UNDEFINED_DOUBLE )
+    {
+        if ( auto doubleAttributes = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
+        {
+            doubleAttributes->m_minimum  = m_minimumSaturationGas;
+            doubleAttributes->m_maximum  = m_maximumSaturationGas;
+            doubleAttributes->m_decimals = 3;
+        }
+    }
+
     if ( field == &m_pressure && m_minimumPressure != cvf::UNDEFINED_DOUBLE && m_maximumPressure != cvf::UNDEFINED_DOUBLE )
     {
         if ( auto doubleAttributes = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
@@ -333,7 +375,7 @@ void RimWellTargetMapping::defineEditorAttribute( const caf::PdmFieldHandle* fie
     {
         if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
         {
-            attrib->m_buttonText = "Reset to P90";
+            attrib->m_buttonText = "Reset to Default";
         }
     }
 
@@ -417,13 +459,13 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     resultGroup->add( &m_volumeType );
     resultGroup->add( &m_volumeResultType );
 
+    bool showGasOptions = m_volumeType() == RigWellTargetMapping::VolumeType::GAS ||
+                          m_volumeType() == RigWellTargetMapping::VolumeType::HYDROCARBON;
+    bool showOilOptions = m_volumeType() == RigWellTargetMapping::VolumeType::OIL ||
+                          m_volumeType() == RigWellTargetMapping::VolumeType::HYDROCARBON;
+
     if ( m_volumeResultType() == RigWellTargetMapping::VolumeResultType::MOBILE )
     {
-        bool showGasOptions = m_volumeType() == RigWellTargetMapping::VolumeType::GAS ||
-                              m_volumeType() == RigWellTargetMapping::VolumeType::HYDROCARBON;
-        bool showOilOptions = m_volumeType() == RigWellTargetMapping::VolumeType::OIL ||
-                              m_volumeType() == RigWellTargetMapping::VolumeType::HYDROCARBON;
-
         if ( showOilOptions )
         {
             resultGroup->add( &m_oilFloodingType );
@@ -445,6 +487,8 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     resultGroup->add( &m_volumesType );
 
     caf::PdmUiGroup* minimumCellValuesGroup = uiOrdering.addNewGroup( "Minimum Cell Values" );
+    if ( showOilOptions ) minimumCellValuesGroup->add( &m_saturationOil );
+    if ( showGasOptions ) minimumCellValuesGroup->add( &m_saturationGas );
     minimumCellValuesGroup->add( &m_pressure );
     minimumCellValuesGroup->add( &m_permeability );
     minimumCellValuesGroup->add( &m_transmissibility );
@@ -479,7 +523,9 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 RigWellTargetMapping::ClusteringLimits RimWellTargetMapping::getClusteringLimits() const
 {
-    return { .permeability     = m_permeability,
+    return { .saturationOil    = m_saturationOil,
+             .saturationGas    = m_saturationGas,
+             .permeability     = m_permeability,
              .pressure         = m_pressure,
              .transmissibility = m_transmissibility,
              .maxNumTargets    = m_maxNumTargets,
@@ -563,6 +609,8 @@ void RimWellTargetMapping::setDefaults()
 //--------------------------------------------------------------------------------------------------
 void RimWellTargetMapping::resetMinimumCellValuesToDefault()
 {
+    m_saturationOil    = std::clamp( m_defaultSaturationOil, m_minimumSaturationOil, m_maximumSaturationOil );
+    m_saturationGas    = std::clamp( m_defaultSaturationGas, m_minimumSaturationGas, m_maximumSaturationGas );
     m_pressure         = std::clamp( m_defaultPressure, m_minimumPressure, m_maximumPressure );
     m_permeability     = std::clamp( m_defaultPermeability, m_minimumPermeability, m_maximumPermeability );
     m_transmissibility = std::clamp( m_defaultTransmissibility, std::max( m_minimumTransmissibility, 0.1 ), m_maximumTransmissibility );

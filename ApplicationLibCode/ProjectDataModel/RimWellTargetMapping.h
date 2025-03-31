@@ -80,6 +80,8 @@ private:
     caf::PdmField<double>       m_userDefinedFloodingGas;
     caf::PdmField<double>       m_userDefinedFloodingOil;
 
+    caf::PdmField<double> m_saturationOil;
+    caf::PdmField<double> m_saturationGas;
     caf::PdmField<double> m_pressure;
     caf::PdmField<double> m_permeability;
     caf::PdmField<double> m_transmissibility;
@@ -97,6 +99,14 @@ private:
     caf::PdmField<bool> m_generateButton;
 
     caf::PdmChildField<RimEclipseCase*> m_ensembleStatisticsCase;
+
+    double m_minimumSaturationOil;
+    double m_maximumSaturationOil;
+    double m_defaultSaturationOil;
+
+    double m_minimumSaturationGas;
+    double m_maximumSaturationGas;
+    double m_defaultSaturationGas;
 
     double m_minimumPressure;
     double m_maximumPressure;
