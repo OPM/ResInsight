@@ -60,16 +60,21 @@ void RigPorvSoilSgasResultCalculator::calculate( const RigEclipseResultAddress& 
 
     if ( resVarAddr.resultName() == RiaResultNames::riPorvSoil() )
     {
+        if ( !m_resultsData->hasResultEntry( porvAddress ) || !m_resultsData->hasResultEntry( soilAddress ) ) return;
+
         calculateProduct( porvAddress, soilAddress, resVarAddr );
     }
     else if ( resVarAddr.resultName() == RiaResultNames::riPorvSgas() )
     {
+        if ( !m_resultsData->hasResultEntry( porvAddress ) || !m_resultsData->hasResultEntry( sgasAddress ) ) return;
+
         calculateProduct( porvAddress, sgasAddress, resVarAddr );
     }
     else if ( resVarAddr.resultName() == RiaResultNames::riPorvSoilSgas() )
     {
         RigEclipseResultAddress soilAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::riPorvSoil() );
         RigEclipseResultAddress sgasAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::riPorvSgas() );
+        if ( !m_resultsData->hasResultEntry( soilAddress ) || !m_resultsData->hasResultEntry( sgasAddress ) ) return;
 
         calculateSum( soilAddress, sgasAddress, resVarAddr );
     }
