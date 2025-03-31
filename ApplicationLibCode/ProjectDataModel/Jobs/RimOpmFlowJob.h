@@ -23,6 +23,7 @@
 #include "cafPdmPtrField.h"
 
 class RimEclipseCase;
+class RimWellPath;
 
 //==================================================================================================
 ///
