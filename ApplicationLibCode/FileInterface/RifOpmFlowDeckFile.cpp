@@ -147,23 +147,47 @@ bool RifOpmFlowDeckFile::mergeWellDeck( std::string filename )
     {
         const auto compdat2 = wellDeck.find( "COMPDAT" );
         if ( !compdat2.has_value() ) return false;
-        auto& compdat2_deck = wellDeck.operator[]( compdat2.value() );
+        auto& compdat2_kw = wellDeck.operator[]( compdat2.value() );
 
         const auto compdat = m_fileDeck->find( "COMPDAT" );
         if ( !compdat.has_value() ) return false;
-        auto& compdat_pos  = compdat.value();
-        auto& compdat_deck = m_fileDeck->operator[]( compdat_pos );
+        auto& compdat_pos = compdat.value();
+        auto& compdat_kw  = m_fileDeck->operator[]( compdat_pos );
 
-        Opm::DeckKeyword newCompdat( compdat_deck );
+        Opm::DeckKeyword newCompdat( compdat_kw );
 
-        for ( size_t i = 0; i < compdat2_deck.size(); i++ )
+        for ( size_t i = 0; i < compdat2_kw.size(); i++ )
         {
-            Opm::DeckRecord newWellRec( compdat2_deck.getRecord( i ) );
+            Opm::DeckRecord newWellRec( compdat2_kw.getRecord( i ) );
             newCompdat.addRecord( std::move( newWellRec ) );
         }
 
         m_fileDeck->erase( compdat_pos );
         m_fileDeck->insert( compdat_pos, newCompdat );
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::openWellAtTimeStep( QString wellName, QString wellType, int timeStep )
+{
+    int stepCount = 0;
+
+    for ( auto it = m_fileDeck->start(); it != m_fileDeck->stop(); it++ )
+    {
+        auto& kw = m_fileDeck->operator[]( it );
+        if ( kw.name() != "DATES" ) continue;
+
+        if ( stepCount == timeStep )
+        {
+            auto datePos = it;
+
+            break;
+        }
+        stepCount++;
     }
 
     return true;

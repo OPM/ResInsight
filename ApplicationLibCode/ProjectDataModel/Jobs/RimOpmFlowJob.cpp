@@ -36,6 +36,7 @@
 #include "RimReloadCaseTools.h"
 #include "RimTools.h"
 #include "RimWellPath.h"
+#include "RimWellPathCompletionSettings.h"
 #include "RimWellPathFracture.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -106,6 +107,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     uiOrdering.add( &m_deckFile );
     uiOrdering.add( &m_workDir );
     uiOrdering.add( &m_wellPath );
+    uiOrdering.add( &m_openTimeStep );
     uiOrdering.add( &m_runButton );
 
     uiOrdering.add( &m_pauseBeforeRun );
@@ -265,17 +267,25 @@ QStringList RimOpmFlowJob::command()
 //--------------------------------------------------------------------------------------------------
 bool RimOpmFlowJob::onPrepare()
 {
+    // export new well settings from resinsight
     prepareWellSettings();
 
     QString dataFile = m_deckFile().path();
     if ( dataFile.isEmpty() ) return false;
     if ( !QFile::exists( dataFile ) ) return false;
 
+    // load existing DATA deck
     RifOpmFlowDeckFile deckFile;
     if ( !deckFile.loadDeck( dataFile.toStdString() ) ) return false;
 
+    // merge new well settings from resinsight into DATA deck
     if ( !deckFile.mergeWellDeck( wellTempFile().toStdString() ) ) return false;
 
+    // open new well at selected timestep
+    auto cs = m_wellPath->completionSettings();
+    if ( !deckFile.openWellAtTimeStep( cs->wellNameForExport(), cs->wellTypeNameForExport(), m_openTimeStep() ) ) return false;
+
+    // save DATA deck to working folder
     bool saveOk = deckFile.saveDeck( m_workDir().path().toStdString(), deckName().toStdString() + deckExtension().toStdString() );
 
     if ( m_pauseBeforeRun() ) return false;
