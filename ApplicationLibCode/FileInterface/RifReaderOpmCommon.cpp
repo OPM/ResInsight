@@ -21,6 +21,7 @@
 #include "RiaEclipseFileNameTools.h"
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaResultNames.h"
 #include "RiaStdStringTools.h"
 
 #include "RifEclipseOutputFileTools.h"
@@ -1067,7 +1068,7 @@ std::vector<std::vector<int>> RifReaderOpmCommon::readActiveCellInfoFromPorv( Ri
 
     for ( int gridIdx = 0; gridIdx < nGrids; gridIdx++ )
     {
-        auto porvValues = m_initFile->getInitData<float>( "PORV", m_gridNames[gridIdx] );
+        auto porvValues = m_initFile->getInitData<float>( RiaResultNames::porv().toStdString(), m_gridNames[gridIdx] );
 
         int activeCellCount = (int)porvValues.size();
         if ( divideCellCountByTwo )

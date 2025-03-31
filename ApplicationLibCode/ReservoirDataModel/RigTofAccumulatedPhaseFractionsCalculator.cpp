@@ -58,7 +58,7 @@ RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalcul
                                                                             RiaResultNames::sgas(),
                                                                             timestep );
     const std::vector<double>* porvResults =
-        eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL, RiaDefines::ResultCatType::STATIC_NATIVE, "PORV", 0 );
+        eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL, RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::porv(), 0 );
 
     RimFlowDiagSolution* flowDiagSolution = caseToApply->defaultFlowDiagSolution();
 

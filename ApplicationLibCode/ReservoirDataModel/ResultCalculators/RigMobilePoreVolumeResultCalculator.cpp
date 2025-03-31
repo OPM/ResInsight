@@ -65,7 +65,7 @@ void RigMobilePoreVolumeResultCalculator::calculate( const RigEclipseResultAddre
     const std::vector<double>* multpvResults = nullptr;
 
     porvResults =
-        RigCaseCellResultsData::getResultIndexableStaticResult( m_resultsData->activeCellInfo(), m_resultsData, "PORV", porvDataTemp );
+        RigCaseCellResultsData::getResultIndexableStaticResult( m_resultsData->activeCellInfo(), m_resultsData, RiaResultNames::porv(), porvDataTemp );
     if ( !porvResults || porvResults->empty() )
     {
         RiaLogging::error( "Assumed PORV, but not data was found." );

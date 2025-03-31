@@ -634,7 +634,7 @@ std::vector<double> RigWellTargetMapping::loadOilVectorByName( RigCaseCellResult
         if ( volumesType == RigWellTargetMapping::VolumesType::RESERVOIR_VOLUMES_COMPUTED )
         {
             const std::vector<double>& porvResults =
-                resultsData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORV" ), 0 );
+                resultsData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::porv() ), 0 );
 
             for ( size_t i = 0; i < volume.size(); i++ )
             {
@@ -685,7 +685,7 @@ std::vector<double> RigWellTargetMapping::loadGasVectorByName( RigCaseCellResult
         if ( volumesType == RigWellTargetMapping::VolumesType::RESERVOIR_VOLUMES_COMPUTED )
         {
             const std::vector<double>& porvResults =
-                resultsData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORV" ), 0 );
+                resultsData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::porv() ), 0 );
 
             for ( size_t i = 0; i < volume.size(); i++ )
             {
@@ -777,7 +777,7 @@ std::vector<RigWellTargetMapping::ClusterStatistics> RigWellTargetMapping::gener
     auto resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     if ( !resultsData ) return statistics;
 
-    RigEclipseResultAddress porvAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORV" );
+    RigEclipseResultAddress porvAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::porv() );
     resultsData->ensureKnownResultLoaded( porvAddress );
     const std::vector<double>& porv = resultsData->cellScalarResults( porvAddress, 0 );
 
