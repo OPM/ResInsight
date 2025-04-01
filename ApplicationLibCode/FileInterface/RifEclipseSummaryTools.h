@@ -78,7 +78,8 @@ public:
     static RiaDefines::EclipseUnitSystem readUnitSystem( ecl_sum_type* ecl_sum );
     static std::vector<time_t>           getTimeSteps( ecl_sum_type* ecl_sum );
 
-    static std::pair<std::string, std::string> vectorNameAndExtension( const std::string& vectorName );
+    static std::pair<std::string, std::string> splitVectorNameAndSuffix( const std::string& vectorName );
+    static std::vector<std::string>            nativeVectorNames( const std::vector<std::string>& vectorNames );
 
 private:
     static void                 findSummaryFiles( const QString& inputFile, QString* headerFile, QStringList* dataFiles );

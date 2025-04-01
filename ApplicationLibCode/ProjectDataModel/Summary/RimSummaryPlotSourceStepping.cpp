@@ -1082,9 +1082,13 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
                 ids.push_back( it->second );
             }
 
-            auto searchString = QString::fromStdString( addr.vectorName() );
-            auto found        = getIdIterator( ids, searchString );
-            if ( found != ids.end() ) addr.setVectorName( ( *found ).toStdString() );
+            const auto [vectorName, suffix] = RifEclipseSummaryTools::splitVectorNameAndSuffix( addr.vectorName() );
+            auto found                      = getIdIterator( ids, QString::fromStdString( vectorName ) );
+            if ( found != ids.end() )
+            {
+                auto fullName = ( *found ).toStdString() + suffix;
+                addr.setVectorName( fullName );
+            }
         }
         break;
 
@@ -1245,8 +1249,8 @@ std::map<QString, QString> RimSummaryPlotSourceStepping::optionsForQuantity( std
         auto subset = RiaSummaryAddressAnalyzer::addressesForCategory( addresses, category );
         quantityAnalyzer.appendAddresses( subset );
 
-        auto quantities = quantityAnalyzer.quantities();
-        for ( const auto& s : quantities )
+        auto nativeVectorNames = RifEclipseSummaryTools::nativeVectorNames( quantityAnalyzer.quantities() );
+        for ( const auto& s : nativeVectorNames )
         {
             QString valueString = QString::fromStdString( s );
 
@@ -1276,14 +1280,10 @@ std::map<QString, QString> RimSummaryPlotSourceStepping::optionsForQuantity( Ria
     {
         auto vectorNames = analyzser->vectorNamesForCategory( category );
 
-        std::set<std::string> vectorNamesNoExtension;
-        for ( const auto& s : vectorNames )
-        {
-            const auto [vectorNameToUse, extension] = RifEclipseSummaryTools::vectorNameAndExtension( s );
-            vectorNamesNoExtension.insert( vectorNameToUse );
-        }
+        std::vector<std::string> setNamesVec( vectorNames.begin(), vectorNames.end() );
+        auto                     nativeVectorNames = RifEclipseSummaryTools::nativeVectorNames( setNamesVec );
 
-        for ( const auto& s : vectorNamesNoExtension )
+        for ( const auto& s : nativeVectorNames )
         {
             QString valueString = QString::fromStdString( s );
 
