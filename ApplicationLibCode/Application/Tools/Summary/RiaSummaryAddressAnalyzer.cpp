@@ -138,8 +138,8 @@ std::string RiaSummaryAddressAnalyzer::quantityNameForTitle() const
     std::set<std::string> quantitiesNoExtension;
     for ( const auto& quantity : quantities() )
     {
-        const auto [name, extension] = RifEclipseSummaryTools::vectorNameAndExtension( quantity );
-        quantitiesNoExtension.insert( name );
+        const auto [vectorName, suffix] = RifEclipseSummaryTools::splitVectorNameAndSuffix( quantity );
+        quantitiesNoExtension.insert( vectorName );
     }
     if ( quantitiesNoExtension.size() == 1 )
     {

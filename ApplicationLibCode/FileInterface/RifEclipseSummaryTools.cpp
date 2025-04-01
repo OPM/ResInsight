@@ -381,21 +381,40 @@ std::vector<time_t> RifEclipseSummaryTools::getTimeSteps( ecl_sum_type* ecl_sum 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::string, std::string> RifEclipseSummaryTools::vectorNameAndExtension( const std::string& vectorName )
+std::pair<std::string, std::string> RifEclipseSummaryTools::splitVectorNameAndSuffix( const std::string& vectorName )
 {
     std::string vectorNameToUse = vectorName;
-    std::string extension;
+    std::string suffix;
     if ( RiaStdStringTools::endsWith( vectorNameToUse, RifEclipseSummaryAddressDefines::differenceIdentifier() ) )
     {
-        extension = RifEclipseSummaryAddressDefines::differenceIdentifier();
+        suffix = RifEclipseSummaryAddressDefines::differenceIdentifier();
         vectorNameToUse = vectorNameToUse.substr( 0, vectorNameToUse.size() - RifEclipseSummaryAddressDefines::differenceIdentifier().size() );
     }
     else if ( RiaStdStringTools::endsWith( vectorNameToUse, RifEclipseSummaryAddressDefines::historyIdentifier() ) )
     {
-        extension       = RifEclipseSummaryAddressDefines::historyIdentifier();
+        suffix       = RifEclipseSummaryAddressDefines::historyIdentifier();
         vectorNameToUse = vectorNameToUse.substr( 0, vectorNameToUse.size() - RifEclipseSummaryAddressDefines::historyIdentifier().size() );
     }
-    return { vectorNameToUse, extension };
+    return { vectorNameToUse, suffix };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RifEclipseSummaryTools::nativeVectorNames( const std::vector<std::string>& vectorNames )
+{
+    std::vector<std::string> nativeNames;
+
+    for ( const auto& s : vectorNames )
+    {
+        const auto [vectorName, suffix] = RifEclipseSummaryTools::splitVectorNameAndSuffix( s );
+        if ( std::find( nativeNames.begin(), nativeNames.end(), vectorName ) == nativeNames.end() )
+        {
+            nativeNames.push_back( vectorName );
+        }
+    }
+
+    return nativeNames;
 }
 
 //--------------------------------------------------------------------------------------------------
