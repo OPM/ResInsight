@@ -392,7 +392,7 @@ std::pair<std::string, std::string> RifEclipseSummaryTools::splitVectorNameAndSu
     }
     else if ( RiaStdStringTools::endsWith( vectorNameToUse, RifEclipseSummaryAddressDefines::historyIdentifier() ) )
     {
-        suffix       = RifEclipseSummaryAddressDefines::historyIdentifier();
+        suffix          = RifEclipseSummaryAddressDefines::historyIdentifier();
         vectorNameToUse = vectorNameToUse.substr( 0, vectorNameToUse.size() - RifEclipseSummaryAddressDefines::historyIdentifier().size() );
     }
     return { vectorNameToUse, suffix };
