@@ -242,18 +242,9 @@ QString RimEnsembleCurveFilterCollection::filterDescriptions() const
 RiuTextContentFrame* RimEnsembleCurveFilterCollection::makeFilterDescriptionFrame() const
 {
     QString descriptions = filterDescriptions();
-    descriptions.replace( "+", "\n+" );
 
     // A size of -1 use default plot font
     int fontSize = -1;
-
-    auto plotWindow = firstAncestorOrThisOfType<RimPlotWindow>();
-    if ( plotWindow )
-    {
-        const double scalingFactor = 1.4;
-        fontSize                   = scalingFactor * plotWindow->fontSize();
-    }
-
     return new RiuTextContentFrame( nullptr, QString( "Active curve filters:" ), descriptions, fontSize );
 }
 

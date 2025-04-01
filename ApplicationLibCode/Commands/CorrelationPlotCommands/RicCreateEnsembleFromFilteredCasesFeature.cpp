@@ -25,6 +25,7 @@
 #include "RimCorrelationPlot.h"
 #include "RimCorrelationPlotCollection.h"
 #include "RimCorrelationReportPlot.h"
+#include "RimEnsembleCurveSet.h"
 #include "RimParameterResultCrossPlot.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
@@ -50,6 +51,11 @@ RimParameterResultCrossPlot* selectedCrossPlot()
 
     return nullptr;
 }
+
+RimEnsembleCurveSet* ensembleCurveSet()
+{
+    return caf::firstAncestorOfTypeFromSelectedObject<RimEnsembleCurveSet>();
+}
 } // namespace internal
 
 //--------------------------------------------------------------------------------------------------
@@ -57,6 +63,8 @@ RimParameterResultCrossPlot* selectedCrossPlot()
 //--------------------------------------------------------------------------------------------------
 bool RicCreateEnsembleFromFilteredCasesFeature::isCommandEnabled() const
 {
+    if ( internal::ensembleCurveSet() != nullptr ) return true;
+
     return internal::selectedCrossPlot() != nullptr;
 }
 
@@ -65,34 +73,43 @@ bool RicCreateEnsembleFromFilteredCasesFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicCreateEnsembleFromFilteredCasesFeature::onActionTriggered( bool isChecked )
 {
-    auto crossPlot = internal::selectedCrossPlot();
-    if ( !crossPlot ) return;
+    std::vector<RimSummaryCase*> casesForNewEnsemble;
 
-    auto excludedCases = crossPlot->summaryCasesExcludedByFilter();
-    if ( excludedCases.empty() )
+    if ( auto crossPlot = internal::selectedCrossPlot() )
+    {
+        auto excludedCases = crossPlot->summaryCasesExcludedByFilter();
+        if ( !excludedCases.empty() )
+        {
+            if ( auto ensemble = excludedCases.front()->ensemble() )
+            {
+                auto casesForNewEnsemble = ensemble->allSummaryCases();
+                for ( auto excludedCase : excludedCases )
+                {
+                    casesForNewEnsemble.erase( std::remove( casesForNewEnsemble.begin(), casesForNewEnsemble.end(), excludedCase ),
+                                               casesForNewEnsemble.end() );
+                }
+            }
+        }
+    }
+
+    if ( auto curveSet = internal::ensembleCurveSet() )
+    {
+        if ( auto ensemble = curveSet->summaryEnsemble() )
+        {
+            casesForNewEnsemble = curveSet->filterEnsembleCases( ensemble->allSummaryCases() );
+        }
+    }
+
+    if ( casesForNewEnsemble.empty() )
     {
         RiaLogging::info( "No filtered cases found, no ensemble created." );
         return;
     }
 
-    auto ensemble = excludedCases.front()->ensemble();
-    if ( !ensemble )
-    {
-        RiaLogging::info( "No ensemble found for selected cases, no ensemble created." );
-        return;
-    }
-
-    auto casesForNewEnsemble = ensemble->allSummaryCases();
-    for ( auto excludedCase : excludedCases )
-    {
-        casesForNewEnsemble.erase( std::remove( casesForNewEnsemble.begin(), casesForNewEnsemble.end(), excludedCase ),
-                                   casesForNewEnsemble.end() );
-    }
-
     auto newEnsemble = RicImportEnsembleFeature::createSummaryEnsemble( casesForNewEnsemble );
     if ( newEnsemble )
     {
-        RiaLogging::info( "Created ensemble " + ensemble->name() );
+        RiaLogging::info( "Created ensemble " + newEnsemble->name() );
     }
     else
     {

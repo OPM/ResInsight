@@ -89,7 +89,10 @@ std::vector<RimEnsembleCurveSet*> RicNewSummaryEnsembleCurveSetFeature::addDefau
 
                 curveSet->setSummaryEnsemble( ensemble );
                 curveSet->setSummaryAddressYAndStatisticsFlag( addr );
+                curveSet->setDefaultTimeRange();
+
                 auto filter = curveSet->filterCollection()->addFilter();
+                filter->setSummaryAddresses( { addr } );
                 filter->setActive( false );
 
                 plot->ensembleCurveSetCollection()->addCurveSet( curveSet );
