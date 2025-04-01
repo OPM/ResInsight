@@ -27,6 +27,7 @@
 
 #include "qwt_plot.h"
 #include "qwt_plot_zoneitem.h"
+#include "qwt_scale_map.h"
 #include "qwt_text.h"
 
 #include <QString>
@@ -349,6 +350,33 @@ void RiuPlotAnnotationTool::verticalRange( const QString&                  name,
 
     QStringList labels = name.split( " - " );
 
+    // Define a lambda to calculate pixel distance between two timestamps
+    auto getPixelDistanceBetweenTimestamps = []( QwtPlot* plot, time_t time1, time_t time2 ) -> double
+    {
+        const QwtScaleMap& scaleMap = plot->canvasMap( QwtAxis::XBottom );
+
+        double t1 = static_cast<double>( time1 );
+        double t2 = static_cast<double>( time2 );
+
+        double pixel1 = scaleMap.transform( t1 );
+        double pixel2 = scaleMap.transform( t2 );
+
+        return std::abs( pixel2 - pixel1 );
+    };
+
+    // Show labels inside the range by default
+    Qt::Alignment leftLineAlignment  = Qt::AlignRight;
+    Qt::Alignment rightLineAlignment = Qt::AlignLeft;
+
+    const auto distance          = getPixelDistanceBetweenTimestamps( m_plot, xRange.first, xRange.second );
+    const auto distanceThreshold = 200.0;
+    if ( distance < distanceThreshold )
+    {
+        // Show labels outside if the range is narrow
+        leftLineAlignment  = Qt::AlignLeft;
+        rightLineAlignment = Qt::AlignRight;
+    }
+
     auto* line( new QwtPlotMarker() );
     RiuPlotAnnotationTool::setLineProperties( line,
                                               labels[0],
@@ -357,7 +385,7 @@ void RiuPlotAnnotationTool::verticalRange( const QString&                  name,
                                               Qt::SolidLine,
                                               color,
                                               textColor,
-                                              Qt::AlignRight | horizontalAlignment );
+                                              leftLineAlignment | horizontalAlignment );
     line->attach( m_plot );
     m_plotItems.push_back( line );
 
@@ -369,7 +397,7 @@ void RiuPlotAnnotationTool::verticalRange( const QString&                  name,
                                               Qt::SolidLine,
                                               color,
                                               textColor,
-                                              Qt::AlignLeft | horizontalAlignment );
+                                              rightLineAlignment | horizontalAlignment );
     rightLine->attach( m_plot );
     m_plotItems.push_back( rightLine );
 }
