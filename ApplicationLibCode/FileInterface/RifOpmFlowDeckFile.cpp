@@ -172,10 +172,15 @@ bool RifOpmFlowDeckFile::mergeWellDeck( std::string filename )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmFlowDeckFile::openWellAtTimeStep( QString wellName, QString wellType, int timeStep )
+bool RifOpmFlowDeckFile::openWellAtTimeStep( std::string wellName, std::string wellType, int timeStep )
 {
     int stepCount = 0;
 
+    // only support oil so far
+    if ( wellType != "OIL" ) return false;
+
+    // locate dates keyword for the selected step
+    Opm::FileDeck::Index* datePos = nullptr;
     for ( auto it = m_fileDeck->start(); it != m_fileDeck->stop(); it++ )
     {
         auto& kw = m_fileDeck->operator[]( it );
@@ -183,12 +188,14 @@ bool RifOpmFlowDeckFile::openWellAtTimeStep( QString wellName, QString wellType,
 
         if ( stepCount == timeStep )
         {
-            auto datePos = it;
-
+            datePos = &it;
             break;
         }
         stepCount++;
     }
+
+    // found it?
+    if ( datePos == nullptr ) return false;
 
     return true;
 }
