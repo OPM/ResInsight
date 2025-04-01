@@ -45,6 +45,7 @@ RimSummaryAddressSelector::RimSummaryAddressSelector()
     : addressChanged( this )
     , m_showDataSource( true )
     , m_showResampling( true )
+    , m_showAxis( true )
     , m_plotAxisOrientation( RimPlotAxisProperties::Orientation::ANY )
 
 {
@@ -57,8 +58,9 @@ RimSummaryAddressSelector::RimSummaryAddressSelector()
     m_summaryCaseCollection.uiCapability()->setAutoAddingOptionFromValue( false );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryAddressUiField, "summaryAddressUiField", "Vector" );
-    m_summaryAddressUiField.xmlCapability()->disableIO();
     m_summaryAddressUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
+    m_summaryAddressUiField.registerSetMethod( this, &RimSummaryAddressSelector::setAddress );
+    m_summaryAddressUiField.registerGetMethod( this, &RimSummaryAddressSelector::summaryAddress );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryAddress, "SummaryAddress", "Summary Address" );
     m_summaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
@@ -128,6 +130,14 @@ void RimSummaryAddressSelector::setShowDataSource( bool enable )
 void RimSummaryAddressSelector::setShowResampling( bool enable )
 {
     m_showResampling = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddressSelector::setShowAxis( bool enable )
+{
+    m_showAxis = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -356,7 +366,10 @@ void RimSummaryAddressSelector::defineUiOrdering( QString uiConfigName, caf::Pdm
         uiOrdering.add( &m_resamplingPeriod, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
     }
 
-    uiOrdering.add( &m_plotAxisProperties, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
+    if ( m_showAxis )
+    {
+        uiOrdering.add( &m_plotAxisProperties, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
+    }
 
     uiOrdering.skipRemainingFields( true );
 }
