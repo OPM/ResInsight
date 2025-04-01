@@ -1,43 +1,63 @@
 # ResInsight
 
-ResInsight is an open source, cross-platform 3D visualization and post processing tool for reservoir models and simulations. The system also constitutes a framework for further development and support for new data sources and visualization methods, e.g. additional solvers, seismic data, CSEM, geomechanics, and more. 
+ResInsight is an open source, cross-platform 3D visualization and post-processing tool for reservoir models and simulations.
 
-The user interface is tailored for efficient interpretation of reservoir simulation data with specialized visualizations of properties, faults and wells. It enables easy handling of a large number of realizations and calculation of statistics. To be highly responsive, ResInsight exploits multi-core CPUs and GPUs. Integration with GNU Octave enables powerful and flexible result manipulation and computations. Derived results can be returned to ResInsight for further handling and visualization. Eventually, derived and computed properties can be directly exported to Eclipse input formats for further simulation cycles and parameter studies.
+## Key Features
 
-The main input data is *.GRID and *.EGRID files along with their *.INIT and restart files *.XNNN and *.UNRST. ResInsight also supports selected parts of Eclipse input files and can read grid information and corresponding cell property data sets.
+- **Specialized Visualizations**: Tailored for efficient interpretation of reservoir simulation data with visualizations of properties, faults, and wells
+- **Performance-Oriented**: Exploits multi-core CPUs and GPUs for highly responsive operation
+- **Statistical Analysis**: Handles large numbers of realizations with built-in statistical calculations
+- **Python Integration**: Enables powerful result manipulation and computations with two-way data exchange
+- **GNU Octave Integration**: Enables powerful result manipulation and computations with two-way data exchange
+- **Extensible Framework**: Supports additional data sources and visualization methods (solvers, seismic data, CSEM, geomechanics)
+- **Eclipse Integration**: Supports export to Eclipse input formats for simulation cycles and parameter studies
 
-ResInsight has been co-developed by Equinor ASA, Ceetron Solutions AS, and Ceetron AS with the aim to provide a versatile tool for professionals who need to visualize and process reservoir models. The software is copyrighted by Ceetron and Equinor and licensed under GPL 3+. See COPYING for details.
+## Supported Input Formats
 
-### Dependencies
-ResInsight uses the Equinor/libecl (formerly Ensambles/ert) library to access Eclipse result files, and the two projects collaborates closely. The source code of the approved libecl version is embedded in the ResInsight source code tree, making downloading and building simple.
-ResInsight also features an interface to Octave for retrieval of data from ResInsight, processing using Octave, and communication of data back into ResInsight for further handling and visualization.
+- Eclipse binary output (*.GRID, *.EGRID files with corresponding *.INIT, *.XNNN, and *.UNRST files)
+- Selected Eclipse input file sections
+- Grid information with cell property data sets
 
-Octave : [http://www.gnu.org/software/octave/](http://www.gnu.org/software/octave/)
+## Technology Stack
 
-Equinor/libecl : [https://github.com/Equinor/libecl](https://github.com/Equinor/libecl)
+ResInsight utilizes:
+- **Equinor/resdata** and **OPM/opm-common** libraries for Eclipse result file access
+- **Qt** for the application framework
+- **Qwt** for plotting functionality
+- **vcpkg** for dependency management
 
-### Supported Platforms
-ResInsight is designed to be cross-platform. Efforts have been made to ensure that code will compile and run on most Linux and Windows platforms. Currently, automated tests are run regularly on Red Hat Enterprise Linux (RHEL) 7, CentOS 7, Ubuntu 16.04, 18.04 and 20.04 as well as Windows 10 and Windows Server 2019.
+## Platform Support
 
-### Documentation
+ResInsight is cross-platform with automated testing on:
+- Red Hat Enterprise Linux (RHEL)
+- Ubuntu
+- Windows 11
 
-See the [ ResInsight ](http://resinsight.org/) website and the [ Users Guide ](http://resinsight.org/docs/home/) for project documentation.
+## Documentation
 
-[ ResInsight Tutorials](https://github.com/CeetronSolutions/resinsight-tutorials)
+- [ResInsight Website](http://resinsight.org/)
+- [ResInsight Python API](http://api.resinsight.org/)
+- [User Guide](http://resinsight.org/docs/home/)
+- [Tutorials](https://github.com/CeetronSolutions/resinsight-tutorials)
+
+## Development
 
 ### Source Code
+```
+git clone git://github.com/OPM/ResInsight.git
+```
 
-    git clone git://github.com/OPM/ResInsight.git
+### Dependencies
+Most dependencies are managed using vcpkg as defined in [vcpkg.json](https://github.com/OPM/ResInsight/blob/dev/vcpkg.json)
 
-### Contribution
-Contributions are very welcome, although it might take some time for the team to accept pull requests that is not in the main line of the projects focus. 
+### Contributing
+Contributions are welcome! Please:
+- Use the `dev` branch for contributions and pull requests
+- Note that the `master` branch is kept stable and updated only for releases
 
-Please use the dev branch for contributions and pull requests, as it is the branch dedicated to the day to day development. 
+### Building
+See the [Build Instructions](https://resinsight.org/releases/build-from-source/build-instructions-ubuntu/) for detailed setup information.
 
-The master branch is supposed to be stable, and is updated when we want to publish a new stable release.
+## License
 
-Release branches that might pop up are dedicated bug fix branches for the release in question.
-
-### Building ResInsight
-
-See [ Build Instructions ](https://resinsight.org/getting-started/download-and-install/buildinstructions/)
+ResInsight is co-developed by Equinor ASA, Ceetron Solutions AS, and Ceetron AS. The software is copyrighted by Ceetron and Equinor and licensed under GPL 3+. See the COPYING file for details.
