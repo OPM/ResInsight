@@ -28,27 +28,32 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimObjectiveFunctionTools.h"
 #include "RimSummaryAddress.h"
+#include "RimSummaryAddressSelector.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
 
 #include "RiuSummaryVectorSelectionDialog.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
-
-#include <algorithm>
 
 namespace caf
 {
 template <>
 void caf::AppEnum<RimEnsembleCurveFilter::FilterMode>::setUp()
 {
-    addItem( RimEnsembleCurveFilter::FilterMode::BY_ENSEMBLE_PARAMETER, "BY_ENSEMBLE_PARAMETER", "By Ensemble Parameter" );
-    addItem( RimEnsembleCurveFilter::FilterMode::BY_OBJECTIVE_FUNCTION, "BY_OBJECTIVE_FUNCTION", "By Objective Function" );
-    addItem( RimEnsembleCurveFilter::FilterMode::BY_CUSTOM_OBJECTIVE_FUNCTION, "By_CUSTOM_OBJECTIVE_FUNCTION", "By Custom Objective Function" );
-    setDefault( RimEnsembleCurveFilter::FilterMode::BY_ENSEMBLE_PARAMETER );
+    addItem( RimEnsembleCurveFilter::FilterMode::ENSEMBLE_PARAMETER, "ENSEMBLE_PARAMETER", "By Ensemble Parameter", { "BY_ENSEMBLE_PARAMETER" } );
+    addItem( RimEnsembleCurveFilter::FilterMode::SUMMARY_VALUE, "SUMMARY_VALUE", "By Summary Value" );
+    addItem( RimEnsembleCurveFilter::FilterMode::OBJECTIVE_FUNCTION, "OBJECTIVE_FUNCTION", "By Objective Function", { "BY_OBJECTIVE_FUNCTION" } );
+    addItem( RimEnsembleCurveFilter::FilterMode::CUSTOM_OBJECTIVE_FUNCTION,
+             "CUSTOM_OBJECTIVE_FUNCTION",
+             "By Custom Objective Function",
+             { "By_CUSTOM_OBJECTIVE_FUNCTION" } );
+
+    setDefault( RimEnsembleCurveFilter::FilterMode::SUMMARY_VALUE );
 }
 } // namespace caf
 
@@ -108,6 +113,13 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
     CAF_PDM_InitFieldNoDefault( &m_categories, "Categories", "Categories" );
 
     CAF_PDM_InitFieldNoDefault( &m_realizationFilter, "RealizationFilter", "Realization Filter" );
+
+    CAF_PDM_InitFieldNoDefault( &m_addressSelector, "AddressSelector", "" );
+    m_addressSelector = new RimSummaryAddressSelector;
+    m_addressSelector->setShowDataSource( false );
+    m_addressSelector->setShowResampling( false );
+    m_addressSelector->setShowAxis( false );
+    m_addressSelector.uiCapability()->setUiTreeChildrenHidden( true );
 
     setDeletable( true );
 }
@@ -186,7 +198,7 @@ QString RimEnsembleCurveFilter::filterId() const
 QString RimEnsembleCurveFilter::description() const
 {
     QString descriptor;
-    if ( m_filterMode() == FilterMode::BY_ENSEMBLE_PARAMETER )
+    if ( m_filterMode() == FilterMode::ENSEMBLE_PARAMETER )
     {
         if ( m_ensembleParameterName() == RiaDefines::summaryRealizationNumber() )
         {
@@ -195,7 +207,7 @@ QString RimEnsembleCurveFilter::description() const
 
         descriptor = QString( "%0" ).arg( m_ensembleParameterName() );
     }
-    else if ( m_filterMode() == FilterMode::BY_OBJECTIVE_FUNCTION )
+    else if ( m_filterMode() == FilterMode::OBJECTIVE_FUNCTION )
     {
         std::vector<RifEclipseSummaryAddress> addressVector;
         for ( RimSummaryAddress* address : m_objectiveValuesSummaryAddresses )
@@ -208,7 +220,7 @@ QString RimEnsembleCurveFilter::description() const
                          .arg( QString::fromStdString( RifEclipseSummaryAddress::generateStringFromAddresses( addressVector, "+" ) ) )
                          .arg( addressVector.size() > 1 ? ")" : "" );
     }
-    else if ( m_filterMode() == FilterMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
+    else if ( m_filterMode() == FilterMode::CUSTOM_OBJECTIVE_FUNCTION )
     {
         if ( m_customObjectiveFunction() && m_customObjectiveFunction()->isValid() )
         {
@@ -219,7 +231,19 @@ QString RimEnsembleCurveFilter::description() const
             descriptor = "(Invalid Objective Function)";
         }
     }
-    return QString( "%0 : %1 - %2" ).arg( descriptor ).arg( QString::number( m_minValue() ) ).arg( QString::number( m_maxValue() ) );
+    else if ( m_filterMode() == FilterMode::SUMMARY_VALUE )
+    {
+        auto adr   = m_addressSelector->summaryAddress();
+        descriptor = QString::fromStdString( adr.toEclipseTextAddress() );
+    }
+
+    char format    = 'g';
+    int  precision = 2;
+
+    return QString( "%0 : %1 - %2" )
+        .arg( descriptor )
+        .arg( QString::number( m_minValue(), format, precision ) )
+        .arg( QString::number( m_maxValue(), format, precision ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -246,7 +270,17 @@ void RimEnsembleCurveFilter::setSummaryAddresses( std::vector<RifEclipseSummaryA
         RimSummaryAddress* summaryAddress = new RimSummaryAddress();
         summaryAddress->setAddress( address );
         m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
+
+        m_addressSelector->setAddress( address );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEnsembleCurveFilter::FilterMode RimEnsembleCurveFilter::filterMode() const
+{
+    return m_filterMode();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -371,6 +405,7 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
         if ( curveSet )
         {
             curveSet->updateAllCurves();
+            curveSet->onFilterChanged();
             curveSet->filterCollection()->updateConnectedEditors();
         }
     }
@@ -425,15 +460,27 @@ caf::PdmFieldHandle* RimEnsembleCurveFilter::userDescriptionField()
 void RimEnsembleCurveFilter::updateIcon()
 {
     QString resourceString;
-    if ( m_filterMode() == FilterMode::BY_ENSEMBLE_PARAMETER )
+    if ( m_filterMode() == FilterMode::ENSEMBLE_PARAMETER )
     {
         resourceString = ":/FilterParameter.svg";
     }
-    else if ( m_filterMode() == FilterMode::BY_OBJECTIVE_FUNCTION )
+    else if ( m_filterMode() == FilterMode::OBJECTIVE_FUNCTION )
     {
         resourceString = ":/FilterFunction.svg";
     }
     setUiIconFromResourceString( resourceString );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveFilter::updateCurves()
+{
+    if ( auto curveSet = parentCurveSet() )
+    {
+        curveSet->updateAllCurves();
+        curveSet->updateFilterLegend();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -447,11 +494,11 @@ void RimEnsembleCurveFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 
     uiOrdering.add( &m_filterMode );
 
-    if ( m_filterMode() == FilterMode::BY_ENSEMBLE_PARAMETER )
+    if ( m_filterMode() == FilterMode::ENSEMBLE_PARAMETER )
     {
         uiOrdering.add( &m_ensembleParameterName );
     }
-    else if ( m_filterMode() == FilterMode::BY_OBJECTIVE_FUNCTION )
+    else if ( m_filterMode() == FilterMode::OBJECTIVE_FUNCTION )
     {
         uiOrdering.add( &m_objectiveValuesSummaryAddressesUiField );
         uiOrdering.add( &m_objectiveValuesSelectSummaryAddressPushButton, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
@@ -462,16 +509,24 @@ void RimEnsembleCurveFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 
         uiOrdering.add( &m_objectiveFunction );
     }
-    else if ( m_filterMode() == FilterMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
+    else if ( m_filterMode() == FilterMode::CUSTOM_OBJECTIVE_FUNCTION )
     {
         uiOrdering.add( &m_customObjectiveFunction );
+    }
+    else if ( m_filterMode() == FilterMode::SUMMARY_VALUE )
+    {
+        if ( auto curveSet = parentCurveSet() )
+        {
+            m_addressSelector->setEnsemble( curveSet->summaryEnsemble() );
+        }
+        m_addressSelector->uiOrdering( uiConfigName, uiOrdering );
     }
 
     if ( m_ensembleParameterName() == RiaDefines::summaryRealizationNumber() )
     {
         uiOrdering.add( &m_realizationFilter );
     }
-    else if ( eParam.isNumeric() )
+    else if ( eParam.isNumeric() || m_filterMode() == FilterMode::SUMMARY_VALUE )
     {
         uiOrdering.add( &m_minValue );
         uiOrdering.add( &m_maxValue );
@@ -491,21 +546,18 @@ void RimEnsembleCurveFilter::defineEditorAttribute( const caf::PdmFieldHandle* f
 {
     if ( field == &m_minValue || field == &m_maxValue )
     {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-        if ( !myAttr )
+        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
         {
-            return;
+            attr->m_minimum  = m_lowerLimit;
+            attr->m_maximum  = m_upperLimit;
+            attr->m_decimals = 2;
         }
-
-        myAttr->m_minimum = m_lowerLimit;
-        myAttr->m_maximum = m_upperLimit;
     }
     else if ( field == &m_objectiveValuesSelectSummaryAddressPushButton )
     {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( attrib )
+        if ( auto attr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
         {
-            attrib->m_buttonText = "...";
+            attr->m_buttonText = "...";
         }
     }
 }
@@ -535,7 +587,7 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
     std::set<RimSummaryCase*> casesToRemove;
     for ( const auto& sumCase : allSumCases )
     {
-        if ( m_filterMode() == FilterMode::BY_ENSEMBLE_PARAMETER )
+        if ( m_filterMode() == FilterMode::ENSEMBLE_PARAMETER )
         {
             auto eParam = ensemble->ensembleParameter( m_ensembleParameterName() );
             if ( !eParam.isValid() ) continue;
@@ -568,7 +620,7 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
                 }
             }
         }
-        else if ( m_filterMode() == FilterMode::BY_OBJECTIVE_FUNCTION )
+        else if ( m_filterMode() == FilterMode::OBJECTIVE_FUNCTION )
         {
             bool hasWarning = false;
 
@@ -586,7 +638,7 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
                 casesToRemove.insert( sumCase );
             }
         }
-        else if ( m_filterMode() == FilterMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
+        else if ( m_filterMode() == FilterMode::CUSTOM_OBJECTIVE_FUNCTION )
         {
             if ( m_customObjectiveFunction() && m_customObjectiveFunction()->isValid() )
             {
@@ -597,15 +649,44 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
                 }
             }
         }
+        else if ( m_filterMode() == FilterMode::SUMMARY_VALUE )
+        {
+            const auto [isValid, values] = sumCase->summaryReader()->values( m_addressSelector->summaryAddress() );
+
+            bool isInsideFilter = isValid;
+
+            if ( isValid && !values.empty() )
+            {
+                auto timeConfig = curveSet->objectiveFunctionTimeConfig();
+                auto timeSteps  = sumCase->summaryReader()->timeSteps( m_addressSelector->summaryAddress() );
+
+                for ( size_t i = 0; i < std::min( timeSteps.size(), values.size() ); i++ )
+                {
+                    if ( timeSteps[i] < timeConfig.m_startTimeStep || timeSteps[i] > timeConfig.m_endTimeStep ) continue;
+
+                    const double value = values[i];
+                    if ( value < m_minValue() || value > m_maxValue )
+                    {
+                        isInsideFilter = false;
+                    }
+                }
+            }
+            if ( !isInsideFilter )
+            {
+                casesToRemove.insert( sumCase );
+            }
+        }
     }
 
     std::vector<RimSummaryCase*> filteredCases;
-    std::set<RimSummaryCase*>    allCasesSet( allSumCases.begin(), allSumCases.end() );
-    std::set_difference( allCasesSet.begin(),
-                         allCasesSet.end(),
-                         casesToRemove.begin(),
-                         casesToRemove.end(),
-                         std::inserter( filteredCases, filteredCases.end() ) );
+
+    for ( auto summaryCase : allSumCases )
+    {
+        if ( casesToRemove.find( summaryCase ) == casesToRemove.end() )
+        {
+            filteredCases.push_back( summaryCase );
+        }
+    }
     return filteredCases;
 }
 
@@ -616,6 +697,7 @@ void RimEnsembleCurveFilter::loadDataAndUpdate()
 {
     updateAddressesUiField();
     updateMaxMinAndDefaultValues( false );
+    updateCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -624,6 +706,26 @@ void RimEnsembleCurveFilter::loadDataAndUpdate()
 caf::PdmFieldHandle* RimEnsembleCurveFilter::objectToggleField()
 {
     return &m_active;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveFilter::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    updateMaxMinAndDefaultValues( true );
+    updateCurves();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveFilter::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    if ( isActive() )
+    {
+        menuBuilder << "RicCreateEnsembleFromFilteredCasesFeature";
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -639,10 +741,8 @@ RimEnsembleCurveSet* RimEnsembleCurveFilter::parentCurveSet() const
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilter::onObjectionFunctionChanged( const caf::SignalEmitter* emitter )
 {
-    updateMaxMinAndDefaultValues( true );
-
-    parentCurveSet()->updateAllCurves();
-    parentCurveSet()->updateFilterLegend();
+    updateMaxMinAndDefaultValues( false );
+    updateCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -666,7 +766,7 @@ RimEnsembleCurveFilterCollection* RimEnsembleCurveFilter::parentCurveFilterColle
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
 {
-    if ( m_filterMode() == FilterMode::BY_ENSEMBLE_PARAMETER )
+    if ( m_filterMode() == FilterMode::ENSEMBLE_PARAMETER )
     {
         if ( !selectedEnsembleParameter().isValid() )
         {
@@ -703,7 +803,7 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
             }
         }
     }
-    else if ( m_filterMode() == FilterMode::BY_OBJECTIVE_FUNCTION )
+    else if ( m_filterMode() == FilterMode::OBJECTIVE_FUNCTION )
     {
         auto                                  objectiveFunction = m_objectiveFunction();
         std::vector<RifEclipseSummaryAddress> addresses;
@@ -727,7 +827,7 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
             m_maxValue.uiCapability()->setUiName( QString( "Max (%1)" ).arg( m_upperLimit ) );
         }
     }
-    else if ( m_filterMode() == FilterMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
+    else if ( m_filterMode() == FilterMode::CUSTOM_OBJECTIVE_FUNCTION )
     {
         if ( m_customObjectiveFunction() && m_customObjectiveFunction()->isValid() )
         {
@@ -735,6 +835,23 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
 
             m_lowerLimit = minMaxValues.first;
             m_upperLimit = minMaxValues.second;
+
+            if ( forceDefault || m_minValue < m_lowerLimit || m_minValue > m_upperLimit ) m_minValue = m_lowerLimit;
+            if ( forceDefault || m_maxValue < m_lowerLimit || m_maxValue > m_upperLimit ) m_maxValue = m_upperLimit;
+
+            m_minValue.uiCapability()->setUiName( QString( "Min (%1)" ).arg( m_lowerLimit ) );
+            m_maxValue.uiCapability()->setUiName( QString( "Max (%1)" ).arg( m_upperLimit ) );
+        }
+    }
+    else if ( m_filterMode() == FilterMode::SUMMARY_VALUE )
+    {
+        if ( parentCurveSet() && parentCurveSet()->summaryEnsemble() )
+        {
+            auto ensemble = parentCurveSet()->summaryEnsemble();
+
+            auto minMaxValues = ensemble->minMax( m_addressSelector->summaryAddress() );
+            m_lowerLimit      = minMaxValues.first;
+            m_upperLimit      = minMaxValues.second;
 
             if ( forceDefault || m_minValue < m_lowerLimit || m_minValue > m_upperLimit ) m_minValue = m_lowerLimit;
             if ( forceDefault || m_maxValue < m_lowerLimit || m_maxValue > m_upperLimit ) m_maxValue = m_upperLimit;

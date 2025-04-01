@@ -25,11 +25,9 @@
 #include "RiaQDateTimeTools.h"
 #include "RiaResultNames.h"
 #include "RiaTimeTTools.h"
-#include "Summary/RiaSummaryAddressAnalyzer.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 #include "Summary/RiaSummaryPlotTools.h"
 
-#include "RimSummaryCalculationCollection.h"
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
 #include "RimCustomObjectiveFunction.h"
@@ -49,7 +47,6 @@
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryAddressSelector.h"
-#include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveAutoName.h"
@@ -67,6 +64,7 @@
 #include "RiuSummaryVectorSelectionDialog.h"
 #include "RiuTextContentFrame.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiColorEditor.h"
 #include "cafPdmUiDateEditor.h"
@@ -78,7 +76,6 @@
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
-#include "cafTitledOverlayFrame.h"
 
 #include <algorithm>
 #include <memory>
@@ -112,6 +109,25 @@ RiuPlotCurveSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifE
 int                                 statisticsCurveSymbolSize( RiuPlotCurveSymbol::PointSymbolEnum symbol );
 
 CAF_PDM_SOURCE_INIT( RimEnsembleCurveSet, "RimEnsembleCurveSet" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    if ( isFiltered() )
+    {
+        menuBuilder << "RicCreateEnsembleFromFilteredCasesFeature";
+    }
+
+    menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
+    menuBuilder << "Separator";
+    menuBuilder << "RicSetSourceSteppingEnsembleCurveSetFeature";
+    menuBuilder << "RicClearSourceSteppingEnsembleCurveSetFeature";
+    menuBuilder << "Separator";
+    menuBuilder << "RicNewEnsembleCurveFilterFeature";
+    menuBuilder << "RicCreateRegressionAnalysisCurveFeature";
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -509,6 +525,50 @@ std::pair<time_t, time_t> RimEnsembleCurveSet::selectedTimeStepRange() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::appendTimeGroup( caf::PdmUiOrdering& uiOrdering )
+{
+    std::vector<caf::PdmFieldHandle*> timeFields;
+
+    if ( ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION && m_objectiveFunction()->functionType() == RimObjectiveFunction::FunctionType::F1 ) ||
+         ( m_colorMode == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() &&
+           m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F1 ) ) )
+    {
+        timeFields.push_back( &m_minDateRange );
+        timeFields.push_back( &m_minTimeSliderPosition );
+        timeFields.push_back( &m_maxDateRange );
+        timeFields.push_back( &m_maxTimeSliderPosition );
+    }
+    if ( m_objectiveFunction()->functionType() == RimObjectiveFunction::FunctionType::F2 ||
+         ( m_customObjectiveFunction() && m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F2 ) ) )
+    {
+        timeFields.push_back( &m_timeStepFilter );
+        timeFields.push_back( &m_selectedTimeSteps );
+    }
+
+    for ( auto filter : m_curveFilters->filters() )
+    {
+        if ( filter->isActive() && filter->filterMode() == RimEnsembleCurveFilter::FilterMode::SUMMARY_VALUE )
+        {
+            timeFields.push_back( &m_minDateRange );
+            timeFields.push_back( &m_minTimeSliderPosition );
+            timeFields.push_back( &m_maxDateRange );
+            timeFields.push_back( &m_maxTimeSliderPosition );
+        }
+    }
+
+    if ( !timeFields.empty() )
+    {
+        auto timeSelectionGroup = uiOrdering.addNewGroup( "Time Selection" );
+        for ( auto field : timeFields )
+        {
+            timeSelectionGroup->add( field );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimEnsembleCurveSet::isXAxisSummaryVector() const
 {
     return m_xAxisType() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR;
@@ -790,6 +850,15 @@ std::vector<time_t> RimEnsembleCurveSet::selectedTimeSteps() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::setDefaultTimeRange()
+{
+    m_minTimeSliderPosition = 90;
+    m_maxTimeSliderPosition = 100;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
@@ -917,8 +986,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                 summaryAddress->setAddress( m_yValuesSummaryAddress->address() );
                 m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
                 updateAddressesUiField();
-                m_minTimeSliderPosition = 0;
-                m_maxTimeSliderPosition = 100;
+                setDefaultTimeRange();
                 updateMaxMinAndDefaultValues();
             }
         }
@@ -1074,9 +1142,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                 setTimeSteps( indices );
             }
 
-            m_minTimeSliderPosition = 0;
-            m_maxTimeSliderPosition = 100;
-
+            setDefaultTimeRange();
             updateLegendMappingMode();
             updateCurveColors();
             updateTimeAnnotations();
@@ -1177,6 +1243,7 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     }
 
     appendColorGroup( uiOrdering );
+    appendTimeGroup( uiOrdering );
 
     {
         caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
@@ -1324,10 +1391,7 @@ void RimEnsembleCurveSet::onColorTagClicked( const SignalEmitter* emitter, size_
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::onObjectiveFunctionChanged( const caf::SignalEmitter* emitter )
 {
-    updateCurveColors();
-    updateFilterLegend();
-    updateObjectiveFunctionLegend();
-    updateTimeAnnotations();
+    onFilterChanged();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1372,28 +1436,6 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
         {
             colorsGroup->add( &m_customObjectiveFunction );
             colorsGroup->add( &m_showObjectiveFunctionFormula );
-        }
-
-        {
-            auto timeSelectionGroup = colorsGroup->addNewGroup( "Time Selection" );
-
-            if ( ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION &&
-                   m_objectiveFunction()->functionType() == RimObjectiveFunction::FunctionType::F1 ) ||
-                 ( m_colorMode == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() &&
-                   m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F1 ) ) )
-            {
-                timeSelectionGroup->add( &m_minDateRange );
-                timeSelectionGroup->add( &m_minTimeSliderPosition );
-                timeSelectionGroup->add( &m_maxDateRange );
-                timeSelectionGroup->add( &m_maxTimeSliderPosition );
-            }
-            if ( m_objectiveFunction()->functionType() == RimObjectiveFunction::FunctionType::F2 ||
-                 ( m_customObjectiveFunction() &&
-                   m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F2 ) ) )
-            {
-                timeSelectionGroup->add( &m_timeStepFilter );
-                timeSelectionGroup->add( &m_selectedTimeSteps );
-            }
         }
     }
 
@@ -1815,6 +1857,17 @@ void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::onFilterChanged()
+{
+    updateCurveColors();
+    updateFilterLegend();
+    updateObjectiveFunctionLegend();
+    updateTimeAnnotations();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 ObjectiveFunctionTimeConfig RimEnsembleCurveSet::objectiveFunctionTimeConfig() const
 {
     auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
@@ -2013,13 +2066,15 @@ void RimEnsembleCurveSet::updateTimeAnnotations()
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
     plot->removeAllTimeAnnotations();
 
+    bool showTimeRange         = false;
+    bool showSelectedTimeSteps = false;
+
     if ( ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION &&
            m_objectiveFunction()->functionType() == RimObjectiveFunction::FunctionType::F1 ) ||
          ( m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() &&
            m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F1 ) ) )
     {
-        auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
-        plot->addTimeRangeAnnotation( minTimeStep, maxTimeStep );
+        showTimeRange = true;
     }
 
     if ( ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION &&
@@ -2027,11 +2082,28 @@ void RimEnsembleCurveSet::updateTimeAnnotations()
          ( m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() &&
            m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F2 ) ) )
     {
+        showSelectedTimeSteps = true;
+    }
+
+    for ( auto filter : m_curveFilters->filters() )
+    {
+        if ( filter->isActive() && filter->filterMode() == RimEnsembleCurveFilter::FilterMode::SUMMARY_VALUE ) showTimeRange = true;
+    }
+
+    if ( showTimeRange )
+    {
+        auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
+        plot->addTimeRangeAnnotation( minTimeStep, maxTimeStep );
+    }
+
+    if ( showSelectedTimeSteps )
+    {
         for ( QDateTime timeStep : m_selectedTimeSteps() )
         {
             plot->addTimeAnnotation( RiaTimeTTools::fromQDateTime( timeStep ) );
         }
     }
+
     plot->updateAxes();
 }
 

@@ -19,8 +19,6 @@
 #pragma once
 
 #include "RifEclipseSummaryAddress.h"
-#include "RifEclipseSummaryAddressQMetaType.h"
-#include "RifSummaryReaderInterface.h"
 
 #include "RiaDateTimeDefines.h"
 #include "RiaPlotDefines.h"
@@ -41,8 +39,6 @@
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
-#include "cafPdmField.h"
-#include "cafPdmFieldCvfColor.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
@@ -155,6 +151,7 @@ public:
     RiuDraggableOverlayFrame* legendFrame() const;
     void                      setTimeSteps( const std::vector<size_t>& timeStepIndices );
     std::vector<time_t>       selectedTimeSteps() const;
+    void                      setDefaultTimeRange();
 
     RimEnsembleCurveSet* clone() const;
     void                 showCurves( bool show );
@@ -186,6 +183,7 @@ public:
 
     void updateFilterLegend();
     void updateObjectiveFunctionLegend();
+    void onFilterChanged();
 
     ObjectiveFunctionTimeConfig objectiveFunctionTimeConfig() const;
 
@@ -245,6 +243,10 @@ private:
 
     std::pair<time_t, time_t> fullTimeStepRange() const;
     std::pair<time_t, time_t> selectedTimeStepRange() const;
+
+    void appendTimeGroup( caf::PdmUiOrdering& uiOrdering );
+
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
     caf::PdmField<bool>                       m_showCurves;
