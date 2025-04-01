@@ -2141,6 +2141,29 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
     deleteEnsembleCurves();
     deleteStatisticsCurves();
 
+    if ( plot && plot->plotWidget() )
+    {
+        if ( plot->legendsVisible() ) plot->plotWidget()->updateLegend();
+        plot->scheduleReplotIfVisible();
+        plot->updateAxes();
+        plot->updatePlotInfoLabel();
+
+        // Always recreate the plot curve for the legend text to ensure the ordering is correct
+        // The ordering of legend items depends on the order the curves are added to the plot
+        //
+        // https://github.com/OPM/ResInsight/issues/12259
+        //
+        m_plotCurveForLegendText.reset( plot->plotWidget()->createPlotCurve( nullptr, "" ) );
+
+        int curveThickness = 3;
+        m_plotCurveForLegendText->setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID,
+                                                 RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT,
+                                                 curveThickness,
+                                                 RiaColorTools::toQColor( m_mainEnsembleColor() ) );
+        m_plotCurveForLegendText->attachToPlot( plot->plotWidget() );
+        updateEnsembleLegendItem();
+    }
+
     if ( m_statistics->hideEnsembleCurves() ) return;
 
     RimSummaryAddress* addr = m_yValuesSummaryAddress();
@@ -2197,29 +2220,6 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 newSummaryCurves[i]->updatePlotAxis();
                 newSummaryCurves[i]->setShowInLegend( false );
             }
-        }
-
-        if ( plot->plotWidget() )
-        {
-            if ( plot->legendsVisible() ) plot->plotWidget()->updateLegend();
-            plot->scheduleReplotIfVisible();
-            plot->updateAxes();
-            plot->updatePlotInfoLabel();
-
-            // Always recreate the plot curve for the legend text to ensure the ordering is correct
-            // The ordering of legend items depends on the order the curves are added to the plot
-            //
-            // https://github.com/OPM/ResInsight/issues/12259
-            //
-            m_plotCurveForLegendText.reset( plot->plotWidget()->createPlotCurve( nullptr, "" ) );
-
-            int curveThickness = 3;
-            m_plotCurveForLegendText->setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID,
-                                                     RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT,
-                                                     curveThickness,
-                                                     RiaColorTools::toQColor( m_mainEnsembleColor() ) );
-            m_plotCurveForLegendText->attachToPlot( plot->plotWidget() );
-            updateEnsembleLegendItem();
         }
     }
     updateCurveColors();
