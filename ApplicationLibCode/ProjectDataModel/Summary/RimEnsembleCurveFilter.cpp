@@ -679,10 +679,9 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
     }
 
     std::vector<RimSummaryCase*> filteredCases;
-
     for ( auto summaryCase : allSumCases )
     {
-        if ( casesToRemove.find( summaryCase ) == casesToRemove.end() )
+        if ( !casesToRemove.contains( summaryCase ) )
         {
             filteredCases.push_back( summaryCase );
         }

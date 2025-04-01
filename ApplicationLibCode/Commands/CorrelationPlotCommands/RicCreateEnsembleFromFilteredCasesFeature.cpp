@@ -106,8 +106,7 @@ void RicCreateEnsembleFromFilteredCasesFeature::onActionTriggered( bool isChecke
         return;
     }
 
-    auto newEnsemble = RicImportEnsembleFeature::createSummaryEnsemble( casesForNewEnsemble );
-    if ( newEnsemble )
+    if ( auto newEnsemble = RicImportEnsembleFeature::createSummaryEnsemble( casesForNewEnsemble ) )
     {
         RiaLogging::info( "Created ensemble " + newEnsemble->name() );
     }
