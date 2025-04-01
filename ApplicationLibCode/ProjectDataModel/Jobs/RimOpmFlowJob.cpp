@@ -41,6 +41,7 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 
@@ -61,6 +62,13 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path for New Well" );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
     CAF_PDM_InitField( &m_pauseBeforeRun, "PauseBeforeRun", true, "Pause before running OPM Flow" );
+    CAF_PDM_InitField( &m_delayOpenWell, "DelayOpenWell", false, "Keep well shut until selected time step" );
+
+    CAF_PDM_InitField( &m_wellOpenKeyword, "WellOpenKeyword", QString( "WCONPROD" ), "Open Well Keyword" );
+    m_wellOpenKeyword.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_wellOpenText, "WellOpenText", QString( "'ORAT' 20000 4* 1000" ), "Open Well Parameters" );
+
     CAF_PDM_InitField( &m_openTimeStep, "OpenTimeStep", 0, "Open Well at Time Step" );
 
     CAF_PDM_InitField( &m_runButton, "runButton", false, "" );
@@ -104,14 +112,24 @@ void RimOpmFlowJob::defineEditorAttribute( const caf::PdmFieldHandle* field, QSt
 //--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( nameField() );
-    uiOrdering.add( &m_deckFile );
-    uiOrdering.add( &m_workDir );
-    uiOrdering.add( &m_wellPath );
-    uiOrdering.add( &m_openTimeStep );
-    uiOrdering.add( &m_runButton );
+    auto genGrp = uiOrdering.addNewGroup( "General" );
+    genGrp->add( nameField() );
+    genGrp->add( &m_deckFile );
+    genGrp->add( &m_workDir );
+
+    auto wellGrp = uiOrdering.addNewGroup( "New Well Settings" );
+
+    wellGrp->add( &m_wellPath );
+    wellGrp->add( &m_delayOpenWell );
+    if ( m_delayOpenWell() )
+    {
+        wellGrp->add( &m_openTimeStep );
+    }
+    wellGrp->add( &m_wellOpenKeyword );
+    wellGrp->add( &m_wellOpenText );
 
     uiOrdering.add( &m_pauseBeforeRun );
+    uiOrdering.add( &m_runButton );
 
     uiOrdering.skipRemainingFields();
 }
@@ -133,6 +151,11 @@ QList<caf::PdmOptionItemInfo> RimOpmFlowJob::calculateValueOptions( const caf::P
         {
             RimTools::timeStepsForCase( ec, &options );
         }
+    }
+    else if ( fieldNeedingOptions == &m_wellOpenKeyword )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "WCONPROD", QVariant::fromValue( QString( "WCONPROD" ) ) ) );
+        options.push_back( caf::PdmOptionItemInfo( "WCONINJE", QVariant::fromValue( QString( "WCONINJE" ) ) ) );
     }
 
     return options;
@@ -273,6 +296,8 @@ bool RimOpmFlowJob::onPrepare()
     // export new well settings from resinsight
     prepareWellSettings();
 
+    if ( !QFile::exists( wellTempFile() ) ) return false;
+
     QString dataFile = m_deckFile().path();
     if ( dataFile.isEmpty() ) return false;
     if ( !QFile::exists( dataFile ) ) return false;
@@ -287,10 +312,11 @@ bool RimOpmFlowJob::onPrepare()
     // open new well at selected timestep
     auto cs = m_wellPath->completionSettings();
 
-    if ( !deckFile.openWellAtTimeStep( cs->wellNameForExport().toStdString(), cs->wellTypeNameForExport().toStdString(), m_openTimeStep() ) )
-    {
-        return false;
-    }
+    // if ( !deckFile.openWellAtTimeStep( cs->wellNameForExport().toStdString(), cs->wellTypeNameForExport().toStdString(), m_openTimeStep()
+    // ) )
+    //{
+    //     return false;
+    // }
 
     // save DATA deck to working folder
     bool saveOk = deckFile.saveDeck( m_workDir().path().toStdString(), deckName().toStdString() + deckExtension().toStdString() );
