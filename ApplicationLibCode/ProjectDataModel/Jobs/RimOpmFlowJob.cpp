@@ -45,6 +45,7 @@
 #include "cafPdmUiPushButtonEditor.h"
 
 #include <QFileInfo>
+#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT( RimOpmFlowJob, "OpmFlowJob" );
 
@@ -267,6 +268,8 @@ QStringList RimOpmFlowJob::command()
 //--------------------------------------------------------------------------------------------------
 bool RimOpmFlowJob::onPrepare()
 {
+    if ( m_wellPath == nullptr ) return false;
+
     // export new well settings from resinsight
     prepareWellSettings();
 
@@ -283,12 +286,27 @@ bool RimOpmFlowJob::onPrepare()
 
     // open new well at selected timestep
     auto cs = m_wellPath->completionSettings();
-    if ( !deckFile.openWellAtTimeStep( cs->wellNameForExport(), cs->wellTypeNameForExport(), m_openTimeStep() ) ) return false;
+
+    if ( !deckFile.openWellAtTimeStep( cs->wellNameForExport().toStdString(), cs->wellTypeNameForExport().toStdString(), m_openTimeStep() ) )
+    {
+        return false;
+    }
 
     // save DATA deck to working folder
     bool saveOk = deckFile.saveDeck( m_workDir().path().toStdString(), deckName().toStdString() + deckExtension().toStdString() );
 
-    if ( m_pauseBeforeRun() ) return false;
+    QFile::remove( wellTempFile() );
+
+    if ( m_pauseBeforeRun() )
+    {
+        QString infoText = "Input parameter files can now be found in the working folder:";
+        infoText += " \"" + m_workDir().path() + "\"\n";
+        infoText += "\nClick OK to start the Opm Flow simulation or Cancel to stop.";
+
+        auto reply = QMessageBox::information( nullptr, "Opm Flow simulation", infoText, QMessageBox::Ok | QMessageBox::Cancel );
+
+        if ( reply != QMessageBox::Ok ) return false;
+    }
 
     return saveOk;
 }
@@ -311,7 +329,8 @@ void RimOpmFlowJob::onCompleted( bool success )
     }
     else
     {
-        QStringList                              files( outputEgrid );
+        QStringList files( outputEgrid );
+
         RiaImportEclipseCaseTools::FileCaseIdMap newCaseFiles;
         if ( RiaImportEclipseCaseTools::openEclipseCasesFromFile( files, true /*create view*/, &newCaseFiles, false /* dialog */ ) )
         {
