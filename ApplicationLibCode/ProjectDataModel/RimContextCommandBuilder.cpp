@@ -62,7 +62,6 @@
 #include "RimElasticProperties.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimEnsembleCurveFilterCollection.h"
-#include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimEnsembleFractureStatisticsCollection.h"
 #include "RimExtrudedCurveIntersection.h"
@@ -738,16 +737,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
             menuBuilder << "RicPasteEnsembleCurveSetFeature";
-        }
-        else if ( dynamic_cast<RimEnsembleCurveSet*>( firstUiItem ) )
-        {
-            menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
-            menuBuilder << "Separator";
-            menuBuilder << "RicSetSourceSteppingEnsembleCurveSetFeature";
-            menuBuilder << "RicClearSourceSteppingEnsembleCurveSetFeature";
-            menuBuilder << "Separator";
-            menuBuilder << "RicNewEnsembleCurveFilterFeature";
-            menuBuilder << "RicCreateRegressionAnalysisCurveFeature";
         }
         else if ( dynamic_cast<RimCustomObjectiveFunctionCollection*>( firstUiItem ) )
         {

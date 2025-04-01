@@ -51,8 +51,9 @@ void RicNewEnsembleCurveFilterFeature::onActionTriggered( bool isChecked )
 
     if ( filterCollection )
     {
-        RimEnsembleCurveFilter* newFilter = filterCollection->addFilter();
-        if ( !filterCollection->filters().empty() )
+        bool                    firstFilter = filterCollection->filters().empty();
+        RimEnsembleCurveFilter* newFilter   = filterCollection->addFilter();
+        if ( !firstFilter )
         {
             auto existingFilter = filterCollection->filters().front();
             newFilter->setSummaryAddresses( existingFilter->summaryAddresses() );
@@ -61,11 +62,15 @@ void RicNewEnsembleCurveFilterFeature::onActionTriggered( bool isChecked )
         {
             std::vector<RifEclipseSummaryAddress> addresses;
 
-            auto candidateAdr       = newFilter->parentCurveSet()->summaryAddressY();
+            auto curveSet           = newFilter->parentCurveSet();
+            auto candidateAdr       = curveSet->summaryAddressY();
             auto nativeQuantityName = RimObjectiveFunctionTools::nativeQuantityName( candidateAdr.vectorName() );
             candidateAdr.setVectorName( nativeQuantityName );
             addresses.push_back( candidateAdr );
             newFilter->setSummaryAddresses( addresses );
+
+            curveSet->setDefaultTimeRange();
+            curveSet->loadDataAndUpdate( true );
         }
         newFilter->loadDataAndUpdate();
         filterCollection->updateConnectedEditors();

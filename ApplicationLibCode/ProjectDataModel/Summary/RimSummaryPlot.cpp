@@ -635,7 +635,7 @@ void RimSummaryPlot::setLegendPosition( RiuPlotWidget::Legend position )
 void RimSummaryPlot::setPlotInfoLabel( const QString& label )
 {
     auto qwtText = QwtText( label );
-    qwtText.setRenderFlags( Qt::AlignBottom | Qt::AlignRight );
+    qwtText.setRenderFlags( Qt::AlignTop | Qt::AlignRight );
 
     QFont font;
     font.setBold( true );

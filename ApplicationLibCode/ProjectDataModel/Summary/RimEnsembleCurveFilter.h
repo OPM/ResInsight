@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "RimObjectiveFunction.h"
-
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -27,6 +25,7 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
+class RifEclipseSummaryAddress;
 class RigEnsembleParameter;
 class RimEnsembleCurveSet;
 class RimSummaryCase;
@@ -34,6 +33,8 @@ class RimSummaryAddress;
 class RimSummaryPlot;
 class RimEnsembleCurveFilterCollection;
 class RimCustomObjectiveFunction;
+class RimSummaryAddressSelector;
+class RimObjectiveFunction;
 
 //==================================================================================================
 ///
@@ -45,9 +46,10 @@ class RimEnsembleCurveFilter : public caf::PdmObject
 public:
     enum class FilterMode
     {
-        BY_ENSEMBLE_PARAMETER = 0,
-        BY_OBJECTIVE_FUNCTION,
-        BY_CUSTOM_OBJECTIVE_FUNCTION
+        ENSEMBLE_PARAMETER,
+        OBJECTIVE_FUNCTION,
+        CUSTOM_OBJECTIVE_FUNCTION,
+        SUMMARY_VALUE
     };
 
     RimEnsembleCurveFilter();
@@ -63,31 +65,35 @@ public:
     QString                               description() const;
     std::vector<RifEclipseSummaryAddress> summaryAddresses() const;
     void                                  setSummaryAddresses( std::vector<RifEclipseSummaryAddress> addresses );
-
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-    void                          updateAddressesUiField();
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    caf::PdmFieldHandle* userDescriptionField() override;
-    void                 updateIcon();
-    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    FilterMode                            filterMode() const;
+    RigEnsembleParameter                  selectedEnsembleParameter() const;
 
     std::vector<RimSummaryCase*> applyFilter( const std::vector<RimSummaryCase*>& allSumCases );
 
-    void                 loadDataAndUpdate();
-    RigEnsembleParameter selectedEnsembleParameter() const;
-
     RimEnsembleCurveSet* parentCurveSet() const;
 
-    void onObjectionFunctionChanged( const caf::SignalEmitter* emitter );
     void updateMaxMinAndDefaultValuesFromParent();
 
-protected:
-    caf::PdmFieldHandle* objectToggleField() override;
+    void loadDataAndUpdate();
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    caf::PdmFieldHandle* userDescriptionField() override;
+    caf::PdmFieldHandle* objectToggleField() override;
+    void                 childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+    void                 appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
+    void onObjectionFunctionChanged( const caf::SignalEmitter* emitter );
+
     RimEnsembleCurveFilterCollection* parentCurveFilterCollection() const;
     void                              updateMaxMinAndDefaultValues( bool forceDefault );
+
+    void updateAddressesUiField();
+    void updateIcon();
+    void updateCurves();
 
 private:
     caf::PdmProxyValueField<QString>        m_filterTitle;
@@ -100,6 +106,8 @@ private:
     caf::PdmField<bool>                           m_objectiveValuesSelectSummaryAddressPushButton;
     caf::PdmChildField<RimObjectiveFunction*>     m_objectiveFunction;
     caf::PdmPtrField<RimCustomObjectiveFunction*> m_customObjectiveFunction;
+
+    caf::PdmChildField<RimSummaryAddressSelector*> m_addressSelector;
 
     caf::PdmField<double>               m_minValue;
     caf::PdmField<double>               m_maxValue;

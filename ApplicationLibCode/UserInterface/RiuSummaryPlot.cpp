@@ -71,6 +71,8 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
         menuBuilder.addCmdFeatureWithUserData( "RicSplitMultiPlotFeature", "Split into Multiple Plots", plotVariant );
         menuBuilder.addSeparator();
         menuBuilder.addCmdFeatureWithUserData( "RicDeleteSubPlotCtxFeature", "Delete Plot", plotVariant );
+        menuBuilder.addSeparator();
+        menuBuilder.addCmdFeature( "RicCreateEnsembleFromFilteredCasesFeature" );
     }
     menuBuilder.addSeparator();
 
