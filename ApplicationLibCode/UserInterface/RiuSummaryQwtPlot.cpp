@@ -209,12 +209,34 @@ void RiuSummaryQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterface*
         }
         else if ( annotation->annotationType() == RimPlotAxisAnnotation::AnnotationType::RANGE )
         {
-            m_annotationTool->attachAnnotationRange( m_plotWidget->qwtPlot(),
-                                                     annotation->color(),
-                                                     annotation->name(),
-                                                     annotation->rangeStart(),
-                                                     annotation->rangeEnd(),
-                                                     orientation );
+            const auto epsilon = 1e-6;
+            if ( std::abs( annotation->rangeStart() - annotation->rangeEnd() ) > epsilon )
+            {
+                m_annotationTool->attachAnnotationRange( m_plotWidget->qwtPlot(),
+                                                         annotation->color(),
+                                                         annotation->name(),
+                                                         annotation->rangeStart(),
+                                                         annotation->rangeEnd(),
+                                                         orientation );
+            }
+            else
+            {
+                QString     label;
+                QStringList labels = annotation->name().split( " - " );
+
+                if ( !labels.isEmpty() )
+                {
+                    label = labels.first();
+                }
+
+                m_annotationTool->attachAnnotationLine( m_plotWidget->qwtPlot(),
+                                                        annotation->color(),
+                                                        label,
+                                                        annotation->penStyle(),
+                                                        annotation->rangeStart(),
+                                                        orientation,
+                                                        RiuPlotAnnotationTool::textAlignment( annotation->textAlignment() ) );
+            }
         }
     }
 }
