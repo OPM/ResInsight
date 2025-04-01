@@ -41,5 +41,6 @@ public:
                                          RifEclipseSummaryAddressDefines::SummaryCategory category,
                                          RifEclipseSummaryAddress&                        adr );
 
-    static bool updateQuantityIfMatching( const QVariant& oldValue, const QVariant& newValue, RifEclipseSummaryAddress& adr );
+    static bool updateQuantityIfMatching( const QVariant& previousName, const QVariant& newName, RifEclipseSummaryAddress& adr );
+    static bool updateQuantityIfMatching( const std::string& previousName, const std::string& newName, RifEclipseSummaryAddress& adr );
 };
