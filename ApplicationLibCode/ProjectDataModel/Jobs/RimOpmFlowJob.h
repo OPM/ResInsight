@@ -71,7 +71,11 @@ private:
 
     caf::PdmPtrField<RimWellPath*>    m_wellPath;
     caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
+    caf::PdmField<bool>               m_delayOpenWell;
     caf::PdmField<int>                m_openTimeStep;
+
+    caf::PdmField<QString> m_wellOpenKeyword;
+    caf::PdmField<QString> m_wellOpenText;
 
     QString m_deckName;
 };
