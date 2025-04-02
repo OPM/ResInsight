@@ -99,28 +99,10 @@ jobs:
       - name: Find CMake path and remove from PATH (Linux)
         if: contains( matrix.config.os, 'ubuntu')
         run: |
-           # Find the current CMake path
-           CMAKE_PATH=$(which cmake)
-           echo "Current CMake path: $CMAKE_PATH"
+          sudo apt-get remove --purge --auto-remove cmake
           
-           # Get the directory containing CMake
-           CMAKE_DIR=$(dirname "$CMAKE_PATH")
-           echo "CMake directory: $CMAKE_DIR"
-          
-           # Save the current PATH
-           CURRENT_PATH=$PATH
-          
-           # Remove the directory from PATH
-           NEW_PATH=$(echo $CURRENT_PATH | sed -E "s|:?$CMAKE_DIR:?|:|g" | sed -E "s|^:||" | sed -E "s|:$||")
-          
-           # Set the new PATH for this job
-           echo "PATH=$NEW_PATH" >> $GITHUB_ENV
-          
-           # Verify the change
-           echo "Updated PATH: $NEW_PATH"
-          
-           # Try to call CMake (should fail or use a different version if removal was successful)
-           cmake --version || echo "CMake was successfully removed from PATH"
+          # Try to call CMake (should fail or use a different version if removal was successful)
+          cmake --version || echo "CMake was successfully removed from PATH"
 
       - name: Find CMake path and remove from PATH (Windows)
         shell: powershell
