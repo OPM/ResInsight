@@ -78,6 +78,7 @@ public:
         int                     maxNumTargets;
         int                     maxIterations;
         RigEclipseResultAddress filterAddress;
+        std::vector<double>     filter;
     };
 
     struct DataContainer

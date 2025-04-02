@@ -20,9 +20,11 @@
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaOptionItemFactory.h"
 #include "RiaPorosityModel.h"
 #include "RiaResultNames.h"
 
+#include "RigActiveCellInfo.h"
 #include "RiuMainWindow.h"
 
 #include "RigCaseCellResultsData.h"
@@ -148,6 +150,8 @@ RimWellTargetMapping::RimWellTargetMapping()
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_generateButton );
     m_generateButton.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault( &m_filterView, "FilterView", "Filter By View" );
+
     CAF_PDM_InitFieldNoDefault( &m_ensembleStatisticsCase, "EnsembleStatisticsCase", "Ensemble Statistics Case" );
 
     m_minimumSaturationOil = cvf::UNDEFINED_DOUBLE;
@@ -233,6 +237,18 @@ QList<caf::PdmOptionItemInfo> RimWellTargetMapping::calculateValueOptions( const
         if ( auto fc = firstCase() )
         {
             caf::AppEnum<RigWellTargetMapping::VolumesType>::setEnumSubset( &m_volumesType, findAvailableVolumesTypes( fc ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_filterView )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+
+        if ( auto fc = firstCase() )
+        {
+            for ( const auto& view : fc->views() )
+            {
+                RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( view, &options );
+            }
         }
     }
 
@@ -489,6 +505,9 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 
     resultGroup->add( &m_volumesType );
 
+    auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr;
+    if ( !hasEnsembleParent ) uiOrdering.add( &m_filterView );
+
     caf::PdmUiGroup* minimumCellValuesGroup = uiOrdering.addNewGroup( "Minimum Cell Values" );
     if ( showOilOptions ) minimumCellValuesGroup->add( &m_saturationOil );
     if ( showGasOptions ) minimumCellValuesGroup->add( &m_saturationGas );
@@ -496,8 +515,6 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     minimumCellValuesGroup->add( &m_permeability );
     minimumCellValuesGroup->add( &m_transmissibility );
     minimumCellValuesGroup->add( &m_resetDefaultButton );
-
-    auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr;
 
     if ( hasEnsembleParent )
     {
@@ -533,7 +550,43 @@ RigWellTargetMapping::ClusteringLimits RimWellTargetMapping::getClusteringLimits
              .transmissibility = m_transmissibility,
              .maxNumTargets    = m_maxNumTargets,
              .maxIterations    = m_maxIterations,
-             .filterAddress    = m_resultDefinition->eclipseResultAddress() };
+             .filterAddress    = m_resultDefinition->eclipseResultAddress(),
+             .filter           = getVisibilityFilter() };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimWellTargetMapping::getVisibilityFilter() const
+{
+    std::vector<double> filter = {};
+
+    // Visibility filter is only valid in the single case setting
+    auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr;
+    if ( !hasEnsembleParent )
+    {
+        auto fc = firstCase();
+        if ( m_filterView() && fc )
+        {
+            cvf::ref<cvf::UByteArray> visibility = m_filterView->currentTotalCellVisibility();
+
+            auto activeReservoirCellIndices =
+                fc->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->activeReservoirCellIndices();
+            int numActiveCells = static_cast<int>( activeReservoirCellIndices.size() );
+
+            filter.resize( numActiveCells, std::numeric_limits<double>::infinity() );
+
+            // Create binary filter for active cells: 1.0 can be used, 0.0 is filtered out.
+#pragma omp parallel for
+            for ( int i = 0; i < numActiveCells; i++ )
+            {
+                const auto reservoirCellIndex = activeReservoirCellIndices[i];
+                filter[i]                     = visibility->val( reservoirCellIndex ) ? 1.0 : 0.0;
+            }
+        }
+    }
+
+    return filter;
 }
 
 //--------------------------------------------------------------------------------------------------
