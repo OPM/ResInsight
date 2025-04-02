@@ -99,8 +99,11 @@ jobs:
       - name: Find CMake path and remove from PATH (Linux)
         if: contains( matrix.config.os, 'ubuntu')
         run: |
-          sudo apt-get remove --purge --auto-remove cmake
-          
+          sudo rm -rf /usr/local/bin/cmake*
+          sudo rm -rf /usr/local/share/cmake*
+          sudo rm -rf /usr/local/doc/cmake*
+          sudo rm -rf /usr/local/man/man1/cmake*
+
           # Try to call CMake (should fail or use a different version if removal was successful)
           cmake --version || echo "CMake was successfully removed from PATH"
 
