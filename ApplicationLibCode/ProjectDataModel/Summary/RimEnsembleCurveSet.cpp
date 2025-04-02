@@ -2276,8 +2276,8 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
                                             const RifEclipseSummaryAddress& addrX,
                                             const RifEclipseSummaryAddress& addrY ) -> RiaSummaryCurveAddress
             {
-                auto xStatAddress = SAddr::ensembleStatisticsAddress( statisticsVectorName, addrX.vectorName() );
-                auto yStatAddress = SAddr::ensembleStatisticsAddress( statisticsVectorName, addrY.vectorName() );
+                auto xStatAddress = SAddr::ensembleStatisticsAddress( statisticsVectorName, addrX.toEclipseTextAddress() );
+                auto yStatAddress = SAddr::ensembleStatisticsAddress( statisticsVectorName, addrY.toEclipseTextAddress() );
 
                 return RiaSummaryCurveAddress( xStatAddress, yStatAddress );
             };
@@ -2298,7 +2298,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
             auto getStatisticsAddress = []( const std::string& statisticsVectorName, const RifEclipseSummaryAddress& addrY ) -> RiaSummaryCurveAddress
             {
                 auto xStatAddress = RifEclipseSummaryAddress::timeAddress();
-                auto yStatAddress = SAddr::ensembleStatisticsAddress( statisticsVectorName, addrY.vectorName() );
+                auto yStatAddress = SAddr::ensembleStatisticsAddress( statisticsVectorName, addrY.toEclipseTextAddress() );
 
                 return RiaSummaryCurveAddress( xStatAddress, yStatAddress );
             };
