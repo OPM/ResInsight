@@ -754,8 +754,8 @@ void RimSummaryMultiPlot::zoomAll()
 
     if ( m_linkSubPlotAxes() )
     {
-        // Reset zoom to make sure the complete range for min/max is available
-        RimMultiPlot::zoomAll();
+        // Disable auto scaling for Y axis, use the axis values from the first plot
+        setAutoScaleYEnabled( false );
 
         if ( !summaryPlots().empty() )
         {
