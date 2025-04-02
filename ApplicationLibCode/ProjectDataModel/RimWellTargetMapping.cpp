@@ -406,7 +406,14 @@ void RimWellTargetMapping::generateCandidates( RimEclipseCase* eclipseCase )
     RigWellTargetMapping::ClusteringLimits limits = getClusteringLimits();
     RigFloodingSettings floodingSettings( m_oilFloodingType(), m_userDefinedFloodingOil(), m_gasFloodingType(), m_userDefinedFloodingGas() );
 
-    RigWellTargetMapping::generateCandidates( eclipseCase, m_timeStep(), m_volumeType(), m_volumesType(), m_volumeResultType(), floodingSettings, limits );
+    RigWellTargetMapping::generateCandidates( eclipseCase,
+                                              m_timeStep(),
+                                              m_volumeType(),
+                                              m_volumesType(),
+                                              m_volumeResultType(),
+                                              floodingSettings,
+                                              limits,
+                                              true );
 }
 
 //--------------------------------------------------------------------------------------------------

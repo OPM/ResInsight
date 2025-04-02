@@ -102,7 +102,8 @@ public:
                                     VolumesType                volumesType,
                                     VolumeResultType           volumeResultType,
                                     const RigFloodingSettings& floodingSettings,
-                                    const ClusteringLimits&    limits );
+                                    const ClusteringLimits&    limits,
+                                    bool                       skipUndefinedResults );
 
     static std::vector<double> getVolumeVector( RigCaseCellResultsData&       resultsData,
                                                 RiaDefines::EclipseUnitSystem unitsType,
@@ -134,6 +135,10 @@ public:
             , totalPorvSoilAndSgas( 0.0 )
             , totalFipOil( 0.0 )
             , totalFipGas( 0.0 )
+            , totalRfipOil( 0.0 )
+            , totalRfipGas( 0.0 )
+            , totalSfipOil( 0.0 )
+            , totalSfipGas( 0.0 )
             , permeability( 0.0 )
             , pressure( 0.0 )
         {
@@ -146,6 +151,10 @@ public:
         double totalPorvSoilAndSgas;
         double totalFipOil;
         double totalFipGas;
+        double totalRfipOil;
+        double totalRfipGas;
+        double totalSfipOil;
+        double totalSfipGas;
         double permeability;
         double pressure;
     };
@@ -190,6 +199,8 @@ private:
     static void createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<double>& values );
 
     static void createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<int>& clusterIds, double value );
+
+    static void createResultVectorIfDefined( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<double>& values );
 
     static double getValueForFace( const std::vector<double>& x,
                                    const std::vector<double>& y,
