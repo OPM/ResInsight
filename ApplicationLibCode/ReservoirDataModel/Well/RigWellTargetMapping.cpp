@@ -803,16 +803,25 @@ std::vector<RigWellTargetMapping::ClusterStatistics> RigWellTargetMapping::gener
     const std::vector<double>& porv = resultsData->cellScalarResults( porvAddress, 0 );
 
     RigEclipseResultAddress porvSoilAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::riPorvSoil() );
-    resultsData->ensureKnownResultLoaded( porvSoilAddress );
-    const std::vector<double>& porvSoil = resultsData->cellScalarResults( porvSoilAddress, timeStepIdx );
+    std::vector<double>     porvSoil;
+    if ( resultsData->ensureKnownResultLoaded( porvSoilAddress ) )
+    {
+        porvSoil = resultsData->cellScalarResults( porvSoilAddress, timeStepIdx );
+    }
 
     RigEclipseResultAddress porvSgasAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::riPorvSgas() );
-    resultsData->ensureKnownResultLoaded( porvSgasAddress );
-    const std::vector<double>& porvSgas = resultsData->cellScalarResults( porvSgasAddress, timeStepIdx );
+    std::vector<double>     porvSgas;
+    if ( resultsData->ensureKnownResultLoaded( porvSgasAddress ) )
+    {
+        porvSgas = resultsData->cellScalarResults( porvSgasAddress, timeStepIdx );
+    }
 
     RigEclipseResultAddress porvSoilAndSgasAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::riPorvSoilSgas() );
-    resultsData->ensureKnownResultLoaded( porvSoilAndSgasAddress );
-    const std::vector<double>& porvSoilAndSgas = resultsData->cellScalarResults( porvSoilAndSgasAddress, timeStepIdx );
+    std::vector<double>     porvSoilAndSgas;
+    if ( resultsData->ensureKnownResultLoaded( porvSoilAndSgasAddress ) )
+    {
+        porvSoilAndSgas = resultsData->cellScalarResults( porvSoilAndSgasAddress, timeStepIdx );
+    }
 
     RigEclipseResultAddress fipOilAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FIPOIL" );
     std::vector<double>     fipOil;
@@ -827,6 +836,7 @@ std::vector<RigWellTargetMapping::ClusterStatistics> RigWellTargetMapping::gener
     {
         fipGas = resultsData->cellScalarResults( fipGasAddress, timeStepIdx );
     }
+
     RigEclipseResultAddress clusterAddress( RiaDefines::ResultCatType::GENERATED, clusterResultName );
     resultsData->ensureKnownResultLoaded( clusterAddress );
     const std::vector<double>& clusterIds = resultsData->cellScalarResults( clusterAddress, 0 );
@@ -843,9 +853,9 @@ std::vector<RigWellTargetMapping::ClusterStatistics> RigWellTargetMapping::gener
             {
                 statistics[i].id = clusterIds[idx];
                 statistics[i].numCells++;
-                statistics[i].totalPorvSoil += porvSoil[idx];
-                statistics[i].totalPorvSgas += porvSgas[idx];
-                statistics[i].totalPorvSoilAndSgas += porvSoilAndSgas[idx];
+                if ( idx < porvSoil.size() ) statistics[i].totalPorvSoil += porvSoil[idx];
+                if ( idx < porvSgas.size() ) statistics[i].totalPorvSgas += porvSgas[idx];
+                if ( idx < porvSoilAndSgas.size() ) statistics[i].totalPorvSoilAndSgas += porvSoilAndSgas[idx];
 
                 if ( idx < fipOil.size() ) statistics[i].totalFipOil += fipOil[idx];
                 if ( idx < fipGas.size() ) statistics[i].totalFipGas += fipGas[idx];
