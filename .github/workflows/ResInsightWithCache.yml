@@ -147,10 +147,10 @@ jobs:
             Write-Host "CMake not found in PATH"
           }
            
-      - name: Install cmake
-        uses: jwlawson/actions-setup-cmake@v2
+      - name: Use CMake
+        uses: lukka/get-cmake@latest
         with:
-          cmake-version: '3.26.x'
+          cmakeVersion: "~3.26.0"
 
       - name: Use MSVC (Windows)
         uses: ilammy/msvc-dev-cmd@v1
