@@ -63,7 +63,8 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
                                                VolumesType                volumesType,
                                                VolumeResultType           volumeResultType,
                                                const RigFloodingSettings& floodingSettings,
-                                               const ClusteringLimits&    limits )
+                                               const ClusteringLimits&    limits,
+                                               bool                       skipUndefinedResults )
 {
     if ( !eclipseCase->ensureReservoirCaseIsOpen() ) return;
 
@@ -102,6 +103,15 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
     if ( resultsData->ensureKnownResultLoaded( sgasAddress ) )
     {
         data.saturationGas = resultsData->cellScalarResults( sgasAddress, timeStepIdx );
+    }
+    else
+    {
+        if ( volumeType == VolumeType::GAS || volumeType == VolumeType::HYDROCARBON )
+        {
+            RiaLogging::error( "Missing SGAS result needed for well target mapping volume type: " +
+                               caf::AppEnum<VolumeType>::uiText( volumeType ) );
+            return;
+        }
     }
 
     RigEclipseResultAddress pressureAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" );
@@ -217,6 +227,10 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
     std::vector<double>            totalPorvSoilAndSgas( clusters.size(), std::numeric_limits<double>::infinity() );
     std::vector<double>            totalFipOil( clusters.size(), std::numeric_limits<double>::infinity() );
     std::vector<double>            totalFipGas( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double>            totalRfipOil( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double>            totalRfipGas( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double>            totalSfipOil( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double>            totalSfipGas( clusters.size(), std::numeric_limits<double>::infinity() );
 
     auto addValuesForClusterId = []( std::vector<double>& values, const std::vector<int>& clusters, int clusterId, double value )
     {
@@ -232,15 +246,25 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
     {
         if ( isLoggingEnabled )
         {
+            auto logIfValid = []( const QString& pattern, double value )
+            {
+                if ( !std::isinf( value ) && !std::isnan( value ) ) RiaLogging::info( pattern.arg( value ) );
+            };
+
             RiaLogging::info( QString( "Cluster #%1 Statistics" ).arg( s.id ) );
             RiaLogging::info( QString( "Number of cells: %1" ).arg( s.numCells ) );
-            RiaLogging::info( QString( "Total PORV*SOIL: %1" ).arg( s.totalPorvSoil ) );
-            RiaLogging::info( QString( "Total PORV*SGAS: %1" ).arg( s.totalPorvSgas ) );
-            RiaLogging::info( QString( "Total PORV*(SOIL+SGAS): %1" ).arg( s.totalPorvSoilAndSgas ) );
-            RiaLogging::info( QString( "Total FIPOIL: %1" ).arg( s.totalFipOil ) );
-            RiaLogging::info( QString( "Total FIPGAS: %1" ).arg( s.totalFipGas ) );
-            RiaLogging::info( QString( "Average Permeability: %1" ).arg( s.permeability ) );
-            RiaLogging::info( QString( "Average Pressure: %1" ).arg( s.pressure ) );
+            logIfValid( "Total PORV*SOIL: %1", s.totalPorvSoil );
+            logIfValid( "Total PORV*SOIL: %1", s.totalPorvSoil );
+            logIfValid( "Total PORV*SGAS: %1", s.totalPorvSgas );
+            logIfValid( "Total PORV*(SOIL+SGAS): %1", s.totalPorvSoilAndSgas );
+            logIfValid( "Total FIPOIL: %1", s.totalFipOil );
+            logIfValid( "Total FIPGAS: %1", s.totalFipGas );
+            logIfValid( "Total RFIPOIL: %1", s.totalRfipOil );
+            logIfValid( "Total RFIPGAS: %1", s.totalRfipGas );
+            logIfValid( "Total SFIPOIL: %1", s.totalSfipOil );
+            logIfValid( "Total SFIPGAS: %1", s.totalSfipGas );
+            logIfValid( "Average Permeability: %1", s.permeability );
+            logIfValid( "Average Pressure: %1", s.pressure );
         }
 
         addValuesForClusterId( totalPorvSoil, clusters, clusterId, s.totalPorvSoil );
@@ -248,24 +272,38 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
         addValuesForClusterId( totalPorvSoilAndSgas, clusters, clusterId, s.totalPorvSoilAndSgas );
         addValuesForClusterId( totalFipOil, clusters, clusterId, s.totalFipOil );
         addValuesForClusterId( totalFipGas, clusters, clusterId, s.totalFipGas );
+        addValuesForClusterId( totalRfipOil, clusters, clusterId, s.totalRfipOil );
+        addValuesForClusterId( totalRfipGas, clusters, clusterId, s.totalRfipGas );
+        addValuesForClusterId( totalSfipOil, clusters, clusterId, s.totalSfipOil );
+        addValuesForClusterId( totalSfipGas, clusters, clusterId, s.totalSfipGas );
 
         clusterId++;
     }
 
-    QString clusterPorvSoil = "TOTAL_PORV_SOIL";
-    createResultVector( *eclipseCase, clusterPorvSoil, totalPorvSoil );
-
-    QString clusterPorvSgas = "TOTAL_PORV_SGAS";
-    createResultVector( *eclipseCase, clusterPorvSgas, totalPorvSgas );
-
-    QString clusterPorvSoilAndSgas = "TOTAL_PORV_SOIL_SGAS";
-    createResultVector( *eclipseCase, clusterPorvSoilAndSgas, totalPorvSoilAndSgas );
-
-    QString clusterFipOil = "TOTAL_FIPOIL";
-    createResultVector( *eclipseCase, clusterFipOil, totalFipOil );
-
-    QString clusterFipGas = "TOTAL_FIPGAS";
-    createResultVector( *eclipseCase, clusterFipGas, totalFipGas );
+    if ( skipUndefinedResults )
+    {
+        createResultVectorIfDefined( *eclipseCase, "TOTAL_PORV_SOIL", totalPorvSoil );
+        createResultVectorIfDefined( *eclipseCase, "TOTAL_PORV_SGAS", totalPorvSgas );
+        createResultVectorIfDefined( *eclipseCase, "TOTAL_PORV_SOIL_SGAS", totalPorvSoilAndSgas );
+        createResultVectorIfDefined( *eclipseCase, "TOTAL_FIPOIL", totalFipOil );
+        createResultVectorIfDefined( *eclipseCase, "TOTAL_FIPGAS", totalFipGas );
+        createResultVectorIfDefined( *eclipseCase, "TOTAL_RFIPOIL", totalRfipOil );
+        createResultVectorIfDefined( *eclipseCase, "TOTAL_RFIPGAS", totalRfipGas );
+        createResultVectorIfDefined( *eclipseCase, "TOTAL_SFIPOIL", totalSfipOil );
+        createResultVectorIfDefined( *eclipseCase, "TOTAL_SFIPGAS", totalSfipGas );
+    }
+    else
+    {
+        createResultVector( *eclipseCase, "TOTAL_PORV_SOIL", totalPorvSoil );
+        createResultVector( *eclipseCase, "TOTAL_PORV_SGAS", totalPorvSgas );
+        createResultVector( *eclipseCase, "TOTAL_PORV_SOIL_SGAS", totalPorvSoilAndSgas );
+        createResultVector( *eclipseCase, "TOTAL_FIPOIL", totalFipOil );
+        createResultVector( *eclipseCase, "TOTAL_FIPGAS", totalFipGas );
+        createResultVector( *eclipseCase, "TOTAL_RFIPOIL", totalRfipOil );
+        createResultVector( *eclipseCase, "TOTAL_RFIPGAS", totalRfipGas );
+        createResultVector( *eclipseCase, "TOTAL_SFIPOIL", totalSfipOil );
+        createResultVector( *eclipseCase, "TOTAL_SFIPGAS", totalSfipGas );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -486,6 +524,17 @@ void RigWellTargetMapping::createResultVector( RimEclipseCase& eclipseCase, cons
     }
 
     resultsData->recalculateStatistics( resultAddress );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellTargetMapping::createResultVectorIfDefined( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<double>& values )
+{
+    // Avoid creating the result vector if all values are inf/nan
+    if ( std::all_of( values.begin(), values.end(), []( auto v ) { return std::isinf( v ) || std::isnan( v ); } ) ) return;
+
+    createResultVector( eclipseCase, resultName, values );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -798,44 +847,31 @@ std::vector<RigWellTargetMapping::ClusterStatistics> RigWellTargetMapping::gener
     auto resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     if ( !resultsData ) return statistics;
 
-    RigEclipseResultAddress porvAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::porv() );
-    resultsData->ensureKnownResultLoaded( porvAddress );
-    const std::vector<double>& porv = resultsData->cellScalarResults( porvAddress, 0 );
-
-    RigEclipseResultAddress porvSoilAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::riPorvSoil() );
-    std::vector<double>     porvSoil;
-    if ( resultsData->ensureKnownResultLoaded( porvSoilAddress ) )
+    auto loadData = []( RigCaseCellResultsData* resultsData, RiaDefines::ResultCatType categoryType, const QString& name, size_t timeStepIdx )
     {
-        porvSoil = resultsData->cellScalarResults( porvSoilAddress, timeStepIdx );
-    }
+        RigEclipseResultAddress address( categoryType, name );
+        std::vector<double>     values;
+        if ( resultsData->ensureKnownResultLoaded( address ) )
+        {
+            values = resultsData->cellScalarResults( address, timeStepIdx );
+        }
 
-    RigEclipseResultAddress porvSgasAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::riPorvSgas() );
-    std::vector<double>     porvSgas;
-    if ( resultsData->ensureKnownResultLoaded( porvSgasAddress ) )
-    {
-        porvSgas = resultsData->cellScalarResults( porvSgasAddress, timeStepIdx );
-    }
+        return values;
+    };
 
-    RigEclipseResultAddress porvSoilAndSgasAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::riPorvSoilSgas() );
-    std::vector<double>     porvSoilAndSgas;
-    if ( resultsData->ensureKnownResultLoaded( porvSoilAndSgasAddress ) )
-    {
-        porvSoilAndSgas = resultsData->cellScalarResults( porvSoilAndSgasAddress, timeStepIdx );
-    }
-
-    RigEclipseResultAddress fipOilAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FIPOIL" );
-    std::vector<double>     fipOil;
-    if ( resultsData->ensureKnownResultLoaded( fipOilAddress ) )
-    {
-        fipOil = resultsData->cellScalarResults( fipOilAddress, timeStepIdx );
-    }
-
-    RigEclipseResultAddress fipGasAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FIPGAS" );
-    std::vector<double>     fipGas;
-    if ( resultsData->ensureKnownResultLoaded( fipGasAddress ) )
-    {
-        fipGas = resultsData->cellScalarResults( fipGasAddress, timeStepIdx );
-    }
+    const std::vector<double> porv = loadData( resultsData, RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::porv(), 0 );
+    const std::vector<double> porvSoil =
+        loadData( resultsData, RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::riPorvSoil(), timeStepIdx );
+    const std::vector<double> porvSgas =
+        loadData( resultsData, RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::riPorvSgas(), timeStepIdx );
+    const std::vector<double> porvSoilAndSgas =
+        loadData( resultsData, RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::riPorvSoilSgas(), timeStepIdx );
+    const std::vector<double> fipOil  = loadData( resultsData, RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FIPOIL", timeStepIdx );
+    const std::vector<double> fipGas  = loadData( resultsData, RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FIPGAS", timeStepIdx );
+    const std::vector<double> sfipOil = loadData( resultsData, RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SFIPOIL", timeStepIdx );
+    const std::vector<double> sfipGas = loadData( resultsData, RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SFIPGAS", timeStepIdx );
+    const std::vector<double> rfipOil = loadData( resultsData, RiaDefines::ResultCatType::DYNAMIC_NATIVE, "RFIPOIL", timeStepIdx );
+    const std::vector<double> rfipGas = loadData( resultsData, RiaDefines::ResultCatType::DYNAMIC_NATIVE, "RFIPGAS", timeStepIdx );
 
     RigEclipseResultAddress clusterAddress( RiaDefines::ResultCatType::GENERATED, clusterResultName );
     resultsData->ensureKnownResultLoaded( clusterAddress );
@@ -860,6 +896,12 @@ std::vector<RigWellTargetMapping::ClusterStatistics> RigWellTargetMapping::gener
                 if ( idx < fipOil.size() ) statistics[i].totalFipOil += fipOil[idx];
                 if ( idx < fipGas.size() ) statistics[i].totalFipGas += fipGas[idx];
 
+                if ( idx < rfipOil.size() ) statistics[i].totalRfipOil += rfipOil[idx];
+                if ( idx < rfipGas.size() ) statistics[i].totalRfipGas += rfipGas[idx];
+
+                if ( idx < sfipOil.size() ) statistics[i].totalSfipOil += sfipOil[idx];
+                if ( idx < sfipGas.size() ) statistics[i].totalSfipGas += sfipGas[idx];
+
                 double meanPermeability = ( permeabilityX[idx] + permeabilityY[idx] + permeabilityZ[idx] ) / 3.0;
                 permeabilityCalculators[i].addValueAndWeight( meanPermeability, porv[idx] );
 
@@ -872,6 +914,17 @@ std::vector<RigWellTargetMapping::ClusterStatistics> RigWellTargetMapping::gener
     {
         statistics[i].permeability = permeabilityCalculators[i].weightedMean();
         statistics[i].pressure     = pressureCalculators[i].weightedMean();
+
+        // Invalidate results for empty vectors
+        if ( porvSoil.empty() ) statistics[i].totalPorvSoil = std::numeric_limits<double>::infinity();
+        if ( porvSgas.empty() ) statistics[i].totalPorvSgas = std::numeric_limits<double>::infinity();
+        if ( porvSoilAndSgas.empty() ) statistics[i].totalPorvSoilAndSgas = std::numeric_limits<double>::infinity();
+        if ( fipOil.empty() ) statistics[i].totalFipOil = std::numeric_limits<double>::infinity();
+        if ( fipGas.empty() ) statistics[i].totalFipGas = std::numeric_limits<double>::infinity();
+        if ( rfipOil.empty() ) statistics[i].totalRfipOil = std::numeric_limits<double>::infinity();
+        if ( rfipGas.empty() ) statistics[i].totalRfipGas = std::numeric_limits<double>::infinity();
+        if ( sfipOil.empty() ) statistics[i].totalSfipOil = std::numeric_limits<double>::infinity();
+        if ( sfipGas.empty() ) statistics[i].totalSfipGas = std::numeric_limits<double>::infinity();
     }
 
     return statistics;
@@ -897,7 +950,7 @@ RimRegularGridCase* RigWellTargetMapping::generateEnsembleCandidates( RimEclipse
     {
         auto task = progInfo.task( "Generating realization statistics.", 1 );
 
-        generateCandidates( eclipseCase, timeStepIdx, volumeType, volumesType, volumeResultType, floodingSettings, limits );
+        generateCandidates( eclipseCase, timeStepIdx, volumeType, volumesType, volumeResultType, floodingSettings, limits, false );
     }
 
     cvf::BoundingBox boundingBox;
@@ -925,6 +978,10 @@ RimRegularGridCase* RigWellTargetMapping::generateEnsembleCandidates( RimEclipse
     resultNamesAndSamples["TOTAL_PORV_SOIL_SGAS"] = {};
     resultNamesAndSamples["TOTAL_FIPOIL"]         = {};
     resultNamesAndSamples["TOTAL_FIPGAS"]         = {};
+    resultNamesAndSamples["TOTAL_RFIPOIL"]        = {};
+    resultNamesAndSamples["TOTAL_RFIPGAS"]        = {};
+    resultNamesAndSamples["TOTAL_SFIPOIL"]        = {};
+    resultNamesAndSamples["TOTAL_SFIPGAS"]        = {};
 
     for ( auto eclipseCase : ensemble.cases() )
     {
@@ -1002,12 +1059,12 @@ void RigWellTargetMapping::computeStatisticsAndCreateVectors( RimEclipseCase&   
         if ( RiaStatisticsTools::isValidNumber( maxValue ) && maxValue > -std::numeric_limits<double>::max() ) maxResults[i] = maxValue;
     }
 
-    createResultVector( targetCase, resultName + "_P10", p10Results );
-    createResultVector( targetCase, resultName + "_P50", p50Results );
-    createResultVector( targetCase, resultName + "_P90", p90Results );
-    createResultVector( targetCase, resultName + "_MEAN", meanResults );
-    createResultVector( targetCase, resultName + "_MIN", minResults );
-    createResultVector( targetCase, resultName + "_MAX", maxResults );
+    createResultVectorIfDefined( targetCase, resultName + "_P10", p10Results );
+    createResultVectorIfDefined( targetCase, resultName + "_P50", p50Results );
+    createResultVectorIfDefined( targetCase, resultName + "_P90", p90Results );
+    createResultVectorIfDefined( targetCase, resultName + "_MEAN", meanResults );
+    createResultVectorIfDefined( targetCase, resultName + "_MIN", minResults );
+    createResultVectorIfDefined( targetCase, resultName + "_MAX", maxResults );
 }
 
 //--------------------------------------------------------------------------------------------------
