@@ -122,14 +122,6 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
     resultsData->ensureKnownResultLoaded( permeabilityXAddress );
     data.permeabilityX = resultsData->cellScalarResults( permeabilityXAddress, 0 );
 
-    RigEclipseResultAddress permeabilityYAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMY" );
-    resultsData->ensureKnownResultLoaded( permeabilityYAddress );
-    data.permeabilityY = resultsData->cellScalarResults( permeabilityYAddress, 0 );
-
-    RigEclipseResultAddress permeabilityZAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMZ" );
-    resultsData->ensureKnownResultLoaded( permeabilityZAddress );
-    data.permeabilityZ = resultsData->cellScalarResults( permeabilityZAddress, 0 );
-
     RigEclipseResultAddress transmissibilityXAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANX" );
     resultsData->ensureKnownResultLoaded( transmissibilityXAddress );
     data.transmissibilityX = resultsData->cellScalarResults( transmissibilityXAddress, 0 );
@@ -214,23 +206,17 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
         }
     }
 
-    std::vector<ClusterStatistics> statistics = generateStatistics( eclipseCase,
-                                                                    data.pressure,
-                                                                    data.permeabilityX,
-                                                                    data.permeabilityY,
-                                                                    data.permeabilityZ,
-                                                                    numClustersFound,
-                                                                    timeStepIdx,
-                                                                    resultName );
-    std::vector<double>            totalPorvSoil( clusters.size(), std::numeric_limits<double>::infinity() );
-    std::vector<double>            totalPorvSgas( clusters.size(), std::numeric_limits<double>::infinity() );
-    std::vector<double>            totalPorvSoilAndSgas( clusters.size(), std::numeric_limits<double>::infinity() );
-    std::vector<double>            totalFipOil( clusters.size(), std::numeric_limits<double>::infinity() );
-    std::vector<double>            totalFipGas( clusters.size(), std::numeric_limits<double>::infinity() );
-    std::vector<double>            totalRfipOil( clusters.size(), std::numeric_limits<double>::infinity() );
-    std::vector<double>            totalRfipGas( clusters.size(), std::numeric_limits<double>::infinity() );
-    std::vector<double>            totalSfipOil( clusters.size(), std::numeric_limits<double>::infinity() );
-    std::vector<double>            totalSfipGas( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<ClusterStatistics> statistics =
+        generateStatistics( eclipseCase, data.pressure, data.permeabilityX, numClustersFound, timeStepIdx, resultName );
+    std::vector<double> totalPorvSoil( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double> totalPorvSgas( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double> totalPorvSoilAndSgas( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double> totalFipOil( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double> totalFipGas( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double> totalRfipOil( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double> totalRfipGas( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double> totalSfipOil( clusters.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double> totalSfipGas( clusters.size(), std::numeric_limits<double>::infinity() );
 
     auto addValuesForClusterId = []( std::vector<double>& values, const std::vector<int>& clusters, int clusterId, double value )
     {
@@ -337,15 +323,12 @@ std::optional<caf::VecIjk> RigWellTargetMapping::findStartCell( RimEclipseCase* 
 
             const bool isSaturationValid = isSaturationSufficient( volumeType, data, limits, resultIndex );
 
-            const double cellPermeabiltyX = data.permeabilityX[resultIndex];
-            const double cellPermeabiltyY = data.permeabilityY[resultIndex];
-            const double cellPermeabiltyZ = data.permeabilityZ[resultIndex];
-            const bool permeabilityValidInAnyDirection = ( cellPermeabiltyX >= limits.permeability || cellPermeabiltyY >= limits.permeability ||
-                                                           cellPermeabiltyZ >= limits.permeability );
+            const double cellPermeabiltyX  = data.permeabilityX[resultIndex];
+            const bool   permeabilityValid = ( cellPermeabiltyX >= limits.permeability );
 
             const bool filterValue = !std::isinf( filterVector[resultIndex] ) && filterVector[resultIndex] > 0.0;
 
-            if ( cellVolume > maxVolume && cellPressure >= limits.pressure && permeabilityValidInAnyDirection && filterValue && isSaturationValid )
+            if ( cellVolume > maxVolume && cellPressure >= limits.pressure && permeabilityValid && filterValue && isSaturationValid )
             {
                 maxVolume = cellVolume;
                 startCell = reservoirCellIdx;
@@ -433,8 +416,7 @@ std::vector<size_t> RigWellTargetMapping::findCandidates( RimEclipseCase*       
                 size_t neighborResultIndex = resultsData->activeCellInfo()->cellResultIndex( neighborResvCellIdx );
                 if ( neighborResultIndex != cvf::UNDEFINED_SIZE_T && clusters[neighborResultIndex] == 0 )
                 {
-                    double permeability =
-                        getValueForFace( data.permeabilityX, data.permeabilityY, data.permeabilityZ, face, neighborResultIndex );
+                    double permeability     = data.permeabilityX[neighborResultIndex];
                     double transmissibility = getTransmissibilityValueForFace( data.transmissibilityX,
                                                                                data.transmissibilityY,
                                                                                data.transmissibilityZ,
@@ -465,7 +447,7 @@ std::vector<size_t> RigWellTargetMapping::findCandidates( RimEclipseCase*       
 
                 size_t otherResultIndex = resultsData->activeCellInfo()->cellResultIndex( otherCellIdx );
 
-                double permeability = getValueForFace( data.permeabilityX, data.permeabilityY, data.permeabilityZ, face, otherResultIndex );
+                double permeability = data.permeabilityX[otherResultIndex];
 
                 bool filterValue = !std::isinf( filterVector[otherResultIndex] ) && filterVector[otherResultIndex] > 0.0;
 
@@ -836,8 +818,6 @@ std::vector<double> RigWellTargetMapping::getVolumeVector( RigCaseCellResultsDat
 std::vector<RigWellTargetMapping::ClusterStatistics> RigWellTargetMapping::generateStatistics( RimEclipseCase*            eclipseCase,
                                                                                                const std::vector<double>& pressure,
                                                                                                const std::vector<double>& permeabilityX,
-                                                                                               const std::vector<double>& permeabilityY,
-                                                                                               const std::vector<double>& permeabilityZ,
                                                                                                int                        numClustersFound,
                                                                                                size_t                     timeStepIdx,
                                                                                                const QString& clusterResultName )
@@ -902,8 +882,7 @@ std::vector<RigWellTargetMapping::ClusterStatistics> RigWellTargetMapping::gener
                 if ( idx < sfipOil.size() ) statistics[i].totalSfipOil += sfipOil[idx];
                 if ( idx < sfipGas.size() ) statistics[i].totalSfipGas += sfipGas[idx];
 
-                double meanPermeability = ( permeabilityX[idx] + permeabilityY[idx] + permeabilityZ[idx] ) / 3.0;
-                permeabilityCalculators[i].addValueAndWeight( meanPermeability, porv[idx] );
+                permeabilityCalculators[i].addValueAndWeight( permeabilityX[idx], porv[idx] );
 
                 pressureCalculators[i].addValueAndWeight( pressure[idx], porv[idx] );
             }

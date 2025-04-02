@@ -120,7 +120,7 @@ RimWellTargetMapping::RimWellTargetMapping()
     CAF_PDM_InitField( &m_pressure, "Pressure", 0.0, "Pressure" );
     m_pressure.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_permeability, "Permeability", 0.0, "Permeability" );
+    CAF_PDM_InitField( &m_permeability, "Permeability", 0.0, "Permeability (kH)" );
     m_permeability.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_transmissibility, "Transmissibility", 0.0, "Transmissibility" );
@@ -293,11 +293,7 @@ void RimWellTargetMapping::updateAllBoundaries()
         updateBoundaryValues( resultsData, { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) }, timeStepIdx );
 
     std::tie( m_minimumPermeability, m_maximumPermeability, m_defaultPermeability ) =
-        updateBoundaryValues( resultsData,
-                              { RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMX" ),
-                                RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMY" ),
-                                RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMZ" ) },
-                              0 );
+        updateBoundaryValues( resultsData, { RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMX" ) }, 0 );
 
     std::tie( m_minimumTransmissibility, m_maximumTransmissibility, m_defaultTransmissibility ) =
         updateBoundaryValues( resultsData,

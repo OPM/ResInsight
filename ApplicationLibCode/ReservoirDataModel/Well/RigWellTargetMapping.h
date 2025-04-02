@@ -87,8 +87,6 @@ public:
         std::vector<double>        saturationGas;
         std::vector<double>        pressure;
         std::vector<double>        permeabilityX;
-        std::vector<double>        permeabilityY;
-        std::vector<double>        permeabilityZ;
         std::vector<double>        permeabilityNNC;
         std::vector<double>        transmissibilityX;
         std::vector<double>        transmissibilityY;
@@ -218,8 +216,6 @@ private:
     static std::vector<RigWellTargetMapping::ClusterStatistics> generateStatistics( RimEclipseCase*            eclipseCase,
                                                                                     const std::vector<double>& pressure,
                                                                                     const std::vector<double>& permeabilityX,
-                                                                                    const std::vector<double>& permeabilityY,
-                                                                                    const std::vector<double>& permeabilityZ,
                                                                                     int                        numClustersFound,
                                                                                     size_t                     timeStepIdx,
                                                                                     const QString&             clusterResultName );
