@@ -21,12 +21,14 @@
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
 
 #include "RigFloodingSettings.h"
 #include "Well/RigWellTargetMapping.h"
 
 class RimEclipseResultDefinition;
 class RimEclipseCase;
+class RimEclipseView;
 
 //==================================================================================================
 ///
@@ -66,6 +68,7 @@ private:
     static std::vector<RigWellTargetMapping::VolumesType> findAvailableVolumesTypes( RimEclipseCase* eclipseCase );
 
     RigWellTargetMapping::ClusteringLimits getClusteringLimits() const;
+    std::vector<double>                    getVisibilityFilter() const;
 
     void resetMinimumCellValuesToDefault();
 
@@ -97,6 +100,8 @@ private:
     caf::PdmField<int> m_cellCountK;
 
     caf::PdmField<bool> m_generateButton;
+
+    caf::PdmPtrField<RimEclipseView*> m_filterView;
 
     caf::PdmChildField<RimEclipseCase*> m_ensembleStatisticsCase;
 

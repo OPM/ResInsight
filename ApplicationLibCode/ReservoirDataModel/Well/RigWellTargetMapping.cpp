@@ -145,15 +145,20 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
     }
 
     std::vector<double> filterVector;
-    if ( limits.filterAddress.isValid() )
+    if ( !limits.filter.empty() )
+    {
+        filterVector = limits.filter;
+    }
+    else if ( limits.filterAddress.isValid() )
     {
         resultsData->ensureKnownResultLoaded( limits.filterAddress );
         filterVector = resultsData->cellScalarResults( limits.filterAddress, timeStepIdx );
     }
-    else
+
+    // Disable filtering if not configured: set all items to 1 (which includes all cells).
+    if ( filterVector.empty() || filterVector.size() != data.pressure.size() )
     {
-        // Disable filter on invalid address: set all items to 1 (which includes all cells).
-        filterVector.resize( data.pressure.size(), 1.0 );
+        filterVector = std::vector<double>( data.pressure.size(), 1.0 );
     }
 
     std::vector<int> clusters( activeCellCount.value(), 0 );
