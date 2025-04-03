@@ -64,7 +64,7 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path for New Well" );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
     CAF_PDM_InitField( &m_pauseBeforeRun, "PauseBeforeRun", true, "Pause before running OPM Flow" );
-    CAF_PDM_InitField( &m_delayOpenWell, "DelayOpenWell", false, "Keep well shut until selected time step" );
+    CAF_PDM_InitField( &m_delayOpenWell, "DelayOpenWell", true, "Keep well shut until selected time step" );
 
     CAF_PDM_InitField( &m_wellOpenKeyword, "WellOpenKeyword", QString( "WCONPROD" ), "Open Well Keyword" );
     m_wellOpenKeyword.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
@@ -333,8 +333,6 @@ bool RimOpmFlowJob::onPrepare()
     if ( !deckFile.mergeWellDeck( wellTempFile().toStdString() ) ) return false;
 
     // open new well at selected timestep
-    auto cs = m_wellPath->completionSettings();
-
     if ( m_delayOpenWell )
     {
         if ( !deckFile.openWellAtTimeStep( m_openTimeStep(), openWellTempFile().toStdString() ) )
@@ -484,6 +482,8 @@ void RimOpmFlowJob::prepareWellSettings()
 //--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::prepareOpenWellText()
 {
+    auto cs = m_wellPath->completionSettings();
+
     QFile f( openWellTempFile() );
     if ( f.open( QIODevice::ReadWrite | QIODeviceBase::Truncate ) )
     {
@@ -493,11 +493,11 @@ void RimOpmFlowJob::prepareOpenWellText()
 
         if ( m_wellOpenKeyword() == "WCONPROD" )
         {
-            stream << QString( "'%1' 'OPEN' %2 /\n" ).arg( m_wellPath()->completionSettings()->wellNameForExport() ).arg( m_wellOpenText );
+            stream << QString( "'%1' 'OPEN' %2 /\n" ).arg( cs->wellNameForExport() ).arg( m_wellOpenText );
         }
         else if ( m_wellOpenKeyword() == "WCONINJE" )
         {
-            stream << QString( "'%1' 'WATER' 'OPEN' %2 /\n" ).arg( m_wellPath()->completionSettings()->wellNameForExport() ).arg( m_wellOpenText );
+            stream << QString( "'%1' 'WATER' 'OPEN' %2 /\n" ).arg( cs->wellNameForExport() ).arg( m_wellOpenText );
         }
         stream << "/\n";
 
