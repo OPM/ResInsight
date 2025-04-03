@@ -172,12 +172,9 @@ bool RifOpmFlowDeckFile::mergeWellDeck( std::string filename )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmFlowDeckFile::openWellAtTimeStep( std::string wellName, std::string wellType, int timeStep )
+bool RifOpmFlowDeckFile::openWellAtTimeStep( int timeStep, std::string filename )
 {
     int stepCount = 0;
-
-    // only support oil so far
-    if ( wellType != "OIL" ) return false;
 
     // locate dates keyword for the selected step
     Opm::FileDeck::Index* datePos = nullptr;
@@ -197,5 +194,32 @@ bool RifOpmFlowDeckFile::openWellAtTimeStep( std::string wellName, std::string w
     // found it?
     if ( datePos == nullptr ) return false;
 
+    Opm::ParseContext parseContext( Opm::InputErrorAction::WARN );
+
+    // Use the same default ParseContext as flow.
+    parseContext.update( Opm::ParseContext::PARSE_RANDOM_SLASH, Opm::InputErrorAction::IGNORE );
+    parseContext.update( Opm::ParseContext::PARSE_MISSING_DIMS_KEYWORD, Opm::InputErrorAction::WARN );
+    parseContext.update( Opm::ParseContext::SUMMARY_UNKNOWN_WELL, Opm::InputErrorAction::WARN );
+    parseContext.update( Opm::ParseContext::SUMMARY_UNKNOWN_GROUP, Opm::InputErrorAction::WARN );
+
+    Opm::ErrorGuard errors{};
+
+    auto             deck = Opm::Parser{}.parseFile( filename, parseContext, errors );
+    Opm::FileDeck    wellDeck( deck );
+    Opm::DeckKeyword newKw( wellDeck.operator[]( wellDeck.start() ) );
+
+    Opm::FileDeck::Index openPos( *datePos );
+    openPos--;
+
+    m_fileDeck->insert( openPos, newKw );
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::openWellAtStart( std::string filename )
+{
     return true;
 }
