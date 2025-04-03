@@ -174,6 +174,16 @@ bool RifOpmFlowDeckFile::mergeWellDeck( std::string filename )
 //--------------------------------------------------------------------------------------------------
 bool RifOpmFlowDeckFile::openWellAtTimeStep( int timeStep, std::string filename )
 {
+    Opm::ParseContext parseContext( Opm::InputErrorAction::WARN );
+
+    // Use the same default ParseContext as flow.
+    parseContext.update( Opm::ParseContext::PARSE_RANDOM_SLASH, Opm::InputErrorAction::IGNORE );
+    parseContext.update( Opm::ParseContext::PARSE_MISSING_DIMS_KEYWORD, Opm::InputErrorAction::WARN );
+    parseContext.update( Opm::ParseContext::SUMMARY_UNKNOWN_WELL, Opm::InputErrorAction::WARN );
+    parseContext.update( Opm::ParseContext::SUMMARY_UNKNOWN_GROUP, Opm::InputErrorAction::WARN );
+
+    Opm::ErrorGuard errors{};
+
     int stepCount = 0;
 
     // locate dates keyword for the selected step
@@ -186,34 +196,22 @@ bool RifOpmFlowDeckFile::openWellAtTimeStep( int timeStep, std::string filename 
         if ( stepCount == timeStep )
         {
             datePos = &it;
-            break;
+
+            auto             deck = Opm::Parser{}.parseFile( filename, parseContext, errors );
+            Opm::FileDeck    wellDeck( deck );
+            Opm::DeckKeyword newKw( wellDeck.operator[]( wellDeck.start() ) );
+
+            Opm::FileDeck::Index openPos( *datePos );
+            openPos--;
+
+            m_fileDeck->insert( openPos, newKw );
+
+            return true;
         }
         stepCount++;
     }
 
-    // found it?
-    if ( datePos == nullptr ) return false;
-
-    Opm::ParseContext parseContext( Opm::InputErrorAction::WARN );
-
-    // Use the same default ParseContext as flow.
-    parseContext.update( Opm::ParseContext::PARSE_RANDOM_SLASH, Opm::InputErrorAction::IGNORE );
-    parseContext.update( Opm::ParseContext::PARSE_MISSING_DIMS_KEYWORD, Opm::InputErrorAction::WARN );
-    parseContext.update( Opm::ParseContext::SUMMARY_UNKNOWN_WELL, Opm::InputErrorAction::WARN );
-    parseContext.update( Opm::ParseContext::SUMMARY_UNKNOWN_GROUP, Opm::InputErrorAction::WARN );
-
-    Opm::ErrorGuard errors{};
-
-    auto             deck = Opm::Parser{}.parseFile( filename, parseContext, errors );
-    Opm::FileDeck    wellDeck( deck );
-    Opm::DeckKeyword newKw( wellDeck.operator[]( wellDeck.start() ) );
-
-    Opm::FileDeck::Index openPos( *datePos );
-    openPos--;
-
-    m_fileDeck->insert( openPos, newKw );
-
-    return true;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
