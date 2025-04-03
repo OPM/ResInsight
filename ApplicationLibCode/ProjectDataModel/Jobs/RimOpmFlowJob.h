@@ -59,8 +59,10 @@ private:
     RimEclipseCase* findExistingCase( QString filename );
     QString         deckExtension() const;
     QString         wellTempFile() const;
+    QString         openWellTempFile() const;
 
     void prepareWellSettings();
+    void prepareOpenWellText();
 
 private:
     caf::PdmField<caf::FilePath> m_deckFile;
