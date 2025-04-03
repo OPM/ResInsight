@@ -45,8 +45,10 @@
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 
+#include <QFile>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QTextStream>
 
 CAF_PDM_SOURCE_INIT( RimOpmFlowJob, "OpmFlowJob" );
 
@@ -67,7 +69,7 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitField( &m_wellOpenKeyword, "WellOpenKeyword", QString( "WCONPROD" ), "Open Well Keyword" );
     m_wellOpenKeyword.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_wellOpenText, "WellOpenText", QString( "'ORAT' 20000 4* 1000" ), "Open Well Parameters" );
+    CAF_PDM_InitField( &m_wellOpenText, "WellOpenText", QString( "'GRUP' 5000 4* 100 20 5" ), "Open Well Parameters" );
 
     CAF_PDM_InitField( &m_openTimeStep, "OpenTimeStep", 0, "Open Well at Time Step" );
 
@@ -175,6 +177,17 @@ void RimOpmFlowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, c
         m_runButton = false;
         RicRunJobFeature::runJob( this );
     }
+    else if ( changedField == &m_wellOpenKeyword )
+    {
+        if ( newValue.toString() == "WCONPROD" )
+        {
+            m_wellOpenText.setValueWithFieldChanged( "'GRUP' 5000 4* 100 20 5" );
+        }
+        else
+        {
+            m_wellOpenText.setValueWithFieldChanged( "'GRUP' 6500 1* 350" );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -254,7 +267,15 @@ QString RimOpmFlowJob::deckExtension() const
 //--------------------------------------------------------------------------------------------------
 QString RimOpmFlowJob::wellTempFile() const
 {
-    return m_workDir().path() + "/new_well" + deckExtension();
+    return m_workDir().path() + "/ri_new_well" + deckExtension();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimOpmFlowJob::openWellTempFile() const
+{
+    return m_workDir().path() + "/ri_open_well" + deckExtension();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -295,8 +316,10 @@ bool RimOpmFlowJob::onPrepare()
 
     // export new well settings from resinsight
     prepareWellSettings();
-
     if ( !QFile::exists( wellTempFile() ) ) return false;
+
+    prepareOpenWellText();
+    if ( !QFile::exists( openWellTempFile() ) ) return false;
 
     QString dataFile = m_deckFile().path();
     if ( dataFile.isEmpty() ) return false;
@@ -312,16 +335,26 @@ bool RimOpmFlowJob::onPrepare()
     // open new well at selected timestep
     auto cs = m_wellPath->completionSettings();
 
-    // if ( !deckFile.openWellAtTimeStep( cs->wellNameForExport().toStdString(), cs->wellTypeNameForExport().toStdString(), m_openTimeStep()
-    // ) )
-    //{
-    //     return false;
-    // }
+    if ( m_delayOpenWell )
+    {
+        if ( !deckFile.openWellAtTimeStep( m_openTimeStep(), openWellTempFile().toStdString() ) )
+        {
+            return false;
+        }
+    }
+    else
+    {
+        if ( !deckFile.openWellAtStart( openWellTempFile().toStdString() ) )
+        {
+            return false;
+        }
+    }
 
     // save DATA deck to working folder
     bool saveOk = deckFile.saveDeck( m_workDir().path().toStdString(), deckName().toStdString() + deckExtension().toStdString() );
 
     QFile::remove( wellTempFile() );
+    QFile::remove( openWellTempFile() );
 
     if ( m_pauseBeforeRun() )
     {
@@ -444,4 +477,30 @@ void RimOpmFlowJob::prepareWellSettings()
     }
 
     RicWellPathExportCompletionDataFeatureImpl::exportCompletions( topLevelWells, exportSettings );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::prepareOpenWellText()
+{
+    QFile f( openWellTempFile() );
+    if ( f.open( QIODevice::ReadWrite | QIODeviceBase::Truncate ) )
+    {
+        QTextStream stream( &f );
+
+        stream << m_wellOpenKeyword() << "\n";
+
+        if ( m_wellOpenKeyword() == "WCONPROD" )
+        {
+            stream << QString( "'%1' 'OPEN' %2 /\n" ).arg( m_wellPath()->completionSettings()->wellNameForExport() ).arg( m_wellOpenText );
+        }
+        else if ( m_wellOpenKeyword() == "WCONINJE" )
+        {
+            stream << QString( "'%1' 'WATER' 'OPEN' %2 /\n" ).arg( m_wellPath()->completionSettings()->wellNameForExport() ).arg( m_wellOpenText );
+        }
+        stream << "/\n";
+
+        f.close();
+    }
 }
