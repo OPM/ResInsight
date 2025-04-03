@@ -42,7 +42,8 @@ public:
 
     bool mergeWellDeck( std::string filename );
 
-    bool openWellAtTimeStep( std::string wellName, std::string wellType, int timeStep );
+    bool openWellAtTimeStep( int timeStep, std::string filename );
+    bool openWellAtStart( std::string filename );
 
 private:
     Opm::DeckItem item( std::string name, std::string value );
