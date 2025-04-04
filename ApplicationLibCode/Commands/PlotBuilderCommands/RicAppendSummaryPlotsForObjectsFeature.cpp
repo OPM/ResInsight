@@ -33,8 +33,6 @@
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 
-#include "RiuDockWidgetTools.h"
-
 #include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
 
@@ -179,12 +177,9 @@ void RicAppendSummaryPlotsForObjectsFeature::onActionTriggered( bool isChecked )
     auto sumAddressCollections = selectedCollections();
     if ( sumAddressCollections.empty() ) return;
 
-    auto selectedTreeViewItems = RiuDockWidgetTools::selectedItemsInTreeView( RiuDockWidgetTools::plotMainWindowPlotsTreeName() );
-    for ( auto item : selectedTreeViewItems )
+    auto selectedMultiPlots = RiaSummaryPlotTools::selectedSummaryMultiPlots();
+    for ( auto summaryMultiPlot : selectedMultiPlots )
     {
-        auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( item );
-        if ( !summaryMultiPlot ) continue;
-
         appendPlots( summaryMultiPlot, sumAddressCollections );
     }
 }

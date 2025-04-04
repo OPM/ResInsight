@@ -18,11 +18,11 @@
 
 #include "RicAppendSummaryPlotsForSummaryAddressesFeature.h"
 
+#include "Summary/RiaSummaryPlotTools.h"
+
 #include "RimSummaryAddress.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
-
-#include "RiuDockWidgetTools.h"
 
 #include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
@@ -70,13 +70,9 @@ void RicAppendSummaryPlotsForSummaryAddressesFeature::onActionTriggered( bool is
     auto addresses = selectedAddresses();
     if ( addresses.empty() ) return;
 
-    auto selectedTreeViewItems = RiuDockWidgetTools::selectedItemsInTreeView( RiuDockWidgetTools::plotMainWindowPlotsTreeName() );
-
-    for ( auto item : selectedTreeViewItems )
+    auto selectedMultiPlots = RiaSummaryPlotTools::selectedSummaryMultiPlots();
+    for ( auto summaryMultiPlot : selectedMultiPlots )
     {
-        auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( item );
-        if ( !summaryMultiPlot ) continue;
-
         appendPlotsForAddresses( summaryMultiPlot, addresses );
     }
 }

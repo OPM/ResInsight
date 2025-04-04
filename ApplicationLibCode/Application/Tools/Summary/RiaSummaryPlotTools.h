@@ -85,4 +85,6 @@ RimEnsembleCurveSet*
 
 RimSummaryCurve* addNewSummaryCurve( RimSummaryPlot* summaryPlot, const RiaSummaryCurveAddress& curveAddress, RimSummaryCase* summaryCase );
 
+std::set<RimSummaryMultiPlot*> selectedSummaryMultiPlots();
+
 }; // namespace RiaSummaryPlotTools

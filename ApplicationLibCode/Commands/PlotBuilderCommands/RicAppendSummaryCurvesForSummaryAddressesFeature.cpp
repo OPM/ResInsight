@@ -18,11 +18,11 @@
 
 #include "RicAppendSummaryCurvesForSummaryAddressesFeature.h"
 
+#include "Summary/RiaSummaryPlotTools.h"
+
 #include "RimSummaryAddress.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
-
-#include "RiuDockWidgetTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -46,12 +46,9 @@ void RicAppendSummaryCurvesForSummaryAddressesFeature::onActionTriggered( bool i
     auto addresses = selectedAddresses();
     if ( addresses.empty() ) return;
 
-    auto selectedTreeViewItems = RiuDockWidgetTools::selectedItemsInTreeView( RiuDockWidgetTools::plotMainWindowPlotsTreeName() );
-    for ( auto item : selectedTreeViewItems )
+    auto selectedMultiPlots = RiaSummaryPlotTools::selectedSummaryMultiPlots();
+    for ( auto summaryMultiPlot : selectedMultiPlots )
     {
-        auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( item );
-        if ( !summaryMultiPlot ) continue;
-
         for ( auto plot : summaryMultiPlot->summaryPlots() )
         {
             plot->handleDroppedObjects( addresses );
