@@ -173,7 +173,10 @@ RimEclipseView* RimEclipseCaseEnsemble::addViewForCase( RimEclipseCase* eclipseC
 void RimEclipseCaseEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicNewViewForGridEnsembleFeature";
-    menuBuilder << "RicNewWellTargetMappingFeature";
+
+    // Hide this feature for the 2025.04 release, not ready for production use yet.
+    // menuBuilder << "RicNewWellTargetMappingFeature";
+
     menuBuilder << "RicNewStatisticsContourMapFeature";
 }
 
