@@ -18,12 +18,12 @@
 
 #include "RicAppendSummaryCurvesForSummaryCasesFeature.h"
 
+#include "Summary/RiaSummaryPlotTools.h"
+
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
-
-#include "RiuDockWidgetTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -47,12 +47,9 @@ void RicAppendSummaryCurvesForSummaryCasesFeature::onActionTriggered( bool isChe
     auto objectsForDrop = dragDropObjects();
     if ( objectsForDrop.empty() ) return;
 
-    auto selectedTreeViewItems = RiuDockWidgetTools::selectedItemsInTreeView( RiuDockWidgetTools::plotMainWindowPlotsTreeName() );
-    for ( auto item : selectedTreeViewItems )
+    auto selectedMultiPlots = RiaSummaryPlotTools::selectedSummaryMultiPlots();
+    for ( auto summaryMultiPlot : selectedMultiPlots )
     {
-        auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( item );
-        if ( !summaryMultiPlot ) continue;
-
         for ( auto plot : summaryMultiPlot->summaryPlots() )
         {
             plot->handleDroppedObjects( objectsForDrop );

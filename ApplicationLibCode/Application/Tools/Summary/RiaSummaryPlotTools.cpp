@@ -41,6 +41,7 @@
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 
+#include "RiuDockWidgetTools.h"
 #include "RiuPlotMainWindowTools.h"
 
 namespace RiaSummaryPlotTools
@@ -565,4 +566,27 @@ RimSummaryCurve* addNewSummaryCurve( RimSummaryPlot* summaryPlot, const RiaSumma
 
     return curve;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RimSummaryMultiPlot*> selectedSummaryMultiPlots()
+{
+    std::set<RimSummaryMultiPlot*> plots;
+
+    auto selectedTreeViewItems = RiuDockWidgetTools::selectedItemsInTreeView( RiuDockWidgetTools::plotMainWindowPlotsTreeName() );
+    for ( auto item : selectedTreeViewItems )
+    {
+        if ( auto object = dynamic_cast<caf::PdmObjectHandle*>( item ) )
+        {
+            if ( auto summaryMultiPlot = object->firstAncestorOrThisOfType<RimSummaryMultiPlot>() )
+            {
+                plots.insert( summaryMultiPlot );
+            }
+        }
+    }
+
+    return plots;
+}
+
 } // namespace RiaSummaryPlotTools

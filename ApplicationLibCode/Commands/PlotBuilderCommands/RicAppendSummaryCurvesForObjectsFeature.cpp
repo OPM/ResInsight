@@ -18,12 +18,12 @@
 
 #include "RicAppendSummaryCurvesForObjectsFeature.h"
 
+#include "Summary/RiaSummaryPlotTools.h"
+
 #include "RicAppendSummaryPlotsForObjectsFeature.h"
 
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
-
-#include "RiuDockWidgetTools.h"
 
 #include <QAction>
 
@@ -55,13 +55,9 @@ void RicAppendSummaryCurvesForObjectsFeature::onActionTriggered( bool isChecked 
         pdmObjects.push_back( summaryAdrCollection );
     }
 
-    auto selectedTreeViewItems = RiuDockWidgetTools::selectedItemsInTreeView( RiuDockWidgetTools::plotMainWindowPlotsTreeName() );
-
-    for ( auto item : selectedTreeViewItems )
+    auto selectedMultiPlots = RiaSummaryPlotTools::selectedSummaryMultiPlots();
+    for ( auto summaryMultiPlot : selectedMultiPlots )
     {
-        auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( item );
-        if ( !summaryMultiPlot ) continue;
-
         if ( !RicAppendSummaryPlotsForObjectsFeature::isSelectionCompatibleWithPlot( sumAddressCollections, summaryMultiPlot ) ) continue;
 
         for ( auto plot : summaryMultiPlot->summaryPlots() )

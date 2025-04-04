@@ -18,13 +18,13 @@
 
 #include "RicAppendSummaryPlotsForSummaryCasesFeature.h"
 
+#include "Summary/RiaSummaryPlotTools.h"
+
 #include "RicAppendSummaryPlotsForObjectsFeature.h"
 
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
-
-#include "RiuDockWidgetTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -51,12 +51,9 @@ void RicAppendSummaryPlotsForSummaryCasesFeature::onActionTriggered( bool isChec
     auto cases     = selectedCases();
     auto ensembles = selectedEnsembles();
 
-    auto selectedTreeViewItems = RiuDockWidgetTools::selectedItemsInTreeView( RiuDockWidgetTools::plotMainWindowPlotsTreeName() );
-    for ( auto item : selectedTreeViewItems )
+    auto selectedMultiPlots = RiaSummaryPlotTools::selectedSummaryMultiPlots();
+    for ( auto summaryMultiPlot : selectedMultiPlots )
     {
-        auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( item );
-        if ( !summaryMultiPlot ) continue;
-
         RicAppendSummaryPlotsForObjectsFeature::appendPlots( summaryMultiPlot, cases, ensembles );
     }
 }
