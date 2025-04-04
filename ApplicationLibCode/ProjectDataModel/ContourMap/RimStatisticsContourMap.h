@@ -95,7 +95,7 @@ protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    RimEclipseCase* switchToSelectedSourceCase();
+    void switchToSelectedSourceCase();
 
 private:
     void computeStatistics();
@@ -110,7 +110,7 @@ private:
     caf::PdmField<bool>                                       m_computeStatisticsButton;
     caf::PdmField<bool>                                       m_enableFormationFilter;
     caf::PdmField<std::vector<QString>>                       m_selectedFormations;
-    caf::PdmField<QString>                                    m_primaryCase;
+    caf::PdmPtrField<RimEclipseCase*>                         m_primaryCase;
     caf::PdmPtrArrayField<RimPolygon*>                        m_selectedPolygons;
 
     caf::PdmField<caf::AppEnum<RimContourMapResolutionTools::SamplingResolution>> m_resolution;
@@ -124,4 +124,6 @@ private:
     std::map<size_t, std::map<StatisticsType, std::vector<double>>> m_timeResults;
 
     caf::PdmChildArrayField<RimStatisticsContourMapView*> m_views;
+
+    RimEclipseCase* m_openEclipseCase;
 };

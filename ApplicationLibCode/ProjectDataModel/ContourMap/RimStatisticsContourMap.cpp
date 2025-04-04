@@ -81,6 +81,7 @@ void caf::AppEnum<RimStatisticsContourMap::StatisticsType>::setUp()
 ///
 //--------------------------------------------------------------------------------------------------
 RimStatisticsContourMap::RimStatisticsContourMap()
+    : m_openEclipseCase( nullptr )
 {
     CAF_PDM_InitObject( "Ensemble Contour Map", ":/Histogram16x16.png" );
 
@@ -119,12 +120,12 @@ RimStatisticsContourMap::RimStatisticsContourMap()
     m_resultDefinition->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
     m_resultDefinition->setResultVariable( "SOIL" );
 
-    CAF_PDM_InitField( &m_primaryCase,
-                       "PrimaryCase",
-                       RiaResultNames::undefinedResultName(),
-                       "Primary Case",
-                       "",
-                       "Eclipse Case used for wells and faults shown in views, initializing available result list, timesteps, etc." );
+    CAF_PDM_InitFieldNoDefault( &m_primaryCase,
+                                "PrimaryEclipseCase",
+                                "Primary Case",
+                                "",
+                                "Eclipse Case used for wells and faults shown in views, initializing available result list, timesteps, "
+                                "etc." );
 
     CAF_PDM_InitFieldNoDefault( &m_computeStatisticsButton, "ComputeStatisticsButton", "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_computeStatisticsButton );
@@ -153,7 +154,6 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
     {
         auto selCase = ensemble()->cases().front();
         setEclipseCase( selCase );
-        m_primaryCase = selCase->caseUserDescription();
     }
 
     bool computeOK = !( m_enableFormationFilter && m_selectedFormations().empty() );
@@ -233,16 +233,16 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsContourMap::setEclipseCase( RimEclipseCase* eclipseCase )
+void RimStatisticsContourMap::setEclipseCase( RimEclipseCase* eCase )
 {
-    m_resultDefinition->setEclipseCase( eclipseCase );
-    if ( eclipseCase )
-    {
-        m_primaryCase = eclipseCase->caseUserDescription();
+    m_resultDefinition->setEclipseCase( eCase );
+    m_primaryCase = eCase;
 
+    if ( eCase != nullptr )
+    {
         if ( m_selectedTimeSteps().empty() )
         {
-            int nSteps = (int)eclipseCase->timeStepStrings().size();
+            int nSteps = (int)eCase->timeStepStrings().size();
             if ( nSteps > 0 )
             {
                 m_selectedTimeSteps.setValue( { nSteps - 1 } );
@@ -252,7 +252,7 @@ void RimStatisticsContourMap::setEclipseCase( RimEclipseCase* eclipseCase )
 
     for ( auto& view : m_views )
     {
-        view->setEclipseCase( eclipseCase );
+        view->setEclipseCase( eCase );
     }
     m_resultDefinition->updateConnectedEditors();
 }
@@ -299,7 +299,7 @@ void RimStatisticsContourMap::fieldChangedByUi( const caf::PdmFieldHandle* chang
     {
         switchToSelectedSourceCase();
 
-        // Update views
+        // Update well views as wells might have changed from last case
         for ( auto& view : m_views )
         {
             view->wellCollection()->wells.deleteChildren();
@@ -312,28 +312,22 @@ void RimStatisticsContourMap::fieldChangedByUi( const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimStatisticsContourMap::switchToSelectedSourceCase()
+void RimStatisticsContourMap::switchToSelectedSourceCase()
 {
-    RimEclipseCase* sourceResultCase = ensemble()->findByDescription( m_primaryCase );
-    if ( sourceResultCase == nullptr )
-    {
-        setEclipseCase( nullptr );
-        return nullptr;
-    }
+    auto newCase = eclipseCase();
+    if ( newCase == nullptr ) return;
 
-    if ( sourceResultCase != eclipseCase() )
+    if ( m_openEclipseCase != newCase )
     {
-        auto oldCase = eclipseCase();
-        sourceResultCase->ensureReservoirCaseIsOpen();
-        setEclipseCase( sourceResultCase );
+        newCase->ensureReservoirCaseIsOpen();
 
-        if ( oldCase && !ensemble()->casesInViews().contains( oldCase ) )
+        if ( m_openEclipseCase && !ensemble()->casesInViews().contains( m_openEclipseCase ) )
         {
-            oldCase->closeReservoirCase();
+            m_openEclipseCase->closeReservoirCase();
         }
+        m_openEclipseCase = newCase;
+        setEclipseCase( newCase );
     }
-
-    return sourceResultCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -359,12 +353,9 @@ QList<caf::PdmOptionItemInfo> RimStatisticsContourMap::calculateValueOptions( co
     }
     else if ( &m_primaryCase == fieldNeedingOptions )
     {
-        QStringList sourceCaseNames;
-        sourceCaseNames += RiaResultNames::undefinedResultName();
-
         for ( auto eCase : ensemble()->cases() )
         {
-            options.push_back( caf::PdmOptionItemInfo( eCase->caseUserDescription(), eCase->caseUserDescription() ) );
+            options.push_back( caf::PdmOptionItemInfo( eCase->caseUserDescription(), eCase, false, eCase->uiIconProvider() ) );
         }
         return options;
     }
@@ -628,9 +619,7 @@ void RimStatisticsContourMap::computeStatistics()
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimStatisticsContourMap::eclipseCase() const
 {
-    if ( !m_resultDefinition() ) return nullptr;
-
-    return m_resultDefinition->eclipseCase();
+    return m_primaryCase();
 }
 
 //--------------------------------------------------------------------------------------------------
