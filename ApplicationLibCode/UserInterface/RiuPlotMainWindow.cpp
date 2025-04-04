@@ -245,6 +245,8 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::cleanupGuiBeforeProjectClose()
 {
+    m_mdiArea->closeAllSubWindows();
+
     setPdmRoot( nullptr );
 
     for ( auto pdmUiPropertyView : m_propertyViews )
