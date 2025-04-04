@@ -311,6 +311,16 @@ std::any RimPlot::valueForKey( std::string key ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlot::zoomAllForMultiPlot()
+{
+    // Default behavior is to call zoomAll() on the current plot. Override this function to find the parent multi plot and do zoomAll(). See
+    // RimSummaryPlot::zoomAllForMultiPlot()
+    zoomAll();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int )
 {
 }

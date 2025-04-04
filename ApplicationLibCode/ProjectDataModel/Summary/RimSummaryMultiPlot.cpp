@@ -209,7 +209,6 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
     {
         sumPlot->axisChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAxisChanged );
         sumPlot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
-        sumPlot->plotZoomedByUser.connect( this, &RimSummaryMultiPlot::onSubPlotZoomed );
         sumPlot->titleChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
         sumPlot->axisChangedReloadRequired.connect( this, &RimSummaryMultiPlot::onSubPlotAxisReloadRequired );
         sumPlot->autoTitleChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAutoTitleChanged );
@@ -450,7 +449,20 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         updateTimeAxisRangesFromFirstTimePlot();
     }
-    else if ( changedField == &m_linkSubPlotAxes || changedField == &m_axisRangeAggregation || changedField == &m_linkTimeAxis )
+    else if ( changedField == &m_linkSubPlotAxes )
+    {
+        if ( m_linkSubPlotAxes() )
+        {
+            // Set the range aggregation to all sub plots when linking. This will ensure that the ZoomAll operation works on all sub plots.
+            m_axisRangeAggregation = AxisRangeAggregation::SUB_PLOTS;
+        }
+
+        setAutoValueStates();
+        syncAxisRanges();
+        analyzePlotsAndAdjustAppearanceSettings();
+        zoomAll();
+    }
+    else if ( changedField == &m_axisRangeAggregation )
     {
         setAutoValueStates();
         syncAxisRanges();
@@ -726,7 +738,6 @@ void RimSummaryMultiPlot::initAfterRead()
     {
         plot->axisChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAxisChanged );
         plot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
-        plot->plotZoomedByUser.connect( this, &RimSummaryMultiPlot::onSubPlotZoomed );
         plot->titleChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
         plot->axisChangedReloadRequired.connect( this, &RimSummaryMultiPlot::onSubPlotAxisReloadRequired );
         plot->autoTitleChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAutoTitleChanged );
@@ -742,7 +753,10 @@ void RimSummaryMultiPlot::onLoadDataAndUpdate()
     RimMultiPlot::onLoadDataAndUpdate();
     updatePlotTitles();
 
-    analyzePlotsAndAdjustAppearanceSettings();
+    for ( auto p : summaryPlots() )
+    {
+        p->updateAxes();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -751,6 +765,13 @@ void RimSummaryMultiPlot::onLoadDataAndUpdate()
 void RimSummaryMultiPlot::zoomAll()
 {
     setAutoValueStates();
+
+    // Reset zoom to make sure the complete range for min/max is available
+    RimMultiPlot::zoomAll();
+
+    syncAxisRanges();
+
+    updateTimeAxisRangesFromFirstTimePlot();
 
     if ( m_linkSubPlotAxes() )
     {
@@ -761,20 +782,7 @@ void RimSummaryMultiPlot::zoomAll()
         {
             onSubPlotAxisChanged( nullptr, summaryPlots().front() );
         }
-
-        updateZoom();
-
-        updateTimeAxisRangesFromFirstTimePlot();
-
-        return;
     }
-
-    // Reset zoom to make sure the complete range for min/max is available
-    RimMultiPlot::zoomAll();
-
-    syncAxisRanges();
-
-    updateTimeAxisRangesFromFirstTimePlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -865,7 +873,7 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
     // have now changed the default setting to use visible subplots to determine the y-range aggregation.
     // https://github.com/OPM/ResInsight/issues/10543
 
-    m_axisRangeAggregation = AxisRangeAggregation::SUB_PLOTS;
+    m_axisRangeAggregation = AxisRangeAggregation::NONE;
 
     setAutoValueStates();
 }
@@ -875,11 +883,6 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::syncAxisRanges()
 {
-    if ( m_linkSubPlotAxes() )
-    {
-        return;
-    }
-
     if ( m_axisRangeAggregation() == AxisRangeAggregation::NONE )
     {
         return;
@@ -1282,8 +1285,11 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
 {
     if ( m_autoAdjustAppearance )
     {
-        // Required to sync axis ranges before computing the auto scale
-        syncAxisRanges();
+        if ( !m_linkSubPlotAxes )
+        {
+            // Required to sync axis ranges before computing the auto scale
+            syncAxisRanges();
+        }
 
         RiaSummaryAddressAnalyzer analyzer;
 
@@ -1413,34 +1419,25 @@ void RimSummaryMultiPlot::onSubPlotChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::onSubPlotZoomed( const caf::SignalEmitter* emitter )
-{
-    m_axisRangeAggregation = AxisRangeAggregation::NONE;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot )
 {
     syncTimeAxisRanges( summaryPlot );
 
-    if ( !m_linkSubPlotAxes() )
+    if ( m_linkSubPlotAxes() )
     {
-        syncAxisRanges();
-        return;
-    }
-
-    for ( auto plot : summaryPlots() )
-    {
-        if ( plot != summaryPlot )
+        for ( auto plot : summaryPlots() )
         {
-            plot->copyMatchingAxisPropertiesFromOther( *summaryPlot );
-            plot->updateAll();
+            if ( plot != summaryPlot )
+            {
+                plot->copyMatchingAxisPropertiesFromOther( *summaryPlot );
+                plot->updateAll();
+            }
         }
     }
-
-    syncAxisRanges();
+    else
+    {
+        syncAxisRanges();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -566,7 +566,7 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
 
         if ( mouseEvent->type() == QMouseEvent::MouseButtonDblClick )
         {
-            if ( m_plotDefinition ) m_plotDefinition->zoomAll();
+            if ( m_plotDefinition ) m_plotDefinition->zoomAllForMultiPlot();
             return true;
         }
 

@@ -108,6 +108,8 @@ public:
 
     virtual std::any valueForKey( std::string key ) const;
 
+    virtual void zoomAllForMultiPlot();
+
 protected:
     virtual RiuPlotWidget* doCreatePlotViewWidget( QWidget* parent ) = 0;
 

@@ -83,7 +83,6 @@ class RimSummaryPlot : public RimPlot, public RimSummaryDataSourceStepping
 public:
     caf::Signal<>                curvesChanged;
     caf::Signal<RimSummaryPlot*> axisChanged;
-    caf::Signal<>                plotZoomedByUser;
     caf::Signal<>                titleChanged;
     caf::Signal<RimSummaryPlot*> axisChangedReloadRequired;
     caf::Signal<bool>            autoTitleChanged;
@@ -223,6 +222,8 @@ public:
     void handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects ) override;
 
     caf::PdmFieldHandle* userDescriptionField() override;
+
+    void zoomAllForMultiPlot() override;
 
 private:
     RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
