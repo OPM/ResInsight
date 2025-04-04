@@ -149,7 +149,6 @@ private:
     void appendCurveByStepping( int direction );
 
     void onSubPlotChanged( const caf::SignalEmitter* emitter );
-    void onSubPlotZoomed( const caf::SignalEmitter* emitter );
     void onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot );
     void onSubPlotAxisReloadRequired( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot );
     void onSubPlotAutoTitleChanged( const caf::SignalEmitter* emitter, bool isEnabled );

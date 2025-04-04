@@ -118,7 +118,6 @@ struct RimSummaryPlot::CurveInfo
 RimSummaryPlot::RimSummaryPlot()
     : curvesChanged( this )
     , axisChanged( this )
-    , plotZoomedByUser( this )
     , titleChanged( this )
     , m_isValid( true )
     , axisChangedReloadRequired( this )
@@ -1611,6 +1610,17 @@ caf::PdmFieldHandle* RimSummaryPlot::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::zoomAllForMultiPlot()
+{
+    if ( auto multiPlot = firstAncestorOrThisOfType<RimMultiPlot>() )
+    {
+        multiPlot->zoomAll();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
@@ -2624,8 +2634,6 @@ void RimSummaryPlot::onPlotZoomed()
     {
         p->enableAutoValueMinMax( false );
     }
-
-    plotZoomedByUser.send();
 
     updateAxisRangesFromPlotWidget();
 
