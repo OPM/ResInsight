@@ -45,7 +45,7 @@ RimEnsembleStatistics::RimEnsembleStatistics( RimEnsembleCurveSetInterface* pare
     m_showEnsembleCurves.registerGetMethod( this, &RimEnsembleStatistics::onShowEnsembleCurves );
     m_showEnsembleCurves.registerSetMethod( this, &RimEnsembleStatistics::onSetShowEnsembleCurves );
 
-    CAF_PDM_InitField( &m_basedOnFilteredCases, "BasedOnFilteredCases", false, "Based on Filtered Cases" );
+    CAF_PDM_InitField( &m_basedOnFilteredCases, "BasedOnFilteredCases", true, "Based on Filtered Cases" );
     CAF_PDM_InitField( &m_showP10Curve, "ShowP10Curve", true, "P10" );
     CAF_PDM_InitField( &m_showP50Curve, "ShowP50Curve", false, "P50" );
     CAF_PDM_InitField( &m_showP90Curve, "ShowP90Curve", true, "P90" );
