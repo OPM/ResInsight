@@ -335,6 +335,8 @@ void RiuMainWindow::cleanupGuiCaseClose()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::cleanupGuiBeforeProjectClose()
 {
+    m_mdiArea->closeAllSubWindows();
+
     setPdmRoot( nullptr );
 
     cleanupGuiCaseClose();
