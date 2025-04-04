@@ -43,7 +43,7 @@ CAF_PDM_SOURCE_INIT( RimStatisticsContourMapProjection, "RimStatisticsContourMap
 RimStatisticsContourMapProjection::RimStatisticsContourMapProjection()
     : RimContourMapProjection()
 {
-    CAF_PDM_InitObject( "RimStatisticsContourMapProjection", ":/2DMapProjection16x16.png" );
+    CAF_PDM_InitObject( "Map Projection", ":/2DMapProjection16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_statisticsType, "StatisticsType", "Statistics Type" );
 }

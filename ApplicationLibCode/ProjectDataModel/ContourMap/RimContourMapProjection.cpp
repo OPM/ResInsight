@@ -86,7 +86,7 @@ RimContourMapProjection::RimContourMapProjection()
     , m_maxResultAllTimeSteps( -std::numeric_limits<double>::infinity() )
 
 {
-    CAF_PDM_InitObject( "RimContourMapProjection", ":/2DMapProjection16x16.png" );
+    CAF_PDM_InitObject( "Map Projection", ":/2DMapProjection16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_resolution, "Resolution", "Sampling Resolution" );
     m_resolution.setValue( RimContourMapResolutionTools::SamplingResolution::NORMAL );
