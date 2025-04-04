@@ -122,7 +122,7 @@ RimWellTargetMapping::RimWellTargetMapping()
     CAF_PDM_InitField( &m_pressure, "Pressure", 0.0, "Pressure" );
     m_pressure.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_permeability, "Permeability", 0.0, "Permeability (kH)" );
+    CAF_PDM_InitField( &m_permeability, "Permeability", 0.0, "Permeability [Kh]" );
     m_permeability.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_transmissibility, "Transmissibility", 0.0, "Transmissibility" );
