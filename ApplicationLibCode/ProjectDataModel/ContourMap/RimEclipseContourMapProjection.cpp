@@ -45,7 +45,7 @@ CAF_PDM_SOURCE_INIT( RimEclipseContourMapProjection, "RimEclipseContourMapProjec
 RimEclipseContourMapProjection::RimEclipseContourMapProjection()
     : RimContourMapProjection()
 {
-    CAF_PDM_InitObject( "RimEclipseContourMapProjection", ":/2DMapProjection16x16.png" );
+    CAF_PDM_InitObject( "Map Projection", ":/2DMapProjection16x16.png" );
 
     CAF_PDM_InitField( &m_weightByParameter, "WeightByParameter", false, "Weight by Result Parameter" );
     CAF_PDM_InitFieldNoDefault( &m_weightingResult, "WeightingResult", "" );
