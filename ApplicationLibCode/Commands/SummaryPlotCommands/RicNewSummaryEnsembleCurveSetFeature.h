@@ -25,6 +25,7 @@
 class RimSummaryPlot;
 class RimEnsembleCurveSet;
 class RimSummaryEnsemble;
+class RifEclipseSummaryAddress;
 
 //==================================================================================================
 ///
@@ -36,6 +37,7 @@ class RicNewSummaryEnsembleCurveSetFeature : public caf::CmdFeature
 public:
     static RimSummaryPlot*                   createPlotForCurveSetsAndUpdate( std::vector<RimSummaryEnsemble*> ensembles );
     static std::vector<RimEnsembleCurveSet*> addDefaultCurveSets( RimSummaryPlot* plot, RimSummaryEnsemble* ensemble );
+    static RimEnsembleCurveSet* addCurveSet( RimSummaryPlot* plot, RimSummaryEnsemble* ensemble, const RifEclipseSummaryAddress& address );
 
 protected:
     bool isCommandEnabled() const override;
