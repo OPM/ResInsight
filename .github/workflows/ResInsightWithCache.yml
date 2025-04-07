@@ -287,7 +287,7 @@ jobs:
         run: |
           ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pip install mypy types-protobuf
           cd GrpcInterface/Python/rips
-          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m mypy *.py generated/generated_classes.py
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m mypy --python-version 3.11 *.py generated/generated_classes.py
 
       - name: Run pytest
         if: matrix.config.execute-pytests
