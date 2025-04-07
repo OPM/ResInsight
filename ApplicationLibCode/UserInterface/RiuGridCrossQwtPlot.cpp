@@ -141,7 +141,8 @@ void RiuGridCrossQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterfac
                                                 annotation->name(),
                                                 annotation->penStyle(),
                                                 annotation->value(),
-                                                RiaDefines::Orientation::HORIZONTAL );
+                                                RiaDefines::Orientation::HORIZONTAL,
+                                                Qt::AlignRight );
     }
 }
 
@@ -153,7 +154,7 @@ void RiuGridCrossQwtPlot::setLegendFontSize( int fontSize )
     if ( qwtPlot()->legend() )
     {
         QFont font = qwtPlot()->legend()->font();
-        font.setPixelSize( caf::FontTools::pointSizeToPixelSize( fontSize ) );
+        font.setPointSize( fontSize );
         qwtPlot()->legend()->setFont( font );
         // Set font size for all existing labels
         QList<QwtLegendLabel*> labels = qwtPlot()->legend()->findChildren<QwtLegendLabel*>();

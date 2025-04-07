@@ -478,6 +478,10 @@ void caf::PdmUiFormLayoutObjectEditor::groupBoxExpandedStateToggled( bool isExpa
     if ( !panel ) return;
 
     m_objectKeywordGroupUiNameExpandedState[objKeyword][panel->objectName()] = isExpanded;
+
+    // Required to update the layout when the group box is expanded
+    // https://github.com/OPM/ResInsight/issues/12119
+    updateUi();
 }
 
 //--------------------------------------------------------------------------------------------------

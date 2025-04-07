@@ -28,6 +28,7 @@
 class RimCase;
 class QwtPlotCurve;
 class QwtPlotGrid;
+class QwtPlotMarker;
 
 namespace cvf
 {
@@ -77,6 +78,7 @@ private slots:
 
 private:
     std::vector<QwtPlotItem*> m_plotItems;
+    QwtPlotMarker*            m_timeMarker;
 
     std::map<int, QString>                          m_caseNames;
     std::map<int, std::vector<QDateTime>>           m_timeSteps;

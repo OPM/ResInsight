@@ -21,7 +21,7 @@
 
 #include "RiaApplication.h"
 
-#include "RimEclipseContourMapView.h"
+#include "ContourMap/RimEclipseContourMapView.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimViewController.h"

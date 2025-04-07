@@ -28,8 +28,6 @@
 #include <array>
 #include <cassert>
 #include <vector>
-// #include "RivWellPathSourceInfo.h"
-// #include "RivWellPipeSourceInfo.h"
 
 class RimGridView;
 class RimEclipseView;
@@ -90,6 +88,8 @@ public:
         return dynamic_cast<T*>( selectedItem( role ) );
     }
 
+    void updateSelectedItems();
+
 private:
     Riu3dSelectionManager();
     ~Riu3dSelectionManager();
@@ -102,7 +102,7 @@ private:
 private:
     std::vector<std::vector<RiuSelectionItem*>> m_selection;
 
-    RiuSelectionChangedHandler* m_notificationCenter;
+    RiuSelectionChangedHandler* m_selectionChangedHandler;
 };
 
 //==================================================================================================
@@ -147,6 +147,8 @@ public:
                                       cvf::Color3f                       color,
                                       cvf::StructGridInterface::FaceType face,
                                       const cvf::Vec3d&                  localIntersectionPointInDisplay );
+
+    explicit RiuEclipseSelectionItem( RimEclipseView* view, size_t gridIndex, size_t gridLocalCellIndex );
 
     ~RiuEclipseSelectionItem() override{};
 

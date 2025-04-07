@@ -70,43 +70,6 @@ if(RESINSIGHT_ENABLE_GRPC)
   list(APPEND CODE_SOURCE_FILES RiaGrpcConsoleApplication.cpp
        RiaGrpcGuiApplication.cpp
   )
-
-  list(APPEND QT_MOC_HEADERS RiaGrpcConsoleApplication.h
-       RiaGrpcGuiApplication.h
-  )
-
-  # Find Protobuf installation Looks for protobuf-config.cmake file installed by
-  # Protobuf's cmake installation.
-  set(protobuf_MODULE_COMPATIBLE ON)
-  find_package(Protobuf CONFIG 3.0 QUIET)
-
-  if(Protobuf_FOUND)
-    # Find gRPC installation Looks for gRPCConfig.cmake file installed by gRPC's
-    # cmake installation.
-    find_package(gRPC CONFIG REQUIRED)
-    set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
-    set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure gRPC::grpc_unsecure
-                              gRPC::gpr
-    )
-    set(GRPC_LINK_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
-  else()
-    set(RESINSIGHT_GRPC_INSTALL_PREFIX
-        ""
-        CACHE PATH "gRPC : Install prefix for gRPC"
-    )
-    set(ENV{PKG_CONFIG_PATH} "${RESINSIGHT_GRPC_INSTALL_PREFIX}/lib/pkgconfig")
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(
-      GRPC
-      REQUIRED
-      grpc
-      grpc++_unsecure>=1.20
-      grpc_unsecure
-      gpr
-      protobuf
-      libcares
-    )
-  endif()
 endif()
 
 list(APPEND CPP_SOURCES ${CODE_SOURCE_FILES})
@@ -340,7 +303,6 @@ if(RESINSIGHT_ENABLE_GRPC)
   add_custom_target(
     RipsGeneratedPythonClasses ALL SOURCES ${GENERATED_CLASSES_FILE}
   )
-  source_group("Source Files" ${GENERATED_CLASSES_FILE})
   add_dependencies(RipsGeneratedPythonClasses ResInsight)
 
   # Copy the Python folder to build folder. This will ease debugging of Python

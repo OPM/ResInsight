@@ -93,6 +93,7 @@ list(
   ReservoirDataModel/CMakeLists_files.cmake
   ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
   ReservoirDataModel/Completions/CMakeLists_files.cmake
+  ReservoirDataModel/ContourMap/CMakeLists_files.cmake
   ReservoirDataModel/ResultAccessors/CMakeLists_files.cmake
   ReservoirDataModel/ResultCalculators/CMakeLists_files.cmake
   ReservoirDataModel/Well/CMakeLists_files.cmake
@@ -100,6 +101,7 @@ list(
   ProjectDataModel/CMakeLists_files.cmake
   ProjectDataModel/AnalysisPlots/CMakeLists_files.cmake
   ProjectDataModel/CorrelationPlots/CMakeLists_files.cmake
+  ProjectDataModel/ContourMap/CMakeLists_files.cmake
   ProjectDataModel/Cloud/CMakeLists_files.cmake
   ProjectDataModel/Faults/CMakeLists_files.cmake
   ProjectDataModel/GeoMech/CMakeLists_files.cmake
@@ -108,6 +110,7 @@ list(
   ProjectDataModel/Summary/CMakeLists_files.cmake
   ProjectDataModel/Summary/Sumo/CMakeLists_files.cmake
   ProjectDataModel/Flow/CMakeLists_files.cmake
+  ProjectDataModel/Formations/CMakeLists_files.cmake
   ProjectDataModel/Annotations/CMakeLists_files.cmake
   ProjectDataModel/Completions/CMakeLists_files.cmake
   ProjectDataModel/Measurement/CMakeLists_files.cmake
@@ -211,15 +214,7 @@ if(RESINSIGHT_FOUND_HDF5)
   else()
     list(APPEND RI_PRIVATE_INCLUDES ${HDF5_INCLUDE_DIRS})
   endif() # MSVC
-
-  source_group("FileInterface\\HDF5" FILES ${HDF5_FILES})
-
 endif()
-
-# ##############################################################################
-# Create source groups - see also included CMakeLists_files.cmake
-# ##############################################################################
-source_group("ModelVisualization" FILES ${MODEL_VISUALIZATION_FILES})
 
 qt_add_resources(QRC_FILES Application/Resources/ApplicationLibCode.qrc)
 
@@ -404,6 +399,7 @@ set(UNITY_EXCLUDE_FILES
     FileInterface/RifOsduWellLogReader.cpp
     FileInterface/RifByteArrayArrowRandomAccessFile.cpp
     FileInterface/RifArrowTools.cpp
+    FileInterface/RifReaderOpmRft.cpp
 )
 
 message("Files excluded from UNITY_BUILD : ${UNITY_EXCLUDE_FILES}")

@@ -26,9 +26,9 @@
 
 #include "RicGridStatisticsDialog.h"
 
+#include "ContourMap/RigContourMapProjection.h"
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigContourMapProjection.h"
 #include "RigEclipseCaseData.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
@@ -37,6 +37,8 @@
 #include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
 
+#include "ContourMap/RimEclipseContourMapProjection.h"
+#include "ContourMap/RimEclipseContourMapView.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "Rim3dView.h"
@@ -44,15 +46,12 @@
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
-#include "RimEclipseContourMapProjection.h"
-#include "RimEclipseContourMapView.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
-#include "RimGeoMechContourMapProjection.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
@@ -316,21 +315,27 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimEclipseView* eclipseView )
         RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>( eclipseView );
         if ( contourMap && contourMap->contourMapProjection() && contourMap->contourMapProjection()->mapProjection() )
         {
+            RimEclipseContourMapProjection* eclipseProjection =
+                dynamic_cast<RimEclipseContourMapProjection*>( contourMap->contourMapProjection() );
             QString totCellCount =
                 localeWithSpaceAsGroupSeparator.toString( contourMap->contourMapProjection()->mapProjection()->numberOfCells() );
             cvf::uint validCellCount      = contourMap->contourMapProjection()->mapProjection()->numberOfValidCells();
             QString   activeCellCountText = localeWithSpaceAsGroupSeparator.toString( validCellCount );
             QString   aggregationType     = contourMap->contourMapProjection()->resultAggregationText();
             QString   weightingParameterString;
-            if ( contourMap->contourMapProjection()->weightingParameter() != "None" )
+            if ( eclipseProjection && eclipseProjection->weightingParameter() != "None" )
             {
-                weightingParameterString += QString( " (Weight: %1)" ).arg( contourMap->contourMapProjection()->weightingParameter() );
+                weightingParameterString += QString( " (Weight: %1)" ).arg( eclipseProjection->weightingParameter() );
             }
 
             infoText += QString( "<p><b>-- Contour Map: %1 --</b><p>  "
-                                 "<b>Sample Count. Total:</b> %2 <b>Valid Results:</b> %3 <br>"
-                                 "<b>Projection Type:</b> %4%5<br>" )
-                            .arg( caseName, totCellCount, activeCellCountText, aggregationType, weightingParameterString );
+                                 "<b>Sample Count. Total:</b> %2 <b>Valid Results:</b> %3 <br>" )
+                            .arg( caseName, totCellCount, activeCellCountText );
+
+            if ( !contourMap->contourMapProjection()->isColumnResult() )
+            {
+                infoText += QString( "<b>Projection Type:</b> %1%2<br>" ).arg( aggregationType, weightingParameterString );
+            }
         }
         else if ( eclipseView->mainGrid() )
         {
@@ -390,9 +395,13 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimGeoMechView* geoMechView )
                 QString   aggregationType     = contourMap->contourMapProjection()->resultAggregationText();
 
                 infoText += QString( "<p><b>-- Contour Map: %1 --</b><p>  "
-                                     "<b>Sample Count. Total:</b> %2 <b>Valid Results:</b> %3 <br>"
-                                     "<b>Projection Type:</b> %4<br>" )
-                                .arg( caseName, totCellCount, activeCellCountText, aggregationType );
+                                     "<b>Sample Count. Total:</b> %2 <b>Valid Results:</b> %3 <br>" )
+                                .arg( caseName, totCellCount, activeCellCountText );
+
+                if ( !contourMap->contourMapProjection()->isColumnResult() )
+                {
+                    infoText += QString( "<b>Projection Type:</b> %1<br>" ).arg( aggregationType );
+                }
             }
             else
             {
@@ -452,12 +461,9 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
         bool isResultsInfoRelevant = contourMap->contourMapProjection()->mapProjection()->numberOfValidCells() > 0u;
         if ( isResultsInfoRelevant )
         {
-            QString propName      = eclipseView->cellResult()->resultVariableUiShortName();
+            QString propName      = contourMap->contourMapProjection()->resultVariableName();
             QString diffResString = eclipseView->cellResult()->additionalResultText();
-            if ( !contourMap->contourMapProjection()->isColumnResult() )
-            {
-                infoText += QString( "<b>Cell Property:</b> %1<br>" ).arg( propName );
-            }
+            infoText += QString( "<b>Cell Property:</b> %1<br>" ).arg( propName );
             if ( !diffResString.isEmpty() )
             {
                 infoText += QString( "%1<br>" ).arg( diffResString );
@@ -1046,7 +1052,7 @@ QString Rim3dOverlayInfoConfig::timeStepText( RimEclipseView* eclipseView )
             QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale( timeSteps[currTimeStepIndex], dateFormat );
 
             dateTimeString =
-                QString( "Time Step: %1/%2  %3" ).arg( QString::number( currTimeStepIndex ), QString::number( timeSteps.size() - 1 ), dateString );
+                QString( "Time Step: %1/%2  %3" ).arg( QString::number( currTimeStepIndex + 1 ), QString::number( timeSteps.size() ), dateString );
         }
     }
 
@@ -1069,7 +1075,7 @@ QString Rim3dOverlayInfoConfig::timeStepText( RimGeoMechView* geoMechView )
     {
         dateTimeString =
             QString( "Time Step: %1/%2  %3" )
-                .arg( QString::number( currTimeStepIndex ), QString::number( timeSteps.size() - 1 ), timeSteps[currTimeStepIndex] );
+                .arg( QString::number( currTimeStepIndex + 1 ), QString::number( timeSteps.size() ), timeSteps[currTimeStepIndex] );
     }
 
     return QString( "<p><b><center>-- %1 --</center></b>" ).arg( dateTimeString ) +

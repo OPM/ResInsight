@@ -59,7 +59,7 @@ void RicNewFishbonesSubsFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsFeature::onDrillingStandard()
 {
-    createFishbones( RicNewFishbonesSubsFeature::drillingStandardParameters() );
+    createFishbones( RimFishbonesDefines::drillingStandardParameters() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ void RicNewFishbonesSubsFeature::onDrillingStandard()
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsFeature::onDrillingExtended()
 {
-    createFishbones( RicNewFishbonesSubsFeature::drillingExtendedParameters() );
+    createFishbones( RimFishbonesDefines::drillingExtendedParameters() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,13 +75,13 @@ void RicNewFishbonesSubsFeature::onDrillingExtended()
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsFeature::onAcidJetting()
 {
-    createFishbones( RicNewFishbonesSubsFeature::acidJettingParameters() );
+    createFishbones( RimFishbonesDefines::acidJettingParameters() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewFishbonesSubsFeature::createFishbones( const RicFishbonesSystemParameters& customParameters )
+void RicNewFishbonesSubsFeature::createFishbones( const RimFishbonesDefines::RicFishbonesSystemParameters& customParameters )
 {
     RimFishbonesCollection* fishbonesCollection = selectedFishbonesCollection();
     CVF_ASSERT( fishbonesCollection );
@@ -119,30 +119,6 @@ void RicNewFishbonesSubsFeature::createFishbones( const RicFishbonesSystemParame
 
     RimProject* proj = RimProject::current();
     proj->reloadCompletionTypeResultsInAllViews();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RicFishbonesSystemParameters RicNewFishbonesSubsFeature::drillingStandardParameters()
-{
-    return { .lateralsPerSub = 3, .lateralLength = 11.0, .holeDiameter = 12.5, .buildAngle = 6.0, .icdsPerSub = 3 };
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RicFishbonesSystemParameters RicNewFishbonesSubsFeature::drillingExtendedParameters()
-{
-    return { .lateralsPerSub = 3, .lateralLength = 18.0, .holeDiameter = 12.5, .buildAngle = 4.0, .icdsPerSub = 3 };
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RicFishbonesSystemParameters RicNewFishbonesSubsFeature::acidJettingParameters()
-{
-    return { .lateralsPerSub = 4, .lateralLength = 12.0, .holeDiameter = 15.0, .buildAngle = 6.0, .icdsPerSub = 4 };
 }
 
 //--------------------------------------------------------------------------------------------------

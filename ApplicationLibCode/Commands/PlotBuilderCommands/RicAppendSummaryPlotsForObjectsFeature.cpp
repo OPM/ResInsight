@@ -18,15 +18,12 @@
 
 #include "RicAppendSummaryPlotsForObjectsFeature.h"
 
-#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPlotWindowRedrawScheduler.h"
-#include "RiaStdStringTools.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
 #include "Summary/RiaSummaryAddressModifier.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
-
-#include "RicSummaryPlotBuilder.h"
 
 #include "RimEnsembleCurveSet.h"
 #include "RimSummaryAddressCollection.h"
@@ -34,10 +31,8 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
-#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 
-#include "cafAssert.h"
 #include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
 
@@ -74,7 +69,7 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
 
     for ( auto summaryAdrCollection : sumAddressCollections )
     {
-        auto duplicatedPlots = RicSummaryPlotBuilder::duplicateSummaryPlots( plotsForOneInstance );
+        auto duplicatedPlots = RiaSummaryPlotTools::duplicateSummaryPlots( plotsForOneInstance );
 
         for ( auto duplicatedPlot : duplicatedPlots )
         {
@@ -182,12 +177,11 @@ void RicAppendSummaryPlotsForObjectsFeature::onActionTriggered( bool isChecked )
     auto sumAddressCollections = selectedCollections();
     if ( sumAddressCollections.empty() ) return;
 
-    RiaGuiApplication* app = RiaGuiApplication::instance();
-
-    auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( app->activePlotWindow() );
-    if ( !summaryMultiPlot ) return;
-
-    appendPlots( summaryMultiPlot, sumAddressCollections );
+    auto selectedMultiPlots = RiaSummaryPlotTools::selectedSummaryMultiPlots();
+    for ( auto summaryMultiPlot : selectedMultiPlots )
+    {
+        appendPlots( summaryMultiPlot, sumAddressCollections );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -29,13 +29,13 @@
 
 #include "RicGridCalculatorDialog.h"
 
+#include "ContourMap/RimEclipseContourMapView.h"
 #include "QuickAccess/RimQuickAccessCollection.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
-#include "RimEclipseContourMapView.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultDefinition.h"
@@ -50,6 +50,7 @@
 #include "RimViewLinkerCollection.h"
 #include "RimViewWindow.h"
 
+#include "RiuCellSelectionTool.h"
 #include "RiuDepthQwtPlot.h"
 #include "RiuDockWidgetTools.h"
 #include "RiuMdiArea.h"
@@ -325,6 +326,8 @@ void RiuMainWindow::cleanupGuiCaseClose()
     }
 
     RicShowSummaryCurveCalculatorFeature::hideCurveCalculatorDialog();
+
+    if ( m_messagePanel ) m_messagePanel->slotClearMessages();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -332,6 +335,8 @@ void RiuMainWindow::cleanupGuiCaseClose()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::cleanupGuiBeforeProjectClose()
 {
+    m_mdiArea->closeAllSubWindows();
+
     setPdmRoot( nullptr );
 
     cleanupGuiCaseClose();
@@ -406,13 +411,13 @@ void RiuMainWindow::createActions()
     m_viewFromWest->setToolTip( "Look East (Ctrl+Alt+E)" );
     caf::CmdFeature::applyShortcutWithHintToAction( m_viewFromWest, QKeySequence( tr( "Ctrl+Alt+E" ) ) );
 
-    m_viewFromAbove = new QAction( QIcon( ":/DownView.svg" ), "Look Down", this );
-    m_viewFromAbove->setToolTip( "Look Down (Ctrl+Alt+D)" );
-    caf::CmdFeature::applyShortcutWithHintToAction( m_viewFromAbove, QKeySequence( tr( "Ctrl+Alt+D" ) ) );
+    m_viewFromAbove = new QAction( QIcon( ":/DownView.svg" ), "Top View", this );
+    m_viewFromAbove->setToolTip( "Top View (Ctrl+Alt+T)" );
+    caf::CmdFeature::applyShortcutWithHintToAction( m_viewFromAbove, QKeySequence( tr( "Ctrl+Alt+T" ) ) );
 
-    m_viewFromBelow = new QAction( QIcon( ":/UpView.svg" ), "Look Up", this );
-    m_viewFromBelow->setToolTip( "Look Up (Ctrl+Alt+U)" );
-    caf::CmdFeature::applyShortcutWithHintToAction( m_viewFromBelow, QKeySequence( tr( "Ctrl+Alt+U" ) ) );
+    m_viewFromBelow = new QAction( QIcon( ":/UpView.svg" ), "Bottom View", this );
+    m_viewFromBelow->setToolTip( "Bottom View (Ctrl+Alt+B)" );
+    caf::CmdFeature::applyShortcutWithHintToAction( m_viewFromBelow, QKeySequence( tr( "Ctrl+Alt+B" ) ) );
 
     connect( m_viewFromNorth, SIGNAL( triggered() ), SLOT( slotViewFromNorth() ) );
     connect( m_viewFromSouth, SIGNAL( triggered() ), SLOT( slotViewFromSouth() ) );
@@ -532,6 +537,9 @@ void RiuMainWindow::createMenus()
     viewMenu->addAction( m_viewFromEast );
     viewMenu->addAction( m_viewFromBelow );
     viewMenu->addAction( m_viewFromAbove );
+    viewMenu->addSeparator();
+    viewMenu->addAction( cmdFeatureMgr->action( "RicApplyUserDefinedCameraFeature" ) );
+    viewMenu->addAction( cmdFeatureMgr->action( "RicStoreUserDefinedCameraFeature" ) );
 
     connect( viewMenu, SIGNAL( aboutToShow() ), SLOT( slotRefreshViewActions() ) );
 
@@ -640,6 +648,7 @@ void RiuMainWindow::createToolBars()
         toolbar->addAction( m_viewFromWest );
         toolbar->addAction( m_viewFromAbove );
         toolbar->addAction( m_viewFromBelow );
+        toolbar->addAction( cmdFeatureMgr->action( "RicApplyUserDefinedCameraFeature" ) );
 
         QLabel* scaleLabel = new QLabel( toolbar );
         scaleLabel->setText( "Scale" );
@@ -868,7 +877,6 @@ void RiuMainWindow::createDockPanels()
         dockManager()->addDockWidgetTabToArea( dockWidget, bottomArea );
     }
 
-    // result info
     {
         auto dockWidget = RiuDockWidgetTools::createDockWidget( "Result Info", RiuDockWidgetTools::mainWindowResultInfoName(), dockManager() );
 
@@ -877,8 +885,16 @@ void RiuMainWindow::createDockPanels()
         dockManager()->addDockWidget( ads::DockWidgetArea::LeftDockWidgetArea, dockWidget, bottomArea );
     }
 
+    {
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Cell Selection Tool", RiuDockWidgetTools::mainWindowCellSelectionToolName(), dockManager() );
+
+        m_cellSelectionTool = new RiuCellSelectionTool( dockWidget );
+        dockWidget->setWidget( m_cellSelectionTool );
+        dockManager()->addDockWidget( ads::DockWidgetArea::LeftDockWidgetArea, dockWidget, bottomArea );
+    }
+
     ads::CDockAreaWidget* procAndMsgTabs = nullptr;
-    // process monitor
     {
         auto dockWidget =
             RiuDockWidgetTools::createDockWidget( "Process Monitor", RiuDockWidgetTools::mainWindowProcessMonitorName(), dockManager() );
@@ -968,7 +984,9 @@ void RiuMainWindow::slotRefreshViewActions()
         commandIds << "RicLinkVisibleViewsFeature"
                    << "RicTileWindowsFeature"
                    << "RicTogglePerspectiveViewFeature"
-                   << "RicViewZoomAllFeature";
+                   << "RicViewZoomAllFeature"
+                   << "RicApplyUserDefinedCameraFeature"
+                   << "RicStoreUserDefinedCameraFeature";
 
         caf::CmdFeatureManager::instance()->refreshEnabledState( commandIds );
     }
@@ -1009,7 +1027,7 @@ void RiuMainWindow::refreshAnimationActions()
 
         if ( activeView->isTimeStepDependentDataVisibleInThisOrComparisonView() )
         {
-            timeStepStrings = activeView->ownerCase()->timeStepStrings();
+            timeStepStrings = activeView->timeStepStrings();
         }
         else
         {

@@ -20,6 +20,7 @@
 #include "Riu3dSelectionManager.h"
 
 #include "Rim2dIntersectionView.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechResultDefinition.h"
@@ -37,7 +38,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 Riu3dSelectionManager::Riu3dSelectionManager()
-    : m_notificationCenter( new RiuSelectionChangedHandler )
+    : m_selectionChangedHandler( new RiuSelectionChangedHandler )
 {
     m_selection.resize( 2 );
 }
@@ -50,7 +51,7 @@ Riu3dSelectionManager::~Riu3dSelectionManager()
     deleteAllItemsFromSelection( RUI_APPLICATION_GLOBAL );
     deleteAllItemsFromSelection( RUI_TEMPORARY );
 
-    delete m_notificationCenter;
+    delete m_selectionChangedHandler;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,7 +100,19 @@ void Riu3dSelectionManager::appendItemToSelection( RiuSelectionItem* item, int r
 
     s.push_back( item );
 
-    if ( role == RUI_APPLICATION_GLOBAL ) m_notificationCenter->handleItemAppended( item );
+    if ( role == RUI_APPLICATION_GLOBAL ) m_selectionChangedHandler->handleItemAppended( item );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Riu3dSelectionManager::updateSelectedItems()
+{
+    m_selectionChangedHandler->handleSelectionDeleted();
+    for ( RiuSelectionItem* item : m_selection[RUI_APPLICATION_GLOBAL] )
+    {
+        m_selectionChangedHandler->handleItemAppended( item );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,7 +126,7 @@ void Riu3dSelectionManager::setSelectedItem( RiuSelectionItem* item, int role )
 
     s.push_back( item );
 
-    if ( role == RUI_APPLICATION_GLOBAL ) m_notificationCenter->handleSetSelectedItem( item );
+    if ( role == RUI_APPLICATION_GLOBAL ) m_selectionChangedHandler->handleSetSelectedItem( item );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -125,7 +138,7 @@ void Riu3dSelectionManager::deleteAllItems( int role )
     {
         deleteAllItemsFromSelection( role );
 
-        if ( role == RUI_APPLICATION_GLOBAL ) m_notificationCenter->handleSelectionDeleted();
+        if ( role == RUI_APPLICATION_GLOBAL ) m_selectionChangedHandler->handleSelectionDeleted();
     }
 }
 
@@ -176,6 +189,24 @@ RiuEclipseSelectionItem::RiuEclipseSelectionItem( RimGridView*                  
     , m_face( face )
     , m_localIntersectionPointInDisplay( localIntersectionPointInDisplay )
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuEclipseSelectionItem::RiuEclipseSelectionItem( RimEclipseView* view, size_t gridIndex, size_t gridLocalCellIndex )
+{
+    m_view = view;
+
+    m_resultDefinition = view ? view->cellResult() : nullptr;
+    m_timestepIdx      = view ? view->currentTimeStep() : 0;
+
+    m_gridIndex                       = gridIndex;
+    m_gridLocalCellIndex              = gridLocalCellIndex;
+    m_nncIndex                        = cvf::UNDEFINED_SIZE_T;
+    m_color                           = cvf::Color3f( 1.0f, 0.0f, 0.0f );
+    m_face                            = cvf::StructGridInterface::NO_FACE;
+    m_localIntersectionPointInDisplay = cvf::Vec3d::UNDEFINED;
 }
 
 //--------------------------------------------------------------------------------------------------

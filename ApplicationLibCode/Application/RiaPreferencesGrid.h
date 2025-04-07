@@ -58,7 +58,10 @@ public:
     bool    invalidateLongThinCells() const;
 
     RiaDefines::GridModelReader gridModelReader() const;
+
     void                        setGridModelReaderOverride( const std::string& readerName );
+    void                        setGridModelReaderOverride( const RiaDefines::GridModelReader readerType );
+    RiaDefines::GridModelReader gridModelReaderOverride() const;
 
     void appendItems( caf::PdmUiOrdering& uiOrdering );
 

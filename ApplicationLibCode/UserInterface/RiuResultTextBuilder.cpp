@@ -32,6 +32,7 @@
 #include "Well/RigWellResultFrame.h"
 #include "Well/RigWellResultPoint.h"
 
+#include "Formations/RimFormationNames.h"
 #include "Rim2dIntersectionView.h"
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"
@@ -39,7 +40,6 @@
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
-#include "RimFormationNames.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimMultipleEclipseResults.h"
 #include "RimRegularLegendConfig.h"
@@ -158,7 +158,7 @@ QString RiuResultTextBuilder::mainResultText()
         QString nncText = nncResultText();
         if ( !nncText.isEmpty() )
         {
-            text = "NNC : " + nncText;
+            text = "NNC: " + nncText;
         }
         else if ( m_cellIndex != cvf::UNDEFINED_SIZE_T )
         {
@@ -166,11 +166,11 @@ QString RiuResultTextBuilder::mainResultText()
 
             if ( !faultResultText().isEmpty() )
             {
-                text = "Fault : " + faultText;
+                text = "Fault: " + faultText;
             }
             else
             {
-                text = "Grid cell : " + gridResultText();
+                text = "Grid cell: " + gridResultText();
             }
         }
 
@@ -227,16 +227,16 @@ QString RiuResultTextBuilder::geometrySelectionText( const QString& itemSeparato
 
                         QString faceText = faceEnum.text();
 
-                        text += QString( "Face : %1" ).arg( faceText ) + itemSeparator;
+                        text += QString( "Face: %1" ).arg( faceText ) + itemSeparator;
                     }
 
                     QString gridName = QString::fromStdString( grid->gridName() );
-                    text += QString( "Grid : %1 [%2]" ).arg( gridName ).arg( m_gridIndex ) + itemSeparator;
+                    text += QString( "Grid: %1 [%2]" ).arg( gridName ).arg( m_gridIndex ) + itemSeparator;
 
-                    text += QString( "Cell : [%1, %2, %3]" ).arg( i ).arg( j ).arg( k ) + itemSeparator;
+                    text += QString( "Cell: [%1, %2, %3]" ).arg( i ).arg( j ).arg( k ) + itemSeparator;
 
                     size_t globalCellIndex = grid->reservoirCellIndex( m_cellIndex );
-                    text += QString( "Global Cell Index : %4" ).arg( globalCellIndex ) + itemSeparator;
+                    text += QString( "Global Cell Index: %4" ).arg( globalCellIndex ) + itemSeparator;
 
                     text += coordinatesText( grid, globalCellIndex, itemSeparator );
                 }
@@ -254,7 +254,7 @@ QString RiuResultTextBuilder::geometrySelectionText( const QString& itemSeparato
                     if ( !t.isZero() )
                     {
                         cvf::Vec3d intPt = m_intersectionPointInDisplay.getTransformedPoint( t );
-                        formattedText    = createTextFromDomainCoordinate( "Intersection point : [E: %1, N: %2, Depth: %3]", intPt );
+                        formattedText    = createTextFromDomainCoordinate( "Intersection point: [E: %1, N: %2, Depth: %3]", intPt );
                         text += formattedText;
                     }
                 }
@@ -265,7 +265,7 @@ QString RiuResultTextBuilder::geometrySelectionText( const QString& itemSeparato
                         cvf::ref<caf::DisplayCoordTransform> transForm = m_displayCoordView->displayCoordTransform();
                         cvf::Vec3d domainCoord                         = transForm->translateToDomainCoord( m_intersectionPointInDisplay );
 
-                        formattedText = createTextFromDomainCoordinate( "Intersection point : [E: %1, N: %2, Depth: %3]", domainCoord );
+                        formattedText = createTextFromDomainCoordinate( "Intersection point: [E: %1, N: %2, Depth: %3]", domainCoord );
                         text += formattedText;
                     }
                 }
@@ -302,7 +302,7 @@ QString RiuResultTextBuilder::coordinatesText( const RigGridBase* grid, size_t g
         auto       cell     = mainGrid->cell( globalCellIndex );
         const auto center   = cell.center();
 
-        text += createTextFromDomainCoordinate( "Cell Center : [%1, %2, %3]", center ) + itemSeparator;
+        text += createTextFromDomainCoordinate( "Cell Center: [%1, %2, %3]", center ) + itemSeparator;
     }
 
     if ( showCorner )
@@ -327,7 +327,7 @@ QString RiuResultTextBuilder::coordinatesText( const RigGridBase* grid, size_t g
             const auto& [nodeIndex, nodeText] = riNodeOrder[i];
             auto v                            = mainGrid->nodes()[indices[nodeIndex]];
 
-            text += createTextFromDomainCoordinate( QString::fromStdString( nodeText ) + " : [%1, %2, %3]" + itemSeparator, v );
+            text += createTextFromDomainCoordinate( QString::fromStdString( nodeText ) + ": [%1, %2, %3]" + itemSeparator, v );
         }
     }
 
@@ -410,10 +410,10 @@ QString RiuResultTextBuilder::faultResultDetails()
         {
             text += "-- Fault result details --\n";
 
-            text += QString( "Fault Name: %1\n" ).arg( fault->name() );
+            text += QString( "Name: %1\n" ).arg( fault->name() );
 
             cvf::StructGridInterface::FaceEnum faceHelper( m_face );
-            text += "Fault Face : " + faceHelper.text() + "\n";
+            text += "Face: " + faceHelper.text() + "\n";
 
             if ( m_eclipseView && m_eclipseView->faultResultSettings()->hasValidCustomResult() )
             {
@@ -582,16 +582,11 @@ QString RiuResultTextBuilder::nncResultText()
                                 eclipseCase->allanDiagramData()->formationIndexCombinationFromCategory( ( *nncValues )[m_nncIndex] );
 
                             std::vector<QString> fmNames = eclipseCase->formationNames();
-                            // clang-format off
-                            if ( fmIndexPair.first >= 0 && 
-                                 fmIndexPair.second >= 0 &&
-                                 static_cast<int>(fmNames.size()) > fmIndexPair.first &&
-                                 static_cast<int>(fmNames.size()) > fmIndexPair.second )
+                            if ( fmIndexPair.first >= 0 && fmIndexPair.second >= 0 && static_cast<int>( fmNames.size() ) > fmIndexPair.first &&
+                                 static_cast<int>( fmNames.size() ) > fmIndexPair.second )
                             {
-                                resultValueText = fmNames[fmIndexPair.first] + " - " +
-                                                  fmNames[fmIndexPair.second];
+                                resultValueText = fmNames[fmIndexPair.first] + " - " + fmNames[fmIndexPair.second];
                             }
-                            // clang-format on
                         }
                         else if ( m_eclipseView->currentFaultResultColors()->resultVariable() ==
                                   RiaResultNames::formationBinaryAllanResultName() )
@@ -666,19 +661,19 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
                 scalarValue = dataAccessObjectX->cellScalar( cellIndex );
             else
                 scalarValue = 0.0;
-            resultInfoText->append( QString( "SOIL : %1\n" ).arg( scalarValue ) );
+            resultInfoText->append( QString( "SOIL: %1\n" ).arg( scalarValue ) );
 
             if ( dataAccessObjectY.notNull() )
                 scalarValue = dataAccessObjectY->cellScalar( cellIndex );
             else
                 scalarValue = 0.0;
-            resultInfoText->append( QString( "SGAS : %1\n" ).arg( scalarValue ) );
+            resultInfoText->append( QString( "SGAS: %1\n" ).arg( scalarValue ) );
 
             if ( dataAccessObjectZ.notNull() )
                 scalarValue = dataAccessObjectZ->cellScalar( cellIndex );
             else
                 scalarValue = 0.0;
-            resultInfoText->append( QString( "SWAT : %1\n" ).arg( scalarValue ) );
+            resultInfoText->append( QString( "SWAT: %1\n" ).arg( scalarValue ) );
         }
 
         return;
@@ -698,13 +693,13 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
                                                                            RiaResultNames::combinedTransmissibilityResultName() ) );
                 {
                     double scalarValue = transResultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_I );
-                    resultInfoText->append( QString( "Tran X : %1\n" ).arg( scalarValue ) );
+                    resultInfoText->append( QString( "Tran X: %1\n" ).arg( scalarValue ) );
 
                     scalarValue = transResultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_J );
-                    resultInfoText->append( QString( "Tran Y : %1\n" ).arg( scalarValue ) );
+                    resultInfoText->append( QString( "Tran Y: %1\n" ).arg( scalarValue ) );
 
                     scalarValue = transResultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_K );
-                    resultInfoText->append( QString( "Tran Z : %1\n" ).arg( scalarValue ) );
+                    resultInfoText->append( QString( "Tran Z: %1\n" ).arg( scalarValue ) );
                 }
 
                 return;
@@ -719,19 +714,19 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
                                                                        RigEclipseResultAddress( RiaResultNames::combinedMultResultName() ) );
                 {
                     double scalarValue = multResultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_I );
-                    resultInfoText->append( QString( "MULTX : %1\n" ).arg( scalarValue ) );
+                    resultInfoText->append( QString( "MULTX: %1\n" ).arg( scalarValue ) );
                     scalarValue = multResultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::NEG_I );
-                    resultInfoText->append( QString( "MULTX- : %1\n" ).arg( scalarValue ) );
+                    resultInfoText->append( QString( "MULTX-: %1\n" ).arg( scalarValue ) );
 
                     scalarValue = multResultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_J );
-                    resultInfoText->append( QString( "MULTY : %1\n" ).arg( scalarValue ) );
+                    resultInfoText->append( QString( "MULTY: %1\n" ).arg( scalarValue ) );
                     scalarValue = multResultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::NEG_J );
-                    resultInfoText->append( QString( "MULTY- : %1\n" ).arg( scalarValue ) );
+                    resultInfoText->append( QString( "MULTY-: %1\n" ).arg( scalarValue ) );
 
                     scalarValue = multResultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_K );
-                    resultInfoText->append( QString( "MULTZ : %1\n" ).arg( scalarValue ) );
+                    resultInfoText->append( QString( "MULTZ: %1\n" ).arg( scalarValue ) );
                     scalarValue = multResultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::NEG_K );
-                    resultInfoText->append( QString( "MULTZ- : %1\n" ).arg( scalarValue ) );
+                    resultInfoText->append( QString( "MULTZ-: %1\n" ).arg( scalarValue ) );
                 }
 
                 return;
@@ -746,13 +741,13 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
                                                                        RigEclipseResultAddress( RiaResultNames::combinedRiTranResultName() ) );
                 {
                     double scalarValue = transResultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_I );
-                    resultInfoText->append( QString( "riTran X : %1\n" ).arg( scalarValue ) );
+                    resultInfoText->append( QString( "riTran X: %1\n" ).arg( scalarValue ) );
 
                     scalarValue = transResultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_J );
-                    resultInfoText->append( QString( "riTran Y : %1\n" ).arg( scalarValue ) );
+                    resultInfoText->append( QString( "riTran Y: %1\n" ).arg( scalarValue ) );
 
                     scalarValue = transResultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_K );
-                    resultInfoText->append( QString( "riTran Z : %1\n" ).arg( scalarValue ) );
+                    resultInfoText->append( QString( "riTran Z: %1\n" ).arg( scalarValue ) );
                 }
 
                 return;
@@ -767,13 +762,13 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
                                                                        RigEclipseResultAddress( RiaResultNames::combinedRiMultResultName() ) );
                 {
                     double scalarValue = resultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_I );
-                    resultInfoText->append( QString( "riMult X : %1\n" ).arg( scalarValue ) );
+                    resultInfoText->append( QString( "riMult X: %1\n" ).arg( scalarValue ) );
 
                     scalarValue = resultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_J );
-                    resultInfoText->append( QString( "riMult Y : %1\n" ).arg( scalarValue ) );
+                    resultInfoText->append( QString( "riMult Y: %1\n" ).arg( scalarValue ) );
 
                     scalarValue = resultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_K );
-                    resultInfoText->append( QString( "riMult Z : %1\n" ).arg( scalarValue ) );
+                    resultInfoText->append( QString( "riMult Z: %1\n" ).arg( scalarValue ) );
                 }
                 return;
             }
@@ -788,13 +783,13 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
                                                                            RiaResultNames::combinedRiAreaNormTranResultName() ) );
                 {
                     double scalarValue = resultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_I );
-                    resultInfoText->append( QString( "riTransByArea X : %1\n" ).arg( scalarValue ) );
+                    resultInfoText->append( QString( "riTransByArea X: %1\n" ).arg( scalarValue ) );
 
                     scalarValue = resultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_J );
-                    resultInfoText->append( QString( "riTransByArea Y : %1\n" ).arg( scalarValue ) );
+                    resultInfoText->append( QString( "riTransByArea Y: %1\n" ).arg( scalarValue ) );
 
                     scalarValue = resultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_K );
-                    resultInfoText->append( QString( "riTransByArea Z : %1\n" ).arg( scalarValue ) );
+                    resultInfoText->append( QString( "riTransByArea Z: %1\n" ).arg( scalarValue ) );
                 }
 
                 return;
@@ -884,7 +879,7 @@ QString RiuResultTextBuilder::cellEdgeResultDetails()
             if ( resultAccessor.notNull() )
             {
                 double scalarValue = resultAccessor->cellScalar( m_cellIndex );
-                text.append( QString( "%1 : %2\n" ).arg( metaData[idx].m_resultVariable ).arg( scalarValue ) );
+                text.append( QString( "%1: %2\n" ).arg( metaData[idx].m_resultVariable ).arg( scalarValue ) );
 
                 uniqueResultAddresses.insert( resultAddr );
             }
@@ -938,7 +933,7 @@ QString RiuResultTextBuilder::nncDetails()
 
                             QString gridName = QString::fromStdString( hostGrid->gridName() );
                             text.append(
-                                QString( "NNC 1 : cell [%1, %2, %3] face %4 (%5)\n" ).arg( i ).arg( j ).arg( k ).arg( face.text() ).arg( gridName ) );
+                                QString( "NNC 1: cell [%1, %2, %3] face %4 (%5)\n" ).arg( i ).arg( j ).arg( k ).arg( face.text() ).arg( gridName ) );
                         }
                     }
 
@@ -963,7 +958,7 @@ QString RiuResultTextBuilder::nncDetails()
                             QString                            faceText = oppositeFaceEnum.text();
 
                             text.append(
-                                QString( "NNC 2 : cell [%1, %2, %3] face %4 (%5)\n" ).arg( i ).arg( j ).arg( k ).arg( faceText ).arg( gridName ) );
+                                QString( "NNC 2: cell [%1, %2, %3] face %4 (%5)\n" ).arg( i ).arg( j ).arg( k ).arg( faceText ).arg( gridName ) );
                         }
                     }
                 }
@@ -1008,7 +1003,7 @@ QString RiuResultTextBuilder::cellResultText( const std::vector<RimEclipseResult
     for ( const auto& [key, value] : keyValues )
     {
         if ( !text.isEmpty() ) text += "\n";
-        text += QString( "%1 : %2" ).arg( key, -maxKeyLength ).arg( value );
+        text += QString( "%1: %2" ).arg( key, -maxKeyLength ).arg( value );
 
         if ( appendCaseName && m_eclipseView && m_eclipseView->eclipseCase() )
         {

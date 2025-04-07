@@ -54,6 +54,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryAddressSelector.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCrossPlotStatisticsCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryEnsembleTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotReadOut.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -112,18 +113,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryAddressSelector.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCrossPlotStatisticsCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryEnsembleTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotReadOut.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
-
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
-
-list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlot.h
-     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotManager.h
-)
-
-source_group(
-  "ProjectDataModel\\Summary"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
-)

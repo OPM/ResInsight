@@ -18,12 +18,15 @@
 
 #include "RimPolygonInViewCollection.h"
 
+#include "ContourMap/RimEclipseContourMapView.h"
 #include "Rim3dView.h"
 #include "RimPolygon.h"
 #include "RimPolygonCollection.h"
 #include "RimPolygonFile.h"
 #include "RimPolygonInView.h"
 #include "RimTools.h"
+
+#include "cafCmdFeatureMenuBuilder.h"
 
 CAF_PDM_SOURCE_INIT( RimPolygonInViewCollection, "RimPolygonInViewCollection" );
 
@@ -128,6 +131,10 @@ void RimPolygonInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInViewCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
+    if ( firstAncestorOfType<RimEclipseContourMapView>() )
+    {
+        menuBuilder << "RicCreateContourMapPolygonFeature";
+    }
     RimPolygonCollection::appendPolygonMenuItems( menuBuilder );
 }
 

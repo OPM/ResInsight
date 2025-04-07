@@ -18,7 +18,6 @@
 #pragma once
 
 #include "RiuPlotCurveSymbol.h"
-#include "RiuQwtPlotCurveDefines.h"
 
 #include "cvfColor3.h"
 
@@ -77,9 +76,8 @@ private:
     void updateApperanceIndices();
     std::map<std::string, size_t> mapNameToAppearanceIndex( CurveAppearanceType& appearance, const std::set<std::string>& names );
 
-    RiuQwtPlotCurveDefines::LineStyleEnum cycledLineStyle( int index );
-    int                                   cycledLineThickness( int index );
-    float                                 gradient( size_t totalCount, int index );
+    int   cycledLineThickness( int index );
+    float gradient( size_t totalCount, int index );
 
     cvf::Color3f gradeColor( const cvf::Color3f& color, float factor );
     void         assignColorByPhase( RimSummaryCurve* curve, int colorIndex );

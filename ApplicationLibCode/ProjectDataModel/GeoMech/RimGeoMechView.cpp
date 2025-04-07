@@ -195,7 +195,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
     geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
     m_wellMeasurementCollection->syncWithChangesInWellMeasurementCollection();
 
-    if ( m_surfaceCollection ) m_surfaceCollection->loadData();
+    if ( m_surfaceCollection ) m_surfaceCollection->loadData( m_currentTimeStep );
 
     if ( m_partsCollection ) m_partsCollection->syncWithCase( m_geomechCase );
 
@@ -472,7 +472,6 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
         // Intersections
         if ( intersectionCollection()->shouldApplyCellFiltersToIntersections() && propertyFilterCollection()->hasActiveDynamicFilters() )
         {
-            m_intersectionCollection->clearGeometry();
             appendIntersectionsForCurrentTimeStep();
         }
 
@@ -502,6 +501,14 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
 void RimGeoMechView::onUpdateStaticCellColors()
 {
     m_vizLogic->updateStaticCellColors( -1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    m_propertyFilterCollection->updateFromResult( cellResult() );
 }
 
 //--------------------------------------------------------------------------------------------------

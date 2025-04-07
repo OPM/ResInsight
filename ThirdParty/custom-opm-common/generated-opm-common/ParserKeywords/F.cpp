@@ -27,7 +27,6 @@ FAULTDIM::FAULTDIM() : ParserKeyword("FAULTDIM", KeywordSize(1, false)) {
 }
 const std::string FAULTDIM::keywordName = "FAULTDIM";
 const std::string FAULTDIM::MFSEGS::itemName = "MFSEGS";
-const int FAULTDIM::MFSEGS::defaultValue = 0;
 
 
 FAULTS::FAULTS() : ParserKeyword("FAULTS", KeywordSize(SLASH_TERMINATED)) {
@@ -90,11 +89,13 @@ FBHPDEF::FBHPDEF() : ParserKeyword("FBHPDEF", KeywordSize(1, false)) {
      ParserRecord record;
      {
         ParserItem item("TARGET_BHP", ParserItem::itype::DOUBLE);
-        item.push_backDimension("Length");
+        item.setDefault( double(1.013250) );
+        item.push_backDimension("Pressure");
         record.addItem(item);
      }
      {
         ParserItem item("LIMIT_BHP", ParserItem::itype::DOUBLE);
+        item.setDefault( double(6895.000000) );
         item.push_backDimension("Pressure");
         record.addItem(item);
      }
@@ -136,38 +137,110 @@ FIELD::FIELD() : ParserKeyword("FIELD", KeywordSize(0, false)) {
 const std::string FIELD::keywordName = "FIELD";
 
 
+FIELDSEP::FIELDSEP() : ParserKeyword("FIELDSEP", KeywordSize(SLASH_TERMINATED)) {
+  addValidSectionName("SOLUTION");
+  clearDeckNames();
+  addDeckName("FIELDSEP");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("STAGE", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("TEMPERATURE", ParserItem::itype::DOUBLE);
+        item.setDefault( double(15.560000) );
+        item.push_backDimension("Temperature");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("PRESSURE", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.013250) );
+        item.push_backDimension("Pressure");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("LIQ_DESTINATION", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("VAP_DESTINATION", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("KVALUE", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("TABLE_NUM", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("EOS_NUM", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("REF_TEMP", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Temperature");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("REF_PRESS", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Pressure");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string FIELDSEP::keywordName = "FIELDSEP";
+const std::string FIELDSEP::STAGE::itemName = "STAGE";
+const std::string FIELDSEP::TEMPERATURE::itemName = "TEMPERATURE";
+const std::string FIELDSEP::PRESSURE::itemName = "PRESSURE";
+const std::string FIELDSEP::LIQ_DESTINATION::itemName = "LIQ_DESTINATION";
+const std::string FIELDSEP::VAP_DESTINATION::itemName = "VAP_DESTINATION";
+const std::string FIELDSEP::KVALUE::itemName = "KVALUE";
+const std::string FIELDSEP::TABLE_NUM::itemName = "TABLE_NUM";
+const std::string FIELDSEP::EOS_NUM::itemName = "EOS_NUM";
+const std::string FIELDSEP::REF_TEMP::itemName = "REF_TEMP";
+const std::string FIELDSEP::REF_PRESS::itemName = "REF_PRESS";
+
+
 FIELD_PROBE::FIELD_PROBE() : ParserKeyword("FIELD_PROBE", KeywordSize(0, false)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
-  addDeckName("FORFF");
   addDeckName("FOPR");
-  addDeckName("FCSC");
+  addDeckName("FGCDI");
+  addDeckName("FORFF");
   addDeckName("FOPRH");
+  addDeckName("FCSC");
   addDeckName("FOPTF");
-  addDeckName("FSPR");
-  addDeckName("FGPTF");
   addDeckName("FGIMT");
+  addDeckName("FGPTF");
+  addDeckName("FSPR");
   addDeckName("FGPP2");
-  addDeckName("FGLRH");
   addDeckName("FOPRT");
+  addDeckName("FGLRH");
   addDeckName("FGPRF");
   addDeckName("FOPT");
   addDeckName("FOPRF");
-  addDeckName("FMWPL");
   addDeckName("FGST");
-  addDeckName("FOPRS");
+  addDeckName("FMWPL");
   addDeckName("FOPI2");
+  addDeckName("FOPRS");
   addDeckName("FOPI");
   addDeckName("FGPP");
   addDeckName("FOPTH");
   addDeckName("FGIRT");
-  addDeckName("FCIP");
   addDeckName("FOPTS");
+  addDeckName("FCIP");
   addDeckName("FOIR");
-  addDeckName("FCIT");
   addDeckName("FOIRH");
-  addDeckName("FOIRT");
+  addDeckName("FCIT");
   addDeckName("FWIT");
+  addDeckName("FOIRT");
   addDeckName("FOIT");
   addDeckName("FGPRS");
   addDeckName("FWPI2");
@@ -176,88 +249,89 @@ FIELD_PROBE::FIELD_PROBE() : ParserKeyword("FIELD_PROBE", KeywordSize(0, false))
   addDeckName("FWPRT");
   addDeckName("FOPP2");
   addDeckName("FWPRH");
-  addDeckName("FMWPO");
   addDeckName("FWPR");
+  addDeckName("FMWPO");
   addDeckName("FWPT");
-  addDeckName("FCIC");
   addDeckName("FWPTH");
+  addDeckName("FCIC");
   addDeckName("FWIR");
   addDeckName("FGSR");
   addDeckName("FWIRH");
   addDeckName("FWIRT");
   addDeckName("FWITH");
-  addDeckName("FSPT");
   addDeckName("FGIMR");
+  addDeckName("FSPT");
   addDeckName("FWPP");
   addDeckName("FWPP2");
-  addDeckName("FORFE");
   addDeckName("FGPI2");
-  addDeckName("FMWPT");
+  addDeckName("FORFE");
   addDeckName("FWPI");
+  addDeckName("FMWPT");
   addDeckName("FGPI");
   addDeckName("FWPIR");
   addDeckName("FGPPF");
   addDeckName("FGPR");
   addDeckName("FGPRH");
   addDeckName("FGPRT");
-  addDeckName("FGSAT");
   addDeckName("FGPT");
+  addDeckName("FGSAT");
   addDeckName("FGPTH");
   addDeckName("FGPTS");
   addDeckName("FGIR");
-  addDeckName("FMWIA");
-  addDeckName("FSGR");
   addDeckName("FGCR");
-  addDeckName("FGIRH");
+  addDeckName("FSGR");
+  addDeckName("FMWIA");
   addDeckName("FGPPS2");
+  addDeckName("FGIRH");
   addDeckName("FGIT");
-  addDeckName("FOSRL");
   addDeckName("FGITH");
+  addDeckName("FOSRL");
   addDeckName("FGPPS");
   addDeckName("FGPPF2");
-  addDeckName("FMWIG");
-  addDeckName("FSGT");
   addDeckName("FGCT");
-  addDeckName("FJPRH");
+  addDeckName("FSGT");
+  addDeckName("FMWIG");
+  addDeckName("FWCD");
   addDeckName("FGLIR");
+  addDeckName("FJPRH");
   addDeckName("FGQ");
   addDeckName("FLPR");
-  addDeckName("FTICHEA");
-  addDeckName("FSIP");
   addDeckName("FLPRH");
+  addDeckName("FSIP");
+  addDeckName("FTICHEA");
   addDeckName("FLPRT");
   addDeckName("FLPT");
-  addDeckName("FOEIW");
   addDeckName("FLPTH");
+  addDeckName("FOEIW");
   addDeckName("FJPR");
   addDeckName("FJPRT");
   addDeckName("FJPT");
-  addDeckName("FEIR");
   addDeckName("FJPTH");
+  addDeckName("FEIR");
   addDeckName("FVPR");
   addDeckName("FVPRT");
-  addDeckName("FGDEN");
   addDeckName("FVPT");
+  addDeckName("FGDEN");
   addDeckName("FVIR");
   addDeckName("FVIRT");
   addDeckName("FVIT");
   addDeckName("FWCT");
-  addDeckName("FORFG");
   addDeckName("FWCTH");
+  addDeckName("FORFG");
   addDeckName("FGOR");
   addDeckName("FGORH");
   addDeckName("FOGR");
-  addDeckName("FORMX");
   addDeckName("FOGRH");
+  addDeckName("FORMX");
   addDeckName("FWGR");
   addDeckName("FWGRH");
-  addDeckName("FMPT");
   addDeckName("FGLR");
-  addDeckName("FPRP");
+  addDeckName("FMPT");
   addDeckName("FMCTP");
+  addDeckName("FPRP");
   addDeckName("FMCTW");
-  addDeckName("FOVIS");
   addDeckName("FMCTG");
+  addDeckName("FOVIS");
   addDeckName("FMWPR");
   addDeckName("FMWPA");
   addDeckName("FMWPU");
@@ -276,21 +350,25 @@ FIELD_PROBE::FIELD_PROBE() : ParserKeyword("FIELD_PROBE", KeywordSize(0, false))
   addDeckName("FMWWO");
   addDeckName("FMWWT");
   addDeckName("FEPR");
-  addDeckName("FTITSUR");
   addDeckName("FEPT");
+  addDeckName("FTITSUR");
+  addDeckName("FGCDM");
+  addDeckName("FOPV");
   addDeckName("FGSPR");
   addDeckName("FGSRL");
   addDeckName("FGSRU");
   addDeckName("FGSSP");
-  addDeckName("FMIR");
   addDeckName("FGSTP");
+  addDeckName("FMIR");
   addDeckName("FOSPR");
   addDeckName("FOSRU");
   addDeckName("FOSSP");
   addDeckName("FOSTP");
+  addDeckName("FWIPG");
+  addDeckName("FWIPL");
   addDeckName("FWSPR");
-  addDeckName("FTPTCAT");
   addDeckName("FWSRL");
+  addDeckName("FTPTCAT");
   addDeckName("FWSRU");
   addDeckName("FWSSP");
   addDeckName("FWSTP");
@@ -300,14 +378,14 @@ FIELD_PROBE::FIELD_PROBE() : ParserKeyword("FIELD_PROBE", KeywordSize(0, false))
   addDeckName("FOIPL");
   addDeckName("FOIPG");
   addDeckName("FPPO");
-  addDeckName("FMIT");
   addDeckName("FODEN");
+  addDeckName("FMIT");
   addDeckName("FWSAT");
   addDeckName("FWIP");
   addDeckName("FWIPR");
   addDeckName("FPPW");
-  addDeckName("FORMS");
   addDeckName("FWVIS");
+  addDeckName("FORMS");
   addDeckName("FWDEN");
   addDeckName("FGIP");
   addDeckName("FGIPR");
@@ -315,31 +393,30 @@ FIELD_PROBE::FIELD_PROBE() : ParserKeyword("FIELD_PROBE", KeywordSize(0, false))
   addDeckName("FGIPG");
   addDeckName("FPPG");
   addDeckName("FGVIS");
-  addDeckName("FCAD");
   addDeckName("FPR");
+  addDeckName("FCAD");
   addDeckName("FPRH");
   addDeckName("FPRGZ");
   addDeckName("FRS");
-  addDeckName("FSIR");
   addDeckName("FRV");
+  addDeckName("FSIR");
   addDeckName("FPPC");
   addDeckName("FRPV");
-  addDeckName("FOPV");
   addDeckName("FWPV");
   addDeckName("FGPV");
   addDeckName("FHPV");
   addDeckName("FRTM");
   addDeckName("FOE");
   addDeckName("FOEW");
-  addDeckName("FAPI");
   addDeckName("FOEWW");
+  addDeckName("FAPI");
   addDeckName("FOEIG");
   addDeckName("FOEWG");
-  addDeckName("FTPTALK");
   addDeckName("FORMR");
+  addDeckName("FTPTALK");
   addDeckName("FORMW");
-  addDeckName("FNIT");
   addDeckName("FORMG");
+  addDeckName("FNIT");
   addDeckName("FORME");
   addDeckName("FORMF");
   addDeckName("FORMY");
@@ -361,8 +438,8 @@ FIELD_PROBE::FIELD_PROBE() : ParserKeyword("FIELD_PROBE", KeywordSize(0, false))
   addDeckName("FTPTANI");
   addDeckName("FTIRANI");
   addDeckName("FTITANI");
-  addDeckName("FTPTSUR");
   addDeckName("FTPRCAT");
+  addDeckName("FTPTSUR");
   addDeckName("FTIRCAT");
   addDeckName("FTITCAT");
   addDeckName("FTPCHEA");
@@ -377,8 +454,8 @@ FIELD_PROBE::FIELD_PROBE() : ParserKeyword("FIELD_PROBE", KeywordSize(0, false))
   addDeckName("FTPTFOA");
   addDeckName("FTIRFOA");
   addDeckName("FTITFOA");
-  addDeckName("FNIP");
   addDeckName("FTIPTFOA");
+  addDeckName("FNIP");
   addDeckName("FTADSFOA");
   addDeckName("FTDCYFOA");
   addDeckName("FTMOBFOA");
@@ -398,8 +475,8 @@ FIELD_PROBE::FIELD_PROBE() : ParserKeyword("FIELD_PROBE", KeywordSize(0, false))
   addDeckName("FNPT");
   addDeckName("FNIR");
   addDeckName("FTPRSUR");
-  addDeckName("FTIRALK");
   addDeckName("FTIRSUR");
+  addDeckName("FTIRALK");
   addDeckName("FTIPTSUR");
   addDeckName("FTADSUR");
   addDeckName("FTPRALK");
@@ -407,6 +484,26 @@ FIELD_PROBE::FIELD_PROBE() : ParserKeyword("FIELD_PROBE", KeywordSize(0, false))
   setMatchRegex("FU.+|FTPR.+|FTPT.+|FTPC.+|FTIR.+|FTIT.+|FTIC.+|FTIPT.+|FTIPF.+|FTIPS|FTIP[1-9][0-9]*.+|FTPR.+|FTPT.+|FTPC.+|FTIR.+|FTIT.+|FTIC.+|FTADS.+|FTDCY.+|FTIRF.+|FTIRS.+|FTPRF.+|FTPRS.+|FTITF.+|FTITS.+|FTPTF.+|FTPTS.+|FTICF.+|FTICS.+|FTPCF.+|FTPCS.+");
 }
 const std::string FIELD_PROBE::keywordName = "FIELD_PROBE";
+
+
+FIELD_PROBE_OPM::FIELD_PROBE_OPM() : ParserKeyword("FIELD_PROBE_OPM", KeywordSize(0, false)) {
+  addValidSectionName("SUMMARY");
+  clearDeckNames();
+  addDeckName("FGMIP");
+  addDeckName("FGKDI");
+  addDeckName("FGMDS");
+  addDeckName("FGKDM");
+  addDeckName("FGKMO");
+  addDeckName("FGKTR");
+  addDeckName("FGMIR");
+  addDeckName("FGMGP");
+  addDeckName("FGMIT");
+  addDeckName("FGMMO");
+  addDeckName("FGMST");
+  addDeckName("FGMTR");
+  addDeckName("FGMUS");
+}
+const std::string FIELD_PROBE_OPM::keywordName = "FIELD_PROBE_OPM";
 
 
 FILEUNIT::FILEUNIT() : ParserKeyword("FILEUNIT", KeywordSize(1, false)) {
@@ -532,17 +629,11 @@ const std::string FIPSEP::keywordName = "FIPSEP";
 const std::string FIPSEP::FLUID_IN_PLACE_REGION::itemName = "FLUID_IN_PLACE_REGION";
 const std::string FIPSEP::STAGE_INDEX::itemName = "STAGE_INDEX";
 const std::string FIPSEP::STAGE_TEMPERATURE::itemName = "STAGE_TEMPERATURE";
-const double FIPSEP::STAGE_TEMPERATURE::defaultValue = 15.560000;
 const std::string FIPSEP::STAGE_PRESSURE::itemName = "STAGE_PRESSURE";
-const double FIPSEP::STAGE_PRESSURE::defaultValue = 1.013250;
 const std::string FIPSEP::DESTINATION_OUPUT::itemName = "DESTINATION_OUPUT";
-const int FIPSEP::DESTINATION_OUPUT::defaultValue = 0;
 const std::string FIPSEP::DESTINATION_STAGE::itemName = "DESTINATION_STAGE";
-const int FIPSEP::DESTINATION_STAGE::defaultValue = 0;
 const std::string FIPSEP::K_VAL_TABLE_NUM::itemName = "K_VAL_TABLE_NUM";
-const int FIPSEP::K_VAL_TABLE_NUM::defaultValue = 0;
 const std::string FIPSEP::GAS_PLANT_TABLE_NUM::itemName = "GAS_PLANT_TABLE_NUM";
-const int FIPSEP::GAS_PLANT_TABLE_NUM::defaultValue = 0;
 const std::string FIPSEP::SURF_EQ_STATE_NUM::itemName = "SURF_EQ_STATE_NUM";
 const std::string FIPSEP::DENSITY_EVAL_GAS_TEMP::itemName = "DENSITY_EVAL_GAS_TEMP";
 const std::string FIPSEP::DENSITY_EVAL_PRESSURE_TEMP::itemName = "DENSITY_EVAL_PRESSURE_TEMP";
@@ -741,7 +832,6 @@ FOAMFCN::FOAMFCN() : ParserKeyword("FOAMFCN", KeywordSize("TABDIMS", "NTSFUN", f
 const std::string FOAMFCN::keywordName = "FOAMFCN";
 const std::string FOAMFCN::CAPILLARY_NUMBER::itemName = "CAPILLARY_NUMBER";
 const std::string FOAMFCN::EXP::itemName = "EXP";
-const double FOAMFCN::EXP::defaultValue = 1.000000;
 
 
 FOAMFRM::FOAMFRM() : ParserKeyword("FOAMFRM", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
@@ -801,11 +891,8 @@ FOAMFSC::FOAMFSC() : ParserKeyword("FOAMFSC", KeywordSize("TABDIMS", "NTSFUN", f
 const std::string FOAMFSC::keywordName = "FOAMFSC";
 const std::string FOAMFSC::REF_SURF_CONC::itemName = "REF_SURF_CONC";
 const std::string FOAMFSC::EXPONENT::itemName = "EXPONENT";
-const double FOAMFSC::EXPONENT::defaultValue = 1.000000;
 const std::string FOAMFSC::MIN_SURF_CONC::itemName = "MIN_SURF_CONC";
-const double FOAMFSC::MIN_SURF_CONC::defaultValue = 1e-20;
 const std::string FOAMFSC::MIN_WAT_SAT::itemName = "MIN_WAT_SAT";
-const double FOAMFSC::MIN_WAT_SAT::defaultValue = 1e-06;
 
 
 FOAMFSO::FOAMFSO() : ParserKeyword("FOAMFSO", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
@@ -975,7 +1062,6 @@ FOAMROCK::FOAMROCK() : ParserKeyword("FOAMROCK", KeywordSize("TABDIMS", "NTSFUN"
 }
 const std::string FOAMROCK::keywordName = "FOAMROCK";
 const std::string FOAMROCK::ADSORPTION_INDEX::itemName = "ADSORPTION_INDEX";
-const int FOAMROCK::ADSORPTION_INDEX::defaultValue = 1;
 const std::string FOAMROCK::ROCK_DENSITY::itemName = "ROCK_DENSITY";
 
 
@@ -1002,7 +1088,6 @@ FORMFEED::FORMFEED() : ParserKeyword("FORMFEED", KeywordSize(1, false)) {
 }
 const std::string FORMFEED::keywordName = "FORMFEED";
 const std::string FORMFEED::VALUE::itemName = "VALUE";
-const int FORMFEED::VALUE::defaultValue = 1;
 
 
 FRICTION::FRICTION() : ParserKeyword("FRICTION", KeywordSize(1, false)) {
@@ -1026,9 +1111,7 @@ FRICTION::FRICTION() : ParserKeyword("FRICTION", KeywordSize(1, false)) {
 }
 const std::string FRICTION::keywordName = "FRICTION";
 const std::string FRICTION::NWFRIC::itemName = "NWFRIC";
-const int FRICTION::NWFRIC::defaultValue = 0;
 const std::string FRICTION::NWFRIB::itemName = "NWFRIB";
-const int FRICTION::NWFRIB::defaultValue = 1;
 
 
 FULLIMP::FULLIMP() : ParserKeyword("FULLIMP", KeywordSize(0, false)) {

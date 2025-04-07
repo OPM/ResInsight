@@ -156,21 +156,17 @@ int RiuQwtPlotWidget::axisValueFontSize( RiuPlotAxis axis ) const
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setAxisFontsAndAlignment( RiuPlotAxis axis, int titleFontSize, int valueFontSize, bool titleBold, int alignment )
 {
-    int titleFontPixelSize = caf::FontTools::pointSizeToPixelSize( titleFontSize );
-    int valueFontPixelSize = caf::FontTools::pointSizeToPixelSize( valueFontSize );
-
     // Axis number font
-
     auto  qwtAxis  = toQwtPlotAxis( axis );
     QFont axisFont = m_plot->axisFont( qwtAxis );
-    axisFont.setPixelSize( valueFontPixelSize );
+    axisFont.setPointSize( valueFontSize );
     axisFont.setBold( false );
     m_plot->setAxisFont( qwtAxis, axisFont );
 
     // Axis title font
     QwtText axisTitle     = m_plot->axisTitle( qwtAxis );
     QFont   axisTitleFont = axisTitle.font();
-    axisTitleFont.setPixelSize( titleFontPixelSize );
+    axisTitleFont.setPointSize( titleFontSize );
     axisTitleFont.setBold( titleBold );
     axisTitle.setFont( axisTitleFont );
     axisTitle.setRenderFlags( alignment | Qt::TextWordWrap );
@@ -260,7 +256,7 @@ void RiuQwtPlotWidget::setLegendFontSize( int fontSize )
     if ( m_plot->legend() )
     {
         QFont font = m_plot->legend()->font();
-        font.setPixelSize( caf::FontTools::pointSizeToPixelSize( fontSize ) );
+        font.setPointSize( fontSize );
         m_plot->legend()->setFont( font );
         // Set font size for all existing labels
         QList<QwtLegendLabel*> labels = m_plot->legend()->findChildren<QwtLegendLabel*>();
@@ -570,8 +566,14 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
 
         if ( mouseEvent->type() == QMouseEvent::MouseButtonDblClick )
         {
-            if ( m_plotDefinition ) m_plotDefinition->zoomAll();
+            if ( m_plotDefinition ) m_plotDefinition->zoomAllForMultiPlot();
             return true;
+        }
+
+        if ( mouseEvent->type() == QMouseEvent::MouseButtonPress && ( mouseEvent->button() == Qt::LeftButton ) && m_plotDefinition )
+        {
+            // Select the plot clicked at in the Project Tree
+            RiuPlotMainWindowTools::selectAsCurrentItem( m_plotDefinition );
         }
 
         bool toggleItemInSelection = ( mouseEvent->modifiers() & Qt::ControlModifier ) != 0;
@@ -611,7 +613,38 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
             {
                 endZoomOperations();
 
-                selectClosestPlotItem( mouseEvent->pos(), toggleItemInSelection );
+                auto hasRecentlyBeenZoomed = [this]() -> bool
+                {
+                    if ( !m_plotDefinition ) return false;
+                    auto lastZoom = m_plotDefinition->valueForKey( "TimeStampZoomOperation" );
+                    if ( lastZoom.has_value() )
+                    {
+                        try
+                        {
+                            auto retrieved_time = std::any_cast<std::chrono::steady_clock::time_point>( lastZoom );
+                            auto t0             = std::chrono::steady_clock::now();
+
+                            auto timeDiff = std::chrono::duration_cast<std::chrono::milliseconds>( t0 - retrieved_time ).count();
+                            if ( timeDiff < 10 )
+                            {
+                                return true;
+                            }
+                        }
+                        catch ( ... )
+                        {
+                        }
+                    }
+                    return false;
+                };
+
+                if ( !hasRecentlyBeenZoomed() )
+                {
+                    // Avoid selecting the curve if a zoom operation has been performed recently
+                    // It is confusing to select a curve when the user is trying to zoom
+
+                    selectClosestPlotItem( mouseEvent->pos(), toggleItemInSelection );
+                }
+
                 m_clickPosition = QPoint();
                 return true;
             }
@@ -658,7 +691,7 @@ void RiuQwtPlotWidget::applyPlotTitleToQwt()
     if ( m_titleFontSize > 0 )
     {
         QFont font = qwtText.font();
-        font.setPixelSize( caf::FontTools::pointSizeToPixelSize( m_titleFontSize ) );
+        font.setPointSize( m_titleFontSize );
         qwtText.setFont( font );
     }
     qwtText.setText( plotTitleToApply );
@@ -848,28 +881,63 @@ QWidget* RiuQwtPlotWidget::getParentForOverlay() const
 //--------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::findClosestPlotItem( const QPoint& pos, QwtPlotItem** closestItem, int* closestCurvePoint, double* distanceFromClick ) const
+void RiuQwtPlotWidget::findClosestPlotItem( const QPoint& pos, QwtPlotItem** closestItem, int* closestCurveSampleIndex, double* distanceFromClick ) const
 {
-    CAF_ASSERT( closestItem && closestCurvePoint && distanceFromClick );
+    CAF_ASSERT( closestItem && closestCurveSampleIndex && distanceFromClick );
 
-    // Force empty defaults
-    *closestItem       = nullptr;
-    *closestCurvePoint = -1;
-    *distanceFromClick = std::numeric_limits<double>::infinity();
+    *closestItem             = nullptr;
+    *closestCurveSampleIndex = -1;
+    *distanceFromClick       = std::numeric_limits<double>::infinity();
 
     const QwtPlotItemList& itmList = m_plot->itemList();
     for ( auto it : itmList )
     {
         if ( it->rtti() == QwtPlotItem::Rtti_PlotCurve )
         {
-            auto*  candidateCurve = static_cast<QwtPlotCurve*>( it );
-            double dist           = std::numeric_limits<double>::infinity();
-            int    curvePoint     = candidateCurve->closestPoint( pos, &dist );
+            auto*  candidateCurve   = static_cast<QwtPlotCurve*>( it );
+            double dist             = std::numeric_limits<double>::infinity();
+            int    curveSampleIndex = candidateCurve->closestPoint( pos, &dist );
+
+            if ( curveSampleIndex != -1 )
+            {
+                // Use the sample index before and after to interpolate the closest point on the curve.
+                const auto firstIndex  = std::max( 0, curveSampleIndex - 1 );
+                const auto secondIndex = std::min( curveSampleIndex + 1, (int)candidateCurve->dataSize() - 1 );
+
+                if ( firstIndex != secondIndex )
+                {
+                    const QPointF p0 = candidateCurve->sample( firstIndex );
+                    const QPointF p1 = candidateCurve->sample( secondIndex );
+
+                    const QwtScaleMap xMap = candidateCurve->plot()->canvasMap( candidateCurve->xAxis() );
+                    const QwtScaleMap yMap = candidateCurve->plot()->canvasMap( candidateCurve->yAxis() );
+
+                    const auto x0 = xMap.transform( p0.x() );
+                    const auto y0 = yMap.transform( p0.y() );
+                    const auto x1 = xMap.transform( p1.x() );
+                    const auto y1 = yMap.transform( p1.y() );
+
+                    const double dx = x1 - x0;
+                    const double dy = y1 - y0;
+                    const double d  = dx * dx + dy * dy;
+                    if ( d > 0.0 )
+                    {
+                        const double t = ( ( pos.x() - x0 ) * dx + ( pos.y() - y0 ) * dy ) / d;
+                        if ( t >= 0.0 && t <= 1.0 )
+                        {
+                            const double cx = x0 + t * dx - pos.x();
+                            const double cy = y0 + t * dy - pos.y();
+                            dist            = std::sqrt( cx * cx + cy * cy );
+                        }
+                    }
+                }
+            }
+
             if ( dist < *distanceFromClick )
             {
-                *closestItem       = candidateCurve;
-                *distanceFromClick = dist;
-                *closestCurvePoint = curvePoint;
+                *closestItem             = candidateCurve;
+                *distanceFromClick       = dist;
+                *closestCurveSampleIndex = curveSampleIndex;
             }
         }
         else if ( it->rtti() == QwtPlotItem::Rtti_PlotShape )
@@ -894,9 +962,9 @@ void RiuQwtPlotWidget::findClosestPlotItem( const QPoint& pos, QwtPlotItem** clo
                 double  dist        = horizontal ? std::abs( samplePoint.x() - scalePos.y() ) : std::abs( samplePoint.x() - scalePos.x() );
                 if ( dist < *distanceFromClick )
                 {
-                    *closestItem       = it;
-                    *closestCurvePoint = (int)i;
-                    *distanceFromClick = dist;
+                    *closestItem             = it;
+                    *closestCurveSampleIndex = (int)i;
+                    *distanceFromClick       = dist;
                 }
             }
         }
@@ -931,22 +999,53 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
     findClosestPlotItem( pos, &closestItem, &closestCurvePoint, &distanceFromClick );
 
     RiuPlotMainWindowTools::showPlotMainWindow();
-    if ( closestItem && distanceFromClick < 20 )
+    if ( closestItem )
     {
+        RimPlotCurve* clickedCurve = nullptr;
+        if ( auto curve = dynamic_cast<RiuPlotCurve*>( closestItem ) )
+        {
+            clickedCurve = curve->ownerRimCurve();
+        }
+
+        std::vector<RimPlotCurve*> curvesToSelect;
+
+        bool wasToggledOff = false;
+        if ( toggleItemInSelection )
+        {
+            for ( auto highlightedCurve : m_hightlightedCurves )
+            {
+                if ( toggleItemInSelection && ( highlightedCurve == clickedCurve ) )
+                {
+                    wasToggledOff = true;
+                    continue;
+                }
+
+                curvesToSelect.push_back( highlightedCurve );
+            }
+        }
+
+        if ( !wasToggledOff && clickedCurve )
+        {
+            if ( distanceFromClick < 100 )
+            {
+                curvesToSelect.push_back( clickedCurve );
+            }
+        }
+
         bool updateCurveOrder = false;
         resetPlotItemHighlighting( updateCurveOrder );
 
-        auto curve = dynamic_cast<RiuPlotCurve*>( closestItem );
-        if ( curve && curve->ownerRimCurve() )
+        if ( !curvesToSelect.empty() )
         {
-            const auto rimCurve = curve->ownerRimCurve();
-            if ( RimSummaryEnsembleTools::isEnsembleCurve( rimCurve ) )
+            if ( RimSummaryEnsembleTools::isEnsembleCurve( curvesToSelect.front() ) )
             {
-                RimSummaryEnsembleTools::highlightCurvesForSameRealization( rimCurve );
+                auto summaryCases = RimSummaryEnsembleTools::summaryCasesFromCurves( curvesToSelect );
+                RimSummaryEnsembleTools::selectSummaryCasesInProjectTree( summaryCases );
+                RimSummaryEnsembleTools::highlightCurvesForSummaryCases( summaryCases );
             }
             else
             {
-                highlightCurvesUpdateOrder( { rimCurve } );
+                highlightCurvesUpdateOrder( curvesToSelect );
             }
         }
         else
@@ -989,7 +1088,7 @@ void RiuQwtPlotWidget::replot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::highlightCurvesUpdateOrder( const std::set<RimPlotCurve*>& curves )
+void RiuQwtPlotWidget::highlightCurvesUpdateOrder( const std::vector<RimPlotCurve*>& curves )
 {
     highlightPlotCurves( curves );
 
@@ -999,7 +1098,7 @@ void RiuQwtPlotWidget::highlightCurvesUpdateOrder( const std::set<RimPlotCurve*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::highlightPlotCurves( const std::set<RimPlotCurve*>& curves )
+void RiuQwtPlotWidget::highlightPlotCurves( const std::vector<RimPlotCurve*>& curves )
 {
     if ( !m_plotDefinition || !m_plotDefinition->isCurveHighlightSupported() )
     {
@@ -1014,7 +1113,8 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::set<RimPlotCurve*>& curve
 
         auto currentRimPlotCurve = riuPlotCurve->ownerRimCurve();
 
-        // Do not modify curve objects with no associated Rim object, as the Rim object is used to restore color after highlight manipulation
+        // Do not modify curve objects with no associated Rim object, as the Rim object is used to restore color after highlight
+        // manipulation
         if ( !currentRimPlotCurve ) continue;
 
         auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem );
@@ -1036,7 +1136,9 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::set<RimPlotCurve*>& curve
             }
 
             double zValue = plotCurve->z();
-            if ( curves.count( currentRimPlotCurve ) > 0 )
+
+            auto it = std::find( curves.begin(), curves.end(), currentRimPlotCurve );
+            if ( it != curves.end() )
             {
                 auto highlightColor = curveColor;
 
@@ -1055,6 +1157,8 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::set<RimPlotCurve*>& curve
                 plotCurve->setPen( existingPen );
                 plotCurve->setZ( zValue + 100.0 );
                 highlightPlotAxes( plotCurve->xAxis(), plotCurve->yAxis() );
+
+                m_hightlightedCurves.push_back( currentRimPlotCurve );
             }
             else
             {
@@ -1113,8 +1217,18 @@ void RiuQwtPlotWidget::resetPlotItemHighlighting( bool doUpdateCurveOrder )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimPlotCurve*> RiuQwtPlotWidget::highlightedCurves() const
+{
+    return m_hightlightedCurves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::resetPlotCurveHighlighting()
 {
+    m_hightlightedCurves.clear();
+
     if ( !m_plotDefinition || m_originalZValues.empty() )
     {
         return;
@@ -1192,7 +1306,7 @@ void RiuQwtPlotWidget::resetPlotAxisHighlighting()
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::highlightPlotItemsForQwtAxis( QwtAxisId axisId )
 {
-    std::set<RimPlotCurve*> curves;
+    std::vector<RimPlotCurve*> curves;
 
     auto plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
@@ -1206,11 +1320,14 @@ void RiuQwtPlotWidget::highlightPlotItemsForQwtAxis( QwtAxisId axisId )
             {
                 if ( auto curve = qwtPlotCurve->ownerRimCurve() )
                 {
-                    curves.insert( curve );
+                    curves.push_back( curve );
                 }
             }
         }
     }
+
+    std::sort( curves.begin(), curves.end() );
+    curves.erase( std::unique( curves.begin(), curves.end() ), curves.end() );
 
     highlightCurvesUpdateOrder( curves );
 }

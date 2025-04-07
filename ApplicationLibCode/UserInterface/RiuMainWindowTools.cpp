@@ -210,29 +210,21 @@ void RiuMainWindowTools::setFixedWindowSizeFor3dViews( RiuMainWindowBase* mainWi
     RimProject* proj = RimProject::current();
     if ( !proj ) return;
 
-    std::vector<RimCase*> projectCases = proj->allGridCases();
-    for ( RimCase* cas : projectCases )
+    for ( Rim3dView* riv : proj->allViews() )
     {
-        if ( !cas ) continue;
-
-        std::vector<Rim3dView*> views = cas->views();
-
-        for ( Rim3dView* riv : views )
+        if ( riv && riv->viewer() )
         {
-            if ( riv && riv->viewer() )
+            // Make sure all views are maximized for snapshotting
+            QMdiSubWindow* subWnd = mainWindow->findMdiSubWindow( riv->viewer()->layoutWidget() );
+            if ( subWnd )
             {
-                // Make sure all views are maximized for snapshotting
-                QMdiSubWindow* subWnd = mainWindow->findMdiSubWindow( riv->viewer()->layoutWidget() );
-                if ( subWnd )
-                {
-                    subWnd->showMaximized();
-                }
-
-                // This size is set to match the regression test reference images
-                QSize windowSize( width, height );
-
-                riv->viewer()->setFixedSize( windowSize );
+                subWnd->showMaximized();
             }
+
+            // This size is set to match the regression test reference images
+            QSize windowSize( width, height );
+
+            riv->viewer()->setFixedSize( windowSize );
         }
     }
 }

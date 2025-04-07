@@ -193,8 +193,15 @@ void PdmChildArrayField<DataType*>::deleteChildrenAsync()
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
-    AsyncPdmObjectVectorDeleter<DataType> pointerDeleter( m_pointers );
-    CAF_ASSERT( m_pointers.empty() ); // Object storage for m_pointers should be empty immediately.
+    auto objectsToDelete = m_pointers;
+
+    // Disconnect the connection to observers before deleting the objects
+    // https://github.com/OPM/ResInsight/issues/12262
+    //
+    // See test in \Fwk\AppFwk\cafProjectDataModel\cafPdmCore\cafPdmCore_UnitTests\cafPdmChildArrayFieldHandleTest.cpp
+    clearWithoutDelete();
+
+    AsyncPdmObjectVectorDeleter<DataType> pointerDeleter( objectsToDelete );
 }
 
 //--------------------------------------------------------------------------------------------------

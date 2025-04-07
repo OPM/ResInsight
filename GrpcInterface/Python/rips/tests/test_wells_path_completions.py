@@ -141,3 +141,53 @@ def test_add_well_path_fracture_template(rips_instance, initialize_test):
     assert fracture_template_updated.user_defined_perforation_length == True
     assert fracture_template_updated.user_description == "my frac name"
     assert fracture_template_updated.width_scale_factor == 7
+
+
+# test fishbone interface
+def test_fishbone_interface(rips_instance, initialize_test):
+    well_path_coll = rips_instance.project.descendants(rips.WellPathCollection)[0]
+
+    well_path = well_path_coll.add_new_object(rips.ModeledWellPath)
+    well_path.name = "fishbone_well"
+    well_path.update()
+
+    fishbones_collection = well_path.completions().fishbones()
+    fishbones_collection.main_bore_skin_factor = 0.1
+    fishbones_collection.update()
+
+    fishbones_collection.set_fixed_start_location(2900.0)
+
+    sub_locations2 = [3500.0, 3550.0, 3600.0, 3700.0]
+    fishbones = fishbones_collection.append_fishbones(sub_locations2)
+
+    fishbones.lateral_diameter = 21.0
+    fishbones.lateral_skin_factor = 2.1
+    fishbones.icd_count = 1
+    fishbones.icd_flow_coefficient = 0.1
+    fishbones.icd_orifice_diameter = 0.1
+    fishbones.lateral_build_angle = 0.1
+    fishbones.lateral_count_per_sub = 1
+    fishbones.lateral_exit_angle = 0.1
+    fishbones.lateral_install_success_fraction = 0.1
+    fishbones.lateral_length = "1"
+    fishbones.lateral_open_hole_roghness_factor = 0.2
+    fishbones.lateral_tubing_diameter = 0.1
+    fishbones.lateral_tubing_roghness_factor = 0.1
+    fishbones.subs_orientation_mode = "FIXED"
+    fishbones.update()
+
+    fishbones_updated = fishbones_collection.fishbones()[0]
+    assert fishbones_updated.lateral_diameter == 21.0
+    assert fishbones_updated.lateral_skin_factor == 2.1
+    assert fishbones_updated.icd_count == 1
+    assert fishbones_updated.icd_flow_coefficient == 0.1
+    assert fishbones_updated.icd_orifice_diameter == 0.1
+    assert fishbones_updated.lateral_build_angle == 0.1
+    assert fishbones_updated.lateral_count_per_sub == 1
+    assert fishbones_updated.lateral_exit_angle == 0.1
+    assert fishbones_updated.lateral_install_success_fraction == 0.1
+    assert fishbones_updated.lateral_length == "1"
+    assert fishbones_updated.lateral_open_hole_roghness_factor == 0.2
+    assert fishbones_updated.lateral_tubing_diameter == 0.1
+    assert fishbones_updated.lateral_tubing_roghness_factor == 0.1
+    assert fishbones_updated.subs_orientation_mode == "FIXED"

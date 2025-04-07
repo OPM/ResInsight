@@ -26,7 +26,7 @@
 
 #include "RifReaderFmuRft.h"
 
-#include "RimFormationNames.h"
+#include "Formations/RimFormationNames.h"
 #include "RimObservedDataCollection.h"
 #include "RimObservedSummaryData.h"
 #include "RimOilField.h"

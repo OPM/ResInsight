@@ -123,7 +123,7 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values" );
     CAF_PDM_InitField( &m_excludeParametersWithoutVariation, "ExcludeParamsWithoutVariation", true, "Exclude Parameters Without Variation" );
     CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", true, "Show Only Top Correlations" );
-    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 20, "Number rows/columns" );
+    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 5, "Number rows/columns" );
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "" );
     CAF_PDM_InitFieldNoDefault( &m_selectedParametersList, "SelectedParameters", "Select Parameters" );
     m_selectedParametersList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
@@ -401,8 +401,7 @@ void RimCorrelationMatrixPlot::updateAxes()
 
     m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtAxis::YLeft, new TextScaleDraw( m_resultLabels ) );
     m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::YLeft, new RiuQwtLinearScaleEngine );
-    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), "Result Vector" );
-    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), false );
     m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultLeft(), axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
     m_plotWidget->setAxisLabelsAndTicksEnabled( RiuPlotAxis::defaultLeft(), true, false );
     m_plotWidget->setAxisRange( RiuPlotAxis::defaultLeft(), 0.0, (double)m_resultLabels.size() + 1 );
@@ -418,8 +417,7 @@ void RimCorrelationMatrixPlot::updateAxes()
     scaleDraw->setLabelRotation( 30.0 );
     m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtAxis::XBottom, scaleDraw );
     m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::XBottom, new RiuQwtLinearScaleEngine );
-    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "Ensemble Parameter" );
-    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), false );
     m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultBottom(),
                                             axisTitleFontSize(),
                                             axisValueFontSize(),
@@ -629,7 +627,7 @@ void RimCorrelationMatrixPlot::createMatrix()
             cvf::Color3f contrastColor = RiaColorTools::contrastColor( cvf::Color3f( color ) );
             textLabel.setColor( RiaColorTools::toQColor( contrastColor ) );
             QFont font = textLabel.font();
-            font.setPixelSize( caf::FontTools::pointSizeToPixelSize( labelFontSize() ) );
+            font.setPointSize( labelFontSize() );
             textLabel.setFont( font );
             QwtPlotMarker* marker = new QwtPlotMarker();
             marker->setLabel( textLabel );
@@ -658,7 +656,7 @@ void RimCorrelationMatrixPlot::updatePlotTitle()
 {
     if ( m_useAutoPlotTitle )
     {
-        m_description = QString( "Correlation Matrix for Parameters vs Result Vectors at %2" ).arg( timeStepString() );
+        m_description = QString( "Result Vectors vs Parameters at %2" ).arg( timeStepString() );
     }
 
     if ( m_plotWidget )

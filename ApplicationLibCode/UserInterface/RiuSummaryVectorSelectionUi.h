@@ -33,7 +33,6 @@
 
 class RimSummaryCase;
 class RimSummaryEnsemble;
-class RimSummaryCurveAutoName;
 class RimSummaryPlot;
 class RiaSummaryCurveDefinition;
 class RiaCurveSetDefinition;

@@ -17,9 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-class RiaMainTools
+namespace RiaMainTools
 {
-public:
-    static void initializeSingletons();
-    static void releaseSingletonAndFactoryObjects();
-};
+void initializeSingletons();
+void releaseSingletonAndFactoryObjects();
+void deleteStaleSettingsLockFiles();
+}; // namespace RiaMainTools

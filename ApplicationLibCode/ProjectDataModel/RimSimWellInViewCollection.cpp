@@ -27,12 +27,11 @@
 #include "Well/RigSimWellData.h"
 #include "Well/RigWellResultFrame.h"
 
+#include "ContourMap/RimEclipseContourMapView.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseContourMapView.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimProject.h"
-#include "RimSimWellFractureCollection.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewTools.h"
 #include "RimSummaryCase.h"
@@ -475,11 +474,6 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
     if ( &wellPipeCoordType == changedField || &isAutoDetectingBranches == changedField )
     {
         if ( m_reservoirView ) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-
-        for ( RimSimWellInView* w : wells )
-        {
-            w->simwellFractureCollection()->recomputeSimWellCenterlines();
-        }
     }
 }
 

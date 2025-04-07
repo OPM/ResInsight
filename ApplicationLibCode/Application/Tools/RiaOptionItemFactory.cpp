@@ -93,13 +93,16 @@ caf::PdmOptionItemInfo RiaOptionItemFactory::optionItemFromSummaryType( RifEclip
             iconText = ":/summary/components/images/well.svg";
             break;
         case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION:
-            iconText = ":/summary/components/images/well-completion.svg";
+            iconText = ":/summary/components/images/well.svg";
+            break;
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION:
+            iconText = ":/summary/components/images/block.svg";
             break;
         case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_LGR:
             iconText = ":/summary/components/images/well.svg";
             break;
-        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION_LGR:
-            iconText = ":/summary/components/images/well-completion.svg";
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION_LGR:
+            iconText = ":/summary/components/images/block.svg";
             break;
         case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_SEGMENT:
             iconText = ":/summary/components/images/segment.svg";

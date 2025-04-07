@@ -30,13 +30,13 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 
+#include "ContourMap/RimEclipseContourMapProjection.h"
+#include "ContourMap/RimEclipseContourMapView.h"
+#include "ContourMap/RimEclipseContourMapViewCollection.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
-#include "RimEclipseContourMapProjection.h"
-#include "RimEclipseContourMapView.h"
-#include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimGridCalculation.h"
@@ -98,7 +98,7 @@ void RimReloadCaseTools::reloadEclipseData( RimEclipseCase* eclipseCase, bool re
     if ( reloadSummaryData )
     {
         auto summaryCase = RimReloadCaseTools::findSummaryCaseFromEclipseResultCase( dynamic_cast<RimEclipseResultCase*>( eclipseCase ) );
-        RiaSummaryTools::reloadSummaryCase( summaryCase );
+        RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( summaryCase );
     }
 
     updateAllPlots();
@@ -150,7 +150,8 @@ void RimReloadCaseTools::updateAll3dViews( RimEclipseCase* eclipseCase )
             // computations are updated based on new data.
             // See RimEclipseContourMapProjection::generateResults()
             contourMap->contourMapProjection()->clearGeometry();
-            contourMap->contourMapProjection()->clearGridMappingAndRedraw();
+            if ( auto projection = dynamic_cast<RimEclipseContourMapProjection*>( contourMap->contourMapProjection() ) )
+                projection->clearGridMappingAndRedraw();
         }
 
         contourMap->loadDataAndUpdate();

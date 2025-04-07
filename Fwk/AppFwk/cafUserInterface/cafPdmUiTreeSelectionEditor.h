@@ -63,7 +63,6 @@ public:
     bool showTextFilter;
     bool showToggleAllCheckbox;
     bool singleSelectionMode;
-    bool setCurrentIndexWhenItemIsChecked;
     bool showCheckBoxes;
     bool showContextMenu;
     int  heightHint;
@@ -77,13 +76,12 @@ public:
 public:
     PdmUiTreeSelectionEditorAttribute()
     {
-        showTextFilter                   = true;
-        showToggleAllCheckbox            = true;
-        singleSelectionMode              = false;
-        setCurrentIndexWhenItemIsChecked = false;
-        showCheckBoxes                   = true;
-        showContextMenu                  = true;
-        heightHint                       = -1;
+        showTextFilter        = true;
+        showToggleAllCheckbox = true;
+        singleSelectionMode   = false;
+        showCheckBoxes        = true;
+        showContextMenu       = true;
+        heightHint            = -1;
 
         currentIndexFieldHandle = nullptr;
     }

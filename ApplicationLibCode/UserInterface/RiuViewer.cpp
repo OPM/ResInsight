@@ -174,7 +174,7 @@ RiuViewer::RiuViewer( QWidget* parent )
     if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
     {
         QFont regTestFont = m_infoLabel->font();
-        regTestFont.setPixelSize( 11 );
+        regTestFont.setPointSize( 11 );
 
         m_infoLabel->setFont( regTestFont );
         m_shortInfoLabel->setFont( regTestFont );
@@ -211,7 +211,7 @@ RiuViewer::RiuViewer( QWidget* parent )
     m_comparisonWindowMover = new RiuComparisonViewMover( this );
     setComparisonViewToFollowAnimation( false );
 
-    m_fontPointSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultSceneFontSize() );
+    m_fontSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultSceneFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -744,7 +744,7 @@ void RiuViewer::addColorLegendToBottomLeftCorner( caf::TitledOverlayFrame* added
     addedLegend->enableBackground( RiaPreferences::current()->showLegendBackground() );
     addedLegend->setBackgroundColor( backgroundColor );
     addedLegend->setBackgroundFrameColor( frameColor );
-    addedLegend->setFont( app->sceneFont( m_fontPointSize ) );
+    addedLegend->setFont( app->sceneFont( m_fontSize ) );
 
     overlayRendering->addOverlayItem( addedLegend );
 
@@ -1336,16 +1336,16 @@ void RiuViewer::clearHoverCursor()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::updateFonts( int fontPointSize )
 {
-    m_fontPointSize = fontPointSize;
+    m_fontSize = fontPointSize;
 
     auto       defaultFontSize = RiaApplication::instance()->preferences()->defaultSceneFontSize();
     cvf::Font* axisFont        = RiaGuiApplication::instance()->defaultSceneFont();
     QFont      font            = QApplication::font();
-    font.setPixelSize( caf::FontTools::pointSizeToPixelSize( m_fontPointSize ) );
+    font.setPointSize( m_fontSize );
 
-    if ( caf::FontTools::absolutePointSize( defaultFontSize ) != m_fontPointSize )
+    if ( caf::FontTools::absolutePointSize( defaultFontSize ) != m_fontSize )
     {
-        axisFont = RiaFontCache::getFont( m_fontPointSize ).p();
+        axisFont = RiaFontCache::getFont( m_fontSize ).p();
     }
 
     overlayItemsRendering()->removeOverlayItem( m_axisCross.p() );
@@ -1364,7 +1364,7 @@ void RiuViewer::updateFonts( int fontPointSize )
     m_animationProgressCompView->setFont( font );
     m_versionInfoLabel->setFont( font );
 
-    m_gridBoxGenerator->setGridLabelFontSize( m_fontPointSize );
+    m_gridBoxGenerator->setGridLabelFontSize( m_fontSize );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -18,6 +18,8 @@
 
 #include "RimEclipseGeometrySelectionItem.h"
 
+#include "RiaTextStringTools.h"
+
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 #include "RigTimeHistoryResultAccessor.h"
@@ -25,6 +27,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
+#include "RimTools.h"
 
 #include "Riu3dSelectionManager.h"
 
@@ -40,7 +43,10 @@ RimEclipseGeometrySelectionItem::RimEclipseGeometrySelectionItem()
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
     CAF_PDM_InitFieldNoDefault( &m_gridIndex, "GridIndex", "Grid Index" );
     CAF_PDM_InitFieldNoDefault( &m_cellIndex, "CellIndex", "Cell Index" );
-    CAF_PDM_InitFieldNoDefault( &m_localIntersectionPointInDisplay, "LocalIntersectionPoint", "local Intersection Point" );
+
+    CAF_PDM_InitFieldNoDefault( &m_ijkText, "CellText", "Cell I J K" );
+    m_ijkText.registerGetMethod( this, &RimEclipseGeometrySelectionItem::ijkTextFromCell );
+    m_ijkText.registerSetMethod( this, &RimEclipseGeometrySelectionItem::setCellFromIjkText );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,11 +61,20 @@ RimEclipseGeometrySelectionItem::~RimEclipseGeometrySelectionItem()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseGeometrySelectionItem::setFromSelectionItem( const RiuEclipseSelectionItem* selectionItem )
 {
-    m_gridIndex                       = selectionItem->m_gridIndex;
-    m_cellIndex                       = selectionItem->m_gridLocalCellIndex;
-    m_localIntersectionPointInDisplay = selectionItem->m_localIntersectionPointInDisplay;
+    m_gridIndex = selectionItem->m_gridIndex;
+    m_cellIndex = selectionItem->m_gridLocalCellIndex;
 
     m_eclipseCase = selectionItem->m_resultDefinition->eclipseCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseGeometrySelectionItem::setFromSelectionItem( RimEclipseGeometrySelectionItem* selectionItem )
+{
+    m_eclipseCase = selectionItem->eclipseCase();
+    m_gridIndex   = selectionItem->m_gridIndex();
+    m_cellIndex   = selectionItem->m_cellIndex();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,8 +85,8 @@ void RimEclipseGeometrySelectionItem::setFromCaseGridAndIJK( RimEclipseCase* ecl
     m_eclipseCase = eclipseCase;
     m_gridIndex   = gridIndex;
 
-    size_t lgrCellIndex       = eclipseCase->eclipseCaseData()->grid( gridIndex )->cellIndexFromIJK( i, j, k );
-    size_t reservoirCellIndex = eclipseCase->eclipseCaseData()->grid( gridIndex )->reservoirCellIndex( lgrCellIndex );
+    size_t localIndex         = grid()->cellIndexFromIJK( i, j, k );
+    size_t reservoirCellIndex = grid()->reservoirCellIndex( localIndex );
     m_cellIndex               = reservoirCellIndex;
 }
 
@@ -126,17 +141,76 @@ size_t RimEclipseGeometrySelectionItem::cellIndex() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3st RimEclipseGeometrySelectionItem::cellIJK() const
+void RimEclipseGeometrySelectionItem::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    cvf::Vec3st IJK( -1, -1, -1 );
+    uiOrdering.add( &m_ijkText );
+    uiOrdering.add( &m_eclipseCase );
+    uiOrdering.skipRemainingFields();
+}
 
-    if ( m_cellIndex != cvf::UNDEFINED_SIZE_T )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimEclipseGeometrySelectionItem::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_eclipseCase )
     {
-        if ( m_eclipseCase && m_eclipseCase->eclipseCaseData() && m_eclipseCase->eclipseCaseData()->grid( m_gridIndex ) )
+        RimTools::caseOptionItems( &options );
+
+        options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEclipseGeometrySelectionItem::ijkTextFromCell() const
+{
+    if ( grid() )
+    {
+        if ( auto zeroBased = grid()->ijkFromCellIndex( m_cellIndex ) )
         {
-            m_eclipseCase->eclipseCaseData()->grid( m_gridIndex )->ijkFromCellIndex( m_cellIndex, &IJK[0], &IJK[1], &IJK[2] );
+            auto oneBased = zeroBased->toOneBased();
+            return QString( "%1 %2 %3" ).arg( oneBased.i() ).arg( oneBased.j() ).arg( oneBased.k() );
         }
     }
 
-    return IJK;
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseGeometrySelectionItem::setCellFromIjkText( const QString& text )
+{
+    auto values = RiaTextStringTools::parseDoubleValues( text );
+    if ( values.size() >= 3 )
+    {
+        int i = values[0] - 1;
+        int j = values[1] - 1;
+        int k = values[2] - 1;
+
+        if ( grid() )
+        {
+            size_t localIndex = grid()->cellIndexFromIJK( i, j, k );
+            m_cellIndex       = grid()->reservoirCellIndex( localIndex );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RigGridBase* RimEclipseGeometrySelectionItem::grid() const
+{
+    if ( m_eclipseCase && m_eclipseCase->eclipseCaseData() && m_eclipseCase->eclipseCaseData()->grid( m_gridIndex ) )
+    {
+        return m_eclipseCase->eclipseCaseData()->grid( m_gridIndex );
+    }
+
+    return nullptr;
 }

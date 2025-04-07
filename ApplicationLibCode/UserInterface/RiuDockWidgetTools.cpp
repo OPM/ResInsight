@@ -18,17 +18,14 @@
 
 #include "RiuDockWidgetTools.h"
 
-#include "RimEclipseView.h"
-#include "RimGeoMechView.h"
-
 #include "RiuMainWindow.h"
-
-#include "cvfAssert.h"
+#include "RiuPlotMainWindow.h"
 
 #include "DockManager.h"
 #include "DockWidget.h"
 
-#include <QSettings>
+#include "cafAssert.h"
+#include "cafPdmUiTreeView.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -145,6 +142,14 @@ QString RiuDockWidgetTools::mainWindowUndoStackName()
 QString RiuDockWidgetTools::mainWindowQuickAccessName()
 {
     return "dockQuickAccess_mainWindow";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::mainWindowCellSelectionToolName()
+{
+    return "dockCellSelectionTool_mainWindow";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -403,6 +408,40 @@ QIcon RiuDockWidgetTools::dockIcon( const QString dockWidgetName )
         return QIcon( ":/pinned.svg" );
 
     return QIcon( ":/view.svg" );
+}
+
+//--------------------------------------------------------------------------------------------------
+// When a user clicks on an item in a tree view, or right-clicks for the context menu, the global selection is set to the activated object.
+// This function can be used to get the selection from a different tree view
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmUiItem*> RiuDockWidgetTools::selectedItemsInTreeView( const QString& dockWidgetName )
+{
+    ads::CDockWidget* dockWidget = nullptr;
+    if ( auto mainWindow = RiuMainWindow::instance() )
+    {
+        dockWidget = RiuDockWidgetTools::findDockWidget( mainWindow->dockManager(), dockWidgetName );
+    }
+
+    if ( !dockWidget )
+    {
+        if ( auto plotWindow = RiuPlotMainWindow::instance() )
+        {
+            dockWidget = RiuDockWidgetTools::findDockWidget( plotWindow->dockManager(), dockWidgetName );
+        }
+    }
+
+    if ( dockWidget )
+    {
+        if ( auto tree = dynamic_cast<caf::PdmUiTreeView*>( dockWidget->widget() ) )
+        {
+            std::vector<caf::PdmUiItem*> uiItems;
+            tree->selectedUiItems( uiItems );
+
+            return uiItems;
+        }
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

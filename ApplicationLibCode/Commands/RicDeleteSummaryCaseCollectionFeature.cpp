@@ -21,6 +21,7 @@
 #include "Summary/RiaSummaryTools.h"
 
 #include "RimDeltaSummaryEnsemble.h"
+#include "RimDepthTrackPlot.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -29,8 +30,10 @@
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
+#include "RimWellPlotTools.h"
 
 #include "cafPdmObject.h"
+#include "cafPdmObjectHandleTools.h"
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
@@ -80,9 +83,9 @@ bool RicDeleteSummaryCaseCollectionFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicDeleteSummaryCaseCollectionFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimSummaryEnsemble*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-    if ( selection.empty() ) return;
+    std::vector<RimSummaryEnsemble*> ensembles;
+    caf::SelectionManager::instance()->objectsByType( &ensembles );
+    if ( ensembles.empty() ) return;
 
     QMessageBox msgBox;
     msgBox.setIcon( QMessageBox::Question );
@@ -100,28 +103,28 @@ void RicDeleteSummaryCaseCollectionFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    if ( ret == QMessageBox::Yes )
+    auto depthTrackPlots = caf::PdmObjectHandleTools::referringAncestorOfType<RimDepthTrackPlot, RimSummaryEnsemble>( ensembles );
+
+    for ( RimSummaryEnsemble* ensemble : ensembles )
     {
-        for ( RimSummaryEnsemble* summaryCaseCollection : selection )
+        if ( ret == QMessageBox::Yes )
         {
-            RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection( summaryCaseCollection );
+            RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection( ensemble );
         }
-    }
-    else if ( ret == QMessageBox::No )
-    {
-        for ( RimSummaryEnsemble* summaryCaseCollection : selection )
+        else if ( ret == QMessageBox::No )
         {
-            RicDeleteSummaryCaseCollectionFeature::moveAllCasesToMainSummaryCollection( summaryCaseCollection );
+            RicDeleteSummaryCaseCollectionFeature::moveAllCasesToMainSummaryCollection( ensemble );
         }
     }
 
-    RimSummaryCaseMainCollection* summaryCaseMainCollection = selection[0]->firstAncestorOrThisOfTypeAsserted<RimSummaryCaseMainCollection>();
-
-    for ( RimSummaryEnsemble* caseCollection : selection )
+    RimSummaryCaseMainCollection* summaryCaseMainCollection = ensembles[0]->firstAncestorOrThisOfTypeAsserted<RimSummaryCaseMainCollection>();
+    for ( RimSummaryEnsemble* ensemble : ensembles )
     {
-        summaryCaseMainCollection->removeCaseCollection( caseCollection );
-        delete caseCollection;
+        summaryCaseMainCollection->removeEnsemble( ensemble );
+        delete ensemble;
     }
+
+    RimWellPlotTools::loadDataAndUpdateDepthTrackPlots( depthTrackPlots );
 
     summaryCaseMainCollection->updateConnectedEditors();
 }

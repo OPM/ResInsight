@@ -420,7 +420,7 @@ bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, in
         auto summaryCaseMainCollection = dropTarget->firstAncestorOrThisOfType<RimSummaryCaseMainCollection>();
         if ( summaryCaseMainCollection )
         {
-            return handleSummaryCaseMainCollectionDrop( action, draggedObjects, summaryCaseMainCollection );
+            return handleSummaryCaseMainCollectionDrop( action, draggedObjects, summaryCaseMainCollection, row );
         }
 
         auto surfaceCollection = dropTarget->firstAncestorOrThisOfType<RimSurfaceCollection>();
@@ -607,7 +607,8 @@ bool RiuDragDrop::handleSummaryCaseCollectionDrop( Qt::DropAction       action,
 //--------------------------------------------------------------------------------------------------
 bool RiuDragDrop::handleSummaryCaseMainCollectionDrop( Qt::DropAction                action,
                                                        caf::PdmObjectGroup&          draggedObjects,
-                                                       RimSummaryCaseMainCollection* summaryCaseDropTarget )
+                                                       RimSummaryCaseMainCollection* summaryCaseDropTarget,
+                                                       int                           insertAtPosition )
 {
     std::vector<RimSummaryCase*> summaryCases = RiuTypedPdmObjects<RimSummaryCase>::typedObjectsFromGroup( draggedObjects );
 
@@ -622,10 +623,21 @@ bool RiuDragDrop::handleSummaryCaseMainCollectionDrop( Qt::DropAction           
             summaryCaseCollection->removeCase( summaryCase );
             summaryCaseDropTarget->addCase( summaryCase );
             summaryCaseCollection->updateConnectedEditors();
+
+            summaryCaseDropTarget->updateConnectedEditors();
+            return true;
         }
     }
 
-    summaryCaseDropTarget->updateConnectedEditors();
+    if ( summaryCases.size() == 1 )
+    {
+        auto summaryCase     = summaryCases.front();
+        auto parentContainer = summaryCase->firstAncestorOfType<RimSummaryCaseMainCollection>();
+        if ( parentContainer == summaryCaseDropTarget )
+        {
+            parentContainer->moveCase( summaryCase, insertAtPosition );
+        }
+    }
 
     return true;
 }

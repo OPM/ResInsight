@@ -18,6 +18,8 @@
 
 #include "RimPolygonCollection.h"
 
+#include "RiaColorTables.h"
+
 #include "Rim3dView.h"
 #include "RimPolygon.h"
 #include "RimPolygonFile.h"
@@ -57,6 +59,9 @@ RimPolygon* RimPolygonCollection::createUserDefinedPolygon()
     auto newPolygon = new RimPolygon();
     newPolygon->setName( "Polygon " + QString::number( userDefinedPolygons().size() + 1 ) );
 
+    auto colorCandidates = RiaColorTables::summaryCurveDefaultPaletteColors();
+    newPolygon->setColor( colorCandidates.cycledColor3f( userDefinedPolygons().size() ) );
+
     return newPolygon;
 }
 
@@ -90,6 +95,18 @@ void RimPolygonCollection::addUserDefinedPolygon( RimPolygon* polygon )
 void RimPolygonCollection::deleteUserDefinedPolygons()
 {
     m_polygons().deleteChildren();
+
+    updateViewTreeItems();
+    scheduleRedrawViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::deleteAllPolygons()
+{
+    m_polygons().deleteChildren();
+    m_polygonFiles().deleteChildren();
 
     updateViewTreeItems();
     scheduleRedrawViews();
@@ -179,6 +196,8 @@ void RimPolygonCollection::childFieldChangedByUi( const caf::PdmFieldHandle* cha
 void RimPolygonCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     RimPolygonCollection::appendPolygonMenuItems( menuBuilder );
+    menuBuilder.addSeparator();
+    menuBuilder << "RicDeleteAllPolygonsFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -35,9 +35,11 @@ public:
         NETWORK,
         REGION,
         VECTOR,
+        WELL_COMPLETION_NUMBER,
+        WELL_CONNECTION,
         BLOCK,
         AQUIFER,
-        WELL_SEGMENT
+        WELL_SEGMENT,
     };
 
 public:

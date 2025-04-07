@@ -22,6 +22,9 @@
 
 #include "RiaDefines.h"
 
+#include "RimFishbonesDefines.h"
+
+#include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmFieldCvfColor.h"
@@ -42,31 +45,43 @@ class RimFishbonesCollection : public RimCheckableNamedObject
 public:
     RimFishbonesCollection();
 
-    void appendFishbonesSubs( RimFishbones* subs );
+    void          appendFishbonesSubs( RimFishbones* subs );
+    RimFishbones* appendFishbonesSubsAtLocations( const std::vector<double>& subLocations, RimFishbonesDefines::DrillingType drillingType );
+    void          setFixedStartMD( double startMD );
+    void          setFixedEndMD( double endMD );
+
+    void setUnitSystemSpecificDefaults();
+    void computeStartAndEndLocation();
 
     bool                       hasFishbones() const;
     std::vector<RimFishbones*> activeFishbonesSubs() const;
     std::vector<RimFishbones*> allFishbonesSubs() const;
 
-    void   recalculateStartMD();
     double startMD() const;
     double endMD() const;
-    double mainBoreSkinFactor() const { return m_skinFactor; }
+
+    double mainBoreSkinFactor() const;
     double mainBoreDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
-    void   setUnitSystemSpecificDefaults();
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void initAfterRead() override;
 
 private:
     cvf::Color3f nextFishbonesColor() const;
+    double       calculateStartMD() const;
+    double       calculateEndMD() const;
 
 private:
     caf::PdmChildArrayField<RimFishbones*> m_fishbones;
 
+    caf::PdmField<caf::AppEnum<RimFishbonesDefines::ValueSource>> m_startMDAuto;
+    caf::PdmField<caf::AppEnum<RimFishbonesDefines::ValueSource>> m_endMDAuto;
+
     caf::PdmField<double> m_startMD;
+    caf::PdmField<double> m_endMD;
+
     caf::PdmField<double> m_skinFactor;
     caf::PdmField<double> m_mainBoreDiameter;
-    bool                  manuallyModifiedStartMD;
 };

@@ -29,10 +29,13 @@
 #include <memory>
 #include <set>
 
+namespace RiaFilePathTools
+{
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QChar RiaFilePathTools::separator()
+const QChar separator()
 {
     return '/';
 }
@@ -40,7 +43,7 @@ const QChar RiaFilePathTools::separator()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaFilePathTools::toInternalSeparator( const QString& path )
+QString toInternalSeparator( const QString& path )
 {
     QString currNativeSep = QDir::separator();
 
@@ -58,7 +61,16 @@ QString RiaFilePathTools::toInternalSeparator( const QString& path )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString& RiaFilePathTools::appendSeparatorIfNo( QString& path )
+std::string normalizePath( std::string path )
+{
+    std::replace( path.begin(), path.end(), '\\', '/' );
+    return path;
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString& appendSeparatorIfNo( QString& path )
 {
     if ( !path.endsWith( separator() ) )
     {
@@ -70,7 +82,7 @@ QString& RiaFilePathTools::appendSeparatorIfNo( QString& path )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaFilePathTools::relativePath( const QString& rootDir, const QString& dir )
+QString relativePath( const QString& rootDir, const QString& dir )
 {
     if ( dir.startsWith( rootDir ) )
     {
@@ -89,7 +101,7 @@ QString RiaFilePathTools::relativePath( const QString& rootDir, const QString& d
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaFilePathTools::equalPaths( const QString& path1, const QString& path2 )
+bool equalPaths( const QString& path1, const QString& path2 )
 {
     QString p1 = path1;
     QString p2 = path2;
@@ -101,7 +113,7 @@ bool RiaFilePathTools::equalPaths( const QString& path1, const QString& path2 )
 //--------------------------------------------------------------------------------------------------
 /// Own canonicalPath method since the QDir::canonicalPath seems to not work
 //--------------------------------------------------------------------------------------------------
-QString RiaFilePathTools::canonicalPath( const QString& path )
+QString canonicalPath( const QString& path )
 {
     return QDir( path ).absolutePath();
 }
@@ -109,7 +121,7 @@ QString RiaFilePathTools::canonicalPath( const QString& path )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<QString, QString> RiaFilePathTools::toFolderAndFileName( const QString& absFileName )
+std::pair<QString, QString> toFolderAndFileName( const QString& absFileName )
 {
     auto absFN   = toInternalSeparator( absFileName );
     int  lastSep = absFN.lastIndexOf( separator() );
@@ -126,7 +138,7 @@ std::pair<QString, QString> RiaFilePathTools::toFolderAndFileName( const QString
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaFilePathTools::removeDuplicatePathSeparators( const QString& path )
+QString removeDuplicatePathSeparators( const QString& path )
 {
     QString correctedPath = path;
     QString prefix;
@@ -154,7 +166,7 @@ QString RiaFilePathTools::removeDuplicatePathSeparators( const QString& path )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaFilePathTools::rootSearchPathFromSearchFilter( const QString& searchFilter )
+QString rootSearchPathFromSearchFilter( const QString& searchFilter )
 {
     QStringList pathPartList = searchFilter.split( separator() );
 
@@ -184,7 +196,7 @@ QString RiaFilePathTools::rootSearchPathFromSearchFilter( const QString& searchF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaFilePathTools::commonRootOfFileNames( const QStringList& fileList )
+QString commonRootOfFileNames( const QStringList& fileList )
 {
     QStringList fileNameList;
     for ( auto filePath : fileList )
@@ -200,7 +212,7 @@ QString RiaFilePathTools::commonRootOfFileNames( const QStringList& fileList )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RiaFilePathTools::splitPathIntoComponents( const QString& inputPath, bool splitExtensionIntoSeparateEntry )
+QStringList splitPathIntoComponents( const QString& inputPath, bool splitExtensionIntoSeparateEntry )
 {
     auto path = QDir::cleanPath( inputPath );
 
@@ -325,7 +337,7 @@ void pathToNode( PathNode* node, QStringList* path )
 /// Takes a list of file paths and returns a map with the key components that separate the path
 /// from the others.
 //--------------------------------------------------------------------------------------------------
-std::map<QString, QStringList> RiaFilePathTools::keyPathComponentsForEachFilePath( const QStringList& filePaths )
+std::map<QString, QStringList> keyPathComponentsForEachFilePath( const QStringList& filePaths )
 {
     std::map<QString, QStringList> allComponents;
 
@@ -360,7 +372,7 @@ std::map<QString, QStringList> RiaFilePathTools::keyPathComponentsForEachFilePat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaFilePathTools::isFirstOlderThanSecond( const std::string& firstFileName, const std::string& secondFileName )
+bool isFirstOlderThanSecond( const std::string& firstFileName, const std::string& secondFileName )
 {
     if ( !std::filesystem::exists( firstFileName ) || !std::filesystem::exists( secondFileName ) ) return false;
 
@@ -373,7 +385,7 @@ bool RiaFilePathTools::isFirstOlderThanSecond( const std::string& firstFileName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RiaFilePathTools::makeSuitableAsFileName( const std::string candidateName )
+std::string makeSuitableAsFileName( const std::string candidateName )
 {
     if ( candidateName.empty() ) return "noname";
 
@@ -388,3 +400,5 @@ std::string RiaFilePathTools::makeSuitableAsFileName( const std::string candidat
 
     return tmp.toStdString();
 }
+
+} // namespace RiaFilePathTools

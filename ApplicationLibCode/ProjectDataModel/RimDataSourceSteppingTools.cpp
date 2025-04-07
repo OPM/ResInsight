@@ -22,6 +22,7 @@
 #include "RimSummaryCalculationCollection.h"
 
 #include "RifEclipseSummaryAddress.h"
+#include "RifEclipseSummaryTools.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -137,8 +138,19 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
             return true;
         }
     }
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION )
+    {
+        int oldInt = oldValue.toInt();
+        int newInt = newValue.toInt();
+        if ( adr.wellCompletionNumber() == oldInt )
+        {
+            adr.setWellCompletionNumber( newInt );
+
+            return true;
+        }
+    }
     else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK ||
-              category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION )
+              category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION )
     {
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();
@@ -180,12 +192,18 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimDataSourceSteppingTools::updateQuantityIfMatching( const QVariant& oldValue, const QVariant& newValue, RifEclipseSummaryAddress& adr )
+bool RimDataSourceSteppingTools::updateQuantityIfMatching( const QVariant& previousName, const QVariant& newName, RifEclipseSummaryAddress& adr )
 {
-    std::string oldString  = oldValue.toString().toStdString();
-    auto        newQString = newValue.toString();
-    std::string newString  = newQString.toStdString();
+    return updateQuantityIfMatching( previousName.toString().toStdString(), newName.toString().toStdString(), adr );
+};
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimDataSourceSteppingTools::updateQuantityIfMatching( const std::string&        previousName,
+                                                           const std::string&        newName,
+                                                           RifEclipseSummaryAddress& adr )
+{
     // Calculation ID < 0 means native summary vector
     int calculationId = -1;
 
@@ -195,10 +213,11 @@ bool RimDataSourceSteppingTools::updateQuantityIfMatching( const QVariant& oldVa
         // Parse the calculations and find ID if text is matching. This can cause issues if a calculation has the same name as a native
         // summary vector imported from file.
 
-        auto calculations = calculationColl->calculations();
+        const auto qNewName     = QString::fromStdString( newName );
+        auto       calculations = calculationColl->calculations();
         for ( auto c : calculations )
         {
-            if ( c->shortName() == newQString )
+            if ( c->shortName() == qNewName )
             {
                 calculationId = c->id();
                 break;
@@ -206,9 +225,11 @@ bool RimDataSourceSteppingTools::updateQuantityIfMatching( const QVariant& oldVa
         }
     }
 
-    if ( adr.vectorName() == oldString )
+    auto [vectorName, suffix] = RifEclipseSummaryTools::splitVectorNameAndSuffix( adr.vectorName() );
+    if ( vectorName == previousName )
     {
-        adr.setVectorName( newString );
+        auto name = newName + suffix;
+        adr.setVectorName( name );
         adr.setId( calculationId );
 
         return true;

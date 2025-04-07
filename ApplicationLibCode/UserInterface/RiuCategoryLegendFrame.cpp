@@ -57,7 +57,12 @@ void RiuCategoryLegendFrame::layoutInfo( LayoutInfo* layout ) const
 //--------------------------------------------------------------------------------------------------
 QString RiuCategoryLegendFrame::label( int index ) const
 {
-    return cvfqt::Utils::toQString( m_categoryMapper->textForCategoryIndex( index ) );
+    if ( index < (int)m_categoryMapper->categoryCount() && index >= 0 )
+    {
+        return cvfqt::Utils::toQString( m_categoryMapper->textForCategoryIndex( index ) );
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

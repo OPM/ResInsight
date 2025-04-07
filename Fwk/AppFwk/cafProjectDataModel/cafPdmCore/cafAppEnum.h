@@ -37,10 +37,12 @@
 #pragma once
 
 #include "cafAssert.h"
+#include "cafPdmFieldHandle.h"
 
 #include <QString>
 #include <QStringList>
 
+#include <map>
 #include <vector>
 
 namespace caf
@@ -95,6 +97,16 @@ namespace caf
 ///         options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<TestEnumType>::uiTextFromIndex(i),
 ///         caf::AppEnum<TestEnumType>::fromIndex(i)));
 ///     }
+///
+/// Subset of enums:
+///
+///   Define a subset of the enum to be used in a field. Assign a value from the subset to make sure the field
+///   contains a valid value when the constructor is done.
+///
+///     CAF_PDM_InitField( &m_enum2Field, "Enum2Field", MyEnumType::T6, "Subset using setEnumSubset()" );
+///     caf::AppEnum<MyEnumType>::setEnumSubset( &m_enum2Field, { MyEnumType::T2, MyEnumType::T6 } );
+///
+///
 //==================================================================================================
 
 class AppEnumInterface
@@ -115,6 +127,19 @@ public:
     AppEnum( T value )
         : m_value( value )
     {
+    }
+
+    static void setEnumSubset( caf::PdmFieldHandle* fieldKeyword, std::vector<T> subset )
+    {
+        if ( !fieldKeyword ) return;
+        m_enumSubset[fieldKeyword->keyword()] = subset;
+    }
+    static std::vector<T> enumSubset( QString fieldKeyword )
+    {
+        auto it = m_enumSubset.find( fieldKeyword );
+        if ( it != m_enumSubset.end() ) return it->second;
+
+        return {};
     }
 
     operator T() const { return m_value; }
@@ -175,6 +200,8 @@ private:
     static void setDefault( T defaultEnumValue ) { EnumMapper::instance()->setDefault( defaultEnumValue ); }
 
     T m_value;
+
+    static std::map<QString, std::vector<T>> m_enumSubset;
 
     //==================================================================================================
     /// A private class to handle the instance of the mapping vector.
@@ -353,5 +380,8 @@ private:
         bool                  m_defaultValueIsSet;
     };
 };
+
+template <class T>
+std::map<QString, std::vector<T>> AppEnum<T>::m_enumSubset;
 
 } // namespace caf

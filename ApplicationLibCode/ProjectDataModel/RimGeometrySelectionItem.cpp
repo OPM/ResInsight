@@ -18,18 +18,18 @@
 
 #include "RimGeometrySelectionItem.h"
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimGeometrySelectionItem, "GeometrySelectionItem" );
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimGeometrySelectionItem_OBSOLETE, "GeometrySelectionItem" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeometrySelectionItem::RimGeometrySelectionItem()
+RimGeometrySelectionItem_OBSOLETE::RimGeometrySelectionItem_OBSOLETE()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeometrySelectionItem::~RimGeometrySelectionItem()
+RimGeometrySelectionItem_OBSOLETE::~RimGeometrySelectionItem_OBSOLETE()
 {
 }

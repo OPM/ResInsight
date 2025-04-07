@@ -26,6 +26,7 @@
 #include "RimCase.h"
 #include "RimEnsembleSurface.h"
 #include "RimFileSurface.h"
+#include "RimFractureSurface.h"
 #include "RimGridCaseSurface.h"
 #include "RimGridView.h"
 #include "RimProject.h"
@@ -35,9 +36,8 @@
 #include "RimSurfaceInView.h"
 #include "RimSurfaceResultDefinition.h"
 
-#include "cafPdmFieldReorderCapability.h"
-
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmFieldReorderCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
@@ -142,14 +142,26 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
 
     for ( const QString& newFileName : fileNames )
     {
-        RimFileSurface* newSurface = new RimFileSurface;
+        RimSurface* newSurface = nullptr;
+
+        if ( newFileName.endsWith( ".pvd" ) )
+        {
+            RimFractureSurface* fractureSurface = new RimFractureSurface;
+            fractureSurface->setSurfaceFilePath( newFileName );
+
+            newSurface = fractureSurface;
+        }
+        else
+        {
+            RimFileSurface* fileSurface = new RimFileSurface;
+
+            fileSurface->setSurfaceFilePath( newFileName );
+            newSurface = fileSurface;
+        }
 
         auto newColor = RiaColorTables::categoryPaletteColors().cycledColor3f( existingSurfCount + newSurfCount );
-
-        newSurface->setSurfaceFilePath( newFileName );
-        newSurface->setUserDescription( QFileInfo( newFileName ).fileName() );
-
         newSurface->setColor( newColor );
+        newSurface->setUserDescription( QFileInfo( newFileName ).fileName() );
 
         if ( !newSurface->onLoadData() )
         {

@@ -34,6 +34,11 @@ class CDockWidget;
 class CDockManager;
 }; // namespace ads
 
+namespace caf
+{
+class PdmUiItem;
+}; // namespace caf
+
 //==================================================================================================
 //
 //
@@ -59,6 +64,7 @@ public:
     static QString mainWindowMohrsCirclePlotName();
     static QString mainWindowUndoStackName();
     static QString mainWindowQuickAccessName();
+    static QString mainWindowCellSelectionToolName();
 
     static QString mainWindowProjectTreeName();
     static QString mainWindowDataSourceTreeName();
@@ -94,6 +100,8 @@ public:
     static QByteArray hideAllDockingPlotState();
 
     static QIcon dockIcon( const QString dockWidgetName );
+
+    static std::vector<caf::PdmUiItem*> selectedItemsInTreeView( const QString& dockWidgetName );
 
 private:
     static QByteArray defaultEclipseDockState();

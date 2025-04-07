@@ -143,50 +143,29 @@ TABDIMS::TABDIMS() : ParserKeyword("TABDIMS", KeywordSize(1, false)) {
 }
 const std::string TABDIMS::keywordName = "TABDIMS";
 const std::string TABDIMS::NTSFUN::itemName = "NTSFUN";
-const int TABDIMS::NTSFUN::defaultValue = 1;
 const std::string TABDIMS::NTPVT::itemName = "NTPVT";
-const int TABDIMS::NTPVT::defaultValue = 1;
 const std::string TABDIMS::NSSFUN::itemName = "NSSFUN";
-const int TABDIMS::NSSFUN::defaultValue = 20;
 const std::string TABDIMS::NPPVT::itemName = "NPPVT";
-const int TABDIMS::NPPVT::defaultValue = 20;
 const std::string TABDIMS::NTFIP::itemName = "NTFIP";
-const int TABDIMS::NTFIP::defaultValue = 1;
 const std::string TABDIMS::NRPVT::itemName = "NRPVT";
-const int TABDIMS::NRPVT::defaultValue = 20;
 const std::string TABDIMS::MAX_RV_NODES::itemName = "MAX_RV_NODES";
-const int TABDIMS::MAX_RV_NODES::defaultValue = 20;
 const std::string TABDIMS::NTENDP::itemName = "NTENDP";
-const int TABDIMS::NTENDP::defaultValue = 1;
 const std::string TABDIMS::NUM_EOS_RES::itemName = "NUM_EOS_RES";
-const int TABDIMS::NUM_EOS_RES::defaultValue = 1;
 const std::string TABDIMS::NUM_EOS_SURFACE::itemName = "NUM_EOS_SURFACE";
-const int TABDIMS::NUM_EOS_SURFACE::defaultValue = 1;
 const std::string TABDIMS::MAX_FLUX_REGIONS::itemName = "MAX_FLUX_REGIONS";
-const int TABDIMS::MAX_FLUX_REGIONS::defaultValue = 10;
 const std::string TABDIMS::MAX_THERMAL_REGIONS::itemName = "MAX_THERMAL_REGIONS";
-const int TABDIMS::MAX_THERMAL_REGIONS::defaultValue = 1;
 const std::string TABDIMS::NTROCC::itemName = "NTROCC";
 const std::string TABDIMS::MAX_PRESSURE_MAINTAINANCE_REGIONS::itemName = "MAX_PRESSURE_MAINTAINANCE_REGIONS";
-const int TABDIMS::MAX_PRESSURE_MAINTAINANCE_REGIONS::defaultValue = 0;
 const std::string TABDIMS::MAX_KVALUE_TABLES::itemName = "MAX_KVALUE_TABLES";
-const int TABDIMS::MAX_KVALUE_TABLES::defaultValue = 0;
 const std::string TABDIMS::NTALPHA::itemName = "NTALPHA";
 const std::string TABDIMS::ASPHALTENE_ASPKDAM_MAX_ROWS::itemName = "ASPHALTENE_ASPKDAM_MAX_ROWS";
-const int TABDIMS::ASPHALTENE_ASPKDAM_MAX_ROWS::defaultValue = 10;
 const std::string TABDIMS::ASPHALTENE_ASPREWG_MAX_ROWS::itemName = "ASPHALTENE_ASPREWG_MAX_ROWS";
-const int TABDIMS::ASPHALTENE_ASPREWG_MAX_ROWS::defaultValue = 10;
 const std::string TABDIMS::ASPHALTENE_ASPVISO_MAX_ROWS::itemName = "ASPHALTENE_ASPVISO_MAX_ROWS";
-const int TABDIMS::ASPHALTENE_ASPVISO_MAX_ROWS::defaultValue = 10;
 const std::string TABDIMS::ITEM20_NOT_USED::itemName = "ITEM20_NOT_USED";
 const std::string TABDIMS::ASPHALTENE_ASPPW2D_MAX_COLUMNS::itemName = "ASPHALTENE_ASPPW2D_MAX_COLUMNS";
-const int TABDIMS::ASPHALTENE_ASPPW2D_MAX_COLUMNS::defaultValue = 5;
 const std::string TABDIMS::ASPHALTENE_ASPPW2D_MAX_ROWS::itemName = "ASPHALTENE_ASPPW2D_MAX_ROWS";
-const int TABDIMS::ASPHALTENE_ASPPW2D_MAX_ROWS::defaultValue = 5;
 const std::string TABDIMS::ASPHALTENE_ASPWETF_MAX_ROWS::itemName = "ASPHALTENE_ASPWETF_MAX_ROWS";
-const int TABDIMS::ASPHALTENE_ASPWETF_MAX_ROWS::defaultValue = 5;
 const std::string TABDIMS::NUM_KVALUE_TABLES::itemName = "NUM_KVALUE_TABLES";
-const int TABDIMS::NUM_KVALUE_TABLES::defaultValue = 0;
 const std::string TABDIMS::RESERVED::itemName = "RESERVED";
 
 
@@ -206,6 +185,25 @@ TBLK::TBLK() : ParserKeyword("TBLK", KeywordSize(1, false)) {
 }
 const std::string TBLK::keywordName = "TBLK";
 const std::string TBLK::data::itemName = "data";
+
+
+TCRIT::TCRIT() : ParserKeyword("TCRIT", KeywordSize("TABDIMS", "NUM_EOS_RES", false, 0)) {
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("TCRIT");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("DATA", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("AbsoluteTemperature");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string TCRIT::keywordName = "TCRIT";
+const std::string TCRIT::DATA::itemName = "DATA";
 
 
 TEMP::TEMP() : ParserKeyword("TEMP", KeywordSize(0, false)) {
@@ -304,6 +302,39 @@ const std::string THCGAS::keywordName = "THCGAS";
 const std::string THCGAS::data::itemName = "data";
 
 
+THCO2MIX::THCO2MIX() : ParserKeyword("THCO2MIX", KeywordSize(1, false)) {
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("THCO2MIX");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("MIXING_MODEL_SALT", ParserItem::itype::STRING);
+        item.setDefault( std::string("MICHAELIDES") );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("MIXING_MODEL_LIQUID", ParserItem::itype::STRING);
+        item.setDefault( std::string("DUANSUN") );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("MIXING_MODEL_GAS", ParserItem::itype::STRING);
+        item.setDefault( std::string("NONE") );
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string THCO2MIX::keywordName = "THCO2MIX";
+const std::string THCO2MIX::MIXING_MODEL_SALT::itemName = "MIXING_MODEL_SALT";
+const std::string THCO2MIX::MIXING_MODEL_SALT::defaultValue = "MICHAELIDES";
+const std::string THCO2MIX::MIXING_MODEL_LIQUID::itemName = "MIXING_MODEL_LIQUID";
+const std::string THCO2MIX::MIXING_MODEL_LIQUID::defaultValue = "DUANSUN";
+const std::string THCO2MIX::MIXING_MODEL_GAS::itemName = "MIXING_MODEL_GAS";
+const std::string THCO2MIX::MIXING_MODEL_GAS::defaultValue = "NONE";
+
+
 THCOIL::THCOIL() : ParserKeyword("THCOIL", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
@@ -399,12 +430,50 @@ const std::string THCWATER::keywordName = "THCWATER";
 const std::string THCWATER::data::itemName = "data";
 
 
+THELCOEF::THELCOEF() : ParserKeyword("THELCOEF", KeywordSize(1, false)) {
+  addValidSectionName("GRID");
+  clearDeckNames();
+  addDeckName("THELCOEF");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("data", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("1");
+        record.addDataItem(item);
+     }
+     addDataRecord( record );
+  }
+}
+const std::string THELCOEF::keywordName = "THELCOEF";
+const std::string THELCOEF::data::itemName = "data";
+
+
 THERMAL::THERMAL() : ParserKeyword("THERMAL", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("THERMAL");
 }
 const std::string THERMAL::keywordName = "THERMAL";
+
+
+THERMEXR::THERMEXR() : ParserKeyword("THERMEXR", KeywordSize(1, false)) {
+  addValidSectionName("GRID");
+  clearDeckNames();
+  addDeckName("THERMEXR");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("data", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("1/AbsoluteTemperature");
+        record.addDataItem(item);
+     }
+     addDataRecord( record );
+  }
+}
+const std::string THERMEXR::keywordName = "THERMEXR";
+const std::string THERMEXR::data::itemName = "data";
 
 
 THPRES::THPRES() : ParserKeyword("THPRES", KeywordSize(SLASH_TERMINATED)) {
@@ -623,7 +692,6 @@ TOLCRIT::TOLCRIT() : ParserKeyword("TOLCRIT", KeywordSize(1, false)) {
 }
 const std::string TOLCRIT::keywordName = "TOLCRIT";
 const std::string TOLCRIT::VALUE::itemName = "VALUE";
-const double TOLCRIT::VALUE::defaultValue = 1e-06;
 
 
 TOPS::TOPS() : ParserKeyword("TOPS", KeywordSize(1, false)) {
@@ -859,27 +927,19 @@ TRACERS::TRACERS() : ParserKeyword("TRACERS", KeywordSize(1, false)) {
 }
 const std::string TRACERS::keywordName = "TRACERS";
 const std::string TRACERS::MAX_OIL_TRACERS::itemName = "MAX_OIL_TRACERS";
-const int TRACERS::MAX_OIL_TRACERS::defaultValue = 0;
 const std::string TRACERS::MAX_WATER_TRACERS::itemName = "MAX_WATER_TRACERS";
-const int TRACERS::MAX_WATER_TRACERS::defaultValue = 0;
 const std::string TRACERS::MAX_GAS_TRACERS::itemName = "MAX_GAS_TRACERS";
-const int TRACERS::MAX_GAS_TRACERS::defaultValue = 0;
 const std::string TRACERS::MAX_ENV_TRACERS::itemName = "MAX_ENV_TRACERS";
-const int TRACERS::MAX_ENV_TRACERS::defaultValue = 0;
 const std::string TRACERS::NUMERIC_DIFF::itemName = "NUMERIC_DIFF";
 const std::string TRACERS::NUMERIC_DIFF::defaultValue = "NODIFF";
 const std::string TRACERS::MAX_ITER::itemName = "MAX_ITER";
-const int TRACERS::MAX_ITER::defaultValue = 12;
 const std::string TRACERS::MIN_ITER::itemName = "MIN_ITER";
-const int TRACERS::MIN_ITER::defaultValue = 1;
 const std::string TRACERS::PASSIVE_NONLINEAR::itemName = "PASSIVE_NONLINEAR";
 const std::string TRACERS::PASSIVE_NONLINEAR::defaultValue = "NO";
 const std::string TRACERS::ONEOFF_LIN_TIGHT::itemName = "ONEOFF_LIN_TIGHT";
 const std::string TRACERS::ONEOFF_NLIN_TIGHT::itemName = "ONEOFF_NLIN_TIGHT";
 const std::string TRACERS::TIGHTENING_FACTORS::itemName = "TIGHTENING_FACTORS";
-const double TRACERS::TIGHTENING_FACTORS::defaultValue = 1.000000;
 const std::string TRACERS::NTIGHTFACTORS::itemName = "NTIGHTFACTORS";
-const int TRACERS::NTIGHTFACTORS::defaultValue = 0;
 
 
 TRACITVD::TRACITVD() : ParserKeyword("TRACITVD", KeywordSize(1, false)) {
@@ -903,7 +963,6 @@ TRACITVD::TRACITVD() : ParserKeyword("TRACITVD", KeywordSize(1, false)) {
 }
 const std::string TRACITVD::keywordName = "TRACITVD";
 const std::string TRACITVD::FLUX_LIMITER::itemName = "FLUX_LIMITER";
-const int TRACITVD::FLUX_LIMITER::defaultValue = 1;
 const std::string TRACITVD::BOTH_TIMESTEP::itemName = "BOTH_TIMESTEP";
 const std::string TRACITVD::BOTH_TIMESTEP::defaultValue = "YES";
 
@@ -1094,7 +1153,6 @@ TRDCY::TRDCY() : ParserKeyword("TRDCY", KeywordSize("TABDIMS", "NTPVT", false, 0
 }
 const std::string TRDCY::keywordName = "TRDCY";
 const std::string TRDCY::HALF_TIME::itemName = "HALF_TIME";
-const double TRDCY::HALF_TIME::defaultValue = 100000000000000000000.000000;
 
 
 TRDIF::TRDIF() : ParserKeyword("TRDIF", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
@@ -1114,7 +1172,6 @@ TRDIF::TRDIF() : ParserKeyword("TRDIF", KeywordSize("TABDIMS", "NTPVT", false, 0
 }
 const std::string TRDIF::keywordName = "TRDIF";
 const std::string TRDIF::HALF_TIME::itemName = "HALF_TIME";
-const double TRDIF::HALF_TIME::defaultValue = 100000000000000000000.000000;
 
 
 TRDIS::TRDIS() : ParserKeyword("TRDIS", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
@@ -1174,7 +1231,7 @@ const std::string TRDIS::D8TABLE::itemName = "D8TABLE";
 const std::string TRDIS::D9TABLE::itemName = "D9TABLE";
 
 
-TREF::TREF() : ParserKeyword("TREF", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
+TREF::TREF() : ParserKeyword("TREF", KeywordSize("TABDIMS", "NUM_EOS_RES", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("TREF");
@@ -1193,7 +1250,7 @@ const std::string TREF::keywordName = "TREF";
 const std::string TREF::TEMPERATURE::itemName = "TEMPERATURE";
 
 
-TREFS::TREFS() : ParserKeyword("TREFS", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
+TREFS::TREFS() : ParserKeyword("TREFS", KeywordSize("TABDIMS", "NUM_EOS_SURFACE", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("TREFS");
@@ -1282,7 +1339,6 @@ const std::string TRROCK::keywordName = "TRROCK";
 const std::string TRROCK::ADSORPTION_INDEX::itemName = "ADSORPTION_INDEX";
 const std::string TRROCK::MASS_DENSITY::itemName = "MASS_DENSITY";
 const std::string TRROCK::INIT_MODEL::itemName = "INIT_MODEL";
-const int TRROCK::INIT_MODEL::defaultValue = 1;
 
 
 TSTEP::TSTEP() : ParserKeyword("TSTEP", KeywordSize(1, false)) {
@@ -1493,67 +1549,37 @@ TUNING::TUNING() : ParserKeyword("TUNING", KeywordSize(3, false)) {
 }
 const std::string TUNING::keywordName = "TUNING";
 const std::string TUNING::TSINIT::itemName = "TSINIT";
-const double TUNING::TSINIT::defaultValue = 1.000000;
 const std::string TUNING::TSMAXZ::itemName = "TSMAXZ";
-const double TUNING::TSMAXZ::defaultValue = 365.000000;
 const std::string TUNING::TSMINZ::itemName = "TSMINZ";
-const double TUNING::TSMINZ::defaultValue = 0.100000;
 const std::string TUNING::TSMCHP::itemName = "TSMCHP";
-const double TUNING::TSMCHP::defaultValue = 0.150000;
 const std::string TUNING::TSFMAX::itemName = "TSFMAX";
-const double TUNING::TSFMAX::defaultValue = 3.000000;
 const std::string TUNING::TSFMIN::itemName = "TSFMIN";
-const double TUNING::TSFMIN::defaultValue = 0.300000;
 const std::string TUNING::TSFCNV::itemName = "TSFCNV";
-const double TUNING::TSFCNV::defaultValue = 0.100000;
 const std::string TUNING::TFDIFF::itemName = "TFDIFF";
-const double TUNING::TFDIFF::defaultValue = 1.250000;
 const std::string TUNING::THRUPT::itemName = "THRUPT";
-const double TUNING::THRUPT::defaultValue = 100000000000000000000.000000;
 const std::string TUNING::TMAXWC::itemName = "TMAXWC";
 const std::string TUNING::TRGTTE::itemName = "TRGTTE";
-const double TUNING::TRGTTE::defaultValue = 0.100000;
 const std::string TUNING::TRGCNV::itemName = "TRGCNV";
-const double TUNING::TRGCNV::defaultValue = 0.001000;
 const std::string TUNING::TRGMBE::itemName = "TRGMBE";
-const double TUNING::TRGMBE::defaultValue = 1e-07;
 const std::string TUNING::TRGLCV::itemName = "TRGLCV";
-const double TUNING::TRGLCV::defaultValue = 0.000100;
 const std::string TUNING::XXXTTE::itemName = "XXXTTE";
-const double TUNING::XXXTTE::defaultValue = 10.000000;
 const std::string TUNING::XXXCNV::itemName = "XXXCNV";
-const double TUNING::XXXCNV::defaultValue = 0.010000;
 const std::string TUNING::XXXMBE::itemName = "XXXMBE";
-const double TUNING::XXXMBE::defaultValue = 1e-06;
 const std::string TUNING::XXXLCV::itemName = "XXXLCV";
-const double TUNING::XXXLCV::defaultValue = 0.001000;
 const std::string TUNING::XXXWFL::itemName = "XXXWFL";
-const double TUNING::XXXWFL::defaultValue = 0.001000;
 const std::string TUNING::TRGFIP::itemName = "TRGFIP";
-const double TUNING::TRGFIP::defaultValue = 0.025000;
 const std::string TUNING::TRGSFT::itemName = "TRGSFT";
 const std::string TUNING::THIONX::itemName = "THIONX";
-const double TUNING::THIONX::defaultValue = 0.010000;
 const std::string TUNING::TRWGHT::itemName = "TRWGHT";
-const int TUNING::TRWGHT::defaultValue = 1;
 const std::string TUNING::NEWTMX::itemName = "NEWTMX";
-const int TUNING::NEWTMX::defaultValue = 12;
 const std::string TUNING::NEWTMN::itemName = "NEWTMN";
-const int TUNING::NEWTMN::defaultValue = 1;
 const std::string TUNING::LITMAX::itemName = "LITMAX";
-const int TUNING::LITMAX::defaultValue = 25;
 const std::string TUNING::LITMIN::itemName = "LITMIN";
-const int TUNING::LITMIN::defaultValue = 1;
 const std::string TUNING::MXWSIT::itemName = "MXWSIT";
-const int TUNING::MXWSIT::defaultValue = 8;
 const std::string TUNING::MXWPIT::itemName = "MXWPIT";
-const int TUNING::MXWPIT::defaultValue = 8;
 const std::string TUNING::DDPLIM::itemName = "DDPLIM";
-const double TUNING::DDPLIM::defaultValue = 1000000.000000;
 const std::string TUNING::DDSLIM::itemName = "DDSLIM";
-const double TUNING::DDSLIM::defaultValue = 1000000.000000;
 const std::string TUNING::TRGDPR::itemName = "TRGDPR";
-const double TUNING::TRGDPR::defaultValue = 1000000.000000;
 const std::string TUNING::XXXDPR::itemName = "XXXDPR";
 
 
@@ -1625,15 +1651,10 @@ TUNINGH::TUNINGH() : ParserKeyword("TUNINGH", KeywordSize(1, false)) {
 }
 const std::string TUNINGH::keywordName = "TUNINGH";
 const std::string TUNINGH::GRGLCV::itemName = "GRGLCV";
-const double TUNINGH::GRGLCV::defaultValue = 0.000100;
 const std::string TUNINGH::GXXLCV::itemName = "GXXLCV";
-const double TUNINGH::GXXLCV::defaultValue = 0.001000;
 const std::string TUNINGH::GMSLCV::itemName = "GMSLCV";
-const double TUNINGH::GMSLCV::defaultValue = 1e-20;
 const std::string TUNINGH::LGTMIN::itemName = "LGTMIN";
-const int TUNINGH::LGTMIN::defaultValue = 1;
 const std::string TUNINGH::LGTMAX::itemName = "LGTMAX";
-const int TUNINGH::LGTMAX::defaultValue = 25;
 
 
 TUNINGL::TUNINGL() : ParserKeyword("TUNINGL", KeywordSize(3, false)) {
@@ -1825,67 +1846,37 @@ TUNINGL::TUNINGL() : ParserKeyword("TUNINGL", KeywordSize(3, false)) {
 }
 const std::string TUNINGL::keywordName = "TUNINGL";
 const std::string TUNINGL::TSINIT::itemName = "TSINIT";
-const double TUNINGL::TSINIT::defaultValue = 1.000000;
 const std::string TUNINGL::TSMAXZ::itemName = "TSMAXZ";
-const double TUNINGL::TSMAXZ::defaultValue = 365.000000;
 const std::string TUNINGL::TSMINZ::itemName = "TSMINZ";
-const double TUNINGL::TSMINZ::defaultValue = 0.100000;
 const std::string TUNINGL::TSMCHP::itemName = "TSMCHP";
-const double TUNINGL::TSMCHP::defaultValue = 0.150000;
 const std::string TUNINGL::TSFMAX::itemName = "TSFMAX";
-const double TUNINGL::TSFMAX::defaultValue = 3.000000;
 const std::string TUNINGL::TSFMIN::itemName = "TSFMIN";
-const double TUNINGL::TSFMIN::defaultValue = 0.300000;
 const std::string TUNINGL::TSFCNV::itemName = "TSFCNV";
-const double TUNINGL::TSFCNV::defaultValue = 0.100000;
 const std::string TUNINGL::TFDIFF::itemName = "TFDIFF";
-const double TUNINGL::TFDIFF::defaultValue = 1.250000;
 const std::string TUNINGL::THRUPT::itemName = "THRUPT";
-const double TUNINGL::THRUPT::defaultValue = 100000000000000000000.000000;
 const std::string TUNINGL::TMAXWC::itemName = "TMAXWC";
 const std::string TUNINGL::TRGTTE::itemName = "TRGTTE";
-const double TUNINGL::TRGTTE::defaultValue = 0.100000;
 const std::string TUNINGL::TRGCNV::itemName = "TRGCNV";
-const double TUNINGL::TRGCNV::defaultValue = 0.001000;
 const std::string TUNINGL::TRGMBE::itemName = "TRGMBE";
-const double TUNINGL::TRGMBE::defaultValue = 1e-07;
 const std::string TUNINGL::TRGLCV::itemName = "TRGLCV";
-const double TUNINGL::TRGLCV::defaultValue = 0.000100;
 const std::string TUNINGL::XXXTTE::itemName = "XXXTTE";
-const double TUNINGL::XXXTTE::defaultValue = 10.000000;
 const std::string TUNINGL::XXXCNV::itemName = "XXXCNV";
-const double TUNINGL::XXXCNV::defaultValue = 0.010000;
 const std::string TUNINGL::XXXMBE::itemName = "XXXMBE";
-const double TUNINGL::XXXMBE::defaultValue = 1e-06;
 const std::string TUNINGL::XXXLCV::itemName = "XXXLCV";
-const double TUNINGL::XXXLCV::defaultValue = 0.001000;
 const std::string TUNINGL::XXXWFL::itemName = "XXXWFL";
-const double TUNINGL::XXXWFL::defaultValue = 0.001000;
 const std::string TUNINGL::TRGFIP::itemName = "TRGFIP";
-const double TUNINGL::TRGFIP::defaultValue = 0.025000;
 const std::string TUNINGL::TRGSFT::itemName = "TRGSFT";
 const std::string TUNINGL::THIONX::itemName = "THIONX";
-const double TUNINGL::THIONX::defaultValue = 0.010000;
 const std::string TUNINGL::TRWGHT::itemName = "TRWGHT";
-const int TUNINGL::TRWGHT::defaultValue = 1;
 const std::string TUNINGL::NEWTMX::itemName = "NEWTMX";
-const int TUNINGL::NEWTMX::defaultValue = 12;
 const std::string TUNINGL::NEWTMN::itemName = "NEWTMN";
-const int TUNINGL::NEWTMN::defaultValue = 1;
 const std::string TUNINGL::LITMAX::itemName = "LITMAX";
-const int TUNINGL::LITMAX::defaultValue = 25;
 const std::string TUNINGL::LITMIN::itemName = "LITMIN";
-const int TUNINGL::LITMIN::defaultValue = 1;
 const std::string TUNINGL::MXWSIT::itemName = "MXWSIT";
-const int TUNINGL::MXWSIT::defaultValue = 8;
 const std::string TUNINGL::MXWPIT::itemName = "MXWPIT";
-const int TUNINGL::MXWPIT::defaultValue = 8;
 const std::string TUNINGL::DDPLIM::itemName = "DDPLIM";
-const double TUNINGL::DDPLIM::defaultValue = 1000000.000000;
 const std::string TUNINGL::DDSLIM::itemName = "DDSLIM";
-const double TUNINGL::DDSLIM::defaultValue = 1000000.000000;
 const std::string TUNINGL::TRGDPR::itemName = "TRGDPR";
-const double TUNINGL::TRGDPR::defaultValue = 1000000.000000;
 const std::string TUNINGL::XXXDPR::itemName = "XXXDPR";
 
 
@@ -2087,67 +2078,37 @@ TUNINGS::TUNINGS() : ParserKeyword("TUNINGS", KeywordSize(4, false)) {
 const std::string TUNINGS::keywordName = "TUNINGS";
 const std::string TUNINGS::LGR::itemName = "LGR";
 const std::string TUNINGS::TSINIT::itemName = "TSINIT";
-const double TUNINGS::TSINIT::defaultValue = 1.000000;
 const std::string TUNINGS::TSMAXZ::itemName = "TSMAXZ";
-const double TUNINGS::TSMAXZ::defaultValue = 365.000000;
 const std::string TUNINGS::TSMINZ::itemName = "TSMINZ";
-const double TUNINGS::TSMINZ::defaultValue = 0.100000;
 const std::string TUNINGS::TSMCHP::itemName = "TSMCHP";
-const double TUNINGS::TSMCHP::defaultValue = 0.150000;
 const std::string TUNINGS::TSFMAX::itemName = "TSFMAX";
-const double TUNINGS::TSFMAX::defaultValue = 3.000000;
 const std::string TUNINGS::TSFMIN::itemName = "TSFMIN";
-const double TUNINGS::TSFMIN::defaultValue = 0.300000;
 const std::string TUNINGS::TSFCNV::itemName = "TSFCNV";
-const double TUNINGS::TSFCNV::defaultValue = 0.100000;
 const std::string TUNINGS::TFDIFF::itemName = "TFDIFF";
-const double TUNINGS::TFDIFF::defaultValue = 1.250000;
 const std::string TUNINGS::THRUPT::itemName = "THRUPT";
-const double TUNINGS::THRUPT::defaultValue = 100000000000000000000.000000;
 const std::string TUNINGS::TMAXWC::itemName = "TMAXWC";
 const std::string TUNINGS::TRGTTE::itemName = "TRGTTE";
-const double TUNINGS::TRGTTE::defaultValue = 0.100000;
 const std::string TUNINGS::TRGCNV::itemName = "TRGCNV";
-const double TUNINGS::TRGCNV::defaultValue = 0.001000;
 const std::string TUNINGS::TRGMBE::itemName = "TRGMBE";
-const double TUNINGS::TRGMBE::defaultValue = 1e-07;
 const std::string TUNINGS::TRGLCV::itemName = "TRGLCV";
-const double TUNINGS::TRGLCV::defaultValue = 0.000100;
 const std::string TUNINGS::XXXTTE::itemName = "XXXTTE";
-const double TUNINGS::XXXTTE::defaultValue = 10.000000;
 const std::string TUNINGS::XXXCNV::itemName = "XXXCNV";
-const double TUNINGS::XXXCNV::defaultValue = 0.010000;
 const std::string TUNINGS::XXXMBE::itemName = "XXXMBE";
-const double TUNINGS::XXXMBE::defaultValue = 1e-06;
 const std::string TUNINGS::XXXLCV::itemName = "XXXLCV";
-const double TUNINGS::XXXLCV::defaultValue = 0.001000;
 const std::string TUNINGS::XXXWFL::itemName = "XXXWFL";
-const double TUNINGS::XXXWFL::defaultValue = 0.001000;
 const std::string TUNINGS::TRGFIP::itemName = "TRGFIP";
-const double TUNINGS::TRGFIP::defaultValue = 0.025000;
 const std::string TUNINGS::TRGSFT::itemName = "TRGSFT";
 const std::string TUNINGS::THIONX::itemName = "THIONX";
-const double TUNINGS::THIONX::defaultValue = 0.010000;
 const std::string TUNINGS::TRWGHT::itemName = "TRWGHT";
-const int TUNINGS::TRWGHT::defaultValue = 1;
 const std::string TUNINGS::NEWTMX::itemName = "NEWTMX";
-const int TUNINGS::NEWTMX::defaultValue = 12;
 const std::string TUNINGS::NEWTMN::itemName = "NEWTMN";
-const int TUNINGS::NEWTMN::defaultValue = 1;
 const std::string TUNINGS::LITMAX::itemName = "LITMAX";
-const int TUNINGS::LITMAX::defaultValue = 25;
 const std::string TUNINGS::LITMIN::itemName = "LITMIN";
-const int TUNINGS::LITMIN::defaultValue = 1;
 const std::string TUNINGS::MXWSIT::itemName = "MXWSIT";
-const int TUNINGS::MXWSIT::defaultValue = 8;
 const std::string TUNINGS::MXWPIT::itemName = "MXWPIT";
-const int TUNINGS::MXWPIT::defaultValue = 8;
 const std::string TUNINGS::DDPLIM::itemName = "DDPLIM";
-const double TUNINGS::DDPLIM::defaultValue = 1000000.000000;
 const std::string TUNINGS::DDSLIM::itemName = "DDSLIM";
-const double TUNINGS::DDSLIM::defaultValue = 1000000.000000;
 const std::string TUNINGS::TRGDPR::itemName = "TRGDPR";
-const double TUNINGS::TRGDPR::defaultValue = 1000000.000000;
 const std::string TUNINGS::XXXDPR::itemName = "XXXDPR";
 
 

@@ -59,6 +59,7 @@ set(PROJECT_FILES
     cafAsyncObjectDeleter.inl
     cafAsyncWorkerManager.h
     cafAsyncWorkerManager.cpp
+    cafPdmObjectHandleTools.h
 )
 
 add_library(${PROJECT_NAME} ${PROJECT_FILES})
@@ -72,5 +73,3 @@ if(MSVC)
     ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127"
   )
 endif()
-
-source_group("" FILES ${PROJECT_FILES})

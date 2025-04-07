@@ -34,6 +34,7 @@
 #include "cafPdmPtrField.h"
 #include "cafSignal.h"
 
+#include "cafFontTools.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmFieldCvfVec3d.h"
@@ -133,10 +134,10 @@ public:
 
     void         setBackgroundColor( const cvf::Color3f& newBackgroundColor );
     cvf::Color3f backgroundColor() const override; // Implementation of RiuViewerToViewInterface
-    void         applyBackgroundColorAndFontChanges();
 
     int  fontSize() const override;
     void updateFonts() override;
+    void applyFontChanges();
 
     void disableLighting( bool disable );
     bool isLightingDisabled() const;
@@ -150,12 +151,13 @@ public:
     void   forceShowWindowOn();
 
     // Timestep control
-    int     currentTimeStep() const;
-    void    setCurrentTimeStep( int frameIdx );
-    void    setCurrentTimeStepAndUpdate( int frameIdx ) override;
-    bool    isTimeStepDependentDataVisibleInThisOrComparisonView() const;
-    size_t  timeStepCount();
-    QString timeStepName( int frameIdx ) const override;
+    int                 currentTimeStep() const;
+    void                setCurrentTimeStep( int frameIdx );
+    void                setCurrentTimeStepAndUpdate( int frameIdx ) override;
+    bool                isTimeStepDependentDataVisibleInThisOrComparisonView() const;
+    size_t              timeStepCount();
+    QString             timeStepName( int frameIdx ) const override;
+    virtual QStringList timeStepStrings() const;
 
     // Animation control
     caf::Signal<> updateAnimations;
@@ -280,7 +282,6 @@ protected:
     cvf::ref<cvf::ModelBasicList> m_screenSpaceModel;
 
     caf::PdmField<double> m_scaleZ;
-    caf::PdmField<double> m_customScaleZ;
 
     caf::PdmChildField<RimAnnotationInViewCollection*> m_annotationCollection;
 
@@ -328,12 +329,18 @@ private:
     caf::PdmField<int>                     m_id;
     caf::PdmChildField<RimViewNameConfig*> m_nameConfig;
     caf::PdmField<bool>                    m_disableLighting;
-    caf::PdmField<cvf::Mat4d>              m_cameraPosition;
-    caf::PdmField<cvf::Vec3d>              m_cameraPointOfInterest;
     caf::PdmField<cvf::Color3f>            m_backgroundColor;
     caf::PdmField<bool>                    m_showGridBox;
     caf::PdmField<bool>                    m_showZScaleLabel;
     caf::PdmPtrField<Rim3dView*>           m_comparisonView;
+
+    // Camera position and point of interest. The member variables are mutable to allow for setting them from const methods.
+    // The camera position and point of interest can change rapidly as the user interacts with the 3D view. Only update the Pdm field values
+    // when the application requests the camera position or point of interest.
+    mutable caf::PdmField<cvf::Mat4d>   m_cameraPosition;
+    mutable caf::PdmField<cvf::Vec3d>   m_cameraPointOfInterest;
+    caf::PdmProxyValueField<cvf::Vec3d> m_cameraPointOfInterestProxy;
+    caf::PdmProxyValueField<cvf::Mat4d> m_cameraPositionProxy;
 
     caf::PdmField<bool>                                                    m_useCustomAnnotationStrategy;
     caf::PdmField<caf::AppEnum<RivAnnotationTools::LabelPositionStrategy>> m_annotationStrategy;

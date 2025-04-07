@@ -45,8 +45,6 @@ public:
     void clear();
 
     std::vector<std::string> quantities() const;
-    std::set<std::string>    quantityNamesWithHistory() const;
-    std::set<std::string>    quantityNamesNoHistory() const;
 
     bool isSingleQuantityIgnoreHistory() const;
 
@@ -59,10 +57,11 @@ public:
     std::set<std::string> networkNames() const;
     std::set<int>         regionNumbers() const;
 
-    std::set<std::string> wellCompletions( const std::string& wellName ) const;
+    std::set<std::string> wellConnections( const std::string& wellName ) const;
     std::set<int>         wellSegmentNumbers( const std::string& wellName ) const;
     std::set<std::string> blocks() const;
     std::set<int>         aquifers() const;
+    std::set<int>         wellCompletionNumbers( const std::string& wellName ) const;
 
     std::set<RifEclipseSummaryAddressDefines::SummaryCategory> categories() const;
     std::vector<std::vector<RifEclipseSummaryAddress>>         addressesGroupedByObject() const;
@@ -73,14 +72,9 @@ public:
     static std::vector<RifEclipseSummaryAddress> addressesForCategory( const std::set<RifEclipseSummaryAddress>&        addresses,
                                                                        RifEclipseSummaryAddressDefines::SummaryCategory category );
 
-    static std::string correspondingHistorySummaryCurveName( const std::string& curveName );
-
     std::set<std::string> vectorNamesForCategory( RifEclipseSummaryAddressDefines::SummaryCategory category );
 
 private:
-    void assignCategoryToQuantities() const;
-    void computeQuantityNamesWithHistory() const;
-
     void analyzeSingleAddress( const RifEclipseSummaryAddress& address );
 
     static std::set<std::string> keysInMap( const std::multimap<std::string, RifEclipseSummaryAddress>& map );
@@ -93,17 +87,16 @@ private:
     static std::vector<std::vector<RifEclipseSummaryAddress>> valuesInMap( const std::multimap<int, RifEclipseSummaryAddress>& map );
 
 private:
-    std::vector<std::string>      m_quantities;
-    mutable std::set<std::string> m_quantitiesWithMatchingHistory;
-    mutable std::set<std::string> m_quantitiesNoMatchingHistory;
+    std::vector<std::string> m_quantities;
 
     std::vector<RifEclipseSummaryAddress>                m_otherCategory;
     std::multimap<std::string, RifEclipseSummaryAddress> m_wellNames;
     std::multimap<std::string, RifEclipseSummaryAddress> m_groupNames;
     std::multimap<std::string, RifEclipseSummaryAddress> m_networkNames;
     std::multimap<int, RifEclipseSummaryAddress>         m_regionNumbers;
-    std::set<std::pair<std::string, std::string>>        m_wellCompletions;
+    std::set<std::pair<std::string, std::string>>        m_wellConnections;
     std::set<std::pair<std::string, int>>                m_wellSegmentNumbers;
+    std::set<std::pair<std::string, int>>                m_wellCompletionNumbers;
     std::multimap<std::string, RifEclipseSummaryAddress> m_blocks;
     std::multimap<int, RifEclipseSummaryAddress>         m_aquifers;
 

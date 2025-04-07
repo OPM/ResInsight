@@ -23,6 +23,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesGeoMech.h"
 #include "RiaPreferencesGrid.h"
@@ -36,6 +37,7 @@
 #include "OsduCommands//RicDeleteOsduTokenFeature.h"
 #include "Sumo/RicDeleteSumoTokenFeature.h"
 
+#include "RiuFileDialogTools.h"
 #include "RiuGuiTheme.h"
 
 #include "cafPdmFieldCvfColor.h"
@@ -178,7 +180,9 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitFieldNoDefault( &defaultSceneFontSize, "defaultSceneFontSizePt", "Viewer Font Size" );
     CAF_PDM_InitFieldNoDefault( &defaultAnnotationFontSize, "defaultAnnotationFontSizePt", "Annotation Font Size" );
     CAF_PDM_InitFieldNoDefault( &defaultWellLabelFontSize, "defaultWellLabelFontSizePt", "Well Label Font Size" );
-    CAF_PDM_InitFieldNoDefault( &defaultPlotFontSize, "defaultPlotFontSizePt", "Plot Font Size" );
+
+    auto defaultValue = FontSizeEnum( RiaFontCache::FontSize::FONT_SIZE_10 );
+    CAF_PDM_InitField( &defaultPlotFontSize, "defaultPlotFontSizePt", defaultValue, "Plot Font Size" );
 
     CAF_PDM_InitField( &m_showLegendBackground, "showLegendBackground", true, "Show Box around Legends" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showLegendBackground );
@@ -284,6 +288,12 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &m_deleteSumoToken, "deleteSumoToken", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_deleteSumoToken );
     m_deleteSumoToken.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault( &m_importPreferences, "importPreferences", "Import From File" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_importPreferences );
+
+    CAF_PDM_InitFieldNoDefault( &m_exportPreferences, "exportPreferences", "Export To File" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_exportPreferences );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -357,6 +367,20 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field, QS
             pbAttribute->m_buttonText = "Delete Token";
         }
     }
+    else if ( field == &m_importPreferences )
+    {
+        if ( auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
+        {
+            pbAttribute->m_buttonText = "Import Preferences";
+        }
+    }
+    else if ( field == &m_exportPreferences )
+    {
+        if ( auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
+        {
+            pbAttribute->m_buttonText = "Export Preferences";
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -398,8 +422,14 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         m_loggerFlushInterval.uiCapability()->setUiReadOnly( !m_loggerFilename().first );
 
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
+        otherGroup->setCollapsedByDefault();
         otherGroup->add( &holoLensDisableCertificateVerification );
         otherGroup->add( &m_useUndoRedo );
+
+        caf::PdmUiGroup* importExportGroup = uiOrdering.addNewGroup( "Import and Export" );
+        importExportGroup->setCollapsedByDefault();
+        importExportGroup->add( &m_importPreferences, { .newRow = false, .totalColumnSpan = 1 } );
+        importExportGroup->add( &m_exportPreferences, { .newRow = false, .totalColumnSpan = 1 } );
     }
     else if ( uiConfigName == RiaPreferences::tabNameGrid() )
     {
@@ -577,6 +607,20 @@ void RiaPreferences::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
     {
         RicDeleteSumoTokenFeature::deleteUserToken();
         m_deleteSumoToken = false;
+    }
+    else if ( changedField == &m_exportPreferences )
+    {
+        QString filePath = RiuFileDialogTools::getSaveFileName( nullptr, "Export Preferences", "", "XML files (*.xml);;All files(*.*)" );
+        exportPreferenceValuesToFile( filePath );
+
+        m_exportPreferences = false;
+    }
+    else if ( changedField == &m_importPreferences )
+    {
+        QString filePath = RiuFileDialogTools::getOpenFileName( nullptr, "Import Preferences", "", "XML files (*.xml);;All files(*.*)" );
+        importPreferenceValuesFromFile( filePath );
+
+        m_importPreferences = false;
     }
     else
     {
@@ -839,6 +883,8 @@ std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> RiaPreferences::de
 //--------------------------------------------------------------------------------------------------
 void RiaPreferences::writePreferencesToApplicationStore()
 {
+    if ( !RiaGuiApplication::isRunning() ) return;
+
     caf::PdmSettings::writeFieldsToApplicationStore( this );
 }
 
@@ -1075,4 +1121,55 @@ bool RiaPreferences::enableFaultsByDefault() const
 RiaPreferencesGrid* RiaPreferences::gridPreferences() const
 {
     return m_gridPreferences();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPreferences::importPreferenceValuesFromFile( const QString& fileName )
+{
+    if ( fileName.isEmpty() ) return;
+
+    QFile file( fileName );
+    if ( file.open( QIODevice::ReadOnly | QIODevice::Text ) )
+    {
+        QTextStream in( &file );
+        QString     fileContent = in.readAll();
+        file.close();
+        if ( !fileContent.isEmpty() )
+        {
+            this->readObjectFromXmlString( fileContent, caf::PdmDefaultObjectFactory::instance() );
+        }
+        auto txt = "Imported preferences from " + fileName;
+        RiaLogging::info( txt );
+    }
+    else
+    {
+        auto txt = QString( "Unable to open file: " ) + fileName;
+        RiaLogging::error( txt );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPreferences::exportPreferenceValuesToFile( const QString& fileName )
+{
+    QFile file( fileName );
+    if ( file.open( QIODevice::WriteOnly | QIODevice::Text ) )
+    {
+        QTextStream out( &file );
+
+        auto content = this->writeObjectToXmlString();
+        out << content;
+        file.close();
+
+        QString txt = "Exported preferences to " + fileName;
+        RiaLogging::info( txt );
+    }
+    else
+    {
+        auto txt = QString( "Unable to open file: " ) + fileName;
+        RiaLogging::error( txt );
+    }
 }

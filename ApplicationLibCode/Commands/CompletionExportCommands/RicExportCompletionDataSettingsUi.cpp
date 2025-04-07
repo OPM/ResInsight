@@ -26,44 +26,46 @@
 #include "RimWellPath.h"
 #include "RimWellPathCompletions.h"
 
-// clang-format off
 namespace caf
 {
-    template<>
-    void RicExportCompletionDataSettingsUi::ExportSplitType::setUp()
-    {
-        addItem(RicExportCompletionDataSettingsUi::ExportSplit::UNIFIED_FILE,                      "UNIFIED_FILE",                      "Unified File");
-        addItem(RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL,                     "SPLIT_ON_WELL",                     "Split on Well");
-        addItem(RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL_AND_COMPLETION_TYPE, "SPLIT_ON_WELL_AND_COMPLETION_TYPE", "Split on Well and Completion Type");
-        setDefault(RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL_AND_COMPLETION_TYPE);
-    }
-
-    template<>
-    void RicExportCompletionDataSettingsUi::CompdatExportType::setUp()
-    {
-        addItem(RicExportCompletionDataSettingsUi::CompdatExport::TRANSMISSIBILITIES, "TRANSMISSIBILITIES", "Calculated Transmissibilities");
-        addItem(RicExportCompletionDataSettingsUi::CompdatExport::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS, "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS", "Default Connection Factors and WPIMULT (Fractures Not Supported)");
-        setDefault(RicExportCompletionDataSettingsUi::CompdatExport::TRANSMISSIBILITIES);
-    }
-
-    template<>
-    void RicExportCompletionDataSettingsUi::CombinationModeType::setUp()
-    {
-        addItem(RicExportCompletionDataSettingsUi::CombinationMode::INDIVIDUALLY,    "INDIVIDUALLY", "Individually");
-        addItem(RicExportCompletionDataSettingsUi::CombinationMode::COMBINED,        "COMBINED",     "Combined");
-        setDefault(RicExportCompletionDataSettingsUi::CombinationMode::INDIVIDUALLY);
-    }
-
-    template<>
-    void RicExportCompletionDataSettingsUi::TransScalingWBHPSource::setUp()
-    {
-        addItem(RicExportFractureCompletionsImpl::WBHP_FROM_SUMMARY, "WBHP_SUMMARY", "WBHP From Summary Case");
-        addItem(RicExportFractureCompletionsImpl::WBHP_FROM_USER_DEF, "WBHP_USER_DEFINED", "Fixed User Defined WBHP");
-
-        setDefault(RicExportFractureCompletionsImpl::WBHP_FROM_SUMMARY);
-    }
+template <>
+void RicExportCompletionDataSettingsUi::ExportSplitType::setUp()
+{
+    addItem( RicExportCompletionDataSettingsUi::ExportSplit::UNIFIED_FILE, "UNIFIED_FILE", "Unified File" );
+    addItem( RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL, "SPLIT_ON_WELL", "Split on Well" );
+    addItem( RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL_AND_COMPLETION_TYPE,
+             "SPLIT_ON_WELL_AND_COMPLETION_TYPE",
+             "Split on Well and Completion Type" );
+    setDefault( RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL_AND_COMPLETION_TYPE );
 }
-// clang-format on
+
+template <>
+void RicExportCompletionDataSettingsUi::CompdatExportType::setUp()
+{
+    addItem( RicExportCompletionDataSettingsUi::CompdatExport::TRANSMISSIBILITIES, "TRANSMISSIBILITIES", "Calculated Transmissibilities" );
+    addItem( RicExportCompletionDataSettingsUi::CompdatExport::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS,
+             "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS",
+             "Default Connection Factors and WPIMULT (Fractures Not Supported)" );
+    setDefault( RicExportCompletionDataSettingsUi::CompdatExport::TRANSMISSIBILITIES );
+}
+
+template <>
+void RicExportCompletionDataSettingsUi::CombinationModeType::setUp()
+{
+    addItem( RicExportCompletionDataSettingsUi::CombinationMode::INDIVIDUALLY, "INDIVIDUALLY", "Individually" );
+    addItem( RicExportCompletionDataSettingsUi::CombinationMode::COMBINED, "COMBINED", "Combined" );
+    setDefault( RicExportCompletionDataSettingsUi::CombinationMode::INDIVIDUALLY );
+}
+
+template <>
+void RicExportCompletionDataSettingsUi::TransScalingWBHPSource::setUp()
+{
+    addItem( RicExportFractureCompletionsImpl::WBHP_FROM_SUMMARY, "WBHP_SUMMARY", "WBHP From Summary Case" );
+    addItem( RicExportFractureCompletionsImpl::WBHP_FROM_USER_DEF, "WBHP_USER_DEFINED", "Fixed User Defined WBHP" );
+
+    setDefault( RicExportFractureCompletionsImpl::WBHP_FROM_SUMMARY );
+}
+} // namespace caf
 
 CAF_PDM_SOURCE_INIT( RicExportCompletionDataSettingsUi, "RicExportCompletionDataSettingsUi" );
 
@@ -112,8 +114,6 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
     CAF_PDM_InitField( &m_useCustomFileName, "UseCustomFileName", false, "Use Custom Filename" );
     CAF_PDM_InitField( &m_customFileName, "CustomFileName", {}, "Custom Filename" );
 
-    m_displayForSimWell = true;
-
     m_fracturesEnabled    = true;
     m_perforationsEnabled = true;
     m_fishbonesEnabled    = true;
@@ -125,22 +125,6 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 void RicExportCompletionDataSettingsUi::enableIncludeMsw()
 {
     includeMsw = true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicExportCompletionDataSettingsUi::showForSimWells()
-{
-    m_displayForSimWell = true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicExportCompletionDataSettingsUi::showForWellPath()
-{
-    m_displayForSimWell = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -381,17 +365,14 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering( QString uiConfigName, 
 
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Completions Export Selection" );
-        if ( !m_displayForSimWell )
+        if ( m_perforationsEnabled )
         {
-            if ( m_perforationsEnabled )
-            {
-                group->add( &includePerforations );
-                group->add( &timeStep );
-                if ( !includePerforations )
-                    timeStep.uiCapability()->setUiReadOnly( true );
-                else
-                    timeStep.uiCapability()->setUiReadOnly( false );
-            }
+            group->add( &includePerforations );
+            group->add( &timeStep );
+            if ( !includePerforations )
+                timeStep.uiCapability()->setUiReadOnly( true );
+            else
+                timeStep.uiCapability()->setUiReadOnly( false );
         }
 
         if ( m_fracturesEnabled )
@@ -442,19 +423,16 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering( QString uiConfigName, 
                                                           !includeMsw );
         }
 
-        if ( !m_displayForSimWell )
+        if ( m_fishbonesEnabled )
         {
-            if ( m_fishbonesEnabled )
-            {
-                group->add( &includeFishbones );
-                group->add( &excludeMainBoreForFishbones );
+            group->add( &includeFishbones );
+            group->add( &excludeMainBoreForFishbones );
 
-                // Set visibility
-                if ( !includeFishbones )
-                    excludeMainBoreForFishbones.uiCapability()->setUiReadOnly( true );
-                else
-                    excludeMainBoreForFishbones.uiCapability()->setUiReadOnly( false );
-            }
+            // Set visibility
+            if ( !includeFishbones )
+                excludeMainBoreForFishbones.uiCapability()->setUiReadOnly( true );
+            else
+                excludeMainBoreForFishbones.uiCapability()->setUiReadOnly( false );
         }
     }
 

@@ -294,8 +294,7 @@ cvf::ref<RigWellPath>
             measuredDepths.push_back( md + startMD );
         }
     }
-    wellPathGeometry->setWellPathPoints( wellPathPoints );
-    wellPathGeometry->setMeasuredDepths( measuredDepths );
+    wellPathGeometry->setWellPathPoints( wellPathPoints, measuredDepths );
 
     if ( m_airGap != 0.0 )
     {

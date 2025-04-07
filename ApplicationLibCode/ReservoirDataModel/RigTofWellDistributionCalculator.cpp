@@ -61,8 +61,10 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator( RimEclipseRe
     RigFlowDiagResults* flowDiagResults = flowDiagSolution->flowDiagResults();
     CVF_ASSERT( flowDiagResults );
 
-    const std::vector<double>* porvResults =
-        eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL, RiaDefines::ResultCatType::STATIC_NATIVE, "PORV", 0 );
+    const std::vector<double>* porvResults = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                            RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                            RiaResultNames::porv(),
+                                                                            0 );
     if ( !porvResults )
     {
         return;

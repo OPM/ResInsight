@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "Commands/CorrelationPlotCommands/RicNewCorrelationPlotFeature.h"
 
@@ -29,7 +30,9 @@
 #include "RimPlotAxisPropertiesInterface.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryTimeAxisProperties.h"
 
 #include "RiuPlotAnnotationTool.h"
 #include "RiuPlotCurve.h"
@@ -40,7 +43,6 @@
 
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotTools.h"
-#include "RiuQwtPlotWheelZoomer.h"
 #include "RiuQwtPlotZoomer.h"
 #include "RiuQwtScalePicker.h"
 
@@ -54,6 +56,7 @@
 #include "qwt_interval.h"
 #include "qwt_legend.h"
 #include "qwt_legend_label.h"
+#include "qwt_picker_machine.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_panner.h"
 #include "qwt_plot_zoomer.h"
@@ -70,6 +73,44 @@
 #include <memory>
 
 static RimEnsembleCurveInfoTextProvider ensembleCurveInfoTextProvider;
+
+//--------------------------------------------------------------------------------------------------
+/// Class used to track the cursor position and send the plot coordinates to the summary plot
+//--------------------------------------------------------------------------------------------------
+class CoordinatePicker : public QwtPlotPicker
+{
+public:
+    CoordinatePicker( RimSummaryMultiPlot* summaryMultiPlot, QwtPlot* plot )
+        : QwtPlotPicker( plot->canvas() )
+        , m_summaryMultiPlot( summaryMultiPlot )
+    {
+        setTrackerMode( QwtPlotPicker::AlwaysOn );
+        plot->canvas()->setMouseTracking( true );
+
+        setStateMachine( new QwtPickerTrackerMachine );
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    QwtText trackerText( const QPoint& screenPixelCoordinates ) const override
+    {
+        if ( m_summaryMultiPlot )
+        {
+            auto domainCoordinates = invTransform( screenPixelCoordinates );
+            auto qwtTimeValue      = domainCoordinates.x();
+            auto yValue            = domainCoordinates.y();
+
+            m_summaryMultiPlot->updateReadOutLines( qwtTimeValue, yValue );
+        }
+
+        // Return empty text here, as we only want to update the vertical line
+        return {};
+    }
+
+private:
+    caf::PdmPointer<RimSummaryMultiPlot> m_summaryMultiPlot;
+};
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -97,7 +138,7 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
     connect( panner, SIGNAL( panned( int, int ) ), SLOT( onZoomedSlot() ) );
 
     setDefaults();
-    new RiuQwtCurvePointTracker( m_plotWidget->qwtPlot(), true, &ensembleCurveInfoTextProvider );
+    m_curvePointTracker = new RiuQwtCurvePointTracker( m_plotWidget->qwtPlot(), true, &ensembleCurveInfoTextProvider );
 
     RiuQwtPlotTools::setCommonPlotBehaviour( m_plotWidget->qwtPlot() );
     RiuQwtPlotTools::setDefaultAxes( m_plotWidget->qwtPlot() );
@@ -107,6 +148,11 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
     m_plotWidget->clearLegend();
 
     m_annotationTool = std::make_unique<RiuPlotAnnotationTool>();
+
+    if ( auto multiPlot = RiaSummaryTools::parentSummaryMultiPlot( plot ) )
+    {
+        new CoordinatePicker( multiPlot, m_plotWidget->qwtPlot() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,16 +204,39 @@ void RiuSummaryQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterface*
                                                     annotation->name(),
                                                     annotation->penStyle(),
                                                     annotation->value(),
-                                                    orientation );
+                                                    orientation,
+                                                    RiuPlotAnnotationTool::textAlignment( annotation->textAlignment() ) );
         }
         else if ( annotation->annotationType() == RimPlotAxisAnnotation::AnnotationType::RANGE )
         {
-            m_annotationTool->attachAnnotationRange( m_plotWidget->qwtPlot(),
-                                                     annotation->color(),
-                                                     annotation->name(),
-                                                     annotation->rangeStart(),
-                                                     annotation->rangeEnd(),
-                                                     orientation );
+            const auto epsilon = 1e-6;
+            if ( std::abs( annotation->rangeStart() - annotation->rangeEnd() ) > epsilon )
+            {
+                m_annotationTool->attachAnnotationRange( m_plotWidget->qwtPlot(),
+                                                         annotation->color(),
+                                                         annotation->name(),
+                                                         annotation->rangeStart(),
+                                                         annotation->rangeEnd(),
+                                                         orientation );
+            }
+            else
+            {
+                QString     label;
+                QStringList labels = annotation->name().split( " - " );
+
+                if ( !labels.isEmpty() )
+                {
+                    label = labels.first();
+                }
+
+                m_annotationTool->attachAnnotationLine( m_plotWidget->qwtPlot(),
+                                                        annotation->color(),
+                                                        label,
+                                                        annotation->penStyle(),
+                                                        annotation->rangeStart(),
+                                                        orientation,
+                                                        RiuPlotAnnotationTool::textAlignment( annotation->textAlignment() ) );
+            }
         }
     }
 }
@@ -213,6 +282,14 @@ void RiuSummaryQwtPlot::onZoomedSlot()
 RiuPlotWidget* RiuSummaryQwtPlot::plotWidget() const
 {
     return m_plotWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::enableCurvePointTracking( bool enable )
+{
+    m_curvePointTracker->setEnabled( enable );
 }
 
 //--------------------------------------------------------------------------------------------------

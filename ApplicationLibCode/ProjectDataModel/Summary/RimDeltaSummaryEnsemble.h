@@ -64,6 +64,9 @@ public:
 
     bool discardMissingOrIncompleteRealizations() const;
 
+    std::pair<std::string, std::string> nameKeys() const override;
+    QString                             nameTemplateText() const override;
+
 private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -74,7 +77,6 @@ private:
     void                              deleteCasesNoInUse();
     RimDeltaSummaryCase*              firstCaseNotInUse();
     std::vector<RimDeltaSummaryCase*> allDerivedCases( bool activeOnly ) const;
-    void                              updateAutoName();
 
     void updateDerivedEnsembleCases();
     bool isValid() const;

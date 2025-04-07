@@ -28,27 +28,25 @@
 
 //==================================================================================================
 //
-//
-//
 //==================================================================================================
-class RiaFilePathTools
+namespace RiaFilePathTools
 {
-public:
-    static const QChar                 separator();
-    static QString                     toInternalSeparator( const QString& path );
-    static QString&                    appendSeparatorIfNo( QString& path );
-    static QString                     relativePath( const QString& rootDir, const QString& dir );
-    static bool                        equalPaths( const QString& path1, const QString& path2 );
-    static QString                     canonicalPath( const QString& path );
-    static std::pair<QString, QString> toFolderAndFileName( const QString& absFileName );
-    static QString                     removeDuplicatePathSeparators( const QString& path );
-    static QString                     rootSearchPathFromSearchFilter( const QString& searchFilter );
-    static QString                     commonRootOfFileNames( const QStringList& filePaths );
-    static std::string                 makeSuitableAsFileName( const std::string candidateName );
+const QChar                 separator();
+QString                     toInternalSeparator( const QString& path );
+QString&                    appendSeparatorIfNo( QString& path );
+QString                     relativePath( const QString& rootDir, const QString& dir );
+bool                        equalPaths( const QString& path1, const QString& path2 );
+QString                     canonicalPath( const QString& path );
+std::pair<QString, QString> toFolderAndFileName( const QString& absFileName );
+QString                     removeDuplicatePathSeparators( const QString& path );
+QString                     rootSearchPathFromSearchFilter( const QString& searchFilter );
+QString                     commonRootOfFileNames( const QStringList& filePaths );
+std::string                 makeSuitableAsFileName( const std::string candidateName );
+std::string                 normalizePath( std::string path );
 
-    static QStringList splitPathIntoComponents( const QString& path, bool splitExtensionIntoSeparateEntry = false );
+QStringList splitPathIntoComponents( const QString& path, bool splitExtensionIntoSeparateEntry = false );
 
-    static std::map<QString, QStringList> keyPathComponentsForEachFilePath( const QStringList& filePaths );
+std::map<QString, QStringList> keyPathComponentsForEachFilePath( const QStringList& filePaths );
 
-    static bool isFirstOlderThanSecond( const std::string& firstFileName, const std::string& secondFileName );
-};
+bool isFirstOlderThanSecond( const std::string& firstFileName, const std::string& secondFileName );
+}; // namespace RiaFilePathTools

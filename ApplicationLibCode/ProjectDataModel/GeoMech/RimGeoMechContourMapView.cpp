@@ -77,7 +77,7 @@ RimGeoMechContourMapView::RimGeoMechContourMapView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechContourMapProjection* RimGeoMechContourMapView::contourMapProjection() const
+RimContourMapProjection* RimGeoMechContourMapView::contourMapProjection() const
 {
     return m_contourMapProjection().p();
 }

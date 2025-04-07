@@ -19,11 +19,11 @@
 #include "RicNewGridTimeHistoryCurveFeature.h"
 
 #include "RiaGuiApplication.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "RigFemResultAddress.h"
 
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "RicNewSummaryCurveFeature.h"
 #include "RicSelectSummaryPlotUI.h"
 #include "RicWellLogTools.h"
@@ -39,6 +39,8 @@
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
+#include "RimTools.h"
+#include "Tools/RimAutomationSettings.h"
 
 #include "Riu3dSelectionManager.h"
 #include "RiuPlotMainWindowTools.h"
@@ -56,31 +58,6 @@ CAF_CMD_SOURCE_INIT( RicNewGridTimeHistoryCurveFeature, "RicNewGridTimeHistoryCu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewGridTimeHistoryCurveFeature::createCurveFromSelectionItem( const RiuSelectionItem* selectionItem, RimSummaryPlot* plot )
-{
-    CVF_ASSERT( selectionItem );
-    CVF_ASSERT( plot );
-
-    RimGridTimeHistoryCurve* newCurve = new RimGridTimeHistoryCurve();
-    newCurve->setFromSelectionItem( selectionItem );
-    newCurve->setLineThickness( 2 );
-
-    cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plot->curveCount() );
-    newCurve->setColor( curveColor );
-
-    plot->addGridTimeHistoryCurve( newCurve );
-
-    newCurve->loadDataAndUpdate( true );
-
-    plot->updateConnectedEditors();
-
-    RiuPlotMainWindowTools::showPlotMainWindow();
-    RiuPlotMainWindowTools::selectAsCurrentItem( newCurve );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
 {
     RiaGuiApplication* app = RiaGuiApplication::instance();
@@ -92,9 +69,27 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
         QString         lastUsedPlotRef = app->cacheDataObject( lastUsedSummaryPlotKey ).toString();
         RimSummaryPlot* lastUsedPlot =
             dynamic_cast<RimSummaryPlot*>( caf::PdmReferenceHelper::objectFromReference( app->project(), lastUsedPlotRef ) );
+
         if ( lastUsedPlot )
         {
             defaultSelectedPlot = lastUsedPlot;
+        }
+        else
+        {
+            auto getFirstSummaryPlot = []() -> RimSummaryPlot*
+            {
+                auto summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
+                for ( auto multiPlot : summaryPlotColl->multiPlots() )
+                {
+                    for ( auto summaryPlot : multiPlot->summaryPlots() )
+                    {
+                        return summaryPlot;
+                    }
+                }
+                return nullptr;
+            };
+
+            defaultSelectedPlot = getFirstSummaryPlot();
         }
     }
 
@@ -117,7 +112,7 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
     {
         RimSummaryPlot* plot = new RimSummaryPlot();
         plot->setUiName( featureUi.newPlotName() );
-        RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( plot );
+        RiaSummaryPlotTools::createAndAppendSingleSummaryMultiPlot( plot );
         plot->loadDataAndUpdate();
 
         summaryPlot = plot;
@@ -129,6 +124,9 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
 
     QString refFromProjectToView = caf::PdmReferenceHelper::referenceFromRootToObject( app->project(), summaryPlot );
     app->setCacheDataObject( lastUsedSummaryPlotKey, refFromProjectToView );
+
+    auto automationSettings = RimTools::automationSettings();
+    automationSettings->setDestinationPlot( summaryPlot );
 
     return summaryPlot;
 }
@@ -250,7 +248,7 @@ void RicNewGridTimeHistoryCurveFeature::onActionTriggered( bool isChecked )
 
     for ( auto item : items )
     {
-        RicNewGridTimeHistoryCurveFeature::createCurveFromSelectionItem( item, summaryPlot );
+        RimGridTimeHistoryCurve::createCurveFromSelectionItem( item, summaryPlot );
     }
 }
 

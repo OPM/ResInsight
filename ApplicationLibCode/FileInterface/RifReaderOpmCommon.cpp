@@ -20,7 +20,9 @@
 
 #include "RiaEclipseFileNameTools.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesSystem.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaResultNames.h"
 #include "RiaStdStringTools.h"
 
 #include "RifEclipseOutputFileTools.h"
@@ -47,6 +49,8 @@
 #include "opm/output/eclipse/VectorItems/intehead.hpp"
 
 #include <QStringList>
+
+#include <iostream>
 
 using namespace Opm;
 
@@ -741,9 +745,14 @@ void RifReaderOpmCommon::setupInitAndRestartAccess()
     {
         try
         {
-            RiaLogging::resetTimer( "Starting import of meta data from " + QString::fromStdString( m_restartFileName ) );
+            const bool isLoggingEnabled = RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( "RifReaderOpmCommon" );
+
+            if ( isLoggingEnabled )
+                RiaLogging::resetTimer( "Starting import of meta data from " + QString::fromStdString( m_restartFileName ) );
+
             m_restartFile = std::make_unique<EclIO::ERst>( m_restartFileName );
-            RiaLogging::logTimeElapsed( "Completed import of meta data" );
+
+            if ( isLoggingEnabled ) RiaLogging::logTimeElapsed( "Completed import of meta data" );
         }
         catch ( ... )
         {
@@ -1065,7 +1074,7 @@ std::vector<std::vector<int>> RifReaderOpmCommon::readActiveCellInfoFromPorv( Ri
 
     for ( int gridIdx = 0; gridIdx < nGrids; gridIdx++ )
     {
-        auto porvValues = m_initFile->getInitData<float>( "PORV", m_gridNames[gridIdx] );
+        auto porvValues = m_initFile->getInitData<float>( RiaResultNames::porv().toStdString(), m_gridNames[gridIdx] );
 
         int activeCellCount = (int)porvValues.size();
         if ( divideCellCountByTwo )

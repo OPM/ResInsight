@@ -38,8 +38,7 @@ TEST( RigWellPathGeometryExporter, VerticalPath )
 
     for ( double md : inputMds )
     {
-        rigWellPath.addMeasuredDepth( md );
-        rigWellPath.addWellPathPoint( cvf::Vec3d( x, y, -md ) );
+        rigWellPath.addWellPathPoint( cvf::Vec3d( x, y, -md ), md );
     }
 
     double              mdStepSize = 5.0;

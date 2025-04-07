@@ -56,6 +56,8 @@ bool RiaArgumentParser::parseArguments( cvf::ProgramOptions* progOpt )
     progOpt->registerOption( "help", "", "Displays help text and exits." );
     progOpt->registerOption( "?", "", "Displays help text and exits." );
 
+    progOpt->registerOption( "preferences", "<filename>", "Import Preferences from <filename>.", cvf::ProgramOptions::SINGLE_VALUE );
+
     progOpt->registerOption( "project", "<filename>", "Open project file <filename>.", cvf::ProgramOptions::SINGLE_VALUE );
     progOpt->registerOption( "last", "", "Open last used project." );
     progOpt->registerOption( "case",

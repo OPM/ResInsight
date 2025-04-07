@@ -29,6 +29,13 @@ enum class FileType
     STIMPLAN_SUMMARY
 };
 
+enum class EnsembleGroupingMode
+{
+    FMU_FOLDER_STRUCTURE,
+    EVEREST_FOLDER_STRUCTURE,
+    NONE
+};
+
 enum class HorizontalAxisType
 {
     TIME,
@@ -48,16 +55,20 @@ QString summaryMisc();
 QString summaryRegion();
 QString summaryRegion2Region();
 QString summaryWell();
+QString summaryWellCompletion();
 QString summaryWellGroup();
 QString summaryWellSegment();
-QString summaryCompletion();
+QString summaryWellConnection();
 QString summarySegment();
 QString summaryBlock();
-QString summaryLgrCompletion();
+QString summaryLgrConnection();
 QString summaryLgrWell();
 QString summaryLgrBlock();
 QString summaryCalculated();
 
 QString summaryRealizationNumber();
+
+QString key1VariableName();
+QString key2VariableName();
 
 }; // namespace RiaDefines

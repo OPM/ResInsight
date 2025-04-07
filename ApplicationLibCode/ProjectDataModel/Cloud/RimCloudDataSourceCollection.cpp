@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////////////////////////////////////
+﻿/////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2024     Equinor ASA
 //
@@ -19,9 +19,8 @@
 #include "RimCloudDataSourceCollection.h"
 
 #include "RiaApplication.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
-
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -41,6 +40,9 @@ CAF_PDM_SOURCE_INIT( RimCloudDataSourceCollection, "RimCloudDataSourceCollection
 RimCloudDataSourceCollection::RimCloudDataSourceCollection()
 {
     CAF_PDM_InitObject( "Cloud Data" + RiaDefines::betaFeaturePostfix(), ":/Cloud.svg" );
+
+    CAF_PDM_InitFieldNoDefault( &m_authenticate, "Authenticate", "" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_authenticate );
 
     CAF_PDM_InitFieldNoDefault( &m_sumoFieldName, "SumoFieldId", "Field Id" );
     CAF_PDM_InitFieldNoDefault( &m_sumoCaseId, "SumoCaseId", "Case Id" );
@@ -84,14 +86,15 @@ void RimCloudDataSourceCollection::createEnsemblesFromSelectedDataSources( const
     for ( auto dataSource : dataSources )
     {
         RimSummaryEnsembleSumo* ensemble = new RimSummaryEnsembleSumo();
+        ensemble->setUsePathKey1( true );
         ensemble->setSumoDataSource( dataSource );
-        ensemble->updateName();
         RiaSummaryTools::summaryCaseMainCollection()->addEnsemble( ensemble );
         ensemble->loadDataAndUpdate();
 
-        RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( {}, { ensemble } );
+        RiaSummaryPlotTools::createAndAppendDefaultSummaryMultiPlot( {}, { ensemble } );
     }
 
+    RiaSummaryTools::updateSummaryEnsembleNames();
     RiaSummaryTools::summaryCaseMainCollection()->updateAllRequiredEditors();
 }
 
@@ -101,6 +104,13 @@ void RimCloudDataSourceCollection::createEnsemblesFromSelectedDataSources( const
 void RimCloudDataSourceCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( !m_sumoConnector ) return;
+
+    if ( changedField == &m_authenticate )
+    {
+        m_sumoConnector->requestTokenWithCancelButton();
+
+        m_authenticate = false;
+    }
 
     if ( changedField == &m_sumoFieldName )
     {
@@ -132,7 +142,7 @@ void RimCloudDataSourceCollection::fieldChangedByUi( const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimCloudDataSourceCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    if ( !m_sumoConnector ) return {};
+    if ( !m_sumoConnector || !m_sumoConnector->isGranted() ) return {};
 
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_sumoFieldName )
@@ -185,13 +195,27 @@ QList<caf::PdmOptionItemInfo> RimCloudDataSourceCollection::calculateValueOption
 //--------------------------------------------------------------------------------------------------
 void RimCloudDataSourceCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiOrdering::LayoutOptions layout = { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 };
-    uiOrdering.add( &m_sumoFieldName, layout );
-    uiOrdering.add( &m_sumoCaseId, layout );
-    uiOrdering.add( &m_sumoEnsembleNames, layout );
+    auto authGroup = uiOrdering.addNewGroup( "Authentication" );
+    authGroup->add( &m_authenticate );
 
-    uiOrdering.add( &m_addDataSources, layout );
-    uiOrdering.add( &m_addEnsembles, layout );
+    bool    isGranted = m_sumoConnector && m_sumoConnector->isGranted();
+    QString text      = "Authentication Status: ";
+    text += isGranted ? "<font color='#228B22'>✔ Granted</font>" : "<font color='#FFA500'>❌ Not Granted</font>";
+
+    m_authenticate.uiCapability()->setUiName( text );
+    m_authenticate.uiCapability()->setUiReadOnly( isGranted );
+
+    if ( isGranted )
+    {
+        caf::PdmUiOrdering::LayoutOptions layout = { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 };
+        uiOrdering.add( &m_sumoFieldName, layout );
+        uiOrdering.add( &m_sumoCaseId, layout );
+        uiOrdering.add( &m_sumoEnsembleNames, layout );
+
+        uiOrdering.add( &m_addDataSources, layout );
+        uiOrdering.add( &m_addEnsembles, layout );
+    }
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -201,14 +225,21 @@ void RimCloudDataSourceCollection::defineEditorAttribute( const caf::PdmFieldHan
                                                           QString                    uiConfigName,
                                                           caf::PdmUiEditorAttribute* attribute )
 {
-    if ( field == &m_addDataSources )
+    if ( field == &m_authenticate )
+    {
+        if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
+        {
+            attrib->m_buttonText = "Authenticate";
+        }
+    }
+    else if ( field == &m_addDataSources )
     {
         if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
         {
             attrib->m_buttonText = "Add Data Sources(s)";
         }
     }
-    if ( field == &m_addEnsembles )
+    else if ( field == &m_addEnsembles )
     {
         if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
         {

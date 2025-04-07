@@ -9,7 +9,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCaseAndFileExportSettingsUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RicExportFractureCompletionsImpl.h
     ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForVisibleWellPathsFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForVisibleSimWellsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicMswBranch.h
     ${CMAKE_CURRENT_LIST_DIR}/RicMswCompletions.h
     ${CMAKE_CURRENT_LIST_DIR}/RicMswExportInfo.h
@@ -34,7 +33,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCaseAndFileExportSettingsUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportFractureCompletionsImpl.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForVisibleWellPathsFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForVisibleSimWellsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicMswBranch.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicMswCompletions.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicMswExportInfo.cpp
@@ -49,11 +47,4 @@ set(SOURCE_GROUP_SOURCE_FILES
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
-
 list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
-
-source_group(
-  "CommandFeature\\CompletionExport"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
-)

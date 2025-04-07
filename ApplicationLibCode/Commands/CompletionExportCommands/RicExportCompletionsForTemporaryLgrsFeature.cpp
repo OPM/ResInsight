@@ -61,10 +61,8 @@ void RicExportCompletionsForTemporaryLgrsFeature::onActionTriggered( bool isChec
         return;
     }
 
-    std::vector<RimSimWellInView*> simWells;
-    QString                        dialogTitle = "Export Completion Data for Temporary LGRs";
-
-    RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions( dialogTitle, wellPaths, simWells );
+    QString dialogTitle = "Export Completion Data for Temporary LGRs";
+    RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions( dialogTitle, wellPaths );
 }
 
 //--------------------------------------------------------------------------------------------------

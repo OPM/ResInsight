@@ -185,7 +185,7 @@ bool RimWellPathCollection::loadDataAndUpdate()
     {
         if ( auto osduConnector = RiaApplication::instance()->makeOsduConnector() )
         {
-            osduConnector->requestTokenBlocking();
+            osduConnector->requestTokenWithCancelButton();
         }
     }
 

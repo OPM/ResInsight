@@ -35,6 +35,7 @@ class RimSummaryPlotSourceStepping;
 class RimSummaryPlotNameHelper;
 class RimSummaryNameHelper;
 class RimPlotAxisProperties;
+class RimSummaryPlotReadOut;
 
 //==================================================================================================
 ///
@@ -113,6 +114,8 @@ public:
 
     void selectWell( QString wellName );
 
+    void updateReadOutLines( double qwtTimeValue, double yValue );
+
 protected:
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
     bool handleGlobalWheelEvent( QWheelEvent* wheelEvent ) override;
@@ -122,11 +125,15 @@ protected:
 
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
 
+    void onPlotAdditionOrRemoval() override;
+
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+
     void populateNameHelper( RimSummaryPlotNameHelper* nameHelper );
 
     void computeAggregatedAxisRange();
@@ -142,7 +149,6 @@ private:
     void appendCurveByStepping( int direction );
 
     void onSubPlotChanged( const caf::SignalEmitter* emitter );
-    void onSubPlotZoomed( const caf::SignalEmitter* emitter );
     void onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot );
     void onSubPlotAxisReloadRequired( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot );
     void onSubPlotAutoTitleChanged( const caf::SignalEmitter* emitter, bool isEnabled );
@@ -150,6 +156,8 @@ private:
     void updateTimeAxisRangesFromFirstTimePlot();
 
     void updateReadOnlyState();
+
+    void updateReadOutSettings();
 
     std::pair<double, double> adjustedMinMax( const RimPlotAxisProperties* axis, double min, double max ) const;
 
@@ -162,6 +170,8 @@ private:
     caf::PdmField<bool> m_linkTimeAxis;
     caf::PdmField<bool> m_autoAdjustAppearance;
     caf::PdmField<bool> m_allow3DSelectionLink;
+
+    caf::PdmChildField<RimSummaryPlotReadOut*> m_readOutSettings;
 
     caf::PdmField<bool>   m_hidePlotsWithValuesBelow;
     caf::PdmField<double> m_plotFilterYAxisThreshold;

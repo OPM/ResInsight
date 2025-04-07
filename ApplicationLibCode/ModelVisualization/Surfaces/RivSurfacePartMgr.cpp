@@ -44,6 +44,7 @@
 #include "cvfPart.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfRenderStateBlending.h"
+#include "cvfVector3.h"
 
 #include <limits>
 
@@ -79,7 +80,8 @@ bool RivSurfacePartMgr::isNativePartMgr() const
 //--------------------------------------------------------------------------------------------------
 void RivSurfacePartMgr::appendNativeGeometryPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
 {
-    if ( m_nativeTrianglesPart.isNull() || m_surfaceInView->surface()->surfaceData() != m_usedSurfaceData.p() )
+    bool surfaceDataChanged = m_surfaceInView->surface()->surfaceData() != m_usedSurfaceData.p();
+    if ( m_nativeTrianglesPart.isNull() || surfaceDataChanged )
     {
         generateNativePartGeometry();
     }
@@ -90,6 +92,11 @@ void RivSurfacePartMgr::appendNativeGeometryPartsToModel( cvf::ModelBasicList* m
         updateNativeSurfaceColors();
 
         model->addPart( m_nativeTrianglesPart.p() );
+
+        if ( ( m_nativeMeshLinesPart.isNull() || surfaceDataChanged ) && m_surfaceInView->isMeshLinesEnabled() )
+        {
+            generateNativeLinesPartGeometry();
+        }
 
         if ( m_nativeMeshLinesPart.notNull() )
         {
@@ -400,7 +407,7 @@ void RivSurfacePartMgr::generatePartGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivSurfacePartMgr::generateNativePartGeometry()
+cvf::ref<cvf::Vec3fArray> RivSurfacePartMgr::convertToDisplayOffsetVertices( const std::vector<cvf::Vec3d>& vertices ) const
 {
     cvf::Vec3d displayModOffset( 0, 0, 0 );
 
@@ -411,17 +418,31 @@ void RivSurfacePartMgr::generateNativePartGeometry()
         if ( ownerCase ) displayModOffset = ownerCase->displayModelOffset();
     }
 
-    m_usedSurfaceData = m_surfaceInView->surface()->surfaceData();
-    if ( m_usedSurfaceData.isNull() ) return;
-
-    const std::vector<cvf::Vec3d>& vertices = m_usedSurfaceData->vertices();
-    if ( vertices.empty() ) return;
-
     cvf::ref<cvf::Vec3fArray> cvfVertices = new cvf::Vec3fArray( vertices.size() );
     for ( size_t i = 0; i < vertices.size(); ++i )
     {
         ( *cvfVertices )[i] = cvf::Vec3f( vertices[i] - displayModOffset );
     }
+
+    return cvfVertices;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivSurfacePartMgr::generateNativePartGeometry()
+{
+    m_usedSurfaceData = m_surfaceInView->surface()->surfaceData();
+    if ( m_usedSurfaceData.isNull() )
+    {
+        m_nativeTrianglesPart = nullptr;
+        return;
+    }
+
+    const std::vector<cvf::Vec3d>& vertices = m_usedSurfaceData->vertices();
+    if ( vertices.empty() ) return;
+
+    cvf::ref<cvf::Vec3fArray> cvfVertices = convertToDisplayOffsetVertices( vertices );
 
     const std::vector<unsigned>&           triangleIndices = m_usedSurfaceData->triangleIndices();
     cvf::ref<cvf::UIntArray>               cvfIndices      = new cvf::UIntArray( triangleIndices );
@@ -439,4 +460,47 @@ void RivSurfacePartMgr::generateNativePartGeometry()
     m_nativeTrianglesPart->setName( "Native Reservoir Surface" );
     m_nativeTrianglesPart->setDrawable( drawGeo.p() );
     m_nativeTrianglesPart->setSourceInfo( objectSourceInfo.p() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivSurfacePartMgr::generateNativeLinesPartGeometry()
+{
+    m_usedSurfaceData = m_surfaceInView->surface()->surfaceData();
+    if ( m_usedSurfaceData.isNull() )
+    {
+        m_nativeMeshLinesPart = nullptr;
+        return;
+    }
+    const std::vector<cvf::Vec3d>& vertices = m_usedSurfaceData->vertices();
+    if ( vertices.empty() ) return;
+
+    cvf::ref<cvf::Vec3fArray> cvfVertices = convertToDisplayOffsetVertices( vertices );
+
+    const std::vector<unsigned>& triangleIndices = m_usedSurfaceData->triangleIndices();
+    cvf::ref<cvf::UIntArray>     cvfIndices      = new cvf::UIntArray( triangleIndices );
+
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexSet = new cvf::PrimitiveSetIndexedUInt( cvf::PT_LINE_STRIP );
+    indexSet->setIndices( cvfIndices.p() );
+
+    cvf::ref<cvf::DrawableGeo> drawGeo = new cvf::DrawableGeo;
+    drawGeo->addPrimitiveSet( indexSet.p() );
+    drawGeo->setVertexArray( cvfVertices.p() );
+    drawGeo->computeNormals();
+
+    m_nativeMeshLinesPart = new cvf::Part;
+    m_nativeMeshLinesPart->setName( "Mesh" );
+    m_nativeMeshLinesPart->setDrawable( drawGeo.p() );
+
+    m_nativeMeshLinesPart->updateBoundingBox();
+    m_nativeMeshLinesPart->setEnableMask( meshFaultBit );
+    m_nativeMeshLinesPart->setPriority( RivPartPriority::PartType::MeshLines );
+
+    m_nativeMeshLinesPart->setSourceInfo( new RivMeshLinesSourceInfo( m_surfaceInView ) );
+
+    caf::MeshEffectGenerator lineEffGen( cvf::Color3::BLACK );
+    lineEffGen.setLineWidth( 1.0f );
+    cvf::ref<cvf::Effect> eff = lineEffGen.generateCachedEffect();
+    m_nativeMeshLinesPart->setEffect( eff.p() );
 }

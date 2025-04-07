@@ -28,6 +28,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
 class RimSummaryCase;
@@ -54,6 +55,7 @@ public:
 
     void setShowDataSource( bool enable );
     void setShowResampling( bool enable );
+    void setShowAxis( bool enable );
 
     RimSummaryCase*                 summaryCase() const;
     RimSummaryEnsemble*             ensemble() const;
@@ -73,13 +75,14 @@ private:
     caf::PdmPtrField<RimSummaryCase*>                 m_summaryCase;
     caf::PdmPtrField<RimSummaryEnsemble*>             m_summaryCaseCollection;
     caf::PdmChildField<RimSummaryAddress*>            m_summaryAddress;
-    caf::PdmField<RifEclipseSummaryAddress>           m_summaryAddressUiField;
+    caf::PdmProxyValueField<RifEclipseSummaryAddress> m_summaryAddressUiField;
     caf::PdmField<bool>                               m_pushButtonSelectSummaryAddress;
     caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_plotAxisProperties;
     caf::PdmField<RiaDefines::DateTimePeriodEnum>     m_resamplingPeriod;
 
     bool m_showDataSource;
     bool m_showResampling;
+    bool m_showAxis;
 
     RimPlotAxisProperties::Orientation m_plotAxisOrientation;
 };

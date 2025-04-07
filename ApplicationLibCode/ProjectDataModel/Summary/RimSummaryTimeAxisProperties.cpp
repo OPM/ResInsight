@@ -95,8 +95,9 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
     CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &showTitle, "ShowTitle", false, "Show Title    " );
-    CAF_PDM_InitField( &title, "Title", QString( "Time" ), "Title          " );
+    CAF_PDM_InitField( &m_showTitle, "ShowTitle", false, "Show Title    " );
+    CAF_PDM_InitField( &m_title, "Title", QString( "Time" ), "Title          " );
+    CAF_PDM_InitField( &m_showLabels, "ShowLabels", true, "Show Labels" );
 
     CAF_PDM_InitField( &m_isAutoZoom, "AutoZoom", true, "Set Range Automatically" );
     CAF_PDM_InitFieldNoDefault( &m_timeMode, "TimeMode", "Time Mode" );
@@ -150,6 +151,30 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
 
     CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "" );
     m_annotations.uiCapability()->setUiTreeChildrenHidden( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryTimeAxisProperties::showTitle() const
+{
+    return m_showTitle();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryTimeAxisProperties::title() const
+{
+    return m_title();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryTimeAxisProperties::showLabels() const
+{
+    return m_showLabels();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -571,7 +596,7 @@ void RimSummaryTimeAxisProperties::enableAutoValueForMajorTickmarkCount( bool en
 //--------------------------------------------------------------------------------------------------
 const QString RimSummaryTimeAxisProperties::objectName() const
 {
-    return title();
+    return m_title();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -579,7 +604,7 @@ const QString RimSummaryTimeAxisProperties::objectName() const
 //--------------------------------------------------------------------------------------------------
 const QString RimSummaryTimeAxisProperties::axisTitleText() const
 {
-    return title();
+    return m_title();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -787,16 +812,17 @@ const QString& RimSummaryTimeAxisProperties::timeFormat() const
 void RimSummaryTimeAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup& titleGroup = *( uiOrdering.addNewGroup( "Axis Title" ) );
-    titleGroup.add( &showTitle );
-    titleGroup.add( &title );
-    title.uiCapability()->setUiReadOnly( !showTitle() );
-    if ( showTitle() )
+    titleGroup.add( &m_showTitle );
+    titleGroup.add( &m_title );
+    m_title.uiCapability()->setUiReadOnly( !m_showTitle() );
+    if ( m_showTitle() )
     {
         titleGroup.add( &m_titlePositionEnum );
         titleGroup.add( &m_titleFontSize );
     }
 
     caf::PdmUiGroup* timeGroup = uiOrdering.addNewGroup( "Time Values" );
+    timeGroup->add( &m_showLabels );
     timeGroup->add( &m_timeMode );
     if ( m_timeMode() == DATE )
     {
@@ -916,7 +942,7 @@ void RimSummaryTimeAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* 
         requestLoadDataAndUpdate.send();
         return;
     }
-    else if ( changedField == &m_timeUnit || changedField == &m_dateFormat || changedField == &m_timeFormat )
+    else if ( changedField == &m_timeUnit || changedField == &m_dateFormat || changedField == &m_timeFormat || changedField == &m_showLabels )
     {
         // Changing these settings requires a full update of the plot
         requestLoadDataAndUpdate.send();

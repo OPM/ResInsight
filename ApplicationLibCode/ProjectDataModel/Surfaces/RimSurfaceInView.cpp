@@ -18,7 +18,8 @@
 
 #include "RimSurfaceInView.h"
 
-#include "RigFemPartCollection.h"
+#include "RiaLogging.h"
+
 #include "RigSurface.h"
 
 #include "RimEclipseView.h"
@@ -31,8 +32,6 @@
 #include "RiuViewer.h"
 
 #include "RivSurfacePartMgr.h"
-
-#include "cafPdmUiDoubleSliderEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimSurfaceInView, "SurfaceInView" );
 
@@ -49,6 +48,8 @@ RimSurfaceInView::RimSurfaceInView()
 
     CAF_PDM_InitFieldNoDefault( &m_surface, "SurfaceRef", "Surface" );
     m_surface.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_showMeshLines, "ShowMeshLines", false, "Show Mesh Lines" );
 
     CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition" );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
@@ -102,7 +103,7 @@ void RimSurfaceInView::setSurface( RimSurface* surf )
         m_resultDefinition->assignDefaultProperty();
     }
 
-    m_resultDefinition->updateMinMaxValues();
+    m_resultDefinition->updateMinMaxValues( -1 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,6 +112,22 @@ void RimSurfaceInView::setSurface( RimSurface* surf )
 bool RimSurfaceInView::isNativeSurfaceResultsActive() const
 {
     return m_resultDefinition->isChecked();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSurfaceInView::isMeshLinesEnabled() const
+{
+    return m_showMeshLines();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInView::setMeshLinesEnabled( bool meshLinesEnabled )
+{
+    m_showMeshLines = meshLinesEnabled;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,11 +183,24 @@ const RivIntersectionGeometryGeneratorInterface* RimSurfaceInView::intersectionG
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceInView::loadDataAndUpdate()
+void RimSurfaceInView::loadDataAndUpdate( int timeStep )
 {
     if ( surface() )
     {
         surface()->loadDataIfRequired();
+        surface()->loadSurfaceDataForTimeStep( timeStep );
+
+        if ( surface()->surfaceData() )
+        {
+            auto ownerView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
+            if ( ownerView->timeStepCount() != surface()->timeStepCount() )
+            {
+                QString message = QString( "Surface has different number of time steps. Expected %1, but found %2." )
+                                      .arg( ownerView->timeStepCount() )
+                                      .arg( surface()->timeStepCount() );
+                RiaLogging::warning( message );
+            }
+        }
 
         if ( surface()->surfaceData() && surface()->surfaceData()->propertyNames().empty() )
         {
@@ -183,7 +213,7 @@ void RimSurfaceInView::loadDataAndUpdate()
             m_resultDefinition->setCheckState( true );
         }
 
-        m_resultDefinition->updateMinMaxValues();
+        m_resultDefinition->updateMinMaxValues( timeStep );
     }
 }
 
@@ -225,7 +255,7 @@ void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         scheduleRedraw = true;
     }
 
-    if ( changedField == &m_showInactiveCells )
+    if ( changedField == &m_showInactiveCells || changedField == &m_showMeshLines )
     {
         clearGeometry();
         scheduleRedraw = true;

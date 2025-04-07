@@ -18,11 +18,10 @@
 
 #include "RicAppendSummaryPlotsForSummaryCasesFeature.h"
 
-#include "RiaGuiApplication.h"
+#include "Summary/RiaSummaryPlotTools.h"
 
 #include "RicAppendSummaryPlotsForObjectsFeature.h"
 
-#include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
@@ -49,15 +48,14 @@ bool RicAppendSummaryPlotsForSummaryCasesFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicAppendSummaryPlotsForSummaryCasesFeature::onActionTriggered( bool isChecked )
 {
-    RiaGuiApplication* app = RiaGuiApplication::instance();
-
-    auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( app->activePlotWindow() );
-    if ( !summaryMultiPlot ) return;
-
     auto cases     = selectedCases();
     auto ensembles = selectedEnsembles();
 
-    RicAppendSummaryPlotsForObjectsFeature::appendPlots( summaryMultiPlot, cases, ensembles );
+    auto selectedMultiPlots = RiaSummaryPlotTools::selectedSummaryMultiPlots();
+    for ( auto summaryMultiPlot : selectedMultiPlots )
+    {
+        RicAppendSummaryPlotsForObjectsFeature::appendPlots( summaryMultiPlot, cases, ensembles );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

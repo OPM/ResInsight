@@ -18,7 +18,7 @@
 
 #include "RimHistogramCalculator.h"
 
-#include "RigContourMapProjection.h"
+#include "ContourMap/RigContourMapProjection.h"
 #include "RigEclipseMultiPropertyStatCalc.h"
 #include "RigEclipseNativeVisibleCellsStatCalc.h"
 #include "RigFemNativeVisibleCellsStatCalc.h"
@@ -28,12 +28,11 @@
 #include "RigFlowDiagVisibleCellsStatCalc.h"
 #include "RigGeoMechCaseData.h"
 
+#include "ContourMap/RimEclipseContourMapProjection.h"
+#include "ContourMap/RimEclipseContourMapView.h"
 #include "RimEclipseCellColors.h"
-#include "RimEclipseContourMapProjection.h"
-#include "RimEclipseContourMapView.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
-#include "RimGeoMechContourMapProjection.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"

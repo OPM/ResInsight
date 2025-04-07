@@ -41,8 +41,6 @@ target_link_libraries(
   ${PROJECT_NAME} PRIVATE cafProjectDataModel ${QT_LIBRARIES} ${THREAD_LIBRARY}
 )
 
-source_group("" FILES ${PROJECT_FILES})
-
 install(
   TARGETS ${PROJECT_NAME}
   BUNDLE DESTINATION .

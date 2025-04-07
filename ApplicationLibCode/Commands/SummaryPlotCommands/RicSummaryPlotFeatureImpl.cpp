@@ -27,10 +27,10 @@
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaTextStringTools.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryStringTools.h"
 
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
-#include "RicCreateSummaryCaseCollectionFeature.h"
+#include "RicImportEnsembleFeature.h"
 #include "RicImportGeneralDataFeature.h"
 #include "RicImportSummaryCasesFeature.h"
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
@@ -87,7 +87,7 @@ RimSummaryCurve* RicSummaryPlotFeatureImpl::createHistoryCurve( const RifEclipse
     historyAddr.setVectorName( historyAddr.vectorName() + "H" );
     if ( summaryCasesToUse->summaryReader()->allResultAddresses().count( historyAddr ) )
     {
-        return createCurve( summaryCasesToUse, historyAddr );
+        return RiaSummaryPlotTools::createCurve( summaryCasesToUse, historyAddr );
     }
 
     return nullptr;
@@ -154,7 +154,7 @@ std::vector<RimEclipseCase*> openEclipseCasesForCellPlotting( QStringList gridFi
 
         analysisModels->cases.push_back( rimResultReservoir );
 
-        if ( !rimResultReservoir->openReserviorCase() )
+        if ( !rimResultReservoir->openReservoirCase() )
         {
             analysisModels->removeCaseFromAllGroups( rimResultReservoir );
 
@@ -316,7 +316,10 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
         if ( isEnsembleMode )
         {
-            ensemble = RicCreateSummaryCaseCollectionFeature::groupSummaryCases( summaryCasesToUse, "Ensemble", true );
+            ensemble = RicImportEnsembleFeature::groupSummaryCases( summaryCasesToUse,
+                                                                    "Ensemble",
+                                                                    RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE,
+                                                                    true );
         }
 
         if ( isSinglePlot )
@@ -342,7 +345,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
             newPlot->setNormalizationEnabled( isNormalizedY );
             newPlot->loadDataAndUpdate();
 
-            RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
+            RiaSummaryPlotTools::createAndAppendSingleSummaryMultiPlot( newPlot );
         }
         else // Multiple plots, one for each separate summary address, put them all in a summary multiplot
         {
@@ -362,7 +365,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                 summaryPlot->loadDataAndUpdate();
             }
 
-            RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( summaryPlots );
+            RiaSummaryPlotTools::createAndAppendSummaryMultiPlot( summaryPlots );
         }
     }
 
@@ -430,7 +433,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                 newPlot->loadDataAndUpdate();
                 lastPlotCreated = newPlot;
 
-                RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
+                RiaSummaryPlotTools::createAndAppendSingleSummaryMultiPlot( newPlot );
             }
         }
         else // Multiplot
@@ -484,7 +487,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                         newPlot->loadDataAndUpdate();
                         lastPlotCreated = newPlot;
 
-                        RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
+                        RiaSummaryPlotTools::createAndAppendSingleSummaryMultiPlot( newPlot );
                     }
                 }
             }
@@ -621,7 +624,7 @@ std::vector<RimSummaryPlot*> RicSummaryPlotFeatureImpl::createMultipleSummaryPlo
                 const std::set<RifEclipseSummaryAddress>& allAddrsInCase = sumCase->summaryReader()->allResultAddresses();
                 if ( allAddrsInCase.count( addr ) )
                 {
-                    auto* newCurve = createCurve( sumCase, addr );
+                    auto newCurve = RiaSummaryPlotTools::createCurve( sumCase, addr );
                     createdCurves.push_back( newCurve );
                 }
             }
@@ -685,18 +688,6 @@ std::set<RifEclipseSummaryAddress>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurve* RicSummaryPlotFeatureImpl::createCurve( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& address )
-{
-    auto curve = new RimSummaryCurve();
-    curve->setSummaryCaseY( summaryCase );
-    curve->setSummaryAddressY( address );
-
-    return curve;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFiltersToPlot( const QStringList& curveFilters,
                                                                                             RimSummaryPlot*    plot,
                                                                                             RimSummaryCase*    summaryCase,
@@ -746,8 +737,7 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFil
 
     for ( const auto& addr : curveAddressesToUse )
     {
-        auto* newCurve = createCurve( summaryCase, addr );
-
+        auto newCurve = RiaSummaryPlotTools::createCurve( summaryCase, addr );
         createdCurves.push_back( newCurve );
         plot->addCurveNoUpdate( newCurve );
     }
@@ -788,32 +778,30 @@ void RicSummaryPlotFeatureImpl::insertFilteredAddressesInSet( const QStringList&
 //--------------------------------------------------------------------------------------------------
 QString RicSummaryPlotFeatureImpl::summaryPlotCommandLineHelpText()
 {
-    // clang-format off
     QString txt =
-    "The --summaryplot option has the following syntax:\n"
-    "\n"
-    "[<plotOptions>] <eclipsesummaryvectorfilters> <eclipsedatafiles>\n"
-    "\n"
-    "It creates one summary plot for each of the the summary vectors matched by the "
-    "<eclipsesummaryvectorfilters> using all the <eclipsedatafiles> in each plot.\n"
-    "The <eclipsesummaryvectorfilters> has the syntax <vectorname>[:<item>[:<subitem>[:i,j,k]]] and can be repeated.\n"
-    "Wildcards can also be used, eg. \"WOPT:*\" to select the total oil production from all the wells.\n"
-    "3D Grid properties from restart files can also be requested in the form <propertyname>:i,j,k.\n"
-    "The <eclipsedatafiles> can be written with or without extension.\n"
-    "As long as only summary vectors are requested, only the corresponding SMSPEC file will be opened for each case.\n"
-    "If a grid property is requested, however (eg. SOIL:20,21,1) the corresponding EGRID and restart data will be loaded as well.\n"
-    "\n"
-    "The summary plot options are: \n"
-    "  -help\t Show this help text and ignore the rest of the options.\n"
-    "  -h\t Include history vectors. Will be read from the summary file if the vectors exist.\n"
-    "    \t Only history vectors from the first summary case in the project will be included.\n"
-    "  -nl\t Omit legend in plot.\n"
-    "  -s\t Create only one plot including all the defined vectors and cases.\n"
-    "  -n\t Scale all curves into the range 0.0-1.0. Useful when using -s.\n"
-    "  -e\t Import all the cases as an ensemble, and create ensemble curves sets instead of single curves.\n"
-    "  -c  <parametername>\t Same as -e, but colors the curves by the ensemble parameter <parametername> . \n"
-    "  -cl <parametername>\t Same as -c, but uses logarithmic legend.\n";
-    // clang-format on
+        "The --summaryplot option has the following syntax:\n"
+        "\n"
+        "[<plotOptions>] <eclipsesummaryvectorfilters> <eclipsedatafiles>\n"
+        "\n"
+        "It creates one summary plot for each of the the summary vectors matched by the "
+        "<eclipsesummaryvectorfilters> using all the <eclipsedatafiles> in each plot.\n"
+        "The <eclipsesummaryvectorfilters> has the syntax <vectorname>[:<item>[:<subitem>[:i,j,k]]] and can be repeated.\n"
+        "Wildcards can also be used, eg. \"WOPT:*\" to select the total oil production from all the wells.\n"
+        "3D Grid properties from restart files can also be requested in the form <propertyname>:i,j,k.\n"
+        "The <eclipsedatafiles> can be written with or without extension.\n"
+        "As long as only summary vectors are requested, only the corresponding SMSPEC file will be opened for each case.\n"
+        "If a grid property is requested, however (eg. SOIL:20,21,1) the corresponding EGRID and restart data will be loaded as well.\n"
+        "\n"
+        "The summary plot options are: \n"
+        "  -help\t Show this help text and ignore the rest of the options.\n"
+        "  -h\t Include history vectors. Will be read from the summary file if the vectors exist.\n"
+        "    \t Only history vectors from the first summary case in the project will be included.\n"
+        "  -nl\t Omit legend in plot.\n"
+        "  -s\t Create only one plot including all the defined vectors and cases.\n"
+        "  -n\t Scale all curves into the range 0.0-1.0. Useful when using -s.\n"
+        "  -e\t Import all the cases as an ensemble, and create ensemble curves sets instead of single curves.\n"
+        "  -c  <parametername>\t Same as -e, but colors the curves by the ensemble parameter <parametername> . \n"
+        "  -cl <parametername>\t Same as -c, but uses logarithmic legend.\n";
 
     return txt;
 }

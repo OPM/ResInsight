@@ -41,6 +41,7 @@
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotTools.h"
+#include "RiuQwtPlotWidget.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuSummaryVectorSelectionDialog.h"
 
@@ -1172,9 +1173,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
 
         RimSummaryCase* sumCaseInEvaluation = nullptr;
 
-        // clang-format off
-        std::function<void( RifEclipseSummaryAddress )> evaluateFilterForAllCases = 
-        [&]( RifEclipseSummaryAddress addrToFilterValue ) // clang-format on
+        std::function<void( RifEclipseSummaryAddress )> evaluateFilterForAllCases = [&]( RifEclipseSummaryAddress addrToFilterValue )
         {
             for ( auto sumCase : *filteredSumCases )
             {
@@ -1261,8 +1260,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
             {
                 std::pair<double, double> minMax = filter->filterRangeMinMax();
 
-                // clang-format off
-                storeResultCoreLambda = [&]( double value ) // clang-format on
+                storeResultCoreLambda = [&]( double value )
                 {
                     if ( minMax.first <= value && value <= minMax.second )
                     {
@@ -1272,8 +1270,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
             }
             else if ( filter->filterOperation() == RimPlotDataFilterItem::TOP_N || filter->filterOperation() == RimPlotDataFilterItem::BOTTOM_N )
             {
-                // clang-format off
-                storeResultCoreLambda = [&]( double value ) // clang-format on
+                storeResultCoreLambda = [&]( double value )
                 {
                     bool useLargest = filter->filterOperation() == RimPlotDataFilterItem::TOP_N;
 
@@ -1311,8 +1308,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                 {
                     std::pair<double, double> minMax = filter->filterRangeMinMax();
 
-                    // clang-format off
-                    storeResultCoreLambda = [&]( double value ) // clang-format on
+                    storeResultCoreLambda = [&]( double value )
                     {
                         if ( minMax.first <= value && value <= minMax.second )
                         {
@@ -1323,8 +1319,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                 else if ( filter->filterOperation() == RimPlotDataFilterItem::TOP_N ||
                           filter->filterOperation() == RimPlotDataFilterItem::BOTTOM_N )
                 {
-                    // clang-format off
-                    storeResultCoreLambda = [&]( double value ) // clang-format on
+                    storeResultCoreLambda = [&]( double value )
                     {
                         bool useLargest = filter->filterOperation() == RimPlotDataFilterItem::TOP_N;
 

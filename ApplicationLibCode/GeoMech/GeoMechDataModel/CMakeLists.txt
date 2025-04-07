@@ -117,5 +117,3 @@ set(LINK_LIBRARIES LibCore cafPdmCvf cafTensor cafUserInterface CommonCode
 )
 
 target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES})
-
-source_group("" FILES ${PROJECT_FILES})

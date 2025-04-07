@@ -99,7 +99,7 @@ std::vector<SimulationWellCellBranch>
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<std::vector<std::vector<cvf::Vec3d>>, std::vector<std::vector<RigWellResultPoint>>>
-    RigSimulationWellCenterLineCalculator::extractBranchData( const std::vector<SimulationWellCellBranch> simulationBranch )
+    RigSimulationWellCenterLineCalculator::extractBranchData( const std::vector<SimulationWellCellBranch>& simulationBranch )
 {
     std::vector<std::vector<cvf::Vec3d>>         pipeBranchesCLCoords;
     std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;

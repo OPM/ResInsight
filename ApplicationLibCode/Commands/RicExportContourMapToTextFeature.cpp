@@ -24,12 +24,10 @@
 
 #include "RifTextDataTableFormatter.h"
 
-#include "RigContourMapProjection.h"
+#include "ContourMap/RigContourMapProjection.h"
 
-#include "RimContourMapProjection.h"
-#include "RimEclipseContourMapProjection.h"
-#include "RimEclipseContourMapView.h"
-#include "RimGeoMechContourMapProjection.h"
+#include "ContourMap/RimContourMapProjection.h"
+#include "ContourMap/RimEclipseContourMapView.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimProject.h"
 #include "RimViewWindow.h"
@@ -253,8 +251,8 @@ std::pair<RimEclipseContourMapView*, RimGeoMechContourMapView*> RicExportContour
 
     if ( !existingEclipseContourMap && !existingGeoMechContourMap )
     {
-        existingEclipseContourMap = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseContourMapView>();
-        existingGeoMechContourMap = caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechContourMapView>();
+        existingEclipseContourMap = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseContourMapView>();
+        existingGeoMechContourMap = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimGeoMechContourMapView>();
     }
 
     auto pair = std::make_pair( existingEclipseContourMap, existingGeoMechContourMap );

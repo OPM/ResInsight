@@ -138,6 +138,8 @@ private:
     void onUpdateDisplayModelForCurrentTimeStep() override;
     void onUpdateStaticCellColors() override;
 
+    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+
     void onUpdateLegends() override;
 
     void updateTensorLegendTextAndRanges( RimRegularLegendConfig* legendConfig, int viewerTimeStep );

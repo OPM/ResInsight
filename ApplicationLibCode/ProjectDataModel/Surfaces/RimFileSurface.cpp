@@ -20,11 +20,13 @@
 
 #include "RiaPreferences.h"
 
-#include "RifSurfaceImporter.h"
-
-#include "RigGocadData.h"
-#include "RigSurface.h"
 #include "RimSurfaceCollection.h"
+
+#include "RifSurfaceImporter.h"
+#include "RifVtkSurfaceImporter.h"
+
+#include "RigSurface.h"
+#include "RigTriangleMeshData.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -133,13 +135,13 @@ bool RimFileSurface::updateSurfaceData()
         surface->setTriangleData( tringleIndices, vertices );
     }
 
-    if ( m_gocadData )
+    if ( m_triangleMeshData )
     {
-        auto propertyNames = m_gocadData->propertyNames();
+        auto propertyNames = m_triangleMeshData->propertyNames();
         for ( const auto& name : propertyNames )
         {
-            auto values = m_gocadData->propertyValues( name );
-            surface->addVerticeResult( name, values );
+            auto values = m_triangleMeshData->propertyValues( name );
+            surface->addVertexResult( name, values );
         }
     }
 
@@ -171,11 +173,17 @@ bool RimFileSurface::loadDataFromFile()
     }
     else if ( filePath.endsWith( "ts", Qt::CaseInsensitive ) )
     {
-        m_gocadData = std::make_unique<RigGocadData>();
+        m_triangleMeshData = std::make_unique<RigTriangleMeshData>();
 
-        RifSurfaceImporter::readGocadFile( filePath, m_gocadData.get() );
+        RifSurfaceImporter::readGocadFile( filePath, m_triangleMeshData.get() );
 
-        surface = m_gocadData->gocadGeometry();
+        surface = m_triangleMeshData->geometry();
+    }
+    else if ( filePath.endsWith( "vtu", Qt::CaseInsensitive ) )
+    {
+        m_triangleMeshData = RifVtkSurfaceImporter::importFromFile( filePath.toStdString() );
+
+        surface = m_triangleMeshData->geometry();
     }
     else if ( filePath.endsWith( "dat", Qt::CaseInsensitive ) || filePath.endsWith( "xyz", Qt::CaseInsensitive ) )
     {

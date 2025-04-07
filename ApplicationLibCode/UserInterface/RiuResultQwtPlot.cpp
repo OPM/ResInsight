@@ -54,6 +54,7 @@
 //--------------------------------------------------------------------------------------------------
 RiuResultQwtPlot::RiuResultQwtPlot( QWidget* parent )
     : RiuDockedQwtPlot( parent )
+    , m_timeMarker( nullptr )
 {
     setAutoFillBackground( true );
     setDefaults();
@@ -133,20 +134,20 @@ void RiuResultQwtPlot::showTimeStep( const QDateTime& dateTime )
 {
     if ( !dateTime.isValid() ) return;
 
-    auto lineMarker = new QwtPlotMarker;
+    if ( m_timeMarker == nullptr )
+    {
+        m_timeMarker = new QwtPlotMarker();
+        QPen pen;
+        pen.setStyle( Qt::DashLine );
+        m_timeMarker->setLinePen( pen );
+        m_timeMarker->setLineStyle( QwtPlotMarker::VLine );
+        m_timeMarker->setLabel( QString( "Time Step" ) );
+        m_timeMarker->setLabelAlignment( Qt::AlignTop | Qt::AlignRight );
+        m_timeMarker->setLabelOrientation( Qt::Vertical );
+        m_timeMarker->attach( this );
+    }
 
-    QPen pen;
-    pen.setStyle( Qt::DashLine );
-    lineMarker->setLinePen( pen );
-
-    lineMarker->setXValue( QwtDate::toDouble( dateTime ) );
-    lineMarker->setLineStyle( QwtPlotMarker::VLine );
-    lineMarker->setLabel( QString( "Time Step" ) );
-    lineMarker->setLabelAlignment( Qt::AlignTop | Qt::AlignRight );
-    lineMarker->setLabelOrientation( Qt::Vertical );
-    lineMarker->attach( this );
-
-    m_plotItems.push_back( lineMarker );
+    m_timeMarker->setXValue( QwtDate::toDouble( dateTime ) );
 }
 
 //--------------------------------------------------------------------------------------------------

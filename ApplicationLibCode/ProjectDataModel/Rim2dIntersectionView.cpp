@@ -455,7 +455,7 @@ size_t Rim2dIntersectionView::onTimeStepCountRequested()
 {
     if ( isTimeStepDependentDataVisible() && ownerCase() )
     {
-        return ownerCase()->timeStepStrings().size();
+        return timeStepStrings().size();
     }
 
     return 0;

@@ -18,25 +18,25 @@ namespace ParserKeywords {
        class OW_SURFACE_TENSION {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = -1.000000;
        };
 
        class GO_SURFACE_TENSION {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = -1.000000;
        };
 
        class ALPHA_FACTOR {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.500000;
        };
 
        class BETA_FACTOR {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.500000;
        };
 
        class DIRECTION {
@@ -72,13 +72,13 @@ namespace ParserKeywords {
        class POROSITY_POWER {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.500000;
        };
 
        class PERMEABILITY_POWER {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0.500000;
        };
 
        class PERM_DIRECTION {

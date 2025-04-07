@@ -19,8 +19,8 @@
 #include "RicPlotProductionRateFeature.h"
 
 #include "RiaGuiApplication.h"
-
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
+#include "Summary/RiaSummaryPlotTools.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
@@ -40,7 +40,6 @@
 #include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
-#include "Summary/RiaSummaryTools.h"
 
 #include "RiuPlotMainWindow.h"
 
@@ -101,7 +100,7 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
         description += well->name();
         RimSummaryPlot* plot = new RimSummaryPlot();
         plot->setUiName( description );
-        RimSummaryMultiPlot* multiPlot = RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( plot );
+        RimSummaryMultiPlot* multiPlot = RiaSummaryPlotTools::createAndAppendSingleSummaryMultiPlot( plot );
 
         if ( RimSimWellInViewTools::isInjector( well ) )
         {
@@ -256,11 +255,8 @@ RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* 
         return nullptr;
     }
 
-    RimSummaryCurve* newCurve = new RimSummaryCurve();
+    auto newCurve = RiaSummaryPlotTools::createCurve( summaryCase, addr );
     plot->addCurveAndUpdate( newCurve );
-
-    newCurve->setSummaryCaseY( summaryCase );
-    newCurve->setSummaryAddressY( addr );
     newCurve->setColor( color );
     newCurve->setLeftOrRightAxisY( RiuPlotAxis( plotAxis ) );
     newCurve->loadDataAndUpdate( true );

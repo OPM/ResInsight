@@ -18,7 +18,7 @@
 
 #include "RiaPreferencesSummary.h"
 
-#include "PlotTemplateCommands/RicSummaryPlotTemplateTools.h"
+#include "Summary/RiaSummaryPlotTemplateTools.h"
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"

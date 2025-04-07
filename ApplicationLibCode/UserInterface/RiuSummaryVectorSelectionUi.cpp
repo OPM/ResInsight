@@ -126,12 +126,12 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
             { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_WELL_NAME ),
               new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
               new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
-          { SummaryCategory::SUMMARY_WELL_COMPLETION,
+          { SummaryCategory::SUMMARY_WELL_CONNECTION,
             { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_WELL_NAME ),
               new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_CELL_IJK ),
               new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
               new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
-          { SummaryCategory::SUMMARY_WELL_COMPLETION_LGR,
+          { SummaryCategory::SUMMARY_WELL_CONNECTION_LGR,
             { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_LGR_NAME ),
               new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_WELL_NAME ),
               new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_CELL_IJK ),
@@ -145,6 +145,11 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
           { SummaryCategory::SUMMARY_WELL_SEGMENT,
             { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_WELL_NAME ),
               new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_SEGMENT_NUMBER ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
+          { SummaryCategory::SUMMARY_WELL_COMPLETION,
+            { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_WELL_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_WELL_COMPLETION_NUMBER ),
               new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
               new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
           { SummaryCategory::SUMMARY_BLOCK,
@@ -211,31 +216,31 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL][1]->pdmField(), "WellVectors", "Well Vectors" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL][2]->pdmField(), "WellCalculationIds", "Calculation Ids" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][0]->pdmField(),
-                                "WellCompletionWellName",
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION][0]->pdmField(),
+                                "WellConnectionWellName",
                                 "Wells" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][1]->pdmField(), "WellCompletionIjk", "Cell IJK" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][2]->pdmField(),
-                                "WellCompletionVectors",
-                                "Well Completion Vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][3]->pdmField(),
-                                "WellCompletionCalculationIds",
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION][1]->pdmField(), "WellConnectionIjk", "Cell IJK" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION][2]->pdmField(),
+                                "WellConnectionVectors",
+                                "Well Connection Vectors" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION][3]->pdmField(),
+                                "WellConnectionCalculationIds",
                                 "Calculation Ids" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION_LGR][0]->pdmField(),
-                                "WellCompletionLgrLgrName",
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION_LGR][0]->pdmField(),
+                                "WellConnectionLgrLgrName",
                                 "LGR Names" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION_LGR][1]->pdmField(),
-                                "WellCompletionLgrWellName",
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION_LGR][1]->pdmField(),
+                                "WellConnectionLgrWellName",
                                 "Wells" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION_LGR][2]->pdmField(),
-                                "WellCompletionLgrIjk",
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION_LGR][2]->pdmField(),
+                                "WellConnectionLgrIjk",
                                 "Cell IJK" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION_LGR][3]->pdmField(),
-                                "WellCompletionLgrVectors",
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION_LGR][3]->pdmField(),
+                                "WellConnectionLgrVectors",
                                 "Well Completion Vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION_LGR][4]->pdmField(),
-                                "WellCompletionLgrCalculationIds",
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION_LGR][4]->pdmField(),
+                                "WellConnectionLgrCalculationIds",
                                 "Calculation Ids" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_LGR][0]->pdmField(), "WellLgrLgrName", "LGR Names" );
@@ -250,6 +255,19 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_SEGMENT][2]->pdmField(), "WellSegmentVectors", "Vectors" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_SEGMENT][3]->pdmField(),
                                 "WellSegmentCalculationIds",
+                                "Calculation Ids" );
+
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][0]->pdmField(),
+                                "WellCompletionWellName",
+                                "Wells" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][1]->pdmField(),
+                                "WellCompletionNumber",
+                                "Completion Numbers" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][2]->pdmField(),
+                                "WellCompletionVectors",
+                                "Vectors" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][3]->pdmField(),
+                                "WellCompletionCalculationIds",
                                 "Calculation Ids" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_BLOCK][0]->pdmField(), "BlockIjk", "Cell IJK" );
@@ -572,9 +590,9 @@ QList<caf::PdmOptionItemInfo>
             if ( !hideEnsembles )
             {
                 bool ensembleHeaderCreated = false;
-                for ( const auto& sumCaseColl : sumCaseMainColl->summaryCaseCollections() )
+                for ( const auto& ensemble : sumCaseMainColl->summaryEnsembles() )
                 {
-                    if ( !sumCaseColl->isEnsemble() ) continue;
+                    if ( !ensemble->isEnsemble() ) continue;
 
                     if ( !ensembleHeaderCreated )
                     {
@@ -583,7 +601,7 @@ QList<caf::PdmOptionItemInfo>
                     }
                     // Ensemble level
                     {
-                        auto optionItem = caf::PdmOptionItemInfo( sumCaseColl->name(), sumCaseColl );
+                        auto optionItem = caf::PdmOptionItemInfo( ensemble->name(), ensemble );
                         optionItem.setLevel( 1 );
                         options.push_back( optionItem );
                     }
@@ -593,13 +611,13 @@ QList<caf::PdmOptionItemInfo>
             if ( !hideSummaryCases )
             {
                 // Grouped cases
-                for ( const auto& sumCaseColl : sumCaseMainColl->summaryCaseCollections() )
+                for ( const auto& ensemble : sumCaseMainColl->summaryEnsembles() )
                 {
-                    if ( sumCaseColl->isEnsemble() && !showIndividualEnsembleCases ) continue;
+                    if ( ensemble->isEnsemble() && !showIndividualEnsembleCases ) continue;
 
-                    options.push_back( caf::PdmOptionItemInfo::createHeader( sumCaseColl->name(), true ) );
+                    options.push_back( caf::PdmOptionItemInfo::createHeader( ensemble->name(), true ) );
 
-                    for ( const auto& sumCase : sumCaseColl->allSummaryCases() )
+                    for ( const auto& sumCase : ensemble->allSummaryCases() )
                     {
                         auto optionItem = caf::PdmOptionItemInfo( sumCase->displayCaseName(), sumCase );
                         optionItem.setLevel( 1 );
@@ -900,26 +918,26 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
 
         summaryiesField = m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL][1]->pdmField();
     }
-    else if ( sumCategory == SummaryCategory::SUMMARY_WELL_COMPLETION )
+    else if ( sumCategory == SummaryCategory::SUMMARY_WELL_CONNECTION )
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryCompletion() + "s" );
-            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][0]->pdmField() );
-            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][1]->pdmField() );
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryWellConnection() + "s" );
+            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION][0]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION][1]->pdmField() );
         }
 
-        summaryiesField = m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][2]->pdmField();
+        summaryiesField = m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION][2]->pdmField();
     }
-    else if ( sumCategory == SummaryCategory::SUMMARY_WELL_COMPLETION_LGR )
+    else if ( sumCategory == SummaryCategory::SUMMARY_WELL_CONNECTION_LGR )
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryLgrCompletion() + "s" );
-            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION_LGR][0]->pdmField() );
-            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION_LGR][1]->pdmField() );
-            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION_LGR][2]->pdmField() );
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryLgrConnection() + "s" );
+            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION_LGR][0]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION_LGR][1]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION_LGR][2]->pdmField() );
         }
 
-        summaryiesField = m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION_LGR][3]->pdmField();
+        summaryiesField = m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_CONNECTION_LGR][3]->pdmField();
     }
     else if ( sumCategory == SummaryCategory::SUMMARY_WELL_LGR )
     {
@@ -940,6 +958,16 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
         }
 
         summaryiesField = m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_SEGMENT][2]->pdmField();
+    }
+    else if ( sumCategory == SummaryCategory::SUMMARY_WELL_COMPLETION )
+    {
+        {
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryWellCompletion() + "s" );
+            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][0]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][1]->pdmField() );
+        }
+
+        summaryiesField = m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][2]->pdmField();
     }
     else if ( sumCategory == SummaryCategory::SUMMARY_BLOCK )
     {
@@ -1290,10 +1318,9 @@ void RiuSummaryVectorSelectionUi::defineEditorAttribute( const caf::PdmFieldHand
     {
         if ( &m_selectedSummaryCategories == field )
         {
-            attrib->currentIndexFieldHandle          = &m_currentSummaryCategory;
-            attrib->showTextFilter                   = false;
-            attrib->showToggleAllCheckbox            = false;
-            attrib->setCurrentIndexWhenItemIsChecked = true;
+            attrib->currentIndexFieldHandle = &m_currentSummaryCategory;
+            attrib->showTextFilter          = false;
+            attrib->showToggleAllCheckbox   = false;
         }
 
         // All tree selection editors are set in specified selection mode
@@ -1374,13 +1401,14 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForCategories( QList<caf::Pdm
     sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_GROUP );
     sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL );
     sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL_COMPLETION );
+    sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL_CONNECTION );
     sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_BLOCK );
 
     if ( !m_hideCalculationIncompatibleCategories )
     {
         sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL_SEGMENT );
         sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL_LGR );
-        sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL_COMPLETION_LGR );
+        sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_WELL_CONNECTION_LGR );
         sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_BLOCK_LGR );
     }
 
@@ -1477,6 +1505,7 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForSubCategoriesAndVectors( Q
             {
                 case SummaryIdentifierType::INPUT_REGION_NUMBER:
                 case SummaryIdentifierType::INPUT_SEGMENT_NUMBER:
+                case SummaryIdentifierType::INPUT_WELL_COMPLETION_NUMBER:
                 case SummaryIdentifierType::INPUT_AQUIFER_NUMBER:
                 {
                     std::set<int> values;

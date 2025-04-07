@@ -22,6 +22,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicImportRoffCaseFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicAddGridCalculationFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateGridCaseEnsemblesFromFilesFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicAddLinkedEclipsePropertyFilterFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -48,14 +49,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicImportRoffCaseFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicAddGridCalculationFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateGridCaseEnsemblesFromFilesFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicAddLinkedEclipsePropertyFilterFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
-
 list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
-
-source_group(
-  "CommandFeature\\Eclipse"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
-)

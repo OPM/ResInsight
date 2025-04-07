@@ -11,6 +11,22 @@
 #include <opm/input/eclipse/Parser/ParserKeywords/H.hpp>
 namespace Opm {
 namespace ParserKeywords {
+H2SOL::H2SOL() : ParserKeyword("H2SOL", KeywordSize(0, false)) {
+  addValidSectionName("RUNSPEC");
+  clearDeckNames();
+  addDeckName("H2SOL");
+}
+const std::string H2SOL::keywordName = "H2SOL";
+
+
+H2STORE::H2STORE() : ParserKeyword("H2STORE", KeywordSize(0, false)) {
+  addValidSectionName("RUNSPEC");
+  clearDeckNames();
+  addDeckName("H2STORE");
+}
+const std::string H2STORE::keywordName = "H2STORE";
+
+
 HALFTRAN::HALFTRAN() : ParserKeyword("HALFTRAN", KeywordSize(0, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
@@ -287,23 +303,14 @@ HMDIMS::HMDIMS() : ParserKeyword("HMDIMS", KeywordSize(1, false)) {
 }
 const std::string HMDIMS::keywordName = "HMDIMS";
 const std::string HMDIMS::MAX_GRAD_REGIONS::itemName = "MAX_GRAD_REGIONS";
-const int HMDIMS::MAX_GRAD_REGIONS::defaultValue = 0;
 const std::string HMDIMS::MAX_SUB_REGIONS::itemName = "MAX_SUB_REGIONS";
-const int HMDIMS::MAX_SUB_REGIONS::defaultValue = 0;
 const std::string HMDIMS::MAX_GRADS::itemName = "MAX_GRADS";
-const int HMDIMS::MAX_GRADS::defaultValue = 0;
 const std::string HMDIMS::MAX_FAULTS::itemName = "MAX_FAULTS";
-const int HMDIMS::MAX_FAULTS::defaultValue = 0;
 const std::string HMDIMS::MAX_AQUIFER_PARAMS::itemName = "MAX_AQUIFER_PARAMS";
-const int HMDIMS::MAX_AQUIFER_PARAMS::defaultValue = 0;
 const std::string HMDIMS::MAX_WELL_PARAMS::itemName = "MAX_WELL_PARAMS";
-const int HMDIMS::MAX_WELL_PARAMS::defaultValue = 0;
 const std::string HMDIMS::UNUSED::itemName = "UNUSED";
-const int HMDIMS::UNUSED::defaultValue = 0;
 const std::string HMDIMS::MAX_ROCK_GRAD_PARAMS::itemName = "MAX_ROCK_GRAD_PARAMS";
-const int HMDIMS::MAX_ROCK_GRAD_PARAMS::defaultValue = 0;
 const std::string HMDIMS::MAX_WELL_CONN_PARAMS::itemName = "MAX_WELL_CONN_PARAMS";
-const int HMDIMS::MAX_WELL_CONN_PARAMS::defaultValue = 0;
 
 
 HMFAULTS::HMFAULTS() : ParserKeyword("HMFAULTS", KeywordSize(SLASH_TERMINATED)) {
@@ -357,11 +364,8 @@ HMMLAQUN::HMMLAQUN() : ParserKeyword("HMMLAQUN", KeywordSize(SLASH_TERMINATED)) 
 const std::string HMMLAQUN::keywordName = "HMMLAQUN";
 const std::string HMMLAQUN::AQUIFER_ID::itemName = "AQUIFER_ID";
 const std::string HMMLAQUN::AQUIFER_PORE_VOL_MULT::itemName = "AQUIFER_PORE_VOL_MULT";
-const double HMMLAQUN::AQUIFER_PORE_VOL_MULT::defaultValue = 1.000000;
 const std::string HMMLAQUN::AQUIFER_PORE_PERM_MULT::itemName = "AQUIFER_PORE_PERM_MULT";
-const double HMMLAQUN::AQUIFER_PORE_PERM_MULT::defaultValue = 1.000000;
 const std::string HMMLAQUN::AQUIFER_GRID_CONN_MULT::itemName = "AQUIFER_GRID_CONN_MULT";
-const double HMMLAQUN::AQUIFER_GRID_CONN_MULT::defaultValue = 1.000000;
 
 
 HMMLCTAQ::HMMLCTAQ() : ParserKeyword("HMMLCTAQ", KeywordSize(SLASH_TERMINATED)) {
@@ -398,11 +402,8 @@ HMMLCTAQ::HMMLCTAQ() : ParserKeyword("HMMLCTAQ", KeywordSize(SLASH_TERMINATED)) 
 const std::string HMMLCTAQ::keywordName = "HMMLCTAQ";
 const std::string HMMLCTAQ::AQUIFER_ID::itemName = "AQUIFER_ID";
 const std::string HMMLCTAQ::AQUIFER_PERM_MULT::itemName = "AQUIFER_PERM_MULT";
-const double HMMLCTAQ::AQUIFER_PERM_MULT::defaultValue = 1.000000;
 const std::string HMMLCTAQ::AQUIFER_ANGLE_MULT::itemName = "AQUIFER_ANGLE_MULT";
-const double HMMLCTAQ::AQUIFER_ANGLE_MULT::defaultValue = 1.000000;
 const std::string HMMLCTAQ::AQUIFER_DEPTH_MULT::itemName = "AQUIFER_DEPTH_MULT";
-const double HMMLCTAQ::AQUIFER_DEPTH_MULT::defaultValue = 1.000000;
 
 
 HMMLFTAQ::HMMLFTAQ() : ParserKeyword("HMMLFTAQ", KeywordSize(SLASH_TERMINATED)) {
@@ -439,11 +440,8 @@ HMMLFTAQ::HMMLFTAQ() : ParserKeyword("HMMLFTAQ", KeywordSize(SLASH_TERMINATED)) 
 const std::string HMMLFTAQ::keywordName = "HMMLFTAQ";
 const std::string HMMLFTAQ::AQUIFER_ID::itemName = "AQUIFER_ID";
 const std::string HMMLFTAQ::AQUIFER_WAT_VOL_MULT::itemName = "AQUIFER_WAT_VOL_MULT";
-const double HMMLFTAQ::AQUIFER_WAT_VOL_MULT::defaultValue = 1.000000;
 const std::string HMMLFTAQ::AQUIFER_PROD_INDEX_MULT::itemName = "AQUIFER_PROD_INDEX_MULT";
-const double HMMLFTAQ::AQUIFER_PROD_INDEX_MULT::defaultValue = 1.000000;
 const std::string HMMLFTAQ::AQUIFER_DEPTH_MULT::itemName = "AQUIFER_DEPTH_MULT";
-const double HMMLFTAQ::AQUIFER_DEPTH_MULT::defaultValue = 1.000000;
 
 
 HMMLTWCN::HMMLTWCN() : ParserKeyword("HMMLTWCN", KeywordSize(SLASH_TERMINATED)) {
@@ -496,9 +494,7 @@ const std::string HMMLTWCN::I::itemName = "I";
 const std::string HMMLTWCN::J::itemName = "J";
 const std::string HMMLTWCN::K::itemName = "K";
 const std::string HMMLTWCN::CTF::itemName = "CTF";
-const double HMMLTWCN::CTF::defaultValue = 1.000000;
 const std::string HMMLTWCN::SKIN::itemName = "SKIN";
-const double HMMLTWCN::SKIN::defaultValue = 1.000000;
 
 
 HMMULTFT::HMMULTFT() : ParserKeyword("HMMULTFT", KeywordSize(SLASH_TERMINATED)) {
@@ -529,9 +525,7 @@ HMMULTFT::HMMULTFT() : ParserKeyword("HMMULTFT", KeywordSize(SLASH_TERMINATED)) 
 const std::string HMMULTFT::keywordName = "HMMULTFT";
 const std::string HMMULTFT::FAULT::itemName = "FAULT";
 const std::string HMMULTFT::TRANS_MULT::itemName = "TRANS_MULT";
-const double HMMULTFT::TRANS_MULT::defaultValue = 1.000000;
 const std::string HMMULTFT::DIFF_MULT::itemName = "DIFF_MULT";
-const double HMMULTFT::DIFF_MULT::defaultValue = 1.000000;
 
 
 HMMULTSG::HMMULTSG() : ParserKeyword("HMMULTSG", KeywordSize(1, false)) {
@@ -554,13 +548,13 @@ const std::string HMMULTSG::data::itemName = "data";
 
 
 HMMULTxx::HMMULTxx() : ParserKeyword("HMMULTxx", KeywordSize(1, false)) {
-  addValidSectionName("EDIT");
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   clearDeckNames();
   addDeckName("HMMULTX");
   addDeckName("HMMULTY");
-  addDeckName("HMMULTR");
   addDeckName("HMMULTZ");
+  addDeckName("HMMULTR");
   addDeckName("HMMULTPV");
   addDeckName("HMMULTTH");
   {
@@ -608,7 +602,6 @@ HMROCK::HMROCK() : ParserKeyword("HMROCK", KeywordSize(SLASH_TERMINATED)) {
 const std::string HMROCK::keywordName = "HMROCK";
 const std::string HMROCK::TABLE_NUMBER::itemName = "TABLE_NUMBER";
 const std::string HMROCK::CALCULATE_GRADIENTS::itemName = "CALCULATE_GRADIENTS";
-const int HMROCK::CALCULATE_GRADIENTS::defaultValue = 0;
 
 
 HMROCKT::HMROCKT() : ParserKeyword("HMROCKT", KeywordSize(SLASH_TERMINATED)) {
@@ -790,6 +783,14 @@ HRFIN::HRFIN() : ParserKeyword("HRFIN", KeywordSize(1, false)) {
 }
 const std::string HRFIN::keywordName = "HRFIN";
 const std::string HRFIN::data::itemName = "data";
+
+
+HWELLS::HWELLS() : ParserKeyword("HWELLS", KeywordSize(0, false)) {
+  addValidSectionName("RUNSPEC");
+  clearDeckNames();
+  addDeckName("HWELLS");
+}
+const std::string HWELLS::keywordName = "HWELLS";
 
 
 HWKRO::HWKRO() : ParserKeyword("HWKRO", KeywordSize(1, false)) {

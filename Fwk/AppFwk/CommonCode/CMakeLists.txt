@@ -10,10 +10,6 @@ endif()
 find_package(OpenGL)
 
 # Qt
-
-# These headers need to go through Qt's MOC compiler
-set(MOC_HEADER_FILES cafMessagePanel.h)
-
 find_package(
   Qt6
   COMPONENTS
@@ -70,5 +66,3 @@ if(MSVC)
     ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127"
   )
 endif()
-
-source_group("" FILES ${PROJECT_FILES})

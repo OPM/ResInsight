@@ -104,12 +104,12 @@ cvf::ref<RigSurface> RigSurfaceStatisticsCalculator::computeStatistics( const st
 
     auto enumToText = []( auto statisticsType ) { return caf::AppEnum<StatisticsType>::text( statisticsType ); };
 
-    statSurface->addVerticeResult( enumToText( StatisticsType::MEAN ), meanValues );
-    statSurface->addVerticeResult( enumToText( StatisticsType::MIN ), minValues );
-    statSurface->addVerticeResult( enumToText( StatisticsType::MAX ), maxValues );
-    statSurface->addVerticeResult( enumToText( StatisticsType::P10 ), p10Values );
-    statSurface->addVerticeResult( enumToText( StatisticsType::P50 ), p50Values );
-    statSurface->addVerticeResult( enumToText( StatisticsType::P90 ), p90Values );
+    statSurface->addVertexResult( enumToText( StatisticsType::MEAN ), meanValues );
+    statSurface->addVertexResult( enumToText( StatisticsType::MIN ), minValues );
+    statSurface->addVertexResult( enumToText( StatisticsType::MAX ), maxValues );
+    statSurface->addVertexResult( enumToText( StatisticsType::P10 ), p10Values );
+    statSurface->addVertexResult( enumToText( StatisticsType::P50 ), p50Values );
+    statSurface->addVertexResult( enumToText( StatisticsType::P90 ), p90Values );
 
     return statSurface;
 }

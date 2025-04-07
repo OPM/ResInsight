@@ -22,8 +22,11 @@
 
 #include "Well/RigWellPath.h"
 
+#include "ContourMap/RimEclipseContourMapView.h"
 #include "Rim3dView.h"
+#include "RimGeoMechContourMapView.h"
 #include "RimModeledWellPath.h"
+#include "RimPolylinePickerInterface.h"
 #include "RimPolylineTarget.h"
 #include "RimUserDefinedPolylinesAnnotation.h"
 
@@ -32,10 +35,10 @@
 
 #include "RivPolylinesAnnotationSourceInfo.h"
 
-#include "RimPolylinePickerInterface.h"
-
 #include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
+
+#include "cvfBoundingBox.h"
 
 #include <vector>
 
@@ -83,6 +86,13 @@ bool RicPolylineTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEvent
 
         const auto& firstPickItem       = eventObject.m_pickItemInfos.front();
         auto        targetPointInDomain = rimView->displayCoordTransform()->transformToDomainCoord( firstPickItem.globalPickedPoint() );
+
+        if ( dynamic_cast<RimEclipseContourMapView*>( rimView ) || dynamic_cast<RimGeoMechContourMapView*>( rimView ) )
+        {
+            // In a contour map view, the contour map is located below the domain. This means that the picked z-value is below the domain.
+            // Use the z-value of the domain bounding box instead.
+            targetPointInDomain.z() = rimView->domainBoundingBox().max().z();
+        }
 
         auto* newTarget = new RimPolylineTarget();
         newTarget->setAsPointTargetXYD( cvf::Vec3d( targetPointInDomain.x(), targetPointInDomain.y(), -targetPointInDomain.z() ) );

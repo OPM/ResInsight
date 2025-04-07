@@ -137,6 +137,11 @@ public:
     void setTernaryEnabled( bool enabled );
 
     void updateRangesForExplicitLegends( RimRegularLegendConfig* legendConfig, RimTernaryLegendConfig* ternaryLegendConfig, int currentTimeStep );
+    void updateRangesForExplicitLegends( RimRegularLegendConfig* legendConfig,
+                                         RimTernaryLegendConfig* ternaryLegendConfig,
+                                         int                     currentTimeStep,
+                                         RimEclipseView*         viewUsedForCategoryValues );
+
     void updateLegendTitle( RimRegularLegendConfig* legendConfig, const QString& legendHeading );
 
     bool showOnlyVisibleCategoriesInLegend() const;

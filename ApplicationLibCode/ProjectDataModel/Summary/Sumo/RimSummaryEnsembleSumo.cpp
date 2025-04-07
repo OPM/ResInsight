@@ -65,21 +65,6 @@ void RimSummaryEnsembleSumo::setSumoDataSource( RimSummarySumoDataSource* sumoDa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsembleSumo::updateName()
-{
-    if ( m_sumoDataSource() )
-    {
-        setName( m_sumoDataSource()->name() );
-    }
-    else
-    {
-        setName( "No Sumo Data Source" );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::string RimSummaryEnsembleSumo::unitName( const RifEclipseSummaryAddress& resultAddress )
 {
     // TODO: Not implemented yet. Need to get the unit name from the Sumo data source
@@ -101,6 +86,19 @@ RiaDefines::EclipseUnitSystem RimSummaryEnsembleSumo::unitSystem() const
 std::set<RifEclipseSummaryAddress> RimSummaryEnsembleSumo::allResultAddresses() const
 {
     return m_resultAddresses;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::string, std::string> RimSummaryEnsembleSumo::nameKeys() const
+{
+    if ( m_sumoDataSource() )
+    {
+        return { m_sumoDataSource()->name().toStdString(), "" };
+    }
+
+    return { "Sumo Data Source", "" };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -456,8 +454,10 @@ void RimSummaryEnsembleSumo::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 {
     uiOrdering.add( &m_sumoDataSource );
 
-    auto group = uiOrdering.addNewGroup( "General" );
-    RimSummaryEnsemble::defineUiOrdering( uiConfigName, *group );
+    auto nameGroup = uiOrdering.addNewGroup( "Name" );
+    RimSummaryEnsemble::defineUiOrdering( uiConfigName, *nameGroup );
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -482,16 +482,18 @@ QList<caf::PdmOptionItemInfo> RimSummaryEnsembleSumo::calculateValueOptions( con
 //--------------------------------------------------------------------------------------------------
 void RimSummaryEnsembleSumo::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    RimSummaryEnsemble::fieldChangedByUi( changedField, oldValue, newValue );
+
     if ( changedField == &m_sumoDataSource )
     {
         clearCachedData();
         updateResultAddresses();
-        updateName();
+        RiaSummaryTools::updateSummaryEnsembleNames();
         buildMetaData();
 
         updateConnectedEditors();
 
-        RiaSummaryTools::reloadSummaryEnsemble( this );
+        RiaSummaryTools::updateConnectedPlots( this );
     }
 }
 
@@ -553,7 +555,7 @@ void RimSummaryEnsembleSumo::onLoadDataAndUpdate()
         }
     }
 
-    updateName();
+    RiaSummaryTools::updateSummaryEnsembleNames();
     updateResultAddresses();
 
     buildMetaData();

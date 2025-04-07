@@ -78,11 +78,18 @@ QString RimSummaryNameHelper::aggregatedPlotTitle( const RimSummaryNameHelper& o
         title += "Segment : " + QString::fromStdString( segment );
     }
 
-    auto completion = titleCompletion();
-    if ( !other.isCompletionInTitle() && !completion.empty() )
+    auto wellCompletion = titleWellCompletion();
+    if ( !other.isWellCompletionInTitle() && !wellCompletion.empty() )
     {
         if ( !title.isEmpty() ) title += ", ";
-        title += "Completion : " + QString::fromStdString( completion );
+        title += "Well Completion : " + QString::fromStdString( wellCompletion );
+    }
+
+    auto connection = titleConnection();
+    if ( !other.isConnectionInTitle() && !connection.empty() )
+    {
+        if ( !title.isEmpty() ) title += ", ";
+        title += "Connection : " + QString::fromStdString( connection );
     }
 
     auto vectorName = titleVectorName();
@@ -90,6 +97,19 @@ QString RimSummaryNameHelper::aggregatedPlotTitle( const RimSummaryNameHelper& o
     {
         if ( !title.isEmpty() ) title += ", ";
         title += QString::fromStdString( RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( vectorName, true ) );
+
+        // https://github.com/OPM/ResInsight/issues/12157
+        size_t pos = vectorName.find( '_' );
+        if ( pos != std::string::npos )
+        {
+            // For calculated curves, the name vector name is often created using underscore. Check if the vector name already is
+            // present in the title.
+            auto qtVectorName = QString::fromStdString( vectorName );
+            if ( title.indexOf( qtVectorName ) == -1 )
+            {
+                title += QString( " (%1)" ).arg( QString::fromStdString( vectorName ) );
+            }
+        }
     }
 
     return title;

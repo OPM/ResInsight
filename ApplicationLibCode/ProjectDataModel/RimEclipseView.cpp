@@ -79,7 +79,6 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSeismicSection.h"
 #include "RimSeismicSectionCollection.h"
-#include "RimSimWellFracture.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStimPlanColors.h"
@@ -121,6 +120,8 @@
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafSelectionManager.h"
+#include "cafUpdateEditorsScheduler.h"
 
 #include "cvfDrawable.h"
 #include "cvfModelBasicList.h"
@@ -542,6 +543,8 @@ void RimEclipseView::childFieldChangedByUi( const caf::PdmFieldHandle* changedCh
     if ( changedChildField == &m_cellResult )
     {
         updateMdiWindowTitle();
+
+        m_propertyFilterCollection->updateDefaultResult( m_cellResult() );
     }
 }
 
@@ -557,6 +560,38 @@ void RimEclipseView::onUpdateScaleTransform()
     m_simWellsPartManager->setScaleTransform( scaleTransform() );
 
     if ( nativeOrOverrideViewer() ) nativeOrOverrideViewer()->updateCachedValuesInScene();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RimEclipseView::activeTimeStepIndices( bool propertyFiltersActive )
+{
+    std::vector<size_t> timeStepIndices;
+
+    // First entry in this vector is used to define the geometry only result mode with no results.
+    timeStepIndices.push_back( 0 );
+
+    // Find the number of time frames the animation needs to show the requested data.
+    if ( ( isTimeStepDependentDataVisibleInThisOrComparisonView() && currentGridCellResults()->maxTimeStepCount() > 0 ) )
+    {
+        CVF_ASSERT( currentGridCellResults() );
+
+        size_t i;
+        for ( i = 0; i < currentGridCellResults()->maxTimeStepCount(); i++ )
+        {
+            timeStepIndices.push_back( i );
+        }
+    }
+    else if ( cellResult()->hasStaticResult() || cellEdgeResult()->hasResult() || propertyFiltersActive ||
+              intersectionCollection()->hasAnyActiveSeparateResults() ||
+              ( surfaceInViewCollection() && surfaceInViewCollection()->hasAnyActiveSeparateResults() ) )
+    {
+        // The one and only static result entry
+        timeStepIndices.push_back( 0 );
+    }
+
+    return timeStepIndices;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -583,30 +618,7 @@ void RimEclipseView::onCreateDisplayModel()
 
     // Define a vector containing time step indices to produce geometry for.
     // First entry in this vector is used to define the geometry only result mode with no results.
-    std::vector<size_t> timeStepIndices;
-
-    // The one and only geometry entry
-    timeStepIndices.push_back( 0 );
-
-    // Find the number of time frames the animation needs to show the requested data.
-
-    if ( ( isTimeStepDependentDataVisibleInThisOrComparisonView() && currentGridCellResults()->maxTimeStepCount() > 0 ) )
-    {
-        CVF_ASSERT( currentGridCellResults() );
-
-        size_t i;
-        for ( i = 0; i < currentGridCellResults()->maxTimeStepCount(); i++ )
-        {
-            timeStepIndices.push_back( i );
-        }
-    }
-    else if ( cellResult()->hasStaticResult() || cellEdgeResult()->hasResult() || propertyFiltersActive ||
-              intersectionCollection()->hasAnyActiveSeparateResults() ||
-              ( surfaceInViewCollection() && surfaceInViewCollection()->hasAnyActiveSeparateResults() ) )
-    {
-        // The one and only static result entry
-        timeStepIndices.push_back( 0 );
-    }
+    std::vector<size_t> timeStepIndices = activeTimeStepIndices( propertyFiltersActive );
 
     cvf::Collection<cvf::ModelBasicList> frameModels;
     size_t                               timeIdx;
@@ -816,7 +828,26 @@ void RimEclipseView::onCreateDisplayModel()
     {
         if ( curveSet != nullptr )
         {
+            // https://github.com/OPM/ResInsight/issues/12189
+            //
+            // If a 3D interaction process is active, like adding new well targets or creating a polyline, this process can be interrupted
+            // by the update of property editors in the plot window.
+            // The update of the view can cause new grid cross plot curves in the Plot Window to be created. If this happens, the project
+            // tree view is recreated and updated. The selection will be updated when this happens. Make sure that all scheduled updates for
+            // PdmUiEditors is processed, and reset the selection to initial selection.
+            //
+            // Related code
+            //   PdmUiTreeViewEditor::updateSelectionManager(),
+            //   PdmUiTreeViewEditor::enableSelectionManagerUpdating
+
+            std::vector<caf::PdmUiItem*> selectedItems;
+            caf::SelectionManager::instance()->selectedItems( selectedItems );
+
             curveSet->cellFilterViewUpdated();
+
+            caf::UpdateEditorsScheduler::instance()->performScheduledUpdates();
+
+            caf::SelectionManager::instance()->setSelectedItems( selectedItems );
         }
     }
 
@@ -863,8 +894,15 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 
     if ( intersectionCollection()->shouldApplyCellFiltersToIntersections() && eclipsePropertyFilterCollection()->hasActiveFilters() )
     {
-        m_intersectionCollection->clearGeometry();
         appendIntersectionsForCurrentTimeStep();
+    }
+
+    if ( surfaceInViewCollection() )
+    {
+        m_surfaceVizModel->removeAllParts();
+
+        surfaceInViewCollection()->loadData( currentTimeStep() );
+        surfaceInViewCollection()->appendPartsToModel( m_surfaceVizModel.p(), m_reservoirGridPartManager->scaleTransform() );
     }
 
     updateVisibleCellColors();
@@ -878,7 +916,7 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
     m_overlayInfoConfig()->update3DInfo();
 
     // Invisible Wells are marked as read only when "show wells intersecting visible cells" is enabled
-    // Visibility of wells differ betweeen time steps, so trigger a rebuild of tree state items
+    // Visibility of wells differ between time steps, so trigger a rebuild of tree state items
     wellCollection()->updateConnectedEditors();
 
     RicExportToSharingServerScheduler::instance()->scheduleUpdateSession();
@@ -1090,37 +1128,6 @@ void RimEclipseView::appendWellsAndFracturesToModel()
 
                 frameScene->addModel( wellPathModelBasicList.p() );
             }
-
-            // Sim Well Fractures
-            {
-                cvf::String name = "SimWellFracturesModel";
-                RimEclipseView::removeModelByName( frameScene, name );
-
-                cvf::ref<cvf::ModelBasicList> simWellFracturesModelBasicList = new cvf::ModelBasicList;
-                simWellFracturesModelBasicList->setName( name );
-
-                cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
-
-                std::vector<RimFracture*> fractures = descendantsIncludingThisOfType<RimFracture>();
-                for ( RimFracture* f : fractures )
-                {
-                    RimSimWellInView* simWell = f->firstAncestorOrThisOfType<RimSimWellInView>();
-                    if ( simWell )
-                    {
-                        bool isAnyGeometryPresent = simWell->isWellPipeVisible( m_currentTimeStep ) ||
-                                                    simWell->isWellSpheresVisible( m_currentTimeStep );
-                        if ( !isAnyGeometryPresent )
-                        {
-                            continue;
-                        }
-                    }
-
-                    f->fracturePartManager()->appendGeometryPartsToModel( simWellFracturesModelBasicList.p(), *this );
-                }
-
-                simWellFracturesModelBasicList->updateBoundingBoxesRecursive();
-                frameScene->addModel( simWellFracturesModelBasicList.p() );
-            }
         }
     }
 }
@@ -1193,7 +1200,7 @@ void RimEclipseView::onLoadDataAndUpdate()
 
     if ( eclipseCase() )
     {
-        if ( !eclipseCase()->openReserviorCase() )
+        if ( !eclipseCase()->openReservoirCase() )
         {
             RiaLogging::warning( "Could not open the Eclipse Grid file: \n" + eclipseCase()->gridFileName() );
             setEclipseCase( nullptr );
@@ -1218,7 +1225,7 @@ void RimEclipseView::onLoadDataAndUpdate()
 
     m_wellCollection->scaleWellDisks();
 
-    if ( m_surfaceCollection ) m_surfaceCollection->loadData();
+    if ( m_surfaceCollection ) m_surfaceCollection->loadData( m_currentTimeStep );
 
     scheduleReservoirGridGeometryRegen();
     m_simWellsPartManager->clearGeometryCache();
@@ -1226,16 +1233,6 @@ void RimEclipseView::onLoadDataAndUpdate()
     synchronizeWellsWithResults();
 
     synchronizeLocalAnnotationsFromGlobal();
-
-    {
-        // Update simulation well fractures after well cell results are imported
-
-        std::vector<RimSimWellFracture*> simFractures = descendantsIncludingThisOfType<RimSimWellFracture>();
-        for ( auto fracture : simFractures )
-        {
-            fracture->loadDataAndUpdate();
-        }
-    }
 
     if ( isVirtualConnectionFactorGeometryVisible() )
     {
@@ -2348,6 +2345,8 @@ void RimEclipseView::setOverridePropertyFilterCollection( RimEclipsePropertyFilt
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStep )
 {
+    if ( !mainGrid() ) return;
+
     size_t cellCount = mainGrid()->totalCellCount();
 
     totalVisibility->resize( cellCount );

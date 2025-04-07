@@ -52,7 +52,7 @@ void RicReloadSummaryCaseFeature::onActionTriggered( bool isChecked )
     std::vector<RimSummaryCase*> caseSelection = selectedSummaryCases();
     for ( RimSummaryCase* summaryCase : caseSelection )
     {
-        RiaSummaryTools::reloadSummaryCase( summaryCase );
+        RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( summaryCase );
 
         RiaLogging::info( QString( "Reloaded data for %1" ).arg( summaryCase->summaryHeaderFilename() ) );
     }

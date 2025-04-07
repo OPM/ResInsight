@@ -107,7 +107,9 @@ void RicHelpAboutFeature::onActionTriggered( bool isChecked )
             txt = "   Use of SSL is available";
             if ( isSslSupported )
             {
-                txt += " and supported";
+                txt += " and supported : ";
+                txt += QSslSocket::sslLibraryVersionString();
+                txt += ", Build: " + QSslSocket::sslLibraryBuildVersionString();
             }
             else
             {

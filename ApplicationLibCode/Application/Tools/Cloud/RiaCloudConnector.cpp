@@ -25,11 +25,15 @@
 
 #include <QDateTime>
 #include <QDesktopServices>
+#include <QDialog>
 #include <QEventLoop>
+#include <QLabel>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QPushButton>
 #include <QTimer>
 #include <QUrlQuery>
+#include <QVBoxLayout>
 #include <QtNetworkAuth/QOAuth2AuthorizationCodeFlow>
 
 //--------------------------------------------------------------------------------------------------
@@ -243,6 +247,26 @@ void RiaCloudConnector::setTokenDataFilePath( const QString& filePath )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaCloudConnector::clearTokens()
+{
+    if ( m_authCodeFlow )
+    {
+        m_authCodeFlow->setToken( "" );
+        m_authCodeFlow->setRefreshToken( "" );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaCloudConnector::isGranted() const
+{
+    return m_authCodeFlow->status() == QAbstractOAuth::Status::Granted;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaCloudConnector::constructAuthUrl( const QString& authority )
 {
     return authority + "/oauth2/v2.0/authorize";
@@ -274,6 +298,75 @@ QString RiaCloudConnector::requestTokenBlocking()
     loop.exec( QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents );
 
     return m_authCodeFlow->token();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaCloudConnector::requestTokenWithCancelButton()
+{
+    QDialog dialog;
+    dialog.setWindowTitle( "Requesting Token" );
+    dialog.setModal( true );
+
+    QVBoxLayout* layout = new QVBoxLayout( &dialog );
+
+    QLabel* label =
+        new QLabel( "Requesting token.\nIf this process takes a long time,\nissue a new authentication process by pressing\n'New "
+                    "Authentication'\n\n Please wait..." );
+    label->setAlignment( Qt::AlignHCenter );
+    layout->addWidget( label );
+
+    // Create horizontal button layout
+    QHBoxLayout* buttonLayout = new QHBoxLayout();
+
+    // Add buttons to horizontal layout
+    QPushButton* requestNewAuthenticationButton = new QPushButton( "New Authentication" );
+    QPushButton* cancelButton                   = new QPushButton( "Cancel" );
+    buttonLayout->addWidget( requestNewAuthenticationButton );
+    buttonLayout->addWidget( cancelButton );
+
+    // Add button layout to main layout
+    layout->addLayout( buttonLayout );
+
+    QTimer timer;
+    timer.setSingleShot( true );
+
+    QEventLoop loop;
+
+    connect( this, &RiaCloudConnector::tokenReady, &loop, &QEventLoop::quit );
+    connect( &timer, &QTimer::timeout, &loop, &QEventLoop::quit );
+    connect( cancelButton,
+             &QPushButton::clicked,
+             [&]()
+             {
+                 RiaLogging::info( "Token request canceled by user." );
+                 timer.stop();
+                 loop.quit();
+             } );
+
+    connect( requestNewAuthenticationButton,
+             &QPushButton::clicked,
+             [&]()
+             {
+                 clearTokens();
+                 requestToken();
+             } );
+
+    connect( &dialog,
+             &QDialog::rejected,
+             [&]()
+             {
+                 timer.stop();
+                 loop.quit();
+             } );
+
+    requestToken();
+    timer.start( RiaCloudDefines::requestTokenTimeoutMillis() );
+
+    dialog.show();
+    loop.exec();
+    dialog.close();
 }
 
 //--------------------------------------------------------------------------------------------------

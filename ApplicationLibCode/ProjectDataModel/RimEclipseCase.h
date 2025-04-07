@@ -40,6 +40,7 @@
 
 class QString;
 
+class RimWellTargetMapping;
 class RigCaseCellResultsData;
 class RigEclipseCaseData;
 class RigGridBase;
@@ -75,8 +76,10 @@ public:
     void                 setFilesContainingFaults( const std::vector<QString>& val );
 
     bool         ensureReservoirCaseIsOpen();
-    bool         openReserviorCase();
+    bool         openReservoirCase();
+    virtual void closeReservoirCase();
     virtual bool openEclipseGridFile() = 0;
+    virtual void reloadEclipseGridFile();
     virtual bool importAsciiInputProperties( const QStringList& fileNames );
 
     RigEclipseCaseData*       eclipseCaseData();
@@ -114,8 +117,6 @@ public:
     cvf::BoundingBox allCellsBoundingBox() const override;
     cvf::Vec3d       displayModelOffset() const override;
 
-    virtual void reloadEclipseGridFile() = 0;
-
     double characteristicCellSize() const override;
 
     std::set<QString> sortedSimWellNames() const;
@@ -127,7 +128,10 @@ public:
     void createDisplayModelAndUpdateAllViews();
     void computeActiveCellsBoundingBox();
 
-    void setReaderSettings( RifReaderSettings& readerSettings );
+    void              setReaderSettings( RifReaderSettings& readerSettings );
+    RifReaderSettings readerSettings() const;
+
+    void addWellTargetMapping( RimWellTargetMapping* wellTargetMapping );
 
     void updateResultAddressCollection();
 
@@ -172,6 +176,8 @@ private:
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;
     caf::PdmChildField<RimEclipseViewCollection*>       m_viewCollection;
+
+    caf::PdmChildArrayField<RimWellTargetMapping*> m_wellTargetMappings;
 
     caf::PdmField<std::vector<caf::FilePath>> m_filesContainingFaults;
 

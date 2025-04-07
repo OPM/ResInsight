@@ -19,6 +19,7 @@
 #include "RicImportSummaryCasesFeature.h"
 
 #include "Summary/RiaSummaryDefines.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "SummaryPlotCommands/RicNewSummaryCurveFeature.h"
 
 #include "RiaGuiApplication.h"
@@ -43,7 +44,6 @@
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "SummaryPlotCommands/RicNewSummaryEnsembleCurveSetFeature.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
@@ -83,7 +83,7 @@ void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
     {
         for ( auto sumcase : cases )
         {
-            RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( { sumcase }, {} );
+            RiaSummaryPlotTools::createAndAppendDefaultSummaryMultiPlot( { sumcase }, {} );
         }
     }
 
@@ -133,7 +133,7 @@ std::pair<bool, std::vector<RimSummaryCase*>> RicImportSummaryCasesFeature::crea
             RimSummaryMultiPlot* plotToSelect = nullptr;
             for ( auto sumCase : cases )
             {
-                plotToSelect = RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( { sumCase }, {} );
+                plotToSelect = RiaSummaryPlotTools::createAndAppendDefaultSummaryMultiPlot( { sumCase }, {} );
             }
 
             if ( plotToSelect )

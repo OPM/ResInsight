@@ -77,7 +77,6 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( const QS
                                                                         int            viewId /*= -1*/ )
 {
     RimProject* project = RimProject::current();
-
     if ( project == nullptr ) return;
 
     QDir snapshotPath( snapshotFolderName );
@@ -86,59 +85,63 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( const QS
         if ( !snapshotPath.mkpath( "." ) ) return;
     }
 
-    const QString absSnapshotPath = snapshotPath.absolutePath();
-
-    RiaLogging::info( QString( "Exporting snapshot of all views to %1" ).arg( snapshotFolderName ) );
-
-    std::vector<RimCase*> projectCases = project->allGridCases();
-    for ( size_t i = 0; i < projectCases.size(); i++ )
+    std::vector<Rim3dView*> viewsForSnapshot;
+    if ( caseId == -1 && viewId == -1 )
     {
-        RimCase* cas = projectCases[i];
-        if ( !cas ) continue;
-
-        bool matchingCaseId = caseId == -1 || caseId == cas->caseId();
-        if ( !matchingCaseId ) continue;
-
-        std::vector<Rim3dView*> views = cas->views();
-
-        for ( size_t j = 0; j < views.size(); j++ )
+        viewsForSnapshot = project->allViews();
+    }
+    else
+    {
+        for ( auto gridCase : project->allGridCases() )
         {
-            Rim3dView* riv = views[j];
+            if ( !gridCase ) continue;
 
-            if ( riv && riv->viewer() && ( viewId == -1 || viewId == riv->id() ) )
+            bool matchingCaseId = caseId == -1 || caseId == gridCase->caseId();
+            if ( !matchingCaseId ) continue;
+
+            for ( auto view : gridCase->views() )
             {
-                RiaApplication::instance()->setActiveReservoirView( riv );
-
-                RiuViewer* viewer = riv->viewer();
-                Riu3DMainWindowTools::setActiveViewer( viewer->layoutWidget() );
-
-                RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
-                RiaPlotWindowRedrawScheduler::instance()->clearAllScheduledUpdates();
-
-                // riv->updateCurrentTimeStepAndRedraw();
-                riv->createDisplayModelAndRedraw();
-                viewer->repaint();
-
-                QString fileName = RicSnapshotFilenameGenerator::generateSnapshotFileName( riv );
-                if ( !prefix.isEmpty() )
+                if ( view && view->viewer() && ( viewId == -1 || viewId == view->id() ) )
                 {
-                    fileName = prefix + fileName;
-                }
-
-                QString absoluteFileName = caf::Utils::constructFullFileName( absSnapshotPath, fileName, ".png" );
-
-                RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, riv );
-
-                // Statistics dialog
-
-                RimGridView* rigv = dynamic_cast<RimGridView*>( riv );
-                if ( rigv )
-                {
-                    QImage img       = rigv->overlayInfoConfig()->statisticsDialogScreenShotImage();
-                    absoluteFileName = caf::Utils::constructFullFileName( absSnapshotPath, fileName + "_Statistics", ".png" );
-                    RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, img );
+                    viewsForSnapshot.push_back( view );
                 }
             }
+        }
+    }
+
+    const QString absSnapshotPath = snapshotPath.absolutePath();
+    RiaLogging::info( QString( "Exporting snapshot of all views to %1" ).arg( snapshotFolderName ) );
+
+    for ( auto riv : viewsForSnapshot )
+    {
+        RiuViewer* viewer = riv->viewer();
+        if ( !viewer ) continue;
+
+        RiaApplication::instance()->setActiveReservoirView( riv );
+
+        Riu3DMainWindowTools::setActiveViewer( viewer->layoutWidget() );
+
+        RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
+        RiaPlotWindowRedrawScheduler::instance()->clearAllScheduledUpdates();
+
+        riv->createDisplayModelAndRedraw();
+        viewer->repaint();
+
+        QString fileName = RicSnapshotFilenameGenerator::generateSnapshotFileName( riv );
+        if ( !prefix.isEmpty() )
+        {
+            fileName = prefix + fileName;
+        }
+
+        QString absoluteFileName = caf::Utils::constructFullFileName( absSnapshotPath, fileName, ".png" );
+
+        RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, riv );
+
+        if ( RimGridView* rigv = dynamic_cast<RimGridView*>( riv ) )
+        {
+            QImage img       = rigv->overlayInfoConfig()->statisticsDialogScreenShotImage();
+            absoluteFileName = caf::Utils::constructFullFileName( absSnapshotPath, fileName + "_Statistics", ".png" );
+            RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, img );
         }
     }
 }

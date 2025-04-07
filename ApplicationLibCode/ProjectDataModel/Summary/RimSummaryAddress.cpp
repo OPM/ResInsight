@@ -18,6 +18,7 @@
 
 #include "RimSummaryAddress.h"
 
+#include "RiaLogging.h"
 #include "Summary/RiaSummaryDefines.h"
 
 #include <QRegularExpression>
@@ -37,8 +38,9 @@ void caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::setUp()
     addItem( RifAdr::SUMMARY_REGION_2_REGION, "SUMMARY_REGION_2_REGION", RiaDefines::summaryRegion2Region() );
     addItem( RifAdr::SUMMARY_GROUP, "SUMMARY_WELL_GROUP", RiaDefines::summaryWellGroup() );
     addItem( RifAdr::SUMMARY_WELL, "SUMMARY_WELL", RiaDefines::summaryWell() );
-    addItem( RifAdr::SUMMARY_WELL_COMPLETION, "SUMMARY_WELL_COMPLETION", RiaDefines::summaryCompletion() );
-    addItem( RifAdr::SUMMARY_WELL_COMPLETION_LGR, "SUMMARY_WELL_COMPLETION_LGR", RiaDefines::summaryLgrCompletion() );
+    addItem( RifAdr::SUMMARY_WELL_COMPLETION, "SUMMARY_WELL_COMPLETION", RiaDefines::summaryWellCompletion() );
+    addItem( RifAdr::SUMMARY_WELL_CONNECTION, "SUMMARY_WELL_CONNECTION", RiaDefines::summaryWellConnection() );
+    addItem( RifAdr::SUMMARY_WELL_CONNECTION_LGR, "SUMMARY_WELL_CONNECTION_LGR", RiaDefines::summaryLgrConnection() );
     addItem( RifAdr::SUMMARY_WELL_LGR, "SUMMARY_WELL_LGR", RiaDefines::summaryLgrWell() );
     addItem( RifAdr::SUMMARY_WELL_SEGMENT, "SUMMARY_SEGMENT", RiaDefines::summarySegment() );
     addItem( RifAdr::SUMMARY_BLOCK, "SUMMARY_BLOCK", RiaDefines::summaryBlock() );
@@ -72,22 +74,24 @@ RimSummaryAddress::RimSummaryAddress()
     CAF_PDM_InitFieldNoDefault( &m_cellJ, "SummaryCellJ", "J" );
     CAF_PDM_InitFieldNoDefault( &m_cellK, "SummaryCellK", "K" );
     CAF_PDM_InitFieldNoDefault( &m_aquiferNumber, "SummaryAquifer", "Aquifer" );
+    CAF_PDM_InitFieldNoDefault( &m_wellCompletionNumber, "SummaryWellCompletionNumber", "Well Completion Number" );
     CAF_PDM_InitFieldNoDefault( &m_isErrorResult, "IsErrorResult", "Is Error Result" );
     CAF_PDM_InitFieldNoDefault( &m_calculationId, "CalculationId", "Calculation Id" );
 
     CAF_PDM_InitField( &m_caseId, "CaseId", -1, "CaseId" );
     CAF_PDM_InitField( &m_ensembleId, "EnsembleId", -1, "EnsembleId" );
 
-    m_category          = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID;
-    m_regionNumber      = -1;
-    m_regionNumber2     = -1;
-    m_wellSegmentNumber = -1;
-    m_cellI             = -1;
-    m_cellJ             = -1;
-    m_cellK             = -1;
-    m_aquiferNumber     = -1;
-    m_isErrorResult     = false;
-    m_calculationId     = -1;
+    m_category             = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID;
+    m_regionNumber         = -1;
+    m_regionNumber2        = -1;
+    m_wellSegmentNumber    = -1;
+    m_cellI                = -1;
+    m_cellJ                = -1;
+    m_cellK                = -1;
+    m_aquiferNumber        = -1;
+    m_wellCompletionNumber = -1;
+    m_isErrorResult        = false;
+    m_calculationId        = -1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -115,17 +119,18 @@ RimSummaryAddress*
 //--------------------------------------------------------------------------------------------------
 void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
 {
-    m_category          = addr.category();
-    m_vectorName        = addr.vectorName().c_str();
-    m_regionNumber      = addr.regionNumber();
-    m_regionNumber2     = addr.regionNumber2();
-    m_groupName         = addr.groupName().c_str();
-    m_networkName       = addr.networkName().c_str();
-    m_wellName          = addr.wellName().c_str();
-    m_wellSegmentNumber = addr.wellSegmentNumber();
-    m_lgrName           = addr.lgrName().c_str();
-    m_aquiferNumber     = addr.aquiferNumber();
-    m_isErrorResult     = addr.isErrorResult();
+    m_category             = addr.category();
+    m_vectorName           = addr.vectorName().c_str();
+    m_regionNumber         = addr.regionNumber();
+    m_regionNumber2        = addr.regionNumber2();
+    m_groupName            = addr.groupName().c_str();
+    m_networkName          = addr.networkName().c_str();
+    m_wellName             = addr.wellName().c_str();
+    m_wellSegmentNumber    = addr.wellSegmentNumber();
+    m_lgrName              = addr.lgrName().c_str();
+    m_aquiferNumber        = addr.aquiferNumber();
+    m_wellCompletionNumber = addr.wellCompletionNumber();
+    m_isErrorResult        = addr.isErrorResult();
 
     m_cellI         = addr.cellI();
     m_cellJ         = addr.cellJ();
@@ -154,6 +159,7 @@ RifEclipseSummaryAddress RimSummaryAddress::address() const
                                      m_cellJ(),
                                      m_cellK(),
                                      m_aquiferNumber,
+                                     m_wellCompletionNumber(),
                                      m_isErrorResult,
                                      m_calculationId );
 }
@@ -258,4 +264,31 @@ QString RimSummaryAddress::iconResourceText() const
     if ( m_calculationId != -1 ) return ":/DataVectorCalculated.svg";
 
     return ":/DataVector.svg";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddress::initAfterRead()
+{
+    // The changes in this function is related to https://github.com/OPM/ResInsight/issues/12214
+    //
+    // Lumped connection vectors was previously displayed as well vectors. Move them into well completions and extract the well
+    // completion number.
+    if ( m_vectorName().contains( "__" ) && m_category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL )
+    {
+        RiaLogging::info( "Converting lumped vector with '*L__N' syntax into Well Completion." + m_vectorName() );
+
+        m_category             = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION;
+        m_wellCompletionNumber = m_vectorName().split( "__" ).last().toInt();
+        m_vectorName           = m_vectorName().split( "__" ).first();
+    }
+
+    // Lumped connection vectors was previously displayed as well completion vectors. Move them into well completions
+    if ( m_vectorName().startsWith( "C" ) && m_category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION )
+    {
+        RiaLogging::info( "Converting completion vector starting with 'C' syntax into Well Connection." + m_vectorName() );
+
+        m_category = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION;
+    }
 }

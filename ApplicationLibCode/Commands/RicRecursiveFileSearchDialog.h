@@ -26,6 +26,7 @@
 #include "Summary/RiaSummaryDefines.h"
 
 #include <QDialog>
+#include <QStandardItemModel>
 
 class QLabel;
 class QLineEdit;
@@ -33,12 +34,12 @@ class QTextEdit;
 class QDialogButtonBox;
 class QPushButton;
 class QMainWindow;
-class QListWidget;
 class QGroupBox;
 class QComboBox;
 class QCheckBox;
+class QTreeView;
 
-class RicRecursiveFileSearchDialogResult;
+struct RicRecursiveFileSearchDialogResult;
 
 //==================================================================================================
 ///
@@ -92,7 +93,7 @@ private:
     QStringList fileExtensions() const;
     QString     extensionFromFileNameFilter() const;
 
-    RiaEnsembleNameTools::EnsembleGroupingMode ensembleGroupingMode() const;
+    RiaDefines::EnsembleGroupingMode ensembleGroupingMode() const;
 
     void setOkButtonEnabled( bool enabled );
     void warningIfInvalidCharacters();
@@ -101,7 +102,7 @@ private:
 
     void updateFileListWidget();
     void clearFileList();
-    void addToFileListWidget( const QStringList& fileNames );
+    void addToTreeView( const QString& ensembleName, const QStringList& fileNames );
 
     // File search methods
 
@@ -123,6 +124,7 @@ private slots:
     void slotBrowseButtonClicked();
     void slotUseRealizationStarClicked();
     void slotFindOrCancelButtonClicked();
+    void slotFilterTreeViewClicked();
 
     void slotFileListCustomMenuRequested( const QPoint& point );
     void slotCopyFileItemText();
@@ -132,6 +134,8 @@ private slots:
 
     void slotDialogOkClicked();
     void slotDialogCancelClicked();
+
+    void showEvent( QShowEvent* event ) override;
 
 private:
     QLabel*      m_pathFilterLabel;
@@ -154,10 +158,14 @@ private:
 
     QComboBox* m_ensembleGroupingMode;
 
-    QGroupBox*   m_outputGroup;
-    QLabel*      m_searchRootLabel;
-    QLabel*      m_searchRootContentLabel;
-    QListWidget* m_fileListWidget;
+    QGroupBox* m_outputGroup;
+
+    QLabel*      m_treeViewFilterLabel;
+    QLineEdit*   m_treeViewFilterLineEdit;
+    QPushButton* m_treeViewFilterButton;
+
+    QTreeView*         m_fileTreeView;
+    QStandardItemModel m_filePathModel;
 
     QDialogButtonBox* m_buttons;
 
@@ -167,35 +175,14 @@ private:
     FileType              m_fileType;
 
     bool m_isCancelPressed;
-
-    // Obsolete. Here for reference if this search mode is needed later
-    QStringList buildDirectoryListRecursive( const QString& currentDir, int level = 0 );
-    bool        pathFilterMatch( const QString& pathFilter, const QString& relPath );
+    bool m_blockUpdateOfOtherItems;
 };
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicRecursiveFileSearchDialogResult
+struct RicRecursiveFileSearchDialogResult
 {
-public:
-    RicRecursiveFileSearchDialogResult( bool                                       ok,
-                                        const QStringList&                         files,
-                                        const QString&                             rootDir,
-                                        const QString&                             pathFilter,
-                                        const QString&                             fileNameFilter,
-                                        RicRecursiveFileSearchDialog::FileType     fileType,
-                                        RiaEnsembleNameTools::EnsembleGroupingMode groupingMode )
-        : ok( ok )
-        , files( files )
-        , rootDir( rootDir )
-        , pathFilter( pathFilter )
-        , fileNameFilter( fileNameFilter )
-        , fileType( fileType )
-        , groupingMode( groupingMode )
-    {
-    }
-
     bool                                   ok;
     QStringList                            files;
     QString                                rootDir;
@@ -203,5 +190,5 @@ public:
     QString                                fileNameFilter;
     RicRecursiveFileSearchDialog::FileType fileType;
 
-    RiaEnsembleNameTools::EnsembleGroupingMode groupingMode;
+    RiaDefines::EnsembleGroupingMode groupingMode;
 };

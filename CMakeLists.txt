@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.15)
+# The way boost is configured and used in Boost 1.86 requires CMake 3.26
+cmake_minimum_required(VERSION 3.26)
 
 include(CheckCSourceCompiles)
 include(FetchContent)
@@ -123,6 +124,11 @@ if(buildcache_program)
 
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Z7")
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Z7")
+
+    # Add this to avoid the warning: overriding '/Zi' with '/Z7'
+    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
+        "$<$<CONFIG:Debug,RelWithDebInfo>:Embedded>"
+    )
   endif()
 else()
   message(STATUS "No buildcache found")
@@ -398,12 +404,12 @@ message(STATUS "Starting download of external library OpenVDS ...")
 if(MSVC)
   FetchContent_Declare(
     openvds
-    URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.4/openvds+-3.4.5-win.zip
+    URL https://downloads.bluware.com/artifactory/Releases-OpenVDSPlus/3.4/openvds+-3.4.5-win.zip
   )
 else()
   FetchContent_Declare(
     openvds
-    URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.4/openvds+-3.4.5-manylinux_2014.tar.gz
+    URL https://downloads.bluware.com/artifactory/Releases-OpenVDSPlus/3.4/openvds+-3.4.5-manylinux_2014.tar.gz
   )
 endif()
 
@@ -487,11 +493,14 @@ option(RESINSIGHT_BUILD_LIBS_FROM_SOURCE "Build opm-common from source" ON)
 mark_as_advanced(RESINSIGHT_BUILD_LIBS_FROM_SOURCE)
 
 if((NOT RESINSIGHT_BUILD_LIBS_FROM_SOURCE) AND MSVC)
+
+  message(STATUS "Starting download of external library opm-common ...")
+
   # See description of URL here
   # https://docs.github.com/en/repositories/releasing-projects-on-github/linking-to-releases
   FetchContent_Declare(
     ri-dependencies
-    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/latest/download/custom-opm-common.zip
+    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2025.01/custom-opm-common.zip
   )
   FetchContent_MakeAvailable(ri-dependencies)
 
@@ -507,12 +516,21 @@ if((NOT RESINSIGHT_BUILD_LIBS_FROM_SOURCE) AND MSVC)
 
   list(APPEND EXTERNAL_LINK_LIBRARIES custom-opm-common)
 
-  message(STATUS "opm-common: Enabled use of precompiled library")
+  message(STATUS "... completed download of external library opm-common ")
 else()
+  # CREATE_OPM_COMMON_KEYWORDS is used to create c++-code for the keywords in
+  # opm-common JSON files See description in
+  # ThirdParty/custom-opm-common/CMakeLists.txt When changing this flag, it is
+  # required to reopen the Visual Studio project
+  set(CREATE_OPM_COMMON_KEYWORDS OFF)
+
   add_subdirectory(ThirdParty/custom-opm-common)
-  add_subdirectory(ThirdParty/custom-opm-common/custom-opm-parser-tests)
-  list(APPEND OPM_LIBRARIES custom-opm-common)
-  set_property(TARGET opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM")
+
+  if(NOT CREATE_OPM_COMMON_KEYWORDS)
+    add_subdirectory(ThirdParty/custom-opm-common/custom-opm-parser-tests)
+    list(APPEND OPM_LIBRARIES custom-opm-common)
+    set_property(TARGET opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM")
+  endif()
 endif()
 
 list(APPEND OPM_LIBRARIES custom-opm-flowdiagnostics custom-opm-flowdiag-app)
@@ -697,6 +715,16 @@ if(MSVC)
   list(APPEND THIRD_PARTY_LIBRARIES Parquet::parquet_shared)
 else()
   list(APPEND THIRD_PARTY_LIBRARIES Parquet::parquet_static)
+endif()
+
+# ##############################################################################
+# pugixml
+# ##############################################################################
+find_package(pugixml CONFIG REQUIRED)
+if(MSVC)
+  list(APPEND THIRD_PARTY_LIBRARIES pugixml::pugixml)
+else()
+  list(APPEND THIRD_PARTY_LIBRARIES pugixml::static)
 endif()
 
 # ##############################################################################

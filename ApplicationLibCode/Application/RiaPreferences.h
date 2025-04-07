@@ -132,6 +132,9 @@ public:
     RiaPreferencesSumo*    sumoPreferences() const;
     RiaPreferencesGrid*    gridPreferences() const;
 
+    void importPreferenceValuesFromFile( const QString& fileName );
+    void exportPreferenceValuesToFile( const QString& fileName );
+
 public:
     caf::PdmField<bool> enableGrpcServer;
     caf::PdmField<int>  defaultGrpcPortNumber;
@@ -250,6 +253,10 @@ private:
     caf::PdmField<bool>                                         m_enableFaultsByDefault;
     caf::PdmField<bool>                                         m_showInfoBox;
     caf::PdmField<bool>                                         m_showGridBox;
+
+    // Load and save preferences
+    caf::PdmField<bool> m_exportPreferences;
+    caf::PdmField<bool> m_importPreferences;
 
     QStringList m_tabNames;
 };

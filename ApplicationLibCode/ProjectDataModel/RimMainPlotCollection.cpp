@@ -21,8 +21,7 @@
 
 #include "RiaPlotCollectionScheduler.h"
 #include "Summary/RiaSummaryDefines.h"
-
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
+#include "Summary/RiaSummaryPlotTools.h"
 
 #include "RimAbstractPlotCollection.h"
 #include "RimAnalysisPlotCollection.h"
@@ -173,7 +172,7 @@ void RimMainPlotCollection::initAfterRead()
         {
             m_summaryPlotCollection_OBSOLETE()->removePlot( singlePlot );
 
-            RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlotNoAutoSettings( singlePlot );
+            RiaSummaryPlotTools::createAndAppendSingleSummaryMultiPlotNoAutoSettings( singlePlot );
         }
     }
 

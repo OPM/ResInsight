@@ -49,7 +49,7 @@ public:
 
     std::vector<RimSummaryCase*>     allSummaryCases() const;
     std::vector<RimSummaryCase*>     topLevelSummaryCases() const;
-    std::vector<RimSummaryEnsemble*> summaryCaseCollections() const;
+    std::vector<RimSummaryEnsemble*> summaryEnsembles() const;
 
     std::vector<RimSummaryCase*> createSummaryCasesFromFileInfos( const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos,
                                                                   bool                                             showProgress = false );
@@ -60,12 +60,13 @@ public:
     void addCase( RimSummaryCase* summaryCase );
     void removeCase( RimSummaryCase* summaryCase, bool notifyChange = true );
     void removeCases( std::vector<RimSummaryCase*>& cases );
+    void moveCase( RimSummaryCase* summaryCase, int destinationIndex );
 
     RimSummaryEnsemble* addEnsemble( const std::vector<RimSummaryCase*>&  summaryCases,
                                      const QString&                       coolectionName,
                                      bool                                 isEnsemble,
                                      std::function<RimSummaryEnsemble*()> allocator = defaultAllocator );
-    void                removeCaseCollection( RimSummaryEnsemble* caseCollection );
+    void                removeEnsemble( RimSummaryEnsemble* ensemble );
     void                addEnsemble( RimSummaryEnsemble* ensemble );
 
     void loadAllSummaryCaseData();
@@ -74,6 +75,8 @@ public:
 
     void updateAutoShortName();
     void onProjectBeingSaved();
+
+    void updateEnsembleNames();
 
 private:
     void initAfterRead() override;
@@ -86,5 +89,5 @@ private:
 
 private:
     caf::PdmChildArrayField<RimSummaryCase*>     m_cases;
-    caf::PdmChildArrayField<RimSummaryEnsemble*> m_caseCollections;
+    caf::PdmChildArrayField<RimSummaryEnsemble*> m_ensembles;
 };

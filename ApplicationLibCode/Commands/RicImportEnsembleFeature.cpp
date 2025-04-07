@@ -20,42 +20,49 @@
 
 #include "RiaApplication.h"
 #include "RiaEnsembleNameTools.h"
-#include "RiaFilePathTools.h"
-#include "RiaPreferences.h"
-#include "RiaTextStringTools.h"
 #include "Summary/RiaSummaryDefines.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
 
-#include "RicCreateSummaryCaseCollectionFeature.h"
 #include "RicImportSummaryCasesFeature.h"
 
-#include "RifSummaryCaseRestartSelector.h"
-
-#include "RimEnsembleCurveSet.h"
-#include "RimMainPlotCollection.h"
-#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryEnsemble.h"
-#include "RimSummaryPlot.h"
 
 #include "RiuMainWindow.h"
-#include "RiuPlotMainWindow.h"
-
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
-#include "SummaryPlotCommands/RicNewSummaryEnsembleCurveSetFeature.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include <QAction>
-#include <QDebug>
-#include <QFileInfo>
 #include <QInputDialog>
-#include <QRegularExpression>
-#include <QStringList>
-
-#include <set>
 
 CAF_CMD_SOURCE_INIT( RicImportEnsembleFeature, "RicImportEnsembleFeature" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryEnsemble* RicImportEnsembleFeature::createSummaryEnsemble( std::vector<RimSummaryCase*> cases )
+{
+    if ( cases.empty() ) return nullptr;
+
+    RiaDefines::EnsembleGroupingMode groupingMode = RiaDefines::EnsembleGroupingMode::NONE;
+    QString                          name         = "Ensemble";
+    if ( cases.front()->ensemble() )
+    {
+        groupingMode = cases.front()->ensemble()->groupingMode();
+        name         = cases.front()->ensemble()->name();
+    }
+
+    QStringList fileNames;
+    for ( auto summaryCase : cases )
+    {
+        fileNames.append( summaryCase->summaryHeaderFilename() );
+    }
+
+    bool useEnsembleNameDialog = false;
+    return importSingleEnsemble( fileNames, useEnsembleNameDialog, groupingMode, RiaDefines::FileType::SMSPEC, name );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -64,13 +71,13 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
 {
     QString pathCacheName = "ENSEMBLE_FILES";
     auto    result = RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialogWithGrouping( "Import Ensemble", pathCacheName );
-    QStringList                                fileNames            = result.files;
-    RiaEnsembleNameTools::EnsembleGroupingMode ensembleGroupingMode = result.groupingMode;
-    RiaDefines::FileType                       fileType             = RicRecursiveFileSearchDialog::mapSummaryFileType( result.fileType );
+    QStringList                      fileNames            = result.files;
+    RiaDefines::EnsembleGroupingMode ensembleGroupingMode = result.groupingMode;
+    RiaDefines::FileType             fileType             = RicRecursiveFileSearchDialog::mapSummaryFileType( result.fileType );
 
     if ( fileNames.isEmpty() ) return;
 
-    if ( ensembleGroupingMode == RiaEnsembleNameTools::EnsembleGroupingMode::NONE )
+    if ( ensembleGroupingMode == RiaDefines::EnsembleGroupingMode::NONE )
     {
         bool useEnsembleNameDialog = true;
         importSingleEnsemble( fileNames, useEnsembleNameDialog, ensembleGroupingMode, fileType );
@@ -88,12 +95,14 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
         }
         else
         {
-            std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( fileNames, ensembleGroupingMode );
-            for ( const QStringList& groupedFileNames : groupedByEnsemble )
+            auto grouping = RiaEnsembleNameTools::groupFilesByEnsembleName( fileNames, ensembleGroupingMode );
+            for ( const auto& [groupName, fileNames] : grouping )
             {
                 bool useEnsembleNameDialog = false;
-                importSingleEnsemble( groupedFileNames, useEnsembleNameDialog, ensembleGroupingMode, fileType );
+                importSingleEnsemble( fileNames, useEnsembleNameDialog, ensembleGroupingMode, fileType, groupName );
             }
+
+            RiaSummaryTools::updateSummaryEnsembleNames();
         }
     }
 }
@@ -101,34 +110,37 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&                         fileNames,
-                                                     bool                                       useEnsembleNameDialog,
-                                                     RiaEnsembleNameTools::EnsembleGroupingMode groupingMode,
-                                                     RiaDefines::FileType                       fileType,
-                                                     const QString&                             defaultEnsembleName )
+RimSummaryEnsemble* RicImportEnsembleFeature::importSingleEnsemble( const QStringList&               fileNames,
+                                                                    bool                             useEnsembleNameDialog,
+                                                                    RiaDefines::EnsembleGroupingMode groupingMode,
+                                                                    RiaDefines::FileType             fileType,
+                                                                    const QString&                   defaultEnsembleName )
 {
     QString ensembleName = !defaultEnsembleName.isEmpty() ? defaultEnsembleName
                                                           : RiaEnsembleNameTools::findSuitableEnsembleName( fileNames, groupingMode );
 
     if ( useEnsembleNameDialog ) ensembleName = askForEnsembleName( ensembleName );
 
-    if ( ensembleName.isEmpty() ) return;
+    if ( ensembleName.isEmpty() ) return nullptr;
 
     RicImportSummaryCasesFeature::CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = true, .allowDialogs = true };
     auto [isOk, cases] = RicImportSummaryCasesFeature::createSummaryCasesFromFiles( fileNames, createConfig );
 
-    if ( !isOk || cases.empty() ) return;
+    if ( !isOk || cases.empty() ) return nullptr;
 
-    RimSummaryEnsemble* ensemble = RicCreateSummaryCaseCollectionFeature::groupSummaryCases( cases, ensembleName, true );
+    RimSummaryEnsemble* ensemble = RicImportEnsembleFeature::groupSummaryCases( cases, ensembleName, groupingMode, true );
 
     if ( ensemble )
     {
         for ( auto summaryCase : ensemble->allSummaryCases() )
         {
+            summaryCase->setDisplayNameOption( RimCaseDisplayNameTools::DisplayName::SHORT_CASE_NAME );
             summaryCase->updateAutoShortName();
         }
 
-        RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( {}, { ensemble } );
+        RiaSummaryTools::updateSummaryEnsembleNames();
+
+        RiaSummaryPlotTools::createAndAppendDefaultSummaryMultiPlot( {}, { ensemble } );
     }
 
     std::vector<RimCase*> allCases = RiaApplication::instance()->project()->allGridCases();
@@ -136,6 +148,29 @@ void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&         
     {
         RiuMainWindow::closeIfOpen();
     }
+
+    return ensemble;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryEnsemble* RicImportEnsembleFeature::groupSummaryCases( std::vector<RimSummaryCase*>     cases,
+                                                                 const QString&                   groupName,
+                                                                 RiaDefines::EnsembleGroupingMode groupingMode,
+                                                                 bool                             isEnsemble /*= false */ )
+{
+    RimSummaryCaseMainCollection* summaryCaseMainCollection = RiaSummaryTools::summaryCaseMainCollection();
+    if ( !cases.empty() )
+    {
+        auto newGroup = summaryCaseMainCollection->addEnsemble( cases, groupName, isEnsemble );
+        newGroup->setGroupingMode( groupingMode );
+        summaryCaseMainCollection->updateConnectedEditors();
+
+        RiuPlotMainWindowTools::showPlotMainWindow();
+        return newGroup;
+    }
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

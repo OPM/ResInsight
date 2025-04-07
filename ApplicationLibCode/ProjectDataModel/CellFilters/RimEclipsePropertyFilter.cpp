@@ -40,6 +40,7 @@
 
 #include "RiuMainWindow.h"
 
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeAttributes.h"
@@ -64,6 +65,13 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
     // Set to hidden to avoid this item to been displayed as a child item
     // Fields in this object are displayed using defineUiOrdering()
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_linkedWithCellResult,
+                                "LinkedWithCellResult",
+                                "Linked With Cell Result",
+                                "",
+                                "The selected cell result is automatically used to update the property filter." );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_linkedWithCellResult );
 
     CAF_PDM_InitField( &m_rangeLabelText, "Dummy_keyword", QString( "Range Type" ), "Range Type" );
     m_rangeLabelText.xmlCapability()->disableIO();
@@ -122,6 +130,22 @@ RimEclipseResultDefinition* RimEclipsePropertyFilter::resultDefinition() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimEclipsePropertyFilter::isLinkedWithCellResult() const
+{
+    return m_linkedWithCellResult();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::setLinkedWithCellResult( bool linkedWithCellResult )
+{
+    m_linkedWithCellResult = linkedWithCellResult;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::rangeValues( double* lower, double* upper ) const
 {
     *lower = m_lowerBound;
@@ -161,7 +185,7 @@ void RimEclipsePropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* chan
 
     if ( &m_lowerBound == changedField || &m_upperBound == changedField || &m_isActive == changedField || &m_filterMode == changedField ||
          &m_selectedCategoryValues == changedField || &m_useCategorySelection == changedField || &m_integerUpperBound == changedField ||
-         &m_integerLowerBound == changedField )
+         &m_integerLowerBound == changedField || &m_linkedWithCellResult == changedField )
     {
         m_isDuplicatedFromLinkedView = false;
 
@@ -206,6 +230,13 @@ void RimEclipsePropertyFilter::defineUiOrdering( QString uiConfigName, caf::PdmU
 {
     // Fields declared in RimCellFilter
     uiOrdering.add( &m_name );
+
+    uiOrdering.add( &m_linkedWithCellResult );
+    if ( m_linkedWithCellResult )
+    {
+        uiOrdering.skipRemainingFields( true );
+        return;
+    }
 
     // Fields declared in Rimm_resultDefinition
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup( "Result" );

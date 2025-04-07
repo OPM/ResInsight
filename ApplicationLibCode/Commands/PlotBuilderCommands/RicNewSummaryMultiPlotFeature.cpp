@@ -18,7 +18,7 @@
 
 #include "RicNewSummaryMultiPlotFeature.h"
 
-#include "RicSummaryPlotBuilder.h"
+#include "Summary/RiaSummaryPlotTools.h"
 
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -26,8 +26,6 @@
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-
-#include "RicSummaryPlotBuilder.h"
 
 #include "cafSelectionManager.h"
 #include "cvfAssert.h"
@@ -80,9 +78,9 @@ void RicNewSummaryMultiPlotFeature::onActionTriggered( bool isChecked )
     }
 
     bool skipCreationOfPlotBasedOnPreferences = false;
-    RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( selectedIndividualSummaryCases,
-                                                                   selectedEnsembles,
-                                                                   skipCreationOfPlotBasedOnPreferences );
+    RiaSummaryPlotTools::createAndAppendDefaultSummaryMultiPlot( selectedIndividualSummaryCases,
+                                                                 selectedEnsembles,
+                                                                 skipCreationOfPlotBasedOnPreferences );
 }
 
 //--------------------------------------------------------------------------------------------------

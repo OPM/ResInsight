@@ -38,7 +38,7 @@ public:
     ~RimRoffCase() override;
 
     bool openEclipseGridFile() override;
-    void reloadEclipseGridFile() override;
+
     bool importAsciiInputProperties( const QStringList& fileNames ) override;
 
     QString locationOnDisc() const override;

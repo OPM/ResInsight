@@ -80,5 +80,3 @@ target_link_libraries(
   ${PROJECT_NAME} ${RI_ODB_LIBS} RigGeoMechDataModel RifGeoMechFileInterface
   LibCore
 )
-
-source_group("" FILES ${PROJECT_FILES})

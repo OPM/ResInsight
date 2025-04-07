@@ -17,16 +17,16 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGeoMechContourMapProjection.h"
 
-#include "RigContourMapCalculator.h"
-#include "RigContourMapGrid.h"
-#include "RigContourMapProjection.h"
+#include "ContourMap/RigContourMapCalculator.h"
+#include "ContourMap/RigContourMapGrid.h"
+#include "ContourMap/RigContourMapProjection.h"
+#include "ContourMap/RigGeoMechContourMapProjection.h"
 #include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
-#include "RigGeoMechContourMapProjection.h"
 
 #include "RimCellFilterCollection.h"
 #include "RimGeoMechCase.h"
@@ -50,7 +50,7 @@ CAF_PDM_SOURCE_INIT( RimGeoMechContourMapProjection, "RimGeoMechContourMapProjec
 //--------------------------------------------------------------------------------------------------
 RimGeoMechContourMapProjection::RimGeoMechContourMapProjection()
 {
-    CAF_PDM_InitObject( "RimContourMapProjection", ":/2DMapProjection16x16.png" );
+    CAF_PDM_InitObject( "Map Projection", ":/2DMapProjection16x16.png" );
     CAF_PDM_InitField( &m_limitToPorePressureRegions, "LimitToPorRegion", true, "Limit to Pore Pressure regions" );
     CAF_PDM_InitField( &m_applyPPRegionLimitVertically, "VerticalLimit", false, "Apply Limit Vertically" );
     CAF_PDM_InitField( &m_paddingAroundPorePressureRegion, "PaddingAroundPorRegion", 0.0, "Horizontal Padding around PP regions" );
@@ -78,9 +78,33 @@ QString RimGeoMechContourMapProjection::resultDescriptionText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimGeoMechContourMapProjection::resultVariableName() const
+{
+    if ( auto v = view() )
+    {
+        if ( auto c = v->cellResult() )
+        {
+            return c->resultFieldUiName();
+        }
+    }
+
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimRegularLegendConfig* RimGeoMechContourMapProjection::legendConfig() const
 {
-    return view()->cellResult()->legendConfig();
+    if ( auto v = view() )
+    {
+        if ( auto c = v->cellResult() )
+        {
+            return c->legendConfig();
+        }
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,7 +146,7 @@ double RimGeoMechContourMapProjection::sampleSpacing() const
     RimGeoMechCase* geoMechCase = this->geoMechCase();
     if ( geoMechCase )
     {
-        return m_relativeSampleSpacing * geoMechCase->characteristicCellSize();
+        return sampleSpacingFactor() * geoMechCase->characteristicCellSize();
     }
     return 0.0;
 }
@@ -398,22 +422,20 @@ void RimGeoMechContourMapProjection::defineEditorAttribute( const caf::PdmFieldH
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double> RimGeoMechContourMapProjection::minmaxValuesAllTimeSteps()
+std::pair<double, double> RimGeoMechContourMapProjection::computeMinMaxValuesAllTimeSteps()
 {
-    if ( !resultRangeIsValid() )
-    {
-        clearTimeStepRange();
+    double minimum = std::numeric_limits<double>::infinity();
+    double maximum = -std::numeric_limits<double>::infinity();
 
-        if ( geoMechCase()->geoMechData()->femPartResults() )
+    if ( geoMechCase()->geoMechData()->femPartResults() )
+    {
+        int steps = geoMechCase()->geoMechData()->femPartResults()->totalSteps();
+        for ( int stepIdx = 0; stepIdx < steps; stepIdx++ )
         {
-            int steps = geoMechCase()->geoMechData()->femPartResults()->totalSteps();
-            for ( int stepIdx = 0; stepIdx < steps; stepIdx++ )
-            {
-                std::vector<double> aggregatedResults = generateResults( stepIdx );
-                m_minResultAllTimeSteps = std::min( m_minResultAllTimeSteps, RigContourMapProjection::minValue( aggregatedResults ) );
-                m_maxResultAllTimeSteps = std::max( m_maxResultAllTimeSteps, RigContourMapProjection::maxValue( aggregatedResults ) );
-            }
+            std::vector<double> aggregatedResults = generateResults( stepIdx );
+            minimum                               = std::min( minimum, RigContourMapProjection::minValue( aggregatedResults ) );
+            maximum                               = std::max( maximum, RigContourMapProjection::maxValue( aggregatedResults ) );
         }
     }
-    return std::make_pair( m_minResultAllTimeSteps, m_maxResultAllTimeSteps );
+    return std::make_pair( minimum, maximum );
 }

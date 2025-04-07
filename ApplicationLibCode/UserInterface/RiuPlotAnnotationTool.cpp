@@ -20,12 +20,14 @@
 
 #include "RimPlotAxisAnnotation.h"
 #include "RiuGuiTheme.h"
+#include "RiuQwtPlotCurveDefines.h"
 
 #include "cafCategoryMapper.h"
 #include "cvfMath.h"
 
 #include "qwt_plot.h"
 #include "qwt_plot_zoneitem.h"
+#include "qwt_scale_map.h"
 #include "qwt_text.h"
 
 #include <QString>
@@ -190,7 +192,8 @@ void RiuPlotAnnotationTool::attachAnnotationLine( QwtPlot*                plot,
                                                   const QString&          annotationText,
                                                   Qt::PenStyle            penStyle,
                                                   const double            position,
-                                                  RiaDefines::Orientation orientation )
+                                                  RiaDefines::Orientation orientation,
+                                                  Qt::Alignment           horizontalAlignment )
 {
     m_plot = plot;
 
@@ -202,20 +205,9 @@ void RiuPlotAnnotationTool::attachAnnotationLine( QwtPlot*                plot,
         textColor = RiuGuiTheme::getColorByVariableName( "textColor" );
     }
 
-    RiuPlotAnnotationTool::setLineProperties( line, annotationText, orientation, position, penStyle, color, textColor );
+    RiuPlotAnnotationTool::setLineProperties( line, annotationText, orientation, position, penStyle, color, textColor, horizontalAlignment );
     m_plotItems.push_back( line );
     line->attach( m_plot );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuPlotAnnotationTool::attachAnnotation( QwtPlot* plot, RimPlotAxisAnnotation* annotation, RiaDefines::Orientation orientation )
-{
-    if ( annotation->annotationType() == RimPlotAxisAnnotation::AnnotationType::LINE )
-    {
-        attachAnnotationLine( plot, annotation->color(), annotation->name(), annotation->penStyle(), annotation->value(), orientation );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -260,6 +252,23 @@ void RiuPlotAnnotationTool::detachAllAnnotations()
         }
     }
     m_plotItems.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Qt::Alignment RiuPlotAnnotationTool::textAlignment( RiaDefines::TextAlignment alignment )
+{
+    switch ( alignment )
+    {
+        case RiaDefines::TextAlignment::LEFT:
+            return Qt::AlignLeft;
+        case RiaDefines::TextAlignment::CENTER:
+            return Qt::AlignHCenter;
+        case RiaDefines::TextAlignment::RIGHT:
+            return Qt::AlignRight;
+    }
+    return Qt::AlignRight;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -341,6 +350,33 @@ void RiuPlotAnnotationTool::verticalRange( const QString&                  name,
 
     QStringList labels = name.split( " - " );
 
+    // Define a lambda to calculate pixel distance between two timestamps
+    auto getPixelDistanceBetweenTimestamps = []( QwtPlot* plot, time_t time1, time_t time2 ) -> double
+    {
+        const QwtScaleMap& scaleMap = plot->canvasMap( QwtAxis::XBottom );
+
+        double t1 = static_cast<double>( time1 );
+        double t2 = static_cast<double>( time2 );
+
+        double pixel1 = scaleMap.transform( t1 );
+        double pixel2 = scaleMap.transform( t2 );
+
+        return std::abs( pixel2 - pixel1 );
+    };
+
+    // Show labels inside the range by default
+    Qt::Alignment leftLineAlignment  = Qt::AlignRight;
+    Qt::Alignment rightLineAlignment = Qt::AlignLeft;
+
+    const auto distance          = getPixelDistanceBetweenTimestamps( m_plot, xRange.first, xRange.second );
+    const auto distanceThreshold = 200.0;
+    if ( distance < distanceThreshold )
+    {
+        // Show labels outside if the range is narrow
+        leftLineAlignment  = Qt::AlignLeft;
+        rightLineAlignment = Qt::AlignRight;
+    }
+
     auto* line( new QwtPlotMarker() );
     RiuPlotAnnotationTool::setLineProperties( line,
                                               labels[0],
@@ -349,7 +385,7 @@ void RiuPlotAnnotationTool::verticalRange( const QString&                  name,
                                               Qt::SolidLine,
                                               color,
                                               textColor,
-                                              Qt::AlignRight | horizontalAlignment );
+                                              leftLineAlignment | horizontalAlignment );
     line->attach( m_plot );
     m_plotItems.push_back( line );
 
@@ -361,7 +397,7 @@ void RiuPlotAnnotationTool::verticalRange( const QString&                  name,
                                               Qt::SolidLine,
                                               color,
                                               textColor,
-                                              Qt::AlignLeft | horizontalAlignment );
+                                              rightLineAlignment | horizontalAlignment );
     rightLine->attach( m_plot );
     m_plotItems.push_back( rightLine );
 }
@@ -401,4 +437,6 @@ void RiuPlotAnnotationTool::setLineProperties( QwtPlotMarker*          line,
         line->setLineStyle( QwtPlotMarker::VLine );
         line->setXValue( linePosition );
     }
+
+    line->setZ( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ANNOTATION ) );
 }

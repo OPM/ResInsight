@@ -18,6 +18,8 @@
 
 #include "RigFormationNames.h"
 
+#include <algorithm>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -136,4 +138,23 @@ void RigFormationNames::appendFormationRangeWithColor( const QString& name, cvf:
     }
 
     m_formationColors.push_back( color );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<int> RigFormationNames::findKLayers( std::vector<QString> formationNames )
+{
+    std::set<int> foundK;
+
+    for ( int k = 1; k < (int)m_nameIndexPrKLayer.size(); k++ )
+    {
+        auto layerName = formationNameFromKLayerIdx( k );
+        if ( std::find( formationNames.begin(), formationNames.end(), layerName ) != formationNames.end() )
+        {
+            foundK.insert( k );
+        }
+    }
+
+    return foundK;
 }

@@ -52,7 +52,10 @@ void updateLegendForFlowDiagnostics( const RimEclipseResultDefinition* resultDef
                                      RimRegularLegendConfig*           legendConfigToUpdate,
                                      int                               timeStep );
 
-void updateCellResultLegend( const RimEclipseResultDefinition* resultDefinition, RimRegularLegendConfig* legendConfigToUpdate, int timeStep );
+void updateCellResultLegend( const RimEclipseResultDefinition* resultDefinition,
+                             RimRegularLegendConfig*           legendConfigToUpdate,
+                             int                               timeStep,
+                             RimEclipseView*                   sourceCellVisibilityView );
 
 QList<caf::PdmOptionItemInfo> calcOptionsForVariableUiFieldStandard( RiaDefines::ResultCatType     resultCatType,
                                                                      const RigCaseCellResultsData* results,

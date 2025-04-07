@@ -22,6 +22,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaTextStringTools.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "RimEnsembleCurveFilter.h"
@@ -42,7 +43,6 @@
 
 #include "RiuPlotMainWindow.h"
 
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
 #include "cafSelectionManager.h"
@@ -77,28 +77,42 @@ std::vector<RimEnsembleCurveSet*> RicNewSummaryEnsembleCurveSetFeature::addDefau
         {
             if ( addr.isUiTextMatchingFilterText( filter ) )
             {
-                RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
-
-                // Use same counting as RicNewSummaryCurveFeature::onActionTriggered
-                auto colorIndex = plot->singleColorCurveCount();
-
-                curveSet->setColor(
-                    RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( addr, static_cast<int>( colorIndex ) ) );
-                curveSet->legendConfig()->setColorLegend( RimRegularLegendConfig::mapToColorLegend(
-                    RimEnsembleCurveSetColorManager::cycledEnsembleColorRange( static_cast<int>( colorIndex ) ) ) );
-
-                curveSet->setSummaryEnsemble( ensemble );
-                curveSet->setSummaryAddressYAndStatisticsFlag( addr );
-                auto filter = curveSet->filterCollection()->addFilter();
-                filter->setActive( false );
-
-                plot->ensembleCurveSetCollection()->addCurveSet( curveSet );
-                curveSets.push_back( curveSet );
+                curveSets.push_back( addCurveSet( plot, ensemble, addr ) );
             }
         }
     }
 
     return curveSets;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEnsembleCurveSet* RicNewSummaryEnsembleCurveSetFeature::addCurveSet( RimSummaryPlot*                 plot,
+                                                                        RimSummaryEnsemble*             ensemble,
+                                                                        const RifEclipseSummaryAddress& address )
+{
+    if ( !plot || !ensemble ) return nullptr;
+
+    RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
+
+    // Use same counting as RicNewSummaryCurveFeature::onActionTriggered
+    auto colorIndex = plot->singleColorCurveCount();
+
+    curveSet->setColor( RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( address, static_cast<int>( colorIndex ) ) );
+    curveSet->legendConfig()->setColorLegend( RimRegularLegendConfig::mapToColorLegend(
+        RimEnsembleCurveSetColorManager::cycledEnsembleColorRange( static_cast<int>( colorIndex ) ) ) );
+
+    curveSet->setSummaryEnsemble( ensemble );
+    curveSet->setSummaryAddressYAndStatisticsFlag( address );
+    curveSet->setDefaultTimeRange();
+
+    auto filter = curveSet->filterCollection()->addFilter();
+    filter->setSummaryAddresses( { address } );
+    filter->setActive( false );
+
+    plot->ensembleCurveSetCollection()->addCurveSet( curveSet );
+    return curveSet;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,7 +128,7 @@ RimSummaryPlot* RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndU
 
     RimSummaryPlot* plot = new RimSummaryPlot();
     plot->enableAutoPlotTitle( true );
-    RimSummaryMultiPlot* multiPlot = RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( plot );
+    RimSummaryMultiPlot* multiPlot = RiaSummaryPlotTools::createAndAppendSingleSummaryMultiPlot( plot );
 
     RimEnsembleCurveSet* firstCurveSetCreated = nullptr;
     for ( RimSummaryEnsemble* ensemble : ensembles )
@@ -174,6 +188,11 @@ void RicNewSummaryEnsembleCurveSetFeature::onActionTriggered( bool isChecked )
         {
             auto curveSets = RicNewSummaryEnsembleCurveSetFeature::addDefaultCurveSets( plot, ensemble );
             if ( !curveSets.empty() ) firstCurveSet = curveSets.front();
+        }
+        else
+        {
+            auto address  = RifEclipseSummaryAddress::fromEclipseTextAddress( "FOPT" );
+            firstCurveSet = RicNewSummaryEnsembleCurveSetFeature::addCurveSet( plot, ensemble, address );
         }
         plot->loadDataAndUpdate();
         plot->updateAllRequiredEditors();

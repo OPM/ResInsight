@@ -19,6 +19,7 @@
 
 #include "RiuSelectionChangedHandler.h"
 
+#include "RiaColorTables.h"
 #include "RiaResultNames.h"
 
 #include "RigCaseCellResultsData.h"
@@ -37,7 +38,11 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
+#include "RimGridTimeHistoryCurve.h"
 #include "RimProject.h"
+#include "RimSummaryPlot.h"
+#include "RimTools.h"
+#include "Tools/RimAutomationSettings.h"
 
 #include "Riu3dSelectionManager.h"
 #include "RiuDepthQwtPlot.h"
@@ -125,6 +130,7 @@ void RiuSelectionChangedHandler::handleItemAppended( const RiuSelectionItem* ite
     if ( mohrsCirclePlot ) mohrsCirclePlot->appendSelection( item );
 
     updateResultInfo( item );
+    updateGridCellCurvesFromSelection();
 
     scheduleUpdateForAllVisibleViews();
 }
@@ -166,11 +172,7 @@ void RiuSelectionChangedHandler::addResultCurveFromSelectionItem( const RiuEclip
 
         std::vector<QDateTime> timeStepDates = eclResDef->eclipseCase()->eclipseCaseData()->results( porosityModel )->timeStepDates();
 
-        QString curveName = eclResDef->eclipseCase()->caseUserDescription();
-        curveName += ", ";
-        curveName += eclResDef->resultVariableUiShortName();
-        curveName += ", ";
-        curveName += QString( "Grid index %1" ).arg( eclipseSelectionItem->m_gridIndex );
+        QString curveName = eclResDef->resultVariableUiShortName();
         curveName += ", ";
         curveName += RigTimeHistoryResultAccessor::geometrySelectionText( eclResDef->eclipseCase()->eclipseCaseData(),
                                                                           eclipseSelectionItem->m_gridIndex,
@@ -415,6 +417,81 @@ void RiuSelectionChangedHandler::updateResultInfo( const RiuSelectionItem* itemA
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     mainWnd->statusBar()->showMessage( pickInfo );
     mainWnd->setResultInfo( resultInfo );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSelectionChangedHandler::updateGridCellCurvesFromSelection()
+{
+    std::vector<RiuSelectionItem*> items;
+    Riu3dSelectionManager::instance()->selectedItems( items );
+    if ( items.empty() ) return;
+
+    auto autoSettings = RimTools::automationSettings();
+    for ( auto summaryPlot : autoSettings->summaryPlots() )
+    {
+        // if no curves present, create from selection
+        if ( summaryPlot->gridTimeHistoryCurves().empty() )
+        {
+            for ( auto item : items )
+            {
+                RimGridTimeHistoryCurve::createCurveFromSelectionItem( item, summaryPlot );
+            }
+        }
+        else
+        {
+            // find unique result types like soil, swat
+            // for each result type, create a curve for all cells in selection
+
+            auto curves = summaryPlot->gridTimeHistoryCurves();
+
+            std::map<QString, RimGridTimeHistoryCurve*> uniqueCurves;
+            for ( auto curve : curves )
+            {
+                if ( uniqueCurves.contains( curve->quantityName() ) ) continue;
+                uniqueCurves[curve->quantityName()] = curve;
+            }
+
+            std::vector<RimGridTimeHistoryCurve*> sourceCurves;
+            std::transform( uniqueCurves.begin(),
+                            uniqueCurves.end(),
+                            std::back_inserter( sourceCurves ),
+                            []( const auto& pair ) { return pair.second; } );
+
+            std::vector<RimGridTimeHistoryCurve*> newCurves;
+
+            for ( auto curve : sourceCurves )
+            {
+                int index = 0;
+                for ( auto item : items )
+                {
+                    auto newCurve = curve->copyObject<RimGridTimeHistoryCurve>();
+                    newCurve->setLocked( false );
+                    bool updateResultDefinition = false;
+                    newCurve->setFromSelectionItem( item, updateResultDefinition );
+
+                    if ( index != 0 )
+                    {
+                        cvf::Color3f curveColor = RiaColorTables::wellLogPlotPaletteColors().cycledColor3f( index );
+                        newCurve->setColor( curveColor );
+                    }
+                    index++;
+
+                    newCurves.push_back( newCurve );
+                }
+            }
+
+            summaryPlot->deleteUnlockedGridTimeHistoryCurves();
+            for ( auto c : newCurves )
+            {
+                summaryPlot->addGridTimeHistoryCurve( c );
+            }
+
+            summaryPlot->updateConnectedEditors();
+            summaryPlot->loadDataAndUpdate();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

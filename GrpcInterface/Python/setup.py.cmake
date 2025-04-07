@@ -6,7 +6,7 @@ with open('README.md') as f:
 with open('LICENSE') as f:
     license = f.read()
 
-RIPS_DIST_VERSION = '3'
+RIPS_DIST_VERSION = '1'
 	
 setup(
     name='rips',

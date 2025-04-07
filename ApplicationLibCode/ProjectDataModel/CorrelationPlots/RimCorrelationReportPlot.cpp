@@ -15,6 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RimCorrelationReportPlot.h"
 
 #include "RiaPreferences.h"
@@ -55,8 +56,8 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
     CAF_PDM_InitObject( "Correlation Report Plot", ":/CorrelationReportPlot16x16.png" );
     setDeletable( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_plotWindowTitle, "PlotWindowTitle", "Title" );
-    m_plotWindowTitle.registerGetMethod( this, &RimCorrelationReportPlot::createPlotWindowTitle );
+    CAF_PDM_InitFieldNoDefault( &m_name, "PlotWindowTitle", "Title" );
+    m_name.registerGetMethod( this, &RimCorrelationReportPlot::createDescription );
 
     CAF_PDM_InitFieldNoDefault( &m_correlationMatrixPlot, "MatrixPlot", "Matrix Plot" );
     CAF_PDM_InitFieldNoDefault( &m_correlationPlot, "CorrelationPlot", "Correlation Plot" );
@@ -75,9 +76,9 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
 
     m_titleFontSize     = caf::FontTools::RelativeSize::XLarge;
     m_subTitleFontSize  = caf::FontTools::RelativeSize::Large;
-    m_labelFontSize     = caf::FontTools::RelativeSize::XSmall;
+    m_labelFontSize     = caf::FontTools::RelativeSize::Small;
     m_axisTitleFontSize = caf::FontTools::RelativeSize::Small;
-    m_axisValueFontSize = caf::FontTools::RelativeSize::XSmall;
+    m_axisValueFontSize = caf::FontTools::RelativeSize::Small;
 
     m_correlationMatrixPlot = new RimCorrelationMatrixPlot;
     m_correlationMatrixPlot->setLegendsVisible( false );
@@ -118,7 +119,7 @@ QWidget* RimCorrelationReportPlot::viewWidget()
 //--------------------------------------------------------------------------------------------------
 QString RimCorrelationReportPlot::description() const
 {
-    return m_plotWindowTitle();
+    return createDescription();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,7 +151,7 @@ void RimCorrelationReportPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimCorrelationReportPlot::userDescriptionField()
 {
-    return &m_plotWindowTitle;
+    return &m_name;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -214,6 +215,14 @@ int RimCorrelationReportPlot::axisValueFontSize() const
 //--------------------------------------------------------------------------------------------------
 QString RimCorrelationReportPlot::createPlotWindowTitle() const
 {
+    return "Correlation Report for " + createDescription();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimCorrelationReportPlot::createDescription() const
+{
     QStringList ensembles;
     for ( auto entry : m_correlationMatrixPlot->curveDefinitions() )
     {
@@ -226,7 +235,7 @@ QString RimCorrelationReportPlot::createPlotWindowTitle() const
     QString ensembleNames = ensembles.join( ", " );
     QString timeStep      = m_correlationMatrixPlot->timeStepString();
 
-    return QString( "Correlation Report for %1 at %2" ).arg( ensembleNames ).arg( timeStep );
+    return QString( "%1 at %2" ).arg( ensembleNames ).arg( timeStep );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -281,7 +290,7 @@ QWidget* RimCorrelationReportPlot::createViewWidget( QWidget* mainWindowParent /
 {
     m_viewer = new RiuMultiPlotPage( this, mainWindowParent );
     m_viewer->setAutoAlignAxes( false );
-    m_viewer->setPlotTitle( m_plotWindowTitle() );
+    m_viewer->setPlotTitle( createPlotWindowTitle() );
     recreatePlotWidgets();
 
     return m_viewer;
@@ -304,6 +313,10 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
 
     if ( m_showWindow )
     {
+        auto cases = m_parameterResultCrossPlot->summaryCasesExcludedByFilter();
+        m_correlationMatrixPlot->setExcludedSummaryCases( cases );
+        m_correlationPlot->setExcludedSummaryCases( cases );
+
         m_correlationMatrixPlot->setLabelFontSize( m_labelFontSize() );
         m_correlationMatrixPlot->setAxisTitleFontSize( m_axisTitleFontSize() );
         m_correlationMatrixPlot->setAxisValueFontSize( m_axisValueFontSize() );
@@ -338,7 +351,7 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
         m_correlationPlot->loadDataAndUpdate();
         m_parameterResultCrossPlot->loadDataAndUpdate();
 
-        m_viewer->setPlotTitle( m_plotWindowTitle() );
+        m_viewer->setPlotTitle( createDescription() );
     }
 
     updateLayout();
@@ -350,7 +363,12 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
 void RimCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     m_correlationMatrixPlot->uiOrdering( "report", uiOrdering );
+
+    auto filterGroup = uiOrdering.addNewGroup( "Filter" );
+    m_parameterResultCrossPlot->appendFilterFields( *filterGroup );
+
     auto plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
+    plotGroup->setCollapsedByDefault();
     plotGroup->add( &m_titleFontSize );
     plotGroup->add( &m_subTitleFontSize );
     plotGroup->add( &m_labelFontSize );
@@ -358,6 +376,7 @@ void RimCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     plotGroup->add( &m_axisTitleFontSize );
     plotGroup->add( &m_axisValueFontSize );
     m_correlationMatrixPlot->legendConfig()->uiOrdering( "ColorsOnly", *plotGroup );
+
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -406,6 +425,9 @@ QList<caf::PdmOptionItemInfo> RimCorrelationReportPlot::calculateValueOptions( c
     return options;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCorrelationReportPlot::onDataSelection( const caf::SignalEmitter*                     emitter,
                                                 std::pair<QString, RiaSummaryCurveDefinition> parameterAndCurveDef )
 {
@@ -421,4 +443,6 @@ void RimCorrelationReportPlot::onDataSelection( const caf::SignalEmitter*       
     {
         m_viewer->updateSubTitles();
     }
+
+    updateConnectedEditors();
 }

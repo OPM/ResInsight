@@ -27,6 +27,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcEclipseStatisticsCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcIdenticalGridCaseGroup.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcPressureTable.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimcFishbonesCollection.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -58,14 +59,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcEclipseStatisticsCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcIdenticalGridCaseGroup.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcPressureTable.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimcFishbonesCollection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
-
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
-
-source_group(
-  "ProjectDataModelCommands"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
-)

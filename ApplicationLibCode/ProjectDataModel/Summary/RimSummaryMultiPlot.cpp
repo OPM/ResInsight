@@ -21,21 +21,23 @@
 #include "RiaApplication.h"
 #include "RiaNumericalTools.h"
 #include "RiaPlotDefines.h"
+#include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
+#include "RiaTimeTTools.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
 #include "Summary/RiaSummaryAddressModifier.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryStringTools.h"
 
 #include "PlotBuilderCommands/RicAppendSummaryPlotsForObjectsFeature.h"
 #include "PlotBuilderCommands/RicAppendSummaryPlotsForSummaryAddressesFeature.h"
 #include "PlotBuilderCommands/RicAppendSummaryPlotsForSummaryCasesFeature.h"
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
-
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
 #include "RifEclEclipseSummary.h"
 #include "RifEclipseRftAddress.h"
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimAnnotationLineAppearance.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimMainPlotCollection.h"
 #include "RimMultiPlotCollection.h"
@@ -50,10 +52,12 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotControls.h"
 #include "RimSummaryPlotNameHelper.h"
+#include "RimSummaryPlotReadOut.h"
 #include "RimSummaryPlotSourceStepping.h"
 #include "RimSummaryTimeAxisProperties.h"
 
 #include "RiuPlotMainWindowTools.h"
+#include "RiuQwtPlotWidget.h"
 #include "RiuSummaryMultiPlotBook.h"
 #include "RiuSummaryVectorSelectionUi.h"
 
@@ -62,6 +66,7 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+#include "cafSelectionManager.h"
 
 #include "qwt_scale_engine.h"
 
@@ -146,6 +151,10 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     CAF_PDM_InitField( &m_allow3DSelectionLink, "Allow3DSelectionLink", true, "Allow Well Selection from 3D View" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_allow3DSelectionLink );
 
+    CAF_PDM_InitFieldNoDefault( &m_readOutSettings, "ReadOutSettings", "Read Out Settings" );
+    m_readOutSettings = new RimSummaryPlotReadOut;
+    m_readOutSettings.uiCapability()->setUiTreeChildrenHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Y Axis Range" );
 
     CAF_PDM_InitField( &m_hidePlotsWithValuesBelow, "HidePlotsWithValuesBelow", false, "" );
@@ -200,7 +209,6 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
     {
         sumPlot->axisChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAxisChanged );
         sumPlot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
-        sumPlot->plotZoomedByUser.connect( this, &RimSummaryMultiPlot::onSubPlotZoomed );
         sumPlot->titleChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
         sumPlot->axisChangedReloadRequired.connect( this, &RimSummaryMultiPlot::onSubPlotAxisReloadRequired );
         sumPlot->autoTitleChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAutoTitleChanged );
@@ -216,9 +224,6 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
 
         RimMultiPlot::insertPlot( plot, index );
     }
-
-    if ( summaryPlots().size() == 1 ) m_disableWheelZoom = false;
-    if ( summaryPlots().size() == 2 ) m_disableWheelZoom = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -389,6 +394,9 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     axesGroup->add( &m_linkTimeAxis );
     axesGroup->add( &m_autoAdjustAppearance );
 
+    auto readOutGroup = uiOrdering.addNewGroup( "Mouse Cursor Readout" );
+    m_readOutSettings->uiOrdering( uiConfigName, *readOutGroup );
+
     auto plotVisibilityFilterGroup = uiOrdering.addNewGroup( "Plot Visibility Filter" );
     plotVisibilityFilterGroup->add( &m_plotFilterYAxisThreshold );
     plotVisibilityFilterGroup->add( &m_hidePlotsWithValuesBelow );
@@ -441,7 +449,20 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         updateTimeAxisRangesFromFirstTimePlot();
     }
-    else if ( changedField == &m_linkSubPlotAxes || changedField == &m_axisRangeAggregation || changedField == &m_linkTimeAxis )
+    else if ( changedField == &m_linkSubPlotAxes )
+    {
+        if ( m_linkSubPlotAxes() )
+        {
+            // Set the range aggregation to all sub plots when linking. This will ensure that the ZoomAll operation works on all sub plots.
+            m_axisRangeAggregation = AxisRangeAggregation::SUB_PLOTS;
+        }
+
+        setAutoValueStates();
+        syncAxisRanges();
+        analyzePlotsAndAdjustAppearanceSettings();
+        zoomAll();
+    }
+    else if ( changedField == &m_axisRangeAggregation )
     {
         setAutoValueStates();
         syncAxisRanges();
@@ -496,6 +517,17 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
 
     RimMultiPlot::fieldChangedByUi( changedField, oldValue, newValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    if ( changedChildField == &m_readOutSettings )
+    {
+        updateReadOutSettings();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -706,7 +738,6 @@ void RimSummaryMultiPlot::initAfterRead()
     {
         plot->axisChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAxisChanged );
         plot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
-        plot->plotZoomedByUser.connect( this, &RimSummaryMultiPlot::onSubPlotZoomed );
         plot->titleChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
         plot->axisChangedReloadRequired.connect( this, &RimSummaryMultiPlot::onSubPlotAxisReloadRequired );
         plot->autoTitleChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAutoTitleChanged );
@@ -722,7 +753,10 @@ void RimSummaryMultiPlot::onLoadDataAndUpdate()
     RimMultiPlot::onLoadDataAndUpdate();
     updatePlotTitles();
 
-    analyzePlotsAndAdjustAppearanceSettings();
+    for ( auto p : summaryPlots() )
+    {
+        p->updateAxes();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -732,29 +766,23 @@ void RimSummaryMultiPlot::zoomAll()
 {
     setAutoValueStates();
 
-    if ( m_linkSubPlotAxes() )
-    {
-        // Reset zoom to make sure the complete range for min/max is available
-        RimMultiPlot::zoomAll();
-
-        if ( !summaryPlots().empty() )
-        {
-            onSubPlotAxisChanged( nullptr, summaryPlots().front() );
-        }
-
-        updateZoom();
-
-        updateTimeAxisRangesFromFirstTimePlot();
-
-        return;
-    }
-
     // Reset zoom to make sure the complete range for min/max is available
     RimMultiPlot::zoomAll();
 
     syncAxisRanges();
 
     updateTimeAxisRangesFromFirstTimePlot();
+
+    if ( m_linkSubPlotAxes() )
+    {
+        // Disable auto scaling for Y axis, use the axis values from the first plot
+        setAutoScaleYEnabled( false );
+
+        if ( !summaryPlots().empty() )
+        {
+            onSubPlotAxisChanged( nullptr, summaryPlots().front() );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -796,7 +824,15 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
     }
 
     auto stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR;
-    if ( analyzer.wellNames().size() == 1 )
+    if ( analyzer.regionNumbers().size() == 1 )
+    {
+        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::REGION;
+    }
+    else if ( analyzer.groupNames().size() == 1 )
+    {
+        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP;
+    }
+    else if ( analyzer.wellNames().size() == 1 )
     {
         auto wellName = *( analyzer.wellNames().begin() );
 
@@ -804,22 +840,22 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
         {
             stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_SEGMENT;
         }
+        else if ( analyzer.wellCompletionNumbers( wellName ).size() == 1 )
+        {
+            stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_COMPLETION_NUMBER;
+        }
+        else if ( analyzer.wellConnections( wellName ).size() == 1 )
+        {
+            stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_CONNECTION;
+        }
         else
         {
             stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::WELL;
         }
     }
-    else if ( analyzer.groupNames().size() == 1 )
-    {
-        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP;
-    }
     else if ( analyzer.networkNames().size() == 1 )
     {
         stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::NETWORK;
-    }
-    else if ( analyzer.regionNumbers().size() == 1 )
-    {
-        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::REGION;
     }
     else if ( analyzer.aquifers().size() == 1 )
     {
@@ -832,12 +868,12 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
 
     m_sourceStepping->setStepDimension( stepDimension );
 
-    // Previously, when the stepping dimension was set to 'well' for range aggregation, it was based on all wells. If one of the wells had
-    // extreme values and was not visible, it would set the y-range to match the extreme value, making some curves invisible. We have now
-    // changed the default setting to use visible subplots to determine the y-range aggregation.
+    // Previously, when the stepping dimension was set to 'well' for range aggregation, it was based on all wells. If one of the wells
+    // had extreme values and was not visible, it would set the y-range to match the extreme value, making some curves invisible. We
+    // have now changed the default setting to use visible subplots to determine the y-range aggregation.
     // https://github.com/OPM/ResInsight/issues/10543
 
-    m_axisRangeAggregation = AxisRangeAggregation::SUB_PLOTS;
+    m_axisRangeAggregation = AxisRangeAggregation::NONE;
 
     setAutoValueStates();
 }
@@ -847,11 +883,6 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::syncAxisRanges()
 {
-    if ( m_linkSubPlotAxes() )
-    {
-        return;
-    }
-
     if ( m_axisRangeAggregation() == AxisRangeAggregation::NONE )
     {
         return;
@@ -1254,8 +1285,11 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
 {
     if ( m_autoAdjustAppearance )
     {
-        // Required to sync axis ranges before computing the auto scale
-        syncAxisRanges();
+        if ( !m_linkSubPlotAxes )
+        {
+            // Required to sync axis ranges before computing the auto scale
+            syncAxisRanges();
+        }
 
         RiaSummaryAddressAnalyzer analyzer;
 
@@ -1385,34 +1419,25 @@ void RimSummaryMultiPlot::onSubPlotChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::onSubPlotZoomed( const caf::SignalEmitter* emitter )
-{
-    m_axisRangeAggregation = AxisRangeAggregation::NONE;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot )
 {
     syncTimeAxisRanges( summaryPlot );
 
-    if ( !m_linkSubPlotAxes() )
+    if ( m_linkSubPlotAxes() )
     {
-        syncAxisRanges();
-        return;
-    }
-
-    for ( auto plot : summaryPlots() )
-    {
-        if ( plot != summaryPlot )
+        for ( auto plot : summaryPlots() )
         {
-            plot->copyMatchingAxisPropertiesFromOther( *summaryPlot );
-            plot->updateAll();
+            if ( plot != summaryPlot )
+            {
+                plot->copyMatchingAxisPropertiesFromOther( *summaryPlot );
+                plot->updateAll();
+            }
         }
     }
-
-    syncAxisRanges();
+    else
+    {
+        syncAxisRanges();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1458,6 +1483,29 @@ void RimSummaryMultiPlot::updateReadOnlyState()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::updateReadOutSettings()
+{
+    for ( auto plot : summaryPlots() )
+    {
+        if ( !m_readOutSettings->enableVerticalLine() ) plot->removeAllTimeAnnotations();
+
+        if ( !m_readOutSettings->enableHorizontalLine() )
+        {
+            if ( auto axis = plot->axisPropertiesForPlotAxis( RiuPlotAxis::defaultLeft() ) )
+            {
+                axis->removeAllAnnotations();
+            }
+        }
+
+        plot->enableCurvePointTracking( m_readOutSettings->enableCurvePointTracking() );
+
+        plot->updateAxes();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<double, double> RimSummaryMultiPlot::adjustedMinMax( const RimPlotAxisProperties* axis, double min, double max ) const
 {
     if ( !axis->isLogarithmicScaleEnabled() )
@@ -1494,7 +1542,19 @@ QWidget* RimSummaryMultiPlot::createViewWidget( QWidget* mainWindowParent )
     }
     recreatePlotWidgets();
 
+    updateReadOutSettings();
+
     return m_viewer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::onPlotAdditionOrRemoval()
+{
+    m_disableWheelZoom = ( summaryPlots().size() > 1 );
+
+    RimMultiPlot::onPlotAdditionOrRemoval();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1502,24 +1562,39 @@ QWidget* RimSummaryMultiPlot::createViewWidget( QWidget* mainWindowParent )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
 {
-    if ( summaryPlots().empty() ) return;
+    std::vector<RimSummaryPlot*> plotsForStepping;
 
-    // find matching plots
-    std::vector<RimPlot*> plots = m_sourceStepping->plotsMatchingStepSettings( summaryPlots() );
-    if ( plots.empty() ) return;
-
-    // duplicate them
-    auto newPlots = RicSummaryPlotBuilder::duplicatePlots( plots );
-    if ( newPlots.empty() ) return;
-
-    for ( auto plot : newPlots )
+    bool isMultiPlotSelected = ( caf::SelectionManager::instance()->selectedItemOfType<RimSummaryMultiPlot>() != nullptr );
+    if ( isMultiPlotSelected )
     {
-        RimSummaryPlot* newPlot = dynamic_cast<RimSummaryPlot*>( plot );
-        if ( newPlot == nullptr ) continue;
+        duplicate();
 
-        addPlot( newPlot );
-        newPlot->resolveReferencesRecursively();
+        // The duplicate operation selects duplicated plot by default. Select this as current item to continue stepping on this plot
+        RiuPlotMainWindowTools::selectAsCurrentItem( this );
 
+        plotsForStepping = summaryPlots();
+    }
+    else
+    {
+        std::vector<RimPlot*> plots = m_sourceStepping->plotsMatchingStepSettings( summaryPlots() );
+        if ( !plots.empty() )
+        {
+            auto newPlots = RiaSummaryPlotTools::duplicatePlots( plots );
+            for ( auto plot : newPlots )
+            {
+                if ( RimSummaryPlot* newPlot = dynamic_cast<RimSummaryPlot*>( plot ) )
+                {
+                    addPlot( newPlot );
+                    newPlot->resolveReferencesRecursively();
+
+                    plotsForStepping.push_back( newPlot );
+                }
+            }
+        }
+    }
+
+    for ( auto newPlot : plotsForStepping )
+    {
         if ( m_sourceStepping()->stepDimension() == RimSummaryDataSourceStepping::SourceSteppingDimension::SUMMARY_CASE )
         {
             RimSummaryCase* newCase = m_sourceStepping()->stepCase( direction );
@@ -1560,7 +1635,11 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
     loadDataAndUpdate();
     updateConnectedEditors();
 
-    RiuPlotMainWindowTools::selectAsCurrentItem( newPlots.back() );
+    if ( !isMultiPlotSelected && !summaryPlots().empty() )
+    {
+        // Select the last plot in the list as the current item to be able to append plots for the next object type (well, region, etc.)
+        RiuPlotMainWindowTools::selectAsCurrentItem( summaryPlots().back() );
+    }
 
     updateSourceStepper();
     RiuPlotMainWindowTools::refreshToolbars();
@@ -1671,4 +1750,96 @@ void RimSummaryMultiPlot::selectWell( QString wellName )
     if ( !m_allow3DSelectionLink ) return;
     if ( m_sourceStepping->stepDimension() != SourceSteppingDimension::WELL ) return;
     m_sourceStepping->setStep( wellName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::updateReadOutLines( double qwtTimeValue, double yValue )
+{
+    if ( !m_readOutSettings->enableVerticalLine() && !m_readOutSettings->enableHorizontalLine() ) return;
+
+    const auto    timeTValue       = RiaTimeTTools::fromDouble( qwtTimeValue );
+    const QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                                          RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
+
+    for ( auto plot : summaryPlots() )
+    {
+        if ( m_readOutSettings->enableVerticalLine() && plot->timeAxisProperties() )
+        {
+            plot->timeAxisProperties()->removeAllAnnotations();
+
+            auto anno = new RimTimeAxisAnnotation;
+
+            anno->setTime( timeTValue, dateFormatString );
+
+            auto lineAppearance = m_readOutSettings->lineAppearance();
+
+            Qt::PenStyle style = lineAppearance->isDashed() ? Qt::PenStyle::DashLine : Qt::PenStyle::SolidLine;
+            anno->setPenStyle( style );
+            anno->setColor( lineAppearance->color() );
+            anno->setAlignment( m_readOutSettings->verticalLineLabelAlignment() );
+
+            plot->timeAxisProperties()->appendAnnotation( anno );
+        }
+
+        if ( m_readOutSettings->enableHorizontalLine() )
+        {
+            std::vector<RimSummaryCurve*> summaryCurves;
+
+            // 1. Check if any curves are highlighted
+            if ( auto plotWidget = dynamic_cast<RiuQwtPlotWidget*>( plot->plotWidget() ) )
+            {
+                for ( auto highlightCurve : plotWidget->highlightedCurves() )
+                {
+                    if ( auto summaryCurve = dynamic_cast<RimSummaryCurve*>( highlightCurve ) )
+                    {
+                        summaryCurves.push_back( summaryCurve );
+                    }
+                }
+            }
+
+            // 2. If no curves are highlighted, use summary curves from single realizations
+            if ( summaryCurves.empty() )
+            {
+                summaryCurves = plot->summaryCurves();
+            }
+
+            auto annotationAxis = dynamic_cast<RimPlotAxisProperties*>( plot->axisPropertiesForPlotAxis( RiuPlotAxis::defaultLeft() ) );
+            if ( !summaryCurves.empty() )
+            {
+                auto firstCurve = summaryCurves.front();
+                yValue          = firstCurve->yValueAtTimeT( timeTValue );
+                annotationAxis  = dynamic_cast<RimPlotAxisProperties*>( plot->axisPropertiesForPlotAxis( firstCurve->axisY() ) );
+            }
+
+            if ( annotationAxis )
+            {
+                annotationAxis->removeAllAnnotations();
+
+                auto anno = new RimPlotAxisAnnotation();
+                anno->setAnnotationType( RimPlotAxisAnnotation::AnnotationType::LINE );
+
+                anno->setValue( yValue );
+
+                auto scaledValue = yValue / annotationAxis->scaleFactor();
+                auto valueText   = RiaNumberFormat::valueToText( scaledValue, RiaNumberFormat::NumberFormatType::FIXED, 2 );
+
+                anno->setName( valueText );
+
+                auto lineAppearance = m_readOutSettings->lineAppearance();
+
+                Qt::PenStyle style = lineAppearance->isDashed() ? Qt::PenStyle::DashLine : Qt::PenStyle::SolidLine;
+                anno->setPenStyle( style );
+                anno->setColor( lineAppearance->color() );
+                anno->setAlignment( m_readOutSettings->horizontalLineLabelAlignment() );
+
+                annotationAxis->appendAnnotation( anno );
+            }
+        }
+
+        // Calling plot->updateAxes() does not work for the first plot in a multiplot. Use fine grained update of annotation objects.
+        plot->updateAnnotationsInPlotWidget();
+        plot->updatePlotWidgetFromAxisRanges();
+    }
 }

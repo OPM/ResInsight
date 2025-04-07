@@ -23,6 +23,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuPropertyViewTabWidget.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotPanel.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotUpdater.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotWidget.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPlotUpdater.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtLinearScaleEngine.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtScalePicker.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtCurvePointTracker.h
@@ -110,6 +112,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuMenuBarBuildTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotRectAnnotation.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotZoomerMultiAxes.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuCellSelectionTool.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -136,6 +139,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuPropertyViewTabWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotPanel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotUpdater.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPlotUpdater.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtLinearScaleEngine.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtScalePicker.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtCurvePointTracker.cpp
@@ -221,6 +226,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuMenuBarBuildTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotRectAnnotation.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotZoomerMultiAxes.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuCellSelectionTool.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)
@@ -247,79 +253,7 @@ if(RESINSIGHT_USE_QT_CHARTS)
     ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsToolTip.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQtChartsPlot.cpp
   )
-
-  list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotWidget.h
-       ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQtChartsPlot.h
-       ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotCurve.h
-  )
 endif()
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
-
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
-
-list(
-  APPEND
-  QT_MOC_HEADERS
-  ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowBase.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindow.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindow.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuMdiArea.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuMdiSubWindow.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotPanel.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuSeismicHistogramPanel.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuRelativePermeabilityPlotPanel.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuResultInfoPanel.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuResultQwtPlot.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuDepthQwtPlot.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuTextDialog.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuViewer.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuProcessMonitor.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuViewerCommands.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuTreeViewEventFilter.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryMultiPlotBook.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryMultiPlotPage.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotPage.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotBook.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWidget.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuPlotWidget.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotLegend.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuRecentFileActionProvider.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuDockedQwtPlot.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuGridCrossQwtPlot.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryPlot.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuTofAccumulatedPhaseFractionsPlot.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuQwtScalePicker.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWheelZoomer.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuWidgetDragger.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuEditPerforationCollectionWidget.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuAdvancedSnapshotExportWidget.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuWellAllocationPlot.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuFlowCharacteristicsPlot.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuNightchartsWidget.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuMessagePanel.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuExpressionContextMenuManager.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuCalculationsContextMenuManager.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuMohrsCirclePlot.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuDraggableOverlayFrame.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuAbstractOverlayContentFrame.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuAbstractLegendFrame.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuCategoryLegendFrame.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuScalarMapperLegendFrame.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuTextEditWithCompletion.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuTextContentFrame.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuQwtLegendOverlayContentFrame.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuMatrixPlotWidget.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotZoomerMultiAxes.h
-)
-
-list(APPEND QT_UI_FILES)
-
-source_group(
-  "UserInterface"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
-)

@@ -48,14 +48,12 @@ CAF_PDM_SOURCE_INIT( RicfExportProperty, "exportProperty" );
 //--------------------------------------------------------------------------------------------------
 RicfExportProperty::RicfExportProperty()
 {
-    // clang-format off
-    CAF_PDM_InitScriptableField(&m_caseId,           "caseId",           -1, "Case ID");
-    CAF_PDM_InitScriptableField(&m_timeStepIndex,    "timeStep",         -1, "Time Step Index");
-    CAF_PDM_InitScriptableField(&m_propertyName,     "property",         QString(), "Property Name");
-    CAF_PDM_InitScriptableField(&m_eclipseKeyword,   "eclipseKeyword",   QString(), "Eclipse Keyword");
-    CAF_PDM_InitScriptableField(&m_undefinedValue,   "undefinedValue",   0.0, "Undefined Value");
-    CAF_PDM_InitScriptableField(&m_exportFileName,   "exportFile",       QString(), "Export FileName");
-    // clang-format on
+    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID" );
+    CAF_PDM_InitScriptableField( &m_timeStepIndex, "timeStep", -1, "Time Step Index" );
+    CAF_PDM_InitScriptableField( &m_propertyName, "property", QString(), "Property Name" );
+    CAF_PDM_InitScriptableField( &m_eclipseKeyword, "eclipseKeyword", QString(), "Eclipse Keyword" );
+    CAF_PDM_InitScriptableField( &m_undefinedValue, "undefinedValue", 0.0, "Undefined Value" );
+    CAF_PDM_InitScriptableField( &m_exportFileName, "exportFile", QString(), "Export FileName" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,7 +74,7 @@ caf::PdmScriptResponse RicfExportProperty::execute()
 
         if ( !eclipseCase->eclipseCaseData() )
         {
-            if ( !eclipseCase->openReserviorCase() )
+            if ( !eclipseCase->openReservoirCase() )
             {
                 QString error = QString( "exportProperty: Could not find eclipseCaseData with ID %1" ).arg( m_caseId() );
                 RiaLogging::error( error );

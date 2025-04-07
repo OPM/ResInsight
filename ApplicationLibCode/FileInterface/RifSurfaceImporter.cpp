@@ -18,7 +18,7 @@
 
 #include "RifSurfaceImporter.h"
 #include "RiaStdStringTools.h"
-#include "RigGocadData.h"
+#include "RigTriangleMeshData.h"
 
 #include "cafProgressInfo.h"
 
@@ -43,9 +43,9 @@
 /// Returns vertices with z-value as depth, z is increasing downwards
 ///
 //--------------------------------------------------------------------------------------------------
-void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* gocadData )
+void RifSurfaceImporter::readGocadFile( const QString& filename, RigTriangleMeshData* triangleMeshData )
 {
-    CVF_ASSERT( gocadData );
+    CVF_ASSERT( triangleMeshData );
 
     enum class GocadZPositive
     {
@@ -204,10 +204,10 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
         }
     }
 
-    if ( gocadData )
+    if ( triangleMeshData )
     {
-        gocadData->setGeometryData( vertices, triangleIndices );
-        gocadData->addPropertyData( propertyNames, propertyValues );
+        triangleMeshData->setGeometryData( vertices, triangleIndices );
+        triangleMeshData->setPropertyData( propertyNames, propertyValues );
     }
 }
 
@@ -279,16 +279,11 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
         }
     }
 
-    // clang-format off
-    if ( surfaceDataPoints.empty() 
-        || minI == std::numeric_limits<int>::max() 
-        || minJ == std::numeric_limits<int>::max() 
-        || maxI == std::numeric_limits<int>::min() 
-        || maxJ == std::numeric_limits<int>::min() )
+    if ( surfaceDataPoints.empty() || minI == std::numeric_limits<int>::max() || minJ == std::numeric_limits<int>::max() ||
+         maxI == std::numeric_limits<int>::min() || maxJ == std::numeric_limits<int>::min() )
     {
         return {};
     }
-    // clang-format on
 
     // Create full size grid matrix
 
@@ -492,9 +487,7 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
                                                                                    const cvf::Vec2d linePoint2,
                                                                                    const cvf::Vec2d point ) -> int
     {
-        double     normalizedIntersection = 0.0;
-        cvf::Vec2d projectedPoint =
-            to2d( cvf::GeometryTools::projectPointOnLine( to3d( linePoint1 ), to3d( linePoint2 ), to3d( point ), &normalizedIntersection ) );
+        cvf::Vec2d projectedPoint = to2d( cvf::GeometryTools::projectPointOnLine( to3d( linePoint1 ), to3d( linePoint2 ), to3d( point ) ) );
         if ( vectorFuzzyCompare( ( projectedPoint - to2d( surfacePoints[0] ) ).getNormalized(), primaryAxisVector.getNormalized(), epsilon ) )
             return static_cast<int>( ( projectedPoint - to2d( surfacePoints[0] ) ).length() / primaryAxisVector.length() );
         else

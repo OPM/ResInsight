@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "Summary/RiaSummaryDefines.h"
 
 #include "RifEclipseSummaryAddress.h"
 
@@ -55,14 +56,24 @@ public:
     RimSummaryEnsemble();
     ~RimSummaryEnsemble() override;
 
-    void                                 removeCase( RimSummaryCase* summaryCase, bool notifyChange = true );
-    void                                 addCase( RimSummaryCase* summaryCase );
+    void removeCase( RimSummaryCase* summaryCase, bool notifyChange = true );
+    void addCase( RimSummaryCase* summaryCase );
+    void replaceCases( const std::vector<RimSummaryCase*>& summaryCases );
+
     virtual std::vector<RimSummaryCase*> allSummaryCases() const;
     RimSummaryCase*                      firstSummaryCase() const;
 
-    void    setName( const QString& name );
     QString name() const;
-    void    ensureNameIsUpdated();
+
+    void                                        setNameTemplate( const QString& name );
+    void                                        updateName( const std::set<QString>& existingEnsembleNames );
+    void                                        setUsePathKey1( bool useKey1 );
+    void                                        setUsePathKey2( bool useKey2 );
+    virtual std::pair<std::string, std::string> nameKeys() const;
+    virtual QString                             nameTemplateText() const;
+
+    void                             setGroupingMode( RiaDefines::EnsembleGroupingMode groupingMode );
+    RiaDefines::EnsembleGroupingMode groupingMode() const;
 
     bool                                       isEnsemble() const;
     void                                       setAsEnsemble( bool isEnsemble );
@@ -106,33 +117,48 @@ public:
     void                      setMinMax( const RifEclipseSummaryAddress& address, double min, double max );
     std::pair<double, double> minMax( const RifEclipseSummaryAddress& address );
 
+protected:
+    virtual void onLoadDataAndUpdate();
+
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void buildMetaData();
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
+    bool isAutoNameChecked() const;
+
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
 private:
     caf::PdmFieldHandle* userDescriptionField() override;
-    QString              nameAndItemCount() const;
-    void                 updateIcon();
+    void                 initAfterRead() override;
+    void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+
+    QString nameAndItemCount() const;
+    void    updateIcon();
 
     void updateReferringCurveSets( bool doZoomAll );
-
-    void initAfterRead() override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void onCaseNameChanged( const SignalEmitter* emitter );
 
     void buildChildNodes();
     void clearChildNodes();
 
+    QString ensembleDescription() const;
+
 protected:
-    virtual void onLoadDataAndUpdate();
-    void         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void         defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-
-    void buildMetaData();
-
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;
+    caf::PdmField<QString>                   m_name;
 
 private:
-    caf::PdmField<QString>                           m_name;
-    caf::PdmField<bool>                              m_autoName;
+    caf::PdmField<QString>           m_nameTemplateString;
+    caf::PdmField<bool>              m_autoName;
+    caf::PdmField<bool>              m_useKey1;
+    caf::PdmField<bool>              m_useKey2;
+    caf::PdmProxyValueField<QString> m_ensembleDescription;
+
+    caf::PdmField<caf::AppEnum<RiaDefines::EnsembleGroupingMode>> m_groupingMode;
+
     caf::PdmProxyValueField<QString>                 m_nameAndItemCount;
     caf::PdmField<bool>                              m_isEnsemble;
     caf::PdmChildField<RimSummaryAddressCollection*> m_dataVectorFolders;

@@ -20,8 +20,6 @@
 
 #include "RiaDefines.h"
 
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
-
 #include "Cloud/RimCloudDataSourceCollection.h"
 #include "Sumo/RimSummarySumoDataSource.h"
 

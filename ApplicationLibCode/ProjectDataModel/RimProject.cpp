@@ -35,6 +35,8 @@
 #include "RigGridBase.h"
 
 #include "Cloud/RimCloudDataSourceCollection.h"
+#include "ContourMap/RimEclipseContourMapViewCollection.h"
+#include "Formations/RimFormationNamesCollection.h"
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "Polygons/RimPolygonCollection.h"
 #include "QuickAccess/RimQuickAccessCollection.h"
@@ -53,12 +55,11 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
-#include "RimEclipseContourMapViewCollection.h"
+#include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
 #include "RimEnsembleWellLogsCollection.h"
 #include "RimFileWellPath.h"
 #include "RimFlowPlotCollection.h"
-#include "RimFormationNamesCollection.h"
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
@@ -101,7 +102,8 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-
+#include "RimWellTargetMapping.h"
+#include "Tools/RimAutomationSettings.h"
 #include "VerticalFlowPerformance/RimVfpDataCollection.h"
 #include "VerticalFlowPerformance/RimVfpPlotCollection.h"
 
@@ -229,6 +231,9 @@ RimProject::RimProject()
     CAF_PDM_InitFieldNoDefault( &m_plotTemplateTopFolder, "PlotTemplateCollection", "Plot Templates" );
     m_plotTemplateTopFolder = new RimPlotTemplateFolderItem();
     m_plotTemplateTopFolder.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault( &m_automationSettings, "AutomationSettings", "Automation Settings" );
+    m_automationSettings = new RimAutomationSettings();
 
     // For now, create a default first oilfield that contains the rest of the project
     oilFields.push_back( new RimOilField );
@@ -361,6 +366,14 @@ void RimProject::updatesAfterProjectFileIsRead()
 RimQuickAccessCollection* RimProject::pinnedFieldCollection() const
 {
     return m_pinnedFieldCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimAutomationSettings* RimProject::automationSettings() const
+{
+    return m_automationSettings();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -605,6 +618,12 @@ std::vector<RimCase*> RimProject::allGridCases() const
                 {
                     cases.push_back( acase );
                 }
+
+                for ( RimWellTargetMapping* wellTargetMapping : ensemble->wellTargetMappings() )
+                {
+                    if ( auto ensembleStatisticsCase = wellTargetMapping->ensembleStatisticsCase() )
+                        cases.push_back( ensembleStatisticsCase );
+                }
             }
 
             RimGeoMechModels* geomModels = oilField->geoMechModels();
@@ -734,7 +753,7 @@ std::vector<RimSummaryCase*> RimProject::allSummaryCases() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryEnsemble*> RimProject::summaryGroups() const
 {
-    std::vector<RimSummaryEnsemble*> groups;
+    std::vector<RimSummaryEnsemble*> ensembles;
 
     for ( RimOilField* oilField : oilFields )
     {
@@ -742,12 +761,12 @@ std::vector<RimSummaryEnsemble*> RimProject::summaryGroups() const
         RimSummaryCaseMainCollection* sumCaseMainColl = oilField->summaryCaseMainCollection();
         if ( sumCaseMainColl )
         {
-            std::vector<RimSummaryEnsemble*> g = sumCaseMainColl->summaryCaseCollections();
-            groups.insert( groups.end(), g.begin(), g.end() );
+            std::vector<RimSummaryEnsemble*> ensemble = sumCaseMainColl->summaryEnsembles();
+            ensembles.insert( ensembles.end(), ensemble.begin(), ensemble.end() );
         }
     }
 
-    return groups;
+    return ensembles;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -823,11 +842,26 @@ std::vector<Rim3dView*> RimProject::allViews() const
     for ( RimOilField* oilField : oilFields() )
     {
         if ( !oilField ) continue;
-        if ( !oilField->seismicViewCollection() ) continue;
 
-        for ( auto seisview : oilField->seismicViewCollection()->views() )
+        if ( oilField->seismicViewCollection() )
         {
-            views.push_back( seisview );
+            for ( auto seisview : oilField->seismicViewCollection()->views() )
+            {
+                views.push_back( seisview );
+            }
+        }
+
+        if ( oilField->analysisModels() )
+        {
+            for ( auto ensemble : oilField->analysisModels()->caseEnsembles.childrenByType() )
+            {
+                if ( !ensemble ) continue;
+
+                for ( auto view : ensemble->allViews() )
+                {
+                    views.push_back( view );
+                }
+            }
         }
     }
 
@@ -840,16 +874,12 @@ std::vector<Rim3dView*> RimProject::allViews() const
 std::vector<Rim3dView*> RimProject::allVisibleViews() const
 {
     std::vector<Rim3dView*> views;
-    for ( RimCase* rimCase : allGridCases() )
-    {
-        if ( !rimCase ) continue;
 
-        for ( Rim3dView* view : rimCase->views() )
+    for ( auto view : allViews() )
+    {
+        if ( view && view->viewer() )
         {
-            if ( view && view->viewer() )
-            {
-                views.push_back( view );
-            }
+            views.push_back( view );
         }
     }
 
@@ -876,22 +906,9 @@ std::vector<RimGridView*> RimProject::allVisibleGridViews() const
 //--------------------------------------------------------------------------------------------------
 void RimProject::scheduleCreateDisplayModelAndRedrawAllViews()
 {
-    for ( RimCase* rimCase : allGridCases() )
+    for ( auto view : allViews() )
     {
-        if ( !rimCase ) continue;
-        for ( Rim3dView* view : rimCase->views() )
-        {
-            view->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
-
-    auto seismicViewCollection = activeOilField()->seismicViewCollection();
-    if ( seismicViewCollection )
-    {
-        for ( auto seisview : seismicViewCollection->views() )
-        {
-            seisview->scheduleCreateDisplayModelAndRedraw();
-        }
+        if ( view ) view->scheduleCreateDisplayModelAndRedraw();
     }
 }
 
@@ -1411,6 +1428,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
                     statisticsItemCollection->add( m_mainPlotCollection->ensembleFractureStatisticsPlotCollection() );
             }
 #endif
+            uiTreeOrdering.add( automationSettings() );
         }
     }
     else if ( uiConfigName == "PlotWindow.DataSources" )

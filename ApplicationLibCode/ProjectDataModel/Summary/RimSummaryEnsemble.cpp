@@ -20,9 +20,13 @@
 
 #include "RiaEnsembleNameTools.h"
 #include "RiaFieldHandleTools.h"
+#include "RiaFilePathTools.h"
 #include "RiaLogging.h"
 #include "RiaStatisticsTools.h"
+#include "RiaStdStringTools.h"
+#include "RiaTextStringTools.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RifSummaryReaderInterface.h"
 
@@ -34,8 +38,11 @@
 #include "RimSummaryEnsembleTools.h"
 #include "RimSummaryPlot.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiLineEditor.h"
+#include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QFileInfo>
@@ -57,6 +64,14 @@ RimSummaryEnsemble::RimSummaryEnsemble()
 
     CAF_PDM_InitScriptableField( &m_name, "SummaryCollectionName", QString( "Group" ), "Name" );
     CAF_PDM_InitScriptableField( &m_autoName, "CreateAutoName", true, "Auto Name" );
+    CAF_PDM_InitScriptableField( &m_useKey1, "UseKey1", false, "Use First Path Part" );
+    CAF_PDM_InitScriptableField( &m_useKey2, "UseKey2", false, "Use Second Path Part" );
+
+    QString defaultText = RiaDefines::key1VariableName() + "-" + RiaDefines::key2VariableName();
+    QString tooltipText = QString( "Variables in template is supported, and will be replaced to create name. Example '%1'" ).arg( defaultText );
+    CAF_PDM_InitField( &m_nameTemplateString, "NameTemplateString", defaultText, "Name Template", "", tooltipText );
+
+    CAF_PDM_InitFieldNoDefault( &m_groupingMode, "GroupingMode", "Grouping Mode" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_nameAndItemCount, "NameCount", "Name" );
     m_nameAndItemCount.registerGetMethod( this, &RimSummaryEnsemble::nameAndItemCount );
@@ -75,6 +90,11 @@ RimSummaryEnsemble::RimSummaryEnsemble()
     m_dataVectorFolders.uiCapability()->setUiHidden( true );
     m_dataVectorFolders->uiCapability()->setUiTreeHidden( true );
     m_dataVectorFolders.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault( &m_ensembleDescription, "Description", "Description" );
+    m_ensembleDescription.registerGetMethod( this, &RimSummaryEnsemble::ensembleDescription );
+    m_ensembleDescription.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_ensembleDescription.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
 
     m_commonAddressCount = 0;
 }
@@ -170,9 +190,40 @@ RimSummaryCase* RimSummaryEnsemble::firstSummaryCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsemble::setName( const QString& name )
+void RimSummaryEnsemble::replaceCases( const std::vector<RimSummaryCase*>& summaryCases )
 {
-    m_name = name;
+    m_cases.deleteChildrenAsync();
+
+    if ( summaryCases.empty() ) return;
+
+    auto lastCase = summaryCases.back();
+
+    for ( auto summaryCase : summaryCases )
+    {
+        if ( summaryCase == lastCase ) continue;
+
+        // Do what is required to add the case, avoid updates until all cases are added
+        summaryCase->nameChanged.connect( this, &RimSummaryEnsemble::onCaseNameChanged );
+        if ( m_cases.empty() )
+        {
+            summaryCase->setShowVectorItemsInProjectTree( true );
+        }
+        m_cases.push_back( summaryCase );
+    }
+
+    if ( lastCase )
+    {
+        // Add the last case, and update connected plots
+        addCase( lastCase );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::setNameTemplate( const QString& name )
+{
+    m_nameTemplateString = name;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -186,24 +237,91 @@ QString RimSummaryEnsemble::name() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsemble::ensureNameIsUpdated()
+void RimSummaryEnsemble::updateName( const std::set<QString>& existingEnsembleNames )
 {
+    const auto [key1, key2] = nameKeys();
+
+    QString templateText;
     if ( m_autoName )
     {
-        QStringList fileNames;
-        for ( const auto& summaryCase : m_cases )
+        templateText = nameTemplateText();
+    }
+    else
+    {
+        templateText = m_nameTemplateString();
+    }
+
+    std::map<QString, QString> keyValues = {
+        { RiaDefines::key1VariableName(), QString::fromStdString( key1 ) },
+        { RiaDefines::key2VariableName(), QString::fromStdString( key2 ) },
+    };
+
+    auto candidateName = RiaTextStringTools::replaceTemplateTextWithValues( templateText, keyValues );
+
+    if ( m_autoName )
+    {
+        candidateName = candidateName.trimmed();
+
+        // When using auto name, remove leading and trailing commas that may occur if key1 or key2 is empty
+        if ( candidateName.startsWith( "," ) )
         {
-            fileNames.push_back( summaryCase->summaryHeaderFilename() );
+            candidateName = candidateName.mid( 1 );
+        }
+        if ( candidateName.endsWith( "," ) )
+        {
+            candidateName = candidateName.left( candidateName.length() - 1 );
         }
 
-        RiaEnsembleNameTools::EnsembleGroupingMode groupingMode = RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
+        // Avoid identical ensemble names by appending a number
+        if ( existingEnsembleNames.contains( candidateName ) )
+        {
+            int     counter = 1;
+            QString uniqueName;
+            do
+            {
+                uniqueName = QString( "%1 (subset-%2)" ).arg( candidateName ).arg( counter++ );
+            } while ( existingEnsembleNames.contains( uniqueName ) );
 
-        QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames, groupingMode );
-        if ( m_name == ensembleName ) return;
-
-        m_name = ensembleName;
-        caseNameChanged.send();
+            candidateName = uniqueName;
+        }
     }
+
+    if ( m_name == candidateName ) return;
+
+    m_name = candidateName;
+    caseNameChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::setUsePathKey1( bool useKey1 )
+{
+    m_useKey1 = useKey1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::setUsePathKey2( bool useKey2 )
+{
+    m_useKey2 = useKey2;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::setGroupingMode( RiaDefines::EnsembleGroupingMode groupingMode )
+{
+    m_groupingMode = groupingMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::EnsembleGroupingMode RimSummaryEnsemble::groupingMode() const
+{
+    return m_groupingMode();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -635,6 +753,8 @@ void RimSummaryEnsemble::updateReferringCurveSets( bool doZoomAll )
             {
                 if ( auto parentPlot = curveSet->firstAncestorOrThisOfType<RimSummaryPlot>() )
                 {
+                    // If the ensemble name has changed, make sure the name in the project tree is updated
+                    parentPlot->updateConnectedEditors();
                     parentPlot->zoomAll();
                 }
             }
@@ -765,6 +885,11 @@ void RimSummaryEnsemble::initAfterRead()
     }
 
     if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2022.06.2" ) ) m_autoName = false;
+
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2024.12.2" ) )
+    {
+        m_nameTemplateString = m_name;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -776,14 +901,9 @@ void RimSummaryEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
     {
         updateIcon();
     }
-    if ( changedField == &m_autoName )
+    if ( changedField == &m_autoName || changedField == &m_nameTemplateString )
     {
-        ensureNameIsUpdated();
-    }
-    if ( changedField == &m_name )
-    {
-        m_autoName = false;
-        caseNameChanged.send();
+        RiaSummaryTools::updateSummaryEnsembleNames();
     }
 }
 
@@ -798,14 +918,56 @@ void RimSummaryEnsemble::onCaseNameChanged( const SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder.subMenuStart( "Import" );
+    menuBuilder << "RicImportSummaryCaseFeature";
+    menuBuilder << "RicImportSummaryCasesFeature";
+    menuBuilder << "RicImportSummaryGroupFeature";
+    menuBuilder << "RicImportEnsembleFeature";
+    menuBuilder.subMenuEnd();
+    menuBuilder << "RicNewSummaryMultiPlotFeature";
+    menuBuilder << "RicNewDerivedEnsembleFeature";
+    menuBuilder << "RicOpenSummaryPlotEditorFeature";
+    menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
+    menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
+    menuBuilder.addSeparator();
+    menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
+    menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
+    menuBuilder << "RicCreateMultiPlotFromSelectionFeature";
+    menuBuilder << "RicCreatePlotFromTemplateByShortcutFeature";
+    menuBuilder.addSeparator();
+    menuBuilder << "RicReloadSummaryCaseFeature";
+    menuBuilder << "RicReplaceSummaryEnsembleFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryEnsemble::isAutoNameChecked() const
+{
+    return m_autoName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_autoName );
-    uiOrdering.add( &m_name );
-    if ( m_isEnsemble() )
+
+    if ( !m_autoName() )
     {
-        uiOrdering.add( &m_ensembleId );
+        uiOrdering.add( &m_nameTemplateString );
     }
+
+    uiOrdering.add( &m_name );
+    m_name.uiCapability()->setUiReadOnly( true );
+
+    if ( m_isEnsemble() ) uiOrdering.add( &m_ensembleId );
+
+    uiOrdering.add( &m_ensembleDescription );
+
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -831,6 +993,128 @@ void RimSummaryEnsemble::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrd
 
         uiTreeOrdering.skipRemainingChildren( true );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_nameTemplateString )
+    {
+        if ( auto attr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
+        {
+            attr->placeholderText        = RiaDefines::key1VariableName() + "-" + RiaDefines::key2VariableName();
+            attr->notifyWhenTextIsEdited = true;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryEnsemble::ensembleDescription() const
+{
+    QString txt;
+
+    if ( !m_cases.empty() )
+    {
+        txt += QString( "First summary file of %1 files :\n  " ).arg( m_cases.size() );
+        auto firstCase = m_cases[0]->summaryHeaderFilename();
+        txt += firstCase;
+        txt += "\n";
+    }
+
+    const auto [key1, key2] = nameKeys();
+    txt += "\nDetected variables that can be used when defining the text in the 'Name Template' field:\n";
+    txt += QString( "  %1: %2\n" ).arg( RiaDefines::key1VariableName() ).arg( QString::fromStdString( key1 ) );
+    txt += QString( "  %1: %2\n" ).arg( RiaDefines::key2VariableName() ).arg( QString::fromStdString( key2 ) );
+
+    txt += "\n";
+    if ( m_groupingMode() == RiaDefines::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE )
+    {
+        txt += "The ensemble is grouped by the file folder structure.\n";
+    }
+    else if ( m_groupingMode() == RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE )
+    {
+        txt += "The ensemble is grouped by the FMU file folder structure.\n";
+    }
+
+    return txt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::string, std::string> RimSummaryEnsemble::nameKeys() const
+{
+    std::string key1 = "Undefined KEY1";
+    std::string key2 = "Undefined KEY2";
+
+    if ( m_groupingMode() == RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE )
+    {
+        if ( !m_cases.empty() )
+        {
+            auto fileNames = RiaEnsembleNameTools::groupFilePathsFmu( { m_cases[0]->summaryHeaderFilename().toStdString() } );
+            if ( !fileNames.empty() )
+            {
+                key1 = fileNames.begin()->first.first;
+                key2 = fileNames.begin()->first.second;
+            }
+        }
+    }
+    else if ( m_groupingMode() == RiaDefines::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE )
+    {
+        if ( m_cases.size() > 1 )
+        {
+            auto name1 = RiaFilePathTools::toInternalSeparator( m_cases[0]->summaryHeaderFilename() ).toStdString();
+            auto name2 = RiaFilePathTools::toInternalSeparator( m_cases[1]->summaryHeaderFilename() ).toStdString();
+
+            auto parts1 = RiaStdStringTools::splitString( name1, '/' );
+            auto parts2 = RiaStdStringTools::splitString( name2, '/' );
+
+            size_t commonParts = 0;
+            for ( size_t i = 0; i < std::min( parts1.size(), parts2.size() ); i++ )
+            {
+                if ( parts1[i] == parts2[i] )
+                {
+                    commonParts++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if ( commonParts == 1 )
+            {
+                key2 = parts1[commonParts - 1];
+            }
+            else if ( commonParts > 1 )
+            {
+                key1 = parts1[commonParts - 2];
+                key2 = parts1[commonParts - 1];
+            }
+        }
+    }
+
+    return { key1, key2 };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryEnsemble::nameTemplateText() const
+{
+    QString text;
+    if ( m_useKey1() ) text += RiaDefines::key1VariableName();
+    if ( m_useKey2() )
+    {
+        if ( !text.isEmpty() ) text += ", ";
+        text += RiaDefines::key2VariableName();
+    }
+
+    return text;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -73,37 +73,37 @@ namespace ParserKeywords {
        class MAXLGR {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAXCLS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MCOARS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAMALG {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MXLALG {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class LSTACK {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class INTERP {
@@ -115,7 +115,7 @@ namespace ParserKeywords {
        class NCHCOR {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
    };
 
@@ -168,7 +168,7 @@ namespace ParserKeywords {
        class ACTIVE_WELLS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
    };
 
@@ -187,7 +187,7 @@ namespace ParserKeywords {
        class ACTIVE_WELLS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
    };
 
@@ -224,7 +224,7 @@ namespace ParserKeywords {
        class MIN_INTERVAL_BETWEEN_GAS_LIFT_OPTIMIZATIONS {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
 
        class OPTIMISE_ALL_ITERATIONS {
@@ -530,25 +530,25 @@ namespace ParserKeywords {
        class FX {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 4.000000;
        };
 
        class FY {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 4.000000;
        };
 
        class FZ {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 4.000000;
        };
 
        class FGD {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
 
        class OPTION {

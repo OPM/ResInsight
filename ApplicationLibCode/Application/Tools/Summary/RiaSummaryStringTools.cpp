@@ -149,7 +149,7 @@ std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryEnsemble*>> RiaSum
     if ( !sumCaseMainColl ) return { {}, {} };
 
     auto summaryCases = sumCaseMainColl->topLevelSummaryCases();
-    auto ensembles    = sumCaseMainColl->summaryCaseCollections();
+    auto ensembles    = sumCaseMainColl->summaryEnsembles();
 
     return { summaryCases, ensembles };
 }

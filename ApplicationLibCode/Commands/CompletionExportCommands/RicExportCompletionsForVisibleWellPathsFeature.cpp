@@ -71,10 +71,8 @@ void RicExportCompletionsForVisibleWellPathsFeature::onActionTriggered( bool isC
     std::vector<RimWellPath*> wellPaths = visibleWellPaths();
     if ( wellPaths.empty() ) return RiaLogging::warning( "No visible well paths found, no data exported." );
 
-    std::vector<RimSimWellInView*> simWells;
-    QString                        dialogTitle = "Export Completion Data for Visible Well Paths";
-
-    RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions( dialogTitle, wellPaths, simWells );
+    QString dialogTitle = "Export Completion Data for Visible Well Paths";
+    RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions( dialogTitle, wellPaths );
 }
 
 //--------------------------------------------------------------------------------------------------

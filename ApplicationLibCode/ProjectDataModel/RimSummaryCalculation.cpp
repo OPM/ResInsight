@@ -249,13 +249,19 @@ void RimSummaryCalculation::substituteVariables( std::vector<SummaryCalculationV
         newValue                 = QString::fromStdString( address.groupName() );
         isHandledBySteppingTools = true;
     }
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION )
+    {
+        oldValue                 = firstVariable.summaryAddress.wellCompletionNumber();
+        newValue                 = address.wellCompletionNumber();
+        isHandledBySteppingTools = true;
+    }
     else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_AQUIFER )
     {
         oldValue                 = firstVariable.summaryAddress.aquiferNumber();
         newValue                 = address.aquiferNumber();
         isHandledBySteppingTools = true;
     }
-    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION ||
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION ||
               category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK )
     {
         oldValue                 = QString::fromStdString( firstVariable.summaryAddress.blockAsString() );
@@ -473,6 +479,7 @@ std::vector<RimSummaryCalculationAddress>
     std::vector<RimSummaryCalculationAddress> addresses;
 
     std::string name = shortName().toStdString();
+
     if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_FIELD )
     {
         addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::fieldAddress( name, m_id ) ) );
@@ -482,7 +489,10 @@ std::vector<RimSummaryCalculationAddress>
         std::set<int> uniqueNumbers;
         std::for_each( allResultAddresses.begin(),
                        allResultAddresses.end(),
-                       [&]( const auto& addr ) { uniqueNumbers.insert( addr.aquiferNumber() ); } );
+                       [&]( const auto& addr )
+                       {
+                           if ( addr.category() == SummaryCategory::SUMMARY_AQUIFER ) uniqueNumbers.insert( addr.aquiferNumber() );
+                       } );
 
         for ( auto num : uniqueNumbers )
         {
@@ -498,7 +508,10 @@ std::vector<RimSummaryCalculationAddress>
         std::set<std::string> uniqueNames;
         std::for_each( allResultAddresses.begin(),
                        allResultAddresses.end(),
-                       [&]( const auto& addr ) { uniqueNames.insert( addr.networkName() ); } );
+                       [&]( const auto& addr )
+                       {
+                           if ( addr.category() == SummaryCategory::SUMMARY_NETWORK ) uniqueNames.insert( addr.networkName() );
+                       } );
 
         for ( auto networkName : uniqueNames )
         {
@@ -510,7 +523,10 @@ std::vector<RimSummaryCalculationAddress>
         std::set<std::string> uniqueWellNames;
         std::for_each( allResultAddresses.begin(),
                        allResultAddresses.end(),
-                       [&]( const auto& addr ) { uniqueWellNames.insert( addr.wellName() ); } );
+                       [&]( const auto& addr )
+                       {
+                           if ( addr.category() == SummaryCategory::SUMMARY_WELL ) uniqueWellNames.insert( addr.wellName() );
+                       } );
 
         for ( auto wellName : uniqueWellNames )
         {
@@ -522,7 +538,10 @@ std::vector<RimSummaryCalculationAddress>
         std::set<std::string> uniqueGroupNames;
         std::for_each( allResultAddresses.begin(),
                        allResultAddresses.end(),
-                       [&]( const auto& addr ) { uniqueGroupNames.insert( addr.groupName() ); } );
+                       [&]( const auto& addr )
+                       {
+                           if ( addr.category() == SummaryCategory::SUMMARY_GROUP ) uniqueGroupNames.insert( addr.groupName() );
+                       } );
 
         for ( auto groupName : uniqueGroupNames )
         {
@@ -534,7 +553,10 @@ std::vector<RimSummaryCalculationAddress>
         std::set<int> uniqueRegionNumbers;
         std::for_each( allResultAddresses.begin(),
                        allResultAddresses.end(),
-                       [&]( const auto& addr ) { uniqueRegionNumbers.insert( addr.regionNumber() ); } );
+                       [&]( const auto& addr )
+                       {
+                           if ( addr.category() == SummaryCategory::SUMMARY_REGION ) uniqueRegionNumbers.insert( addr.regionNumber() );
+                       } );
 
         for ( auto regionNumber : uniqueRegionNumbers )
         {
@@ -546,12 +568,74 @@ std::vector<RimSummaryCalculationAddress>
         std::set<std::pair<int, int>> uniqueRegionNumbers;
         std::for_each( allResultAddresses.begin(),
                        allResultAddresses.end(),
-                       [&]( const auto& addr ) { uniqueRegionNumbers.insert( std::make_pair( addr.regionNumber(), addr.regionNumber2() ) ); } );
+                       [&]( const auto& addr )
+                       {
+                           if ( addr.category() == SummaryCategory::SUMMARY_REGION_2_REGION )
+                               uniqueRegionNumbers.insert( std::make_pair( addr.regionNumber(), addr.regionNumber2() ) );
+                       } );
 
         for ( auto regionNumber : uniqueRegionNumbers )
         {
             auto [r1, r2] = regionNumber;
             addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::regionToRegionAddress( name, r1, r2, m_id ) ) );
+        }
+    }
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION )
+    {
+        std::set<std::string> uniqueWellNames;
+        std::for_each( allResultAddresses.begin(),
+                       allResultAddresses.end(),
+                       [&]( const auto& addr )
+                       {
+                           if ( addr.category() == SummaryCategory::SUMMARY_WELL_COMPLETION ) uniqueWellNames.insert( addr.wellName() );
+                       } );
+
+        for ( auto wellName : uniqueWellNames )
+        {
+            std::set<int> uniqueNumbers;
+            std::for_each( allResultAddresses.begin(),
+                           allResultAddresses.end(),
+                           [&]( const auto& addr )
+                           {
+                               if ( addr.wellName() == wellName && addr.category() == SummaryCategory::SUMMARY_WELL_COMPLETION )
+                                   uniqueNumbers.insert( addr.wellCompletionNumber() );
+                           } );
+
+            for ( auto number : uniqueNumbers )
+            {
+                addresses.push_back(
+                    RimSummaryCalculationAddress( RifEclipseSummaryAddress::wellCompletionAddress( name, wellName, number, m_id ) ) );
+            }
+        }
+    }
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION )
+    {
+        std::set<std::string> uniqueWellNames;
+        std::for_each( allResultAddresses.begin(),
+                       allResultAddresses.end(),
+                       [&]( const auto& addr )
+                       {
+                           if ( addr.category() == SummaryCategory::SUMMARY_WELL_CONNECTION ) uniqueWellNames.insert( addr.wellName() );
+                       } );
+
+        for ( auto wellName : uniqueWellNames )
+        {
+            std::set<std::array<int, 3>> uniqueBlocks;
+            std::for_each( allResultAddresses.begin(),
+                           allResultAddresses.end(),
+                           [&]( const auto& addr )
+                           {
+                               if ( addr.category() == SummaryCategory::SUMMARY_WELL_CONNECTION )
+                               {
+                                   uniqueBlocks.insert( { addr.cellI(), addr.cellJ(), addr.cellK() } );
+                               }
+                           } );
+
+            for ( auto block : uniqueBlocks )
+            {
+                addresses.push_back( RimSummaryCalculationAddress(
+                    RifEclipseSummaryAddress::wellConnectionAddress( name, wellName, block[0], block[1], block[2], m_id ) ) );
+            }
         }
     }
     else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_IMPORTED )
@@ -601,6 +685,14 @@ RimSummaryCalculationAddress RimSummaryCalculation::singleAddressesForCategory( 
     else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION_2_REGION )
     {
         return RifEclipseSummaryAddress::regionToRegionAddress( name, address.regionNumber(), address.regionNumber2(), m_id );
+    }
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION )
+    {
+        return RifEclipseSummaryAddress::wellCompletionAddress( name, address.wellName(), address.wellCompletionNumber(), m_id );
+    }
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION )
+    {
+        return RifEclipseSummaryAddress::wellConnectionAddress( name, address.wellName(), address.cellI(), address.cellJ(), address.cellK(), m_id );
     }
     else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_IMPORTED )
     {

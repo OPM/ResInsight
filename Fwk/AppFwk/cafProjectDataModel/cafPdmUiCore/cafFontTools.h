@@ -83,9 +83,7 @@ public:
     typedef caf::AppEnum<RelativeSize> RelativeSizeEnum;
 
     static int absolutePointSize( FontSize normalPointSize, RelativeSize relativeSize = RelativeSize::Medium );
-    static int pointSizeToPixelSize( FontSize pointSize );
-    static int pointSizeToPixelSize( int pointSize );
-    static int pixelSizeToPointSize( int pixelSize );
+    static int pointSizeFromEnum( FontSize pointSize );
 
     static QList<caf::PdmOptionItemInfo> relativeSizeValueOptions( FontSize normalPointSize );
 };

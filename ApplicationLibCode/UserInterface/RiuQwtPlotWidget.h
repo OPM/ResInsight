@@ -154,8 +154,6 @@ public:
 
     void detachItems( RiuPlotWidget::PlotItemType plotItemType ) override;
 
-    void findClosestPlotItem( const QPoint& pos, QwtPlotItem** closestItem, int* closestCurvePoint, double* distanceFromClick ) const;
-
     const QColor& backgroundColor() const override;
 
     QWidget* getParentForOverlay() const override;
@@ -164,9 +162,10 @@ public:
 
     QwtAxisId toQwtPlotAxis( RiuPlotAxis axis ) const;
 
-    void highlightPlotItem( const QwtPlotItem* plotItem );
-    void highlightCurvesUpdateOrder( const std::set<RimPlotCurve*>& curves );
-    void resetPlotItemHighlighting( bool doUpdateCurveOrder = true );
+    void                       highlightPlotItem( const QwtPlotItem* plotItem );
+    void                       highlightCurvesUpdateOrder( const std::vector<RimPlotCurve*>& curves );
+    void                       resetPlotItemHighlighting( bool doUpdateCurveOrder = true );
+    std::vector<RimPlotCurve*> highlightedCurves() const;
 
     void replot() override;
 
@@ -204,12 +203,14 @@ protected:
     virtual void onMouseMoveEvent( QMouseEvent* event );
 
 private:
-    void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
+    void selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
+    void findClosestPlotItem( const QPoint& pos, QwtPlotItem** closestItem, int* closestCurveSampleIndex, double* distanceFromClick ) const;
+
     static int defaultMinimumWidth();
 
     void highlightPlotAxes( QwtAxisId axisIdX, QwtAxisId axisIdY );
     void highlightPlotItemsForQwtAxis( QwtAxisId axisId );
-    void highlightPlotCurves( const std::set<RimPlotCurve*>& curves );
+    void highlightPlotCurves( const std::vector<RimPlotCurve*>& curves );
     void highlightPlotShapeItems( const std::set<const QwtPlotItem*>& closestItems );
     void resetPlotCurveHighlighting();
     void resetPlotShapeItemHighlighting();
@@ -231,6 +232,7 @@ private:
     };
 
     std::map<QwtPlotCurve*, double>  m_originalZValues;
+    std::vector<RimPlotCurve*>       m_hightlightedCurves;
     std::map<RiuPlotAxis, QwtAxisId> m_axisMapping;
 
     QPointer<QwtPlot> m_plot;

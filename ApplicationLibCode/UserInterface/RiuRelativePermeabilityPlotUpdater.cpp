@@ -52,85 +52,23 @@
 //--------------------------------------------------------------------------------------------------
 RiuRelativePermeabilityPlotUpdater::RiuRelativePermeabilityPlotUpdater( RiuRelativePermeabilityPlotPanel* targetPlotPanel )
     : m_targetPlotPanel( targetPlotPanel )
-    , m_viewToFollowAnimationFrom( nullptr )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuRelativePermeabilityPlotUpdater::updateOnSelectionChanged( const RiuSelectionItem* selectionItem )
+void RiuRelativePermeabilityPlotUpdater::clearPlot()
 {
-    if ( !m_targetPlotPanel )
-    {
-        return;
-    }
-
-    Rim3dView*               newFollowAnimView    = nullptr;
-    RiuEclipseSelectionItem* eclipseSelectionItem = nullptr;
-
-    eclipseSelectionItem = extractEclipseSelectionItem( selectionItem, newFollowAnimView );
-
-    bool mustClearPlot          = true;
-    m_viewToFollowAnimationFrom = nullptr;
-
-    if ( m_targetPlotPanel->isVisible() && eclipseSelectionItem )
-    {
-        if ( queryDataAndUpdatePlot( eclipseSelectionItem->m_resultDefinition,
-                                     eclipseSelectionItem->m_timestepIdx,
-                                     eclipseSelectionItem->m_gridIndex,
-                                     eclipseSelectionItem->m_gridLocalCellIndex,
-                                     m_targetPlotPanel ) )
-        {
-            mustClearPlot = false;
-
-            m_viewToFollowAnimationFrom = newFollowAnimView;
-        }
-    }
-
-    if ( mustClearPlot )
-    {
-        m_targetPlotPanel->clearPlot();
-    }
+    if ( m_targetPlotPanel ) m_targetPlotPanel->clearPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuRelativePermeabilityPlotUpdater::updateOnTimeStepChanged( Rim3dView* changedView )
+QWidget* RiuRelativePermeabilityPlotUpdater::plotPanel()
 {
-    if ( !m_targetPlotPanel || !m_targetPlotPanel->isVisible() )
-    {
-        return;
-    }
-
-    // Don't update the plot if the view that changed time step is different
-    // from the view that was the source of the current plot
-
-    if ( changedView != m_viewToFollowAnimationFrom )
-    {
-        return;
-    }
-
-    // Fetch the current global selection and only continue if the selection's view matches the view with time step change
-
-    const RiuSelectionItem*  selectionItem        = Riu3dSelectionManager::instance()->selectedItem();
-    Rim3dView*               newFollowAnimView    = nullptr;
-    RiuEclipseSelectionItem* eclipseSelectionItem = nullptr;
-
-    eclipseSelectionItem = extractEclipseSelectionItem( selectionItem, newFollowAnimView );
-
-    if ( eclipseSelectionItem && newFollowAnimView == changedView )
-    {
-        if ( !queryDataAndUpdatePlot( eclipseSelectionItem->m_resultDefinition,
-                                      newFollowAnimView->currentTimeStep(),
-                                      eclipseSelectionItem->m_gridIndex,
-                                      eclipseSelectionItem->m_gridLocalCellIndex,
-                                      m_targetPlotPanel ) )
-        {
-            m_targetPlotPanel->clearPlot();
-        }
-    }
+    return m_targetPlotPanel;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,10 +77,9 @@ void RiuRelativePermeabilityPlotUpdater::updateOnTimeStepChanged( Rim3dView* cha
 bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclipseResultDefinition* eclipseResDef,
                                                                  size_t                            timeStepIndex,
                                                                  size_t                            gridIndex,
-                                                                 size_t                            gridLocalCellIndex,
-                                                                 RiuRelativePermeabilityPlotPanel* plotPanel )
+                                                                 size_t                            gridLocalCellIndex )
 {
-    CVF_ASSERT( plotPanel );
+    if ( m_targetPlotPanel == nullptr ) return false;
 
     if ( !eclipseResDef ) return false;
 
@@ -207,7 +144,7 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclips
             QString cellRefText = constructCellReferenceText( eclipseCaseData, gridIndex, gridLocalCellIndex, "SATNUM", cellSATNUM );
             QString caseName    = eclipseResultCase->caseUserDescription();
 
-            plotPanel->setPlotData( eclipseCaseData->unitsType(), relPermCurveArr, cellSWAT, cellSGAS, caseName, cellRefText );
+            m_targetPlotPanel->setPlotData( eclipseCaseData->unitsType(), relPermCurveArr, cellSWAT, cellSGAS, caseName, cellRefText );
 
             return true;
         }
@@ -258,43 +195,6 @@ QString RiuRelativePermeabilityPlotUpdater::constructCellReferenceText( const Ri
     }
 
     return QString();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiuEclipseSelectionItem* RiuRelativePermeabilityPlotUpdater::extractEclipseSelectionItem( const RiuSelectionItem* selectionItem,
-                                                                                          Rim3dView*&             newFollowAnimView )
-{
-    newFollowAnimView                             = nullptr;
-    RiuEclipseSelectionItem* eclipseSelectionItem = nullptr;
-
-    eclipseSelectionItem = dynamic_cast<RiuEclipseSelectionItem*>( const_cast<RiuSelectionItem*>( selectionItem ) );
-
-    if ( eclipseSelectionItem )
-    {
-        // If we clicked in an eclipse view, and hit something using the standard result definition there,
-        // set this up to follow the animation there.
-
-        RimEclipseView* clickedInEclView = dynamic_cast<RimEclipseView*>( eclipseSelectionItem->m_view.p() );
-
-        if ( clickedInEclView && clickedInEclView->cellResult() == eclipseSelectionItem->m_resultDefinition.p() )
-        {
-            newFollowAnimView = eclipseSelectionItem->m_view;
-        }
-    }
-    else
-    {
-        auto intersectionSelItem = dynamic_cast<const Riu2dIntersectionSelectionItem*>( selectionItem );
-
-        if ( intersectionSelItem && intersectionSelItem->eclipseSelectionItem() )
-        {
-            eclipseSelectionItem = intersectionSelItem->eclipseSelectionItem();
-            newFollowAnimView    = intersectionSelItem->view();
-        }
-    }
-
-    return eclipseSelectionItem;
 }
 
 //==================================================================================================

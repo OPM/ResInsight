@@ -53,8 +53,9 @@ public:
         NETWORK,
         REGION_2_REGION,
         WELL_COMPLETION,
+        WELL_CONNECTION,
         WELL_LGR,
-        WELL_COMPLETION_LGR,
+        WELL_CONNECTION_LGR,
         WELL_SEGMENT,
         BLOCK_LGR,
         CALCULATED,
@@ -106,11 +107,10 @@ private:
                          int                             caseId,
                          int                             ensembleId = -1 );
 
-    void addToSubfolderTree( std::vector<QString>            folders,
-                             CollectionContentType           folderType,
-                             const RifEclipseSummaryAddress& address,
-                             int                             caseId,
-                             int                             ensembleId = -1 );
+    void addToSubfolderTree( std::vector<std::pair<QString, CollectionContentType>> folders,
+                             const RifEclipseSummaryAddress&                        address,
+                             int                                                    caseId,
+                             int                                                    ensembleId = -1 );
 
     QString iconResourceText() const;
 

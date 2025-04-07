@@ -20,13 +20,11 @@
 
 #include "cafPdmObject.h"
 
-class RimGeometrySelectionItem : public caf::PdmObject
+class RimGeometrySelectionItem_OBSOLETE : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimGeometrySelectionItem();
-    ~RimGeometrySelectionItem() override;
-
-    virtual QString geometrySelectionText() const = 0;
+    RimGeometrySelectionItem_OBSOLETE();
+    ~RimGeometrySelectionItem_OBSOLETE() override;
 };

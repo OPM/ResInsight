@@ -28,6 +28,7 @@
 #include "RifReaderEclipseOutput.h"
 
 #include <cassert>
+#include <regex>
 #include <string>
 
 #include <QDateTime>
@@ -120,6 +121,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
     int                                              cellJ( -1 );
     int                                              cellK( -1 );
     int                                              aquiferNumber( -1 );
+    int                                              wellCompletionNumber( -1 );
     bool                                             isErrorResult( false );
     int                                              id( -1 );
 
@@ -168,7 +170,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
         break;
         case ECL_SMSPEC_COMPLETION_VAR:
         {
-            sumCategory = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION;
+            sumCategory = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION;
             wellName    = stringFromPointer( ertSumVarNode.get_wgname() );
 
             auto ijk = ertSumVarNode.get_ijk();
@@ -190,7 +192,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
         break;
         case ECL_SMSPEC_LOCAL_COMPLETION_VAR:
         {
-            sumCategory = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION_LGR;
+            sumCategory = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION_LGR;
             wellName    = stringFromPointer( ertSumVarNode.get_wgname() );
             lgrName     = stringFromPointer( ertSumVarNode.get_lgr_name() );
 
@@ -249,6 +251,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
                                      cellJ,
                                      cellK,
                                      aquiferNumber,
+                                     wellCompletionNumber,
                                      isErrorResult,
                                      id );
 }
@@ -317,11 +320,59 @@ void RifEclEclipseSummary::buildMetaData()
 
     if ( m_ecl_SmSpec )
     {
+        auto transformString = []( const std::string& input ) -> std::string
+        {
+            // Pattern 1: Handle "WGPRL__2:MY-WELL1-A5" format
+            // Matches text followed by __, number, colon, alphanumeric text, hyphen, alphanumeric
+            std::regex  pattern1( "([A-Za-z]+)__([0-9]+):([A-Za-z0-9]+)-([A-Za-z0-9]+)" );
+            std::smatch matches;
+
+            if ( std::regex_search( input, matches, pattern1 ) )
+            {
+                return matches[1].str() + ":" + matches[3].str() + "-" + matches[4].str() + ":" + matches[2].str();
+            }
+
+            return input; // Return original string if pattern doesn't match
+        };
+
         int varCount = ecl_smspec_num_nodes( m_ecl_SmSpec );
         for ( int i = 0; i < varCount; i++ )
         {
-            const ecl::smspec_node&  ertSumVarNode = ecl_smspec_iget_node_w_node_index( m_ecl_SmSpec, i );
-            RifEclipseSummaryAddress addr          = addressFromErtSmSpecNode( ertSumVarNode );
+            const ecl::smspec_node& ertSumVarNode = ecl_smspec_iget_node_w_node_index( m_ecl_SmSpec, i );
+
+            RifEclipseSummaryAddress addr = addressFromErtSmSpecNode( ertSumVarNode );
+
+            if ( ertSumVarNode.get_gen_key1() )
+            {
+                std::string completeVectorName = std::string( ertSumVarNode.get_gen_key1() );
+                completeVectorName             = transformString( completeVectorName );
+
+                auto adrFromTextParsing = RifEclipseSummaryAddress::fromEclipseTextAddress( completeVectorName );
+
+                bool debugOutput = false;
+                if ( debugOutput )
+                {
+                    if ( addr != adrFromTextParsing )
+                    {
+                        auto ertAdrText  = addr.toEclipseTextAddress();
+                        auto adrFromText = adrFromTextParsing.toEclipseTextAddress();
+
+                        QString detectedInconsiteny =
+                            QString( "Full text from ERT: %1, Address from ERT: %2, Address from text parsing: %3 " )
+                                .arg( QString::fromStdString( completeVectorName ) )
+                                .arg( QString::fromStdString( ertAdrText ) )
+                                .arg( QString::fromStdString( adrFromText ) );
+
+                        RiaLogging::debug( detectedInconsiteny );
+                    }
+                }
+
+                if ( adrFromTextParsing.isValid() )
+                {
+                    addr = adrFromTextParsing;
+                }
+            }
+
             m_allResultAddresses.insert( addr );
             m_resultAddressToErtNodeIdx[addr] = i;
         }

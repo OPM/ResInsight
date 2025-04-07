@@ -83,9 +83,14 @@ RigEclipseResultAddress staticIntegerAddress( const QString& resultName );
 QString faultDistanceName();
 QString facies();
 
+QString porv();
 QString soil();
 QString sgas();
 QString swat();
+
+QString sowcr();
+QString sogcr();
+QString sgcr();
 
 // Well path derived results
 QString wbsAzimuthResult();

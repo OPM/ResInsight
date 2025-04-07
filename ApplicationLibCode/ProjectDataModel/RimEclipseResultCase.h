@@ -55,11 +55,11 @@ public:
     bool hasSourSimFile();
 
     bool openEclipseGridFile() override;
+    void closeReservoirCase() override;
 
     bool importGridAndResultMetaData( bool showTimeStepFilter );
     bool importAsciiInputProperties( const QStringList& fileNames ) override;
 
-    void reloadEclipseGridFile() override;
     bool openAndReadActiveCellData( RigEclipseCaseData* mainEclipseCase );
     void readGridDimensions( std::vector<std::vector<int>>& gridDimensions );
 
@@ -80,6 +80,8 @@ public:
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void                          initAfterRead() override;
 
 private:
     void loadAndUpdateSourSimData();

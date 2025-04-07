@@ -35,8 +35,12 @@ public:
 class SimpleObjDerived : public MsjSimpleObj
 {
 public:
+    caf::Signal<> basicSignal;
+
+public:
     SimpleObjDerived()
         : MsjSimpleObj()
+        , basicSignal( this )
     {
         this->addField( &valueA, "valueA" );
     }
@@ -64,6 +68,30 @@ public:
     {
         this->addField( &derivedObjs, "derivedObjs" );
         this->addField( &derivedOtherObjs, "derivedOtherObjs" );
+    }
+
+    ~ContainerObj(){
+        /*
+        *
+        *  Test code used when debugging crash related to delete of objects and disconnect of signals
+        *
+                QString timestamp = QDateTime::currentDateTime().toString( "yyyy-MM-dd hh:mm:ss.zzz" );
+                std::cout << timestamp.toStdString() << std::endl;
+
+                auto count = observedSignals().size();
+
+                std::cout << "Destructor ~ContainerObj: " << count << std::endl;
+        */
+    };
+
+    void setBasicSignalReceived( const caf::SignalEmitter* emitter ) {}
+
+    void createAndAppendObject()
+    {
+        SimpleObjDerived* s = new SimpleObjDerived;
+        s->basicSignal.connect( this, &ContainerObj::setBasicSignalReceived );
+
+        derivedObjs.push_back( s );
     }
 
     caf::PdmChildArrayField<SimpleObjDerived*>      derivedObjs;
@@ -130,4 +158,27 @@ TEST( ChildArrayFieldHandle, DerivedOtherObjects )
     EXPECT_EQ( NULL, myObj );
 
     delete containerObj;
+}
+
+TEST( ChildArrayFieldHandle, AsyncDeleteOfMultipleChildren )
+{
+    // https://github.com/OPM/ResInsight/issues/12262
+    //
+    // To trigger crash, remove the line
+    // clearWithoutDelete();
+    // from PdmChildArrayField<DataType*>::deleteChildrenAsync()
+    //
+    // Crash was reproduced in Debug build in VS2022 17.13.2
+
+    ContainerObj containerObj;
+    const int    numObjects = 100000;
+    for ( int i = 0; i < numObjects; i++ )
+    {
+        containerObj.createAndAppendObject();
+    }
+
+    containerObj.derivedObjs.deleteChildrenAsync();
+
+    // Wait for some time to allow the async delete
+    std::this_thread::sleep_for( std::chrono::milliseconds( 2 ) );
 }

@@ -18,12 +18,13 @@
 
 #include "RimEclipseCaseEnsemble.h"
 
+#include "ContourMap/RimStatisticsContourMap.h"
+#include "ContourMap/RimStatisticsContourMapView.h"
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
-#include "RimStatisticsContourMap.h"
-#include "RimWellTargetCandidatesGenerator.h"
+#include "RimWellTargetMapping.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -44,15 +45,13 @@ RimEclipseCaseEnsemble::RimEclipseCaseEnsemble()
 
     CAF_PDM_InitFieldNoDefault( &m_caseCollection, "CaseCollection", "Ensemble Cases" );
     m_caseCollection = new RimCaseCollection;
-    m_caseCollection->uiCapability()->setUiName( "Cases" );
+    m_caseCollection->uiCapability()->setUiName( "Realizations" );
     m_caseCollection->uiCapability()->setUiIconFromResourceString( ":/Cases16x16.png" );
-
-    CAF_PDM_InitFieldNoDefault( &m_selectedCase, "SelectedCase", "Selected Case" );
 
     CAF_PDM_InitFieldNoDefault( &m_viewCollection, "ViewCollection", "Views" );
     m_viewCollection = new RimEclipseViewCollection;
 
-    CAF_PDM_InitFieldNoDefault( &m_wellTargetGenerators, "WellTargetGenerators", "Well Target Candidates Generators" );
+    CAF_PDM_InitFieldNoDefault( &m_wellTargetMappings, "WellTargetMappings", "Well Target Mappings" );
 
     CAF_PDM_InitFieldNoDefault( &m_statisticsContourMaps, "StatisticsContourMaps", "Statistics Contour maps" );
 
@@ -109,11 +108,47 @@ bool RimEclipseCaseEnsemble::contains( RimEclipseCase* reservoir ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimEclipseCaseEnsemble::findByDescription( const QString& caseDescription ) const
+{
+    if ( !m_caseCollection ) return nullptr;
+
+    return m_caseCollection->findByDescription( caseDescription );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimEclipseCase*> RimEclipseCaseEnsemble::cases() const
 {
     if ( !m_caseCollection ) return {};
 
     return m_caseCollection->reservoirs.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RimEclipseCase*> RimEclipseCaseEnsemble::casesInViews() const
+{
+    if ( !m_caseCollection ) return {};
+    if ( !m_viewCollection || m_viewCollection->isEmpty() ) return {};
+
+    std::set<RimEclipseCase*> retCases;
+
+    for ( auto view : m_viewCollection->views() )
+    {
+        if ( view->eclipseCase() != nullptr ) retCases.insert( view->eclipseCase() );
+    }
+
+    return retCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellTargetMapping*> RimEclipseCaseEnsemble::wellTargetMappings() const
+{
+    return m_wellTargetMappings.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,47 +170,13 @@ RimEclipseView* RimEclipseCaseEnsemble::addViewForCase( RimEclipseCase* eclipseC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimEclipseCaseEnsemble::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
-{
-    QList<caf::PdmOptionItemInfo> options;
-
-    if ( fieldNeedingOptions == &m_selectedCase )
-    {
-        for ( auto eclCase : cases() )
-        {
-            options.push_back( caf::PdmOptionItemInfo( eclCase->caseUserDescription(), eclCase, false, eclCase->uiIconProvider() ) );
-        }
-
-        return options;
-    }
-
-    return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseCaseEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
-{
-    if ( changedField == &m_selectedCase )
-    {
-        for ( auto view : m_viewCollection->views() )
-        {
-            view->setEclipseCase( m_selectedCase() );
-            view->loadDataAndUpdate();
-            view->updateGridBoxData();
-            view->updateAnnotationItems();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimEclipseCaseEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicNewViewForGridEnsembleFeature";
-    menuBuilder << "RicNewWellTargetCandidatesGeneratorFeature";
+
+    // Hide this feature for the 2025.04 release, not ready for production use yet.
+    // menuBuilder << "RicNewWellTargetMappingFeature";
+
     menuBuilder << "RicNewStatisticsContourMapFeature";
 }
 
@@ -190,9 +191,34 @@ RimEclipseViewCollection* RimEclipseCaseEnsemble::viewCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCaseEnsemble::addWellTargetsGenerator( RimWellTargetCandidatesGenerator* generator )
+std::vector<RimEclipseView*> RimEclipseCaseEnsemble::allViews() const
 {
-    m_wellTargetGenerators.push_back( generator );
+    std::vector<RimEclipseView*> retList;
+    if ( !viewCollection() ) return retList;
+
+    for ( auto view : viewCollection()->views() )
+    {
+        retList.push_back( view );
+    }
+
+    for ( auto cmap : m_statisticsContourMaps.childrenByType() )
+    {
+        for ( auto view : cmap->views() )
+        {
+            retList.push_back( view );
+        }
+    }
+
+    return retList;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCaseEnsemble::addWellTargetMapping( RimWellTargetMapping* wellTargetMapping )
+{
+    m_wellTargetMappings.push_back( wellTargetMapping );
+    wellTargetMapping->updateResultDefinition();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -201,4 +227,14 @@ void RimEclipseCaseEnsemble::addWellTargetsGenerator( RimWellTargetCandidatesGen
 void RimEclipseCaseEnsemble::addStatisticsContourMap( RimStatisticsContourMap* statisticsContourMap )
 {
     m_statisticsContourMaps.push_back( statisticsContourMap );
+    statisticsContourMap->setName( QString( "Ensemble Contour Map #%1" ).arg( m_statisticsContourMaps.size() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCaseEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( nameField() );
+    uiOrdering.skipRemainingFields();
 }

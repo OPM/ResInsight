@@ -4,7 +4,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCloseSummaryCaseFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCloseSummaryCaseInCollectionFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCloseObservedDataFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicCreateSummaryCaseCollectionFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewViewFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewContourMapViewFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportFaciesFeature.h
@@ -42,7 +41,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicReloadCaseFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicReplaceCaseFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicReloadSummaryCaseFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicReplaceSummaryCaseFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicFlyToObjectFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicGridStatisticsDialog.h
     ${CMAKE_CURRENT_LIST_DIR}/RicShowGridStatisticsFeature.h
@@ -51,7 +49,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryGroupFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleSurfaceFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicConvertGroupToEnsembleFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleWellLogsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateTemporaryLgrFeature.h
@@ -96,8 +93,14 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicImportWellLogCsvFileFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewViewForGridEnsembleFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomVfpPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellTargetCandidatesGeneratorFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellTargetMappingFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStatisticsContourMapFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewStatisticsContourMapViewFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonAdvancedFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicPolygonFromImageDialog.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateSummaryEnsembleFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -106,7 +109,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCloseSummaryCaseFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCloseSummaryCaseInCollectionFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCloseObservedDataFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicCreateSummaryCaseCollectionFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewViewFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewContourMapViewFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportFaciesFeature.cpp
@@ -143,7 +145,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicReloadCaseFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicReplaceCaseFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicReloadSummaryCaseFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicReplaceSummaryCaseFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicFlyToObjectFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicGridStatisticsDialog.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicShowGridStatisticsFeature.cpp
@@ -152,7 +153,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryGroupFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleSurfaceFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicConvertGroupToEnsembleFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleWellLogsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateTemporaryLgrFeature.cpp
@@ -198,8 +198,14 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicImportWellLogOsduFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewViewForGridEnsembleFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomVfpPlotFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellTargetCandidatesGeneratorFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellTargetMappingFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStatisticsContourMapFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewStatisticsContourMapViewFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonAdvancedFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicPolygonFromImageDialog.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateSummaryEnsembleFeature.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)
@@ -216,23 +222,4 @@ if(RESINSIGHT_USE_QT_CHARTS)
 endif()
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
-
 list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
-
-list(
-  APPEND
-  COMMAND_QT_MOC_HEADERS
-  ${CMAKE_CURRENT_LIST_DIR}/RicGridStatisticsDialog.h
-  ${CMAKE_CURRENT_LIST_DIR}/RicRecursiveFileSearchDialog.h
-  ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.h
-  ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.h
-  ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorDialog.h
-  ${CMAKE_CURRENT_LIST_DIR}/RicGridCalculatorDialog.h
-  ${CMAKE_CURRENT_LIST_DIR}/RicCalculatorWidgetCreator.h
-)
-
-source_group(
-  "CommandFeature"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
-)

@@ -21,7 +21,6 @@
 #include "RiaDateTimeDefines.h"
 
 #include "RiuInterfaceToViewWindow.h"
-#include "RiuQwtPlotWidget.h"
 #include "RiuSummaryPlot.h"
 
 #include <QPointer>
@@ -33,6 +32,8 @@ class RiuQwtPlotZoomer;
 class RiuQwtPlotWheelZoomer;
 class RimPlotAxisPropertiesInterface;
 class RiuPlotAnnotationTool;
+class RiuQwtCurvePointTracker;
+class RiuQwtPlotWidget;
 
 //==================================================================================================
 //
@@ -59,6 +60,8 @@ public:
 
     RiuPlotWidget* plotWidget() const override;
 
+    void enableCurvePointTracking( bool enable ) override;
+
 protected:
     void setDefaults();
     bool isZoomerActive() const;
@@ -71,6 +74,7 @@ private:
     std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
     QPointer<RiuQwtPlotWidget>             m_plotWidget;
 
-    QPointer<RiuQwtPlotZoomer>      m_plotZoomer;
-    QPointer<RiuQwtPlotWheelZoomer> m_wheelZoomer;
+    QPointer<RiuQwtPlotZoomer>        m_plotZoomer;
+    QPointer<RiuQwtPlotWheelZoomer>   m_wheelZoomer;
+    QPointer<RiuQwtCurvePointTracker> m_curvePointTracker;
 };

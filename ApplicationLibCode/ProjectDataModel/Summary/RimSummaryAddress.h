@@ -31,7 +31,6 @@ class RifSummaryReaderInterface;
 class RimSummaryCase;
 class RimSummaryFilter_OBSOLETE;
 class RiuQwtPlotCurve;
-class RimSummaryCurveAutoName;
 
 class RimSummaryAddress : public caf::PdmObject
 {
@@ -63,6 +62,7 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     QString iconResourceText() const;
+    void    initAfterRead() override;
 
 private:
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>> m_category;
@@ -79,6 +79,7 @@ private:
     caf::PdmField<int>     m_cellJ;
     caf::PdmField<int>     m_cellK;
     caf::PdmField<int>     m_aquiferNumber;
+    caf::PdmField<int>     m_wellCompletionNumber;
     caf::PdmField<bool>    m_isErrorResult;
     caf::PdmField<int>     m_calculationId;
     caf::PdmField<int>     m_caseId;

@@ -21,17 +21,19 @@
 #include "RimGeometrySelectionItem.h"
 
 #include "cafPdmField.h"
-#include "cafPdmFieldCvfVec3d.h"
+#include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
 class RimEclipseCase;
 class RiuEclipseSelectionItem;
+class RigGridBase;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimEclipseGeometrySelectionItem : public RimGeometrySelectionItem
+class RimEclipseGeometrySelectionItem : public RimGeometrySelectionItem_OBSOLETE
 {
     CAF_PDM_HEADER_INIT;
 
@@ -40,18 +42,28 @@ public:
     ~RimEclipseGeometrySelectionItem() override;
 
     void    setFromSelectionItem( const RiuEclipseSelectionItem* selectionItem );
+    void    setFromSelectionItem( RimEclipseGeometrySelectionItem* selectionItem );
     void    setFromCaseGridAndIJK( RimEclipseCase* eclipseCase, size_t gridIndex, size_t i, size_t j, size_t k );
-    QString geometrySelectionText() const override;
+    QString geometrySelectionText() const;
 
     RimEclipseCase* eclipseCase() const;
     size_t          gridIndex() const;
     size_t          cellIndex() const;
-    cvf::Vec3st     cellIJK() const;
+
+private:
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
+    QString ijkTextFromCell() const;
+    void    setCellFromIjkText( const QString& text );
+
+    const RigGridBase* grid() const;
 
 private:
     caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
 
-    caf::PdmField<size_t>     m_gridIndex;
-    caf::PdmField<size_t>     m_cellIndex;
-    caf::PdmField<cvf::Vec3d> m_localIntersectionPointInDisplay;
+    caf::PdmProxyValueField<QString> m_ijkText;
+
+    caf::PdmField<size_t> m_gridIndex;
+    caf::PdmField<size_t> m_cellIndex;
 };

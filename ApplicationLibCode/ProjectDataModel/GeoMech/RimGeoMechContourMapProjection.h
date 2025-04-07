@@ -21,7 +21,7 @@
 #include "RigFemPart.h"
 #include "RigFemResultAddress.h"
 
-#include "RimContourMapProjection.h"
+#include "ContourMap/RimContourMapProjection.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -45,6 +45,7 @@ public:
     ~RimGeoMechContourMapProjection() override;
 
     // GeoMech case overrides for contour map methods
+    QString                 resultVariableName() const override;
     QString                 resultDescriptionText() const override;
     RimRegularLegendConfig* legendConfig() const override;
     void                    updateLegend() override;
@@ -68,7 +69,7 @@ protected:
     RimGeoMechCase*           geoMechCase() const;
     RimGeoMechContourMapView* view() const;
 
-    std::pair<double, double> minmaxValuesAllTimeSteps() override;
+    std::pair<double, double> computeMinMaxValuesAllTimeSteps() override;
 
     void updateAfterResultGeneration( int timeStep ) override;
 

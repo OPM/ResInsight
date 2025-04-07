@@ -43,12 +43,13 @@
 #include "Well/RigSimWellData.h"
 #include "Well/RigWellResultFrame.h"
 
+#include "ContourMap/RimEclipseContourMapView.h"
+#include "ContourMap/RimEclipseContourMapViewCollection.h"
+#include "Formations/RimFormationNames.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCellColors.h"
-#include "RimEclipseContourMapView.h"
-#include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipsePropertyFilter.h"
@@ -59,7 +60,6 @@
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
 #include "RimFaultInViewCollection.h"
-#include "RimFormationNames.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimMainPlotCollection.h"
@@ -72,6 +72,7 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellTargetMapping.h"
 
 #include "cafPdmDocument.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -119,6 +120,8 @@ RimEclipseCase::RimEclipseCase()
     CAF_PDM_InitFieldNoDefault( &m_viewCollection, "ViewCollection", "Views" );
     m_viewCollection = new RimEclipseViewCollection;
 
+    CAF_PDM_InitFieldNoDefault( &m_wellTargetMappings, "WellTargetMappings", "Well Target Mappings" );
+
     // Init
 
     m_matrixModelResults = new RimReservoirCellResultsStorage;
@@ -126,7 +129,6 @@ RimEclipseCase::RimEclipseCase()
 
     m_fractureModelResults = new RimReservoirCellResultsStorage;
     m_fractureModelResults.uiCapability()->setUiTreeChildrenHidden( true );
-
     setReservoirData( nullptr );
 
     m_readerSettings = RiaPreferencesGrid::current()->readerSettings();
@@ -557,6 +559,8 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
         {
             uiTreeOrdering.add( &m_2dIntersectionViewCollection );
         }
+
+        uiTreeOrdering.add( &m_wellTargetMappings );
     }
     else if ( uiConfigName == "MainWindow.DataSources" )
     {
@@ -955,16 +959,16 @@ void RimEclipseCase::setFilesContainingFaults( const std::vector<QString>& pathS
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseCase::ensureReservoirCaseIsOpen()
 {
-    // Call openReserviorCase, as this is a cheap method to call multiple times
+    // Call openReservoirCase, as this is a cheap method to call multiple times
     // Add extra testing here if performance issues are seen
 
-    return openReserviorCase();
+    return openReservoirCase();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseCase::openReserviorCase()
+bool RimEclipseCase::openReservoirCase()
 {
     if ( !openEclipseGridFile() )
     {
@@ -1048,20 +1052,40 @@ bool RimEclipseCase::openReserviorCase()
 
     createTimeStepFormatString();
 
-    // Associate existing well paths with simulation wells
-    RimProject* proj = RimProject::current();
-    for ( const auto& oilField : proj->oilFields() )
+    if ( !m_readerSettings.skipWellData )
     {
-        for ( const auto& wellPath : oilField->wellPathCollection()->allWellPaths() )
+        // Associate existing well paths with simulation wells
+        RimProject* proj = RimProject::current();
+        for ( const auto& oilField : proj->oilFields() )
         {
-            if ( !wellPath->isAssociatedWithSimulationWell() )
+            for ( const auto& wellPath : oilField->wellPathCollection()->allWellPaths() )
             {
-                wellPath->tryAssociateWithSimulationWell();
+                if ( !wellPath->isAssociatedWithSimulationWell() )
+                {
+                    wellPath->tryAssociateWithSimulationWell();
+                }
             }
         }
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::reloadEclipseGridFile()
+{
+    closeReservoirCase();
+    openReservoirCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::closeReservoirCase()
+{
+    setReservoirData( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1183,6 +1207,14 @@ void RimEclipseCase::setReaderSettings( RifReaderSettings& readerSettings )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RifReaderSettings RimEclipseCase::readerSettings() const
+{
+    return m_readerSettings;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseCase::updateResultAddressCollection()
 {
     m_resultAddressCollections.deleteChildren();
@@ -1258,4 +1290,13 @@ std::vector<RimEclipseContourMapView*> RimEclipseCase::contourMapViews() const
     }
 
     return views;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::addWellTargetMapping( RimWellTargetMapping* generator )
+{
+    m_wellTargetMappings.push_back( generator );
+    generator->updateResultDefinition();
 }

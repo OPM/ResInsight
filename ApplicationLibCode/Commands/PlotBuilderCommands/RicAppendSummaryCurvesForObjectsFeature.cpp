@@ -18,7 +18,8 @@
 
 #include "RicAppendSummaryCurvesForObjectsFeature.h"
 
-#include "RiaGuiApplication.h"
+#include "Summary/RiaSummaryPlotTools.h"
+
 #include "RicAppendSummaryPlotsForObjectsFeature.h"
 
 #include "RimSummaryMultiPlot.h"
@@ -48,24 +49,21 @@ void RicAppendSummaryCurvesForObjectsFeature::onActionTriggered( bool isChecked 
     auto sumAddressCollections = RicAppendSummaryPlotsForObjectsFeature::selectedCollections();
     if ( sumAddressCollections.empty() ) return;
 
-    RiaGuiApplication* app = RiaGuiApplication::instance();
-
-    auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( app->activePlotWindow() );
-    if ( !summaryMultiPlot ) return;
-
-    RicAppendSummaryPlotsForObjectsFeature::isSelectionCompatibleWithPlot( sumAddressCollections, summaryMultiPlot );
-
-    auto sourcePlots = summaryMultiPlot->summaryPlots();
-
     std::vector<caf::PdmObjectHandle*> pdmObjects;
     for ( auto summaryAdrCollection : sumAddressCollections )
     {
         pdmObjects.push_back( summaryAdrCollection );
     }
 
-    for ( auto plot : sourcePlots )
+    auto selectedMultiPlots = RiaSummaryPlotTools::selectedSummaryMultiPlots();
+    for ( auto summaryMultiPlot : selectedMultiPlots )
     {
-        plot->handleDroppedObjects( pdmObjects );
+        if ( !RicAppendSummaryPlotsForObjectsFeature::isSelectionCompatibleWithPlot( sumAddressCollections, summaryMultiPlot ) ) continue;
+
+        for ( auto plot : summaryMultiPlot->summaryPlots() )
+        {
+            plot->handleDroppedObjects( pdmObjects );
+        }
     }
 }
 

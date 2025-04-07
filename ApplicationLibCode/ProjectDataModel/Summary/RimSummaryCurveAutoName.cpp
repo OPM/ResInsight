@@ -51,8 +51,9 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
     CAF_PDM_InitField( &m_groupName, "WellGroupName", true, "Group Name" );
     CAF_PDM_InitField( &m_wellName, "WellName", true, "Well Name" );
     CAF_PDM_InitField( &m_wellSegmentNumber, "WellSegmentNumber", true, "Well Segment Number" );
+    CAF_PDM_InitField( &m_wellCompletionNumber, "WellCompletionNumber", true, "Well Completion Number" );
     CAF_PDM_InitField( &m_lgrName, "LgrName", true, "Lgr Name" );
-    CAF_PDM_InitField( &m_completion, "Completion", true, "I, J, K" );
+    CAF_PDM_InitField( &m_connection, "Completion", true, "I, J, K" );
     CAF_PDM_InitField( &m_aquiferNumber, "Aquifer", true, "Aquifer Number" );
 
     CAF_PDM_InitField( &m_caseName, "CaseName", true, "Case/Ensemble Name" );
@@ -63,6 +64,9 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
         m_longVectorName = false;
         m_vectorName     = true;
     }
+
+    // When multiple curves are selected, we need to issue fieldChanged on all curves
+    setNotifyAllFieldsInMultiFieldChangedEvents( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,19 +173,9 @@ QString RimSummaryCurveAutoName::curveNameX( const RifEclipseSummaryAddress& sum
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveAutoName::applySettings( const RimSummaryCurveAutoName& other )
+void RimSummaryCurveAutoName::enableVectorName( bool enable )
 {
-    m_caseName          = other.m_caseName;
-    m_vectorName        = other.m_vectorName;
-    m_longVectorName    = other.m_longVectorName;
-    m_unit              = other.m_unit;
-    m_regionNumber      = other.m_regionNumber;
-    m_groupName         = other.m_groupName;
-    m_wellName          = other.m_wellName;
-    m_wellSegmentNumber = other.m_wellSegmentNumber;
-    m_lgrName           = other.m_lgrName;
-    m_completion        = other.m_completion;
-    m_aquiferNumber     = other.m_aquiferNumber;
+    m_vectorName = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -226,25 +220,32 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
 
     if ( m_vectorName || m_longVectorName )
     {
-        bool skipSubString = currentNameHelper && currentNameHelper->isPlotDisplayingSingleCurve();
-        if ( !skipSubString )
+        if ( currentNameHelper && currentNameHelper->vectorNames().size() > 1 )
         {
-            if ( m_longVectorName() )
+            text = summaryAddress.vectorName();
+        }
+        else
+        {
+            bool skipSubString = currentNameHelper && currentNameHelper->isPlotDisplayingSingleCurve();
+            if ( !skipSubString )
             {
-                auto quantityName = summaryAddress.vectorName();
-                if ( summaryAddress.isHistoryVector() ) quantityName = quantityName.substr( 0, quantityName.size() - 1 );
+                if ( m_longVectorName() )
+                {
+                    auto quantityName = summaryAddress.vectorName();
+                    if ( summaryAddress.isHistoryVector() ) quantityName = quantityName.substr( 0, quantityName.size() - 1 );
 
-                text = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( quantityName );
+                    text = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( quantityName );
 
-                if ( m_vectorName ) text += " (" + summaryAddress.vectorName() + ")";
+                    if ( m_vectorName ) text += " (" + summaryAddress.vectorName() + ")";
 
-                // Handle cases where longNameFromVectorName fails to produce a long name.
-                // This can happen for non-standard vector names.
-                if ( text.empty() && !summaryAddress.vectorName().empty() ) text = summaryAddress.vectorName();
-            }
-            else
-            {
-                text = summaryAddress.vectorName();
+                    // Handle cases where longNameFromVectorName fails to produce a long name.
+                    // This can happen for non-standard vector names.
+                    if ( text.empty() && !summaryAddress.vectorName().empty() ) text = summaryAddress.vectorName();
+                }
+                else
+                {
+                    text = summaryAddress.vectorName();
+                }
             }
         }
 
@@ -356,13 +357,13 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             appendWellName( text, summaryAddress, nameHelper );
         }
         break;
-        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION:
         {
             appendWellName( text, summaryAddress, nameHelper );
 
-            if ( m_completion )
+            if ( m_connection )
             {
-                bool skipSubString = nameHelper && nameHelper->isCompletionInTitle();
+                bool skipSubString = nameHelper && nameHelper->isConnectionInTitle();
                 if ( !skipSubString )
                 {
                     if ( !text.empty() ) text += ":";
@@ -378,19 +379,34 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             appendWellName( text, summaryAddress, nameHelper );
         }
         break;
-        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION_LGR:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION_LGR:
         {
             appendLgrName( text, summaryAddress );
             appendWellName( text, summaryAddress, nameHelper );
 
-            if ( m_completion )
+            if ( m_connection )
             {
-                bool skipSubString = nameHelper && nameHelper->isCompletionInTitle();
+                bool skipSubString = nameHelper && nameHelper->isConnectionInTitle();
                 if ( !skipSubString )
                 {
                     if ( !text.empty() ) text += ":";
                     text += std::to_string( summaryAddress.cellI() ) + ", " + std::to_string( summaryAddress.cellJ() ) + ", " +
                             std::to_string( summaryAddress.cellK() );
+                }
+            }
+        }
+        break;
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION:
+        {
+            appendWellName( text, summaryAddress, nameHelper );
+
+            if ( m_wellCompletionNumber )
+            {
+                bool skipSubString = nameHelper && nameHelper->isWellCompletionInTitle();
+                if ( !skipSubString )
+                {
+                    if ( !text.empty() ) text += ":";
+                    text += std::to_string( summaryAddress.wellCompletionNumber() );
                 }
             }
         }
@@ -412,7 +428,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
         break;
         case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK:
         {
-            if ( m_completion )
+            if ( m_connection )
             {
                 bool skipSubString = nameHelper && nameHelper->isBlockInTitle();
                 if ( !skipSubString )
@@ -428,7 +444,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
         {
             appendLgrName( text, summaryAddress );
 
-            if ( m_completion )
+            if ( m_connection )
             {
                 bool skipSubString = nameHelper && nameHelper->isBlockInTitle();
                 if ( !skipSubString )
@@ -496,8 +512,9 @@ void RimSummaryCurveAutoName::defineUiOrdering( QString uiConfigName, caf::PdmUi
     advanced.setCollapsedByDefault();
     advanced.add( &m_regionNumber );
     advanced.add( &m_lgrName );
-    advanced.add( &m_completion );
+    advanced.add( &m_connection );
     advanced.add( &m_wellSegmentNumber );
+    advanced.add( &m_wellCompletionNumber );
     advanced.add( &m_aquiferNumber );
     advanced.add( &m_unit );
 

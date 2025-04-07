@@ -20,6 +20,7 @@
 #include "RiuViewerCommands.h"
 
 #include "RiaDefines.h"
+#include "RiaOptionItemFactory.h"
 
 #include "GeoMechCommands/RicGeoMechPropertyFilterNewExec.h"
 #include "MeasurementCommands/RicMeasurementPickEventHandler.h"
@@ -39,7 +40,7 @@
 #include "RigMainGrid.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 
-#include "RiaOptionItemFactory.h"
+#include "ContourMap/RimEclipseContourMapView.h"
 #include "Rim2dIntersectionView.h"
 #include "RimBoxIntersection.h"
 #include "RimCellEdgeColors.h"
@@ -55,6 +56,7 @@
 #include "RimFracture.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
+#include "RimGeoMechContourMapView.h"
 #include "RimGeoMechView.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimLegendConfig.h"
@@ -438,8 +440,8 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 
             menuBuilder << "RicToggleMeasurementModeFeature";
             menuBuilder << "RicTogglePolyMeasurementModeFeature";
-            menuBuilder.addCmdFeature( "RicCreatePolygonFeature", "Polygon" );
         }
+        menuBuilder.addCmdFeature( "RicCreatePolygonFeature", "Polygon" );
     }
 
     // Well log curve creation commands
@@ -567,8 +569,6 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                 menuBuilder.addSeparator();
                 menuBuilder << "RicShowContributingWellsFeature";
                 menuBuilder.addSeparator();
-                menuBuilder << "RicNewSimWellFractureAtPosFeature";
-                menuBuilder.addSeparator();
                 menuBuilder << "RicNewSimWellIntersectionFeature";
             }
         }
@@ -593,28 +593,38 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 
     if ( gridView )
     {
-        menuBuilder.addSeparator();
-        menuBuilder << "RicNewGridTimeHistoryCurveFeature";
-        menuBuilder << "RicShowFlowCharacteristicsPlotFeature";
-        if ( dynamic_cast<RimEclipseView*>( gridView ) )
+        bool isContourView = dynamic_cast<RimEclipseContourMapView*>( gridView ) || dynamic_cast<RimGeoMechContourMapView*>( gridView );
+        if ( isContourView )
         {
-            menuBuilder << "RicCreateGridCrossPlotFeature";
+            menuBuilder << "RicCreateContourMapPolygonFeature";
+            menuBuilder << "RicCreateContourMapPolygonAdvancedFeature";
+            menuBuilder.addSeparator();
+            menuBuilder << "RicExportContourMapToTextFeature";
         }
-        menuBuilder.addSeparator();
-        menuBuilder.subMenuStart( "Export" );
-        menuBuilder << "RicExportEclipseInputGridFeature";
-        menuBuilder << "RicSaveEclipseInputActiveVisibleCellsFeature";
-        menuBuilder << "RicSaveEclipseResultAsInputPropertyFeature";
-        menuBuilder << "RicExportContourMapToTextFeature";
-        menuBuilder.subMenuEnd();
-        menuBuilder.addSeparator();
+        else
+        {
+            menuBuilder.addSeparator();
+            menuBuilder << "RicNewGridTimeHistoryCurveFeature";
+            menuBuilder << "RicShowFlowCharacteristicsPlotFeature";
+            if ( dynamic_cast<RimEclipseView*>( gridView ) )
+            {
+                menuBuilder << "RicCreateGridCrossPlotFeature";
+            }
+            menuBuilder.addSeparator();
+            menuBuilder.subMenuStart( "Export" );
+            menuBuilder << "RicExportEclipseInputGridFeature";
+            menuBuilder << "RicSaveEclipseInputActiveVisibleCellsFeature";
+            menuBuilder << "RicSaveEclipseResultAsInputPropertyFeature";
+            menuBuilder.subMenuEnd();
+            menuBuilder.addSeparator();
 
 #ifdef USE_QTCHARTS
-        menuBuilder << "RicCreateGridStatisticsPlotFeature";
+            menuBuilder << "RicCreateGridStatisticsPlotFeature";
 #endif
-        menuBuilder << "RicShowGridStatisticsFeature";
-        menuBuilder << "RicCopyGridStatisticsToClipboardFeature";
-        menuBuilder << "RicSelectColorResult";
+            menuBuilder << "RicShowGridStatisticsFeature";
+            menuBuilder << "RicCopyGridStatisticsToClipboardFeature";
+            menuBuilder << "RicSelectColorResult";
+        }
     }
 
     if ( firstHitPart )

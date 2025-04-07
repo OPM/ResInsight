@@ -317,3 +317,19 @@ void RiaPreferencesGrid::setGridModelReaderOverride( const std::string& readerNa
 
     m_gridModelReaderOverride = readerType;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPreferencesGrid::setGridModelReaderOverride( const RiaDefines::GridModelReader readerType )
+{
+    m_gridModelReaderOverride = readerType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::GridModelReader RiaPreferencesGrid::gridModelReaderOverride() const
+{
+    return m_gridModelReaderOverride;
+}

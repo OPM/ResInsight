@@ -19,6 +19,7 @@
 #include "RifReaderOpmCommonActive.h"
 
 #include "RiaLogging.h"
+#include "RiaPreferencesSystem.h"
 #include "RiaStdStringTools.h"
 
 #include "RifOpmRadialGridTools.h"
@@ -58,7 +59,7 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
     RigActiveCellGrid* activeGrid = new RigActiveCellGrid();
     eclipseCaseData->setMainGrid( activeGrid );
 
-    caf::ProgressInfo progInfo( 5, "Importing Eclipse Grid" );
+    caf::ProgressInfo progInfo( 4, "Importing Eclipse Grid" );
 
     Opm::EclIO::EGrid opmGrid( m_gridFileName );
 
@@ -119,7 +120,7 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
         activeCellInfo->setGridCount( 1 + numLGRs );
         fractureActiveCellInfo->setGridCount( 1 + numLGRs );
 
-        auto task = progInfo.task( "Getting Active Cell Information", 1 );
+        auto task = progInfo.task( "Getting Active Cell Information" );
 
         for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
         {
@@ -159,24 +160,32 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
 
     // grid geometry
     {
-        RiaLogging::info( QString( "Loading %0 active of %1 total cells in main grid." )
-                              .arg( QString::fromStdString( RiaStdStringTools::formatThousandGrouping( opmGrid.totalActiveCells() ) ) )
-                              .arg( QString::fromStdString( RiaStdStringTools::formatThousandGrouping( opmGrid.totalNumberOfCells() ) ) ) );
+        const bool isLoggingEnabled = RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( "RifReaderOpmCommonActive" );
 
-        auto task = progInfo.task( "Loading Active Cell Main Grid Geometry", 1 );
+        if ( isLoggingEnabled )
+        {
+            RiaLogging::info( QString( "Loading %0 active of %1 total cells in main grid." )
+                                  .arg( QString::fromStdString( RiaStdStringTools::formatThousandGrouping( opmGrid.totalActiveCells() ) ) )
+                                  .arg( QString::fromStdString( RiaStdStringTools::formatThousandGrouping( opmGrid.totalNumberOfCells() ) ) ) );
+        }
+
+        auto task = progInfo.task( "Loading Active Cell Main Grid Geometry" );
         transferActiveGeometry( opmGrid, opmGrid, activeGrid, activeGrid, eclipseCaseData );
 
         bool hasParentInfo = ( lgr_parent_names.size() >= (size_t)numLGRs );
 
-        auto task2 = progInfo.task( "Loading Active Cell LGR Grid Geometry ", 1 );
+        auto task2 = progInfo.task( "Loading Active Cell LGR Grid Geometry" );
 
         for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
         {
-            RiaLogging::info(
-                QString( "Loading %0 active of %1 total cells in LGR grid %2." )
-                    .arg( QString::fromStdString( RiaStdStringTools::formatThousandGrouping( lgrGrids[lgrIdx].totalActiveCells() ) ) )
-                    .arg( QString::fromStdString( RiaStdStringTools::formatThousandGrouping( lgrGrids[lgrIdx].totalNumberOfCells() ) ) )
-                    .arg( lgrIdx + 1 ) );
+            if ( isLoggingEnabled )
+            {
+                RiaLogging::info(
+                    QString( "Loading %0 active of %1 total cells in LGR grid %2." )
+                        .arg( QString::fromStdString( RiaStdStringTools::formatThousandGrouping( lgrGrids[lgrIdx].totalActiveCells() ) ) )
+                        .arg( QString::fromStdString( RiaStdStringTools::formatThousandGrouping( lgrGrids[lgrIdx].totalNumberOfCells() ) ) )
+                        .arg( lgrIdx + 1 ) );
+            }
 
             RigGridBase* parentGrid = hasParentInfo ? activeGrid->gridByName( lgr_parent_names[lgrIdx] ) : activeGrid;
 
@@ -193,7 +202,7 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
 
     if ( isNNCsEnabled() )
     {
-        auto task = progInfo.task( "Loading NNC data", 1 );
+        auto task = progInfo.task( "Loading NNC data" );
         transferStaticNNCData( opmGrid, lgrGrids, activeGrid );
     }
 

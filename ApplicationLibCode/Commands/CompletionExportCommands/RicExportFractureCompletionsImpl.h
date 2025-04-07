@@ -37,7 +37,6 @@ class RigCaseCellResultsData;
 class RimEclipseCase;
 class RimFracture;
 class RimFractureTemplate;
-class RimSimWellInView;
 class RimWellPath;
 
 class QTextStream;
@@ -83,12 +82,6 @@ public:
                                           std::vector<RicWellPathFractureReportItem>* fractureDataForReport,
                                           QTextStream*                                outputStreamForIntermediateResultsText,
                                           PressureDepletionParameters                 pdParams = PressureDepletionParameters() );
-
-    static std::vector<RigCompletionData>
-        generateCompdatValuesForSimWell( RimEclipseCase*             eclipseCase,
-                                         const RimSimWellInView*     well,
-                                         QTextStream*                outputStreamForIntermediateResultsText,
-                                         PressureDepletionParameters pdParams = PressureDepletionParameters() );
 
     static std::vector<RigCompletionData> generateCompdatValues( RimEclipseCase*                             caseToApply,
                                                                  const QString&                              wellNameForExport,

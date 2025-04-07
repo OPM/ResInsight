@@ -24,16 +24,17 @@
 #include "RiaPreferences.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaRegressionTestRunner.h"
+#include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
-
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimMultiPlot.h"
 #include "RimProject.h"
+#include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurveCollection.h"
+#include "RimSummaryEnsembleTools.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
@@ -244,6 +245,8 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::cleanupGuiBeforeProjectClose()
 {
+    m_mdiArea->closeAllSubWindows();
+
     setPdmRoot( nullptr );
 
     for ( auto pdmUiPropertyView : m_propertyViews )
@@ -258,6 +261,8 @@ void RiuPlotMainWindow::cleanupGuiBeforeProjectClose()
     m_multiPlotLayoutToolBarEditor->clear();
 
     setWindowTitle( "Plots - ResInsight" );
+
+    if ( m_messagePanel ) m_messagePanel->slotClearMessages();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -932,6 +937,17 @@ void RiuPlotMainWindow::selectedObjectsChanged( caf::PdmUiTreeView* projectTree,
 
     propertyView->showProperties( firstSelectedObject );
 
+    std::vector<RimSummaryCase*> summaryCases;
+    for ( auto uiItem : uiItems )
+    {
+        if ( auto summaryCase = dynamic_cast<RimSummaryCase*>( uiItem ) )
+        {
+            summaryCases.push_back( summaryCase );
+        }
+    }
+
+    RimSummaryEnsembleTools::highlightCurvesForSummaryCases( summaryCases );
+
     if ( uiItems.size() == 1 && m_allowActiveViewChangeFromSelection )
     {
         // Find the reservoir view or the Plot that the selected item is within
@@ -1057,7 +1073,7 @@ void RiuPlotMainWindow::dropEvent( QDropEvent* event )
 
     if ( RiuDragDrop::handleGenericDropEvent( event, objects ) )
     {
-        RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( objects );
+        RiaSummaryPlotTools::createAndAppendSummaryMultiPlot( objects );
     }
 }
 

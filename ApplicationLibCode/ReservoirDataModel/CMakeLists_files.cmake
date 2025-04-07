@@ -13,9 +13,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigCellFaceGeometryTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RigCellGeometryTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RigCellGeometryTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigContourMapCalculator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigContourMapGrid.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigContourPolygonsTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RigConvexHull.h
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseAllanFaultsStatCalc.h
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCaseData.h
@@ -44,7 +41,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigFractureCell.h
     ${CMAKE_CURRENT_LIST_DIR}/RigFractureGrid.h
     ${CMAKE_CURRENT_LIST_DIR}/RigGeoMechBoreHoleStressCalculator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigGocadData.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigTriangleMeshData.h
     ${CMAKE_CURRENT_LIST_DIR}/RigGridBase.h
     ${CMAKE_CURRENT_LIST_DIR}/RigGridCrossPlotCurveGrouping.h
     ${CMAKE_CURRENT_LIST_DIR}/RigGriddedPart3d.h
@@ -83,11 +80,9 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigVisibleCategoriesCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RigWbsParameter.h
     ${CMAKE_CURRENT_LIST_DIR}/RigWeightedMeanCalc.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigContourMapCalculator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigContourMapProjection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigContourMapTrianglesGenerator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigEclipseContourMapProjection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigGeoMechContourMapProjection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigPolygonTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigFloodingSettings.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigHydrocarbonFlowTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -104,9 +99,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigCellFaceGeometryTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigCellGeometryTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigCellGeometryTools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigContourMapCalculator.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigContourMapGrid.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigContourPolygonsTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigConvexHull.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigDeclineCurveCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseAllanFaultsStatCalc.cpp
@@ -134,7 +126,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigFractureCell.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigFractureGrid.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGeoMechBoreHoleStressCalculator.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigGocadData.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigTriangleMeshData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGridBase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGriddedPart3d.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGridManager.cpp
@@ -171,21 +163,10 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigVisibleCategoriesCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWbsParameter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWeightedMeanCalc.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigContourMapGrid.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigContourPolygonsTools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigContourMapCalculator.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigContourMapProjection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigContourMapTrianglesGenerator.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigEclipseContourMapProjection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigGeoMechContourMapProjection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigPolygonTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigFloodingSettings.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigHydrocarbonFlowTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
-
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
-
-source_group(
-  "ReservoirDataModel"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
-)

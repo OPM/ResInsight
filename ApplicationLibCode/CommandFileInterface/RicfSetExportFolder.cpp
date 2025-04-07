@@ -31,11 +31,12 @@ CAF_PDM_SOURCE_INIT( RicfSetExportFolder, "setExportFolder" );
 //--------------------------------------------------------------------------------------------------
 RicfSetExportFolder::RicfSetExportFolder()
 {
-    // clang-format off
-    CAF_PDM_InitScriptableField(&m_type,  "type",  RicfCommandFileExecutor::ExportTypeEnum(RicfCommandFileExecutor::ExportType::COMPLETIONS), "Type");
-    CAF_PDM_InitScriptableField(&m_path,  "path",  QString(),                                                                     "Path");
-    CAF_PDM_InitScriptableField(&m_createFolder, "createFolder", false, "Create Folder");
-    // clang-format on
+    CAF_PDM_InitScriptableField( &m_type,
+                                 "type",
+                                 RicfCommandFileExecutor::ExportTypeEnum( RicfCommandFileExecutor::ExportType::COMPLETIONS ),
+                                 "Type" );
+    CAF_PDM_InitScriptableField( &m_path, "path", QString(), "Path" );
+    CAF_PDM_InitScriptableField( &m_createFolder, "createFolder", false, "Create Folder" );
 }
 
 //--------------------------------------------------------------------------------------------------

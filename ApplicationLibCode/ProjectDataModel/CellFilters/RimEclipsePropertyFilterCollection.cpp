@@ -29,6 +29,7 @@
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiEditorHandle.h"
 
 CAF_PDM_SOURCE_INIT( RimEclipsePropertyFilterCollection, "CellPropertyFilters" );
@@ -190,4 +191,56 @@ void RimEclipsePropertyFilterCollection::updateFromCurrentTimeStep()
     {
         cellFilter->updateFromCurrentTimeStep();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilterCollection::updateDefaultResult( const RimEclipseCellColors* result )
+{
+    if ( !result ) return;
+    if ( m_propertyFilters.empty() ) return;
+
+    auto view = reservoirView();
+    for ( auto filter : m_propertyFilters )
+    {
+        if ( !filter->isLinkedWithCellResult() ) continue;
+
+        if ( view && view->eclipseCase() )
+        {
+            filter->resultDefinition()->setEclipseCase( view->eclipseCase() );
+        }
+
+        filter->resultDefinition()->simpleCopy( result );
+        filter->resultDefinition()->loadResult();
+        filter->setToDefaultValues();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipsePropertyFilter* RimEclipsePropertyFilterCollection::addFilterLinkedToCellResult()
+{
+    RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
+    propertyFilter->setLinkedWithCellResult( true );
+    m_propertyFilters.push_back( propertyFilter );
+
+    auto view = reservoirView();
+    if ( view && view->eclipseCase() )
+    {
+        propertyFilter->resultDefinition()->setEclipseCase( view->eclipseCase() );
+        updateDefaultResult( view->cellResult() );
+    }
+
+    return propertyFilter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilterCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicEclipsePropertyFilterNewFeature";
+    menuBuilder << "RicAddLinkedEclipsePropertyFilterFeature";
 }

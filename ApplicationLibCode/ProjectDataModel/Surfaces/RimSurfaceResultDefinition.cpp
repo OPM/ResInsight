@@ -18,10 +18,8 @@
 
 #include "RimSurfaceResultDefinition.h"
 
-#include "RiaDefines.h"
 #include "RiaResultNames.h"
 
-#include "RigStatisticsMath.h"
 #include "RigSurface.h"
 
 #include "Rim3dView.h"
@@ -87,34 +85,13 @@ RimRegularLegendConfig* RimSurfaceResultDefinition::legendConfig()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceResultDefinition::updateMinMaxValues()
+void RimSurfaceResultDefinition::updateMinMaxValues( int currentTimeStep )
 {
-    RigSurface* surfData = surfaceData();
-    if ( surfData )
-    {
-        double globalMin              = 0.0;
-        double globalMax              = 0.0;
-        double globalPosClosestToZero = 0.0;
-        double globalNegClosestToZero = 0.0;
+    if ( !m_surfaceInView ) return;
 
-        {
-            MinMaxAccumulator minMaxAccumulator;
-            PosNegAccumulator posNegAccumulator;
+    if ( currentTimeStep < 0 ) currentTimeStep = 0;
 
-            auto values = surfData->propertyValues( m_propertyName );
-            minMaxAccumulator.addData( values );
-            posNegAccumulator.addData( values );
-
-            globalPosClosestToZero = posNegAccumulator.pos;
-            globalNegClosestToZero = posNegAccumulator.neg;
-            globalMin              = minMaxAccumulator.min;
-            globalMax              = minMaxAccumulator.max;
-        }
-
-        m_legendConfig->setClosestToZeroValues( globalPosClosestToZero, globalNegClosestToZero, globalPosClosestToZero, globalNegClosestToZero );
-
-        m_legendConfig->setAutomaticRanges( globalMin, globalMax, globalMin, globalMax );
-    }
+    if ( auto surface = m_surfaceInView->surface() ) surface->updateMinMaxValues( m_legendConfig, m_propertyName, currentTimeStep );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,12 +99,12 @@ void RimSurfaceResultDefinition::updateMinMaxValues()
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceResultDefinition::assignDefaultProperty()
 {
-    if ( m_surfaceInView->surface() && m_surfaceInView->surface()->surfaceData() )
+    if ( auto surface = surfaceData() )
     {
-        auto propNames = m_surfaceInView->surface()->surfaceData()->propertyNames();
+        auto propNames = surface->propertyNames();
         if ( !propNames.empty() )
         {
-            m_propertyName = m_surfaceInView->surface()->surfaceData()->propertyNames().front();
+            m_propertyName = propNames.front();
         }
     }
 }
@@ -139,7 +116,7 @@ void RimSurfaceResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
 {
     if ( changedField == &m_propertyName )
     {
-        updateMinMaxValues();
+        updateMinMaxValues( -1 );
     }
 
     auto view = firstAncestorOrThisOfType<Rim3dView>();

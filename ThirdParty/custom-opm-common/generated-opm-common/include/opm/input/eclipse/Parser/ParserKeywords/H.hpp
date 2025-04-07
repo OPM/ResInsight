@@ -4,6 +4,22 @@
 namespace Opm {
 namespace ParserKeywords {
 
+   class H2SOL : public ParserKeyword {
+   public:
+       H2SOL();
+       static const std::string keywordName;
+   };
+
+
+
+   class H2STORE : public ParserKeyword {
+   public:
+       H2STORE();
+       static const std::string keywordName;
+   };
+
+
+
    class HALFTRAN : public ParserKeyword {
    public:
        HALFTRAN();
@@ -177,55 +193,55 @@ namespace ParserKeywords {
        class MAX_GRAD_REGIONS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_SUB_REGIONS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_GRADS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_FAULTS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_AQUIFER_PARAMS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_WELL_PARAMS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class UNUSED {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_ROCK_GRAD_PARAMS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
 
        class MAX_WELL_CONN_PARAMS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
    };
 
@@ -257,19 +273,19 @@ namespace ParserKeywords {
        class AQUIFER_PORE_VOL_MULT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
 
        class AQUIFER_PORE_PERM_MULT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
 
        class AQUIFER_GRID_CONN_MULT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
    };
 
@@ -288,19 +304,19 @@ namespace ParserKeywords {
        class AQUIFER_PERM_MULT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
 
        class AQUIFER_ANGLE_MULT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
 
        class AQUIFER_DEPTH_MULT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
    };
 
@@ -319,19 +335,19 @@ namespace ParserKeywords {
        class AQUIFER_WAT_VOL_MULT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
 
        class AQUIFER_PROD_INDEX_MULT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
 
        class AQUIFER_DEPTH_MULT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
    };
 
@@ -371,13 +387,13 @@ namespace ParserKeywords {
        class CTF {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
 
        class SKIN {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
    };
 
@@ -396,13 +412,13 @@ namespace ParserKeywords {
        class TRANS_MULT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
 
        class DIFF_MULT {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 1.000000;
        };
    };
 
@@ -455,7 +471,7 @@ namespace ParserKeywords {
        class CALCULATE_GRADIENTS {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 0;
        };
    };
 
@@ -583,6 +599,14 @@ namespace ParserKeywords {
        public:
            static const std::string itemName;
        };
+   };
+
+
+
+   class HWELLS : public ParserKeyword {
+   public:
+       HWELLS();
+       static const std::string keywordName;
    };
 
 

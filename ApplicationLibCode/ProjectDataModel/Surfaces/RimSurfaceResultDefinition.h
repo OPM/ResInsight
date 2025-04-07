@@ -24,8 +24,6 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
-#include "cvfObject.h"
-
 class RimRegularLegendConfig;
 class RimSurfaceInView;
 class RigSurface;
@@ -46,7 +44,7 @@ public:
 
     RimRegularLegendConfig* legendConfig();
 
-    void updateMinMaxValues();
+    void updateMinMaxValues( int currentTimeStep );
     void assignDefaultProperty();
 
 private:

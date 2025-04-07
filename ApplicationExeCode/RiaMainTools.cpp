@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaMainTools.h"
+#include "RiaBaseDefs.h"
 #include "RiaFileLogger.h"
 #include "RiaLogging.h"
 #include "RiaRegressionTestRunner.h"
@@ -26,6 +27,8 @@
 #include "cafCmdFeatureManager.h"
 #include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmUiFieldEditorHandle.h"
+
+#include <QDir>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -53,10 +56,12 @@ void manageSegFailure( int signalCode )
     exit( 1 );
 }
 
+namespace RiaMainTools
+{
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaMainTools::initializeSingletons()
+void initializeSingletons()
 {
     caf::CmdFeatureManager::createSingleton();
     RiaRegressionTestRunner::createSingleton();
@@ -67,7 +72,7 @@ void RiaMainTools::initializeSingletons()
 /// This method is used to release memory allocated by static functions. This enables use of memory allocation tools
 /// after the application has closed down.
 //--------------------------------------------------------------------------------------------------
-void RiaMainTools::releaseSingletonAndFactoryObjects()
+void releaseSingletonAndFactoryObjects()
 {
     caf::CmdFeatureManager::deleteSingleton();
     RiaRegressionTestRunner::deleteSingleton();
@@ -87,3 +92,51 @@ void RiaMainTools::releaseSingletonAndFactoryObjects()
         factory->deleteCreatorObjects();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// On Linux, application settings are stored in a text file in the users home folder. On Windows, these settings are
+/// stored in Registry. Users have reported stale lock files the configuration directory. In some cases, these lock
+/// files can prevent the application from starting. It appears that the application start, but no GUI is displayed.
+///
+/// This method deletes stale lock files.
+///
+/// https://github.com/OPM/ResInsight/issues/12205
+//--------------------------------------------------------------------------------------------------
+void deleteStaleSettingsLockFiles()
+{
+    auto organizationName = QString( RI_COMPANY_NAME );
+    auto applicationName  = QString( RI_APPLICATION_NAME );
+
+    auto lockFilePath = QDir::homePath() + "/.config/" + organizationName + "/" + applicationName + ".conf.lock";
+
+    auto isLockStale = []( const QString& lockFilePath ) -> bool
+    {
+        QFileInfo lockFileInfo( lockFilePath );
+
+        if ( !lockFileInfo.exists() ) return false;
+
+        QDateTime currentTime      = QDateTime::currentDateTime();
+        int       thresholdSeconds = 2 * 60; // 2 minutes
+
+        return lockFileInfo.lastModified().secsTo( currentTime ) > thresholdSeconds;
+    };
+
+    if ( isLockStale( lockFilePath ) )
+    {
+        QFile lockFile( lockFilePath );
+
+        QString logMessage;
+        if ( lockFile.remove() )
+        {
+            logMessage = QString( "Deleted stale lock file: %1" ).arg( lockFilePath );
+        }
+        else
+        {
+            logMessage = QString( "Tried, but failed to delete stale lock file: %1" ).arg( lockFilePath );
+        }
+
+        qDebug() << logMessage;
+    }
+}
+
+} // namespace RiaMainTools

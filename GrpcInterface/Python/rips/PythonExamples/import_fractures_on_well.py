@@ -41,13 +41,25 @@ for measured_depth in measured_depths:
         eclipse_case=case,
     )
 
-# Update the orientation of the fracture
-# Call update() to propagate changes from the Python object back to ResInsight
+# Update the orientation of the fracture. All fracture parameters are displayed, most with default values.
 fracture_template.orientation = "Azimuth"
 fracture_template.azimuth_angle = 60.0
-fracture_template.user_defined_perforation_length = True
+fracture_template.beta_factor_type = "UserDefinedBetaFactor"
 fracture_template.conductivity_type = "InfiniteConductivity"
+fracture_template.effective_permeability = 0
+fracture_template.fracture_width = 0.01
+fracture_template.fracture_width_type = "FractureWidth"
+fracture_template.gas_viscosity = 0.02
+fracture_template.height_scale_factor = 1
+fracture_template.inertial_coefficient = 0.00608324
+fracture_template.non_darcy_flow_type = "None"
 fracture_template.perforation_length = 12.3
+fracture_template.permeability_type = "FractureConductivity"
+fracture_template.relative_gas_density = 0.8
+fracture_template.relative_permeability = 1
+fracture_template.user_defined_d_factor = 1
+fracture_template.user_defined_perforation_length = True
+fracture_template.width_scale_factor = 1
 fracture_template.update()
 
 # Scale the template

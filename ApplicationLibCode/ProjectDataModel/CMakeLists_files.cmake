@@ -31,8 +31,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCaseEvaluator.h
     ${CMAKE_CURRENT_LIST_DIR}/RimMimeData.h
     ${CMAKE_CURRENT_LIST_DIR}/RimTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimFormationNames.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimFormationNamesCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimMockModelSettings.h
     ${CMAKE_CURRENT_LIST_DIR}/RimTernaryLegendConfig.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseFaultColors.h
@@ -66,7 +64,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCheckableNamedObject.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCheckableObject.h
     ${CMAKE_CURRENT_LIST_DIR}/RimGridTimeHistoryCurve.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimGeometrySelectionItem.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseGeometrySelectionItem.h
     ${CMAKE_CURRENT_LIST_DIR}/RimDialogData.h
     ${CMAKE_CURRENT_LIST_DIR}/RimTimeStepFilter.h
@@ -85,16 +82,11 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimLegendConfig.h
     ${CMAKE_CURRENT_LIST_DIR}/RimNameConfig.h
     ${CMAKE_CURRENT_LIST_DIR}/RimDataSourceSteppingTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimContourMapProjection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapProjection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapView.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapViewCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimMudWeightWindowParameters.h
     ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.h
     ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisLogRangeCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.h
@@ -111,8 +103,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunction.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionWeight.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimEquilibriumAxisAnnotation.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPolylinesDataInterface.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSetInterface.h
     ${CMAKE_CURRENT_LIST_DIR}/cafTreeNode.h
@@ -128,13 +118,13 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPressureDepthData.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultDefinitionTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RimResultSelectionUi.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimPlotRectAnnotation.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEmCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseViewCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseEnsemble.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCameraPosition.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellTargetCandidatesGenerator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMap.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellTargetMapping.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimRegularGridCase.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimGeometrySelectionItem.cpp
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -169,8 +159,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCaseEvaluator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimMimeData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimTools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimFormationNames.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimFormationNamesCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimMockModelSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimTernaryLegendConfig.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseFaultColors.cpp
@@ -205,7 +193,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCheckableNamedObject.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCheckableObject.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimGridTimeHistoryCurve.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimGeometrySelectionItem.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseGeometrySelectionItem.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDialogData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimTimeStepFilter.cpp
@@ -224,15 +211,10 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimLegendConfig.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimNameConfig.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDataSourceSteppingTools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimContourMapProjection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapProjection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapView.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapViewCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisLogRangeCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.cpp
@@ -247,8 +229,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunction.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionWeight.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimEquilibriumAxisAnnotation.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafTreeNode.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimMultipleLocations.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceIntersectionBand.cpp
@@ -262,14 +242,14 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPressureDepthData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultDefinitionTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimResultSelectionUi.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimPlotRectAnnotation.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEmCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPolylinePickerInterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseViewCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseEnsemble.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCameraPosition.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellTargetCandidatesGenerator.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMap.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellTargetMapping.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimRegularGridCase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimGeometrySelectionItem.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)
@@ -295,13 +275,4 @@ if(RESINSIGHT_USE_QT_CHARTS)
 endif()
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
-
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
-
-list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RimPlot.h)
-
-source_group(
-  "ProjectDataModel"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
-)

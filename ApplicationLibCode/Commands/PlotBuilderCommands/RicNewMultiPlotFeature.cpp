@@ -19,7 +19,7 @@
 
 #include "RicNewMultiPlotFeature.h"
 
-#include "RicSummaryPlotBuilder.h"
+#include "Summary/RiaSummaryPlotTools.h"
 
 #include "RimPlot.h"
 #include "RimWellLogTrack.h"
@@ -54,9 +54,9 @@ caf::PdmScriptResponse RicNewMultiPlotFeature::execute()
             plots.push_back( reinterpret_cast<RimPlot*>( ptr ) );
         }
 
-        auto copyOfPlots = RicSummaryPlotBuilder::duplicatePlots( plots );
+        auto copyOfPlots = RiaSummaryPlotTools::duplicatePlots( plots );
 
-        RicSummaryPlotBuilder::createAndAppendMultiPlot( copyOfPlots );
+        RiaSummaryPlotTools::createAndAppendMultiPlot( copyOfPlots );
     }
 
     return caf::PdmScriptResponse();

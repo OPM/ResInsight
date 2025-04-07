@@ -29,6 +29,7 @@
 #include "RiuQwtLinearScaleEngine.h"
 #include "RiuQwtPlotItem.h"
 #include "RiuQwtPlotTools.h"
+#include "RiuQwtPlotWidget.h"
 #include "RiuScalarMapperLegendFrame.h"
 
 #include "cvfColor3.h"
@@ -431,7 +432,7 @@ void RiuMatrixPlotWidget::createMatrixCells()
                 cvf::Color3f contrastColor = RiaColorTools::contrastColor( cvf::Color3f( color ) );
                 textLabel.setColor( RiaColorTools::toQColor( contrastColor ) );
                 QFont font = textLabel.font();
-                font.setPixelSize( caf::FontTools::pointSizeToPixelSize( m_valueFontSize ) );
+                font.setPointSize( m_valueFontSize );
                 textLabel.setFont( font );
                 QwtPlotMarker* marker = new QwtPlotMarker();
                 marker->setLabel( textLabel );

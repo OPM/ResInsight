@@ -28,6 +28,7 @@
 
 #include <vector>
 
+class RimRegularLegendConfig;
 class RigSurface;
 
 class RimSurface : public caf::PdmObject
@@ -60,12 +61,19 @@ public:
     QString     userDescription();
     void        setUserDescription( const QString& description );
 
+    virtual void   loadSurfaceDataForTimeStep( int timeStep );
+    virtual size_t timeStepCount() const;
+
     virtual QString     fullName() const;
     virtual bool        onLoadData() = 0;
     virtual RimSurface* createCopy() = 0;
 
     void loadDataIfRequired();
     void reloadData();
+
+    virtual void updateMinMaxValues( RimRegularLegendConfig* legend, const QString& propertyName, int currentTimeStep ) const;
+
+    virtual bool isMeshLinesEnabledDefault() const;
 
 protected:
     void setSurfaceData( RigSurface* surface );
@@ -89,6 +97,7 @@ protected:
 
     caf::PdmField<cvf::Color3f> m_color;
     caf::PdmField<bool>         m_enableOpacity;
+    caf::PdmField<bool>         m_showMeshLines;
     caf::PdmField<double>       m_opacity;
 
     cvf::ref<RigSurface> m_surfaceData;

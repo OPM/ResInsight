@@ -47,6 +47,7 @@
 #include "RicImportGeneralDataFeature.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
+#include "Formations/RimFormationNamesCollection.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
@@ -54,7 +55,6 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
 #include "RimFlowPlotCollection.h"
-#include "RimFormationNamesCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
@@ -493,6 +493,14 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
         }
 
         return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
+    }
+
+    if ( cvf::Option o = progOpt->option( "preferences" ) )
+    {
+        CVF_ASSERT( o.valueCount() == 1 );
+        m_preferencesFileName = cvfqt::Utils::toQString( o.value( 0 ) );
+        RiaApplication::initialize();
+        onProjectClosed();
     }
 
     if ( cvf::Option o = progOpt->option( "regressiontest" ) )
@@ -1456,7 +1464,7 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
                      ( applySettingsToAllViews || rim3dView->backgroundColor() == oldPreferences->defaultViewerBackgroundColor() ) )
                 {
                     rim3dView->setBackgroundColor( m_preferences->defaultViewerBackgroundColor() );
-                    rim3dView->applyBackgroundColorAndFontChanges();
+                    rim3dView->applyFontChanges();
                 }
 
                 if ( oldPreferences && ( applySettingsToAllViews || rim3dView->scaleZ() == oldPreferences->defaultScaleFactorZ() ) )

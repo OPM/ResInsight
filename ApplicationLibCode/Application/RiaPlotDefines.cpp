@@ -77,6 +77,15 @@ void caf::AppEnum<RiaDefines::Orientation>::setUp()
 }
 
 template <>
+void caf::AppEnum<RiaDefines::TextAlignment>::setUp()
+{
+    addItem( RiaDefines::TextAlignment::LEFT, "LEFT", "Left" );
+    addItem( RiaDefines::TextAlignment::CENTER, "CENTER", "Center" );
+    addItem( RiaDefines::TextAlignment::RIGHT, "RIGHT", "Right" );
+    setDefault( RiaDefines::TextAlignment::RIGHT );
+}
+
+template <>
 void caf::AppEnum<RiaDefines::WindowTileMode>::setUp()
 {
     addItem( RiaDefines::WindowTileMode::DEFAULT, "DEFAULT", "Default" );

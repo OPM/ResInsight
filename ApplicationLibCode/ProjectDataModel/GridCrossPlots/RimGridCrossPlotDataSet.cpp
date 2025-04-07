@@ -39,13 +39,13 @@
 #include "RiuPlotWidget.h"
 #include "RiuScalarMapperLegendFrame.h"
 
+#include "Formations/RimFormationNames.h"
 #include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
-#include "RimFormationNames.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
 #include "RimGridCrossPlotRegressionCurve.h"
@@ -508,20 +508,16 @@ void RimGridCrossPlotDataSet::onLoadDataAndUpdate( bool updateParentPlot )
         legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_DISCRETE );
     }
 
-    RigEclipseResultAddress xAddress( m_xAxisProperty->resultType(), m_xAxisProperty->resultVariable() );
-    RigEclipseResultAddress yAddress( m_yAxisProperty->resultType(), m_yAxisProperty->resultVariable() );
-    RigEclipseResultAddress groupAddress( m_groupingProperty->resultType(), m_groupingProperty->resultVariable() );
-
     std::map<int, cvf::UByteArray> timeStepCellVisibilityMap = calculateCellVisibility( eclipseCase );
 
     updateLegendRange();
 
     RigEclipseCrossPlotResult result = RigEclipseCrossPlotDataExtractor::extract( eclipseCase->eclipseCaseData(),
                                                                                   m_timeStep(),
-                                                                                  xAddress,
-                                                                                  yAddress,
+                                                                                  *m_xAxisProperty,
+                                                                                  *m_yAxisProperty,
                                                                                   m_grouping(),
-                                                                                  groupAddress,
+                                                                                  *m_groupingProperty,
                                                                                   timeStepCellVisibilityMap );
 
     if ( isXAxisLogarithmic() || isYAxisLogarithmic() )
@@ -573,12 +569,6 @@ void RimGridCrossPlotDataSet::onLoadDataAndUpdate( bool updateParentPlot )
 void RimGridCrossPlotDataSet::assignCurveDataGroups( const RigEclipseCrossPlotResult& result )
 {
     m_groupedResults.clear();
-
-    if ( groupingEnabled() && ( result.groupValuesContinuous.empty() && result.groupValuesDiscrete.empty() ) )
-    {
-        // Basis for group determination (i.e. formation list) may have been deleted since the grouping was assigned.
-        m_grouping = NO_GROUPING;
-    }
 
     if ( !groupingEnabled() )
     {
@@ -1212,7 +1202,11 @@ void RimGridCrossPlotDataSet::updateLegendRange()
                 RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
                 if ( eclipseCase )
                 {
-                    m_groupingProperty->updateRangesForEmbeddedLegends( m_timeStep() );
+                    auto eclipseView = dynamic_cast<RimEclipseView*>( m_cellFilterView() );
+                    m_groupingProperty->updateRangesForExplicitLegends( m_groupingProperty->legendConfig(),
+                                                                        m_groupingProperty->ternaryLegendConfig(),
+                                                                        m_timeStep(),
+                                                                        eclipseView );
                 }
             }
             if ( !m_legendOverlayFrame )

@@ -3135,7 +3135,7 @@ static ecl_grid_type * ecl_grid_alloc_EGRID_all_grids(const char * grid_file, bo
         util_alloc_file_components(grid_file, &path, &basename, NULL);
         char* init_file_name = ecl_util_alloc_filename(path, basename, ECL_INIT_FILE, false, -1);
         if (util_file_exists(init_file_name)) {
-          ecl_file_type* ecl_init_file = ecl_file_open(init_file_name, 0);
+          ecl_init_file = ecl_file_open(init_file_name, 0);
           if (ecl_init_file) {
             ecl_version_enum version = ecl_file_get_ecl_version(ecl_init_file);
             if (version == INTERSECT) {

@@ -18,13 +18,9 @@
 
 #include "RicAppendSummaryCurvesForSummaryAddressesFeature.h"
 
-#include "RiaGuiApplication.h"
-
-#include "RicAppendSummaryPlotsForObjectsFeature.h"
+#include "Summary/RiaSummaryPlotTools.h"
 
 #include "RimSummaryAddress.h"
-#include "RimSummaryAddressCollection.h"
-#include "RimSummaryCase.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 
@@ -47,17 +43,16 @@ bool RicAppendSummaryCurvesForSummaryAddressesFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicAppendSummaryCurvesForSummaryAddressesFeature::onActionTriggered( bool isChecked )
 {
-    RiaGuiApplication* app = RiaGuiApplication::instance();
-
-    auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( app->activePlotWindow() );
-    if ( !summaryMultiPlot ) return;
-
     auto addresses = selectedAddresses();
     if ( addresses.empty() ) return;
 
-    for ( auto plot : summaryMultiPlot->summaryPlots() )
+    auto selectedMultiPlots = RiaSummaryPlotTools::selectedSummaryMultiPlots();
+    for ( auto summaryMultiPlot : selectedMultiPlots )
     {
-        plot->handleDroppedObjects( addresses );
+        for ( auto plot : summaryMultiPlot->summaryPlots() )
+        {
+            plot->handleDroppedObjects( addresses );
+        }
     }
 }
 

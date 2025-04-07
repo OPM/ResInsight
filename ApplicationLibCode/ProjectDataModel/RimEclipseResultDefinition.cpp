@@ -33,14 +33,14 @@
 #include "RigFlowDiagResults.h"
 #include "RigFormationNames.h"
 
+#include "ContourMap/RimContourMapProjection.h"
+#include "ContourMap/RimEclipseContourMapProjection.h"
+#include "ContourMap/RimEclipseContourMapView.h"
 #include "Rim3dView.h"
 #include "Rim3dWellLogCurve.h"
 #include "RimCellEdgeColors.h"
-#include "RimContourMapProjection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
-#include "RimEclipseContourMapProjection.h"
-#include "RimEclipseContourMapView.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultCase.h"
@@ -326,7 +326,8 @@ void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
         if ( contourMapView )
         {
-            contourMapView->contourMapProjection()->clearGridMappingAndRedraw();
+            if ( auto projection = dynamic_cast<RimEclipseContourMapProjection*>( contourMapView->contourMapProjection() ) )
+                projection->clearGridMappingAndRedraw();
         }
 
         loadDataAndUpdate();
@@ -336,7 +337,8 @@ void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
     {
         if ( contourMapView )
         {
-            contourMapView->contourMapProjection()->clearGridMappingAndRedraw();
+            if ( auto projection = dynamic_cast<RimEclipseContourMapProjection*>( contourMapView->contourMapProjection() ) )
+                projection->clearGridMappingAndRedraw();
         }
 
         loadDataAndUpdate();
@@ -1680,7 +1682,8 @@ void RimEclipseResultDefinition::setTernaryEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegendConfig* legendConfigToUpdate,
                                                                  RimTernaryLegendConfig* ternaryLegendConfigToUpdate,
-                                                                 int                     currentTimeStep )
+                                                                 int                     currentTimeStep,
+                                                                 RimEclipseView*         cellVisibilityView )
 
 {
     if ( hasResult() )
@@ -1694,7 +1697,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
         }
         else
         {
-            RimEclipseResultDefinitionTools::updateCellResultLegend( this, legendConfigToUpdate, currentTimeStep );
+            RimEclipseResultDefinitionTools::updateCellResultLegend( this, legendConfigToUpdate, currentTimeStep, cellVisibilityView );
         }
     }
 
@@ -1702,6 +1705,17 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
     {
         RimEclipseResultDefinitionTools::updateTernaryLegend( currentGridCellResults(), ternaryLegendConfigToUpdate, currentTimeStep );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegendConfig* legendConfig,
+                                                                 RimTernaryLegendConfig* ternaryLegendConfig,
+                                                                 int                     currentTimeStep )
+{
+    RimEclipseView* cellVisibilityView = nullptr;
+    updateRangesForExplicitLegends( legendConfig, ternaryLegendConfig, currentTimeStep, cellVisibilityView );
 }
 
 //--------------------------------------------------------------------------------------------------

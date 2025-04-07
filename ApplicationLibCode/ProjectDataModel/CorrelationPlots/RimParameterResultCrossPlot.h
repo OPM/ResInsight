@@ -20,6 +20,11 @@
 
 #include "RimAbstractCorrelationPlot.h"
 
+#include <array>
+#include <map>
+
+class RiuQwtPlotRectAnnotation;
+
 //==================================================================================================
 ///
 ///
@@ -33,27 +38,54 @@ public:
     ~RimParameterResultCrossPlot() override;
     void setEnsembleParameter( const QString& ensembleParameter );
 
-private:
-    // Overridden PDM methods
+    std::vector<RimSummaryCase*> summaryCasesExcludedByFilter() const;
+    void                         appendFilterFields( caf::PdmUiOrdering& uiOrdering );
 
+    void detachAllCurves() override;
+
+private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+
+    RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
     void    onLoadDataAndUpdate() override;
     void    updateAxes() override;
     QString asciiDataForPlotExport() const override;
+    void    updatePlotTitle() override;
+    void    createPoints();
 
-    // Private methods
-    void updatePlotTitle() override;
-    void createPoints();
+    void updateValueRanges();
+    void updateFilterRanges();
+
+    QString excludedCasesText() const;
+
+    struct CaseData
+    {
+        double          parameterValue;
+        double          summaryValue;
+        RimSummaryCase* summaryCase;
+    };
+
+    std::vector<CaseData> createCaseData() const;
+
+    size_t hashFromCurrentData() const;
+    void   writeDataToCache();
 
 private:
     caf::PdmField<QString> m_ensembleParameter;
 
-    std::pair<double, double> m_xRange;
-    std::pair<double, double> m_yRange;
+    caf::PdmField<bool>                      m_useParameterFilter;
+    caf::PdmField<std::pair<double, double>> m_summaryFilterRange;
+    caf::PdmField<std::pair<double, double>> m_parameterFilterRange;
+    caf::PdmProxyValueField<QString>         m_excludedCasesText;
 
-    std::vector<std::pair<double, double>> m_valuesForTextReport;
+    std::pair<double, double> m_xValueRange;
+    std::pair<double, double> m_yValueRange;
+
+    std::unique_ptr<RiuQwtPlotRectAnnotation> m_rectAnnotation;
+
+    std::map<size_t, std::array<double, 4>> m_filterValueRangeCache;
 };

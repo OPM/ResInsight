@@ -19,16 +19,19 @@
 
 #include "RimCase.h"
 
+#include "RiaEnsembleNameTools.h"
+
 #include "RicfCommandObject.h"
 
-#include "RimFormationNames.h"
-#include "RimFormationNamesCollection.h"
+#include "Formations/RimFormationNames.h"
+#include "Formations/RimFormationNamesCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimTimeStepFilter.h"
 
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
+#include "RimCaseCollection.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimGridView.h"
 
@@ -325,7 +328,27 @@ void RimCase::updateAutoShortName()
     }
     else if ( m_displayNameOption == RimCaseDisplayNameTools::DisplayName::SHORT_CASE_NAME )
     {
-        m_caseUserDescription = RimCase::uniqueShortNameCase( this, RimCaseDisplayNameTools::CASE_SHORT_NAME_LENGTH );
+        if ( auto caseCollection = firstAncestorOrThisOfType<RimCaseCollection>() )
+        {
+            QStringList filePaths;
+            auto        cases = caseCollection->cases();
+            if ( !cases.empty() )
+            {
+                for ( int i = 0; i < std::min( 4, static_cast<int>( cases.size() ) ); ++i )
+                {
+                    auto caseInEnsemble = cases[i];
+                    filePaths.push_back( caseInEnsemble->gridFileName() );
+                }
+            }
+
+            filePaths.push_back( gridFileName() );
+
+            m_caseUserDescription = RiaEnsembleNameTools::uniqueShortName( gridFileName(), filePaths, caseName() );
+        }
+        else
+        {
+            m_caseUserDescription = RimCase::uniqueShortNameCase( this, RimCaseDisplayNameTools::CASE_SHORT_NAME_LENGTH );
+        }
     }
     updateTreeItemName();
 }

@@ -24,6 +24,7 @@
 #include "RimWellRftEnsembleCurveSet.h"
 
 #include "RifDataSourceForRftPltQMetaType.h"
+
 #include "RiuPlotCurveSymbol.h"
 
 #include "cafPdmField.h"
@@ -95,6 +96,8 @@ public:
     void onLegendDefinitionChanged();
 
     RimWellRftEnsembleCurveSet* findEnsembleCurveSet( RimSummaryEnsemble* ensemble ) const;
+
+    void rebuildCurves();
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

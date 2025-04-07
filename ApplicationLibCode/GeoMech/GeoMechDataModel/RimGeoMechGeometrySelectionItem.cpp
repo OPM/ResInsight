@@ -73,29 +73,25 @@ void RimGeoMechGeometrySelectionItem::setFromSelectionItem( const RiuGeoMechSele
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGeoMechGeometrySelectionItem::setFromSelectionItem( const RimGeoMechGeometrySelectionItem* selectionItem )
+{
+    m_geoMechCase             = selectionItem->geoMechCase();
+    m_gridIndex               = selectionItem->m_gridIndex();
+    m_cellIndex               = selectionItem->m_cellIndex();
+    m_elementFace             = selectionItem->m_elementFace();
+    m_hasIntersectionTriangle = selectionItem->m_hasIntersectionTriangle();
+    m_intersectionTriangle_0  = selectionItem->m_intersectionTriangle_0();
+    m_intersectionTriangle_1  = selectionItem->m_intersectionTriangle_1();
+    m_intersectionTriangle_2  = selectionItem->m_intersectionTriangle_2();
+    m_localIntersectionPoint  = selectionItem->m_localIntersectionPoint();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimGeoMechGeometrySelectionItem::geometrySelectionText() const
 {
-    QString text;
-
-    /*
-        if (m_geoMechCase)
-        {
-            text += m_geoMechCase->caseUserDescription();
-        }
-        else
-        {
-            text = "No case";
-        }
-
-
-        text += ", ";
-        text += QString("Grid index %1").arg(m_gridIndex);
-        text += ", ";
-        text += RigTimeHistoryResultAccessor::geometrySelectionText(m_geoMechCase->eclipseCaseData(), m_gridIndex,
-       m_cellIndex);
-    */
-
-    return text;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

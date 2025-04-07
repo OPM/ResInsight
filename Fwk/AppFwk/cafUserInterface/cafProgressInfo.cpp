@@ -323,11 +323,11 @@ static std::vector<size_t>& progressSpanStack()
 /// Calculate the total maximum value for the progress bar composed
 /// of the complete stack
 //--------------------------------------------------------------------------------------------------
-static size_t currentTotalMaxProgressValue()
+static double currentTotalMaxProgressValue()
 {
     std::vector<size_t>& maxProgressStack_v = maxProgressStack();
 
-    size_t levCount = 1;
+    double levCount = 1.0;
     for ( size_t levelDepth = 0; levelDepth < maxProgressStack_v.size(); ++levelDepth )
     {
         levCount *= maxProgressStack_v[levelDepth];
@@ -338,7 +338,7 @@ static size_t currentTotalMaxProgressValue()
 //--------------------------------------------------------------------------------------------------
 /// Calculate the total progress value based on the current level subdivision and progress
 //--------------------------------------------------------------------------------------------------
-static size_t currentTotalProgress()
+static double currentTotalProgress()
 {
     double progress = 0;
 
@@ -349,12 +349,12 @@ static size_t currentTotalProgress()
     for ( int i = static_cast<int>( progressStack_v.size() ) - 1; i >= 0; --i )
     {
         size_t span = ( i < 1 ) ? 1 : progressSpanStack_v[i - 1];
-        progress    = span * ( progress + progressStack_v[i] ) / (double)maxProgressStack_v[i];
+        progress    = 1.0 * span * ( progress + progressStack_v[i] ) / (double)maxProgressStack_v[i];
     }
 
-    size_t totalIntProgress = static_cast<size_t>( currentTotalMaxProgressValue() * progress );
+    double totalProgress = currentTotalMaxProgressValue() * progress;
 
-    return totalIntProgress;
+    return totalProgress;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -533,8 +533,9 @@ void ProgressInfoStatic::start( ProgressInfo&  progressInfo,
 
     if ( dialog )
     {
-        dialog->setMaximum( static_cast<int>( currentTotalMaxProgressValue() ) );
-        dialog->setValue( static_cast<int>( currentTotalProgress() ) );
+        double value = currentTotalProgress() / currentTotalMaxProgressValue();
+        dialog->setMaximum( 100 );
+        dialog->setValue( (int)( 100.0 * value ) );
         dialog->setLabelText( currentComposedLabel() );
     }
 
@@ -583,10 +584,10 @@ void ProgressInfoStatic::setProgress( size_t progressValue )
     progressStack_v.back()     = progressValue;
     progressSpanStack_v.back() = 1;
 
-    int totalProgress    = static_cast<int>( currentTotalProgress() );
-    int totalMaxProgress = static_cast<int>( currentTotalMaxProgressValue() );
+    double totalProgress    = currentTotalProgress();
+    double totalMaxProgress = currentTotalMaxProgressValue();
 
-    if ( static_cast<int>( totalProgress ) > totalMaxProgress )
+    if ( totalProgress > totalMaxProgress )
     {
         reportError( "totalProgress > totalMaxProgress"
                      ", totalProgress == " +
@@ -597,8 +598,9 @@ void ProgressInfoStatic::setProgress( size_t progressValue )
     QProgressDialog* dialog = progressDialog();
     if ( dialog )
     {
-        dialog->setMaximum( totalMaxProgress );
-        dialog->setValue( totalProgress );
+        double value = currentTotalProgress() / currentTotalMaxProgressValue();
+        dialog->setMaximum( 100 );
+        dialog->setValue( (int)( 100.0 * value ) );
     }
 
     if ( s_shouldProcessEvents ) QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );

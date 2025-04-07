@@ -39,12 +39,12 @@ namespace ParserKeywords {
            static const std::string itemName;
        };
 
-       class TYPE {
+       class DIRECTION {
        public:
            static const std::string itemName;
        };
 
-       class DIRECTION {
+       class TYPE {
        public:
            static const std::string itemName;
        };
@@ -58,7 +58,167 @@ namespace ParserKeywords {
        class RATE {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
+       };
+
+       class PRESSURE {
+       public:
+           static const std::string itemName;
+           static constexpr double defaultValue = 1.000000;
+       };
+
+       class TEMPERATURE {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class BCCON : public ParserKeyword {
+   public:
+       BCCON();
+       static const std::string keywordName;
+
+       class INDEX {
+       public:
+           static const std::string itemName;
+       };
+
+       class I1 {
+       public:
+           static const std::string itemName;
+       };
+
+       class I2 {
+       public:
+           static const std::string itemName;
+       };
+
+       class J1 {
+       public:
+           static const std::string itemName;
+       };
+
+       class J2 {
+       public:
+           static const std::string itemName;
+       };
+
+       class K1 {
+       public:
+           static const std::string itemName;
+       };
+
+       class K2 {
+       public:
+           static const std::string itemName;
+       };
+
+       class DIRECTION {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class BCPROP : public ParserKeyword {
+   public:
+       BCPROP();
+       static const std::string keywordName;
+
+       class INDEX {
+       public:
+           static const std::string itemName;
+       };
+
+       class TYPE {
+       public:
+           static const std::string itemName;
+       };
+
+       class COMPONENT {
+       public:
+           static const std::string itemName;
+           static const std::string defaultValue;
+       };
+
+       class RATE {
+       public:
+           static const std::string itemName;
+           static constexpr double defaultValue = 0;
+       };
+
+       class PRESSURE {
+       public:
+           static const std::string itemName;
+           static constexpr double defaultValue = 1.000000;
+       };
+
+       class TEMPERATURE {
+       public:
+           static const std::string itemName;
+       };
+
+       class MECHTYPE {
+       public:
+           static const std::string itemName;
+           static const std::string defaultValue;
+       };
+
+       class FIXEDX {
+       public:
+           static const std::string itemName;
+           static constexpr int defaultValue = 1;
+       };
+
+       class FIXEDY {
+       public:
+           static const std::string itemName;
+           static constexpr int defaultValue = 1;
+       };
+
+       class FIXEDZ {
+       public:
+           static const std::string itemName;
+           static constexpr int defaultValue = 1;
+       };
+
+       class STRESSXX {
+       public:
+           static const std::string itemName;
+           static constexpr double defaultValue = 0;
+       };
+
+       class STRESSYY {
+       public:
+           static const std::string itemName;
+           static constexpr double defaultValue = 0;
+       };
+
+       class STRESSZZ {
+       public:
+           static const std::string itemName;
+           static constexpr double defaultValue = 0;
+       };
+
+       class DISPX {
+       public:
+           static const std::string itemName;
+           static constexpr double defaultValue = 0;
+       };
+
+       class DISPY {
+       public:
+           static const std::string itemName;
+           static constexpr double defaultValue = 0;
+       };
+
+       class DISPZ {
+       public:
+           static const std::string itemName;
+           static constexpr double defaultValue = 0;
        };
    };
 
@@ -95,10 +255,37 @@ namespace ParserKeywords {
 
 
 
+   class BIC : public ParserKeyword {
+   public:
+       BIC();
+       static const std::string keywordName;
+
+       class DATA {
+       public:
+           static const std::string itemName;
+           static constexpr double defaultValue = 0;
+       };
+   };
+
+
+
    class BIGMODEL : public ParserKeyword {
    public:
        BIGMODEL();
        static const std::string keywordName;
+   };
+
+
+
+   class BIOTCOEF : public ParserKeyword {
+   public:
+       BIOTCOEF();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
    };
 
 
@@ -213,7 +400,7 @@ namespace ParserKeywords {
        class ORIENTATION_INDEX {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
 
        class DUAL_PORO_FLAG {
@@ -279,13 +466,13 @@ namespace ParserKeywords {
        class MXNBIP {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 10;
        };
 
        class MXNLBI {
        public:
            static const std::string itemName;
-           static const int defaultValue;
+           static constexpr int defaultValue = 1;
        };
    };
 
@@ -314,7 +501,7 @@ namespace ParserKeywords {
        class ALQ {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static constexpr double defaultValue = 0;
        };
 
        class ALQ_SURFACE_DENSITY {

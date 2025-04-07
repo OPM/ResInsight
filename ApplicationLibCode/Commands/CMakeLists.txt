@@ -60,6 +60,7 @@ set(COMMAND_REFERENCED_CMAKE_FILES
     PolygonCommands/CMakeLists_files.cmake
     Sumo/CMakeLists_files.cmake
     ToolCommands/CMakeLists_files.cmake
+    3dView/CMakeLists_files.cmake
 )
 
 # Include source file lists from *.cmake files
@@ -138,5 +139,3 @@ endif()
 set(LINK_LIBRARIES ApplicationLibCode ResultStatisticsCache)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LINK_LIBRARIES})
-
-source_group("" FILES ${PROJECT_FILES})

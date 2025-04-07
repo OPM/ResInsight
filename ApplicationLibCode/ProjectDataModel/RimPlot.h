@@ -32,6 +32,8 @@
 #include <QObject>
 #include <QPointer>
 
+#include <any>
+
 class QPaintDevice;
 class QWheelEvent;
 class RiuPlotWidget;
@@ -103,6 +105,10 @@ public:
 
     virtual std::vector<RimPlotCurve*> visibleCurvesForLegend();
     virtual bool                       isCurveHighlightSupported() const;
+
+    virtual std::any valueForKey( std::string key ) const;
+
+    virtual void zoomAllForMultiPlot();
 
 protected:
     virtual RiuPlotWidget* doCreatePlotViewWidget( QWidget* parent ) = 0;

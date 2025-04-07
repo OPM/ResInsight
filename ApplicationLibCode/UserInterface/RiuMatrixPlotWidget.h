@@ -20,9 +20,7 @@
 
 #include "RiuInterfaceToViewWindow.h"
 #include "RiuPlotItem.h"
-#include "RiuQwtPlotWidget.h"
 
-#include "cafFontTools.h"
 #include "cafPdmPointer.h"
 #include "cafSignal.h"
 
@@ -36,6 +34,7 @@
 class RimViewWindow;
 class RimRegularLegendConfig;
 class RiuAbstractLegendFrame;
+class RiuQwtPlotWidget;
 
 class RiuMatrixPlotWidget : public QWidget, public RiuInterfaceToViewWindow, public caf::SignalEmitter
 {

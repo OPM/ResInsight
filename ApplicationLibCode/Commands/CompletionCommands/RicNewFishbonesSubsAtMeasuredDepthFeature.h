@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RicNewFishbonesSubsFeature.h"
+#include "RimFishbonesDefines.h"
 
 //==================================================================================================
 ///
@@ -32,7 +33,7 @@ private:
     void setupActionLook( QAction* actionToSetup ) override;
     bool isCommandEnabled() const override;
 
-    void createFishbones( const RicFishbonesSystemParameters& customParameters );
+    void createFishbones( const RimFishbonesDefines::RicFishbonesSystemParameters& customParameters );
 
     void onDrillingStandard();
     void onDrillingExtended();

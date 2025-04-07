@@ -157,6 +157,19 @@ public:
     PdmObject();
     ~PdmObject() override {}
 
+    /// Returns _this_ if _this_ has requested class keyword
+    /// Traverses parents recursively and returns first parent of the requested
+    /// type.
+    void firstAncestorOrThisFromClassKeyword( const QString& classKeyword, PdmObject*& ancestor ) const;
+
+    /// Traverses all children recursively to find objects of the requested
+    /// class keyword. This object is also
+    /// included if it has the requested class keyword
+    void descendantsIncludingThisFromClassKeyword( const QString& classKeyword, std::vector<PdmObject*>& descendants ) const;
+
+    /// Gets all children matching class keyword. Not recursive.
+    void childrenFromClassKeyword( const QString& classKeyword, std::vector<PdmObject*>& children ) const;
+
     /// Adds field to the internal data structure and sets the file keyword and Ui information
     /// Consider this method private. Please use the CAF_PDM_InitField() macro instead
     template <typename FieldDataType>
@@ -170,22 +183,26 @@ public:
         *field = defaultValue;
     }
 
+    /// Template specialization for AppEnum to make it possible to use an enum value as the default value.
+    ///
+    /// In the header file:
+    ///   caf::PdmField<caf::AppEnum<MyEnumType>> m_enum2Field;
+    /// In the source file:
+    ///   CAF_PDM_InitField( &m_enum2Field, "m_enum2Field", MyEnumType::T6, "Subset using setEnumSubset()" );
+    ///
+    template <typename FieldDataType>
+    void addFieldUi( PdmField<AppEnum<FieldDataType>>* field,
+                     const QString&                    keyword,
+                     const FieldDataType&              defaultValue,
+                     PdmUiItemInfo*                    fieldDescription )
+    {
+        auto defaultAppEnum = AppEnum<FieldDataType>( defaultValue );
+        addFieldUi( field, keyword, defaultAppEnum, fieldDescription );
+    }
+
     /// Does the same as the above method, but omits the default value.
     /// Consider this method private. Please use the CAF_PDM_InitFieldNoDefault() macro instead.
     void addFieldUiNoDefault( PdmFieldHandle* field, const QString& keyword, PdmUiItemInfo* fieldDescription );
-
-    /// Returns _this_ if _this_ has requested class keyword
-    /// Traverses parents recursively and returns first parent of the requested
-    /// type.
-    void firstAncestorOrThisFromClassKeyword( const QString& classKeyword, PdmObject*& ancestor ) const;
-
-    /// Traverses all children recursively to find objects of the requested
-    /// class keyword. This object is also
-    /// included if it has the requested class keyword
-    void descendantsIncludingThisFromClassKeyword( const QString& classKeyword, std::vector<PdmObject*>& descendants ) const;
-
-    /// Gets all children matching class keyword. Not recursive.
-    void childrenFromClassKeyword( const QString& classKeyword, std::vector<PdmObject*>& children ) const;
 
 protected:
     PdmObjectHandle* doCopyObject() const override;

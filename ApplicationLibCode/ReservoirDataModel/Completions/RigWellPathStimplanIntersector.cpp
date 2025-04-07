@@ -25,7 +25,6 @@
 
 #include "RimFracture.h"
 #include "RimFractureTemplate.h"
-#include "RimSimWellFracture.h"
 #include "RimStimPlanFractureTemplate.h"
 
 #include "cvfMath.h"

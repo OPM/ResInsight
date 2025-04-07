@@ -7,6 +7,7 @@
 #include "opm/input/eclipse/Schedule/VFPInjTable.hpp"
 #include "opm/input/eclipse/Schedule/VFPProdTable.hpp"
 #include "opm/input/eclipse/Parser/Parser.hpp"
+#include "opm/input/eclipse/Parser/InputErrorAction.hpp"
 #include "opm/input/eclipse/Deck/Deck.hpp"
 
 #include <opm/input/eclipse/Parser/ParserKeywords/V.hpp>
@@ -101,7 +102,7 @@ TEST(OpmParserTest, ReadAndParseWSEGLINK)
 
     std::string testFilePath = std::string(TEST_DATA_DIR) + "/test_wseglink.DATA";
     
-    Opm::ParseContext parseContext(Opm::InputError::Action::WARN);
+    Opm::ParseContext parseContext(Opm::InputErrorAction::WARN);
     auto              deck = parser.parseFile(testFilePath, parseContext);
 
     std::string myKeyword = "WSEGLINK";

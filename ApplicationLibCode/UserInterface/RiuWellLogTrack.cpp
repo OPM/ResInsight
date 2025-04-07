@@ -107,7 +107,13 @@ void RiuWellLogTrack::createAnnotationsInPlot( const std::vector<RimPlotAxisAnno
                                                                                                  : RiaDefines::Orientation::HORIZONTAL;
     for ( auto annotation : annotations )
     {
-        m_annotationTool->attachAnnotation( qwtPlot(), annotation, orientation );
+        m_annotationTool->attachAnnotationLine( qwtPlot(),
+                                                annotation->color(),
+                                                annotation->name(),
+                                                annotation->penStyle(),
+                                                annotation->value(),
+                                                orientation,
+                                                Qt::AlignRight );
     }
 }
 

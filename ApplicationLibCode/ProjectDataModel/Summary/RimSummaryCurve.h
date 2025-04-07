@@ -34,7 +34,6 @@
 #include "RimStackablePlotCurve.h"
 
 #include "cafAppEnum.h"
-#include "cafTristate.h"
 
 class RifSummaryReaderInterface;
 class RimSummaryCase;
@@ -93,10 +92,9 @@ public:
 
     // Other
     bool isEnsembleCurve() const;
-    void setIsEnsembleCurve( bool isEnsembleCurve );
 
     void updatePlotAxis();
-    void applyCurveAutoNameSettings( const RimSummaryCurveAutoName& autoNameSettings );
+    void enableVectorNameInCurveName( bool enable );
 
     QString curveExportDescription( const RifEclipseSummaryAddress& address ) const override;
     void    setCurveAppearanceFromCaseType();
@@ -165,9 +163,6 @@ private:
     caf::PdmField<RifEclipseSummaryAddress>                     m_xValuesSummaryAddressUiField;
     caf::PdmField<bool>                                         m_xPushButtonSelectSummaryAddress;
     caf::PdmPtrField<RimPlotAxisPropertiesInterface*>           m_xPlotAxisProperties;
-
-    // Other fields
-    caf::PdmField<caf::Tristate> m_isEnsembleCurve;
 
     caf::PdmChildField<RimSummaryCurveAutoName*>      m_curveNameConfig;
     caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis_OBSOLETE;

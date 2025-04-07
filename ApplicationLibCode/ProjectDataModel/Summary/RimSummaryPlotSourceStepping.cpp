@@ -25,6 +25,8 @@
 #include "Summary/RiaSummaryAddressModifier.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 
+#include "RifEclipseSummaryTools.h"
+
 #include "RimDataSourceSteppingTools.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
@@ -79,8 +81,9 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
 
     CAF_PDM_InitFieldNoDefault( &m_cellBlock, "CellBlock", "Block" );
     CAF_PDM_InitFieldNoDefault( &m_wellSegment, "Segment", "Segment" );
-    CAF_PDM_InitFieldNoDefault( &m_completion, "Completion", "Completion" );
+    CAF_PDM_InitFieldNoDefault( &m_connection, "Connection", "Connection" );
     CAF_PDM_InitFieldNoDefault( &m_aquifer, "Aquifer", "Aquifer" );
+    CAF_PDM_InitFieldNoDefault( &m_wellCompletionNumber, "WellCompletion", "Well Completion" );
 
     CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble" );
 
@@ -274,10 +277,15 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
                 secondaryIdentifier = m_wellName().toStdString();
                 category            = SummaryCategory::SUMMARY_WELL_SEGMENT;
             }
-            else if ( fieldNeedingOptions == &m_completion )
+            else if ( fieldNeedingOptions == &m_wellCompletionNumber )
             {
                 secondaryIdentifier = m_wellName().toStdString();
                 category            = SummaryCategory::SUMMARY_WELL_COMPLETION;
+            }
+            else if ( fieldNeedingOptions == &m_connection )
+            {
+                secondaryIdentifier = m_wellName().toStdString();
+                category            = SummaryCategory::SUMMARY_WELL_CONNECTION;
             }
             else if ( fieldNeedingOptions == &m_aquifer )
             {
@@ -480,13 +488,17 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         {
             summaryCategoryToModify = SummaryCategory::SUMMARY_WELL_SEGMENT;
         }
-        else if ( changedField == &m_completion )
+        else if ( changedField == &m_connection )
         {
-            summaryCategoryToModify = SummaryCategory::SUMMARY_WELL_COMPLETION;
+            summaryCategoryToModify = SummaryCategory::SUMMARY_WELL_CONNECTION;
         }
         else if ( changedField == &m_aquifer )
         {
             summaryCategoryToModify = SummaryCategory::SUMMARY_AQUIFER;
+        }
+        else if ( changedField == &m_wellCompletionNumber )
+        {
+            summaryCategoryToModify = SummaryCategory::SUMMARY_WELL_COMPLETION;
         }
 
         if ( summaryCategoryToModify != SummaryCategory::SUMMARY_INVALID )
@@ -589,6 +601,12 @@ caf::PdmValueField* RimSummaryPlotSourceStepping::fieldToModify()
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_SEGMENT:
             return &m_wellSegment;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_COMPLETION_NUMBER:
+            return &m_wellCompletionNumber;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_CONNECTION:
+            return &m_connection;
 
         default:
             break;
@@ -840,12 +858,12 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
                 fieldsCommonForAllCurves.push_back( &m_cellBlock );
             }
 
-            if ( analyzer.wellCompletions( m_wellName().toStdString() ).size() == 1 )
+            if ( analyzer.wellConnections( m_wellName().toStdString() ).size() == 1 )
             {
-                QString txt  = QString::fromStdString( *( analyzer.wellCompletions( m_wellName().toStdString() ).begin() ) );
-                m_completion = txt;
+                QString txt  = QString::fromStdString( *( analyzer.wellConnections( m_wellName().toStdString() ).begin() ) );
+                m_connection = txt;
 
-                fieldsCommonForAllCurves.push_back( &m_completion );
+                fieldsCommonForAllCurves.push_back( &m_connection );
             }
 
             if ( analyzer.aquifers().size() == 1 )
@@ -853,6 +871,13 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
                 m_aquifer = *( analyzer.aquifers().begin() );
 
                 fieldsCommonForAllCurves.push_back( &m_aquifer );
+            }
+
+            if ( analyzer.wellCompletionNumbers( m_wellName().toStdString() ).size() == 1 )
+            {
+                m_wellCompletionNumber = *( analyzer.wellCompletionNumbers( m_wellName().toStdString() ).begin() );
+
+                fieldsCommonForAllCurves.push_back( &m_wellCompletionNumber );
             }
 
             if ( !analyzer.quantityNameForTitle().empty() )
@@ -1057,9 +1082,13 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
                 ids.push_back( it->second );
             }
 
-            auto searchString = QString::fromStdString( addr.vectorName() );
-            auto found        = getIdIterator( ids, searchString );
-            if ( found != ids.end() ) addr.setVectorName( ( *found ).toStdString() );
+            const auto [vectorName, suffix] = RifEclipseSummaryTools::splitVectorNameAndSuffix( addr.vectorName() );
+            auto found                      = getIdIterator( ids, QString::fromStdString( vectorName ) );
+            if ( found != ids.end() )
+            {
+                auto fullName = ( *found ).toStdString() + suffix;
+                addr.setVectorName( fullName );
+            }
         }
         break;
 
@@ -1078,6 +1107,15 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
             auto searchString = QString::number( addr.aquiferNumber() );
             auto found        = getIdIterator( ids, searchString );
             if ( found != ids.end() ) addr.setAquiferNumber( ( *found ).toInt() );
+        }
+        break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_COMPLETION_NUMBER:
+        {
+            auto ids          = analyzer.identifierTexts( SummaryCategory::SUMMARY_WELL_COMPLETION, "" );
+            auto searchString = QString::number( addr.wellCompletionNumber() );
+            auto found        = getIdIterator( ids, searchString );
+            if ( found != ids.end() ) addr.setWellCompletionNumber( ( *found ).toInt() );
         }
         break;
 
@@ -1130,8 +1168,16 @@ void RimSummaryPlotSourceStepping::syncWithStepper( RimSummaryPlotSourceStepping
             m_aquifer = other->m_aquifer();
             break;
 
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_COMPLETION_NUMBER:
+            m_wellCompletionNumber = other->m_wellCompletionNumber();
+            break;
+
         case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_SEGMENT:
             m_wellSegment = other->m_wellSegment();
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_CONNECTION:
+            m_connection = other->m_connection();
             break;
 
         default:
@@ -1168,6 +1214,10 @@ void RimSummaryPlotSourceStepping::setStep( QString stepIdentifier )
             m_cellBlock.setValueWithFieldChanged( stepIdentifier );
             break;
 
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_CONNECTION:
+            m_connection.setValueWithFieldChanged( stepIdentifier );
+            break;
+
         case RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER:
         case RimSummaryDataSourceStepping::SourceSteppingDimension::REGION:
         case RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE:
@@ -1199,8 +1249,8 @@ std::map<QString, QString> RimSummaryPlotSourceStepping::optionsForQuantity( std
         auto subset = RiaSummaryAddressAnalyzer::addressesForCategory( addresses, category );
         quantityAnalyzer.appendAddresses( subset );
 
-        auto quantities = quantityAnalyzer.quantities();
-        for ( const auto& s : quantities )
+        auto nativeVectorNames = RifEclipseSummaryTools::nativeVectorNames( quantityAnalyzer.quantities() );
+        for ( const auto& s : nativeVectorNames )
         {
             QString valueString = QString::fromStdString( s );
 
@@ -1230,7 +1280,10 @@ std::map<QString, QString> RimSummaryPlotSourceStepping::optionsForQuantity( Ria
     {
         auto vectorNames = analyzser->vectorNamesForCategory( category );
 
-        for ( const auto& s : vectorNames )
+        std::vector<std::string> setNamesVec( vectorNames.begin(), vectorNames.end() );
+        auto                     nativeVectorNames = RifEclipseSummaryTools::nativeVectorNames( setNamesVec );
+
+        for ( const auto& s : nativeVectorNames )
         {
             QString valueString = QString::fromStdString( s );
 
@@ -1407,7 +1460,9 @@ std::vector<RimPlot*> RimSummaryPlotSourceStepping::plotsMatchingStepSettings( s
     int         regionToMatch = -1;
     std::string vectorToMatch;
     std::string blockToMatch;
-    int         aquiferToMatch = -1;
+    std::string connectionToMatch;
+    int         aquiferToMatch              = -1;
+    int         wellCompletionNumberToMatch = -1;
 
     switch ( m_stepDimension() )
     {
@@ -1445,6 +1500,14 @@ std::vector<RimPlot*> RimSummaryPlotSourceStepping::plotsMatchingStepSettings( s
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER:
             aquiferToMatch = m_aquifer();
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_COMPLETION_NUMBER:
+            wellCompletionNumberToMatch = m_wellCompletionNumber();
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_CONNECTION:
+            connectionToMatch = m_connection().toStdString();
             break;
 
         default:
@@ -1502,6 +1565,14 @@ std::vector<RimPlot*> RimSummaryPlotSourceStepping::plotsMatchingStepSettings( s
                     isMatching = true;
                 }
                 else if ( aquiferToMatch != -1 && a.aquiferNumber() == aquiferToMatch )
+                {
+                    isMatching = true;
+                }
+                else if ( wellCompletionNumberToMatch != -1 && a.wellCompletionNumber() == wellCompletionNumberToMatch )
+                {
+                    isMatching = true;
+                }
+                else if ( !connectionToMatch.empty() && a.connectionAsString() == connectionToMatch )
                 {
                     isMatching = true;
                 }

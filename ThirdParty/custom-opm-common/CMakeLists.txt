@@ -7,139 +7,113 @@ else()
   set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 
- if(MSVC)
-  add_definitions( "/wd4996 /wd4244 /wd4267 /wd4101 /wd4477" )
+if(MSVC)
+  add_definitions(
+    "/wd4996 /wd4244 /wd4267 /wd4101 /wd4477 /wd4661 -D_USE_MATH_DEFINES"
+  )
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /permissive-")
 endif(MSVC)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-switch -Wno-sign-compare -Wno-deprecated-copy -Wno-missing-field-initializers")
+  set(CMAKE_CXX_FLAGS
+      "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-switch -Wno-sign-compare -Wno-deprecated-copy -Wno-missing-field-initializers"
+  )
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare -Wno-missing-field-initializers -Wno-deprecated-copy")
+  set(CMAKE_CXX_FLAGS
+      "${CMAKE_CXX_FLAGS} -Wno-sign-compare -Wno-missing-field-initializers -Wno-deprecated-copy"
+  )
 endif()
 
-project (custom-opm-common)
-
-find_package(Boost)
-
-include_directories(
-    opm-common
-    opm-common/external/cjson
-    generated-opm-common 
-    generated-opm-common/include
-)
-
- add_definitions(-DFMT_HEADER_ONLY)
-    include_directories(SYSTEM ../fmtlib/include)
-
-# Set defines to include requred files
+# Set defines to include required files for ResInsight. Make sure that these
+# defines are set before including the opm-common CMakeLists
 set(ENABLE_ECL_INPUT true)
-#set(ENABLE_ECL_OUTPUT true)
+set(ENABLE_ECL_OUTPUT true)
+set(BUILD_TESTING false)
+set(ENABLE_MOCKSIM false)
+set(OPM_ENABLE_PYTHON false)
+set(OPM_INSTALL_PYTHON false)
+set(OPM_ENABLE_EMBEDDED_PYTHON false)
+set(OPM_ENABLE_DUNE false)
+set(BUILD_EXAMPLES false)
 
+if(CREATE_OPM_COMMON_KEYWORDS)
+  # In ResInsight, we need a subset of the files in opm-common. We also need to
+  # generate the keywords. The flag CREATE_OPM_COMMON_KEYWORDS is set in the
+  # main CMakeLists.txt file. When this flag is set, the opm-common is added to
+  # the solution. Build a test target to trigger the c++ code generation using
+  # the tool genkw, use CarfinTest.exe Copy files generated code from
+  # build/ThirdParty/custom-opm-common/opm-common: copy ParserInit.cpp and
+  # config.h to source folder ThirdParty/custom-opm-common/generated-opm-common/
+  # copy the folders "ParserKeywords" and "include" to source folder
+  # ThirdParty/custom-opm-common/generated-opm-common/
+  add_subdirectory(opm-common)
+  message(
+    STATUS
+      "opm-common is added to the solution used to create keywords from JSON files"
+  )
 
-include(opm-common/CMakeLists_files.cmake)
+else(CREATE_OPM_COMMON_KEYWORDS)
 
-set(opm_parser_source_files_short_path 
-	${MAIN_SOURCE_FILES}
-)
+  project(custom-opm-common)
 
-foreach (file ${opm_parser_source_files_short_path} )
-    list(APPEND opm_parser_source_files_long_path "opm-common/${file}" )
-endforeach()
+  find_package(Boost)
 
-set(opm_parser_source_files
-	${opm_parser_source_files_long_path}
-    ${opm_parser_generated_source_files} 
-) 
+  list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/opm-common/cmake/Modules)
 
-# Append generated sources
-list(INSERT opm-common_SOURCES 0 generated-opm-common/ParserInit.cpp)
-foreach (name A B C D E F G H I J K L M N O P Q R S T U V W X Y Z)
-    list(INSERT opm-common_SOURCES 0 generated-opm-common/ParserKeywords/${name}.cpp)
-endforeach()
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
-    list(APPEND ADDITIONAL_LINK_LIBRARIES stdc++fs)
+  if(NOT cjson_FOUND)
+    include(DownloadCjson)
   endif()
-endif()
 
- if(MSVC)
-    list(APPEND opm-common_SOURCES opm-common/cross-platform/windows/Substitutes.cpp )
-endif(MSVC)
+  include_directories(${cjson_SOURCE_DIR})
+  list(APPEND opm-common_SOURCES ${cjson_SOURCE_DIR}/cJSON.c)
 
-add_library(${PROJECT_NAME} 
-    STATIC
-	${opm_parser_source_files_long_path}
-	${opm-common_SOURCES}
+  include_directories(
+    opm-common generated-opm-common generated-opm-common/include
+  )
 
-    ## Missing files when only ENABLE_ECL_INPUT is defined
-    opm-common/src/opm/io/eclipse/EclFile.cpp
-    opm-common/src/opm/io/eclipse/EclOutput.cpp
-    opm-common/src/opm/io/eclipse/EclUtil.cpp
-    opm-common/src/opm/io/eclipse/EGrid.cpp
-    opm-common/src/opm/io/eclipse/ESmry.cpp
-    opm-common/src/opm/io/eclipse/ExtESmry.cpp
-    opm-common/src/opm/io/eclipse/EInit.cpp
-    opm-common/src/opm/io/eclipse/ERft.cpp
+  add_definitions(-DFMT_HEADER_ONLY)
 
-    # Required for use of static function RstConnection::inverse_peaceman
-    opm-common/src/opm/io/eclipse/rst/connection.cpp
+  include(opm-common/CMakeLists_files.cmake)
 
-    # Required for use of RstHeader::restart_info
-    opm-common/src/opm/io/eclipse/rst/action.cpp
-    opm-common/src/opm/io/eclipse/rst/aquifer.cpp
-    opm-common/src/opm/io/eclipse/rst/connection.cpp
-    opm-common/src/opm/io/eclipse/rst/group.cpp
-    opm-common/src/opm/io/eclipse/rst/header.cpp
-    opm-common/src/opm/io/eclipse/rst/network.cpp
-    opm-common/src/opm/io/eclipse/rst/segment.cpp
-    opm-common/src/opm/io/eclipse/rst/state.cpp
-    opm-common/src/opm/io/eclipse/rst/udq.cpp
-    opm-common/src/opm/io/eclipse/rst/well.cpp
-    opm-common/src/opm/output/eclipse/InteHEAD.cpp 
-    opm-common/src/opm/output/eclipse/UDQDims.cpp
-    opm-common/src/opm/output/eclipse/CreateActionRSTDims.cpp 
+  set(opm_parser_source_files_short_path ${MAIN_SOURCE_FILES})
 
-	# 2022.06 additional includes
-    opm-common/src/opm/io/eclipse/ERst.cpp
-    opm-common/src/opm/io/eclipse/RestartFileView.cpp
-    opm-common/cross-platform/windows/Substitutes.cpp 
-	
-)
+  foreach(file ${opm_parser_source_files_short_path})
+    list(APPEND opm_parser_source_files_long_path "opm-common/${file}")
+  endforeach()
 
-if(RESINSIGHT_ENABLE_UNITY_BUILD)
+  set(opm_parser_source_files ${opm_parser_source_files_long_path}
+                              ${opm_parser_generated_source_files}
+  )
 
-    set(UNITY_EXCLUDE_FILES
-    opm-common/src/opm/parser/eclipse/Deck/UDAValue.cpp
-    opm-common/src/opm/parser/eclipse/EclipseState/Schedule/Well/WellConnections.cpp
-    opm-common/src/opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQFunction.cpp
-    opm-common/src/opm/parser/eclipse/EclipseState/Schedule/Well/WListManager.cpp
-    opm-common/src/opm/parser/eclipse/EclipseState/Schedule/MSW/SpiralICD.cpp
-    opm-common/src/opm/io/eclipse/EclOutput.cpp
-    opm-common/src/opm/io/eclipse/ESmry.cpp
-    opm-common/src/opm/io/eclipse/EGrid.cpp
-    )
+  # Add generated files These files are generated by the parser generator genkw
+  file(GLOB ALL_FILES_IN_FOLDER generated-opm-common/ParserKeywords/*.cpp)
+  list(APPEND opm-common_SOURCES ${ALL_FILES_IN_FOLDER})
+  list(APPEND opm-common_SOURCES generated-opm-common/ParserInit.cpp)
 
-    foreach(fileToExclude ${UNITY_EXCLUDE_FILES})
-      set_source_files_properties(${fileToExclude}
-                                PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE)
-    endforeach(fileToExclude)
-endif()
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
+      list(APPEND ADDITIONAL_LINK_LIBRARIES stdc++fs)
+    endif()
+  endif()
 
-find_path(BOOST_SPIRIT_INCLUDE_DIRS "boost/spirit.hpp" HINTS ${Boost_INCLUDE_DIRS})
+  add_library(
+    ${PROJECT_NAME} STATIC ${opm_parser_source_files_long_path}
+                           ${opm-common_SOURCES}
+  )
 
-target_link_libraries(custom-opm-common 
-  ${ADDITIONAL_LINK_LIBRARIES}
-)
+  find_path(BOOST_SPIRIT_INCLUDE_DIRS "boost/spirit.hpp"
+            HINTS ${Boost_INCLUDE_DIRS}
+  )
 
-target_include_directories(custom-opm-common 
-  PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/opm-common
-    ${CMAKE_CURRENT_SOURCE_DIR}/generated-opm-common/include
-  PRIVATE
-    ${BOOST_SPIRIT_INCLUDE_DIRS}
-    
-)
+  target_link_libraries(custom-opm-common ${ADDITIONAL_LINK_LIBRARIES})
+
+  target_include_directories(
+    custom-opm-common
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/opm-common
+           ${CMAKE_CURRENT_SOURCE_DIR}/generated-opm-common/include
+    PRIVATE ${BOOST_SPIRIT_INCLUDE_DIRS}
+  )
+
+endif(CREATE_OPM_COMMON_KEYWORDS)

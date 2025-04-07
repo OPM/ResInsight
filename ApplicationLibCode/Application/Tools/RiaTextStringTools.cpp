@@ -209,6 +209,25 @@ bool RiaTextStringTools::isNumber( const QString& text, const QString& decimalPo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QVector<double> RiaTextStringTools::parseDoubleValues( const QString& input )
+{
+    // Flexible regex to extract three double numbers with any surrounding text
+    QRegularExpression              coordRegex( R"([-+]?\d+\.?\d*)" );
+    QRegularExpressionMatchIterator it = coordRegex.globalMatch( input );
+
+    QVector<double> coords;
+    while ( it.hasNext() )
+    {
+        QRegularExpressionMatch match = it.next();
+        coords.append( match.captured().toDouble() );
+    }
+
+    return coords;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 #if QT_VERSION < QT_VERSION_CHECK( 6, 8, 0 )
 std::strong_ordering operator<=>( const QString& lhs, const QString& rhs )
 {

@@ -65,5 +65,5 @@ private:
 private:
     QString m_title;
     QString m_text;
-    int     m_fontPixelSize;
+    int     m_fontSize;
 };

@@ -20,10 +20,10 @@
 
 #include "RiaLogging.h"
 
+#include "ContourMap/RimEclipseContourMapView.h"
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseEnsemble.h"
-#include "RimEclipseContourMapView.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"

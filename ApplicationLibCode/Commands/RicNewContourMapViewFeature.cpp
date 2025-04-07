@@ -22,15 +22,16 @@
 #include "RigEclipseCaseData.h"
 #include "RigFemPartCollection.h"
 
+#include "ContourMap/RimEclipseContourMapProjection.h"
+#include "ContourMap/RimEclipseContourMapView.h"
+#include "ContourMap/RimEclipseContourMapViewCollection.h"
+#include "ContourMap/RimStatisticsContourMapView.h"
 #include "Polygons/RimPolygonInView.h"
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
-#include "RimEclipseContourMapProjection.h"
-#include "RimEclipseContourMapView.h"
-#include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
@@ -59,14 +60,13 @@
 
 CAF_CMD_SOURCE_INIT( RicNewContourMapViewFeature, "RicNewContourMapViewFeature" );
 
-const size_t mediumSamplingThresholdCellCount = 500000u;
-const size_t largeSamplingThresholdCellCount  = 5000000u;
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RicNewContourMapViewFeature::isCommandEnabled() const
 {
+    if ( caf::SelectionManager::instance()->selectedItemOfType<RimStatisticsContourMapView>() != nullptr ) return false;
+
     bool selectedView = caf::SelectionManager::instance()->selectedItemOfType<RimGridView>() != nullptr;
     bool selectedCase = caf::SelectionManager::instance()->selectedItemOfType<RimCase>() != nullptr;
 
@@ -242,17 +242,6 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
                                                                     caf::PdmDefaultObjectFactory::instance() ) );
     CVF_ASSERT( contourMap );
 
-    const RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    size_t                   activeCellCount = activeCellInfo->reservoirActiveCellCount();
-    if ( activeCellCount >= largeSamplingThresholdCellCount )
-    {
-        contourMap->contourMapProjection()->setSampleSpacingFactor( 1.5 );
-    }
-    else if ( activeCellCount >= mediumSamplingThresholdCellCount )
-    {
-        contourMap->contourMapProjection()->setSampleSpacingFactor( 1.2 );
-    }
-
     contourMap->setEclipseCase( eclipseCase );
 
     auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
@@ -326,17 +315,6 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMap( 
 
     size_t i = eclipseCase->contourMapCollection()->views().size();
     contourMap->setName( QString( "Contour Map %1" ).arg( i + 1 ) );
-
-    const RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    size_t                   activeCellCount = activeCellInfo->reservoirActiveCellCount();
-    if ( activeCellCount >= largeSamplingThresholdCellCount )
-    {
-        contourMap->contourMapProjection()->setSampleSpacingFactor( 1.5 );
-    }
-    else if ( activeCellCount >= mediumSamplingThresholdCellCount )
-    {
-        contourMap->contourMapProjection()->setSampleSpacingFactor( 1.2 );
-    }
 
     contourMap->faultCollection()->setActive( false );
     contourMap->wellCollection()->isActive = false;

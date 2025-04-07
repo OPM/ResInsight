@@ -30,9 +30,9 @@ jobs:
               os: windows-2022,
               cc: "cl",
               cxx: "cl",
-              build-python-module: true,
+              build-python-module: false,
               execute-unit-tests: true,
-              execute-pytests: true,
+              execute-pytests: false,
               unity-build: true,
               publish-to-pypi: false,
               vcpkg-bootstrap: bootstrap-vcpkg.bat,
@@ -96,10 +96,61 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r GrpcInterface/Python/build-requirements.txt
 
+      - name: Find CMake path and remove from PATH (Linux)
+        if: contains( matrix.config.os, 'ubuntu')
+        run: |
+          sudo rm -rf /usr/local/bin/cmake*
+          sudo rm -rf /usr/local/share/cmake*
+          sudo rm -rf /usr/local/doc/cmake*
+          sudo rm -rf /usr/local/man/man1/cmake*
+
+          # Try to call CMake (should fail or use a different version if removal was successful)
+          cmake --version || echo "CMake was successfully removed from PATH"
+
+      - name: Find CMake path and remove from PATH (Windows)
+        shell: powershell
+        if: contains( matrix.config.os, 'windows')
+        run: |
+          # Find the current CMake path
+          $cmakePath = (Get-Command cmake -ErrorAction SilentlyContinue).Path
+          Write-Host "Current CMake path: $cmakePath"
+          
+          if ($cmakePath) {
+            # Get the directory containing CMake
+            $cmakeDir = Split-Path -Parent $cmakePath
+            Write-Host "CMake directory: $cmakeDir"
+            
+            # Save the current PATH
+            $currentPath = $env:PATH
+            
+            # Create a new PATH by removing the CMake directory
+            # PowerShell uses semicolons as path separators
+            $newPath = ($currentPath -split ';' | Where-Object { $_ -ne $cmakeDir }) -join ';'
+            
+            # Set the new PATH for this job
+            echo "PATH=$newPath" | Out-File -FilePath $env:GITHUB_ENV -Append
+            
+            # Update the current session PATH for verification purposes
+            $env:PATH = $newPath
+            
+            # Verify the change
+            Write-Host "Updated PATH: $newPath"
+            
+            # Try to call CMake (should fail or use a different version if removal was successful)
+            try {
+              cmake --version
+              Write-Host "CMake is still in PATH (possibly from another location)"
+            } catch {
+              Write-Host "CMake was successfully removed from PATH"
+            }
+          } else {
+            Write-Host "CMake not found in PATH"
+          }
+           
       - name: Use CMake
         uses: lukka/get-cmake@latest
         with:
-          cmakeVersion: "~3.28.0"
+          cmakeVersion: "~3.26.0"
 
       - name: Use MSVC (Windows)
         uses: ilammy/msvc-dev-cmd@v1
@@ -274,8 +325,7 @@ jobs:
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing  
     
     # If this is a tagged release
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags') && github.base_ref == 'refs/heads/main'
     steps:
     - name: Download python distribution folder
       uses: actions/download-artifact@v4

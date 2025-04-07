@@ -82,8 +82,9 @@ public:
 public:
     RimSummaryTimeAxisProperties();
 
-    caf::PdmField<QString> title;
-    caf::PdmField<bool>    showTitle;
+    bool    showTitle() const;
+    QString title() const;
+    bool    showLabels() const;
 
     RiuPlotAxis           plotAxis() const override;
     AxisTitlePositionType titlePosition() const override;
@@ -158,6 +159,10 @@ private:
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
+    caf::PdmField<QString> m_title;
+    caf::PdmField<bool>    m_showTitle;
+    caf::PdmField<bool>    m_showLabels;
+
     caf::PdmField<caf::AppEnum<TimeModeType>> m_timeMode;
     caf::PdmField<caf::AppEnum<TimeUnitType>> m_timeUnit;
 
