@@ -56,6 +56,19 @@ struct PdmFieldScriptingCapabilityIOHandler<cvf::Vector3<double>>
 };
 
 template <>
+struct PdmFieldScriptingCapabilityIOHandler<std::vector<cvf::Vector3<double>>>
+{
+    static void writeToField( std::vector<cvf::Vector3<double>>& fieldValue,
+                              QTextStream&                       inputStream,
+                              PdmScriptIOMessages*               errorMessageContainer,
+                              bool                               stringsAreQuoted = true );
+    static void readFromField( const std::vector<cvf::Vector3<double>>& fieldValue,
+                               QTextStream&                             outputStream,
+                               bool                                     quoteStrings     = true,
+                               bool                                     quoteNonBuiltins = false );
+};
+
+template <>
 struct PdmFieldScriptingCapabilityIOHandler<cvf::Matrix4<double>>
 {
     static void writeToField( cvf::Matrix4<double>& fieldValue,
