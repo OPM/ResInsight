@@ -42,7 +42,6 @@ public:
     void setTimeRange( time_t startTime, time_t endTime );
 
     void setDefaultColor();
-    void setDateTimeFormatString( const QString& formatString );
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
