@@ -25,18 +25,21 @@
 #include "RimPolygonFile.h"
 #include "RimProject.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
+
 #include "cafCmdFeatureMenuBuilder.h"
 
-CAF_PDM_SOURCE_INIT( RimPolygonCollection, "RimPolygonCollection" );
+CAF_PDM_SOURCE_INIT( RimPolygonCollection, "PolygonCollection", "RimPolygonCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimPolygonCollection::RimPolygonCollection()
 {
-    CAF_PDM_InitObject( "Polygons", ":/PolylinesFromFile16x16.png" );
+    CAF_PDM_InitScriptableObject( "Polygons", ":/PolylinesFromFile16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_polygons, "Polygons", "Polygons" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_polygons, "Polygons", "Polygons" );
     CAF_PDM_InitFieldNoDefault( &m_polygonFiles, "PolygonFiles", "Polygon Files" );
 }
 

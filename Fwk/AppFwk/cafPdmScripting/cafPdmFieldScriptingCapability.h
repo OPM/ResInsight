@@ -254,6 +254,19 @@ struct PdmFieldScriptingCapabilityIOHandler<bool>
                                bool         quoteNonBuiltins = false );
 };
 
+template <>
+struct PdmFieldScriptingCapabilityIOHandler<double>
+{
+    static void writeToField( double&              fieldValue,
+                              QTextStream&         inputStream,
+                              PdmScriptIOMessages* errorMessageContainer,
+                              bool                 stringsAreQuoted = true );
+    static void readFromField( const double& fieldValue,
+                               QTextStream&  outputStream,
+                               bool          quoteStrings     = true,
+                               bool          quoteNonBuiltins = false );
+};
+
 template <typename T>
 struct PdmFieldScriptingCapabilityIOHandler<AppEnum<T>>
 {
