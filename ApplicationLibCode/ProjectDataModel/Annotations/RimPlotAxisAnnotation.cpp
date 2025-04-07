@@ -122,7 +122,7 @@ double RimPlotAxisAnnotation::rangeEnd() const
 //--------------------------------------------------------------------------------------------------
 QColor RimPlotAxisAnnotation::color() const
 {
-    return QColor( 0, 0, 100 );
+    return RiaColorTools::toQColor( m_color );
 }
 
 //--------------------------------------------------------------------------------------------------
