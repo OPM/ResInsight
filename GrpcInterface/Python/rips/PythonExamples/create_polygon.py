@@ -27,7 +27,9 @@ if resinsight is not None:
         coordinates.append([bbox.min_x, bbox.max_y, depth])
 
         polygon_collection = resinsight.project.descendants(rips.PolygonCollection)[0]
-        p = polygon_collection.create_polygon(name="{} bounding box".format(c.name), coordinates=coordinates)
+        p = polygon_collection.create_polygon(
+            name="{} bounding box".format(c.name), coordinates=coordinates
+        )
         print("Coordinates for {}:".format(p.name))
         for coord in p.coordinates:
             print(coord)
