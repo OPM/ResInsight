@@ -30,11 +30,14 @@
 #include "RiuGuiTheme.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiColorEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 
-CAF_PDM_SOURCE_INIT( RimPolygon, "RimPolygon" );
+CAF_PDM_SOURCE_INIT( RimPolygon, "Polygon", "RimPolygon" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -43,10 +46,10 @@ RimPolygon::RimPolygon()
     : objectChanged( this )
     , coordinatesChanged( this )
 {
-    CAF_PDM_InitObject( "Polygon", ":/PolylinesFromFile16x16.png" );
+    CAF_PDM_InitScriptableObject( "Polygon", ":/PolylinesFromFile16x16.png" );
 
     CAF_PDM_InitField( &m_isReadOnly, "IsReadOnly", false, "Read Only" );
-    CAF_PDM_InitFieldNoDefault( &m_pointsInDomainCoords, "PointsInDomainCoords", "Points" );
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_pointsInDomainCoords, "PointsInDomainCoords", "Coordinates", "Points" );
 
     CAF_PDM_InitField( &m_editPolygonButton, "EditPolygonButton", false, "Edit" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_editPolygonButton );

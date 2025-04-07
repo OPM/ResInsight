@@ -84,6 +84,83 @@ void PdmFieldScriptingCapabilityIOHandler<cvf::Vector3<double>>::readFromField( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void PdmFieldScriptingCapabilityIOHandler<std::vector<cvf::Vector3<double>>>::writeToField(
+    std::vector<cvf::Vector3<double>>& fieldValue,
+    QTextStream&                       inputStream,
+    caf::PdmScriptIOMessages*          errorMessageContainer,
+    bool                               stringsAreQuoted )
+{
+    errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
+    QChar chr = errorMessageContainer->readCharWithLineNumberCount( inputStream );
+    if ( chr == QChar( '[' ) )
+    {
+        while ( !inputStream.atEnd() )
+        {
+            std::vector<double> fieldVectorValue;
+
+            PdmFieldScriptingCapabilityIOHandler<std::vector<double>>::writeToField( fieldVectorValue,
+                                                                                     inputStream,
+                                                                                     errorMessageContainer,
+                                                                                     stringsAreQuoted );
+            if ( fieldVectorValue.size() == 3u )
+            {
+                fieldValue.push_back(
+                    cvf::Vector3<double>( fieldVectorValue[0], fieldVectorValue[1], fieldVectorValue[2] ) );
+            }
+            else
+            {
+                QString errMsg =
+                    QString( "Expected three dimensions in the vector, got %1" ).arg( fieldVectorValue.size() );
+                errorMessageContainer->addError( errMsg );
+                return;
+            }
+
+            errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
+            QChar nextChar = errorMessageContainer->peekNextChar( inputStream );
+            if ( nextChar == QChar( ']' ) )
+            {
+                nextChar = errorMessageContainer->readCharWithLineNumberCount( inputStream );
+                break;
+            }
+            else if ( nextChar == QChar( ',' ) )
+            {
+                nextChar = errorMessageContainer->readCharWithLineNumberCount( inputStream );
+                errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmFieldScriptingCapabilityIOHandler<std::vector<cvf::Vector3<double>>>::readFromField(
+    const std::vector<cvf::Vector3<double>>& fieldValue,
+    QTextStream&                             outputStream,
+    bool                                     quoteStrings,
+    bool                                     quoteNonBuiltin )
+{
+    outputStream << "[";
+
+    for ( size_t i = 0; i < fieldValue.size(); ++i )
+    {
+        const auto&         vec3             = fieldValue[i];
+        std::vector<double> fieldVectorValue = { vec3.x(), vec3.y(), vec3.z() };
+        PdmFieldScriptingCapabilityIOHandler<std::vector<double>>::readFromField( fieldVectorValue,
+                                                                                  outputStream,
+                                                                                  quoteStrings );
+        if ( i < fieldValue.size() - 1 )
+        {
+            outputStream << ", ";
+        }
+    }
+
+    outputStream << "]";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void PdmFieldScriptingCapabilityIOHandler<cvf::Matrix4<double>>::writeToField( cvf::Matrix4<double>& fieldValue,
                                                                                QTextStream&          inputStream,
                                                                                caf::PdmScriptIOMessages* errorMessageContainer,

@@ -242,16 +242,25 @@ class PdmObjectBase:
         return value.startswith("[") and value.endswith("]")
 
     def __makelist(self, list_string: str) -> Value:
-        list_string = list_string.lstrip("[")
-        list_string = list_string.rstrip("]")
+        list_string = list_string.removeprefix("[")
+        list_string = list_string.removesuffix("]")
         if not list_string:
             # Return empty list if empty string. Otherwise, the split function will return ['']
             return []
-        strings = list_string.split(", ")
-        values = []
-        for string in strings:
-            values.append(self.__convert_from_grpc_value(string))
-        return values
+
+        # Check if it's a nested list or single list
+        if "], [" in list_string:
+            # Nested list
+            # Split by ], [ to get each sublist
+            sublists = re.split(r"\], \[", list_string)
+            return [self.__makelist(sublist) for sublist in sublists]
+        else:
+            # Single list
+            strings = list_string.split(", ")
+            values = []
+            for string in strings:
+                values.append(self.__convert_from_grpc_value(string))
+            return values
 
     D = TypeVar("D")
 

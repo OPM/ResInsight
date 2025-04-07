@@ -183,3 +183,33 @@ void PdmFieldScriptingCapabilityIOHandler<bool>::readFromField( const bool&  fie
     // Lower-case true/false is used in the documentation.
     outputStream << ( fieldValue ? "true" : "false" );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmFieldScriptingCapabilityIOHandler<double>::writeToField( double&              fieldValue,
+                                                                 QTextStream&         inputStream,
+                                                                 PdmScriptIOMessages* errorMessageContainer,
+                                                                 bool                 stringsAreQuoted )
+{
+    inputStream >> fieldValue;
+    if ( inputStream.status() == QTextStream::ReadCorruptData )
+    {
+        errorMessageContainer->addError( "Argument value is unreadable in the argument: \"" +
+                                         errorMessageContainer->currentArgument + "\" in the command: \"" +
+                                         errorMessageContainer->currentCommand + "\"" );
+
+        inputStream.setStatus( QTextStream::Ok );
+    }
+}
+
+void PdmFieldScriptingCapabilityIOHandler<double>::readFromField( const double& fieldValue,
+                                                                  QTextStream&  outputStream,
+                                                                  bool          quoteStrings,
+                                                                  bool          quoteNonBuiltins )
+{
+    // Use scientific for better precision
+    outputStream.setRealNumberPrecision( 15 );
+    outputStream.setRealNumberNotation( QTextStream::ScientificNotation );
+    outputStream << fieldValue;
+}
