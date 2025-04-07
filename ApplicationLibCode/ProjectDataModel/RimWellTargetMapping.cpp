@@ -38,6 +38,7 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimRegularGridCase.h"
@@ -204,6 +205,12 @@ void RimWellTargetMapping::fieldChangedByUi( const caf::PdmFieldHandle* changedF
                 auto eclipseView = views.front();
                 eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::GENERATED );
                 eclipseView->cellResult()->setResultVariable( RigWellTargetMapping::wellTargetResultName() );
+
+                if ( eclipseView->eclipsePropertyFilterCollection()->propertyFilters().empty() )
+                {
+                    eclipseView->eclipsePropertyFilterCollection()->addFilterLinkedToCellResult();
+                    eclipseView->eclipsePropertyFilterCollection()->updateConnectedEditors();
+                }
 
                 if ( RiaGuiApplication::isRunning() || RiuMainWindow::instance() )
                 {
@@ -606,8 +613,14 @@ RimEclipseCase* RimWellTargetMapping::firstCase() const
 //--------------------------------------------------------------------------------------------------
 void RimWellTargetMapping::initAfterRead()
 {
-    RimEclipseCase* eclipseCase = firstCase();
-    if ( eclipseCase ) m_resultDefinition->setEclipseCase( eclipseCase );
+    if ( RimEclipseCase* eclipseCase = firstCase() )
+    {
+        m_resultDefinition->setEclipseCase( eclipseCase );
+
+        // Automatically generate results on project load
+        // Consider to also do this for ensemble cases, but this will be more expensive
+        generateCandidates( eclipseCase );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
