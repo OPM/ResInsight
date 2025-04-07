@@ -8,6 +8,13 @@
     <language>en-us</language>
     <atom:link href="https://resinsight.org/releases/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>What&#39;s New in 2025.04</title>
+      <link>https://resinsight.org/releases/release-notes/releasenotes_2025_04/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/releases/release-notes/releasenotes_2025_04/index.html</guid>
+      <description>Ensemble Contour Map ResInsight can create contour maps from an ensemble of grid models based on different forms of aggregation of 3D Eclipse data onto a 2D plane. The grid models can have varying grid geometry. Mobile Oil/Gas/Hydrocarbon Column is now supported.&#xA;When a contour map is created, outline polygons of visible areas can be created.&#xA;Ensemble Contour Map</description>
+    </item>
+    <item>
       <title>What&#39;s New in 2024.12</title>
       <link>https://resinsight.org/releases/release-notes/releasenotes_2024_12/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

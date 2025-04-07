@@ -28,5 +28,12 @@
       <guid>https://resinsight.org/workflows/ensemblewelllog/index.html</guid>
       <description>Introduction To study the uncertainty for well log extraction curves, ResInsight enables the user to import an ensemble of well logs and compute the statistical distribution in this ensemble.&#xA;Workflow From the right-click menu of Wells, select Create Ensemble Well Log In the ensemble import dialog, select the files for import into ensembles</description>
     </item>
+    <item>
+      <title>Well Target Mapping</title>
+      <link>https://resinsight.org/workflows/welltargetmapping/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/workflows/welltargetmapping/index.html</guid>
+      <description>Automatically identify new well target candidates by identifying connected cluster of cells based on user defined threshold values.&#xA;Configuration Import a grid model, and from the right-click menu of a grid model select “New Well Target Mapping”. A Well Target Mapping object is displayed with the following options:</description>
+    </item>
   </channel>
 </rss>

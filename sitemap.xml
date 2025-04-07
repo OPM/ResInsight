@@ -199,6 +199,9 @@
     <loc>https://resinsight.org/3d-main-window/contourmaps/index.html</loc>
   </url>
   <url>
+    <loc>https://resinsight.org/3d-main-window/ensemblecontourmap/index.html</loc>
+  </url>
+  <url>
     <loc>https://resinsight.org/import/pasteexceltimedata/index.html</loc>
   </url>
   <url>
@@ -331,6 +334,9 @@
     <loc>https://resinsight.org/plot-window/rftsegmentplot/index.html</loc>
   </url>
   <url>
+    <loc>https://resinsight.org/workflows/welltargetmapping/index.html</loc>
+  </url>
+  <url>
     <loc>https://resinsight.org/3d-main-window/allandiagrams/index.html</loc>
   </url>
   <url>
@@ -344,6 +350,9 @@
   </url>
   <url>
     <loc>https://resinsight.org/workflows/index.html</loc>
+  </url>
+  <url>
+    <loc>https://resinsight.org/releases/release-notes/releasenotes_2025_04/index.html</loc>
   </url>
   <url>
     <loc>https://resinsight.org/calculated-data/derivedresults/index.html</loc>
