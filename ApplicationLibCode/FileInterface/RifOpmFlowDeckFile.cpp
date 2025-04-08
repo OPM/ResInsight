@@ -44,17 +44,9 @@ RifOpmFlowDeckFile::~RifOpmFlowDeckFile()
 //--------------------------------------------------------------------------------------------------
 bool RifOpmFlowDeckFile::loadDeck( std::string filename )
 {
-    Opm::ParseContext parseContext( Opm::InputErrorAction::WARN );
-
-    // Use the same default ParseContext as flow.
-    parseContext.update( Opm::ParseContext::PARSE_RANDOM_SLASH, Opm::InputErrorAction::IGNORE );
-    parseContext.update( Opm::ParseContext::PARSE_MISSING_DIMS_KEYWORD, Opm::InputErrorAction::WARN );
-    parseContext.update( Opm::ParseContext::SUMMARY_UNKNOWN_WELL, Opm::InputErrorAction::WARN );
-    parseContext.update( Opm::ParseContext::SUMMARY_UNKNOWN_GROUP, Opm::InputErrorAction::WARN );
-
     Opm::ErrorGuard errors{};
 
-    auto deck = Opm::Parser{}.parseFile( filename, parseContext, errors );
+    auto deck = Opm::Parser{}.parseFile( filename, defaultParseContext(), errors );
 
     m_fileDeck.reset( new Opm::FileDeck( deck ) );
 
@@ -109,17 +101,9 @@ Opm::DeckItem RifOpmFlowDeckFile::defaultItem( std::string name, int cols )
 //--------------------------------------------------------------------------------------------------
 bool RifOpmFlowDeckFile::mergeWellDeck( std::string filename )
 {
-    Opm::ParseContext parseContext( Opm::InputErrorAction::WARN );
-
-    // Use the same default ParseContext as flow.
-    parseContext.update( Opm::ParseContext::PARSE_RANDOM_SLASH, Opm::InputErrorAction::IGNORE );
-    parseContext.update( Opm::ParseContext::PARSE_MISSING_DIMS_KEYWORD, Opm::InputErrorAction::WARN );
-    parseContext.update( Opm::ParseContext::SUMMARY_UNKNOWN_WELL, Opm::InputErrorAction::WARN );
-    parseContext.update( Opm::ParseContext::SUMMARY_UNKNOWN_GROUP, Opm::InputErrorAction::WARN );
-
     Opm::ErrorGuard errors{};
 
-    auto          deck = Opm::Parser{}.parseFile( filename, parseContext, errors );
+    auto          deck = Opm::Parser{}.parseFile( filename, defaultParseContext(), errors );
     Opm::FileDeck wellDeck( deck );
 
     // Insert new well into WELSPECS
@@ -174,14 +158,6 @@ bool RifOpmFlowDeckFile::mergeWellDeck( std::string filename )
 //--------------------------------------------------------------------------------------------------
 bool RifOpmFlowDeckFile::openWellAtTimeStep( int timeStep, std::string filename )
 {
-    Opm::ParseContext parseContext( Opm::InputErrorAction::WARN );
-
-    // Use the same default ParseContext as flow.
-    parseContext.update( Opm::ParseContext::PARSE_RANDOM_SLASH, Opm::InputErrorAction::IGNORE );
-    parseContext.update( Opm::ParseContext::PARSE_MISSING_DIMS_KEYWORD, Opm::InputErrorAction::WARN );
-    parseContext.update( Opm::ParseContext::SUMMARY_UNKNOWN_WELL, Opm::InputErrorAction::WARN );
-    parseContext.update( Opm::ParseContext::SUMMARY_UNKNOWN_GROUP, Opm::InputErrorAction::WARN );
-
     Opm::ErrorGuard errors{};
 
     int stepCount = 0;
@@ -197,7 +173,7 @@ bool RifOpmFlowDeckFile::openWellAtTimeStep( int timeStep, std::string filename 
         {
             datePos = &it;
 
-            auto             deck = Opm::Parser{}.parseFile( filename, parseContext, errors );
+            auto             deck = Opm::Parser{}.parseFile( filename, defaultParseContext(), errors );
             Opm::FileDeck    wellDeck( deck );
             Opm::DeckKeyword newKw( wellDeck.operator[]( wellDeck.start() ) );
 
@@ -217,16 +193,23 @@ bool RifOpmFlowDeckFile::openWellAtTimeStep( int timeStep, std::string filename 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+Opm::ParseContext RifOpmFlowDeckFile::defaultParseContext() const
+{
+    // Use the same default ParseContext as flow.
+    Opm::ParseContext pc( Opm::InputErrorAction::WARN );
+    pc.update( Opm::ParseContext::PARSE_RANDOM_SLASH, Opm::InputErrorAction::IGNORE );
+    pc.update( Opm::ParseContext::PARSE_MISSING_DIMS_KEYWORD, Opm::InputErrorAction::WARN );
+    pc.update( Opm::ParseContext::SUMMARY_UNKNOWN_WELL, Opm::InputErrorAction::WARN );
+    pc.update( Opm::ParseContext::SUMMARY_UNKNOWN_GROUP, Opm::InputErrorAction::WARN );
+
+    return pc;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifOpmFlowDeckFile::openWellAtStart( std::string filename )
 {
-    Opm::ParseContext parseContext( Opm::InputErrorAction::WARN );
-
-    // Use the same default ParseContext as flow.
-    parseContext.update( Opm::ParseContext::PARSE_RANDOM_SLASH, Opm::InputErrorAction::IGNORE );
-    parseContext.update( Opm::ParseContext::PARSE_MISSING_DIMS_KEYWORD, Opm::InputErrorAction::WARN );
-    parseContext.update( Opm::ParseContext::SUMMARY_UNKNOWN_WELL, Opm::InputErrorAction::WARN );
-    parseContext.update( Opm::ParseContext::SUMMARY_UNKNOWN_GROUP, Opm::InputErrorAction::WARN );
-
     Opm::ErrorGuard errors{};
 
     // find position of COMPDAT
@@ -237,11 +220,43 @@ bool RifOpmFlowDeckFile::openWellAtStart( std::string filename )
     Opm::FileDeck::Index openPos( *compdat );
     openPos++;
 
-    auto             deck = Opm::Parser{}.parseFile( filename, parseContext, errors );
+    auto             deck = Opm::Parser{}.parseFile( filename, defaultParseContext(), errors );
     Opm::FileDeck    wellDeck( deck );
     Opm::DeckKeyword openWellKw( wellDeck.operator[]( wellDeck.start() ) );
 
     m_fileDeck->insert( openPos, openWellKw );
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RifOpmFlowDeckFile::keywords()
+{
+    std::vector<std::string> values;
+
+    if ( m_fileDeck.get() == nullptr ) return values;
+
+    for ( auto it = m_fileDeck->start(); it != m_fileDeck->stop(); it++ )
+    {
+        auto& kw = m_fileDeck->operator[]( it );
+        values.push_back( kw.name() );
+    }
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::hasDatesKeyword()
+{
+    if ( m_fileDeck.get() == nullptr ) return false;
+
+    for ( auto it = m_fileDeck->start(); it != m_fileDeck->stop(); it++ )
+    {
+        auto& kw = m_fileDeck->operator[]( it );
+        if ( kw.name() == "DATES" ) return true;
+    }
+    return false;
 }
