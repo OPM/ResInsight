@@ -42,9 +42,7 @@
 //--------------------------------------------------------------------------------------------------
 bool RicToggleItemsFeatureImpl::isToggleCommandsAvailable()
 {
-    std::vector<caf::PdmUiItem*> selectedItems;
-    caf::SelectionManager::instance()->selectedItems( selectedItems );
-
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
     if ( selectedItems.size() == 1 )
     {
         caf::PdmUiTreeOrdering* treeItem = findTreeItemFromSelectedUiItem( selectedItems[0] );
@@ -87,8 +85,7 @@ bool RicToggleItemsFeatureImpl::isToggleCommandsAvailable()
 //--------------------------------------------------------------------------------------------------
 bool RicToggleItemsFeatureImpl::isToggleCommandsForSubItems()
 {
-    std::vector<caf::PdmUiItem*> selectedItems;
-    caf::SelectionManager::instance()->selectedItems( selectedItems );
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
     return isToggleCommandsAvailable() && selectedItems.size() == 1;
 }
 
@@ -163,8 +160,7 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggl
 //--------------------------------------------------------------------------------------------------
 QString RicToggleItemsFeatureImpl::findCollectionName( SelectionToggleType state )
 {
-    std::vector<caf::PdmUiItem*> selectedItems;
-    caf::SelectionManager::instance()->selectedItems( selectedItems );
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
     if ( state != TOGGLE && selectedItems.size() == 1 )
     {
         caf::PdmUiTreeOrdering* treeItem = findTreeItemFromSelectedUiItem( selectedItems[0] );
@@ -262,8 +258,7 @@ std::vector<caf::PdmField<bool>*> RicToggleItemsFeatureImpl::findToggleFieldsFro
 {
     std::vector<caf::PdmField<bool>*> fields;
 
-    std::vector<caf::PdmUiItem*> selectedItems;
-    caf::SelectionManager::instance()->selectedItems( selectedItems );
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
     if ( state != TOGGLE && selectedItems.size() == 1 )
     {
         // If only one item is selected, loop over its children, and toggle them instead of the

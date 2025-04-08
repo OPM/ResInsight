@@ -78,13 +78,5 @@ void RicNewStatisticsContourMapFeature::setupActionLook( QAction* actionToSetup 
 //--------------------------------------------------------------------------------------------------
 RimEclipseCaseEnsemble* RicNewStatisticsContourMapFeature::selectedEclipseCaseEnsemble()
 {
-    std::vector<RimEclipseCaseEnsemble*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-
-    if ( !selection.empty() )
-    {
-        return selection[0];
-    }
-
-    return nullptr;
+    return caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCaseEnsemble>();
 }

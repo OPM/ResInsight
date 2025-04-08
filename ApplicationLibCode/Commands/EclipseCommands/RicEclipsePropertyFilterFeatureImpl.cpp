@@ -40,10 +40,7 @@
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEclipsePropertyFilter*> RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilters()
 {
-    std::vector<RimEclipsePropertyFilter*> propertyFilters;
-    caf::SelectionManager::instance()->objectsByType( &propertyFilters );
-
-    return propertyFilters;
+    return caf::SelectionManager::instance()->objectsByType<RimEclipsePropertyFilter>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,10 +48,7 @@ std::vector<RimEclipsePropertyFilter*> RicEclipsePropertyFilterFeatureImpl::sele
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEclipsePropertyFilterCollection*> RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilterCollections()
 {
-    std::vector<RimEclipsePropertyFilterCollection*> propertyFilterCollections;
-    caf::SelectionManager::instance()->objectsByType( &propertyFilterCollections );
-
-    return propertyFilterCollections;
+    return caf::SelectionManager::instance()->objectsByType<RimEclipsePropertyFilterCollection>();
 }
 
 //--------------------------------------------------------------------------------------------------

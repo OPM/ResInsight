@@ -209,8 +209,7 @@ void RicAppendSummaryPlotsForObjectsFeature::setupActionLook( QAction* actionToS
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryAddressCollection*> RicAppendSummaryPlotsForObjectsFeature::selectedCollections()
 {
-    std::vector<RimSummaryAddressCollection*> sumAddressCollections;
-    caf::SelectionManager::instance()->objectsByType( &sumAddressCollections );
+    const auto sumAddressCollections = caf::SelectionManager::instance()->objectsByType<RimSummaryAddressCollection>();
 
     if ( sumAddressCollections.size() == 1 )
     {

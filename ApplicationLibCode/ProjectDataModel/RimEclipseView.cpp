@@ -840,8 +840,7 @@ void RimEclipseView::onCreateDisplayModel()
             //   PdmUiTreeViewEditor::updateSelectionManager(),
             //   PdmUiTreeViewEditor::enableSelectionManagerUpdating
 
-            std::vector<caf::PdmUiItem*> selectedItems;
-            caf::SelectionManager::instance()->selectedItems( selectedItems );
+            const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
 
             curveSet->cellFilterViewUpdated();
 

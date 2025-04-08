@@ -1520,10 +1520,7 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
             }
         }
 
-        std::vector<caf::PdmUiItem*> uiEditorsToUpdate;
-        caf::SelectionManager::instance()->selectedItems( uiEditorsToUpdate );
-
-        for ( caf::PdmUiItem* uiItem : uiEditorsToUpdate )
+        for ( caf::PdmUiItem* uiItem : caf::SelectionManager::instance()->selectedItems() )
         {
             uiItem->updateConnectedEditors();
         }

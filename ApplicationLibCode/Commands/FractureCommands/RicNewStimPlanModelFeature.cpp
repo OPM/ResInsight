@@ -137,8 +137,7 @@ bool RicNewStimPlanModelFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 RimStimPlanModelCollection* RicNewStimPlanModelFeature::selectedStimPlanModelCollection()
 {
-    std::vector<caf::PdmUiItem*> selectedItems;
-    caf::SelectionManager::instance()->selectedItems( selectedItems );
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
     if ( selectedItems.size() != 1u ) return nullptr;
 
     caf::PdmUiItem* pdmUiItem = selectedItems.front();

@@ -65,10 +65,9 @@ RimSimWellInView* RicWellLogTools::selectedSimulationWell( int* branchIndex )
     }
     else
     {
-        std::vector<RimSimWellInView*> selection;
-        caf::SelectionManager::instance()->objectsByType( &selection );
         ( *branchIndex ) = 0;
-        return !selection.empty() ? selection[0] : nullptr;
+
+        return caf::SelectionManager::instance()->selectedItemOfType<RimSimWellInView>();
     }
 }
 
@@ -162,11 +161,10 @@ void RicWellLogTools::addWellLogChannelsToPlotTrack( RimWellLogTrack* plotTrack,
 //--------------------------------------------------------------------------------------------------
 RimWellPath* RicWellLogTools::selectedWellPathWithLog()
 {
-    std::vector<RimWellPath*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-    if ( !selection.empty() )
+    const auto selection = caf::SelectionManager::instance()->objectsByType<RimWellPath>();
+
+    for ( const auto& wellPath : selection )
     {
-        RimWellPath* wellPath = selection[0];
         if ( !wellPath->wellLogs().empty() )
         {
             return wellPath;

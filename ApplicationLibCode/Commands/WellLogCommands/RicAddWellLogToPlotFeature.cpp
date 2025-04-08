@@ -118,7 +118,5 @@ void RicAddWellLogToPlotFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellLogChannel*> RicAddWellLogToPlotFeature::selectedWellLogs()
 {
-    std::vector<RimWellLogChannel*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-    return selection;
+    return caf::SelectionManager::instance()->objectsByType<RimWellLogChannel>();
 }

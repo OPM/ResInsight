@@ -42,9 +42,7 @@ bool RicMoveItemsToTopFeature::isCommandEnabled() const
 {
     using namespace caf;
 
-    std::vector<caf::PdmUiItem*> selectedItems;
-    caf::SelectionManager::instance()->selectedItems( selectedItems );
-
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
     if ( !selectedItems.empty() )
     {
         auto pdmObject      = RicMoveItemsToTopFeature::objectHandleFromUiItem( selectedItems[0] );
@@ -65,9 +63,7 @@ void RicMoveItemsToTopFeature::onActionTriggered( bool isChecked )
 {
     using namespace caf;
 
-    std::vector<caf::PdmUiItem*> selectedItems;
-    caf::SelectionManager::instance()->selectedItems( selectedItems );
-
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
     if ( !selectedItems.empty() )
     {
         auto pdmObject      = RicMoveItemsToTopFeature::objectHandleFromUiItem( selectedItems[0] );

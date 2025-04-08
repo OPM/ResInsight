@@ -32,8 +32,7 @@ CAF_CMD_SOURCE_INIT( RicDeleteWellMeasurementFilePathFeature, "RicDeleteWellMeas
 //--------------------------------------------------------------------------------------------------
 bool RicDeleteWellMeasurementFilePathFeature::isCommandEnabled() const
 {
-    std::vector<RimWellMeasurementFilePath*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
+    const auto objects = caf::SelectionManager::instance()->objectsByType<RimWellMeasurementFilePath>();
     return !objects.empty();
 }
 
@@ -42,8 +41,7 @@ bool RicDeleteWellMeasurementFilePathFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicDeleteWellMeasurementFilePathFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimWellMeasurementFilePath*> selectedFilePaths;
-    caf::SelectionManager::instance()->objectsByType( &selectedFilePaths );
+    const auto selectedFilePaths = caf::SelectionManager::instance()->objectsByType<RimWellMeasurementFilePath>();
     if ( selectedFilePaths.empty() ) return;
 
     RimWellMeasurementFilePath* filePath = selectedFilePaths[0];

@@ -153,8 +153,7 @@ void RicWellMeasurementImportTools::deleteAllEmptyMeasurementCurves()
 //--------------------------------------------------------------------------------------------------
 RimWellPathCollection* RicWellMeasurementImportTools::selectedWellPathCollection()
 {
-    std::vector<RimWellPathCollection*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
+    const auto objects = caf::SelectionManager::instance()->objectsByType<RimWellPathCollection>();
 
     if ( objects.size() == 1 )
     {

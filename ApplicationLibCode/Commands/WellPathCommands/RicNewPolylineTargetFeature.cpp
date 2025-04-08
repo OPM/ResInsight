@@ -37,19 +37,15 @@ CAF_CMD_SOURCE_INIT( RicNewPolylineTargetFeature, "RicNewPolylineTargetFeature" 
 bool RicNewPolylineTargetFeature::isCommandEnabled() const
 {
     {
-        std::vector<RimPolylinePickerInterface*> objects;
-        caf::SelectionManager::instance()->objectsByType( &objects );
-
+        const auto objects = caf::SelectionManager::instance()->objectsByType<RimPolylinePickerInterface>();
         if ( !objects.empty() )
         {
             return true;
         }
     }
     {
-        std::vector<RimPolylineTarget*> objects;
-        caf::SelectionManager::instance()->objectsByType( &objects, caf::SelectionManager::FIRST_LEVEL );
-
-        if ( !objects.empty() )
+        const auto selectedTargets = caf::SelectionManager::instance()->objectsByType<RimPolylineTarget>();
+        if ( !selectedTargets.empty() )
         {
             return true;
         }
@@ -63,8 +59,7 @@ bool RicNewPolylineTargetFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewPolylineTargetFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimPolylineTarget*> selectedTargets;
-    caf::SelectionManager::instance()->objectsByType( &selectedTargets, caf::SelectionManager::FIRST_LEVEL );
+    const auto selectedTargets = caf::SelectionManager::instance()->objectsByType<RimPolylineTarget>();
     if ( !selectedTargets.empty() )
     {
         auto firstTarget = selectedTargets.front();
@@ -111,8 +106,7 @@ void RicNewPolylineTargetFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    std::vector<RimPolylinePickerInterface*> polylineDefs;
-    caf::SelectionManager::instance()->objectsByType( &polylineDefs );
+    const auto polylineDefs = caf::SelectionManager::instance()->objectsByType<RimPolylinePickerInterface>();
     if ( !polylineDefs.empty() )
     {
         auto*                           polylineDef   = polylineDefs[0];

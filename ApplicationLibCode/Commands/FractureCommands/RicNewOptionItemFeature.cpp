@@ -49,8 +49,8 @@ void RicNewOptionItemFeature::onActionTriggered( bool isChecked )
     RicCreateMultipleFracturesOptionItemUi* selectedOptionItem = nullptr;
 
     {
-        std::vector<RicCreateMultipleFracturesOptionItemUi*> optionItems;
-        caf::SelectionManager::instance()->objectsByType( &optionItems, caf::SelectionManager::FIRST_LEVEL );
+        const auto optionItems =
+            caf::SelectionManager::instance()->objectsByType<RicCreateMultipleFracturesOptionItemUi>( caf::SelectionManager::FIRST_LEVEL );
         if ( !optionItems.empty() )
         {
             selectedOptionItem = optionItems.front();

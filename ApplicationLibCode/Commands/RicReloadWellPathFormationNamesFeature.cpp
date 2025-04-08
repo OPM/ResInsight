@@ -33,13 +33,10 @@ CAF_CMD_SOURCE_INIT( RicReloadWellPathFormationNamesFeature, "RicReloadWellPathF
 //--------------------------------------------------------------------------------------------------
 bool RicReloadWellPathFormationNamesFeature::isCommandEnabled() const
 {
-    std::vector<RimWellPath*> wellPaths;
-    caf::SelectionManager::instance()->objectsByType( &wellPaths );
+    const auto wellPaths           = caf::SelectionManager::instance()->objectsByType<RimWellPath>();
+    const auto wellPathCollections = caf::SelectionManager::instance()->objectsByType<RimWellPathCollection>();
 
-    std::vector<RimWellPathCollection*> wellPathCollection;
-    caf::SelectionManager::instance()->objectsByType( &wellPathCollection );
-
-    return ( !wellPaths.empty() || !wellPathCollection.empty() );
+    return ( !wellPaths.empty() || !wellPathCollections.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,11 +44,8 @@ bool RicReloadWellPathFormationNamesFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicReloadWellPathFormationNamesFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimWellPath*> wellPaths;
-    caf::SelectionManager::instance()->objectsByType( &wellPaths );
-
-    std::vector<RimWellPathCollection*> wellPathCollections;
-    caf::SelectionManager::instance()->objectsByType( &wellPathCollections );
+    const auto wellPaths           = caf::SelectionManager::instance()->objectsByType<RimWellPath>();
+    const auto wellPathCollections = caf::SelectionManager::instance()->objectsByType<RimWellPathCollection>();
 
     if ( !wellPaths.empty() )
     {

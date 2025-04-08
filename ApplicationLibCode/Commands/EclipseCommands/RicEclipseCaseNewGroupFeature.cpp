@@ -36,11 +36,8 @@ CAF_CMD_SOURCE_INIT( RicEclipseCaseNewGroupFeature, "RicEclipseCaseNewGroupFeatu
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseCaseNewGroupFeature::isCommandEnabled() const
 {
-    std::vector<RimCase*> caseSelection;
-    caf::SelectionManager::instance()->objectsByType( &caseSelection );
-
-    std::vector<RimEclipseCaseCollection*> caseCollSelection;
-    caf::SelectionManager::instance()->objectsByType( &caseCollSelection );
+    const auto caseSelection     = caf::SelectionManager::instance()->objectsByType<RimCase>();
+    const auto caseCollSelection = caf::SelectionManager::instance()->objectsByType<RimEclipseCaseCollection>();
 
     return !caseSelection.empty() || !caseCollSelection.empty();
 }

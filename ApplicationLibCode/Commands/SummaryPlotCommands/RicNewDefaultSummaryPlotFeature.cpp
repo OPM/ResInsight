@@ -56,13 +56,13 @@ void extractPlotObjectsFromSelection( std::vector<RimSummaryCase*>*     selected
     CAF_ASSERT( selectedIndividualSummaryCases && selectedEnsembles );
 
     // First try selected ensembles
-    caf::SelectionManager::instance()->objectsByTypeStrict( selectedEnsembles );
+    *selectedEnsembles = caf::SelectionManager::instance()->objectsByTypeStrict<RimSummaryEnsemble>();
     if ( !selectedEnsembles->empty() )
     {
         return;
     }
     // Second try selected summary cases
-    caf::SelectionManager::instance()->objectsByTypeStrict( selectedIndividualSummaryCases );
+    *selectedIndividualSummaryCases = caf::SelectionManager::instance()->objectsByTypeStrict<RimSummaryCase>();
     if ( !selectedIndividualSummaryCases->empty() )
     {
         return;

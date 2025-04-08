@@ -34,9 +34,7 @@ CAF_CMD_SOURCE_INIT( Ric3dWellLogCurveDeleteFeature, "Ric3dWellLogCurveDeleteFea
 //--------------------------------------------------------------------------------------------------
 bool Ric3dWellLogCurveDeleteFeature::isCommandEnabled() const
 {
-    std::vector<Rim3dWellLogCurve*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
-
+    auto objects = caf::SelectionManager::instance()->objectsByType<Rim3dWellLogCurve>();
     return !objects.empty();
 }
 
@@ -45,9 +43,7 @@ bool Ric3dWellLogCurveDeleteFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void Ric3dWellLogCurveDeleteFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<Rim3dWellLogCurve*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
-
+    auto objects = caf::SelectionManager::instance()->objectsByType<Rim3dWellLogCurve>();
     if ( objects.empty() ) return;
 
     Rim3dWellLogCurve* firstCurve = objects[0];

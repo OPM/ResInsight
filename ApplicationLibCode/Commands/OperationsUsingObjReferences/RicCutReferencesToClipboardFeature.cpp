@@ -52,10 +52,7 @@ void RicCutReferencesToClipboardFeature::onActionTriggered( bool isChecked )
 
     std::vector<QString> referenceList;
 
-    std::vector<caf::PdmObject*> selectedFormationNamesCollObjs;
-    caf::SelectionManager::instance()->objectsByType( &selectedFormationNamesCollObjs );
-
-    for ( caf::PdmObject* pdmObject : selectedFormationNamesCollObjs )
+    for ( caf::PdmObject* pdmObject : caf::SelectionManager::instance()->objectsByType<caf::PdmObject>() )
     {
         if ( RicCutReferencesToClipboardFeature::isCuttingOfObjectSupported( pdmObject ) )
         {
@@ -91,10 +88,7 @@ void RicCutReferencesToClipboardFeature::setupActionLook( QAction* actionToSetup
 //--------------------------------------------------------------------------------------------------
 bool RicCutReferencesToClipboardFeature::isAnyCuttableObjectSelected()
 {
-    std::vector<caf::PdmObject*> selectedFormationNamesCollObjs;
-    caf::SelectionManager::instance()->objectsByType( &selectedFormationNamesCollObjs );
-
-    for ( caf::PdmObject* pdmObject : selectedFormationNamesCollObjs )
+    for ( caf::PdmObject* pdmObject : caf::SelectionManager::instance()->objectsByType<caf::PdmObject>() )
     {
         if ( RicCutReferencesToClipboardFeature::isCuttingOfObjectSupported( pdmObject ) )
         {

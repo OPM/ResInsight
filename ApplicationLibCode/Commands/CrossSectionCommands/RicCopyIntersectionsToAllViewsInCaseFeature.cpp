@@ -188,10 +188,9 @@ std::vector<RimBoxIntersection*> selectedIntersectionBoxes()
 //--------------------------------------------------------------------------------------------------
 SelectionComposition selectionComposition()
 {
-    std::vector<caf::PdmUiItem*> allSelectedObjects;
-    caf::SelectionManager::instance()->selectedItems( allSelectedObjects );
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
 
-    RimCase* gridCase = commonGridCase( allSelectedObjects );
+    RimCase* gridCase = commonGridCase( selectedItems );
     if ( gridCase && gridCase->gridViews().size() > 1 )
     {
         RimIntersectionCollection*                 selColl              = selectedIntersectionCollection();
@@ -200,7 +199,7 @@ SelectionComposition selectionComposition()
 
         if ( selColl )
         {
-            if ( allSelectedObjects.size() == 1 ) return SEL_COLLECTION;
+            if ( selectedItems.size() == 1 ) return SEL_COLLECTION;
         }
         else
         {

@@ -46,11 +46,10 @@ CAF_CMD_SOURCE_INIT( RicCreateNewPlotFromTemplateFeature, "RicCreateNewPlotFromT
 //--------------------------------------------------------------------------------------------------
 bool RicCreateNewPlotFromTemplateFeature::isCommandEnabled() const
 {
-    std::vector<caf::PdmUiItem*> uiItems;
-    caf::SelectionManager::instance()->selectedItems( uiItems );
-    if ( uiItems.size() != 1 ) return false;
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
+    if ( selectedItems.size() != 1 ) return false;
 
-    RimPlotTemplateFileItem* file = dynamic_cast<RimPlotTemplateFileItem*>( uiItems[0] );
+    RimPlotTemplateFileItem* file = dynamic_cast<RimPlotTemplateFileItem*>( selectedItems[0] );
     return ( file != nullptr );
 }
 
@@ -59,12 +58,10 @@ bool RicCreateNewPlotFromTemplateFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicCreateNewPlotFromTemplateFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<caf::PdmUiItem*> uiItems;
-    caf::SelectionManager::instance()->selectedItems( uiItems );
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
+    if ( selectedItems.size() != 1 ) return;
 
-    if ( uiItems.size() != 1 ) return;
-
-    RimPlotTemplateFileItem* file = dynamic_cast<RimPlotTemplateFileItem*>( uiItems[0] );
+    RimPlotTemplateFileItem* file = dynamic_cast<RimPlotTemplateFileItem*>( selectedItems[0] );
     if ( file == nullptr ) return;
 
     RimSummaryMultiPlot* plot = nullptr;

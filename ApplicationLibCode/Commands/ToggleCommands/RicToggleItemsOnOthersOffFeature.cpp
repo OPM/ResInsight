@@ -35,8 +35,7 @@ CAF_CMD_SOURCE_INIT( RicToggleItemsOnOthersOffFeature, "RicToggleItemsOnOthersOf
 //--------------------------------------------------------------------------------------------------
 bool RicToggleItemsOnOthersOffFeature::isCommandEnabled() const
 {
-    std::vector<caf::PdmObject*> selectedObjects;
-    caf::SelectionManager::instance()->objectsByType( &selectedObjects );
+    const auto selectedObjects = caf::SelectionManager::instance()->objectsByType<caf::PdmObject>();
 
     caf::PdmFieldHandle*               commonParent = commonParentForAllSelections( selectedObjects );
     std::vector<caf::PdmObjectHandle*> children     = childObjects( commonParent );
@@ -49,8 +48,7 @@ bool RicToggleItemsOnOthersOffFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicToggleItemsOnOthersOffFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<caf::PdmObject*> selectedObjects;
-    caf::SelectionManager::instance()->objectsByType( &selectedObjects );
+    const auto selectedObjects = caf::SelectionManager::instance()->objectsByType<caf::PdmObject>();
 
     // First toggle off all siblings
     caf::PdmFieldHandle* commonParent = commonParentForAllSelections( selectedObjects );

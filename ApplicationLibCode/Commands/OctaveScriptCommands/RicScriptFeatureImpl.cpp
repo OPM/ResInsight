@@ -28,10 +28,7 @@
 //--------------------------------------------------------------------------------------------------
 std::vector<RimCalcScript*> RicScriptFeatureImpl::selectedScripts()
 {
-    std::vector<RimCalcScript*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-
-    return selection;
+    return caf::SelectionManager::instance()->objectsByType<RimCalcScript>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -39,8 +36,5 @@ std::vector<RimCalcScript*> RicScriptFeatureImpl::selectedScripts()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimScriptCollection*> RicScriptFeatureImpl::selectedScriptCollections()
 {
-    std::vector<RimScriptCollection*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-
-    return selection;
+    return caf::SelectionManager::instance()->objectsByType<RimScriptCollection>();
 }

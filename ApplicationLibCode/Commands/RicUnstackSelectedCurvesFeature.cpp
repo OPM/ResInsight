@@ -61,10 +61,8 @@ caf::PdmScriptResponse RicUnstackSelectedCurvesFeature::execute()
 //--------------------------------------------------------------------------------------------------
 bool RicUnstackSelectedCurvesFeature::isCommandEnabled() const
 {
-    std::vector<caf::PdmUiItem*> selectedItems;
-    caf::SelectionManager::instance()->selectedItems( selectedItems );
-
-    auto plotCurves = RicStackSelectedCurvesFeature::plotCurvesFromSelection( selectedItems );
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
+    auto       plotCurves    = RicStackSelectedCurvesFeature::plotCurvesFromSelection( selectedItems );
 
     if ( plotCurves.size() != selectedItems.size() ) return false;
 
@@ -78,8 +76,7 @@ bool RicUnstackSelectedCurvesFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicUnstackSelectedCurvesFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<caf::PdmUiItem*> selectedItems;
-    caf::SelectionManager::instance()->selectedItems( selectedItems );
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
 
     auto plotCurves          = RicStackSelectedCurvesFeature::plotCurvesFromSelection( selectedItems );
     auto unstackedPlotCurves = RicStackSelectedCurvesFeature::subsetOfPlotCurvesFromStacking( plotCurves, true );

@@ -159,15 +159,7 @@ Rim3dView* RicNewViewFeature::createReservoirView( RimEclipseCase* eclipseCase, 
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RicNewViewFeature::selectedEclipseCase()
 {
-    std::vector<RimEclipseCase*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-
-    if ( !selection.empty() )
-    {
-        return selection[0];
-    }
-
-    return nullptr;
+    return caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCase>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,15 +167,7 @@ RimEclipseCase* RicNewViewFeature::selectedEclipseCase()
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCase* RicNewViewFeature::selectedGeoMechCase()
 {
-    std::vector<RimGeoMechCase*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-
-    if ( !selection.empty() )
-    {
-        return selection[0];
-    }
-
-    return nullptr;
+    return caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechCase>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -191,9 +175,7 @@ RimGeoMechCase* RicNewViewFeature::selectedGeoMechCase()
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RicNewViewFeature::selectedEclipseView()
 {
-    std::vector<RimEclipseView*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-
+    const auto selection = caf::SelectionManager::instance()->objectsByType<RimEclipseView>();
     for ( RimEclipseView* view : selection )
     {
         if ( dynamic_cast<RimEclipseContourMapView*>( view ) == nullptr )
@@ -210,10 +192,7 @@ RimEclipseView* RicNewViewFeature::selectedEclipseView()
 //--------------------------------------------------------------------------------------------------
 RimEclipseViewCollection* RicNewViewFeature::selectedEclipseViewCollection()
 {
-    std::vector<RimEclipseViewCollection*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-    if ( !selection.empty() ) return selection[0];
-    return nullptr;
+    return caf::SelectionManager::instance()->selectedItemOfType<RimEclipseViewCollection>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -221,10 +200,7 @@ RimEclipseViewCollection* RicNewViewFeature::selectedEclipseViewCollection()
 //--------------------------------------------------------------------------------------------------
 RimEclipseCaseEnsemble* RicNewViewFeature::selectedEclipseCaseEnsemble()
 {
-    std::vector<RimEclipseCaseEnsemble*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-    if ( !selection.empty() ) return selection[0];
-    return nullptr;
+    return caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCaseEnsemble>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -232,13 +208,5 @@ RimEclipseCaseEnsemble* RicNewViewFeature::selectedEclipseCaseEnsemble()
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView* RicNewViewFeature::selectedGeoMechView()
 {
-    std::vector<RimGeoMechView*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-
-    if ( !selection.empty() )
-    {
-        return selection[0];
-    }
-
-    return nullptr;
+    return caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechView>();
 }

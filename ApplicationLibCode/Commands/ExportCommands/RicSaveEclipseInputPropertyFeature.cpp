@@ -152,8 +152,5 @@ void RicSaveEclipseInputPropertyFeature::setupActionLook( QAction* actionToSetup
 //--------------------------------------------------------------------------------------------------
 RimEclipseInputProperty* RicSaveEclipseInputPropertyFeature::selectedInputProperty() const
 {
-    std::vector<RimEclipseInputProperty*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-
-    return !selection.empty() ? selection[0] : nullptr;
+    return caf::SelectionManager::instance()->selectedItemOfType<RimEclipseInputProperty>();
 }

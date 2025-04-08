@@ -222,8 +222,5 @@ void RicWellPathExportCompletionDataFeature::setupActionLook( QAction* actionToS
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPaths()
 {
-    std::vector<RimWellPath*> wellPaths;
-    caf::SelectionManager::instance()->objectsByType( &wellPaths );
-
-    return wellPaths;
+    return caf::SelectionManager::instance()->objectsByType<RimWellPath>();
 }

@@ -119,8 +119,7 @@ public:
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
         {
-            std::vector<RimCase*> cases;
-            caf::SelectionManager::instance()->objectsByType( &cases );
+            std::vector<RimCase*> cases = caf::SelectionManager::instance()->objectsByType<RimCase>();
 
             std::vector<qint64>  caseIds;
             std::vector<QString> caseNames;

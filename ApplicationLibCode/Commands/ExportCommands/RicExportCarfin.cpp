@@ -134,13 +134,5 @@ void RicExportCarfin::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RicExportCarfin::selectedCase()
 {
-    std::vector<RimEclipseCase*> selectedObjects;
-    caf::SelectionManager::instance()->objectsByType( &selectedObjects );
-
-    if ( selectedObjects.size() == 1 )
-    {
-        return selectedObjects[0];
-    }
-
-    return nullptr;
+    return caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCase>();
 }

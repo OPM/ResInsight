@@ -37,12 +37,11 @@ CAF_CMD_SOURCE_INIT( RicDeleteItemFeature, "RicDeleteItemFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicDeleteItemFeature::isCommandEnabled() const
 {
-    std::vector<caf::PdmUiItem*> items;
-    caf::SelectionManager::instance()->selectedItems( items );
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
 
-    if ( items.empty() ) return false;
+    if ( selectedItems.empty() ) return false;
 
-    for ( caf::PdmUiItem* item : items )
+    for ( caf::PdmUiItem* item : selectedItems )
     {
         auto* currentPdmObject = dynamic_cast<caf::PdmObject*>( item );
         if ( !currentPdmObject ) return false;
@@ -61,10 +60,7 @@ bool RicDeleteItemFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicDeleteItemFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<caf::PdmUiItem*> items;
-    caf::SelectionManager::instance()->selectedItems( items );
-
-    for ( caf::PdmUiItem* item : items )
+    for ( caf::PdmUiItem* item : caf::SelectionManager::instance()->selectedItems() )
     {
         auto* currentPdmObject = dynamic_cast<caf::PdmObject*>( item );
         if ( !currentPdmObject ) continue;

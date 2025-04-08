@@ -39,10 +39,9 @@ CAF_CMD_SOURCE_INIT( RicNewSummaryMultiPlotFeature, "RicNewSummaryMultiPlotFeatu
 //--------------------------------------------------------------------------------------------------
 bool RicNewSummaryMultiPlotFeature::isCommandEnabled() const
 {
-    std::vector<caf::PdmUiItem*> selectedUiItems;
-    caf::SelectionManager::instance()->selectedItems( selectedUiItems );
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
 
-    if ( selectedCollection( selectedUiItems ) ) return true;
+    if ( selectedCollection( selectedItems ) ) return true;
 
     std::vector<RimSummaryCase*>     selectedIndividualSummaryCases;
     std::vector<RimSummaryEnsemble*> selectedEnsembles;
@@ -54,13 +53,12 @@ bool RicNewSummaryMultiPlotFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryMultiPlotFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<caf::PdmUiItem*> selectedUiItems;
-    caf::SelectionManager::instance()->selectedItems( selectedUiItems );
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
 
     std::vector<RimSummaryCase*>     selectedIndividualSummaryCases;
     std::vector<RimSummaryEnsemble*> selectedEnsembles;
 
-    RimSummaryMultiPlotCollection* coll = selectedCollection( selectedUiItems );
+    RimSummaryMultiPlotCollection* coll = selectedCollection( selectedItems );
     if ( coll )
     {
         auto ensembles = RimProject::current()->summaryGroups();
@@ -95,7 +93,7 @@ void RicNewSummaryMultiPlotFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryMultiPlotCollection* RicNewSummaryMultiPlotFeature::selectedCollection( std::vector<caf::PdmUiItem*>& items )
+RimSummaryMultiPlotCollection* RicNewSummaryMultiPlotFeature::selectedCollection( const std::vector<caf::PdmUiItem*>& items )
 {
     for ( caf::PdmUiItem* uiItem : items )
     {
@@ -113,12 +111,12 @@ bool RicNewSummaryMultiPlotFeature::selectedCases( std::vector<RimSummaryCase*>*
 {
     CAF_ASSERT( selectedIndividualSummaryCases && selectedEnsembles );
 
-    caf::SelectionManager::instance()->objectsByTypeStrict( selectedEnsembles );
+    *selectedIndividualSummaryCases = caf::SelectionManager::instance()->objectsByTypeStrict<RimSummaryCase>();
     if ( !selectedEnsembles->empty() )
     {
         return true;
     }
     // Second try selected summary cases
-    caf::SelectionManager::instance()->objectsByTypeStrict( selectedIndividualSummaryCases );
+    *selectedEnsembles = caf::SelectionManager::instance()->objectsByTypeStrict<RimSummaryEnsemble>();
     return !selectedIndividualSummaryCases->empty();
 }

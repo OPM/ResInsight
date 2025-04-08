@@ -54,8 +54,7 @@ void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return;
 
-    std::vector<RimPlot*> selection;
-    getSelection( selection );
+    std::vector<RimPlot*> selection = getSelection();
 
     std::set<RimMultiPlot*> alteredPlotWindows;
 
@@ -98,8 +97,7 @@ void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
 void RicDeleteSubPlotFeature::setupActionLook( QAction* actionToSetup )
 {
     QString               actionText;
-    std::vector<RimPlot*> selection;
-    getSelection( selection );
+    std::vector<RimPlot*> selection = getSelection();
 
     size_t tracksSelected = 0u;
     for ( RimPlot* object : selection )
@@ -130,8 +128,9 @@ void RicDeleteSubPlotFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteSubPlotFeature::getSelection( std::vector<RimPlot*>& selection ) const
+std::vector<RimPlot*> RicDeleteSubPlotFeature::getSelection() const
 {
+    std::vector<RimPlot*> selection;
     if ( sender() )
     {
         QVariant userData = this->userData();
@@ -144,8 +143,10 @@ void RicDeleteSubPlotFeature::getSelection( std::vector<RimPlot*>& selection ) c
 
     if ( selection.empty() )
     {
-        caf::SelectionManager::instance()->objectsByType( &selection );
+        selection = caf::SelectionManager::instance()->objectsByType<RimPlot>();
     }
+
+    return selection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,10 +154,7 @@ void RicDeleteSubPlotFeature::getSelection( std::vector<RimPlot*>& selection ) c
 //--------------------------------------------------------------------------------------------------
 bool RicDeleteSubPlotFeature::isAnyDeletablePlotSelected() const
 {
-    std::vector<RimPlot*> selection;
-    getSelection( selection );
-
-    for ( RimPlot* plot : selection )
+    for ( RimPlot* plot : getSelection() )
     {
         if ( !plot ) continue;
 

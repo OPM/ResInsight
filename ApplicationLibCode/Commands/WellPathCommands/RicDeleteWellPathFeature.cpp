@@ -33,10 +33,8 @@ CAF_CMD_SOURCE_INIT( RicDeleteWellPathFeature, "RicDeleteWellPathFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicDeleteWellPathFeature::isCommandEnabled() const
 {
-    std::vector<RimWellPath*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
-
-    return !objects.empty();
+    const auto wellPaths = caf::SelectionManager::instance()->objectsByType<RimWellPath>();
+    return !wellPaths.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -44,9 +42,7 @@ bool RicDeleteWellPathFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicDeleteWellPathFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimWellPath*> wellPaths;
-    caf::SelectionManager::instance()->objectsByType( &wellPaths );
-
+    const auto wellPaths = caf::SelectionManager::instance()->objectsByType<RimWellPath>();
     if ( !wellPaths.empty() )
     {
         auto wpc = RimTools::wellPathCollection();

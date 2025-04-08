@@ -69,10 +69,9 @@ bool RicNewMultiPlotFeature::isCommandEnabled() const
 {
     auto plots = selectedPlots();
 
-    std::vector<caf::PdmUiItem*> selectedUiItems;
-    caf::SelectionManager::instance()->selectedItems( selectedUiItems );
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
 
-    return !plots.empty() && plots.size() == selectedUiItems.size();
+    return !plots.empty() && plots.size() == selectedItems.size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,11 +102,8 @@ void RicNewMultiPlotFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlot*> RicNewMultiPlotFeature::selectedPlots()
 {
-    std::vector<caf::PdmUiItem*> uiItems;
-    caf::SelectionManager::instance()->selectedItems( uiItems );
-
     std::vector<RimPlot*> plots;
-    for ( caf::PdmUiItem* uiItem : uiItems )
+    for ( caf::PdmUiItem* uiItem : caf::SelectionManager::instance()->selectedItems() )
     {
         RimPlot* plotInterface = dynamic_cast<RimPlot*>( uiItem );
         // Special case for all well log tracks which currently need to be in Well Log Plot for

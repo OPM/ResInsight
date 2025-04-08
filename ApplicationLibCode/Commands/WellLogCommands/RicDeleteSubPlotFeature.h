@@ -38,6 +38,6 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    void getSelection( std::vector<RimPlot*>& selection ) const;
-    bool isAnyDeletablePlotSelected() const;
+    std::vector<RimPlot*> getSelection() const;
+    bool                  isAnyDeletablePlotSelected() const;
 };

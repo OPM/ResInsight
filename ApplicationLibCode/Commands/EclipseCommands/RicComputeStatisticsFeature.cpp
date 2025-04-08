@@ -80,8 +80,5 @@ void RicComputeStatisticsFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEclipseStatisticsCase*> RicComputeStatisticsFeature::selectedCases()
 {
-    std::vector<RimEclipseStatisticsCase*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-
-    return selection;
+    return caf::SelectionManager::instance()->objectsByType<RimEclipseStatisticsCase>();
 }

@@ -33,20 +33,13 @@ CAF_CMD_SOURCE_INIT( RicDeleteWellPathAttributeFeature, "RicDeleteWellPathAttrib
 //--------------------------------------------------------------------------------------------------
 bool RicDeleteWellPathAttributeFeature::isCommandEnabled() const
 {
+    if ( caf::SelectionManager::instance()->selectedItemOfType<RimWellPathAttributeCollection>( caf::SelectionManager::FIRST_LEVEL ) )
     {
-        std::vector<RimWellPathAttribute*> objects;
-        caf::SelectionManager::instance()->objectsByType( &objects, caf::SelectionManager::FIRST_LEVEL );
-
-        if ( !objects.empty() )
-        {
-            return true;
-        }
+        return true;
     }
+    if ( caf::SelectionManager::instance()->selectedItemOfType<RimWellPathAttributeCollection>() )
     {
-        if ( caf::SelectionManager::instance()->selectedItemOfType<RimWellPathAttributeCollection>() )
-        {
-            return true;
-        }
+        return true;
     }
 
     return false;
@@ -57,8 +50,7 @@ bool RicDeleteWellPathAttributeFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicDeleteWellPathAttributeFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimWellPathAttribute*> attributes;
-    caf::SelectionManager::instance()->objectsByType( &attributes, caf::SelectionManager::FIRST_LEVEL );
+    const auto attributes = caf::SelectionManager::instance()->objectsByType<RimWellPathAttribute>( caf::SelectionManager::FIRST_LEVEL );
     RimWellPathAttributeCollection* wellPathAttributeCollection = nullptr;
     if ( !attributes.empty() )
     {
@@ -100,8 +92,7 @@ void RicDeleteWellPathAttributeFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicDeleteWellPathAttributeFeature::setupActionLook( QAction* actionToSetup )
 {
-    std::vector<RimWellPathAttribute*> attributes;
-    caf::SelectionManager::instance()->objectsByType( &attributes, caf::SelectionManager::FIRST_LEVEL );
+    const auto attributes = caf::SelectionManager::instance()->objectsByType<RimWellPathAttribute>( caf::SelectionManager::FIRST_LEVEL );
     if ( !attributes.empty() )
     {
         actionToSetup->setText( "Delete Attribute" );

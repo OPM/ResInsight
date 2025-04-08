@@ -190,8 +190,7 @@
 //--------------------------------------------------------------------------------------------------
 caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 {
-    std::vector<caf::PdmUiItem*> uiItems;
-    caf::SelectionManager::instance()->selectedItems( uiItems );
+    const auto uiItems = caf::SelectionManager::instance()->selectedItems();
 
     caf::PdmUiItem* firstUiItem = nullptr;
     {

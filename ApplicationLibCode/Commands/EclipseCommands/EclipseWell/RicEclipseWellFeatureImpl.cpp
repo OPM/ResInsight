@@ -39,8 +39,5 @@ bool RicEclipseWellFeatureImpl::isAnyWellSelected()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSimWellInView*> RicEclipseWellFeatureImpl::selectedWells()
 {
-    std::vector<RimSimWellInView*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-
-    return selection;
+    return caf::SelectionManager::instance()->objectsByType<RimSimWellInView>();
 }

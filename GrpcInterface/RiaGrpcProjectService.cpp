@@ -57,9 +57,7 @@ Status RiaGrpcProjectService::GetCurrentCase( ServerContext* context, const rips
 //--------------------------------------------------------------------------------------------------
 Status RiaGrpcProjectService::GetSelectedCases( ServerContext* context, const rips::Empty* request, rips::CaseInfoArray* reply )
 {
-    std::vector<RimCase*> cases;
-    caf::SelectionManager::instance()->objectsByType( &cases );
-
+    const auto cases = caf::SelectionManager::instance()->objectsByType<RimCase>();
     if ( cases.empty() )
     {
         return Status( grpc::NOT_FOUND, "No cases selected" );

@@ -39,8 +39,7 @@ CAF_CMD_SOURCE_INIT( RicAppendIntersectionFeature, "RicAppendIntersectionFeature
 //--------------------------------------------------------------------------------------------------
 void RicAppendIntersectionFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<caf::PdmObjectHandle*> collection;
-    caf::SelectionManager::instance()->objectsByType( &collection );
+    const auto collection = caf::SelectionManager::instance()->objectsByType<caf::PdmObjectHandle>();
     CVF_ASSERT( collection.size() == 1 );
 
     RimIntersectionCollection* intersectionCollection = collection[0]->firstAncestorOrThisOfType<RimIntersectionCollection>();

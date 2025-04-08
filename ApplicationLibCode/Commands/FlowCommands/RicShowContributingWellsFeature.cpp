@@ -40,12 +40,9 @@ CAF_CMD_SOURCE_INIT( RicShowContributingWellsFeature, "RicShowContributingWellsF
 //--------------------------------------------------------------------------------------------------
 bool RicShowContributingWellsFeature::isCommandEnabled() const
 {
-    std::vector<RimSimWellInView*> collection;
-    caf::SelectionManager::instance()->objectsByType( &collection );
-    if ( collection.size() == 1 )
+    if ( auto well = caf::SelectionManager::instance()->selectedItemOfType<RimSimWellInView>() )
     {
-        RimSimWellInView* well        = collection[0];
-        RimEclipseView*   eclipseView = well->firstAncestorOrThisOfType<RimEclipseView>();
+        RimEclipseView* eclipseView = well->firstAncestorOrThisOfType<RimEclipseView>();
 
         if ( eclipseView )
         {
@@ -74,13 +71,10 @@ bool RicShowContributingWellsFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicShowContributingWellsFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimSimWellInView*> collection;
-    caf::SelectionManager::instance()->objectsByType( &collection );
+    auto well = caf::SelectionManager::instance()->selectedItemOfType<RimSimWellInView>();
+    if ( !well ) return;
 
-    CAF_ASSERT( collection.size() == 1 );
-
-    RimSimWellInView* well        = collection[0];
-    RimEclipseView*   eclipseView = well->firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
+    RimEclipseView* eclipseView = well->firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
 
     RimEclipseResultCase* eclipseResultCase = well->firstAncestorOrThisOfTypeAsserted<RimEclipseResultCase>();
 

@@ -41,7 +41,7 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static RimSummaryMultiPlotCollection* selectedCollection( std::vector<caf::PdmUiItem*>& items );
+    static RimSummaryMultiPlotCollection* selectedCollection( const std::vector<caf::PdmUiItem*>& items );
 
     static bool selectedCases( std::vector<RimSummaryCase*>*     selectedIndividualSummaryCases,
                                std::vector<RimSummaryEnsemble*>* selectedEnsembles );

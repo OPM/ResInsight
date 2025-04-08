@@ -39,17 +39,8 @@ CAF_CMD_SOURCE_INIT( RicReloadCaseFeature, "RicReloadCaseFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicReloadCaseFeature::isCommandEnabled() const
 {
-    std::vector<caf::PdmObject*> selectedFormationNamesCollObjs;
-    caf::SelectionManager::instance()->objectsByType( &selectedFormationNamesCollObjs );
-    for ( caf::PdmObject* pdmObject : selectedFormationNamesCollObjs )
-    {
-        if ( dynamic_cast<RimEclipseCase*>( pdmObject ) )
-        {
-            return true;
-        }
-    }
-
-    return false;
+    const auto eclipseCases = caf::SelectionManager::instance()->objectsByType<RimEclipseCase>();
+    return !eclipseCases.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,9 +48,7 @@ bool RicReloadCaseFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicReloadCaseFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimEclipseCase*> selectedEclipseCases;
-    caf::SelectionManager::instance()->objectsByType( &selectedEclipseCases );
-
+    const auto selectedEclipseCases = caf::SelectionManager::instance()->objectsByType<RimEclipseCase>();
     RiaGuiApplication::clearAllSelections();
 
     for ( RimEclipseCase* selectedCase : selectedEclipseCases )

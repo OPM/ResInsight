@@ -68,8 +68,7 @@ void RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection( RimSumm
 //--------------------------------------------------------------------------------------------------
 bool RicDeleteSummaryCaseCollectionFeature::isCommandEnabled() const
 {
-    std::vector<RimSummaryEnsemble*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
+    auto selection = caf::SelectionManager::instance()->objectsByType<RimSummaryEnsemble>();
 
     selection.erase( std::remove_if( selection.begin(),
                                      selection.end(),
@@ -83,8 +82,7 @@ bool RicDeleteSummaryCaseCollectionFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicDeleteSummaryCaseCollectionFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimSummaryEnsemble*> ensembles;
-    caf::SelectionManager::instance()->objectsByType( &ensembles );
+    const auto ensembles = caf::SelectionManager::instance()->objectsByType<RimSummaryEnsemble>();
     if ( ensembles.empty() ) return;
 
     QMessageBox msgBox;

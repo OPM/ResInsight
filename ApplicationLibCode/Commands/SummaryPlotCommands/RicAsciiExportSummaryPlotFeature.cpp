@@ -49,11 +49,10 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered( bool isChecked )
 {
     disableModelChangeContribution();
 
-    std::vector<RimSummaryPlot*> selectedSummaryPlots;
-    caf::SelectionManager::instance()->objectsByType( &selectedSummaryPlots );
-    QString defaultDir = defaultExportDir();
+    const auto selectedSummaryPlots = caf::SelectionManager::instance()->objectsByType<RimSummaryPlot>();
 
-    RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
+    QString                defaultDir = defaultExportDir();
+    RiaPreferencesSummary* prefs      = RiaPreferencesSummary::current();
 
     // Ask user about resampling
     auto result = RicResampleDialog::openDialog();

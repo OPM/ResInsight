@@ -61,9 +61,7 @@ public:
             return true;
         }
 
-        std::vector<Rim3dView*> selectedGridViews;
-
-        caf::SelectionManager::instance()->objectsByTypeStrict( &selectedGridViews );
+        const auto selectedGridViews = caf::SelectionManager::instance()->objectsByTypeStrict<Rim3dView>();
         for ( auto gridView : selectedGridViews )
         {
             if ( !gridView ) continue;

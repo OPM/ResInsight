@@ -87,15 +87,13 @@ void RicNewSeismicDifferenceFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSeismicData*> RicNewSeismicDifferenceFeature::selectedSeismic()
 {
-    std::vector<caf::PdmUiItem*> uiItems;
-    caf::SelectionManager::instance()->selectedItems( uiItems );
-
-    if ( uiItems.size() != 2 ) return {};
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
+    if ( selectedItems.size() != 2 ) return {};
 
     std::vector<RimSeismicData*> seismicItems;
 
-    RimSeismicData* seismic1 = dynamic_cast<RimSeismicData*>( uiItems[0] );
-    RimSeismicData* seismic2 = dynamic_cast<RimSeismicData*>( uiItems[1] );
+    RimSeismicData* seismic1 = dynamic_cast<RimSeismicData*>( selectedItems[0] );
+    RimSeismicData* seismic2 = dynamic_cast<RimSeismicData*>( selectedItems[1] );
 
     if ( seismic1 == nullptr ) return {};
     if ( seismic2 == nullptr ) return {};

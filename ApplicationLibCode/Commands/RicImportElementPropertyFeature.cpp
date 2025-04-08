@@ -40,14 +40,13 @@ CAF_CMD_SOURCE_INIT( RicImportElementPropertyFeature, "RicImportElementPropertyF
 //--------------------------------------------------------------------------------------------------
 void RicImportElementPropertyFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<caf::PdmUiItem*> uiItems;
-    caf::SelectionManager::instance()->selectedItems( uiItems );
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
 
     RimGeoMechCase* geomCase = nullptr;
 
-    if ( !uiItems.empty() )
+    if ( !selectedItems.empty() )
     {
-        geomCase = dynamic_cast<RimGeoMechCase*>( uiItems[0] );
+        geomCase = dynamic_cast<RimGeoMechCase*>( selectedItems[0] );
     }
 
     if ( geomCase == nullptr )
