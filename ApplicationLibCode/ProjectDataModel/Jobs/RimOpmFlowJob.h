@@ -24,6 +24,7 @@
 
 class RimEclipseCase;
 class RimWellPath;
+class RifOpmFlowDeckFile;
 
 //==================================================================================================
 ///
@@ -48,12 +49,15 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void                          initAfterRead() override;
 
     QString     title() override;
     QStringList command() override;
     QString     workingDirectory() override;
     bool        onPrepare() override;
     void        onCompleted( bool success ) override;
+
+    bool openDeckFile();
 
 private:
     RimEclipseCase* findExistingCase( QString filename );
@@ -63,11 +67,13 @@ private:
 
     void prepareWellSettings();
     void prepareOpenWellText();
+    void selectOpenWellPosition();
 
 private:
-    caf::PdmField<caf::FilePath> m_deckFile;
+    caf::PdmField<caf::FilePath> m_deckFileName;
     caf::PdmField<caf::FilePath> m_workDir;
     caf::PdmField<bool>          m_runButton;
+    caf::PdmField<bool>          m_openSelectButton;
 
     caf::PdmField<bool> m_pauseBeforeRun;
 
@@ -80,5 +86,8 @@ private:
     caf::PdmField<QString> m_wellOpenKeyword;
     caf::PdmField<QString> m_wellOpenText;
 
-    QString m_deckName;
+    QString                             m_deckName;
+    std::unique_ptr<RifOpmFlowDeckFile> m_fileDeck;
+    bool                                m_fileDeckHasDates;
+    int                                 m_openWellDeckPosition;
 };
