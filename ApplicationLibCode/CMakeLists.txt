@@ -186,7 +186,7 @@ if(NOT RESINSIGHT_BUILD_LIBS_FROM_SOURCE)
   )
 endif()
 
- # Clipper2
+# Clipper2
 find_package(Clipper2 CONFIG REQUIRED)
 
 #
