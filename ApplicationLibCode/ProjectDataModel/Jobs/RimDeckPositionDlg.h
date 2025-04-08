@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2025 Equinor ASA
+//  Copyright (C) 2025     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,44 +18,41 @@
 
 #pragma once
 
-#include <memory>
-#include <string>
+#include <QDialog>
+#include <QString>
+
+#include <utility>
 #include <vector>
 
-namespace Opm
-{
-class FileDeck;
-class DeckItem;
-class ParseContext;
-} // namespace Opm
+class QListWidget;
+class QDialogButtonBox;
 
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RifOpmFlowDeckFile
+class RimDeckPositionDlg : public QDialog
 {
+    Q_OBJECT
+
 public:
-    RifOpmFlowDeckFile();
-    ~RifOpmFlowDeckFile();
+    RimDeckPositionDlg( QWidget* parent );
+    ~RimDeckPositionDlg() override;
 
-    bool loadDeck( std::string filename );
-    bool saveDeck( std::string folder, std::string filename );
-
-    bool mergeWellDeck( std::string filename );
-
-    bool openWellAtTimeStep( int timeStep, std::string filename );
-    bool openWellAtStart( std::string filename );
-
-    std::vector<std::string> keywords();
-    bool                     hasDatesKeyword();
+    static int askForPosition( QWidget* parent, std::vector<std::pair<int, QString>> items, QString newItemName, int defPosition );
 
 private:
-    Opm::DeckItem     item( std::string name, std::string value );
-    Opm::DeckItem     item( std::string name, int value );
-    Opm::DeckItem     defaultItem( std::string name, int cols );
-    Opm::ParseContext defaultParseContext() const;
+    void addItems( std::vector<std::pair<int, QString>> items );
+    void addNewItem( QString name, int defPosition );
+    int  selectedPosition() const;
+
+private slots:
+    void slotDialogOkClicked();
+    void slotDialogCancelClicked();
+    void slotMoveUpClicked();
+    void slotMoveDownClicked();
 
 private:
-    std::unique_ptr<Opm::FileDeck> m_fileDeck;
+    QListWidget*      m_list;
+    QDialogButtonBox* m_buttons;
+    int               m_selectedPosition;
 };

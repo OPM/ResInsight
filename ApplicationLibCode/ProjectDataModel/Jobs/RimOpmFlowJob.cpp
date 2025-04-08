@@ -29,6 +29,7 @@
 #include "RifOpmFlowDeckFile.h"
 
 #include "RimCase.h"
+#include "RimDeckPositionDlg.h"
 #include "RimEclipseCase.h"
 #include "RimFishbones.h"
 #include "RimPerforationInterval.h"
@@ -56,10 +57,14 @@ CAF_PDM_SOURCE_INIT( RimOpmFlowJob, "OpmFlowJob" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimOpmFlowJob::RimOpmFlowJob()
+    : m_fileDeckHasDates( false )
+    , m_openWellDeckPosition( -1 )
 {
     CAF_PDM_InitObject( "Opm Flow Simulation", ":/gear.svg" );
 
-    CAF_PDM_InitFieldNoDefault( &m_deckFile, "DeckFile", "Input Data File" );
+    CAF_PDM_InitFieldNoDefault( &m_deckFileName, "DeckFile", "Input Data File" );
+    m_deckFileName.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitFieldNoDefault( &m_workDir, "WorkDirectory", "Working Folder" );
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path for New Well" );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
@@ -78,6 +83,10 @@ RimOpmFlowJob::RimOpmFlowJob()
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_runButton );
     m_runButton.xmlCapability()->disableIO();
 
+    CAF_PDM_InitField( &m_openSelectButton, "openSelectButton", false, "" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_openSelectButton );
+    m_openSelectButton.xmlCapability()->disableIO();
+
     setDeletable( true );
 }
 
@@ -86,6 +95,14 @@ RimOpmFlowJob::RimOpmFlowJob()
 //--------------------------------------------------------------------------------------------------
 RimOpmFlowJob::~RimOpmFlowJob()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::initAfterRead()
+{
+    openDeckFile();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,6 +125,14 @@ void RimOpmFlowJob::defineEditorAttribute( const caf::PdmFieldHandle* field, QSt
             pbAttribute->m_buttonText = "Run Simulation";
         }
     }
+    else if ( field == &m_openSelectButton )
+    {
+        auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        if ( pbAttribute )
+        {
+            pbAttribute->m_buttonText = "Select Open Keyword Position";
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,7 +142,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
 {
     auto genGrp = uiOrdering.addNewGroup( "General" );
     genGrp->add( nameField() );
-    genGrp->add( &m_deckFile );
+    genGrp->add( &m_deckFileName );
     genGrp->add( &m_workDir );
     genGrp->add( &m_addNewWell );
 
@@ -126,13 +151,25 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
         auto wellGrp = uiOrdering.addNewGroup( "New Well Settings" );
 
         wellGrp->add( &m_wellPath );
-        wellGrp->add( &m_delayOpenWell );
-        if ( m_delayOpenWell() )
-        {
-            wellGrp->add( &m_openTimeStep );
-        }
         wellGrp->add( &m_wellOpenKeyword );
         wellGrp->add( &m_wellOpenText );
+
+        if ( m_fileDeckHasDates )
+        {
+            wellGrp->add( &m_delayOpenWell );
+            if ( m_delayOpenWell() )
+            {
+                wellGrp->add( &m_openTimeStep );
+            }
+            else
+            {
+                wellGrp->add( &m_openSelectButton );
+            }
+        }
+        else
+        {
+            wellGrp->add( &m_openSelectButton );
+        }
     }
 
     uiOrdering.add( &m_pauseBeforeRun );
@@ -173,7 +210,7 @@ QList<caf::PdmOptionItemInfo> RimOpmFlowJob::calculateValueOptions( const caf::P
 //--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_deckFile )
+    if ( changedField == &m_deckFileName )
     {
         m_deckName = "";
     }
@@ -193,6 +230,11 @@ void RimOpmFlowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, c
             m_wellOpenText.setValueWithFieldChanged( "'GRUP' 6500 1* 350" );
         }
     }
+    else if ( changedField == &m_openSelectButton )
+    {
+        m_openSelectButton = false;
+        selectOpenWellPosition();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -211,13 +253,15 @@ void RimOpmFlowJob::setEclipseCase( RimEclipseCase* eCase )
     m_deckName = "";
     if ( eCase == nullptr )
     {
-        m_deckFile.setValue( QString() );
+        m_deckFileName.setValue( QString() );
         return;
     }
 
     QFileInfo fi( eCase->gridFileName() );
-    m_deckFile.setValue( fi.absolutePath() + "/" + fi.completeBaseName() + deckExtension() );
+    m_deckFileName.setValue( fi.absolutePath() + "/" + fi.completeBaseName() + deckExtension() );
     m_eclipseCase = eCase;
+    m_fileDeck.reset();
+    openDeckFile();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -226,7 +270,31 @@ void RimOpmFlowJob::setEclipseCase( RimEclipseCase* eCase )
 void RimOpmFlowJob::setInputDataFile( QString filename )
 {
     m_deckName = "";
-    m_deckFile.setValue( filename );
+    m_deckFileName.setValue( filename );
+    m_fileDeck.reset();
+    openDeckFile();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimOpmFlowJob::openDeckFile()
+{
+    if ( m_fileDeck == nullptr )
+    {
+        m_fileDeck = std::make_unique<RifOpmFlowDeckFile>();
+        if ( m_fileDeck->loadDeck( m_deckFileName().path().toStdString() ) )
+        {
+            m_fileDeckHasDates = m_fileDeck->hasDatesKeyword();
+        }
+        else
+        {
+            m_fileDeckHasDates = false;
+            m_fileDeck.reset();
+        }
+    }
+
+    return m_fileDeck != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -252,7 +320,7 @@ QString RimOpmFlowJob::deckName()
 {
     if ( m_deckName.isEmpty() )
     {
-        QFileInfo fi( m_deckFile().path() );
+        QFileInfo fi( m_deckFileName().path() );
         m_deckName = fi.completeBaseName();
     }
 
@@ -326,31 +394,27 @@ bool RimOpmFlowJob::onPrepare()
     prepareOpenWellText();
     if ( !QFile::exists( openWellTempFile() ) ) return false;
 
-    QString dataFile = m_deckFile().path();
-    if ( dataFile.isEmpty() ) return false;
-    if ( !QFile::exists( dataFile ) ) return false;
-
-    // load existing DATA deck
-    RifOpmFlowDeckFile deckFile;
-    if ( !deckFile.loadDeck( dataFile.toStdString() ) ) return false;
+    // reload file deck to make sure we start with the original
+    m_fileDeck.reset();
+    if ( !openDeckFile() ) return false;
 
     // add a new well?
     if ( m_addNewWell() )
     {
         // merge new well settings from resinsight into DATA deck
-        if ( !deckFile.mergeWellDeck( wellTempFile().toStdString() ) ) return false;
+        if ( !m_fileDeck->mergeWellDeck( wellTempFile().toStdString() ) ) return false;
 
         // open new well at selected timestep
         if ( m_delayOpenWell )
         {
-            if ( !deckFile.openWellAtTimeStep( m_openTimeStep(), openWellTempFile().toStdString() ) )
+            if ( !m_fileDeck->openWellAtTimeStep( m_openTimeStep(), openWellTempFile().toStdString() ) )
             {
                 return false;
             }
         }
         else
         {
-            if ( !deckFile.openWellAtStart( openWellTempFile().toStdString() ) )
+            if ( !m_fileDeck->openWellAtStart( openWellTempFile().toStdString() ) )
             {
                 return false;
             }
@@ -360,7 +424,8 @@ bool RimOpmFlowJob::onPrepare()
     }
 
     // save DATA deck to working folder
-    bool saveOk = deckFile.saveDeck( m_workDir().path().toStdString(), deckName().toStdString() + deckExtension().toStdString() );
+    bool saveOk = m_fileDeck->saveDeck( m_workDir().path().toStdString(), deckName().toStdString() + deckExtension().toStdString() );
+    m_fileDeck.reset();
 
     if ( m_pauseBeforeRun() )
     {
@@ -511,4 +576,23 @@ void RimOpmFlowJob::prepareOpenWellText()
 
         f.close();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::selectOpenWellPosition()
+{
+    if ( !openDeckFile() ) return;
+
+    std::vector<std::pair<int, QString>> kwVec;
+
+    auto kws = m_fileDeck->keywords();
+    int  i   = 0;
+    for ( auto& kw : kws )
+    {
+        kwVec.push_back( std::make_pair( i++, QString::fromStdString( kw ) ) );
+    }
+
+    m_openWellDeckPosition = RimDeckPositionDlg::askForPosition( nullptr, kwVec, "--- Open New Well HERE ---", m_openWellDeckPosition );
 }
