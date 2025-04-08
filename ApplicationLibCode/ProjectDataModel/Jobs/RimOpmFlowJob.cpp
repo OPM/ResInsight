@@ -65,6 +65,7 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
     CAF_PDM_InitField( &m_pauseBeforeRun, "PauseBeforeRun", true, "Pause before running OPM Flow" );
     CAF_PDM_InitField( &m_delayOpenWell, "DelayOpenWell", true, "Keep well shut until selected time step" );
+    CAF_PDM_InitField( &m_addNewWell, "AddNewWell", true, "Add New Well" );
 
     CAF_PDM_InitField( &m_wellOpenKeyword, "WellOpenKeyword", QString( "WCONPROD" ), "Open Well Keyword" );
     m_wellOpenKeyword.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
@@ -118,17 +119,21 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     genGrp->add( nameField() );
     genGrp->add( &m_deckFile );
     genGrp->add( &m_workDir );
+    genGrp->add( &m_addNewWell );
 
-    auto wellGrp = uiOrdering.addNewGroup( "New Well Settings" );
-
-    wellGrp->add( &m_wellPath );
-    wellGrp->add( &m_delayOpenWell );
-    if ( m_delayOpenWell() )
+    if ( m_addNewWell() )
     {
-        wellGrp->add( &m_openTimeStep );
+        auto wellGrp = uiOrdering.addNewGroup( "New Well Settings" );
+
+        wellGrp->add( &m_wellPath );
+        wellGrp->add( &m_delayOpenWell );
+        if ( m_delayOpenWell() )
+        {
+            wellGrp->add( &m_openTimeStep );
+        }
+        wellGrp->add( &m_wellOpenKeyword );
+        wellGrp->add( &m_wellOpenText );
     }
-    wellGrp->add( &m_wellOpenKeyword );
-    wellGrp->add( &m_wellOpenText );
 
     uiOrdering.add( &m_pauseBeforeRun );
     uiOrdering.add( &m_runButton );
@@ -329,30 +334,33 @@ bool RimOpmFlowJob::onPrepare()
     RifOpmFlowDeckFile deckFile;
     if ( !deckFile.loadDeck( dataFile.toStdString() ) ) return false;
 
-    // merge new well settings from resinsight into DATA deck
-    if ( !deckFile.mergeWellDeck( wellTempFile().toStdString() ) ) return false;
+    // add a new well?
+    if ( m_addNewWell() )
+    {
+        // merge new well settings from resinsight into DATA deck
+        if ( !deckFile.mergeWellDeck( wellTempFile().toStdString() ) ) return false;
 
-    // open new well at selected timestep
-    if ( m_delayOpenWell )
-    {
-        if ( !deckFile.openWellAtTimeStep( m_openTimeStep(), openWellTempFile().toStdString() ) )
+        // open new well at selected timestep
+        if ( m_delayOpenWell )
         {
-            return false;
+            if ( !deckFile.openWellAtTimeStep( m_openTimeStep(), openWellTempFile().toStdString() ) )
+            {
+                return false;
+            }
         }
-    }
-    else
-    {
-        if ( !deckFile.openWellAtStart( openWellTempFile().toStdString() ) )
+        else
         {
-            return false;
+            if ( !deckFile.openWellAtStart( openWellTempFile().toStdString() ) )
+            {
+                return false;
+            }
         }
+        QFile::remove( wellTempFile() );
+        QFile::remove( openWellTempFile() );
     }
 
     // save DATA deck to working folder
     bool saveOk = deckFile.saveDeck( m_workDir().path().toStdString(), deckName().toStdString() + deckExtension().toStdString() );
-
-    QFile::remove( wellTempFile() );
-    QFile::remove( openWellTempFile() );
 
     if ( m_pauseBeforeRun() )
     {
