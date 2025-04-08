@@ -22,7 +22,6 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 #include "RiaPorosityModel.h"
-#include "RiaPreferencesSystem.h"
 #include "RiaResultNames.h"
 #include "RiaWeightedMeanCalculator.h"
 
@@ -67,8 +66,6 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
                                                bool                       skipUndefinedResults )
 {
     if ( !eclipseCase->ensureReservoirCaseIsOpen() ) return;
-
-    bool isLoggingEnabled = RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( "RigWellTargetMapping" );
 
     auto activeCellCount = getActiveCellCount( eclipseCase );
     if ( !activeCellCount )
@@ -161,6 +158,8 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
         filterVector = std::vector<double>( data.pressure.size(), 1.0 );
     }
 
+    const QString logKeyword = "RigWellTargetMapping";
+
     std::vector<int> clusters( activeCellCount.value(), 0 );
     auto             start            = std::chrono::high_resolution_clock::now();
     int              numClusters      = limits.maxNumTargets;
@@ -172,12 +171,12 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
 
         if ( startCell.has_value() )
         {
-            if ( isLoggingEnabled )
-                RiaLogging::info( QString( "Cluster %1 start cell: [%2 %3 %4] " )
-                                      .arg( clusterId )
-                                      .arg( startCell->i() + 1 )
-                                      .arg( startCell->j() + 1 )
-                                      .arg( startCell->k() + 1 ) );
+            RiaLogging::info( QString( "Cluster %1 start cell: [%2 %3 %4] " )
+                                  .arg( clusterId )
+                                  .arg( startCell->i() + 1 )
+                                  .arg( startCell->j() + 1 )
+                                  .arg( startCell->k() + 1 ),
+                              logKeyword );
 
             growCluster( eclipseCase, startCell.value(), volumeType, limits, data, filterVector, clusters, clusterId, timeStepIdx, maxIterations );
             numClustersFound++;
@@ -194,7 +193,7 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
     auto finish = std::chrono::high_resolution_clock::now();
 
     auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>( finish - start );
-    RiaLogging::info( QString( "Time spent: %1 ms" ).arg( milliseconds.count() ) );
+    RiaLogging::info( QString( "Time spent: %1 ms" ).arg( milliseconds.count() ), logKeyword );
 
     QString resultName = RigWellTargetMapping::wellTargetResultName();
     createResultVector( *eclipseCase, resultName, clusters );
@@ -235,28 +234,25 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
     int clusterId = 1;
     for ( const auto& s : statistics )
     {
-        if ( isLoggingEnabled )
+        auto logIfValid = [&logKeyword]( const QString& pattern, double value )
         {
-            auto logIfValid = []( const QString& pattern, double value )
-            {
-                if ( !std::isinf( value ) && !std::isnan( value ) ) RiaLogging::info( pattern.arg( value ) );
-            };
+            if ( !std::isinf( value ) && !std::isnan( value ) ) RiaLogging::info( pattern.arg( value ), logKeyword );
+        };
 
-            RiaLogging::info( QString( "Cluster #%1 Statistics" ).arg( s.id ) );
-            RiaLogging::info( QString( "Number of cells: %1" ).arg( s.numCells ) );
-            logIfValid( "Total PORV*SOIL: %1", s.totalPorvSoil );
-            logIfValid( "Total PORV*SOIL: %1", s.totalPorvSoil );
-            logIfValid( "Total PORV*SGAS: %1", s.totalPorvSgas );
-            logIfValid( "Total PORV*(SOIL+SGAS): %1", s.totalPorvSoilAndSgas );
-            logIfValid( "Total FIPOIL: %1", s.totalFipOil );
-            logIfValid( "Total FIPGAS: %1", s.totalFipGas );
-            logIfValid( "Total RFIPOIL: %1", s.totalRfipOil );
-            logIfValid( "Total RFIPGAS: %1", s.totalRfipGas );
-            logIfValid( "Total SFIPOIL: %1", s.totalSfipOil );
-            logIfValid( "Total SFIPGAS: %1", s.totalSfipGas );
-            logIfValid( "Average Permeability: %1", s.permeability );
-            logIfValid( "Average Pressure: %1", s.pressure );
-        }
+        RiaLogging::info( QString( "Cluster #%1 Statistics" ).arg( s.id ), logKeyword );
+        RiaLogging::info( QString( "Number of cells: %1" ).arg( s.numCells ), logKeyword );
+        logIfValid( "Total PORV*SOIL: %1", s.totalPorvSoil );
+        logIfValid( "Total PORV*SOIL: %1", s.totalPorvSoil );
+        logIfValid( "Total PORV*SGAS: %1", s.totalPorvSgas );
+        logIfValid( "Total PORV*(SOIL+SGAS): %1", s.totalPorvSoilAndSgas );
+        logIfValid( "Total FIPOIL: %1", s.totalFipOil );
+        logIfValid( "Total FIPGAS: %1", s.totalFipGas );
+        logIfValid( "Total RFIPOIL: %1", s.totalRfipOil );
+        logIfValid( "Total RFIPGAS: %1", s.totalRfipGas );
+        logIfValid( "Total SFIPOIL: %1", s.totalSfipOil );
+        logIfValid( "Total SFIPGAS: %1", s.totalSfipGas );
+        logIfValid( "Average Permeability: %1", s.permeability );
+        logIfValid( "Average Pressure: %1", s.pressure );
 
         addValuesForClusterId( totalPorvSoil, clusters, clusterId, s.totalPorvSoil );
         addValuesForClusterId( totalPorvSgas, clusters, clusterId, s.totalPorvSgas );

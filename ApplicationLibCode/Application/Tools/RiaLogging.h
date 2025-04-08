@@ -23,7 +23,8 @@
 #include <string>
 #include <vector>
 
-class QString;
+#include <QString>
+
 class QWidget;
 
 enum class RILogLevel
@@ -66,10 +67,10 @@ public:
 
     static RILogLevel logLevelBasedOnPreferences();
 
-    static void error( const QString& message );
-    static void warning( const QString& message );
-    static void info( const QString& message );
-    static void debug( const QString& message );
+    static void error( const QString& message, const QString logKeyword = "" );
+    static void warning( const QString& message, const QString logKeyword = "" );
+    static void info( const QString& message, const QString logKeyword = "" );
+    static void debug( const QString& message, const QString logKeyword = "" );
 
     static void errorInMessageBox( QWidget* parent, const QString& title, const QString& text );
 

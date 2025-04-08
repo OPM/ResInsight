@@ -199,8 +199,8 @@ bool RigNNCData::ensureAllConnectionDataIsProcessed()
     {
         caf::ProgressInfo progressInfo( 3, "Computing NNC Data" );
 
-        bool isLoggingEnabled = RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( "RigNNCData" );
-        if ( isLoggingEnabled ) RiaLogging::info( "NNC geometry computation - starting process" );
+        const QString logKeyword = "RigNNCData";
+        RiaLogging::info( "NNC geometry computation - starting process", logKeyword );
 
         buildPolygonsForEclipseConnections();
         progressInfo.incrementProgress();
@@ -212,28 +212,25 @@ bool RigNNCData::ensureAllConnectionDataIsProcessed()
 
         m_mainGrid->distributeNNCsToFaults();
 
-        if ( isLoggingEnabled )
+        QStringList  noCommonAreaText;
+        const size_t maxItemCount = 20;
+
+        size_t noCommonAreaCount = connectionsWithNoCommonArea( noCommonAreaText, maxItemCount );
+
+        RiaLogging::info( "NNC geometry computation - completed process", logKeyword );
+
+        RiaLogging::info( QString( "Native NNC count : %1" ).arg( eclipseConnectionCount() ), logKeyword );
+        RiaLogging::info( QString( "Computed NNC count : %1" ).arg( m_connections.size() ), logKeyword );
+
+        RiaLogging::info( QString( "NNCs with no common area count : %1" ).arg( noCommonAreaCount ), logKeyword );
+
+        if ( !noCommonAreaText.isEmpty() )
         {
-            QStringList  noCommonAreaText;
-            const size_t maxItemCount = 20;
+            RiaLogging::info( QString( "Listing first %1 NNCs with no common area " ).arg( noCommonAreaText.size() ), logKeyword );
 
-            size_t noCommonAreaCount = connectionsWithNoCommonArea( noCommonAreaText, maxItemCount );
-
-            RiaLogging::info( "NNC geometry computation - completed process" );
-
-            RiaLogging::info( QString( "Native NNC count : %1" ).arg( eclipseConnectionCount() ) );
-            RiaLogging::info( QString( "Computed NNC count : %1" ).arg( m_connections.size() ) );
-
-            RiaLogging::info( QString( "NNCs with no common area count : %1" ).arg( noCommonAreaCount ) );
-
-            if ( !noCommonAreaText.isEmpty() )
+            for ( const auto& s : noCommonAreaText )
             {
-                RiaLogging::info( QString( "Listing first %1 NNCs with no common area " ).arg( noCommonAreaText.size() ) );
-
-                for ( const auto& s : noCommonAreaText )
-                {
-                    RiaLogging::info( s );
-                }
+                RiaLogging::info( s, logKeyword );
             }
         }
     }
