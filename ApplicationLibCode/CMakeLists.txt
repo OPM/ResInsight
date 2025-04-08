@@ -186,6 +186,9 @@ if(NOT RESINSIGHT_BUILD_LIBS_FROM_SOURCE)
   )
 endif()
 
+ # Clipper2
+find_package(Clipper2 CONFIG REQUIRED)
+
 #
 # HDF5
 #
@@ -311,6 +314,8 @@ endif()
 target_link_libraries(
   ${PROJECT_NAME} PUBLIC ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES}
 )
+
+target_link_libraries(${PROJECT_NAME} PRIVATE Clipper2::Clipper2Z)
 
 target_include_directories(
   ${PROJECT_NAME}
